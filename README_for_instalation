@@ -1,0 +1,192 @@
+#
+# These instructions are for Ubuntu 16.04+ system, 
+# but analogous these should work on other Linux and mac OS systems. 
+# Not tried on Windows, yet! 
+#
+# These instructions are only for local user installation! E.g. this is 
+# still a testing version and must be called from the tool's root directory
+#
+################################## Compilers ###################################
+#
+# Make sure you have at least "gfortran" and "gcc" 5.4+. How to see: 
+# gfortran --version, gcc --version
+# If you do not have these, then:
+
+sudo apt-get install gfortran 
+
+# (which I think also installs gcc)
+
+
+################################### Python #####################################
+#
+# The software should work with Python2 and Python3, although 
+# these instructions are for Python2 only.
+
+# you may need "setuptools" and "pip" already installed. If you dont have them:
+
+sudo apt-get install python-setuptools
+sudo apt-get install python-pip 
+
+
+# Then you need "numpy", "matplotlib" and "scipy".
+# From the offcial Scipy page (https://www.scipy.org/install.html)
+# is recommended --user install, which may be better if you are not the root:
+ 
+python -m pip install --user numpy scipy matplotlib
+
+# However, I usually do:
+
+sudo apt-get install python-numpy python-scipy python-matplotlib
+
+
+# You will need "PyQt5" for the GUI.
+
+sudo apt-get install python-pyqt5 
+sudo apt-get install python-pyqt5.qtsvg
+
+# You will need also "qtconsole"
+
+sudo apt-get install python-qtconsole 
+
+
+# "AstroML" & "AstroML_addons" are needed for RVmod, but to be removed 
+# at some point. I recommend pip install:
+
+sudo pip install astroML
+sudo pip install astroML_addons
+
+# For session save/load the tool uses "dill". Unfortunately, the RVmod 
+# objects cannot be dumped using the included Py system "pickle/cPickle".
+# This may be fixed in future, but anyway dill seems very powerful!
+
+sudo pip install dill
+
+
+# For GP and MCMC analysis
+#
+
+sudo pip install emcee
+sudo pip install corner 
+sudo pip install celerite
+
+
+# Plotting: pyqtgraph ##############################
+#
+# There number of well known issues with pyqtgraph which are still not 
+# fixed in the stable version. See for example Scatterplot() bug fixes at:
+# https://github.com/pyqtgraph/pyqtgraph/pull/412
+#
+# Therefore, it is advisable to load pyqtgraph from the "addons" directory,
+# which contains a custom "pyqtgraph" version with some bugs already fixed.
+# No need for installation!
+
+# Otherwise:
+
+sudo pip install pyqtgraph 
+
+
+
+##################################### Shells ###################################
+#
+# "urxvt" is an embedded bash shell which may help the user during the working
+# process.
+
+sudo apt-get install rxvt
+
+
+############################## N-body integrator ###############################
+#
+# A custom "swift" N-body package is included in the root directory.
+# follow the instructions there. This is an important part because you need
+# the libswift.o librarly in order to compile not only the N-body integrators
+# but also the model minimizers! 
+
+
+# Swift code can be found here: 
+# https://www.boulder.swri.edu/~hal/swift.html
+
+# Open README.first and follow the instructions under "COMPILING SWIFT"
+ 
+# After swift lib is installed, compile the fortran fitting codes in the
+# "fitting_routines" directory as follow:
+
+gfortran -03 ../latest_f/kepfit_LM_v1b.f -o chi2_kep -lswift # chi2 keplerian
+gfortran -03 ../latest_f/dynfit_LM_v1b.f -o chi2_dyn -lswift # chi2 dynamical
+
+gfortran -03 ../latest_f/kepfit_amoeba_v1b.f -o loglik_kep -lswift # lnL keplerian
+gfortran -03 ../latest_f/dynfit_amoeba_v1b.f -o loglik_dyn -lswift # lnL dynamical
+
+# note! I have seen the -03 optimization level to lead to unsatble code 
+# for the chi2_dyn minimizing code. If that happen try -02, or no opt. flag
+# at all! Still always try first with -03 as it leads to a faster code.
+
+# additionally you must replace the routines in the "stability" directory.
+# "cd" to "stability/symba" and
+
+
+gfortran -03 latest_f/symba_f/follow_symba2.f -o follow_symba2 -lswift
+gfortran -03 latest_f/symba_f/geninit_j3_in_days.f -o geninit_j3_in_days -lswift
+gfortran -03 latest_f/symba_f/swift_symba5_j.f -o swift_symba5_j -lswift
+
+
+# If you have Ubuntu/Debian/ or Open_Suse you may simply try:
+
+chmod +x chi2_kep chi2_dyn loglik_kep loglik_dyn
+
+# and in "stability/symba" 
+
+chmod +x follow_symba2 geninit_j3_in_days swift_symba5_j 
+
+# This may, or may not work, but I recommend to compile from source.
+
+
+############################## Finally #################################
+
+# to load the GUI  + Rvmod 
+
+python gui.py 
+ 
+# if you want to use RVmod on the Python shell
+
+
+import RVmod as rv # for example see "testing_RV_mod_object_attempt.py"
+
+
+Comments:
+
+* All fortran and python codes in this version need very 
+seriouse clean up from junk.
+
+* The transit fitting is still not working.
+
+* Many minor and not so minor problems should be fixed. See "focus_matrix_TBFixed.doc"
+
+* Bugs are liekly to occur! 
+
+
+
+
+
+
+
+
+
+
+Some credits (more to come)
+
+* The text_editor used in the tool is:
+
+Megasolid Idiom — A rich text editor in PyQt
+https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor
+
+* The transit modeling is done with "batman"
+ 
+https://www.cfa.harvard.edu/~lkreidberg/batman/quickstart.html
+
+* GLS periodogram is taken from 
+
+http://www.astro.physik.uni-goettingen.de/~zechmeister/gls.php
+
+
+
+
