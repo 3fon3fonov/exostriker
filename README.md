@@ -1,5 +1,5 @@
-# trifon
-"## Transit and Radial velocity Interactive Fitting tool for Orbital analysis and N-body simulations"
+
+**T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations"
 
 It uses brang new fast RV fitting library called "RVmod". Included in the package.
 
