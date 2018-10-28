@@ -214,12 +214,12 @@ def read_file_as_array_of_arrays(inputfile):
     for i in range(len(b)): 
         b[i]=np.atleast_1d(b[i].split()) # turn a row of b into an array of arrays
         c.append([]) # need to make a separate array so every element is of correct type
-	     # convert each string that represents a float into float
+        # convert each string that represents a float into float
         for j in range(len(b[i])): 
-	         if (is_float(b[i][j])):
-	             c[ic].append(float(b[i][j]))
-	         elif not (b[i][j][-1]==':'): # ignore comments, which can be place by the user as strings which end with a collon, in the comments use underline instead of space or an error will arise
-	             c[ic].append(b[i][j])
+            if (is_float(b[i][j])):
+                c[ic].append(float(b[i][j]))
+            elif not (b[i][j][-1]==':'): # ignore comments, which can be place by the user as strings which end with a collon, in the comments use underline instead of space or an error will arise
+                c[ic].append(b[i][j])
         ic=ic+1
     return c
     
@@ -231,7 +231,7 @@ def verify_array_with_bounds(ar,bounds):
         num=len(bounds) # number of values to check  
     verification=True # initial value
     for i in range(num):
-    	   # check if some of the values doesn't fit in the bounds, if so return False
+        # check if some of the values doesn't fit in the bounds, if so return False
         if (ar[i]<bounds[i][0] or ar[i]>bounds[i][1]):
             verification=False
             break       
@@ -239,7 +239,7 @@ def verify_array_with_bounds(ar,bounds):
     return verification
   
 def lnprob(p,copied_obj,prior):
-    '''Compute logarithmic probability for given parameters'''    	
+    '''Compute logarithmic probability for given parameters'''     
     # now we need to compute loglikelihood using the fortran code on new parameters, and then add it to lp
     #copied_obj=signalfit
     newparams=copied_obj.generate_newparams_for_mcmc(p)
@@ -284,16 +284,16 @@ def compute_loglik(p,signalfit):
 
         #now self.fit_results.loglik is the loglikelihood corresponding to new parameters
         if not (flag==1):
-            signalfit.overwrite_params(oldparams)        	
-            return -np.inf       	
-        else:	
+            signalfit.overwrite_params(oldparams)         
+            return -np.inf        
+        else: 
             S=0
             for i in range(len(signalfit.fit_results.rv_model.o_c)):
                 S=S-(signalfit.fit_results.rv_model.o_c[i]**2)/(2*(signalfit.fit_results.rv_model.rv_err[i]**2+signalfit.params.jitters[signalfit.fit_results.idset[i]]**2))-0.5*np.log(TAU*(signalfit.fit_results.rv_model.rv_err[i]**2+signalfit.params.jitters[signalfit.fit_results.idset[i]]**2))
             return S
 
 def lnprobGP(p,signalfit,prior):
-    '''Compute logarithmic probability for given parameters'''    	
+    '''Compute logarithmic probability for given parameters'''     
     # now we need to compute loglikelihood using the fortran code on new parameters, and then add it to lp
     newparams=signalfit.generate_newparams_for_mcmc(p)
     oldparams=signalfit.params
@@ -306,7 +306,7 @@ def lnprobGP(p,signalfit,prior):
         #now self.fit_results.loglik is the loglikelihood corresponding to new parameters
         if not (flag==1):
             signalfit.overwrite_params(oldparams)
-            return -np.inf       	
+            return -np.inf        
         else:
             S=0
 
@@ -326,7 +326,7 @@ def lnprobGP(p,signalfit,prior):
             return pr.choose_prior(p,prior)+S
             
 def lnprobGP2(p,copied_obj,prior):
-    '''Compute logarithmic probability for given parameters'''    	
+    '''Compute logarithmic probability for given parameters'''     
     # now we need to compute loglikelihood using the fortran code on new parameters, and then add it to lp
     
     newparams=copied_obj.generate_newparams_for_mcmc(p)
@@ -342,7 +342,7 @@ def lnprobGP2(p,copied_obj,prior):
             
         elif copied_obj.fit_results.loglik == 0:
             return -np.inf             
-                 	
+                  
         else:
             S=0
             for i in range(copied_obj.filelist.ndset):
@@ -354,7 +354,7 @@ def lnprobGP2(p,copied_obj,prior):
 
 
 def lnprobGP3(p,copied_obj,prior): 
-    '''Compute logarithmic probability for given parameters'''    	
+    '''Compute logarithmic probability for given parameters'''     
  
     fit_log = lnprob(p,copied_obj,prior)  
  
@@ -570,7 +570,7 @@ def phase_planet_signal(obj,planet):
 
 
 class CustomSampler(emcee.EnsembleSampler):
-	
+ 
     def unique_rows(self):
     
         '''
@@ -590,9 +590,9 @@ class CustomSampler(emcee.EnsembleSampler):
         return
 
     def correct_rows(self,f,ndset,npl):
-    	
-        '''Corrects angles and eccentricities for all samples'''    	
-    	
+    
+        '''Corrects angles and eccentricities for all samples'''     
+     
         i=0
         self.means=np.zeros(len(f))
         for k in range(len(f)):
@@ -664,7 +664,7 @@ class CustomSampler(emcee.EnsembleSampler):
             else:
                 self.means[i]=np.mean(self.samples[:,i])           
             i=i+1                 
-        return    		
+        return     
                 
     def save_samples(self,f,ndset,npl):
         self.unique_rows()
@@ -674,7 +674,7 @@ class CustomSampler(emcee.EnsembleSampler):
 class parameters(object): # class for all parameters which can be fitted
 
     def __init__(self,offsets,jitters,planet_params,linear_trend,stellar_mass):
-        self.offsets=np.concatenate((np.atleast_1d(offsets),[0.0]*(max(0,20-len(np.atleast_1d(offsets))))))	
+        self.offsets=np.concatenate((np.atleast_1d(offsets),[0.0]*(max(0,20-len(np.atleast_1d(offsets)))))) 
         self.jitters=np.concatenate((np.atleast_1d(jitters),[0.0]*(max(0,20-len(np.atleast_1d(jitters))))))
         self.planet_params=np.concatenate((np.atleast_1d(planet_params),[0.0]*(max(0,70-len(np.atleast_1d(planet_params))))))
         self.linear_trend=linear_trend
@@ -786,13 +786,13 @@ class parameters(object): # class for all parameters which can be fitted
 class use_flags(object): # class for all use flags
 
     def __init__(self,use_offsets,use_jitters,use_planet_params,use_linear_trend,use_stellar_mass):
-        self.use_offsets=use_offsets	
+        self.use_offsets=use_offsets 
         self.use_jitters=use_jitters
         self.use_planet_params=use_planet_params
         self.use_linear_trend=use_linear_trend
         self.use_GP_params=[False]*4 
         self.use_stellar_mass=False
-        self.use_offsets=np.concatenate((np.atleast_1d(self.use_offsets),[0.0]*(20-len(np.atleast_1d(self.use_offsets)))))	
+        self.use_offsets=np.concatenate((np.atleast_1d(self.use_offsets),[0.0]*(20-len(np.atleast_1d(self.use_offsets))))) 
         self.use_jitters=np.concatenate((np.atleast_1d(self.use_jitters),[0.0]*(20-len(np.atleast_1d(self.use_jitters)))))
         self.use_planet_params=np.concatenate((np.atleast_1d(self.use_planet_params),[0.0]*(70-len(np.atleast_1d(self.use_planet_params)))))
         
@@ -875,7 +875,7 @@ class parameter_errors(object): # Class for parameter errors.
     def __init__(self,offset_errors,jitter_errors,planet_params_errors,linear_trend_error,stellar_mass_error):
         '''At initiation we provide single values for each error, and we extrapolate them into 2 element arrays corresponding to + and - errors, which are at this point equal. They can be updated with updating functions found below'''
         # allocating room for up to 20 datasets and 10 planets
-        offset_errors=np.concatenate((np.atleast_1d(offset_errors),[0.0]*(max(0,20-len(np.atleast_1d(offset_errors))))))	
+        offset_errors=np.concatenate((np.atleast_1d(offset_errors),[0.0]*(max(0,20-len(np.atleast_1d(offset_errors)))))) 
         jitter_errors=np.concatenate((np.atleast_1d(jitter_errors),[0.0]*(max(0,20-len(np.atleast_1d(jitter_errors))))))
         planet_params_errors=np.concatenate((np.atleast_1d(planet_params_errors),[0.0]*max((0,70-len(np.atleast_1d(planet_params_errors))))))
 
@@ -965,7 +965,7 @@ class parameter_errors(object): # Class for parameter errors.
 class parameter_bounds(object): # Class for parameter bounds. We do not need updating functions here, as updating is only done together with fitting, and this is resolved there
 
     def __init__(self,offset_bounds,jitter_bounds,planet_params_bounds,linear_trend_bounds,GP_params_bounds,stellar_mass_bounds):
-        self.offset_bounds=offset_bounds	
+        self.offset_bounds=offset_bounds 
         self.jitter_bounds=jitter_bounds
         self.planet_params_bounds=planet_params_bounds
         self.linear_trend_bounds=linear_trend_bounds
@@ -1066,7 +1066,7 @@ class kernel(object):
         return
 
 class rvmodel(object):
-	
+ 
     def __init__(self,jd,rvs,rv_err,o_c):
         self.jd=jd
         self.rvs=rvs
@@ -1074,7 +1074,7 @@ class rvmodel(object):
         self.o_c=o_c
 
     def plot_gls(self, sig=np.array([0.1,0.01,0.001]),ind_sig=2, filetosave='periodogram.png',linestyle = [':','--','-.','-']): # plot gls for RV and O-C, only if they exist
-    	
+     
         plot_gls_warnings=Warning_log([],'Plotting gls')
         # first let's check if we have RV and O-C data
         if (len(self.rvs)==0):
@@ -1100,7 +1100,7 @@ class rvmodel(object):
             ax2 = plt.subplot(gs[1,0]) # in ax2 we will plot the O-C periodogram     
 
             ############### Ploting the best peaks ##########################         
-	         # loop to generate annotations next to highest peaks
+            # loop to generate annotations next to highest peaks
             for l in range(min(3,rv_data.number_of_significant_peaks)): # highlight 3 highest peaks, unless fewer pass the significance criteria 
                 ax1.annotate(r'%.2f d'%rv_data.best_per[l],(rv_data.best_per[l],rv_data.best_peaks[l]*0.95), fontsize=16, color = 'k')
   
@@ -1121,7 +1121,7 @@ class rvmodel(object):
                 ax1.plot(xlim, (zi, zi), linestyle[j], color = '0.25', lw=1)
                 j = j +1
 
-           	# logscale for abscissa axis only
+            # logscale for abscissa axis only
             ax1.semilogx()
             ax2.semilogx() 
                
@@ -1134,7 +1134,7 @@ class rvmodel(object):
             
 # class for the stat array in kernel
 class summary(object):
-	
+ 
     def __init__(self,params,param_errors,dof=0):
         self.params=params
         self.param_errors=param_errors
@@ -1146,31 +1146,31 @@ class Error(Exception):
     pass
 
 class InputError(Error):
-	
+ 
     def __init__(self, message):
         self.message = message
 
 class FittingError(Error):
-	
+ 
     def __init__(self, message):
         self.message = message
         
 class Warning_log(object): # here we can store all warnings raised when calling a certain function, so we can print them out nicely 
-	
+ 
     warning_count=0
     warning_messages=[]
     procedure_name='Your query' # what function's warnings are we storing, will be needed for printing warning log
-	
+ 
     def __init__(self,warning_messages, procedure_name):
         self.warning_count=len(warning_messages)
         self.warning_messages=warning_messages
         self.procedure_name=procedure_name
-	    
-    def update_warning_list(self,warning_message): # add a new warning message to the warning list	
+ 
+    def update_warning_list(self,warning_message): # add a new warning message to the warning list 
         self.warning_messages.append(warning_message)
         self.warning_count = self.warning_count+1
         return
-	    
+ 
     def print_warning_log(self):
         if(self.warning_count==0): # do not print a warning log if there were no warnings
             pass
@@ -1180,7 +1180,7 @@ class Warning_log(object): # here we can store all warnings raised when calling 
             print('')
             for i in range(self.warning_count):
                 print('%d %s'%(i+1,self.warning_messages[i]))
-            print('')    	
+            print('') 
         return
 
 # class for signal to run gls and plotting functions on (it can be both the entire signal and O-C, depends what we pass as rvs in the __ini__ function)
@@ -1196,7 +1196,7 @@ class signal_data(object):
         # It is convenient to store significance levels in decreasing order, so let's sort them
        
         sort = convert_array_to_int(np.array(sorted(range(len(self.sig)), key=lambda k: self.sig[k], reverse=True))) # find the permutation in which they are sorted in decreasing order 
-	     # sorting based on the permutation sort calculated above
+        # sorting based on the permutation sort calculated above
         self.sig = self.sig[sort]             
         
         
@@ -1221,17 +1221,17 @@ class signal_data(object):
             self.best_peaks = self.P_G[per_ind] # peak heights of these extrema
             if (len(self.best_peaks)>0): # don't sort if there's no peaks    
                 sort = convert_array_to_int(np.array(sorted(range(len(self.best_peaks)), key=lambda k: self.best_peaks[k], reverse=True))) # find the permutation of the peaks in which they are sorted by height in decreasing order 
-	             # sorting both arrays (periods and peak heights) by peak height, based on the permutation sort calculated above
+                # sorting both arrays (periods and peak heights) by peak height, based on the permutation sort calculated above
                 self.best_peaks = self.best_peaks[sort]
                 self.best_per = self.best_per[sort]  
         
             # now we save the number of peaks which exceed the significance requirement          
                 for i in range(len(self.best_peaks)):
-                    if not (self.best_peaks[i]>self.z[ind_sig]): # z[ind_sig] will be the minimum height of a peak according to the chosen significance level	
+                    if not (self.best_peaks[i]>self.z[ind_sig]): # z[ind_sig] will be the minimum height of a peak according to the chosen significance level 
                         break # since best_peaks and best_per are already sorted, if we break at this point i will be the index of the first peak which is too low, and the rest is then too low also
                 self.number_of_significant_peaks=i 
             else:
-                self.number_of_significant_peaks=0       	 
+                self.number_of_significant_peaks=0        
         except (RuntimeError, ValueError, TypeError):
             gls_warnings.update_warning_list('Failed to conduct gls, assuming no peaks')
             self.number_of_significant_peaks=0
@@ -1268,7 +1268,7 @@ class rvfile(object):
             comment=False
             x=0
             y=0
-            y_error=0       	
+            y_error=0        
         else:
             line=self.reading_in_progress.readline()
             if not line: # end of file, only isline value matters in this case but we need to declare all for output
@@ -1303,7 +1303,7 @@ class rvfile(object):
     def mean_value(self):
         self.reading_in_progress=open(self.path,'r') # to be able to read file line by line using read_one_line function
         comment = True
-	     # In case there is only one data point we want to return it's abscissa, so we will add a tiny rectangle around this point to our integral, but we want it to be tiny, so it normally won't affect the results 
+        # In case there is only one data point we want to return it's abscissa, so we will add a tiny rectangle around this point to our integral, but we want it to be tiny, so it normally won't affect the results 
         dt=0.00001
         while(comment):
             x0,y0,y_error,isline,comment = self.read_one_line()
@@ -1311,7 +1311,7 @@ class rvfile(object):
                 raise InputError('RV file %s contains no data!'%self.name)
             else: # S will be our integral, t0 is going to be the beginning of the interval over which we calculate our integral
                 S=y0*dt
-                t0=x0-dt             	
+                t0=x0-dt              
         while 1: # now we have the starting point, let's go through the rest of the file
             x,y,y_error,isline,comment = self.read_one_line()
             if not (isline):
@@ -1457,8 +1457,7 @@ class rvfile_list(object): # this will store a list of rvfile objects
 # We also need a class for the fortran output. Originally fortran code outputted everything in several files, now we want it all in console output, this causes some problems which will be solved by applying functions of this class
 
 class fortran_output(object):
-	
-	 # it's better to give initial values for these attributes, just in case the user calls functions in the wrong order
+    # it's better to give initial values for these attributes, just in case the user calls functions in the wrong order
     best_par=[]
     RV_kep=[]
     keplerian_fit=[]
@@ -1557,7 +1556,7 @@ class fortran_output(object):
                     i=i+1
                     if (i==l): # that means we reached the end of the file, so let's save what we have and leave
                         self.RV_kep=T[i0:i] # now we can save the part of T which corresponds to RV
-                        break # and leave the while 1 loop                     	
+                        break # and leave the while 1 loop                      
                     if (len(T[i])!=6 or not is_float(T[i][0])): # that means we went outside of the part of the output corresponding to RV_kep.out, second condition just in case
                         self.RV_kep=T[i0:i] # now we can save the part of T which corresponds to RV
                         break # and leave the while 1 loop     
@@ -1568,7 +1567,7 @@ class fortran_output(object):
                     i=i+1
                     if (i==l): # that means we reached the end of the file, so let's save what we have and leave
                         self.keplerian_fit=T[i0:i] # now we can save the part of T which corresponds to fit
-                        break # and leave the while 1 loop                     	
+                        break # and leave the while 1 loop                      
                     if (len(T[i])!=2 or not is_float(T[i][0])): # that means we went outside of the part of the output corresponding to RV_kep.out, second condition just in case
                         self.keplerian_fit=T[i0:i] # now we can save the part of T which corresponds to fit
                         break # and leave the while 1 loop                         
@@ -1644,7 +1643,7 @@ class fortran_output(object):
      
     def generate_summary(self):
         if(len(self.ndata_str)>2 and len(self.mfit_str)>2):
-    	      dof = float(self.ndata_str[2]) - float(self.mfit_str[2]) # degrees of freedom for summary 
+            dof = float(self.ndata_str[2]) - float(self.mfit_str[2]) # degrees of freedom for summary 
         else:
             dof= 1 # we have to give something y'know
         stat = summary(self.params,self.param_errors,dof=dof)
@@ -1677,7 +1676,7 @@ class RotationTerm(terms.Term):
         return (np.exp(log_amp) / (2.0 + f), 0.0, np.exp(-log_timescale), 2*np.pi*np.exp(-log_period))   
                 
 class signal_fit(object):
-	
+ 
     def __init__(self, inputfile='init.init', name='', readinputfile=False):
         # saving the name for the inputfile and the information that it has not yet been processed
         self.inputfile = inputfile
@@ -1706,7 +1705,7 @@ class signal_fit(object):
         self.gps=[]
         if (readinputfile):
             self.read_input_file() # after running this a file should be processed and initial values saved in the object properties, unless there was some error
-            self.correct_elements() # to make sure angles are between 0 and 360 etc.	
+            self.correct_elements() # to make sure angles are between 0 and 360 etc. 
             self.prepare_for_mcmc() # this will initiate default parameter bounds, in case the user wants to verify if values make sense he will be able to use the verify_params_with_bounds function anytime 
             self.inputfile_read=True
         # in this case we need to create a new kernel, but we will only give it this information which is needed for plotting
@@ -1793,40 +1792,40 @@ class signal_fit(object):
 
     def update_mod_dynamical(self, mod_dynamical):
         self.mod_dynamical=mod_dynamical
-        return    	
-	
+        return     
+ 
     def overwrite_use(self,useflags, save=True): # overwrite use flags with new ones, but optionally save the old ones so we can return to the later
         oldflags=self.use
         self.use=useflags
         if (save): # save old flags, if requested 
             return oldflags
         else:
-            return	
-	
+            return 
+ 
     def overwrite_params(self,params, save=True): # overwrite use flags with new ones, but optionally save the old ones so we can return to the later
         oldparams=self.params
         self.params=params
         if (save): # save old flags, if requested 
             return oldparams
         else:
-            return		
-	
+            return 
+ 
     def verify_input(self): # verify that the input file is built correctly, fix such errors that can be solved automatically (but print out warnings), raise exception if it's not possible
-        c=read_file_as_array_of_arrays(self.inputfile) # create an array of arrays storing input data 	 
+        c=read_file_as_array_of_arrays(self.inputfile) # create an array of arrays storing input data   
         input_warnings=Warning_log([],'Reading the input file') # creating a Warning_log object to store warnings related to reading the file
 
         # Now we go through each line and check for any incorrect input, saving warning messages whenever we encounter and fix a problem, raising errors if it's not possible to fix the problem automatically
 
-	     # Checking the first line (stellar mass)
+        # Checking the first line (stellar mass)
         if (len(c[0])==0):
-	         c[0]=[0,DEFAULT_STELLAR_MASS,1]
-	         input_warnings.update_warning_list('Please provide stellar mass information! Unknown stellar mass will be assumed.')
+            c[0]=[0,DEFAULT_STELLAR_MASS,1]
+            input_warnings.update_warning_list('Please provide stellar mass information! Unknown stellar mass will be assumed.')
         elif (c[0][0]!=0 and c[0][0]!=1):
-	         c[0]=[0,DEFAULT_STELLAR_MASS,1]
-	         input_warnings.update_warning_list('Stellar_mass_is_known should be a boolean value (0 or 1)! Unknown stellar mass will be assumed.')
+            c[0]=[0,DEFAULT_STELLAR_MASS,1]
+            input_warnings.update_warning_list('Stellar_mass_is_known should be a boolean value (0 or 1)! Unknown stellar mass will be assumed.')
         elif (c[0][0]==1 and len(c[0])==1):
             c[0]=[0,DEFAULT_STELLAR_MASS,1]
-            input_warnings.update_warning_list('If stellar mass is known please provide the value! Unknown stellar mass will be assumed.')     	
+            input_warnings.update_warning_list('If stellar mass is known please provide the value! Unknown stellar mass will be assumed.')     
         elif (c[0][0]==0 and len(c[0])==1):
             c[0]=[0,DEFAULT_STELLAR_MASS,1]
         elif (c[0][0]==1 and not is_float(c[0][1])):
@@ -1847,15 +1846,15 @@ class signal_fit(object):
             c[1][0]=len(c[2])
             input_warnings.update_warning_list('Number of datasets should be a positive integer! The number of file names provided in the third line will be assumed as number of datasets.')          
         if (len(c[1])>2):
-            c[1]=c[1][:2]            	
+            c[1]=c[1][:2]          
             input_warnings.update_warning_list('Second input line too long, additional entries will be ignored.')
-	         
-	     # Checking the third line (names of RV files)
+         
+        # Checking the third line (names of RV files)
         if (len(c[2])<c[1][0]):          
             c[1][0]=len(c[2])
             input_warnings.update_warning_list('Fewer datasets than declared! Will assume an appropriate number of datasets')
-        if (len(c[2])>c[1][0]):	      
-            c[2]=c[2][:int(c[1][0])]    	     
+        if (len(c[2])>c[1][0]):     
+            c[2]=c[2][:int(c[1][0])]          
             input_warnings.update_warning_list('Third input line too long, additional entries will be ignored.')
         # Let's check if all the files provided are there. Better to do it now, so we don't have an error later on, also it's a good moment for a sanity check if there isn't something seriously wrong with the structure of input file
         if (len(c[1])==2):
@@ -1881,35 +1880,32 @@ class signal_fit(object):
         if (len(c[3])<c[1][0]):
             c[3].extend(['unknown']*(int(c[1][0]-len(c[3]))))
             input_warnings.update_warning_list('Fewer offset information than datasets! Will assume unknown offsets for remaining datasets.')
-        if (len(c[3])>c[1][0]):	      
-            c[3]=c[3][:int(c[1][0])]    	     
+        if (len(c[3])>c[1][0]):     
+            c[3]=c[3][:int(c[1][0])] 
             input_warnings.update_warning_list('Fourth input line too long, additional entries will be ignored.') 
-	     
-	     # Checking the fifth line (use_offsets)
+        # Checking the fifth line (use_offsets)
         if (len(c[4])<c[1][0]):
             c[4].extend([1]*(int(c[1][0]-len(c[4]))))
             input_warnings.update_warning_list('Fewer use_offsets information than datasets! Will assume True for remaining datasets.')
-        if (len(c[4])>c[1][0]):	      
-            c[4]=c[4][:int(c[1][0])]    	     
+        if (len(c[4])>c[1][0]):      
+            c[4]=c[4][:int(c[1][0])] 
             input_warnings.update_warning_list('Fifth input line too long, additional entries will be ignored.')  
-	         
+ 
         # Checking the sixth line (jitters)
         if (len(c[5])<c[1][0]):
             c[5].extend(['unknown']*(int(c[1][0]-len(c[5]))))
             input_warnings.update_warning_list('Fewer jitter information than datasets! Will assume unknown jitter for remaining datasets.')
-        if (len(c[5])>c[1][0]):	      
-            c[5]=c[5][:int(c[1][0])]    	     
+        if (len(c[5])>c[1][0]):      
+            c[5]=c[5][:int(c[1][0])] 
             input_warnings.update_warning_list('Sixth input line too long, additional entries will be ignored.') 
-	     
-	     # Checking the seventh line (use_jitters)
+        # Checking the seventh line (use_jitters)
         if (len(c[6])<c[1][0]):
             c[6].extend([1]*(int(c[1][0]-len(c[6]))))
             input_warnings.update_warning_list('Fewer use_jitters information than datasets! Will assume True for remaining datasets.')
-        if (len(c[6])>c[1][0]):	      
-            c[6]=c[6][:int(c[1][0])]    	     
+        if (len(c[6])>c[1][0]):       
+            c[6]=c[6][:int(c[1][0])]          
             input_warnings.update_warning_list('Seventh input line too long, additional entries will be ignored.')         
-	         
-	     # Checking the eighth line (linear trend)
+        # Checking the eighth line (linear trend)
         if not (is_float(c[7][0])):
             c[7]=[0,0]
             input_warnings.update_warning_list('Coefficient for linear trend must be a real number! No linear trend will be assumed')  
@@ -1923,24 +1919,23 @@ class signal_fit(object):
         if (c[7][1]!=0 and c[7][1]!=1):
             if (c[7][0]==0):
                 c[7][1]=0
-                input_warnings.update_warning_list('Use_linear_trend should be a boolean value (0 or 1)! Since 0 linear coefficient was provided, we will assume there is no linear trend and won\'t use it for the fit.')           	
+                input_warnings.update_warning_list('Use_linear_trend should be a boolean value (0 or 1)! Since 0 linear coefficient was provided, we will assume there is no linear trend and won\'t use it for the fit.')               
             else:
                 c[7][1]=1
                 input_warnings.update_warning_list('Use_linear_trend should be a boolean value (0 or 1)! Since non-zero linear coefficient was provided, we will use it as a fitting parameter.')    
-        if (len(c[7])>2):	      
-            c[7]=c[7][:2]    	     
+        if (len(c[7])>2): 
+            c[7]=c[7][:2] 
             input_warnings.update_warning_list('Eighth input line too long, additional entries will be ignored.')
-	         
-	     #Checking the ninth line (Fitting_in_dynamical_mode and do_mcmc information)           
+        #Checking the ninth line (Fitting_in_dynamical_mode and do_mcmc information)           
         if (c[8][0]!=0 and c[8][0]!=1):
             c[8][0]=0
             input_warnings.update_warning_list('Fitting_in_dynamical_mode should be a boolean value: 0 if you want to fin in keplerian mode, and 1 if in dynamical! Keplerian fitting mode will be assumed.')
-        if (len(c[8])>1):	      
-            c[8]=c[8][:1]    	     
+        if (len(c[8])>1):      
+            c[8]=c[8][:1] 
             input_warnings.update_warning_list('Ninth input line too long, additional entries will be ignored.')
 
-	     #Checking the tenth line (epoch)
-        if (len(c[9])==0):	 
+        #Checking the tenth line (epoch)
+        if (len(c[9])==0): 
             c[9]=['unknown']  
             input_warnings.update_warning_list('Epoch should be a positive number! Unknown epoch will be assumed.')        
         else:
@@ -1948,8 +1943,8 @@ class signal_fit(object):
                 if (c[9][0]<=0):
                     c[9]=['unknown']  
                     input_warnings.update_warning_list('Epoch should be a positive number! Unknown epoch will be assumed.')         
-            if (len(c[9])>1):	      
-                c[9]=c[9][:1]    	     
+            if (len(c[9])>1): 
+                c[9]=c[9][:1] 
                 input_warnings.update_warning_list('Tenth input line too long, additional entries will be ignored.')
 
         #Checking the eleventh line (number of known planets)           
@@ -1957,11 +1952,11 @@ class signal_fit(object):
             npl_guess=(len(c)-11)/2  # all the lines after the eleventh one should describe planet data, two lines per planet, so (len(c)-11)/2 should be the number of planets
             c[10][0]=npl_guess
             input_warnings.update_warning_list('The number of planets should be a non-negative integer! %d assumed based on the number of subsequent lines in input file.'%npl_guess)    
-        if (len(c[10])>1):	      
-            c[10]=c[10][:1]    	     
+        if (len(c[10])>1): 
+            c[10]=c[10][:1]         
             input_warnings.update_warning_list('Eleventh input line too long, additional entries will be ignored.')
         if (len(c)>11+4*int(c[10][0])):
-            c=c[:11+4*int(c[10][0])]    	     
+            c=c[:11+4*int(c[10][0])] 
             input_warnings.update_warning_list('Input file too long, additional entries (beyond declared number of planets) will be ignored.')
         ppp = ["K","P","e","w","M","i","cap0m"]    
         # Checking the rest of the file - information about planet parameters and whether they should be used as fitting parameters
@@ -1972,8 +1967,8 @@ class signal_fit(object):
             p=11+2*i # index in c referring to considered planet's parameters
             warning_found = False
             for q in p,p+1: # we can check line length for both lines regarding the planet in the same way
-                if (len(c[q])>7):	      
-                    c[q]=c[q][:7]    	     
+                if (len(c[q])>7): 
+                    c[q]=c[q][:7] 
                     input_warnings.update_warning_list('Input line %d for planet %d too long, additional entries will be ignored.'%(q-p+1,j))
                 if (len(c[q])<5): # in dynamical mode we require the inclinations and lines of nodes to be provided, in keplerian it doesn't matter, the program will not use them anyway
                     c[10][0]=c[10][0]-1
@@ -2027,7 +2022,7 @@ class signal_fit(object):
         alltheinput = self.verify_input() # store all info from input file in an array of arrays      
         
         ### Reading the first line of the input file - stellar mass 
-		
+ 
         if (alltheinput[0][0]==0): # is stellar mass known? If not we will calculate planet masses in units of the host star mass, so we set stellar_mass = DEFAULT_STELLAR_MASS=1.0
             self.stellar_mass_known = False
         else: # save stellar mass if we know it's value
@@ -2038,7 +2033,7 @@ class signal_fit(object):
         ### Reading lines 2-7, describing all data sets used for the fit
 
         # first entry in the second line should be the number of RV data files, we will pass it as a first argument (ndset) to the creation of rvfile_list object
-		  # the second entry in this line is optional and describes the path to directory with datafiles, if different than default
+        # the second entry in this line is optional and describes the path to directory with datafiles, if different than default
         if (len(alltheinput[1])==1): # if no path was specified by the user, use default path (./datafiles)
             path = DEFAULT_PATH
         else: 
@@ -2073,8 +2068,8 @@ class signal_fit(object):
         ### Reading the 8th line, describing linear trend
         
         linear_trend=alltheinput[7][0] # saving initial value for linear trend
-        use_linear_trend=bool(alltheinput[7][1]) # saving information whether we want to use linear trend or not		  
-		  
+        use_linear_trend=bool(alltheinput[7][1]) # saving information whether we want to use linear trend or not 
+ 
         ### Reading the 9th line, describing fitting mode (keplerian vs dynamical)
         
         self.mod_dynamical=bool(alltheinput[8][0])
@@ -2085,8 +2080,7 @@ class signal_fit(object):
             self.epoch = alltheinput[9][0]
         else: # if instead we receive 'no_epoch', 'NaN' or similar string then the epoch was not declared, we will set it as time[0] later on                   
             self.epoch=self.filelist.first_observation()
-		      
-		  ### Reading the rest of the file, describing data for all planets 
+        ### Reading the rest of the file, describing data for all planets 
 
         # for each planet the user should provide a list of parameters (K,P,e,w,M,i,cap0m, last two optional in keplerian case) and information which ones to use
         self.npl=int(alltheinput[10][0])
@@ -2095,7 +2089,7 @@ class signal_fit(object):
         planet_params=[]
         use_planet_params=[]
 
-				
+ 
         for i in range(self.npl):
             planet_params=np.concatenate((planet_params,alltheinput[11+2*i][:7])) # add parameters (K,P,e,w,M) of each planet into the array of planet parameters
             use_planet_params=np.concatenate((use_planet_params,np.array(list(map(bool,alltheinput[11+2*i+1][:7]))))) # saving information which data should be used for the fit            
@@ -2109,7 +2103,7 @@ class signal_fit(object):
         self.stat_saved=False
         # information that the file is processed and initial data is already stored accordingly
         self.input_processed = True   
-        return 		  
+        return 
         
    ###################### correct_elements #########################
     #correct initial parameter values for kepfit so that angles are in the [0,180.0] interval etc.
@@ -2138,7 +2132,7 @@ class signal_fit(object):
                 self.params.planet_params[j+3] = self.params.planet_params[j+3] + 180.0
                 self.params.planet_params[j] = -self.params.planet_params[j]
 
-		      # here we assure arg of periastron, mean anomaly and line of nodes to be between 0 and 360.0, and inclination between 0 and 180.0
+            # here we assure arg of periastron, mean anomaly and line of nodes to be between 0 and 360.0, and inclination between 0 and 180.0
             self.params.planet_params[j+3]  = np.fmod(self.params.planet_params[j+3],360.0) 
             self.params.planet_params[j+3]  = np.where(self.params.planet_params[j+3]<0,self.params.planet_params[j+3]+360.0, self.params.planet_params[j+3])
             self.params.planet_params[j+4]  = np.fmod(self.params.planet_params[j+4],360.0)  
@@ -2175,7 +2169,7 @@ class signal_fit(object):
                 mass[i+1] = abs(self.params.planet_params[7*i])*(T*mtotal**2.0/(TAU*GMSUN))**THIRD * np.sqrt(1.0-self.params.planet_params[7*i+2]**2.0)/abs(np.sin(self.params.planet_params[7*i+5])) # this will become the planet mass at the last run of the loop,until then it is only used for comparison in the while condition, whereas mpold is the estimate for planet mass. 
                 dm = (mpold - mass[i+1]) 
                 mpold =  mpold + f
-                mtotal = mtotal + f	        
+                mtotal = mtotal + f 
                 
             mtotal = mtotal-dm # the last part of the sum was mpold, now we want mass[m+1]
             ap[i] = (GMSUN*mtotal*(T/TAU)**2)**THIRD
@@ -2259,7 +2253,7 @@ class signal_fit(object):
         
         if (self.npl>0):
             if not (self.stat_saved):
-                self.mass_semimajor() # update mass and semimajor axes values, if they weren't taken from the fortran code	
+                self.mass_semimajor() # update mass and semimajor axes values, if they weren't taken from the fortran code 
             print('Known planets are expected to have following properties (mean anomalies for epoch {0:7.2f}):'.format(self.epoch))
             if ((not (self.fit_performed) or self.fitting_method.startswith('loglik')) or self.never_saved): # again, if no fit or loglik fit, no errors
                 for i in range(self.npl):
@@ -2313,7 +2307,7 @@ class signal_fit(object):
 
     # sort planets by one of the parameters (K,P,e,w,M0)
     def sort_by_param(self,param,reverse=True):
-    	  if (self.npl>0): # no point in sorting if there's no planets
+          if (self.npl>0): # no point in sorting if there's no planets
             sort = convert_array_to_int(np.array(sorted(range(self.npl), key=lambda k: self.params.planet_params[7*k+param], reverse=reverse))) # find a permutation sorting planets by chosen parameter
             # permutate all parameters which refer to planets, according to the permutation found above
             planets_to_sort=np.array([self.params.planet_params[n:n+7] for n in range(0,7*self.npl,7)]) # group parameters for a single planet together for sorting 
@@ -2328,7 +2322,7 @@ class signal_fit(object):
                 planet_errors_to_sort=np.array([self.param_errors.planet_params_errors[n:n+7] for n in range(0,7*self.npl,7)]) # group parameters for a single planet together for sorting
                 planet_errors_to_sort=planet_errors_to_sort[sort] # sort grouped array according to the found permutation
                 self.param_errors=parameter_errors([i[0] for i in self.param_errors.offset_errors],[i[0] for i in self.param_errors.jitter_errors],[i[0] for i in np.concatenate(planet_errors_to_sort)],self.param_errors.linear_trend_error[0],self.param_errors.stellar_mass_error[0]) # now come back to 1d array
-    	  return 
+          return 
                 
     def sort_by_semiamplitude(self,reverse=True):
         self.sort_by_param(0,reverse=reverse) 
@@ -2355,7 +2349,7 @@ class signal_fit(object):
         self.chi2=self.fit_results.chi2
         self.reduced_chi2=self.fit_results.reduced_chi2
         self.rms=self.fit_results.rms
-        self.loglik=self.fit_results.loglik    	
+        self.loglik=self.fit_results.loglik     
         if not (self.fit_performed and self.stat_saved): # if we haven't run a fit or didn't save parameters, we can do no more
             pass
         else: # update parameters and their errors based on the recent fit
@@ -2540,7 +2534,7 @@ class signal_fit(object):
                     if not (len(normal_copy.fit_results.model)==len(special_task_copy.fit_results.model)):
                         warnings.update_warning_list('Number of points in model is %d, but after removing %d planet the number is different, i. e. %d. Something must have gone wrong.'%(len(normal_copy.fit_results.model),planet,len(special_task_copy.fit_results.model)))
                     model_to_pass=[]  
-                    for i in range(min(len(normal_copy.fit_results.model),len(special_task_copy.fit_results.model))):          	
+                    for i in range(min(len(normal_copy.fit_results.model),len(special_task_copy.fit_results.model))):          
                         model_to_pass.append(float(normal_copy.fit_results.model[i])-float(special_task_copy.fit_results.model[i]))
                     model_to_pass=np.array(model_to_pass)
                     special_task_kernel=kernel(normal_copy.fit_results.stat, normal_copy.fit_results.rv_model.jd,rvs_to_pass,normal_copy.fit_results.rv_model.rv_err,normal_copy.fit_results.rv_model.o_c,model_to_pass,normal_copy.fit_results.model_jd,normal_copy.npl,0.0,0.0,normal_copy.fit_results.idset,normal_copy.fit_results.stat_array_saved,0.0,0.0,0.0,0.0)
@@ -2591,63 +2585,63 @@ class signal_fit(object):
         # set default bounds for these parameters which were not provided. Make warnings if there's too many bounds
         if(len(Kbounds)<self.npl):
             if not (Kbounds==[[0.0,100000.0]]): # This means user intentionally provided some bounds, but fewer than there should be
-                preparingwarnings.update_warning_list('Too few Kbounds! Assuming default for remaining planets.')        	
+                preparingwarnings.update_warning_list('Too few Kbounds! Assuming default for remaining planets.') 
             Kbounds=np.concatenate((Kbounds,np.repeat([[0.0,100000.0]],self.npl-len(Kbounds),axis=0)))
         elif(len(Kbounds)>self.npl):
             Kbounds=Kbounds[:self.npl]
             preparingwarnings.update_warning_list('Too many Kbounds! Additional will be ignored.')
         if(len(Pbounds)<self.npl):
             if not (Pbounds==[[0.0,100000.0]]):
-                preparingwarnings.update_warning_list('Too few Pbounds! Assuming default for remaining planets.')        	
+                preparingwarnings.update_warning_list('Too few Pbounds! Assuming default for remaining planets.')         
             Pbounds=np.concatenate((Pbounds,np.repeat([[0.0,100000.0]],self.npl-len(Pbounds),axis=0)))
         elif (len(Pbounds)>self.npl):
             Pbounds=Pbounds[:self.npl]
             preparingwarnings.update_warning_list('Too many Pbounds! Additional will be ignored.')   
         if(len(ebounds)<self.npl):
             if not (ebounds==[[-0.99,0.99]]):
-                preparingwarnings.update_warning_list('Too few ebounds! Assuming default for remaining planets.')        	
+                preparingwarnings.update_warning_list('Too few ebounds! Assuming default for remaining planets.')         
             ebounds=np.concatenate((ebounds,np.repeat([[-0.99,0.99]],self.npl-len(ebounds),axis=0)))
         elif (len(ebounds)>self.npl):
             ebounds=ebounds[:self.npl]
             preparingwarnings.update_warning_list('Too many ebounds! Additional will be ignored.')  
         if(len(wbounds)<self.npl):
             if not (wbounds==[[-2.0*360.0, 2.0*360.0]]):
-                preparingwarnings.update_warning_list('Too few wbounds! Assuming default [-360.0*2.0, 360.0*2.0] for remaining planets.')        	
+                preparingwarnings.update_warning_list('Too few wbounds! Assuming default [-360.0*2.0, 360.0*2.0] for remaining planets.')         
             wbounds=np.concatenate((wbounds,np.repeat([[-2.0*360.0, 2.0*360.0]],self.npl-len(wbounds),axis=0)))
         elif (len(wbounds)>self.npl):
             wbounds=wbounds[:self.npl]
             preparingwarnings.update_warning_list('Too many wbounds! Additional will be ignored.')       
         if(len(Mbounds)<self.npl):
             if not (Mbounds==[[-2.0*360.0, 2.0*360.0]]):
-                preparingwarnings.update_warning_list('Too few Mbounds! Assuming default [-360.0*2.0, 360.0*2.0] for remaining planets.')        	
+                preparingwarnings.update_warning_list('Too few Mbounds! Assuming default [-360.0*2.0, 360.0*2.0] for remaining planets.')         
             Mbounds=np.concatenate((Mbounds,np.repeat([[-2.0*360.0, 2.0*360.0]],self.npl-len(Mbounds),axis=0)))           
         elif (len(Mbounds)>self.npl):
             Mbounds=Mbounds[:self.npl]
             preparingwarnings.update_warning_list('Too many Mbounds! Additional will be ignored.') 
         if(len(ibounds)<self.npl):
             if not (ibounds==[[-2.0*180.0, 2.0*180.0]]):
-                preparingwarnings.update_warning_list('Too few ibounds! Assuming default [-180.0*2.0, 180.0*2.0] for remaining planets.')        	
+                preparingwarnings.update_warning_list('Too few ibounds! Assuming default [-180.0*2.0, 180.0*2.0] for remaining planets.')         
             ibounds=np.concatenate((ibounds,np.repeat([[-2.0*180.0, 2.0*180.0]],self.npl-len(ibounds),axis=0)))
         elif (len(ibounds)>self.npl):
             ibounds=ibounds[:self.npl]
             preparingwarnings.update_warning_list('Too many ibounds! Additional will be ignored.')  
         if(len(capbounds)<self.npl):
             if not (capbounds==[[-2.0*360.0, 2.0*360.0]]):
-                preparingwarnings.update_warning_list('Too few capbounds! Assuming default [-360.0*2.0, 360.0*2.0] for remaining planets.')        	
+                preparingwarnings.update_warning_list('Too few capbounds! Assuming default [-360.0*2.0, 360.0*2.0] for remaining planets.')         
             capbounds=np.concatenate((capbounds,np.repeat([[-2.0*360.0, 2.0*360.0]],self.npl-len(capbounds),axis=0))) 
         elif (len(capbounds)>self.npl):
             capbounds=capbounds[:self.npl]
             preparingwarnings.update_warning_list('Too many capbounds! Additional will be ignored.')   
         if(len(offbounds)<self.filelist.ndset):
             if not (offbounds==[[-100000.0,100000.0]]):
-                preparingwarnings.update_warning_list('Too few offbounds! Assuming default [-100000.0, 100000.0] for remaining datasets.')          	
+                preparingwarnings.update_warning_list('Too few offbounds! Assuming default [-100000.0, 100000.0] for remaining datasets.')           
             offbounds=np.concatenate((offbounds,np.repeat([[-100000.0,100000.0]],self.filelist.ndset-len(offbounds),axis=0)))
         elif (len(offbounds)>self.filelist.ndset):
             offbounds=offbounds[:self.filelist.ndset]
             preparingwarnings.update_warning_list('Too many offbounds! Additional will be ignored.')  
         if(len(jitbounds)<self.filelist.ndset):
             if not (jitbounds==[[0.0,10000.0]]):
-                preparingwarnings.update_warning_list('Too few jitbounds! Assuming default [0.0, 10000.0] for remaining datasets.')          	
+                preparingwarnings.update_warning_list('Too few jitbounds! Assuming default [0.0, 10000.0] for remaining datasets.')           
             jitbounds=np.concatenate((jitbounds,np.repeat([[0.0,10000.0]],self.filelist.ndset-len(jitbounds),axis=0)))           
         elif (len(jitbounds)>self.filelist.ndset):
             jitbounds=jitbounds[:self.filelist.ndset]
@@ -2664,7 +2658,7 @@ class signal_fit(object):
             preparingwarnings.update_warning_list('Too many stmassbounds! Additional will be ignored.') 
         if(len(GPbounds)<4):
             if not (GPbounds==[[0.0,100000.0]]):
-                preparingwarnings.update_warning_list('Too few GPbounds! Assuming default [0.0, 10000.0] for remaining parameters.')          	
+                preparingwarnings.update_warning_list('Too few GPbounds! Assuming default [0.0, 10000.0] for remaining parameters.')           
             GPbounds=np.concatenate((GPbounds,np.repeat([[0.0,10000.0]],4-len(GPbounds),axis=0)))           
         elif (len(GPbounds)>4):
             GPbounds=GPbounds[:4]
@@ -2689,7 +2683,7 @@ class signal_fit(object):
         # Now prepare parameters, only those which are used         
 
         par = np.concatenate((self.params.offsets[:self.filelist.ndset],self.params.jitters[:self.filelist.ndset],self.params.planet_params[:7*self.npl],np.atleast_1d(self.params.linear_trend),self.params.GP_params,np.atleast_1d(self.params.stellar_mass)))
-          	
+           
         flag = np.concatenate((self.use.use_offsets[:self.filelist.ndset],self.use.use_jitters[:self.filelist.ndset],self.use.use_planet_params[:7*self.npl],np.atleast_1d(self.use.use_linear_trend),self.use.use_GP_params,np.atleast_1d(self.use.use_stellar_mass)))
         
        # print(par,flag)
@@ -2722,12 +2716,12 @@ class signal_fit(object):
                 self.e_for_mcmc=np.concatenate((self.e_for_mcmc,np.atleast_1d(el_str[j])))
                 
         preparingwarnings.print_warning_log()
-        return               	  
+        return                  
         
 
     def verify_params_with_bounds(self):
 
-        '''verify if all planet parameters are within allowed bounds'''    		  
+        '''verify if all planet parameters are within allowed bounds'''     
         verification=True
         if not (verify_array_with_bounds(self.params.offsets,self.bounds.offset_bounds)):
             verification = False 
@@ -2788,9 +2782,9 @@ class signal_fit(object):
         return newparams                
                 
     def update_with_mcmc_errors(self,p):
-    	
-        '''Substitute normal errors with mcmc errors, where + and - errors can be different'''    	
-    	
+ 
+        '''Substitute normal errors with mcmc errors, where + and - errors can be different''' 
+ 
         if (not (self.fit_performed) or self.never_saved): # just in case the user calls this function in a wrong moment
             return
         else:
@@ -2993,7 +2987,7 @@ class signal_fit(object):
         elif(self.sampler_saved):
             samples=self.sampler.samples
         else:
-            raise Exception ('Please run mcmc and save sampler or provide a valid samples file!')    	
+            raise Exception ('Please run mcmc and save sampler or provide a valid samples file!')     
             
         if (sample_num>len(samples)):  
             warnings.update_warning_list('There are only %d samples but %d was provided as sample number, cannot analyse, will be skipped!'%(len(samples),sample_num))
@@ -3011,7 +3005,7 @@ class signal_fit(object):
             # runnning fortran codes
             result, flag = run_command_with_timeout(newparams.getinit_input(self.masses,self.semimajor, fileinput=fileinputgetinit, filename=filenamegetinit), timeout_sec)         
             result, flag = run_command_with_timeout('./swift_symba5_j << EOF \nparam.in \npl.in \n1e-40 \nEOF', timeout_sec)                  
-     	  
+ 
             for k in range(self.npl):
                 result, flag = run_command_with_timeout('./follow_symba2 << EOF \nparam.in \npl.in \n%s \nEOF'%(k+2),timeout_sec)
                 result, flag = run_command_with_timeout('mv follow_symba.out pl_%s.out'%(k+1),timeout_sec) 
@@ -3024,7 +3018,7 @@ class signal_fit(object):
 
         result, flag = run_command_with_timeout(self.params.getinit_input(self.masses,self.semimajor, fileinput=fileinputgetinit, filename=filenamegetinit), timeout_sec)         
         result, flag = run_command_with_timeout('./swift_symba5_j << EOF \nparam.in \npl.in \n1e-40 \nEOF', timeout_sec)                  
-   	  
+ 
         
         for k in range(self.npl):
             result, flag = run_command_with_timeout('./follow_symba2 << EOF \nparam.in \npl.in \n%s \nEOF'%(k+2),timeout_sec)
@@ -3046,12 +3040,12 @@ class signal_fit(object):
 #    os.makedirs(directory)
 
         if integrator=='symba':
-		os.chdir('./stability/symba/')
+            os.chdir('./stability/symba/')
         elif integrator=='mvs':
-		os.chdir('./stability/mvs/')
+            os.chdir('./stability/mvs/')
         elif integrator=='mvs_GR':
-		os.chdir('./stability/mvs_gr/')
-
+            os.chdir('./stability/mvs_gr/')
+    
 
         ##### crate the param.in file (change only the "t_max" and the "dt" for now) ######
         param_file = open('param.in', 'wb') 
@@ -3070,8 +3064,8 @@ unknown
         param_file.close()
         
         
-    	getin_file = open('geninit_j.in', 'wb') 
-    	getin_file.write("""1 
+        getin_file = open('geninit_j.in', 'wb') 
+        getin_file.write("""1 
 %s
 %s
 1.d0
@@ -3081,17 +3075,17 @@ pl.in
         
   
         for j in range(self.npl):
-    	    getin_file.write('%s \n'%str(self.fit_results.mass[j]/1047.70266835)) 
-    	    getin_file.write('%s %s %s %s %s %s \n'%(str(self.fit_results.a[j]),str(self.params.planet_params[7*j + 2]),str(self.params.planet_params[7*j + 5]),
+            getin_file.write('%s \n'%str(self.fit_results.mass[j]/1047.70266835)) 
+            getin_file.write('%s %s %s %s %s %s \n'%(str(self.fit_results.a[j]),str(self.params.planet_params[7*j + 2]),str(self.params.planet_params[7*j + 5]),
                                                   str(self.params.planet_params[7*j + 3]),str(self.params.planet_params[7*j + 6]),str(self.params.planet_params[7*j + 4])) ) 
               
-    	getin_file.close()
+        getin_file.close()
 
         # runnning fortran codes
         result, flag = run_command_with_timeout('./geninit_j3_in_days < geninit_j.in', timeout_sec)         
 
         result, flag = run_command_with_timeout('./swift_symba5_j << EOF \nparam.in \npl.in \n1e-40 \nEOF', timeout_sec)                  
-   	  
+         
         
         for k in range(self.npl):
             result, flag = run_command_with_timeout('./follow_symba2 << EOF \nparam.in \npl.in \n%s \nEOF'%(k+2),timeout_sec)
