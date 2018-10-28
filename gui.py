@@ -475,6 +475,50 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #print pe.__class__.__name__
         return   
+        
+        
+        
+        
+    def identify_power_peaks(self,x,y,sig_level=np.array([]), power_level=np.array([])):
+    
+        per_ind = argrelextrema(y, np.greater)
+        per_x   = x[per_ind]
+        per_y   = y[per_ind]     
+
+        peaks_sort = sorted(range(len(per_y)), key=lambda k: per_y[k], reverse=True)
+
+        per_x   = per_x[peaks_sort]   
+        per_y   = per_y[peaks_sort]  
+        
+        ################## text generator #################
+        text_peaks = """ 
+"""
+        if power_level.size != 0 and sig_level.size != 0:
+         
+            text_peaks = text_peaks +"""FAP levels
+-----------------------------------  
+"""        
+            for ii in range(len(power_level)):     
+                text_peaks = text_peaks +"""
+%.2f per cent = %.4f"""%(power_level[ii]*100.0,sig_level[ii])       
+        
+        text_peaks = text_peaks + """
+----------------------------------------------
+The 10 strongest peaks
+----------------------------------------------
+"""         
+        for j in range(10):
+            text_peaks = text_peaks +"""
+period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])  
+            if sig_level.size != 0 and per_y[j] > sig_level[-1]:
+                text_peaks = text_peaks +"""  significant"""
+                
+        ################################################        
+    
+        return text_peaks  
+        
+        
+             
 
     def update_GLS_plots(self):
         global fit, colors,RV_per,RV_per_res
@@ -490,7 +534,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         p12.setLogMode(True,False)
                         
         omega = 1/ np.logspace(-0.05, 4, num=1000)
-        
+        power_levels = np.array([0.1,0.01,0.001])
   
         if len(fit.fit_results.rv_model.jd) > 5:
 
@@ -498,19 +542,21 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)
             p7.plot(1/RV_per.freq, RV_per.power,pen='r',symbol=None )      
             
-            [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per.powerLevel(np.array([0.1,0.01,0.001])))]
+            [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per.powerLevel(np.array(power_levels)))]
  
-            #fit.RV_per = gls_arr.info()
-            self.RV_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(RV_per.info2()))        
-
+            self.RV_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
+            RV_per.info(stdout=False) + 
+            self.identify_power_peaks(1/RV_per.freq, RV_per.power, power_level = power_levels, sig_level = RV_per.powerLevel(np.array(power_levels)) )))   
     
             RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.o_c, fit.fit_results.rv_model.rv_err), 
             fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)
             p8.plot(1/RV_per_res.freq, RV_per_res.power,pen='r',symbol=None )     
             
-            [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per_res.powerLevel(np.array([0.1,0.01,0.001])))]            
+            [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per_res.powerLevel(np.array(power_levels)))]            
 
-            self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(RV_per_res.info2()))        
+            self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(RV_per_res.info(stdout=False)+
+            self.identify_power_peaks(1/RV_per_res.freq, RV_per_res.power, power_level = power_levels, sig_level = RV_per.powerLevel(np.array(power_levels)) ) )  )      
+
 
             WF_power = []
             for omi in 2*np.pi*omega: 
@@ -521,26 +567,8 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
             WF_power = np.array(WF_power)
             p12.plot(1/np.array(omega), WF_power,pen='k',symbol=None )   
-            
-            per_ind = argrelextrema(WF_power, np.greater)
-            WF_per   = 1/np.array(omega[per_ind])
-            WF_peaks = WF_power[per_ind]     
-            
-            WF_sort = sorted(range(len(WF_peaks)), key=lambda k: WF_peaks[k], reverse=True)
-
-            #WF_peaks   = WF_peaks[WF_sort]  
-            WF_per     = WF_per[WF_sort]   
-            
-            WF_text ="""
-----------------------------------------------
-      The 10 strongest WF peaks
-----------------------------------------------
-"""         
-            for j in range(10):
-                WF_text = WF_text +"""
-period = %.2f [d]"""%(WF_per[j])  
-            
-            self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(WF_text))        
+                        
+            self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(self.identify_power_peaks(1/np.array(omega), WF_power)))        
          
         
 
@@ -899,9 +927,9 @@ period = %.2f [d]"""%(WF_per[j])
                 for j in range(fit.npl):
                     fit.remove_planet(fit.npl-(j+1))
 
-            mean_anomaly_from_gls = np.degrees((((fit.epoch - float(RV_per.hpstat["T0"]) )% (1/RV_per.hpstat["fbest"]) )/ (1/RV_per.hpstat["fbest"]) ) * 2*np.pi)
+            mean_anomaly_from_gls = np.degrees((((fit.epoch - float(RV_per.hpstat["T0"]) )% (RV_per.hpstat["P"]) )/ (RV_per.hpstat["P"]) ) * 2*np.pi)
              
-            fit.add_planet(RV_per.hpstat["amp"],1/RV_per.hpstat["fbest"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
+            fit.add_planet(RV_per.hpstat["amp"],RV_per.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
             fit.use.update_use_planet_params_one_planet(0,True,True,True,True,True,False,False)     
             self.update_use_from_input_file()   
             self.update_use()                     
@@ -925,9 +953,9 @@ period = %.2f [d]"""%(WF_per[j])
                     return
                 #elif (1/RV_per_res.hpstat["fbest"]) > 1.5:
                 else:    
-                    mean_anomaly_from_gls = np.degrees((((fit.epoch - float(RV_per_res.hpstat["T0"]) )% (1/RV_per_res.hpstat["fbest"]) )/ (1/RV_per_res.hpstat["fbest"]) ) * 2*np.pi)
+                    mean_anomaly_from_gls = np.degrees((((fit.epoch - float(RV_per_res.hpstat["T0"]) )% (RV_per_res.hpstat["P"]) )/ (RV_per_res.hpstat["P"]) ) * 2*np.pi)
              
-                    fit.add_planet(RV_per_res.hpstat["amp"],1/RV_per_res.hpstat["fbest"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
+                    fit.add_planet(RV_per_res.hpstat["amp"],RV_per_res.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
                     fit.use.update_use_planet_params_one_planet(i,True,True,False,False,True,False,False)  
                     #fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False)  
                    
