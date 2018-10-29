@@ -106,7 +106,7 @@ c      call timer(t_stop)
 
    
 
-      stop
+c      stop
       end
 
 

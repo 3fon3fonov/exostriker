@@ -1,10 +1,15 @@
 #
-# These instructions are for Ubuntu 16.04+ system, 
-# but analogous these should work on other Linux and mac OS systems. 
+# These instructions are for Ubuntu 16.04+ system running Python 2.7,
+# but analogous these should work on other Linux and Mac OS systems. 
+#
+# I have tried the installation on Virtual machine with Ubuntu 16.04, 
+# 18.04 and Lubuntu 18.04 running Python 3 and in general works. However
+# there was some stdout piping error with the Python print() functions,
+# which I haven't resolved yet.  Therefore, if you reed this, for now I 
+# recommend only python2 install.
+#  
 # Not tried on Windows, yet! 
 #
-# These instructions are only for local user installation! E.g. this is 
-# still a testing version and must be called from the tool's root directory
 #
 ################################## Compilers ###################################
 #
@@ -22,14 +27,14 @@ sudo apt-get install gfortran
 # The software should work with Python2 and Python3, although 
 # these instructions are for Python2 only.
 
-# you may need "setuptools" and "pip" already installed. If you dont have them:
+# you may need "setuptools" and "pip" already installed. If you don't have them:
 
 sudo apt-get install python-setuptools
 sudo apt-get install python-pip 
 
 
 # Then you need "numpy", "matplotlib" and "scipy".
-# From the offcial Scipy page (https://www.scipy.org/install.html)
+# From the official Scipy page (https://www.scipy.org/install.html)
 # is recommended --user install, which may be better if you are not the root:
  
 python -m pip install --user numpy scipy matplotlib
@@ -43,10 +48,6 @@ sudo apt-get install python-numpy python-scipy python-matplotlib
 
 sudo apt-get install python-pyqt5 
 sudo apt-get install python-pyqt5.qtsvg
-
-# You will need also "qtconsole"
-
-sudo apt-get install python-qtconsole 
 
 
 # "AstroML" & "AstroML_addons" are needed for RVmod, but to be removed 
@@ -68,6 +69,25 @@ sudo pip install dill
 sudo pip install emcee
 sudo pip install corner 
 sudo pip install celerite
+
+
+ 
+
+sudo apt-get install python-qtconsole 
+
+# you also may need:
+
+sudo apt-get install jupyter
+
+# if you did a system install then remove qtconsole from the addons dir.
+
+
+
+# "batman: Bad-Ass Transit Model cAlculatioN" is used for transit 
+# modeling. 
+
+sudo pip install batman-package
+
 
 
 # Plotting: pyqtgraph ##############################
@@ -98,7 +118,7 @@ sudo apt-get install rxvt
 #
 # A custom "swift" N-body package is included in the root directory.
 # follow the instructions there. This is an important part because you need
-# the libswift.o librarly in order to compile not only the N-body integrators
+# the libswift.o library in order to compile not only the N-body integrators
 # but also the model minimizers! 
 
 
@@ -155,13 +175,13 @@ import RVmod as rv # for example see "testing_RV_mod_object_attempt.py"
 Comments:
 
 * All fortran and python codes in this version need very 
-seriouse clean up from junk.
+serious clean up from junk.
 
 * The transit fitting is still not working.
 
 * Many minor and not so minor problems should be fixed. See "focus_matrix_TBFixed.doc"
 
-* Bugs are liekly to occur! 
+* Bugs are likely to occur! 
 
 
 
