@@ -201,7 +201,7 @@ c      nt = 5000
       
       
 
-      stop
+c      stop
       end
       
       

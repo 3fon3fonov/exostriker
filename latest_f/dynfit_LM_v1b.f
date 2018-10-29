@@ -138,7 +138,7 @@ c*******final output******************
       write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
       write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
      
-      stop
+c      stop
       end
 
 

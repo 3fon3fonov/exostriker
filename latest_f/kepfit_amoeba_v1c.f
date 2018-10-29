@@ -241,7 +241,7 @@ c     &           /(365.25*365.25))
       endif
 
 
-      stop
+c      stop
       end
 
 
