@@ -51,8 +51,9 @@ global fit, colors
 
 fit=rv.signal_fit()
 
+#'#cc0000',
 
-colors = ['#0066ff', '#66ff66','#ff0000','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+colors = ['#0066ff',  '#66ff66','#ff0000','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 
 QtGui.QApplication.processEvents()
 
@@ -432,16 +433,16 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         
         p13 = self.graphicsView_orb_evol_elements_a
         p14 = self.graphicsView_orb_evol_elements_e        
-        p15 = self.graphicsView_orb_evol_res_dom
+        p15 = self.graphicsView_orbital_view
         
         pe  = self.graphicsView_extra_plot
 
-        xaxis = ['JD','JD','JD','JD','JD','','days','days','days','days','days','days','yrs','yrs','yrs','']
-        yaxis = ['RV','RV','Relative Flux','Relative Flux','','','power','power','power','power','power','power','a','e','']       
-        xunit = ['d' ,'d','d','d','d','','','','','','','','','','']
-        yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','']
+        xaxis = ['JD','JD','JD','JD','JD','','days','days','days','days','days','days','yrs','yrs','a','']
+        yaxis = ['RV','RV','Relative Flux','Relative Flux','','','power','power','power','power','power','power','a','e','a','']       
+        xunit = ['d' ,'d','d','d','d','','','','','','','','','','au','']
+        yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','au','']
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,pe]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,pe]
         font=QtGui.QFont()
         font.setPixelSize(12) 
         for i in range(len(zzz)):
@@ -465,15 +466,15 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 zzz[i].showAxis('top') 
                 zzz[i].showAxis('right') 
               
-                #pg.PlotItem( axisItems={'left': 'test', 'bottom':'test'} )                    
-                #p.hideAxis('right') 
-                #p.AxisItem('right', pen=None, linkView=None, parent=None, maxTickLength=-5, showValues=False)
+
        # from pprint import pprint
         #pprint(vars(pe))
        # pe.setRange = p1.setRange 
         #import copy
 
-        #print pe.__class__.__name__
+        p15.getViewBox().setAspectLocked(True)
+
+
         return   
         
         
@@ -589,14 +590,14 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         #p1.addItem(inf1)              
                       
         err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd, y=fit.fit_results.rv_model.rvs,symbol='o', 
-        height=fit.fit_results.rv_model.rv_err, beam=1.0, pen='k')  
+        height=fit.fit_results.rv_model.rv_err, beam=0.0, pen='k')  
 
         p1.addItem(err1)      
         p1.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
  
 
         p1.plot(fit.fit_results.model_jd,fit.fit_results.model, 
-        pen={'color': 'r', 'width': 1.1},enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
+        pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         p1.plot(fit.fit_results.rv_model.jd,fit.fit_results.rv_model.rvs, pen=None,symbol='o',
         #symbolPen=,
         symbolSize=6,enableAutoRange=True,viewRect=True,
@@ -605,7 +606,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
   
         err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd, y=fit.fit_results.rv_model.o_c,symbol='o', 
-        height=fit.fit_results.rv_model.rv_err, beam=1.0, pen='k')   
+        height=fit.fit_results.rv_model.rv_err, beam=0.0, pen='k')   
          
         p2.addItem(err2)
         p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
@@ -625,7 +626,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.update_GLS_plots()
         self.update_RV_plots()
         self.update_extra_plots()
-
+        self.update_orb_plot()
         #self.change_extra_plot()
 
     def run_orbital_simulations(self):
@@ -644,6 +645,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
         p13.plot(clear=True,)
         p14.plot(clear=True,)
+
 
         for i in range(fit.npl):
             p13.plot(fit.evol_T[i], fit.evol_a[i] ,pen=colors[i],symbol=None )     
@@ -677,8 +679,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             self.update_use()
             self.update_params()
             self.update_RV_file_buttons()
-
-            
 
     def remove_RV_file(self):
         global fit
@@ -717,8 +717,22 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
         
         
+    def update_orb_plot(self):
+        global fit, p15
         
- 
+        p15.plot(clear=True,)    
+        
+        for i in range(fit.npl):
+            orb_xyz, pl_xyz, peri_xyz, apo_xyz = rv.planet_orbit_xyz(fit,i)        
+            p15.plot(orb_xyz[0],orb_xyz[1], pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True)   
+            p15.plot((0,peri_xyz[0]),(0,peri_xyz[1]), pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True)               
+            
+            p15.plot((pl_xyz[0],pl_xyz[0]), (pl_xyz[1],pl_xyz[1] ), pen=None,symbol='o', symbolSize=6,enableAutoRange=True,viewRect=True, symbolBrush='b') 
+            
+                           
+        
+        p15.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
+        
         
     def update_extra_plots(self):
         global fit
@@ -753,19 +767,21 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
         
         ph_data,ph_model = rv.phase_planet_signal(fit,ind)
-        
+
+             
+
         if len(ph_data) == 1:
             return
         
         brush_list2 = [pg.mkColor(c) for c in [colors[i] for i in ph_data[3]]]
 
         
-        err_ = pg.ErrorBarItem(x=ph_data[0], y=ph_data[1],symbol='o', height=ph_data[2], beam=1.0, pen='k')   
+        err_ = pg.ErrorBarItem(x=ph_data[0], y=ph_data[1],symbol='o', height=ph_data[2], beam=0.0, pen='k')   
          
         pe.addItem(err_)
         pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))   
        
-        pe.plot(ph_model[0],ph_model[1], pen={'color': 'r', 'width': 1.1},
+        pe.plot(ph_model[0],ph_model[1], pen={'color': 0.5, 'width': 2.0},
         enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'})     
         pe.plot(ph_data[0],ph_data[1], pen=None,symbol='o',
         #symbolPen=,
@@ -775,6 +791,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                
         pe.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})
         pe.setLabel('left',   'RV', units='m/s',  **{'font-size':'12pt'})  
+        # p22 = p2.plotItem
+        #pe.scene().addItem(p22) 
+       # pe.addItem(p22)         
         
  
 ###################################################### 
