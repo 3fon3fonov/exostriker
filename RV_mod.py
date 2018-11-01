@@ -2,6 +2,12 @@
 
 from __future__ import print_function
 __author__ = 'Trifon Trifonov, Jakub Morawski'
+
+import sys #,os
+sys.path.insert(0, './addons')
+import jac2astrocen
+
+
 import prior_functions as pr
 import numpy as np
 #import matplotlib
@@ -9,7 +15,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 #from pylab import *
 import re
-#import sys
 #import nmpfit as mp
 from matplotlib import gridspec
 from subprocess import PIPE, Popen 
@@ -562,6 +567,45 @@ def phase_planet_signal(obj,planet):
         return data, model
 
 
+
+def planet_orbit_xyz(obj, planet):
+
+    u1 = obj.params.stellar_mass * (4*np.pi*np.pi)/(365.25*365.25)
+    mean_orb = np.linspace(0,2.0*np.pi, 360.0)
+    
+    x = np.zeros(len(mean_orb))
+    y = np.zeros(len(mean_orb))
+    z = np.zeros(len(mean_orb))
+    u = np.zeros(len(mean_orb))
+    v = np.zeros(len(mean_orb))
+    w = np.zeros(len(mean_orb))
+    
+    dist =  np.zeros(len(mean_orb))
+        
+    q = (1.0 - obj.params.planet_params[2 + int(planet)*7])*float(obj.fit_results.a[int(planet)])
+    
+    
+    #this need to be fixed to work with arrays
+    for f in range(len(mean_orb)):
+        x[f],y[f],z[f],u[f],v[f],w[f] = jac2astrocen.mco_el2x(u1,q,
+                                                       obj.params.planet_params[2 + int(planet)*7],
+                                                       np.radians(obj.params.planet_params[5 + int(planet)*7]-90.0),
+                                                       np.radians(obj.params.planet_params[3 + int(planet)*7]) - np.radians(obj.params.planet_params[6 + int(planet)*7]),
+                                                       np.radians(obj.params.planet_params[6 + int(planet)*7] ), mean_orb[f])    
+                                                       
+        dist[f] =  np.sqrt(x[f]**2.0 + y[f]**2.0 + z[f]**2.0)                                        
+    
+    x_p,y_p,z_p,u_p,v_p,w_p = jac2astrocen.mco_el2x(u1,q,
+                                                       obj.params.planet_params[2 + int(planet)*7],
+                                                       np.radians(obj.params.planet_params[5 + int(planet)*7] -90.0),
+                                                       np.radians(obj.params.planet_params[3 + int(planet)*7]) - np.radians(obj.params.planet_params[6 + int(planet)*7]),
+                                                       np.radians(obj.params.planet_params[6 + int(planet)*7]), np.radians(obj.params.planet_params[4 + int(planet)*7]))    
+ 
+
+    min_index = np.unravel_index(np.argmin(dist, axis=None), dist.shape)                                                    
+    max_index = np.unravel_index(np.argmax(dist, axis=None), dist.shape)                                                                                                           
+                                                       
+    return np.array([x,y,z,u,v,w]), np.array([x_p,y_p,z_p,u_p,v_p,w_p]), np.array([x[min_index],y[min_index],z[min_index],u[min_index],v[min_index],w[min_index]]), np.array([x[max_index],y[max_index],z[max_index],u[max_index],v[max_index],w[max_index]])
 
 
 
