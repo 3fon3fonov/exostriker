@@ -1,0 +1,26 @@
+#!/bin/csh
+
+# USERS MUST CHANGE THESE !!!!!!
+# set SWIFT_DIR=/home/hal/SWIFT
+# set FORTRAN=f90
+# set FFLAGS='-O3 +Onolimit +Oall +Odataprefetch +Ovectorize +Ocache_pad_common'
+set SWIFT_DIR=/home/mhlee/swift
+# set FORTRAN=fort77
+# set FFLAGS='-a -O3'
+set FORTRAN=gfortran
+# set FFLAGS='-auto -O3 -xW'
+set FFLAGS='-O'
+
+# To Profile the code:
+#set FFLAGS='-G -c'
+
+
+foreach file (*.f)
+    echo $file | set file2=`awk -F"." '{print$1}'`
+    echo $file2
+    $FORTRAN $FFLAGS "$file2".f -o "$file2"  -L/home/mhlee/swift -lswift
+end
+
+rm *.o
+echo Done directory $PWD 
+

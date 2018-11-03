@@ -6,6 +6,7 @@ __author__ = 'Trifon Trifonov, Jakub Morawski'
 import sys #,os
 sys.path.insert(0, './addons')
 import jac2astrocen
+import gls as gls 
 
 
 import prior_functions as pr
@@ -26,7 +27,7 @@ import time
 import copy
 import multiprocessing
 from threading import Thread
-from astroML.time_series import lomb_scargle
+#from astroML.time_series import lomb_scargle
 #from astroML.time_series import lomb_scargle_bootstrap
 from scipy.signal import argrelextrema
 
@@ -645,7 +646,7 @@ class CustomSampler(emcee.EnsembleSampler):
                 self.means[i]=np.mean(self.samples[:,i])         
             elif (idx<2*ndset+7*npl):
                 nr=idx-2*ndset
-                x=int(nr/7)
+                #x=int(nr/7)
                 if (np.mod(nr,7)<2):
                     self.means[i]=np.mean(self.samples[:,i]) 
                 elif (np.mod(nr,7)==2): # correct eccentricities
@@ -1228,8 +1229,8 @@ class Warning_log(object): # here we can store all warnings raised when calling 
         return
 
 # class for signal to run gls and plotting functions on (it can be both the entire signal and O-C, depends what we pass as rvs in the __ini__ function)
-
-class signal_data(object):
+# This class must completely refurbished!
+class signal_data(object): 
 
     def __init__(self,jd,rvs,rv_error, sig_for_gls=np.array([0.1,0.01,0.001])):
         self.jd=np.array(list(map(float,jd))) # for some reason sometimes we get strings instead of floats, so...
@@ -1256,9 +1257,17 @@ class signal_data(object):
 
             self.gls_range = (float(max(self.jd))-float(min(self.jd)))*2 # range for gls, twice the time range     
             self.periods = np.linspace(1, self.gls_range, 2000) # abscissas for the period range
-            omega = TAU / self.periods # converting the periods array into the frequency range for the Lomb-Scargle Periodogram evaluation
+            #omega = TAU / self.periods # converting the periods array into the frequency range for the Lomb-Scargle Periodogram evaluation
+            omega = 1 / self.periods # converting the periods array into the frequency range for the Lomb-Scargle Periodogram evaluation
+             #omega = 1/ np.logspace(-0.05, 4, num=1000)
         
-            self.P_G, self.z = lomb_scargle(self.jd, self.rvs, self.rv_error, omega, generalized=True, significance=self.sig) # Lomb-Scargle for the RV signal    
+        
+            RV_gls = gls.Gls((self.jd, self.rvs, self.rv_error), fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)
+        
+            #self.P_G, self.z = lomb_scargle(self.jd, self.rvs, self.rv_error, omega, generalized=True, significance=self.sig) # Lomb-Scargle for the RV signal    
+            self.P_G = RV_gls.power 
+            self.z = RV_gls.powerLevel(sig_for_gls)
+            
             per_ind = argrelextrema(self.P_G, np.greater) # generates an array with the indices of all the relative extrema in the periodogram
      
             self.best_per = self.periods[per_ind] # periods corresponding to the indices calculated above
@@ -1778,7 +1787,7 @@ class signal_fit(object):
 
     def add_planet(self,K=50,P=100,e=0,w=0,M0=180,i=90,cap=0,useK=True,useP=True,usee=False,usew=False,useM0=True,usei=True, usecap=True):        
         if(self.npl==10):
-            self.params.planet_params=np.concatenate((atleast_1d(self.params.planet_params),[0.0]*7)) # to allocate more places in planet_params array
+            self.params.planet_params=np.concatenate((np.atleast_1d(self.params.planet_params),[0.0]*7)) # to allocate more places in planet_params array
             warnings=Warning_log(['By deafult we assume max 10 planets, to satisfy your request we had to overwrite this rule! More then 20 planets will cause an error in fortran codes, modify them if necessary.'],'Adding a new planet')
             warnings.print_warning_log()
         self.params.update_planet_params_one_planet(self.npl,K,P,e,w,M0,i,cap) #because we count planets from 0, so we use old npl and only then increase it
@@ -1791,8 +1800,8 @@ class signal_fit(object):
         path =  copy_file_to_datafiles(path)
         
         if(self.filelist.ndset==20):
-            self.params.offsets=np.concatenate((atleast_1d(self.params.offsets),atleast_1d(0.0))) # to allocate more places in offsets array
-            self.params.jitters=np.concatenate((atleast_1d(self.params.jitters),atleast_1d(0.0))) # to allocate more places in offsets array
+            self.params.offsets=np.concatenate((np.atleast_1d(self.params.offsets),np.atleast_1d(0.0))) # to allocate more places in offsets array
+            self.params.jitters=np.concatenate((np.atleast_1d(self.params.jitters),np.atleast_1d(0.0))) # to allocate more places in offsets array
             warnings=Warning_log(['By deafult we assume max 20 datasets, to satisfy your request we had to overwrite this rule! More then 20 datasets will cause an error in fortran codes, modify them if necessary.'],'Adding a new dataset')
             warnings.print_warning_log()
         flag=self.filelist.add_datafile(name,path) 
@@ -2023,7 +2032,7 @@ class signal_fit(object):
                     warning_found=True 
                     break
             if (len(c[p])==6):
-                c[p]=np.concatenate((c[p],atleast_1d(0.0)))
+                c[p]=np.concatenate((c[p],np.atleast_1d(0.0)))
                 input_warnings.update_warning_list('Missing line of nodes information for planet %d, will assume 0.0'%j)
             elif (len(c[p])==5):
                 c[p]=np.concatenate((c[p],[90.0,0.0]))
