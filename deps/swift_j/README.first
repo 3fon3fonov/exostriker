@@ -1,0 +1,342 @@
+******************************************************************************
+                PRELIMINARY USER'S MANUAL FOR SWIFT
+******************************************************************************
+Authors : Martin Duncan and Hal Levison
+Date:     June 15/93
+Last Revisions: 1/30/98 HFL
+
+
+                                INTRODUCTION
+
+     The SWIFT subroutine package provided here is designed to
+integrate a set of mutually gravitationally interacting bodies
+together with a group of test particles which feel the gravitational
+influence of the massive bodies but do not affect each other or the
+massive bodies.  Four integration techniques are included:
+            1) Mixed Variable Symplectic (MVS) method.  This is the
+               work horse for SWIFT. 
+            2) Regularized Mixed Variable Symplectic (RMVS) method. This 
+               handles close approachs between test particles and planets.
+            3) A fourth order T+U Symplectic (TU4) method.
+            4) A Bulirsch-Stoer method.
+The package is designed so that the calls to each of these look
+identical so that it is trivial to replace one with another.
+
+     In order to get to this file you have presumably obtained,
+uncompressed and untar-ed the swift.tar.Z file found on the Web at
+www.boulder.swri.edu or in the anonymous ftp directory on
+gort.boulder.swri.edu.  You will now find various files and
+subdirectories.  Most of the directories contain the subroutines that
+make up SWIFT.  However, fully functional examples of working drivers
+are found in the subdirectory "main". They all have the same i/o
+except for minor differences noted below. The subroutines used are
+grouped by function in subdirectories with what we hope to be good
+internal documentation.  There is a Tex file describing the MVS force
+calculations in the subdir. "mvs/getacch". The subdir. called
+"example" contains a working example for integrating the Sun plus the
+four giant planets as well as Pluto (the latter treated as a test
+particle) using the integrator "swift_mvs". Descriptions of the
+drivers and the input and output files follow.
+
+
+                             COMPILING SWIFT   
+
+    There are two files that must be edited in order to complile
+SWIFT. In the top SWIFT directory, you will find a file called
+"@make".  Edit this file.  You will have to change the values of:
+     SWIFT_DIR which is the top directory in which you put SWIFT.
+     FORTRAN   which is the command on your machine to run the Fortran 
+                 compliler
+     FFLAGS    which are the flags you use for your Fortran. You MUST
+                 include a flag that will tell Fortran to make an object
+                 file, but does not try to link it.  This is a "-c" on
+                 most machines.  (In addition for SyMBA users, the
+                 flags must be set so that recursion will work on your
+                 machine.)  
+      PRECOMP  is the full path of the C pre-compiler on your machine.
+                 This program is usually called cpp.
+      CPPFLAGS are the flags for the cpp pre-compiler.  See the next section
+                 for a discussion.
+
+   Then type "@makeall".  This will compile all the subroutines in the
+package.  Swift will create a library called "libswift.a".  This file
+must be copied into the "/usr/local/lib" directory on your machine.
+You must be root in order to do this.  Once this is completed you can
+link a program to this package by adding the flag "-L/usr/local/lib -lswift" 
+to your Fortran statements.
+
+   Now you must complile the drivers.  Change to the directory main
+(enter: " cd main").  You will have to edit "@make" and change the
+same variables as you did above.  In this case, you do not want the -c
+option of the Fortran compiler.  Now enter "@make".  The executable
+files in the directory are now ready for use.
+
+   You can now remove swift.tar, if you want.
+
+
+                               THE CPP FLAGS
+ 
+   We have made a significant effort making sure that SWIFT is ANSI
+standard Fortran 77.  Therefore, in principal, the Fortran source code
+should compile on any UNIX platform.  Unfortunately, there are two
+places where this ideal breaks down: in the OPEN function and in
+recursive routines.  In these cases, we make use of the C
+pre-compiler, cpp, which is universally available on UNIX machines (at
+least we hope).  Cpp translates files ending with .F into Fortran .f
+files.  In SWIFT, cpp needs two flags that will tell it what kind of
+fortran files to create.  These are:
+
+1) OPEN function: In several places, SWIFT needs to open files and
+   append to the end of them.  So, far we have found the there are two
+   ways in which Fortran compilers do that.  The first is with OPEN
+   specifier "position='append'" and the second with "access='append'".
+   If your machine is of the first type then use the CPPFLAG of
+   "-D_OPEN_POSITION".  If it is of the second use "-U_OPEN_POSITION".
+   We have found that most machines are of the second type, however IBM
+   RS6000's and HP's Fortran 90 are of the first type.  
+
+2) RECURSIVE ROUTINES: (Only SyMBA users need to worry about this!)
+   Fortran 77 and Fortran 90 compilers handle recursion differently. As
+   far as our experience goes, F77 allows any subroutine to be recursive,
+   although you most likely will have to set compiler flags to accomplish
+   this.  F90 compilers require recursive subroutines to declared in the
+   source code as `recursive subroutine X(....)'.  If your compiler
+   requires this than use the CPPFLAG of "-D_RECUR_SUB".  If not use
+   "-U_RECUR_SUB"
+
+If you don't know which is correct for you, we have supplied a test. 
+Change to the directory cpp_test (enter: " cd cpp_test").  Follow the
+instructions in the README file.
+
+                                THE DRIVERS
+
+        All of the drivers are designed to take essentially the same
+input files and to produce the same type of output.  The basic step
+for all of them begins with heliocentric positions and velocities and
+advances them a timestep dt.  Some methods (such as the Bulirsch-Stoer
+integrator) have internal substeps or iterations etc. but this is all
+hidden from the user.  A description of the basic i/o files is given
+in the next section.  The differences between drivers is given next.
+
+SWIFT_MVS : The basic MVS integrator when particles are to be
+            removed at the time of close planetary encounters.
+            Arbitrarily close solar encounters can occur.
+
+SWIFT_RMVS: The Regularized Mixed Variable Symplectic (RMVS) integrator. 
+            This handles close approachs between test particles and planets.
+            DON'T USE THIS!
+
+SWIFT_RMVS2: A faster, more accurate version of the RMVS integrator.
+
+SWIFT_RMVS3: An even better version of the RMVS integrator.  Use this one.
+
+SWIFT_BS  :  A Bulirsch-Stoer integrator with the same I/O as
+            MVS except that in addition to the 3 input files
+            the user is prompted for a tolerance EPS (1.e-8 is often
+            used). The tolerance could be added to the end of
+            the file mvs.in if redirection is used at input (see I/O below).
+            The BS routine CAN get through close encounters, although
+            it is usually about 10 times slower then SWIFT_RMVS.  
+            One can imagine writing a hybrid driver to switch from the
+            MVS stuff to BS during occasional close encounters.
+
+SWIFT_LYAP: Computes Lyap. exponents for a set of test particles
+           by integrating a set of shadow particles (one per test
+           particle) with initial offsets in pos. and vel. read in
+           from a file called 'shadow.in' with same format as
+           'tp.in' (see I/O description below).  At time intervals
+           spaced by dtout, the shadows are renormalized to their
+           initial phase space distances from the real particles.
+           An output file called 'lyap.out'  has for each
+           output time the log (base 10) of the Lyap. exponent
+           gamma for each particle.  NOTE:  We don't recommend
+           that you use this without talking to one of us first!
+
+SWIFT_LYAP2: Computes Lyap. exponents for a set of test particles
+           by integrating the difference equations.  Besides the usual
+           par.in, pl.in, and tp.in, the program asked you how often
+           to output the phase space distances.  It also asks for a
+           phase space vector representing the initial separation
+           between a particle and a fictitious particle.  Note that
+           the orbit of the fictitious particle is not integrated, 
+           the difference equations are integrated.  An output file called
+           'lyap2.out'  has for each output time the phase space distance
+           for each particle.  NOTE: WE ARE STILL TESTING THIS, SO BE CAREFULL.
+
+SWIFT_TU4 : A fourth order symplectic integrator based not on the MVS
+          decomposition of the Hamiltonian but rather on the traditional
+          Kinetic (T) plus Potential (U) form. Used mostly as a check
+          on the MVS stuff.
+
+
+                                INPUT/OUTPUT
+
+        The simplest way to use e.g. 'swift_mvs' is to use the file called
+        'mvs.in' in the 'examples' directory, which has just 3 lines
+        corresponding to the names of 3 input files : param.in pl.in  tp.in.
+        Thus one types
+
+                        swift_mvs < mvs.in
+
+        The input parameters are as follows:
+
+PARAM.IN : This file has all the run-time parameters of the form :
+
+        t0, tstop, dt
+        dtout, dtdump
+        L1 L2 L3 L4 L5 L6
+        rmin, rmax, rmaxu, qmin, lclose
+        binary_outputfile
+        status_flag_for_open_statements
+
+   where
+        t0 is the initial time
+        tstop is the time to stop the integration
+        dt is the timestep
+
+        dtout is the time interval between outputs (see below)
+        dtdump is time interval between dumps of the 3 basic files (see below)
+
+        L1-L6 are logicals and are set to T or F
+          L1:  .true.==> Include J2 and J4 for central body.  These values
+                         must be included in the pl.in file.
+          L2:  .true.==> Does the various checks for coming too close to Sun
+                         or planet, or too far from Sun.  If particles are 
+                         removed a file called 'discard.out' will contain a 
+                         set of entries for each removed particle that gives 
+                         the time, the particle's posn and vel and istat flags
+                         and rstat flags (see a file called README.stat for a 
+                         discription of the status flags), as well as all the 
+                         planetary posns and vels. at the time of removal.
+                         So you will have a complete discription of the 
+                         planetary system at removal time if you need it.
+                 NOTE: IF THIS BIT IS NOT SET YOU SHOULD OMIT THE LINE
+                 IN PARAM.IN THAT CONTAINS RMIN, RMAX ETC. AND HAVE ONLY
+                 THREE LINES IN ALL :  THE LAST HAVING THE NAME OF
+                 THE BINARY OUTPUT FILE.
+          L3:  .true.==>  Computes Jacobi integral for the tps (only useful
+                          if have only one planet on circ. orbit).  Writes to 
+                          a file called jacobi.out
+          L4:  .true.==> Computes energy and ang. momentum and writes out 
+                         to a file called energy.out. (of course this only 
+                         checks the accuracy of the planetary integrations).
+          L5:  .true.==> Write to a binary output file the heliocentric
+                         orbital elements of all bodies and test particles.
+                         The elements are written as REAL*4. The elements are 
+                         a,e,i,OMEGA,omega and M, where OMEGA is the long. of 
+                         ascending node, omega is arg. of peri. and M is mean 
+                         anomaly. ROUTINES TO READ FROM THE BINARY FILE ARE 
+                         GIVEN IN FOR EXAMPLE THE ROUTINE "FOLLOW" IN THE 
+                         "TOOLS" DIRECTORY. TO USE FOLLOW SIMPLY RESPOND TO 
+                         THE PROMPTS (e.g. the last query is for which 
+                         particle # to follow - use a positive integer for a 
+                         tp or a negative number if you want to follow a 
+                         planet (e.g. -3 for the third massive body ie the 
+                         second planet).
+          L6:  .true.==> Same as L5 except that in order to save space 
+                         the elements are scaled and then written
+                         as integer*2 variables.  This also has the advantage
+                         of being transportable between different platforms.
+                 NOTE: L5 and L6 cannot both be set to .true.
+
+        rmin is the heliocentric distance at which a tp is stopped because
+             it is deemed to be too close to the central body.
+             SET TO -1. if you want to ignore this check
+        rmax is the heliocentric distance at which a tp is stopped because
+             it is deemed to be too far from the central body
+             SET TO -1. if you want to ignore this check
+        rmaxu is the heliocentric distance at which a tp is stopped because
+             it is deemed to be too far from the central body AND it
+             is also unbound with respect to the central body
+             SET TO -1. if you want to ignore this check
+        qmin is the perihelion distance at which a tp is stopped because
+             it is deemed to be too close to the central body.
+             SET TO -1. if you want to ignore this check
+	     Note:  The orbital elements computed are the osculating 
+                    (instantaneous) HELIOCENTRIC values. Because of the 
+                    motion of the Sun induced by the planets, these values
+                    are unrepresentative of the barycentric values for 
+                    particles which have semi-major axes beyond a few 
+                    hundred AU.  In particular, values for the pericentric 
+                    distance and the inclination will vary considerably. As 
+                    a result we STRONGLY RECOMMEND that a value of RMAX of 
+                    a few hundred AU be used if a nonzero value of QMIN is 
+                    used.
+        lclose is a logical.  If .true. then the code will check for close 
+             approaches between tp and planets.  If tp gets within a distance 
+             rpl of the planet then it is stopped.  rpl for each planet must 
+             be included in the pl.in if this flag is set.  NOTE: we recommend 
+             that rpl be greater than a Hill sphere if you are using MVS.
+        binary_outputfile is the name of a binary file to store the
+            orbital elements at time intervals dtout (see below).
+        status_flag_for_open_statements is the status flag for the open
+        statements of all the output files but lyap.dat.  Must be one
+        of the following:
+                         new      (program dies if the file exists)
+                         append   (data is appended to the file)
+                         unknown  (data is written over existing data).
+
+NOTES : 1) Every dtout time increments, the code outputs various quantities,
+         depending on the value of the logical flags L1-L6 (read in from
+         param.in). 
+
+        2) At time increments set by dtdump, the code dumps all of
+        the information needed to resume the integration at that time
+        in case of power failures or in case one wishes to resume an
+        integration from its endpoint. The info. is in 3 files called
+        dump_pl.dat,  dump_tp.dat, and dump_param.dat.  The format is
+        identical to pl.in, tp.in and param.in respectively.  Note
+        that t0 in dump_param.dat records the time of the dump and
+        that the status_flag_for_open_statements is changed to
+        `append', so that these files can be used to restart a stopped
+        integration.  Depending on the situation, one may wish to 
+        increase tstop in order to extend an integration.   The files 
+        are overwritten with each dump so only the most recent one is 
+        preserved.
+
+        NOTE: We strongly suggest that you set dtdump=dtout.  This will 
+              make it easier to restart the program if your computer
+              goes down.
+
+PL.IN : The code requires units in which the grav. constant G is unity.
+        Any combo of lengths, masses and times that keeps that true is O.K.
+        For example, the pl.in file given in the examples dir. uses lengths
+        in AU and time in days (where one year is exactly 365.25 days). This
+        forces the Solar mass to be about 2.96e-4.  In the example, we
+        give initial conditions from the classic paper of CHO for the
+        integration of the outer planets.  One could instead use units
+        in which lengths are in AU, and the Solar Mass is unity but
+        then the orbital period of a test particle at one AU would
+        be 2*pi. The format is simple : first the # of bodies on the first
+        line  (INCLUDING the Sun) and then 3 lines for each body giving
+        mass on the first line, heliocentric x,y,z on the next and
+        heliocentric vx,vy,vz on the third.  NOTE:  The x,y,z and
+        vx,vy,vz for the Sun MUST be 0!!
+
+        In addition:  if L1 = .true. then next to the Sun must be the
+        values of J_2 * R^2 and J_4 R^4, where R is the radius of the
+        central body.  
+
+        If L2=.true. and lclose=.true. than the lines that contain the masses 
+        of the planets must also include the stopping radius.
+
+TP.IN : In the same units as PL.IN, the first line is # of test particles.
+        The test particles are assumed massless so for each particle there
+        are 6 lines giving heliocentric x,y,z on first, helioc. vx,vy,vz on
+        second and then 13 istat integers and 13 rstat integers (See 
+        README.stat for the definitions of the status flags).  For most 
+        runs one would begin with ststud flags equal to zero
+        unless it is a resumption of an earlier run. The code may
+        alter the arrays as it runs.
+
+********NOTE TO USERS WHO MAY MODIFY THE CODE : ***************************
+        For reasons of efficiency and simplicity, in some of the subroutines
+        which use the array istat, istat is dimensioned and used as if it were
+        a vector rather than a 2D array. These subroutines need only know
+        whether or not istat(i,1) is zero and we don't pass in or out the
+        other elements of the matrix. This is standard practice in Fortran
+        and we note clearly in the description in each subroutine if this
+        is the case.
+**************************************************************************
+
+

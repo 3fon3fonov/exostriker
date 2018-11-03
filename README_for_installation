@@ -1,3 +1,46 @@
+#  For Debian based OS the only thing you have to do is to run:
+ 
+bash check_your_system_linux_debian.sh
+
+#  the script will automatically check if your system is RVmod ready and will
+#  ask you to install packages if needed. Particulary you will need:
+
+gfortran
+csh
+setuptools
+pip 
+numpy
+scipy
+matplotlib
+PyQt5
+PyQt5.QtSvg
+qtconsole
+jupyter
+dill
+emcee 
+corner 
+celerite
+rxvt
+batman
+
+# + the swift N body library which is actuially in the deps directory
+#
+#  The script works for Python 2 and Python 3, but so far I suggest Python 2 
+#  instalation (see Detailed instructions)
+#  
+#  if "check_your_system_linux_debian.sh" was executed with no problems, then
+#  you are ready to go! Just type:
+# 
+#  python gui.py
+#   
+#
+#       Below are more detailed instructions in case you need more 
+#       detailed instalation sequence
+
+################################################################################
+########################### Detailed instructions ##############################
+################################################################################
+#
 #
 # These instructions are for Ubuntu 16.04+ system running Python 2.7,
 # but analogous these should work on other Linux and Mac OS systems. 
@@ -34,12 +77,7 @@ sudo apt-get install python-pip
 
 
 # Then you need "numpy", "matplotlib" and "scipy".
-# From the official Scipy page (https://www.scipy.org/install.html)
-# is recommended --user install, which may be better if you are not the root:
- 
-python -m pip install --user numpy scipy matplotlib
-
-# However, I usually do:
+# I usually do a system install on these:
 
 sudo apt-get install python-numpy python-scipy python-matplotlib
 
@@ -48,13 +86,12 @@ sudo apt-get install python-numpy python-scipy python-matplotlib
 
 sudo apt-get install python-pyqt5 
 sudo apt-get install python-pyqt5.qtsvg
+sudo apt-get install python-qtconsole 
 
+# you also may need:
 
-# "AstroML" & "AstroML_addons" are needed for RVmod, but to be removed 
-# at some point. I recommend pip install:
+sudo apt-get install jupyter
 
-sudo pip install astroML
-sudo pip install astroML_addons
 
 # For session save/load the tool uses "dill". Unfortunately, the RVmod 
 # objects cannot be dumped using the included Py system "pickle/cPickle".
@@ -69,20 +106,8 @@ sudo pip install dill
 sudo pip install emcee
 sudo pip install corner 
 sudo pip install celerite
-
-
  
-
-sudo apt-get install python-qtconsole 
-
-# you also may need:
-
-sudo apt-get install jupyter
-
-# if you did a system install then remove qtconsole from the addons dir.
-
-
-
+ 
 # "batman: Bad-Ass Transit Model cAlculatioN" is used for transit 
 # modeling. 
 
@@ -124,29 +149,30 @@ sudo apt-get install rxvt
 
 # Swift code can be found here: 
 # https://www.boulder.swri.edu/~hal/swift.html
+# but you better use the one in the deps directory!!!
 
 # Open README.first and follow the instructions under "COMPILING SWIFT"
  
 # After swift lib is installed, compile the fortran fitting codes in the
 # "fitting_routines" directory as follow:
 
-gfortran -03 ../latest_f/kepfit_LM_v1b.f -o chi2_kep -lswift # chi2 keplerian
-gfortran -03 ../latest_f/dynfit_LM_v1b.f -o chi2_dyn -lswift # chi2 dynamical
+gfortran -O3 ../latest_f/kepfit_LM_v1b.f -o chi2_kep -lswift # chi2 keplerian
+gfortran -O3 ../latest_f/dynfit_LM_v1b.f -o chi2_dyn -lswift # chi2 dynamical
 
-gfortran -03 ../latest_f/kepfit_amoeba_v1b.f -o loglik_kep -lswift # lnL keplerian
-gfortran -03 ../latest_f/dynfit_amoeba_v1b.f -o loglik_dyn -lswift # lnL dynamical
+gfortran -O3 ../latest_f/kepfit_amoeba_v1b.f -o loglik_kep -lswift # lnL keplerian
+gfortran -O3 ../latest_f/dynfit_amoeba_v1b.f -o loglik_dyn -lswift # lnL dynamical
 
-# note! I have seen the -03 optimization level to lead to unsatble code 
-# for the chi2_dyn minimizing code. If that happen try -02, or no opt. flag
-# at all! Still always try first with -03 as it leads to a faster code.
+# note! I have seen that the -O3 optimization level on some PCs leads to 
+# unsatble code for the chi2_dyn minimizing code. If that happen try -O2, or 
+#no opt. flag at all! Still always try first with -03 as it leads to a faster code.
 
 # additionally you must replace the routines in the "stability" directory.
 # "cd" to "stability/symba" and
 
 
-gfortran -03 latest_f/symba_f/follow_symba2.f -o follow_symba2 -lswift
-gfortran -03 latest_f/symba_f/geninit_j3_in_days.f -o geninit_j3_in_days -lswift
-gfortran -03 latest_f/symba_f/swift_symba5_j.f -o swift_symba5_j -lswift
+gfortran -O3 latest_f/symba_f/follow_symba2.f -o follow_symba2 -lswift
+gfortran -O3 latest_f/symba_f/geninit_j3_in_days.f -o geninit_j3_in_days -lswift
+gfortran -O3 latest_f/symba_f/swift_symba5_j.f -o swift_symba5_j -lswift
 
 
 # If you have Ubuntu/Debian/ or Open_Suse you may simply try:
@@ -157,7 +183,7 @@ chmod +x chi2_kep chi2_dyn loglik_kep loglik_dyn
 
 chmod +x follow_symba2 geninit_j3_in_days swift_symba5_j 
 
-# This may, or may not work, but I recommend to compile from source.
+# This may, or may not work, so I recommend to compile from source.
 
 
 ############################## Finally #################################

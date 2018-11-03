@@ -1,0 +1,22 @@
+*************************************************************************
+		         README.J2
+*************************************************************************
+The code assumes that to incorporate an oblateness to the first particle
+that the grav. potential of a central body is given by
+
+	V = -(GM/r) * (1 - j2rp2*P_2/(r^2) - j4rp4*P_4/(r^4) ) 
+
+where j2rp2 = j2 * rp^2  and j4rp4 = j4 * rp^4, with rp the radius of
+the central object.  The P_n are Legendre polys of order n and their
+argument is (z^2/r^2).
+
+N.B. THE MINUS SIGNS IN THE SUMMATION OVER MULTIPOLE MOMENTS ARE
+TAKEN BY SOME AUTHORS TO BE PLUS SIGNS , SO THAT THE SIGNS OF J2 AND
+J4 MUST BE CAREFULLY CHECKED. IN OUR NOTATION FOR EXAMPLE THE
+J2 FOR AN OBLATE BODY IS USUALLY POSITIVE.  A POSITIVE J2 IN OUR
+NOTATION LEADS TO THE ADVANCE OF THE ARGUMENT OF PERIHELION, AS WOULD
+HAPPEN E.G. FOR MERCURY DUE ONLY TO AN OBLATE SUN. NOTE ALSO WE
+REQUIRE THE USER TO INPUT J2RP2 and J4RP4, SO THE SATELLITE DISTANCE
+MUST BE IN THE SAME LENGTH UNITS AS IS USED TO CALCULATE J2*(RP^2)
+FOR EXAMPLE.
+

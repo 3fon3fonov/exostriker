@@ -1,0 +1,56 @@
+#!/bin/csh 
+
+# USERS MUST CHANGE THESE !!!!!!
+# set FORTRAN=f90
+# set FFLAGS='-O3 +Onolimit +Oall +Odataprefetch +Ovectorize +Ocache_pad_common'
+# set FORTRAN=fort77
+# set FFLAGS='-a -O3'
+set FORTRAN=gfortran
+set FFLAGS='-O'
+
+echo "*********************** CPP TEST ************************"
+
+echo First we deal with the OPEN function
+
+echo
+echo --------
+echo If the following compilation works than you can use the -U_OPEN_POSITION option.
+echo 
+$FORTRAN $FFLAGS -o open_test1 open_test1.f
+echo Done compilation.
+echo
+echo --------
+echo If the following compilation works than you can use the -D_OPEN_POSITION option.
+echo 
+$FORTRAN $FFLAGS -o open_test2 open_test2.f
+echo Done compilation.
+echo
+echo --------
+echo If neither worked contact Hal Levison.
+echo 
+
+echo "*********************************************************"
+
+echo First we deal with recursion.
+
+echo
+echo --------
+echo If the following compilation works than you can use the -U_RECUR_SUB option.
+echo 
+$FORTRAN $FFLAGS -o recur_test1 recur_test1.f
+echo Done compilation.
+echo
+echo --------
+echo If the following compilation works than you can use the -D_RECUR_SUB option.
+echo 
+$FORTRAN $FFLAGS -o recur_test2 recur_test2.f
+echo Done compilation.
+echo
+echo --------
+echo If neither worked contact Hal Levison.
+echo 
+echo 
+echo 
+
+rm *.o
+echo Done directory $PWD 

@@ -1,0 +1,43 @@
+From thommes@lola.phy.queensu.ca Mon Apr 27 17:14:34 1998
+Return-Path: <thommes@lola.phy.queensu.ca>
+Received: from milo.phy.queensu.ca by astro.queensu.ca (SMI-8.6/SMI-SVR4)
+	id RAA26835; Mon, 27 Apr 1998 17:14:33 -0400
+Received: (from duncan@localhost)
+	by milo.phy.queensu.ca (8.8.8/8.8.8) id RAA03787
+	for mhlee@astro.queensu.ca; Mon, 27 Apr 1998 17:16:06 -0400 (EDT)
+X-Authentication-Warning: milo.phy.queensu.ca: duncan set sender to thommes@lola.phy.queensu.ca using -f
+Received: from hp by lola (SMI-8.6/SMI-SVR4)
+	id KAA28955; Wed, 8 Apr 1998 10:41:06 -0400
+Received: from localhost by hp (1.38.193.4) id AA10633; Wed, 8 Apr 1998 10:42:35 -0400
+Date: Wed, 8 Apr 1998 10:42:34 -0400 (EDT)
+From: Ed Thommes <thommes@lola.phy.queensu.ca>
+X-Sender: thommes@calvin
+Reply-To: Ed Thommes <thommes@lola.phy.queensu.ca>
+To: duncan@lola.phy.queensu.ca
+Cc: Hal Levison <hal@gort.boulder.swri.edu>
+Subject: Compiling latest Swift on HPs
+Message-Id: <Pine.HPP.3.96.980408101409.10387B-100000@calvin>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Status: RO
+Content-Length: 526
+
+To compile Swift on our HPs, the following needs to be changed in the
+default @make files that come with the distribution:
+	
+For swift/@make:
+-Change the FFLAGS line so that it reads
+	set FFLAGS='-O -c'
+
+-Change the CPPFLAGS line so that it reads:
+	set CPPFLAGS='-P -U_OPEN_POSITION -U_RECUR_SUB'
+(the -P flag is the one which gets rid of the extra stuff that was being 
+printed in the precompiled files and causing Fortran compiler errors) 
+
+For swift/main/@make:
+-Change the FFLAGS line so that it reads
+	set FFLAGS='-O'
+
+
+
+

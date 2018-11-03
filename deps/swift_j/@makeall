@@ -1,0 +1,161 @@
+rm libswift.a
+
+echo DIRECTORY: anal
+cd anal
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: bs
+cd ../bs
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: coord  
+cd ../coord  
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: discard  
+cd ../discard  
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: io  
+cd ../io  
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: lyap
+cd ../lyap
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: lyap2
+cd ../lyap2
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: mvits
+cd ../mvits
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+cd ../mvs
+
+echo DIRECTORY: mvs/drift 
+cd drift 
+rm @make
+ln -s ../../@make .
+csh -f  @make
+
+echo DIRECTORY: mvs/getacch
+cd ../getacch
+rm @make
+ln -s ../../@make .
+csh -f  @make
+
+echo DIRECTORY: mvs/kickvh
+cd ../kickvh
+rm @make
+ln -s ../../@make .
+csh -f  @make
+
+echo DIRECTORY: mvs/step
+cd ../step
+rm @make
+ln -s ../../@make .
+csh -f  @make
+
+cd ..
+
+echo DIRECTORY: orbel  
+cd ../orbel  
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: rmvs
+cd ../rmvs
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: rmvs2
+cd ../rmvs2
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: rmvs3
+cd ../rmvs3
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: tu4
+cd ../tu4
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: obl
+cd ../obl
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: util
+cd ../util
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: helio
+cd ../helio
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: symba3
+cd ../symba3
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: symba4
+cd ../symba4
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: symba5
+cd ../symba5
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: symba5d
+cd ../symba5d
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+echo DIRECTORY: symba5s
+cd ../symba5s
+rm @make
+ln -s ../@make .
+csh -f  @make
+
+cd ..
+ar ts libswift.a
+ranlib libswift.a
+
+echo DONE
