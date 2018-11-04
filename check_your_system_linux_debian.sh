@@ -32,7 +32,7 @@ done
 
 
 #python system install (sudo apt install)
-arr=( "setuptools" "pip" "numpy" "scipy" "matplotlib" "PyQt5" "PyQt5.QtSvg")
+arr=( "setuptools" "pip" "numpy" "scipy" "matplotlib")
 
 for i in "${arr[@]}";
 do
@@ -42,19 +42,51 @@ do
        echo "$i - not installed! Do you wish to install $i?"
        select yn in "Yes" "No"; do
            case $yn in
-               Yes ) if [ $i=="PyQt5" ]; then 
-                         sudo apt install $python-pyqt5; 
-                     elif [ $i=="PyQt5.QtSvg" ]; then 
-                         sudo apt install $python-pyqt5.qtsvg; 
-                     else
-                         sudo apt install $python-$i; 
-                     fi
-                     break;;
+               Yes ) sudo apt install $python-$i; break;;
                No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
            esac
        done
    fi
 done
+
+
+#python system install (sudo apt install)
+arr=( "PyQt5" )
+
+for i in "${arr[@]}";
+do
+   if $python -c "import $i" &> /dev/null; then
+       echo "$i - yes!"
+   else
+       echo "$i - not installed! Do you wish to install $i?"
+       select yn in "Yes" "No"; do
+           case $yn in
+               Yes ) sudo apt install $python-pyqt5; break;;
+               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
+           esac
+       done
+   fi
+done
+
+#python system install (sudo apt install)
+arr=("PyQt5.QtSvg")
+
+for i in "${arr[@]}";
+do
+   if $python -c "import $i" &> /dev/null; then
+       echo "$i - yes!"
+   else
+       echo "$i - not installed! Do you wish to install $i?"
+       select yn in "Yes" "No"; do
+           case $yn in
+               Yes ) sudo apt install $python-pyqt5.qtsvg; break;;
+               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
+           esac
+       done
+   fi
+done
+
+
 
 
 #python pip install
@@ -199,8 +231,33 @@ done
 
 
 
+# Not working, not sure why...
 
 
+#python system install (sudo apt install)
+#arr=( "setuptools" "pip" "numpy" "scipy" "matplotlib" "PyQt5" "PyQt5.QtSvg")
+
+#for i in "${arr[@]}";
+#do
+#   if $python -c "import $i" &> /dev/null; then
+#       echo "$i - yes!"
+#   else
+#       echo "$i - not installed! Do you wish to install $i?"
+#       select yn in "Yes" "No"; do
+#           case $yn in
+#               Yes ) if [ $i=="PyQt5" ]; then 
+#                         sudo apt install $python-pyqt5;
+#                     elif [ $i=="PyQt5.QtSvg" ]; then 
+#                         sudo apt install $python-pyqt5.qtsvg; 
+#                     else
+#                         sudo apt install $python-$i; 
+#                     fi
+#                     break;;
+#               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
+#           esac
+#       done
+#   fi
+#done
 
 
 
