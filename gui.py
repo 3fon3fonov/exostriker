@@ -587,10 +587,16 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         #inf1 = pg.InfiniteLine(movable=False, angle=0, label=None, span=(0, 1), 
         #              labelOpts={'position':0.0, 'color': 'k', 'fill': (200,200,200,50), 'movable': False} )
-        #p1.addItem(inf1)              
+        #p1.addItem(inf1)    
+
+        if self.jitter_to_plots.isChecked():
+            error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)
+        else:
+            error_list = fit.fit_results.rv_model.rv_err
+          
                       
         err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd, y=fit.fit_results.rv_model.rvs,symbol='o', 
-        height=fit.fit_results.rv_model.rv_err, beam=0.0, pen='k')  
+        height=error_list, beam=0.0, pen='k')  
 
         p1.addItem(err1)      
         p1.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
@@ -606,7 +612,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
   
         err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd, y=fit.fit_results.rv_model.o_c,symbol='o', 
-        height=fit.fit_results.rv_model.rv_err, beam=0.0, pen='k')   
+        height=error_list, beam=0.0, pen='k')   
          
         p2.addItem(err2)
         p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
@@ -758,7 +764,16 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             self.phase_plots(ind)
         else:
             return
-         
+
+    def add_jitter(self, errors, ind):
+        global fit
+
+        errors_with_jitt = np.array([np.sqrt(errors[i]**2 + fit.params.jitters[i]**2)  for i in ind])
+
+        return errors_with_jitt
+
+
+
 
     def phase_plots(self, ind):
         global fit, colors   
@@ -772,11 +787,17 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         if len(ph_data) == 1:
             return
-        
+ 
         brush_list2 = [pg.mkColor(c) for c in [colors[i] for i in ph_data[3]]]
 
+        if self.jitter_to_plots.isChecked():
+            error_list = self.add_jitter(ph_data[2], ph_data[3])
+        else:
+            error_list = ph_data[2]
         
-        err_ = pg.ErrorBarItem(x=ph_data[0], y=ph_data[1],symbol='o', height=ph_data[2], beam=0.0, pen='k')   
+        
+        
+        err_ = pg.ErrorBarItem(x=ph_data[0], y=ph_data[1],symbol='o', height=error_list, beam=0.0, pen='k')   
          
         pe.addItem(err_)
         pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))   
@@ -859,7 +880,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             fit.fitting(fileinput=False,outputfiles=[1,0,0], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
             fit.fitting(fileinput=False,outputfiles=[1,1,1], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
         else:        
-                fit.fitting(fileinput=False,outputfiles=[1,1,1], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
+                fit.fitting(fileinput=True,outputfiles=[1,1,1], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
 
         self.update_labels()
         self.update_gui_params()
