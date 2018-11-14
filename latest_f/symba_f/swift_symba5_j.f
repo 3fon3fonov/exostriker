@@ -29,7 +29,7 @@ c Last revision:
 
       real*8 xjt(1),yjt(1),zjt(1)       ! Dummy for the io
       real*8 vxjt(1),vyjt(1),vzjt(1)
-      integer ntp,istat(1)
+      integer ntp,istat
 
       integer nbod,i1st,i,nbodm,nbodo
       integer iflgchk,iub,iuj,iud,iue,ium
