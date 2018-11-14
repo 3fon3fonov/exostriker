@@ -85,7 +85,7 @@ done
 
 
 
-#python system install (sudo apt install)
+#python system install 
 arr=( "setuptools" "numpy" "scipy" "matplotlib")
 
 for i in "${arr[@]}";
@@ -128,25 +128,6 @@ done
 
 
 
-#system optional
-arr=( "urxvt" )
-
-for i in "${arr[@]}";
-do
-   if type $i >/dev/null 2>&1; then
-       echo "$i - yes!"
-   else
-       echo "$i - not installed! Do you wish to install $i?"
-       select yn in "Yes" "No"; do
-           case $yn in
-               Yes ) brew cask install xquartz; brew install rxvt-unicode; break;;
-               No ) echo "WARNING: RVmod/TRIFON may not work properly without $i!!!"; break;;
-           esac
-       done  
-   fi
-done
-
-
 #python local install (under test)
 arr=( "batman")
 
@@ -168,8 +149,8 @@ do
                Yes-Local ) if [ $i=="batman" ]; then 
                          echo "We are installing $i from source ./deps ---> ./addons  ...";
                          cd deps/batman-package-2.4.6/;
-                         #$python setup.py install --user --prefix=;
-                         sudo python setup.py install;
+                         $python setup.py install --user --prefix=;
+                         #sudo python setup.py install;
                          cp -r ./build/lib.linux-x86_64-2.7/batman ../../addons/;
                          cd ../../;
                      else 
@@ -240,7 +221,23 @@ select yn in "Yes" "No"; do
 done
 
 
+#system optional
+#arr=( "urxvt" )
 
+#for i in "${arr[@]}";
+#do
+#   if type $i >/dev/null 2>&1; then
+#       echo "$i - yes!"
+#   else
+#       echo "$i - not installed! Do you wish to install $i?"
+#       select yn in "Yes" "No"; do
+#           case $yn in
+#               Yes ) brew cask install xquartz; brew install rxvt-unicode; break;;
+#               No ) echo "WARNING: RVmod/TRIFON may not work properly without $i!!!"; break;;
+#           esac
+#       done  
+#   fi
+#done
 
 
 

@@ -18,6 +18,7 @@ import pyqtgraph.console as pg_console
 import text_editor2 as ted
 import calculator as calc 
 import stdout_pipe as stdout_pipe
+import terminal as terminal
 import gls as gls 
 
 #import BKR as bkr
@@ -56,20 +57,7 @@ fit=rv.signal_fit()
 colors = ['#0066ff',  '#66ff66','#ff0000','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 
 QtGui.QApplication.processEvents()
-
-class EmbTerminal(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super(EmbTerminal, self).__init__(parent)
-        self.process = QtCore.QProcess(self)
-        self.terminal = QtWidgets.QWidget(self)
-        layout = QtWidgets.QVBoxLayout(self)
-        layout.addWidget(self.terminal)
-        # Works also with urxvt:
-        self.process.start('urxvt',['-embed', str(int(self.winId()))])
-        self.setFixedSize(480, 390)
-        #self.setMaximumSize(self.size())
-        #self.setMinimumSize(480, 390)
-        #self.setSizePolicy(QtWidgets.QSizePolicy.Preferred,QtWidgets.QSizePolicy.Preferred)
+ 
   
 class ConsoleWidget_embed(RichJupyterWidget,ConsoleWidget):
     global fit
@@ -1112,8 +1100,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 #        self.init_fit()
         
         self.terminal_embeded.addTab(ConsoleWidget_embed(), "Jupyter")
-        self.terminal_embeded.addTab(EmbTerminal(), "Bash shell")        
-        self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")  
+        if sys.platform[0:5] == "linux":
+            self.terminal_embeded.addTab(terminal.EmbTerminal(), "Bash shell")        
+        self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")   
         #self.terminal_embeded.addTab(calc.Calculator(), "calculator")  
         #self.terminal_embeded.addTab(ted.Main(), "text_editor")
         #self.terminal_embeded.addTab(ted.MainWindow(), "text_editor")
