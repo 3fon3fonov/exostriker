@@ -872,7 +872,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             fit.fitting(fileinput=False,outputfiles=[1,0,0], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
             fit.fitting(fileinput=False,outputfiles=[1,1,1], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
         else:        
-                fit.fitting(fileinput=True,outputfiles=[1,1,1], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
+                fit.fitting(fileinput=False,outputfiles=[1,1,1], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
 
         self.update_labels()
         self.update_gui_params()
