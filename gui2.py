@@ -36,7 +36,7 @@ from qtconsole.console_widget import ConsoleWidget
 #    import pickle
 
 import dill
-import terminal
+
 
 qtCreatorFile = "rvmod_gui.ui" # Enter file here.
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
@@ -57,7 +57,19 @@ colors = ['#0066ff',  '#66ff66','#ff0000','#00ffff','#cc33ff','#ff9900','#cccc00
 
 QtGui.QApplication.processEvents()
 
- 
+class EmbTerminal(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(EmbTerminal, self).__init__(parent)
+        self.process = QtCore.QProcess(self)
+        self.terminal = QtWidgets.QWidget(self)
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(self.terminal)
+        # Works also with urxvt:
+        self.process.start('urxvt',['-embed', str(int(self.winId()))])
+        self.setFixedSize(480, 390)
+        #self.setMaximumSize(self.size())
+        #self.setMinimumSize(480, 390)
+        #self.setSizePolicy(QtWidgets.QSizePolicy.Preferred,QtWidgets.QSizePolicy.Preferred)
   
 class ConsoleWidget_embed(RichJupyterWidget,ConsoleWidget):
     global fit
@@ -559,7 +571,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                         
             self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(self.identify_power_peaks(1/np.array(omega), WF_power)))        
          
-         
         
 
     def update_RV_plots(self):
@@ -614,7 +625,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
   #pen={'color': 'r', 'width': 1.1},  
   
-      
       
      
         
@@ -754,9 +764,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             self.phase_plots(ind)
         else:
             return
-            
-            
-  
+
     def add_jitter(self, errors, ind):
         global fit
 
@@ -1105,9 +1113,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
         self.terminal_embeded.addTab(ConsoleWidget_embed(), "Jupyter")
         if sys.platform[0:5] == "linux":
-            self.terminal_embeded.addTab(terminal.EmbTerminal(), "Bash shell")        
+             self.terminal_embeded.addTab(EmbTerminal(), "Bash shell")        
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")  
- 
+        #self.terminal_embeded.addTab(calc.Calculator(), "calculator")  
+        #self.terminal_embeded.addTab(ted.Main(), "text_editor")
+        #self.terminal_embeded.addTab(ted.MainWindow(), "text_editor")
 
         self.gridLayout_text_editor.addWidget(ted.MainWindow())       
         self.gridLayout_calculator.addWidget(calc.Calculator())  
