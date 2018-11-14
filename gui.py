@@ -18,7 +18,6 @@ import pyqtgraph.console as pg_console
 import text_editor2 as ted
 import calculator as calc 
 import stdout_pipe as stdout_pipe
-import terminal as terminal
 import gls as gls 
 
 #import BKR as bkr
@@ -37,7 +36,7 @@ from qtconsole.console_widget import ConsoleWidget
 #    import pickle
 
 import dill
-
+import terminal
 
 qtCreatorFile = "rvmod_gui.ui" # Enter file here.
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
@@ -57,6 +56,7 @@ fit=rv.signal_fit()
 colors = ['#0066ff',  '#66ff66','#ff0000','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 
 QtGui.QApplication.processEvents()
+
  
   
 class ConsoleWidget_embed(RichJupyterWidget,ConsoleWidget):
@@ -575,16 +575,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         #inf1 = pg.InfiniteLine(movable=False, angle=0, label=None, span=(0, 1), 
         #              labelOpts={'position':0.0, 'color': 'k', 'fill': (200,200,200,50), 'movable': False} )
-        #p1.addItem(inf1)    
-
-        if self.jitter_to_plots.isChecked():
-            error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)
-        else:
-            error_list = fit.fit_results.rv_model.rv_err
-          
+        #p1.addItem(inf1)              
                       
         err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd, y=fit.fit_results.rv_model.rvs,symbol='o', 
-        height=error_list, beam=0.0, pen='k')  
+        height=fit.fit_results.rv_model.rv_err, beam=0.0, pen='k')  
 
         p1.addItem(err1)      
         p1.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
@@ -600,7 +594,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
   
         err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd, y=fit.fit_results.rv_model.o_c,symbol='o', 
-        height=error_list, beam=0.0, pen='k')   
+        height=fit.fit_results.rv_model.rv_err, beam=0.0, pen='k')   
          
         p2.addItem(err2)
         p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
@@ -752,16 +746,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             self.phase_plots(ind)
         else:
             return
-
-    def add_jitter(self, errors, ind):
-        global fit
-
-        errors_with_jitt = np.array([np.sqrt(errors[i]**2 + fit.params.jitters[i]**2)  for i in ind])
-
-        return errors_with_jitt
-
-
-
+         
 
     def phase_plots(self, ind):
         global fit, colors   
@@ -775,17 +760,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         if len(ph_data) == 1:
             return
- 
+        
         brush_list2 = [pg.mkColor(c) for c in [colors[i] for i in ph_data[3]]]
 
-        if self.jitter_to_plots.isChecked():
-            error_list = self.add_jitter(ph_data[2], ph_data[3])
-        else:
-            error_list = ph_data[2]
         
-        
-        
-        err_ = pg.ErrorBarItem(x=ph_data[0], y=ph_data[1],symbol='o', height=error_list, beam=0.0, pen='k')   
+        err_ = pg.ErrorBarItem(x=ph_data[0], y=ph_data[1],symbol='o', height=ph_data[2], beam=0.0, pen='k')   
          
         pe.addItem(err_)
         pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))   
@@ -1102,10 +1081,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.terminal_embeded.addTab(ConsoleWidget_embed(), "Jupyter")
         if sys.platform[0:5] == "linux":
             self.terminal_embeded.addTab(terminal.EmbTerminal(), "Bash shell")        
-        self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")   
-        #self.terminal_embeded.addTab(calc.Calculator(), "calculator")  
-        #self.terminal_embeded.addTab(ted.Main(), "text_editor")
-        #self.terminal_embeded.addTab(ted.MainWindow(), "text_editor")
+        self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")  
+ 
 
         self.gridLayout_text_editor.addWidget(ted.MainWindow())       
         self.gridLayout_calculator.addWidget(calc.Calculator())  
