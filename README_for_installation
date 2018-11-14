@@ -1,9 +1,11 @@
+##############################  LINUX  #########################################
+#
 #  For Debian based OS the only thing you have to do is to run:
  
 bash check_your_system_linux_debian.sh
 
 #  the script will automatically check if your system is RVmod ready and will
-#  ask you to install packages if needed. Particulary you will need:
+#  ask you to install packages if needed. Particularly you will need:
 
 gfortran
 csh
@@ -20,19 +22,51 @@ dill
 emcee 
 corner 
 celerite
-rxvt
 batman
 
-# + the swift N body library which is actuially in the deps directory
+# + the swift N-body library, which is actually in the deps directory
 #
 #  The script works for Python 2 and Python 3, but so far I suggest Python 2 
-#  instalation (see Detailed instructions)
+#  installation (see Detailed instructions)
 #  
 #  if "check_your_system_linux_debian.sh" was executed with no problems, then
 #  you are ready to go! Just type:
 # 
-#  python gui.py
-#   
+
+python gui.py   
+
+
+################################  MAC OS  ######################################
+# Similar instructions as above are for MAC OS. These are tested and worked 
+# straight away on a "clean" Mac OS X installation (Sierra 10.13). Just run:
+
+bash check_your_system_MAC_OS.sh
+
+
+# Before that you will need to install "homebrew" which requires sudo privileges 
+# To install "homebrew", open terminal and type:
+
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+
+
+# I had problems with pip install of batman, in particular with the local
+# numpy installation.With "pip" install it seems that the numpy headers are here:
+
+/Users/trifontrifonov/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy
+
+
+Therefore a copy of the header dir fixed the problem
+
+cp -r /Users/trifontrifonov/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy /usr/local/include
+
+
+
+
+################################################################################
+
+
+
 #
 #       Below are more detailed instructions in case you need more 
 #       detailed instalation sequence
@@ -134,7 +168,7 @@ sudo pip install pyqtgraph
 ##################################### Shells ###################################
 #
 # "urxvt" is an embedded bash shell which may help the user during the working
-# process.
+# process. This is optional! is not installed it will use "xterm"
 
 sudo apt-get install rxvt
 
@@ -164,7 +198,7 @@ gfortran -O3 ../latest_f/dynfit_amoeba_v1b.f -o loglik_dyn -lswift # lnL dynamic
 
 # note! I have seen that the -O3 optimization level on some PCs leads to 
 # unsatble code for the chi2_dyn minimizing code. If that happen try -O2, or 
-#no opt. flag at all! Still always try first with -03 as it leads to a faster code.
+#no opt. flag at all! Still always try first with -O3 as it leads to a faster code.
 
 # additionally you must replace the routines in the "stability" directory.
 # "cd" to "stability/symba" and
