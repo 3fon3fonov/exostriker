@@ -56,12 +56,16 @@ bash check_your_system_MAC_OS.sh
 /Users/trifontrifonov/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy
 
 
-Therefore a copy of the header dir fixed the problem
+# Therefore a copy of the header dir fixed the problem
 
 cp -r /Users/trifontrifonov/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy /usr/local/include
 
+# If you experineced the same problem after the "cp -r..." run again:
 
+bash check_your_system_MAC_OS.sh
 
+# and all shoud be Ok now! (you may skip the swift instalation if you have
+# installed the lib the first time.
 
 ################################################################################
 
