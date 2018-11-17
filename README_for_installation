@@ -27,7 +27,7 @@ batman
 # + the swift N-body library, which is actually in the deps directory
 #
 #  The script works for Python 2 and Python 3, but so far I suggest Python 2 
-#  installation (see Detailed instructions)
+#  installation (see "Detailed instructions" below)
 #  
 #  if "check_your_system_linux_debian.sh" was executed with no problems, then
 #  you are ready to go! Just type:
@@ -56,12 +56,16 @@ bash check_your_system_MAC_OS.sh
 /Users/trifontrifonov/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy
 
 
-Therefore a copy of the header dir fixed the problem
+# Therefore a copy of the header dir fixed the problem
 
 cp -r /Users/trifontrifonov/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy /usr/local/include
 
+# If you experineced the same problem after the "cp -r..." run again:
 
+bash check_your_system_MAC_OS.sh
 
+# and all shoud be Ok now! (you may skip the swift instalation if you have
+# installed the lib the first time.
 
 ################################################################################
 
@@ -80,10 +84,18 @@ cp -r /Users/trifontrifonov/Library/Python/2.7/lib/python/site-packages/numpy/co
 # but analogous these should work on other Linux and Mac OS systems. 
 #
 # I have tried the installation on Virtual machine with Ubuntu 16.04, 
-# 18.04 and Lubuntu 18.04 running Python 3 and in general works. However
-# there was some stdout piping error with the Python print() functions,
-# which I haven't resolved yet.  Therefore, if you reed this, for now I 
-# recommend only python2 install.
+# 18.04 and Lubuntu 18.04 running Python3 and generally works. 
+#
+# However, some modification of the RVmod object must be done when used with Py3
+# because it cannot be "pickled" (i.e. copied via "copy" or "dill"). 
+# This is peculiar because it works fine with Python2!
+#
+# On top of that there is some problem with piping the Python3 print() functions,
+# which I haven't resolved yet. As a result the stdout is not printed in the
+# "Stdout/Stderr" GUI tab, but directly in the terminal shell from which you 
+# start the gui.
+
+# Therefore, if you reed this, for now I recommend only python2 install.
 #  
 # Not tried on Windows, yet! 
 #
@@ -256,7 +268,7 @@ Some credits (more to come)
 
 * The text_editor used in the tool is:
 
-Megasolid Idiom — A rich text editor in PyQt
+Megasolid Idiom - A rich text editor in PyQt
 https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor
 
 * The transit modeling is done with "batman"

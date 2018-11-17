@@ -1111,7 +1111,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         self.gridLayout_text_editor.addWidget(ted.MainWindow())       
         self.gridLayout_calculator.addWidget(calc.Calculator())  
-        self.gridLayout_stdout.addWidget(stdout_pipe.MyDialog())  
+        if sys.version_info[0] == 2:
+            self.gridLayout_stdout.addWidget(stdout_pipe.MyDialog())  
        
         
         

@@ -14,7 +14,6 @@ import numpy as np
 #import matplotlib
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-#from pylab import *
 import re
 #import nmpfit as mp
 from matplotlib import gridspec
@@ -27,14 +26,14 @@ import time
 import copy
 import multiprocessing
 from threading import Thread
-#from astroML.time_series import lomb_scargle
-#from astroML.time_series import lomb_scargle_bootstrap
 from scipy.signal import argrelextrema
 
 import emcee
 import corner
 import celerite 
 from celerite import terms
+
+import dill
 
 
 TAU=6.2831853071
@@ -521,7 +520,9 @@ def phase_planet_signal(obj,planet):
     if obj.npl ==0 or len(obj.fit_results.rv_model.jd) ==0:
         return [-1], [-1] #[[0],[0]], [[0],[0],[0],[0]]
     else:
-        copied_obj = copy.deepcopy(obj)     
+        #copied_obj = copy.deepcopy(obj)  
+        copied_obj = dill.copy(obj) 
+   
         index = planet - 1
         ############################################      
         ######### and here is the trick!  ##########
@@ -1683,8 +1684,8 @@ class fortran_output(object):
                 self.rms_str   = self.best_par[i+2]
                 self.chi_str   = self.best_par[i+3]
                 self.epoch_str = self.best_par[i+4]
-                self.masses  = map(float,self.best_par[i+6])
-                self.semiM = map(float,self.best_par[i+8])
+                self.masses  = list(map(float,self.best_par[i+6]))
+                self.semiM = list(map(float,self.best_par[i+8]))
                 i=i+9
             else:
                 i=i+1
@@ -2567,8 +2568,11 @@ class signal_fit(object):
         if (planet>self.npl):
             warnings.update_warning_list('Planet number %d higher than number of planets %d, cannot generate plot!'%(planet,self.npl))
         else:                 
-            special_task_copy=copy.deepcopy(self) # create new signal_fit object, which will be the same except semiamplitude for chosen planet will be zero
-            normal_copy=copy.deepcopy(self) # create new signal_fit object, which will be the same          
+            #special_task_copy=copy.deepcopy(self) # create new signal_fit object, which will be the same except semiamplitude for chosen planet will be zero
+            #normal_copy=copy.deepcopy(self) # create new signal_fit object, which will be the same  
+            special_task_copy=dill.copy(self)
+            normal_copy=dill.copy(self)
+       
             flag=normal_copy.fitting(fileinput=True, filename='temp_test', minimize_loglik=True, amoeba_starts=0, outputfiles=[0,1,1],return_flag=True) # this should find signal from other planets
             if not (flag==1):
                 warnings.update_warning_list('Failed to find signal from all planets!')
