@@ -5,7 +5,7 @@
 echo "For which Python version we want to check/install packages?"
 select py in "Python2" "Python3"; do
    case $py in
-       Python2 ) python="python2" ; pip="pip2" ; break;;
+       Python2 ) python="python" ; pip="pip2" ; break;;
        Python3 ) python="python3"; pip="pip3"; break;;
    esac
 done  
@@ -31,8 +31,10 @@ done
 
 
 
+sudo zypper update && zypper install rng-tools python-devel libffi-devel gcc python2-pip libopenssl-devel
+
 #python system install 
-arr=( "setuptools" "pip" "numpy" "scipy" "matplotlib")
+arr=(  "pip" )
 
 for i in "${arr[@]}";
 do
@@ -42,14 +44,34 @@ do
        echo "$i - not installed! Do you wish to install $i?"
        select yn in "Yes" "No"; do
            case $yn in
-#               Yes ) sudo zypper install $python-$i; break;;
-               Yes ) $python -m install --user $i; break;;
+               Yes ) sudo zypper install $python-$i; 
+                     sudo $pip install --upgrade pip; 
+                     sudo $pip install --upgrade setuptools;                    
+                     break;;
                No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
            esac
        done
    fi
 done
 
+
+#python system install 
+arr=( "numpy" "scipy" "matplotlib")
+
+for i in "${arr[@]}";
+do
+   if $python -c "import $i" &> /dev/null; then
+       echo "$i - yes!"
+   else
+       echo "$i - not installed! Do you wish to install $i?"
+       select yn in "Yes" "No"; do
+           case $yn in
+               Yes ) sudo zypper install $python-$i; break;;
+               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
+           esac
+       done
+   fi
+done
 
 #python system install 
 arr=( "PyQt5" )
@@ -88,6 +110,11 @@ do
 done
 
 
+#sudo $pip uninstall ipython
+#sudo $pip install ipython==5.7 --user
+#sudo $pip install ipykernel==4.10 --user
+#sudo zypper install $python-devel
+#sudo zypper install python3-qtconsole
 
 
 #python pip install
