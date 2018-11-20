@@ -739,20 +739,35 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         if fit.npl != 0:
             for i in range(fit.npl):
                 self.comboBox_extra_plot.addItem('phase pl %s'%(i+1),i+1)
-             
+            
+            self.comboBox_extra_plot.addItem('gls',fit.npl+1)
+            self.comboBox_extra_plot.addItem('gls o-c',fit.npl+1)
+           
+            
             self.phase_plots(1)   
             
         self.comboBox_extra_plot.activated.connect(self.handleActivated)
         
         
     def handleActivated(self, index):
-        global fit
+        global fit, pe, zzz
         
         ind = self.comboBox_extra_plot.itemData(index) 
         
         if ind <= fit.npl:
             self.phase_plots(ind)
+        elif ind >= fit.npl+1:
+            pe.clear()
+            #pe = pg.ViewBox()
+            #pe.setXLink(zzz[ind])
+            #pe.setYLink(zzz[ind])
+            #pe.addItem(p8.getPlotItem)
+            #pe.setPlotItem(p8.getPlotItem)
+            #pe.scene().addItem(p8.plotItem) 
+            #pe = dill.copy(p8)
+            #pe.addItem(p8.getPlotItem)             
         else:
+   
             return
             
             
@@ -804,9 +819,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                
         pe.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})
         pe.setLabel('left',   'RV', units='m/s',  **{'font-size':'12pt'})  
-        # p22 = p2.plotItem
-        #pe.scene().addItem(p22) 
-       # pe.addItem(p22)         
+      
         
  
 ###################################################### 

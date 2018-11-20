@@ -23,7 +23,6 @@ import tempfile, shutil
 
 #from emcee.utils import MPIPool
 import time
-import copy
 import multiprocessing
 from threading import Thread
 from scipy.signal import argrelextrema
@@ -33,6 +32,7 @@ import corner
 import celerite 
 from celerite import terms
 
+#import copy
 import dill
 
 
@@ -53,7 +53,6 @@ def mut_incl(i1,i2,capOm):
     
     i1,i2, Delta Omega: inclinations and diffence of the line of nodes in deg.
   
-    
     output parameters:    
      
     Delta i: mutual orbital inclination in deg.
@@ -520,7 +519,8 @@ def phase_planet_signal(obj,planet):
     if obj.npl ==0 or len(obj.fit_results.rv_model.jd) ==0:
         return [-1], [-1] #[[0],[0]], [[0],[0],[0],[0]]
     else:
-        #copied_obj = copy.deepcopy(obj)  
+        #copied_obj = copy.deepcopy(obj) 
+         
         copied_obj = dill.copy(obj) 
    
         index = planet - 1
