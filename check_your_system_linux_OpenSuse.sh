@@ -11,11 +11,40 @@ select py in "Python2" "Python3"; do
 done 
 
 
+echo "Do you want to update the system? (Highly recommended if this is a fresh installation! If``Yes'', it may take some time....."
+select py in "Yes" "No"; do
+   case $py in
+       Yes ) sudo zypper update; break;;
+       No ) echo "skipped..."; break;;
+   esac
+done  
+
+
+
+#python system install 
+arr=( "numpy" "scipy" "matplotlib")
+
+for i in "${arr[@]}";
+do
+   if $python -c "import $i" &> /dev/null; then
+       echo "$i - yes!"
+   else
+       echo "$i - not installed! Do you wish to install $i?"
+       select yn in "Yes" "No"; do
+           case $yn in
+               Yes ) sudo zypper install $python-$i; break;;
+               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
+           esac
+       done
+   fi
+done
+
+
 echo "Do you want to install the python and python-numpy headers (If this is a first install you must)"
 select py in "Yes" "No"; do
    case $py in
        Yes ) sudo zypper install $python-devel; sudo zypper install $python-numpy-devel; break;;
-       No ) echo "WARNING: further instalatons may fail if you dont have the headers!!!"; break;;
+       No ) echo "WARNING: further installations may fail if you don't have the headers!!!"; break;;
    esac
 done  
 
@@ -38,11 +67,7 @@ do
    fi
 done
 
-
-
-
-
-#sudo zypper update && zypper install rng-tools python-devel libffi-devel gcc python2-pip libopenssl-devel
+ 
 
 #python system install 
 arr=(  "pip" )
@@ -51,6 +76,15 @@ for i in "${arr[@]}";
 do
    if $python -c "import $i" &> /dev/null; then
        echo "$i - yes!"
+       echo "$i - do you want to upgrade $i"
+       select yn in "Yes" "No"; do
+           case $yn in
+               Yes ) sudo $pip install --upgrade pip; 
+                     sudo $pip install --upgrade setuptools;                    
+                     break;;
+               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
+           esac
+       done     
    else
        echo "$i - not installed! Do you wish to install $i?"
        select yn in "Yes" "No"; do
@@ -66,23 +100,6 @@ do
 done
 
 
-#python system install 
-arr=( "numpy" "scipy" "matplotlib")
-
-for i in "${arr[@]}";
-do
-   if $python -c "import $i" &> /dev/null; then
-       echo "$i - yes!"
-   else
-       echo "$i - not installed! Do you wish to install $i?"
-       select yn in "Yes" "No"; do
-           case $yn in
-               Yes ) sudo zypper install $python-$i; break;;
-               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
-           esac
-       done
-   fi
-done
 
 #python system install 
 arr=( "PyQt5" )
@@ -120,13 +137,7 @@ do
    fi
 done
 
-
-#sudo $pip uninstall ipython
-#sudo $pip install ipython==5.7 --user
-#sudo $pip install ipykernel==4.10 --user
-#sudo zypper install $python-devel
-#sudo zypper install python3-qtconsole
-
+ 
 
 #python pip install
 arr=( "qtconsole" "jupyter" "dill" "emcee" "corner" "celerite")
@@ -145,10 +156,6 @@ do
        done
    fi
 done
-
-
-# odd python isnstall 
-
 
 
 
@@ -212,7 +219,7 @@ done
 
 echo " " 
 echo " " 
-echo "Installing the swift N-body lib, OK?  (you must if you havent already!)"
+echo "Installing the swift N-body lib, OK?  (you must if you haven't already!)"
 echo " " 
 echo " " 
 
@@ -224,14 +231,14 @@ select yn in "Yes" "No"; do
              cp libswift.a ../../addons/;
              cd ../../;         
              break;;
-       No ) echo "skiped..."; break;;
+       No ) echo "skipped..."; break;;
    esac
 done
 
 
 echo " " 
 echo " " 
-echo "Compiling the fortran fitting routines, OK? (you must if you havent already!)"
+echo "Compiling the fortran fitting routines, OK? (you must if you haven't already!)"
 echo " " 
 echo " " 
 
@@ -249,7 +256,7 @@ done
 
 echo " " 
 echo " " 
-echo "Compiling Symba/mvs and other N-body routines, OK? (you must if you havent already!)"
+echo "Compiling Symba/mvs and other N-body routines, OK? (you must if you haven't already!)"
 echo " " 
 echo " " 
 
@@ -259,7 +266,7 @@ select yn in "Yes" "No"; do
              gfortran -O3 ./latest_f/symba_f/geninit_j3_in_days.f -o ./stability/symba/geninit_j3_in_days ./addons/libswift.a; # chi2 dynamical
              gfortran -O3 ./latest_f/symba_f/swift_symba5_j.f -o  ./stability/symba/swift_symba5_j ./addons/libswift.a; # lnL keplerian
              break;;
-       No ) echo "skiped..."; break;;
+       No ) echo "skipped..."; break;;
    esac
 done
 
@@ -267,41 +274,4 @@ done
 
 
 
-
-
-
-
-
-# Not working, not sure why...
-
-
-#python system install (sudo apt install)
-#arr=( "setuptools" "pip" "numpy" "scipy" "matplotlib" "PyQt5" "PyQt5.QtSvg")
-
-#for i in "${arr[@]}";
-#do
-#   if $python -c "import $i" &> /dev/null; then
-#       echo "$i - yes!"
-#   else
-#       echo "$i - not installed! Do you wish to install $i?"
-#       select yn in "Yes" "No"; do
-#           case $yn in
-#               Yes ) if [ $i=="PyQt5" ]; then 
-#                         sudo apt install $python-pyqt5;
-#                     elif [ $i=="PyQt5.QtSvg" ]; then 
-#                         sudo apt install $python-pyqt5.qtsvg; 
-#                     else
-#                         sudo apt install $python-$i; 
-#                     fi
-#                     break;;
-#               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
-#           esac
-#       done
-#   fi
-#done
-
-
-
-
-
-
+ 
