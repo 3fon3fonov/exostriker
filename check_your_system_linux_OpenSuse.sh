@@ -11,7 +11,7 @@ select py in "Python2" "Python3"; do
 done 
 
 
-echo "Do you want to update the system? (Highly recommended if this is a fresh installation! If``Yes'', it may take some time....."
+echo "Do you want to update the system? (Highly recommended if this is a fresh installation! If 'Yes', it may take some time....."
 select py in "Yes" "No"; do
    case $py in
        Yes ) sudo zypper update; break;;
@@ -50,7 +50,7 @@ done
 
 
 #system needed
-arr=( "gfortran" "csh")
+arr=( "gfortran")
 
 for i in "${arr[@]}";
 do
@@ -67,7 +67,46 @@ do
    fi
 done
 
+
+#system needed
+arr=( "c++")
+
+for i in "${arr[@]}";
+do
+   if type $i >/dev/null 2>&1; then
+       echo "$i - yes!"
+   else
+       echo "$i - not installed! Do you wish to install $i?"
+       select yn in "Yes" "No"; do
+           case $yn in
+               Yes ) sudo zypper install gcc7; sudo zypper install gcc-c++; break;;
+               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
+           esac
+       done     
+   fi
+done
+
  
+#system needed
+arr=( "csh")
+
+for i in "${arr[@]}";
+do
+   if type $i >/dev/null 2>&1; then
+       echo "$i - yes!"
+   else
+       echo "$i - not installed! Do you wish to install $i?"
+       select yn in "Yes" "No"; do
+           case $yn in
+               Yes ) sudo zypper install tcsh; break;;
+               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
+           esac
+       done     
+   fi
+done
+
+
+
 
 #python system install 
 arr=(  "pip" )
