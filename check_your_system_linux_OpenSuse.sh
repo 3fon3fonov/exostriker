@@ -8,6 +8,15 @@ select py in "Python2" "Python3"; do
        Python2 ) python="python" ; pip="pip2" ; break;;
        Python3 ) python="python3"; pip="pip3"; break;;
    esac
+done 
+
+
+echo "Do you want to install the python and python-numpy headers (If this is a first install you must)"
+select py in "Yes" "No"; do
+   case $py in
+       Yes ) sudo zypper install $python-devel; sudo zypper install $python-numpy-devel; break;;
+       No ) echo "WARNING: further instalatons may fail if you dont have the headers!!!"; break;;
+   esac
 done  
 
 
@@ -31,7 +40,9 @@ done
 
 
 
-sudo zypper update && zypper install rng-tools python-devel libffi-devel gcc python2-pip libopenssl-devel
+
+
+#sudo zypper update && zypper install rng-tools python-devel libffi-devel gcc python2-pip libopenssl-devel
 
 #python system install 
 arr=(  "pip" )
@@ -148,6 +159,8 @@ for i in "${arr[@]}";
 do
    if type $i >/dev/null 2>&1; then
        echo "$i - yes!"
+   elif type u$i >/dev/null 2>&1; then
+       echo "u$i - yes!"   
    else
        echo "$i - not installed! Do you wish to install $i?"
        select yn in "Yes" "No"; do
