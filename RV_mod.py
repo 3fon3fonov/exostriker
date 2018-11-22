@@ -3,7 +3,7 @@
 from __future__ import print_function
 __author__ = 'Trifon Trifonov, Jakub Morawski'
 
-import sys #,os
+import sys 
 sys.path.insert(0, './addons')
 import jac2astrocen
 import gls as gls 
@@ -11,23 +11,22 @@ import gls as gls
 
 import prior_functions as pr
 import numpy as np
-#import matplotlib
-#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import re
-#import nmpfit as mp
+
 from matplotlib import gridspec
 from subprocess import PIPE, Popen 
 import signal, os
 import tempfile, shutil
 
-#from emcee.utils import MPIPool
+
 import time
 import multiprocessing
 from threading import Thread
 from scipy.signal import argrelextrema
 
 import emcee
+#from emcee.utils import MPIPool
 import corner
 import celerite 
 from celerite import terms
@@ -42,24 +41,6 @@ DEFAULT_JITTER=1.0
 NPLMAX=20
 NDSETMAX=20
 DEFAULT_PATH='./datafiles/'
-
-
-
-def mut_incl(i1,i2,capOm):
-    '''
-    Calculates the mutual inclination of two planets   
-    
-    input parameters:
-    
-    i1,i2, Delta Omega: inclinations and diffence of the line of nodes in deg.
-  
-    output parameters:    
-     
-    Delta i: mutual orbital inclination in deg.
-    '''
-    fb = np.degrees(np.arccos(((np.cos(np.radians(i1))*np.cos(np.radians(i2)))+
-    (np.sin(np.radians(i1))*np.sin(np.radians(i2))*np.cos(np.radians(capOm))))))
-    return fb
 
 
 def create_temporary_copy(path): # not really a good idea......
@@ -100,6 +81,22 @@ def copy_file_to_datafiles(path):
         #os.system("cp %s %s"%(path, temp_path))
     #temp = tempfile.NamedTemporaryFile(prefix=basename, dir='./',delete=False)
     return temp_path
+
+def mut_incl(i1,i2,capOm):
+    '''
+    Calculates the mutual inclination of two planets   
+    
+    input parameters:
+    
+    i1,i2, Delta Omega: inclinations and diffence of the line of nodes in deg.
+  
+    output parameters:    
+     
+    Delta i: mutual orbital inclination in deg.
+    '''
+    fb = np.degrees(np.arccos(((np.cos(np.radians(i1))*np.cos(np.radians(i2)))+
+    (np.sin(np.radians(i1))*np.sin(np.radians(i2))*np.cos(np.radians(capOm))))))
+    return fb
 
 
 
@@ -794,6 +791,7 @@ class parameters(object): # class for all parameters which can be fitted
         return
         
     def update_GP_params(self,newparams):
+        #print("TESTTTT",newparams)
         self.GP_params=newparams
         return
         
@@ -1771,7 +1769,7 @@ class signal_fit(object):
         self.reduced_chi2=0.0
         self.sampler=None
         self.sampler_saved=False
-        
+        #self.print_info=()        
         ##### this is how I wanted the kernel parameters to be 
         ##### initially defined: as a python dictionary and only to filled in by functions! 
         ##### It will be a lot of work to change those above now, but it has to be done as some point.
@@ -2232,96 +2230,133 @@ class signal_fit(object):
         self.semimajor = ap/AU
         return       
         
-    def print_info (self, short_errors=True): 
+    def print_info(self, short_errors=True,show=True): 
         self.sort_by_period(reverse=False) # so the innermost planets will be first
+        
+        message_str = """ 
+"""        
         if(self.inputfile_read):
-            print ('\nThis is the information for signal fit %s, based on input file %s. '%(self.name, self.inputfile), end="") 
+            message_str = message_str +"""This is the information for signal fit %s, based on input file %s. 
+            
+"""%(self.name, self.inputfile) 
         else:
-            print ('\nThis is the information for signal fit %s.'%self.name, end="")            
+            message_str = message_str +"""This is the information for signal fit %s.
+            
+"""%self.name          
         # checking if we are dealing with fitted parameters or original data
         if (self.fit_performed and not self.never_saved):
-            print ('Presenting optimal parameters fitted using %s fitting method.'%self.fitting_method)
-            print ('\n Fit properties: \n chi^2: %f \n reduced chi^2: %f \n rms: %f \n loglik: %f'%(self.fit_results.chi2,self.fit_results.reduced_chi2,self.fit_results.rms,self.fit_results.loglik))
+            message_str = message_str +"""Presenting optimal parameters fitted using %s fitting method.
+            
+"""%self.fitting_method
+            message_str = message_str +"""Fit properties: \n chi^2: %f \n reduced chi^2: %f \n rms: %f \n loglik: %f
+            
+"""%(self.fit_results.chi2,self.fit_results.reduced_chi2,self.fit_results.rms,self.fit_results.loglik)
         else:
-            print ('No fit has yet been conducted (or parameters have never been saved), presenting parameters from user\'s original input')
-        print(' ')  
-        
+            message_str = message_str +"""No fit has yet been conducted (or parameters have never been saved), presenting parameters from user\'s original input
+
+"""
+
         # Now let's print information about RV files
         if (self.filelist.ndset==1): # because word file has a singular and plural form
-            print('RV signal data was provided in 1 file. We expect it to have following offset and jitter:')
+            message_str = message_str +"""RV signal data was provided in 1 file. We expect it to have following offset and jitter:
+            
+"""
         else:
-            print('RV signal data was provided in %d files. We expect these files to have following offsets and jitters:'%self.filelist.ndset)
+            message_str = message_str +"""RV signal data was provided in %d files. We expect these files to have following offsets and jitters:
+
+"""%self.filelist.ndset
         if ((not (self.fit_performed) or self.fitting_method.startswith('loglik')) or self.never_saved): # if there was no fitting done (or values weren't saved) we don't give the errors. Same if the fitting was done with the Symplex method (if loglik was minimized), this method doesn't provide the errors
             for i in range(self.filelist.ndset): # neatly print all names of RV data files with corresponding offsets and jitters
-                print('\n {0:15} \n offset: {1:>7.4f}  \n jitter: {2:>7.4f}'.format(self.filelist.files[i].name,self.params.offsets[i],self.params.jitters[i]))
-            print('')  
+                message_str = message_str +"""\n {0:15} \n offset: {1:>7.4f}  \n jitter: {2:>7.4f}            
+""".format(self.filelist.files[i].name,self.params.offsets[i],self.params.jitters[i])
         else: # if the fit was done we provide the errors
             if (short_errors): # assume same + and - error, equal to maximum of the two
                 for i in range(self.filelist.ndset): # neatly print all names of RV data files with corresponding offsets and jitters
-                    print('\n {0:15} \n offset: {1:>7.4f} +/- {3:>7.4f} \n jitter: {2:>7.4f} +/- {4:>7.4f}'.format(self.filelist.files[i].name,self.params.offsets[i],self.params.jitters[i],max(self.param_errors.offset_errors[i]),max(self.param_errors.jitter_errors[i])))
-                print('')  
+                    message_str = message_str +"""\n {0:15} \n offset: {1:>7.4f} +/- {3:>7.4f} \n jitter: {2:>7.4f} +/- {4:>7.4f}            
+""".format(self.filelist.files[i].name,self.params.offsets[i],self.params.jitters[i],max(self.param_errors.offset_errors[i]),max(self.param_errors.jitter_errors[i]))
+
             else:
                 for i in range(self.filelist.ndset): # neatly print all names of RV data files with corresponding offsets and jitters
-                    print('\n {0:15} \n offset: {1:>7.4f} + {3:>7.4f} - {5:>7.4f} \n jitter: {2:>7.4f} + {4:>7.4f} - {6:>7.4f}'.format(self.filelist.files[i].name,self.params.offsets[i],self.params.jitters[i],self.param_errors.offset_errors[i][1],self.param_errors.jitter_errors[i][1],self.param_errors.offset_errors[i][0],self.param_errors.jitter_errors[i][0]))                 
+                    message_str = message_str +"""\n {0:15} \n offset: {1:>7.4f} + {3:>7.4f} - {5:>7.4f} \n jitter: {2:>7.4f} + {4:>7.4f} - {6:>7.4f}
+""".format(self.filelist.files[i].name,self.params.offsets[i],self.params.jitters[i],self.param_errors.offset_errors[i][1],self.param_errors.jitter_errors[i][1],self.param_errors.offset_errors[i][0],self.param_errors.jitter_errors[i][0])                
 
         # Printing information about stellar activity, if fitting was done with GP
         if(self.fitting_method.startswith('GP')):
-            print('\nStellar activity was modelled using Gaussian Processes. The resulting parameters are as follows:')
+            message_str = message_str +"""\nStellar activity was modelled using Gaussian Processes. The resulting parameters are as follows:
+"""
             if(short_errors):
-                print('\n A = {0:>7.4f} +/- {4:>7.4f}\n t = {1:>7.4f} +/- {5:>7.4f}\n P = {2:>7.4f} +/- {6:>7.4f}\n f = {3:>7.4f} +/- {7:>7.4f}'.format(self.params.GP_params[0],self.params.GP_params[1],self.params.GP_params[2],self.params.GP_params[3],max(self.param_errors.GP_params_errors[0]),max(self.param_errors.GP_params_errors[1]),max(self.param_errors.GP_params_errors[2]),max(self.param_errors.GP_params_errors[3])))           
+                message_str = message_str +"""\n A = {0:>7.4f} +/- {4:>7.4f}\n t = {1:>7.4f} +/- {5:>7.4f}\n P = {2:>7.4f} +/- {6:>7.4f}\n f = {3:>7.4f} +/- {7:>7.4f}
+""".format(self.params.GP_params[0],self.params.GP_params[1],self.params.GP_params[2],self.params.GP_params[3],max(self.param_errors.GP_params_errors[0]),max(self.param_errors.GP_params_errors[1]),max(self.param_errors.GP_params_errors[2]),max(self.param_errors.GP_params_errors[3]))         
             else:
-                print('\n A = {0:>7.4f} + {4:>7.4f} - {8:>7.4f}\n t = {1:>7.4f} + {5:>7.4f} - {9:>7.4f}\n P = {2:>7.4f} + {6:>7.4f} - {10:>7.4f}\n f = {3:>7.4f} + {7:>7.4f} - {11:>7.4f}'.format(self.params.GP_params[0],self.params.GP_params[1],self.params.GP_params[2],self.params.GP_params[3],self.param_errors.GP_params_errors[0][1],self.param_errors.GP_params_errors[1][1],self.param_errors.GP_params_errors[2][1],self.param_errors.GP_params_errors[3][1],self.param_errors.GP_params_errors[0][0],self.param_errors.GP_params_errors[1][0],self.param_errors.GP_params_errors[2][0],self.param_errors.GP_params_errors[3][0]))                                                                                  
+                message_str = message_str +"""\n A = {0:>7.4f} + {4:>7.4f} - {8:>7.4f}\n t = {1:>7.4f} + {5:>7.4f} - {9:>7.4f}\n P = {2:>7.4f} + {6:>7.4f} - {10:>7.4f}\n f = {3:>7.4f} + {7:>7.4f} - {11:>7.4f}
+ """.format(self.params.GP_params[0],self.params.GP_params[1],self.params.GP_params[2],self.params.GP_params[3],self.param_errors.GP_params_errors[0][1],self.param_errors.GP_params_errors[1][1],self.param_errors.GP_params_errors[2][1],self.param_errors.GP_params_errors[3][1],self.param_errors.GP_params_errors[0][0],self.param_errors.GP_params_errors[1][0],self.param_errors.GP_params_errors[2][0],self.param_errors.GP_params_errors[3][0])                                                                                  
                     
         # Printing information about linear trend, if any
         if (self.params.linear_trend!=0): # Information about a linear trend only if it exists
             if ((not (self.fit_performed) or self.fitting_method.startswith('loglik')) or self.never_saved): # if there was no fitting done (or values weren't saved) we don't give the errors. Same if the fitting was done with the Symplex method (if loglik was minimized), this method doesn't provide the errors
-                print('There is a non-zero linear trend in the data, linear coefficient is expected to be equal %f.'%self.params.linear_trend)
+                message_str = message_str +"""\nThere is a non-zero linear trend in the data, linear coefficient is expected to be equal %f.              
+"""%self.params.linear_trend
             else:
                 if (short_errors):
-                    print('There is a non-zero linear trend in the data, linear coefficient is expected to be equal {0:>7.4f} +/- {1:>7.4f}.'.format(self.params.linear_trend,max(self.param_errors.linear_trend_error)))
+                    message_str = message_str +"""\nThere is a non-zero linear trend in the data, linear coefficient is expected to be equal {0:>7.4f} +/- {1:>7.4f}.                 
+""".format(self.params.linear_trend,max(self.param_errors.linear_trend_error))
                 else:
-                    print('There is a non-zero linear trend in the data, linear coefficient is expected to be equal {0:>7.4f} + {1:>7.4f} - {2:>7.4f}.'.format(self.params.linear_trend,self.param_errors.linear_trend_error[1],self.param_errors.linear_trend_error[0]))
-            print('')
-        
+                    message_str = message_str +"""\nThere is a non-zero linear trend in the data, linear coefficient is expected to be equal {0:>7.4f} + {1:>7.4f} - {2:>7.4f}.
+""".format(self.params.linear_trend,self.param_errors.linear_trend_error[1],self.param_errors.linear_trend_error[0])
+ 
         # Printing information about stellar mass 
         if (not (self.fit_performed) or not ((self.fitting_method=='mcmc_dyn' or self.fitting_method=='GP_dyn') and (self.use.use_stellar_mass))):
             if (self.stellar_mass_known):
-                print('The mass of the host star is {0:5.4f} solar masses.'.format(self.params.stellar_mass))
+                message_str = message_str +"""\nThe mass of the host star is {0:5.4f} solar masses.
+""".format(self.params.stellar_mass)
             else:
-                print('The mass of the host star is not known. Default value of %f is assumed.'%DEFAULT_STELLAR_MASS)
+                message_str = message_str +"""\nThe mass of the host star is not known. Default value of %f is assumed.
+"""%DEFAULT_STELLAR_MASS
         else:
             if(short_errors):  
-                print('The mass of the host star is expected to be {0:5.4f} +/- {1:>7.4f} solar masses.'.format(self.params.stellar_mass,max(self.param_errors.stellar_mass_error)))      
+                message_str = message_str +"""\nThe mass of the host star is expected to be {0:5.4f} +/- {1:>7.4f} solar masses.
+""".format(self.params.stellar_mass,max(self.param_errors.stellar_mass_error))       
             else:
-                print('The mass of the host star is expected to be  {0:>7.4f} + {1:>7.4f} - {2:>7.4f}.'.format(self.params.stellar_mass,self.param_errors.stellar_mass_error[1],self.param_errors.stellar_mass_error[0]))
-
-        print('')        
-        
+                message_str = message_str +"""\nThe mass of the host star is expected to be  {0:>7.4f} + {1:>7.4f} - {2:>7.4f}.
+""".format(self.params.stellar_mass,self.param_errors.stellar_mass_error[1],self.param_errors.stellar_mass_error[0])
+ 
         # Printing planet parameters:
         if (self.npl==0): # if there are zero planets
-            print('The system has no planets. ', end="")
+             message_str = message_str +"""\nThe system has no planets. 
+             """
         elif (self.npl==1): # because word planet has a singular and plural form
-            print('The system has 1 planet. ', end="") 
+             message_str = message_str +"""\nThe system has 1 planet. 
+             """
         else:
-            print('The system has %d planets. '%self.npl, end="")
+             message_str = message_str +"""\nThe system has %d planets. 
+"""%self.npl
         
         if (self.npl>0):
             if not (self.stat_saved):
                 self.mass_semimajor() # update mass and semimajor axes values, if they weren't taken from the fortran code 
-            print('Known planets are expected to have following properties (mean anomalies for epoch {0:7.2f}):'.format(self.epoch))
+            message_str = message_str +"""\nKnown planets are expected to have following properties (mean anomalies for epoch {0:7.2f}):
+""".format(self.epoch)
             if ((not (self.fit_performed) or self.fitting_method.startswith('loglik')) or self.never_saved): # again, if no fit or loglik fit, no errors
                 for i in range(self.npl):
-                    print('\n Planet {0:2d}: \n signal semiamplitude = {1:5.4f} m/s \n period = {2:5.4f} days \n orbit eccentricity = {3:5.4f} \n argument of periastron = {4:5.4f} \n mean anomally = {5:5.4f} \n inclination = {6:5.4f} \n line of nodes = {7:5.4f} \n mass  = {8:5.4f} M_Jup \n orbit semimajor axis = {9:5.4f} AU'.format(i+1,self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.params.planet_params[7*i+2],self.params.planet_params[7*i+3],self.params.planet_params[7*i+4],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6],self.masses[i],self.semimajor[i]))
+                    message_str = message_str +"""\n Planet {0:2d}: \n signal semiamplitude = {1:5.4f} m/s \n period = {2:5.4f} days \n orbit eccentricity = {3:5.4f} \n argument of periastron = {4:5.4f} \n mean anomally = {5:5.4f} \n inclination = {6:5.4f} \n line of nodes = {7:5.4f} \n mass  = {8:5.4f} M_Jup \n orbit semimajor axis = {9:5.4f} AU
+""".format(i+1,self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.params.planet_params[7*i+2],self.params.planet_params[7*i+3],self.params.planet_params[7*i+4],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6],self.masses[i],self.semimajor[i])
             else:
                 if (short_errors):
                     for i in range(self.npl):
-                        print('\n Planet {0:2d}: \n signal semiamplitude = {1:5.4f} +/- {10:5.4f} m/s \n period = {2:5.4f} +/- {11:5.4f}  days \n orbit eccentricity = {3:5.4f} +/- {12:5.4f} \n argument of periastron = {4:5.4f} +/- {13:5.4f} \n mean anomally = {5:5.4f} +/- {14:5.4f} \n inclination = {6:5.4f} +/- {15:5.4f} \n line of nodes = {7:5.4f} +/- {16:5.4f} \n mass  = {8:5.4f} M_Jup \n orbit semimajor axis = {9:5.4f} AU'.format(i+1,self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.params.planet_params[7*i+2],self.params.planet_params[7*i+3],self.params.planet_params[7*i+4],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6],self.masses[i],self.semimajor[i],max(self.param_errors.planet_params_errors[7*i]),max(self.param_errors.planet_params_errors[7*i+1]),max(self.param_errors.planet_params_errors[7*i+2]),max(self.param_errors.planet_params_errors[7*i+3]),max(self.param_errors.planet_params_errors[7*i+4]),max(self.param_errors.planet_params_errors[7*i+5]),max(self.param_errors.planet_params_errors[7*i+6])))
+                        message_str = message_str +"""\n Planet {0:2d}: \n signal semiamplitude = {1:5.4f} +/- {10:5.4f} m/s \n period = {2:5.4f} +/- {11:5.4f}  days \n orbit eccentricity = {3:5.4f} +/- {12:5.4f} \n argument of periastron = {4:5.4f} +/- {13:5.4f} \n mean anomally = {5:5.4f} +/- {14:5.4f} \n inclination = {6:5.4f} +/- {15:5.4f} \n line of nodes = {7:5.4f} +/- {16:5.4f} \n mass  = {8:5.4f} M_Jup \n orbit semimajor axis = {9:5.4f} AU
+
+""".format(i+1,self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.params.planet_params[7*i+2],self.params.planet_params[7*i+3],self.params.planet_params[7*i+4],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6],self.masses[i],self.semimajor[i],max(self.param_errors.planet_params_errors[7*i]),max(self.param_errors.planet_params_errors[7*i+1]),max(self.param_errors.planet_params_errors[7*i+2]),max(self.param_errors.planet_params_errors[7*i+3]),max(self.param_errors.planet_params_errors[7*i+4]),max(self.param_errors.planet_params_errors[7*i+5]),max(self.param_errors.planet_params_errors[7*i+6]))
                 else:
                     for i in range(self.npl):
-                        print('\n Planet {0:2d} \n signal semiamplitude = {1:5.4f} + {10:5.4f} - {17:5.4f} m/s \n period = {2:5.4f} + {11:5.4f} - {18:5.4f} days \n orbit eccentricity = {3:5.4f} + {12:5.4f} - {19:5.4f} \n argument of periastron = {4:5.4f} + {13:5.4f} - {20:5.4f} \n mean anomally = {5:5.4f} + {14:5.4f} -{21:5.4f} \n inclination = {6:5.4f} + {15:5.4f} - {22:5.4f} \n line of nodes = {7:5.4f} + {16:5.4f} - {23:5.4f} \n mass  = {8:5.4f} M_Jup \n orbit semimajor axis = {9:5.4f} AU'.format(i+1,self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.params.planet_params[7*i+2],self.params.planet_params[7*i+3],self.params.planet_params[7*i+4],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6],self.masses[i],self.semimajor[i],self.param_errors.planet_params_errors[7*i][1],self.param_errors.planet_params_errors[7*i+1][1],self.param_errors.planet_params_errors[7*i+2][1],self.param_errors.planet_params_errors[7*i+3][1],self.param_errors.planet_params_errors[7*i+4][1],self.param_errors.planet_params_errors[7*i+5][1],self.param_errors.planet_params_errors[7*i+6][1],self.param_errors.planet_params_errors[7*i][0],self.param_errors.planet_params_errors[7*i+1][0],self.param_errors.planet_params_errors[7*i+2][0],self.param_errors.planet_params_errors[7*i+3][0],self.param_errors.planet_params_errors[7*i+4][0],self.param_errors.planet_params_errors[7*i+5][0],self.param_errors.planet_params_errors[7*i+6][0]))
-        print('') 
-        return        
-    
+                        message_str = message_str +"""\n Planet {0:2d} \n signal semiamplitude = {1:5.4f} + {10:5.4f} - {17:5.4f} m/s \n period = {2:5.4f} + {11:5.4f} - {18:5.4f} days \n orbit eccentricity = {3:5.4f} + {12:5.4f} - {19:5.4f} \n argument of periastron = {4:5.4f} + {13:5.4f} - {20:5.4f} \n mean anomally = {5:5.4f} + {14:5.4f} -{21:5.4f} \n inclination = {6:5.4f} + {15:5.4f} - {22:5.4f} \n line of nodes = {7:5.4f} + {16:5.4f} - {23:5.4f} \n mass  = {8:5.4f} M_Jup \n orbit semimajor axis = {9:5.4f} AU
+
+""".format(i+1,self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.params.planet_params[7*i+2],self.params.planet_params[7*i+3],self.params.planet_params[7*i+4],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6],self.masses[i],self.semimajor[i],self.param_errors.planet_params_errors[7*i][1],self.param_errors.planet_params_errors[7*i+1][1],self.param_errors.planet_params_errors[7*i+2][1],self.param_errors.planet_params_errors[7*i+3][1],self.param_errors.planet_params_errors[7*i+4][1],self.param_errors.planet_params_errors[7*i+5][1],self.param_errors.planet_params_errors[7*i+6][1],self.param_errors.planet_params_errors[7*i][0],self.param_errors.planet_params_errors[7*i+1][0],self.param_errors.planet_params_errors[7*i+2][0],self.param_errors.planet_params_errors[7*i+3][0],self.param_errors.planet_params_errors[7*i+4][0],self.param_errors.planet_params_errors[7*i+5][0],self.param_errors.planet_params_errors[7*i+6][0])
+ 
+        if show:
+            print(message_str)
+ 
+        return message_str  
+        
   
     def fortran_input(self, program='chi2_kep', fileinput=False, filename='Kep_input', amoeba_starts=1, outputfiles=[1,1,1],eps='1.0E-8',dt=864000, when_to_kill=300, npoints=50, model_max = 100): # generate input string for the fortran code, optionally as a file
 
@@ -2989,9 +3024,11 @@ class signal_fit(object):
        # print(current_GP_params)
 
         self.overwrite_params(newparams)
-        self.fitting(minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
-        self.update_with_mcmc_errors(new_par_errors)
         self.params.update_GP_params(current_GP_params)
+        self.update_with_mcmc_errors(new_par_errors)
+        self.fitting(minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
+
+
 
         if (doGP):
             self.fitting_method='GP_%s'%mod
