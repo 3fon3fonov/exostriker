@@ -1243,8 +1243,8 @@ class signal_data(object):
         # sorting based on the permutation sort calculated above
         self.sig = self.sig[sort]             
         
-        
-    def gls(self, ind_sig=2): # ind_sig will be the index of the significance level which we assume to be sufficient to declare a planet candidate
+  
+    def gls(self, ind_sig=2,sig_for_gls=np.array([0.1,0.01,0.001])): # ind_sig will be the index of the significance level which we assume to be sufficient to declare a planet candidate
 
         gls_warnings=Warning_log([],'Running gls')
         if not (is_int(str(ind_sig),bounded=[True,True],bounds=[0,len(self.sig)],equal=[True,False])):
@@ -1254,21 +1254,25 @@ class signal_data(object):
         ### Compute the Lomb-Scargle Periodogram
         try:
 
-            self.gls_range = (float(max(self.jd))-float(min(self.jd)))*2 # range for gls, twice the time range     
-            self.periods = np.linspace(1, self.gls_range, 2000) # abscissas for the period range
+            #self.gls_range = (float(max(self.jd))-float(min(self.jd)))*2 # range for gls, twice the time range     
+            #self.periods = np.linspace(1, self.gls_range, 2000) # abscissas for the period range
             #omega = TAU / self.periods # converting the periods array into the frequency range for the Lomb-Scargle Periodogram evaluation
-            omega = 1 / self.periods # converting the periods array into the frequency range for the Lomb-Scargle Periodogram evaluation
+           # omega = 1 / self.periods # converting the periods array into the frequency range for the Lomb-Scargle Periodogram evaluation
              #omega = 1/ np.logspace(-0.05, 4, num=1000)
-        
+            omega = 1/ np.logspace(-0.05, 4, num=1000)        
         
             RV_gls = gls.Gls((self.jd, self.rvs, self.rv_error), fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)
         
             #self.P_G, self.z = lomb_scargle(self.jd, self.rvs, self.rv_error, omega, generalized=True, significance=self.sig) # Lomb-Scargle for the RV signal    
             self.P_G = RV_gls.power 
             self.z = RV_gls.powerLevel(sig_for_gls)
+            self.periods = 1/RV_gls.freq
+            self.gls_range = (float(max(self.jd))-float(min(self.jd)))*2 # range for gls, twice the time range     
             
             per_ind = argrelextrema(self.P_G, np.greater) # generates an array with the indices of all the relative extrema in the periodogram
-     
+ 
+ 
+    
             self.best_per = self.periods[per_ind] # periods corresponding to the indices calculated above
             self.best_peaks = self.P_G[per_ind] # peak heights of these extrema
             if (len(self.best_peaks)>0): # don't sort if there's no peaks    
@@ -2281,7 +2285,7 @@ class signal_fit(object):
 """.format(self.filelist.files[i].name,self.params.offsets[i],self.params.jitters[i],self.param_errors.offset_errors[i][1],self.param_errors.jitter_errors[i][1],self.param_errors.offset_errors[i][0],self.param_errors.jitter_errors[i][0])                
 
         # Printing information about stellar activity, if fitting was done with GP
-        if(self.fitting_method.startswith('GP')):
+        if(self.fitting_method.startswith('GP_NOPE')):
             message_str = message_str +"""\nStellar activity was modelled using Gaussian Processes. The resulting parameters are as follows:
 """
             if(short_errors):
@@ -3038,8 +3042,26 @@ class signal_fit(object):
         if (doGP):
             loglik_to_save = lnprobGP(self.par_for_mcmc,self,prior)
             self.loglik=loglik_to_save         
-            self.fit_results.loglik=loglik_to_save   
-             
+            self.fit_results.loglik=loglik_to_save  
+            
+            self.params.GP_params = sampler.means[:-5:-1]
+            self.param_errors.GP_params_errors =  [[float(sampler.means[-5+i] - np.percentile(sampler.samples[:,-5+i], [level])),float(np.percentile(sampler.samples[:,-5+i], [100.0-level])-sampler.means[-5+i])] for i in range(len(sampler.means[:-5:-1]))] 
+
+            
+            
+            message_str =""" """
+            if(self.fitting_method.startswith('GP')):
+                message_str = message_str +"""\nStellar activity was modelled using Gaussian Processes. The resulting GP parameters (means) are as follows:
+"""
+                message_str = message_str +"""\n A = {0:>7.4f} +/- {4:>7.4f}\n t = {1:>7.4f} +/- {5:>7.4f}\n P = {2:>7.4f} +/- {6:>7.4f}\n f = {3:>7.4f} +/- {7:>7.4f}
+""".format(self.params.GP_params[0],self.params.GP_params[1],self.params.GP_params[2],self.params.GP_params[3],max(self.param_errors.GP_params_errors[0]),max(self.param_errors.GP_params_errors[1]),max(self.param_errors.GP_params_errors[2]),max(self.param_errors.GP_params_errors[3]))         
+                message_str = message_str +"""
+(The GP_params are printed here as these are still not part of the "params" structure. TBD!)                
+"""
+            print(message_str)
+            
+            
+           # print([sampler.means[-4],sampler.means[-3],sampler.means[-2],sampler.means[-1]])
 
         ###############  This is not working! you cannot save the sampler as an atribute and call it back later!
         ###############  See https://github.com/dfm/emcee/issues/148
@@ -3048,7 +3070,7 @@ class signal_fit(object):
             self.sampler_saved=True           
             
         #sampler.reset()
-
+        
         return
              
     def cornerplot(self, cornerplotname='cornerplot.png', fileinput=False, filename='samples_kep'): 
