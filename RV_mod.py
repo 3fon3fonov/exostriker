@@ -3028,9 +3028,9 @@ class signal_fit(object):
        # print(current_GP_params)
 
         self.overwrite_params(newparams)
-        self.params.update_GP_params(current_GP_params)
-        self.update_with_mcmc_errors(new_par_errors)
         self.fitting(minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
+        self.update_with_mcmc_errors(new_par_errors)
+        self.params.update_GP_params(current_GP_params)
 
 
 
