@@ -33,6 +33,7 @@ from celerite import terms
 
 #import copy
 import dill
+import scipy.optimize as op
 
 
 TAU=6.2831853071
@@ -238,6 +239,51 @@ def verify_array_with_bounds(ar,bounds):
             break       
         
     return verification
+
+
+
+def fittingSciPyOp(obj):    
+ ####### find the -LogLik "minimum" using the "truncated Newton" method ######### 
+    nll = lambda *args: -compute_loglik_SciPyOp(*args)
+    pp = obj.par_for_mcmc
+   # b = np.array(obj.bounds.offset_bounds,obj.bounds.jitter_bounds,obj.bounds.planet_params_bounds,
+   #                    obj.bounds.linear_trend_bounds,obj.bounds.GP_params_bounds,obj.bounds.stellar_mass_bounds)
+   # b.flatten()
+   # print(b)
+   # bounds=b,
+    minimzers = ['Nelder-Mead','Powell','CG','BFGS','Newton-CG','L-BFGS-B', 'TNC','COBYLA','SLSQP','dogleg','trust-ncg']
+
+   # for k in range(2): # run at least 3 times the minimizer
+   #     result = op.minimize(nll, pp, args=(obj), method=minimzers[6], bounds=None, options={'xtol': 1e-6, 'disp': True })
+   #     pp = result["x"]
+        
+  #  print("Best fit par.:", result["x"])
+#----------------- one more time using the Simplex method ---------------------#
+    xtol = 1e-3
+    for k in range(3): # run at least 3 times the minimizer
+        xtol = xtol/10.0 
+        print(k,xtol)
+     
+        result = op.minimize(nll, pp, args=(obj), method=minimzers[0], options={'xtol': xtol, 'disp': True, 'maxiter':30000, 'maxfev':30000 })
+        pp = result["x"]
+
+    print("Best fit par.:", result["x"])
+    
+    obj.par_for_mcmc = result["x"]
+    
+
+def compute_loglik_SciPyOp(p,signalfit):
+    newparams=signalfit.generate_newparams_for_mcmc(p)
+  #  oldparams=signalfit.params
+    signalfit.overwrite_params(newparams)
+    if not (signalfit.verify_params_with_bounds()):
+        return -np.inf # if parameters are outside of bounds we return -infinity
+    else:               
+        flag=signalfit.fitting(fileinput=True, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, outputfiles=[1,0,0],return_flag=True)
+
+    return signalfit.loglik     
+
+
   
 def lnprob(p,copied_obj,prior):
     '''Compute logarithmic probability for given parameters'''     
