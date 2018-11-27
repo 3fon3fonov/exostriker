@@ -21,7 +21,7 @@ import stdout_pipe as stdout_pipe
 import gls as gls 
 
 #import BKR as bkr
-#import copy
+from doublespinbox import DoubleSpinBox
 from scipy.signal import argrelextrema
 
 import batman as batman
@@ -46,10 +46,12 @@ pg.setConfigOption('foreground', 'k')
 pg.setConfigOptions(antialias=True)  
  
 
-global fit, colors
+global fit, colors,ses_list
  
 
 fit=rv.signal_fit()
+
+ses_list = [fit]
 
 #'#cc0000',
 
@@ -135,7 +137,28 @@ class print_info(QtWidgets.QMainWindow):
 
         self.setCentralWidget(self.widget)
         
-        
+
+class QDoubleSpinBox(QtWidgets.QDoubleSpinBox):
+    def __init__(self, *args, **kwargs):
+        super(QDoubleSpinBox, self).__init__(*args, **kwargs)
+        self.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
+
+    def contextMenuEvent(self, event):
+        QtCore.QTimer.singleShot(0, self.add_actions)
+        super(QDoubleSpinBox, self).contextMenuEvent(event)
+
+    @QtCore.pyqtSlot()
+    def add_actions(self):
+        for w in QtWidgets.QApplication.topLevelWidgets():
+            if isinstance(w, QtWidgets.QMenu):
+                w.addSeparator()
+                minimize_action = w.addAction("minimize this parameter")
+                minimize_action.triggered.connect(self.minimize_task)
+                return
+
+    @QtCore.pyqtSlot()
+    def minimize_task(self):
+        print("minimize this parameter")        
 
 
 class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -747,7 +770,46 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             self.phase_plots(1)   
             
         self.comboBox_extra_plot.activated.connect(self.handleActivated)
+
+
+    def session_list(self):
+        global fit, ses_list
+
+        self.comboBox_select_ses.clear()
+        self.comboBox_select_ses.setObjectName("session 1")        
+
+        #if fit.npl != 0:
+        for i in range(len(ses_list)):
+            self.comboBox_select_ses.addItem('session %s'%(i+1),i+1)
+
+            
+        self.comboBox_select_ses.activated.connect(self.select_session)
+
+
+    def select_session(self, index):
+        global fit, ses_list
+
+        ind = self.comboBox_select_ses.itemData(index) 
+        print(ind)
+    
         
+    def update_extra_plots(self):
+        global fit
+
+        self.comboBox_extra_plot.clear()
+        self.comboBox_extra_plot.setObjectName("which plot")        
+
+        if fit.npl != 0:
+            for i in range(fit.npl):
+                self.comboBox_extra_plot.addItem('phase pl %s'%(i+1),i+1)
+            
+            self.comboBox_extra_plot.addItem('gls',fit.npl+1)
+            self.comboBox_extra_plot.addItem('gls o-c',fit.npl+1)
+           
+            
+            self.phase_plots(1)   
+            
+        self.comboBox_extra_plot.activated.connect(self.handleActivated)        
         
     def handleActivated(self, index):
         global fit, pe, zzz
@@ -774,9 +836,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
   
     def add_jitter(self, errors, ind):
         global fit
-
-        errors_with_jitt = np.array([np.sqrt(errors[i]**2 + fit.params.jitters[i]**2)  for i in ind])
-
+       
+        errors_with_jitt = np.array([np.sqrt(errors[i]**2 + fit.params.jitters[ii]**2)  for i,ii in enumerate(ind)])
+        
         return errors_with_jitt
 
 
@@ -951,7 +1013,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def run_bootstrap(self):
         global fit
         choice = QtGui.QMessageBox.information(self, 'Warning!',
-                                            "Bootstrap is not available yet. Okay?",
+                                            "Not available yet. Okay?",
                                             QtGui.QMessageBox.Ok) 
 
 
@@ -1111,6 +1173,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         self.setupUi(self)
         
+        self.K1.minimize_signal.connect(lambda: self.optimize_fit(2)) #TBD!
             
         self.initialize_buttons()
         self.initialize_plots()    
@@ -1127,8 +1190,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         if sys.version_info[0] == 2:
             self.gridLayout_stdout.addWidget(stdout_pipe.MyDialog())  
        
-        
-        
+        #self.w = QDoubleSpinBox(self)
+        #self.w.show()        
+        #from pprint import pprint
+        #pprint(vars(self))
 
         self.load_fort_in_file.clicked.connect(self.showDialog_fortran_input_file)
 
@@ -1158,6 +1223,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
 
         self.quit_button.clicked.connect(self.quit)
+
+        self.session_list()
+        self.new_ses.clicked.connect(lambda: self.run_bootstrap())
+        self.copy_ses.clicked.connect(lambda: self.run_bootstrap())
+        self.remove_ses.clicked.connect(lambda: self.run_bootstrap())
 
         ConsoleWidget_embed().push_vars({'fit':fit})
         print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and the mcmc and bootstrap results.")
