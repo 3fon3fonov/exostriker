@@ -50,7 +50,7 @@ global fit, colors,ses_list
  
 
 fit=rv.signal_fit(name='init')
-ses_list = [fit]
+ses_list = []
 
 #'#cc0000',
 
@@ -163,7 +163,7 @@ class QDoubleSpinBox(QtWidgets.QDoubleSpinBox):
 class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_labels(self):
-
+        global fit
 
         self.value_stellar_mass.setText("%.2f"%(fit.params.stellar_mass))
         self.value_epoch.setText(str(fit.epoch))
@@ -491,7 +491,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         
         
     def identify_power_peaks(self,x,y,sig_level=np.array([]), power_level=np.array([])):
-    
+ 
         per_ind = argrelextrema(y, np.greater)
         per_x   = x[per_ind]
         per_y   = y[per_ind]     
@@ -1108,14 +1108,20 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
     def getNewses(self):
         global fit, ses_list  
+        
         text, okPressed = QtGui.QInputDialog.getText(self, "New session","Name session: (No space and special characters!)", QtGui.QLineEdit.Normal, "")
         if okPressed and text != '':
-            fit2=rv.signal_fit(name=text)
-
-            ses_list.append(fit2)
-           # print(ses_list)
-            #fit = dill.copy(fit2)
-            #self.init_fit()
+            
+            if len(ses_list) == 0:
+                ses_list.append(fit)
+                
+                
+            file_pi = open('.sessions/empty.ses', 'rb')
+            fit_new = dill.load(file_pi)
+            file_pi.close()
+            fit_new.name=text
+            ses_list.append(fit_new)
+ 
             self.session_list()
             
  
@@ -1123,35 +1129,40 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def session_list(self):
         global fit, ses_list
         
+        
+        if len(ses_list) == 0:
+            self.comboBox_select_ses.clear()
+            self.comboBox_select_ses.addItem("session 1") 
+        
 
-        self.comboBox_select_ses.clear()
-        self.comboBox_select_ses.setObjectName("session 1")        
-
-        #if fit.npl != 0:
-        for i in range(len(ses_list)):
-            self.comboBox_select_ses.addItem('session %s'%(i+1),i+1)
-         
-            
+        elif len(ses_list) != 0:
+            self.comboBox_select_ses.clear()
+            for i in range(len(ses_list)):
+                self.comboBox_select_ses.addItem('session %s'%(i+1),i+1)
+                     
         self.comboBox_select_ses.activated.connect(self.select_session)
 
 
     def select_session(self, index):
         global fit, ses_list
 
-        
-
         ind = self.comboBox_select_ses.itemData(index) 
+        print(index,ind)
+
+        fit = ses_list[ind-1]
+        #ses_list[ind-1] = fit
         
-        #if ind ==1:
-        #   fit = dill.copy(fit)
-            #ses_list = [fit1]
-       # else:
-       #     fit = dill.copy(ses_list[ind-1])
-        #    print(ind-1,fit.name)
-        #self.init_fit()
+        self.init_fit()
+        self.update_use_from_input_file()   
+        self.update_use()
+        self.update_gui_params()
+        self.update_params()
+        self.update_RV_file_buttons() 
+        
 #######################################################################            
             
     def keyPressEvent(self, event):
+        global fit
         if event.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
             self.update_use()
             self.update_params() 
@@ -1273,7 +1284,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         self.quit_button.clicked.connect(self.quit)
 
-        self.session_list()
+        #self.session_list()
         self.new_ses.clicked.connect(self.getNewses)
         self.copy_ses.clicked.connect(lambda: self.run_bootstrap())
         self.remove_ses.clicked.connect(lambda: self.run_bootstrap())
