@@ -49,8 +49,7 @@ pg.setConfigOptions(antialias=True)
 global fit, colors,ses_list
  
 
-fit=rv.signal_fit()
-
+fit=rv.signal_fit(name='init')
 ses_list = [fit]
 
 #'#cc0000',
@@ -733,7 +732,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.update_errors() 
         self.update_a_mass()                    
         self.update_plots()   
-        
+        self.jupiter_push_vars()       
         
         
     def update_orb_plot(self):
@@ -753,45 +752,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         p15.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
         
         
-    def update_extra_plots(self):
-        global fit
 
-        self.comboBox_extra_plot.clear()
-        self.comboBox_extra_plot.setObjectName("which plot")        
-
-        if fit.npl != 0:
-            for i in range(fit.npl):
-                self.comboBox_extra_plot.addItem('phase pl %s'%(i+1),i+1)
-            
-            self.comboBox_extra_plot.addItem('gls',fit.npl+1)
-            self.comboBox_extra_plot.addItem('gls o-c',fit.npl+1)
-           
-            
-            self.phase_plots(1)   
-            
-        self.comboBox_extra_plot.activated.connect(self.handleActivated)
-
-
-    def session_list(self):
-        global fit, ses_list
-
-        self.comboBox_select_ses.clear()
-        self.comboBox_select_ses.setObjectName("session 1")        
-
-        #if fit.npl != 0:
-        for i in range(len(ses_list)):
-            self.comboBox_select_ses.addItem('session %s'%(i+1),i+1)
-
-            
-        self.comboBox_select_ses.activated.connect(self.select_session)
-
-
-    def select_session(self, index):
-        global fit, ses_list
-
-        ind = self.comboBox_select_ses.itemData(index) 
-        print(ind)
-    
         
     def update_extra_plots(self):
         global fit
@@ -956,17 +917,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.update_plots()                   
         self.statusBar().showMessage('')   
         
-        self.run_batman_test()         
+        self.run_batman_test()   
+              
+        self.jupiter_push_vars()
 
-        ConsoleWidget_embed().push_vars({'fit':fit})
-        ConsoleWidget_embed().print_text("TEST")
-        #ConsoleWidget()._control.clear()
-        #print("TEST",fit.use.use_jitters[:3]) 
-    
-#    def text_message(self):
-#        choice = QtGui.QMessageBox.question(self, 'Extract!',
-#                                            "Get into the chopper?",
-#                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+ 
     def run_mcmc(self):
         global fit
         #print("TEST",fit.use.use_jitters[:3]) 
@@ -1101,6 +1056,101 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
 
 
+    def minimize_1param(self):
+        global fit
+        """
+        This function must be completely refurbished!!! How to check 
+        which QDoubleSpinBox is trigerred? Everytime one needs to call 
+        self.init_fit() ? ? ?
+        
+        """
+        
+        self.K1.minimize_signal.connect(lambda: fit.minimize_one_param_K(0)) #TBD!
+        self.K1.minimize_signal.connect(self.init_fit) #TBD!       
+        self.P1.minimize_signal.connect(lambda: fit.minimize_one_param_P(0)) #TBD!
+        self.P1.minimize_signal.connect(self.init_fit) #TBD!     
+        self.e1.minimize_signal.connect(lambda: fit.minimize_one_param_e(0)) #TBD!
+        self.e1.minimize_signal.connect(self.init_fit) #TBD!  
+        self.om1.minimize_signal.connect(lambda: fit.minimize_one_param_w(0)) #TBD!
+        self.om1.minimize_signal.connect(self.init_fit) #TBD!  
+        self.ma1.minimize_signal.connect(lambda: fit.minimize_one_param_M0(0)) #TBD!
+        self.ma1.minimize_signal.connect(self.init_fit) #TBD!  
+        
+        self.K2.minimize_signal.connect(lambda: fit.minimize_one_param_K(1)) #TBD!
+        self.K2.minimize_signal.connect(self.init_fit) #TBD!       
+        self.P2.minimize_signal.connect(lambda: fit.minimize_one_param_P(1)) #TBD!
+        self.P2.minimize_signal.connect(self.init_fit) #TBD!     
+        self.e2.minimize_signal.connect(lambda: fit.minimize_one_param_e(1)) #TBD!
+        self.e2.minimize_signal.connect(self.init_fit) #TBD!  
+        self.om2.minimize_signal.connect(lambda: fit.minimize_one_param_w(1)) #TBD!
+        self.om2.minimize_signal.connect(self.init_fit) #TBD!  
+        self.ma2.minimize_signal.connect(lambda: fit.minimize_one_param_M0(1)) #TBD!
+        self.ma2.minimize_signal.connect(self.init_fit) #TBD!         
+        
+        self.K3.minimize_signal.connect(lambda: fit.minimize_one_param_K(2)) #TBD!
+        self.K3.minimize_signal.connect(self.init_fit) #TBD!       
+        self.P3.minimize_signal.connect(lambda: fit.minimize_one_param_P(2)) #TBD!
+        self.P3.minimize_signal.connect(self.init_fit) #TBD!     
+        self.e3.minimize_signal.connect(lambda: fit.minimize_one_param_e(2)) #TBD!
+        self.e3.minimize_signal.connect(self.init_fit) #TBD!  
+        self.om3.minimize_signal.connect(lambda: fit.minimize_one_param_w(2)) #TBD!
+        self.om3.minimize_signal.connect(self.init_fit) #TBD!  
+        self.ma3.minimize_signal.connect(lambda: fit.minimize_one_param_M0(2)) #TBD!
+        self.ma3.minimize_signal.connect(self.init_fit) #TBD!               
+        
+    def jupiter_push_vars(self):
+        global fit        
+        ConsoleWidget_embed().push_vars({'fit':fit})    
+ 
+
+
+########################## work in progress ##################################
+ 
+    def getNewses(self):
+        global fit, ses_list  
+        text, okPressed = QtGui.QInputDialog.getText(self, "New session","Name session: (No space and special characters!)", QtGui.QLineEdit.Normal, "")
+        if okPressed and text != '':
+            fit2=rv.signal_fit(name=text)
+
+            ses_list.append(fit2)
+           # print(ses_list)
+            #fit = dill.copy(fit2)
+            #self.init_fit()
+            self.session_list()
+            
+ 
+
+    def session_list(self):
+        global fit, ses_list
+        
+
+        self.comboBox_select_ses.clear()
+        self.comboBox_select_ses.setObjectName("session 1")        
+
+        #if fit.npl != 0:
+        for i in range(len(ses_list)):
+            self.comboBox_select_ses.addItem('session %s'%(i+1),i+1)
+         
+            
+        self.comboBox_select_ses.activated.connect(self.select_session)
+
+
+    def select_session(self, index):
+        global fit, ses_list
+
+        
+
+        ind = self.comboBox_select_ses.itemData(index) 
+        
+        #if ind ==1:
+        #   fit = dill.copy(fit)
+            #ses_list = [fit1]
+       # else:
+       #     fit = dill.copy(ses_list[ind-1])
+        #    print(ind-1,fit.name)
+        #self.init_fit()
+#######################################################################            
+            
     def keyPressEvent(self, event):
         if event.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
             self.update_use()
@@ -1157,10 +1207,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         elif choice == QtGui.QMessageBox.Yes:
             self.save_session()
         elif choice == QtGui.QMessageBox.Cancel:
-            return
-
-
-
+            return 
+ 
+ 
+ 
+ 
+        
     def __init__(self):
         global fit
 
@@ -1170,11 +1222,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
        # self.setGeometry(3,30,800,800)
        # self.setFixedSize(1024,1024) 
        
-
         self.setupUi(self)
         
-        self.K1.minimize_signal.connect(lambda: self.optimize_fit(2)) #TBD!
-            
         self.initialize_buttons()
         self.initialize_plots()    
 #        self.init_fit()
@@ -1225,11 +1274,15 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.quit_button.clicked.connect(self.quit)
 
         self.session_list()
-        self.new_ses.clicked.connect(lambda: self.run_bootstrap())
+        self.new_ses.clicked.connect(self.getNewses)
         self.copy_ses.clicked.connect(lambda: self.run_bootstrap())
         self.remove_ses.clicked.connect(lambda: self.run_bootstrap())
 
-        ConsoleWidget_embed().push_vars({'fit':fit})
+        self.minimize_1param()
+        
+        self.jupiter_push_vars()
+
+
         print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and the mcmc and bootstrap results.")
 
 #Function Main START

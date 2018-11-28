@@ -2538,89 +2538,89 @@ class signal_fit(object):
             return
 
     # if you want to temporarily change use flags and run a new fit, use this wrapper
-    def quick_overwrite_use_and_fit(self,useflags,minimize_loglik=False, fileinput=False, filename='Kep_input', amoeba_starts=1, outputfiles=[1,1,0], eps=1, dt=1, timeout_sec=600, print_stat=False):
+    def quick_overwrite_use_and_fit(self,useflags,minimize_loglik=False, fileinput=False, filename='Kep_input', outputfiles=[1,1,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
         oldflags=self.overwrite_use(useflags,save=True)
         self.fitting(minimize_loglik=minimize_loglik,fileinput=fileinput,filename=filename,
-        amoeba_starts=amoeba_starts,outputfiles=outputfiles, eps=eps,dt=dt,timeout_sec=timeout_sec,print_stat=print_stat )     
+        amoeba_starts=amoeba_starts,outputfiles=outputfiles, eps=eps,dt=dt,timeout_sec=timeout_sec,print_stat=print_stat, fortran_kill=fortran_kill )     
         self.overwrite_use(oldflags,save=False)
         return
         
     # if you want to temporarily change initial parameters and run a new fit, use this wrapper
-    def quick_overwrite_params_and_fit(self,params,minimize_loglik=False, fileinput=False, filename='Kep_input', amoeba_starts=1, outputfiles=[1,1,0], eps=1, dt=1, timeout_sec=600, print_stat=False, return_flag=False):
+    def quick_overwrite_params_and_fit(self,params,minimize_loglik=True, fileinput=False, filename='Kep_input',outputfiles=[1,1,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
         oldparams=self.overwrite_params(params,save=True)
         if (return_flag):
-            flag=self.fitting(minimize_loglik=minimize_loglik,fileinput=fileinput,filename=filename,amoeba_starts=amoeba_starts,outputfiles=outputfiles,eps=eps,dt=dt,timeout_sec=timeout_sec,print_stat=print_stat, return_flag=True)     
+            flag=self.fitting(minimize_loglik=minimize_loglik,fileinput=fileinput,filename=filename,amoeba_starts=amoeba_starts,outputfiles=outputfiles,eps=eps,dt=dt,timeout_sec=timeout_sec,print_stat=print_stat, return_flag=True, fortran_kill=fortran_kill)     
             self.overwrite_params(oldparams,save=False)
             return flag
         else:
-            self.fitting(minimize_loglik=minimize_loglik,fileinput=fileinput,filename=filename,amoeba_starts=amoeba_starts,outputfiles=outputfiles,eps=eps,dt=dt,timeout_sec=timeout_sec,print_stat=print_stat)     
+            self.fitting(minimize_loglik=minimize_loglik,fileinput=fileinput,filename=filename,amoeba_starts=amoeba_starts,outputfiles=outputfiles,eps=eps,dt=dt,timeout_sec=timeout_sec,print_stat=print_stat, fortran_kill=fortran_kill)     
             self.overwrite_params(oldparams,save=False)
             return                                   
             
-    def minimize_one_param_K(self,planet,minimize_loglik=False, fileinput=False, filename='Kep_input', amoeba_starts=5, outputfiles=[1,0,0], eps=1, dt=1, timeout_sec=600, print_stat=False):
+    def minimize_one_param_K(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
         useflags=use_flags([False]*20,[False]*20,[False]*70,False,False) 
         useflags.update_use_K(planet,True)
-        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat)
+        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return    
 
-    def minimize_one_param_P(self,planet,minimize_loglik=False, fileinput=False, filename='Kep_input', amoeba_starts=5, outputfiles=[1,0,0], eps=1, dt=1, timeout_sec=600, print_stat=False):
+    def minimize_one_param_P(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
         useflags=use_flags([False]*20,[False]*20,[False]*70,False,False) 
         useflags.update_use_P(planet,True)
-        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat)
+        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return    
         
-    def minimize_one_param_e(self,planet,minimize_loglik=False, fileinput=False, filename='Kep_input', amoeba_starts=5, outputfiles=[1,0,0], eps='1.0E-8', dt=864000, timeout_sec=60, print_stat=False):
+    def minimize_one_param_e(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
         useflags=use_flags([False]*20,[False]*20,[False]*70,False,False) 
         useflags.update_use_e(planet,True)
-        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat)
+        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return    
                 
-    def minimize_one_param_w(self,planet,minimize_loglik=False, fileinput=False, filename='Kep_input', amoeba_starts=5, outputfiles=[1,0,0], eps=1, dt=1, timeout_sec=60, print_stat=False):
+    def minimize_one_param_w(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
         useflags=use_flags([False]*20,[False]*20,[False]*70,False,False) 
         useflags.update_use_w(planet,True)
-        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat)
+        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return    
         
-    def minimize_one_param_M0(self,planet,minimize_loglik=False, fileinput=False, filename='Kep_input', amoeba_starts=5, outputfiles=[1,0,0], eps=1, dt=1, timeout_sec=60, print_stat=False):
+    def minimize_one_param_M0(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
         useflags=use_flags([False]*20,[False]*20,[False]*70,False,False) 
         useflags.update_use_M0(planet,True)
-        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat)
+        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return    
         
-    def minimize_one_param_inclination(self,planet,minimize_loglik=False, fileinput=False, filename='Kep_input', amoeba_starts=5, outputfiles=[1,0,0], eps=1, dt=1, timeout_sec=60, print_stat=False):
+    def minimize_one_param_inclination(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
         useflags=use_flags([False]*20,[False]*20,[False]*70,False,False) 
         useflags.update_use_inclination(planet,True)
-        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat)
+        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return    
         
-    def minimize_one_param_lineofnodes(self,planet,minimize_loglik=False, fileinput=False, filename='Kep_input', amoeba_starts=5, outputfiles=[1,0,0], eps=1, dt=1, timeout_sec=60, print_stat=False):
+    def minimize_one_param_lineofnodes(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
         useflags=use_flags([False]*20,[False]*20,[False]*70,False,False) 
         useflags.update_use_lineofnodes(planet,True)
-        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat)
+        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return    
              
-    def minimize_one_param_offset(self,dataset,minimize_loglik=False, fileinput=False, filename='Kep_input', amoeba_starts=5, outputfiles=[1,0,0], eps=1, dt=1, timeout_sec=60, print_stat=False):
+    def minimize_one_param_offset(self,dataset,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
         useflags=use_flags([False]*20,[False]*20,[False]*70,False,False) 
         useflags.update_use_offset(dataset,True)
-        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat)
+        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return                 
   
-    def minimize_one_param_jitter(self,dataset,minimize_loglik=False, fileinput=False, filename='Kep_input', amoeba_starts=5, outputfiles=[1,0,0], eps=1, dt=1, timeout_sec=60, print_stat=False):
+    def minimize_one_param_jitter(self,dataset,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
         useflags=use_flags([False]*20,[False]*20,[False]*70,False,False) 
         useflags.update_use_jitter(dataset,True)
-        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat)
+        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return                   
               
-    def minimize_one_param_linear_trend(self,minimize_loglik=False, fileinput=False, filename='Kep_input', amoeba_starts=5, outputfiles=[1,0,0], eps=1, dt=1, timeout_sec=60, print_stat=False):
+    def minimize_one_param_linear_trend(self,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
         useflags=use_flags([False]*20,[False]*20,[False]*70,False,False) 
         useflags.update_use_linear_trend(True)
-        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat)
+        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return       
         
-    def minimize_one_param_stellar_mass(self,dataset,minimize_loglik=False, fileinput=False, filename='Kep_input', amoeba_starts=5, outputfiles=[1,0,0], eps=1, dt=1, timeout_sec=60, print_stat=False):
+    def minimize_one_param_stellar_mass(self,dataset,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
         useflags=use_flags([False]*20,[False]*20,[False]*70,False,False) 
         useflags.update_use_stellar_mass(dataset,True)
-        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat)
+        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return                               
               
     def plot_periodogram(self, filetosave='periodogram.png'):
