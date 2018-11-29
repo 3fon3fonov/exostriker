@@ -1124,7 +1124,22 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
             self.session_list()
             
- 
+    def rem_ses(self):
+        global fit, ses_list  
+        
+        ind = self.comboBox_select_ses.currentIndex()
+        
+        choice = QtGui.QMessageBox.information(self, 'Warning!',
+        "Do you really want to remove Session %s"%(ind+1),
+                                            QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
+         
+        if choice == QtGui.QMessageBox.No:
+            return
+        elif choice == QtGui.QMessageBox.Yes:
+            ses_list.pop(ind)
+            self.session_list() 
+            #self.select_session(0)
+  
 
     def session_list(self):
         global fit, ses_list
@@ -1138,18 +1153,17 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         elif len(ses_list) != 0:
             self.comboBox_select_ses.clear()
             for i in range(len(ses_list)):
-                self.comboBox_select_ses.addItem('session %s'%(i+1),i+1)
+                self.comboBox_select_ses.addItem('session %s'%(i+1),i)
                      
         self.comboBox_select_ses.activated.connect(self.select_session)
-
+        #self.select_session(0)
 
     def select_session(self, index):
         global fit, ses_list
 
         ind = self.comboBox_select_ses.itemData(index) 
-        print(index,ind)
-
-        fit = ses_list[ind-1]
+        #print(ind,index,len(ses_list))
+        fit = dill.copy(ses_list[ind])
         #ses_list[ind-1] = fit
         
         self.init_fit()
@@ -1158,17 +1172,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.update_gui_params()
         self.update_params()
         self.update_RV_file_buttons() 
-        
+        ses_list[ind] = fit
+
 #######################################################################            
-            
-    def keyPressEvent(self, event):
-        global fit
-        if event.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
-            self.update_use()
-            self.update_params() 
-            self.init_fit()
-            return
-       # super(Settings, self).keyPressEvent(event)
+
 
     def new_session(self):
         global fit
@@ -1220,7 +1227,15 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         elif choice == QtGui.QMessageBox.Cancel:
             return 
  
- 
+            
+    def keyPressEvent(self, event):
+        global fit
+        if event.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
+            self.update_use()
+            self.update_params() 
+            self.init_fit()
+            return
+       # super(Settings, self).keyPressEvent(event) 
  
  
         
@@ -1287,7 +1302,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         #self.session_list()
         self.new_ses.clicked.connect(self.getNewses)
         self.copy_ses.clicked.connect(lambda: self.run_bootstrap())
-        self.remove_ses.clicked.connect(lambda: self.run_bootstrap())
+        self.remove_ses.clicked.connect(self.rem_ses)
 
         self.minimize_1param()
         
