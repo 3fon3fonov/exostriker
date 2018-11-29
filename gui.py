@@ -20,6 +20,8 @@ import calculator as calc
 import stdout_pipe as stdout_pipe
 import gls as gls 
 
+import time
+
 #import BKR as bkr
 from doublespinbox import DoubleSpinBox
 from scipy.signal import argrelextrema
@@ -725,13 +727,18 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
     def init_fit(self): 
         global fit
-   
         fit.fitting(fileinput=False,outputfiles=[1,1,1], fortran_kill=30, timeout_sec=300,minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
+        
+
         self.update_labels()
         self.update_gui_params()
         self.update_errors() 
-        self.update_a_mass()                    
-        self.update_plots()   
+        self.update_a_mass() 
+        
+        start_time = time.time()
+        self.update_plots() 
+        print("--- %s seconds ---" % (time.time() - start_time))      
+     
         self.jupiter_push_vars()       
         
         
@@ -1135,10 +1142,30 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
          
         if choice == QtGui.QMessageBox.No:
             return
-        elif choice == QtGui.QMessageBox.Yes:
+        elif choice == QtGui.QMessageBox.Yes and ind <=0:
+            self.new_session()
+            #ses_list[0] = fit
+        elif choice == QtGui.QMessageBox.Yes and ind > 0:
             ses_list.pop(ind)
             self.session_list() 
-            #self.select_session(0)
+            self.select_session(ind-1)
+            
+    def cop_ses(self):
+        global fit, ses_list  
+        
+        ind = self.comboBox_select_ses.currentIndex()
+        
+        if len(ses_list) == 0:
+            ses_list.append(fit)
+        if ind <=0:
+            fit_new =dill.copy(ses_list[0])
+        elif ind > 0:
+            fit_new =dill.copy(ses_list[ind])
+ 
+        
+        ses_list.append(fit_new)
+        self.session_list() 
+        self.select_session(ind-1)            
   
 
     def session_list(self):
@@ -1155,7 +1182,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             for i in range(len(ses_list)):
                 self.comboBox_select_ses.addItem('session %s'%(i+1),i)
                      
-        self.comboBox_select_ses.activated.connect(self.select_session)
         #self.select_session(0)
 
     def select_session(self, index):
@@ -1163,10 +1189,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         ind = self.comboBox_select_ses.itemData(index) 
         #print(ind,index,len(ses_list))
-        fit = dill.copy(ses_list[ind])
+        fit = ses_list[ind]
         #ses_list[ind-1] = fit
-        
+
         self.init_fit()
+       
+        
         self.update_use_from_input_file()   
         self.update_use()
         self.update_gui_params()
@@ -1295,13 +1323,14 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
        
         
         #self.comboBox_extra_plot.activated.connect(self.change_extra_plot)      
+        self.comboBox_select_ses.activated.connect(self.select_session)
         
 
         self.quit_button.clicked.connect(self.quit)
 
         #self.session_list()
         self.new_ses.clicked.connect(self.getNewses)
-        self.copy_ses.clicked.connect(lambda: self.run_bootstrap())
+        self.copy_ses.clicked.connect(self.cop_ses)
         self.remove_ses.clicked.connect(self.rem_ses)
 
         self.minimize_1param()
