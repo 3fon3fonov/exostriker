@@ -1242,6 +1242,38 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         dill.dump(fit, file_pi)
         file_pi.close()
 
+
+    def open_sessions(self):
+        global fit, ses_list
+        
+        input_file = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.mses)')
+
+        file_pi = open(input_file[0], 'rb')
+        fit2 = dill.load(file_pi)
+        file_pi.close()   
+        if len(ses_list) == 0: 
+            print(type(ses_list))
+            ses_list = fit2
+            print(type(ses_list))
+        else:  
+            ses_list = ses_list + fit2
+            print(type(ses_list))
+
+        #fit = ses_list[0]
+        self.session_list()
+        self.select_session(0)
+
+    def save_sessions(self):
+        global fit, ses_list
+        
+        output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save multi-session', '', 'Data (*.mses)')
+
+        file_pi = open(output_file[0], 'wb')
+        dill.dump(ses_list, file_pi)
+        file_pi.close()
+
+
+
     def quit(self):
         #os.system("rm temp*.vels")
         choice = QtGui.QMessageBox.information(self, 'Warning!',
@@ -1320,6 +1352,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.actionNew_session.triggered.connect(self.new_session)
         self.actionOpen_session.triggered.connect(self.open_session)
         self.actionSave_session.triggered.connect(self.save_session)
+        self.actionSave_multi_sesion.triggered.connect(self.save_sessions)
+        self.actionOpen_multi_session.triggered.connect(self.open_sessions)
        
         
         #self.comboBox_extra_plot.activated.connect(self.change_extra_plot)      
