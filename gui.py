@@ -735,9 +735,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.update_errors() 
         self.update_a_mass() 
         
-        start_time = time.time()
+        #start_time = time.time()
         self.update_plots() 
-        print("--- %s seconds ---" % (time.time() - start_time))      
+        #print("--- %s seconds ---" % (time.time() - start_time))      
      
         self.jupiter_push_vars()       
         
@@ -1189,6 +1189,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         ind = self.comboBox_select_ses.itemData(index) 
         #print(ind,index,len(ses_list))
+        #if ind != None:
         fit = ses_list[ind]
         #ses_list[ind-1] = fit
 
@@ -1209,29 +1210,22 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit
         
         file_pi = open('.sessions/empty.ses', 'rb')
-        fit = dill.load(file_pi)
+        fit_new = dill.load(file_pi)
         file_pi.close()     
-        self.init_fit()         
-        self.update_use_from_input_file()   
-        self.update_use()
-        self.update_gui_params()
-        self.update_params()
-        self.update_RV_file_buttons()   
+ 
+        ses_list.append(fit_new)
+        self.session_list()
             
     def open_session(self):
-        global fit
+        global fit,ses_list
         
         input_file = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.ses)')
 
         file_pi = open(input_file[0], 'rb')
-        fit = dill.load(file_pi)
+        fit_new = dill.load(file_pi)
         file_pi.close()     
-        self.init_fit()         
-        self.update_use_from_input_file()   
-        self.update_use()
-        self.update_gui_params()
-        self.update_params()
-        self.update_RV_file_buttons()
+        ses_list.append(fit_new)
+        self.session_list()
 
     def save_session(self):
         global fit
@@ -1252,14 +1246,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         fit2 = dill.load(file_pi)
         file_pi.close()   
         if len(ses_list) == 0: 
-            print(type(ses_list))
             ses_list = fit2
-            print(type(ses_list))
         else:  
             ses_list = ses_list + fit2
-            print(type(ses_list))
 
-        #fit = ses_list[0]
         self.session_list()
         self.select_session(0)
 
