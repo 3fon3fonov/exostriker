@@ -1189,8 +1189,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         ind = self.comboBox_select_ses.itemData(index) 
         #print(ind,index,len(ses_list))
-        #if ind != None:
-        fit = ses_list[ind]
+        if ind == None:
+            fit = ses_list[0]
+        else:
+            fit = ses_list[ind]
+
         #ses_list[ind-1] = fit
 
         self.init_fit()
