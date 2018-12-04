@@ -10,7 +10,6 @@ import gls as gls
 
 
 import prior_functions as pr
-import rot_kernels
 import numpy as np
 import matplotlib.pyplot as plt
 import re
@@ -362,7 +361,7 @@ def lnprobGP(p,signalfit,prior):
                 
                 #print(len(signalfit.fit_results.rv_model.o_c[signalfit.fit_results.idset==i]),signalfit.filelist.ndset,max(signalfit.fit_results.idset))
                 
-                signalfit.gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate((signalfit.params.GP_params.gp_par,np.atleast_1d(signalfit.params.jitters[i])))))))
+                signalfit.gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate((signalfit.params.GP_params,np.atleast_1d(signalfit.params.jitters[i])))))))
                 S+=signalfit.gps[i].log_likelihood(signalfit.fit_results.rv_model.o_c[signalfit.fit_results.idset==i])
                 signalfit.overwrite_params(oldparams)
                 #print(S)
@@ -395,7 +394,7 @@ def lnprobGP2(p,copied_obj,prior):
             S=0
             for i in range(copied_obj.filelist.ndset):
 
-                copied_obj.gps[i].set_parameter_vectorset_parameter_vector(np.array(list(map(np.log,np.concatenate((copied_obj.params.GP_params.gp_par,np.atleast_1d(signalfit.params.jitters[i])))))))    
+                copied_obj.gps[i].set_parameter_vector(np.array([np.log(copied_obj.params.GP_params[0]),np.log(copied_obj.params.GP_params[1]) ,np.log(copied_obj.params.GP_params[2]) ,np.log(copied_obj.params.GP_params[3]),copied_obj.params.jitters[i]]))       
                 S = S + copied_obj.gps[i].log_likelihood(copied_obj.fit_results.rv_model.o_c[copied_obj.fit_results.idset==i])
 
             return pr.choose_prior(p,prior)+S   
@@ -414,14 +413,14 @@ def lnprobGP3(p,copied_obj,prior):
        
        S=0
        for i in range(copied_obj.filelist.ndset):
-           copied_obj.gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate((copied_obj.params.GP_params.gp_par,np.atleast_1d(copied_obj.params.jitters[i]))))))) 
+           copied_obj.gps[i].set_parameter_vector(np.array([np.log(copied_obj.params.GP_params[0]),np.log(copied_obj.params.GP_params[1]) ,np.log(copied_obj.params.GP_params[2]) ,np.log(copied_obj.params.GP_params[3]),copied_obj.params.jitters[i]]))       
            S = S + copied_obj.gps[i].log_likelihood(copied_obj.fit_results.rv_model.o_c[copied_obj.fit_results.idset==i])
                       
        #print(copied_obj.fit_results.loglik, compute_loglik_TT(p,copied_obj),  S)#,copied_obj.params.GP_params[:4],copied_obj.params.planet_params[:14])   
        return pr.choose_prior(p,prior)+S    
      
         
-def run_mcmc(signalfit,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-0.99,0.99]],wbounds=[[-2.0*360.0, 2.0*360.0]],Mbounds=[[-2.0*360.0, 2.0*360.0]],ibounds=[[-2.0*180.0, 2.0*180.0]],capbounds=[[-2.0*360.0, 2.0*360.0]],offbounds=[[-100000.0,100000.0]],jitbounds=[[0.0,10000.0]],lintrbounds=[[-10.0,10.0]], GPbounds=[[0.0,100000.0]], stmassbounds=[[0.01,1000.0]], prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False], save_means=False, fileoutput=False, save_sampler=False,burning_ph=20, mcmc_ph=20, **kwargs):      
+def run_mcmc(signalfit,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-0.99,0.99]],wbounds=[[-2.0*360.0, 2.0*360.0]],Mbounds=[[-2.0*360.0, 2.0*360.0]],ibounds=[[-2.0*180.0, 2.0*180.0]],capbounds=[[-2.0*360.0, 2.0*360.0]],offbounds=[[-100000.0,100000.0]],jitbounds=[[0.0,10000.0]],lintrbounds=[[-10.0,10.0]], GPbounds=[[0.0,100000.0]], stmassbounds=[[0.01,1000.0]], prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, doGP=False, gp_par=[10.0,10.0,10.0,1.0], use_gp_par=[False,False,False,False], save_means=False, fileoutput=False, save_sampler=False,burning_ph=20, mcmc_ph=20, **kwargs):      
 
     '''Performs MCMC and saves results'''  
     
@@ -431,11 +430,15 @@ def run_mcmc(signalfit,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],eboun
     
     # Let's prepare things depending if we want to do GP or not
     if (doGP):
-        signalfit.initiategps(gp_par=gp_par, use_gp_par=use_gp_par, kernel_id=kernel_id)
-        fun=lnprobGP3                            
+        signalfit.initiategps(gp_par=gp_par)
+        fun=lnprobGP3
+        signalfit.use.update_use_GP_params(use_gp_par)                            
+        signalfit.params.update_GP_params(gp_par)
     else:
-        fun=lnprob                       
-        GPbounds=[[x-10.0,x+10.0] for x in signalfit.params.GP_params.gp_par] # just to make sure GPbounds don't cause lnprob return -infinity when we don't do GP (now all GP_params will be within bounds for sure)
+        fun=lnprob
+        signalfit.use.update_use_GP_params(use_gp_par)                            
+        signalfit.params.update_GP_params(gp_par)
+        GPbounds=[[x-10.0,x+10.0] for x in gp_par] # just to make sure GPbounds don't cause lnprob return -infinity when we don't do GP (now all GP_params will be within bounds for sure)
     
     # we will need this later
     if (signalfit.mod_dynamical):
@@ -500,7 +503,7 @@ def run_mcmc(signalfit,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],eboun
     new_par_errors = [[float(signalfit.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-signalfit.par_for_mcmc[i])] for i in range(len(signalfit.par_for_mcmc))] 
     newparams = signalfit.generate_newparams_for_mcmc(signalfit.par_for_mcmc)        
     print(newparams.GP_params)
-    current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
+    current_GP_params=newparams.GP_params # because calling fitting will overwrite them
     print(current_GP_params)
 
     signalfit.overwrite_params(newparams)
@@ -757,28 +760,14 @@ class CustomSampler(emcee.EnsembleSampler):
         self.correct_rows(f,ndset,npl)
         return
 
-class GP_parameters(object): # class for GP process parameters which allows for different kernels with different number of parameters
-
-    def __init__(self,npar,parameters,kernel_id=0):
-        gpparameterswarnings=Warning_log([],'generating GP_parameters object')
-        self.gp_par=parameters
-        if not (npar==len(parameters)):
-            npar=len(parameters)
-            gpparameterswarnings.update_warning_list('Different number of parameters declared than the number of parameters actually provided! Redefined.')	          
-        self.npar=npar
-        self.kernel_id=kernel_id
-        self.rot_kernel=rot_kernels.choose_kernel(kernel_id,parameters)
-        gpparameterswarnings.print_warning_log()
-	
-
 class parameters(object): # class for all parameters which can be fitted
 
-    def __init__(self,offsets,jitters,planet_params,linear_trend,stellar_mass, GP_params=[10.0]*4, GP_kernel_id=0):
+    def __init__(self,offsets,jitters,planet_params,linear_trend,stellar_mass):
         self.offsets=np.concatenate((np.atleast_1d(offsets),[0.0]*(max(0,20-len(np.atleast_1d(offsets)))))) 
         self.jitters=np.concatenate((np.atleast_1d(jitters),[0.0]*(max(0,20-len(np.atleast_1d(jitters))))))
         self.planet_params=np.concatenate((np.atleast_1d(planet_params),[0.0]*(max(0,70-len(np.atleast_1d(planet_params))))))
         self.linear_trend=linear_trend
-        self.GP_params=GP_parameters(len(GP_params),GP_params,kernel_id=GP_kernel_id) # we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_params=[10.0]*4 # we always want to hav ethis attribute, but we only use it if we call GP, and then we update it anyway
         self.stellar_mass=stellar_mass
         
     def update_offset(self,dataset,offset): # change offset of one dataset
@@ -843,16 +832,13 @@ class parameters(object): # class for all parameters which can be fitted
         self.linear_trend=linear_trend       
         return      
         
-    def update_GP_param_value(self,i,newpar):
-        self.GP_params.gp_par[i]=newpar
+    def update_GP_param(self,i,newpar):
+        self.GP_params[i]=newpar
         return
         
-    def update_GP_params(self,newparams, kernel_id=-1):
-        #redefine entire GP_params object, if kernel_id=-1 then we do not wish to change kernel type
-        if (kernel_id==-1):
-            kernel_id=self.GP_params.kernel_id
-        #self.GP_params=GP_parameters(newparams,newparams,kernel_id=kernel_id)
-        self.GP_params=GP_parameters(len(newparams),newparams,kernel_id=kernel_id)
+    def update_GP_params(self,newparams):
+        #print("TESTTTT",newparams)
+        self.GP_params=newparams
         return
         
     def update_stellar_mass(self,stellar_mass):
@@ -889,12 +875,12 @@ class parameters(object): # class for all parameters which can be fitted
                       
 class use_flags(object): # class for all use flags
 
-    def __init__(self,use_offsets,use_jitters,use_planet_params,use_linear_trend,use_stellar_mass,use_GP_params=[False]*4):
+    def __init__(self,use_offsets,use_jitters,use_planet_params,use_linear_trend,use_stellar_mass):
         self.use_offsets=use_offsets 
         self.use_jitters=use_jitters
         self.use_planet_params=use_planet_params
         self.use_linear_trend=use_linear_trend
-        self.use_GP_params=use_GP_params
+        self.use_GP_params=[False]*4 
         self.use_stellar_mass=False
         self.use_offsets=np.concatenate((np.atleast_1d(self.use_offsets),[0.0]*(20-len(np.atleast_1d(self.use_offsets))))) 
         self.use_jitters=np.concatenate((np.atleast_1d(self.use_jitters),[0.0]*(20-len(np.atleast_1d(self.use_jitters)))))
@@ -976,7 +962,7 @@ class use_flags(object): # class for all use flags
         
 class parameter_errors(object): # Class for parameter errors. 
 
-    def __init__(self,offset_errors,jitter_errors,planet_params_errors,linear_trend_error,stellar_mass_error,GP_params_errors=[[0.0,0.0]]*4):
+    def __init__(self,offset_errors,jitter_errors,planet_params_errors,linear_trend_error,stellar_mass_error):
         '''At initiation we provide single values for each error, and we extrapolate them into 2 element arrays corresponding to + and - errors, which are at this point equal. They can be updated with updating functions found below'''
         # allocating room for up to 20 datasets and 10 planets
         offset_errors=np.concatenate((np.atleast_1d(offset_errors),[0.0]*(max(0,20-len(np.atleast_1d(offset_errors)))))) 
@@ -987,7 +973,7 @@ class parameter_errors(object): # Class for parameter errors.
         self.jitter_errors=np.array([[jitter_errors[i],jitter_errors[i]] for i in range(len(jitter_errors))])
         self.planet_params_errors=np.array([[planet_params_errors[i],planet_params_errors[i]] for i in range(len(planet_params_errors))])
         self.linear_trend_error=np.array([linear_trend_error,linear_trend_error])
-        self.GP_params_errors=GP_params_errors
+        self.GP_params_errors=[[0.0,0.0]]*4
         self.stellar_mass_error=np.array([stellar_mass_error,stellar_mass_error])
 
     '''In all functions below 'error' should in fact be a [-error,+error] 2 element array'''
@@ -1774,10 +1760,26 @@ class fortran_output(object):
         self.dismantle_RV_kep()
         results = kernel(self.generate_summary(), self.jd, self.rv_obs, self.rv_error,self.o_c, self.model, self.JD_model, self.npl,self.semiM,self.masses,self.data_set,self.stat_array_saved,self.reduced_chi2,self.chi2,self.rms,self.loglik) 
         return results
-                    
+      
+
+          
+class RotationTerm(terms.Term):
+    parameter_names = ("log_amp", "log_timescale", "log_period", "log_factor")
+
+    def get_real_coefficients(self, params):
+        log_amp, log_timescale, log_period, log_factor = params
+        f = np.exp(log_factor)
+        return (np.exp(log_amp) * (1.0 + f) / (2.0 + f), np.exp(-log_timescale))   
+
+
+    def get_complex_coefficients(self, params):
+        log_amp, log_timescale, log_period, log_factor = params
+        f = np.exp(log_factor)
+        return (np.exp(log_amp) / (2.0 + f), 0.0, np.exp(-log_timescale), 2*np.pi*np.exp(-log_period))   
+                
 class signal_fit(object):
  
-    def __init__(self, inputfile='init.init', name='', readinputfile=False): 
+    def __init__(self, inputfile='init.init', name='', readinputfile=False):
         # saving the name for the inputfile and the information that it has not yet been processed
         self.inputfile = inputfile
         self.inputfile_read=False
@@ -1793,9 +1795,6 @@ class signal_fit(object):
         self.params=parameters([0.0]*20,[0.0]*20,[0.0]*70,0.0,DEFAULT_STELLAR_MASS) 
         self.param_errors=parameter_errors([0.0]*20,[0.0]*20,[0.0]*70,0.0,0.0) 
         self.bounds = parameter_bounds([0.0,0.0]*20,[0.0,0.0]*20,[0.0,0.0]*70,[0.0,0.0],[0.0,0.0]*4,[0.0,0.0])  
-        self.GP_params=GP_parameters(4,[1,10,15,1],kernel_id=0) # we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
-
-        
         self.fit_performed = False
         self.fitting_method = 'None'
         self.model_saved=False
@@ -1896,25 +1895,6 @@ class signal_fit(object):
     def update_mod_dynamical(self, mod_dynamical):
         self.mod_dynamical=mod_dynamical
         return     
-
-    def verify_gp_parameters_number(self):
-        # Since parameters, use flags and errors are stored in separate objects, and the number of GP parameters can vary, it can lead to problems. To prevent them, verify things by running this function     	
-        gpparamsnumwarnings=Warning_log([],'Verifying consistency with the number of GP parameters')
-        npar=self.params.GP_params.npar
-        if(len(self.use.use_GP_params)>npar):
-            gpparamsnumwarnings.update_warning_list('Too many use flags (%d flags while there are %d parameters)! Additional will be discarded.'%(len(self.use.use_GP_params),npar))
-            self.use.use_GP_params=self.use.use_GP_params[:npar]
-        if(len(self.use.use_GP_params)<npar):
-            gpparamsnumwarnings.update_warning_list('Too few use flags (%d flags while there are %d parameters)! Will assume True for remaining parameters.'%(len(self.use.use_GP_params),npar))
-            self.use.use_GP_params=np.concatenate((self.use.use_GP_params,[True]*(npar-len(self.use.use_GP_params))))       
-        if(len(self.param_errors.GP_params_errors)>npar):
-            gpparamsnumwarnings.update_warning_list('Too many errors (%d errors while there are %d parameters)! Additional will be discarded.'%(len(self.use.use_GP_params),npar))
-            self.param_errors.GP_params_errors=self.errors.GP_params_errors[:npar]
-        if(len(self.param_errors.GP_params_errors)<npar):
-            gpparamsnumwarnings.update_warning_list('Too few use flags (%d errors while there are %d parameters)! Will assume [0.0,0.0] for remaining parameters.'%(len(self.use.use_GP_params),npar))
-            self.param_errors.GP_params_errors=np.concatenate((self.param_errors.GP_params_errors,np.repeat([[0.0,0.0]],npar-len(self.use.use_GP_params),axis=0)))   
-        gpparamsnumwarnings.print_warning_log()
-        return
  
     def overwrite_use(self,useflags, save=True): # overwrite use flags with new ones, but optionally save the old ones so we can return to the later
         oldflags=self.use
@@ -2351,17 +2331,16 @@ class signal_fit(object):
 """.format(self.filelist.files[i].name,self.params.offsets[i],self.params.jitters[i],self.param_errors.offset_errors[i][1],self.param_errors.jitter_errors[i][1],self.param_errors.offset_errors[i][0],self.param_errors.jitter_errors[i][0])                
 
         # Printing information about stellar activity, if fitting was done with GP
-        if(self.fitting_method.startswith('GP')):
-            message_str = message_str +"""\nStellar activity was modeled using Gaussian Processes. The resulting parameters are as follows
+        if(self.fitting_method.startswith('GP_NOPE')):
+            message_str = message_str +"""\nStellar activity was modelled using Gaussian Processes. The resulting parameters are as follows:
 """
             if(short_errors):
-                for i in range(self.params.GP_params.npar):
-                    message_str = message_str +"""\n {2:s} = {0:>7.4f} +/- {1:>7.4f}""".format(self.GP_params.gp_par[i],max(self.param_errors.GP_params_errors[i]),self.params.GP_params.rot_kernel.parameter_labels()[i])         
+                message_str = message_str +"""\n A = {0:>7.4f} +/- {4:>7.4f}\n t = {1:>7.4f} +/- {5:>7.4f}\n P = {2:>7.4f} +/- {6:>7.4f}\n f = {3:>7.4f} +/- {7:>7.4f}
+""".format(self.params.GP_params[0],self.params.GP_params[1],self.params.GP_params[2],self.params.GP_params[3],max(self.param_errors.GP_params_errors[0]),max(self.param_errors.GP_params_errors[1]),max(self.param_errors.GP_params_errors[2]),max(self.param_errors.GP_params_errors[3]))         
             else:
-                for i in range(self.params.GP_params.npar):
-                    message_str = message_str +"""\n {3:s} = {0:>7.4f} + {1:>7.4f} - {2:>7.4f}""".format(self.GP_params.gp_par[i],self.param_errors.GP_params_errors[i][1],self.param_errors.GP_params_errors[i][0],self.params.GP_params.rot_kernel.parameter_labels()[i])         
-
-                          
+                message_str = message_str +"""\n A = {0:>7.4f} + {4:>7.4f} - {8:>7.4f}\n t = {1:>7.4f} + {5:>7.4f} - {9:>7.4f}\n P = {2:>7.4f} + {6:>7.4f} - {10:>7.4f}\n f = {3:>7.4f} + {7:>7.4f} - {11:>7.4f}
+ """.format(self.params.GP_params[0],self.params.GP_params[1],self.params.GP_params[2],self.params.GP_params[3],self.param_errors.GP_params_errors[0][1],self.param_errors.GP_params_errors[1][1],self.param_errors.GP_params_errors[2][1],self.param_errors.GP_params_errors[3][1],self.param_errors.GP_params_errors[0][0],self.param_errors.GP_params_errors[1][0],self.param_errors.GP_params_errors[2][0],self.param_errors.GP_params_errors[3][0])                                                                                  
+                    
         # Printing information about linear trend, if any
         if (self.params.linear_trend!=0): # Information about a linear trend only if it exists
             if ((not (self.fit_performed) or self.fitting_method.startswith('loglik')) or self.never_saved): # if there was no fitting done (or values weren't saved) we don't give the errors. Same if the fitting was done with the Symplex method (if loglik was minimized), this method doesn't provide the errors
@@ -2637,7 +2616,12 @@ class signal_fit(object):
         useflags.update_use_linear_trend(True)
         self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return       
-                                      
+        
+    def minimize_one_param_stellar_mass(self,dataset,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
+        useflags=use_flags([False]*20,[False]*20,[False]*70,False,False) 
+        useflags.update_use_stellar_mass(dataset,True)
+        self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
+        return                               
               
     def plot_periodogram(self, filetosave='periodogram.png'):
         if(self.model_saved): # if we have the model we can run plot_gls on an appropriate kernel
@@ -2814,12 +2798,12 @@ class signal_fit(object):
         elif (len(stmassbounds)>1):
             stmassbounds=stmassbounds[:1]
             preparingwarnings.update_warning_list('Too many stmassbounds! Additional will be ignored.') 
-        if(len(GPbounds)<self.params.GP_params.npar):
+        if(len(GPbounds)<4):
             if not (GPbounds==[[0.0,100000.0]]):
                 preparingwarnings.update_warning_list('Too few GPbounds! Assuming default [0.0, 10000.0] for remaining parameters.')           
-            GPbounds=np.concatenate((GPbounds,np.repeat([[0.0,10000.0]],self.params.GP_params.npar-len(GPbounds),axis=0)))           
-        elif (len(GPbounds)>self.params.GP_params.npar):
-            GPbounds=GPbounds[:self.params.GP_params.npar]
+            GPbounds=np.concatenate((GPbounds,np.repeat([[0.0,10000.0]],4-len(GPbounds),axis=0)))           
+        elif (len(GPbounds)>4):
+            GPbounds=GPbounds[:4]
             preparingwarnings.update_warning_list('Too many GPbounds! Additional will be ignored.')
         
         # put together bounds for K,P,e,w,M0, so they are in an order we are used to
@@ -2840,9 +2824,9 @@ class signal_fit(object):
         
         # Now prepare parameters, only those which are used         
 
-        par = np.concatenate((self.params.offsets[:self.filelist.ndset],self.params.jitters[:self.filelist.ndset],self.params.planet_params[:7*self.npl],np.atleast_1d(self.params.linear_trend),np.atleast_1d(self.params.GP_params.gp_par),np.atleast_1d(self.params.stellar_mass)))
+        par = np.concatenate((self.params.offsets[:self.filelist.ndset],self.params.jitters[:self.filelist.ndset],self.params.planet_params[:7*self.npl],np.atleast_1d(self.params.linear_trend),self.params.GP_params,np.atleast_1d(self.params.stellar_mass)))
            
-        flag = np.concatenate((self.use.use_offsets[:self.filelist.ndset],self.use.use_jitters[:self.filelist.ndset],self.use.use_planet_params[:7*self.npl],np.atleast_1d(self.use.use_linear_trend),np.atleast_1d(self.use.use_GP_params),np.atleast_1d(self.use.use_stellar_mass)))
+        flag = np.concatenate((self.use.use_offsets[:self.filelist.ndset],self.use.use_jitters[:self.filelist.ndset],self.use.use_planet_params[:7*self.npl],np.atleast_1d(self.use.use_linear_trend),self.use.use_GP_params,np.atleast_1d(self.use.use_stellar_mass)))
         
        # print(par,flag)
 
@@ -2887,7 +2871,7 @@ class signal_fit(object):
             verification = False
         elif not (verify_array_with_bounds(self.params.planet_params,self.bounds.planet_params_bounds)):
             verification = False
-        elif not (verify_array_with_bounds(self.params.GP_params.gp_par,self.bounds.GP_params_bounds)):
+        elif not (verify_array_with_bounds(self.params.GP_params,self.bounds.GP_params_bounds)):
             verification = False
         elif not (verify_array_with_bounds(np.atleast_1d(self.params.linear_trend),self.bounds.linear_trend_bounds)):
             verification = False 
@@ -2932,8 +2916,8 @@ class signal_fit(object):
             elif (idx<2*self.filelist.ndset+7*self.npl+1):
                 newparams.update_linear_trend(p[i]) 
                 i=i+1       
-            elif (idx<2*self.filelist.ndset+7*self.npl+1+self.params.GP_params.npar):
-                newparams.update_GP_param_value(idx-2*self.filelist.ndset-7*self.npl-1,p[i])
+            elif (idx<2*self.filelist.ndset+7*self.npl+5):
+                newparams.update_GP_param(idx-2*self.filelist.ndset-7*self.npl-1,p[i])
                 i=i+1
             else:         
                 newparams.update_stellar_mass(p[i])      
@@ -2981,24 +2965,19 @@ class signal_fit(object):
                 elif (idx<2*self.filelist.ndset+7*self.npl+1):
                     self.param_errors.update_linear_trend_error(p[i]) 
                     i=i+1       
-                elif (idx<2*self.filelist.ndset+7*self.npl+1+self.params.GP_params.npar):
+                elif (idx<2*self.filelist.ndset+7*self.npl+5):
                     self.param_errors.update_GP_param_errors(idx-2*self.filelist.ndset-7*self.npl-1,p[i])
                     i=i+1
                 else:    
                     self.param_errors.update_stellar_mass_error(p[i])            
         return                           
 
-    def initiategps(self, gp_par=None, use_gp_par=[], kernel_id=-1): 
+    def initiategps(self, gp_par=[10.0,10.0,10.0,1.0]): 
         
         # Prepare objects for Gaussian Processes        
         
-        # Redefine GP parameters if new ones were provided
-        
-        #if not (gp_par==None):
-        if len(gp_par) != 0:
-            self.params.update_GP_params(gp_par,kernel_id=kernel_id)
-            self.use.update_use_GP_params(use_gp_par)
-            self.verify_gp_parameters_number()
+        rot_kernel = terms.TermSum(RotationTerm(log_amp=np.log(gp_par[0]),log_timescale=np.log(gp_par[1]),log_period=np.log(gp_par[2]), log_factor=np.log(gp_par[3])))
+        #rot_kernel = terms.SHOTerm(log_S0=np.log(gp_par[0]), log_Q=np.log(gp_par[1]), log_omega0=np.log(gp_par[2]))        
         
 #        kernel_jitters=[]
         kernels=[]
@@ -3006,21 +2985,15 @@ class signal_fit(object):
         #print(gp_par[0],gp_par[1],gp_par[2],gp_par[3] )
 
         for i in range(self.filelist.ndset):
-            kernels.append(self.params.GP_params.rot_kernel +terms.JitterTerm(np.log(self.params.jitters[i])))
+            kernels.append(rot_kernel+terms.JitterTerm(np.log(self.params.jitters[i])))
             gps.append(celerite.GP(kernels[i], mean=0.0))
             gps[i].compute(self.filelist.time[self.filelist.idset==i],self.filelist.rv_err[self.filelist.idset==i])
             #gps[i].compute(self.filelist.time[self.filelist.idset==i])
         self.gps=gps
-        
-       # print(self.params.GP_params.gp_par)    
-       # print(self.use.use_GP_params)    
-        
- 
-                   
         return
 
     
-    def mcmc(self,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-0.99,0.99]],wbounds=[[-2.0*360.0, 2.0*360.0]],Mbounds=[[-2.0*360.0, 2.0*360.0]],ibounds=[[-2.0*180.0, 2.0*180.0]],capbounds=[[-2.0*360.0, 2.0*360.0]],offbounds=[[-100000.0,100000.0]],jitbounds=[[0.0,10000.0]],lintrbounds=[[-10.0,10.0]], GPbounds=[[0.0,100000.0]], stmassbounds=[[0.01,1000.0]], prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, doGP=False, gp_par=None, gp_kernel_id=-1, use_gp_par=[True,True,True,True], save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):      
+    def mcmc(self,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-0.99,0.99]],wbounds=[[-2.0*360.0, 2.0*360.0]],Mbounds=[[-2.0*360.0, 2.0*360.0]],ibounds=[[-2.0*180.0, 2.0*180.0]],capbounds=[[-2.0*360.0, 2.0*360.0]],offbounds=[[-100000.0,100000.0]],jitbounds=[[0.0,10000.0]],lintrbounds=[[-10.0,10.0]], GPbounds=[[0.0,100000.0]], stmassbounds=[[0.01,1000.0]], prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, doGP=False, gp_par=[10.0,10.0,10.0,1.0], use_gp_par=[False,False,False,False], save_means=False, fileoutput=False, save_sampler=False,burning_ph=100, mcmc_ph=1000, **kwargs):      
 
         '''Performs MCMC and saves results'''  
         
@@ -3029,14 +3002,17 @@ class signal_fit(object):
  
         
         # Let's prepare things depending if we want to do GP or not
-
         if (doGP):
-            self.initiategps(gp_par=gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id)
-            fun=lnprobGP3                            
+            self.initiategps(gp_par=gp_par)
+            fun=lnprobGP3
+            self.use.update_use_GP_params(use_gp_par)                            
+            self.params.update_GP_params(gp_par)
         else:
-            fun=lnprob                           
-            GPbounds=[[x-10.0,x+10.0] for x in self.params.GP_params.gp_par] # just to make sure GPbounds don't cause lnprob return -infinity when we don't do GP (now all GP_params will be within bounds for sure)
- 
+            fun=lnprob
+            self.use.update_use_GP_params(use_gp_par)                            
+            self.params.update_GP_params(gp_par)
+            GPbounds=[[x-10.0,x+10.0] for x in gp_par] # just to make sure GPbounds don't cause lnprob return -infinity when we don't do GP (now all GP_params will be within bounds for sure)
+        
         # we will need this later
         if (self.mod_dynamical):
             mod='dyn'
@@ -3094,7 +3070,7 @@ class signal_fit(object):
         new_par_errors = [[float(self.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-self.par_for_mcmc[i])] for i in range(len(self.par_for_mcmc))] 
         newparams = self.generate_newparams_for_mcmc(self.par_for_mcmc)        
         #print(newparams.GP_params)
-        current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
+        current_GP_params=newparams.GP_params # because calling fitting will overwrite them
        # print(current_GP_params)
 
         self.overwrite_params(newparams)
@@ -3102,7 +3078,7 @@ class signal_fit(object):
         self.update_with_mcmc_errors(new_par_errors)
         self.params.update_GP_params(current_GP_params)
 
-        #print(current_GP_params)
+
 
         if (doGP):
             self.fitting_method='GP_%s'%mod
@@ -3114,37 +3090,24 @@ class signal_fit(object):
             self.loglik=loglik_to_save         
             self.fit_results.loglik=loglik_to_save  
             
-            
-            ########### Ugly things are happening here! to be fixed! ##########
-            
-            fitted_GP = sampler.means[-len(self.params.GP_params.gp_par[self.use.use_GP_params==True]):]
- 
-            z = 0
-            for k in range(self.params.GP_params.npar):
-                self.param_errors.GP_params_errors[k] = [0,0]
-                if not self.use.use_GP_params[k]:
-                    continue
-                else:
-                    self.params.GP_params.gp_par[k] = fitted_GP[z]
-                   # self.param_errors.GP_params_errors[k] = [float(sampler.means[-self.params.GP_params.npar+k] - np.percentile(sampler.means[-self.params.GP_params.npar+k], [level])),float(np.percentile(sampler.means[-self.params.GP_params.npar+k], [100.0-level])-sampler.means[-self.params.GP_params.npar+k])]
-                    self.param_errors.GP_params_errors[k] = [float(fitted_GP[z] - np.percentile(sampler.samples[:,-len(fitted_GP)+z],[level])), float(np.percentile(sampler.samples[:,-len(fitted_GP)+z], [100.0-level])-fitted_GP[z])]
-                    #print(self.param_errors.GP_params_errors[k], fitted_GP[z], np.percentile(fitted_GP[z],level),level)
-                z = z+1  
+            self.params.GP_params = sampler.means[:-5:-1]
+            self.param_errors.GP_params_errors =  [[float(sampler.means[-5+i] - np.percentile(sampler.samples[:,-5+i], [level])),float(np.percentile(sampler.samples[:,-5+i], [100.0-level])-sampler.means[-5+i])] for i in range(len(sampler.means[:-5:-1]))] 
 
-            self.GP_params=GP_parameters(len(self.params.GP_params.gp_par),self.params.GP_params.gp_par,kernel_id=0) # we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
-             
+            
+            
             message_str =""" """
             if(self.fitting_method.startswith('GP')):
-                message_str = message_str +"""\nStellar activity was modeled using Gaussian Processes. The resulting GP parameters (means) are as follows:
+                message_str = message_str +"""\nStellar activity was modelled using Gaussian Processes. The resulting GP parameters (means) are as follows:
 """
                 message_str = message_str +"""\n A = {0:>7.4f} +/- {4:>7.4f}\n t = {1:>7.4f} +/- {5:>7.4f}\n P = {2:>7.4f} +/- {6:>7.4f}\n f = {3:>7.4f} +/- {7:>7.4f}
-""".format(self.GP_params.gp_par[0],self.GP_params.gp_par[1],self.GP_params.gp_par[2],self.GP_params.gp_par[3],max(self.param_errors.GP_params_errors[0]),max(self.param_errors.GP_params_errors[1]),max(self.param_errors.GP_params_errors[2]),max(self.param_errors.GP_params_errors[3]))         
+""".format(self.params.GP_params[0],self.params.GP_params[1],self.params.GP_params[2],self.params.GP_params[3],max(self.param_errors.GP_params_errors[0]),max(self.param_errors.GP_params_errors[1]),max(self.param_errors.GP_params_errors[2]),max(self.param_errors.GP_params_errors[3]))         
                 message_str = message_str +"""
 (The GP_params are printed here as these are still not part of the "params" structure. TBD!)                
 """
-           # print(message_str)
-            ###################################################################
+            print(message_str)
             
+            
+           # print([sampler.means[-4],sampler.means[-3],sampler.means[-2],sampler.means[-1]])
 
         ###############  This is not working! you cannot save the sampler as an atribute and call it back later!
         ###############  See https://github.com/dfm/emcee/issues/148
@@ -3152,8 +3115,8 @@ class signal_fit(object):
             self.sampler=sampler             
             self.sampler_saved=True           
             
-        sampler.reset()
-       
+        #sampler.reset()
+        
         return
              
     def cornerplot(self, cornerplotname='cornerplot.png', fileinput=False, filename='samples_kep'): 
@@ -3297,8 +3260,9 @@ pl.in
             self.evol_p[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [6])      
             self.evol_M[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [7])
 
+
         os.system('rm *.out *.dat *.in')
-        
+       
         os.chdir('../../')
 
         return   
