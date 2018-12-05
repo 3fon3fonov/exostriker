@@ -22,7 +22,7 @@ What works:
 What is to be implemented:
 
 * Transit modeling
-* Combined Transit + RV + Astrometry +  GP/Moving avarage modeling 
+* Combined modeling of data (Transit + RV + Astrometry +  GP/Moving avarage modeling, at once) 
 * Variouse of minimization methods
 * Some more GUI plots and plot functionality 
 * GUI accsess to parameter limits and priors
