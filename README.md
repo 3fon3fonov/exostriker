@@ -12,6 +12,7 @@ What works:
 * Periodograms
 * RVs Keplerian and Dynamical modeling + GP (only one GP kernel integrated so far)
 * RVs MCMC sampling/modeling 
+* RV auto-fit (automated planet-finder algortm)
 * Long-term stability check of multiplanet systems using Swift/SyMBA
 * Various of interactive plots 
 * Import/Export of working sessions and multi-sessions 
