@@ -23,7 +23,7 @@ What is to be implemented:
 
 * Transit modeling
 * Combined modeling of data (Transit + RV + Astrometry +  GP/Moving avarage modeling, at once) 
-* Variouse of minimization methods
+* Variouse of minimization/sampling methods
 * Some more GUI plots and plot functionality 
 * GUI accsess to parameter limits and priors
 * more Swift N-body integrators
