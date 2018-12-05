@@ -26,7 +26,7 @@ What is to be implemented:
 * Variouse of minimization/sampling methods
 * Some more GUI plots and plot functionality 
 * GUI accsess to parameter limits and priors
-* more Swift N-body integrators
+* More Swift/N-body integrators and dynamical analisys tools
 * Many minor glitches and bugs to be fixed.
 * See also "focus_matrix_TBFixed.doc"
 
