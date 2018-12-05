@@ -9,25 +9,25 @@ Very powerfull and fast GUI tool for exoplanet orbital analysis. It uses a brang
 
 What works:
 
-* Periodograms
-* RVs Keplerian and Dynamical modeling + GP (only one GP kernel integrated so far)
-* RVs MCMC sampling/modeling 
-* RV auto-fit (automated planet-finder algortm)
-* Long-term stability check of multiplanet systems using Swift/SyMBA
-* Various of interactive plots 
-* Import/Export of working sessions and multi-sessions 
-* Text editor/Calculator/Bash-shell widgets
-* Integrated Jupyter widget
+* Periodograms.
+* RVs Keplerian and Dynamical modeling + GP (only one GP kernel integrated so far).
+* RVs MCMC sampling/modeling.
+* RV auto-fit (automated planet-finder algortm).
+* Long-term stability check of multiplanet systems using Swift/SyMBA.
+* Various of interactive plot.s 
+* Import/Export of working sessions and multi-sessions. 
+* Text editor/Calculator/Bash-shell widgets.
+* Integrated Jupyter widget.
 
 What is to be implemented:
 
-* Transit modeling
-* Combined modeling of data (Transit + RV + Astrometry +  GP/Moving avarage modeling, at once) 
-* Variouse of minimization/sampling methods
-* Some more GUI plots and plot functionality 
-* GUI accsess to parameter limits and priors
-* More Swift/N-body integrators and dynamical analisys tools
+* Transit modeling.
+* Combined modeling of data (Transit + RV + Astrometry +  GP/Moving avarage modeling, at once). 
+* Variouse of minimization/sampling methods.
+* Some more GUI plots and plot functionality.
+* GUI accsess to parameter limits and priors.
+* More Swift/N-body integrators and dynamical analisys tools.
 * Many minor glitches and bugs to be fixed.
-* See also "focus_matrix_TBFixed.doc"
+* See also "focus_matrix_TBFixed.doc".
 
 If you use this tool and you find a bug or a problem, please report it!
