@@ -10,9 +10,8 @@ Very powerfull and fast GUI tool for exoplanet orbital analysis. It uses a brang
 What works:
 
 * Periodograms
-* RVs Keplerian and Dynamical modeling 
+* RVs Keplerian and Dynamical modeling + GP (only one GP kernel integrated so far)
 * RVs MCMC sampling/modeling 
-* RVs GP + MCMC (only one GP kernel integrated thoght)
 * Long-term stability check of multiplanet systems using Swift/SyMBA
 * Various of interactive plots 
 * Import/Export of working sessions and multi-sessions 
@@ -25,8 +24,9 @@ What is to be implemented:
 * Combined Transit + RV + Astrometry +  GP/Moving avarage modeling 
 * Variouse of minimization methods
 * Some more GUI plots and plot functionality 
-* many minor glitches and bugs to be fixed.
-* See also "focus_matrix_TBFixed.doc"
 * GUI accsess to parameter limits and priors
+* more Swift N-body integrators
+* Many minor glitches and bugs to be fixed.
+* See also "focus_matrix_TBFixed.doc"
 
-If you use this tool and you find a bug, please report it!
+If you use this tool and you find a bug or a problem, please report it!
