@@ -214,9 +214,15 @@ echo " "
 
 select yn in "Yes" "No"; do
    case $yn in
-       Yes ) gfortran -O3 ./latest_f/symba_f/follow_symba2.f -o ./stability/symba/follow_symba2 ./addons/libswift.a; # chi2 keplerian
-             gfortran -O3 ./latest_f/symba_f/geninit_j3_in_days.f -o ./stability/symba/geninit_j3_in_days ./addons/libswift.a; # chi2 dynamical
-             gfortran -O3 ./latest_f/symba_f/swift_symba5_j.f -o  ./stability/symba/swift_symba5_j ./addons/libswift.a; # lnL keplerian
+       Yes ) gfortran -O3 ./latest_f/symba_f/swift_symba5_j.f -o  ./stability/symba/swift_symba5_j ./addons/libswift.a;           
+             gfortran -O3 ./latest_f/mvs_f/swift_mvs_j.f -o ./stability/mvs/swift_mvs_j ./addons/libswift.a;     
+             gfortran -O3 ./latest_f/mvs_f/swift_mvs_j_GR.f -o ./stability/mvs_gr/swift_mvs_j_GR ./addons/libswift.a;
+             gfortran -O3 ./latest_f/symba_f/follow_symba2.f -o ./stability/symba/follow_symba2 ./addons/libswift.a;                    
+             gfortran -O3 ./latest_f/mvs_f/follow2.f -o ./stability/mvs/follow2 ./addons/libswift.a;
+             gfortran -O3 ./latest_f/mvs_f/follow2.f -o ./stability/mvs_gr/follow2 ./addons/libswift.a;                
+             gfortran -O3 ./latest_f/symba_f/geninit_j3_in_days.f -o ./stability/symba/geninit_j3_in_days ./addons/libswift.a;   
+             gfortran -O3 ./latest_f/mvs_f/geninit_j3_in_days.f -o ./stability/mvs/geninit_j3_in_days ./addons/libswift.a;              
+             gfortran -O3 ./latest_f/mvs_f/geninit_j3_in_days.f -o ./stability/mvs_gr/geninit_j3_in_days ./addons/libswift.a;   
              break;;
        No ) echo "skiped..."; break;;
    esac

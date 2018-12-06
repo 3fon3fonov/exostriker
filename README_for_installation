@@ -23,6 +23,7 @@ emcee
 corner 
 celerite
 batman
+rxvt
 
 # + the swift N-body library, which is actually in the deps directory
 #
@@ -69,8 +70,7 @@ bash check_your_system_MAC_OS.sh
 
 ################################################################################
 
-
-
+ 
 #
 #       Below are more detailed instructions in case you need more 
 #       detailed instalation sequence
@@ -86,11 +86,7 @@ bash check_your_system_MAC_OS.sh
 # I have tried the installation on Virtual machine with Ubuntu 16.04, 
 # 18.04 and Lubuntu 18.04 running Python3 and generally works. 
 #
-# However, some modification of the RVmod object must be done when used with Py3
-# because it cannot be "pickled" (i.e. copied via "copy" or "dill"). 
-# This is peculiar because it works fine with Python2!
-#
-# On top of that there is some problem with piping the Python3 print() functions,
+# There is some problem with piping the Python3 print() functions,
 # which I haven't resolved yet. As a result the stdout is not printed in the
 # "Stdout/Stderr" GUI tab, but directly in the terminal shell from which you 
 # start the gui.
@@ -100,136 +96,43 @@ bash check_your_system_MAC_OS.sh
 # Not tried on Windows, yet! 
 #
 #
-################################## Compilers ###################################
+####################### For Anaconda users ###################################
+# 
+# Many of you may use Anaconda 2/3. That's fine, just make sure you have 
+# these packages installed in your Anaconda:
+
+gfortran
+csh
+setuptools
+pip 
+numpy
+scipy
+matplotlib
+PyQt5
+PyQt5.QtSvg
+qtconsole
+jupyter
+dill
+emcee 
+corner 
+celerite
+batman
+rxvt
+
+
+# WARNING: Do not do:
 #
-# Make sure you have at least "gfortran" and "gcc" 5.4+. How to see: 
-# gfortran --version, gcc --version
-# If you do not have these, then:
-
-sudo apt-get install gfortran 
-
-# (which I think also installs gcc)
-
-
-################################### Python #####################################
+conda install -c conda-forge batman 
 #
-# The software should work with Python2 and Python3, although 
-# these instructions are for Python2 only.
+# This will install another "batman" package, which is not what you want!
+# (see https://anaconda.org/conda-forge/batman)
 
-# you may need "setuptools" and "pip" already installed. If you don't have them:
+# do a 
 
-sudo apt-get install python-setuptools
-sudo apt-get install python-pip 
-
-
-# Then you need "numpy", "matplotlib" and "scipy".
-# I usually do a system install on these:
-
-sudo apt-get install python-numpy python-scipy python-matplotlib
-
-
-# You will need "PyQt5" for the GUI.
-
-sudo apt-get install python-pyqt5 
-sudo apt-get install python-pyqt5.qtsvg
-sudo apt-get install python-qtconsole 
-
-# you also may need:
-
-sudo apt-get install jupyter
-
-
-# For session save/load the tool uses "dill". Unfortunately, the RVmod 
-# objects cannot be dumped using the included Py system "pickle/cPickle".
-# This may be fixed in future, but anyway dill seems very powerful!
-
-sudo pip install dill
-
-
-# For GP and MCMC analysis
-#
-
-sudo pip install emcee
-sudo pip install corner 
-sudo pip install celerite
- 
- 
-# "batman: Bad-Ass Transit Model cAlculatioN" is used for transit 
-# modeling. 
-
-sudo pip install batman-package
+pip install batman-package <-- this is the right one!
 
 
 
-# Plotting: pyqtgraph ##############################
-#
-# There number of well known issues with pyqtgraph which are still not 
-# fixed in the stable version. See for example Scatterplot() bug fixes at:
-# https://github.com/pyqtgraph/pyqtgraph/pull/412
-#
-# Therefore, it is advisable to load pyqtgraph from the "addons" directory,
-# which contains a custom "pyqtgraph" version with some bugs already fixed.
-# No need for installation!
-
-# Otherwise:
-
-sudo pip install pyqtgraph 
-
-
-
-##################################### Shells ###################################
-#
-# "urxvt" is an embedded bash shell which may help the user during the working
-# process. This is optional! is not installed it will use "xterm"
-
-sudo apt-get install rxvt
-
-
-############################## N-body integrator ###############################
-#
-# A custom "swift" N-body package is included in the root directory.
-# follow the instructions there. This is an important part because you need
-# the libswift.o library in order to compile not only the N-body integrators
-# but also the model minimizers! 
-
-
-# Swift code can be found here: 
-# https://www.boulder.swri.edu/~hal/swift.html
-# but you better use the one in the deps directory!!!
-
-# Open README.first and follow the instructions under "COMPILING SWIFT"
- 
-# After swift lib is installed, compile the fortran fitting codes in the
-# "fitting_routines" directory as follow:
-
-gfortran -O3 ../latest_f/kepfit_LM_v1b.f -o chi2_kep -lswift # chi2 keplerian
-gfortran -O3 ../latest_f/dynfit_LM_v1b.f -o chi2_dyn -lswift # chi2 dynamical
-
-gfortran -O3 ../latest_f/kepfit_amoeba_v1b.f -o loglik_kep -lswift # lnL keplerian
-gfortran -O3 ../latest_f/dynfit_amoeba_v1b.f -o loglik_dyn -lswift # lnL dynamical
-
-# note! I have seen that the -O3 optimization level on some PCs leads to 
-# unsatble code for the chi2_dyn minimizing code. If that happen try -O2, or 
-#no opt. flag at all! Still always try first with -O3 as it leads to a faster code.
-
-# additionally you must replace the routines in the "stability" directory.
-# "cd" to "stability/symba" and
-
-
-gfortran -O3 latest_f/symba_f/follow_symba2.f -o follow_symba2 -lswift
-gfortran -O3 latest_f/symba_f/geninit_j3_in_days.f -o geninit_j3_in_days -lswift
-gfortran -O3 latest_f/symba_f/swift_symba5_j.f -o swift_symba5_j -lswift
-
-
-# If you have Ubuntu/Debian/ or Open_Suse you may simply try:
-
-chmod +x chi2_kep chi2_dyn loglik_kep loglik_dyn
-
-# and in "stability/symba" 
-
-chmod +x follow_symba2 geninit_j3_in_days swift_symba5_j 
-
-# This may, or may not work, so I recommend to compile from source.
 
 
 ############################## Finally #################################
@@ -240,14 +143,17 @@ python gui.py
  
 # if you want to use RVmod on the Python shell
 
+import RVmod as rv 
 
-import RVmod as rv # for example see "testing_RV_mod_object_attempt.py"
+# for example see "testing_RV_mod_object_attempt.py"
 
 
 Comments:
 
 * All fortran and python codes in this version need very 
 serious clean up from junk.
+
+* All fortan code must be translated with f2py.
 
 * The transit fitting is still not working.
 
