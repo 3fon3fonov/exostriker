@@ -1,5 +1,5 @@
 c**********************************************************************
-c		      SWIFT_MVS_J.F
+c		      SWIFT_MVS_J_GR.F
 c**********************************************************************
 c
 c                 NO CLOSE ENCOUNTERS
@@ -11,12 +11,12 @@ c		    planet file like          pl.in
 c
 c  This version inputs/outputs Jacobi coords and orbital elements and
 c  groups terms so that hierarchical systems with comparable masses can
-c  be integrated.
+c  be integrated. GR precesion included
 c  NOTE:  No test particles in this code
 c
-c Author:  Man Hoi Lee
+c Author:  Man Hoi Lee/Trifon Trifonov
 c Date:    12/6/01
-c Last revision: 
+c Last revision: 01/06/2015
 
      
 	include 'swift.inc'

@@ -10,7 +10,9 @@ from celerite import terms
 
 def choose_kernel(i, params):
 	if (i==0):
-	    Kernel=DefaultRotationTerm(log_amp=np.log(params[0]),log_timescale=np.log(params[1]),log_period=np.log(params[2]),log_factor=np.log(params[3]))
+	    #Kernel=DefaultRotationTerm(log_amp=np.log(params[0]),log_timescale=np.log(params[1]),log_period=np.log(params[2]),log_factor=np.log(params[3]))
+ 	    Kernel=DefaultRotationTerm(log_amp=params[0],log_timescale=params[1],log_period=params[2],log_factor=params[3])
+       
 	if not (Kernel.verify_number_of_parameters(len(params))):
 	    raise Exception('Number of parameters not suitable for this kernel, this would lead to errors later on!!!')
 	return Kernel

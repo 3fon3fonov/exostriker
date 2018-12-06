@@ -243,10 +243,25 @@ def verify_array_with_bounds(ar,bounds):
 
 
 
-def fittingSciPyOp(obj):    
+
+def run_SciPyOp(obj,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-0.99,0.99]],wbounds=[[-2.0*360.0, 2.0*360.0]],Mbounds=[[-2.0*360.0, 2.0*360.0]],ibounds=[[-2.0*180.0, 2.0*180.0]],capbounds=[[-2.0*360.0, 2.0*360.0]],offbounds=[[-100000.0,100000.0]],jitbounds=[[0.0,10000.0]],lintrbounds=[[-10.0,10.0]], GPbounds=[[0.0,100000.0]], stmassbounds=[[0.01,1000.0]], prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False], save_means=False, fileoutput=False, save_sampler=False,burning_ph=20, mcmc_ph=20, **kwargs):      
+
+#def fittingSciPyOp(, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False]):    
  ####### find the -LogLik "minimum" using the "truncated Newton" method ######### 
-    nll = lambda *args: -compute_loglik_SciPyOp(*args)
+    
+    
+    if (doGP):
+        obj.initiategps(gp_par=gp_par, use_gp_par=use_gp_par, kernel_id=kernel_id)
+        nll = lambda *args: -compute_loglik_SciPyOp2(*args)
+    else:
+        nll = lambda *args: -compute_loglik_SciPyOp(*args)
+        GPbounds=[[x-10.0,x+10.0] for x in self.params.GP_params.gp_par] # just to make sure GPbounds don't cause lnprob return -infinity when we don't do GP (now all GP_params will be within bounds for sure)
+     
+ 
+    obj.prepare_for_mcmc(Kbounds=Kbounds,Pbounds=Pbounds,ebounds=ebounds,wbounds=wbounds,Mbounds=Mbounds,ibounds=ibounds,capbounds=capbounds,offbounds=offbounds,jitbounds=jitbounds,lintrbounds=lintrbounds, GPbounds=GPbounds, stmassbounds=stmassbounds)    
     pp = obj.par_for_mcmc
+ 
+    
    # b = np.array(obj.bounds.offset_bounds,obj.bounds.jitter_bounds,obj.bounds.planet_params_bounds,
    #                    obj.bounds.linear_trend_bounds,obj.bounds.GP_params_bounds,obj.bounds.stellar_mass_bounds)
    # b.flatten()
@@ -273,16 +288,43 @@ def fittingSciPyOp(obj):
     obj.par_for_mcmc = result["x"]
     
 
-def compute_loglik_SciPyOp(p,signalfit):
-    newparams=signalfit.generate_newparams_for_mcmc(p)
+def compute_loglik_SciPyOp(p,copied_obj):
+    newparams=copied_obj.generate_newparams_for_mcmc(p)
   #  oldparams=signalfit.params
-    signalfit.overwrite_params(newparams)
-    if not (signalfit.verify_params_with_bounds()):
+    copied_obj.overwrite_params(newparams)
+    if not (copied_obj.verify_params_with_bounds()):
         return -np.inf # if parameters are outside of bounds we return -infinity
     else:               
-        flag=signalfit.fitting(fileinput=True, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, outputfiles=[1,0,0],return_flag=True)
+        flag=copied_obj.fitting(fileinput=False, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, outputfiles=[1,0,0],return_flag=True)
 
-    return signalfit.loglik     
+    return copied_obj.loglik 
+ 
+
+
+def compute_loglik_SciPyOp2(p,copied_obj):
+    newparams=copied_obj.generate_newparams_for_mcmc(p)
+  #  oldparams=signalfit.params
+    copied_obj.overwrite_params(newparams)
+    if not (copied_obj.verify_params_with_bounds()):
+        return -np.inf # if parameters are outside of bounds we return -infinity
+   # elif not (copied_obj.fitting_method.startswith('GP')):               
+   #     flag=copied_obj.fitting(fileinput=False, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, outputfiles=[1,0,0],return_flag=True)
+
+   #     return copied_obj.loglik 
+    
+   # elif(copied_obj.fitting_method.startswith('GP')):
+    else:
+        flag=copied_obj.fitting(fileinput=False, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,0],return_flag=True)
+        #newparams=copied_obj.generate_newparams_for_mcmc(p)
+        #copied_obj.overwrite_params(newparams)   
+        S=0
+        for i in range(copied_obj.filelist.ndset):
+            copied_obj.gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate((copied_obj.params.GP_params.gp_par,np.atleast_1d(copied_obj.params.jitters[i]))))))) 
+            S = S + copied_obj.gps[i].log_likelihood(copied_obj.fit_results.rv_model.o_c[copied_obj.fit_results.idset==i])
+                      
+       #print(copied_obj.fit_results.loglik, compute_loglik_TT(p,copied_obj),  S)#,copied_obj.params.GP_params[:4],copied_obj.params.planet_params[:14])   
+        return  S  
+
 
 
   
@@ -3004,6 +3046,7 @@ class signal_fit(object):
         kernels=[]
         gps=[]
         #print(gp_par[0],gp_par[1],gp_par[2],gp_par[3] )
+       #copied_obj.gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate((copied_obj.params.GP_params.gp_par,np.atleast_1d(copied_obj.params.jitters[i]))))))) 
 
         for i in range(self.filelist.ndset):
             kernels.append(self.params.GP_params.rot_kernel +terms.JitterTerm(np.log(self.params.jitters[i])))
