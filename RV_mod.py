@@ -3339,8 +3339,11 @@ pl.in
             self.evol_e[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [3])
             self.evol_p[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [6])      
             self.evol_M[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [7])
-
-        os.system('rm *.out *.dat *.in')
+        
+        try:
+            os.system('rm *.out *.dat *.in')
+        except:
+            pass
         
         os.chdir('../../')
 
