@@ -14,7 +14,7 @@ What works:
 * RVs MCMC sampling/modeling.
 * RV auto-fit (automated planet-finder algortm).
 * Long-term stability check of multiplanet systems using Swift/SyMBA.
-* Various of interactive plot.s 
+* Interactive plots.
 * Import/Export of working sessions and multi-sessions. 
 * Text editor/Calculator/Bash-shell widgets.
 * Integrated Jupyter widget.
