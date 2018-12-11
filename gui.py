@@ -138,28 +138,7 @@ class print_info(QtWidgets.QMainWindow):
 
         self.setCentralWidget(self.widget)
         
-
-class QDoubleSpinBox(QtWidgets.QDoubleSpinBox):
-    def __init__(self, *args, **kwargs):
-        super(QDoubleSpinBox, self).__init__(*args, **kwargs)
-        self.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
-
-    def contextMenuEvent(self, event):
-        QtCore.QTimer.singleShot(0, self.add_actions)
-        super(QDoubleSpinBox, self).contextMenuEvent(event)
-
-    @QtCore.pyqtSlot()
-    def add_actions(self):
-        for w in QtWidgets.QApplication.topLevelWidgets():
-            if isinstance(w, QtWidgets.QMenu):
-                w.addSeparator()
-                minimize_action = w.addAction("minimize this parameter")
-                minimize_action.triggered.connect(self.minimize_task)
-                return
-
-    @QtCore.pyqtSlot()
-    def minimize_task(self):
-        print("minimize this parameter")        
+     
 
 
 class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -659,9 +638,16 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
 
         self.max_time_of_evol
-        self.statusBar().showMessage('Running Orbital Evolution......')        
+        self.statusBar().showMessage('Running Orbital Evolution......')   
         
-        fit.run_stability_last_fit_params(timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator='symba')   
+        if self.radioButton_SyMBA.isChecked():
+            integrator = 'symba'
+        elif self.radioButton_MVS.isChecked():
+            integrator = 'mvs'        
+        elif self.radioButton_MVS_GR.isChecked():       
+             integrator = 'mvs_gr'       
+        
+        fit.run_stability_last_fit_params(timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
         
         p13.plot(clear=True,)
         p14.plot(clear=True,)

@@ -3285,10 +3285,10 @@ class signal_fit(object):
             os.chdir('./stability/symba/')
         elif integrator=='mvs':
             os.chdir('./stability/mvs/')
-        elif integrator=='mvs_GR':
+        elif integrator=='mvs_gr':
             os.chdir('./stability/mvs_gr/')
     
-
+        print("running stability with: %s"%integrator) 
         ##### crate the param.in file (change only the "t_max" and the "dt" for now) ######
         param_file = open('param.in', 'wb') 
         
@@ -3326,13 +3326,22 @@ pl.in
         # runnning fortran codes
         result, flag = run_command_with_timeout('./geninit_j3_in_days < geninit_j.in', timeout_sec)         
 
-        result, flag = run_command_with_timeout('./swift_symba5_j << EOF \nparam.in \npl.in \n1e-40 \nEOF', timeout_sec)                  
-         
+        if integrator=='symba':
+            result, flag = run_command_with_timeout('./swift_symba5_j << EOF \nparam.in \npl.in \n1e-40 \nEOF', timeout_sec)                  
+        elif integrator=='mvs':
+            result, flag = run_command_with_timeout('./swift_mvs_j << EOF \nparam.in \npl.in \nEOF', timeout_sec)                          
+        elif integrator=='mvs_gr':
+            result, flag = run_command_with_timeout('./swift_mvs_j_GR << EOF \nparam.in \npl.in \nEOF', timeout_sec)          
+                 
         
         for k in range(self.npl):
-            result, flag = run_command_with_timeout('./follow_symba2 << EOF \nparam.in \npl.in \n%s \nEOF'%(k+2),timeout_sec)
-
-            result, flag = run_command_with_timeout('mv follow_symba.out pl_%s.out'%(k+1),timeout_sec) 
+        
+            if integrator=='symba':
+                result, flag = run_command_with_timeout('./follow_symba2 << EOF \nparam.in \npl.in \n%s \nEOF'%(k+2),timeout_sec)
+                result, flag = run_command_with_timeout('mv follow_symba.out pl_%s.out'%(k+1),timeout_sec) 
+            elif integrator=='mvs' or integrator=='mvs_gr': 
+                result, flag = run_command_with_timeout('./follow2 << EOF \nparam.in \npl.in \n-%s \nEOF'%(k+2),timeout_sec)
+                result, flag = run_command_with_timeout('mv follow2.out pl_%s.out'%(k+1),timeout_sec)                 
 
             self.evol_T[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.2425
             self.evol_a[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [2])
@@ -3342,11 +3351,13 @@ pl.in
         
         try:
             os.system('rm *.out *.dat *.in') 
-        except:
+        except OSError:
             pass
         
         os.chdir('../../')
-
-        return   
+        
+        print("stability with: %s done!"%integrator) 
+        
+        return  
         
               
