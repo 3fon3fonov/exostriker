@@ -27,6 +27,7 @@ What is to be implemented:
 * Some more GUI plots and plot functionality.
 * GUI accsess to parameter limits and priors (there, but not connected with RVmod, yet)
 * Many minor glitches and bugs to be fixed.
+* RVmod and GUI .py codes needs to be cleaned from junk and commented well.
 * For more detailed TBD list see: "focus_matrix_TBFixed.doc".
 
 If you use this tool and you find a bug or a problem, please report it!
