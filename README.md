@@ -13,21 +13,20 @@ What works:
 * RVs Keplerian and Dynamical modeling + GP (only one GP kernel integrated so far).
 * RVs MCMC sampling/modeling.
 * RV auto-fit (automated planet-finder algortm).
-* Long-term stability check of multiplanet systems using Swift/SyMBA.
+* Long-term stability check of multiplanet systems using SyMBA, MVS, MVS with GR precession term
 * Interactive plots.
-* Import/Export of working sessions and multi-sessions. 
+* Import/Export of work sessions and multi-sessions. 
 * Text editor/Calculator/Bash-shell widgets.
 * Integrated Jupyter widget.
 
 What is to be implemented:
 
-* Transit modeling.
+* Transit modeling (soon to be included)
 * Combined modeling of data (Transit + RV + Astrometry +  GP/Moving avarage modeling, at once). 
 * Variouse of minimization/sampling methods.
 * Some more GUI plots and plot functionality.
-* GUI accsess to parameter limits and priors.
-* More Swift/N-body integrators and dynamical analisys tools.
+* GUI accsess to parameter limits and priors (there, but not connected with RVmod, yet)
 * Many minor glitches and bugs to be fixed.
-* See also "focus_matrix_TBFixed.doc".
+* For more detailed TBD list see: "focus_matrix_TBFixed.doc".
 
 If you use this tool and you find a bug or a problem, please report it!
