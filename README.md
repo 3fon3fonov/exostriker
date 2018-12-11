@@ -15,7 +15,7 @@ What works:
 * RV auto-fit (automated planet-finder algortm).
 * Long-term stability check of multiplanet systems using SyMBA, MVS, MVS with GR precession term
 * Interactive plots.
-* Import/Export of working sessions and multi-sessions. 
+* Import/Export of work sessions and multi-sessions. 
 * Text editor/Calculator/Bash-shell widgets.
 * Integrated Jupyter widget.
 
