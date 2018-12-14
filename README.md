@@ -5,7 +5,7 @@ Very powerfull and fast GUI tool for exoplanet orbital analysis. It uses a brang
 
 ![trifon_rvmod](https://user-images.githubusercontent.com/44244057/47589870-ccc4a400-d96a-11e8-8de0-3ea3ceed1a37.jpg)
 
-**WARNING!** This tool is under active development and its functionality is enhanced on a daily basis! Therefore, although unlikely, the version you download today may not be fully compatible with the version uploaded tomorrow! Use at your own risk!
+**WARNING!** This tool is under active development and its functionality is enhanced on a daily basis! Therefore, although very unlikely, the version you download today may not be fully compatible with the version uploaded tomorrow! Use at your own risk!
 
 What works:
 
