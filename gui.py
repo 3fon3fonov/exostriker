@@ -24,13 +24,15 @@ import time
 
 #import BKR as bkr
 from doublespinbox import DoubleSpinBox
+from Jupyter_emb import ConsoleWidget_embed
+
 from scipy.signal import argrelextrema
 
 import batman as batman
 
-from qtconsole.rich_jupyter_widget import RichJupyterWidget
-from qtconsole.inprocess import QtInProcessKernelManager
-from qtconsole.console_widget import ConsoleWidget
+#from qtconsole.rich_jupyter_widget import RichJupyterWidget
+#from qtconsole.inprocess import QtInProcessKernelManager
+#from qtconsole.console_widget import ConsoleWidget
 
 #try:
 #    import cPickle as pickle
@@ -47,6 +49,7 @@ pg.setConfigOption('background', '#ffffff')
 pg.setConfigOption('foreground', 'k')
 pg.setConfigOptions(antialias=True)  
  
+ 
 
 global fit, colors,ses_list
  
@@ -61,60 +64,6 @@ colors = ['#0066ff',  '#66ff66','#ff0000','#00ffff','#cc33ff','#ff9900','#cccc00
 QtGui.QApplication.processEvents()
 
  
-  
-class ConsoleWidget_embed(RichJupyterWidget,ConsoleWidget):
-    global fit
-
-    def __init__(self, customBanner=None, *args, **kwargs):
-        super(ConsoleWidget_embed, self).__init__(*args, **kwargs)
-         
-        if customBanner is not None:
-            self.banner = customBanner
-
-        self.font_size = 1
-        self.kernel_manager = kernel_manager = QtInProcessKernelManager()
-        kernel_manager.start_kernel(show_banner=True)
-        kernel_manager.kernel.gui = 'qt'
-        self.kernel_client = kernel_client = self._kernel_manager.client()
-        kernel_client.start_channels()
-        
-        #self._execute("kernel = %s"%fit, False) 
-     
-        def stop():
-            kernel_client.stop_channels()
-            kernel_manager.shutdown_kernel()
-            self.guisupport.get_app_qt().exit()
-
-        self.exit_requested.connect(stop)
-
-
-    def push_vars(self, variableDict):
-        """
-        Given a dictionary containing name / value pairs, push those variables
-        to the Jupyter console widget
-        """
-        self.kernel_manager.kernel.shell.push(variableDict)
-
-    def clear(self):
-        """
-        Clears the terminal
-        """
-        self._control.clear()
-
-        # self.kernel_manager
-
-    def print_text(self, text):
-        """
-        Prints some plain text to the console
-        """
-        self._append_plain_text(text,True)
-
-    def execute_command(self, command):
-        """
-        Execute a command in the frame of the console widget
-        """
-        self._execute(command, False)
-
 
 class print_info(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -1450,6 +1399,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 #        self.init_fit()
         
         self.terminal_embeded.addTab(ConsoleWidget_embed(), "Jupyter")
+        
         if sys.platform[0:5] == "linux":
             self.terminal_embeded.addTab(terminal.EmbTerminal(), "Bash shell")        
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")  
@@ -1457,13 +1407,14 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         self.gridLayout_text_editor.addWidget(ted.MainWindow())       
         self.gridLayout_calculator.addWidget(calc.Calculator())  
+        
+        
+        
         if sys.version_info[0] == 2:
             self.gridLayout_stdout.addWidget(stdout_pipe.MyDialog())  
        
-        #self.w = QDoubleSpinBox(self)
-        #self.w.show()        
-        #from pprint import pprint
-        #pprint(vars(self))
+        self.dialog = print_info(self)
+        
 
         self.load_fort_in_file.clicked.connect(self.showDialog_fortran_input_file)
 
@@ -1471,8 +1422,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.buttonGroup_remove_RV_data.buttonClicked.connect(self.remove_RV_file)
         self.buttonGroup_use.buttonClicked.connect(self.update_use)
 
-        self.button_init_fit.clicked.connect(lambda: self.worker_RV_fitting(0))
-        self.button_fit.clicked.connect(lambda: self.worker_RV_fitting())
 
         self.run_batman_test()
 
@@ -1480,29 +1429,37 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.button_orb_evol.clicked.connect(self.worker_Nbody) 
         self.button_MCMC.clicked.connect(self.worker_mcmc)
         self.button_Bootstrap.clicked.connect(lambda: self.run_bootstrap())
-        self.button_auto_fit.clicked.connect(lambda: self.run_auto_fit())
         
-        self.dialog = print_info(self)
+        
 
+               
+        
+        ########## RV fitting ########################
+        
+        self.button_init_fit.clicked.connect(lambda: self.worker_RV_fitting(0))
+        self.button_fit.clicked.connect(lambda: self.worker_RV_fitting())        
+        self.button_auto_fit.clicked.connect(lambda: self.run_auto_fit())
+        self.minimize_1param()
+
+
+        ############ Sessions #################
+        
         self.actionNew_session.triggered.connect(self.new_session)
         self.actionOpen_session.triggered.connect(self.open_session)
         self.actionSave_session.triggered.connect(self.save_session)
         self.actionSave_multi_sesion.triggered.connect(self.save_sessions)
-        self.actionOpen_multi_session.triggered.connect(self.open_sessions)
-       
-        
+        self.actionOpen_multi_session.triggered.connect(self.open_sessions) 
         #self.comboBox_extra_plot.activated.connect(self.change_extra_plot)      
         self.comboBox_select_ses.activated.connect(self.select_session)
-        
-
-        self.quit_button.clicked.connect(self.quit)
-
         #self.session_list()
         self.new_ses.clicked.connect(self.getNewses)
         self.copy_ses.clicked.connect(self.cop_ses)
         self.remove_ses.clicked.connect(self.rem_ses)
+        
+        
+        
+        self.quit_button.clicked.connect(self.quit)
 
-        self.minimize_1param()
         
         self.jupiter_push_vars()
         
