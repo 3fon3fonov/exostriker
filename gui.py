@@ -34,6 +34,8 @@ import batman as batman
 #from qtconsole.inprocess import QtInProcessKernelManager
 #from qtconsole.console_widget import ConsoleWidget
 
+
+
 #try:
 #    import cPickle as pickle
 #except ModuleNotFoundError:
@@ -1141,8 +1143,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def jupiter_push_vars(self):
         global fit        
         ConsoleWidget_embed().push_vars({'fit':fit})    
- 
 
+        ConsoleWidget_embed().clear()         
+        ConsoleWidget_embed().print_text("Bash shell!~~~~~~~!!!!!!!!!!!!!!!!!!!!!!!!!!") 
 
 ########################## work in progress ##################################
  
@@ -1398,7 +1401,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.initialize_plots()    
 #        self.init_fit()
         
-        self.terminal_embeded.addTab(ConsoleWidget_embed(), "Jupyter")
+        self.terminal_embeded.addTab(ConsoleWidget_embed(font_size = 10), "Jupyter")
         
         if sys.platform[0:5] == "linux":
             self.terminal_embeded.addTab(terminal.EmbTerminal(), "Bash shell")        
@@ -1407,7 +1410,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         self.gridLayout_text_editor.addWidget(ted.MainWindow())       
         self.gridLayout_calculator.addWidget(calc.Calculator())  
-        
         
         
         if sys.version_info[0] == 2:
