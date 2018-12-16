@@ -1,5 +1,5 @@
 
-***T***ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations
+**T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations
 
 (Because of a lack of better name and for fun)
 
@@ -19,7 +19,7 @@ What works:
 * Interactive plots.
 * Import/Export of work sessions and multi-sessions. 
 * Text editor/Calculator/Bash-shell widgets.
-* Integrated Jupyter widget.
+* Integrated Jupyter widget shell.
 
 What is to be implemented:
 
