@@ -534,13 +534,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit, colors,RV_per,RV_per_res
         global p7,p8,p12,pe
         
-        p7.plot(clear=True,)
-        p8.plot(clear=True,)        
-        p12.plot(clear=True,) 
+        
  
-
-        p7.setLogMode(True,False)        
-        p8.setLogMode(True,False)        
+        p12.plot(clear=True,) 
         p12.setLogMode(True,False)
                         
         omega = 1/ np.logspace(-0.05, 4, num=1000)
@@ -550,24 +546,53 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
             RV_per = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.rvs, fit.fit_results.rv_model.rv_err), 
             fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)
-            p7.plot(1/RV_per.freq, RV_per.power,pen='r',symbol=None )      
             
+            RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.o_c, fit.fit_results.rv_model.rv_err), 
+            fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)            
+            
+            ######################## GLS ##############################
+            if self.radioButton_RV_GLS_period.isChecked():
+                p7.plot(clear=True,)
+                p7.setLogMode(True,False)        
+                p7.plot(1/RV_per.freq, RV_per.power,pen='r',symbol=None ) 
+                p7.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})                
+            else:
+                p7.plot(clear=True,)
+                p7.setLogMode(False,False)        
+                p7.plot(RV_per.freq, RV_per.power,pen='r',symbol=None )                    
+                p7.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'}) 
+
+                                               
             [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per.powerLevel(np.array(power_levels)))]
+ 
+            self.radioButton_RV_GLS_period.toggled.connect(self.update_GLS_plots)
  
             self.RV_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
             RV_per.info(stdout=False) + 
             self.identify_power_peaks(1/RV_per.freq, RV_per.power, power_level = power_levels, sig_level = RV_per.powerLevel(np.array(power_levels)) )))   
     
-            RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.o_c, fit.fit_results.rv_model.rv_err), 
-            fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)
-            p8.plot(1/RV_per_res.freq, RV_per_res.power,pen='r',symbol=None )     
+ 
+            ######################## GLS o-c ##############################
+            if self.radioButton_RV_o_c_GLS_period.isChecked():
+                p8.plot(clear=True,)
+                p8.setLogMode(True,False)        
+                p8.plot(1/RV_per_res.freq, RV_per_res.power,pen='r',symbol=None ) 
+                p8.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})
+            else:
+                p8.plot(clear=True,)
+                p8.setLogMode(False,False)        
+                p8.plot(RV_per_res.freq, RV_per_res.power,pen='r',symbol=None )    
+                p8.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'})                
+                
             
             [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per_res.powerLevel(np.array(power_levels)))]            
+
+            self.radioButton_RV_o_c_GLS_period.toggled.connect(self.update_GLS_plots)
 
             self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(RV_per_res.info(stdout=False)+
             self.identify_power_peaks(1/RV_per_res.freq, RV_per_res.power, power_level = power_levels, sig_level = RV_per.powerLevel(np.array(power_levels)) ) )  )      
 
-
+            ######################## DFT (Window) ##############################
             WF_power = []
             for omi in 2*np.pi*omega: 
                 phase = (fit.fit_results.rv_model.jd-fit.fit_results.rv_model.jd[0]) * omi                 
