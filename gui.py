@@ -1167,10 +1167,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
     def jupiter_push_vars(self):
         global fit        
-        ConsoleWidget_embed().push_vars({'fit':fit})    
+        self.console_widget.push_vars({'fit':fit})    
 
-        ConsoleWidget_embed().clear()         
-        ConsoleWidget_embed().print_text("Bash shell!~~~~~~~!!!!!!!!!!!!!!!!!!!!!!!!!!") 
+        #self.console_widget.clear()         
+        #self.console_widget.print_text(str("Welcome!")) 
 
 ########################## work in progress ##################################
  
@@ -1425,8 +1425,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.initialize_buttons()
         self.initialize_plots()    
 #        self.init_fit()
-        
-        self.terminal_embeded.addTab(ConsoleWidget_embed(font_size = 10), "Jupyter")
+        self.console_widget = ConsoleWidget_embed(font_size = 10)
+        self.terminal_embeded.addTab(self.console_widget, "Jupyter")
         
         if sys.platform[0:5] == "linux":
             self.terminal_embeded.addTab(terminal.EmbTerminal(), "Bash shell")        
