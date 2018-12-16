@@ -19,7 +19,7 @@ What works:
 * Interactive plots.
 * Import/Export of work sessions and multi-sessions. 
 * Text editor/Calculator/Bash-shell widgets.
-* Integrated Jupyter widget.
+* Integrated Jupyter widget shell.
 
 What is to be implemented:
 
