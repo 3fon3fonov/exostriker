@@ -1,6 +1,6 @@
 #!/bin/csh
 
-set SWIFT_DIR=/home/trifonov/PowerFolders/Dropbox/rvmod_v001d/deps/swift_j
+set SWIFT_DIR=/home/tito/PowerFolders/Dropbox/trifon_tess/deps/swift_j
 set FORTRAN=gfortran
 # set FFLAGS='-auto -O3 -xW -c'
 set FFLAGS='-O3 -c'

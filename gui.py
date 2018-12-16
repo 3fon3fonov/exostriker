@@ -5,7 +5,7 @@ __author__ = 'Trifon Trifonov'
 import numpy as np
 #import matplotlib as mpl
 #mpl.use('Qt5Agg')
-import sys #,os
+import sys,  traceback 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 sys.path.insert(0, './addons')
@@ -139,7 +139,74 @@ class print_info(QtWidgets.QMainWindow):
         self.setCentralWidget(self.widget)
         
      
+class WorkerSignals(QtCore.QObject):
+    '''
+    Defines the signals available from a running worker thread.
 
+    Supported signals are:
+
+    finished
+        No data
+
+    error
+        `tuple` (exctype, value, traceback.format_exc() )
+
+    result
+        `object` data returned from processing, anything
+
+    progress
+        `int` indicating % progress
+
+    '''
+    finished = QtCore.pyqtSignal()
+    error = QtCore.pyqtSignal(tuple)
+    result = QtCore.pyqtSignal(object)
+    progress = QtCore.pyqtSignal(int)
+
+
+class Worker(QtCore.QRunnable):
+    '''
+    Worker thread
+
+    Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
+
+    :param callback: The function callback to run on this worker thread. Supplied args and 
+                     kwargs will be passed through to the runner.
+    :type callback: function
+    :param args: Arguments to pass to the callback function
+    :param kwargs: Keywords to pass to the callback function
+
+    '''
+
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+
+        # Store constructor arguments (re-used for processing)
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+        self.signals = WorkerSignals()
+
+        # Add the callback to our kwargs
+        self.kwargs['progress_callback'] = self.signals.progress
+
+    @QtCore.pyqtSlot()
+    def run(self):
+        '''
+        Initialise the runner function with passed args, kwargs.
+        '''
+
+        # Retrieve args/kwargs here; and fire processing using them
+        try:
+            result = self.fn()
+        except:
+            traceback.print_exc()
+            exctype, value = sys.exc_info()[:2]
+            self.signals.error.emit((exctype, value, traceback.format_exc()))
+        else:
+            self.signals.result.emit(result)  # Return the result of the processing
+        finally:
+            self.signals.finished.emit()  # Done
 
 class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
@@ -627,39 +694,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.update_extra_plots()
         self.update_orb_plot()
         #self.change_extra_plot()
-
-    def run_orbital_simulations(self):
-        global fit, colors, p13, p14
         
-        if fit.npl < 2:
-            choice = QtGui.QMessageBox.information(self, 'Warning!'," With less than two planets this makes no sense. Okay?",
-                                            QtGui.QMessageBox.Ok) 
-            return
-        
-
-        self.max_time_of_evol
-        self.statusBar().showMessage('Running Orbital Evolution......')   
-        
-        if self.radioButton_SyMBA.isChecked():
-            integrator = 'symba'
-        elif self.radioButton_MVS.isChecked():
-            integrator = 'mvs'        
-        elif self.radioButton_MVS_GR.isChecked():       
-             integrator = 'mvs_gr'       
-        
-        fit.run_stability_last_fit_params(timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
-        
-        p13.plot(clear=True,)
-        p14.plot(clear=True,)
-
-
-        for i in range(fit.npl):
-            p13.plot(fit.evol_T[i], fit.evol_a[i] ,pen=colors[i],symbol=None )     
-            p14.plot(fit.evol_T[i], fit.evol_e[i] ,pen=colors[i],symbol=None )     
-       
-        self.statusBar().showMessage('')        
  
-
     def showDialog_fortran_input_file(self):
         global fit
  
@@ -863,12 +899,112 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         flux = m.light_curve(params)          #calculates light curve
  
         p3.plot(t, flux,pen='k',symbol=None )     
+       
+      
+        
+############################# N-Body ########################################        
+
+        
+    def worker_Nbody_complete(self):
+        global fit, colors, p13, p14  
+
+        p13.plot(clear=True,)
+        p14.plot(clear=True,)
+
+
+        for i in range(fit.npl):
+            p13.plot(fit.evol_T[i], fit.evol_a[i] ,pen=colors[i],symbol=None )     
+            p14.plot(fit.evol_T[i], fit.evol_e[i] ,pen=colors[i],symbol=None )   
+            
+            
+        self.button_orb_evol.setEnabled(True)       
+        self.statusBar().showMessage('')           
+          
+ 
+    def worker_Nbody(self):
+        global fit  
+        
+        if fit.npl < 2:
+            choice = QtGui.QMessageBox.information(self, 'Warning!'," With less than two planets this makes no sense. Okay?",
+                                            QtGui.QMessageBox.Ok) 
+            return
+ 
+        self.button_orb_evol.setEnabled(False) 
+        self.statusBar().showMessage('Running Orbital Evolution......')   
+        
+        # Pass the function to execute
+        worker3 = Worker(lambda:  self.run_orbital_simulations()) # Any other args, kwargs are passed to the run  
+        # Execute
+        worker3.signals.finished.connect(self.worker_Nbody_complete)
+        
+        # worker.signals.result.connect(self.print_output)
+        #worker.signals.finished.connect(self.thread_complete)
+       # worker.signals.progress.connect(self.progress_fn)
         
         
-######################################################        
+        self.threadpool.start(worker3)  
+
+ 
+    def run_orbital_simulations(self):
+        global fit
+        
+     
+
+        self.max_time_of_evol
+
+        if self.radioButton_SyMBA.isChecked():
+            integrator = 'symba'
+        elif self.radioButton_MVS.isChecked():
+            integrator = 'mvs'        
+        elif self.radioButton_MVS_GR.isChecked():       
+             integrator = 'mvs_gr'       
+        
+        fit.run_stability_last_fit_params(timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
+        
+ 
         
         
+############################# END N-Body #####################################                
+               
+       
+       
         
+        
+############################# Fortran fitting ###############################        
+        
+    def worker_RV_fitting_complete(self):
+        global fit  
+        #fit.print_info(short_errors=False)
+        
+        self.update_labels()
+        self.update_gui_params()
+        self.update_errors() 
+        self.update_a_mass()                    
+        self.update_plots()                   
+        self.statusBar().showMessage('')   
+        
+        self.run_batman_test()   
+              
+        self.jupiter_push_vars()   
+        self.button_fit.setEnabled(True)         
+ 
+    def worker_RV_fitting(self, ff=20,m_ln=True, auto_fit = False ):
+        global fit  
+ 
+        self.button_fit.setEnabled(False) 
+        self.statusBar().showMessage('Minimizing parameters....')                 
+        # Pass the function to execute
+        worker2 = Worker(lambda:  self.optimize_fit(ff=ff,m_ln=self.amoeba_radio_button.isChecked())) # Any other args, kwargs are passed to the run  
+        # Execute
+        worker2.signals.finished.connect(self.worker_RV_fitting_complete)
+        
+        # worker.signals.result.connect(self.print_output)
+        #worker.signals.finished.connect(self.thread_complete)
+       # worker.signals.progress.connect(self.progress_fn)
+        
+        
+        self.threadpool.start(worker2)       
+     
                      
         
     def optimize_fit(self,ff=20,m_ln=True, auto_fit = False):  
@@ -879,7 +1015,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             self.update_params()
             
             
-        self.statusBar().showMessage('Minimizing parameters....')        
+
             
         if self.radioButton_Dynamical.isChecked():
             fit.mod_dynamical = True
@@ -903,48 +1039,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         else:        
                 fit.fitting(fileinput=False,outputfiles=[1,1,1], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
 
-        self.update_labels()
-        self.update_gui_params()
-        self.update_errors() 
-        self.update_a_mass()                    
-        self.update_plots()                   
-        self.statusBar().showMessage('')   
-        
-        self.run_batman_test()   
-              
-        self.jupiter_push_vars()
 
- 
-    def run_mcmc(self):
-        global fit
-        #print("TEST",fit.use.use_jitters[:3]) 
-        choice = QtGui.QMessageBox.information(self, 'Warning!',
-                                            "This might take some time. During the mcmc process the GUI will be unresponsive. This will be fixed at some point, but also prevents you from doing something stupid meanwhile. Okay?",
-                                            QtGui.QMessageBox.Ok) 
 
-        self.statusBar().showMessage('MCMC in progress....')        
-
-        gp_params = [self.GP_rot_kernel_Amp.value(),
-                     self.GP_rot_kernel_time_sc.value(),
-                     self.GP_rot_kernel_Per.value(),
-                     self.GP_rot_kernel_fact.value()]
-
-        use_gp_params = [self.use_GP_rot_kernel_Amp.isChecked(),
-                     self.use_GP_rot_kernel_time_sc.isChecked(),
-                     self.use_GP_rot_kernel_Per.isChecked(),
-                     self.use_GP_rot_kernel_fact.isChecked()]
-
-       # print(use_gp_params)
-        #print(self.GP_rot_kernel_Amp.value(), self.goGP.isChecked())
- 
-        fit.mcmc(doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), 
-        burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=True)
-
-        fit.print_info(short_errors=False)
-     
- 
-
-        self.statusBar().showMessage('')        
+############################# END Fortran fitting ###############################         
+       
 
     def print_info_for_object(self,text):
         #self.dialog.statusBar().showMessage('Ready')
@@ -988,7 +1086,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             fit.use.update_use_planet_params_one_planet(0,True,True,True,True,True,False,False)     
             self.update_use_from_input_file()   
             self.update_use()                     
-            self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
+            self.worker_RV_fitting(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
             
             #now inspect the residuals
             
@@ -1004,7 +1102,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
                     self.update_use_from_input_file()   
                     self.update_use()                     
-                    self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)   
+                    self.worker_RV_fitting(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)   
                     return
                 #elif (1/RV_per_res.hpstat["fbest"]) > 1.5:
                 else:    
@@ -1016,7 +1114,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                    
                     self.update_use_from_input_file()   
                     self.update_use()                     
-                    self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)  
+                    self.worker_RV_fitting(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)  
                     
                 #else:
                  #   continue
@@ -1026,7 +1124,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     
             self.update_use_from_input_file()   
             self.update_use()                     
-            self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)                 
+            self.worker_RV_fitting(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)                 
                 
  
  
@@ -1275,8 +1373,66 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             self.init_fit()
             return
        # super(Settings, self).keyPressEvent(event) 
+
+################################## MCMC #######################################
+
+    def worker_mcmc_complete(self):
+        global fit  
+        fit.print_info(short_errors=False)
  
+    def worker_mcmc(self):
+        global fit  
+        
+
+        choice = QtGui.QMessageBox.information(self, 'Warning!',
+                                            "This will run in the background and may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
+                                            QtGui.QMessageBox.Ok) 
+         
+        # Pass the function to execute
+        worker = Worker(lambda: self.run_mcmc()) # Any other args, kwargs are passed to the run  
+        # Execute
+        worker.signals.finished.connect(self.worker_mcmc_complete)
+        
+        # worker.signals.result.connect(self.print_output)
+        #worker.signals.finished.connect(self.thread_complete)
+       # worker.signals.progress.connect(self.progress_fn)
+        
+        
+        self.threadpool.start(worker)
+        
+    def run_mcmc(self):
+        global fit
+        self.button_MCMC.setEnabled(False)
+        
+        self.statusBar().showMessage('MCMC in progress....')        
+
+        gp_params = [self.GP_rot_kernel_Amp.value(),
+                     self.GP_rot_kernel_time_sc.value(),
+                     self.GP_rot_kernel_Per.value(),
+                     self.GP_rot_kernel_fact.value()]
+
+        use_gp_params = [self.use_GP_rot_kernel_Amp.isChecked(),
+                     self.use_GP_rot_kernel_time_sc.isChecked(),
+                     self.use_GP_rot_kernel_Per.isChecked(),
+                     self.use_GP_rot_kernel_fact.isChecked()]
+
+       # print(use_gp_params)
+        #print(self.GP_rot_kernel_Amp.value(), self.goGP.isChecked())
  
+        fit.mcmc(doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), 
+        burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=True)
+
+       # fit.print_info(short_errors=False)
+     
+ 
+        self.button_MCMC.setEnabled(True)
+        self.statusBar().showMessage('') 
+        
+        
+################################## END MCMC ################################### 
+
+
+        
         
     def __init__(self):
         global fit
@@ -1315,14 +1471,14 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.buttonGroup_remove_RV_data.buttonClicked.connect(self.remove_RV_file)
         self.buttonGroup_use.buttonClicked.connect(self.update_use)
 
-        self.button_init_fit.clicked.connect(lambda: self.optimize_fit(0))
-        self.button_fit.clicked.connect(lambda: self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked()))
+        self.button_init_fit.clicked.connect(lambda: self.worker_RV_fitting(0))
+        self.button_fit.clicked.connect(lambda: self.worker_RV_fitting())
 
         self.run_batman_test()
 
         
-        self.button_orb_evol.clicked.connect(lambda: self.run_orbital_simulations()) 
-        self.button_MCMC.clicked.connect(lambda: self.run_mcmc())
+        self.button_orb_evol.clicked.connect(self.worker_Nbody) 
+        self.button_MCMC.clicked.connect(self.worker_mcmc)
         self.button_Bootstrap.clicked.connect(lambda: self.run_bootstrap())
         self.button_auto_fit.clicked.connect(lambda: self.run_auto_fit())
         
@@ -1349,7 +1505,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.minimize_1param()
         
         self.jupiter_push_vars()
-
+        
+        self.threadpool = QtCore.QThreadPool()
 
         print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and the mcmc and bootstrap results.")
 
