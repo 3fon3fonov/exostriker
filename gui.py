@@ -530,15 +530,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
              
 
-    def update_GLS_plots(self):
+    def update_RV_GLS_plots(self):
         global fit, colors,RV_per,RV_per_res
-        global p7,p8,p12,pe
-        
-        
+        global p7 
  
-        p12.plot(clear=True,) 
-        p12.setLogMode(True,False)
-                        
+        p7.plot(clear=True,)        
+                          
         omega = 1/ np.logspace(-0.05, 4, num=1000)
         power_levels = np.array([0.1,0.01,0.001])
   
@@ -547,17 +544,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             RV_per = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.rvs, fit.fit_results.rv_model.rv_err), 
             fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)
             
-            RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.o_c, fit.fit_results.rv_model.rv_err), 
-            fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)            
-            
             ######################## GLS ##############################
             if self.radioButton_RV_GLS_period.isChecked():
-                p7.plot(clear=True,)
                 p7.setLogMode(True,False)        
                 p7.plot(1/RV_per.freq, RV_per.power,pen='r',symbol=None ) 
                 p7.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})                
             else:
-                p7.plot(clear=True,)
                 p7.setLogMode(False,False)        
                 p7.plot(RV_per.freq, RV_per.power,pen='r',symbol=None )                    
                 p7.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'}) 
@@ -565,21 +557,38 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                                                
             [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per.powerLevel(np.array(power_levels)))]
  
-            self.radioButton_RV_GLS_period.toggled.connect(self.update_GLS_plots)
+            self.radioButton_RV_GLS_period.toggled.connect(self.update_RV_GLS_plots)
+ 
+ 
  
             self.RV_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
             RV_per.info(stdout=False) + 
             self.identify_power_peaks(1/RV_per.freq, RV_per.power, power_level = power_levels, sig_level = RV_per.powerLevel(np.array(power_levels)) )))   
     
+    
+    
+
+    def update_RV_o_c_GLS_plots(self):
+        global fit, colors, RV_per_res
+        global p8  
+ 
+        p8.plot(clear=True,)  
+         
+        omega = 1/ np.logspace(-0.05, 4, num=1000)
+        power_levels = np.array([0.1,0.01,0.001])
+
+        if len(fit.fit_results.rv_model.jd) > 5:
+ 
+            RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.o_c, fit.fit_results.rv_model.rv_err), 
+            fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)            
+                
  
             ######################## GLS o-c ##############################
             if self.radioButton_RV_o_c_GLS_period.isChecked():
-                p8.plot(clear=True,)
                 p8.setLogMode(True,False)        
                 p8.plot(1/RV_per_res.freq, RV_per_res.power,pen='r',symbol=None ) 
                 p8.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})
             else:
-                p8.plot(clear=True,)
                 p8.setLogMode(False,False)        
                 p8.plot(RV_per_res.freq, RV_per_res.power,pen='r',symbol=None )    
                 p8.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'})                
@@ -587,11 +596,22 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
             [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per_res.powerLevel(np.array(power_levels)))]            
 
-            self.radioButton_RV_o_c_GLS_period.toggled.connect(self.update_GLS_plots)
+            self.radioButton_RV_o_c_GLS_period.toggled.connect(self.update_RV_o_c_GLS_plots)
 
             self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(RV_per_res.info(stdout=False)+
             self.identify_power_peaks(1/RV_per_res.freq, RV_per_res.power, power_level = power_levels, sig_level = RV_per.powerLevel(np.array(power_levels)) ) )  )      
-
+ 
+    def update_WF_plots(self):
+        global fit, colors, RV_per_res
+        global p12  
+ 
+        p12.plot(clear=True,) 
+        p12.setLogMode(True,False)
+                        
+        omega = 1/ np.logspace(-0.05, 4, num=1000)
+        power_levels = np.array([0.1,0.01,0.001])
+        
+        if len(fit.fit_results.rv_model.jd) > 5:
             ######################## DFT (Window) ##############################
             WF_power = []
             for omi in 2*np.pi*omega: 
@@ -665,7 +685,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
      
         
     def update_plots(self):
-        self.update_GLS_plots()
+        self.update_RV_GLS_plots()
+        self.update_RV_o_c_GLS_plots()    
+        self.update_WF_plots()                
         self.update_RV_plots()
         self.update_extra_plots()
         self.update_orb_plot()
@@ -1051,7 +1073,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
              return
         
         else:
-            
             if fit.npl !=0:
                 for j in range(fit.npl):
                     fit.remove_planet(fit.npl-(j+1))
@@ -1068,9 +1089,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
             
             for i in range(1,int(self.auto_fit_N_planets.value())):
-                
-                
-                
                 
                 if RV_per_res.power.max() <= RV_per_res.powerLevel(self.auto_fit_FAP_level.value()):
                     for j in range(fit.npl):
@@ -1265,7 +1283,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.update_gui_params()
         self.update_params()
         self.update_RV_file_buttons() 
-        ses_list[ind] = fit
+        
+        if not ind == None:    
+            ses_list[ind] = fit
 
 #######################################################################            
 
@@ -1392,15 +1412,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                      self.use_GP_rot_kernel_time_sc.isChecked(),
                      self.use_GP_rot_kernel_Per.isChecked(),
                      self.use_GP_rot_kernel_fact.isChecked()]
-
-       # print(use_gp_params)
-        #print(self.GP_rot_kernel_Amp.value(), self.goGP.isChecked())
  
         fit.mcmc(doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), 
-        burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=True)
-
-       # fit.print_info(short_errors=False)
-     
+        burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=True)  
  
         self.button_MCMC.setEnabled(True)
         self.statusBar().showMessage('') 
@@ -1408,9 +1422,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
 ################################## END MCMC ################################### 
 
-
-        
-        
+ 
     def __init__(self):
         global fit
 
@@ -1457,9 +1469,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.button_MCMC.clicked.connect(self.worker_mcmc)
         self.button_Bootstrap.clicked.connect(lambda: self.run_bootstrap())
         
-        
-
-               
+    
         
         ########## RV fitting ########################
         
@@ -1482,12 +1492,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.new_ses.clicked.connect(self.getNewses)
         self.copy_ses.clicked.connect(self.cop_ses)
         self.remove_ses.clicked.connect(self.rem_ses)
-        
-        
-        
+  
+  
         self.quit_button.clicked.connect(self.quit)
-
-        
+ 
         self.jupiter_push_vars()
         
         self.threadpool = QtCore.QThreadPool()
