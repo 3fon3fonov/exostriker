@@ -446,7 +446,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         
         pe  = self.graphicsView_extra_plot
 
-        xaxis = ['JD','JD','JD','JD','JD','','days','days','days','days','days','days','yrs','yrs','a','']
+        xaxis = ['BJD','BJD','BJD','BJD','BJD','','days','days','days','days','days','days','yrs','yrs','a','']
         yaxis = ['RV','RV','Relative Flux','Relative Flux','','','power','power','power','power','power','power','a','e','a','']       
         xunit = ['d' ,'d','d','d','d','','','','','','','','','','au','']
         yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','au','']
@@ -469,12 +469,13 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 zzz[i].getAxis('right').setWidth(10)
                 zzz[i].getAxis('top').setHeight(10)
                 zzz[i].getAxis('bottom').setHeight(50)
+                #zzz[i].getAxis('bottom').setScale(1e6)
                             
                 zzz[i].setLabel('bottom', '%s'%xaxis[i], units='%s'%xunit[i],  **{'font-size':'12pt'})
                 zzz[i].setLabel('left',   '%s'%yaxis[i], units='%s'%yunit[i],  **{'font-size':'12pt'})       
                 zzz[i].showAxis('top') 
                 zzz[i].showAxis('right') 
-              
+                zzz[i].getAxis('bottom').enableAutoSIPrefix(enable=False)
 
        # from pprint import pprint
         #pprint(vars(pe))
