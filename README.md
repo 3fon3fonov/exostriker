@@ -5,7 +5,6 @@
 
 Very powerfull and fast GUI tool for exoplanet orbital analysis. It uses a brang new RV fitting library called "RVmod", which can model the Stellar reflex motion caused by dynamicaly interacting planets in multi planetary systems.
 
-#![trifon_rvmod](https://user-images.githubusercontent.com/44244057/47589870-ccc4a400-d96a-11e8-8de0-3ea3ceed1a37.jpg)
 ![rvmod_trifon](https://user-images.githubusercontent.com/44244057/50479747-609d0580-09d8-11e9-8a3c-a79ef78d682c.jpg)
 
 **WARNING!** This tool is under active development and its functionality is enhanced on a daily basis! Therefore, although very unlikely, the version you download today may not be fully compatible with the version uploaded tomorrow! Use at your own risk!
