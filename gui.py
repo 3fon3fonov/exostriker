@@ -993,7 +993,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.button_fit.setEnabled(False) 
         self.statusBar().showMessage('Minimizing parameters....')                 
         # Pass the function to execute
-        worker2 = Worker(lambda:  self.optimize_fit(ff=ff,m_ln=self.amoeba_radio_button.isChecked())) # Any other args, kwargs are passed to the run  
+        worker2 = Worker(lambda:  self.optimize_fit(ff=ff,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
         # Execute
         worker2.signals.finished.connect(self.worker_RV_fitting_complete)
         
