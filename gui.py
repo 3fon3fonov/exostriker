@@ -993,7 +993,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.button_fit.setEnabled(False) 
         self.statusBar().showMessage('Minimizing parameters....')                 
         # Pass the function to execute
-        worker2 = Worker(lambda:  self.optimize_fit(ff=ff,m_ln=self.amoeba_radio_button.isChecked())) # Any other args, kwargs are passed to the run  
+        worker2 = Worker(lambda:  self.optimize_fit(ff=ff,m_ln=self.amoeba_radio_button.isChecked(), auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
         # Execute
         worker2.signals.finished.connect(self.worker_RV_fitting_complete)
         
@@ -1037,6 +1037,18 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             fit.fitting(fileinput=False,outputfiles=[1,1,1], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
         else:        
                 fit.fitting(fileinput=False,outputfiles=[1,1,1], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
+
+
+        if auto_fit:
+            self.update_labels()
+            self.update_gui_params()
+            self.update_errors() 
+            self.update_a_mass()                    
+            self.update_plots()                   
+            self.statusBar().showMessage('')           
+            self.run_batman_test()   
+              
+            self.jupiter_push_vars()
 
 
 
@@ -1084,7 +1096,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             fit.use.update_use_planet_params_one_planet(0,True,True,True,True,True,False,False)     
             self.update_use_from_input_file()   
             self.update_use()                     
-            self.worker_RV_fitting(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
+            self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
             
             #now inspect the residuals
             
@@ -1097,19 +1109,22 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
                     self.update_use_from_input_file()   
                     self.update_use()                     
-                    self.worker_RV_fitting(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)   
+                    self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True) 
+                    self.button_auto_fit.setEnabled(True)     
                     return
                 #elif (1/RV_per_res.hpstat["fbest"]) > 1.5:
                 else:    
                     mean_anomaly_from_gls = np.degrees((((fit.epoch - float(RV_per_res.hpstat["T0"]) )% (RV_per_res.hpstat["P"]) )/ (RV_per_res.hpstat["P"]) ) * 2*np.pi)
              
                     fit.add_planet(RV_per_res.hpstat["amp"],RV_per_res.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
-                    fit.use.update_use_planet_params_one_planet(i,True,True,False,False,True,False,False)  
+                    fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False)  
+                    
+                    print(fit.params.planet_params[2 + 7*(i-1)])
                     #fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False)  
                    
                     self.update_use_from_input_file()   
                     self.update_use()                     
-                    self.worker_RV_fitting(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)  
+                    self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)  
                     
                 #else:
                  #   continue
@@ -1119,13 +1134,18 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     
             self.update_use_from_input_file()   
             self.update_use()                     
-            self.worker_RV_fitting(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)                 
+            self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)                 
                 
  
+        self.button_auto_fit.setEnabled(True)   
  
 
     def run_auto_fit(self):
         global fit 
+        
+        self.radioButton_Keplerian.setChecked(True) # this is to be fixed! Only with keplerian fitting th autofit works fine so far.
+        #self.button_fit.setEnabled(False) 
+        self.button_auto_fit.setEnabled(False)         
         
         if fit.npl != 0:        
             choice = QtGui.QMessageBox.information(self, 'Warning!',
