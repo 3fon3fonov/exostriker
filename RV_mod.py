@@ -1668,7 +1668,7 @@ class fortran_output(object):
             self.o_c=self.o_c[indices]
             self.rv_error=self.rv_error[indices]
             self.data_set=self.data_set[indices]
-            self.data_set=np.array([i-1 for i in self.data_set]) # cause fortran names datasets starting from 1, and python from 0
+            self.data_set=np.array([int(i)-1 for i in self.data_set]) # cause fortran names datasets starting from 1, and python from 0
         
     def dismantle_keplerian_fit(self): # save each column of keplerian_fit in a separate attribute 
         a=np.transpose(np.array(self.keplerian_fit, dtype=float)) # so columns are rows now
