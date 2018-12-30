@@ -1070,20 +1070,26 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
     def run_bootstrap(self):
         global fit
-        choice = QtGui.QMessageBox.information(self, 'Warning!',
-                                            "Not available yet. Okay?",
-                                            QtGui.QMessageBox.Ok) 
+        choice = QtGui.QMessageBox.information(self, 'Warning!', "Not available yet. Okay?", QtGui.QMessageBox.Ok) 
 
 
     def find_planets(self):
         global fit,RV_per,RV_per_res
  
  
+        # check if RV data is present
+        if fit.filelist.ndset <= 0:
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
+             self.button_auto_fit.setEnabled(True)         
+             return        
+ 
+ 
         # the first one on the data GLS
         if RV_per.power.max() <= RV_per.powerLevel(self.auto_fit_FAP_level.value()):
              choice = QtGui.QMessageBox.information(self, 'Warning!',
-                                            "No significant power on the GLS. Therefore no planets to fit OK?",
-                                            QtGui.QMessageBox.OK)            
+             "No significant power on the GLS. Therefore no planets to fit OK?", QtGui.QMessageBox.Ok)      
+             self.button_auto_fit.setEnabled(True)                                                           
              return
         
         else:
@@ -1129,6 +1135,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                     
                 #else:
                  #   continue
+                    
                     
             for j in range(fit.npl):
                 fit.use.update_use_planet_params_one_planet(j,True,True,True,True,True,False,False)     
