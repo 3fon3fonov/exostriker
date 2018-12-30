@@ -255,7 +255,7 @@ def run_SciPyOp(obj,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=
         nll = lambda *args: -compute_loglik_SciPyOp2(*args)
     else:
         nll = lambda *args: -compute_loglik_SciPyOp(*args)
-        GPbounds=[[x-10.0,x+10.0] for x in self.params.GP_params.gp_par] # just to make sure GPbounds don't cause lnprob return -infinity when we don't do GP (now all GP_params will be within bounds for sure)
+        GPbounds=[[x-10.0,x+10.0] for x in obj.params.GP_params.gp_par] # just to make sure GPbounds don't cause lnprob return -infinity when we don't do GP (now all GP_params will be within bounds for sure)
      
  
     obj.prepare_for_mcmc(Kbounds=Kbounds,Pbounds=Pbounds,ebounds=ebounds,wbounds=wbounds,Mbounds=Mbounds,ibounds=ibounds,capbounds=capbounds,offbounds=offbounds,jitbounds=jitbounds,lintrbounds=lintrbounds, GPbounds=GPbounds, stmassbounds=stmassbounds)    
@@ -2560,10 +2560,57 @@ class signal_fit(object):
             self.masses=self.fit_results.mass
             self.semimajor=self.fit_results.a
         return
+        
+        
+        
+    def fitting_SciPyOp(self,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-0.99,0.99]],wbounds=[[-2.0*360.0, 2.0*360.0]],Mbounds=[[-2.0*360.0, 2.0*360.0]],ibounds=[[-2.0*180.0, 2.0*180.0]],capbounds=[[-2.0*360.0, 2.0*360.0]],offbounds=[[-100000.0,100000.0]],jitbounds=[[0.0,10000.0]],lintrbounds=[[-10.0,10.0]], GPbounds=[[0.0,100000.0]], stmassbounds=[[0.01,1000.0]], prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False], save_means=False, fileoutput=False, save_sampler=False,burning_ph=20, mcmc_ph=20, **kwargs):      
+
+         #def fittingSciPyOp(, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False]):    
+         ####### find the -LogLik "minimum" using the "truncated Newton" method ######### 
+    
+        print(gp_par)
+        if (doGP):
+            self.initiategps(gp_par=gp_par, use_gp_par=use_gp_par, kernel_id=kernel_id)
+            nll = lambda *args: -compute_loglik_SciPyOp2(*args)
+        else:
+            nll = lambda *args: -compute_loglik_SciPyOp(*args)
+            GPbounds=[[x-10.0,x+10.0] for x in self.params.GP_params.gp_par] # just to make sure GPbounds don't cause lnprob return -infinity when we don't do GP (now all GP_params will be within bounds for sure)
+     
+ 
+        self.prepare_for_mcmc(Kbounds=Kbounds,Pbounds=Pbounds,ebounds=ebounds,wbounds=wbounds,Mbounds=Mbounds,ibounds=ibounds,capbounds=capbounds,offbounds=offbounds,jitbounds=jitbounds,lintrbounds=lintrbounds, GPbounds=GPbounds, stmassbounds=stmassbounds)    
+        pp = self.par_for_mcmc
+ 
+    
+        # b = np.array(obj.bounds.offset_bounds,obj.bounds.jitter_bounds,obj.bounds.planet_params_bounds,
+        #                    obj.bounds.linear_trend_bounds,obj.bounds.GP_params_bounds,obj.bounds.stellar_mass_bounds)
+        # b.flatten()
+        # print(b)
+        # bounds=b,
+        minimzers = ['Nelder-Mead','Powell','CG','BFGS','Newton-CG','L-BFGS-B', 'TNC','COBYLA','SLSQP','dogleg','trust-ncg']
+
+       # for k in range(2): # run at least 3 times the minimizer
+       #     result = op.minimize(nll, pp, args=(obj), method=minimzers[6], bounds=None, options={'xtol': 1e-6, 'disp': True })
+       #     pp = result["x"]
+        
+       #  print("Best fit par.:", result["x"])
+#----------------- one more time using the Simplex method ---------------------#
+        xtol = 1e-3
+        for k in range(3): # run at least 3 times the minimizer
+            xtol = xtol/10.0 
+
+            result = op.minimize(nll, pp, args=(self), method=minimzers[0], options={'xtol': xtol, 'disp': True, 'maxiter':30000, 'maxfev':30000 })
+            pp = result["x"]
+
+        #print("Best fit par.:", result["x"])
+    
+        self.par_for_mcmc = result["x"]        
+        
+        
+        
                 
     ### this function is a wrapper calling a fortran program to fit parameters in keplerian mode by minimizing chi^2   WORK IN PROGRESS ON THAT ONE! 
         
-    def fitting(self, minimize_loglik=False, fileinput=False, filename='Kep_input', outputfiles=[1,1,1], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500): # run the fit which will either minimize chi^2 or loglik.
+    def fitting(self, minimize_fortran=True, minimize_loglik=False, fileinput=False, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False], filename='Kep_input', outputfiles=[1,1,1], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500): # run the fit which will either minimize chi^2 or loglik.
         '''       
          eps, dt - accuracy and step for the integration in dynamical case, in keplerian case ignored, just given for input consistency
          which value to minimize (used for calling an appropriate fortran program)
@@ -2581,8 +2628,17 @@ class signal_fit(object):
             mod='dyn'
         else:
             mod='kep'
-        program='./fitting_routines/%s_%s'%(minimized_value,mod) 
-        text,flag=run_command_with_timeout(self.fortran_input(program=program, fileinput=fileinput, filename=filename, outputfiles=outputfiles,amoeba_starts=amoeba_starts,eps=eps,dt=dt, when_to_kill=fortran_kill, npoints=npoints, model_max = model_max), timeout_sec, output=True,pipe=(not bool(outputfiles[2]))) # running command generated by the fortran_input function 
+            
+        if(minimize_fortran):   
+            program='./fitting_routines/%s_%s'%(minimized_value,mod) 
+            text,flag=run_command_with_timeout(self.fortran_input(program=program, fileinput=fileinput, filename=filename, outputfiles=outputfiles,amoeba_starts=amoeba_starts,eps=eps,dt=dt, when_to_kill=fortran_kill, npoints=npoints, model_max = model_max), timeout_sec, output=True,pipe=(not bool(outputfiles[2]))) # running command generated by the fortran_input function 
+           
+        else:
+            self.fitting_SciPyOp(doGP=doGP, gp_par=gp_par, kernel_id=kernel_id, use_gp_par=use_gp_par)         
+            program='./fitting_routines/%s_%s'%(minimized_value,mod) 
+            text,flag=run_command_with_timeout(self.fortran_input(program=program, fileinput=fileinput, filename=filename, outputfiles=outputfiles,amoeba_starts=0,eps=eps,dt=dt, when_to_kill=fortran_kill, npoints=npoints, model_max = model_max), timeout_sec, output=True,pipe=(not bool(outputfiles[2]))) # running command generated by the fortran_input function 
+           
+                  
         if (flag==1):
             fortranoutput=fortran_output(text,self.npl,self.filelist.ndset,self.params.stellar_mass) # create an object for fortran output, which we need to split into part
             self.fit_results=fortranoutput.modfit(print_stat=print_stat)
@@ -2600,6 +2656,7 @@ class signal_fit(object):
         else:
             return
 
+  
     # if you want to temporarily change use flags and run a new fit, use this wrapper
     def quick_overwrite_use_and_fit(self,useflags,minimize_loglik=False, fileinput=False, filename='Kep_input', outputfiles=[1,1,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500):
         oldflags=self.overwrite_use(useflags,save=True)

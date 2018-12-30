@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets, uic
 sys.path.insert(0, './addons')
 
 import RV_mod as rv
-#import time
+
 import pyqtgraph as pg
 import pyqtgraph.console as pg_console
 
@@ -30,12 +30,7 @@ from scipy.signal import argrelextrema
 
 import batman as batman
 
-#from qtconsole.rich_jupyter_widget import RichJupyterWidget
-#from qtconsole.inprocess import QtInProcessKernelManager
-#from qtconsole.console_widget import ConsoleWidget
-
-
-
+ 
 #try:
 #    import cPickle as pickle
 #except ModuleNotFoundError:
@@ -220,6 +215,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.K8, self.P8, self.e8, self.om8, self.ma8, self.incl8, self.Omega8,
                      self.K9, self.P9, self.e9, self.om9, self.ma9, self.incl9, self.Omega9,
                      ]
+                     
 
         for i in range(fit.npl*7):
             fit.params.planet_params[i] = param_gui[i].value() 
@@ -748,7 +744,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
     def init_fit(self): 
         global fit
-        fit.fitting(fileinput=False,outputfiles=[1,1,1], fortran_kill=30, timeout_sec=300,minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
+        minimize_fortran=True
+        fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran,  fortran_kill=30, timeout_sec=300,minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
         
 
         self.update_labels()
@@ -1011,12 +1008,31 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
              return        
         
  
+        
+        if self.radioButton_fortran77.isChecked():
+            self.statusBar().showMessage('Minimizing parameters....')                 
+            # Pass the function to execute
+            worker2 = Worker(lambda:  self.optimize_fit(ff=ff,  minimize_fortran=True, m_ln=self.amoeba_radio_button.isChecked(), auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
+        else:
+            
+            gp_params = [self.GP_rot_kernel_Amp.value(),
+                     self.GP_rot_kernel_time_sc.value(),
+                     self.GP_rot_kernel_Per.value(),
+                     self.GP_rot_kernel_fact.value()]
 
-        self.statusBar().showMessage('Minimizing parameters....')                 
-        # Pass the function to execute
-        worker2 = Worker(lambda:  self.optimize_fit(ff=ff,m_ln=self.amoeba_radio_button.isChecked(), auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
+            use_gp_params = [self.use_GP_rot_kernel_Amp.isChecked(),
+                     self.use_GP_rot_kernel_time_sc.isChecked(),
+                     self.use_GP_rot_kernel_Per.isChecked(),
+                     self.use_GP_rot_kernel_fact.isChecked()]
  
-        # Execute
+             
+            
+            
+            self.statusBar().showMessage('Minimizing parameters using SciPyOp (might be slow)....')                 
+            worker2 = Worker(lambda:  self.optimize_fit(ff=1, doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), gp_kernel_id=-1, minimize_fortran=False, m_ln=self.amoeba_radio_button.isChecked(), auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
+               # Execute
+            
+            
         worker2.signals.finished.connect(self.worker_RV_fitting_complete)
         
         # worker.signals.result.connect(self.print_output)
@@ -1028,7 +1044,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
      
                      
         
-    def optimize_fit(self,ff=20,m_ln=True, auto_fit = False):  
+    def optimize_fit(self,ff=20,m_ln=True, doGP=False, gp_par=None, gp_kernel_id=-1, use_gp_par=[True,True,True,True], auto_fit = False, minimize_fortran=True):  
         global fit
         
         if not auto_fit:
@@ -1046,19 +1062,23 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             fit.mod_dynamical = False
             f_kill = self.kep_model_to_kill.value()        
 
-        if m_ln:
+        if m_ln and minimize_fortran:
             if ff > 0:        
                 """
                 run one time using the L-M method ignorring the jitter (for speed)
                 """
-                fit.fitting(fileinput=False,outputfiles=[1,0,0], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=False,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
+                fit.fitting(fileinput=False,outputfiles=[1,0,0], doGP=doGP, gp_par=use_gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id, minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=300,minimize_loglik=False,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
             """
             now run the amoeba code modeling the jitters
             """
-            fit.fitting(fileinput=False,outputfiles=[1,0,0], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
-            fit.fitting(fileinput=False,outputfiles=[1,1,1], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
+            fit.fitting(fileinput=False,outputfiles=[1,0,0], doGP=doGP, gp_par=use_gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=300,minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
+            fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP, gp_par=use_gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=300,minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
+
+       # elif m_ln and not minimize_fortran:       
+      #      fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP, gp_par=use_gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=300,minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
+        
         else:        
-                fit.fitting(fileinput=False,outputfiles=[1,1,1], fortran_kill=f_kill, timeout_sec=300,minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
+                fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,gp_par=use_gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=300,minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
 
 
         if auto_fit:
@@ -1184,6 +1204,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
          
             if choice == QtGui.QMessageBox.No:
                 return
+                self.button_auto_fit.setEnabled(True)         
             elif choice == QtGui.QMessageBox.Yes:
                 self.find_planets()
         else:
@@ -1548,7 +1569,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.actionOpen_multi_session.triggered.connect(self.open_sessions) 
         #self.comboBox_extra_plot.activated.connect(self.change_extra_plot)      
         self.comboBox_select_ses.activated.connect(self.select_session)
-        #self.session_list()
+        self.session_list()
         self.new_ses.clicked.connect(self.getNewses)
         self.copy_ses.clicked.connect(self.cop_ses)
         self.remove_ses.clicked.connect(self.rem_ses)
