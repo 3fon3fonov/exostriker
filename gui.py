@@ -923,12 +923,23 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def worker_Nbody(self):
         global fit  
         
+        
+        self.button_orb_evol.setEnabled(False)         
+        
+        # check if any fits where performed, and tus planets present
+        if fit.fit_results.mass <= 0:
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "Not possible to integrate a fit that does not exist. First perform an orbital fitting and then test the orbital stability. Okay?", QtGui.QMessageBox.Ok)      
+             self.button_orb_evol.setEnabled(True)         
+             return        
+        
+        
         if fit.npl < 2:
             choice = QtGui.QMessageBox.information(self, 'Warning!'," With less than two planets this makes no sense. Okay?",
                                             QtGui.QMessageBox.Ok) 
             return
  
-        self.button_orb_evol.setEnabled(False) 
+
         self.statusBar().showMessage('Running Orbital Evolution......')   
         
         # Pass the function to execute
@@ -989,8 +1000,18 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
     def worker_RV_fitting(self, ff=20,m_ln=True, auto_fit = False ):
         global fit  
+        
+        self.button_fit.setEnabled(False)         
+        
+        # check if RV data is present
+        if fit.filelist.ndset <= 0:
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
+             self.button_fit.setEnabled(True)         
+             return        
+        
  
-        self.button_fit.setEnabled(False) 
+
         self.statusBar().showMessage('Minimizing parameters....')                 
         # Pass the function to execute
         worker2 = Worker(lambda:  self.optimize_fit(ff=ff,m_ln=self.amoeba_radio_button.isChecked(), auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
@@ -1071,6 +1092,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def run_bootstrap(self):
         global fit
         choice = QtGui.QMessageBox.information(self, 'Warning!', "Not available yet. Okay?", QtGui.QMessageBox.Ok) 
+
 
 
     def find_planets(self):
@@ -1409,6 +1431,15 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def worker_mcmc(self):
         global fit  
         
+        self.button_MCMC.setEnabled(False)
+        # check if RV data is present
+        if fit.filelist.ndset <= 0:
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "Not possible to run MCMC if there are no data loaded. Please add your RV or transit data first. Okay?", QtGui.QMessageBox.Ok)      
+             self.button_MCMC.setEnabled(True)         
+             return        
+        
+
 
         choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "This will run in the background and may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
@@ -1428,7 +1459,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
     def run_mcmc(self):
         global fit
-        self.button_MCMC.setEnabled(False)
+
         
         self.statusBar().showMessage('MCMC in progress....')        
 
