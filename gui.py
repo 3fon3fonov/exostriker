@@ -414,8 +414,51 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data8,8)
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data9,9)
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data10,10)
+        
+        
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_1,1)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_2,2)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_3,3)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_4,4)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_5,5)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_6,6)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_7,7)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_8,8)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_9,9)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_10,10)
 
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data1,1)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data2,2)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data3,3)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data4,4)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data5,5)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data6,6)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data7,7)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data8,8)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data9,9)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data10,10)
 
+        self.buttonGroup_activity_data.setId(self.Button_activity_data_1,1)
+        self.buttonGroup_activity_data.setId(self.Button_activity_data_2,2)
+        self.buttonGroup_activity_data.setId(self.Button_activity_data_3,3)
+        self.buttonGroup_activity_data.setId(self.Button_activity_data_4,4)
+        self.buttonGroup_activity_data.setId(self.Button_activity_data_5,5)
+        self.buttonGroup_activity_data.setId(self.Button_activity_data_6,6)
+        self.buttonGroup_activity_data.setId(self.Button_activity_data_7,7)
+        self.buttonGroup_activity_data.setId(self.Button_activity_data_8,8)
+        self.buttonGroup_activity_data.setId(self.Button_activity_data_9,9)
+        self.buttonGroup_activity_data.setId(self.Button_activity_data_10,10)
+
+        self.buttonGroup_remove_activity_data.setId(self.remove_activity_data1,1)
+        self.buttonGroup_remove_activity_data.setId(self.remove_activity_data2,2)
+        self.buttonGroup_remove_activity_data.setId(self.remove_activity_data3,3)
+        self.buttonGroup_remove_activity_data.setId(self.remove_activity_data4,4)
+        self.buttonGroup_remove_activity_data.setId(self.remove_activity_data5,5)
+        self.buttonGroup_remove_activity_data.setId(self.remove_activity_data6,6)
+        self.buttonGroup_remove_activity_data.setId(self.remove_activity_data7,7)
+        self.buttonGroup_remove_activity_data.setId(self.remove_activity_data8,8)
+        self.buttonGroup_remove_activity_data.setId(self.remove_activity_data9,9)
+        self.buttonGroup_remove_activity_data.setId(self.remove_activity_data10,10)
       
         
     def initialize_plots(self):
@@ -473,13 +516,8 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 zzz[i].showAxis('right') 
                 zzz[i].getAxis('bottom').enableAutoSIPrefix(enable=False)
 
-       # from pprint import pprint
-        #pprint(vars(pe))
-       # pe.setRange = p1.setRange 
-        #import copy
 
         p15.getViewBox().setAspectLocked(True)
-
 
         return   
         
@@ -525,11 +563,74 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         return text_peaks  
         
         
-             
+    def init_activity_GLS_plots(self):
+        global fit
+        
+        for i in range(10):
+            self.comboBox_act_data_gls.addItem('act. data %s'%(i+1),i+1)       
+        
+        
+        self.comboBox_act_data_gls.activated.connect(self.handleActivated_act_gls) 
+        
+        
+    def handleActivated_act_gls(self, index):
+        global fit 
+        
+        
+        
+        ind = self.comboBox_act_data_gls.itemData(index)         
+        self.update_activity_gls_plots(ind-1)
+ 
+    def update_activity_gls_plots(self,ind):
+        global fit, colors,  p11 
+ 
+        omega = 1/ np.logspace(-0.05, 4, num=1000)
+        power_levels = np.array([0.1,0.01,0.001])
+  
+        if len(fit.act_data_sets[ind]) != 0 and len(fit.act_data_sets[ind][0]) > 5:
+
+            p11.plot(clear=True,)        
+ 
+            act_per = gls.Gls((fit.act_data_sets[ind][0], fit.act_data_sets[ind][1],fit.act_data_sets[ind][2]), 
+            fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)
+            
+            ######################## GLS ##############################
+            if self.radioButton_act_GLS_period.isChecked():
+                p11.setLogMode(True,False)        
+                p11.plot(1/act_per.freq, act_per.power,pen=colors[ind],symbol=None ) 
+                p11.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'}) 
+               # print("I ahve been here no")
+
+            else:
+                p11.setLogMode(False,False)        
+                p11.plot(act_per.freq, act_per.power,pen=colors[ind],symbol=None )                    
+                p11.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'}) 
+                #print("I ahve been here yes")
+
+                                               
+            [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
+ 
+            self.radioButton_act_GLS_period.toggled.connect(lambda: self.update_activity_gls_plots(ind))
+ 
+            #print(ind)
+ 
+            self.act_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
+            act_per.info(stdout=False) + 
+            self.identify_power_peaks(1/act_per.freq, act_per.power, power_level = power_levels, sig_level = act_per.powerLevel(np.array(power_levels)) )))   
+    
+            return
+        else:   
+            p11.plot(clear=True,)        
+
+            return
+  
+
+
+
+
 
     def update_RV_GLS_plots(self):
-        global fit, colors,RV_per,RV_per_res
-        global p7 
+        global fit, colors, RV_per, p7 
  
         p7.plot(clear=True,)        
                           
@@ -690,7 +791,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.update_orb_plot()
         #self.change_extra_plot()
         
- 
+################################ RV files #######################################################
+        
     def showDialog_fortran_input_file(self):
         global fit
  
@@ -742,6 +844,100 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
 
 
+################################ RV files END #######################################################
+
+
+################################ transit files #######################################################
+        
+
+    def showDialog_tra_input_file(self):
+        global fit
+
+        but_ind = self.buttonGroup_transit_data.checkedId()   
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'Data (*.dat)')
+
+        if str(input_files[0]) != '':
+ 
+            fit.add_transit_dataset('test', str(input_files[0]),tra_idset =but_ind-1)
+            #self.init_fit()            
+            #self.update_use_from_input_file()            
+            #self.update_use()
+            #self.update_params()
+            self.update_tra_file_buttons()
+
+    def remove_tra_file(self):
+        global fit
+
+        but_ind = self.buttonGroup_remove_transit_data.checkedId()   
+        fit.remove_transit_dataset(but_ind -1)
+       # self.init_fit()         
+      #  self.update_use_from_input_file()   
+      #  self.update_use()
+      #  self.update_gui_params()
+     #   self.update_params()
+        self.update_tra_file_buttons()
+
+    def update_tra_file_buttons(self):
+        global fit, colors          
+
+        for i in range(10):
+            if len(fit.tra_data_sets[i]) != 0:
+                self.buttonGroup_transit_data.button(i+1).setStyleSheet("color: %s;"%colors[i])
+                self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("color: %s;"%colors[i])
+            else:
+                self.buttonGroup_transit_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("")
+                #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
+
+
+################################ transit files END #######################################################
+
+
+################################ activity files #######################################################
+        
+
+    def showDialog_act_input_file(self):
+        global fit
+
+        but_ind = self.buttonGroup_activity_data.checkedId()   
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'Data (*.dat)')
+
+        if str(input_files[0]) != '':
+ 
+            fit.add_act_dataset('test', str(input_files[0]),act_idset =but_ind-1)
+            #self.init_fit()            
+            #self.update_use_from_input_file()            
+            #self.update_use()
+            #self.update_params()
+            self.update_act_file_buttons()
+
+    def remove_act_file(self):
+        global fit
+
+        but_ind = self.buttonGroup_remove_activity_data.checkedId()   
+        fit.remove_act_dataset(but_ind -1)
+       # self.init_fit()         
+      #  self.update_use_from_input_file()   
+      #  self.update_use()
+      #  self.update_gui_params()
+     #   self.update_params()
+        self.update_act_file_buttons()
+
+    def update_act_file_buttons(self):
+        global fit, colors          
+
+        for i in range(10):
+            if len(fit.act_data_sets[i]) != 0:
+                self.buttonGroup_activity_data.button(i+1).setStyleSheet("color: %s;"%colors[i])
+                self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("color: %s;"%colors[i])
+            else:
+                self.buttonGroup_activity_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("")
+                #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
+
+
+################################ activity files END #######################################################
+
     def init_fit(self): 
         global fit
         minimize_fortran=True
@@ -776,8 +972,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
         p15.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
         
-        
-
+     
         
     def update_extra_plots(self):
         global fit
@@ -798,7 +993,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.comboBox_extra_plot.activated.connect(self.handleActivated)        
         
     def handleActivated(self, index):
-        global fit, pe, zzz
+        global fit, pe
         
         ind = self.comboBox_extra_plot.itemData(index) 
         
@@ -1540,6 +1735,14 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         self.buttonGroup_4.buttonClicked.connect(self.showDialog_RV_input_file)
         self.buttonGroup_remove_RV_data.buttonClicked.connect(self.remove_RV_file)
+ 
+        self.buttonGroup_activity_data.buttonClicked.connect(self.showDialog_act_input_file)
+        self.buttonGroup_remove_activity_data.buttonClicked.connect(self.remove_act_file)     
+        
+        self.buttonGroup_transit_data.buttonClicked.connect(self.showDialog_tra_input_file)
+        self.buttonGroup_remove_transit_data.buttonClicked.connect(self.remove_tra_file)         
+        
+        
         self.buttonGroup_use.buttonClicked.connect(self.update_use)
 
 
@@ -1574,6 +1777,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.copy_ses.clicked.connect(self.cop_ses)
         self.remove_ses.clicked.connect(self.rem_ses)
   
+  
+        self.init_activity_GLS_plots()
   
         self.quit_button.clicked.connect(self.quit)
  
