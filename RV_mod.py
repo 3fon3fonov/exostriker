@@ -1403,6 +1403,25 @@ class signal_data(object):
         gls_warnings.print_warning_log()
         return
 
+
+
+#lass act_file(object):
+    
+#   def __init__(self,name):
+#       self.name=name
+# 
+
+#   def add_act_file(self): 
+#       self.name=name
+
+
+#   def remove_act_file(self): 
+#       self.name=name
+     
+#   def remove_act_file(self): 
+#       self.name=name        
+        
+        
 # classes for processing RV files
 
 class rvfile(object):
@@ -1867,15 +1886,70 @@ class signal_fit(object):
         ##### initially defined: as a python dictionary and only to filled in by functions! 
         ##### It will be a lot of work to change those above now, but it has to be done as some point.
         
-        self.evol_T =   {k: [] for k in range(9)}
-        self.evol_a =   {k: [] for k in range(9)}
-        self.evol_e =   {k: [] for k in range(9)}
-        self.evol_p =   {k: [] for k in range(9)}
-        self.evol_M =   {k: [] for k in range(9)}
+        self.evol_T = {k: [] for k in range(9)}
+        self.evol_a = {k: [] for k in range(9)}
+        self.evol_e = {k: [] for k in range(9)}
+        self.evol_p = {k: [] for k in range(9)}
+        self.evol_M = {k: [] for k in range(9)}
+        
+        
+        self.act_data_sets = {k: [] for k in range(10)}
+        self.tra_data_sets = {k: [] for k in range(10)}
+        self.rad_data_sets = {k: [] for k in range(10)}
+     
+            
          
     def update_epoch(self,epoch):
         self.epoch=epoch
         return
+        
+        
+
+############################ activity datasets ##########################################      
+    def add_act_dataset(self, name, path, act_idset = 0):
+ 
+        act_JD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+        act_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+        act_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+	
+        act_data_set = np.array([act_JD,act_data,act_data_sig]) 
+ 
+        self.act_data_sets[act_idset] = act_data_set
+ 
+        return   
+
+
+    def remove_act_dataset(self, act_idset):
+ 
+        self.act_data_sets[act_idset] = []
+ 
+        return   
+############################ activity datasets END ##########################################      
+
+############################ transit datasets ##########################################      
+    def add_transit_dataset(self, name, path, tra_idset = 0):
+ 
+        tra_JD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+        tra_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+        tra_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+	
+        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig]) 
+ 
+        self.tra_data_sets[tra_idset] = tra_data_set
+ 
+        return   
+
+
+    def remove_transit_dataset(self, tra_idset):
+ 
+        self.tra_data_sets[tra_idset] = []
+ 
+        return   
+############################ activity datasets END ##########################################      
+
+
+
+
 
     def add_planet(self,K=50,P=100,e=0,w=0,M0=180,i=90,cap=0,useK=True,useP=True,usee=False,usew=False,useM0=True,usei=True, usecap=True):        
         if(self.npl==10):
@@ -1886,6 +1960,7 @@ class signal_fit(object):
         self.use.update_use_planet_params_one_planet(self.npl,useK,useP,usee,usew,useM0,usei,usecap)
         self.npl=self.npl+1
         return
+
 
     def add_dataset(self,name,path,offset,jitter,useoffset=True,usejitter=True):
         
