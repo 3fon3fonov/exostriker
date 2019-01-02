@@ -562,24 +562,26 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     
         return text_peaks  
         
-        
-    def init_activity_GLS_plots(self):
+######################## Activity plots ######################################        
+    def init_activity_combo(self):
         global fit
         
         for i in range(10):
             self.comboBox_act_data_gls.addItem('act. data %s'%(i+1),i+1)       
+            self.comboBox_act_data.addItem('act. data %s'%(i+1),i+1)       
         
         
-        self.comboBox_act_data_gls.activated.connect(self.handleActivated_act_gls) 
+        #self.comboBox_act_data_gls.activated.connect(self.handleActivated_act_gls) 
         
         
-    def handleActivated_act_gls(self, index):
-        global fit 
+   # def handleActivated_act_gls(self, index):
+   #     global fit 
+    
+   #     ind = self.comboBox_act_data_gls.itemData(index)         
+   #     self.update_activity_gls_plots(ind-1)
         
         
         
-        ind = self.comboBox_act_data_gls.itemData(index)         
-        self.update_activity_gls_plots(ind-1)
  
     def update_activity_gls_plots(self,ind):
         global fit, colors,  p11 
@@ -609,11 +611,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
                                                
             [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
- 
-            self.radioButton_act_GLS_period.toggled.connect(lambda: self.update_activity_gls_plots(ind))
- 
-            #print(ind)
- 
+  
             self.act_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
             act_per.info(stdout=False) + 
             self.identify_power_peaks(1/act_per.freq, act_per.power, power_level = power_levels, sig_level = act_per.powerLevel(np.array(power_levels)) )))   
@@ -623,8 +621,36 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p11.plot(clear=True,)        
 
             return
-  
 
+
+
+    def update_activity_data_plots(self,ind):
+        global fit, colors,  p5 
+ 
+ 
+  
+        if len(fit.act_data_sets[ind]) != 0:
+
+            p5.plot(clear=True,)        
+            err1 = pg.ErrorBarItem(x=fit.act_data_sets[ind][0], y=fit.act_data_sets[ind][1],symbol='o', 
+            height=fit.act_data_sets[ind][2], beam=0.0, pen=colors[ind])  
+
+            p5.addItem(err1)      
+            p5.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
+ 
+
+            p5.plot(fit.act_data_sets[ind][0],fit.act_data_sets[ind][1], pen=None,symbol='o',
+            #symbolPen=,
+            symbolSize=6,enableAutoRange=True,viewRect=True,
+            symbolBrush=colors[ind]
+            )      
+            return
+        else:   
+            p5.plot(clear=True,)        
+
+            return  
+
+######################## Activity plots END ######################################        
 
 
 
@@ -654,9 +680,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
                                                
             [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per.powerLevel(np.array(power_levels)))]
- 
-            self.radioButton_RV_GLS_period.toggled.connect(self.update_RV_GLS_plots)
- 
  
  
             self.RV_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
@@ -694,7 +717,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
             [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per_res.powerLevel(np.array(power_levels)))]            
 
-            self.radioButton_RV_o_c_GLS_period.toggled.connect(self.update_RV_o_c_GLS_plots)
 
             self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(RV_per_res.info(stdout=False)+
             self.identify_power_peaks(1/RV_per_res.freq, RV_per_res.power, power_level = power_levels, sig_level = RV_per.powerLevel(np.array(power_levels)) ) )  )      
@@ -889,7 +911,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("")
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
 
-
+ 
 ################################ transit files END #######################################################
 
 
@@ -910,7 +932,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             #self.update_use()
             #self.update_params()
             self.update_act_file_buttons()
-
+            self.update_activity_gls_plots(but_ind-1)
+            #self.handleActivated_act_gls(but_ind-1)
+            
     def remove_act_file(self):
         global fit
 
@@ -1643,11 +1667,14 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def worker_mcmc_complete(self):
         global fit  
         fit.print_info(short_errors=False)
- 
+        self.statusBar().showMessage('') 
+
     def worker_mcmc(self):
         global fit  
         
         self.button_MCMC.setEnabled(False)
+        self.statusBar().showMessage('MCMC in progress....')        
+
         # check if RV data is present
         if fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
@@ -1677,8 +1704,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit
 
         
-        self.statusBar().showMessage('MCMC in progress....')        
-
+        
         gp_params = [self.GP_rot_kernel_Amp.value(),
                      self.GP_rot_kernel_time_sc.value(),
                      self.GP_rot_kernel_Per.value(),
@@ -1693,7 +1719,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=True)  
  
         self.button_MCMC.setEnabled(True)
-        self.statusBar().showMessage('') 
         
         
 ################################## END MCMC ################################### 
@@ -1778,8 +1803,15 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.remove_ses.clicked.connect(self.rem_ses)
   
   
-        self.init_activity_GLS_plots()
-  
+        self.init_activity_combo()
+        self.radioButton_act_GLS_period.toggled.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
+       
+        self.comboBox_act_data_gls.activated.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex())) 
+        self.comboBox_act_data.activated.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex())) 
+       
+        self.radioButton_RV_o_c_GLS_period.toggled.connect(self.update_RV_o_c_GLS_plots)
+        self.radioButton_RV_GLS_period.toggled.connect(self.update_RV_GLS_plots)
+
         self.quit_button.clicked.connect(self.quit)
  
         self.jupiter_push_vars()
