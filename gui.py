@@ -562,6 +562,31 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     
         return text_peaks  
         
+        
+######################## Correlation plots ######################################        
+    def init_correlations_combo(self):
+        global fit
+        self.comboBox_corr_1.clear()
+        self.comboBox_corr_2.clear()
+       
+        if fit.filelist.ndset > 0:
+            for i in range(0,fit.filelist.ndset,1):
+
+                self.comboBox_corr_1.addItem('RV %s'%(i+1),i+1)       
+                self.comboBox_corr_2.addItem('RV %s'%(i+1),i+1) 
+            
+        for i in range(0,10,1):
+            
+            if len(fit.act_data_sets[i]) != 0: 
+                self.comboBox_corr_1.addItem('act. data %s'%(i+1),i+1)       
+                self.comboBox_corr_2.addItem('act. data %s'%(i+1),i+1) 
+            
+          
+            
+ ######################## Correlation plots END ##################################         
+       
+        
+        
 ######################## Activity plots ######################################        
     def init_activity_combo(self):
         global fit
@@ -813,6 +838,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.update_orb_plot()
         #self.change_extra_plot()
         
+        
+
 ################################ RV files #######################################################
         
     def showDialog_fortran_input_file(self):
@@ -864,6 +891,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 self.buttonGroup_4.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("")
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
+        self.init_correlations_combo()
 
 
 ################################ RV files END #######################################################
@@ -958,7 +986,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 self.buttonGroup_activity_data.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("")
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
-
+        self.init_correlations_combo()
 
 ################################ activity files END #######################################################
 
@@ -967,7 +995,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         minimize_fortran=True
         fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran,  fortran_kill=30, timeout_sec=300,minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
         
-
         self.update_labels()
         self.update_gui_params()
         self.update_errors() 
@@ -1803,7 +1830,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.remove_ses.clicked.connect(self.rem_ses)
   
   
+        self.init_correlations_combo()
+  
+  
         self.init_activity_combo()
+        
         self.radioButton_act_GLS_period.toggled.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
        
         self.comboBox_act_data_gls.activated.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex())) 
