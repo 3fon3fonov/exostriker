@@ -20,6 +20,7 @@ What works:
 * Import/Export of work sessions and multi-sessions. 
 * Text editor/Calculator/Bash-shell widgets.
 * Integrated Jupyter widget shell.
+* Print the GUI screen into an .jpeg image (useful for sharing quick results)
 
 What is to be implemented:
 
@@ -28,7 +29,7 @@ What is to be implemented:
 * Variouse of minimization/sampling methods.
 * Some more GUI plots and plot functionality.
 * GUI accsess to parameter limits and priors (there, but not connected with RVmod, yet)
-* Many minor glitches and bugs to be fixed.
-* For more detailed TBD list see: "focus_matrix_TBFixed.doc".
+* Print all results and plots in a .tex ready environment
+* Many minor glitches and bugs may occur (For more detailed TBD list see: "focus_matrix_TBFixed.doc").
 
 If you use this tool and you find a bug or a problem, please report it!
