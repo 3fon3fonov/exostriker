@@ -30,6 +30,7 @@ from scipy.signal import argrelextrema
 
 import batman as batman
 
+import webbrowser
  
 #try:
 #    import cPickle as pickle
@@ -1746,7 +1747,13 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=True)  
  
         self.button_MCMC.setEnabled(True)
-        
+  
+
+    def grab_screen(self):
+        p = QtWidgets.QWidget.grab(self)
+        filename = QtGui.QFileDialog.getSaveFileName(self, 'Save image', '', '')
+        p.save(filename[0], 'jpg')
+        #label.setPixmap(p)        # just for fun :)
         
 ################################## END MCMC ################################### 
 
@@ -1829,6 +1836,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.copy_ses.clicked.connect(self.cop_ses)
         self.remove_ses.clicked.connect(self.rem_ses)
   
+    
+    
+        self.actiongrab_screen.triggered.connect(self.grab_screen) 
+        self.actionvisit_TRIFON_on_GitHub.triggered.connect(lambda: webbrowser.open('https://github.com/3fon3fonov/trifon'))    
   
         self.init_correlations_combo()
   
