@@ -1121,7 +1121,7 @@ class parameter_bounds(object): # Class for parameter bounds. We do not need upd
 #class for an object storing all the information about a given planet. Warning: contains less information than original kernel from old versions of RV_mod! Full information is now only stored in signal_fit class object
 class kernel(object):
     
-    def __init__(self,stat=0, jd=0,rvs=0,rv_err=0,o_c=0, model=0,model_jd=0,npl=0,a=0,mass=0,idset=0,stat_array_saved=0,reduced_chi2=0,chi2=0,rms=0,loglik=0):
+    def __init__(self,stat=0, jd=0,rvs=0,rv_err=0,o_c=0, model=0,model_jd=0,npl=0,a=0,mass=0,idset=0,stat_array_saved=0,reduced_chi2=0,chi2=0,rms=0,loglik=0,mfit=0):
         self.stat = stat
         self.rv_model=rvmodel(jd,rvs,rv_err,o_c)
         self.jd = jd
@@ -1139,6 +1139,7 @@ class kernel(object):
         self.chi2=chi2
         self.rms=rms
         self.loglik=loglik
+        self.mfit = mfit
         
         
         
@@ -1654,6 +1655,7 @@ class fortran_output(object):
     rv_obs=[]
     rv_error=[]
     data_set=[]
+    mfit = 0
     loglik=0 
     reduced_chi2=1
     chi2=1
@@ -1809,6 +1811,7 @@ class fortran_output(object):
                 self.epoch_str = self.best_par[i+4]
                 self.masses  = list(map(float,self.best_par[i+6]))
                 self.semiM = list(map(float,self.best_par[i+8]))
+                self.mfit = int(self.mfit_str[2])
                 i=i+9
             else:
                 i=i+1
@@ -1833,7 +1836,7 @@ class fortran_output(object):
         self.save_stat_array()
         self.dismantle_keplerian_fit()
         self.dismantle_RV_kep()
-        results = kernel(self.generate_summary(), self.jd, self.rv_obs, self.rv_error,self.o_c, self.model, self.JD_model, self.npl,self.semiM,self.masses,self.data_set,self.stat_array_saved,self.reduced_chi2,self.chi2,self.rms,self.loglik) 
+        results = kernel(self.generate_summary(), self.jd, self.rv_obs, self.rv_error,self.o_c, self.model, self.JD_model, self.npl,self.semiM,self.masses,self.data_set,self.stat_array_saved,self.reduced_chi2,self.chi2,self.rms,self.loglik, self.mfit) 
         return results
                     
 class signal_fit(object):
@@ -1874,7 +1877,7 @@ class signal_fit(object):
             self.inputfile_read=True
         # in this case we need to create a new kernel, but we will only give it this information which is needed for plotting
         self.filelist.read_rvfiles(self.params.offsets)
-        self.fit_results=kernel(summary(parameters(0.0,0.0,0.0,0.0,DEFAULT_STELLAR_MASS),parameter_errors([0],[0],[0],0,0)), self.filelist.time,self.filelist.rvs,self.filelist.rv_err,np.zeros(len(self.filelist.time)),np.zeros(len(self.filelist.time)),self.filelist.time,0,0,0,self.filelist.idset,0,0,0,0,0)
+        self.fit_results=kernel(summary(parameters(0.0,0.0,0.0,0.0,DEFAULT_STELLAR_MASS),parameter_errors([0],[0],[0],0,0)), self.filelist.time,self.filelist.rvs,self.filelist.rv_err,np.zeros(len(self.filelist.time)),np.zeros(len(self.filelist.time)),self.filelist.time,0,0,0,self.filelist.idset,0,0,0,0,0,0)
         self.loglik=0.0
         self.rms=0.0
         self.chi2=0.0
@@ -2826,7 +2829,7 @@ class signal_fit(object):
         '''Generate a kernel object and plot it's time series'''
         
         if not (self.fit_performed): # to update in case we hadn't performed a fit, but added new datasets         
-            self.fit_results=kernel(summary(parameters(0,0,0,0,0),parameter_errors([0],[0],[0],0,0)), self.filelist.time,self.filelist.rvs,self.filelist.rv_err,np.zeros(len(self.filelist.time)),np.zeros(len(self.filelist.time)),self.filelist.time,0,0,0,self.filelist.idset,0,0,0,0,0)
+            self.fit_results=kernel(summary(parameters(0,0,0,0,0),parameter_errors([0],[0],[0],0,0)), self.filelist.time,self.filelist.rvs,self.filelist.rv_err,np.zeros(len(self.filelist.time)),np.zeros(len(self.filelist.time)),self.filelist.time,0,0,0,self.filelist.idset,0,0,0,0,0,0)
  
         self.fit_results.plot_ker(filetosave=filetosave, plot_title=plot_title, save=save, dpi=dpi)
         return
@@ -2869,7 +2872,7 @@ class signal_fit(object):
                     for i in range(min(len(normal_copy.fit_results.model),len(special_task_copy.fit_results.model))):          
                         model_to_pass.append(float(normal_copy.fit_results.model[i])-float(special_task_copy.fit_results.model[i]))
                     model_to_pass=np.array(model_to_pass)
-                    special_task_kernel=kernel(normal_copy.fit_results.stat, normal_copy.fit_results.rv_model.jd,rvs_to_pass,normal_copy.fit_results.rv_model.rv_err,normal_copy.fit_results.rv_model.o_c,model_to_pass,normal_copy.fit_results.model_jd,normal_copy.npl,0.0,0.0,normal_copy.fit_results.idset,normal_copy.fit_results.stat_array_saved,0.0,0.0,0.0,0.0)
+                    special_task_kernel=kernel(normal_copy.fit_results.stat, normal_copy.fit_results.rv_model.jd,rvs_to_pass,normal_copy.fit_results.rv_model.rv_err,normal_copy.fit_results.rv_model.o_c,model_to_pass,normal_copy.fit_results.model_jd,normal_copy.npl,0.0,0.0,normal_copy.fit_results.idset,normal_copy.fit_results.stat_array_saved,0.0,0.0,0.0,0.0,0)
                     special_task_kernel.plot_ker(filetosave=filetosave, plot_title=plot_title, save=save, dpi=dpi, plot_oc=False)
         
         if (print_at_end):
