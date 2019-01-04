@@ -167,9 +167,8 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.value_reduced_chi2.setText("%.4f"%(fit.fit_results.reduced_chi2))        
         self.value_loglik.setText("%.4f"%(fit.fit_results.loglik)) 
         self.value_loglik.setText("%.4f"%(fit.fit_results.loglik)) 
-       # self.value_Ndata.setText("%.4f"%(fit.fit_results.loglik)) 
-        self.value_DOF.setText("%s"%(int(float(fit.fit_results.chi2) / float(fit.fit_results.reduced_chi2))) )        
-        
+        self.value_Ndata.setText("%s"%(len(fit.fit_results.jd))) 
+        self.value_DOF.setText("%s"%(len(fit.fit_results.jd) - fit.fit_results.mfit))                 
 
     def update_gui_params(self):
         global fit
