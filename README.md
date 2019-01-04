@@ -15,7 +15,7 @@ What works:
 * RVs Keplerian and Dynamical modeling + GP (only one GP kernel integrated so far).
 * RVs MCMC sampling/modeling.
 * RV auto-fit (automated planet-finder algortm).
-* Long-term stability check of multiplanet systems using SyMBA, MVS, MVS with GR precession term
+* Long-term stability check of multiplanet systems using SyMBA, MVS, MVS with a GR precession.
 * Interactive plots.
 * Import/Export of work sessions and multi-sessions. 
 * Text editor/Calculator/Bash-shell widgets.
@@ -31,5 +31,6 @@ What is to be implemented:
 * GUI accsess to parameter limits and priors (there, but not connected with RVmod, yet)
 * Print all results and plots in a .tex ready environment
 * For more detailed TBD list see: "focus_matrix_TBFixed.doc".
+* Large arsenal of N-body/dynamical simulation/analysis tools. 
 
 If you use this tool and you find a bug or a problem, please report it!
