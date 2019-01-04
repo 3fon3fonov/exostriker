@@ -166,8 +166,10 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.value_chi2.setText("%.4f"%(fit.fit_results.chi2)) 
         self.value_reduced_chi2.setText("%.4f"%(fit.fit_results.reduced_chi2))        
         self.value_loglik.setText("%.4f"%(fit.fit_results.loglik)) 
-
-
+        self.value_loglik.setText("%.4f"%(fit.fit_results.loglik)) 
+       # self.value_Ndata.setText("%.4f"%(fit.fit_results.loglik)) 
+        self.value_DOF.setText("%s"%(int(float(fit.fit_results.chi2) / float(fit.fit_results.reduced_chi2))) )        
+        
 
     def update_gui_params(self):
         global fit
@@ -1136,7 +1138,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         params.limb_dark = "nonlinear"        #limb darkening model
         params.u = [self.u1_1_trans.value(), self.u2_1_trans.value() , 0.1, -0.1]      #limb darkening coefficients [u1, u2, u3, u4]
 
-        t = np.linspace(-0.25, 0.25, 1000)  #times at which to calculate light curve
+        if len(fit.tra_data_sets[0]) != 0:
+            t = fit.tra_data_sets[0][0]
+        else:    
+            t = np.linspace(-0.25, 0.25, 1000)  #times at which to calculate light curve
+        
         m = batman.TransitModel(params, t)    #initializes model
  
         flux = m.light_curve(params)          #calculates light curve
