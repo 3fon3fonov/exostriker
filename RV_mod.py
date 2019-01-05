@@ -32,6 +32,8 @@ import corner
 import celerite 
 from celerite import terms
 
+import batman
+
 #import copy
 import dill
 import scipy.optimize as op
