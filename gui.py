@@ -1366,11 +1366,15 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
     def print_info_credits(self, image=False):
         #self.dialog.statusBar().showMessage('Ready')
-        self.dialog_credits.setFixedSize(800, 800)
+        self.dialog_credits.setFixedSize(900, 900)
         self.dialog_credits.setWindowTitle('Credits')  
         #self.dialog.setGeometry(300, 300, 800, 800)
         #self.dialog_credits.acceptRichText(True)
-        text = "You are using 'The Exo-Striker' (ver. 0.01)"
+        
+        text = ''
+        self.dialog_credits.text.setText(text) 
+        
+        text = "You are using 'The Exo-Striker' (ver. 0.01) \n developed by 3fon3fonov"
         
         self.dialog_credits.text.append(text)
 
@@ -1390,7 +1394,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                                 
         text = "* " + "<a href='https://github.com/lkreidberg/batman'>batman-package</a>" 
         self.dialog_credits.text.append(text)
-                
+
+        text = "* " + "<a href='https://www.boulder.swri.edu/~hal/swift.html'>swift</a>" 
+        self.dialog_credits.text.append(text)        
+                        
         text = "* " + "<a href='https://github.com/jupyter/qtconsole'>qtconsole</a>"
         self.dialog_credits.text.append(text)        
 
@@ -1400,15 +1407,23 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         text = "(A few more to be added) \n" 
         self.dialog_credits.text.append(text)   
         
-        
-         
+ 
         
         #self.dialog_credits.text.setText(text)
-         
- 
         #self.dialog_credits.text.insertHtml(text)
         
-       
+        
+        text = "\n"*5 + """Note:
+Please keep in mind that this software is developed 
+mostly for my needs and for fun. I hope, however, 
+that you may find it capable to solve your scientific 
+problems, too. 
+
+Feedback and help in further developing will be 
+highly appreciated!
+"""
+        self.dialog_credits.text.append(text)   
+  
         self.dialog_credits.text.setReadOnly(True)       
         
         self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(33_striker.png) 0 0 0 0 stretch stretch;} ")
@@ -1416,7 +1431,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
         
         self.dialog_credits.show()
- 
+        
+  
 
     def run_bootstrap(self):
         global fit
