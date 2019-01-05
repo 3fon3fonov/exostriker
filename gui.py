@@ -79,10 +79,13 @@ class print_info(QtWidgets.QMainWindow):
 
         self.widget = QtWidgets.QWidget(self)
 
-        self.text = QtWidgets.QTextEdit(self.widget)
+        #self.text = QtWidgets.QTextEdit(self.widget)
+        self.text = QtWidgets.QTextBrowser(self.widget)
+        self.text.setOpenExternalLinks(True)
+       
+        
         self.widget.setLayout(QtWidgets.QVBoxLayout())
         self.widget.layout().addWidget(self.text)
-
         self.setCentralWidget(self.widget)
         
      
@@ -1354,12 +1357,66 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.dialog.setGeometry(300, 300, 450, 250)
         self.dialog.setWindowTitle('Detailed Info')  
  
+        
         self.dialog.text.setPlainText(text)
         self.dialog.text.setReadOnly(True)       
         #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
         
         self.dialog.show()
 
+    def print_info_credits(self, image=False):
+        #self.dialog.statusBar().showMessage('Ready')
+        self.dialog_credits.setFixedSize(800, 800)
+        self.dialog_credits.setWindowTitle('Credits')  
+        #self.dialog.setGeometry(300, 300, 800, 800)
+        #self.dialog_credits.acceptRichText(True)
+        text = "You are using TRIFON: The Exo-Striker (ver. 0.01)"
+        
+        self.dialog_credits.text.append(text)
+
+        text = "\n"*15 +"CREDITS:"+"\n"*2 + "This tool uses the publically \n available packages: \n" 
+        self.dialog_credits.text.append(text)
+        
+    
+
+        text = "* " + "<a href='https://github.com/pyqtgraph/pyqtgraph'>pyqtgraph</a>"
+        self.dialog_credits.text.append(text)
+
+        text = "* " + "<a href='https://github.com/dfm/emcee'>emcee</a>" 
+        self.dialog_credits.text.append(text) 
+        
+        text = "* " + "<a href='https://github.com/dfm/celerite'>celerite</a>" 
+        self.dialog_credits.text.append(text)  
+                                
+        text = "* " + "<a href='https://github.com/lkreidberg/batman'>batman-package</a>" 
+        self.dialog_credits.text.append(text)
+                
+        text = "* " + "<a href='https://github.com/jupyter/qtconsole'>qtconsole</a>"
+        self.dialog_credits.text.append(text)        
+
+        text = "* " + "<a href='https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor'>megasolid idiom</a>" 
+        self.dialog_credits.text.append(text)    
+        
+        text = "(A few more to be added) \n" 
+        self.dialog_credits.text.append(text)   
+        
+        
+         
+        
+        #self.dialog_credits.text.setText(text)
+         
+ 
+        #self.dialog_credits.text.insertHtml(text)
+        
+       
+        self.dialog_credits.text.setReadOnly(True)       
+        
+        self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(33_striker.png) 0 0 0 0 stretch stretch;} ")
+
+        #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
+        
+        self.dialog_credits.show()
+ 
 
     def run_bootstrap(self):
         global fit
@@ -1793,7 +1850,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             self.gridLayout_stdout.addWidget(stdout_pipe.MyDialog())  
        
         self.dialog = print_info(self)
-        
+        self.dialog_credits = print_info(self)
+       
 
         self.load_fort_in_file.clicked.connect(self.showDialog_fortran_input_file)
 
@@ -1845,7 +1903,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     
         self.actiongrab_screen.triggered.connect(self.grab_screen) 
         self.actionvisit_TRIFON_on_GitHub.triggered.connect(lambda: webbrowser.open('https://github.com/3fon3fonov/trifon'))    
-  
+        self.actionCredits.triggered.connect(lambda: self.print_info_credits())
+        
+        
         self.init_correlations_combo()
   
   
