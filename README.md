@@ -18,6 +18,7 @@ What works:
 * Long-term stability check of multiplanet systems using SyMBA, MVS, MVS with a GR precession.
 * Interactive plots.
 * Import/Export of work sessions and multi-sessions. 
+* Import/Export of plots to a matplotlib window for further customization.
 * Text editor/Calculator/Bash-shell widgets.
 * Integrated Jupyter widget shell.
 * Print the GUI screen into a .jpeg image (useful for sharing quick results)
