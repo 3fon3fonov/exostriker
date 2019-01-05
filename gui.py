@@ -57,7 +57,7 @@ ses_list = []
 
 #'#cc0000',
 
-colors = ['#0066ff',  '#66ff66','#ff0000','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 
 QtGui.QApplication.processEvents()
 
@@ -661,7 +661,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
   
         if len(fit.act_data_sets[ind]) != 0:
 
-            p5.plot(clear=True,)        
+            p5.plot(clear=True,)  
+            
+            
             err1 = pg.ErrorBarItem(x=fit.act_data_sets[ind][0], y=fit.act_data_sets[ind][1],symbol='o', 
             height=fit.act_data_sets[ind][2], beam=0.0, pen=colors[ind])  
 
@@ -783,7 +785,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global p1,p2
         
 
-        brush_list = [pg.mkColor(c) for c in [colors[i] for i in fit.filelist.idset]]
+       # brush_list = [pg.mkColor(c) for c in [colors[i] for i in fit.filelist.idset]]
  
         p1.plot(clear=True,)
         p2.plot(clear=True,)
@@ -800,33 +802,44 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             error_list = fit.fit_results.rv_model.rv_err
           
                       
-        err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd, y=fit.fit_results.rv_model.rvs,symbol='o', 
-        height=error_list, beam=0.0, pen='k')  
-
-        p1.addItem(err1)      
+    
         p1.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
  
 
         p1.plot(fit.fit_results.model_jd,fit.fit_results.model, 
         pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
-        p1.plot(fit.fit_results.rv_model.jd,fit.fit_results.rv_model.rvs, pen=None,symbol='o',
-        #symbolPen=,
-        symbolSize=6,enableAutoRange=True,viewRect=True,
-        symbolBrush=brush_list
-        )        
+        
+        for i in range(max(fit.filelist.idset)+1):
+            p1.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
+            pen=None, #{'color': colors[i], 'width': 1.1},
+            symbol='o',
+            symbolPen={'color': colors[i], 'width': 1.1},
+            symbolSize=6,enableAutoRange=True,viewRect=True,
+            symbolBrush=colors[i]
+            )        
+            err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
+                                   y=fit.fit_results.rv_model.rvs[fit.filelist.idset==i],symbol='o', 
+            height=error_list[fit.filelist.idset==i], beam=0.0, pen=colors[i])  
+
+            p1.addItem(err1)  
 
   
-        err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd, y=fit.fit_results.rv_model.o_c,symbol='o', 
-        height=error_list, beam=0.0, pen='k')   
-         
-        p2.addItem(err2)
+
         p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
         
-        p2.plot(fit.fit_results.rv_model.jd,fit.fit_results.rv_model.o_c, pen=None,symbol='o',
-        #symbolPen=,
-        symbolSize=6,enableAutoRange=True,viewRect=True,
-        symbolBrush=brush_list
-        )
+        for i in range(max(fit.filelist.idset)+1):
+            p2.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],fit.fit_results.rv_model.o_c[fit.filelist.idset==i], 
+            pen=None, #{'color': colors[i], 'width': 1.1},
+            symbol='o',
+            symbolPen={'color': colors[i], 'width': 1.1},
+            symbolSize=6,enableAutoRange=True,viewRect=True,
+            symbolBrush=colors[i]
+            )        
+            err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
+                                   y=fit.fit_results.rv_model.o_c[fit.filelist.idset==i],symbol='o', 
+            height=error_list[fit.filelist.idset==i], beam=0.0, pen=colors[i])  
+
+            p2.addItem(err2)  
         
   #pen={'color': 'r', 'width': 1.1},  
   
@@ -1094,7 +1107,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         if len(ph_data) == 1:
             return
  
-        brush_list2 = [pg.mkColor(c) for c in [colors[i] for i in ph_data[3]]]
+       # brush_list2 = [pg.mkColor(c) for c in [colors[i] for i in ph_data[3]]]
 
         if self.jitter_to_plots.isChecked():
             error_list = self.add_jitter(ph_data[2], ph_data[3])
@@ -1102,20 +1115,25 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             error_list = ph_data[2]
         
         
-        
-        err_ = pg.ErrorBarItem(x=ph_data[0], y=ph_data[1],symbol='o', height=error_list, beam=0.0, pen='k')   
-         
-        pe.addItem(err_)
         pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))   
-       
         pe.plot(ph_model[0],ph_model[1], pen={'color': 0.5, 'width': 2.0},
-        enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'})     
-        pe.plot(ph_data[0],ph_data[1], pen=None,symbol='o',
-        #symbolPen=,
-        symbolSize=6,enableAutoRange=True,viewRect=True,
-        symbolBrush=brush_list2
-        )       
+        enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'})   
+        
+        for i in range(max(ph_data[3])+1):
+        
+            pe.plot(ph_data[0][ph_data[3]==i],ph_data[1][ph_data[3]==i],             
+            pen=None, #{'color': colors[i], 'width': 1.1},
+            symbol='o',
+            symbolPen={'color': colors[i], 'width': 1.1},
+            symbolSize=6,enableAutoRange=True,viewRect=True,
+            symbolBrush=colors[i]
+            )  
                
+            err_ = pg.ErrorBarItem(x=ph_data[0][ph_data[3]==i], y=ph_data[1][ph_data[3]==i],
+            symbol='o', height=error_list[ph_data[3]==i], beam=0.0, pen=colors[i])   
+         
+            pe.addItem(err_)
+        
         pe.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})
         pe.setLabel('left',   'RV', units='m/s',  **{'font-size':'12pt'})  
       
@@ -1542,7 +1560,7 @@ highly appreciated!
         global fit
         """
         This function must be completely refurbished!!! How to check 
-        which QDoubleSpinBox is trigerred? Everytime one needs to call 
+        which QDoubleSpinBox is trigerred? Does everytime one needs to call 
         self.init_fit() ? ? ?
         
         """
@@ -1583,6 +1601,8 @@ highly appreciated!
     def jupiter_push_vars(self):
         global fit        
         self.console_widget.push_vars({'fit':fit})    
+        #self.console_widget.push_vars({'pg':pg})    
+        #self.console_widget.push_vars({'p1':p1})    
 
         #self.console_widget.clear()         
         #self.console_widget.print_text(str("Welcome!")) 
