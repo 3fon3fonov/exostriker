@@ -1370,7 +1370,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.dialog_credits.setWindowTitle('Credits')  
         #self.dialog.setGeometry(300, 300, 800, 800)
         #self.dialog_credits.acceptRichText(True)
-        text = "You are using TRIFON: The Exo-Striker (ver. 0.01)"
+        text = "You are using 'The Exo-Striker' (ver. 0.01)"
         
         self.dialog_credits.text.append(text)
 
