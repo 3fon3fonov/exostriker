@@ -1,5 +1,5 @@
 
-**T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations
+**T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations : **The Exo-Striker**
 
 (Because of a lack of a better name and for fun)
 
