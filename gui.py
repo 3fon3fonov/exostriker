@@ -2016,9 +2016,9 @@ highly appreciated!
         
         
         self.init_correlations_combo()
-  
-  
         self.init_activity_combo()
+        
+        self.setWindowIcon(QtGui.QIcon('33_striker.png'))
         
         self.radioButton_act_GLS_period.toggled.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
        
