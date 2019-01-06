@@ -3,9 +3,10 @@
 
 (Because of a lack of a better name and for fun)
 
-Very powerfull and fast GUI tool for exoplanet orbital analysis. It uses a brang new RV fitting library called "RVmod", which can model the Stellar reflex motion caused by dynamicaly interacting planets in multi planetary systems.
+Very powerful and fast GUI tool for exoplanet orbital analysis. It uses a brang new RV fitting library called "RVmod", which can model the Stellar reflex motion caused by dynamicaly interacting planets in multi planetary systems.
 
-![rvmod_trifon](https://user-images.githubusercontent.com/44244057/50479747-609d0580-09d8-11e9-8a3c-a79ef78d682c.jpg)
+![33_exo_striker](https://user-images.githubusercontent.com/44244057/50738480-c0638f80-11d4-11e9-936d-43d4a4e196e6.png)
+
 
 **WARNING!** This tool is under active development and its functionality is enhanced on a daily basis! Therefore, although very unlikely, the version you download today may not be fully compatible with the version uploaded tomorrow! Use at your own risk!
 
@@ -18,7 +19,7 @@ What works:
 * Long-term stability check of multiplanet systems using SyMBA, MVS, MVS with a GR precession.
 * Interactive plots.
 * Import/Export of work sessions and multi-sessions. 
-* Import/Export of plots to a matplotlib window for further customization.
+* Export of plots to a matplotlib window for further customization.
 * Text editor/Calculator/Bash-shell widgets.
 * Integrated Jupyter widget shell.
 * Print the GUI screen into a .jpeg image (useful for sharing quick results)
@@ -32,6 +33,7 @@ What is to be implemented:
 * GUI accsess to parameter limits and priors (there, but not connected with RVmod, yet)
 * Print all results and plots in a .tex ready environment
 * Large arsenal of N-body/dynamical simulation/analysis tools. 
+* Documentation, Instructions and Video tutorials.
 * For more detailed TBD list see: "focus_matrix_TBFixed.doc".
 
 If you use this tool and you find a bug or a problem, please report it!
