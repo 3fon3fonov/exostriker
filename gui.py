@@ -15,7 +15,7 @@ import RV_mod as rv
 import pyqtgraph as pg
 import pyqtgraph.console as pg_console
 
-import text_editor2 as ted
+import wordprocessor as ted
 import calculator as calc 
 import stdout_pipe as stdout_pipe
 import gls as gls 
