@@ -932,7 +932,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             #self.update_use()
             #self.update_params()
             self.update_tra_file_buttons()
-
+ 
+            
     def remove_tra_file(self):
         global fit
 
@@ -945,6 +946,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
      #   self.update_params()
         self.update_tra_file_buttons()
 
+
     def update_tra_file_buttons(self):
         global fit, colors          
 
@@ -956,7 +958,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 self.buttonGroup_transit_data.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("")
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
-
+        self.run_batman_test()
  
 ################################ transit files END #######################################################
 
@@ -1012,6 +1014,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit
         minimize_fortran=True
         fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran,  fortran_kill=30, timeout_sec=300,minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
+
+        self.run_batman_test()   
         
         self.update_labels()
         self.update_gui_params()
@@ -1021,7 +1025,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         #start_time = time.time()
         self.update_plots() 
         #print("--- %s seconds ---" % (time.time() - start_time))      
-     
+ 
         self.jupiter_push_vars()       
         
         
@@ -1139,20 +1143,41 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
       
         
  
-###################################################### 
+############ transit fitting (Work in progress here) ##############################      
+
+    def transit_fit(self):
+
+        self.button_fit.setEnabled(False)             
+        # check if transit data is present
+        z=0
+        for i in range(10):
+            if len(fit.tra_data_sets[i]) != 0:
+                z=z+1
+        
+        if z <= 0:
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
+             self.button_fit.setEnabled(True)         
+             return   
+        else:
+             self.run_batman_test()
+             self.button_fit.setEnabled(True)         
+
     def run_batman_test(self): 
-        global fit, p3
+        global fit, p3,colors
     
-        p3.plot(clear=True,)    
+        p3.plot(clear=True,) 
+        p4.plot(clear=True,)         
+           
         # from the example in github
         params = batman.TransitParams()       #object to store transit parameters
-        params.t0  = self.t0_1_trans.value()                       #time of inferior conjunction
-        params.per = self.P1_trans.value()  #orbital period
+        params.t0  = self.t0_1_trans.value()  #time of inferior conjunction
+        params.per = self.P1_trans.value()    #orbital period
         params.ecc = self.e1_trans.value()                     
-        params.rp  = self.pl1_radii.value()                       #planet radius (in units of stellar radii)
-        params.a   = self.a1_trans.value()                        #semi-major axis (in units of stellar radii)
-        params.inc = self.incl1_trans.value()                       #orbital inclination (in degrees)
-        params.w   = self.om1_trans.value()                                 #longitude of periastron (in degrees)
+        params.rp  = self.pl1_radii.value()   #planet radius (in units of stellar radii)
+        params.a   = self.a1_trans.value()    #semi-major axis (in units of stellar radii)
+        params.inc = self.incl1_trans.value() #orbital inclination (in degrees)
+        params.w   = self.om1_trans.value()   #longitude of periastron (in degrees)
         
         
         params.limb_dark = "nonlinear"        #limb darkening model
@@ -1160,16 +1185,39 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         if len(fit.tra_data_sets[0]) != 0:
             t = fit.tra_data_sets[0][0]
+            flux = fit.tra_data_sets[0][1]
+            p3.plot(t, flux,        
+            pen=None,  
+            symbol='o',
+            symbolPen={'color': colors[0], 'width': 1.1},
+            symbolSize=2,enableAutoRange=True,viewRect=True,
+            symbolBrush=colors[0] ) 
+            
+            
+            m = batman.TransitModel(params, t)    #initializes model
+ 
+            flux_model = m.light_curve(params)          #calculates light curve           
+            p3.plot(t, flux_model,pen='k',symbol=None )    
+            
+            p4.plot(t, flux-flux_model,        
+            pen=None,  
+            symbol='o',
+            symbolPen={'color': colors[0], 'width': 1.1},
+            symbolSize=2,enableAutoRange=True,viewRect=True,
+            symbolBrush=colors[0] )             
+            
+            
+                                   
         else:    
             t = np.linspace(-0.25, 0.25, 1000)  #times at which to calculate light curve
         
-        m = batman.TransitModel(params, t)    #initializes model
+            m = batman.TransitModel(params, t)    #initializes model
  
-        flux = m.light_curve(params)          #calculates light curve
+            flux_model = m.light_curve(params)          #calculates light curve
  
-        p3.plot(t, flux,pen='k',symbol=None )     
+            p3.plot(t, flux_model,pen='k',symbol=None )     
        
-      
+#########################  transit fitting END ##############################      
         
 ############################# N-Body ########################################        
 
@@ -1213,7 +1261,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.statusBar().showMessage('Running Orbital Evolution......')   
         
         # Pass the function to execute
-        worker3 = Worker(lambda:  self.run_orbital_simulations()) # Any other args, kwargs are passed to the run  
+        worker3 = Worker(lambda: self.run_orbital_simulations()) # Any other args, kwargs are passed to the run  
         # Execute
         worker3.signals.finished.connect(self.worker_Nbody_complete)
         
@@ -1268,7 +1316,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.jupiter_push_vars()   
         self.button_fit.setEnabled(True)         
  
-    def worker_RV_fitting(self, ff=20,m_ln=True, auto_fit = False ):
+    def worker_RV_fitting(self, ff=20, m_ln=True, auto_fit = False ):
         global fit  
         
         self.button_fit.setEnabled(False)         
@@ -1285,7 +1333,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         if self.radioButton_fortran77.isChecked():
             self.statusBar().showMessage('Minimizing parameters....')                 
             # Pass the function to execute
-            worker2 = Worker(lambda:  self.optimize_fit(ff=ff,  minimize_fortran=True, m_ln=self.amoeba_radio_button.isChecked(), auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
+            worker2 = Worker(lambda:  self.optimize_fit(ff=ff,  minimize_fortran=True, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
         else:
             
             gp_params = [self.GP_rot_kernel_Amp.value(),
@@ -1302,7 +1350,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
             
             self.statusBar().showMessage('Minimizing parameters using SciPyOp (might be slow)....')                 
-            worker2 = Worker(lambda:  self.optimize_fit(ff=1, doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), gp_kernel_id=-1, minimize_fortran=False, m_ln=self.amoeba_radio_button.isChecked(), auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
+            worker2 = Worker(lambda:  self.optimize_fit(ff=1, doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), gp_kernel_id=-1, minimize_fortran=False, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
                # Execute
             
             
@@ -1323,9 +1371,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         if not auto_fit:
         #self.update_use()
             self.update_params()
-            
-            
-
+ 
             
         if self.radioButton_Dynamical.isChecked():
             fit.mod_dynamical = True
@@ -1333,9 +1379,13 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             ff = 1
         else:
             fit.mod_dynamical = False
-            f_kill = self.kep_model_to_kill.value()        
+            f_kill = self.kep_model_to_kill.value()    
+        
+        if minimize_fortran==False:
+            ff = 3  
+                
 
-        if m_ln and minimize_fortran:
+        if m_ln:
             if ff > 0:        
                 """
                 run one time using the L-M method ignorring the jitter (for speed)
@@ -1350,8 +1400,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
        # elif m_ln and not minimize_fortran:       
       #      fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP, gp_par=use_gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=300,minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
         
-        else:        
-                fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,gp_par=use_gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=300,minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
+        else:      
+ 
+            fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,gp_par=use_gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=300,minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
 
 
         if auto_fit:
@@ -1399,8 +1450,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         text = "\n"*15 +"CREDITS:"+"\n"*2 + "This tool uses the publically \n available packages: \n" 
         self.dialog_credits.text.append(text)
         
-    
-
         text = "* " + "<a href='https://github.com/pyqtgraph/pyqtgraph'>pyqtgraph</a>"
         self.dialog_credits.text.append(text)
 
@@ -1852,8 +1901,32 @@ highly appreciated!
         filename = QtGui.QFileDialog.getSaveFileName(self, 'Save image', '', '')
         p.save(filename[0], 'jpg')
         #label.setPixmap(p)        # just for fun :)
+  
+  
+################################# END MCMC ###################################  
+       
+############################# Dispatcher (TO BE REMOVED) #####################################  
+
+
+    def fit_dispatcher(self, init=False):
+    
+        if self.radioButton_RV.isChecked():
+            if(init):
+                self.worker_RV_fitting(ff=0,m_ln=True)  
+            else:
+                self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked())  
+                               
+        elif self.radioButton_transit.isChecked():                     
+            self.transit_fit()  
+                                               
+        elif self.radioButton_transit_RV.isChecked():  
+            self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked()) 
+
+                                            
+############################# END Dispatcher ################################  
+  
         
-################################## END MCMC ################################### 
+
 
  
     def __init__(self):
@@ -1904,7 +1977,7 @@ highly appreciated!
         self.buttonGroup_use.buttonClicked.connect(self.update_use)
 
 
-        self.run_batman_test()
+        #self.run_batman_test()
 
         
         self.button_orb_evol.clicked.connect(self.worker_Nbody) 
@@ -1915,8 +1988,8 @@ highly appreciated!
         
         ########## RV fitting ########################
         
-        self.button_init_fit.clicked.connect(lambda: self.worker_RV_fitting(0))
-        self.button_fit.clicked.connect(lambda: self.worker_RV_fitting())        
+        self.button_init_fit.clicked.connect(lambda: self.fit_dispatcher(init=True))
+        self.button_fit.clicked.connect(lambda: self.fit_dispatcher())        
         self.button_auto_fit.clicked.connect(lambda: self.run_auto_fit())
         self.minimize_1param()
 
