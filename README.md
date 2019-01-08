@@ -25,7 +25,7 @@ What works:
 * Export of plots to a matplotlib window for further customization.
 * Text editor/Calculator/Bash-shell widgets.
 * Integrated Jupyter widget shell.
-* Print the GUI screen into a .jpeg image (useful for sharing quick results)
+* Print the GUI screen into a .jpeg image (useful for sharing quick results, just like the image above)
 
 What is to be implemented:
 
