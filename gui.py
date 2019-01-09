@@ -190,6 +190,13 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(fit.npl*7):
             param_gui[i].setValue(fit.params.planet_params[i]) 
             
+            
+        param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans, self.pl1_radii, self.incl1_trans, self.a1_trans,
+                     ]
+         
+        for i in range(len(param_gui_trans)):
+            param_gui_trans[i].setValue(fit.tr_par[i])             
+            
 
         data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
                     self.Data6,self.Data7,self.Data8,self.Data9,self.Data10]
@@ -224,6 +231,14 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(fit.npl*7):
             fit.params.planet_params[i] = param_gui[i].value() 
+            
+        param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans,                             self.pl1_radii, self.incl1_trans, self.a1_trans,
+                     ]
+         
+        for i in range(len(param_gui_trans)):
+            fit.tr_par[i] = param_gui_trans[i].value()    
+            
+ 
 
         data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
                     self.Data6,self.Data7,self.Data8,self.Data9,self.Data10]
@@ -313,6 +328,14 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             use_param_gui[i].setChecked(bool(fit.use.use_planet_params[i]))
 #            print(fit.use.use_planet_params[i])
 
+   
+        use_param_gui_trans = [self.use_t0_1_trans, self.use_P1_trans, self.use_e1_trans, self.use_om1_trans, self.use_pl1_rad_trans, self.use_incl1_trans, self.use_a1_trans,
+                     ]
+         
+        for i in range(len(use_param_gui_trans)):
+            use_param_gui_trans[i].setChecked(bool(  fit.tr_params_use[i] ))   
+
+
         #use_data_gui = [self.use_Data1,self.use_Data2,self.use_Data3,self.use_Data4,self.use_Data5,
         #            self.use_Data6,self.use_Data7,self.use_Data8,self.use_Data9,self.use_Data10]
 
@@ -374,6 +397,15 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(fit.npl*7):
             fit.use.use_planet_params[i] = int(use_param_gui2[i].isChecked())
+            
+            
+        use_param_gui_trans = [self.use_t0_1_trans, self.use_P1_trans, self.use_e1_trans, self.use_om1_trans, self.use_pl1_rad_trans, self.use_incl1_trans, self.use_a1_trans,
+                     ]
+         
+        for i in range(len(use_param_gui_trans)):
+            fit.tr_params_use[i] =  use_param_gui_trans[i].isChecked()              
+            
+            
 
         use_data_offset_gui = [self.use_offset_Data1,self.use_offset_Data2,self.use_offset_Data3,self.use_offset_Data4,
                                self.use_offset_Data5,self.use_offset_Data6,self.use_offset_Data7,self.use_offset_Data8,
@@ -796,6 +828,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         #              labelOpts={'position':0.0, 'color': 'k', 'fill': (200,200,200,50), 'movable': False} )
         #p1.addItem(inf1)    
 
+        if len(fit.filelist.idset)==0:
+            return
+
         if self.jitter_to_plots.isChecked():
             error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)
         else:
@@ -855,7 +890,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.update_extra_plots()
         self.update_orb_plot()
         #self.change_extra_plot()
-        
+        self.update_transit_plots()    
         
 
 ################################ RV files #######################################################
@@ -928,9 +963,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
             fit.add_transit_dataset('test', str(input_files[0]),tra_idset =but_ind-1)
             #self.init_fit()            
-            #self.update_use_from_input_file()            
-            #self.update_use()
-            #self.update_params()
+            self.update_use_from_input_file()            
+            self.update_use()
+            self.update_gui_params()
+             
+            self.update_params()
             self.update_tra_file_buttons()
  
             
@@ -958,7 +995,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 self.buttonGroup_transit_data.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("")
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
-        self.run_batman_test()
+        self.update_transit_plots()
  
 ################################ transit files END #######################################################
 
@@ -1014,9 +1051,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit
         minimize_fortran=True
         fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran,  fortran_kill=30, timeout_sec=300,minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
-
-        self.run_batman_test()   
-        
+ 
         self.update_labels()
         self.update_gui_params()
         self.update_errors() 
@@ -1145,9 +1180,26 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
 ############ transit fitting (Work in progress here) ##############################      
 
-    def transit_fit(self):
-
-        self.button_fit.setEnabled(False)             
+       
+    def worker_transit_fitting_complete(self):
+        global fit  
+        #fit.print_info(short_errors=False)
+        
+        self.update_labels()
+        self.update_gui_params()
+        self.update_errors() 
+        self.update_a_mass()                    
+        self.update_transit_plots()                   
+        self.statusBar().showMessage('')   
+ 
+        self.jupiter_push_vars()   
+        self.button_fit.setEnabled(True)         
+ 
+    def worker_transit_fitting(self, auto_fit = False ):
+        global fit  
+        
+        self.button_fit.setEnabled(False)         
+        
         # check if transit data is present
         z=0
         for i in range(10):
@@ -1155,33 +1207,55 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 z=z+1
         
         if z <= 0:
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
-             self.button_fit.setEnabled(True)         
-             return   
+            choice = QtGui.QMessageBox.information(self, 'Warning!',
+            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
+            self.button_fit.setEnabled(True)         
+            return   
+        
         else:
-             self.run_batman_test()
-             self.button_fit.setEnabled(True)         
+            self.statusBar().showMessage('Minimizing Transit parameters.... ')                 
+            worker4 = Worker(lambda:  self.transit_fit() )# Any other args, kwargs are passed to the run  
+ 
+            
+ 
+        worker4.signals.finished.connect(self.worker_transit_fitting_complete)
+        
+        # worker.signals.result.connect(self.print_output)
+        #worker.signals.finished.connect(self.thread_complete)
+       # worker.signals.progress.connect(self.progress_fn)
+        
+        
+        self.threadpool.start(worker4)       
+     
 
-    def run_batman_test(self): 
+
+
+    def transit_fit(self):
+        global fit
+          
+        rv.run_SciPyOp_transit(fit)
+        #self.update_transit_plots()
+ 
+
+    def update_transit_plots(self): 
         global fit, p3,colors
     
         p3.plot(clear=True,) 
         p4.plot(clear=True,)         
            
         # from the example in github
-        params = batman.TransitParams()       #object to store transit parameters
-        params.t0  = self.t0_1_trans.value()  #time of inferior conjunction
-        params.per = self.P1_trans.value()    #orbital period
-        params.ecc = self.e1_trans.value()                     
-        params.rp  = self.pl1_radii.value()   #planet radius (in units of stellar radii)
-        params.a   = self.a1_trans.value()    #semi-major axis (in units of stellar radii)
-        params.inc = self.incl1_trans.value() #orbital inclination (in degrees)
-        params.w   = self.om1_trans.value()   #longitude of periastron (in degrees)
+       # params = batman.TransitParams()       #object to store transit parameters
+       # params.t0  = self.t0_1_trans.value()  #time of inferior conjunction
+       # params.per = self.P1_trans.value()    #orbital period
+       # params.ecc = self.e1_trans.value()                     
+       # params.rp  = self.pl1_radii.value()   #planet radius (in units of stellar radii)
+       # params.a   = self.a1_trans.value()    #semi-major axis (in units of stellar radii)
+       # params.inc = self.incl1_trans.value() #orbital inclination (in degrees)
+       # params.w   = self.om1_trans.value()   #longitude of periastron (in degrees)
         
         
-        params.limb_dark = "nonlinear"        #limb darkening model
-        params.u = [self.u1_1_trans.value(), self.u2_1_trans.value() , 0.1, -0.1]      #limb darkening coefficients [u1, u2, u3, u4]
+      #  params.limb_dark = "nonlinear"        #limb darkening model
+      #  params.u = [self.u1_1_trans.value(), self.u2_1_trans.value() , 0.1, -0.1]      #limb darkening coefficients [u1, u2, u3, u4]
 
         if len(fit.tra_data_sets[0]) != 0:
             t = fit.tra_data_sets[0][0]
@@ -1194,9 +1268,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             symbolBrush=colors[0] ) 
             
             
-            m = batman.TransitModel(params, t)    #initializes model
+            m = batman.TransitModel(fit.tr_params, t)    #initializes model
  
-            flux_model = m.light_curve(params)          #calculates light curve           
+            flux_model = m.light_curve(fit.tr_params)          #calculates light curve           
             p3.plot(t, flux_model,pen='k',symbol=None )    
             
             p4.plot(t, flux-flux_model,        
@@ -1211,9 +1285,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         else:    
             t = np.linspace(-0.25, 0.25, 1000)  #times at which to calculate light curve
         
-            m = batman.TransitModel(params, t)    #initializes model
+            m = batman.TransitModel(fit.tr_params, t)    #initializes model
  
-            flux_model = m.light_curve(params)          #calculates light curve
+            flux_model = m.light_curve(fit.tr_params)          #calculates light curve
  
             p3.plot(t, flux_model,pen='k',symbol=None )     
        
@@ -1310,9 +1384,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.update_a_mass()                    
         self.update_plots()                   
         self.statusBar().showMessage('')   
-        
-        self.run_batman_test()   
-              
+               
         self.jupiter_push_vars()   
         self.button_fit.setEnabled(True)         
  
@@ -1412,7 +1484,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             self.update_a_mass()                    
             self.update_plots()                   
             self.statusBar().showMessage('')           
-            self.run_batman_test()   
+    
               
             self.jupiter_push_vars()
 
@@ -1917,7 +1989,7 @@ highly appreciated!
                 self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked())  
                                
         elif self.radioButton_transit.isChecked():                     
-            self.transit_fit()  
+            self.worker_transit_fitting()
                                                
         elif self.radioButton_transit_RV.isChecked():  
             self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked()) 
@@ -1975,10 +2047,7 @@ highly appreciated!
         
         
         self.buttonGroup_use.buttonClicked.connect(self.update_use)
-
-
-        #self.run_batman_test()
-
+ 
         
         self.button_orb_evol.clicked.connect(self.worker_Nbody) 
         self.button_MCMC.clicked.connect(self.worker_mcmc)

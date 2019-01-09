@@ -243,15 +243,100 @@ def verify_array_with_bounds(ar,bounds):
         
     return verification
 
+###################### Fit transits (work in progress) #######################
 
 
 
+def run_SciPyOp_transit(obj):      
+ 
+    
+    nll = lambda *args: -compute_loglik_transit(*args)
+
+    flag_ind = [idx for idx in range(len(obj.tr_params_use)) if obj.tr_params_use[idx] == True ]
+    
+    p = []  #'p" are the fitted parameters
+    b = []
+    e = []
+    
+    for j in range(len(obj.tr_par)):
+        if obj.tr_params_use[j]:
+            p.append(obj.tr_par[j])
+            b.append(obj.tr_bounds[j])
+            e.append(obj.tr_el_str[j])
+    
+    b = np.array(b)
+    
+    
+    minimzers = ['Nelder-Mead','Powell','CG','BFGS','Newton-CG','L-BFGS-B', 'TNC','COBYLA','SLSQP','dogleg','trust-ncg']
+ 
+    #----------------- one more time using the Simplex method ---------------------#
+    xtol = 1e-3
+    for k in range(3): # run at least 3 times the minimizer
+        xtol = xtol/10.0 
+        if len(p) ==0:
+            print("Transit fitting not possible: All parameters are fixed! ")
+            return
+        else:
+     
+            result = op.minimize(nll, p, args=(obj,flag_ind,b,e), method=minimzers[0], options={'xtol': xtol, 'disp': True, 'maxiter':30000, 'maxfev':30000 })
+            p = result["x"]
+
+    print("Best fit par.:")  
+ 
+    for j in range(len(p)):
+        print(e[j] + "  =  %s"%p[j])
+        
+              
+
+ 
+    
+def compute_loglik_transit(p,copied_obj,flag_ind,b,e):
+    #newparams=copied_obj.generate_newparams_for_mcmc(p)
+  #  oldparams=signalfit.params
+              
+ 
+    for j in range(len(p)):
+ 
+        if p[j] <= b[j,0] or p[j] >= b[j,1]:
+            return -np.inf
+        else:
+            copied_obj.tr_par[flag_ind[j]] = p[j]  
+            
+    #print(copied_obj.tr_par)
+    if len(copied_obj.tra_data_sets[0]) == 0:
+        return -np.inf        
+    else: 
+        t = copied_obj.tra_data_sets[0][0] 
+        flux = copied_obj.tra_data_sets[0][1] 
+        flux_err = copied_obj.tra_data_sets[0][2] 
+        
+        copied_obj.tr_params.t0  = copied_obj.tr_par[0] #0.0  #time of inferior conjunction
+        copied_obj.tr_params.per = copied_obj.tr_par[1] #1.0    #orbital period
+        copied_obj.tr_params.ecc = copied_obj.tr_par[2] #0.0  
+        copied_obj.tr_params.w   = copied_obj.tr_par[3] #90.0   #longitude of periastron (in degrees)               
+        copied_obj.tr_params.rp  = copied_obj.tr_par[4] #0.15   #planet radius (in units of stellar radii)
+        copied_obj.tr_params.inc = copied_obj.tr_par[5] #90. #orbital inclination (in degrees)
+        copied_obj.tr_params.a   = copied_obj.tr_par[6] #15  #semi-major axis (in units of stellar radii)
+
+       
+        m = batman.TransitModel(copied_obj.tr_params, t)    #initializes model
+ 
+        flux_model = m.light_curve(copied_obj.tr_params)          #calculates light curve  
+        tr_o_c = flux -flux_model
+        S = 0
+        for i in range(len(tr_o_c)):
+            S= S + (((tr_o_c[i]**2)/(2*flux_err[i]**2) ) - 0.5*(np.log(TAU*(flux_err[i]**2))))
+ 
+        return -S
+  
+ 
+###################### Fit transits END (work in progress) #######################
+    
+    
+    
 def run_SciPyOp(obj,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-0.99,0.99]],wbounds=[[-2.0*360.0, 2.0*360.0]],Mbounds=[[-2.0*360.0, 2.0*360.0]],ibounds=[[-2.0*180.0, 2.0*180.0]],capbounds=[[-2.0*360.0, 2.0*360.0]],offbounds=[[-100000.0,100000.0]],jitbounds=[[0.0,10000.0]],lintrbounds=[[-10.0,10.0]], GPbounds=[[0.0,100000.0]], stmassbounds=[[0.01,1000.0]], prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False], save_means=False, fileoutput=False, save_sampler=False,burning_ph=20, mcmc_ph=20, **kwargs):      
-
-#def fittingSciPyOp(, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False]):    
- ####### find the -LogLik "minimum" using the "truncated Newton" method ######### 
-    
-    
+ 
+ 
     if (doGP):
         obj.initiategps(gp_par=gp_par, use_gp_par=use_gp_par, kernel_id=kernel_id)
         nll = lambda *args: -compute_loglik_SciPyOp2(*args)
@@ -282,13 +367,13 @@ def run_SciPyOp(obj,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=
         xtol = xtol/10.0 
         print(k,xtol)
      
-        result = op.minimize(nll, pp, args=(obj), method=minimzers[0], options={'xtol': xtol, 'disp': True, 'maxiter':30000, 'maxfev':30000 })
+        result = op.minimize(nll, pp, args=(obj), method=minimzers[6], options={'xtol': xtol, 'disp': True, 'maxiter':30000, 'maxfev':30000 })
         pp = result["x"]
 
     print("Best fit par.:", result["x"])
     
     obj.par_for_mcmc = result["x"]
-    
+       
 
 def compute_loglik_SciPyOp(p,copied_obj):
     newparams=copied_obj.generate_newparams_for_mcmc(p)
@@ -1886,6 +1971,12 @@ class signal_fit(object):
         self.reduced_chi2=0.0
         self.sampler=None
         self.sampler_saved=False
+        
+        self.init_transit_params()
+        #self.tr_params = batman.TransitParams() 
+        
+       
+        
         #self.print_info=()        
         ##### this is how I wanted the kernel parameters to be 
         ##### initially defined: as a python dictionary and only to filled in by functions! 
@@ -1901,8 +1992,47 @@ class signal_fit(object):
         self.act_data_sets = {k: [] for k in range(10)}
         self.tra_data_sets = {k: [] for k in range(10)}
         self.rad_data_sets = {k: [] for k in range(10)}
-     
-            
+
+
+
+    def init_transit_params(self): 
+        # from the example in github
+        self.tr_params = batman.TransitParams()       #object to store transit parameters
+       
+        # WASP 6
+        self.tr_params.t0  = 0.0  #time of inferior conjunction
+        self.tr_params.per = 3.36    #orbital period
+        self.tr_params.ecc = 0.0      
+        self.tr_params.w   = 90.0   #longitude of periastron (in degrees)                  
+        self.tr_params.rp  = 0.15   #planet radius (in units of stellar radii)
+        self.tr_params.inc = 90. #orbital inclination (in degrees)
+        self.tr_params.a   = 15  #semi-major axis (in units of stellar radii)
+    
+
+        self.tr_params.limb_dark = "quadratic"        #limb darkening model
+        self.tr_params.u = [0.1, 0.3 ]           
+      
+        self.tr_params_use = [True, True,False,False,True,False,True]    
+        #self.tr_params_use = [False, False,False,False,False,False,False]    
+       
+        
+        
+        self.tr_par = [self.tr_params.t0,  
+        self.tr_params.per, 
+        self.tr_params.ecc, 
+        self.tr_params.w,             
+        self.tr_params.rp,
+        self.tr_params.inc, 
+        self.tr_params.a,        
+        ]
+
+        self.tr_el_str  = [r't0', r'P', r'e',r'omega [deg]',r'rp[Rsol]', r'i [deg]' ,r'a [Rsol]']     
+ 
+    
+        self.tr_bounds = [[-self.tr_params.per, self.tr_params.per],[0.5, 4.0],[0.0, 0.999],[0.0, 359.9],[0, 0.20],[84.0, 96.0001],[1, 100]] # planet 1
+      
+ 
+        
          
     def update_epoch(self,epoch):
         self.epoch=epoch
@@ -2668,12 +2798,12 @@ class signal_fit(object):
         # bounds=b,
         minimzers = ['Nelder-Mead','Powell','CG','BFGS','Newton-CG','L-BFGS-B', 'TNC','COBYLA','SLSQP','dogleg','trust-ncg']
 
-       # for k in range(2): # run at least 3 times the minimizer
-       #     result = op.minimize(nll, pp, args=(obj), method=minimzers[6], bounds=None, options={'xtol': 1e-6, 'disp': True })
-       #     pp = result["x"]
-        
-       #  print("Best fit par.:", result["x"])
-#----------------- one more time using the Simplex method ---------------------#
+        # for k in range(2): # run at least 3 times the minimizer
+        #     result = op.minimize(nll, pp, args=(obj), method=minimzers[6], bounds=None, options={'xtol': 1e-6, 'disp': True })
+        #     pp = result["x"]
+         
+        #  print("Best fit par.:", result["x"])
+        #----------------- one more time using the Simplex method ---------------------#
         xtol = 1e-3
         for k in range(3): # run at least 3 times the minimizer
             xtol = xtol/10.0 
