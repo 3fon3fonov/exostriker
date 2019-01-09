@@ -1213,6 +1213,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             return   
         
         else:
+            self.update_use()
             self.statusBar().showMessage('Minimizing Transit parameters.... ')                 
             worker4 = Worker(lambda:  self.transit_fit() )# Any other args, kwargs are passed to the run  
  
