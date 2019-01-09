@@ -16,6 +16,7 @@ What works:
 * RVs Keplerian and Dynamical modeling + GP (only one GP kernel integrated so far).
 * RVs MCMC sampling/modeling.
 * RV auto-fit (automated planet-finder algortm).
+* Transit modeling (so far only one planet and one dataset)
 * Long-term stability check of multiplanet systems using SyMBA, MVS, MVS with a GR precession.
 * Interactive plots.
 * Import/Export of work sessions and multi-sessions. 
@@ -26,7 +27,6 @@ What works:
 
 What is to be implemented:
 
-* Transit modeling (soon to be included)
 * Combined modeling of data (Transit + RV + Astrometry +  GP/Moving avarage modeling, at once). 
 * Variouse of minimization/sampling methods.
 * Some more GUI plots and plot functionality.
