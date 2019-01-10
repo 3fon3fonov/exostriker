@@ -274,7 +274,8 @@ def run_SciPyOp_transit(obj):
     for k in range(3): # run at least 3 times the minimizer
         xtol = xtol/10.0 
         if len(p) ==0:
-            print("Transit fitting not possible: All parameters are fixed! ")
+            #print("Transit fitting not possible: All parameters are fixed! ")
+            loglik_tra = compute_loglik_transit(p,obj,flag_ind,b,e)
             return
         else:
      
@@ -310,6 +311,8 @@ def compute_loglik_transit(p,copied_obj,flag_ind,b,e):
         flux = copied_obj.tra_data_sets[0][1] 
         flux_err = copied_obj.tra_data_sets[0][2] 
         
+        
+        #print(copied_obj.tr_par[0],copied_obj.tr_par[1])
         copied_obj.tr_params.t0  = copied_obj.tr_par[0] #0.0  #time of inferior conjunction
         copied_obj.tr_params.per = copied_obj.tr_par[1] #1.0    #orbital period
         copied_obj.tr_params.ecc = copied_obj.tr_par[2] #0.0  

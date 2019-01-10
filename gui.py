@@ -1059,6 +1059,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
         #start_time = time.time()
         self.update_plots() 
+        self.update_transit_plots() 
         #print("--- %s seconds ---" % (time.time() - start_time))      
  
         self.jupiter_push_vars()       
@@ -1195,10 +1196,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.jupiter_push_vars()   
         self.button_fit.setEnabled(True)         
  
-    def worker_transit_fitting(self, auto_fit = False ):
+    def worker_transit_fitting(self, ff=1, auto_fit = False ):
         global fit  
         
         self.button_fit.setEnabled(False)         
+        self.update_params() 
+        self.update_use()   
         
         # check if transit data is present
         z=0
@@ -1211,13 +1214,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
             self.button_fit.setEnabled(True)         
             return   
-        
-        else:
-            self.update_use()
-            self.statusBar().showMessage('Minimizing Transit parameters.... ')                 
-            worker4 = Worker(lambda:  self.transit_fit() )# Any other args, kwargs are passed to the run  
  
-            
+        
+        self.statusBar().showMessage('Minimizing Transit parameters.... ')                 
+        worker4 = Worker(lambda:  self.transit_fit(ff=ff) )# Any other args, kwargs are passed to the run  
  
         worker4.signals.finished.connect(self.worker_transit_fitting_complete)
         
@@ -1231,11 +1231,17 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
 
 
-    def transit_fit(self):
+    def transit_fit(self, ff=0):
         global fit
-          
-        rv.run_SciPyOp_transit(fit)
-        #self.update_transit_plots()
+        
+        if ff ==0:
+            old_tra_use = fit.tr_params_use 
+            fit.tr_params_use = [False, False,False,False,False,False,False]
+            rv.run_SciPyOp_transit(fit)
+            fit.tr_params_use = old_tra_use
+        else:
+            rv.run_SciPyOp_transit(fit)
+            
  
 
     def update_transit_plots(self): 
@@ -1901,14 +1907,7 @@ highly appreciated!
             return 
  
             
-    def keyPressEvent(self, event):
-        global fit
-        if event.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
-            self.update_use()
-            self.update_params() 
-            self.init_fit()
-            return
-       # super(Settings, self).keyPressEvent(event) 
+
 
 ################################## MCMC #######################################
 
@@ -1969,12 +1968,7 @@ highly appreciated!
         self.button_MCMC.setEnabled(True)
   
 
-    def grab_screen(self):
-        p = QtWidgets.QWidget.grab(self)
-        filename = QtGui.QFileDialog.getSaveFileName(self, 'Save image', '', '')
-        p.save(filename[0], 'jpg')
-        #label.setPixmap(p)        # just for fun :)
-  
+ 
   
 ################################# END MCMC ###################################  
        
@@ -1989,13 +1983,30 @@ highly appreciated!
             else:
                 self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked())  
                                
-        elif self.radioButton_transit.isChecked():                     
-            self.worker_transit_fitting()
+        elif self.radioButton_transit.isChecked(): 
+            if(init):
+                self.worker_transit_fitting(ff=0 )  
+            else:
+                self.worker_transit_fitting()
                                                
         elif self.radioButton_transit_RV.isChecked():  
             self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked()) 
 
-                                            
+    def grab_screen(self):
+        p = QtWidgets.QWidget.grab(self)
+        filename = QtGui.QFileDialog.getSaveFileName(self, 'Save image', '', '')
+        p.save(filename[0], 'jpg')
+        #label.setPixmap(p)        # just for fun :)
+        
+    def keyPressEvent(self, event):
+        global fit
+        if event.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
+            self.update_use()
+            self.update_params() 
+            #self.init_fit()
+            self.fit_dispatcher( init=True)
+            return
+       # super(Settings, self).keyPressEvent(event)                                             
 ############################# END Dispatcher ################################  
   
         
