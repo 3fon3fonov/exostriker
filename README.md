@@ -30,7 +30,7 @@ What works:
 
 What is to be implemented:
 
-* Combined modeling of data (Transit + RV + Astrometry +  GP/Moving avarage modeling, at once). 
+* Combined modeling of data (Transit + RV + Astrometry +  GP/Moving average modeling, at once). 
 * Variouse of minimization/sampling methods.
 * Some more GUI plots and plot functionality.
 * GUI accsess to parameter limits and priors (there, but not connected with RVmod, yet)
