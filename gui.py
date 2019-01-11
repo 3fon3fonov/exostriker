@@ -15,7 +15,7 @@ import RV_mod as rv
 import pyqtgraph as pg
 import pyqtgraph.console as pg_console
 
-import word_processor_es as ted
+import word_processor_es as text_editor_es
 import calculator as calc 
 import gls as gls 
 
@@ -2061,11 +2061,12 @@ highly appreciated!
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")  
  
 
-        self.gridLayout_text_editor.addWidget(ted.MainWindow())       
+        self.gridLayout_text_editor.addWidget(text_editor_es.MainWindow())       
         self.gridLayout_calculator.addWidget(calc.Calculator())  
         
-        self.pipe_text = MyDialog()
+
         if sys.version_info[0] == 2:
+            self.pipe_text = MyDialog()
             self.gridLayout_stdout.addWidget(self.pipe_text)  
 
        
