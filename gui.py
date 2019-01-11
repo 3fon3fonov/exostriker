@@ -53,7 +53,7 @@ global fit, colors,ses_list
  
 
 fit=rv.signal_fit(name='init')
-ses_list = []
+ses_list = [fit]
 
 #'#cc0000',
 
@@ -1241,6 +1241,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             fit.tr_params_use = old_tra_use
         else:
             rv.run_SciPyOp_transit(fit)
+        print(fit)
             
  
 
@@ -1747,9 +1748,11 @@ highly appreciated!
                 ses_list.append(fit)
                 
                 
-            file_pi = open('.sessions/empty.ses', 'rb')
-            fit_new = dill.load(file_pi)
-            file_pi.close()
+            #file_pi = open('.sessions/empty.ses', 'rb')
+            #fit_new = dill.load(file_pi)
+            #file_pi.close()
+            fit_new=rv.signal_fit(name='init')
+
             fit_new.name=text
             ses_list.append(fit_new)
  
@@ -1766,13 +1769,18 @@ highly appreciated!
          
         if choice == QtGui.QMessageBox.No:
             return
-        elif choice == QtGui.QMessageBox.Yes and ind <=0:
-            self.new_session()
+        elif choice == QtGui.QMessageBox.Yes: # and ind <=0:
+            if len(ses_list)==1:
+                ses_list.pop(0)         
+                self.new_session()
+                self.session_list() 
+                self.select_session(0)
+            else:
             #ses_list[0] = fit
-        elif choice == QtGui.QMessageBox.Yes and ind > 0:
-            ses_list.pop(ind)
-            self.session_list() 
-            self.select_session(ind-1)
+        #elif choice == QtGui.QMessageBox.Yes and ind > 0:
+                ses_list.pop(ind)
+                self.session_list() 
+                self.select_session(ind-1)
             
     def cop_ses(self):
         global fit, ses_list  
@@ -1838,10 +1846,11 @@ highly appreciated!
     def new_session(self):
         global fit
         
-        file_pi = open('.sessions/empty.ses', 'rb')
-        fit_new = dill.load(file_pi)
-        file_pi.close()     
- 
+        #file_pi = open('.sessions/empty.ses', 'rb')
+        #fit_new = dill.load(file_pi)
+        #file_pi.close()     
+        fit_new=rv.signal_fit(name='init')
+
         ses_list.append(fit_new)
         self.session_list()
             
@@ -1855,6 +1864,10 @@ highly appreciated!
         file_pi.close()     
         ses_list.append(fit_new)
         self.session_list()
+        
+        
+        
+        
 
     def save_session(self):
         global fit
@@ -1874,10 +1887,21 @@ highly appreciated!
         file_pi = open(input_file[0], 'rb')
         fit2 = dill.load(file_pi)
         file_pi.close()   
-        if len(ses_list) == 0: 
-            ses_list = fit2
-        else:  
+        
+        choice = QtGui.QMessageBox.information(self, 'Warning!',
+                                            "Do you want to overwrite the current sessions? If you choose 'No' will add the session, 'Cancel' will exit",
+                                            QtGui.QMessageBox.Cancel | QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
+         
+        if choice == QtGui.QMessageBox.No:
             ses_list = ses_list + fit2
+        elif choice == QtGui.QMessageBox.Yes:
+            ses_list = fit2
+        elif choice == QtGui.QMessageBox.Cancel:        
+            return         
+       #if len(ses_list) == 0: 
+      #      ses_list = fit2
+      #  else:  
+      #      ses_list = ses_list + fit2
 
         self.session_list()
         self.select_session(0)
