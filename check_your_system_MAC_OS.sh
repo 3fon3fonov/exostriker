@@ -220,7 +220,7 @@ select yn in "Yes" "No"; do
              gfortran -O3 ./latest_f/mvs_f/follow2.f -o ./stability/mvs_gr/follow2 ./addons/libswift.a;                
              gfortran -O3 ./latest_f/symba_f/geninit_j3_in_days.f -o ./stability/symba/geninit_j3_in_days ./addons/libswift.a;   
              gfortran -O3 ./latest_f/mvs_f/geninit_j3_in_days.f -o ./stability/mvs/geninit_j3_in_days ./addons/libswift.a;              
-             gfortran -O3 ./latest_f/mvs_f/geninit_j3_in_days.f -o ./stability/mvs_gr/geninit_j3_in_days ./addons/libswift.a;   n
+             gfortran -O3 ./latest_f/mvs_f/geninit_j3_in_days.f -o ./stability/mvs_gr/geninit_j3_in_days ./addons/libswift.a;
              break;;
        No ) echo "skiped..."; break;;
    esac
