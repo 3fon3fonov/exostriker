@@ -1949,7 +1949,9 @@ highly appreciated!
         if fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to run MCMC if there are no data loaded. Please add your RV or transit data first. Okay?", QtGui.QMessageBox.Ok)      
-             self.button_MCMC.setEnabled(True)         
+             self.button_MCMC.setEnabled(True)  
+             self.statusBar().showMessage('') 
+
              return        
         
 
