@@ -15,9 +15,8 @@ import RV_mod as rv
 import pyqtgraph as pg
 import pyqtgraph.console as pg_console
 
-import wordprocessor as ted
+import word_processor_es as ted
 import calculator as calc 
-import stdout_pipe as stdout_pipe
 import gls as gls 
 
 import time
@@ -25,6 +24,7 @@ import time
 #import BKR as bkr
 from doublespinbox import DoubleSpinBox
 from Jupyter_emb import ConsoleWidget_embed
+from stdout_pipe import MyDialog
 
 from scipy.signal import argrelextrema
 
@@ -1241,12 +1241,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             fit.tr_params_use = old_tra_use
         else:
             rv.run_SciPyOp_transit(fit)
-        print(fit)
-            
+             
  
 
     def update_transit_plots(self): 
-        global fit, p3,colors
+        global fit, p3, colors
     
         p3.plot(clear=True,) 
         p4.plot(clear=True,)         
@@ -2004,6 +2003,7 @@ highly appreciated!
         if self.radioButton_RV.isChecked():
             if(init):
                 self.worker_RV_fitting(ff=0,m_ln=True)  
+                print('test')
             else:
                 self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked())  
                                
@@ -2062,9 +2062,10 @@ highly appreciated!
         self.gridLayout_text_editor.addWidget(ted.MainWindow())       
         self.gridLayout_calculator.addWidget(calc.Calculator())  
         
-        
+        self.pipe_text = MyDialog()
         if sys.version_info[0] == 2:
-            self.gridLayout_stdout.addWidget(stdout_pipe.MyDialog())  
+            self.gridLayout_stdout.addWidget(self.pipe_text)  
+
        
         self.dialog = print_info(self)
         self.dialog_credits = print_info(self)
@@ -2139,7 +2140,7 @@ highly appreciated!
         
         self.threadpool = QtCore.QThreadPool()
 
-        print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and the mcmc and bootstrap results.")
+        print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and the mcmc and bootstrap results.") #+'\n'*100)
 
 #Function Main START
 def main():

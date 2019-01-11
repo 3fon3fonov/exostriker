@@ -2032,7 +2032,7 @@ class signal_fit(object):
         self.tr_el_str  = [r't0', r'P', r'e',r'omega [deg]',r'rp[Rsol]', r'i [deg]' ,r'a [Rsol]']     
  
     
-        self.tr_bounds = [[-self.tr_params.per, self.tr_params.per],[0.5, 4.0],[0.0, 0.999],[0.0, 359.9],[0, 0.20],[84.0, 96.0001],[1, 100]] # planet 1
+        self.tr_bounds = [[-2460000.0, 2460000.0],[0.5, 4.0],[0.0, 0.999],[0.0, 359.9],[0, 0.20],[84.0, 96.0001],[1, 100]] # planet 1
       
  
         
