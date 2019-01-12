@@ -705,7 +705,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
             p5.plot(fit.act_data_sets[ind][0],fit.act_data_sets[ind][1], pen=None,symbol='o',
             #symbolPen=,
-            symbolSize=6,enableAutoRange=True,viewRect=True,
+            symbolSize=self.act_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=colors[ind]
             )      
             return
@@ -849,7 +849,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol='o',
             symbolPen={'color': colors[i], 'width': 1.1},
-            symbolSize=6,enableAutoRange=True,viewRect=True,
+            symbolSize=self.rv_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=colors[i]
             )        
             err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
@@ -867,7 +867,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol='o',
             symbolPen={'color': colors[i], 'width': 1.1},
-            symbolSize=6,enableAutoRange=True,viewRect=True,
+            symbolSize=self.rv_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=colors[i]
             )        
             err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
@@ -1165,7 +1165,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol='o',
             symbolPen={'color': colors[i], 'width': 1.1},
-            symbolSize=6,enableAutoRange=True,viewRect=True,
+            symbolSize=self.rv_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=colors[i]
             )  
                
@@ -1271,7 +1271,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             pen=None,  
             symbol='o',
             symbolPen={'color': colors[0], 'width': 1.1},
-            symbolSize=2,enableAutoRange=True,viewRect=True,
+            symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=colors[0] ) 
             
             
@@ -1284,7 +1284,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             pen=None,  
             symbol='o',
             symbolPen={'color': colors[0], 'width': 1.1},
-            symbolSize=2,enableAutoRange=True,viewRect=True,
+            symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=colors[0] )             
             
             
@@ -1733,7 +1733,7 @@ highly appreciated!
         #self.console_widget.push_vars({'p1':p1})    
 
         #self.console_widget.clear()         
-        #self.console_widget.print_text(str("Welcome!")) 
+        #self.console_widget.print_text(str("Welcome!"+"\n")) 
 
 ########################## work in progress ##################################
  
@@ -1938,13 +1938,15 @@ highly appreciated!
         global fit  
         fit.print_info(short_errors=False)
         self.statusBar().showMessage('') 
+        self.console_widget.print_text(str(fit.print_info(short_errors=False)))      
+       # if sys.version_info[0] == 3:
+       #     self.print_py3_warning()
 
     def worker_mcmc(self):
         global fit  
         
         self.button_MCMC.setEnabled(False)
         self.statusBar().showMessage('MCMC in progress....')        
-
         # check if RV data is present
         if fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
@@ -2032,7 +2034,11 @@ highly appreciated!
             #self.init_fit()
             self.fit_dispatcher( init=True)
             return
-       # super(Settings, self).keyPressEvent(event)                                             
+       # super(Settings, self).keyPressEvent(event)   
+   # def print_py3_warning(self):
+        #self.console_widget.clear()                            
+   #     self.console_widget.print_text(str("You are using Python3! The 'stdout/stderr' widget (so far) does not work with Py3. For system output see the shell you started the GUI"+"\n"))
+            
 ############################# END Dispatcher ################################  
   
         
@@ -2068,7 +2074,7 @@ highly appreciated!
         if sys.version_info[0] == 2:
             self.pipe_text = MyDialog()
             self.gridLayout_stdout.addWidget(self.pipe_text)  
-
+  
        
         self.dialog = print_info(self)
         self.dialog_credits = print_info(self)
@@ -2143,7 +2149,10 @@ highly appreciated!
         
         self.threadpool = QtCore.QThreadPool()
 
-        print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and the mcmc and bootstrap results.") #+'\n'*100)
+        print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and the mcmc and bootstrap results.")
+
+ 
+
 
 #Function Main START
 def main():
