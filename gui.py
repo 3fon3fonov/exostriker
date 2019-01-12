@@ -496,6 +496,18 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_remove_activity_data.setId(self.remove_activity_data8,8)
         self.buttonGroup_remove_activity_data.setId(self.remove_activity_data9,9)
         self.buttonGroup_remove_activity_data.setId(self.remove_activity_data10,10)
+        
+        
+        self.buttonGroup_color_picker.setId(self.pushButton_color_1,1)
+        self.buttonGroup_color_picker.setId(self.pushButton_color_2,2)
+        self.buttonGroup_color_picker.setId(self.pushButton_color_3,3)
+        self.buttonGroup_color_picker.setId(self.pushButton_color_4,4)
+        self.buttonGroup_color_picker.setId(self.pushButton_color_5,5)
+        self.buttonGroup_color_picker.setId(self.pushButton_color_6,6)
+        self.buttonGroup_color_picker.setId(self.pushButton_color_7,7)
+        self.buttonGroup_color_picker.setId(self.pushButton_color_8,8)
+        self.buttonGroup_color_picker.setId(self.pushButton_color_9,9)
+        self.buttonGroup_color_picker.setId(self.pushButton_color_10,10)
       
         
     def initialize_plots(self):
@@ -2007,7 +2019,7 @@ highly appreciated!
         if self.radioButton_RV.isChecked():
             if(init):
                 self.worker_RV_fitting(ff=0,m_ln=True)  
-                print('test')
+                #print('test')
             else:
                 self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked())  
                                
@@ -2040,11 +2052,34 @@ highly appreciated!
    #     self.console_widget.print_text(str("You are using Python3! The 'stdout/stderr' widget (so far) does not work with Py3. For system output see the shell you started the GUI"+"\n"))
             
 ############################# END Dispatcher ################################  
-  
+
+#############################  Color control ################################  
+
+    def update_color_picker(self):
+       
+        for i in range(10):
+            self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%colors[i])
+            self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%colors[i])  
+    
         
+    def get_color(self):
+        
+        but_ind = self.buttonGroup_color_picker.checkedId()   
+        colorz = QtGui.QColorDialog.getColor()
+        colors[but_ind-1]=colorz.name()       
 
 
- 
+        self.update_color_picker()
+        self.update_act_file_buttons()      
+        self.update_RV_file_buttons() 
+        self.update_tra_file_buttons() 
+        self.update_RV_plots() 
+        self.update_transit_plots() 
+        #self.update_activity_data_plots() 
+        #self.update_activity_gls_plots()     
+    
+#############################  Color control END ################################  
+   
     def __init__(self):
         global fit
 
@@ -2147,6 +2182,10 @@ highly appreciated!
  
         self.jupiter_push_vars()
         
+        self.update_color_picker()
+        self.buttonGroup_color_picker.buttonClicked.connect(self.get_color)     
+ 
+                
         self.threadpool = QtCore.QThreadPool()
 
         print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and the mcmc and bootstrap results.")
