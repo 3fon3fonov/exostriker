@@ -103,6 +103,46 @@ def mut_incl(i1,i2,capOm):
     return fb
 
 
+def get_time_series(obj, path, idset_ts, jitter=False, o_c=False):
+ 
+    if len(obj.filelist.idset)==0:
+        return
+    
+    #if not os.path.exists(path):
+   #     os.makedirs(path)
+ 
+    output_file = str(path) 
+    f = open(output_file, 'w') 
+    
+    idset_ts = np.array(np.atleast_1d(idset_ts)) -1
+    
+    
+    JD = obj.fit_results.rv_model.jd
+    if not o_c:
+        rv = obj.fit_results.rv_model.rvs
+    else:
+        rv = obj.fit_results.rv_model.o_c    
+    sigma =  obj.fit_results.rv_model.rv_err 
+    id_set = obj.filelist.idset
+    #if not jitter: jitter need to be added in the fit class TBD !
+    
+    if len(idset_ts)==1:
+      
+        for i in range(len(JD[id_set==idset_ts[0]])):  
+            print(float(JD[i]), float(rv[i]), float(sigma[i]))
+            f.write('%.4f   %.4f    %.4f  \n'%(float(JD[i]), float(rv[i]), float(sigma[i]) ))  
+    else:
+        
+        for i in range(len(idset_ts)):
+            for ii in range(len(JD)):   
+                 if id_set[ii] != idset_ts[i]:
+                     continue
+                 else:
+	                 f.write('%.4f     %.4f     %.4f  %s \n'%(float(JD[ii]), float(rv[ii]), float(sigma[ii]), idset_ts[i]) )             
+    
+    f.close()   
+    
+    return 
 
 def run_command_with_timeout(args, secs, output=False, pipe=False): # set output=True if you need to save the output
     '''
@@ -1960,7 +2000,8 @@ class signal_fit(object):
         
         self.init_transit_params()
         #self.tr_params = batman.TransitParams() 
-        
+        self.colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+
        
         
         #self.print_info=()        

@@ -621,12 +621,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             ######################## GLS ##############################
             if self.radioButton_act_GLS_period.isChecked():
                 p11.setLogMode(True,False)        
-                p11.plot(1/act_per.freq, act_per.power,pen=colors[ind],symbol=None ) 
+                p11.plot(1/act_per.freq, act_per.power,pen=fit.colors[ind],symbol=None ) 
                 p11.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'}) 
 
             else:
                 p11.setLogMode(False,False)        
-                p11.plot(act_per.freq, act_per.power,pen=colors[ind],symbol=None )                    
+                p11.plot(act_per.freq, act_per.power,pen=fit.colors[ind],symbol=None )                    
                 p11.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'}) 
 
                                                
@@ -652,7 +652,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p5.plot(clear=True,)  
 
             err1 = pg.ErrorBarItem(x=fit.act_data_sets[ind][0], y=fit.act_data_sets[ind][1],symbol='o', 
-            height=fit.act_data_sets[ind][2], beam=0.0, pen=colors[ind])  
+            height=fit.act_data_sets[ind][2], beam=0.0, pen=fit.colors[ind])  
 
             p5.addItem(err1)      
             p5.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
@@ -660,7 +660,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p5.plot(fit.act_data_sets[ind][0],fit.act_data_sets[ind][1], pen=None,symbol='o',
             #symbolPen=,
             symbolSize=self.act_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=colors[ind]
+            symbolBrush=fit.colors[ind]
             )      
             return
         else:   
@@ -787,13 +787,13 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p1.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol='o',
-            symbolPen={'color': colors[i], 'width': 1.1},
+            symbolPen={'color': fit.colors[i], 'width': 1.1},
             symbolSize=self.rv_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=colors[i]
+            symbolBrush=fit.colors[i]
             )        
             err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
                                    y=fit.fit_results.rv_model.rvs[fit.filelist.idset==i],symbol='o', 
-            height=error_list[fit.filelist.idset==i], beam=0.0, pen=colors[i])  
+            height=error_list[fit.filelist.idset==i], beam=0.0, pen=fit.colors[i])  
 
             p1.addItem(err1)  
  
@@ -803,13 +803,13 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p2.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],fit.fit_results.rv_model.o_c[fit.filelist.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol='o',
-            symbolPen={'color': colors[i], 'width': 1.1},
+            symbolPen={'color': fit.colors[i], 'width': 1.1},
             symbolSize=self.rv_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=colors[i]
+            symbolBrush=fit.colors[i]
             )        
             err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
                                    y=fit.fit_results.rv_model.o_c[fit.filelist.idset==i],symbol='o', 
-            height=error_list[fit.filelist.idset==i], beam=0.0, pen=colors[i])  
+            height=error_list[fit.filelist.idset==i], beam=0.0, pen=fit.colors[i])  
 
             p2.addItem(err2)  
  
@@ -871,8 +871,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         for i in range(10):
             if i < fit.filelist.ndset:
-                self.buttonGroup_4.button(i+1).setStyleSheet("color: %s;"%colors[i])
-                self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("color: %s;"%colors[i])
+                self.buttonGroup_4.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
             else:
                 self.buttonGroup_4.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("")
@@ -920,8 +920,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         for i in range(10):
             if len(fit.tra_data_sets[i]) != 0:
-                self.buttonGroup_transit_data.button(i+1).setStyleSheet("color: %s;"%colors[i])
-                self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("color: %s;"%colors[i])
+                self.buttonGroup_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
             else:
                 self.buttonGroup_transit_data.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("")
@@ -967,8 +967,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         for i in range(10):
             if len(fit.act_data_sets[i]) != 0:
-                self.buttonGroup_activity_data.button(i+1).setStyleSheet("color: %s;"%colors[i])
-                self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("color: %s;"%colors[i])
+                self.buttonGroup_activity_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
             else:
                 self.buttonGroup_activity_data.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("")
@@ -1071,13 +1071,13 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             pe.plot(ph_data[0][ph_data[3]==i],ph_data[1][ph_data[3]==i],             
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol='o',
-            symbolPen={'color': colors[i], 'width': 1.1},
+            symbolPen={'color': fit.colors[i], 'width': 1.1},
             symbolSize=self.rv_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=colors[i]
+            symbolBrush=fit.colors[i]
             )  
                
             err_ = pg.ErrorBarItem(x=ph_data[0][ph_data[3]==i], y=ph_data[1][ph_data[3]==i],
-            symbol='o', height=error_list[ph_data[3]==i], beam=0.0, pen=colors[i])   
+            symbol='o', height=error_list[ph_data[3]==i], beam=0.0, pen=fit.colors[i])   
          
             pe.addItem(err_)
         
@@ -1154,9 +1154,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p3.plot(t, flux,        
             pen=None,  
             symbol='o',
-            symbolPen={'color': colors[0], 'width': 1.1},
+            symbolPen={'color': fit.colors[0], 'width': 1.1},
             symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=colors[0] ) 
+            symbolBrush=fit.colors[0] ) 
             
             m = batman.TransitModel(fit.tr_params, t)    #initializes model
  
@@ -1166,9 +1166,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p4.plot(t, flux-flux_model,        
             pen=None,  
             symbol='o',
-            symbolPen={'color': colors[0], 'width': 1.1},
+            symbolPen={'color': fit.colors[0], 'width': 1.1},
             symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=colors[0] )             
+            symbolBrush=fit.colors[0] )             
             
                        
         else:    
@@ -1189,8 +1189,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         p14.plot(clear=True,)
 
         for i in range(fit.npl):
-            p13.plot(fit.evol_T[i], fit.evol_a[i] ,pen=colors[i],symbol=None )     
-            p14.plot(fit.evol_T[i], fit.evol_e[i] ,pen=colors[i],symbol=None )   
+            p13.plot(fit.evol_T[i], fit.evol_a[i] ,pen=fit.colors[i],symbol=None )     
+            p14.plot(fit.evol_T[i], fit.evol_e[i] ,pen=fit.colors[i],symbol=None )   
              
         self.button_orb_evol.setEnabled(True)       
         self.statusBar().showMessage('')           
@@ -1667,6 +1667,7 @@ highly appreciated!
         self.update_gui_params()
         self.update_params()
         self.update_RV_file_buttons() 
+        self.update_color_picker()
         
         if not ind == None:    
             ses_list[ind] = fit
@@ -1818,7 +1819,8 @@ highly appreciated!
 ############################# Dispatcher (TO BE REMOVED) #####################################  
 
     def fit_dispatcher(self, init=False):
-    
+        global fit
+   
         if self.radioButton_RV.isChecked():
             if(init):
                 self.worker_RV_fitting(ff=0,m_ln=True)  
@@ -1860,18 +1862,21 @@ highly appreciated!
 #############################  Color control ################################  
 
     def update_color_picker(self):
+        global fit
        
+        print(fit.colors)
         for i in range(10):
-            self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%colors[i])
-            self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%colors[i])  
+            self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+            self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])  
           
     def get_color(self):
+        global fit
         
         but_ind = self.buttonGroup_color_picker.checkedId()   
         colorz = QtGui.QColorDialog.getColor()
         
         if colorz.isValid():
-            colors[but_ind-1]=colorz.name()   
+            fit.colors[but_ind-1]=colorz.name()   
             self.update_color_picker()
             self.update_act_file_buttons()      
             self.update_RV_file_buttons() 
