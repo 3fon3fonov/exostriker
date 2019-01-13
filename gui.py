@@ -1863,8 +1863,7 @@ highly appreciated!
 
     def update_color_picker(self):
         global fit
-       
-        print(fit.colors)
+  
         for i in range(10):
             self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
             self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])  
