@@ -1,7 +1,6 @@
 #!/usr/bin/python
 __author__ = 'Trifon Trifonov'
 
-
 import numpy as np
 #import matplotlib as mpl
 #mpl.use('Qt5Agg')
@@ -19,12 +18,15 @@ import word_processor_es as text_editor_es
 import calculator as calc 
 import gls as gls 
 
-import time
+#import time
 
 #import BKR as bkr
 from doublespinbox import DoubleSpinBox
 from Jupyter_emb import ConsoleWidget_embed
 from stdout_pipe import MyDialog
+import terminal
+
+
 
 from scipy.signal import argrelextrema
 
@@ -36,9 +38,7 @@ import webbrowser
 #    import cPickle as pickle
 #except ModuleNotFoundError:
 #    import pickle
-
 import dill
-import terminal
 
 qtCreatorFile = "rvmod_gui.ui" # Enter file here.
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
@@ -49,13 +49,13 @@ pg.setConfigOptions(antialias=True)
  
  
 
-global fit, colors,ses_list
+
+global fit, colors, ses_list
  
 
 fit=rv.signal_fit(name='init')
 ses_list = [fit]
-
-#'#cc0000',
+ 
 
 colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 
@@ -64,26 +64,17 @@ QtGui.QApplication.processEvents()
  
 
 class print_info(QtWidgets.QMainWindow):
+    
     def __init__(self, parent=None):
+        
         super(print_info, self).__init__(parent)
-        
-        
+              
         self.title = 'Text Editor'
-        #self.left = 10
-        #self.top = 10
-        #self.width = 1080
-        #self.height = 920
-        #self.setGeometry(3,30,450,800)
-        self.setFixedSize(550, 800)
-        
-
+        self.setFixedSize(550, 800)        
         self.widget = QtWidgets.QWidget(self)
-
         #self.text = QtWidgets.QTextEdit(self.widget)
         self.text = QtWidgets.QTextBrowser(self.widget)
         self.text.setOpenExternalLinks(True)
-       
-        
         self.widget.setLayout(QtWidgets.QVBoxLayout())
         self.widget.layout().addWidget(self.text)
         self.setCentralWidget(self.widget)
@@ -92,7 +83,6 @@ class print_info(QtWidgets.QMainWindow):
 class WorkerSignals(QtCore.QObject):
     '''
     Defines the signals available from a running worker thread.
-
     Supported signals are:
 
     finished
@@ -106,7 +96,6 @@ class WorkerSignals(QtCore.QObject):
 
     progress
         `int` indicating % progress
-
     '''
     finished = QtCore.pyqtSignal()
     error = QtCore.pyqtSignal(tuple)
@@ -191,13 +180,11 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             param_gui[i].setValue(fit.params.planet_params[i]) 
             
             
-        param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans, self.pl1_radii, self.incl1_trans, self.a1_trans,
-                     ]
-         
+        param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans, self.pl1_radii, self.incl1_trans, self.a1_trans,]     
+        
         for i in range(len(param_gui_trans)):
             param_gui_trans[i].setValue(fit.tr_par[i])             
             
-
         data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
                     self.Data6,self.Data7,self.Data8,self.Data9,self.Data10]
         data_jitter_gui = [self.jitter_Data1,self.jitter_Data2,self.jitter_Data3,self.jitter_Data4,self.jitter_Data5,
@@ -207,10 +194,8 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             data_gui[i].setValue(fit.params.offsets[i]) 
             data_jitter_gui[i].setValue(fit.params.jitters[i])
             
-        self.St_mass_input.setValue(fit.params.stellar_mass)
-        
-        self.RV_lin_trend.setValue(fit.params.linear_trend)
-        
+        self.St_mass_input.setValue(fit.params.stellar_mass)        
+        self.RV_lin_trend.setValue(fit.params.linear_trend)   
         self.Epoch.setValue(fit.epoch)
 
 
@@ -232,13 +217,10 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(fit.npl*7):
             fit.params.planet_params[i] = param_gui[i].value() 
             
-        param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans,                             self.pl1_radii, self.incl1_trans, self.a1_trans,
-                     ]
+        param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans,self.pl1_radii, self.incl1_trans, self.a1_trans,]
          
         for i in range(len(param_gui_trans)):
             fit.tr_par[i] = param_gui_trans[i].value()    
-            
- 
 
         data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
                     self.Data6,self.Data7,self.Data8,self.Data9,self.Data10]
@@ -250,9 +232,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.params.jitters[i] = data_jitter_gui[i].value()
 
         fit.params.stellar_mass = self.St_mass_input.value() 
- 
-        fit.params.linear_trend = self.RV_lin_trend.value()
-        
+        fit.params.linear_trend = self.RV_lin_trend.value()     
         fit.epoch =  self.Epoch.value()
        
 
@@ -284,10 +264,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.offset_errors[i])))
             data_errors_jitter_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.jitter_errors[i])))
 
-
         self.err_RV_lin_trend.setText("+/- %.8f"%(max(fit.param_errors.linear_trend_error)))
-
-
 
 
     def update_a_mass(self):
@@ -299,7 +276,6 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                        self.label_mass6, self.label_mass7, self.label_mass8, self.label_mass9]
         param_t_peri_gui = [self.label_t_peri1, self.label_t_peri2, self.label_t_peri3, self.label_t_peri4, self.label_t_peri5, 
                        self.label_t_peri6, self.label_t_peri7, self.label_t_peri8, self.label_t_peri9]
-
 
         for i in range(fit.npl):
             param_a_gui[i].setText("%.3f"%(fit.fit_results.a[i])) 
@@ -326,9 +302,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         
         for i in range(fit.npl*7):
             use_param_gui[i].setChecked(bool(fit.use.use_planet_params[i]))
-#            print(fit.use.use_planet_params[i])
 
-   
         use_param_gui_trans = [self.use_t0_1_trans, self.use_P1_trans, self.use_e1_trans, self.use_om1_trans, self.use_pl1_rad_trans, self.use_incl1_trans, self.use_a1_trans,
                      ]
          
@@ -336,16 +310,11 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             use_param_gui_trans[i].setChecked(bool(  fit.tr_params_use[i] ))   
 
 
-        #use_data_gui = [self.use_Data1,self.use_Data2,self.use_Data3,self.use_Data4,self.use_Data5,
-        #            self.use_Data6,self.use_Data7,self.use_Data8,self.use_Data9,self.use_Data10]
-
         use_data_offset_gui = [self.use_offset_Data1,self.use_offset_Data2,self.use_offset_Data3,self.use_offset_Data4,
                                self.use_offset_Data5,self.use_offset_Data6,self.use_offset_Data7,self.use_offset_Data8,
                                self.use_offset_Data9,self.use_offset_Data10]
         use_data_jitter_gui = [self.use_jitter_Data1,self.use_jitter_Data2,self.use_jitter_Data3,self.use_jitter_Data4,self.use_jitter_Data5,
                                self.use_jitter_Data6,self.use_jitter_Data7,self.use_jitter_Data8,self.use_jitter_Data9,self.use_jitter_Data10]
-
-       # print(fit.filelist.ndset)
 
         for i in range(10): 
             #use_data_gui[i].setChecked(bool(fit.use.use_offsets[i])) # attention, TBF
@@ -359,7 +328,6 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 planet_checked_gui[i].setChecked(True)  
             else:
                 planet_checked_gui[i].setChecked(False)  
-
             
         self.use_RV_lin_trend.setChecked(bool(fit.use.use_linear_trend)) 
             
@@ -372,17 +340,11 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         #for i in range(len(use_planet_gui)):  
         npl_old = fit.npl
         checked = int(np.sum( [use_planet_gui[i].isChecked() for i in range(len(use_planet_gui))] ))
-         
-         
-        #print fit.params.planet_params
-         
-        #print     fit.npl, nchecked
+ 
         if npl_old < checked:
             fit.add_planet()
         elif npl_old >= checked:
-            fit.npl = checked
- 
-        
+            fit.npl = checked     
 
         use_param_gui2 = [self.use_K1, self.use_P1, self.use_e1, self.use_om1, self.use_ma1, self.use_incl1, self.use_Omega1,
                           self.use_K2, self.use_P2, self.use_e2, self.use_om2, self.use_ma2, self.use_incl2, self.use_Omega2,
@@ -396,16 +358,13 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                           ]
 
         for i in range(fit.npl*7):
-            fit.use.use_planet_params[i] = int(use_param_gui2[i].isChecked())
-            
+            fit.use.use_planet_params[i] = int(use_param_gui2[i].isChecked())         
             
         use_param_gui_trans = [self.use_t0_1_trans, self.use_P1_trans, self.use_e1_trans, self.use_om1_trans, self.use_pl1_rad_trans, self.use_incl1_trans, self.use_a1_trans,
                      ]
          
         for i in range(len(use_param_gui_trans)):
             fit.tr_params_use[i] =  use_param_gui_trans[i].isChecked()              
-            
-            
 
         use_data_offset_gui = [self.use_offset_Data1,self.use_offset_Data2,self.use_offset_Data3,self.use_offset_Data4,
                                self.use_offset_Data5,self.use_offset_Data6,self.use_offset_Data7,self.use_offset_Data8,
@@ -416,9 +375,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10): 
             fit.use.use_jitters[i] = int(use_data_jitter_gui[i].isChecked())
             fit.use.use_offsets[i] = int(use_data_offset_gui[i].isChecked())   
-           # print("test")         
-           # print(fit.use.use_jitters[i]) 
-           # print(fit.use.use_offsets[i]) 
+
         fit.use.use_linear_trend = int(self.use_RV_lin_trend.isChecked()) 
 
  
@@ -451,8 +408,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data8,8)
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data9,9)
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data10,10)
-        
-        
+             
         self.buttonGroup_transit_data.setId(self.Button_transit_data_1,1)
         self.buttonGroup_transit_data.setId(self.Button_transit_data_2,2)
         self.buttonGroup_transit_data.setId(self.Button_transit_data_3,3)
@@ -495,8 +451,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_remove_activity_data.setId(self.remove_activity_data7,7)
         self.buttonGroup_remove_activity_data.setId(self.remove_activity_data8,8)
         self.buttonGroup_remove_activity_data.setId(self.remove_activity_data9,9)
-        self.buttonGroup_remove_activity_data.setId(self.remove_activity_data10,10)
-        
+        self.buttonGroup_remove_activity_data.setId(self.remove_activity_data10,10)       
         
         self.buttonGroup_color_picker.setId(self.pushButton_color_1,1)
         self.buttonGroup_color_picker.setId(self.pushButton_color_2,2)
@@ -557,7 +512,6 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 zzz[i].getAxis('right').setWidth(10)
                 zzz[i].getAxis('top').setHeight(10)
                 zzz[i].getAxis('bottom').setHeight(50)
-                #zzz[i].getAxis('bottom').setScale(1e6)
                             
                 zzz[i].setLabel('bottom', '%s'%xaxis[i], units='%s'%xunit[i],  **{'font-size':'12pt'})
                 zzz[i].setLabel('left',   '%s'%yaxis[i], units='%s'%yunit[i],  **{'font-size':'12pt'})       
@@ -565,13 +519,11 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 zzz[i].showAxis('right') 
                 zzz[i].getAxis('bottom').enableAutoSIPrefix(enable=False)
 
-
         p15.getViewBox().setAspectLocked(True)
 
         return   
         
-        
-        
+
         
     def identify_power_peaks(self,x,y,sig_level=np.array([]), power_level=np.array([])):
  
@@ -612,7 +564,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         return text_peaks  
         
         
-######################## Correlation plots ######################################        
+######################## Correlation plots ###################################### 
+        
     def init_correlations_combo(self):
         global fit
         self.comboBox_corr_1.clear()
@@ -620,33 +573,28 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
        
         if fit.filelist.ndset > 0:
             for i in range(0,fit.filelist.ndset,1):
-
                 self.comboBox_corr_1.addItem('RV %s'%(i+1),i+1)       
                 self.comboBox_corr_2.addItem('RV %s'%(i+1),i+1) 
             
-        for i in range(0,10,1):
-            
+        for i in range(0,10,1):         
             if len(fit.act_data_sets[i]) != 0: 
                 self.comboBox_corr_1.addItem('act. data %s'%(i+1),i+1)       
                 self.comboBox_corr_2.addItem('act. data %s'%(i+1),i+1) 
-            
-          
-            
- ######################## Correlation plots END ##################################         
+                 
+######################## Correlation plots END ##################################         
        
         
         
-######################## Activity plots ######################################        
+######################## Activity plots ######################################  
+                
     def init_activity_combo(self):
         global fit
         
         for i in range(10):
             self.comboBox_act_data_gls.addItem('act. data %s'%(i+1),i+1)       
             self.comboBox_act_data.addItem('act. data %s'%(i+1),i+1)       
-        
-        
+                
         #self.comboBox_act_data_gls.activated.connect(self.handleActivated_act_gls) 
-        
         
    # def handleActivated_act_gls(self, index):
    #     global fit 
@@ -675,13 +623,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 p11.setLogMode(True,False)        
                 p11.plot(1/act_per.freq, act_per.power,pen=colors[ind],symbol=None ) 
                 p11.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'}) 
-               # print("I ahve been here no")
 
             else:
                 p11.setLogMode(False,False)        
                 p11.plot(act_per.freq, act_per.power,pen=colors[ind],symbol=None )                    
                 p11.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'}) 
-                #print("I ahve been here yes")
 
                                                
             [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
@@ -700,20 +646,16 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
     def update_activity_data_plots(self,ind):
         global fit, colors,  p5 
- 
- 
-  
+
         if len(fit.act_data_sets[ind]) != 0:
 
             p5.plot(clear=True,)  
-            
-            
+
             err1 = pg.ErrorBarItem(x=fit.act_data_sets[ind][0], y=fit.act_data_sets[ind][1],symbol='o', 
             height=fit.act_data_sets[ind][2], beam=0.0, pen=colors[ind])  
 
             p5.addItem(err1)      
             p5.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
- 
 
             p5.plot(fit.act_data_sets[ind][0],fit.act_data_sets[ind][1], pen=None,symbol='o',
             #symbolPen=,
@@ -727,9 +669,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             return  
 
 ######################## Activity plots END ######################################        
-
-
-
 
     def update_RV_GLS_plots(self):
         global fit, colors, RV_per, p7 
@@ -762,9 +701,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             RV_per.info(stdout=False) + 
             self.identify_power_peaks(1/RV_per.freq, RV_per.power, power_level = power_levels, sig_level = RV_per.powerLevel(np.array(power_levels)) )))   
     
-    
-    
-
+ 
     def update_RV_o_c_GLS_plots(self):
         global fit, colors, RV_per_res
         global p8  
@@ -778,8 +715,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
             RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.o_c, fit.fit_results.rv_model.rv_err), 
             fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)            
-                
- 
+
             ######################## GLS o-c ##############################
             if self.radioButton_RV_o_c_GLS_period.isChecked():
                 p8.setLogMode(True,False)        
@@ -789,10 +725,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 p8.setLogMode(False,False)        
                 p8.plot(RV_per_res.freq, RV_per_res.power,pen='r',symbol=None )    
                 p8.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'})                
-                
-            
+                     
             [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per_res.powerLevel(np.array(power_levels)))]            
-
 
             self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(RV_per_res.info(stdout=False)+
             self.identify_power_peaks(1/RV_per_res.freq, RV_per_res.power, power_level = power_levels, sig_level = RV_per.powerLevel(np.array(power_levels)) ) )  )      
@@ -805,7 +739,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         p12.setLogMode(True,False)
                         
         omega = 1/ np.logspace(-0.05, 4, num=1000)
-        power_levels = np.array([0.1,0.01,0.001])
+        #power_levels = np.array([0.1,0.01,0.001])
         
         if len(fit.fit_results.rv_model.jd) > 5:
             ######################## DFT (Window) ##############################
@@ -827,15 +761,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def update_RV_plots(self):
         global fit, colors
         global p1,p2
-        
-
-       # brush_list = [pg.mkColor(c) for c in [colors[i] for i in fit.filelist.idset]]
  
         p1.plot(clear=True,)
         p2.plot(clear=True,)
-        
-       # print(fit.filelist.idset)
-
+ 
         #inf1 = pg.InfiniteLine(movable=False, angle=0, label=None, span=(0, 1), 
         #              labelOpts={'position':0.0, 'color': 'k', 'fill': (200,200,200,50), 'movable': False} )
         #p1.addItem(inf1)    
@@ -847,9 +776,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)
         else:
             error_list = fit.fit_results.rv_model.rv_err
-          
-                      
-    
+ 
         p1.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
  
 
@@ -869,9 +796,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             height=error_list[fit.filelist.idset==i], beam=0.0, pen=colors[i])  
 
             p1.addItem(err1)  
-
-  
-
+ 
         p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
         
         for i in range(max(fit.filelist.idset)+1):
@@ -887,11 +812,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             height=error_list[fit.filelist.idset==i], beam=0.0, pen=colors[i])  
 
             p2.addItem(err2)  
-        
-  #pen={'color': 'r', 'width': 1.1},  
-  
-      
-      
+ 
      
         
     def update_plots(self):
@@ -911,7 +832,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit
  
         input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.init)')
-        #print(input_files[0])
+        
         if str(input_files[0]) != '':
             fit=rv.signal_fit(str(input_files[0]), 'Test',readinputfile=True)
             self.update_use_from_input_file()
@@ -923,7 +844,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         but_ind = self.buttonGroup_4.checkedId()   
         input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RV data', '', 'Data (*.vels)')
-       # print(input_files[0])        
+        
         if str(input_files[0]) != '':
  
             fit.add_dataset('test', str(input_files[0]),0.0,1.0)
@@ -962,8 +883,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 ################################ RV files END #######################################################
 
 
-################################ transit files #######################################################
-        
+################################ transit files #######################################################      
 
     def showDialog_tra_input_file(self):
         global fit
@@ -974,7 +894,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         if str(input_files[0]) != '':
  
             fit.add_transit_dataset('test', str(input_files[0]),tra_idset =but_ind-1)
-            #self.init_fit()            
             self.update_use_from_input_file()            
             self.update_use()
             self.update_gui_params()
@@ -1014,7 +933,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
 ################################ activity files #######################################################
         
-
     def showDialog_act_input_file(self):
         global fit
 
@@ -1073,7 +991,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.update_plots() 
         self.update_transit_plots() 
         #print("--- %s seconds ---" % (time.time() - start_time))      
- 
         self.jupiter_push_vars()       
         
         
@@ -1089,12 +1006,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
             p15.plot((pl_xyz[0],pl_xyz[0]), (pl_xyz[1],pl_xyz[1] ), pen=None,symbol='o', symbolSize=6,enableAutoRange=True,viewRect=True, symbolBrush='b') 
             
-                           
-        
         p15.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
-        
-     
-        
+
     def update_extra_plots(self):
         global fit
 
@@ -1107,8 +1020,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
             self.comboBox_extra_plot.addItem('gls',fit.npl+1)
             self.comboBox_extra_plot.addItem('gls o-c',fit.npl+1)
-           
-            
+
             self.phase_plots(1)   
             
         self.comboBox_extra_plot.activated.connect(self.handleActivated)        
@@ -1121,29 +1033,18 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         if ind <= fit.npl:
             self.phase_plots(ind)
         elif ind >= fit.npl+1:
-            pe.clear()
-            #pe = pg.ViewBox()
-            #pe.setXLink(zzz[ind])
-            #pe.setYLink(zzz[ind])
-            #pe.addItem(p8.getPlotItem)
-            #pe.setPlotItem(p8.getPlotItem)
-            #pe.scene().addItem(p8.plotItem) 
-            #pe = dill.copy(p8)
-            #pe.addItem(p8.getPlotItem)             
+            pe.clear()          
         else:
-   
             return
             
             
   
     def add_jitter(self, errors, ind):
         global fit
-       
+        
         errors_with_jitt = np.array([np.sqrt(errors[i]**2 + fit.params.jitters[ii]**2)  for i,ii in enumerate(ind)])
         
         return errors_with_jitt
-
-
 
 
     def phase_plots(self, ind):
@@ -1151,21 +1052,15 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
         pe.plot(clear=True,)    
         
-        
         ph_data,ph_model = rv.phase_planet_signal(fit,ind)
-
-             
 
         if len(ph_data) == 1:
             return
- 
-       # brush_list2 = [pg.mkColor(c) for c in [colors[i] for i in ph_data[3]]]
 
         if self.jitter_to_plots.isChecked():
             error_list = self.add_jitter(ph_data[2], ph_data[3])
         else:
             error_list = ph_data[2]
-        
         
         pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))   
         pe.plot(ph_model[0],ph_model[1], pen={'color': 0.5, 'width': 2.0},
@@ -1188,15 +1083,13 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
         pe.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})
         pe.setLabel('left',   'RV', units='m/s',  **{'font-size':'12pt'})  
-      
-        
- 
-############ transit fitting (Work in progress here) ##############################      
 
+
+
+############ transit fitting (Work in progress here) ##############################      
        
     def worker_transit_fitting_complete(self):
         global fit  
-        #fit.print_info(short_errors=False)
         
         self.update_labels()
         self.update_gui_params()
@@ -1226,8 +1119,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
             self.button_fit.setEnabled(True)         
             return   
- 
-        
+
         self.statusBar().showMessage('Minimizing Transit parameters.... ')                 
         worker4 = Worker(lambda:  self.transit_fit(ff=ff) )# Any other args, kwargs are passed to the run  
  
@@ -1236,12 +1128,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         # worker.signals.result.connect(self.print_output)
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
-        
-        
         self.threadpool.start(worker4)       
      
-
-
 
     def transit_fit(self, ff=0):
         global fit
@@ -1253,29 +1141,13 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             fit.tr_params_use = old_tra_use
         else:
             rv.run_SciPyOp_transit(fit)
-             
  
-
     def update_transit_plots(self): 
         global fit, p3, colors
     
         p3.plot(clear=True,) 
         p4.plot(clear=True,)         
            
-        # from the example in github
-       # params = batman.TransitParams()       #object to store transit parameters
-       # params.t0  = self.t0_1_trans.value()  #time of inferior conjunction
-       # params.per = self.P1_trans.value()    #orbital period
-       # params.ecc = self.e1_trans.value()                     
-       # params.rp  = self.pl1_radii.value()   #planet radius (in units of stellar radii)
-       # params.a   = self.a1_trans.value()    #semi-major axis (in units of stellar radii)
-       # params.inc = self.incl1_trans.value() #orbital inclination (in degrees)
-       # params.w   = self.om1_trans.value()   #longitude of periastron (in degrees)
-        
-        
-      #  params.limb_dark = "nonlinear"        #limb darkening model
-      #  params.u = [self.u1_1_trans.value(), self.u2_1_trans.value() , 0.1, -0.1]      #limb darkening coefficients [u1, u2, u3, u4]
-
         if len(fit.tra_data_sets[0]) != 0:
             t = fit.tra_data_sets[0][0]
             flux = fit.tra_data_sets[0][1]
@@ -1285,7 +1157,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             symbolPen={'color': colors[0], 'width': 1.1},
             symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=colors[0] ) 
-            
             
             m = batman.TransitModel(fit.tr_params, t)    #initializes model
  
@@ -1299,13 +1170,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=colors[0] )             
             
-            
-                                   
+                       
         else:    
-            t = np.linspace(-0.25, 0.25, 1000)  #times at which to calculate light curve
-        
+            t = np.linspace(-0.25, 0.25, 1000)  #times at which to calculate light curve   
             m = batman.TransitModel(fit.tr_params, t)    #initializes model
- 
             flux_model = m.light_curve(fit.tr_params)          #calculates light curve
  
             p3.plot(t, flux_model,pen='k',symbol=None )     
@@ -1314,27 +1182,23 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
 ############################# N-Body ########################################        
 
-        
     def worker_Nbody_complete(self):
         global fit, colors, p13, p14  
 
         p13.plot(clear=True,)
         p14.plot(clear=True,)
 
-
         for i in range(fit.npl):
             p13.plot(fit.evol_T[i], fit.evol_a[i] ,pen=colors[i],symbol=None )     
             p14.plot(fit.evol_T[i], fit.evol_e[i] ,pen=colors[i],symbol=None )   
-            
-            
+             
         self.button_orb_evol.setEnabled(True)       
         self.statusBar().showMessage('')           
           
  
     def worker_Nbody(self):
         global fit  
-        
-        
+
         self.button_orb_evol.setEnabled(False)         
         
         # check if any fits where performed, and tus planets present
@@ -1343,14 +1207,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
              "Not possible to integrate a fit that does not exist. First perform an orbital fitting and then test the orbital stability. Okay?", QtGui.QMessageBox.Ok)      
              self.button_orb_evol.setEnabled(True)         
              return        
-        
-        
+
         if fit.npl < 2:
             choice = QtGui.QMessageBox.information(self, 'Warning!'," With less than two planets this makes no sense. Okay?",
                                             QtGui.QMessageBox.Ok) 
             return
  
-
         self.statusBar().showMessage('Running Orbital Evolution......')   
         
         # Pass the function to execute
@@ -1361,15 +1223,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         # worker.signals.result.connect(self.print_output)
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
-        
-        
         self.threadpool.start(worker3)  
 
  
     def run_orbital_simulations(self):
         global fit
-        
-     
 
         self.max_time_of_evol
 
@@ -1382,20 +1240,13 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
         fit.run_stability_last_fit_params(timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
         
- 
-        
-        
 ############################# END N-Body #####################################                
                
        
-       
-        
-        
 ############################# Fortran fitting ###############################        
         
     def worker_RV_fitting_complete(self):
         global fit  
-        #fit.print_info(short_errors=False)
         
         self.update_labels()
         self.update_gui_params()
@@ -1419,8 +1270,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
              self.button_fit.setEnabled(True)         
              return        
         
- 
-        
         if self.radioButton_fortran77.isChecked():
             self.statusBar().showMessage('Minimizing parameters....')                 
             # Pass the function to execute
@@ -1438,8 +1287,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                      self.use_GP_rot_kernel_fact.isChecked()]
  
              
-            
-            
             self.statusBar().showMessage('Minimizing parameters using SciPyOp (might be slow)....')                 
             worker2 = Worker(lambda:  self.optimize_fit(ff=1, doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), gp_kernel_id=-1, minimize_fortran=False, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
                # Execute
@@ -1450,8 +1297,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         # worker.signals.result.connect(self.print_output)
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
-        
-        
         self.threadpool.start(worker2)       
      
                      
@@ -1460,7 +1305,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit
         
         if not auto_fit:
-        #self.update_use()
             self.update_params()
  
             
@@ -1474,7 +1318,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
         if minimize_fortran==False:
             ff = 3  
-                
 
         if m_ln:
             if ff > 0:        
@@ -1495,7 +1338,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
             fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,gp_par=use_gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=300,minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
 
-
         if auto_fit:
             self.update_labels()
             self.update_gui_params()
@@ -1503,26 +1345,20 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             self.update_a_mass()                    
             self.update_plots()                   
             self.statusBar().showMessage('')           
-    
-              
             self.jupiter_push_vars()
-
-
 
 ############################# END Fortran fitting ###############################         
        
-
     def print_info_for_object(self,text):
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog.setGeometry(300, 300, 450, 250)
         self.dialog.setWindowTitle('Detailed Info')  
  
-        
         self.dialog.text.setPlainText(text)
         self.dialog.text.setReadOnly(True)       
         #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
-        
         self.dialog.show()
+
 
     def print_info_credits(self, image=False):
         #self.dialog.statusBar().showMessage('Ready')
@@ -1564,9 +1400,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
         text = "(A few more to be added) \n" 
         self.dialog_credits.text.append(text)   
-        
- 
-        
+
+
         #self.dialog_credits.text.setText(text)
         #self.dialog_credits.text.insertHtml(text)
         
@@ -1597,19 +1432,16 @@ highly appreciated!
         choice = QtGui.QMessageBox.information(self, 'Warning!', "Not available yet. Okay?", QtGui.QMessageBox.Ok) 
 
 
-
     def find_planets(self):
         global fit,RV_per,RV_per_res
- 
- 
+
         # check if RV data is present
         if fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
              self.button_auto_fit.setEnabled(True)         
              return        
- 
- 
+
         # the first one on the data GLS
         if RV_per.power.max() <= RV_per.powerLevel(self.auto_fit_FAP_level.value()):
              choice = QtGui.QMessageBox.information(self, 'Warning!',
@@ -1631,7 +1463,6 @@ highly appreciated!
             self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
             
             #now inspect the residuals
-            
             
             for i in range(1,int(self.auto_fit_N_planets.value())):
                 
@@ -1660,15 +1491,13 @@ highly appreciated!
                     
                 #else:
                  #   continue
-                    
-                    
+                                       
             for j in range(fit.npl):
                 fit.use.update_use_planet_params_one_planet(j,True,True,True,True,True,False,False)     
     
             self.update_use_from_input_file()   
             self.update_use()                     
-            self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)                 
-                
+            self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)           
  
         self.button_auto_fit.setEnabled(True)   
  
@@ -1677,7 +1506,6 @@ highly appreciated!
         global fit 
         
         self.radioButton_Keplerian.setChecked(True) # this is to be fixed! Only with keplerian fitting th autofit works fine so far.
-        #self.button_fit.setEnabled(False) 
         self.button_auto_fit.setEnabled(False)         
         
         if fit.npl != 0:        
@@ -1693,8 +1521,6 @@ highly appreciated!
         else:
             self.find_planets()
                 
-
-
 
     def minimize_1param(self):
         global fit
@@ -1742,7 +1568,6 @@ highly appreciated!
         global fit        
         self.console_widget.push_vars({'fit':fit})    
         #self.console_widget.push_vars({'pg':pg})    
-        #self.console_widget.push_vars({'p1':p1})    
 
         #self.console_widget.clear()         
         #self.console_widget.print_text(str("Welcome!"+"\n")) 
@@ -1757,8 +1582,7 @@ highly appreciated!
             
             if len(ses_list) == 0:
                 ses_list.append(fit)
-                
-                
+                      
             #file_pi = open('.sessions/empty.ses', 'rb')
             #fit_new = dill.load(file_pi)
             #file_pi.close()
@@ -1818,13 +1642,11 @@ highly appreciated!
         if len(ses_list) == 0:
             self.comboBox_select_ses.clear()
             self.comboBox_select_ses.addItem("session 1") 
-        
 
         elif len(ses_list) != 0:
             self.comboBox_select_ses.clear()
             for i in range(len(ses_list)):
-                self.comboBox_select_ses.addItem('session %s'%(i+1),i)
-                     
+                self.comboBox_select_ses.addItem('session %s'%(i+1),i)                
         #self.select_session(0)
 
     def select_session(self, index):
@@ -1836,12 +1658,10 @@ highly appreciated!
             fit = ses_list[0]
         else:
             fit = ses_list[ind]
-
         #ses_list[ind-1] = fit
 
         self.init_fit()
-       
-        
+
         self.update_use_from_input_file()   
         self.update_use()
         self.update_gui_params()
@@ -1852,7 +1672,6 @@ highly appreciated!
             ses_list[ind] = fit
 
 #######################################################################            
-
 
     def new_session(self):
         global fit
@@ -1875,9 +1694,6 @@ highly appreciated!
         file_pi.close()     
         ses_list.append(fit_new)
         self.session_list()
-        
-        
-        
         
 
     def save_session(self):
@@ -1927,7 +1743,6 @@ highly appreciated!
         file_pi.close()
 
 
-
     def quit(self):
         #os.system("rm temp*.vels")
         choice = QtGui.QMessageBox.information(self, 'Warning!',
@@ -1941,8 +1756,6 @@ highly appreciated!
         elif choice == QtGui.QMessageBox.Cancel:
             return 
  
-            
-
 
 ################################## MCMC #######################################
 
@@ -1967,13 +1780,10 @@ highly appreciated!
              self.statusBar().showMessage('') 
 
              return        
-        
-
 
         choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "This will run in the background and may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
-                                            QtGui.QMessageBox.Ok) 
-         
+                                            QtGui.QMessageBox.Ok)       
         # Pass the function to execute
         worker = Worker(lambda: self.run_mcmc()) # Any other args, kwargs are passed to the run  
         # Execute
@@ -1982,14 +1792,10 @@ highly appreciated!
         # worker.signals.result.connect(self.print_output)
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
-        
-        
         self.threadpool.start(worker)
         
     def run_mcmc(self):
         global fit
-
-        
         
         gp_params = [self.GP_rot_kernel_Amp.value(),
                      self.GP_rot_kernel_time_sc.value(),
@@ -2007,12 +1813,9 @@ highly appreciated!
         self.button_MCMC.setEnabled(True)
   
 
- 
-  
 ################################# END MCMC ###################################  
        
 ############################# Dispatcher (TO BE REMOVED) #####################################  
-
 
     def fit_dispatcher(self, init=False):
     
@@ -2046,7 +1849,8 @@ highly appreciated!
             #self.init_fit()
             self.fit_dispatcher( init=True)
             return
-       # super(Settings, self).keyPressEvent(event)   
+       # super(Settings, self).keyPressEvent(event)  
+       
    # def print_py3_warning(self):
         #self.console_widget.clear()                            
    #     self.console_widget.print_text(str("You are using Python3! The 'stdout/stderr' widget (so far) does not work with Py3. For system output see the shell you started the GUI"+"\n"))
@@ -2060,23 +1864,25 @@ highly appreciated!
         for i in range(10):
             self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%colors[i])
             self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%colors[i])  
-    
-        
+          
     def get_color(self):
         
         but_ind = self.buttonGroup_color_picker.checkedId()   
         colorz = QtGui.QColorDialog.getColor()
-        colors[but_ind-1]=colorz.name()       
+        
+        if colorz.isValid():
+            colors[but_ind-1]=colorz.name()   
+            self.update_color_picker()
+            self.update_act_file_buttons()      
+            self.update_RV_file_buttons() 
+            self.update_tra_file_buttons() 
+            self.update_RV_plots() 
+            self.update_transit_plots() 
+            #self.update_activity_data_plots() 
+            #self.update_activity_gls_plots()     
+        else:
+            return
 
-
-        self.update_color_picker()
-        self.update_act_file_buttons()      
-        self.update_RV_file_buttons() 
-        self.update_tra_file_buttons() 
-        self.update_RV_plots() 
-        self.update_transit_plots() 
-        #self.update_activity_data_plots() 
-        #self.update_activity_gls_plots()     
     
 #############################  Color control END ################################  
    
@@ -2086,9 +1892,7 @@ highly appreciated!
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
        # self.showMaximized()
-       # self.setGeometry(3,30,800,800)
-       # self.setFixedSize(1024,1024) 
-       
+
         self.setupUi(self)
         
         self.initialize_buttons()
@@ -2101,20 +1905,16 @@ highly appreciated!
             self.terminal_embeded.addTab(terminal.EmbTerminal(), "Bash shell")        
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")  
  
-
         self.gridLayout_text_editor.addWidget(text_editor_es.MainWindow())       
         self.gridLayout_calculator.addWidget(calc.Calculator())  
         
-
         if sys.version_info[0] == 2:
             self.pipe_text = MyDialog()
             self.gridLayout_stdout.addWidget(self.pipe_text)  
-  
-       
+    
         self.dialog = print_info(self)
         self.dialog_credits = print_info(self)
        
-
         self.load_fort_in_file.clicked.connect(self.showDialog_fortran_input_file)
 
         self.buttonGroup_4.buttonClicked.connect(self.showDialog_RV_input_file)
@@ -2126,15 +1926,12 @@ highly appreciated!
         self.buttonGroup_transit_data.buttonClicked.connect(self.showDialog_tra_input_file)
         self.buttonGroup_remove_transit_data.buttonClicked.connect(self.remove_tra_file)         
         
-        
         self.buttonGroup_use.buttonClicked.connect(self.update_use)
  
         
         self.button_orb_evol.clicked.connect(self.worker_Nbody) 
         self.button_MCMC.clicked.connect(self.worker_mcmc)
         self.button_Bootstrap.clicked.connect(lambda: self.run_bootstrap())
-        
-    
         
         ########## RV fitting ########################
         
@@ -2158,12 +1955,9 @@ highly appreciated!
         self.copy_ses.clicked.connect(self.cop_ses)
         self.remove_ses.clicked.connect(self.rem_ses)
   
-    
-    
         self.actiongrab_screen.triggered.connect(self.grab_screen) 
         self.actionvisit_TRIFON_on_GitHub.triggered.connect(lambda: webbrowser.open('https://github.com/3fon3fonov/trifon'))    
         self.actionCredits.triggered.connect(lambda: self.print_info_credits())
-        
         
         self.init_correlations_combo()
         self.init_activity_combo()
@@ -2185,12 +1979,10 @@ highly appreciated!
         self.update_color_picker()
         self.buttonGroup_color_picker.buttonClicked.connect(self.get_color)     
  
-                
         self.threadpool = QtCore.QThreadPool()
 
         print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and the mcmc and bootstrap results.")
 
- 
 
 
 #Function Main START

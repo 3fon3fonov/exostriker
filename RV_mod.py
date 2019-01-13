@@ -1494,24 +1494,7 @@ class signal_data(object):
         gls_warnings.print_warning_log()
         return
 
-
-
-#lass act_file(object):
-    
-#   def __init__(self,name):
-#       self.name=name
-# 
-
-#   def add_act_file(self): 
-#       self.name=name
-
-
-#   def remove_act_file(self): 
-#       self.name=name
-     
-#   def remove_act_file(self): 
-#       self.name=name        
-        
+ 
         
 # classes for processing RV files
 
