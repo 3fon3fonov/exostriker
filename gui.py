@@ -1809,11 +1809,35 @@ highly appreciated!
                      self.use_GP_rot_kernel_fact.isChecked()]
  
         fit.mcmc(doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), 
-        burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=True)  
+        burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=True,
+        fileoutput=self.save_samples.isChecked())  
  
         self.button_MCMC.setEnabled(True)
   
-
+        if self.make_corner_plot.isChecked() and self.save_samples.isChecked():
+            fit.cornerplot(fileinput=self.make_corner_plot.isChecked())
+            
+            
+    def change_corner_plot_file_name(self):
+        global fit
+        
+        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the corener plot', '', 'Data (*.png)')
+       # if output_file.isValid():
+        fit.corner_plot_file = output_file[0] 
+        self.corner_plot_change_name.setText(output_file[0])
+ 
+    def change_mcmc_samples_file_name(self):
+        global fit
+        
+        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the mcmc samples', '', '')
+        fit.mcmc_sample_file = output_file[0] 
+        self.mcmc_samples_change_name.setText(output_file[0])
+        
+    def force_mcmc_check_box(self):
+        if self.make_corner_plot.isChecked():
+            self.save_samples.setChecked(True)
+ 
+           
 ################################# END MCMC ###################################  
        
 ############################# Dispatcher (TO BE REMOVED) #####################################  
@@ -1937,6 +1961,8 @@ highly appreciated!
         self.button_MCMC.clicked.connect(self.worker_mcmc)
         self.button_Bootstrap.clicked.connect(lambda: self.run_bootstrap())
         
+        self.corner_plot_change_name.clicked.connect(self.change_corner_plot_file_name)
+        self.mcmc_samples_change_name.clicked.connect(self.change_mcmc_samples_file_name)
         ########## RV fitting ########################
         
         self.button_init_fit.clicked.connect(lambda: self.fit_dispatcher(init=True))

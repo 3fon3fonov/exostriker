@@ -260,7 +260,7 @@ def read_file_as_array_of_arrays(inputfile):
         b[i]=np.atleast_1d(b[i].split()) # turn a row of b into an array of arrays
         c.append([]) # need to make a separate array so every element is of correct type
         # convert each string that represents a float into float
-        for j in range(len(b[i])): 
+        for j in range(1,len(b[i])): 
             if (is_float(b[i][j])):
                 c[ic].append(float(b[i][j]))
             elif not (b[i][j][-1]==':'): # ignore comments, which can be place by the user as strings which end with a collon, in the comments use underline instead of space or an error will arise
@@ -2001,8 +2001,9 @@ class signal_fit(object):
         self.init_transit_params()
         #self.tr_params = batman.TransitParams() 
         self.colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
-
-       
+        self.mcmc_sample_file = 'mcmc_samples'
+        self.corner_plot_file = 'cornerplot.png'
+      
         
         #self.print_info=()        
         ##### this is how I wanted the kernel parameters to be 
@@ -3412,9 +3413,11 @@ class signal_fit(object):
                 
         
         if (fileoutput):
-            if (samplesfile==''): # that means no file name for samples file has been provided, so we generate a default one
-                samplesfile='samples_%s'%mod
-            outfile = open(samplesfile, 'w') # file to save samples
+            #if (samplesfile==''): # that means no file name for samples file has been provided, so we generate a default one
+           #     samplesfile='samples_%s'%mod
+            #self.mcmc_sample_file = 'mcmc_samples'+'_%s'%mod
+            #self.corner_plot_file = 'cornerplot.png'
+            outfile = open(str(self.mcmc_sample_file), 'w') # file to save samples
 
             for j in range(len(sampler.samples)):
                 outfile.write("%s  " %(ln[j]))        
@@ -3493,18 +3496,19 @@ class signal_fit(object):
        
         return
              
-    def cornerplot(self, cornerplotname='cornerplot.png', fileinput=False, filename='samples_kep'): 
+    def cornerplot(self, fileinput=False, level=(100.0-68.3)/2.0, **kwargs): 
 
         '''Generates a corner plot visualizing the mcmc samples. Optionally samples can be read from a file.'''
-
+        #self.mcmc_sample_file = 'mcmc_samples'+'_%s'%mod
+        #self.corner_plot_file = 'cornerplot.png'
         if(fileinput):
-            samples=read_file_as_array_of_arrays(filename)
+            samples=read_file_as_array_of_arrays(self.mcmc_sample_file)
         elif(self.sampler_saved):
             samples=self.sampler.samples
         else:
             raise Exception ('Please run mcmc and save sampler or provide a valid samples file!')
         fig = corner.corner(samples,bins=25, color="k", reverse=True, upper= True, labels=self.e_for_mcmc, quantiles=[level/100.0, 1.0-level/100.0],levels=(0.6827, 0.9545,0.9973), smooth=1.0, smooth1d=1.0, plot_contours= True, show_titles=True, truths=self.par_for_mcmc, dpi = 300, pad=15, labelpad = 50 ,truth_color ='r', title_kwargs={"fontsize": 12}, scale_hist=True,  no_fill_contours=True, plot_datapoints=True, kwargs=kwargs)
-        fig.savefig(cornerplotname)  
+        fig.savefig(self.corner_plot_file)  
  
         return   
         
