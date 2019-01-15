@@ -260,6 +260,25 @@ def read_file_as_array_of_arrays(inputfile):
         b[i]=np.atleast_1d(b[i].split()) # turn a row of b into an array of arrays
         c.append([]) # need to make a separate array so every element is of correct type
         # convert each string that represents a float into float
+        for j in range(0,len(b[i])): 
+            if (is_float(b[i][j])):
+                c[ic].append(float(b[i][j]))
+            elif not (b[i][j][-1]==':'): # ignore comments, which can be place by the user as strings which end with a collon, in the comments use underline instead of space or an error will arise
+                c[ic].append(b[i][j])
+        ic=ic+1
+    return c
+
+
+#for convenient reading of the input file  the second is a hack so the mcmc lnL line is skipped! TBFixed  
+def read_file_as_array_of_arrays_mcmc(inputfile): 
+    a=open(inputfile, 'r')
+    b=a.readlines() # b as array of strings
+    c=[]
+    ic=0 # iterator for values in c
+    for i in range(len(b)): 
+        b[i]=np.atleast_1d(b[i].split()) # turn a row of b into an array of arrays
+        c.append([]) # need to make a separate array so every element is of correct type
+        # convert each string that represents a float into float
         for j in range(1,len(b[i])): 
             if (is_float(b[i][j])):
                 c[ic].append(float(b[i][j]))
@@ -267,6 +286,8 @@ def read_file_as_array_of_arrays(inputfile):
                 c[ic].append(b[i][j])
         ic=ic+1
     return c
+
+
     
 def verify_array_with_bounds(ar,bounds):
     '''Verify if values of array ar fit withind declared bounds, if too many/too few bounds do as much as can be done'''
@@ -326,9 +347,7 @@ def run_SciPyOp_transit(obj):
  
     for j in range(len(p)):
         print(e[j] + "  =  %s"%p[j])
-        
-              
-
+   
  
     
 def compute_loglik_transit(p,copied_obj,flag_ind,b,e):
@@ -2002,7 +2021,7 @@ class signal_fit(object):
         #self.tr_params = batman.TransitParams() 
         self.colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
         self.mcmc_sample_file = 'mcmc_samples'
-        self.corner_plot_file = 'cornerplot.png'
+        self.corner_plot_file = 'cornerplot.pdf'
       
         
         #self.print_info=()        
@@ -3502,7 +3521,7 @@ class signal_fit(object):
         #self.mcmc_sample_file = 'mcmc_samples'+'_%s'%mod
         #self.corner_plot_file = 'cornerplot.png'
         if(fileinput):
-            samples=read_file_as_array_of_arrays(self.mcmc_sample_file)
+            samples=read_file_as_array_of_arrays_mcmc(self.mcmc_sample_file)
         elif(self.sampler_saved):
             samples=self.sampler.samples
         else:
@@ -3523,7 +3542,7 @@ class signal_fit(object):
             print_at_end=True
 
         if(fileinput):
-            samples=read_file_as_array_of_arrays(filename)
+            samples=read_file_as_array_of_arrays_mcmc(filename)
         elif(self.sampler_saved):
             samples=self.sampler.samples
         else:
