@@ -106,21 +106,15 @@ do
    if $python -c "import $i" &> /dev/null; then
        echo "$i - yes!"
    else
-       echo "$i - not installed! Do you wish a install $i from source (from ./deps directory)?"
-       select yn in "Yes" "Yes-Local" "No"; do
+       echo "$i - not installed! Only a local instalation possible... Do you wish a install $i from source (from ./deps directory)?"
+       select yn in "Yes" "No"; do
            case $yn in
                Yes ) if [ $i=="batman" ]; then 
-                         sudo $pip install $i-package;
-                     else 
-                         echo "TBD for another package!";
-                     fi
-                     break;;   
-
-               Yes-Local ) if [ $i=="batman" ]; then 
-                         echo "We are installing $i from source ./deps ---> ./addons  ...";
+                         echo "Installing $i from source ./deps ---> ./addons  ...";
                          cd deps/batman-package-2.4.6/;
                          $python setup.py install;
                          cp -r ./build/lib*/batman ../../addons/;
+                         rm -r ./build
                          cd ../../;
                      else 
                          echo "TBD for another package!";
