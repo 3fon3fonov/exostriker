@@ -829,12 +829,20 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 ################################ RV files #######################################################
         
     def showDialog_fortran_input_file(self):
-        global fit
+        global fit, ses_list
  
         input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.init)')
         
         if str(input_files[0]) != '':
-            fit=rv.signal_fit(str(input_files[0]), 'Test',readinputfile=True)
+            fit_new=rv.signal_fit(str(input_files[0]), 'Test',readinputfile=True)
+            
+            if len(ses_list) == 1:
+                ses_list[0] = fit_new
+                fit = fit_new
+            else:
+                ses_list.append(fit_new)
+                
+            self.session_list()
             self.update_use_from_input_file()
             self.init_fit()
             self.update_RV_file_buttons()
@@ -1655,7 +1663,8 @@ highly appreciated!
         ind = self.comboBox_select_ses.itemData(index) 
         #print(ind,index,len(ses_list))
         if ind == None:
-            fit = ses_list[0]
+            return
+            #fit = ses_list[0]
         else:
             fit = ses_list[ind]
         #ses_list[ind-1] = fit
@@ -1675,7 +1684,7 @@ highly appreciated!
 #######################################################################            
 
     def new_session(self):
-        global fit
+        global fit, ses_list
         
         #file_pi = open('.sessions/empty.ses', 'rb')
         #fit_new = dill.load(file_pi)
@@ -1935,6 +1944,7 @@ highly appreciated!
  
         self.gridLayout_text_editor.addWidget(text_editor_es.MainWindow())       
         self.gridLayout_calculator.addWidget(calc.Calculator())  
+        
         
         if sys.version_info[0] == 2:
             self.pipe_text = MyDialog()
