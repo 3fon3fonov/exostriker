@@ -26,7 +26,7 @@ from Jupyter_emb import ConsoleWidget_embed
 from stdout_pipe import MyDialog
 import terminal
 
-
+import ntpath
 
 from scipy.signal import argrelextrema
 
@@ -855,12 +855,18 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
         if str(input_files[0]) != '':
  
-            fit.add_dataset('test', str(input_files[0]),0.0,1.0)
+            fit.add_dataset(self.file_from_path(input_files[0]), str(input_files[0]),0.0,1.0)
             self.init_fit()            
             self.update_use_from_input_file()            
             self.update_use()
             self.update_params()
             self.update_RV_file_buttons()
+            #self.buttonGroup_4.button(fit.filelist.ndset).setText(self.file_from_path(input_files[0]))
+            
+
+   # def RV_file_names(self,ind,name):
+   #     global fit
+   #     rv_file_namez = ["data 1","data 2","data 3","data 4","data 5","data 6","data 7","data 8","data 9","data 10"]
 
     def remove_RV_file(self):
         global fit
@@ -875,15 +881,25 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.update_RV_file_buttons()
 
     def update_RV_file_buttons(self):
-        global fit, colors          
-
+        global fit, colors    
+        
+        font = QtGui.QFont()
+        font.setPointSize(8)
+        font.setBold(False)
+        font.setWeight(75)
+        
         for i in range(10):
             if i < fit.filelist.ndset:
                 self.buttonGroup_4.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
                 self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_4.button(i+1).setText(fit.filelist.files[i].name) 
+                self.buttonGroup_4.button(i+1).setFont(font)
+
             else:
                 self.buttonGroup_4.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_4.button(i+1).setText("data %s"%(i+1))
+
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
         self.init_correlations_combo()
 
@@ -908,7 +924,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
              
             self.update_params()
             self.update_tra_file_buttons()
- 
+            self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(input_files[0]))
+            
             
     def remove_tra_file(self):
         global fit
@@ -933,6 +950,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             else:
                 self.buttonGroup_transit_data.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_transit_data.button(i+1).setText("data %s"%(i+1))
+
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
         self.update_transit_plots()
  
@@ -956,6 +975,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             #self.update_params()
             self.update_act_file_buttons()
             self.update_activity_gls_plots(but_ind-1)
+            self.buttonGroup_activity_data.button(but_ind).setText(self.file_from_path(input_files[0]))
+
             #self.handleActivated_act_gls(but_ind-1)
             
     def remove_act_file(self):
@@ -980,6 +1001,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             else:
                 self.buttonGroup_activity_data.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_activity_data.button(i+1).setText("data %s"%(i+1))
+
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
         self.init_correlations_combo()
 
@@ -1831,16 +1854,20 @@ highly appreciated!
         global fit
         
         output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the corener plot', '', 'Data (*.png)')
-       # if output_file.isValid():
-        fit.corner_plot_file = output_file[0] 
-        self.corner_plot_change_name.setText(output_file[0])
+        if output_file[0] != '':
+            fit.corner_plot_file = output_file[0] 
+            self.corner_plot_change_name.setText(output_file[0])
  
     def change_mcmc_samples_file_name(self):
         global fit
         
         output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the mcmc samples', '', '')
-        fit.mcmc_sample_file = output_file[0] 
-        self.mcmc_samples_change_name.setText(output_file[0])
+        
+        if output_file[0] != '':
+            fit.mcmc_sample_file = output_file[0] 
+            self.mcmc_samples_change_name.setText(output_file[0])
+        else:
+            return
         
     def force_mcmc_check_box(self):
         if self.make_corner_plot.isChecked():
@@ -1919,7 +1946,10 @@ highly appreciated!
             #self.update_activity_gls_plots()     
         else:
             return
-
+        
+    def file_from_path(self, path):
+        head, tail = ntpath.split(path)
+        return tail or ntpath.basename(head)
     
 #############################  Color control END ################################  
    
@@ -1941,6 +1971,9 @@ highly appreciated!
         if sys.platform[0:5] == "linux":
             self.terminal_embeded.addTab(terminal.EmbTerminal(), "Bash shell")        
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")  
+        
+        
+        #self.gridLayout_116.addWidget(terminal.EmbTerminal())
  
         self.gridLayout_text_editor.addWidget(text_editor_es.MainWindow())       
         self.gridLayout_calculator.addWidget(calc.Calculator())  
