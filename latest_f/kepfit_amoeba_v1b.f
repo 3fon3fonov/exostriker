@@ -134,15 +134,15 @@ c     & compute_abs_loglik,ndata,x,y,ymod,dyda,ts,sig)
           idset = ts(i)
           call RVKEP (x(i),a,ymod(i),dyda,ma,idset)
 
-          y_in(i) = y(i) - a(5*npl+idset)- a(5*npl+2*ndset+1)*x(i)
-	  ymod(i) = ymod(i) - a(5*npl+idset) - 
-     &    a(5*npl +2*ndset + 1)*x(i)
+          y_in(i) = y(i) - a(5*npl+idset) - a(5*npl+2*ndset+1)*x(i)
+	  ymod(i) = ymod(i) - a(5*npl+idset) 
+     &    - a(5*npl +2*ndset + 1)*x(i)
 
           dy = y_in(i) - ymod(i)
 
           if (writeflag_RV.gt.0) then 
               write(*,*) x0 + x(i),
-     &        ymod(i), y_in(i),
+     &        ymod(i), y_in(i) + a(5*npl+2*ndset+1)*x(i),
      &        dy, sig(i), idset
    
           endif
