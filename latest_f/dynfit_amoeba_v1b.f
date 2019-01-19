@@ -573,7 +573,8 @@ ccccccccccccccccccc t[JD], obs., cal., O-C   ccccccccccccc
 c          write(*,*) a(7*npl+idset), a(7*npl  + 2*ndset + 1)
 
           if (writeflag_RV.gt.0) then
-          write(*,*) t0 + t(i)/8.64d4 ,ymod(i),ys(i), 
+          write(*,*) t0 + t(i)/8.64d4 ,ymod(i),ys(i) +
+     &                a(7*npl  + 2*ndset + 1)*(t(i)/8.64d4), 
      &                ys(i) - ymod(i),sigs(i),ts(i)
 
           endif
@@ -702,7 +703,8 @@ c           write(*,*) (j_mass(i),i=1,npl+1)
           enddo
           call RVKEP (x,a,ymod,dyda,ma,nt,epsil,deltat)
           do i = 1,nt
-             write(*,*) t0 + x(i)/8.64d4,ymod(i)
+             write(*,*) t0 + x(i)/8.64d4, 
+     &       ymod(i) + a(7*npl  + 2*ndset + 1)*(x(i)/8.64d4)           
           enddo
 
       endif

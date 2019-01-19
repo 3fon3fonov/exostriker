@@ -326,10 +326,13 @@ ccccccccccccccccccc t[JD], obs., cal., O-C   ccccccccccccc
       do i = 1,ndata
           idset = ts(i)
  
-	  ys(i) = ys(i) - a(7*npl+idset)
+	  ys(i) = ys(i) - a(7*npl+idset) -
+     &                a(7*npl +ndset + 1)*(t(i)/86400.d0)
+
  
           if (writeflag_RV.gt.0) then
-          write(*,*) t0 + t(i)/8.64d4 ,ymod(i),ys(i), 
+          write(*,*) t0 + t(i)/8.64d4 ,ymod(i),ys(i) +
+     &                a(7*npl +ndset + 1)*(t(i)/86400.d0),
      &                ys(i) - ymod(i),sigs(i),ts(i)
 
           endif
@@ -417,7 +420,8 @@ c           write(*,*) (j_mass(i),i=1,npl+1)
           enddo
           call RVKEP_ewcop_fin (x,a,ymod,dyda,ma,nt,ia,epsil,deltat)
           do i = 1,nt
-             write(*,*) t0 + x(i)/8.64d4,ymod(i)
+             write(*,*) t0 + x(i)/8.64d4,
+     &       ymod(i) + a(7*npl +ndset + 1)*(x(i)/86400.d0)
           enddo
 
       endif

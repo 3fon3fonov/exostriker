@@ -16,7 +16,7 @@ ccc   The final version will be available in the Python RVMod lib.
       real*8 rms,mstar,mass(NPLMAX),ap(NPLMAX)
       real*8 swift_mass(NPLMAX),s_mass(NPLMAX),j_mass(NPLMAX)
       real*8 chisq,alamda,ochisq,dchisq, epsil, deltat
-      real*8 jitter,sigscale,x0,xmax,loglik
+      real*8 jitter,sigscale,x0,xmax,loglik,dy
       real*8 t0,t1,t2,dt,offset,t_max, incl(NPLMAX), cap0m(NPLMAX)
       real*8 st_mass,sini,m1,a1,m2,a2,jitt(NDSMAX),epoch
       real*8 ymod(5000),dyda(MMAX)
@@ -94,20 +94,22 @@ c             if (i.gt.idsmax(idset)) idset = idset + 1
               call RVKEP (x(i),a,ymod(i),dyda,ma,ts(i))
  
 	      xmax = x0 + x(i)
+ 
+ 
+ 
+              y_in(i) = y(i) - a(5*npl+idset) - a(5*npl+2*ndset+1)*x(i)
+	      ymod(i) = ymod(i) - a(5*npl+idset) 
+     &    - a(5*npl +2*ndset + 1)*x(i)
 
-              y_in(i) = y(i) - a(5*npl+idset) 
- 
- 
-              rms = rms + (y(i) - ymod(i))**2
-      if (writeflag_RV.gt.0) then 
-              write(*,*) x0 + x(i),
-     &                   ymod(i) - a(5*npl+idset) - 
-     &                   a(5*npl+ndset+1)*x(i),
-     &                   y_in(i) - a(5*npl+ndset+1)*x(i),
-     &                   y(i) - ymod(i), sig(i), idset
+              dy = y_in(i) - ymod(i)
+              rms = rms + (y_in(i) - ymod(i))**2
+              if (writeflag_RV.gt.0) then 
+                  write(*,*) x0 + x(i),
+     &            ymod(i), y_in(i) + a(5*npl+2*ndset+1)*x(i),
+     &            dy, sig(i), idset
    
-        
-      endif
+              endif
+ 
          enddo
 
       rms=dsqrt(rms/dble(ndata))
