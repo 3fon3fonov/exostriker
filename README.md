@@ -8,8 +8,7 @@ Very powerful and fast GUI tool for exoplanet orbital analysis. It uses a brang 
 Please keep in mind that this software is developed mostly for my needs and for fun. I hope, however, that you may find 
 it capable to solve your scientific problems, too. For updates, follow my Twitter account https://twitter.com/3fon3fonov 
 
-![33_exo_striker](https://user-images.githubusercontent.com/44244057/50738480-c0638f80-11d4-11e9-936d-43d4a4e196e6.png)
-
+![33_exo_striker_new](https://user-images.githubusercontent.com/44244057/51432624-eb20ff80-1c3a-11e9-8b30-524514adef5c.png)
 
 **WARNING!** This tool is under active development and its functionality is enhanced on a daily basis! Therefore, although very unlikely, the version you download today may not be fully compatible with the version uploaded tomorrow! Use at your own risk!
 
