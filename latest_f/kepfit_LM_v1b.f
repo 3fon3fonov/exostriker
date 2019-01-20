@@ -20,7 +20,7 @@ ccc   The final version will be available in the Python RVMod lib.
       real*8 t0,t1,t2,dt,offset,t_max, incl(NPLMAX), cap0m(NPLMAX)
       real*8 st_mass,sini,m1,a1,m2,a2,jitt(NDSMAX),epoch
       real*8 ymod(5000),dyda(MMAX)
-      real*4 t_stop,when_to_kill,model_max
+      real*4 t_stop,when_to_kill,model_max,model_min
       
       external rvkep
       character*80 infile
@@ -31,7 +31,7 @@ ccc   The final version will be available in the Python RVMod lib.
       
 c     these two just for consistency with dynamical input and amoebastarts for consistency with loglik, not really used
       read (*,*) epsil, deltat,a moebastarts, 
-     &          when_to_kill, nt, model_max
+     &          when_to_kill, nt, model_max,model_min
       
 c      write(*,*) 'Stellar mass, sini'
       read (*,*) st_mass,
@@ -183,10 +183,10 @@ c              offset(j) = a(i)
 c      nt = 5000
       if(writeflag_fit.gt.0) then
  
-              dt = (xmax+model_max - x0)/dble(nt - 1)
-      
+              dt = (x(ndata)+model_max+model_min)/dble(nt - 1)
+ 
               do i = 1,nt
-	            x(i) = ((i-1)*dt)-0.00
+	            x(i) = ((i-1)*dt)-model_min
 
                     do j = 1,ndset
                          a(5*npl + j) = 0.0
