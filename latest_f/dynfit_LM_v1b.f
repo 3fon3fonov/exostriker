@@ -20,7 +20,7 @@ ccc   The final version will be available in the Python RVMod lib.
       real*8 a0(MMAX),asave(MMAX),ap(NPLMAX)
  
       real*8 tstop,dt,dtout
-      real*4 t_stop,when_to_kill,model_max
+      real*4 t_stop,when_to_kill,model_max,model_min
        
       external rvkep_ewcop_fin
       character*80 infile
@@ -34,7 +34,7 @@ ccc   The final version will be available in the Python RVMod lib.
 c amoebastarts for consistency with loglik input
      
       read (*,*) epsil,deltat, amoebastarts,
-     &          when_to_kill, nt, model_max
+     &          when_to_kill, nt, model_max,model_min
      
 c      write(*,*) 'Stellar mass: '
       read (*,*) mstar,
@@ -133,7 +133,7 @@ c*******final output******************
       call io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
      & 	           ma,mfit,t0,t_max,sigs,chisq,rms,writeflag_RV,
      &  writeflag_best_par,writeflag_fit,jitter,epsil,deltat,
-     &  nt, model_max)
+     &  nt, model_max,model_min)
 
       write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
       write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
@@ -286,7 +286,7 @@ Cc    Xianyu Tan 2011
       subroutine io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
      &           ma,mfit,t0,t_max,sigs,chisq,rms,writeflag_RV,
      &           writeflag_best_par,writeflag_fit,jitter,epsil,
-     &           deltat,nt, model_max)
+     &           deltat,nt, model_max,model_min)
    
       implicit none 
       real*8 PI
@@ -294,7 +294,7 @@ Cc    Xianyu Tan 2011
       parameter (PI=3.14159265358979d0,MMAX=200  ,NDSMAX=20,NPLMAX=20)
       real*8 a(MMAX),ia(MMAX),t(5000),ymod(5000),ys(5000)
       real*8 covar(MMAX,MMAX),dyda(5000,MMAX),AU,day
-      real*8 rms,mstar,sini(7),mass(NPLMAX),ap(NPLMAX)
+      real*8 rms,mstar,sini,mass(NPLMAX),ap(NPLMAX)
       integer ts(5000),nbod,nt,writeflag_RV,
      &           writeflag_best_par,writeflag_fit
       real*8 t0,t1,t2,dt,offset,t_max,chisq,deltat,epsil
@@ -306,7 +306,7 @@ Cc    Xianyu Tan 2011
      &       ,vzj(NPLMAX)
       real*8 rpl(NPLMAX),rhill(NPLMAX)
       real*8 swift_mass(NPLMAX),s_mass(NPLMAX),j_mass(NPLMAX)
-      real*4 model_max
+      real*4 model_max,model_min
       parameter (AU=1.49597892d11, day = 86400.d0)
 
 

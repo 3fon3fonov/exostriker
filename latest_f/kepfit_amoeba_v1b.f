@@ -25,7 +25,7 @@ ccc   Trifonov et al. (in prep).
       real*8 loglikk, ologlikk, dloglikk 
       external rvkep, compute_abs_loglik
       character*80 infile
-      real*4 t_stop,when_to_kill, model_max
+      real*4 t_stop,when_to_kill, model_max,model_min
       
       
       common /DSBLK/ npl,ndset,idsmax,idset
@@ -35,7 +35,7 @@ ccc   Trifonov et al. (in prep).
 
 c     first two just for consistency with dynamical input, not really used
       read (*,*) epsil,deltat, amoebastarts,
-     &          when_to_kill, nt, model_max   
+     &          when_to_kill, nt, model_max, model_min  
      
      
 c      write(*,*) 'Stellar mass'
@@ -227,9 +227,9 @@ c     &           /(365.25*365.25))
 
  
       if(writeflag_fit.gt.0) then
-          dt = (x(ndata)+model_max)/dble(nt - 1)
+          dt = (x(ndata)+model_max+model_min)/dble(nt - 1)
           do i = 1,nt
-	      x(i) = ((i-1)*dt)-0.00
+	      x(i) = ((i-1)*dt)-model_min
 
               do j = 1,ndset
                   a(5*npl + j) = 0.0

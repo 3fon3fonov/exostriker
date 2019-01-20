@@ -19,7 +19,7 @@ c*************************************************************************
      &       yamoeba(MMAX+1), loglikk, ologlikk, dloglikk
       real*8 sigscale,t0,t_max,twopi,dt, epoch, epsil,deltat
       real*8 rms,ymod(10000),dyda(10000,MMAX),jitt(NDSMAX)
-      real*4 t_stop, when_to_kill,model_max
+      real*4 t_stop, when_to_kill,model_max,model_min
       
       
       external rvkep, compute_abs_loglik
@@ -32,7 +32,7 @@ c*************************************************************************
       ftol=0.001d0
       
       read (*,*) epsil,deltat, amoebastarts,
-     &          when_to_kill, nt, model_max      
+     &          when_to_kill, nt, model_max,model_min      
       
       read (*,*) mstar,
      &          writeflag_best_par, 
@@ -101,7 +101,7 @@ c      call timer(t_stop)
       call io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
      & 	           ma,mfit,t0,t_max,sigs,chisq,rms,loglik,writeflag_RV,
      &             writeflag_best_par,writeflag_fit,jitt,epsil,deltat,
-     &  nt, model_max)
+     &  nt, model_max, model_min)
 
 
    
@@ -494,7 +494,7 @@ C
        subroutine io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
      &           ma,mfit,t0,t_max,sigs,chisq,rms,loglik,writeflag_RV,
      &           writeflag_best_par,writeflag_fit,jitter,epsil,deltat,
-     &  nt, model_max)
+     &  nt, model_max,model_min)
    
       implicit none 
       real*8 PI
@@ -514,7 +514,7 @@ C
      &       ,vzj(NPLMAX)
       real*8 rpl(NPLMAX),rhill(NPLMAX),epsil,deltat
       real*8 swift_mass(NPLMAX),s_mass(NPLMAX),j_mass(NPLMAX)
-      real*4 model_max
+      real*4 model_max,model_min
       parameter (AU=1.49597892d11, day = 86400.d0)
 
 
@@ -696,9 +696,10 @@ c           write(*,*) (j_mass(i),i=1,npl+1)
  
  
       if(writeflag_fit.gt.0) then 
+          dt = ((t_max- t0) + model_max )/dble(nt - 1)      
 
-          dt = (t_max+model_max - t0)/dble(nt - 1)
           do i = 1,nt
+
              x(i) = (i-1)*dt*8.64d4
           enddo
           call RVKEP (x,a,ymod,dyda,ma,nt,epsil,deltat)
@@ -709,7 +710,7 @@ c           write(*,*) (j_mass(i),i=1,npl+1)
 
       endif
 
-
+ 
 
       return
 
