@@ -29,7 +29,7 @@ c Last revision:
 
       real*8 xjt(1),yjt(1),zjt(1)       ! Dummy for the io
       real*8 vxjt(1),vyjt(1),vzjt(1)
-      integer ntp,istat
+      integer ntp,istat(1,NSTAT)
 
       integer nbod,i1st,i,nbodm,nbodo
       integer iflgchk,iub,iuj,iud,iue,ium
@@ -234,7 +234,7 @@ c Last revision:
 c...  Inputs: 
       integer nbod,ntp,iu
       real*8 mass(nbod),time
-      integer istat(NTPMAX,NSTAT)
+      integer istat(1,NSTAT)
       real*8 xj(nbod),yj(nbod),zj(nbod)
       real*8 vxj(nbod),vyj(nbod),vzj(nbod)
       real*8 xjt(ntp),yjt(ntp),zjt(ntp)

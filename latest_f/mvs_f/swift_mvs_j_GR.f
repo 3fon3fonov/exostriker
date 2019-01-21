@@ -314,7 +314,7 @@ c Last revision:
 c...  Inputs: 
       integer nbod,ntp,iu
       real*8 mass(nbod),time
-      integer istat(NTPMAX,NSTAT)
+      integer istat(1,NSTAT)
       real*8 xj(nbod),yj(nbod),zj(nbod)
       real*8 vxj(nbod),vyj(nbod),vzj(nbod)
       real*8 xjt(ntp),yjt(ntp),zjt(ntp)
