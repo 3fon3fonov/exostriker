@@ -4,7 +4,7 @@ __author__ = 'Trifon Trifonov'
 import numpy as np
 #import matplotlib as mpl
 #mpl.use('Qt5Agg')
-import sys,  traceback 
+import sys, os, traceback 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 sys.path.insert(0, './addons')
@@ -1795,9 +1795,12 @@ highly appreciated!
 
     def worker_mcmc_complete(self):
         global fit  
-        fit.print_info(short_errors=False)
+        #fit.print_info(short_errors=False)
         self.statusBar().showMessage('') 
-        self.console_widget.print_text(str(fit.print_info(short_errors=False)))      
+        self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
+        
+        if self.adopt_mcmc_means_as_par.isChecked():
+            self.init_fit()
        # if sys.version_info[0] == 3:
        #     self.print_py3_warning()
 
@@ -1817,7 +1820,14 @@ highly appreciated!
 
         choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "This will run in the background and may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
-                                            QtGui.QMessageBox.Ok)       
+                                            QtGui.QMessageBox.Cancel | QtGui.QMessageBox.Ok)       
+ 
+         
+        if choice == QtGui.QMessageBox.Cancel:
+            self.statusBar().showMessage('') 
+            self.button_MCMC.setEnabled(True)
+            return        
+        
         # Pass the function to execute
         worker = Worker(lambda: self.run_mcmc()) # Any other args, kwargs are passed to the run  
         # Execute
@@ -1841,23 +1851,16 @@ highly appreciated!
                      self.use_GP_rot_kernel_Per.isChecked(),
                      self.use_GP_rot_kernel_fact.isChecked()]
  
-        fit.mcmc(doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), 
-        burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=True,
-        fileoutput=self.save_samples.isChecked())  
+        #fit.mcmc(doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), 
+        #burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
+        #fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked())  
  
-        self.button_MCMC.setEnabled(True)
-  
-        if self.make_corner_plot.isChecked() and self.save_samples.isChecked():
-            fit.cornerplot(fileinput=self.make_corner_plot.isChecked())
-            
-            
-    def change_corner_plot_file_name(self):
-        global fit
+        fit = rv.run_mcmc(fit,doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), 
+        burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
+        fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked())
         
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the corener plot', '', 'Data (*.png)')
-        if output_file[0] != '':
-            fit.corner_plot_file = output_file[0] 
-            self.corner_plot_change_name.setText(output_file[0])
+    
+        self.button_MCMC.setEnabled(True)            
  
     def change_mcmc_samples_file_name(self):
         global fit
@@ -1876,6 +1879,57 @@ highly appreciated!
  
            
 ################################# END MCMC ###################################  
+            
+################################## Cornerplot #######################################
+
+    def worker_cornerplot_complete(self):
+        global fit  
+        self.statusBar().showMessage('') 
+        self.button_make_cornerplot.setEnabled(True)
+
+
+    def worker_cornerplot(self):
+        global fit  
+        
+        self.button_make_cornerplot.setEnabled(False)
+        self.statusBar().showMessage('Cornerplot in progress....')        
+        # check if RV data is present
+        if not os.path.exists(fit.mcmc_sample_file):
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "MCMC file not found. Generate one and try again?", QtGui.QMessageBox.Ok)      
+             self.button_make_cornerplot.setEnabled(True)
+
+             return  
+ 
+ 
+        # Pass the function to execute
+        worker_cor = Worker(lambda: self.make_cornerplot()) # Any other args, kwargs are passed to the run  
+        # Execute
+        worker_cor.signals.finished.connect(self.worker_cornerplot_complete)
+        
+        # worker.signals.result.connect(self.print_output)
+        #worker.signals.finished.connect(self.thread_complete)
+       # worker.signals.progress.connect(self.progress_fn)
+        self.threadpool.start(worker_cor)
+ 
+            
+    def make_cornerplot(self):
+        global fit
+        rv.cornerplot(fit, fileinput=True)
+            
+            
+      
+    def change_corner_plot_file_name(self):
+        global fit
+        
+        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the corener plot', '', 'Data (*.png)')
+        if output_file[0] != '':
+            fit.corner_plot_file = output_file[0] 
+            self.corner_plot_change_name.setText(output_file[0])   
+            
+################################# END Cornerplot ###################################  
+           
+            
        
 ############################# Dispatcher (TO BE REMOVED) #####################################  
 
@@ -2004,6 +2058,9 @@ highly appreciated!
         self.button_orb_evol.clicked.connect(self.worker_Nbody) 
         self.button_MCMC.clicked.connect(self.worker_mcmc)
         self.button_Bootstrap.clicked.connect(lambda: self.run_bootstrap())
+        
+        
+        self.button_make_cornerplot.clicked.connect(self.worker_cornerplot)
         
         self.corner_plot_change_name.clicked.connect(self.change_corner_plot_file_name)
         self.mcmc_samples_change_name.clicked.connect(self.change_mcmc_samples_file_name)
