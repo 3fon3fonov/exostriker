@@ -13,6 +13,7 @@ import prior_functions as pr
 import rot_kernels
 import numpy as np
 import matplotlib.pyplot as plt
+plt.switch_backend('SVG') 
 import re
 
 from matplotlib import gridspec
@@ -101,8 +102,8 @@ def mut_incl(i1,i2,capOm):
     fb = np.degrees(np.arccos(((np.cos(np.radians(i1))*np.cos(np.radians(i2)))+
     (np.sin(np.radians(i1))*np.sin(np.radians(i2))*np.cos(np.radians(capOm))))))
     return fb
-
-
+ 
+    
 def get_time_series(obj, path, idset_ts, jitter=False, o_c=False):
  
     if len(obj.filelist.idset)==0:
@@ -143,6 +144,8 @@ def get_time_series(obj, path, idset_ts, jitter=False, o_c=False):
     f.close()   
     
     return 
+
+
 
 def run_command_with_timeout(args, secs, output=False, pipe=False): # set output=True if you need to save the output
     '''
@@ -266,6 +269,8 @@ def read_file_as_array_of_arrays(inputfile):
             elif not (b[i][j][-1]==':'): # ignore comments, which can be place by the user as strings which end with a collon, in the comments use underline instead of space or an error will arise
                 c[ic].append(b[i][j])
         ic=ic+1
+    #c = np.array(c, dtype=float)    
+        
     return c
 
 
@@ -283,8 +288,10 @@ def read_file_as_array_of_arrays_mcmc(inputfile):
             if (is_float(b[i][j])):
                 c[ic].append(float(b[i][j]))
             elif not (b[i][j][-1]==':'): # ignore comments, which can be place by the user as strings which end with a collon, in the comments use underline instead of space or an error will arise
-                c[ic].append(b[i][j])
+                c[ic].append(float(b[i][j]))
         ic=ic+1
+    
+    c = np.array(c, dtype=float)    
     return c
 
 
@@ -482,6 +489,7 @@ def lnprob(p,copied_obj,prior):
     # now we need to compute loglikelihood using the fortran code on new parameters, and then add it to lp
     #copied_obj=signalfit
     newparams=copied_obj.generate_newparams_for_mcmc(p)
+   # oldparams=copied_obj.params
     copied_obj.overwrite_params(newparams)
     if not (copied_obj.verify_params_with_bounds()):
         return -np.inf # if parameters are outside of bounds we return -infinity
@@ -489,13 +497,14 @@ def lnprob(p,copied_obj,prior):
 
        # print(copied_obj.params.jitters[:3],copied_obj.params.GP_params[:4],copied_obj.params.planet_params[:14])        
        # print(copied_obj.use.use_jitters[:3])    
-        flag=copied_obj.fitting(fileinput=False, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, outputfiles=[0,1,0],return_flag=True)
+        flag=copied_obj.fitting(fileinput=False, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, outputfiles=[0,0,0],return_flag=True)
         #print(copied_obj.fit_results.loglik, flag)         
         #print(copied_obj.fit_results.loglik, compute_loglik_TT(p,copied_obj) )#,copied_obj.params.GP_params[:4],copied_obj.params.planet_params[:14])   
-
+        #copied_obj.overwrite_params(oldparams)
         #now self.fit_results.loglik is the loglikelihood corresponding to new parameters
         if (flag==1):
             #print(pr.choose_prior(p,prior)+copied_obj.fit_results.loglik)
+            
             return pr.choose_prior(p,prior)+copied_obj.fit_results.loglik
         else:
             return -np.inf
@@ -610,51 +619,45 @@ def lnprobGP3(p,copied_obj,prior):
                       
        #print(copied_obj.fit_results.loglik, compute_loglik_TT(p,copied_obj),  S)#,copied_obj.params.GP_params[:4],copied_obj.params.planet_params[:14])   
        return pr.choose_prior(p,prior)+S    
-     
-        
-def run_mcmc(signalfit,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-0.99,0.99]],wbounds=[[-2.0*360.0, 2.0*360.0]],Mbounds=[[-2.0*360.0, 2.0*360.0]],ibounds=[[-2.0*180.0, 2.0*180.0]],capbounds=[[-2.0*360.0, 2.0*360.0]],offbounds=[[-100000.0,100000.0]],jitbounds=[[0.0,10000.0]],lintrbounds=[[-10.0,10.0]], GPbounds=[[0.0,100000.0]], stmassbounds=[[0.01,1000.0]], prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False], save_means=False, fileoutput=False, save_sampler=False,burning_ph=20, mcmc_ph=20, **kwargs):      
+ 
+
+def run_mcmc(obj,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-0.99,0.99]],wbounds=[[-2.0*360.0, 2.0*360.0]],Mbounds=[[-2.0*360.0, 2.0*360.0]],ibounds=[[-2.0*180.0, 2.0*180.0]],capbounds=[[-2.0*360.0, 2.0*360.0]],offbounds=[[-100000.0,100000.0]],jitbounds=[[0.0,10000.0]],lintrbounds=[[-10.0,10.0]], GPbounds=[[0.0,100000.0]], stmassbounds=[[0.01,1000.0]], prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, doGP=False, gp_par=None, gp_kernel_id=-1, use_gp_par=[True,True,True,True], save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):      
 
     '''Performs MCMC and saves results'''  
     
     if threads == 'max':
         threads = multiprocessing.cpu_count()
-    
+ 
     
     # Let's prepare things depending if we want to do GP or not
+
     if (doGP):
-        signalfit.initiategps(gp_par=gp_par, use_gp_par=use_gp_par, kernel_id=kernel_id)
+        obj.initiategps(gp_par=gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id)
         fun=lnprobGP3                            
     else:
-        fun=lnprob                       
-        GPbounds=[[x-10.0,x+10.0] for x in signalfit.params.GP_params.gp_par] # just to make sure GPbounds don't cause lnprob return -infinity when we don't do GP (now all GP_params will be within bounds for sure)
-    
+        fun=lnprob                           
+        GPbounds=[[x-10.0,x+10.0] for x in obj.params.GP_params.gp_par] # just to make sure GPbounds don't cause lnprob return -infinity when we don't do GP (now all GP_params will be within bounds for sure)
+ 
     # we will need this later
-    if (signalfit.mod_dynamical):
+    if (obj.mod_dynamical):
         mod='dyn'
     else:
         mod='kep'
 
-    signalfit.prepare_for_mcmc(Kbounds=Kbounds,Pbounds=Pbounds,ebounds=ebounds,wbounds=wbounds,Mbounds=Mbounds,ibounds=ibounds,capbounds=capbounds,offbounds=offbounds,jitbounds=jitbounds,lintrbounds=lintrbounds, GPbounds=GPbounds, stmassbounds=stmassbounds)    
+    obj.prepare_for_mcmc(Kbounds=Kbounds,Pbounds=Pbounds,ebounds=ebounds,wbounds=wbounds,Mbounds=Mbounds,ibounds=ibounds,capbounds=capbounds,offbounds=offbounds,jitbounds=jitbounds,lintrbounds=lintrbounds, GPbounds=GPbounds, stmassbounds=stmassbounds)    
  
+
     start_time = time.time()
 
+    ndim, nwalkers = len(obj.par_for_mcmc), len(obj.par_for_mcmc)*4
 
-    ndim, nwalkers = len(signalfit.par_for_mcmc), len(signalfit.par_for_mcmc)*4
+    #par_for_mcmc_ = obj.par_for_mcmc
 
-    #par_for_mcmc_ = self.par_for_mcmc
-   #import pathos as pa 
-   # pmult = pa.pools._ProcessPool(nodes=4)
-    #from pathos.pools import ProcessPool
+    pos = [obj.par_for_mcmc + 1e-3*np.random.rand(ndim) for i in range(nwalkers)]
 
-    #pmult = ProcessPool(nodes=4)
-   # import pathos
-   # pmult = pathos.multiprocessing.Pool(processes=2)    
-    
-    
-    pos = [signalfit.par_for_mcmc + 1e-3*np.random.rand(ndim) for i in range(nwalkers)]
-
-    sampler = CustomSampler(nwalkers, ndim, fun, args=[signalfit,prior], threads = threads)# pool = pmult)
+    sampler = CustomSampler(nwalkers, ndim, fun, args=[obj,prior], threads = threads)
  
+    
     # burning phase
     pos, prob, state  = sampler.run_mcmc(pos,burning_ph)
 
@@ -663,22 +666,25 @@ def run_mcmc(signalfit,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],eboun
     # now perform the MCMC
 
     pos, prob, state  = sampler.run_mcmc(pos,mcmc_ph)
+    
+    
+              
+    print("--- %s seconds ---" % (time.time() - start_time))  
  
     ln = np.hstack(sampler.lnprobability)
-    sampler.save_samples(signalfit.f_for_mcmc,signalfit.filelist.ndset,signalfit.npl)
-          
-    print("--- %s seconds ---" % (time.time() - start_time))    
-
-#    pool.close()
+    sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl)
+            
     
     if (fileoutput):
-        if (samplesfile==''): # that means no file name for samples file has been provided, so we generate a default one
-            samplesfile='samples_%s'%mod
-        outfile = open(samplesfile, 'w') # file to save samples
+        #if (samplesfile==''): # that means no file name for samples file has been provided, so we generate a default one
+       #     samplesfile='samples_%s'%mod
+        #obj.mcmc_sample_file = 'mcmc_samples'+'_%s'%mod
+        #obj.corner_plot_file = 'cornerplot.png'
+        outfile = open(str(obj.mcmc_sample_file), 'w') # file to save samples
 
         for j in range(len(sampler.samples)):
             outfile.write("%s  " %(ln[j]))        
-            for z in range(len(signalfit.par_for_mcmc)):
+            for z in range(len(obj.par_for_mcmc)):
                 outfile.write("%s  " %(sampler.samples[j,z]))
             outfile.write("\n")
 
@@ -686,43 +692,95 @@ def run_mcmc(signalfit,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],eboun
             
     # Now we will save new parameters and their errors (different + and - errors in this case). Flag save_means determines if we want to take means as new best fit parameters or stick to old ones and calculate errors with respect to that           
     if (save_means):
-        signalfit.par_for_mcmc = sampler.means # we will not need to keep the old parameters in this attribbute, so let's store the means now
+        obj.par_for_mcmc = sampler.means # we will not need to keep the old parameters in this attribbute, so let's store the means now
         
-    new_par_errors = [[float(signalfit.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-signalfit.par_for_mcmc[i])] for i in range(len(signalfit.par_for_mcmc))] 
-    newparams = signalfit.generate_newparams_for_mcmc(signalfit.par_for_mcmc)        
-    print(newparams.GP_params)
+    new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
+    newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
+    #print(newparams.GP_params)
     current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
-    print(current_GP_params)
+   # print(current_GP_params)
 
-    signalfit.overwrite_params(newparams)
-    signalfit.fitting(minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
-    signalfit.update_with_mcmc_errors(new_par_errors)
-    signalfit.params.update_GP_params(current_GP_params)
+    obj.overwrite_params(newparams)
+    obj.fitting(minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
+    obj.update_with_mcmc_errors(new_par_errors)
+    obj.params.update_GP_params(current_GP_params)
+
+    #print(current_GP_params)
 
     if (doGP):
-        signalfit.fitting_method='GP_%s'%mod
+        obj.fitting_method='GP_%s'%mod
     else:
-        signalfit.fitting_method='mcmc_%s'%mod  
+        obj.fitting_method='mcmc_%s'%mod  
 
     if (doGP):
-        loglik_to_save = lnprobGP(signalfit.par_for_mcmc,signalfit,prior)
-        signalfit.loglik=loglik_to_save         
-        signalfit.fit_results.loglik=loglik_to_save   
+        loglik_to_save = lnprobGP(obj.par_for_mcmc,obj,prior)
+        obj.loglik=loglik_to_save         
+        obj.fit_results.loglik=loglik_to_save  
+        
+        
+        ########### Ugly things are happening here! to be fixed! ##########
+        
+        fitted_GP = sampler.means[-len(obj.params.GP_params.gp_par[obj.use.use_GP_params==True]):]
+ 
+        z = 0
+        for k in range(obj.params.GP_params.npar):
+            obj.param_errors.GP_params_errors[k] = [0,0]
+            if not obj.use.use_GP_params[k]:
+                continue
+            else:
+                obj.params.GP_params.gp_par[k] = fitted_GP[z]
+               # obj.param_errors.GP_params_errors[k] = [float(sampler.means[-obj.params.GP_params.npar+k] - np.percentile(sampler.means[-obj.params.GP_params.npar+k], [level])),float(np.percentile(sampler.means[-obj.params.GP_params.npar+k], [100.0-level])-sampler.means[-obj.params.GP_params.npar+k])]
+                obj.param_errors.GP_params_errors[k] = [float(fitted_GP[z] - np.percentile(sampler.samples[:,-len(fitted_GP)+z],[level])), float(np.percentile(sampler.samples[:,-len(fitted_GP)+z], [100.0-level])-fitted_GP[z])]
+                #print(obj.param_errors.GP_params_errors[k], fitted_GP[z], np.percentile(fitted_GP[z],level),level)
+            z = z+1  
+
+        obj.GP_params=GP_parameters(len(obj.params.GP_params.gp_par),obj.params.GP_params.gp_par,kernel_id=0) # we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
          
+        message_str =""" """
+        if(obj.fitting_method.startswith('GP')):
+            message_str = message_str +"""\nStellar activity was modeled using Gaussian Processes. The resulting GP parameters (means) are as follows:
+"""
+            message_str = message_str +"""\n A = {0:>7.4f} +/- {4:>7.4f}\n t = {1:>7.4f} +/- {5:>7.4f}\n P = {2:>7.4f} +/- {6:>7.4f}\n f = {3:>7.4f} +/- {7:>7.4f}
+""".format(obj.GP_params.gp_par[0],obj.GP_params.gp_par[1],obj.GP_params.gp_par[2],obj.GP_params.gp_par[3],max(obj.param_errors.GP_params_errors[0]),max(obj.param_errors.GP_params_errors[1]),max(obj.param_errors.GP_params_errors[2]),max(obj.param_errors.GP_params_errors[3]))         
+            message_str = message_str +"""
+(The GP_params are printed here as these are still not part of the "params" structure. TBD!)                
+"""
+       # print(message_str)
+        ###################################################################
+        
 
     ###############  This is not working! you cannot save the sampler as an atribute and call it back later!
     ###############  See https://github.com/dfm/emcee/issues/148
     if(save_sampler):
-        signalfit.sampler=sampler             
-        signalfit.sampler_saved=True           
+        obj.sampler=sampler             
+        obj.sampler_saved=True           
         
-    #sampler.reset()
+    sampler.reset()
 
-    return signalfit
+    return obj
+ 
     
+ 
+
+def cornerplot(obj, fileinput=False, level=(100.0-68.3)/2.0, **kwargs): 
+
+    #obj = dill.copy(copied_obj)
+    '''Generates a corner plot visualizing the mcmc samples. Optionally samples can be read from a file.'''
+    #self.mcmc_sample_file = 'mcmc_samples'+'_%s'%mod
+    #self.corner_plot_file = 'cornerplot.png'
+    if(fileinput):
+        samples=read_file_as_array_of_arrays_mcmc(obj.mcmc_sample_file)
+   # elif(obj.sampler_saved):
+   #     samples=obj.sampler.samples
+    else:
+        raise Exception ('Please run mcmc and save sampler or provide a valid samples file!')
     
-    
-    
+    fig = corner.corner(samples,bins=25, color="k", reverse=True, upper= True, labels=obj.e_for_mcmc, quantiles=[level/100.0, 1.0-level/100.0],levels=(0.6827, 0.9545,0.9973), smooth=1.0, smooth1d=1.0, plot_contours= True, show_titles=True, truths=obj.par_for_mcmc, dpi = 300, pad=15, labelpad = 50 ,truth_color ='r', title_kwargs={"fontsize": 12}, scale_hist=True,  no_fill_contours=True, plot_datapoints=True, kwargs=kwargs)
+    fig.savefig(obj.corner_plot_file)  
+
+   # obj = None
+    #fig.clf()
+    return      
     
 
 def custom_param_file_for_stability(max_time,time_step):
@@ -3220,18 +3278,28 @@ class signal_fit(object):
         if (len(customdatasetlabels)>self.filelist.ndset):
             customdatasetlabels=customdatasetlabels[:self.filelist.ndset]
             preparingwarnings.update_warning_list('Too many customdatasetlabels! Additional will be ignored.')
-        el_str=np.concatenate(([r'$\gamma_%s$ [m/s]'%customdatasetlabels[i] for i in range(self.filelist.ndset)],[r'jitt$_%s$ [m/s]'%customdatasetlabels[i] for i in range(self.filelist.ndset)],np.concatenate([[r'K$_%s$ [m/s]'%chr(98+i),r'P$_%s$ [day]'%chr(98+i) ,r'e$_%s$'%chr(98+i),r'$\omega_%s$ [deg]'%chr(98+i),r'M$_%s$ [deg]'%chr(98+i)] for i in range(self.npl)]),[r'i$_%s$ [deg]'%chr(98+i) for i in range(self.npl)],[r'$\Omega_%s$ [deg]'%chr(98+i) for i in range(self.npl)],np.atleast_1d(r'lin.trend [m/s/day]'),[r'Amp', r't', r'per', r'fact'],np.atleast_1d(r'st. mass [$M_\odot$]')))
+        el_str=np.concatenate(([r'$\gamma_%s$ [m/s]'%customdatasetlabels[i] for i in range(self.filelist.ndset)],
+                               [r'jitt$_%s$ [m/s]'%customdatasetlabels[i] for i in range(self.filelist.ndset)],
+                               np.concatenate([[r'K$_%s$ [m/s]'%chr(98+i),
+                                                r'P$_%s$ [day]'%chr(98+i),
+                                                r'e$_%s$'%chr(98+i),
+                                                r'$\omega_%s$ [deg]'%chr(98+i),
+                                                r'M$_%s$ [deg]'%chr(98+i), 
+                                                r'i$_%s$ [deg]'%chr(98+i), 
+                                                r'$\Omega_%s$ [deg]'%chr(98+i)] for i in range(self.npl)]),np.atleast_1d(r'lin.trend [m/s/day]'),[r'Amp', r't', r'per', r'fact'],np.atleast_1d(r'st. mass [$M_\odot$]')))
    
         self.f_for_mcmc = [idx for idx in range(len(flag)) if flag[idx] ==1 ] # indices for fitted parameters
 
         self.par_for_mcmc = []  # self par_for_mcmc are the fitted parameters   
         self.e_for_mcmc = [] # labels for fitted parameters only
+        
 
         for j in range(len(par)):
             if flag[j] > 0:
                 self.par_for_mcmc=np.concatenate((self.par_for_mcmc,np.atleast_1d(par[j])))
                 self.e_for_mcmc=np.concatenate((self.e_for_mcmc,np.atleast_1d(el_str[j])))
-                
+ 
+            
         preparingwarnings.print_warning_log()
         return                  
         
@@ -3529,9 +3597,12 @@ class signal_fit(object):
             samples=self.sampler.samples
         else:
             raise Exception ('Please run mcmc and save sampler or provide a valid samples file!')
+        
         fig = corner.corner(samples,bins=25, color="k", reverse=True, upper= True, labels=self.e_for_mcmc, quantiles=[level/100.0, 1.0-level/100.0],levels=(0.6827, 0.9545,0.9973), smooth=1.0, smooth1d=1.0, plot_contours= True, show_titles=True, truths=self.par_for_mcmc, dpi = 300, pad=15, labelpad = 50 ,truth_color ='r', title_kwargs={"fontsize": 12}, scale_hist=True,  no_fill_contours=True, plot_datapoints=True, kwargs=kwargs)
         fig.savefig(self.corner_plot_file)  
+
  
+        #fig.clf()
         return   
         
     def run_stability_one_sample(self,sample_num,fileinput=False, filename='samples_kep', fileinputgetinit=False, filenamegetinit='geninit_j_input', warnings=None, timeout_sec=1000.0,timemax=3000.0, timestep=10):
