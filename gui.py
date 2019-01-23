@@ -7,7 +7,7 @@ import numpy as np
 import sys, os, traceback 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
-sys.path.insert(0, './addons')
+sys.path.insert(0, './lib')
 
 import RV_mod as rv
 
@@ -40,7 +40,7 @@ import webbrowser
 #    import pickle
 import dill
 
-qtCreatorFile = "rvmod_gui.ui" # Enter file here.
+qtCreatorFile = "./lib/UI/rvmod_gui.ui" # Enter file here.
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 pg.setConfigOption('background', '#ffffff')
@@ -1451,7 +1451,7 @@ highly appreciated!
   
         self.dialog_credits.text.setReadOnly(True)       
         
-        self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(33_striker.png) 0 0 0 0 stretch stretch;} ")
+        self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(./lib/33_striker.png) 0 0 0 0 stretch stretch;} ")
 
         #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
         
@@ -2094,7 +2094,7 @@ highly appreciated!
         self.init_correlations_combo()
         self.init_activity_combo()
         
-        self.setWindowIcon(QtGui.QIcon('33_striker.png'))
+        self.setWindowIcon(QtGui.QIcon('./lib/33_striker.png'))
         
         self.radioButton_act_GLS_period.toggled.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
        
