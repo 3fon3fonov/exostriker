@@ -1,3 +1,12 @@
+#!/usr/bin/python
+
+from __future__ import print_function
+__author__ = 'Trifon Trifonov, Jakub Morawski'
+
+import sys, os
+#sys.path.insert(0, '../lib')
+
+
 from pylab import *
 import numpy as np
 

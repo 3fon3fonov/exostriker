@@ -4,12 +4,13 @@ from __future__ import print_function
 __author__ = 'Trifon Trifonov, Jakub Morawski'
 
 import sys, os
-sys.path.insert(0, '../lib')
+#sys.path.insert(0, '../lib')
+sys.path.append('./lib/RV_mod/')
 import jac2astrocen
 import gls as gls 
 
 
-import prior_functions as pr
+#import prior_functions as pr
 #import rot_kernels
 import numpy as np
 import matplotlib.pyplot as plt
@@ -389,10 +390,10 @@ def run_mcmc(obj,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-
     ndim, nwalkers = len(obj.par_for_mcmc), len(obj.par_for_mcmc)*4
 
     #par_for_mcmc_ = obj.par_for_mcmc
-
+    fff = dill.copy(obj)
     pos = [obj.par_for_mcmc + 1e-3*np.random.rand(ndim) for i in range(nwalkers)]
 
-    sampler = CustomSampler(nwalkers, ndim, fun, args=[obj,prior], threads = threads)
+    sampler = CustomSampler(nwalkers, ndim, fun, args=[fff,prior], threads = threads)
  
  
     
