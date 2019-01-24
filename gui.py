@@ -40,6 +40,15 @@ import webbrowser
 #    import pickle
 import dill
 
+
+#if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
+#    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+
+#if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+#    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps,True)
+
+
+
 qtCreatorFile = "./lib/UI/rvmod_gui.ui" # Enter file here.
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 

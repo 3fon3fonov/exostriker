@@ -2,7 +2,7 @@
 __author__ = 'Trifon Trifonov, Jakub Morawski'
 
 import sys 
-sys.path.insert(0, '../lib')
+#sys.path.insert(0, '../lib')
  
 
   
