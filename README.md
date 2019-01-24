@@ -1,16 +1,19 @@
 
 **T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations : **The Exo-Striker** 
 
-(Because of a lack of a better name and for fun)
+<p align="center">
+  <img width="400" src="https://user-images.githubusercontent.com/44244057/51602645-d1680c80-1f07-11e9-8d5e-8ec9916552d5.png">
+</p>
+ 
 
 Very powerful and fast GUI tool for exoplanet orbital analysis. It uses a brang new RV fitting library called "RVmod", which can model the Stellar reflex motion caused by dynamically interacting planets in multi planetary systems. 
-
-Please keep in mind that this software is developed mostly for my needs and for fun. I hope, however, that you may find 
-it capable to solve your scientific problems, too. For updates, follow my Twitter account https://twitter.com/3fon3fonov 
 
 ![33_exo_striker_new](https://user-images.githubusercontent.com/44244057/51432624-eb20ff80-1c3a-11e9-8b30-524514adef5c.png)
 
 **WARNING!** This tool is under active development and its functionality is enhanced on a daily basis! Therefore, although very unlikely, the version you download today may not be fully compatible with the version uploaded tomorrow! Use at your own risk!
+
+Also, please keep in mind that this software is developed mostly for my needs and for fun. I hope, however, that you may find 
+it capable to solve your scientific problems, too. For updates, follow my Twitter account https://twitter.com/3fon3fonov 
 
 What works:
 
