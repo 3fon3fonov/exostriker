@@ -57,6 +57,8 @@ c      call timer(t_start)
       
          call prepare_for_amoeba(p,MMAX+1,MMAX,yamoeba,a,ia,ma,mfit,
      & compute_abs_loglik,ndata,t,ys,ymod,dyda,ts,sigs,epsil,deltat,i)
+     
+     
          call amoeba(p,yamoeba,MMAX+1,MMAX,mfit,ftol,compute_abs_loglik,
      & iter,ndata,t,ys,ymod,dyda,ma,ts,sigs,a,ia,epsil,deltat)
      
@@ -91,7 +93,7 @@ c      call timer(t_stop)
          
       if (dabs(dloglikk).ge.0.000001d0) goto 500
 
-502      j=0
+502   j=0
 
 
       loglik = 0.0d0
