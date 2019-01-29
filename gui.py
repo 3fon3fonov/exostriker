@@ -478,7 +478,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def initialize_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,pe
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,pe,pdi
 
         p1  = self.graphicsView_timeseries_RV
         p2  = self.graphicsView_timeseries_RV_o_c
@@ -2018,10 +2018,50 @@ highly appreciated!
         head, tail = ntpath.split(path)
         return tail or ntpath.basename(head)
     
+ 
+
+    def plot_data_inspect(self, index):
+        global fit, colors,pdi 
+        # self.sender() == self.treeView
+        # self.sender().model() == self.fileSystemModel
+        path = self.sender().model().filePath(index)
+ 
+        pdi.plot(clear=True,)    
+        
+        x     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+        y     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+        y_err = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2]) 
+ 
+ 
+        pdi.addLine(x=None, y=np.mean(y), pen=pg.mkPen('#ff9933', width=0.8))   
+ 
+        if self.rv_data_size.value() > 2:
+            symbolsize = self.rv_data_size.value() -2
+        else:
+            symbolsize = self.rv_data_size.value() 
+
     
-    def tree_view(self):
-        file_insp = QtWidgets.QFileSystemModel()
-        file_insp.setRootPath('')
+        pdi.plot(x,y,             
+        pen=None, #{'color': colors[i], 'width': 1.1},
+        symbol='o',
+        symbolPen={'color': fit.colors[0], 'width': 1.1},
+        symbolSize=symbolsize,enableAutoRange=True,viewRect=True,
+        symbolBrush=fit.colors[0]
+        )  
+               
+        err_ = pg.ErrorBarItem(x=x, y=y,
+        symbol='o', height=y_err, beam=0.0, pen=fit.colors[0])   
+     
+        pdi.addItem(err_)
+        
+       # print(self.file_from_path(path)[:-5])
+        #if file_from_path(path)[-4]='vels'
+        
+        pdi.setLabel('bottom', 'x', units='',  **{'font-size':'11pt'})
+        pdi.setLabel('left',   'y', units='',  **{'font-size':'11pt'})  
+
+
+
      
 #############################  Color control END ################################  
    
@@ -2040,7 +2080,7 @@ highly appreciated!
         self.console_widget = ConsoleWidget_embed(font_size = 10)
         self.terminal_embeded.addTab(self.console_widget, "Jupyter")
         
-       #self.tree_view_tab = Widget_tree()
+       
        # self.terminal_embeded.addTab(self.tree_view_tab, "tree")
       
         
@@ -2054,9 +2094,12 @@ highly appreciated!
         self.gridLayout_text_editor.addWidget(text_editor_es.MainWindow())       
         self.gridLayout_calculator.addWidget(calc.Calculator())  
         
-        self.gridLayout_file_tree.addWidget(Widget_tree())
+        self.tree_view_tab = Widget_tree()        
+        self.gridLayout_file_tree.addWidget(self.tree_view_tab)
         
-        if sys.version_info[0] == 4:
+        self.tree_view_tab.listview.clicked.connect(self.plot_data_inspect)
+        
+        if sys.version_info[0] == 2:
             self.pipe_text = MyDialog()
             self.gridLayout_stdout.addWidget(self.pipe_text)  
     
