@@ -25,6 +25,7 @@ from doublespinbox import DoubleSpinBox
 from Jupyter_emb import ConsoleWidget_embed
 from stdout_pipe import MyDialog
 import terminal
+from tree_view import Widget_tree
 
 import ntpath
 
@@ -498,13 +499,15 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         p15 = self.graphicsView_orbital_view
         
         pe  = self.graphicsView_extra_plot
+        
+        pdi = self.load_data_plot
 
-        xaxis = ['BJD','BJD','BJD','BJD','BJD','','days','days','days','days','days','days','yrs','yrs','a','']
-        yaxis = ['RV','RV','Relative Flux','Relative Flux','','','power','power','power','power','power','power','a','e','a','']       
-        xunit = ['d' ,'d','d','d','d','','','','','','','','','','au','']
-        yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','au','']
+        xaxis = ['BJD','BJD','BJD','BJD','BJD','','days','days','days','days','days','days','yrs','yrs','a','','y']
+        yaxis = ['RV','RV','Relative Flux','Relative Flux','','','power','power','power','power','power','power','a','e','a','','x']       
+        xunit = ['d' ,'d','d','d','d','','','','','','','','','','au','','']
+        yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','au','','']
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,pe]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,pe,pdi]
         font=QtGui.QFont()
         font.setPixelSize(12) 
         for i in range(len(zzz)):
@@ -2015,6 +2018,11 @@ highly appreciated!
         head, tail = ntpath.split(path)
         return tail or ntpath.basename(head)
     
+    
+    def tree_view(self):
+        file_insp = QtWidgets.QFileSystemModel()
+        file_insp.setRootPath('')
+     
 #############################  Color control END ################################  
    
     def __init__(self):
@@ -2032,6 +2040,10 @@ highly appreciated!
         self.console_widget = ConsoleWidget_embed(font_size = 10)
         self.terminal_embeded.addTab(self.console_widget, "Jupyter")
         
+       #self.tree_view_tab = Widget_tree()
+       # self.terminal_embeded.addTab(self.tree_view_tab, "tree")
+      
+        
         if sys.platform[0:5] == "linux":
             self.terminal_embeded.addTab(terminal.EmbTerminal(), "Bash shell")        
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")  
@@ -2042,8 +2054,9 @@ highly appreciated!
         self.gridLayout_text_editor.addWidget(text_editor_es.MainWindow())       
         self.gridLayout_calculator.addWidget(calc.Calculator())  
         
+        self.gridLayout_file_tree.addWidget(Widget_tree())
         
-        if sys.version_info[0] == 2:
+        if sys.version_info[0] == 4:
             self.pipe_text = MyDialog()
             self.gridLayout_stdout.addWidget(self.pipe_text)  
     
@@ -2121,6 +2134,10 @@ highly appreciated!
         self.buttonGroup_color_picker.buttonClicked.connect(self.get_color)     
  
         self.threadpool = QtCore.QThreadPool()
+        
+        
+
+        #self.treeWidget = tree_view.Widget() #.setModel(self.tree_view)
 
         print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and the mcmc and bootstrap results.")
 
