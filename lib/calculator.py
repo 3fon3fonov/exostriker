@@ -53,7 +53,9 @@ class Button(QToolButton):
     def __init__(self, text, parent=None):
         super(Button, self).__init__(parent)
 
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        #self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+       
         self.setText(text)
 
     def sizeHint(self):
@@ -122,7 +124,7 @@ class Calculator(QWidget):
         self.equalButton = self.createButton("=", self.equalClicked)
 
         mainLayout = QGridLayout()
-        mainLayout.setSizeConstraint(QLayout.SetFixedSize)
+       # mainLayout.setSizeConstraint(QLayout.SetFixedSize)
 
         mainLayout.addWidget(self.display, 0, 0, 1, 6)
         mainLayout.addWidget(self.backspaceButton, 1, 0, 1, 2)
