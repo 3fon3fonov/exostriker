@@ -18,6 +18,7 @@ handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
+ 
 
 class XStream(QtCore.QObject):
     _stdout = None
@@ -29,7 +30,7 @@ class XStream(QtCore.QObject):
         return -1
     def write( self, msg ):
         if ( not self.signalsBlocked() ):
-            self.messageWritten.emit(unicode(msg))
+            self.messageWritten.emit(msg)
     @staticmethod
     def stdout():
         if ( not XStream._stdout ):
@@ -41,6 +42,7 @@ class XStream(QtCore.QObject):
         if ( not XStream._stderr ):
             XStream._stderr = XStream()
             sys.stderr = XStream._stderr
+
         return XStream._stderr
 
 class MyDialog(QtGui.QDialog):

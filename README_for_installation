@@ -31,7 +31,8 @@ rxvt
 
 
 The program works for Python 2 and Python 3, but so far I suggest Python 2 
-installation since some problems with Py3 have been encountered.
+installation since some MCMC problems with Py3 have been encountered, and 
+not yet fixed.
 
 
 if "linux_debian_install.sh" was executed with no problems, then
@@ -86,10 +87,6 @@ option if batman is not on your system already.
 ################################################################################
  
  
-There is some problem with piping the Python3 print() functions,
-which I haven't resolved yet. As a result the stdout is not printed in the
-"Stdout/Stderr" GUI tab, but directly in the terminal shell from which you 
-start the gui.
 
 
 Running the "emcee" with Python3 using multiprocessing results to:
@@ -101,7 +98,8 @@ The problem and it seems to be that some part of the object RVmod object
 is not picklable. (work in progress here)
 
  
- 
+
+
  
 
 ############################## Finally #################################
@@ -140,18 +138,22 @@ is still not fully integrated.
 
 Some credits (more to come)
 
-* The text_editor used in the tool is:
+* The text_editor used in the tool is the "Megasolid Idiom":
 
-Megasolid Idiom - A rich text editor in PyQt
 https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor
 
-* The transit modeling is done with "batman"
+* The transit modeling is done with "batman":
  
 https://www.cfa.harvard.edu/~lkreidberg/batman/quickstart.html
 
-* GLS periodogram is taken from 
+* "GLS" periodogram is taken from: 
 
 http://www.astro.physik.uni-goettingen.de/~zechmeister/gls.php
+
+* the MCMC sampling is done with "emcee": 
+
+http://dfm.io/emcee/current/
+
 
 
 
