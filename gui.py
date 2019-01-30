@@ -2219,7 +2219,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
       
         
         if sys.platform[0:5] == "linux":
-            self.terminal_embeded.addTab(terminal.EmbTerminal(), "Bash shell")        
+            self.terminal_embeded.addTab(terminal.mainWindow(), "Bash shell")        
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")  
         
         
