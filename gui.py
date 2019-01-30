@@ -1298,7 +1298,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.update_a_mass()                    
         self.update_plots()                   
         self.statusBar().showMessage('')   
-               
+        self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
+
         self.jupiter_push_vars()   
         self.button_fit.setEnabled(True)         
  
@@ -1355,13 +1356,17 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         if self.radioButton_Dynamical.isChecked():
             fit.mod_dynamical = True
             f_kill = self.dyn_model_to_kill.value()
-            ff = 1
+            if ff > 1:
+                ff = 1 #TBF
+           # ff = 1
         else:
             fit.mod_dynamical = False
             f_kill = self.kep_model_to_kill.value()    
         
         if minimize_fortran==False:
             ff = 3  
+            
+      #  print(ff)   
 
         if m_ln:
             if ff > 0:        
@@ -1526,7 +1531,7 @@ highly appreciated!
                     fit.add_planet(RV_per_res.hpstat["amp"],RV_per_res.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
                     fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False)  
                     
-                    print(fit.params.planet_params[2 + 7*(i-1)])
+                    #print(fit.params.planet_params[2 + 7*(i-1)])
                     #fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False)  
                    
                     self.update_use_from_input_file()   
@@ -1558,8 +1563,8 @@ highly appreciated!
                                             QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
          
             if choice == QtGui.QMessageBox.No:
-                return
                 self.button_auto_fit.setEnabled(True)         
+                return
             elif choice == QtGui.QMessageBox.Yes:
                 self.find_planets()
         else:
@@ -1616,7 +1621,7 @@ highly appreciated!
         #self.console_widget.clear()         
         #self.console_widget.print_text(str("Welcome!"+"\n")) 
 
-########################## work in progress ##################################
+       ########################## work in progress ##################################
  
     def getNewses(self):
         global fit, ses_list  
@@ -1940,7 +1945,74 @@ highly appreciated!
             self.corner_plot_change_name.setText(output_file[0])   
             
 ################################# END Cornerplot ###################################  
-           
+      
+################################# data inspector ###################################  
+        
+        
+        
+    def load_data_inspect(self): 
+        global fit
+         
+        #path = self.tree_view_tab.listview.model().filePath(index)
+        path = self.inspector_file
+        if path == '':
+            return 
+            
+            
+        fit.add_dataset(self.file_from_path(path), str(path),0.0,1.0)
+        self.init_fit()            
+        self.update_use_from_input_file()            
+        self.update_use()
+        self.update_params()
+        self.update_RV_file_buttons()        
+ 
+
+    def plot_data_inspect(self, index):
+        global fit, colors,pdi 
+        # self.sender() == self.treeView
+        # self.sender().model() == self.fileSystemModel
+        path = self.sender().model().filePath(index)
+ 
+   
+        pdi.plot(clear=True,)    
+        
+        x     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+        y     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+        y_err = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2]) 
+ 
+ 
+        pdi.addLine(x=None, y=np.mean(y), pen=pg.mkPen('#ff9933', width=0.8))   
+ 
+        if self.rv_data_size.value() > 2:
+            symbolsize = self.rv_data_size.value() -2
+        else:
+            symbolsize = self.rv_data_size.value() 
+
+    
+        pdi.plot(x,y,             
+        pen=None, #{'color': colors[i], 'width': 1.1},
+        symbol='o',
+        symbolPen={'color': fit.colors[0], 'width': 1.1},
+        symbolSize=symbolsize,enableAutoRange=True,viewRect=True,
+        symbolBrush=fit.colors[0]
+        )  
+               
+        err_ = pg.ErrorBarItem(x=x, y=y,
+        symbol='o', height=y_err, beam=0.0, pen=fit.colors[0])   
+     
+        pdi.addItem(err_)
+        
+       # print(self.file_from_path(path)[:-5])
+        #if file_from_path(path)[-4]='vels'
+        
+        pdi.setLabel('bottom', 'x', units='',  **{'font-size':'11pt'})
+        pdi.setLabel('left',   'y', units='',  **{'font-size':'11pt'})  
+        
+        self.inspector_file = path
+        
+        #self.data_insp_load_data.clicked.connect(lambda: self.load_data_inspect(path))
+################################# END data inspector ###################################  
+            
             
        
 ############################# Dispatcher (TO BE REMOVED) #####################################  
@@ -2018,49 +2090,6 @@ highly appreciated!
         head, tail = ntpath.split(path)
         return tail or ntpath.basename(head)
     
- 
-
-    def plot_data_inspect(self, index):
-        global fit, colors,pdi 
-        # self.sender() == self.treeView
-        # self.sender().model() == self.fileSystemModel
-        path = self.sender().model().filePath(index)
- 
-        pdi.plot(clear=True,)    
-        
-        x     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-        y     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-        y_err = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2]) 
- 
- 
-        pdi.addLine(x=None, y=np.mean(y), pen=pg.mkPen('#ff9933', width=0.8))   
- 
-        if self.rv_data_size.value() > 2:
-            symbolsize = self.rv_data_size.value() -2
-        else:
-            symbolsize = self.rv_data_size.value() 
-
-    
-        pdi.plot(x,y,             
-        pen=None, #{'color': colors[i], 'width': 1.1},
-        symbol='o',
-        symbolPen={'color': fit.colors[0], 'width': 1.1},
-        symbolSize=symbolsize,enableAutoRange=True,viewRect=True,
-        symbolBrush=fit.colors[0]
-        )  
-               
-        err_ = pg.ErrorBarItem(x=x, y=y,
-        symbol='o', height=y_err, beam=0.0, pen=fit.colors[0])   
-     
-        pdi.addItem(err_)
-        
-       # print(self.file_from_path(path)[:-5])
-        #if file_from_path(path)[-4]='vels'
-        
-        pdi.setLabel('bottom', 'x', units='',  **{'font-size':'11pt'})
-        pdi.setLabel('left',   'y', units='',  **{'font-size':'11pt'})  
-
-
 
      
 #############################  Color control END ################################  
@@ -2096,8 +2125,8 @@ highly appreciated!
         
         self.tree_view_tab = Widget_tree()        
         self.gridLayout_file_tree.addWidget(self.tree_view_tab)
-        
         self.tree_view_tab.listview.clicked.connect(self.plot_data_inspect)
+        self.data_insp_load_data.clicked.connect(self.load_data_inspect)       
         
         if sys.version_info[0] == 2:
             self.pipe_text = MyDialog()
