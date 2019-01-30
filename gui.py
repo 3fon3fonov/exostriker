@@ -692,7 +692,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
         p7.plot(clear=True,)        
                           
-        omega = 1/ np.logspace(-0.05, 4, num=1000)
+        omega = 1/ np.logspace(-0.15, 4, num=1000)
         power_levels = np.array([0.1,0.01,0.001])
   
         if len(fit.fit_results.rv_model.jd) > 5:
@@ -725,7 +725,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
         p8.plot(clear=True,)  
          
-        omega = 1/ np.logspace(-0.05, 4, num=1000)
+        omega = 1/ np.logspace(-0.15, 4, num=1000)
         power_levels = np.array([0.1,0.01,0.001])
 
         if len(fit.fit_results.rv_model.jd) > 5:
@@ -772,7 +772,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                         
             self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(self.identify_power_peaks(1/np.array(omega), WF_power)))        
          
-         
+            #self.lineEdit
         
 
     def update_RV_plots(self):
