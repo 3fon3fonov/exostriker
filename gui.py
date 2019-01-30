@@ -625,15 +625,15 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def update_activity_gls_plots(self,ind):
         global fit, colors,  p11 
  
-        omega = 1/ np.logspace(-0.05, 4, num=1000)
-        power_levels = np.array([0.1,0.01,0.001])
+        omega = 1/ np.logspace(np.log(self.gls_min_period.value()), np.log(self.gls_max_period.value()), num=self.gls_n_omega.value())
+        power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
   
         if len(fit.act_data_sets[ind]) != 0 and len(fit.act_data_sets[ind][0]) > 5:
 
             p11.plot(clear=True,)        
  
             act_per = gls.Gls((fit.act_data_sets[ind][0], fit.act_data_sets[ind][1],fit.act_data_sets[ind][2]), 
-            fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)
+            fast=True,  verbose=False, norm= "ZK",ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)
             
             ######################## GLS ##############################
             if self.radioButton_act_GLS_period.isChecked():
@@ -692,13 +692,13 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
         p7.plot(clear=True,)        
                           
-        omega = 1/ np.logspace(-0.15, 4, num=1000)
-        power_levels = np.array([0.1,0.01,0.001])
+        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
+        power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
   
         if len(fit.fit_results.rv_model.jd) > 5:
 
             RV_per = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.rvs, fit.fit_results.rv_model.rv_err), 
-            fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)
+            fast=True,  verbose=False, norm= "ZK",ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[0],)
             
             ######################## GLS ##############################
             if self.radioButton_RV_GLS_period.isChecked():
@@ -725,13 +725,13 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
         p8.plot(clear=True,)  
          
-        omega = 1/ np.logspace(-0.15, 4, num=1000)
-        power_levels = np.array([0.1,0.01,0.001])
+        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
+        power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
 
         if len(fit.fit_results.rv_model.jd) > 5:
  
             RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.o_c, fit.fit_results.rv_model.rv_err), 
-            fast=True,  verbose=False, norm= "ZK",ofac=5, fbeg=omega[999], fend=omega[ 0],)            
+            fast=True,  verbose=False, norm= "ZK",ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)            
 
             ######################## GLS o-c ##############################
             if self.radioButton_RV_o_c_GLS_period.isChecked():
@@ -755,7 +755,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         p12.plot(clear=True,) 
         p12.setLogMode(True,False)
                         
-        omega = 1/ np.logspace(-0.05, 4, num=1000)
+        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()),  num=int(self.gls_n_omega.value()))
         #power_levels = np.array([0.1,0.01,0.001])
         
         if len(fit.fit_results.rv_model.jd) > 5:
