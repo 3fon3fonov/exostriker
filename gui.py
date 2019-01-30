@@ -156,6 +156,10 @@ class Worker(QtCore.QRunnable):
             self.signals.result.emit(result)  # Return the result of the processing
         finally:
             self.signals.finished.emit()  # Done
+            
+    def stop(self):
+            self.signals.finished.emit()  # Done
+    
 
 class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
@@ -926,7 +930,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit
 
         but_ind = self.buttonGroup_transit_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'Data (*.dat)')
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'Data (*.tran)')
 
         if str(input_files[0]) != '':
  
@@ -977,7 +981,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit
 
         but_ind = self.buttonGroup_activity_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'Data (*.dat)')
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'Data (*.act)')
 
         if str(input_files[0]) != '':
  
@@ -1195,12 +1199,19 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         if len(fit.tra_data_sets[0]) != 0:
             t = fit.tra_data_sets[0][0]
             flux = fit.tra_data_sets[0][1]
+            flux_err = fit.tra_data_sets[0][2]
+           
             p3.plot(t, flux,        
             pen=None,  
             symbol='o',
             symbolPen={'color': fit.colors[0], 'width': 1.1},
             symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=fit.colors[0] ) 
+            
+            err_ = pg.ErrorBarItem(x=t, y=flux,
+            symbol='o', height=flux_err, beam=0.0, pen=fit.colors[0])   
+     
+            p3.addItem(err_)            
             
             m = batman.TransitModel(fit.tr_params, t)    #initializes model
  
@@ -1213,8 +1224,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             symbolPen={'color': fit.colors[0], 'width': 1.1},
             symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=fit.colors[0] )             
-            
-                       
+
+            err_ = pg.ErrorBarItem(x=t, y=flux-flux_model,
+            symbol='o', height=flux_err, beam=0.0, pen=fit.colors[0])               
+            p4.addItem(err_)   
+                     
         else:    
             t = np.linspace(-0.25, 0.25, 1000)  #times at which to calculate light curve   
             m = batman.TransitModel(fit.tr_params, t)    #initializes model
@@ -1957,16 +1971,48 @@ highly appreciated!
         path = self.inspector_file
         if path == '':
             return 
+        
+        filename, file_extension = os.path.splitext(path)  
             
-            
-        fit.add_dataset(self.file_from_path(path), str(path),0.0,1.0)
-        self.init_fit()            
-        self.update_use_from_input_file()            
-        self.update_use()
-        self.update_params()
-        self.update_RV_file_buttons()        
+        if file_extension == '.vels':
+            fit.add_dataset(self.file_from_path(path), str(path),0.0,1.0)
+            self.init_fit()            
+            self.update_use_from_input_file()            
+            self.update_use()
+            self.update_params()
+            self.update_RV_file_buttons()        
  
-
+        elif file_extension == '.act':
+            
+            for i in range(10):
+                if len(fit.act_data_sets[i]) == 0:    
+                    but_ind = i +1
+            
+                    fit.add_act_dataset('test', str(path),act_idset =but_ind-1)
+         
+        
+                    self.update_act_file_buttons()
+                    self.update_activity_gls_plots(but_ind-1)
+                    self.buttonGroup_activity_data.button(but_ind).setText(self.file_from_path(path))
+                    return
+            
+        elif  file_extension == '.tran':
+            for i in range(10):
+                if len(fit.tra_data_sets[i]) == 0:                 
+                    but_ind = i +1
+ 
+                    fit.add_transit_dataset('test', str(path),tra_idset =but_ind-1)
+                    self.update_use_from_input_file()            
+                    self.update_use()
+                    self.update_gui_params()           
+                    self.update_params()
+                    self.update_tra_file_buttons()
+                    self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(path))
+                    return
+           
+        else: 
+            return
+            
     def plot_data_inspect(self, index):
         global fit, colors,pdi 
         # self.sender() == self.treeView
@@ -2002,15 +2048,74 @@ highly appreciated!
      
         pdi.addItem(err_)
         
+        pdi.autoRange()
        # print(self.file_from_path(path)[:-5])
         #if file_from_path(path)[-4]='vels'
         
-        pdi.setLabel('bottom', 'x', units='',  **{'font-size':'11pt'})
-        pdi.setLabel('left',   'y', units='',  **{'font-size':'11pt'})  
+        filename, file_extension = os.path.splitext(path)  
+            
+        if file_extension == '.vels':
+            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'11pt'})
+            pdi.setLabel('left',   'RV', units='m/s',  **{'font-size':'11pt'})         
+ 
+        elif file_extension == '.act':
+            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'11pt'})
+            pdi.setLabel('left',   'y', units='',  **{'font-size':'11pt'})    
+            
+        elif file_extension == '.tran':      
+            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'11pt'})
+            pdi.setLabel('left',   'flux', units='',  **{'font-size':'11pt'})
+
+        else:      
+            pdi.setLabel('bottom', 'x', units='',  **{'font-size':'11pt'})
+            pdi.setLabel('left',   'y', units='',  **{'font-size':'11pt'})
+        
+
         
         self.inspector_file = path
         
+        self.data_insp_print_info.clicked.connect(lambda: self.print_info_for_object(self.stat_info(x,y,y_err,path)))   
+    
+        
         #self.data_insp_load_data.clicked.connect(lambda: self.load_data_inspect(path))
+        
+        
+    def stat_info(self,x,y,y_err,path):
+ 
+ 
+        ################## text generator #################
+        text_info = """ 
+"""
+        text_info = text_info +"""%s
+-----------------------------------  
+"""%path    
+        text_info = text_info +"""
+N data          :  %s        
+        
+first epoch     :  %.3f
+last epoch      :  %.3f
+time span       :  %.3f
+
+min. value      :  %.4f
+max. value      :  %.4f
+end-to-end      :  %.4f
+mean            :  %.4f
+median          :  %.4f
+r.m.s.          :  %.4f
+
+min error       :  %.4f
+max error       :  %.4f
+mean error      :  %.4f
+median error    :  %.4f
+
+"""%(len(x), x[0], x[-1], x[-1]-x[0], np.min(y), np.max(y), np.max(y)-np.min(y), np.mean(y),  np.median(y), np.sqrt(np.mean(np.square(y))),
+np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))       
+      
+        ################################################        
+    
+        return text_info  
+              
+        
 ################################# END data inspector ###################################  
             
             
@@ -2123,10 +2228,15 @@ highly appreciated!
         self.gridLayout_text_editor.addWidget(text_editor_es.MainWindow())       
         self.gridLayout_calculator.addWidget(calc.Calculator())  
         
+        #################### data inspector ########################
+                        
         self.tree_view_tab = Widget_tree()        
         self.gridLayout_file_tree.addWidget(self.tree_view_tab)
         self.tree_view_tab.listview.clicked.connect(self.plot_data_inspect)
-        self.data_insp_load_data.clicked.connect(self.load_data_inspect)       
+        self.data_insp_load_data.clicked.connect(self.load_data_inspect)  
+        
+        
+        
         
         if sys.version_info[0] == 2:
             self.pipe_text = MyDialog()
