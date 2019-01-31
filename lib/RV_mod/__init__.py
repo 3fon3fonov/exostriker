@@ -8,6 +8,7 @@ import sys, os
 sys.path.append('./lib/RV_mod/')
 import jac2astrocen
 import gls as gls 
+import prior_functions as pr
 
 
 #import prior_functions as pr
