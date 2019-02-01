@@ -232,6 +232,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(fit.npl*7):
             fit.params.planet_params[i] = param_gui[i].value() 
             
+            
         param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans,self.pl1_radii, self.incl1_trans, self.a1_trans,]
          
         for i in range(len(param_gui_trans)):
@@ -393,7 +394,36 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
         fit.use.use_linear_trend = int(self.use_RV_lin_trend.isChecked()) 
 
+   
+    def check_bounds(self):
+        global fit
+
+        
+        
+        bounds_gui = [
+        [self.K1_min.value(),self.K1_max.value()],[self.P1_min.value(),self.P1_max.value()], [self.e1_min.value(),self.e1_max.value()],[self.om1_min.value(),self.om1_max.value()], [self.ma1_min.value(),self.ma1_max.value()],[self.incl1_min.value(),self.incl1_max.value()], [self.Omega1_min.value(),self.Omega1_max.value()],
+        [self.K2_min.value(),self.K2_max.value()],[self.P2_min.value(),self.P2_max.value()], [self.e2_min.value(),self.e2_max.value()],[self.om2_min.value(),self.om2_max.value()], [self.ma2_min.value(),self.ma2_max.value()],[self.incl2_min.value(),self.incl2_max.value()], [self.Omega2_min.value(),self.Omega2_max.value()],
+        [self.K3_min.value(),self.K3_max.value()],[self.P3_min.value(),self.P3_max.value()], [self.e3_min.value(),self.e3_max.value()],[self.om3_min.value(),self.om3_max.value()], [self.ma3_min.value(),self.ma3_max.value()],[self.incl3_min.value(),self.incl3_max.value()], [self.Omega3_min.value(),self.Omega3_max.value()],
+        [self.K4_min.value(),self.K4_max.value()],[self.P4_min.value(),self.P4_max.value()], [self.e4_min.value(),self.e4_max.value()],[self.om4_min.value(),self.om4_max.value()], [self.ma4_min.value(),self.ma4_max.value()],[self.incl4_min.value(),self.incl4_max.value()], [self.Omega4_min.value(),self.Omega4_max.value()],
+        [self.K5_min.value(),self.K5_max.value()],[self.P5_min.value(),self.P5_max.value()], [self.e5_min.value(),self.e5_max.value()],[self.om5_min.value(),self.om5_max.value()], [self.ma5_min.value(),self.ma5_max.value()],[self.incl5_min.value(),self.incl5_max.value()], [self.Omega5_min.value(),self.Omega5_max.value()],
+        [self.K6_min.value(),self.K6_max.value()],[self.P6_min.value(),self.P6_max.value()], [self.e6_min.value(),self.e6_max.value()],[self.om6_min.value(),self.om6_max.value()], [self.ma6_min.value(),self.ma6_max.value()],[self.incl6_min.value(),self.incl6_max.value()], [self.Omega6_min.value(),self.Omega6_max.value()],
+        [self.K7_min.value(),self.K7_max.value()],[self.P7_min.value(),self.P7_max.value()], [self.e7_min.value(),self.e7_max.value()],[self.om7_min.value(),self.om7_max.value()], [self.ma7_min.value(),self.ma7_max.value()],[self.incl7_min.value(),self.incl7_max.value()], [self.Omega7_min.value(),self.Omega7_max.value()],
+        [self.K8_min.value(),self.K8_max.value()],[self.P8_min.value(),self.P8_max.value()], [self.e8_min.value(),self.e8_max.value()],[self.om8_min.value(),self.om8_max.value()], [self.ma8_min.value(),self.ma8_max.value()],[self.incl8_min.value(),self.incl8_max.value()], [self.Omega8_min.value(),self.Omega8_max.value()],
+        [self.K9_min.value(),self.K9_max.value()],[self.P9_min.value(),self.P9_max.value()], [self.e9_min.value(),self.e9_max.value()],[self.om9_min.value(),self.om9_max.value()], [self.ma9_min.value(),self.ma9_max.value()],[self.incl9_min.value(),self.incl9_max.value()], [self.Omega9_min.value(),self.Omega9_max.value()]               
+        ]
  
+        for i in range(fit.npl):
+            fit.K_bound[i] = bounds_gui[7*i + 0]    
+            fit.P_bound[i] = bounds_gui[7*i + 1]    
+            fit.e_bound[i] = bounds_gui[7*i + 2]    
+            fit.w_bound[i] = bounds_gui[7*i + 3]    
+            fit.M0_bound[i] = bounds_gui[7*i + 4]    
+            fit.i_bound[i] = bounds_gui[7*i + 5]    
+            fit.Node_bound[i] = bounds_gui[7*i + 6]    
+          
+    
+    
+    
 ####################################################        
   
     def initialize_buttons(self):
@@ -1327,7 +1357,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
              self.button_fit.setEnabled(True)         
-             return        
+             return   
+         
+            
+        #self.check_bounds()
+   
         
         if self.radioButton_fortran77.isChecked():
             self.statusBar().showMessage('Minimizing parameters....')                 
@@ -1859,6 +1893,8 @@ highly appreciated!
             self.button_MCMC.setEnabled(True)
             return        
         
+        self.check_bounds()
+        
         # Pass the function to execute
         worker = Worker(lambda: self.run_mcmc()) # Any other args, kwargs are passed to the run  
         # Execute
@@ -2140,6 +2176,10 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
                                                
         elif self.radioButton_transit_RV.isChecked():  
             self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked()) 
+
+
+
+
 
     def grab_screen(self):
         p = QtWidgets.QWidget.grab(self)

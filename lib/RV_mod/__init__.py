@@ -996,12 +996,14 @@ class signal_fit(object):
         self.mod_dynamical=False
         self.epoch=0.0
         self.npl=0
-        self.use=use_flags([False]*20,[False]*20,[False]*70,False,False) 
-        self.params=parameters([0.0]*20,[0.0]*20,[0.0]*70,0.0,DEFAULT_STELLAR_MASS) 
-        self.param_errors=parameter_errors([0.0]*20,[0.0]*20,[0.0]*70,0.0,0.0) 
-        self.bounds = parameter_bounds([0.0,0.0]*20,[0.0,0.0]*20,[0.0,0.0]*70,[0.0,0.0],[0.0,0.0]*4,[0.0,0.0])  
+        self.use=use_flags([False]*10,[False]*10,[False]*70,False,False) 
+        self.params=parameters([0.0]*10,[0.0]*10,[0.0]*70,0.0,DEFAULT_STELLAR_MASS) 
+        self.param_errors=parameter_errors([0.0]*10,[0.0]*10,[0.0]*70,0.0,0.0) 
+        self.bounds = parameter_bounds([0.0,0.0]*10,[0.0,0.0]*10,[0.0,0.0]*70,[0.0,0.0],[0.0,0.0]*4,[0.0,0.0])  
         self.GP_params=GP_parameters(4,[1,10,15,1],kernel_id=0) # we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
-
+       
+        ########## new stuff ##########
+        self.init_bounds()
         
         self.fit_performed = False
         self.fitting_method = 'None'
@@ -1050,8 +1052,28 @@ class signal_fit(object):
         self.act_data_sets = {k: [] for k in range(10)}
         self.tra_data_sets = {k: [] for k in range(10)}
         self.rad_data_sets = {k: [] for k in range(10)}
+        
 
 
+    def init_bounds(self): 
+
+        self.K_bound   = {k: np.array([0,10000]) for k in range(9)}
+        self.P_bound    = {k: np.array([0,100000]) for k in range(9)}
+        self.e_bound    = {k: np.array([-0.999,0.999]) for k in range(9)}
+        self.w_bound    = {k: np.array([-2.0*360.0, 2.0*360.0]) for k in range(9)}
+        self.M0_bound   = {k: np.array([-2.0*360.0, 2.0*360.0]) for k in range(9)}
+        self.i_bound    = {k: np.array([-180.0, 180.0]) for k in range(9)}
+        self.Node_bound = {k: np.array([-2.0*360.0, 2.0*360.0]) for k in range(9)}
+        
+        self.rvoff_bounds = {k: np.array([-1000000.0,1000000.0]) for k in range(10)} 
+        self.jitt_bounds  = {k: np.array([0.0,10000.0] )for k in range(10)} 
+        
+        self.lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(1)} 
+        self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
+
+
+        self.GP_bounds  = {k: np.array([0.0,100000.0]) for k in range(4)} 
+ 
 
     def init_transit_params(self): 
         # from the example in github
@@ -2007,7 +2029,84 @@ class signal_fit(object):
                     
 
     #### WORK IN PROGRESS HERE!
+   # def prepare_for_mcmc(self, customdatasetlabels=[]):
     def prepare_for_mcmc(self, Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-0.99,0.99]],wbounds=[[-2.0*360.0, 2.0*360.0]],Mbounds=[[-2.0*360.0, 2.0*360.0]],ibounds=[[-2.0*180.0, 2.0*180.0]],capbounds=[[-2.0*360.0, 2.0*360.0]],offbounds=[[-100000.0,100000.0]],jitbounds=[[0.0,10000.0]],lintrbounds=[[-100000.0,100000.0]], GPbounds=[[0.0,100000.0]], stmassbounds=[[0.01,1000.0]], customdatasetlabels=[]):
+        '''Prepare bounds and par array needed for the MCMC''' 
+ 
+        preparingwarnings=Warning_log([],'Preparing for MCMC')  
+        # put together bounds for K,P,e,w,M0, so they are in an order we are used to
+        
+        parambounds=[[0.0,100000.0]]*(7*self.npl) # set some initial values just in case
+        offbounds  =[[0.0,100000.0]]*(self.filelist.ndset) # set some initial values just in case
+        jitbounds  =[[0.0,100000.0]]*(self.filelist.ndset) # set some initial values just in case
+      
+ 
+ 
+        for i in range(self.npl):
+            parambounds[7*i]=self.K_bound[i]        
+            parambounds[7*i+1]=self.P_bound[i] 
+            parambounds[7*i+2]=self.e_bound[i]  
+            parambounds[7*i+3]=self.w_bound[i]   
+            parambounds[7*i+4]=self.M0_bound[i] 
+            parambounds[7*i+5]=self.i_bound[i]
+            parambounds[7*i+6]=self.Node_bound[i]
+ 
+ 
+        for i in range(self.filelist.ndset):           
+            offbounds[i] = self.rvoff_bounds[i]
+            jitbounds[i] = self.jitt_bounds[i]
+        # Concatenate bounds into one array
+        
+        #print(offbounds, jitbounds)
+        
+        self.bounds = parameter_bounds(offbounds,jitbounds,parambounds,self.lintr_bounds,self.GP_bounds,self.st_mass_bounds)     
+        
+        # Now prepare parameters, only those which are used         
+        par = np.concatenate((self.params.offsets[:self.filelist.ndset],self.params.jitters[:self.filelist.ndset],self.params.planet_params[:7*self.npl],np.atleast_1d(self.params.linear_trend),np.atleast_1d(self.params.GP_params.gp_par),np.atleast_1d(self.params.stellar_mass)))         
+        flag = np.concatenate((self.use.use_offsets[:self.filelist.ndset],self.use.use_jitters[:self.filelist.ndset],self.use.use_planet_params[:7*self.npl],np.atleast_1d(self.use.use_linear_trend),np.atleast_1d(self.use.use_GP_params),np.atleast_1d(self.use.use_stellar_mass)))
+        
+       # print(par,flag)
+        if not (self.mod_dynamical): # we need to make sure we don't try to fit for inclination in keplerian case
+            for i in range(self.npl):
+                flag[2*self.filelist.ndset+7*i+5]=False
+                flag[2*self.filelist.ndset+7*i+6]=False
+
+
+        # prepare element names for corner plot labels
+        if (len(customdatasetlabels)<self.filelist.ndset):
+            if not (customdatasetlabels==[]): # this means the user wanted to provide custom dataset labels, but didn't provide it for all datasets, we need to give a warning
+                preparingwarnings.update_warning_list('Too few customdatasetlabels! Will use default labels for remaining.')
+            customdatasetlabels=np.concatenate((customdatasetlabels,np.array(list(map(str,np.arange(len(customdatasetlabels),self.filelist.ndset))))))
+        if (len(customdatasetlabels)>self.filelist.ndset):
+            customdatasetlabels=customdatasetlabels[:self.filelist.ndset]
+            preparingwarnings.update_warning_list('Too many customdatasetlabels! Additional will be ignored.')
+        el_str=np.concatenate(([r'$\gamma_%s$ [m/s]'%customdatasetlabels[i] for i in range(self.filelist.ndset)],
+                               [r'jitt$_%s$ [m/s]'%customdatasetlabels[i] for i in range(self.filelist.ndset)],
+                               np.concatenate([[r'K$_%s$ [m/s]'%chr(98+i),
+                                                r'P$_%s$ [day]'%chr(98+i),
+                                                r'e$_%s$'%chr(98+i),
+                                                r'$\omega_%s$ [deg]'%chr(98+i),
+                                                r'M$_%s$ [deg]'%chr(98+i), 
+                                                r'i$_%s$ [deg]'%chr(98+i), 
+                                                r'$\Omega_%s$ [deg]'%chr(98+i)] for i in range(self.npl)]),np.atleast_1d(r'lin.trend [m/s/day]'),[r'Amp', r't', r'per', r'fact'],np.atleast_1d(r'st. mass [$M_\odot$]')))
+   
+        self.f_for_mcmc = [idx for idx in range(len(flag)) if flag[idx] ==1 ] # indices for fitted parameters
+
+        self.par_for_mcmc = []  # self par_for_mcmc are the fitted parameters   
+        self.e_for_mcmc = [] # labels for fitted parameters only
+        
+
+        for j in range(len(par)):
+            if flag[j] > 0:
+                self.par_for_mcmc=np.concatenate((self.par_for_mcmc,np.atleast_1d(par[j])))
+                self.e_for_mcmc=np.concatenate((self.e_for_mcmc,np.atleast_1d(el_str[j])))
+ 
+            
+        preparingwarnings.print_warning_log()
+        return                  
+        
+    #### WORK IN PROGRESS HERE!
+    def prepare_for_mcmcold(self, Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-0.99,0.99]],wbounds=[[-2.0*360.0, 2.0*360.0]],Mbounds=[[-2.0*360.0, 2.0*360.0]],ibounds=[[-2.0*180.0, 2.0*180.0]],capbounds=[[-2.0*360.0, 2.0*360.0]],offbounds=[[-100000.0,100000.0]],jitbounds=[[0.0,10000.0]],lintrbounds=[[-100000.0,100000.0]], GPbounds=[[0.0,100000.0]], stmassbounds=[[0.01,1000.0]], customdatasetlabels=[]):
  
         '''Prepare bounds and par array needed for the MCMC''' 
  
