@@ -400,7 +400,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
         
         
-        bounds_gui = [
+        param_bounds_gui = [
         [self.K1_min.value(),self.K1_max.value()],[self.P1_min.value(),self.P1_max.value()], [self.e1_min.value(),self.e1_max.value()],[self.om1_min.value(),self.om1_max.value()], [self.ma1_min.value(),self.ma1_max.value()],[self.incl1_min.value(),self.incl1_max.value()], [self.Omega1_min.value(),self.Omega1_max.value()],
         [self.K2_min.value(),self.K2_max.value()],[self.P2_min.value(),self.P2_max.value()], [self.e2_min.value(),self.e2_max.value()],[self.om2_min.value(),self.om2_max.value()], [self.ma2_min.value(),self.ma2_max.value()],[self.incl2_min.value(),self.incl2_max.value()], [self.Omega2_min.value(),self.Omega2_max.value()],
         [self.K3_min.value(),self.K3_max.value()],[self.P3_min.value(),self.P3_max.value()], [self.e3_min.value(),self.e3_max.value()],[self.om3_min.value(),self.om3_max.value()], [self.ma3_min.value(),self.ma3_max.value()],[self.incl3_min.value(),self.incl3_max.value()], [self.Omega3_min.value(),self.Omega3_max.value()],
@@ -413,15 +413,43 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         ]
  
         for i in range(fit.npl):
-            fit.K_bound[i] = bounds_gui[7*i + 0]    
-            fit.P_bound[i] = bounds_gui[7*i + 1]    
-            fit.e_bound[i] = bounds_gui[7*i + 2]    
-            fit.w_bound[i] = bounds_gui[7*i + 3]    
-            fit.M0_bound[i] = bounds_gui[7*i + 4]    
-            fit.i_bound[i] = bounds_gui[7*i + 5]    
-            fit.Node_bound[i] = bounds_gui[7*i + 6]    
-          
+            fit.K_bound[i] = param_bounds_gui[7*i + 0]    
+            fit.P_bound[i] = param_bounds_gui[7*i + 1]    
+            fit.e_bound[i] = param_bounds_gui[7*i + 2]    
+            fit.w_bound[i] = param_bounds_gui[7*i + 3]    
+            fit.M0_bound[i] = param_bounds_gui[7*i + 4]    
+            fit.i_bound[i] = param_bounds_gui[7*i + 5]    
+            fit.Node_bound[i] = param_bounds_gui[7*i + 6]    
+
+
+        offset_bounds_gui = [
+        [self.Data1_min.value(),self.Data1_max.value()], [self.Data2_min.value(),self.Data2_max.value()], [self.Data3_min.value(),self.Data3_max.value()], [self.Data4_min.value(),self.Data4_max.value()], [self.Data5_min.value(),self.Data5_max.value()],   
+        [self.Data6_min.value(),self.Data6_max.value()], [self.Data7_min.value(),self.Data7_max.value()], [self.Data8_min.value(),self.Data8_max.value()], [self.Data9_min.value(),self.Data9_max.value()], [self.Data10_min.value(),self.Data10_max.value()]
+        ]
+        
+        jitter_bounds_gui = [
+        [self.jitter1_min.value(),self.jitter1_max.value()], [self.jitter2_min.value(),self.jitter2_max.value()], [self.jitter3_min.value(),self.jitter3_max.value()], [self.jitter4_min.value(),self.jitter4_max.value()], [self.jitter5_min.value(),self.jitter5_max.value()],   
+        [self.jitter6_min.value(),self.jitter6_max.value()], [self.jitter7_min.value(),self.jitter7_max.value()], [self.jitter8_min.value(),self.jitter8_max.value()], [self.jitter9_min.value(),self.jitter9_max.value()], [self.jitter10_min.value(),self.Data10_max.value()]   
+        ]  
     
+    
+        for i in range(10): 
+            fit.rvoff_bounds[i] = offset_bounds_gui[i]
+            fit.jitt_bounds[i]  = jitter_bounds_gui[i] 
+    
+ 
+        fit.lintr_bounds[0]  = [self.lin_trend_min.value(),self.lin_trend_max.value()]
+        #self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
+
+        GP_bounds_gui = [
+        [self.GP_rot_kernel_Amp_min.value(),self.GP_rot_kernel_Amp_max.value()],  
+        [self.GP_rot_kernel_time_sc_min.value(),self.GP_rot_kernel_time_sc_max.value()],  
+        [self.GP_rot_kernel_Per_min.value(),self.GP_rot_kernel_Per_max.value()],  
+        [self.GP_rot_kernel_fact_min.value(),self.GP_rot_kernel_fact_max.value()],  
+        ]
+ 
+        for i in range(4): 
+            fit.GP_bounds[i] = GP_bounds_gui[i]
     
     
 ####################################################        

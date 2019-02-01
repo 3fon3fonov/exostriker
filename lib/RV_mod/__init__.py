@@ -1013,7 +1013,9 @@ class signal_fit(object):
         self.semimajor=[0.0]*10
         self.f_for_mcmc=[]
         self.par_for_mcmc=[]
-        self.e_for_mcmc=[]        
+        self.e_for_mcmc=[]  
+        self.b_for_mcmc=[] 
+        
         self.gps=[]
         if (readinputfile):
             self.read_input_file() # after running this a file should be processed and initial values saved in the object properties, unless there was some error
@@ -1858,7 +1860,6 @@ class signal_fit(object):
          #def fittingSciPyOp(, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False]):    
          ####### find the -LogLik "minimum" using the "truncated Newton" method ######### 
     
-        print(gp_par)
         if (doGP):
             self.initiategps(gp_par=gp_par, use_gp_par=use_gp_par, kernel_id=kernel_id)
             nll = lambda *args: -compute_loglik_SciPyOp2(*args)
@@ -1888,7 +1889,7 @@ class signal_fit(object):
         for k in range(3): # run at least 3 times the minimizer
             xtol = xtol/10.0 
 
-            result = op.minimize(nll, pp, args=(self), method=minimzers[0], options={'xtol': xtol, 'disp': True, 'maxiter':30000, 'maxfev':30000 })
+            result = op.minimize(nll, pp, args=(self), method=minimzers[0], options={'xtol': xtol, 'disp': True, 'maxiter':10000, 'maxfev':10000 })
             pp = result["x"]
 
         #print("Best fit par.:", result["x"])
@@ -2039,7 +2040,9 @@ class signal_fit(object):
         parambounds=[[0.0,100000.0]]*(7*self.npl) # set some initial values just in case
         offbounds  =[[0.0,100000.0]]*(self.filelist.ndset) # set some initial values just in case
         jitbounds  =[[0.0,100000.0]]*(self.filelist.ndset) # set some initial values just in case
-      
+        GPbounds  =[[0.0,100000.0]]*(4) # set some initial values just in case
+        ltrbound  = [[-1,1.0]] 
+        stmass_bound = [[0.01,100.0]]     
  
  
         for i in range(self.npl):
@@ -2057,13 +2060,21 @@ class signal_fit(object):
             jitbounds[i] = self.jitt_bounds[i]
         # Concatenate bounds into one array
         
-        #print(offbounds, jitbounds)
+        for i in range(4):           
+            GPbounds[i] = self.GP_bounds[i]
+        
+        for i in range(1):         
+            ltrbound[i] = self.lintr_bounds[i]
+            stmass_bound[i] = self.st_mass_bounds[i]
         
         self.bounds = parameter_bounds(offbounds,jitbounds,parambounds,self.lintr_bounds,self.GP_bounds,self.st_mass_bounds)     
         
         # Now prepare parameters, only those which are used         
         par = np.concatenate((self.params.offsets[:self.filelist.ndset],self.params.jitters[:self.filelist.ndset],self.params.planet_params[:7*self.npl],np.atleast_1d(self.params.linear_trend),np.atleast_1d(self.params.GP_params.gp_par),np.atleast_1d(self.params.stellar_mass)))         
         flag = np.concatenate((self.use.use_offsets[:self.filelist.ndset],self.use.use_jitters[:self.filelist.ndset],self.use.use_planet_params[:7*self.npl],np.atleast_1d(self.use.use_linear_trend),np.atleast_1d(self.use.use_GP_params),np.atleast_1d(self.use.use_stellar_mass)))
+      
+        bounds = np.concatenate((offbounds[:self.filelist.ndset],jitbounds[:self.filelist.ndset],parambounds[:7*self.npl], GPbounds[:4],ltrbound, stmass_bound))   
+         
         
        # print(par,flag)
         if not (self.mod_dynamical): # we need to make sure we don't try to fit for inclination in keplerian case
@@ -2094,14 +2105,18 @@ class signal_fit(object):
 
         self.par_for_mcmc = []  # self par_for_mcmc are the fitted parameters   
         self.e_for_mcmc = [] # labels for fitted parameters only
+        self.b_for_mcmc = [] # labels for fitted parameters only
         
 
         for j in range(len(par)):
             if flag[j] > 0:
                 self.par_for_mcmc=np.concatenate((self.par_for_mcmc,np.atleast_1d(par[j])))
                 self.e_for_mcmc=np.concatenate((self.e_for_mcmc,np.atleast_1d(el_str[j])))
- 
+                #self.b_for_mcmc=np.concatenate((self.b_for_mcmc,np.atleast_1d(bounds[j])))
+                self.b_for_mcmc.append(bounds[j])
+
             
+ 
         preparingwarnings.print_warning_log()
         return                  
         
