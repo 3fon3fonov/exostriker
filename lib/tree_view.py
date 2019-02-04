@@ -20,11 +20,11 @@ class Widget_tree(QWidget):
         hlay.addWidget(self.treeview)
         hlay.addWidget(self.listview)
 
-        path = QDir.currentPath() #QDir.rootPath()
+        path = QDir.homePath() #QDir.currentPath() #QDir.rootPath()
 
 
         self.dirModel = QFileSystemModel()
-        self.dirModel.setRootPath(QDir.currentPath())
+        self.dirModel.setRootPath(path) #QDir.currentPath())
         self.dirModel.setFilter(QDir.NoDotAndDotDot | QDir.AllDirs)
 
         self.fileModel = QFileSystemModel()
