@@ -1035,6 +1035,7 @@ class signal_fit(object):
         self.init_transit_params()
         #self.tr_params = batman.TransitParams() 
         self.colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+       
         self.mcmc_sample_file = 'mcmc_samples'
         self.corner_plot_file = 'cornerplot.pdf'
       
@@ -1892,12 +1893,12 @@ class signal_fit(object):
             result = op.minimize(nll, pp, args=(self), method=minimzers[0], options={'xtol': xtol, 'disp': True, 'maxiter':10000, 'maxfev':10000 })
             pp = result["x"]
 
-        #print("Best fit par.:", result["x"])
+        print("Best fit par.:", result["x"])
     
         self.par_for_mcmc = result["x"]        
         
-        
-        
+        #self.initiategps = None
+        self.gps= None
                 
     ### this function is a wrapper calling a fortran program to fit parameters in keplerian mode by minimizing chi^2   WORK IN PROGRESS ON THAT ONE! 
         

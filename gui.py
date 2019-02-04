@@ -1086,7 +1086,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def init_fit(self): 
         global fit
         minimize_fortran=True
-        fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran,  fortran_kill=30, timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
+        fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
  
         self.update_labels()
         self.update_gui_params()
@@ -1440,7 +1440,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             f_kill = self.kep_model_to_kill.value()    
         
         if minimize_fortran==False:
-            ff = 3  
+            ff = 1 
             
       #  print(ff)   
 
@@ -2021,6 +2021,7 @@ highly appreciated!
         if output_file[0] != '':
             fit.corner_plot_file = output_file[0] 
             self.corner_plot_change_name.setText(output_file[0])   
+            
             
 ################################# END Cornerplot ###################################  
       
