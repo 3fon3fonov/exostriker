@@ -599,6 +599,9 @@ def phase_planet_signal(obj,planet):
         #copied_obj = copy.deepcopy(obj) 
          
         copied_obj = dill.copy(obj) 
+        
+        if(copied_obj.mod_dynamical):
+            copied_obj.mod_dynamical = False
    
         index = planet - 1
         ############################################      
