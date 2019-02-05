@@ -1057,7 +1057,7 @@ class signal_fit(object):
         
         self.act_data_sets = {k: [] for k in range(10)}
         self.tra_data_sets = {k: [] for k in range(10)}
-        self.rad_data_sets = {k: [] for k in range(10)}
+        self.rv_data_sets  = {k: [] for k in range(10)}
         
 
 
@@ -1124,7 +1124,31 @@ class signal_fit(object):
         self.epoch=epoch
         return
         
-        
+############################ activity datasets ##########################################      
+    def add_rv_dataset(self, name, path, rv_idset = 0):
+ 
+        rv_JD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+        rv_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+        rv_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+	
+        rv_data_set = np.array([rv_JD,rv_data,rv_data_sig]) 
+
+        #ind = 0 
+        #for i in range(10):
+       #     if len(self.filelist.idset==i) != 0:
+        #        ind += 1
+        ####### for now ###########
+        self.rv_data_sets[max(self.filelist.idset)+1] =  rv_data_set 
+ 
+        return   
+
+
+    def remove_rv_dataset(self, rv_idset):
+ 
+        self.rv_data_sets[rv_idset] = []
+ 
+        return   
+############################ activity datasets END ##########################################              
 
 ############################ activity datasets ##########################################      
     def add_act_dataset(self, name, path, act_idset = 0):
@@ -1132,7 +1156,7 @@ class signal_fit(object):
         act_JD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
         act_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
         act_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-	
+	''
         act_data_set = np.array([act_JD,act_data,act_data_sig]) 
  
         self.act_data_sets[act_idset] = act_data_set
