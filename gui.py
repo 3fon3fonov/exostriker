@@ -564,8 +564,8 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         
         pdi = self.load_data_plot
 
-        xaxis = ['BJD','BJD','BJD','BJD','BJD','','days','days','days','days','days','days','yrs','yrs','a','','y']
-        yaxis = ['RV','RV','Relative Flux','Relative Flux','','','power','power','power','power','power','power','a','e','a','','x']       
+        xaxis = ['BJD','BJD','BJD','BJD','BJD','x','days','days','days','days','days','days','yrs','yrs','a','','y']
+        yaxis = ['RV','RV','Relative Flux','Relative Flux','y','y','power','power','power','power','power','power','a','e','a','','x']       
         xunit = ['d' ,'d','d','d','d','','','','','','','','','','au','','']
         yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','au','','']
 
@@ -645,17 +645,136 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit
         self.comboBox_corr_1.clear()
         self.comboBox_corr_2.clear()
-       
-        if fit.filelist.ndset > 0:
-            for i in range(0,fit.filelist.ndset,1):
-                self.comboBox_corr_1.addItem('RV %s'%(i+1),i+1)       
+        
+        self.initialize_corr_y = {k: [] for k in range(20)}
+        z = 0 
+
+        if fit.filelist.ndset != 0:
+
+            for i in range(max(fit.filelist.idset)+1):
+                self.comboBox_corr_1.addItem('RV %s'%(i+1),i+1) 
                 self.comboBox_corr_2.addItem('RV %s'%(i+1),i+1) 
             
+                self.initialize_corr_y[z] = np.array([fit.fit_results.rv_model.jd[fit.filelist.idset==i],
+                                                      fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
+                                                      fit.fit_results.rv_model.rv_err[fit.filelist.idset==i]])  
+                z +=1
+                
+            for i in range(max(fit.filelist.idset)+1):
+                self.comboBox_corr_1.addItem('RV o-c %s'%(i+1),i+1)         
+                self.comboBox_corr_2.addItem('RV o-c %s'%(i+1),i+1)  
+    
+                self.initialize_corr_y[z] = np.array([fit.fit_results.rv_model.jd[fit.filelist.idset==i],
+                                                      fit.fit_results.rv_model.o_c[fit.filelist.idset==i], 
+                                                      fit.fit_results.rv_model.rv_err[fit.filelist.idset==i]]) 
+                z +=1                          
+         
+
         for i in range(0,10,1):         
             if len(fit.act_data_sets[i]) != 0: 
                 self.comboBox_corr_1.addItem('act. data %s'%(i+1),i+1)       
                 self.comboBox_corr_2.addItem('act. data %s'%(i+1),i+1) 
-                 
+                
+                self.initialize_corr_y[z] = fit.act_data_sets[i] 
+                z +=1                                         
+                
+        #return                
+                
+                
+    def update_correlations_data_plots(self):
+        global fit, colors,  p6 
+        
+        ind1 = self.comboBox_corr_1.currentIndex()
+        ind2 = self.comboBox_corr_2.currentIndex()
+ 
+        p6.plot(clear=True,)  
+        
+        self.color_corr.setStyleSheet("color: %s;"%colors[0]) 
+
+        #p6.autoRange()     
+        
+        if not ind1 == None and not ind2 == None:
+
+
+            #err1 = pg.ErrorBarItem(x=fit.act_data_sets[ind][0], y=fit.act_data_sets[ind][1],symbol='o', 
+            #height=fit.act_data_sets[ind][2], beam=0.0, pen=fit.colors[ind])  
+
+            #p6.addItem(err1)      
+            #p6.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
+            
+            
+            if len(self.initialize_corr_y[ind1][0]) == len(self.initialize_corr_y[ind2][0]):
+                p6.plot(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1], pen=None,symbol='o',
+                #symbolPen=,
+                symbolSize=self.act_data_size.value(),enableAutoRange=True,viewRect=True,
+                symbolBrush=colors[0]
+                )    
+                
+                if self.plot_corr_err.isChecked():
+                    err1 = pg.ErrorBarItem(x=self.initialize_corr_y[ind1][1], y=self.initialize_corr_y[ind2][1],symbol='o', 
+                    top=self.initialize_corr_y[ind1][2]/2.0,bottom=self.initialize_corr_y[ind1][2]/2.0, 
+                    left=self.initialize_corr_y[ind2][2]/2.0,right=self.initialize_corr_y[ind1][2]/2.0,                     
+                    beam=0.0, pen=colors[0])  
+
+                    p6.addItem(err1)    
+                
+                
+                p6.autoRange()
+                
+                #if ind1 < fit.filelist.ndset*2:      #pdi.addLine(x=[0,1], y=0, pen=pg.mkPen('#ff9933', width=0.8)) 
+                #    p6.setLabel('bottom', 'RV', units='m/s',  **{'font-size':'11pt'})
+               # else:
+                #    p6.setLabel('bottom', 'x', units='',  **{'font-size':'11pt'})
+                   
+                #if ind2 < fit.filelist.ndset*2:      #pdi.addLine(x=[0,1], y=0, pen=pg.mkPen('#ff9933', width=0.8)) 
+               #     p6.setLabel('left',   'RV', units='m/s',  **{'font-size':'11pt'})
+               # else:
+                #    p6.setLabel('left', 'y', units='',  **{'font-size':'11pt'})     
+                
+                return   
+            
+            else:               
+                text_err = pg.TextItem('Not the same time series!',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
+                p6.addItem(text_err, ignoreBounds=True)   
+        else:   
+             
+                return
+
+    def get_corr_color(self):
+        global fit
+        
+        colorz = QtGui.QColorDialog.getColor()
+        colors[0]=colorz.name()   
+
+        self.update_correlations_data_plots()
+
+    def corr_plot_x_labels(self):
+        global fit
+        
+        text, okPressed = QtGui.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
+        
+        if okPressed and text != '':
+            p6.setLabel('bottom', '%s'%text, units='',  **{'font-size':'11pt'})
+ 
+        else:
+            return
+    
+        self.update_correlations_data_plots()
+ 
+
+    def corr_plot_y_labels(self):
+        global fit
+        
+        text, okPressed = QtGui.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
+        
+        if okPressed and text != '':
+            p6.setLabel('left', '%s'%text, units='',  **{'font-size':'11pt'})
+ 
+        else:
+            return
+    
+        self.update_correlations_data_plots()
+       
 ######################## Correlation plots END ##################################         
        
         
@@ -735,8 +854,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p5.plot(fit.act_data_sets[ind][0],fit.act_data_sets[ind][1], pen=None,symbol='o',
             #symbolPen=,
             symbolSize=self.act_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[ind]
+            symbolBrush=fit.colors[ind]            
             )      
+
+            p5.setLabel('left', 'y', units='',  **{'font-size':'11pt'})     
+
             return
         else:   
             p5.plot(clear=True,)        
@@ -931,6 +1053,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         if str(input_files[0]) != '':
  
             fit.add_dataset(self.file_from_path(input_files[0]), str(input_files[0]),0.0,1.0)
+            #### new stuf ####
+            fit.add_rv_dataset('test', str(input_files[0]),rv_idset =but_ind-1)
+            ##################
             self.init_fit()            
             self.update_use_from_input_file()            
             self.update_use()
@@ -948,6 +1073,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         but_ind = self.buttonGroup_remove_RV_data.checkedId()   
         fit.remove_dataset(but_ind -1)
+        #### new stuf ####
+        fit.remove_rv_dataset(but_ind -1)
+        #### new stuf ####
+       
         self.init_fit()         
         self.update_use_from_input_file()   
         self.update_use()
@@ -2085,12 +2214,17 @@ highly appreciated!
         path = self.sender().model().filePath(index)
  
    
-        pdi.plot(clear=True,)    
+        pdi.plot(clear=True,)  
         
-        x     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-        y     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-        y_err = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2]) 
- 
+        try:    
+            x     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+            y     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+            y_err = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2]) 
+        except:
+            #pdi.addLine(x=[0,1], y=0, pen=pg.mkPen('#ff9933', width=0.8)) 
+            pdi.setLabel('bottom', 'x', units='',  **{'font-size':'11pt'})
+            pdi.setLabel('left',   'y', units='',  **{'font-size':'11pt'})
+            return
  
         pdi.addLine(x=None, y=np.mean(y), pen=pg.mkPen('#ff9933', width=0.8))   
  
@@ -2114,8 +2248,7 @@ highly appreciated!
         pdi.addItem(err_)
         
         pdi.autoRange()
-       # print(self.file_from_path(path)[:-5])
-        #if file_from_path(path)[-4]='vels'
+ 
         
         filename, file_extension = os.path.splitext(path)  
             
@@ -2135,13 +2268,10 @@ highly appreciated!
             pdi.setLabel('bottom', 'x', units='',  **{'font-size':'11pt'})
             pdi.setLabel('left',   'y', units='',  **{'font-size':'11pt'})
         
-
-        
-        self.inspector_file = path
-        
+ 
+        self.inspector_file = path     
         self.data_insp_print_info.clicked.connect(lambda: self.print_info_for_object(self.stat_info(x,y,y_err,path)))   
-    
-        
+
         #self.data_insp_load_data.clicked.connect(lambda: self.load_data_inspect(path))
         
         
@@ -2232,6 +2362,19 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             
 ############################# END Dispatcher ################################  
 
+############################# Tab selector (not ready) ################################  
+
+    def tab_selected(self,ind):
+
+        if ind == 4:
+            self.update_activity_data_plots(self.comboBox_act_data.currentIndex())        
+        if ind == 5:
+            self.update_correlations_data_plots()
+ 
+    
+  
+############################# END Tab selector  ################################  
+
 #############################  Color control ################################  
 
     def update_color_picker(self):
@@ -2278,7 +2421,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.setupUi(self)
         
         self.initialize_buttons()
-        self.initialize_plots()    
+        self.initialize_plots()   
+                
 #        self.init_fit()
         self.console_widget = ConsoleWidget_embed(font_size = 10)
         self.terminal_embeded.addTab(self.console_widget, "Jupyter")
@@ -2309,8 +2453,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         #################### data inspector ########################
        
         #if sys.version_info[0] == 3:
-        self.pipe_text = MyDialog()
-        self.gridLayout_stdout.addWidget(self.pipe_text)  
+        #self.pipe_text = MyDialog()
+        #self.gridLayout_stdout.addWidget(self.pipe_text)  
    
         #################### credits  ########################
     
@@ -2377,6 +2521,17 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.comboBox_act_data_gls.activated.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex())) 
         self.comboBox_act_data.activated.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex())) 
        
+        self.comboBox_corr_1.activated.connect(self.update_correlations_data_plots) 
+        self.comboBox_corr_2.activated.connect(self.update_correlations_data_plots) 
+        self.color_corr.clicked.connect(self.get_corr_color)
+        self.corr_x_label.clicked.connect(self.corr_plot_x_labels)
+        self.corr_y_label.clicked.connect(self.corr_plot_y_labels)
+
+ 
+    
+        self.tab_timeseries_RV.currentChanged.connect(self.tab_selected)
+
+
         self.radioButton_RV_o_c_GLS_period.toggled.connect(self.update_RV_o_c_GLS_plots)
         self.radioButton_RV_GLS_period.toggled.connect(self.update_RV_GLS_plots)
 
