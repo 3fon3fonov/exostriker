@@ -2453,8 +2453,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         #################### data inspector ########################
        
         #if sys.version_info[0] == 3:
-        #self.pipe_text = MyDialog()
-        #self.gridLayout_stdout.addWidget(self.pipe_text)  
+        self.pipe_text = MyDialog()
+        self.gridLayout_stdout.addWidget(self.pipe_text)  
    
         #################### credits  ########################
     
