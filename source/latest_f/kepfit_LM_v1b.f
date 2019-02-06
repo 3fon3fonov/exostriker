@@ -37,7 +37,6 @@ c      write(*,*) 'Stellar mass, sini'
       read (*,*) st_mass,
      &          writeflag_best_par, 
      &	             writeflag_RV,writeflag_fit 
-
 c      write (*,*) ' Stellar Jitter: '
 c      read (*,*) jitter
 
