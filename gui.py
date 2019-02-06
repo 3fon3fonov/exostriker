@@ -67,6 +67,7 @@ fit=rv.signal_fit(name='init')
 ses_list = [fit]
  
 
+
 colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 
 QtGui.QApplication.processEvents()

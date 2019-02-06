@@ -142,7 +142,7 @@ def compute_loglik_transit(p,copied_obj,flag_ind,b,e):
 
 
 #######################################################################################           
-  
+   
 def model_loglik(p, program, par, flags, npl, vel_files,epoch, stmass, rtg, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=300, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
 #def kep_fit(p, mod, par,flag_ind, npl,vel_files,epoch):
 

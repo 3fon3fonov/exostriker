@@ -6,7 +6,8 @@ c
 c Author:  Hal Levison  
 c Date:    2/2/93
 c Last revision: 3/7/93
-
+  
+  
         implicit NONE    ! you got it baby
 
 c...   Version of Swift
