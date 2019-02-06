@@ -25,7 +25,7 @@ What works:
 * Long-term stability check of multiplanet systems using SyMBA, MVS, MVS with a GR precession.
 * Interactive plots.
 * Import/Export of work sessions and multi-sessions. 
-* Export of plots to a matplotlib window for further customization.
+* Export plots to a matplotlib window for further customization.
 * Text editor/Calculator/Bash-shell widgets.
 * Integrated Jupyter widget shell.
 * Print the GUI screen into a .jpeg image (useful for sharing quick results, just like the image above)
@@ -34,8 +34,7 @@ What is to be implemented:
 
 * Combined modeling of data (Transit + RV + Astrometry +  GP/Moving average modeling, at once). 
 * Variouse of minimization/sampling methods.
-* Some more GUI plots and plot functionality.
-* GUI accsess to parameter limits and priors (there, but not connected with RVmod, yet)
+* GUI accsess to priors 
 * Print all results and plots in a .tex ready environment
 * Large arsenal of N-body/dynamical simulation/analysis tools. 
 * Documentation, Instructions and Video tutorials.
