@@ -2548,7 +2548,7 @@ class signal_fit(object):
 %s %s
         
 F T T T T F
-0.001 50.0 50.0 -1. T
+0.0001 50.0 50.0 -1. T
 bin.dat
 unknown
 """%(max_time, timestep, max_time/1e4, max_time/1e3 ))
