@@ -3,14 +3,14 @@ from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtconsole.inprocess import QtInProcessKernelManager
 
 
-class ConsoleWidget(RichJupyterWidget):
+class ConsoleWidget_embed(RichJupyterWidget):
     """
     Convenience class for a live IPython console widget.
     We can replace the standard banner using the customBanner argument
     """
 
     def __init__(self, customBanner=None, *args, **kwargs):
-        super(ConsoleWidget, self).__init__(*args, **kwargs)
+        super(ConsoleWidget_embed, self).__init__(*args, **kwargs)
 
         if customBanner is not None:
             self.banner = customBanner
@@ -60,6 +60,6 @@ class ConsoleWidget(RichJupyterWidget):
 
 if __name__ == '__main__':
     app = QtGui.QApplication([])
-    widget = ConsoleWidget()
+    widget = ConsoleWidget_embed()
     widget.show()
     app.exec_()

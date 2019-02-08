@@ -19,11 +19,12 @@ import calculator as calc
 import gls as gls 
 from worker import Worker #, WorkerSignals
 
+#from multiprocessing import cpu_count
 #import time
 
 #import BKR as bkr
 from doublespinbox import DoubleSpinBox
-from Jupyter_emb import ConsoleWidget_embed
+from Jupyter_emb_new import ConsoleWidget_embed
 from stdout_pipe import MyDialog
 import terminal
 from tree_view import Widget_tree
@@ -2355,8 +2356,26 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.initialize_plots()   
                 
 #        self.init_fit()
-        self.console_widget = ConsoleWidget_embed(font_size = 10)
+        
+        ###################### Console #############################
+
+        self.console_widget = ConsoleWidget_embed(font_size = 8)
+        # add the console widget to the user interface
+        # push some variables to the console
+        self.console_widget.push_vars({"rv": rv,
+                                "np": np,
+                                "fit": fit,
+                                #"plt": plt,
+                                #"clc": self.clc,
+                                #'app': self
+                                })        
+        
+        
+        #self.console_widget = ConsoleWidget_embed(font_size = 10)
+        
         self.terminal_embeded.addTab(self.console_widget, "Jupyter")
+        
+        ###################### Console #############################
         
        
        # self.terminal_embeded.addTab(self.tree_view_tab, "tree")
@@ -2474,7 +2493,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.buttonGroup_color_picker.buttonClicked.connect(self.get_color)     
  
         self.threadpool = QtCore.QThreadPool()
-        
+        #self.threadpool.setMaxThreadCount(cpu_count())        
         
 
         #self.treeWidget = tree_view.Widget() #.setModel(self.tree_view)
