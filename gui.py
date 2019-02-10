@@ -32,6 +32,7 @@ from tree_view import Widget_tree
 import ntpath
 
 from scipy.signal import argrelextrema
+from scipy.stats.stats import pearsonr   
 
 import batman as batman
 
@@ -648,7 +649,33 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                     left=self.initialize_corr_y[ind2][2]/2.0,right=self.initialize_corr_y[ind1][2]/2.0,                     
                     beam=0.0, pen=colors[0])  
 
-                    p6.addItem(err1)    
+                    p6.addItem(err1)   
+                    
+                if self.plot_corr_coef.isChecked():
+                                         
+                    pears = pearsonr(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1] )
+                    
+                    m, c = np.polyfit(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1], 1,
+                                      w=1/np.sqrt(self.initialize_corr_y[ind1][2]**2 + self.initialize_corr_y[ind2][2]**2),
+                                      full=False,cov=True)  
+                    
+                    e = np.sqrt(np.diag(c))
+                    
+                    self.console_widget.print_text(str('''Pearson's correlation coefficient 2-tailed p-value: 
+%s, %s
+'Polyfit coefficients: 
+%s +/- %s, 
+%s +/- %s   
+'''
+%(pears[0],pears[1],m[0],e[0], m[1],e[1]))) 
+                     
+                    #correlation = max(self.initialize_corr_y[ind1][1])-min()* pears[0] + self.initialize_corr_y[ind2][1]
+    
+                   # print(correlation)
+                    p6.plot(self.initialize_corr_y[ind1][1], self.initialize_corr_y[ind1][1]*m[0] +m[1] , pen='k')                            
+ 
+                    #p6.addItem(trend)                      
+                    
                 
                 
                 p6.autoRange()
@@ -2400,7 +2427,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
         
         
-        #################### data inspector ########################
+        #################### stdout pipe ########################
        
         #if sys.version_info[0] == 3:
         self.pipe_text = MyDialog()
@@ -2461,6 +2488,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.actionvisit_TRIFON_on_GitHub.triggered.connect(lambda: webbrowser.open('https://github.com/3fon3fonov/trifon'))    
         self.actionCredits.triggered.connect(lambda: self.print_info_credits())
         
+
+        self.jitter_to_plots.stateChanged.connect(self.update_RV_plots)
+        
         self.init_correlations_combo()
         self.init_activity_combo()
         
@@ -2473,6 +2503,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
        
         self.comboBox_corr_1.activated.connect(self.update_correlations_data_plots) 
         self.comboBox_corr_2.activated.connect(self.update_correlations_data_plots) 
+        self.plot_corr_err.stateChanged.connect(self.update_correlations_data_plots)
+        self.plot_corr_coef.stateChanged.connect(self.update_correlations_data_plots)        
+        
         self.color_corr.clicked.connect(self.get_corr_color)
         self.corr_x_label.clicked.connect(self.corr_plot_x_labels)
         self.corr_y_label.clicked.connect(self.corr_plot_y_labels)
