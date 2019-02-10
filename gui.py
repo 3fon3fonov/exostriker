@@ -142,6 +142,18 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             data_gui[i].setValue(fit.params.offsets[i]) 
             data_jitter_gui[i].setValue(fit.params.jitters[i])
             
+            
+        gp_params = [self.GP_rot_kernel_Amp,
+                     self.GP_rot_kernel_time_sc,
+                     self.GP_rot_kernel_Per,
+                     self.GP_rot_kernel_fact]
+        
+        for i in range(len(gp_params)):
+            gp_params[i].setValue(fit.GP_params_new[i])
+
+         
+
+            
         self.St_mass_input.setValue(fit.params.stellar_mass)        
         self.RV_lin_trend.setValue(fit.params.linear_trend)   
         self.Epoch.setValue(fit.epoch)
@@ -179,6 +191,16 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10): 
             fit.params.offsets[i] = data_gui[i].value() 
             fit.params.jitters[i] = data_jitter_gui[i].value()
+            
+            
+        gp_params = [self.GP_rot_kernel_Amp,
+                     self.GP_rot_kernel_time_sc,
+                     self.GP_rot_kernel_Per,
+                     self.GP_rot_kernel_fact]
+        
+        for i in range(len(gp_params)):
+            fit.GP_params_new[i] = gp_params[i].value()     
+  
 
         fit.params.stellar_mass = self.St_mass_input.value() 
         fit.params.linear_trend = self.RV_lin_trend.value()     
@@ -279,8 +301,18 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 planet_checked_gui[i].setChecked(False)  
             
         self.use_RV_lin_trend.setChecked(bool(fit.use.use_linear_trend)) 
-            
+        
 
+        use_gp_params = [self.use_GP_rot_kernel_Amp,
+                         self.use_GP_rot_kernel_time_sc,
+                         self.use_GP_rot_kernel_Per,
+                         self.use_GP_rot_kernel_fact]
+                    
+        
+        for i in range(len(use_gp_params)):
+            use_gp_params[i].setChecked(bool(fit.GP_params_new_use[i]))
+            
+            
     def update_use(self):
         global fit
         
@@ -327,6 +359,17 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
         fit.use.use_linear_trend = int(self.use_RV_lin_trend.isChecked()) 
 
+
+        use_gp_params = [self.use_GP_rot_kernel_Amp,
+                         self.use_GP_rot_kernel_time_sc,
+                         self.use_GP_rot_kernel_Per,
+                         self.use_GP_rot_kernel_fact]
+                    
+        
+        for i in range(len(use_gp_params)):
+            fit.GP_params_new_use[i] = int(use_gp_params[i].isChecked())
+            
+ 
    
     def check_bounds(self):
         global fit
@@ -643,41 +686,32 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 symbolBrush=colors[0]
                 )    
                 
-                if self.plot_corr_err.isChecked():
-                    err1 = pg.ErrorBarItem(x=self.initialize_corr_y[ind1][1], y=self.initialize_corr_y[ind2][1],symbol='o', 
-                    top=self.initialize_corr_y[ind1][2]/2.0,bottom=self.initialize_corr_y[ind1][2]/2.0, 
-                    left=self.initialize_corr_y[ind2][2]/2.0,right=self.initialize_corr_y[ind1][2]/2.0,                     
-                    beam=0.0, pen=colors[0])  
-
-                    p6.addItem(err1)   
+                
+                pears = pearsonr(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1] )
+                
+                if pears[0] < 0:
+                    pos_neg = "negative"
+                else:
+                    pos_neg = "positive"
                     
-                if self.plot_corr_coef.isChecked():
-                                         
-                    pears = pearsonr(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1] )
-                    
-                    if pears[0] < 0:
-                        pos_neg = "negative"
-                    else:
-                        pos_neg = "positive"
-                        
-                    if abs(pears[0]) < 0.3:                      
-                        strong_mod_weak = "very weak"
-                    elif 0.3 <= abs(pears[0]) <= 0.5: 
-                         strong_mod_weak = "weak"
-                    elif 0.5 <= abs(pears[0]) <= 0.7: 
-                         strong_mod_weak = "moderate"                       
-                    elif 0.7 <= abs(pears[0]) <= 1: 
-                         strong_mod_weak = "strong"  
-                    else:
-                         strong_mod_weak = "n/a"  
-                         
-                    m, c = np.polyfit(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1], 1,
-                                      w=1/np.sqrt(self.initialize_corr_y[ind1][2]**2 + self.initialize_corr_y[ind2][2]**2),
-                                      full=False,cov=True)  
-                    
-                    e = np.sqrt(np.diag(c))
-                    
-                    text = '''Pearson's correlation coefficient 2-tailed p-value: 
+                if abs(pears[0]) < 0.3:                      
+                    strong_mod_weak = "very weak"
+                elif 0.3 <= abs(pears[0]) <= 0.5: 
+                     strong_mod_weak = "weak"
+                elif 0.5 <= abs(pears[0]) <= 0.7: 
+                     strong_mod_weak = "moderate"                       
+                elif 0.7 <= abs(pears[0]) <= 1: 
+                     strong_mod_weak = "strong"  
+                else:
+                     strong_mod_weak = "n/a"  
+                     
+                m, c = np.polyfit(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1], 1,
+                                  w=1/np.sqrt(self.initialize_corr_y[ind1][2]**2 + self.initialize_corr_y[ind2][2]**2),
+                                  full=False,cov=True)  
+                
+                e = np.sqrt(np.diag(c))
+                
+                text = '''Pearson's correlation coefficient 2-tailed p-value: 
 %s, %s
 (A %s %s correlation)
 
@@ -687,29 +721,30 @@ Polyfit coefficients:
 
 '''%(pears[0],pears[1], pos_neg, strong_mod_weak, m[0],e[0], m[1],e[1])
 
-                    self.console_widget.print_text(text)
-                    print(text)
-                    #correlation = max(self.initialize_corr_y[ind1][1])-min()* pears[0] + self.initialize_corr_y[ind2][1]
-    
-                   # print(correlation)
+                self.corr_print_info.clicked.connect(lambda: self.print_info_for_object(text))
+
+                #self.console_widget.print_text(text)
+                #print(text)
+                
+                if self.plot_corr_err.isChecked():
+                    err1 = pg.ErrorBarItem(x=self.initialize_corr_y[ind1][1], y=self.initialize_corr_y[ind2][1],symbol='o', 
+                    top=self.initialize_corr_y[ind1][2]/2.0,bottom=self.initialize_corr_y[ind1][2]/2.0, 
+                    left=self.initialize_corr_y[ind2][2]/2.0,right=self.initialize_corr_y[ind1][2]/2.0,                     
+                    beam=0.0, pen=colors[0])  
+
+                    p6.addItem(err1)   
+                    
+                if self.plot_corr_coef.isChecked():
+
                     p6.plot(self.initialize_corr_y[ind1][1], self.initialize_corr_y[ind1][1]*m[0] +m[1] , pen='k')                            
  
                     #p6.addItem(trend)                      
                     
-                
+
                 
                 p6.autoRange()
-                
-                #if ind1 < fit.filelist.ndset*2:      #pdi.addLine(x=[0,1], y=0, pen=pg.mkPen('#ff9933', width=0.8)) 
-                #    p6.setLabel('bottom', 'RV', units='m/s',  **{'font-size':'11pt'})
-               # else:
-                #    p6.setLabel('bottom', 'x', units='',  **{'font-size':'11pt'})
-                   
-                #if ind2 < fit.filelist.ndset*2:      #pdi.addLine(x=[0,1], y=0, pen=pg.mkPen('#ff9933', width=0.8)) 
-               #     p6.setLabel('left',   'RV', units='m/s',  **{'font-size':'11pt'})
-               # else:
-                #    p6.setLabel('left', 'y', units='',  **{'font-size':'11pt'})     
-                
+            
+
                 return   
             
             else:               
@@ -1499,25 +1534,14 @@ Polyfit coefficients:
         #self.check_bounds()
    
         
-        if self.radioButton_fortran77.isChecked():
+        if self.radioButton_fortran77.isChecked() and not self.goGP.isChecked():
             self.statusBar().showMessage('Minimizing parameters....')                 
             # Pass the function to execute
-            worker2 = Worker(lambda:  self.optimize_fit(ff=ff,  minimize_fortran=True, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
+            worker2 = Worker(lambda:  self.optimize_fit(ff=ff, doGP=self.goGP.isChecked(), minimize_fortran=True, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
         else:
             
-            gp_params = [self.GP_rot_kernel_Amp.value(),
-                     self.GP_rot_kernel_time_sc.value(),
-                     self.GP_rot_kernel_Per.value(),
-                     self.GP_rot_kernel_fact.value()]
-
-            use_gp_params = [self.use_GP_rot_kernel_Amp.isChecked(),
-                     self.use_GP_rot_kernel_time_sc.isChecked(),
-                     self.use_GP_rot_kernel_Per.isChecked(),
-                     self.use_GP_rot_kernel_fact.isChecked()]
- 
-             
             self.statusBar().showMessage('Minimizing parameters using SciPyOp (might be slow)....')                 
-            worker2 = Worker(lambda:  self.optimize_fit(ff=1, doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), gp_kernel_id=-1, minimize_fortran=False, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
+            worker2 = Worker(lambda:  self.optimize_fit(ff=1, doGP=self.goGP.isChecked(),  gp_kernel_id=-1, minimize_fortran=False, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
                # Execute
             
             
@@ -1530,7 +1554,7 @@ Polyfit coefficients:
      
                      
         
-    def optimize_fit(self,ff=20,m_ln=True, doGP=False, gp_par=None, gp_kernel_id=-1, use_gp_par=[True,True,True,True], auto_fit = False, minimize_fortran=True):  
+    def optimize_fit(self,ff=20,m_ln=True, doGP=False, gp_kernel_id=-1, auto_fit = False, minimize_fortran=True):  
         global fit
         
         if not auto_fit:
@@ -1557,19 +1581,19 @@ Polyfit coefficients:
                 """
                 run one time using the L-M method ignorring the jitter (for speed)
                 """
-                fit.fitting(fileinput=False,outputfiles=[1,0,0], doGP=doGP, gp_par=use_gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id, minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=False,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
+                fit.fitting(fileinput=False,outputfiles=[1,0,0], doGP=doGP, kernel_id=gp_kernel_id, minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=False,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
             """
             now run the amoeba code modeling the jitters
             """
-            fit.fitting(fileinput=False,outputfiles=[1,0,0], doGP=doGP, gp_par=use_gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
-            fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP, gp_par=use_gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
+            fit.fitting(fileinput=False,outputfiles=[1,0,0], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
+            fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=0,  print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
 
        # elif m_ln and not minimize_fortran:       
       #      fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP, gp_par=use_gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value())
         
         else:      
  
-            fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,gp_par=use_gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
+            fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
 
         if auto_fit:
             self.update_labels()
@@ -2044,21 +2068,13 @@ highly appreciated!
     def run_mcmc(self):
         global fit
         
-        gp_params = [self.GP_rot_kernel_Amp.value(),
-                     self.GP_rot_kernel_time_sc.value(),
-                     self.GP_rot_kernel_Per.value(),
-                     self.GP_rot_kernel_fact.value()]
 
-        use_gp_params = [self.use_GP_rot_kernel_Amp.isChecked(),
-                     self.use_GP_rot_kernel_time_sc.isChecked(),
-                     self.use_GP_rot_kernel_Per.isChecked(),
-                     self.use_GP_rot_kernel_fact.isChecked()]
  
         #fit.mcmc(doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), 
         #burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
         #fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked())  
  
-        fit = rv.run_mcmc(fit,doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), 
+        fit = rv.run_mcmc(fit, rtg=[True, self.goGP.isChecked(), False],
         burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
         fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked())
         
@@ -2525,7 +2541,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.comboBox_corr_2.activated.connect(self.update_correlations_data_plots) 
         self.plot_corr_err.stateChanged.connect(self.update_correlations_data_plots)
         self.plot_corr_coef.stateChanged.connect(self.update_correlations_data_plots)        
-        
+                
         self.color_corr.clicked.connect(self.get_corr_color)
         self.corr_x_label.clicked.connect(self.corr_plot_x_labels)
         self.corr_y_label.clicked.connect(self.corr_plot_y_labels)

@@ -142,11 +142,50 @@ def compute_loglik_transit(p,copied_obj,flag_ind,b,e):
 
 
 #######################################################################################           
-   
-def model_loglik(p, program, par, flags, npl, vel_files,epoch, stmass, rtg, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=300, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
+def initiategps(obj,  kernel_id=-1): 
+    
+    # Prepare objects for Gaussian Processes        
+    
+    # Redefine GP parameters if new ones were provided
+    
+    #if not (gp_par==None):
+    if len(obj.GP_params_new) != 0:
+        obj.params.update_GP_params(obj.GP_params_new,kernel_id=kernel_id)
+        obj.use.update_use_GP_params(obj.GP_params_new_use)
+        obj.verify_gp_parameters_number()
+    
+#        kernel_jitters=[]
+    kernels=[]
+    gps=[]
+    #print(gp_par[0],gp_par[1],gp_par[2],gp_par[3] )
+   #copied_obj.gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate((copied_obj.params.GP_params.gp_par,np.atleast_1d(copied_obj.params.jitters[i]))))))) 
+
+    for i in range(obj.filelist.ndset):
+        kernels.append(obj.params.GP_params.rot_kernel +terms.JitterTerm(np.log(obj.params.jitters[i])))
+        gps.append(celerite.GP(kernels[i], mean=0.0))
+        gps[i].compute(obj.filelist.time[obj.filelist.idset==i],obj.filelist.rv_err[obj.filelist.idset==i])
+        #gps[i].compute(self.filelist.time[self.filelist.idset==i])
+    #self.gps=gps
+    
+   # print(self.params.GP_params.gp_par)    
+   # print(self.use.use_GP_params)    
+    
+ 
+               
+    return gps
+    
+    
+    
+def model_loglik(p, program, par, flags, npl, vel_files,epoch, stmass, gps, rtg, outputfiles = [0,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=300, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
 #def kep_fit(p, mod, par,flag_ind, npl,vel_files,epoch):
 
+ 
+    rv_loglik = 0
+    gp_rv_loglik = 0
     
+    if (rtg[1]):
+        outputfiles = [1,1,0]
+ 
     if(rtg[0]):
         for j in range(len(p)):
             par[flags[j]] = p[j] 
@@ -171,11 +210,7 @@ def model_loglik(p, program, par, flags, npl, vel_files,epoch, stmass, rtg, outp
         ppp+='%f\n%d\n'%(par[len(vel_files)*2 +7*npl],0) # information about linear trend
         ppp+='%f\n'%epoch
         ppp+='EOF' 
-        
-        
-        
-        
-        
+ 
      
         #print(ppp)
         # prepare final version of the ppp command to be returned by this function
@@ -188,14 +223,29 @@ def model_loglik(p, program, par, flags, npl, vel_files,epoch, stmass, rtg, outp
         rv_loglik = float(fit_results.loglik)
     else:
         rv_loglik = 0
-
+        
+        
+    if(rtg[1]): 
+        
+        gp_rv_loglik = 0
+        for i in range(len(vel_files)):
+            
+            gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate(([par[len(vel_files)*2 +7*npl +1],
+               par[len(vel_files)*2 +7*npl +2],
+               par[len(vel_files)*2 +7*npl +3],
+               par[len(vel_files)*2 +7*npl +4]],np.atleast_1d(np.atleast_1d(par[i + len(vel_files)])))))))) 
+            gp_rv_loglik = gp_rv_loglik + gps[i].log_likelihood(fit_results.o_c[fit_results.idset==i])
+             
+        rv_loglik =  gp_rv_loglik 
+       # print(rv_loglik)
+    
+   # print(rv_loglik)
+    return pr.choose_prior(p,prior)+ rv_loglik 
+    
+    
+def run_SciPyOp(obj,   threads=1,  rtg=[True,False,False],  kernel_id=-1,  save_means=False, fileoutput=False, save_sampler=False, **kwargs):      
  
-    
-    return pr.choose_prior(p,prior)+ rv_loglik
-    
-    
-def run_SciPyOp(obj,   threads=1, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False], save_means=False, fileoutput=False, save_sampler=False, **kwargs):      
- 
+    #print(rtg)
     start_time = time.time()    
     #p, par, flags, vel_files,
     #par = np.concatenate((obj.params.offsets[:obj.filelist.ndset],obj.params.jitters[:obj.filelist.ndset],obj.params.planet_params[:7*obj.npl],np.atleast_1d(obj.params.linear_trend),np.atleast_1d(obj.params.stellar_mass)))         
@@ -216,14 +266,18 @@ def run_SciPyOp(obj,   threads=1, doGP=False, gp_par=None, kernel_id=-1, use_gp_
     nll = lambda *args: -model_loglik(*args)
  
  
-    obj.prepare_for_mcmc()    
+    obj.prepare_for_mcmc(doGP = rtg[1])    
     pp = obj.par_for_mcmc.tolist()
     ee = obj.e_for_mcmc.tolist() 
     bb = obj.b_for_mcmc 
     flags = obj.f_for_mcmc 
     par = obj.parameters #par.tolist()
-    
-    rtg=[True,False,False]
+ 
+
+    if (rtg[1]):
+        gps = initiategps(obj, kernel_id=kernel_id) 
+    else:
+        gps = []
      
     #pp= [19.0, 14.0, 51.13231, 404.12694, 0.1663, 216.89239, 227.95899, 49.17725, 771.70901, 0.07726, 170.38211, 168.05172, 0.0, 680.0]
     
@@ -254,16 +308,23 @@ def run_SciPyOp(obj,   threads=1, doGP=False, gp_par=None, kernel_id=-1, use_gp_
         xtol = xtol/10.0 
         print(k,xtol)
      
-        result = op.minimize(nll, pp, args=(mod,par,flags, npl,vel_files, epoch, stmass, rtg ), method=minimzers[0], options={'xtol': xtol, 'disp': True, 'maxiter':30000, 'maxfev':30000 })
+        result = op.minimize(nll, pp, args=(mod,par,flags, npl,vel_files, epoch, stmass, gps, rtg ), method=minimzers[0], options={'xtol': xtol, 'disp': True, 'maxiter':30000, 'maxfev':30000 })
         pp = result["x"]
 
-    print("Best fit par.:", result["x"])
+    #print("Best fit par.:", result["x"])
     
-    obj.par_for_mcmc = result["x"]
+    obj.par_for_mcmc = result["x"]  
+    newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
+    obj.overwrite_params(newparams)   
     
     print("--- %s seconds ---" % (time.time() - start_time))  
-  
     
+    print("Best fit par.:")  
+ 
+    for j in range(len(pp)):
+        print(ee[j] + "  =  %s"%pp[j])
+    
+    return obj
  
 
 def lnprior(p,b): 
@@ -273,13 +334,13 @@ def lnprior(p,b):
             return -np.inf
     return 0.0      
     
-def lnprob_new(p, program, par, flags, npl, vel_files,epoch, stmass,b,rtg):
+def lnprob_new(p, program, par, flags, npl, vel_files,epoch, stmass,b, gps,rtg):
     lp = lnprior(p,b)
     if not np.isfinite(lp):
         return -np.inf
-    return lp + model_loglik(p, program, par, flags, npl, vel_files,epoch, stmass,rtg)  
+    return lp + model_loglik(p, program, par, flags, npl, vel_files,epoch, stmass, gps, rtg)  
 
-def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, doGP=False, gp_par=None, gp_kernel_id=-1, use_gp_par=[True,True,True,True], save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):      
+def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, rtg=[True,False,False],  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):      
 
     
     '''Performs MCMC and saves results'''  
@@ -288,12 +349,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, d
         threads = multiprocessing.cpu_count()    
     
     start_time = time.time()   
-    
-    #par = np.concatenate((obj.params.offsets[:obj.filelist.ndset],
-    #                      obj.params.jitters[:obj.filelist.ndset],
-    #                      obj.params.planet_params[:7*obj.npl],
-    #                      np.atleast_1d(obj.params.linear_trend),
-    #                      np.atleast_1d(obj.params.stellar_mass)))         
+        
     vel_files = []
     for i in range(obj.filelist.ndset): 
         # path for each dataset      
@@ -311,17 +367,25 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, d
    # print(mod)
     #program='./lib/fr/%s_%s'%(minimized_value,mod) 
  
-    obj.prepare_for_mcmc(doGP = True)    
+    obj.prepare_for_mcmc(doGP = rtg[1])    
     pp = obj.par_for_mcmc.tolist()
     ee = obj.e_for_mcmc.tolist() 
     bb = obj.b_for_mcmc 
     flags = obj.f_for_mcmc 
     par = obj.parameters #par.tolist()
-    rtg=[True,False,False]    
-  
-    if (rtg[2]):
-        obj.initiategps(gp_par=gp_par, use_gp_par=use_gp_par, kernel_id=gp_kernel_id)
-     
+    
+      
+    
+
+    if (rtg[1]):
+        #obj.initiategps(gp_par=obj.GP_params_new, use_gp_par=obj.GP_params_new_use, kernel_id=gp_kernel_id)  
+        #gps = obj.gps
+        gps = initiategps(obj, kernel_id=gp_kernel_id) 
+    else:
+        gps = []
+    
+      
+        
     #print(len(par), len(pp),len(bb),len(ee), len(flags))
             
     #name = raw_input("wait!")
@@ -331,7 +395,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, d
 
     pos = [pp + 1e-3*np.random.rand(ndim) for i in range(nwalkers)]
 
-    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=( mod, par, flags, npl, vel_files,epoch, stmass,bb,rtg), threads = threads)
+    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=( mod, par, flags, npl, vel_files,epoch, stmass,bb, gps, rtg), threads = threads)
 
     # burning phase
     pos, prob, state  = sampler.run_mcmc(pos,burning_ph)
@@ -360,56 +424,64 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, d
         obj.par_for_mcmc = sampler.means # we will not need to keep the old parameters in this attribbute, so let's store the means now
         
     new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
+    
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
     #print(newparams.GP_params)
     current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
    # print(current_GP_params)
 
     obj.overwrite_params(newparams)
+    
     obj.fitting(minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
     obj.update_with_mcmc_errors(new_par_errors)
     obj.params.update_GP_params(current_GP_params)
 
     #print(current_GP_params)
 
-    if (doGP):
-        obj.fitting_method='GP_%s'%mod
-    else:
-        obj.fitting_method='mcmc_%s'%mod  
+    print("Best fit par.:")  
+ 
+    for j in range(len(pp)):
+        print(ee[j] + "  =  %s"%pp[j])
 
-    if (doGP):
-        loglik_to_save = lnprobGP(obj.par_for_mcmc,obj,prior)
-        obj.loglik=loglik_to_save         
-        obj.fit_results.loglik=loglik_to_save  
+
+#    if (doGP):
+#        obj.fitting_method='GP_%s'%mod
+#    else:
+#        obj.fitting_method='mcmc_%s'%mod  #
+
+#    if (doGP):
+#        loglik_to_save = lnprobGP(obj.par_for_mcmc,obj,prior)
+#        obj.loglik=loglik_to_save         
+#        obj.fit_results.loglik=loglik_to_save  
         
         
         ########### Ugly things are happening here! to be fixed! ##########
         
-        fitted_GP = sampler.means[-len(obj.params.GP_params.gp_par[obj.use.use_GP_params==True]):]
+#        fitted_GP = sampler.means[-len(obj.params.GP_params.gp_par[obj.use.use_GP_params==True]):]
  
-        z = 0
-        for k in range(obj.params.GP_params.npar):
-            obj.param_errors.GP_params_errors[k] = [0,0]
-            if not obj.use.use_GP_params[k]:
-                continue
-            else:
-                obj.params.GP_params.gp_par[k] = fitted_GP[z]
-               # obj.param_errors.GP_params_errors[k] = [float(sampler.means[-obj.params.GP_params.npar+k] - np.percentile(sampler.means[-obj.params.GP_params.npar+k], [level])),float(np.percentile(sampler.means[-obj.params.GP_params.npar+k], [100.0-level])-sampler.means[-obj.params.GP_params.npar+k])]
-                obj.param_errors.GP_params_errors[k] = [float(fitted_GP[z] - np.percentile(sampler.samples[:,-len(fitted_GP)+z],[level])), float(np.percentile(sampler.samples[:,-len(fitted_GP)+z], [100.0-level])-fitted_GP[z])]
+#        z = 0
+#        for k in range(obj.params.GP_params.npar):
+#            obj.param_errors.GP_params_errors[k] = [0,0]
+#            if not obj.use.use_GP_params[k]:
+#                continue
+#            else:
+#                obj.params.GP_params.gp_par[k] = fitted_GP[z]
+#               # obj.param_errors.GP_params_errors[k] = [float(sampler.means[-obj.params.GP_params.npar+k] - np.percentile(sampler.means[-obj.params.GP_params.npar+k], [level])),float(np.percentile(sampler.means[-obj.params.GP_params.npar+k], [100.0-level])-sampler.means[-obj.params.GP_params.npar+k])]
+#                obj.param_errors.GP_params_errors[k] = [float(fitted_GP[z] - np.percentile(sampler.samples[:,-len(fitted_GP)+z],[level])), float(np.percentile(sampler.samples[:,-len(fitted_GP)+z], [100.0-level])-fitted_GP[z])]
                 #print(obj.param_errors.GP_params_errors[k], fitted_GP[z], np.percentile(fitted_GP[z],level),level)
-            z = z+1  
+#            z = z+1  
 
-        obj.GP_params=GP_parameters(len(obj.params.GP_params.gp_par),obj.params.GP_params.gp_par,kernel_id=0) # we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+#        obj.GP_params=GP_parameters(len(obj.params.GP_params.gp_par),obj.params.GP_params.gp_par,kernel_id=0) # we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
          
-        message_str =""" """
-        if(obj.fitting_method.startswith('GP')):
-            message_str = message_str +"""\nStellar activity was modeled using Gaussian Processes. The resulting GP parameters (means) are as follows:
-"""
-            message_str = message_str +"""\n A = {0:>7.4f} +/- {4:>7.4f}\n t = {1:>7.4f} +/- {5:>7.4f}\n P = {2:>7.4f} +/- {6:>7.4f}\n f = {3:>7.4f} +/- {7:>7.4f}
-""".format(obj.GP_params.gp_par[0],obj.GP_params.gp_par[1],obj.GP_params.gp_par[2],obj.GP_params.gp_par[3],max(obj.param_errors.GP_params_errors[0]),max(obj.param_errors.GP_params_errors[1]),max(obj.param_errors.GP_params_errors[2]),max(obj.param_errors.GP_params_errors[3]))         
-            message_str = message_str +"""
-(The GP_params are printed here as these are still not part of the "params" structure. TBD!)                
-"""
+#        message_str =""" """
+#        if(obj.fitting_method.startswith('GP')):
+#            message_str = message_str +"""\nStellar activity was modeled using Gaussian Processes. The resulting GP parameters (means) are as follows:
+#"""
+#            message_str = message_str +"""\n A = {0:>7.4f} +/- {4:>7.4f}\n t = {1:>7.4f} +/- {5:>7.4f}\n P = {2:>7.4f} +/- {6:>7.4f}\n f = {3:>7.4f} +/- {7:>7.4f}
+#""".format(obj.GP_params.gp_par[0],obj.GP_params.gp_par[1],obj.GP_params.gp_par[2],obj.GP_params.gp_par[3],max(obj.param_errors.GP_params_errors[0]),max(obj.param_errors.GP_params_errors[1]),max(obj.param_errors.GP_params_errors[2]),max(obj.param_errors.GP_params_errors[3]))         
+#            message_str = message_str +"""
+#(The GP_params are printed here as these are still not part of the "params" structure. TBD!)                
+#"""
        # print(message_str)
         ###################################################################
         
@@ -1019,7 +1091,7 @@ class signal_fit(object):
         
         self.GP_params_new = [1,10,15,1]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_params_new_err = [0,0,0,0]
-        self.GP_params_new_use = [True,True,True,True]  
+        self.GP_params_new_use = [False,False,False,False]  
         self.doGP = False
         self.GP_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_params_new))}        
         
@@ -1941,7 +2013,7 @@ class signal_fit(object):
                 
     ### this function is a wrapper calling a fortran program to fit parameters in keplerian mode by minimizing chi^2   WORK IN PROGRESS ON THAT ONE! 
         
-    def fitting(self, minimize_fortran=True, minimize_loglik=False, fileinput=False, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False], filename='Kep_input', outputfiles=[1,1,1], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500,model_min =0): # run the fit which will either minimize chi^2 or loglik.
+    def fitting(self, minimize_fortran=True, minimize_loglik=False, fileinput=False, doGP=False, kernel_id=-1, filename='Kep_input', outputfiles=[1,1,1], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500,model_min =0): # run the fit which will either minimize chi^2 or loglik.
         '''       
          eps, dt - accuracy and step for the integration in dynamical case, in keplerian case ignored, just given for input consistency
          which value to minimize (used for calling an appropriate fortran program)
@@ -1959,13 +2031,14 @@ class signal_fit(object):
             mod='dyn'
         else:
             mod='kep'
-            
-        if(minimize_fortran):   
+        print(doGP)
+        if minimize_fortran == True and doGP ==False:   
             program='./lib/fr/%s_%s'%(minimized_value,mod) 
             text,flag=run_command_with_timeout(self.fortran_input(program=program, fileinput=fileinput, filename=filename, outputfiles=outputfiles,amoeba_starts=amoeba_starts,eps=eps,dt=dt, when_to_kill=fortran_kill, npoints=npoints, model_max = model_max, model_min =model_min), timeout_sec, output=True,pipe=(not bool(outputfiles[2]))) # running command generated by the fortran_input function 
            
         else:
-            self.fitting_SciPyOp(doGP=doGP, gp_par=gp_par, kernel_id=kernel_id, use_gp_par=use_gp_par)         
+            #self.fitting_SciPyOp(doGP=doGP, gp_par=gp_par, kernel_id=kernel_id, use_gp_par=use_gp_par)  
+            self = run_SciPyOp(self, rtg =[True,doGP,False], kernel_id=kernel_id)           
             program='./lib/fr/%s_%s'%(minimized_value,mod) 
             text,flag=run_command_with_timeout(self.fortran_input(program=program, fileinput=fileinput, filename=filename, outputfiles=outputfiles,amoeba_starts=0,eps=eps,dt=dt, when_to_kill=fortran_kill, npoints=npoints, model_max = model_max, model_min =model_min), timeout_sec, output=True,pipe=(not bool(outputfiles[2]))) # running command generated by the fortran_input function 
            
@@ -2108,8 +2181,7 @@ class signal_fit(object):
             stmass_bound[i] = self.st_mass_bounds[i]
             
  
-            
-        
+ 
         self.bounds = parameter_bounds(offbounds,jitbounds,parambounds,self.lintr_bounds,self.GP_bounds,self.st_mass_bounds)     
         
         # Now prepare parameters, only those which are used         
