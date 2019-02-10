@@ -655,20 +655,40 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                                          
                     pears = pearsonr(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1] )
                     
+                    if pears[0] < 0:
+                        pos_neg = "negative"
+                    else:
+                        pos_neg = "positive"
+                        
+                    if abs(pears[0]) < 0.3:                      
+                        strong_mod_weak = "very weak"
+                    elif 0.3 <= abs(pears[0]) <= 0.5: 
+                         strong_mod_weak = "weak"
+                    elif 0.5 <= abs(pears[0]) <= 0.7: 
+                         strong_mod_weak = "moderate"                       
+                    elif 0.7 <= abs(pears[0]) <= 1: 
+                         strong_mod_weak = "strong"  
+                    else:
+                         strong_mod_weak = "n/a"  
+                         
                     m, c = np.polyfit(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1], 1,
                                       w=1/np.sqrt(self.initialize_corr_y[ind1][2]**2 + self.initialize_corr_y[ind2][2]**2),
                                       full=False,cov=True)  
                     
                     e = np.sqrt(np.diag(c))
                     
-                    self.console_widget.print_text(str('''Pearson's correlation coefficient 2-tailed p-value: 
+                    text = '''Pearson's correlation coefficient 2-tailed p-value: 
 %s, %s
-'Polyfit coefficients: 
+(A %s %s correlation)
+
+Polyfit coefficients: 
 %s +/- %s, 
 %s +/- %s   
-'''
-%(pears[0],pears[1],m[0],e[0], m[1],e[1]))) 
-                     
+
+'''%(pears[0],pears[1], pos_neg, strong_mod_weak, m[0],e[0], m[1],e[1])
+
+                    self.console_widget.print_text(text)
+                    print(text)
                     #correlation = max(self.initialize_corr_y[ind1][1])-min()* pears[0] + self.initialize_corr_y[ind2][1]
     
                    # print(correlation)
