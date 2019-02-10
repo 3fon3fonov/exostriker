@@ -24,6 +24,7 @@ What works:
 * Transit modeling (so far only one planet and one dataset)
 * Long-term stability check of multiplanet systems using SyMBA, MVS, MVS with a GR precession.
 * Interactive plots.
+* RV vs. Activity time series correlation analysis/plots.
 * Import/Export of work sessions and multi-sessions. 
 * Export plots to a matplotlib window for further customization.
 * Text editor/Calculator/Bash-shell widgets.
@@ -35,8 +36,8 @@ What is to be implemented:
 * Combined modeling of data (Transit + RV + Astrometry +  GP/Moving average modeling, at once). 
 * Variouse of minimization/sampling methods.
 * GUI accsess to priors 
-* Print all results and plots in a .tex ready environment
-* Large arsenal of N-body/dynamical simulation/analysis tools. 
+* Print all results and plots into a .tex ready environment
+* A large arsenal of N-body/dynamical simulation/analysis tools. 
 * Documentation, Instructions and Video tutorials.
 * For more detailed TBD list see: "focus_matrix_TBFixed.doc".
 
