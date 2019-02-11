@@ -728,8 +728,8 @@ Polyfit coefficients:
                 
                 if self.plot_corr_err.isChecked():
                     err1 = pg.ErrorBarItem(x=self.initialize_corr_y[ind1][1], y=self.initialize_corr_y[ind2][1],symbol='o', 
-                    top=self.initialize_corr_y[ind1][2]/2.0,bottom=self.initialize_corr_y[ind1][2]/2.0, 
-                    left=self.initialize_corr_y[ind2][2]/2.0,right=self.initialize_corr_y[ind1][2]/2.0,                     
+                    top=self.initialize_corr_y[ind2][2]/2.0,bottom=self.initialize_corr_y[ind2][2]/2.0, 
+                    left=self.initialize_corr_y[ind1][2]/2.0,right=self.initialize_corr_y[ind1][2]/2.0,                     
                     beam=0.0, pen=colors[0])  
 
                     p6.addItem(err1)   
