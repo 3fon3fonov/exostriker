@@ -36,6 +36,12 @@ from scipy.stats.stats import pearsonr
 
 import batman as batman
 
+try:
+    from transitleastsquares import transitleastsquares    
+    tls_not_found = False                
+except ImportError:
+    tls_not_found = True
+
 import webbrowser
  
 #try:
@@ -326,6 +332,13 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.add_planet()
         elif npl_old >= checked:
             fit.npl = checked     
+            
+        #for i in range(len(use_planet_gui)):
+        #    if use_planet_gui[i].isChecked() == False:
+       #         fit.remove_planet(i)  
+       #     else:
+       #         fit.add_planet(i)  
+       #         
 
         use_param_gui2 = [self.use_K1, self.use_P1, self.use_e1, self.use_om1, self.use_ma1, self.use_incl1, self.use_Omega1,
                           self.use_K2, self.use_P2, self.use_e2, self.use_om2, self.use_ma2, self.use_incl2, self.use_Omega2,
@@ -541,7 +554,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         pdi = self.load_data_plot
 
         xaxis = ['BJD','BJD','BJD','BJD','BJD','x','days','days','days','days','days','days','yrs','yrs','a','','y']
-        yaxis = ['RV','RV','Relative Flux','Relative Flux','y','y','power','power','power','power','power','power','a','e','a','','x']       
+        yaxis = ['RV','RV','Relative Flux','Relative Flux','y','y','power','power','SDE','SDE','power','power','a','e','a','','x']       
         xunit = ['d' ,'d','d','d','d','','','','','','','','','','au','','']
         yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','au','','']
 
@@ -1334,7 +1347,105 @@ Polyfit coefficients:
         pe.setLabel('left',   'RV', units='m/s',  **{'font-size':'12pt'})  
 
 
+############ TLS (Work in progress here) ##############################      
+       
+    def worker_tls_complete(self):
+        global fit  
+ 
+              
+        self.update_tls_plots()                   
+        self.statusBar().showMessage('')   
+ 
+        self.jupiter_push_vars()   
+        self.calc_TLS.setEnabled(True)         
+ 
+    def worker_tls(self):
+        global fit  
+        
+        if sys.version_info[0] == 2:
+            print("Not working with Py2 at the moment") 
+            return
+        if tls_not_found==True:
+            print("TLS Not found, try to install with 'pip3 install transitleastsquares'") 
+            return
 
+        
+        #print("test")
+        self.calc_TLS.setEnabled(False)         
+ 
+        
+        # check if transit data is present
+        z=0
+        for i in range(10):
+            if len(fit.tra_data_sets[i]) != 0:
+                z=z+1
+        
+        if z <= 0:
+            choice = QtGui.QMessageBox.information(self, 'Warning!',
+            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
+            self.calc_TLS.setEnabled(True)         
+            return   
+
+        self.statusBar().showMessage('Looking for Transit events (TLS).... ')                 
+        worker_tls = Worker(self.tls_search)# Any other args, kwargs are passed to the run  
+ 
+        worker_tls.signals.finished.connect(self.worker_tls_complete)
+        
+        # worker.signals.result.connect(self.print_output)
+        #worker.signals.finished.connect(self.thread_complete)
+       # worker.signals.progress.connect(self.progress_fn)
+        self.threadpool.start(worker_tls)       
+     
+
+    def tls_search(self):
+        global fit
+        
+        tls_model = transitleastsquares(fit.tra_data_sets[0][0], fit.tra_data_sets[0][1])
+        tls_results = tls_model.power(oversampling_factor=int(self.tls_ofac.value()), duration_grid_step=self.tls_grid_step.value())
+    
+        self.tls_obj = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
+        
+        
+        print("testeeee",self.tls_obj)
+        
+    def update_tls_plots(self): 
+        global fit, p9, colors
+    
+        p9.plot(clear=True,) 
+            
+        if len(fit.tra_data_sets[0]) != 0:
+            #t = fit.tra_data_sets[0][0]
+            #flux = fit.tra_data_sets[0][1]
+           # flux_err = fit.tra_data_sets[0][2]
+           
+            text = '''
+Period: %s d   
+Transit depth: %s 
+Transit duration: %s d
+'''%(self.tls_obj.period,self.tls_obj.depth,self.tls_obj.duration)
+           
+            p9.plot(self.tls_obj.periods, self.tls_obj.power,        
+            pen='r',  enableAutoRange=True,viewRect=True)
+#0.9      5.7
+#0.95     6.1
+#0.99     7.0
+#0.999    8.3
+#0.9999   9.1
+            [p9.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
+   
+    
+            self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(text))            
+            return
+
+        else:    
+            text_err = pg.TextItem('Nothing to plot',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
+            p9.addItem(text_err, ignoreBounds=True)   
+            self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(""))            
+            return
+
+
+        
+#########################  TLS END ##############################   
 ############ transit fitting (Work in progress here) ##############################      
        
     def worker_transit_fitting_complete(self):
@@ -2553,6 +2664,10 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
         self.radioButton_RV_o_c_GLS_period.toggled.connect(self.update_RV_o_c_GLS_plots)
         self.radioButton_RV_GLS_period.toggled.connect(self.update_RV_GLS_plots)
+
+
+        self.calc_TLS.clicked.connect(self.worker_tls)
+
 
         self.quit_button.clicked.connect(self.quit)
  
