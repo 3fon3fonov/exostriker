@@ -1363,7 +1363,7 @@ Polyfit coefficients:
         global fit  
         
         if sys.version_info[0] == 2:
-            print("Not working with Py2 at the moment") 
+            print("TLS not working with Py2 at the moment") 
             return
         if tls_not_found==True:
             print("TLS Not found, try to install with 'pip3 install transitleastsquares'") 
