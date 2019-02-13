@@ -17,7 +17,7 @@ it capable to solve your scientific problems, too. For updates, follow my Twitte
 
 What works:
 
-* Periodograms.
+* Period search: GLS periodograms (RVs, act. data) & TLS (transit data)
 * RVs Keplerian and Dynamical modeling + GP (only one GP kernel integrated so far).
 * RVs MCMC sampling/modeling.
 * RV auto-fit (automated planet-finder algortm).
