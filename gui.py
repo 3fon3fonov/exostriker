@@ -746,8 +746,8 @@ Polyfit coefficients:
                 
                 if self.plot_corr_err.isChecked():
                     err1 = pg.ErrorBarItem(x=self.initialize_corr_y[ind1][1], y=self.initialize_corr_y[ind2][1],symbol='o', 
-                    top=self.initialize_corr_y[ind2][2]/2.0,bottom=self.initialize_corr_y[ind2][2]/2.0, 
-                    left=self.initialize_corr_y[ind1][2]/2.0,right=self.initialize_corr_y[ind1][2]/2.0,                     
+                    top=self.initialize_corr_y[ind2][2],bottom=self.initialize_corr_y[ind2][2], 
+                    left=self.initialize_corr_y[ind1][2],right=self.initialize_corr_y[ind1][2],                     
                     beam=0.0, pen=colors[0])  
 
                     p6.addItem(err1)   
@@ -1247,9 +1247,9 @@ Polyfit coefficients:
     def init_fit(self): 
         global fit
         minimize_fortran=True
-        if fit.model_saved == False:
+        if fit.model_saved == False or len(fit.fit_results.rv_model.jd) != len(fit.filelist.idset):
             fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
- 
+        
         self.update_labels()
         self.update_gui_params()
         self.update_errors() 
