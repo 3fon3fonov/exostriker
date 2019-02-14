@@ -2049,7 +2049,7 @@ class signal_fit(object):
             self.stat_saved=self.fit_results.stat_array_saved
             if (self.stat_saved):
                 self.never_saved=False
-            self.model_saved=bool(outputfiles[1])
+            self.model_saved=bool(outputfiles[2])
             self.fit_performed=True
             if(self.fit_results.stat_array_saved): 
                 self.fitting_method=program

@@ -24,7 +24,7 @@ from worker import Worker #, WorkerSignals
 
 #import BKR as bkr
 from doublespinbox import DoubleSpinBox
-from Jupyter_emb_new import ConsoleWidget_embed
+from Jupyter_emb import ConsoleWidget_embed
 from stdout_pipe import MyDialog
 import terminal
 from tree_view import Widget_tree
@@ -114,7 +114,12 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.value_loglik.setText("%.4f"%(fit.fit_results.loglik)) 
         self.value_loglik.setText("%.4f"%(fit.fit_results.loglik)) 
         self.value_Ndata.setText("%s"%(len(fit.fit_results.jd))) 
-        self.value_DOF.setText("%s"%(len(fit.fit_results.jd) - fit.fit_results.mfit))                 
+        self.value_DOF.setText("%s"%(len(fit.fit_results.jd) - fit.fit_results.mfit))        
+
+        if fit.mod_dynamical == True:
+            self.radioButton_Dynamical.setChecked(True)        
+        else:
+            self.radioButton_Keplerian.setChecked(True)        
 
     def update_gui_params(self):
         global fit
@@ -1242,7 +1247,8 @@ Polyfit coefficients:
     def init_fit(self): 
         global fit
         minimize_fortran=True
-        fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
+        if fit.model_saved == False:
+            fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
  
         self.update_labels()
         self.update_gui_params()
@@ -1624,7 +1630,7 @@ Transit duration: %s d
         self.update_a_mass()                    
         self.update_plots()                   
         self.statusBar().showMessage('')   
-        self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
+        #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
 
         self.jupiter_push_vars()   
         self.button_fit.setEnabled(True)         
@@ -1663,8 +1669,15 @@ Transit duration: %s d
        # worker.signals.progress.connect(self.progress_fn)
         self.threadpool.start(worker2)       
      
-                     
-        
+    def update_dyn_kep_flag(self):
+
+        if self.radioButton_Dynamical.isChecked():
+            fit.mod_dynamical = True
+        else:
+            fit.mod_dynamical = False
+            
+            
+            
     def optimize_fit(self,ff=20,m_ln=True, doGP=False, gp_kernel_id=-1, auto_fit = False, minimize_fortran=True):  
         global fit
         
@@ -1673,13 +1686,13 @@ Transit duration: %s d
  
             
         if self.radioButton_Dynamical.isChecked():
-            fit.mod_dynamical = True
+            #fit.mod_dynamical = True
             f_kill = self.dyn_model_to_kill.value()
             if ff > 1:
                 ff = 1 #TBF
            # ff = 1
         else:
-            fit.mod_dynamical = False
+            #fit.mod_dynamical = False
             f_kill = self.kep_model_to_kill.value()    
         
         if minimize_fortran==False:
@@ -1756,6 +1769,9 @@ Transit duration: %s d
                                 
         text = "* " + "<a href='https://github.com/lkreidberg/batman'>batman-package</a>" 
         self.dialog_credits.text.append(text)
+        
+        text = "* " + "<a href='https://github.com/hippke/tls'>Transit Least Squares</a>" 
+        self.dialog_credits.text.append(text)             
 
         text = "* " + "<a href='https://www.boulder.swri.edu/~hal/swift.html'>swift</a>" 
         self.dialog_credits.text.append(text)        
@@ -1764,7 +1780,8 @@ Transit duration: %s d
         self.dialog_credits.text.append(text)        
 
         text = "* " + "<a href='https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor'>megasolid idiom</a>" 
-        self.dialog_credits.text.append(text)    
+        self.dialog_credits.text.append(text)  
+        
         
         text = "(A few more to be added) \n" 
         self.dialog_credits.text.append(text)   
@@ -2133,7 +2150,7 @@ highly appreciated!
         global fit  
         #fit.print_info(short_errors=False)
         self.statusBar().showMessage('') 
-        self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
+        #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
         
         if self.adopt_mcmc_means_as_par.isChecked():
             self.init_fit()
@@ -2616,6 +2633,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.button_auto_fit.clicked.connect(lambda: self.run_auto_fit())
         self.minimize_1param()
 
+        self.radioButton_Dynamical.toggled.connect(self.update_dyn_kep_flag)
+        self.radioButton_Keplerian.toggled.connect(self.update_dyn_kep_flag)
+        
 
         ############ Sessions #################
         

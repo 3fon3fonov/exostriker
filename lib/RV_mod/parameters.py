@@ -194,7 +194,7 @@ class parameter_errors(object): # Class for parameter errors.
         self.planet_params_errors[7*planet+4]=newM0error
         return
         
-    def update_inclination_errors(self,planet,newierror): # update inclination error for one planet
+    def update_inclination_error(self,planet,newierror): # update inclination error for one planet
         self.planet_params_errors[7*planet+5]=newierror
         return              
 
@@ -212,8 +212,8 @@ class parameter_errors(object): # Class for parameter errors.
         self.update_lineofnodes_error(planet,lineofnodeserror)
         return                
                 
-    def update_planet_param_errors(self,planet_param_errors): # update all planet_param_errors in one go
-        self.planet_param_errors=planet_param_errors
+    def update_planet_param_errors(self,planet_params_errors): # update all planet_param_errors in one go
+        self.planet_params_errors=planet_params_errors
         return
                 
     def update_linear_trend_error(self,linear_trend_error): # update linear trend error
@@ -332,3 +332,4 @@ class use_flags(object): # class for all use flags
         self.use_stellar_mass=use_stellar_mass
         return   
     
+
