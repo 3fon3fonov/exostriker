@@ -1122,7 +1122,7 @@ class signal_fit(object):
       
         
         
-        
+        self.tls = []
         
         #self.print_info=()        
         ##### this is how I wanted the kernel parameters to be 

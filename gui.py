@@ -1372,7 +1372,7 @@ Polyfit coefficients:
             print("TLS not working with Py2 at the moment") 
             return
         if tls_not_found==True:
-            print("TLS Not found, try to install with 'pip3 install transitleastsquares'") 
+            print("TLS Not found, try to install with 'pip install transitleastsquares'") 
             return
 
         
@@ -1409,10 +1409,10 @@ Polyfit coefficients:
         tls_model = transitleastsquares(fit.tra_data_sets[0][0], fit.tra_data_sets[0][1])
         tls_results = tls_model.power(oversampling_factor=int(self.tls_ofac.value()), duration_grid_step=self.tls_grid_step.value())
     
-        self.tls_obj = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
+        fit.tls = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
         
         
-        print("testeeee",self.tls_obj)
+        #print("testeeee",self.tls_obj)
         
     def update_tls_plots(self): 
         global fit, p9, colors
@@ -1428,9 +1428,9 @@ Polyfit coefficients:
 Period: %s d   
 Transit depth: %s 
 Transit duration: %s d
-'''%(self.tls_obj.period,self.tls_obj.depth,self.tls_obj.duration)
+'''%(fit.tls.period,fit.tls.depth,fit.tls.duration)
            
-            p9.plot(self.tls_obj.periods, self.tls_obj.power,        
+            p9.plot(fit.tls.periods, fit.tls.power,        
             pen='r',  enableAutoRange=True,viewRect=True)
 #0.9      5.7
 #0.95     6.1
