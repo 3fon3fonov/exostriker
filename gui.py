@@ -38,10 +38,13 @@ import batman as batman
 
 try:
     from transitleastsquares import transitleastsquares    
-    tls_not_found = False                
-except ImportError:
+    tls_not_found = False 
+except (ImportError, KeyError) as e:
     tls_not_found = True
+    pass               
+       
 
+    
 import webbrowser
  
 #try:
