@@ -258,8 +258,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         
         for i in range(len(gp_errors_gui)):
             gp_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))      
-            print(max(np.abs(fit.param_errors.GP_params_errors[i])))
-#        GP_params_errors
+ #        GP_params_errors
 
 
     def update_a_mass(self):

@@ -7,7 +7,7 @@ import sys, os
 #sys.path.insert(0, '../lib')
 
 
-from pylab import *
+#from pylab import *
 import numpy as np
 
 '''Here you can define custom priors. Give each an id, then you will be able to choose it by passing the id to mcmc (prior=id), since mcmc calls the choose_prior function.

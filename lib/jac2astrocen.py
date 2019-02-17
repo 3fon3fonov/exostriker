@@ -1,11 +1,10 @@
 #!/usr/bin/python
  
-import math
- 
 
-from array import *
-from numpy import *
-from pylab import *
+
+#from array import *
+#from numpy import *
+#from pylab import *
  
 import numpy as np
 
@@ -54,7 +53,7 @@ def orbel_zget(q):
     if  q < 1.e-3:
         orbel_zget = q*(1.0 - (q*q/3.0)*(1.0 -q*q))
     else:
-        x = 0.50*(3.0*q + sqrt(9.0*(q**2) +4.0))
+        x = 0.50*(3.0*q + np.sqrt(9.0*(q**2) +4.0))
         tmp = x**(1.0/3.0)
         orbel_zget = tmp - 1.0/tmp
  
@@ -189,7 +188,7 @@ def mco_kep(e,oldl):
         p = ome / z1
         q = 0.50 * l / z1
         p2 = p*p
-        z2 = exp(log(sqrt( p2*p + q*q ) + q )/1.5 )
+        z2 = np.exp(np.log(np.sqrt( p2*p + q*q ) + q )/1.5 )
         u1 = 2.0*q / ( z2 + p + p2/z2 )
     #
     # Improved value using Newton's method
@@ -266,12 +265,12 @@ def mco_sine (x):
     else:
         x =  x%twopi + twopi
  
-    cx = cos(x)
+    cx = np.cos(x)
  
     if  x > pi:
-        sx = -sqrt(1.0 - cx*cx)
+        sx = -np.sqrt(1.0 - cx*cx)
     else:
-        sx =  sqrt(1.0 - cx*cx)
+        sx =  np.sqrt(1.0 - cx*cx)
     return sx,cx
 
 # # works OK!
@@ -293,8 +292,8 @@ def mco_sine (x):
 
 def mco_sinh(x):
  
-    sx = sinh(x)
-    cx = sqrt(1.0 + sx*sx)
+    sx = np.sinh(x)
+    cx = np.sqrt(1.0 + sx*sx)
  
     return sx,cx
  
@@ -354,12 +353,12 @@ def mco_el2x(gm,q,e,i,p,n,l):
 
 # Ellipse
     if  e < 1.0:
-        romes = sqrt(1.0 - e*e)
+        romes = np.sqrt(1.0 - e*e)
         temp = mco_kep(e,l)
         se,ce = mco_sine(temp)
         z1 = a * (ce - e)
         z2 = a * romes * se
-        temp = sqrt(gm/a) / (1.0 - e*ce)
+        temp = np.sqrt(gm/a) / (1.0 - e*ce)
         z3 = -se * temp
         z4 = romes * ce * temp
     else:
@@ -368,16 +367,16 @@ def mco_el2x(gm,q,e,i,p,n,l):
             ce = orbel_zget(l)
             z1 = q * (1.0 - ce*ce)
             z2 = 2.0 * q * ce
-            z4 = sqrt(2.0*gm/q) / (1.0 + ce*ce)
+            z4 = np.sqrt(2.0*gm/q) / (1.0 + ce*ce)
             z3 = -ce * z4
         else:
 # Hyperbola
-            romes = sqrt(e*e - 1.0)
+            romes = np.sqrt(e*e - 1.0)
             temp = orbel_fhybrid(e,l) #not implemented?
             se,ce = mco_sinh(temp)
             z1 = a * (ce - e)
             z2 = -a * romes * se
-            temp = sqrt(gm/abs(a)) / (e*ce - 1.0)
+            temp = np.sqrt(gm/abs(a)) / (e*ce - 1.0)
             z3 = -se * temp
             z4 = romes * ce * temp
 
@@ -562,15 +561,15 @@ def mco_x2el(gm,x,y,z,u,v,w):
     h2 = hx*hx + hy*hy + hz*hz
     v2 = u * u  +  v * v  +  w * w
     rv = x * u  +  y * v  +  z * w
-    r = math.sqrt(x*x + y*y + z*z)
-    h = math.sqrt(h2)
+    r = np.sqrt(x*x + y*y + z*z)
+    h = np.sqrt(h2)
     s = h2 / gm
  
 # Inclination and node
     ci = hz / h
     if abs(ci) < 1.0:
-        i = math.acos(ci)
-        n = math.atan2(-hy,hx) #(hx,-hy) 
+        i = np.acos(ci)
+        n = np.atan2(-hy,hx) #(hx,-hy) 
         if  n < 0.0: 
             n = n + twopi
     else:
@@ -586,7 +585,7 @@ def mco_x2el(gm,x,y,z,u,v,w):
     if temp <= 0:
         e = 0.0
     else:
-        e = math.sqrt(temp)
+        e = np.sqrt(temp)
  
     q = s / (1.0 + e)
 #
@@ -595,9 +594,9 @@ def mco_x2el(gm,x,y,z,u,v,w):
         to = -hx/hy
         temp = (1.0 - ci) * to
         tmp2 = to * to
-        true = math.atan2((y*(1.0+tmp2*ci)-x*temp),(x*(tmp2+ci)-y*temp))
+        true = np.atan2((y*(1.0+tmp2*ci)-x*temp),(x*(tmp2+ci)-y*temp))
     else:
-        true = math.atan2(y * ci, x)
+        true = np.atan2(y * ci, x)
  
     if ci < 0: 
         true = true + pi
@@ -611,26 +610,26 @@ def mco_x2el(gm,x,y,z,u,v,w):
 # Mean anomaly for ellipse
         if e < 1:
             if abs(ce) > 1.0: 
-                ce = copysign(1.0,ce)
-            bige = math.acos(ce)
+                ce = np.copysign(1.0,ce)
+            bige = np.acos(ce)
             if rv < 0: 
                 bige = twopi - bige
-            l = bige - e*math.sin(bige)
+            l = bige - e*np.sin(bige)
         else:
  
 # Mean anomaly for hyperbola
             if ce < 1.0: 
                 ce = 1.0
-            bige = math.log( ce + sqrt(ce*ce-1.0) )
+            bige = np.log( ce + np.sqrt(ce*ce-1.0) )
             if rv < 0.0: 
                 bige = -bige
-            l = e*math.sinh(bige) - bige
+            l = e*np.sinh(bige) - bige
  
 # Longitude of perihelion
         cf = (s - r) / (e*r)
         if  abs(cf) > 1.0: 
-            cf = math.copysign(1.0,cf)
-        f = math.acos(cf)
+            cf = np.copysign(1.0,cf)
+        f = np.acos(cf)
         if  rv < 0.0: 
             f = twopi - f
         p = true - f
