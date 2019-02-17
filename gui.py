@@ -250,6 +250,16 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             data_errors_jitter_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.jitter_errors[i])))
 
         self.err_RV_lin_trend.setText("+/- %.8f"%(max(fit.param_errors.linear_trend_error)))
+        
+        gp_errors_gui = [self.err_rot_kernel_Amp,
+                     self.err_rot_kernel_time_sc,
+                     self.err_rot_kernel_Per,
+                     self.err_rot_kernel_fact]
+        
+        for i in range(len(gp_errors_gui)):
+            gp_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))      
+            print(max(np.abs(fit.param_errors.GP_params_errors[i])))
+#        GP_params_errors
 
 
     def update_a_mass(self):
@@ -1371,9 +1381,9 @@ Polyfit coefficients:
     def worker_tls(self):
         global fit  
         
-        if sys.version_info[0] == 2:
-            print("TLS not working with Py2 at the moment") 
-            return
+        #if sys.version_info[0] == 2:
+        ##    print("TLS not working with Py2 at the moment") 
+        #    return
         if tls_not_found==True:
             print("TLS Not found, try to install with 'pip install transitleastsquares'") 
             return
@@ -1442,7 +1452,8 @@ Transit duration: %s d
 #0.9999   9.1
             [p9.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
    
-    
+            #self.identify_power_peaks(1/RV_per.freq, RV_per.power, power_level = power_levels, sig_level = RV_per.powerLevel(np.array(power_levels)) )))   
+
             self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(text))            
             return
 
@@ -1638,7 +1649,7 @@ Transit duration: %s d
         self.jupiter_push_vars()   
         self.button_fit.setEnabled(True)         
  
-    def worker_RV_fitting(self, ff=20, m_ln=True, auto_fit = False ):
+    def worker_RV_fitting(self, ff=20, m_ln=True, auto_fit = False , init = False ):
         global fit  
         
         self.button_fit.setEnabled(False)         
@@ -1651,15 +1662,20 @@ Transit duration: %s d
              return   
          
             
-        #self.check_bounds()
+        self.check_bounds()
    
         
-        if self.radioButton_fortran77.isChecked() and not self.goGP.isChecked():
-            self.statusBar().showMessage('Minimizing parameters....')                 
+        if self.radioButton_fortran77.isChecked() and not self.goGP.isChecked() or init == True:
+            self.statusBar().showMessage('Minimizing parameters....')    
+            if init == True:
+                ff = 0
+                doGP=False
+            else:
+                doGP=self.goGP.isChecked()
             # Pass the function to execute
-            worker2 = Worker(lambda:  self.optimize_fit(ff=ff, doGP=self.goGP.isChecked(), minimize_fortran=True, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
-        else:
-            
+            worker2 = Worker(lambda:  self.optimize_fit(ff=ff, doGP=doGP, minimize_fortran=True, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
+ 
+        else:           
             self.statusBar().showMessage('Minimizing parameters using SciPyOp (might be slow)....')                 
             worker2 = Worker(lambda:  self.optimize_fit(ff=1, doGP=self.goGP.isChecked(),  gp_kernel_id=-1, minimize_fortran=False, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
                # Execute
@@ -2448,7 +2464,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
    
         if self.radioButton_RV.isChecked():
             if(init):
-                self.worker_RV_fitting(ff=0,m_ln=True)  
+                self.worker_RV_fitting(ff=0,m_ln=True, init = init )  
                 #print('test')
             else:
                 self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked())  
