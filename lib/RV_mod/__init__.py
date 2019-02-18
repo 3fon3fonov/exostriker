@@ -183,6 +183,8 @@ def model_loglik(p, program, par, flags, npl, vel_files,epoch, stmass, gps, rtg,
     rv_loglik = 0
     gp_rv_loglik = 0
     
+   # print(rtg)
+    
     if (rtg[1]):
         outputfiles = [1,1,0]
  
@@ -243,7 +245,7 @@ def model_loglik(p, program, par, flags, npl, vel_files,epoch, stmass, gps, rtg,
     return pr.choose_prior(p,prior)+ rv_loglik 
     
     
-def run_SciPyOp(obj,   threads=1,  rtg=[True,True,False],  kernel_id=-1,  save_means=False, fileoutput=False, save_sampler=False, **kwargs):      
+def run_SciPyOp(obj,   threads=1,  rtg=[True,False,False],  kernel_id=-1,  save_means=False, fileoutput=False, save_sampler=False, **kwargs):      
  
     #print(rtg)
     start_time = time.time()    
@@ -267,15 +269,18 @@ def run_SciPyOp(obj,   threads=1,  rtg=[True,True,False],  kernel_id=-1,  save_m
     
     ####### find the -LogLik "minimum" using the "truncated Newton" method ######### 
     nll = lambda *args: -lnprob_new(*args)
- 
- 
+  
     obj.prepare_for_mcmc(doGP = rtg[1])    
     pp = obj.par_for_mcmc.tolist()
     ee = obj.e_for_mcmc.tolist() 
-    bb = obj.b_for_mcmc 
+    bb = obj.b_for_mcmc
+    bb = np.array(bb)
     flags = obj.f_for_mcmc 
-    par = obj.parameters #par.tolist()
+    par = np.array(obj.parameters) #par.tolist()
  
+   # print(len(bb),len(par),len(pp))
+
+    
     gps = []
     if (rtg[1]):
         gps = initiategps(obj, kernel_id=kernel_id) 
@@ -300,9 +305,8 @@ def run_SciPyOp(obj,   threads=1,  rtg=[True,True,False],  kernel_id=-1,  save_m
    # bounds=b,
     minimzers = ['Nelder-Mead','Powell','CG','BFGS','Newton-CG','L-BFGS-B', 'TNC','COBYLA','SLSQP','dogleg','trust-ncg']
     for k in range(0): # run at least 3 times the minimizer
-        result = op.minimize(nll,  pp, args=(mod,par,flags, npl,vel_files, epoch, stmass, gps, bb, rtg ),
-                             method=minimzers[6],jac=None, 
-                             options={'disp': True})        
+        result = op.minimize(nll,  pp, args=(mod,par,flags, npl,vel_files, epoch, stmass, bb, gps, rtg ),
+                             method=minimzers[6],bounds=None, options={'xtol': 1e-6, 'disp': True })       
                             #  bounds=bb, tol=None, callback=None, options={'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxiter': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1, 'disp': True})        
         pp = result["x"]
         print("Best fit par.:", result["x"])
@@ -332,7 +336,6 @@ def run_SciPyOp(obj,   threads=1,  rtg=[True,True,False],  kernel_id=-1,  save_m
  
 
 def lnprior(p,b): 
-    b = np.array(b)
     for j in range(len(p)): 
         if p[j] <= b[j,0] or p[j] >= b[j,1]:
             return -np.inf
@@ -375,6 +378,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, r
     pp = obj.par_for_mcmc.tolist()
     ee = obj.e_for_mcmc.tolist() 
     bb = obj.b_for_mcmc 
+    bb = np.array(bb)
     flags = obj.f_for_mcmc 
     par = obj.parameters #par.tolist()
     
