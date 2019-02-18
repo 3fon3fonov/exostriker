@@ -20,7 +20,13 @@ def choose_prior(p,i):
 	else:
 	    return 0.0
 
-def flatprior (p):
+def flatprior(p):
     '''id=0'''
     return 0.0
-    
+
+
+def normalprior(p):    
+    loglik = np.log( 1./(np.sqrt(2*np.pi) * b[2]) * np.exp( - (p - b[1])**2 / (2.*b[2]**2) ) )
+    return loglik
+
+#prob_ecc1 = np.log(np.exp(-0.5 * (p[j]/SIG_E)**2.0))
