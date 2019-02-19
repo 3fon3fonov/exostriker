@@ -198,7 +198,10 @@ def model_loglik(p, program, par, flags, npl, vel_files,epoch, stmass, gps, rtg,
             ppp+='%s\n'%(vel_files[i])    
             # offset and jitter information for each dataset
             ppp+='%f\n%d\n'%(par[i],0)
-            ppp+='%f\n%d\n'%(par[i + len(vel_files)],0)
+            if (rtg[1]): 
+                ppp+='%f\n%d\n'%(0,0)           
+            else:
+                ppp+='%f\n%d\n'%(par[i + len(vel_files)],0)
         ppp+='%d\n'%npl
         for i in range(npl): # K,P,e,w,M,i,cap0m for each planet, and information which ones we use
             ppp+='%f %f %f %f %f %f %f\n'%(par[len(vel_files)*2 + 7*i],
@@ -280,7 +283,7 @@ def run_SciPyOp(obj,   threads=1,  rtg=[True,False,False],  kernel_id=-1,  save_
  
    # print(len(bb),len(par),len(pp))
 
-    
+   # print(flags)
     gps = []
     if (rtg[1]):
         gps = initiategps(obj, kernel_id=kernel_id) 
@@ -895,6 +898,7 @@ class signal_fit(object):
        
         ########## new stuff ##########
         self.init_bounds()
+        self.init_norm_pr()
         
         self.fit_performed = False
         self.fitting_method = 'None'
@@ -969,7 +973,7 @@ class signal_fit(object):
 
     def init_bounds(self): 
 
-        self.K_bound   = {k: np.array([0,10000]) for k in range(9)}
+        self.K_bound    = {k: np.array([0,10000]) for k in range(9)}
         self.P_bound    = {k: np.array([0,100000]) for k in range(9)}
         self.e_bound    = {k: np.array([-0.999,0.999]) for k in range(9)}
         self.w_bound    = {k: np.array([-2.0*360.0, 2.0*360.0]) for k in range(9)}
@@ -982,7 +986,23 @@ class signal_fit(object):
         
         self.lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(1)} 
         self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
- 
+
+
+    def init_norm_pr(self): 
+
+        self.K_norm_pr    = {k: np.array([50,100]) for k in range(9)}
+        self.P_norm_pr    = {k: np.array([150,30]) for k in range(9)}
+        self.e_norm_pr    = {k: np.array([0.0,0.1]) for k in range(9)}
+        self.w_norm_pr    = {k: np.array([0, 90]) for k in range(9)}
+        self.M0_norm_pr   = {k: np.array([0, 90]) for k in range(9)}
+        self.i_norm_pr    = {k: np.array([90, 90]) for k in range(9)}
+        self.Node_norm_pr = {k: np.array([0, 360.0]) for k in range(9)}
+        
+        self.rvoff_norm_pr = {k: np.array([0.0,1000000.0]) for k in range(10)} 
+        self.jitt_norm_pr  = {k: np.array([0.0,10000.0] )for k in range(10)} 
+        
+        self.lintr_norm_pr  = {k: np.array([0,1.0]) for k in range(1)} 
+        self.st_mass_norm_pr  = {k: np.array([1,100]) for k in range(1)}  
 
     def init_transit_params(self): 
         # from the example in github
