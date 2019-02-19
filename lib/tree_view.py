@@ -15,10 +15,13 @@ class Widget_tree(QWidget):
     def __init__(self, *args, **kwargs):
         QWidget.__init__(self, *args, **kwargs)
         hlay = QVBoxLayout(self)
+
         self.treeview = QTreeView() 
         self.listview = QListView()
         hlay.addWidget(self.treeview)
         hlay.addWidget(self.listview)
+      #  hlay.addStretch(1)
+          
 
         path = QDir.homePath() #QDir.currentPath() #QDir.rootPath()
 

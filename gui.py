@@ -2603,7 +2603,11 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         #################### data inspector ########################
                         
         self.tree_view_tab = Widget_tree()        
+       # self.gridLayout_file_tree.setRowStretch(0, 6)
+        self.gridLayout_file_tree.setRowStretch(1, 4)
         self.gridLayout_file_tree.addWidget(self.tree_view_tab)
+
+        
         self.tree_view_tab.listview.clicked.connect(self.plot_data_inspect)
         self.data_insp_load_data.clicked.connect(self.load_data_inspect)  
         
