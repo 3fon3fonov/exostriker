@@ -11,6 +11,7 @@ class EmbTerminal(QtWidgets.QWidget):
         self.terminal = QtWidgets.QWidget(self)
         layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(self.terminal)
+        
         # Works also with urxvt:
         if subprocess.call(["which", 'urxvt'], stdout=open(os.devnull, 'wb')) == 1:
             self.process.start('xterm',['-into', str(int(self.winId()))])
