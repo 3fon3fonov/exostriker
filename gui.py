@@ -644,6 +644,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     
         return text_peaks  
         
+  
+    
         
 ######################## Correlation plots ###################################### 
         
@@ -911,10 +913,28 @@ Polyfit coefficients:
 
 ######################## Activity plots END ######################################        
 
+
+######################## RV plots ######################################        
+
+    def init_gls_norm_combo(self):    
+        global fit, norms
+        
+        self.norms = ['ZK',  'HorneBaliunas', 'Cumming', 'wrms', 'chisq', 'lnL', 'dlnL']
+        #'Scargle',
+        for i in range(len(self.norms)):
+            self.gls_norm_combo.addItem('%s'%(self.norms[i]),i+1)   
+            
+            
+
+
     def update_RV_GLS_plots(self):
         global fit, colors, RV_per, p7 
  
-        p7.plot(clear=True,)        
+        p7.plot(clear=True,)   
+        
+        ind_norm = self.gls_norm_combo.currentIndex()
+
+        #print(ind_norm)
                           
         omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
@@ -922,7 +942,7 @@ Polyfit coefficients:
         if len(fit.fit_results.rv_model.jd) > 5:
 
             RV_per = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.rvs, fit.fit_results.rv_model.rv_err), 
-            fast=True,  verbose=False, norm= "ZK",ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[0],)
+            fast=True,  verbose=False, norm=self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[0],)
             
             ######################## GLS ##############################
             if self.radioButton_RV_GLS_period.isChecked():
@@ -934,8 +954,8 @@ Polyfit coefficients:
                 p7.plot(RV_per.freq, RV_per.power,pen='r',symbol=None )                    
                 p7.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'}) 
 
-                                               
-            [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per.powerLevel(np.array(power_levels)))]
+            if ind_norm == 0:
+                [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per.powerLevel(np.array(power_levels)))]
  
  
             self.RV_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
@@ -948,14 +968,16 @@ Polyfit coefficients:
         global p8  
  
         p8.plot(clear=True,)  
-         
+        
+        ind_norm = self.gls_norm_combo.currentIndex()
+        
         omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
 
         if len(fit.fit_results.rv_model.jd) > 5:
  
             RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.o_c, fit.fit_results.rv_model.rv_err), 
-            fast=True,  verbose=False, norm= "ZK",ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)            
+            fast=True,  verbose=False, norm= self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)            
 
             ######################## GLS o-c ##############################
             if self.radioButton_RV_o_c_GLS_period.isChecked():
@@ -966,8 +988,9 @@ Polyfit coefficients:
                 p8.setLogMode(False,False)        
                 p8.plot(RV_per_res.freq, RV_per_res.power,pen='r',symbol=None )    
                 p8.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'})                
-                     
-            [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per_res.powerLevel(np.array(power_levels)))]            
+
+            if ind_norm == 0:                  
+                [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per_res.powerLevel(np.array(power_levels)))]            
 
             self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(RV_per_res.info(stdout=False)+
             self.identify_power_peaks(1/RV_per_res.freq, RV_per_res.power, power_level = power_levels, sig_level = RV_per.powerLevel(np.array(power_levels)) ) )  )      
@@ -1066,6 +1089,7 @@ Polyfit coefficients:
         #self.change_extra_plot()
         self.update_transit_plots()    
         
+################################ RV plots END ######################################        
 
 ################################ RV files #######################################################
         
@@ -2678,10 +2702,13 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.actionCredits.triggered.connect(lambda: self.print_info_credits())
         
 
-        self.jitter_to_plots.stateChanged.connect(self.update_RV_plots)
+        self.jitter_to_plots.stateChanged.connect(self.update_plots)
         
         self.init_correlations_combo()
         self.init_activity_combo()
+        self.init_gls_norm_combo()
+        self.gls_norm_combo.activated.connect(self.update_RV_GLS_plots) 
+
         
         self.setWindowIcon(QtGui.QIcon('./lib/33_striker.png'))
         
