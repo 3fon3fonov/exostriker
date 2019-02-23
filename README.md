@@ -35,7 +35,7 @@ What is to be implemented:
 
 * Combined modeling of data (Transit + RV + Astrometry +  GP/Moving average modeling, at once). 
 * Variouse of minimization/sampling methods.
-* GUI accsess to priors 
+* GUI accsess to priors (So far only limits work)
 * Print all results and plots into a .tex ready environment
 * A large arsenal of N-body/dynamical simulation/analysis tools. 
 * Documentation, Instructions and Video tutorials.
