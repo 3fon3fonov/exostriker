@@ -2707,7 +2707,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.init_correlations_combo()
         self.init_activity_combo()
         self.init_gls_norm_combo()
-        self.gls_norm_combo.activated.connect(self.update_RV_GLS_plots) 
+        self.gls_norm_combo.activated.connect(self.update_plots) 
 
         
         self.setWindowIcon(QtGui.QIcon('./lib/33_striker.png'))
