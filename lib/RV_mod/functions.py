@@ -125,6 +125,8 @@ def run_command_with_timeout(args, secs, output=False, pipe=False): # set output
     Run a command and kill if it takes too long.
     '''
 
+
+   # print(args)
     if not (pipe):
         text=tempfile.TemporaryFile() # because PIPE usually has too low capacity
         proc = Popen(args, shell=True, preexec_fn=os.setsid, stdout=text, stderr=text)

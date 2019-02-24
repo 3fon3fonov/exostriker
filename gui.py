@@ -914,10 +914,39 @@ Polyfit coefficients:
 ######################## Activity plots END ######################################        
 
 
+
+    def init_scipy_combo(self):    
+        global fit 
+
+        for i in range(len(fit.SciPy_min)):
+            self.comboBox_scipy_minimizer_1.addItem('%s'%(fit.SciPy_min[i]),i) 
+            self.comboBox_scipy_minimizer_2.addItem('%s'%(fit.SciPy_min[i]),i) 
+           
+        self.comboBox_scipy_minimizer_1.setCurrentIndex(6)
+        self.comboBox_scipy_minimizer_2.setCurrentIndex(0)
+            
+    def check_scipy_min(self):    
+        global fit             
+            
+        ind_min_1 = self.comboBox_scipy_minimizer_1.currentIndex()
+        ind_min_2 = self.comboBox_scipy_minimizer_2.currentIndex()
+       
+
+        fit.SciPy_min_use_1 = fit.SciPy_min[ind_min_1]
+        fit.SciPy_min_use_2 = fit.SciPy_min[ind_min_2]
+        fit.SciPy_min_N_use_1 = int(self.scipy_N_consecutive_iter_1.value())
+        fit.SciPy_min_N_use_2 = int(self.scipy_N_consecutive_iter_2.value())
+       
+        
+        #print(fit.SciPy_min_use_1,fit.SciPy_min_use_2)
+            
+            
+
+
 ######################## RV plots ######################################        
 
     def init_gls_norm_combo(self):    
-        global fit, norms
+        global fit
         
         self.norms = ['ZK',  'HorneBaliunas', 'Cumming', 'wrms', 'chisq', 'lnL', 'dlnL']
         #'Scargle',
@@ -1686,7 +1715,6 @@ Transit duration: %s d
          
             
         self.check_bounds()
-   
         
         if self.radioButton_fortran77.isChecked() and not self.goGP.isChecked() or init == True:
             self.statusBar().showMessage('Minimizing parameters....')    
@@ -1698,9 +1726,11 @@ Transit duration: %s d
             # Pass the function to execute
             worker2 = Worker(lambda:  self.optimize_fit(ff=ff, doGP=doGP, minimize_fortran=True, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
  
-        else:           
+        else:         
+            self.check_scipy_min()
+
             self.statusBar().showMessage('Minimizing parameters using SciPyOp (might be slow)....')                 
-            worker2 = Worker(lambda:  self.optimize_fit(ff=1, doGP=self.goGP.isChecked(),  gp_kernel_id=-1, minimize_fortran=False, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
+            worker2 = Worker(lambda:  self.optimize_fit(ff=0, doGP=self.goGP.isChecked(),  gp_kernel_id=-1, minimize_fortran=False, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
                # Execute
             
             
@@ -1738,7 +1768,7 @@ Transit duration: %s d
             f_kill = self.kep_model_to_kill.value()    
         
         if minimize_fortran==False:
-            ff = 1 
+            ff = 0 
             
       #  print(ff)   
 
@@ -1751,14 +1781,16 @@ Transit duration: %s d
             """
             now run the amoeba code modeling the jitters
             """
-            fit.fitting(fileinput=False,outputfiles=[1,0,0], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
-            fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=0,  print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
+#            fit.fitting(fileinput=False,outputfiles=[1,0,0], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
+            fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
 
         elif m_ln == True and doGP == True:       
             fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff,  print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
         
+        elif m_ln == False and   minimize_fortran==False:      
+            fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=0, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
+        
         else:      
- 
             fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
 
         if auto_fit:
@@ -2706,6 +2738,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
         self.init_correlations_combo()
         self.init_activity_combo()
+        self.init_scipy_combo()
+        self.comboBox_scipy_minimizer_1.activated.connect(self.check_scipy_min)
+        
         self.init_gls_norm_combo()
         self.gls_norm_combo.activated.connect(self.update_plots) 
 
