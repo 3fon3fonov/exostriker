@@ -43,43 +43,31 @@ class XStream(QtCore.QObject):
 
         return XStream._stderr
 
-class LogMessageViewer(QtGui.QTextBrowser):
-
-    def __init__(self, parent=None):
-        super(LogMessageViewer,self).__init__(parent)
-        self.setReadOnly(True)
-        #self.setLineWrapMode(QtGui.QTextEdit.NoWrap)
-
-
-    @QtCore.pyqtSlot(str)
-    def appendLogMessage(self, msg):
-        horScrollBar = self.horizontalScrollBar()
-        verScrollBar = self.verticalScrollBar()
-        scrollIsAtEnd = verScrollBar.maximum() - verScrollBar.value() <= 10
-
-        self.insertPlainText(msg)
-
-        if scrollIsAtEnd:
-            verScrollBar.setValue(verScrollBar.maximum()) # Scrolls to the bottom
-            horScrollBar.setValue(0) # scroll to the left
-
 class MyDialog(QtGui.QDialog):
     def __init__( self, parent = None ):
         super(MyDialog, self).__init__(parent)
 
-        self._console = LogMessageViewer(self)
+        self._console = QtGui.QTextBrowser(self)
+        
+       # horScrollBar = self._console.horizontalScrollBar()
+       # verScrollBar = self._console.verticalScrollBar()
 
         layout = QtGui.QVBoxLayout()
         layout.addWidget(self._console)
+        #layout.addWidget(self._button)
         self.setLayout(layout)
 
-        XStream.stdout().messageWritten.connect(self._console.appendLogMessage)
-        XStream.stderr().messageWritten.connect(self._console.appendLogMessage)
 
-        # test
-        #timer = QtCore.QTimer(self, timeout=self.pipe_output, interval=500)
-       # timer.start()
+        XStream.stdout().messageWritten.connect(self._console.insertPlainText)
+        XStream.stderr().messageWritten.connect(self._console.insertPlainText)
+ 
+      #  scrollIsAtEnd = verScrollBar.maximum() - verScrollBar.value() <= 10 
+       
+      #  if scrollIsAtEnd:
+      #      verScrollBar.setValue(verScrollBar.maximum()) # Scrolls to the bottom
+      #      horScrollBar.setValue(0) # scroll to the left
 
+        self.pipe_output
 
     def pipe_output( self ):
         logger.debug('debug message')
@@ -90,10 +78,9 @@ class MyDialog(QtGui.QDialog):
 
 if ( __name__ == '__main__' ):
     #app = None
-    # if ( not QtGui.QApplication.instance() ):
+   # if ( not QtGui.QApplication.instance() ):
     app = QtGui.QApplication([])
     dlg = MyDialog()
     dlg.show()
-
     #if ( app ):
     app.exec_()
