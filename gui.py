@@ -217,8 +217,12 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
   
 
         fit.params.stellar_mass = self.St_mass_input.value() 
-        fit.params.linear_trend = self.RV_lin_trend.value()     
-        fit.epoch =  self.Epoch.value()
+        fit.params.linear_trend = self.RV_lin_trend.value()   
+        
+        if self.checkBox_first_RV_epoch.isChecked():
+            fit.epoch = min(fit.fit_results.rv_model.jd)
+        else:
+            fit.epoch =  self.Epoch.value()
        
 
 
@@ -1314,7 +1318,11 @@ Polyfit coefficients:
         minimize_fortran=True
         if fit.model_saved == False or len(fit.fit_results.rv_model.jd) != len(fit.filelist.idset):
             fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
-        
+            #self.worker_RV_fitting(, ff=0, m_ln=True, auto_fit = False , init = True ):
+            #self.fit_dispatcher(init=False)
+            for i in range(fit.npl):
+                 rv.phase_planet_signal(fit,i+1)       
+                 
         self.update_labels()
         self.update_gui_params()
         self.update_errors() 
@@ -1385,7 +1393,18 @@ Polyfit coefficients:
         
         pe.plot(clear=True,)    
         
-        ph_data,ph_model = rv.phase_planet_signal(fit,ind)
+ 
+        #if ph_model[0][1][0] != fit.ph_model[0][1][0]:
+    
+        ph_data = fit.ph_data[ind-1]
+        ph_model = fit.ph_model[ind-1] #rv.phase_planet_signal(fit,ind)
+
+
+      # print(fit.ph_data)
+
+       # fit.ph_data[ind-1], fit.ph_model[ind-1]
+#rv.phase_planet_signal(fit,ind)
+
 
         if len(ph_data) == 1:
             return
@@ -1694,12 +1713,16 @@ Transit duration: %s d
         self.update_gui_params()
         self.update_errors() 
         self.update_a_mass()                    
-        self.update_plots()                   
+                 
         self.statusBar().showMessage('')   
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
 
         self.jupiter_push_vars()   
-        self.button_fit.setEnabled(True)         
+        self.button_fit.setEnabled(True)  
+        
+        for i in range(fit.npl):
+             rv.phase_planet_signal(fit,i+1)        
+        self.update_plots()  
  
     def worker_RV_fitting(self, ff=20, m_ln=True, auto_fit = False , init = False ):
         global fit  
@@ -1715,6 +1738,8 @@ Transit duration: %s d
          
             
         self.check_bounds()
+        
+        
         
         if self.radioButton_fortran77.isChecked() and not self.goGP.isChecked() or init == True:
             self.statusBar().showMessage('Minimizing parameters....')    
@@ -1739,7 +1764,9 @@ Transit duration: %s d
         # worker.signals.result.connect(self.print_output)
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker2)       
+        self.threadpool.start(worker2) 
+        
+
      
     def update_dyn_kep_flag(self):
 
