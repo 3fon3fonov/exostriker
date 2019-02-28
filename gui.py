@@ -219,7 +219,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         fit.params.stellar_mass = self.St_mass_input.value() 
         fit.params.linear_trend = self.RV_lin_trend.value()   
         
-        if self.checkBox_first_RV_epoch.isChecked():
+        if self.checkBox_first_RV_epoch.isChecked() and len(fit.fit_results.rv_model.jd) != 0:
             fit.epoch = min(fit.fit_results.rv_model.jd)
         else:
             fit.epoch =  self.Epoch.value()
@@ -1048,7 +1048,17 @@ Polyfit coefficients:
                 WF_power.append((WC**2 + WS**2)/len(fit.fit_results.rv_model.jd)**2) 
 
             WF_power = np.array(WF_power)
-            p12.plot(1/np.array(omega), WF_power,pen='k',symbol=None )   
+            ######################## GLS o-c ##############################
+            if self.radioButton_RV_WF_period.isChecked():
+                p12.setLogMode(True,False)        
+                p12.plot(1/np.array(omega), WF_power,pen='k',symbol=None )   
+                p12.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})
+            else:
+                p12.setLogMode(False,False)        
+                p12.plot(np.array(omega), WF_power,pen='k',symbol=None )   
+                p12.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'})      
+
+
                         
             self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(self.identify_power_peaks(1/np.array(omega), WF_power)))        
          
@@ -2796,6 +2806,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.radioButton_RV_o_c_GLS_period.toggled.connect(self.update_RV_o_c_GLS_plots)
         self.radioButton_RV_GLS_period.toggled.connect(self.update_RV_GLS_plots)
 
+        self.radioButton_RV_WF_period.toggled.connect(self.update_WF_plots)
 
         self.calc_TLS.clicked.connect(self.worker_tls)
 
