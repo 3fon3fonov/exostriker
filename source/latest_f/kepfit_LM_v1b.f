@@ -10,8 +10,8 @@ ccc   The final version will be available in the Python RVMod lib.
       integer writeflag_best_par
       integer writeflag_RV,writeflag_fit, amoebastarts 
       parameter (NDSMAX=20, NPLMAX=20, MMAX=200)
-      integer idsmax(NDSMAX),ia(MMAX),nt, ts(5000)
-      real*8 x(5000),y(5000),sig(5000),ymod2(5000),y_in(5000)
+      integer idsmax(NDSMAX),ia(MMAX),nt, ts(10000)
+      real*8 x(10000),y(10000),sig(10000),ymod2(10000),y_in(10000)
       real*8 a(MMAX),covar(MMAX,MMAX),alpha(MMAX,MMAX)
       real*8 rms,mstar,mass(NPLMAX),ap(NPLMAX)
       real*8 swift_mass(NPLMAX),s_mass(NPLMAX),j_mass(NPLMAX)
@@ -19,7 +19,7 @@ ccc   The final version will be available in the Python RVMod lib.
       real*8 jitter,sigscale,x0,xmax,loglik,dy
       real*8 t0,t1,t2,dt,offset,t_max, incl(NPLMAX), cap0m(NPLMAX)
       real*8 st_mass,sini,m1,a1,m2,a2,jitt(NDSMAX),epoch
-      real*8 ymod(5000),dyda(MMAX)
+      real*8 ymod(10000),dyda(MMAX)
       real*4 t_stop,when_to_kill,model_max,model_min
       
       external rvkep
@@ -179,7 +179,7 @@ c              offset(j) = a(i)
       endif
 
 
-c      nt = 5000
+c      nt = 10000
       if(writeflag_fit.gt.0) then
  
               dt = (x(ndata)+model_max+model_min)/dble(nt - 1)
@@ -219,12 +219,12 @@ C     Xianyu Tan 2011
 
       implicit none
       integer ndset,idset,ndata,NDSMAX,NPLMAX,MMAX,npl,ma
-      real*8 t(5000),y(5000),sig(5000),ys(5000),sigs(5000),PI
+      real*8 t(10000),y(10000),sig(10000),ys(10000),sigs(10000),PI
       parameter (NDSMAX=20,NPLMAX=20,MMAX=200)
       parameter(PI=3.14159265358979d0)
       real*8 ar(MMAX),incl(NPLMAX),cap0m(NPLMAX)
       integer iar(MMAX),u_off(NDSMAX),u_jit
-      integer idsmax(NDSMAX),ts(5000), u_incl, u_cap0m
+      integer idsmax(NDSMAX),ts(10000), u_incl, u_cap0m
       real*8 jitt(NDSMAX),sigscale,t0,t_max, epoch
       real*8 off(NDSMAX),loglik
       integer i,k,j
@@ -443,7 +443,7 @@ c From Numerical Recipes.
 	subroutine MRQMIN (x,y,sig,ndata,a,ia,ma,ts,covar,alpha,nca,
      & 	                   chisq,funcs,alamda,loglik,jitt)
 	implicit none
-	integer ma,nca,ndata,ia(ma),MMAX,NDSMAX,ts(5000)
+	integer ma,nca,ndata,ia(ma),MMAX,NDSMAX,ts(10000)
 	real*8 alamda,chisq,a(ma),alpha(nca,nca),covar(nca,nca),
      &	       sig(ndata),x(ndata),y(ndata),loglik
 	external funcs
@@ -532,7 +532,7 @@ c From Numerical Recipes.
 	implicit none
 	integer npl,ndset,idset,ma,nalp,ndata,ia(ma),NDSMAX,MMAX
 	parameter (NDSMAX=20, MMAX=200)
-        integer idsmax(NDSMAX),ts(5000)
+        integer idsmax(NDSMAX),ts(10000)
 	real*8 chisq,a(ma),alpha(nalp,nalp),beta(ma),sig(ndata),
      &	       x(ndata),y(ndata),loglik,TWOPI,jitt(NDSMAX)
         parameter (TWOPI=2.d0*3.14159265358979d0)
