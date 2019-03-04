@@ -42,7 +42,7 @@ from errors import Error, InputError, FittingError
 from kernel import kernel, rvmodel, summary
 from rv_files import rvfile, rvfile_list
 
-TAU=6.2831853071
+TAU= 2.0*np.pi 
 DEFAULT_STELLAR_MASS=1.0
 DEFAULT_JITTER=1.0
 NPLMAX=20
@@ -173,25 +173,64 @@ def initiategps(obj,  kernel_id=-1):
  
                
     return gps
+
+
+    
+def transit_tperi(per, ecc, om, ma, epoch):
+    '''
+    '''
+    om = np.radians(om)
+    ma = np.radians(ma)
+
+    E = 2.0*np.arctan( np.sqrt( ( (1.0-ecc)/(1.0+ecc) ) ) * np.tan( (np.pi/4.0)-(om/2.0) ) )
+   # print(E)
+    t_peri    = epoch  - ((ma/TAU)*per)
+    t_transit = t_peri + (E + ecc*np.sin(E)) * (per/TAU)    
+
+    return t_peri, t_transit    
+
+    
+def ma_from_t0(per, ecc, om, t_transit, epoch):
+    '''
+    '''
+    om = np.radians(om)
+    E = 2.0*np.arctan( np.sqrt( ( (1.0-ecc)/(1.0+ecc) ) ) * np.tan( (np.pi/4.0)-(om/2.0) ) )
+ 
+   # t_transit = epoch  - ((ma/TAU)*per) + (E + ecc*np.sin(E)) * (per/TAU)          
+    
+    ma =  ((epoch  - t_transit + (E + ecc*np.sin(E)) * (per/TAU))*TAU)/per 
+    ma = np.degrees(ma)%360.0
+
+    return ma   
+
+  
     
     
-    
-def model_loglik(p, program, par, flags, npl, vel_files,epoch, stmass, gps, rtg, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=300, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
+def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epoch, stmass, gps, rtg, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=300, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
 #def kep_fit(p, mod, par,flag_ind, npl,vel_files,epoch):
 
  
     rv_loglik = 0
     gp_rv_loglik = 0
-    
+    tr_loglik = 0
+    gp_tr_loglik = 0
+   
+
+    for j in range(len(p)):
+        par[flags[j]] = p[j]    
    # print(rtg)
     
     if (rtg[1]):
         outputfiles = [1,1,0]
+    
+   # if (rtg[2]):
+   #     for i in range(npl):
+   #         par[len(vel_files)*2 +7*i+4] = 0 #ma_from_t0(par[len(vel_files)*2 +7*i+1], par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*npl +5 + 3*i], 0)
  
     if(rtg[0]):
-        for j in range(len(p)):
-            par[flags[j]] = p[j] 
-     
+        
+        
+      
         ppp= '%s << EOF\n%s %f %d %d %d %d %d\n%f %d %d %d \n%d\n'%(program, eps,dt,amoeba_starts,when_to_kill,npoints, model_max, model_min, stmass, outputfiles[0], outputfiles[1],outputfiles[2], len(vel_files)) # first three lines of fortran input: precision and timestep for integration, stellar mass and number of datasets
         for i in range(len(vel_files)): 
             # path for each dataset      
@@ -243,19 +282,72 @@ def model_loglik(p, program, par, flags, npl, vel_files,epoch, stmass, gps, rtg,
              
         rv_loglik =  gp_rv_loglik 
        # print(rv_loglik)
+    if(rtg[2]): 
+        
+        if len(tr_files[0]) == 0:
+            tr_loglik = 0        
+        else: 
+            t = tr_files[0][0] 
+            flux = tr_files[0][1] 
+            flux_err = tr_files[0][2] 
+            flux_model =[1]*len(flux)
+            
+            m =  {k: [] for k in range(9)}
+             
+            for i in range(npl):
+            
+                t_peri, t_transit = transit_tperi(par[len(vel_files)*2 +7*i+1], par[len(vel_files)*2 +7*i+2], 
+                                                      par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4], epoch)
+                t00 = par[len(vel_files)*2 +7*i+1] - (epoch%par[len(vel_files)*2 +7*i+1]) + (t_transit-epoch)
+               # par[len(vel_files)*2 +7*npl +5 + 3*i] = t_transit
+           
+                tr_params.per = par[len(vel_files)*2 +7*i+1] #1.0    #orbital period
+                tr_params.ecc = par[len(vel_files)*2 +7*i+2] #0.0  
+                tr_params.w   = par[len(vel_files)*2 +7*i+3] #90.0   #longitude of periastron (in degrees)               
+                tr_params.inc = par[len(vel_files)*2 +7*i+5]#90. #orbital inclination (in degrees)
+                
+                tr_params.t0  = par[len(vel_files)*2 +7*npl +5 + 3*i] = t00%par[len(vel_files)*2 +7*i+1]  #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
+                tr_params.a   = par[len(vel_files)*2 +7*npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+                tr_params.rp  = par[len(vel_files)*2 +7*npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)
+                #print(tr_params.t0)
+                #print(tr_params.per, tr_params.ecc,tr_params.w, tr_params.inc, tr_params.t0,tr_params.a,tr_params.rp )
+        
+                m[i] = batman.TransitModel(tr_params, t)    #initializes model
+     
+                flux_model = flux_model * m[i].light_curve(tr_params)       
+                #calculates light curve  
+            tr_o_c = flux -flux_model
+            
+            
+            
+            #tr_loglik = 0
+            for i in range(len(tr_o_c)):
+                tr_loglik= tr_loglik - 0.5*(((tr_o_c[i]**2)/(flux_err[i]**2) ) - 0.5*(np.log(TAU*(flux_err[i]**2))))
+            #tr_loglik = tr_loglik*(-1)
+           # return tr_loglik
+            #print(tr_loglik)       
+#       	  loglik =  loglik - 0.5*dy*dy*sig2i -
+#     &               0.5*dlog(twopi*(sig(i)**2
+#     &                + a(5*npl+ndset+idset)**2))  
     
-    #print(rv_loglik)
-    return pr.choose_prior(p,prior)+ rv_loglik 
+ 
+    return pr.choose_prior(p,prior)+ rv_loglik + tr_loglik
     
     
-def run_SciPyOp(obj,   threads=1,  rtg=[True,False,False],  kernel_id=-1,  save_means=False, fileoutput=False, save_sampler=False, **kwargs):      
+
+def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=False, save_sampler=False, **kwargs):      
  
     start_time = time.time()    
  
+    rtg = obj.rtg
+    
     vel_files = []
     for i in range(obj.filelist.ndset): 
          vel_files.append(obj.filelist.files[i].path)  
 
+    tr_files = obj.tra_data_sets
+    tr_params = obj.tr_params
+    
     
     npl = obj.npl
     epoch = obj.epoch     
@@ -271,15 +363,19 @@ def run_SciPyOp(obj,   threads=1,  rtg=[True,False,False],  kernel_id=-1,  save_
 
     nll = lambda *args: -lnprob_new(*args)
   
-    obj.prepare_for_mcmc(doGP = rtg[1])    
-    pp = obj.par_for_mcmc.tolist()
-    ee = obj.e_for_mcmc.tolist() 
+    obj.prepare_for_mcmc(rtg = rtg)    
+    pp = obj.par_for_mcmc #.tolist()
+    ee = obj.e_for_mcmc #.tolist() 
     bb = np.array(obj.b_for_mcmc)
    # bb = np.array(bb)
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
  
- 
+   # print(par)
+   # print(pp)
+#    print(bb)
+  #  print(flags)
+
     gps = []
     if (rtg[1]):
         gps = initiategps(obj, kernel_id=kernel_id) 
@@ -287,6 +383,10 @@ def run_SciPyOp(obj,   threads=1,  rtg=[True,False,False],  kernel_id=-1,  save_
     eps =  0.001
     xtol = 1e-8
 
+
+
+#    print(obj.SciPy_min_use_1,obj.SciPy_min_N_use_1)
+#    print(obj.SciPy_min_use_2,obj.SciPy_min_N_use_2)
 
     if obj.SciPy_min_use_1 == obj.SciPy_min[6]:
          options1={'xtol': xtol, 'eps':eps, 'disp': True}
@@ -300,25 +400,37 @@ def run_SciPyOp(obj,   threads=1,  rtg=[True,False,False],  kernel_id=-1,  save_
     elif obj.SciPy_min_use_2 == obj.SciPy_min[0]:
          options2={'xtol': xtol, 'maxiter':30000, 'maxfev':30000, 'adaptive':True, 'disp': True} 
     else:
-         options2={'disp': True}         
+         options2={'disp': True}   
+    
+    if len(flags) == 0:
+        method1 = 'TNC'
+        n1 = 1
+        n2 = 0
+    else:
+        method1 = obj.SciPy_min_use_1
+        method2 = obj.SciPy_min_use_2  
+        n1 = obj.SciPy_min_N_use_1
+        n2 = obj.SciPy_min_N_use_2
+   # print(obj.SciPy_min_use_1,obj.SciPy_min_use_2)
     
     ########################### Primary minimizer #########################
-    for k in range(obj.SciPy_min_N_use_1): # run at least 3 times the minimizer
+    for k in range(n1): # run at least 3 times the minimizer
         #eps = eps/10.0
        # print('running %s %s %s'%(obj.SciPy_min_use_1, obj.SciPy_min_N_use_1, k))
-        result = op.minimize(nll,  pp, args=(mod, par,flags, npl,vel_files, epoch, stmass, bb, gps, rtg ),
-                             method=obj.SciPy_min_use_1,bounds=bb, options=options1)       
+ 
+        result = op.minimize(nll,  pp, args=(mod, par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, gps, rtg ),
+                             method=method1,bounds=bb, options=options1)       
                             #  bounds=bb, tol=None, callback=None, options={'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxiter': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1, 'disp': True})        
         pp = result["x"]
        # print("Best fit par.:", result["x"])
 
     ########################### Secondary minimizer #########################
 
-    for k in range(obj.SciPy_min_N_use_2): # run at least 3 times the minimizer
+    for k in range(n2): # run at least 3 times the minimizer
         #print(k,xtol)
       #  print('running %s %s %s'%(obj.SciPy_min_use_2, obj.SciPy_min_N_use_2, k))
-        result = op.minimize(nll, pp, args=(mod,par,flags, npl,vel_files, epoch, stmass, bb, gps, rtg ), 
-                             method=obj.SciPy_min_use_2,bounds=bb, options=options2)
+        result = op.minimize(nll, pp, args=(mod,par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, gps, rtg ), 
+                             method=method2,bounds=bb, options=options2)
         pp = result["x"]
        # print("Best fit par.:", result["x"])
 
@@ -326,32 +438,46 @@ def run_SciPyOp(obj,   threads=1,  rtg=[True,False,False],  kernel_id=-1,  save_
     #print("Best fit par.:", pp)
     
     obj.par_for_mcmc = pp  
-    newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
-    obj.overwrite_params(newparams)   
+    newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)   
+    obj.overwrite_params(newparams)  
     
-    print("--- %s seconds ---" % (time.time() - start_time))  
-    
-    print("Best fit par.:")  
+    obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
+
  
     for j in range(len(pp)):
-        print(ee[j] + "  =  %s"%pp[j])
+        par[flags[j]] = pp[j]    
+        
+    for i in range(npl):   
+        obj.t0[i]     = par[len(vel_files)*2 +7*npl +5 + 3*i] #0.0  #time of inferior conjunction
+        obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+        obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
+
+
+    if len(flags) != 0:    
+        print("--- %s seconds ---" % (time.time() - start_time))        
+        print("Best fit par.:")  
+     
+        for j in range(len(pp)):
+            print(ee[j] + "  =  %s"%pp[j])
     
     return obj
  
-
+ 
 def lnprior(p,b): 
     for j in range(len(p)): 
+       # print(p[j],b[j,0],b[j,1])
         if p[j] <= b[j,0] or p[j] >= b[j,1]:
             return -np.inf
     return 0.0      
     
-def lnprob_new(p, program, par, flags, npl, vel_files,epoch, stmass,b, gps,rtg):
+def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass,b, gps,rtg):
+    #print(p)
     lp = lnprior(p,b)
     if not np.isfinite(lp):
         return -np.inf
-    return lp + model_loglik(p, program, par, flags, npl, vel_files,epoch, stmass, gps, rtg)  
+    return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg)  
 
-def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, rtg=[True,False,False],  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):      
+def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):      
 
     
     '''Performs MCMC and saves results'''  
@@ -360,12 +486,18 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, r
         threads = multiprocessing.cpu_count()    
     
     start_time = time.time()   
-        
+    
+    rtg = obj.rtg
+
+    
     vel_files = []
     for i in range(obj.filelist.ndset): 
         # path for each dataset      
         vel_files.append(obj.filelist.files[i].path)  
-
+        
+    tr_files = obj.tra_data_sets
+    tr_params = obj.tr_params
+    
     npl = obj.npl
     epoch = obj.epoch     
     stmass = obj.params.stellar_mass    
@@ -378,31 +510,29 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, r
    # print(mod)
     #program='./lib/fr/%s_%s'%(minimized_value,mod) 
  
-    obj.prepare_for_mcmc(doGP = rtg[1])    
-    pp = obj.par_for_mcmc.tolist()
-    ee = obj.e_for_mcmc.tolist() 
-    bb = obj.b_for_mcmc 
-    bb = np.array(bb)
+    obj.prepare_for_mcmc(rtg = rtg)    
+    pp = obj.par_for_mcmc #.tolist()
+    ee = obj.e_for_mcmc #.tolist() 
+    bb = np.array(obj.b_for_mcmc)
+   # bb = np.array(bb)
     flags = obj.f_for_mcmc 
-    par = obj.parameters #par.tolist()
+    par = np.array(obj.parameters)  
     
-      
+    #print(par)
+   # print(flags)
+   # print(bb)
+   # print(pp)
     
     gps = []
     if (rtg[1]):
         gps = initiategps(obj, kernel_id=gp_kernel_id)     
-      
-        
-    #print(len(par), len(pp),len(bb),len(ee), len(flags))
-            
-    #name = raw_input("wait!")
-    
+ 
     
     ndim, nwalkers = len(pp), len(pp)*4
 
     pos = [pp + 1e-3*np.random.rand(ndim) for i in range(nwalkers)]
 
-    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=( mod, par, flags, npl, vel_files,epoch, stmass,bb, gps, rtg), threads = threads)
+    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=( mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass,bb, gps, rtg), threads = threads)
 
     # burning phase
     pos, prob, state  = sampler.run_mcmc(pos,burning_ph)
@@ -438,62 +568,22 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, r
    # print(current_GP_params)
 
     obj.overwrite_params(newparams)
-    
-    obj.update_with_mcmc_errors(new_par_errors)
-    
     obj.fitting(minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
+  
+    obj.update_with_mcmc_errors(new_par_errors)
+   # print(new_par_errors)
+    
  
     obj.params.update_GP_params(current_GP_params)
 
     #print(current_GP_params)
 
     print("Best fit par.:")  
-    pp = obj.par_for_mcmc.tolist()
+    pp = obj.par_for_mcmc 
     #ee = obj.e_for_mcmc.tolist() 
     for j in range(len(pp)):
         print(ee[j] + "  =  %s"%pp[j])
-
-
-#    if (doGP):
-#        obj.fitting_method='GP_%s'%mod
-#    else:
-#        obj.fitting_method='mcmc_%s'%mod  #
-
-#    if (doGP):
-#        loglik_to_save = lnprobGP(obj.par_for_mcmc,obj,prior)
-#        obj.loglik=loglik_to_save         
-#        obj.fit_results.loglik=loglik_to_save  
-        
-        
-        ########### Ugly things are happening here! to be fixed! ##########
-        
-#        fitted_GP = sampler.means[-len(obj.params.GP_params.gp_par[obj.use.use_GP_params==True]):]
  
-#        z = 0
-#        for k in range(obj.params.GP_params.npar):
-#            obj.param_errors.GP_params_errors[k] = [0,0]
-#            if not obj.use.use_GP_params[k]:
-#                continue
-#            else:
-#                obj.params.GP_params.gp_par[k] = fitted_GP[z]
-#               # obj.param_errors.GP_params_errors[k] = [float(sampler.means[-obj.params.GP_params.npar+k] - np.percentile(sampler.means[-obj.params.GP_params.npar+k], [level])),float(np.percentile(sampler.means[-obj.params.GP_params.npar+k], [100.0-level])-sampler.means[-obj.params.GP_params.npar+k])]
-#                obj.param_errors.GP_params_errors[k] = [float(fitted_GP[z] - np.percentile(sampler.samples[:,-len(fitted_GP)+z],[level])), float(np.percentile(sampler.samples[:,-len(fitted_GP)+z], [100.0-level])-fitted_GP[z])]
-                #print(obj.param_errors.GP_params_errors[k], fitted_GP[z], np.percentile(fitted_GP[z],level),level)
-#            z = z+1  
-
-#        obj.GP_params=GP_parameters(len(obj.params.GP_params.gp_par),obj.params.GP_params.gp_par,kernel_id=0) # we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
-         
-#        message_str =""" """
-#        if(obj.fitting_method.startswith('GP')):
-#            message_str = message_str +"""\nStellar activity was modeled using Gaussian Processes. The resulting GP parameters (means) are as follows:
-#"""
-#            message_str = message_str +"""\n A = {0:>7.4f} +/- {4:>7.4f}\n t = {1:>7.4f} +/- {5:>7.4f}\n P = {2:>7.4f} +/- {6:>7.4f}\n f = {3:>7.4f} +/- {7:>7.4f}
-#""".format(obj.GP_params.gp_par[0],obj.GP_params.gp_par[1],obj.GP_params.gp_par[2],obj.GP_params.gp_par[3],max(obj.param_errors.GP_params_errors[0]),max(obj.param_errors.GP_params_errors[1]),max(obj.param_errors.GP_params_errors[2]),max(obj.param_errors.GP_params_errors[3]))         
-#            message_str = message_str +"""
-#(The GP_params are printed here as these are still not part of the "params" structure. TBD!)                
-#"""
-       # print(message_str)
-        ###################################################################
         
     if(save_sampler):
         obj.sampler=sampler             
@@ -502,7 +592,6 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, r
     #sampler.reset()
 
     return obj
-  
 
 def cornerplot(obj, fileinput=False, level=(100.0-68.3)/2.0, **kwargs): 
 
@@ -519,188 +608,12 @@ def cornerplot(obj, fileinput=False, level=(100.0-68.3)/2.0, **kwargs):
     
     fig = corner.corner(samples,bins=25, color="k", reverse=True, upper= True, labels=obj.e_for_mcmc, quantiles=[level/100.0, 1.0-level/100.0],levels=(0.6827, 0.9545,0.9973), smooth=1.0, smooth1d=1.0, plot_contours= True, show_titles=True, truths=obj.par_for_mcmc, dpi = 300, pad=15, labelpad = 50 ,truth_color ='r', title_kwargs={"fontsize": 12}, scale_hist=True,  no_fill_contours=True, plot_datapoints=True, kwargs=kwargs)
     fig.savefig(obj.corner_plot_file)  
-
-   # obj = None
-    #fig.clf()
+ 
     return          
-     
-     
-def compute_loglik_SciPyOp(p,copied_obj):
-    newparams=copied_obj.generate_newparams_for_mcmc(p)
-  #  oldparams=signalfit.params
-    copied_obj.overwrite_params(newparams)
-    if not (copied_obj.verify_params_with_bounds()):
-        return -np.inf # if parameters are outside of bounds we return -infinity
-    else:               
-        flag=copied_obj.fitting(fileinput=False, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, outputfiles=[1,0,0],return_flag=True)
-
-    return copied_obj.loglik 
- 
-
-
-def compute_loglik_SciPyOp2(p,copied_obj):
-    newparams=copied_obj.generate_newparams_for_mcmc(p)
-  #  oldparams=signalfit.params
-    copied_obj.overwrite_params(newparams)
-    if not (copied_obj.verify_params_with_bounds()):
-        return -np.inf # if parameters are outside of bounds we return -infinity
-   # elif not (copied_obj.fitting_method.startswith('GP')):               
-   #     flag=copied_obj.fitting(fileinput=False, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, outputfiles=[1,0,0],return_flag=True)
-
-   #     return copied_obj.loglik 
-    
-   # elif(copied_obj.fitting_method.startswith('GP')):
-    else:
-        flag=copied_obj.fitting(fileinput=False, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,0],return_flag=True)
-        #newparams=copied_obj.generate_newparams_for_mcmc(p)
-        #copied_obj.overwrite_params(newparams)   
-        S=0
-        for i in range(copied_obj.filelist.ndset):
-            copied_obj.gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate((copied_obj.params.GP_params.gp_par,np.atleast_1d(copied_obj.params.jitters[i]))))))) 
-            S = S + copied_obj.gps[i].log_likelihood(copied_obj.fit_results.rv_model.o_c[copied_obj.fit_results.idset==i])
-                      
-       #print(copied_obj.fit_results.loglik, compute_loglik_TT(p,copied_obj),  S)#,copied_obj.params.GP_params[:4],copied_obj.params.planet_params[:14])   
-        return  S  
-
-
-
-  
-def lnprob(p,copied_obj,prior):
-    '''Compute logarithmic probability for given parameters'''     
-    # now we need to compute loglikelihood using the fortran code on new parameters, and then add it to lp
-    #copied_obj=signalfit
-    newparams=copied_obj.generate_newparams_for_mcmc(p)
-   # oldparams=copied_obj.params
-    copied_obj.overwrite_params(newparams)
-    if not (copied_obj.verify_params_with_bounds()):
-        return -np.inf # if parameters are outside of bounds we return -infinity
-    else:      
-
-       # print(copied_obj.params.jitters[:3],copied_obj.params.GP_params[:4],copied_obj.params.planet_params[:14])        
-       # print(copied_obj.use.use_jitters[:3])    
-        flag=copied_obj.fitting(fileinput=False, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, outputfiles=[0,0,0],return_flag=True)
-        #print(copied_obj.fit_results.loglik, flag)         
-        #print(copied_obj.fit_results.loglik, compute_loglik_TT(p,copied_obj) )#,copied_obj.params.GP_params[:4],copied_obj.params.planet_params[:14])   
-        #copied_obj.overwrite_params(oldparams)
-        #now self.fit_results.loglik is the loglikelihood corresponding to new parameters
-        if (flag==1):
-            #print(pr.choose_prior(p,prior)+copied_obj.fit_results.loglik)
-            
-            return pr.choose_prior(p,prior)+copied_obj.fit_results.loglik
-        else:
-            return -np.inf
- 
-
-def compute_loglik_TT(p,signalfit):
-    #newparams=signalfit.generate_newparams_for_mcmc(p)
-    #oldparams=signalfit.params
-   # signalfit.overwrite_params(newparams)
-    S=0
-    for i in range(len(signalfit.fit_results.rv_model.o_c)):
-        S=S-(signalfit.fit_results.rv_model.o_c[i]**2)/(2*(signalfit.fit_results.rv_model.rv_err[i]**2+signalfit.params.jitters[signalfit.fit_results.idset[i]]**2))-0.5*np.log(TAU*(signalfit.fit_results.rv_model.rv_err[i]**2+signalfit.params.jitters[signalfit.fit_results.idset[i]]**2))
-    return S
-     
-
-      
-def compute_loglik(p,signalfit):
-    newparams=signalfit.generate_newparams_for_mcmc(p)
-    oldparams=signalfit.params
-    signalfit.overwrite_params(newparams)
-    if not (signalfit.verify_params_with_bounds()):
-        return -np.inf # if parameters are outside of bounds we return -infinity
-    else:               
-        flag=signalfit.fitting(fileinput=True, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, outputfiles=[0,1,0],return_flag=True)
-
-        #now self.fit_results.loglik is the loglikelihood corresponding to new parameters
-        if not (flag==1):
-            signalfit.overwrite_params(oldparams)         
-            return -np.inf        
-        else: 
-            S=0
-            for i in range(len(signalfit.fit_results.rv_model.o_c)):
-                S=S-(signalfit.fit_results.rv_model.o_c[i]**2)/(2*(signalfit.fit_results.rv_model.rv_err[i]**2+signalfit.params.jitters[signalfit.fit_results.idset[i]]**2))-0.5*np.log(TAU*(signalfit.fit_results.rv_model.rv_err[i]**2+signalfit.params.jitters[signalfit.fit_results.idset[i]]**2))
-            return S
-
-def lnprobGP(p,signalfit,prior):
-    '''Compute logarithmic probability for given parameters'''     
-    # now we need to compute loglikelihood using the fortran code on new parameters, and then add it to lp
-    newparams=signalfit.generate_newparams_for_mcmc(p)
-    oldparams=signalfit.params
-    signalfit.overwrite_params(newparams)
-    if not (signalfit.verify_params_with_bounds()):
-        return -np.inf # if parameters are outside of bounds we return -infinity
-    else:               
-        flag=signalfit.fitting(fileinput=True, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, outputfiles=[0,1,0],return_flag=True)
-
-        #now self.fit_results.loglik is the loglikelihood corresponding to new parameters
-        if not (flag==1):
-            signalfit.overwrite_params(oldparams)
-            return -np.inf        
-        else:
-            S=0
-
-            for i in range(signalfit.filelist.ndset):
-                
-                #print(len(signalfit.fit_results.rv_model.o_c[signalfit.fit_results.idset==i]),signalfit.filelist.ndset,max(signalfit.fit_results.idset))
-                
-                signalfit.gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate((signalfit.params.GP_params.gp_par,np.atleast_1d(signalfit.params.jitters[i])))))))
-                S+=signalfit.gps[i].log_likelihood(signalfit.fit_results.rv_model.o_c[signalfit.fit_results.idset==i])
-                signalfit.overwrite_params(oldparams)
-                #print(S)
- 
-                #print("something")
-                #wait = raw_input("PRESS ENTER TO CONTINUE.")
-                #print("something")
-                
-            return pr.choose_prior(p,prior)+S
-            
-def lnprobGP2(p,copied_obj,prior):
-    '''Compute logarithmic probability for given parameters'''     
-    # now we need to compute loglikelihood using the fortran code on new parameters, and then add it to lp
-    
-    newparams=copied_obj.generate_newparams_for_mcmc(p)
-    copied_obj.overwrite_params(newparams)
-    
-    if not (copied_obj.verify_params_with_bounds()):
-        return -np.inf # if parameters are outside of bounds we return -infinity
-    else:  
-        flag=copied_obj.fitting(fileinput=False, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, outputfiles=[0,1,0],return_flag=True)
-        #now self.fit_results.loglik is the loglikelihood corresponding to new parameters
-        if not (flag==1):
-            return -np.inf  
-            
-        elif copied_obj.fit_results.loglik == 0:
-            return -np.inf             
-                  
-        else:
-            S=0
-            for i in range(copied_obj.filelist.ndset):
-
-                copied_obj.gps[i].set_parameter_vectorset_parameter_vector(np.array(list(map(np.log,np.concatenate((copied_obj.params.GP_params.gp_par,np.atleast_1d(signalfit.params.jitters[i])))))))    
-                S = S + copied_obj.gps[i].log_likelihood(copied_obj.fit_results.rv_model.o_c[copied_obj.fit_results.idset==i])
-
-            return pr.choose_prior(p,prior)+S   
-
-
-def lnprobGP3(p,copied_obj,prior): 
-    '''Compute logarithmic probability for given parameters'''     
- 
-    fit_log = lnprob(p,copied_obj,prior)  
- 
-    if fit_log == -np.inf or fit_log == 0:
-        return -np.inf # if parameters are outside of bounds we return -infinity
-    else:  
-       newparams=copied_obj.generate_newparams_for_mcmc(p)
-       copied_obj.overwrite_params(newparams)
        
-       S=0
-       for i in range(copied_obj.filelist.ndset):
-           copied_obj.gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate((copied_obj.params.GP_params.gp_par,np.atleast_1d(copied_obj.params.jitters[i]))))))) 
-           S = S + copied_obj.gps[i].log_likelihood(copied_obj.fit_results.rv_model.o_c[copied_obj.fit_results.idset==i])
-                      
-       #print(copied_obj.fit_results.loglik, compute_loglik_TT(p,copied_obj),  S)#,copied_obj.params.GP_params[:4],copied_obj.params.planet_params[:14])   
-       return pr.choose_prior(p,prior)+S    
+  
  
+           
     
         
 def fitting(obj, minimize_fortran=True, minimize_loglik=False, fileinput=False, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False], filename='Kep_input', outputfiles=[1,1,1], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500,model_min =0): # run the fit which will either minimize chi^2 or loglik.
@@ -818,20 +731,14 @@ def phase_planet_signal(obj,planet):
         phased_data          = copied_obj.fit_results.rv_model.o_c[sort]#  - copied_obj.fit_results.rv_model.rvs[sort] 
         phased_data_err      = copied_obj.fit_results.rv_model.rv_err[sort]  
         phased_data_idset    = copied_obj.fit_results.idset[sort]  
-     
-        
-        
-
-        #phased_data =  rvs[i]-signal1[i] 
-     
+ 
         model = [model_time_phase,  phased_model]
         data  = [data_time_phase,  phased_data, phased_data_err, phased_data_idset]
         
         ##################### 
         obj.ph_data[planet-1] = data 
         obj.ph_model[planet-1] = model  
-       
-        
+ 
         return data, model
 
 
@@ -875,14 +782,11 @@ def planet_orbit_xyz(obj, planet):
                                                        
     return np.array([x,y,z,u,v,w]), np.array([x_p,y_p,z_p,u_p,v_p,w_p]), np.array([x[min_index],y[min_index],z[min_index],u[min_index],v[min_index],w[min_index]]), np.array([x[max_index],y[max_index],z[max_index],u[max_index],v[max_index],w[max_index]])
 
-
-
-            
-
-# Defining some custom exceptions and warnings
+ 
                   
 class signal_fit(object):
  
+
     def __init__(self, inputfile='init.init', name='', readinputfile=False): 
         # saving the name for the inputfile and the information that it has not yet been processed
         self.inputfile = inputfile
@@ -901,7 +805,7 @@ class signal_fit(object):
         self.bounds = parameter_bounds([0.0,0.0]*10,[0.0,0.0]*10,[0.0,0.0]*70,[0.0,0.0],[0.0,0.0]*4,[0.0,0.0])  
        
         ########## new stuff ##########
-        self.init_bounds()
+        self.init_pl_params()
         self.init_norm_pr()
         
         self.fit_performed = False
@@ -915,20 +819,23 @@ class signal_fit(object):
         self.e_for_mcmc=[]  
         self.b_for_mcmc=[] 
         
-        self.GP_params_new = [1,10,15,1]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
-        self.GP_params_new_err = [0,0,0,0]
-        self.GP_params_new_use = [False,False,False,False]  
-        self.doGP = False
-        self.GP_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_params_new))}        
+        
+        self.init_GP()     
+        self.init_RV_jitter()       
+        self.init_RV_offset()
+        self.init_RV_lintr()
+        self.init_st_mass()
         
         
+        self.rtg = [True,False,False]
         
         self.gps=[]
         if (readinputfile):
             self.read_input_file() # after running this a file should be processed and initial values saved in the object properties, unless there was some error
             self.correct_elements() # to make sure angles are between 0 and 360 etc. 
-            self.prepare_for_mcmc() # this will initiate default parameter bounds, in case the user wants to verify if values make sense he will be able to use the verify_params_with_bounds function anytime 
-            self.inputfile_read=True
+            #self.prepare_for_mcmc() # this will initiate default parameter bounds, in case the user wants to verify if values make sense he will be able to use the verify_params_with_bounds function anytime 
+            self.inputfile_read=True           
+
         # in this case we need to create a new kernel, but we will only give it this information which is needed for plotting
         self.filelist.read_rvfiles(self.params.offsets)
         self.fit_results=kernel(summary(parameters(0.0,0.0,0.0,0.0,DEFAULT_STELLAR_MASS),parameter_errors([0],[0],[0],0,0)), self.filelist.time,self.filelist.rvs,self.filelist.rv_err,np.zeros(len(self.filelist.time)),np.zeros(len(self.filelist.time)),self.filelist.time,0,0,0,self.filelist.idset,0,0,0,0,0,0)
@@ -940,44 +847,59 @@ class signal_fit(object):
         self.sampler_saved=False
         
         self.init_transit_params()
-        #self.tr_params = batman.TransitParams() 
         self.colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
        
         self.mcmc_sample_file = 'mcmc_samples'
         self.corner_plot_file = 'cornerplot.pdf'
       
         
+        self.init_orb_evol()
         
         self.tls = []
-        
-        #self.print_info=()        
-        ##### this is how I wanted the kernel parameters to be 
-        ##### initially defined: as a python dictionary and only to filled in by functions! 
-        ##### It will be a lot of work to change those above now, but it has to be done as some point.
-        
-        #self.K = {k: [] for k in range(9)}
+ 
+ 
         self.ph_data = {k: [] for k in range(9)}
         self.ph_model = {k: [] for k in range(9)}
 
         
         self.parameters = []
-
-        
-        self.evol_T = {k: [] for k in range(9)}
-        self.evol_a = {k: [] for k in range(9)}
-        self.evol_e = {k: [] for k in range(9)}
-        self.evol_p = {k: [] for k in range(9)}
-        self.evol_M = {k: [] for k in range(9)}
-        
-        
+ 
         self.act_data_sets = {k: [] for k in range(10)}
         self.tra_data_sets = {k: [] for k in range(10)}
         self.rv_data_sets  = {k: [] for k in range(10)}
         
+
+        
         self.init_sciPy_minimizer()
+ 
 
-    def init_bounds(self): 
+    def init_pl_params(self): 
 
+        #### RV #####
+        self.K    = {k: 50.0 for k in range(9)}
+        self.P    = {k: 100.0 + 50*k for k in range(9)}
+        self.e    = {k: 0.0  for k in range(9)}
+        self.w    = {k: 0.0 for k in range(9)}
+        self.M0   = {k: 0.0 for k in range(9)}
+        self.i    = {k: 90.0 for k in range(9)}
+        self.Node = {k: 0.0 for k in range(9)}        
+
+        self.K_err    = {k: 0.0 for k in range(9)}
+        self.P_err    = {k: 0.0 for k in range(9)}
+        self.e_err    = {k: 0.0 for k in range(9)}
+        self.w_err    = {k: 0.0 for k in range(9)}
+        self.M0_err   = {k: 0.0 for k in range(9)}
+        self.i_err    = {k: 0.0 for k in range(9)}
+        self.Node_err = {k: 0.0 for k in range(9)}        
+
+        self.K_use    = {k: False for k in range(9)}
+        self.P_use    = {k: False for k in range(9)}
+        self.e_use    = {k: False for k in range(9)}
+        self.w_use    = {k: False for k in range(9)}
+        self.M0_use   = {k: False for k in range(9)}
+        self.i_use    = {k: False for k in range(9)}
+        self.Node_use = {k: False for k in range(9)}                 
+        
         self.K_bound    = {k: np.array([0,10000]) for k in range(9)}
         self.P_bound    = {k: np.array([0,100000]) for k in range(9)}
         self.e_bound    = {k: np.array([0,0.999]) for k in range(9)}
@@ -986,11 +908,84 @@ class signal_fit(object):
         self.i_bound    = {k: np.array([-180.0, 180.0]) for k in range(9)}
         self.Node_bound = {k: np.array([-2.0*360.0, 2.0*360.0]) for k in range(9)}
         
-        self.rvoff_bounds = {k: np.array([-1000000.0,1000000.0]) for k in range(10)} 
+        self.K_str    = {k: r'K$_%s$'%chr(98+k)  for k in range(9)}
+        self.P_str    = {k: r'P$_%s$'%chr(98+k)  for k in range(9)}
+        self.e_str    = {k: r'e$_%s$'%chr(98+k)  for k in range(9)}
+        self.w_str    = {k: r'\omega$_%s$'%chr(98+k)  for k in range(9)}
+        self.M0_str   = {k: r'M0$_%s$'%chr(98+k)  for k in range(9)}
+        self.i_str    = {k: r'i$_%s$'%chr(98+k)  for k in range(9)}
+        self.Node_str = {k: r'\Omega$_%s$'%chr(98+k)  for k in range(9)}          
+        
+        
+
+        #### transit #####       
+        self.t0      = {k: 0 for k in range(9)}
+        self.pl_a    = {k: 15 for k in range(9)}
+        self.pl_rad  = {k: 0.10 for k in range(9)}       
+
+        self.t0_use      = {k: False for k in range(9)}
+        self.pl_a_use    = {k: False for k in range(9)}
+        self.pl_rad_use  = {k: False for k in range(9)}         
+
+        self.t0_err      = {k: 0 for k in range(9)}
+        self.pl_a_err    = {k: 0 for k in range(9)}
+        self.pl_rad_err  = {k: 0 for k in range(9)}         
+
+        self.t0_bound      = {k: np.array([-10000,10000]) for k in range(9)}
+        self.pl_a_bound    = {k: np.array([0,100]) for k in range(9)}
+        self.pl_rad_bound  = {k: np.array([0,10000]) for k in range(9)} 
+        
+ 
+        self.t0_str      = {k: r't0$_%s$'%chr(98+k) for k in range(9)} 
+        self.pl_a_str    = {k: r'pl_a$_%s$'%chr(98+k) for k in range(9)} 
+        self.pl_rad_str  = {k: r'pl_rad$_%s$'%chr(98+k) for k in range(9)} 
+
+    def init_RV_jitter(self) :       
+        
+        self.jitt      = {k: 0 for k in range(10)}
+        self.jitt_err  = {k: 0 for k in range(10)}
+        self.jitt_use  = {k: True for k in range(10)}
+        self.jitt_str  = {k: r'jitt$_%s$'%k for k in range(10)}     
         self.jitt_bounds  = {k: np.array([0.0,10000.0] )for k in range(10)} 
         
-        self.lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(1)} 
-        self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
+    def init_RV_offset(self) :       
+        
+        self.rvoff      = {k: 0 for k in range(10)}
+        self.rvoff_err  = {k: 0 for k in range(10)}
+        self.rvoff_use  = {k: True for k in range(10)}
+        self.rvoff_str  = {k: r'rvoff$_%s$'%k for k in range(10)}     
+        self.rvoff_bounds  = {k: np.array([-1000000.0,1000000.0] )for k in range(10)}        
+        
+        
+    def init_RV_lintr(self) :       
+         
+        self.rv_lintr      = {k: 0 for k in range(1)}
+        self.rv_lintr_err  = {k: 0 for k in range(1)}
+        self.rv_lintr_use  = {k: False for k in range(1)}
+        self.rv_lintr_str  = {k: r'RV lin.tr' for k in range(1)}     
+        self.rv_lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(1)} 
+               
+    def init_st_mass(self) :       
+         
+        self.st_mass      = {k: 1 for k in range(1)}
+        self.st_mass_err  = {k: 0 for k in range(1)}
+        self.st_mass_use  = {k: False for k in range(1)}
+        self.st_mass_str  = {k: r'St mass' for k in range(1)}     
+        self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)}         
+        
+
+        
+    def init_GP(self):
+
+        self.doGP = False
+        
+        self.GP_params_new = [1,10,15,1]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_params_new_err = [0,0,0,0]
+        self.GP_params_new_use = [False,False,False,False]  
+        self.GP_params_new_str = [r'Amp', r't', r'per', r'fact']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+       
+        self.GP_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_params_new))}        
+                
 
 
     def init_norm_pr(self): 
@@ -1011,6 +1006,9 @@ class signal_fit(object):
 
     def init_transit_params(self): 
         # from the example in github
+        
+
+        
         self.tr_params = batman.TransitParams()       #object to store transit parameters
        
         # WASP 6
@@ -1026,7 +1024,7 @@ class signal_fit(object):
         self.tr_params.limb_dark = "quadratic"        #limb darkening model
         self.tr_params.u = [0.1, 0.3 ]           
       
-        self.tr_params_use = [True, True,False,False,True,False,True]    
+        self.tr_params_use = [False, False,False,False,False,False,False]    
         #self.tr_params_use = [False, False,False,False,False,False,False]    
        
         
@@ -1045,6 +1043,18 @@ class signal_fit(object):
     
         self.tr_bounds = [[-2460000.0, 2460000.0],[0.5, 4.0],[0.0, 0.999],[0.0, 359.9],[0, 0.20],[84.0, 96.0001],[1, 100]] # planet 1
       
+        #TB removed
+    def update_trans_params(self):       
+ 
+        for i in range(self.npl):
+            self.t0[i]      = self.tr_par[0]
+            self.pl_a[i]    =  self.tr_par[6]
+            self.pl_rad[i]  =  self.tr_par[4]  
+
+            self.t0_use[i]      =  self.tr_params_use[0]
+            self.pl_a_use[i]      = self.tr_params_use[6]
+            self.pl_rad_use[i]      = self.tr_params_use[4]  
+
  
     def init_sciPy_minimizer(self):
         
@@ -1054,13 +1064,27 @@ class signal_fit(object):
         self.SciPy_min_N_use_1 = 1
         
         self.SciPy_min_use_2 = self.SciPy_min[0]
-        self.SciPy_min_N_use_2 = 0      
+        self.SciPy_min_N_use_2 = 1      
+
+
+    def init_orb_evol(self):
         
+        self.evol_T = {k: [] for k in range(9)}
+        self.evol_a = {k: [] for k in range(9)}
+        self.evol_e = {k: [] for k in range(9)}
+        self.evol_p = {k: [] for k in range(9)}
+        self.evol_M = {k: [] for k in range(9)}
         
+
         
     def update_epoch(self,epoch):
         self.epoch=epoch
         return
+    
+    
+#    def update_param(self,pp):
+   
+    
         
 ############################ activity datasets ##########################################      
     def add_rv_dataset(self, name, path, rv_idset = 0):
@@ -1891,7 +1915,7 @@ class signal_fit(object):
            
         else:
             #self.fitting_SciPyOp(doGP=doGP, gp_par=gp_par, kernel_id=kernel_id, use_gp_par=use_gp_par)  
-            self = run_SciPyOp(self, rtg =[True,doGP,False], kernel_id=kernel_id)           
+            self = run_SciPyOp(self, kernel_id=kernel_id)           
             program='./lib/fr/%s_%s'%(minimized_value,mod) 
             text,flag=run_command_with_timeout(self.fortran_input(program=program, fileinput=fileinput, filename=filename, outputfiles=outputfiles,amoeba_starts=0,eps=eps,dt=dt, when_to_kill=fortran_kill, npoints=npoints, model_max = model_max, model_min =model_min), timeout_sec, output=True,pipe=(not bool(outputfiles[2]))) # running command generated by the fortran_input function 
             #print(text)
@@ -1994,83 +2018,141 @@ class signal_fit(object):
         self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return       
                     
-
-    #### WORK IN PROGRESS HERE!
+#### prep. #########
    # def prepare_for_mcmc(self, customdatasetlabels=[]):
-    def prepare_for_mcmc(self, doGP=False, Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-0.99,0.99]],wbounds=[[-2.0*360.0, 2.0*360.0]],Mbounds=[[-2.0*360.0, 2.0*360.0]],ibounds=[[-2.0*180.0, 2.0*180.0]],capbounds=[[-2.0*360.0, 2.0*360.0]],offbounds=[[-100000.0,100000.0]],jitbounds=[[0.0,10000.0]],lintrbounds=[[-100000.0,100000.0]], GPbounds=[[0.0,100000.0]], stmassbounds=[[0.01,1000.0]], customdatasetlabels=[]):
+    def prepare_for_mcmc(self, rtg=[True,False,False], customdatasetlabels=[]):
         '''Prepare bounds and par array needed for the MCMC''' 
  
         preparingwarnings=Warning_log([],'Preparing for MCMC')  
         # put together bounds for K,P,e,w,M0, so they are in an order we are used to
-        
-        parambounds=[[0.0,100000.0]]*(7*self.npl) # set some initial values just in case
-        offbounds  =[[0.0,100000.0]]*(self.filelist.ndset) # set some initial values just in case
-        jitbounds  =[[0.0,100000.0]]*(self.filelist.ndset) # set some initial values just in case
-        GPbounds  =[[0.0,100000.0]]*(4) # set some initial values just in case
-        ltrbound  = [[-1,1.0]] 
-        stmass_bound = [[0.01,100.0]]     
  
- 
-        for i in range(self.npl):
-            parambounds[7*i]=self.K_bound[i]        
-            parambounds[7*i+1]=self.P_bound[i] 
-            parambounds[7*i+2]=self.e_bound[i]  
-            parambounds[7*i+3]=self.w_bound[i]   
-            parambounds[7*i+4]=self.M0_bound[i] 
-            parambounds[7*i+5]=self.i_bound[i]
-            parambounds[7*i+6]=self.Node_bound[i]
- 
+        par = []
+        flag = []
+        par_str = []
+        bounds = []
+  
  
         for i in range(self.filelist.ndset):           
-            offbounds[i] = self.rvoff_bounds[i]
-            jitbounds[i] = self.jitt_bounds[i]
-        # Concatenate bounds into one array
-        
-        for i in range(4):           
-            GPbounds[i] = self.GP_bounds[i]
-        
-        for i in range(1):         
-            ltrbound[i] = self.lintr_bounds[i]
-            stmass_bound[i] = self.st_mass_bounds[i]
+            par.append(self.params.offsets[i]) #
+            par_str.append(self.rvoff_str[i])
+            bounds.append(self.rvoff_bounds[i])        
             
- 
- 
-        self.bounds = parameter_bounds(offbounds,jitbounds,parambounds,self.lintr_bounds,self.GP_bounds,self.st_mass_bounds)     
-        
-        # Now prepare parameters, only those which are used         
-        par = np.concatenate((self.params.offsets[:self.filelist.ndset],self.params.jitters[:self.filelist.ndset],self.params.planet_params[:7*self.npl],np.atleast_1d(self.params.linear_trend),np.atleast_1d(self.GP_params_new),np.atleast_1d(self.params.stellar_mass)))         
-        flag = np.concatenate((self.use.use_offsets[:self.filelist.ndset],self.use.use_jitters[:self.filelist.ndset],self.use.use_planet_params[:7*self.npl],np.atleast_1d(self.use.use_linear_trend),np.atleast_1d(self.GP_params_new_use),np.atleast_1d(self.use.use_stellar_mass)))
-      
-        bounds = np.concatenate((offbounds[:self.filelist.ndset],jitbounds[:self.filelist.ndset],parambounds[:7*self.npl], ltrbound, GPbounds[:4], stmass_bound))   
-         
-        
-        
-       # print(par,flag)
-        if not (self.mod_dynamical): # we need to make sure we don't try to fit for inclination in keplerian case
-            for i in range(self.npl):
-                flag[2*self.filelist.ndset+7*i+5]=False
-                flag[2*self.filelist.ndset+7*i+6]=False
+            if rtg == [False,False,True]:
+                flag.append(False) #
+            else:   
+                flag.append(self.use.use_offsets[i]) #
 
-
-        # prepare element names for corner plot labels
-        if (len(customdatasetlabels)<self.filelist.ndset):
-            if not (customdatasetlabels==[]): # this means the user wanted to provide custom dataset labels, but didn't provide it for all datasets, we need to give a warning
-                preparingwarnings.update_warning_list('Too few customdatasetlabels! Will use default labels for remaining.')
-            customdatasetlabels=np.concatenate((customdatasetlabels,np.array(list(map(str,np.arange(len(customdatasetlabels),self.filelist.ndset))))))
-        if (len(customdatasetlabels)>self.filelist.ndset):
-            customdatasetlabels=customdatasetlabels[:self.filelist.ndset]
-            preparingwarnings.update_warning_list('Too many customdatasetlabels! Additional will be ignored.')
-        el_str=np.concatenate(([r'$\gamma_%s$ [m/s]'%customdatasetlabels[i] for i in range(self.filelist.ndset)],
-                               [r'jitt$_%s$ [m/s]'%customdatasetlabels[i] for i in range(self.filelist.ndset)],
-                               np.concatenate([[r'K$_%s$ [m/s]'%chr(98+i),
-                                                r'P$_%s$ [day]'%chr(98+i),
-                                                r'e$_%s$'%chr(98+i),
-                                                r'$\omega_%s$ [deg]'%chr(98+i),
-                                                r'M$_%s$ [deg]'%chr(98+i), 
-                                                r'i$_%s$ [deg]'%chr(98+i), 
-                                                r'$\Omega_%s$ [deg]'%chr(98+i)] for i in range(self.npl)]),
-            np.atleast_1d(r'lin.trend [m/s/day]'),[r'Amp', r't', r'per', r'fact'],np.atleast_1d(r'st. mass [$M_\odot$]')))
+            
+        for i in range(self.filelist.ndset):              
+            par.append(self.params.jitters[i]) #
+            par_str.append(self.jitt_str[i]) #
+            bounds.append(self.jitt_bounds[i])   
+            
+            if rtg == [False,False,True]:
+                flag.append(False) #
+            else:   
+                flag.append(self.use.use_jitters[i])
+ 
+        
+        for i  in range(self.npl):
+            
+            par.append(self.params.planet_params[7*i]) #           
+            par.append(self.params.planet_params[7*i+1]) #
+            par.append(self.params.planet_params[7*i+2]) #
+            par.append(self.params.planet_params[7*i+3]) #
+            par.append(self.params.planet_params[7*i+4]) #
+            par.append(self.params.planet_params[7*i+5]) #
+            par.append(self.params.planet_params[7*i+6]) #
+            
+            if rtg == [False,False,True]:
+                flag.append(False) #
+            else:
+                flag.append(self.use.use_planet_params[7*i])
+            flag.append(self.use.use_planet_params[7*i+1])
+            flag.append(self.use.use_planet_params[7*i+2])
+            flag.append(self.use.use_planet_params[7*i+3])
+            
+            if rtg == [False,False,True]:
+                flag.append(False) #
+            else:
+                flag.append(self.use.use_planet_params[7*i+4])
+                
+            flag.append(self.use.use_planet_params[7*i+5])
+            
+            if rtg == [False,False,True]:
+                flag.append(False) #
+            else:
+                flag.append(self.use.use_planet_params[7*i+6])
+            
    
+            
+            par_str.append(self.K_str[i])
+            par_str.append(self.P_str[i])
+            par_str.append(self.e_str[i])
+            par_str.append(self.w_str[i])
+            par_str.append(self.M0_str[i])
+            par_str.append(self.i_str[i])
+            par_str.append(self.Node_str[i] )            
+            
+            bounds.append(self.K_bound[i])        
+            bounds.append(self.P_bound[i]) 
+            bounds.append(self.e_bound[i]) 
+            bounds.append(self.w_bound[i])  
+            bounds.append(self.M0_bound[i])
+            bounds.append(self.i_bound[i])
+            bounds.append(self.Node_bound[i])
+             
+        
+        par.append(self.params.linear_trend)
+        flag.append(self.use.use_linear_trend)
+        par_str.append(self.rv_lintr_str[0])
+        bounds.append(self.rv_lintr_bounds[0])
+       
+        
+        
+        
+        for i in range(4):  
+            par.append(self.GP_params_new[i])
+            flag.append(self.GP_params_new_use[i])
+            par_str.append(self.GP_params_new_str[i])
+            bounds.append(self.GP_bounds[i])
+            
+            
+            
+        for i  in range(self.npl):            
+            par.append(self.t0[i])
+            par.append(self.pl_a[i])
+            par.append(self.pl_rad[i])
+                        
+            par_str.append(self.t0_str[i])
+            par_str.append(self.pl_a_str[i])
+            par_str.append(self.pl_rad_str[i])
+            
+            bounds.append(self.t0_bound[i])
+            bounds.append(self.pl_a_bound[i])
+            bounds.append(self.pl_rad_bound[i])   
+            
+            if rtg[2] == [False]:
+                flag.append(False) #
+                flag.append(False) #
+                flag.append(False)           
+            else:
+                flag.append(self.t0_use[i])
+                flag.append(self.pl_a_use[i])
+                flag.append(self.pl_rad_use[i])   
+                
+        par.append(self.params.stellar_mass)
+        flag.append(self.use.use_stellar_mass)
+        par_str.append(self.st_mass_str[0])
+        bounds.append(self.st_mass_bounds[0])
+       
+        
+      #  print(par)    
+      #  print(flag)    
+      #  print(par_str)    
+     #   print(bounds)    
+        
+ 
         self.f_for_mcmc = [idx for idx in range(len(flag)) if flag[idx] ==1 ] # indices for fitted parameters
 
         self.par_for_mcmc = []  # self par_for_mcmc are the fitted parameters   
@@ -2078,170 +2160,138 @@ class signal_fit(object):
         self.b_for_mcmc = [] # labels for fitted parameters only
         self.parameters = par
 
+       # print(el_str)
+
         for j in range(len(par)):
+            #print(flag[j])
             if flag[j] > 0:
-                self.par_for_mcmc=np.concatenate((self.par_for_mcmc,np.atleast_1d(par[j])))
-                self.e_for_mcmc=np.concatenate((self.e_for_mcmc,np.atleast_1d(el_str[j])))
-                #self.b_for_mcmc=np.concatenate((self.b_for_mcmc,np.atleast_1d(bounds[j])))
+                self.par_for_mcmc.append(par[j])
+                self.e_for_mcmc.append(par_str[j])
                 self.b_for_mcmc.append(bounds[j])
 
-            
+       # self.par_for_mcmc = np.array(self.par_for_mcmc )
+      #  self.f_for_mcmc = np.array(self.f_for_mcmc )
+       # print(self.b_for_mcmc)
  
         preparingwarnings.print_warning_log()
         return                  
-        
-    #### WORK IN PROGRESS HERE!
-    def prepare_for_mcmcold(self, Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-0.99,0.99]],wbounds=[[-2.0*360.0, 2.0*360.0]],Mbounds=[[-2.0*360.0, 2.0*360.0]],ibounds=[[-2.0*180.0, 2.0*180.0]],capbounds=[[-2.0*360.0, 2.0*360.0]],offbounds=[[-100000.0,100000.0]],jitbounds=[[0.0,10000.0]],lintrbounds=[[-100000.0,100000.0]], GPbounds=[[0.0,100000.0]], stmassbounds=[[0.01,1000.0]], customdatasetlabels=[]):
+                      
  
+    def prepare_for_mcmc_new(self, rtg=[1,0,0], customdatasetlabels=[]):
         '''Prepare bounds and par array needed for the MCMC''' 
  
-        preparingwarnings=Warning_log([],'Preparing for MCMC') 
- 
-        # set default bounds for these parameters which were not provided. Make warnings if there's too many bounds
-        if(len(Kbounds)<self.npl):
-            if not (Kbounds==[[0.0,100000.0]]): # This means user intentionally provided some bounds, but fewer than there should be
-                preparingwarnings.update_warning_list('Too few Kbounds! Assuming default for remaining planets.') 
-            Kbounds=np.concatenate((Kbounds,np.repeat([[0.0,100000.0]],self.npl-len(Kbounds),axis=0)))
-        elif(len(Kbounds)>self.npl):
-            Kbounds=Kbounds[:self.npl]
-            preparingwarnings.update_warning_list('Too many Kbounds! Additional will be ignored.')
-        if(len(Pbounds)<self.npl):
-            if not (Pbounds==[[0.0,100000.0]]):
-                preparingwarnings.update_warning_list('Too few Pbounds! Assuming default for remaining planets.')         
-            Pbounds=np.concatenate((Pbounds,np.repeat([[0.0,100000.0]],self.npl-len(Pbounds),axis=0)))
-        elif (len(Pbounds)>self.npl):
-            Pbounds=Pbounds[:self.npl]
-            preparingwarnings.update_warning_list('Too many Pbounds! Additional will be ignored.')   
-        if(len(ebounds)<self.npl):
-            if not (ebounds==[[-0.99,0.99]]):
-                preparingwarnings.update_warning_list('Too few ebounds! Assuming default for remaining planets.')         
-            ebounds=np.concatenate((ebounds,np.repeat([[-0.99,0.99]],self.npl-len(ebounds),axis=0)))
-        elif (len(ebounds)>self.npl):
-            ebounds=ebounds[:self.npl]
-            preparingwarnings.update_warning_list('Too many ebounds! Additional will be ignored.')  
-        if(len(wbounds)<self.npl):
-            if not (wbounds==[[-2.0*360.0, 2.0*360.0]]):
-                preparingwarnings.update_warning_list('Too few wbounds! Assuming default [-360.0*2.0, 360.0*2.0] for remaining planets.')         
-            wbounds=np.concatenate((wbounds,np.repeat([[-2.0*360.0, 2.0*360.0]],self.npl-len(wbounds),axis=0)))
-        elif (len(wbounds)>self.npl):
-            wbounds=wbounds[:self.npl]
-            preparingwarnings.update_warning_list('Too many wbounds! Additional will be ignored.')       
-        if(len(Mbounds)<self.npl):
-            if not (Mbounds==[[-2.0*360.0, 2.0*360.0]]):
-                preparingwarnings.update_warning_list('Too few Mbounds! Assuming default [-360.0*2.0, 360.0*2.0] for remaining planets.')         
-            Mbounds=np.concatenate((Mbounds,np.repeat([[-2.0*360.0, 2.0*360.0]],self.npl-len(Mbounds),axis=0)))           
-        elif (len(Mbounds)>self.npl):
-            Mbounds=Mbounds[:self.npl]
-            preparingwarnings.update_warning_list('Too many Mbounds! Additional will be ignored.') 
-        if(len(ibounds)<self.npl):
-            if not (ibounds==[[-2.0*180.0, 2.0*180.0]]):
-                preparingwarnings.update_warning_list('Too few ibounds! Assuming default [-180.0*2.0, 180.0*2.0] for remaining planets.')         
-            ibounds=np.concatenate((ibounds,np.repeat([[-2.0*180.0, 2.0*180.0]],self.npl-len(ibounds),axis=0)))
-        elif (len(ibounds)>self.npl):
-            ibounds=ibounds[:self.npl]
-            preparingwarnings.update_warning_list('Too many ibounds! Additional will be ignored.')  
-        if(len(capbounds)<self.npl):
-            if not (capbounds==[[-2.0*360.0, 2.0*360.0]]):
-                preparingwarnings.update_warning_list('Too few capbounds! Assuming default [-360.0*2.0, 360.0*2.0] for remaining planets.')         
-            capbounds=np.concatenate((capbounds,np.repeat([[-2.0*360.0, 2.0*360.0]],self.npl-len(capbounds),axis=0))) 
-        elif (len(capbounds)>self.npl):
-            capbounds=capbounds[:self.npl]
-            preparingwarnings.update_warning_list('Too many capbounds! Additional will be ignored.')   
-        if(len(offbounds)<self.filelist.ndset):
-            if not (offbounds==[[-100000.0,100000.0]]):
-                preparingwarnings.update_warning_list('Too few offbounds! Assuming default [-100000.0, 100000.0] for remaining datasets.')           
-            offbounds=np.concatenate((offbounds,np.repeat([[-100000.0,100000.0]],self.filelist.ndset-len(offbounds),axis=0)))
-        elif (len(offbounds)>self.filelist.ndset):
-            offbounds=offbounds[:self.filelist.ndset]
-            preparingwarnings.update_warning_list('Too many offbounds! Additional will be ignored.')  
-        if(len(jitbounds)<self.filelist.ndset):
-            if not (jitbounds==[[0.0,10000.0]]):
-                preparingwarnings.update_warning_list('Too few jitbounds! Assuming default [0.0, 10000.0] for remaining datasets.')           
-            jitbounds=np.concatenate((jitbounds,np.repeat([[0.0,10000.0]],self.filelist.ndset-len(jitbounds),axis=0)))           
-        elif (len(jitbounds)>self.filelist.ndset):
-            jitbounds=jitbounds[:self.filelist.ndset]
-            preparingwarnings.update_warning_list('Too many jitbounds! Additional will be ignored.')
-        if(len(lintrbounds)<1):
-            lintrbounds=[[-100000.0,100000.0]] 
-        elif (len(lintrbounds)>1):
-            lintrbounds=lintrbounds[:1]
-            preparingwarnings.update_warning_list('Too many lintrbounds! Additional will be ignored.') 
-        if(len(stmassbounds)<1):
-            stmassbounds=[[0.01,1000.0]] 
-        elif (len(stmassbounds)>1):
-            stmassbounds=stmassbounds[:1]
-            preparingwarnings.update_warning_list('Too many stmassbounds! Additional will be ignored.') 
-        if(len(GPbounds)<self.params.GP_params.npar):
-            if not (GPbounds==[[0.0,100000.0]]):
-                preparingwarnings.update_warning_list('Too few GPbounds! Assuming default [0.0, 10000.0] for remaining parameters.')           
-            GPbounds=np.concatenate((GPbounds,np.repeat([[0.0,10000.0]],self.params.GP_params.npar-len(GPbounds),axis=0)))           
-        elif (len(GPbounds)>self.params.GP_params.npar):
-            GPbounds=GPbounds[:self.params.GP_params.npar]
-            preparingwarnings.update_warning_list('Too many GPbounds! Additional will be ignored.')
-        
+        preparingwarnings=Warning_log([],'Preparing for MCMC')  
         # put together bounds for K,P,e,w,M0, so they are in an order we are used to
+ 
+        par = []
+        flag = []
+        par_str = []
+        bounds = []
+ 
         
-        parambounds=[[0.0,100000.0]]*(7*self.npl) # set some initial values just in case
-        for i in range(self.npl):
-            parambounds[7*i]=Kbounds[i]        
-            parambounds[7*i+1]=Pbounds[i] 
-            parambounds[7*i+2]=ebounds[i]  
-            parambounds[7*i+3]=wbounds[i]   
-            parambounds[7*i+4]=Mbounds[i] 
-            parambounds[7*i+5]=ibounds[i]
-            parambounds[7*i+6]=capbounds[i]
-                              
-        # Concatenate bounds into one array
         
-        self.bounds = parameter_bounds(offbounds,jitbounds,parambounds,lintrbounds,GPbounds,stmassbounds)     
+        for i  in range(self.npl):
+            
+            par.append(self.K[i])
+            par.append(self.P[i])
+            par.append(self.e[i])
+            par.append(self.w[i])
+            par.append(self.M0[i])
+            par.append(self.i[i])
+            par.append(self.Node[i] )
+            
+            flag.append(self.K_use[i])
+            flag.append(self.P_use[i])
+            flag.append(self.e_use[i])
+            flag.append(self.w_use[i])
+            flag.append(self.M0_use[i])
+            flag.append(self.i_use[i])
+            flag.append(self.Node_use[i] )
+            
+            par_str.append(self.K_str[i])
+            par_str.append(self.P_str[i])
+            par_str.append(self.e_str[i])
+            par_str.append(self.w_str[i])
+            par_str.append(self.M0_str[i])
+            par_str.append(self.i_str[i])
+            par_str.append(self.Node_str[i] )            
+            
+            bounds.append(self.K_bound[i])        
+            bounds.append(self.P_bound[i]) 
+            bounds.append(self.e_bound[i]) 
+            bounds.append(self.w_bound[i])  
+            bounds.append(self.M0_bound[i])
+            bounds.append(self.i_bound[i])
+            bounds.append(self.Node_bound[i])
+             
         
-        # Now prepare parameters, only those which are used         
-
-        par = np.concatenate((self.params.offsets[:self.filelist.ndset],self.params.jitters[:self.filelist.ndset],self.params.planet_params[:7*self.npl],np.atleast_1d(self.params.linear_trend),np.atleast_1d(self.params.GP_params.gp_par),np.atleast_1d(self.params.stellar_mass)))
-           
-        flag = np.concatenate((self.use.use_offsets[:self.filelist.ndset],self.use.use_jitters[:self.filelist.ndset],self.use.use_planet_params[:7*self.npl],np.atleast_1d(self.use.use_linear_trend),np.atleast_1d(self.use.use_GP_params),np.atleast_1d(self.use.use_stellar_mass)))
+        par.append(self.rv_lintr[0])
+        flag.append(self.rv_lintr_use[0])
+        par_str.append(self.rv_lintr_str[0])
+        bounds.append(self.rv_lintr_bounds[0])
+       
         
-       # print(par,flag)
-
-
-        if not (self.mod_dynamical): # we need to make sure we don't try to fit for inclination in keplerian case
-            for i in range(self.npl):
-                flag[2*self.filelist.ndset+7*i+5]=False
-                flag[2*self.filelist.ndset+7*i+6]=False
-
-
-        # prepare element names for corner plot labels
-        if (len(customdatasetlabels)<self.filelist.ndset):
-            if not (customdatasetlabels==[]): # this means the user wanted to provide custom dataset labels, but didn't provide it for all datasets, we need to give a warning
-                preparingwarnings.update_warning_list('Too few customdatasetlabels! Will use default labels for remaining.')
-            customdatasetlabels=np.concatenate((customdatasetlabels,np.array(list(map(str,np.arange(len(customdatasetlabels),self.filelist.ndset))))))
-        if (len(customdatasetlabels)>self.filelist.ndset):
-            customdatasetlabels=customdatasetlabels[:self.filelist.ndset]
-            preparingwarnings.update_warning_list('Too many customdatasetlabels! Additional will be ignored.')
-        el_str=np.concatenate(([r'$\gamma_%s$ [m/s]'%customdatasetlabels[i] for i in range(self.filelist.ndset)],
-                               [r'jitt$_%s$ [m/s]'%customdatasetlabels[i] for i in range(self.filelist.ndset)],
-                               np.concatenate([[r'K$_%s$ [m/s]'%chr(98+i),
-                                                r'P$_%s$ [day]'%chr(98+i),
-                                                r'e$_%s$'%chr(98+i),
-                                                r'$\omega_%s$ [deg]'%chr(98+i),
-                                                r'M$_%s$ [deg]'%chr(98+i), 
-                                                r'i$_%s$ [deg]'%chr(98+i), 
-                                                r'$\Omega_%s$ [deg]'%chr(98+i)] for i in range(self.npl)]),np.atleast_1d(r'lin.trend [m/s/day]'),[r'Amp', r't', r'per', r'fact'],np.atleast_1d(r'st. mass [$M_\odot$]')))
-   
+        
+        
+        for i in range(4):  
+            par.append(self.GP_params_new[i])
+            flag.append(self.GP_params_new_use[i])
+            par_str.append(self.GP_params_new_str[i])
+            bounds.append(self.GP_bounds[i])
+            
+            
+            
+        for i  in range(self.npl):            
+            par.append(self.t0[i])
+            par.append(self.pl_a[i])
+            par.append(self.pl_rad[i])
+            
+            flag.append(self.t0_use[i])
+            flag.append(self.pl_a_use[i])
+            flag.append(self.pl_rad_use[i])    
+            
+            par_str.append(self.t0_str[i])
+            par_str.append(self.pl_a_str[i])
+            par_str.append(self.pl_rad_str[i])
+            
+            bounds.append(self.t0_bound[i])
+            bounds.append(self.pl_a_bound[i])
+            bounds.append(self.pl_rad_bound[i])            
+            
+        par.append(self.params.stellar_mass)
+        flag.append(self.st_mass_use[0])
+        par_str.append(self.st_mass_str[0])
+        bounds.append(self.st_mass_bounds[0])
+       
+        
+        print(par)    
+        print(flag)    
+        print(par_str)    
+        print(bounds)    
+        
+ 
         self.f_for_mcmc = [idx for idx in range(len(flag)) if flag[idx] ==1 ] # indices for fitted parameters
 
         self.par_for_mcmc = []  # self par_for_mcmc are the fitted parameters   
         self.e_for_mcmc = [] # labels for fitted parameters only
-        
+        self.b_for_mcmc = [] # labels for fitted parameters only
+        self.parameters = par
+
+       # print(el_str)
 
         for j in range(len(par)):
+            print(flag[j])
             if flag[j] > 0:
-                self.par_for_mcmc=np.concatenate((self.par_for_mcmc,np.atleast_1d(par[j])))
-                self.e_for_mcmc=np.concatenate((self.e_for_mcmc,np.atleast_1d(el_str[j])))
+                self.par_for_mcmc.append(par[j])
+                self.e_for_mcmc.append(par_str[j])
+                #self.b_for_mcmc=np.concatenate((self.b_for_mcmc,np.atleast_1d(bounds[j])))
+                self.b_for_mcmc.append(bounds[j])
+
+        
+        print(self.b_for_mcmc)
  
-            
         preparingwarnings.print_warning_log()
-        return                  
+        return             
         
 
     def verify_params_with_bounds(self):
@@ -2301,59 +2351,63 @@ class signal_fit(object):
                 i=i+1       
             elif (idx<2*self.filelist.ndset+7*self.npl+1+self.params.GP_params.npar):
                 newparams.update_GP_param_value(idx-2*self.filelist.ndset-7*self.npl-1,p[i])
-                i=i+1
-            else:         
-                newparams.update_stellar_mass(p[i])      
+                i=i+1 
+                
+                
+            #else:         
+            #    newparams.update_stellar_mass(p[i])      
         return newparams                
                 
     def update_with_mcmc_errors(self,p):
  
         '''Substitute normal errors with mcmc errors, where + and - errors can be different''' 
  
-        if (not (self.fit_performed) or self.never_saved): # just in case the user calls this function in a wrong moment
-            return
-        else:
-            i=0
-            for idx in self.f_for_mcmc:
-                if (idx<self.filelist.ndset):
-                    self.param_errors.update_offset_error(idx,p[i])
-                    i=i+1             
-                elif (idx<2*self.filelist.ndset):
-                    self.param_errors.update_jitter_error(idx-self.filelist.ndset,p[i])
-                    i=i+1    
-                elif (idx<2*self.filelist.ndset+7*self.npl):
-                    nr=idx-2*self.filelist.ndset
-                    x=int(nr/7)
-                    if (np.mod(nr,7)==0):
-                        self.param_errors.update_Kerror(x,p[i])
-                        i=i+1  
-                    elif (np.mod(nr,7)==1):
-                        self.param_errors.update_Perror(x,p[i])
-                        i=i+1                           
-                    elif (np.mod(nr,7)==2):
-                        self.param_errors.update_eerror(x,p[i])
-                        i=i+1       
-                    elif (np.mod(nr,7)==3):
-                        self.param_errors.update_werror(x,p[i])
-                        i=i+1       
-                    elif (np.mod(nr,7)==4):
-                        self.param_errors.update_M0error(x,p[i])
-                        i=i+1       
-                    elif (np.mod(nr,7)==5):
-                        self.param_errors.update_inclination_error(x,p[i])
-                        i=i+1  
-                    elif (np.mod(nr,7)==6):
-                        self.param_errors.update_lineofnodes_error(x,p[i])
-                        i=i+1                          
-                elif (idx<2*self.filelist.ndset+7*self.npl+1):
-                    self.param_errors.update_linear_trend_error(p[i]) 
+        #if (not (self.fit_performed) or self.never_saved): # just in case the user calls this function in a wrong moment
+        #    print(self.fit_performed, self.never_saved)
+       #     return
+        #else:
+       # print(p)
+        i=0
+        for idx in self.f_for_mcmc:
+            if (idx<self.filelist.ndset):
+                self.param_errors.update_offset_error(idx,p[i])
+                i=i+1             
+            elif (idx<2*self.filelist.ndset):
+                self.param_errors.update_jitter_error(idx-self.filelist.ndset,p[i])
+                i=i+1    
+            elif (idx<2*self.filelist.ndset+7*self.npl):
+                nr=idx-2*self.filelist.ndset
+                x=int(nr/7)
+                if (np.mod(nr,7)==0):
+                    self.param_errors.update_Kerror(x,p[i])
+                    i=i+1  
+                elif (np.mod(nr,7)==1):
+                    self.param_errors.update_Perror(x,p[i])
+                    i=i+1                           
+                elif (np.mod(nr,7)==2):
+                    self.param_errors.update_eerror(x,p[i])
                     i=i+1       
-                elif (idx<2*self.filelist.ndset+7*self.npl+1+self.params.GP_params.npar):
-                    self.param_errors.update_GP_param_errors(idx-2*self.filelist.ndset-7*self.npl-1,p[i])
-                    
-                    i=i+1
-                else:    
-                    self.param_errors.update_stellar_mass_error(p[i])            
+                elif (np.mod(nr,7)==3):
+                    self.param_errors.update_werror(x,p[i])
+                    i=i+1       
+                elif (np.mod(nr,7)==4):
+                    self.param_errors.update_M0error(x,p[i])
+                    i=i+1       
+                elif (np.mod(nr,7)==5):
+                    self.param_errors.update_inclination_error(x,p[i])
+                    i=i+1  
+                elif (np.mod(nr,7)==6):
+                    self.param_errors.update_lineofnodes_error(x,p[i])
+                    i=i+1                          
+            elif (idx<2*self.filelist.ndset+7*self.npl+1):
+                self.param_errors.update_linear_trend_error(p[i]) 
+                i=i+1       
+            elif (idx<2*self.filelist.ndset+7*self.npl+1+self.params.GP_params.npar):
+                self.param_errors.update_GP_param_errors(idx-2*self.filelist.ndset-7*self.npl-1,p[i])
+                
+                i=i+1
+            else:    
+                self.param_errors.update_stellar_mass_error(p[i])            
         return                           
 
     def initiategps(self, gp_par=None, use_gp_par=[], kernel_id=-1): 
