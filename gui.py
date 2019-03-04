@@ -142,10 +142,26 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             param_gui[i].setValue(fit.params.planet_params[i]) 
             
             
-        param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans, self.pl1_radii, self.incl1_trans, self.a1_trans,]     
+       # param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans, self.pl1_radii, self.incl1_trans, self.a1_trans,]     
         
-        for i in range(len(param_gui_trans)):
-            param_gui_trans[i].setValue(fit.tr_par[i])             
+      #  for i in range(len(param_gui_trans)):
+      #      param_gui_trans[i].setValue(fit.tr_par[i])
+            
+        param_gui_tr = [self.t0_1, self.pl_rad_1, self.a_sol_1,
+                     self.t0_2, self.pl_rad_2, self.a_sol_2,
+                     self.t0_3, self.pl_rad_3, self.a_sol_3,
+                     self.t0_4, self.pl_rad_4, self.a_sol_4, 
+                     self.t0_5, self.pl_rad_5, self.a_sol_5,
+                     self.t0_6, self.pl_rad_6, self.a_sol_6,
+                     self.t0_7, self.pl_rad_7, self.a_sol_7, 
+                     self.t0_8, self.pl_rad_8, self.a_sol_8,
+                     self.t0_9, self.pl_rad_9, self.a_sol_9,
+                     ]
+         
+        for i in range(fit.npl):
+            param_gui_tr[i*3].setValue(fit.t0[i])           
+            param_gui_tr[i*3+1].setValue(fit.pl_rad[i]) 
+            param_gui_tr[i*3+2].setValue(fit.pl_a[i]) 
             
         data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
                     self.Data6,self.Data7,self.Data8,self.Data9,self.Data10]
@@ -192,10 +208,32 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.params.planet_params[i] = param_gui[i].value() 
             
             
-        param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans,self.pl1_radii, self.incl1_trans, self.a1_trans,]
+       # param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans,self.pl1_radii, self.incl1_trans, self.a1_trans,]
          
-        for i in range(len(param_gui_trans)):
-            fit.tr_par[i] = param_gui_trans[i].value()    
+       ## for i in range(len(param_gui_trans)):
+       #     fit.tr_par[i] = param_gui_trans[i].value()    
+
+       # fit.update_trans_params()  
+        
+        
+        param_gui_tr = [self.t0_1, self.pl_rad_1, self.a_sol_1,
+             self.t0_2, self.pl_rad_2, self.a_sol_2,
+             self.t0_3, self.pl_rad_3, self.a_sol_3,
+             self.t0_4, self.pl_rad_4, self.a_sol_4, 
+             self.t0_5, self.pl_rad_5, self.a_sol_5,
+             self.t0_6, self.pl_rad_6, self.a_sol_6,
+             self.t0_7, self.pl_rad_7, self.a_sol_7, 
+             self.t0_8, self.pl_rad_8, self.a_sol_8,
+             self.t0_9, self.pl_rad_9, self.a_sol_9,
+             ]
+         
+        for i in range(fit.npl):
+            fit.t0[i]     = param_gui_tr[i*3].value()   
+            fit.pl_rad[i] = param_gui_tr[i*3+1].value() 
+            fit.pl_a[i]   = param_gui_tr[i*3+2].value() 
+
+
+
 
         data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
                     self.Data6,self.Data7,self.Data8,self.Data9,self.Data10]
@@ -275,11 +313,12 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         param_t_peri_gui = [self.label_t_peri1, self.label_t_peri2, self.label_t_peri3, self.label_t_peri4, self.label_t_peri5, 
                        self.label_t_peri6, self.label_t_peri7, self.label_t_peri8, self.label_t_peri9]
 
-        for i in range(fit.npl):
-            param_a_gui[i].setText("%.3f"%(fit.fit_results.a[i])) 
-            param_mass_gui[i].setText("%.3f"%(fit.fit_results.mass[i])) 
-            param_t_peri_gui[i].setText("%.3f"%( (float(fit.epoch) - (np.radians(fit.params.planet_params[7*i + 4])/(2*np.pi))*fit.params.planet_params[7*i + 1] ))) # epoch  - ((ma/TWOPI)*a[1])
-
+        if self.radioButton_RV.isChecked():
+            for i in range(fit.npl):
+                param_a_gui[i].setText("%.3f"%(fit.fit_results.a[i])) 
+                param_mass_gui[i].setText("%.3f"%(fit.fit_results.mass[i])) 
+                param_t_peri_gui[i].setText("%.3f"%( (float(fit.epoch) - (np.radians(fit.params.planet_params[7*i + 4])/(2*np.pi))*fit.params.planet_params[7*i + 1] ))) # epoch  - ((ma/TWOPI)*a[1])
+    
 
 
 
@@ -301,11 +340,30 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(fit.npl*7):
             use_param_gui[i].setChecked(bool(fit.use.use_planet_params[i]))
 
-        use_param_gui_trans = [self.use_t0_1_trans, self.use_P1_trans, self.use_e1_trans, self.use_om1_trans, self.use_pl1_rad_trans, self.use_incl1_trans, self.use_a1_trans,
-                     ]
+       # use_param_gui_trans = [self.use_t0_1_trans, self.use_P1_trans, self.use_e1_trans, self.use_om1_trans, self.use_pl1_rad_trans, self.use_incl1_trans, self.use_a1_trans,
+      #               ]
          
-        for i in range(len(use_param_gui_trans)):
-            use_param_gui_trans[i].setChecked(bool(  fit.tr_params_use[i] ))   
+      #  for i in range(len(use_param_gui_trans)):
+       #     use_param_gui_trans[i].setChecked(bool(  fit.tr_params_use[i] ))   
+            
+            
+        use_param_gui_tr = [self.use_t0_1, self.use_pl_rad_1, self.use_a_sol_1,
+             self.use_t0_2, self.use_pl_rad_2, self.use_a_sol_2,
+             self.use_t0_3, self.use_pl_rad_3, self.use_a_sol_3,
+             self.use_t0_4, self.use_pl_rad_4, self.use_a_sol_4, 
+             self.use_t0_5, self.use_pl_rad_5, self.use_a_sol_5,
+             self.use_t0_6, self.use_pl_rad_6, self.use_a_sol_6,
+             self.use_t0_7, self.use_pl_rad_7, self.use_a_sol_7, 
+             self.use_t0_8, self.use_pl_rad_8, self.use_a_sol_8,
+             self.use_t0_9, self.use_pl_rad_9, self.use_a_sol_9,
+             ]
+         
+        for i in range(fit.npl):         
+            use_param_gui_tr[i*3].setChecked(bool(fit.t0_use[i]) )        
+            use_param_gui_tr[i*3+1].setChecked(bool(fit.pl_rad_use[i]) )
+            use_param_gui_tr[i*3+2].setChecked(bool(fit.pl_a_use [i]) )
+                        
+            
 
 
         use_data_offset_gui = [self.use_offset_Data1,self.use_offset_Data2,self.use_offset_Data3,self.use_offset_Data4,
@@ -361,7 +419,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
        #         fit.add_planet(i)  
        #         
 
-        use_param_gui2 = [self.use_K1, self.use_P1, self.use_e1, self.use_om1, self.use_ma1, self.use_incl1, self.use_Omega1,
+        use_param_gui = [self.use_K1, self.use_P1, self.use_e1, self.use_om1, self.use_ma1, self.use_incl1, self.use_Omega1,
                           self.use_K2, self.use_P2, self.use_e2, self.use_om2, self.use_ma2, self.use_incl2, self.use_Omega2,
                           self.use_K3, self.use_P3, self.use_e3, self.use_om3, self.use_ma3, self.use_incl3, self.use_Omega3,                        
                           self.use_K4, self.use_P4, self.use_e4, self.use_om4, self.use_ma4, self.use_incl4, self.use_Omega4,    
@@ -373,13 +431,33 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                           ]
 
         for i in range(fit.npl*7):
-            fit.use.use_planet_params[i] = int(use_param_gui2[i].isChecked())         
+            fit.use.use_planet_params[i] = int(use_param_gui[i].isChecked())         
             
-        use_param_gui_trans = [self.use_t0_1_trans, self.use_P1_trans, self.use_e1_trans, self.use_om1_trans, self.use_pl1_rad_trans, self.use_incl1_trans, self.use_a1_trans,
-                     ]
+       # use_param_gui_trans = [self.use_t0_1_trans, self.use_P1_trans, self.use_e1_trans, self.use_om1_trans, self.use_pl1_rad_trans, self.use_incl1_trans, self.use_a1_trans,
+       #              ]
          
-        for i in range(len(use_param_gui_trans)):
-            fit.tr_params_use[i] =  use_param_gui_trans[i].isChecked()              
+        #for i in range(len(use_param_gui_trans)):
+       #     fit.tr_params_use[i] =  use_param_gui_trans[i].isChecked()       
+            
+        use_param_gui_tr = [self.use_t0_1, self.use_pl_rad_1, self.use_a_sol_1,
+             self.use_t0_2, self.use_pl_rad_2, self.use_a_sol_2,
+             self.use_t0_3, self.use_pl_rad_3, self.use_a_sol_3,
+             self.use_t0_4, self.use_pl_rad_4, self.use_a_sol_4, 
+             self.use_t0_5, self.use_pl_rad_5, self.use_a_sol_5,
+             self.use_t0_6, self.use_pl_rad_6, self.use_a_sol_6,
+             self.use_t0_7, self.use_pl_rad_7, self.use_a_sol_7, 
+             self.use_t0_8, self.use_pl_rad_8, self.use_a_sol_8,
+             self.use_t0_9, self.use_pl_rad_9, self.use_a_sol_9,
+             ]
+         
+        for i in range(fit.npl):        
+            #print('test')
+            fit.t0_use[i] =  use_param_gui_tr[i*3].isChecked()  
+            fit.pl_rad_use[i] = use_param_gui_tr[i*3+1].isChecked()  
+            fit.pl_a_use [i] =  use_param_gui_tr[i*3+2].isChecked()  
+       
+            
+            
 
         use_data_offset_gui = [self.use_offset_Data1,self.use_offset_Data2,self.use_offset_Data3,self.use_offset_Data4,
                                self.use_offset_Data5,self.use_offset_Data6,self.use_offset_Data7,self.use_offset_Data8,
@@ -411,15 +489,15 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         
         
         param_bounds_gui = [
-        [self.K1_min.value(),self.K1_max.value()],[self.P1_min.value(),self.P1_max.value()], [self.e1_min.value(),self.e1_max.value()],[self.om1_min.value(),self.om1_max.value()], [self.ma1_min.value(),self.ma1_max.value()],[self.incl1_min.value(),self.incl1_max.value()], [self.Omega1_min.value(),self.Omega1_max.value()],
-        [self.K2_min.value(),self.K2_max.value()],[self.P2_min.value(),self.P2_max.value()], [self.e2_min.value(),self.e2_max.value()],[self.om2_min.value(),self.om2_max.value()], [self.ma2_min.value(),self.ma2_max.value()],[self.incl2_min.value(),self.incl2_max.value()], [self.Omega2_min.value(),self.Omega2_max.value()],
-        [self.K3_min.value(),self.K3_max.value()],[self.P3_min.value(),self.P3_max.value()], [self.e3_min.value(),self.e3_max.value()],[self.om3_min.value(),self.om3_max.value()], [self.ma3_min.value(),self.ma3_max.value()],[self.incl3_min.value(),self.incl3_max.value()], [self.Omega3_min.value(),self.Omega3_max.value()],
-        [self.K4_min.value(),self.K4_max.value()],[self.P4_min.value(),self.P4_max.value()], [self.e4_min.value(),self.e4_max.value()],[self.om4_min.value(),self.om4_max.value()], [self.ma4_min.value(),self.ma4_max.value()],[self.incl4_min.value(),self.incl4_max.value()], [self.Omega4_min.value(),self.Omega4_max.value()],
-        [self.K5_min.value(),self.K5_max.value()],[self.P5_min.value(),self.P5_max.value()], [self.e5_min.value(),self.e5_max.value()],[self.om5_min.value(),self.om5_max.value()], [self.ma5_min.value(),self.ma5_max.value()],[self.incl5_min.value(),self.incl5_max.value()], [self.Omega5_min.value(),self.Omega5_max.value()],
-        [self.K6_min.value(),self.K6_max.value()],[self.P6_min.value(),self.P6_max.value()], [self.e6_min.value(),self.e6_max.value()],[self.om6_min.value(),self.om6_max.value()], [self.ma6_min.value(),self.ma6_max.value()],[self.incl6_min.value(),self.incl6_max.value()], [self.Omega6_min.value(),self.Omega6_max.value()],
-        [self.K7_min.value(),self.K7_max.value()],[self.P7_min.value(),self.P7_max.value()], [self.e7_min.value(),self.e7_max.value()],[self.om7_min.value(),self.om7_max.value()], [self.ma7_min.value(),self.ma7_max.value()],[self.incl7_min.value(),self.incl7_max.value()], [self.Omega7_min.value(),self.Omega7_max.value()],
-        [self.K8_min.value(),self.K8_max.value()],[self.P8_min.value(),self.P8_max.value()], [self.e8_min.value(),self.e8_max.value()],[self.om8_min.value(),self.om8_max.value()], [self.ma8_min.value(),self.ma8_max.value()],[self.incl8_min.value(),self.incl8_max.value()], [self.Omega8_min.value(),self.Omega8_max.value()],
-        [self.K9_min.value(),self.K9_max.value()],[self.P9_min.value(),self.P9_max.value()], [self.e9_min.value(),self.e9_max.value()],[self.om9_min.value(),self.om9_max.value()], [self.ma9_min.value(),self.ma9_max.value()],[self.incl9_min.value(),self.incl9_max.value()], [self.Omega9_min.value(),self.Omega9_max.value()]               
+        [self.K1_min.value(),self.K1_max.value()],[self.P1_min.value(),self.P1_max.value()], [self.e1_min.value(),self.e1_max.value()],[self.om1_min.value(),self.om1_max.value()], [self.ma1_min.value(),self.ma1_max.value()],[self.incl1_min.value(),self.incl1_max.value()], [self.Omega1_min.value(),self.Omega1_max.value()],[self.t0_1_min.value(),self.t0_1_max.value()],[self.pl_1_rad_min.value(),self.pl_1_rad_max.value()],[self.a_sol_1_min.value(),self.a_sol_1_max.value()],
+        [self.K2_min.value(),self.K2_max.value()],[self.P2_min.value(),self.P2_max.value()], [self.e2_min.value(),self.e2_max.value()],[self.om2_min.value(),self.om2_max.value()], [self.ma2_min.value(),self.ma2_max.value()],[self.incl2_min.value(),self.incl2_max.value()], [self.Omega2_min.value(),self.Omega2_max.value()],[self.t0_2_min.value(),self.t0_2_max.value()],[self.pl_2_rad_min.value(),self.pl_2_rad_max.value()],[self.a_sol_2_min.value(),self.a_sol_2_max.value()],
+        [self.K3_min.value(),self.K3_max.value()],[self.P3_min.value(),self.P3_max.value()], [self.e3_min.value(),self.e3_max.value()],[self.om3_min.value(),self.om3_max.value()], [self.ma3_min.value(),self.ma3_max.value()],[self.incl3_min.value(),self.incl3_max.value()], [self.Omega3_min.value(),self.Omega3_max.value()],[self.t0_3_min.value(),self.t0_3_max.value()],[self.pl_3_rad_min.value(),self.pl_3_rad_max.value()],[self.a_sol_3_min.value(),self.a_sol_3_max.value()],
+        [self.K4_min.value(),self.K4_max.value()],[self.P4_min.value(),self.P4_max.value()], [self.e4_min.value(),self.e4_max.value()],[self.om4_min.value(),self.om4_max.value()], [self.ma4_min.value(),self.ma4_max.value()],[self.incl4_min.value(),self.incl4_max.value()], [self.Omega4_min.value(),self.Omega4_max.value()],[self.t0_1_min.value(),self.t0_1_max.value()],[self.pl_1_rad_min.value(),self.pl_1_rad_max.value()],[self.a_sol_1_min.value(),self.a_sol_1_max.value()],
+        [self.K5_min.value(),self.K5_max.value()],[self.P5_min.value(),self.P5_max.value()], [self.e5_min.value(),self.e5_max.value()],[self.om5_min.value(),self.om5_max.value()], [self.ma5_min.value(),self.ma5_max.value()],[self.incl5_min.value(),self.incl5_max.value()], [self.Omega5_min.value(),self.Omega5_max.value()],[self.t0_1_min.value(),self.t0_1_max.value()],[self.pl_1_rad_min.value(),self.pl_1_rad_max.value()],[self.a_sol_1_min.value(),self.a_sol_1_max.value()],
+        [self.K6_min.value(),self.K6_max.value()],[self.P6_min.value(),self.P6_max.value()], [self.e6_min.value(),self.e6_max.value()],[self.om6_min.value(),self.om6_max.value()], [self.ma6_min.value(),self.ma6_max.value()],[self.incl6_min.value(),self.incl6_max.value()], [self.Omega6_min.value(),self.Omega6_max.value()],[self.t0_1_min.value(),self.t0_1_max.value()],[self.pl_1_rad_min.value(),self.pl_1_rad_max.value()],[self.a_sol_1_min.value(),self.a_sol_1_max.value()],
+        [self.K7_min.value(),self.K7_max.value()],[self.P7_min.value(),self.P7_max.value()], [self.e7_min.value(),self.e7_max.value()],[self.om7_min.value(),self.om7_max.value()], [self.ma7_min.value(),self.ma7_max.value()],[self.incl7_min.value(),self.incl7_max.value()], [self.Omega7_min.value(),self.Omega7_max.value()],[self.t0_1_min.value(),self.t0_1_max.value()],[self.pl_1_rad_min.value(),self.pl_1_rad_max.value()],[self.a_sol_1_min.value(),self.a_sol_1_max.value()],
+        [self.K8_min.value(),self.K8_max.value()],[self.P8_min.value(),self.P8_max.value()], [self.e8_min.value(),self.e8_max.value()],[self.om8_min.value(),self.om8_max.value()], [self.ma8_min.value(),self.ma8_max.value()],[self.incl8_min.value(),self.incl8_max.value()], [self.Omega8_min.value(),self.Omega8_max.value()],[self.t0_1_min.value(),self.t0_1_max.value()],[self.pl_1_rad_min.value(),self.pl_1_rad_max.value()],[self.a_sol_1_min.value(),self.a_sol_1_max.value()],
+        [self.K9_min.value(),self.K9_max.value()],[self.P9_min.value(),self.P9_max.value()], [self.e9_min.value(),self.e9_max.value()],[self.om9_min.value(),self.om9_max.value()], [self.ma9_min.value(),self.ma9_max.value()],[self.incl9_min.value(),self.incl9_max.value()], [self.Omega9_min.value(),self.Omega9_max.value()],[self.t0_1_min.value(),self.t0_1_max.value()],[self.pl_1_rad_min.value(),self.pl_1_rad_max.value()],[self.a_sol_1_min.value(),self.a_sol_1_max.value()]               
         ]
  
         for i in range(fit.npl):
@@ -430,7 +508,9 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.M0_bound[i] = param_bounds_gui[7*i + 4]    
             fit.i_bound[i] = param_bounds_gui[7*i + 5]    
             fit.Node_bound[i] = param_bounds_gui[7*i + 6]    
-
+            fit.t0_bound[i]  =  param_bounds_gui[7*i + 7]
+            fit.pl_rad_bound[i]  =   param_bounds_gui[7*i + 8]
+            fit.pl_a_bound[i]   =   param_bounds_gui[7*i + 9]
 
         offset_bounds_gui = [
         [self.Data1_min.value(),self.Data1_max.value()], [self.Data2_min.value(),self.Data2_max.value()], [self.Data3_min.value(),self.Data3_max.value()], [self.Data4_min.value(),self.Data4_max.value()], [self.Data5_min.value(),self.Data5_max.value()],   
@@ -448,7 +528,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.jitt_bounds[i]  = jitter_bounds_gui[i] 
     
  
-        fit.lintr_bounds[0]  = [self.lin_trend_min.value(),self.lin_trend_max.value()]
+        fit.rv_lintr_bounds[0]  = [self.lin_trend_min.value(),self.lin_trend_max.value()]
         #self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
 
         GP_bounds_gui = [
@@ -460,6 +540,9 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
  
         for i in range(4): 
             fit.GP_bounds[i] = GP_bounds_gui[i]
+            
+            
+            
     
     
 ####################################################        
@@ -1555,10 +1638,17 @@ Transit duration: %s d
         self.update_labels()
         self.update_gui_params()
         self.update_errors() 
-        self.update_a_mass()                    
-        self.update_transit_plots()                   
-        self.statusBar().showMessage('')   
- 
+        self.update_a_mass()                 
+        self.update_transit_plots()  
+                 
+        self.statusBar().showMessage('')  
+        
+        if fit.rtg[0]:
+            for i in range(fit.npl):
+                rv.phase_planet_signal(fit,i+1)        
+            self.update_plots()  
+            
+            
         self.jupiter_push_vars()   
         self.button_fit.setEnabled(True)         
  
@@ -1579,10 +1669,25 @@ Transit duration: %s d
             choice = QtGui.QMessageBox.information(self, 'Warning!',
             "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
             self.button_fit.setEnabled(True)         
-            return   
+            return 
+        
+        if fit.rtg[0] == True:
+             if fit.filelist.ndset <= 0:
+                 choice = QtGui.QMessageBox.information(self, 'Warning!',
+                 "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
+                 self.button_fit.setEnabled(True)         
+                 return   
 
-        self.statusBar().showMessage('Minimizing Transit parameters.... ')                 
-        worker4 = Worker(lambda:  self.transit_fit(ff=ff) )# Any other args, kwargs are passed to the run  
+        if fit.rtg[0] == True:        
+            self.statusBar().showMessage('Minimizing Transit + RV parameters.... SciPy in action, please be patient.  ')       
+        else:
+            self.statusBar().showMessage('Minimizing Transit parameters.... SciPy in action, please be patient. ')       
+           
+
+        self.check_scipy_min()
+
+          
+        worker4 = Worker(lambda:  self.transit_fit(ff=ff ) )# Any other args, kwargs are passed to the run  
  
         worker4.signals.finished.connect(self.worker_transit_fitting_complete)
         
@@ -1592,16 +1697,55 @@ Transit duration: %s d
         self.threadpool.start(worker4)       
      
 
-    def transit_fit(self, ff=0):
+    def transit_fit(self, ff=0 ):
         global fit
         
+        
+        # this is only a simple hack.. junk removed later on
         if ff ==0:
-            old_tra_use = fit.tr_params_use 
-            fit.tr_params_use = [False, False,False,False,False,False,False]
-            rv.run_SciPyOp_transit(fit)
-            fit.tr_params_use = old_tra_use
+            old_t0_use = fit.t0_use
+            old_pl_a_use = fit.pl_a_use
+            old_pl_rad_use = fit.pl_rad_use
+            old_rv_use = fit.use.use_planet_params
+            old_rvoff_use = fit.use.use_offsets
+            old_rvjitt_use = fit.use.use_jitters
+
+            for i in range(fit.npl):
+                fit.t0_use[i] = False
+                fit.pl_a_use[i] = False
+                fit.pl_rad_use[i] = False 
+                fit.use.use_planet_params[i*7] = False 
+                fit.use.use_planet_params[i*7+1] = False 
+                fit.use.use_planet_params[i*7+2] = False 
+                fit.use.use_planet_params[i*7+3] = False 
+                fit.use.use_planet_params[i*7+4] = False 
+                fit.use.use_planet_params[i*7+5] = False 
+                fit.use.use_planet_params[i*7+6] = False 
+            for i in range(10): 
+                fit.use.use_jitters[i] = False
+                fit.use.use_offsets[i] = False                
+            #old_tra_use = fit.tr_params_use 
+            #fit.tr_params_use = [False, False,False,False,False,False,False]
+            #rv.run_SciPyOp_transit(fit)
+            rv.run_SciPyOp(fit)
+            
+            for i in range(fit.npl):
+                fit.t0_use[i] = old_t0_use[i]
+                fit.pl_a_use[i] = old_pl_a_use[i]
+                fit.pl_rad_use[i] = old_pl_rad_use[i]             
+                fit.use.use_planet_params[i*7] = old_rv_use[i*7]  
+                fit.use.use_planet_params[i*7+1] = old_rv_use[i*7+1]  
+                fit.use.use_planet_params[i*7+2] = old_rv_use[i*7+2] 
+                fit.use.use_planet_params[i*7+3] = old_rv_use[i*7+3] 
+                fit.use.use_planet_params[i*7+4] = old_rv_use[i*7+4]  
+                fit.use.use_planet_params[i*7+5] = old_rv_use[i*7+5]  
+                fit.use.use_planet_params[i*7+6] = old_rv_use[i*7+6] 
+            for i in range(10): 
+                fit.use.use_jitters[i] =  old_rvjitt_use[i]  
+                fit.use.use_offsets[i] =  old_rvoff_use[i]      
         else:
-            rv.run_SciPyOp_transit(fit)
+       # rv.run_SciPyOp_transit(fit)
+            rv.run_SciPyOp(fit)
  
     def update_transit_plots(self): 
         global fit, p3, colors
@@ -1613,7 +1757,38 @@ Transit duration: %s d
             t = fit.tra_data_sets[0][0]
             flux = fit.tra_data_sets[0][1]
             flux_err = fit.tra_data_sets[0][2]
+            
+            fit.prepare_for_mcmc(rtg = fit.rtg)    
+            par = np.array(fit.parameters)  
+
+            flux_model =[1]*len(flux)
+            m =  {k: [] for k in range(9)}
+             
+            for i in range(fit.npl):
+            
+                t_peri, t_transit = rv.transit_tperi(par[fit.filelist.ndset*2 +7*i+1], par[fit.filelist.ndset*2 +7*i+2], 
+                                                      par[fit.filelist.ndset*2 +7*i+3], par[fit.filelist.ndset*2 +7*i+4], fit.epoch)
+                t00 = par[fit.filelist.ndset*2 +7*i+1] - (fit.epoch%par[fit.filelist.ndset*2 +7*i+1]) + (t_transit-fit.epoch)
+               # par[len(vel_files)*2 +7*npl +5 + 3*i] = t_transit
            
+                fit.tr_params.per = par[fit.filelist.ndset*2 +7*i+1] #1.0    #orbital period
+                fit.tr_params.ecc = par[fit.filelist.ndset*2 +7*i+2] #0.0  
+                fit.tr_params.w   = par[fit.filelist.ndset*2 +7*i+3] #90.0   #longitude of periastron (in degrees)               
+                fit.tr_params.inc = par[fit.filelist.ndset*2 +7*i+5]#90. #orbital inclination (in degrees)
+                
+                fit.tr_params.t0  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i] = t00%par[fit.filelist.ndset*2 +7*i+1]  #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
+                fit.tr_params.a   = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+                fit.tr_params.rp  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)
+                #print(tr_params.t0)
+                #print(tr_params.per, tr_params.ecc,tr_params.w, tr_params.inc, tr_params.t0,tr_params.a,tr_params.rp )
+        
+                m[i] = batman.TransitModel(fit.tr_params, t)    #initializes model
+     
+                flux_model = flux_model * m[i].light_curve(fit.tr_params)       
+                #calculates light curve  
+            tr_o_c = flux -flux_model
+            
+            
             p3.plot(t, flux,        
             pen=None,  
             symbol='o',
@@ -1626,9 +1801,9 @@ Transit duration: %s d
      
             p3.addItem(err_)            
             
-            m = batman.TransitModel(fit.tr_params, t)    #initializes model
+           # m = batman.TransitModel(fit.tr_params, t)    #initializes model
  
-            flux_model = m.light_curve(fit.tr_params)          #calculates light curve           
+            #flux_model = m.light_curve(fit.tr_params)          #calculates light curve           
             p3.plot(t, flux_model,pen='k',symbol=None )    
             
             p4.plot(t, flux-flux_model,        
@@ -1648,7 +1823,100 @@ Transit duration: %s d
             flux_model = m.light_curve(fit.tr_params)          #calculates light curve
  
             p3.plot(t, flux_model,pen='k',symbol=None )     
-       
+  
+
+
+ 
+    def update_transit_plots_exp(self): 
+        global fit, p3, colors
+    
+        p3.plot(clear=True,) 
+        p4.plot(clear=True,)         
+           
+        if len(fit.tra_data_sets[0]) != 0:
+            t = fit.tra_data_sets[0][0]
+            flux = fit.tra_data_sets[0][1]
+            flux_err = fit.tra_data_sets[0][2]
+           
+            flux_model =[1]*len(flux)
+            par = np.array(fit.parameters)  
+            m =  {k: [] for k in range(9)}
+             
+            tr_params = batman.TransitParams()       #object to store transit parameters
+           
+            # WASP 6
+            tr_params.t0  = [0.0, 0.0] #time of inferior conjunction
+            tr_params.per = [3.36, 4.5]     #orbital period
+            tr_params.ecc = [0.0, 0.0]     
+            tr_params.w   = [90.0, 90.0]    #longitude of periastron (in degrees)                  
+            tr_params.rp  = [0.15, 0.14]  #planet radius (in units of stellar radii)
+            tr_params.inc = [90.0, 90.0]  #orbital inclination (in degrees)
+            tr_params.a   = [15, 14]  #semi-major axis (in units of stellar radii)
+        
+    
+            tr_params.limb_dark = "quadratic"      #limb darkening model
+            tr_params.u = [0.1, 0.3 ] 
+            
+            
+            for i in range(fit.npl):
+            
+                t_peri, t_transit = rv.transit_tperi(par[fit.filelist.ndset*2 +7*i+1], par[fit.filelist.ndset*2 +7*i+2], 
+                                                      par[fit.filelist.ndset*2 +7*i+3], par[fit.filelist.ndset*2 +7*i+4], fit.epoch)
+                t00 = par[fit.filelist.ndset*2 +7*i+1] - (fit.epoch%par[fit.filelist.ndset*2 +7*i+1]) + (t_transit-fit.epoch)
+               # par[len(vel_files)*2 +7*npl +5 + 3*i] = t_transit
+           
+                tr_params.per[i] = par[fit.filelist.ndset*2 +7*i+1] #1.0    #orbital period
+                tr_params.ecc[i] = par[fit.filelist.ndset*2 +7*i+2] #0.0  
+                tr_params.w[i]   = par[fit.filelist.ndset*2 +7*i+3] #90.0   #longitude of periastron (in degrees)               
+                tr_params.inc[i] = par[fit.filelist.ndset*2 +7*i+5]#90. #orbital inclination (in degrees)
+                
+                tr_params.t0[i]  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i] = t00%par[fit.filelist.ndset*2 +7*i+1]  #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
+                tr_params.a[i]   = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+                tr_params.rp[i]  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)
+                #print(tr_params.t0)
+                #print(tr_params.per, tr_params.ecc,tr_params.w, tr_params.inc, tr_params.t0,tr_params.a,tr_params.rp )
+        
+            m = batman.TransitModel(tr_params, t)    #initializes model
+ 
+            flux_model = m.light_curve(fit.tr_params)       
+                #calculates light curve  
+            tr_o_c = flux -flux_model
+            
+            
+            p3.plot(t, flux,        
+            pen=None,  
+            symbol='o',
+            symbolPen={'color': fit.colors[0], 'width': 1.1},
+            symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.colors[0] ) 
+            
+            err_ = pg.ErrorBarItem(x=t, y=flux,
+            symbol='o', height=flux_err, beam=0.0, pen=fit.colors[0])   
+     
+            p3.addItem(err_)            
+            
+           # m = batman.TransitModel(fit.tr_params, t)    #initializes model
+ 
+            #flux_model = m.light_curve(fit.tr_params)          #calculates light curve           
+            p3.plot(t, flux_model,pen='k',symbol=None )    
+            
+            p4.plot(t, flux-flux_model,        
+            pen=None,  
+            symbol='o',
+            symbolPen={'color': fit.colors[0], 'width': 1.1},
+            symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.colors[0] )             
+
+            err_ = pg.ErrorBarItem(x=t, y=flux-flux_model,
+            symbol='o', height=flux_err, beam=0.0, pen=fit.colors[0])               
+            p4.addItem(err_)   
+                     
+        else:    
+            t = np.linspace(-0.25, 0.25, 1000)  #times at which to calculate light curve   
+            m = batman.TransitModel(fit.tr_params, t)    #initializes model
+            flux_model = m.light_curve(fit.tr_params)          #calculates light curve
+ 
+            p3.plot(t, flux_model,pen='k',symbol=None )         
 #########################  transit fitting END ##############################      
         
 ############################# N-Body ########################################        
@@ -1923,7 +2191,7 @@ highly appreciated!
         
   
 
-    def run_bootstrap(self):
+    def run_nest_samp(self):
         global fit
         choice = QtGui.QMessageBox.information(self, 'Warning!', "Not available yet. Okay?", QtGui.QMessageBox.Ok) 
 
@@ -2294,6 +2562,8 @@ highly appreciated!
         
         self.check_bounds()
         
+        
+        
         # Pass the function to execute
         worker = Worker(lambda: self.run_mcmc()) # Any other args, kwargs are passed to the run  
         # Execute
@@ -2307,14 +2577,20 @@ highly appreciated!
     def run_mcmc(self):
         global fit
         
+        if self.radioButton_RV.isChecked():
+            fit.rtg = [True,self.goGP.isChecked(), False]
+        elif self.radioButton_transit.isChecked():
+            fit.rtg = [False, self.goGP.isChecked(), True]
+        elif self.radioButton_transit_RV.isChecked():
+            fit.rtg = [True,self.goGP.isChecked(), True]
 
+ 
  
         #fit.mcmc(doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), 
         #burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
         #fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked())  
  
-        fit = rv.run_mcmc(fit, rtg=[True, self.goGP.isChecked(), False],
-        burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
+        fit = rv.run_mcmc(fit, burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
         fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked())
         
     
@@ -2555,6 +2831,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         global fit
    
         if self.radioButton_RV.isChecked():
+            fit.rtg = [True,self.goGP.isChecked(),False]            
             if(init):
                 self.worker_RV_fitting(ff=0,m_ln=True, init = init )  
                 #print('test')
@@ -2562,17 +2839,38 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
                 self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked())  
                                
         elif self.radioButton_transit.isChecked(): 
+            fit.rtg = [False,False,True]
+            if(init):             
+                self.worker_transit_fitting(ff=0)  
+            else:
+                self.worker_transit_fitting()
+                                               
+        elif self.radioButton_transit_RV.isChecked():
+            
+            fit.rtg=[True,self.goGP.isChecked(),True]
             if(init):
                 self.worker_transit_fitting(ff=0 )  
             else:
                 self.worker_transit_fitting()
-                                               
-        elif self.radioButton_transit_RV.isChecked():  
-            self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked()) 
 
+############################# END Dispatcher ################################  
 
-
-
+    def mute_boxes(self):
+        if self.radioButton_transit_RV.isChecked():
+            self.t0_1.setEnabled(False)
+            self.use_t0_1.setEnabled(False)
+            self.t0_2.setEnabled(False)
+            self.use_t0_2.setEnabled(False)           
+            self.t0_3.setEnabled(False)
+            self.use_t0_3.setEnabled(False)            
+            
+        else:
+            self.t0_1.setEnabled(True)
+            self.use_t0_1.setEnabled(True)
+            self.t0_2.setEnabled(True)
+            self.use_t0_2.setEnabled(True)           
+            self.t0_3.setEnabled(True)
+            self.use_t0_3.setEnabled(True)              
 
     def grab_screen(self):
         p = QtWidgets.QWidget.grab(self)
@@ -2594,7 +2892,6 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         #self.console_widget.clear()                            
    #     self.console_widget.print_text(str("You are using Python3! The 'stdout/stderr' widget (so far) does not work with Py3. For system output see the shell you started the GUI"+"\n"))
             
-############################# END Dispatcher ################################  
 
 ############################# Tab selector (not ready) ################################  
 
@@ -2733,7 +3030,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
         self.button_orb_evol.clicked.connect(self.worker_Nbody) 
         self.button_MCMC.clicked.connect(self.worker_mcmc)
-        self.button_Bootstrap.clicked.connect(lambda: self.run_bootstrap())
+        self.button_nest_samp.clicked.connect(lambda: self.run_nest_samp())
         
         
         self.button_make_cornerplot.clicked.connect(self.worker_cornerplot)
@@ -2777,6 +3074,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.init_activity_combo()
         self.init_scipy_combo()
         self.comboBox_scipy_minimizer_1.activated.connect(self.check_scipy_min)
+        self.comboBox_scipy_minimizer_2.activated.connect(self.check_scipy_min)
+        
         
         self.init_gls_norm_combo()
         self.gls_norm_combo.activated.connect(self.update_plots) 
@@ -2805,6 +3104,11 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
         self.radioButton_RV_o_c_GLS_period.toggled.connect(self.update_RV_o_c_GLS_plots)
         self.radioButton_RV_GLS_period.toggled.connect(self.update_RV_GLS_plots)
+        
+        self.radioButton_transit_RV.toggled.connect(self.mute_boxes)
+        self.radioButton_transit.toggled.connect(self.mute_boxes)
+        self.radioButton_RV.toggled.connect(self.mute_boxes)
+
 
         self.radioButton_RV_WF_period.toggled.connect(self.update_WF_plots)
 
@@ -2824,7 +3128,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
         #self.treeWidget = tree_view.Widget() #.setModel(self.tree_view)
 
-        print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and the mcmc and bootstrap results.")
+        print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and piped results.")
 
 
 

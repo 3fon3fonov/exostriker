@@ -20,6 +20,7 @@ corner
 celerite
 batman
 qtconsole
+transit least squares
 + the swift N-body library, which is in the ./source directory
 
 # You may also need:
@@ -87,19 +88,7 @@ option if batman is not on your system already.
 ################################################################################
  
  
-
-
-Running the "emcee" with Python3 using multiprocessing results to:
-TypeError: cannot serialize '_io.TextIOWrapper' object.
-
-(No Problems with Py2 or Py3 with only one thread)
-
-The problem and it seems to be that some part of the object RVmod object 
-is not picklable. (work in progress here)
-
- 
-
-
+TBA 
  
 
 ############################## Finally #################################
@@ -124,8 +113,8 @@ serious clean up from junk.
 
 * All fortan code must be translated with f2py.
 
-* The transit fitting with more than one planet and together with RV 
-is still not fully integrated.
+* The transit fitting + RV + GP is still not tested 
+well
 
 * A pip installer must be made.
 
