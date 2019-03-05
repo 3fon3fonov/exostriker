@@ -465,7 +465,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
  
 def lnprior(p,b): 
     for j in range(len(p)): 
-       # print(p[j],b[j,0],b[j,1])
+        print(p[j],b[j,0], b[j,1]) 
         if p[j] <= b[j,0] or p[j] >= b[j,1]:
             return -np.inf
     return 0.0      
@@ -518,7 +518,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
     
-    #print(par)
+   # print(par)
    # print(flags)
    # print(bb)
    # print(pp)
@@ -567,10 +567,12 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
    # print(current_GP_params)
 
-    obj.overwrite_params(newparams)
     obj.fitting(minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
-  
+
     obj.update_with_mcmc_errors(new_par_errors)
+   
+ 
+    obj.overwrite_params(newparams)
    # print(new_par_errors)
     
  
@@ -806,7 +808,6 @@ class signal_fit(object):
        
         ########## new stuff ##########
         self.init_pl_params()
-        self.init_norm_pr()
         
         self.fit_performed = False
         self.fitting_method = 'None'
@@ -903,10 +904,18 @@ class signal_fit(object):
         self.K_bound    = {k: np.array([0,10000]) for k in range(9)}
         self.P_bound    = {k: np.array([0,100000]) for k in range(9)}
         self.e_bound    = {k: np.array([0,0.999]) for k in range(9)}
-        self.w_bound    = {k: np.array([-2.0*360.0, 2.0*360.0]) for k in range(9)}
-        self.M0_bound   = {k: np.array([-2.0*360.0, 2.0*360.0]) for k in range(9)}
-        self.i_bound    = {k: np.array([-180.0, 180.0]) for k in range(9)}
-        self.Node_bound = {k: np.array([-2.0*360.0, 2.0*360.0]) for k in range(9)}
+        self.w_bound    = {k: np.array([0.0, 360.0]) for k in range(9)}
+        self.M0_bound   = {k: np.array([0.0, 360.0]) for k in range(9)}
+        self.i_bound    = {k: np.array([0.0, 180.0]) for k in range(9)}
+        self.Node_bound = {k: np.array([0.0, 360.0]) for k in range(9)}
+        
+        self.K_norm_pr    = {k: np.array([50,100, False]) for k in range(9)}
+        self.P_norm_pr    = {k: np.array([150,30, False]) for k in range(9)}
+        self.e_norm_pr    = {k: np.array([0.0,0.1, False]) for k in range(9)}
+        self.w_norm_pr    = {k: np.array([0, 90, False]) for k in range(9)}
+        self.M0_norm_pr   = {k: np.array([0, 90, False]) for k in range(9)}
+        self.i_norm_pr    = {k: np.array([90, 90, False]) for k in range(9)}
+        self.Node_norm_pr = {k: np.array([0, 360.0, False]) for k in range(9)}  
         
         self.K_str    = {k: r'K$_%s$'%chr(98+k)  for k in range(9)}
         self.P_str    = {k: r'P$_%s$'%chr(98+k)  for k in range(9)}
@@ -915,7 +924,8 @@ class signal_fit(object):
         self.M0_str   = {k: r'M0$_%s$'%chr(98+k)  for k in range(9)}
         self.i_str    = {k: r'i$_%s$'%chr(98+k)  for k in range(9)}
         self.Node_str = {k: r'\Omega$_%s$'%chr(98+k)  for k in range(9)}          
-        
+  
+    
         
 
         #### transit #####       
@@ -934,7 +944,10 @@ class signal_fit(object):
         self.t0_bound      = {k: np.array([-10000,10000]) for k in range(9)}
         self.pl_a_bound    = {k: np.array([0,100]) for k in range(9)}
         self.pl_rad_bound  = {k: np.array([0,10000]) for k in range(9)} 
-        
+ 
+        self.t0_norm_pr      = {k: np.array([0,1, False]) for k in range(9)}
+        self.pl_a_norm_pr     = {k: np.array([10,10, False]) for k in range(9)}
+        self.pl_rad_norm_pr   = {k: np.array([0.1,0.05, False]) for k in range(9)}        
  
         self.t0_str      = {k: r't0$_%s$'%chr(98+k) for k in range(9)} 
         self.pl_a_str    = {k: r'pl_a$_%s$'%chr(98+k) for k in range(9)} 
@@ -947,6 +960,7 @@ class signal_fit(object):
         self.jitt_use  = {k: True for k in range(10)}
         self.jitt_str  = {k: r'jitt$_%s$'%k for k in range(10)}     
         self.jitt_bounds  = {k: np.array([0.0,10000.0] )for k in range(10)} 
+        self.jitt_norm_pr = {k: np.array([1.0,5.0, False] )for k in range(10)} 
         
     def init_RV_offset(self) :       
         
@@ -955,7 +969,8 @@ class signal_fit(object):
         self.rvoff_use  = {k: True for k in range(10)}
         self.rvoff_str  = {k: r'rvoff$_%s$'%k for k in range(10)}     
         self.rvoff_bounds  = {k: np.array([-1000000.0,1000000.0] )for k in range(10)}        
-        
+        self.rvoff_norm_pr = {k: np.array([0,100.0, False] )for k in range(10)}        
+       
         
     def init_RV_lintr(self) :       
          
@@ -964,6 +979,7 @@ class signal_fit(object):
         self.rv_lintr_use  = {k: False for k in range(1)}
         self.rv_lintr_str  = {k: r'RV lin.tr' for k in range(1)}     
         self.rv_lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(1)} 
+        self.rv_lintr_norm_pr = {k: np.array([0,0.001, False]) for k in range(1)} 
                
     def init_st_mass(self) :       
          
@@ -972,7 +988,8 @@ class signal_fit(object):
         self.st_mass_use  = {k: False for k in range(1)}
         self.st_mass_str  = {k: r'St mass' for k in range(1)}     
         self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)}         
-        
+        self.st_mass_norm_pr = {k: np.array([1,0.2, False]) for k in range(1)}         
+       
 
         
     def init_GP(self):
@@ -982,33 +999,17 @@ class signal_fit(object):
         self.GP_params_new = [1,10,15,1]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_params_new_err = [0,0,0,0]
         self.GP_params_new_use = [False,False,False,False]  
-        self.GP_params_new_str = [r'Amp', r't', r'per', r'fact']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
-       
+        self.GP_params_new_str = [r'Amp', r't', r'per', r'fact']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway 
         self.GP_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_params_new))}        
+        self.GP_norm_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_params_new))}        
                 
 
 
-    def init_norm_pr(self): 
 
-        self.K_norm_pr    = {k: np.array([50,100]) for k in range(9)}
-        self.P_norm_pr    = {k: np.array([150,30]) for k in range(9)}
-        self.e_norm_pr    = {k: np.array([0.0,0.1]) for k in range(9)}
-        self.w_norm_pr    = {k: np.array([0, 90]) for k in range(9)}
-        self.M0_norm_pr   = {k: np.array([0, 90]) for k in range(9)}
-        self.i_norm_pr    = {k: np.array([90, 90]) for k in range(9)}
-        self.Node_norm_pr = {k: np.array([0, 360.0]) for k in range(9)}
-        
-        self.rvoff_norm_pr = {k: np.array([0.0,1000000.0]) for k in range(10)} 
-        self.jitt_norm_pr  = {k: np.array([0.0,10000.0] )for k in range(10)} 
-        
-        self.lintr_norm_pr  = {k: np.array([0,1.0]) for k in range(1)} 
-        self.st_mass_norm_pr  = {k: np.array([1,100]) for k in range(1)}  
 
     def init_transit_params(self): 
         # from the example in github
-        
 
-        
         self.tr_params = batman.TransitParams()       #object to store transit parameters
        
         # WASP 6
@@ -1027,34 +1028,7 @@ class signal_fit(object):
         self.tr_params_use = [False, False,False,False,False,False,False]    
         #self.tr_params_use = [False, False,False,False,False,False,False]    
        
-        
-        
-        self.tr_par = [self.tr_params.t0,  
-        self.tr_params.per, 
-        self.tr_params.ecc, 
-        self.tr_params.w,             
-        self.tr_params.rp,
-        self.tr_params.inc, 
-        self.tr_params.a,        
-        ]
-
-        self.tr_el_str  = [r't0', r'P', r'e',r'omega [deg]',r'rp[Rsol]', r'i [deg]' ,r'a [Rsol]']     
  
-    
-        self.tr_bounds = [[-2460000.0, 2460000.0],[0.5, 4.0],[0.0, 0.999],[0.0, 359.9],[0, 0.20],[84.0, 96.0001],[1, 100]] # planet 1
-      
-        #TB removed
-    def update_trans_params(self):       
- 
-        for i in range(self.npl):
-            self.t0[i]      = self.tr_par[0]
-            self.pl_a[i]    =  self.tr_par[6]
-            self.pl_rad[i]  =  self.tr_par[4]  
-
-            self.t0_use[i]      =  self.tr_params_use[0]
-            self.pl_a_use[i]      = self.tr_params_use[6]
-            self.pl_rad_use[i]      = self.tr_params_use[4]  
-
  
     def init_sciPy_minimizer(self):
         
@@ -1154,7 +1128,7 @@ class signal_fit(object):
 ############################ transit datasets END ##########################################      
 
 
-
+################ Legacy Code!!! TB removed/updated/replaced ######################
 
 
     def add_planet(self,K=50,P=100,e=0,w=0,M0=180,i=90,cap=0,useK=True,useP=True,usee=False,usew=False,useM0=True,usei=True, usecap=True):        
@@ -2030,12 +2004,14 @@ class signal_fit(object):
         flag = []
         par_str = []
         bounds = []
+        prior_nr = []
   
  
         for i in range(self.filelist.ndset):           
             par.append(self.params.offsets[i]) #
             par_str.append(self.rvoff_str[i])
             bounds.append(self.rvoff_bounds[i])        
+            prior_nr.append(self.rvoff_norm_pr[i])
             
             if rtg == [False,False,True]:
                 flag.append(False) #
@@ -2047,6 +2023,7 @@ class signal_fit(object):
             par.append(self.params.jitters[i]) #
             par_str.append(self.jitt_str[i]) #
             bounds.append(self.jitt_bounds[i])   
+            prior_nr.append(self.jitt_norm_pr[i])
             
             if rtg == [False,False,True]:
                 flag.append(False) #
@@ -2101,12 +2078,24 @@ class signal_fit(object):
             bounds.append(self.M0_bound[i])
             bounds.append(self.i_bound[i])
             bounds.append(self.Node_bound[i])
-             
+
+            prior_nr.append(self.K_norm_pr[i])
+            prior_nr.append(self.P_norm_pr[i])
+            prior_nr.append(self.e_norm_pr[i])
+            prior_nr.append(self.w_norm_pr[i])
+            prior_nr.append(self.M0_norm_pr[i])
+            prior_nr.append(self.i_norm_pr[i])
+            prior_nr.append(self.Node_norm_pr[i])
+           
+            
+            
+            
         
         par.append(self.params.linear_trend)
         flag.append(self.use.use_linear_trend)
         par_str.append(self.rv_lintr_str[0])
         bounds.append(self.rv_lintr_bounds[0])
+        prior_nr.append(self.rv_lintr_norm_pr[0])
        
         
         
@@ -2116,7 +2105,8 @@ class signal_fit(object):
             flag.append(self.GP_params_new_use[i])
             par_str.append(self.GP_params_new_str[i])
             bounds.append(self.GP_bounds[i])
-            
+            prior_nr.append(self.GP_norm_pr[i])
+
             
             
         for i  in range(self.npl):            
@@ -2132,6 +2122,10 @@ class signal_fit(object):
             bounds.append(self.pl_a_bound[i])
             bounds.append(self.pl_rad_bound[i])   
             
+            prior_nr.append(self.t0_norm_pr[i])
+            prior_nr.append(self.pl_a_norm_pr[i])
+            prior_nr.append(self.pl_rad_norm_pr[i])   
+            
             if rtg[2] == [False]:
                 flag.append(False) #
                 flag.append(False) #
@@ -2145,6 +2139,7 @@ class signal_fit(object):
         flag.append(self.use.use_stellar_mass)
         par_str.append(self.st_mass_str[0])
         bounds.append(self.st_mass_bounds[0])
+        prior_nr.append(self.st_mass_norm_pr[0])   
        
         
       #  print(par)    
@@ -2158,6 +2153,8 @@ class signal_fit(object):
         self.par_for_mcmc = []  # self par_for_mcmc are the fitted parameters   
         self.e_for_mcmc = [] # labels for fitted parameters only
         self.b_for_mcmc = [] # labels for fitted parameters only
+        self.nr_pr_for_mcmc = [] # labels for fitted parameters only
+       
         self.parameters = par
 
        # print(el_str)
@@ -2168,6 +2165,7 @@ class signal_fit(object):
                 self.par_for_mcmc.append(par[j])
                 self.e_for_mcmc.append(par_str[j])
                 self.b_for_mcmc.append(bounds[j])
+                self.nr_pr_for_mcmc.append(prior_nr[j])
 
        # self.par_for_mcmc = np.array(self.par_for_mcmc )
       #  self.f_for_mcmc = np.array(self.f_for_mcmc )
