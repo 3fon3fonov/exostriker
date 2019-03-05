@@ -501,16 +501,16 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         ]
  
         for i in range(fit.npl):
-            fit.K_bound[i] = param_bounds_gui[7*i + 0]    
-            fit.P_bound[i] = param_bounds_gui[7*i + 1]    
-            fit.e_bound[i] = param_bounds_gui[7*i + 2]    
-            fit.w_bound[i] = param_bounds_gui[7*i + 3]    
-            fit.M0_bound[i] = param_bounds_gui[7*i + 4]    
-            fit.i_bound[i] = param_bounds_gui[7*i + 5]    
-            fit.Node_bound[i] = param_bounds_gui[7*i + 6]    
-            fit.t0_bound[i]  =  param_bounds_gui[7*i + 7]
-            fit.pl_rad_bound[i]  =   param_bounds_gui[7*i + 8]
-            fit.pl_a_bound[i]   =   param_bounds_gui[7*i + 9]
+            fit.K_bound[i] = param_bounds_gui[10*i + 0]    
+            fit.P_bound[i] = param_bounds_gui[10*i + 1]    
+            fit.e_bound[i] = param_bounds_gui[10*i + 2]    
+            fit.w_bound[i] = param_bounds_gui[10*i + 3]    
+            fit.M0_bound[i] = param_bounds_gui[10*i + 4]    
+            fit.i_bound[i] = param_bounds_gui[10*i + 5]    
+            fit.Node_bound[i] = param_bounds_gui[10*i + 6]    
+            fit.t0_bound[i]  =  param_bounds_gui[10*i + 7]
+            fit.pl_rad_bound[i]  =   param_bounds_gui[10*i + 8]
+            fit.pl_a_bound[i]   =   param_bounds_gui[10*i + 9]
 
         offset_bounds_gui = [
         [self.Data1_min.value(),self.Data1_max.value()], [self.Data2_min.value(),self.Data2_max.value()], [self.Data3_min.value(),self.Data3_max.value()], [self.Data4_min.value(),self.Data4_max.value()], [self.Data5_min.value(),self.Data5_max.value()],   
