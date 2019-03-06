@@ -2052,10 +2052,7 @@ Transit duration: %s d
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
 
         self.jupiter_push_vars()   
-        self.button_fit.setEnabled(True)  
-        
-        for i in range(fit.npl):
-             rv.phase_planet_signal(fit,i+1)        
+        self.button_fit.setEnabled(True)       
         self.update_plots()  
  
     def worker_RV_fitting(self, ff=20, m_ln=True, auto_fit = False , init = False ):
@@ -2154,7 +2151,12 @@ Transit duration: %s d
         else:      
             fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
 
+        for i in range(fit.npl):
+             rv.phase_planet_signal(fit,i+1)  
+
         if auto_fit:
+                          
+                 
             self.update_labels()
             self.update_gui_params()
             self.update_errors() 
