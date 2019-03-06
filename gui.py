@@ -542,7 +542,63 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.GP_bounds[i] = GP_bounds_gui[i]
             
             
-            
+    def check_priors(self):
+        global fit
+
+        
+        
+        param_nr_priors_gui = [
+        [self.K1_mean.value(),self.K1_sigma.value(),self.use_K1_norm_pr.isChecked()],[self.P1_mean.value(),self.P1_sigma.value(),self.use_P1_norm_pr.isChecked()], [self.e1_mean.value(),self.e1_sigma.value(),self.use_e1_norm_pr.isChecked()],[self.om1_mean.value(),self.om1_sigma.value(),self.use_om1_norm_pr.isChecked()], [self.ma1_mean.value(),self.ma1_sigma.value(),self.use_ma1_norm_pr.isChecked()],[self.incl1_mean.value(),self.incl1_sigma.value(),self.use_incl1_norm_pr.isChecked()], [self.Omega1_mean.value(),self.Omega1_sigma.value(), self.use_Omega1_norm_pr.isChecked()],[self.t0_1_mean.value(),self.t0_1_sigma.value(), self.use_t0_1_norm_pr.isChecked()],[self.pl_1_rad_mean.value(),self.pl_1_rad_sigma.value(),self.use_pl_rad1_norm_pr.isChecked()],[self.a_sol_1_mean.value(),self.a_sol_1_sigma.value(),self.use_a_sol_1_norm_pr.isChecked()],
+        [self.K2_mean.value(),self.K2_sigma.value(),self.use_K2_norm_pr.isChecked()],[self.P2_mean.value(),self.P2_sigma.value(),self.use_P2_norm_pr.isChecked()], [self.e2_mean.value(),self.e2_sigma.value(),self.use_e2_norm_pr.isChecked()],[self.om2_mean.value(),self.om2_sigma.value(),self.use_om2_norm_pr.isChecked()], [self.ma2_mean.value(),self.ma2_sigma.value(),self.use_ma2_norm_pr.isChecked()],[self.incl2_mean.value(),self.incl2_sigma.value(),self.use_incl2_norm_pr.isChecked()], [self.Omega2_mean.value(),self.Omega2_sigma.value(), self.use_Omega2_norm_pr.isChecked()],[self.t0_2_mean.value(),self.t0_2_sigma.value(), self.use_t0_2_norm_pr.isChecked()],[self.pl_2_rad_mean.value(),self.pl_2_rad_sigma.value(),self.use_pl_rad2_norm_pr.isChecked()],[self.a_sol_2_mean.value(),self.a_sol_2_sigma.value(),self.use_a_sol_2_norm_pr.isChecked()],
+        [self.K3_mean.value(),self.K3_sigma.value(),self.use_K3_norm_pr.isChecked()],[self.P3_mean.value(),self.P3_sigma.value(),self.use_P3_norm_pr.isChecked()], [self.e3_mean.value(),self.e3_sigma.value(),self.use_e3_norm_pr.isChecked()],[self.om3_mean.value(),self.om3_sigma.value(),self.use_om3_norm_pr.isChecked()], [self.ma3_mean.value(),self.ma3_sigma.value(),self.use_ma3_norm_pr.isChecked()],[self.incl3_mean.value(),self.incl3_sigma.value(),self.use_incl3_norm_pr.isChecked()], [self.Omega3_mean.value(),self.Omega3_sigma.value(), self.use_Omega3_norm_pr.isChecked()],[self.t0_3_mean.value(),self.t0_3_sigma.value(), self.use_t0_3_norm_pr.isChecked()],[self.pl_3_rad_mean.value(),self.pl_3_rad_sigma.value(),self.use_pl_rad3_norm_pr.isChecked()],[self.a_sol_3_mean.value(),self.a_sol_3_sigma.value(),self.use_a_sol_3_norm_pr.isChecked()],
+       # [self.K4_mean.value(),self.K4_sigma.value(),self.use_K1_norm_pr.isChecked()],[self.P4_mean.value(),self.P4_sigma.value(),self.use_P1_norm_pr.isChecked()], [self.e4_mean.value(),self.e4_sigma.value(),self.use_e1_norm_pr.isChecked()],[self.om4_mean.value(),self.om4_sigma.value(),self.use_om1_norm_pr.isChecked()], [self.ma4_mean.value(),self.ma4_sigma.value(),self.use_ma1_norm_pr.isChecked()],[self.incl4_mean.value(),self.incl4_sigma.value(),self.use_incl1_norm_pr.isChecked()], [self.Omega4_mean.value(),self.Omega4_sigma.value(), self.use_Omega1_norm_pr.isChecked()],[self.t0_1_mean.value(),self.t0_1_sigma.value(), self.use_t0_1_norm_pr.isChecked()],[self.pl_1_rad_mean.value(),self.pl_1_rad_sigma.value(),self.use_pl_rad1_norm_pr.isChecked()],[self.a_sol_1_mean.value(),self.a_sol_1_sigma.value(),self.use_a_sol_1_norm_pr.isChecked()],
+       # [self.K5_mean.value(),self.K5_sigma.value(),self.use_K1_norm_pr.isChecked()],[self.P5_mean.value(),self.P5_sigma.value(),self.use_P1_norm_pr.isChecked()], [self.e5_mean.value(),self.e5_sigma.value(),self.use_e1_norm_pr.isChecked()],[self.om5_mean.value(),self.om5_sigma.value(),self.use_om1_norm_pr.isChecked()], [self.ma5_mean.value(),self.ma5_sigma.value(),self.use_ma1_norm_pr.isChecked()],[self.incl5_mean.value(),self.incl5_sigma.value(),self.use_incl1_norm_pr.isChecked()], [self.Omega5_mean.value(),self.Omega5_sigma.value(), self.use_Omega1_norm_pr.isChecked()],[self.t0_1_mean.value(),self.t0_1_sigma.value(), self.use_t0_1_norm_pr.isChecked()],[self.pl_1_rad_mean.value(),self.pl_1_rad_sigma.value(),self.use_pl_rad1_norm_pr.isChecked()],[self.a_sol_1_mean.value(),self.a_sol_1_sigma.value(),self.use_a_sol_1_norm_pr.isChecked()],
+       # [self.K6_mean.value(),self.K6_sigma.value(),self.use_K1_norm_pr.isChecked()],[self.P6_mean.value(),self.P6_sigma.value(),self.use_P1_norm_pr.isChecked()], [self.e6_mean.value(),self.e6_sigma.value(),self.use_e1_norm_pr.isChecked()],[self.om6_mean.value(),self.om6_sigma.value(),self.use_om1_norm_pr.isChecked()], [self.ma6_mean.value(),self.ma6_sigma.value(),self.use_ma1_norm_pr.isChecked()],[self.incl6_mean.value(),self.incl6_sigma.value(),self.use_incl1_norm_pr.isChecked()], [self.Omega6_mean.value(),self.Omega6_sigma.value(), self.use_Omega1_norm_pr.isChecked()],[self.t0_1_mean.value(),self.t0_1_sigma.value(), self.use_t0_1_norm_pr.isChecked()],[self.pl_1_rad_mean.value(),self.pl_1_rad_sigma.value(),self.use_pl_rad1_norm_pr.isChecked()],[self.a_sol_1_mean.value(),self.a_sol_1_sigma.value(),self.use_a_sol_1_norm_pr.isChecked()],
+       # [self.K7_mean.value(),self.K7_sigma.value(),self.use_K1_norm_pr.isChecked()],[self.P7_mean.value(),self.P7_sigma.value(),self.use_P1_norm_pr.isChecked()], [self.e7_mean.value(),self.e7_sigma.value(),self.use_e1_norm_pr.isChecked()],[self.om7_mean.value(),self.om7_sigma.value(),self.use_om1_norm_pr.isChecked()], [self.ma7_mean.value(),self.ma7_sigma.value(),self.use_ma1_norm_pr.isChecked()],[self.incl7_mean.value(),self.incl7_sigma.value(),self.use_incl1_norm_pr.isChecked()], [self.Omega7_mean.value(),self.Omega7_sigma.value(), self.use_Omega1_norm_pr.isChecked()],[self.t0_1_mean.value(),self.t0_1_sigma.value(), self.use_t0_1_norm_pr.isChecked()],[self.pl_1_rad_mean.value(),self.pl_1_rad_sigma.value(),self.use_pl_rad1_norm_pr.isChecked()],[self.a_sol_1_mean.value(),self.a_sol_1_sigma.value(),self.use_a_sol_1_norm_pr.isChecked()],
+      #  [self.K8_mean.value(),self.K8_sigma.value(),self.use_K1_norm_pr.isChecked()],[self.P8_mean.value(),self.P8_sigma.value(),self.use_P1_norm_pr.isChecked()], [self.e8_mean.value(),self.e8_sigma.value(),self.use_e1_norm_pr.isChecked()],[self.om8_mean.value(),self.om8_sigma.value(),self.use_om1_norm_pr.isChecked()], [self.ma8_mean.value(),self.ma8_sigma.value(),self.use_ma1_norm_pr.isChecked()],[self.incl8_mean.value(),self.incl8_sigma.value(),self.use_incl1_norm_pr.isChecked()], [self.Omega8_mean.value(),self.Omega8_sigma.value(), self.use_Omega1_norm_pr.isChecked()],[self.t0_1_mean.value(),self.t0_1_sigma.value(), self.use_t0_1_norm_pr.isChecked()],[self.pl_1_rad_mean.value(),self.pl_1_rad_sigma.value(),self.use_pl_rad1_norm_pr.isChecked()],[self.a_sol_1_mean.value(),self.a_sol_1_sigma.value(),self.use_a_sol_1_norm_pr.isChecked()],
+       # [self.K9_mean.value(),self.K9_sigma.value(),self.use_K1_norm_pr.isChecked()],[self.P9_mean.value(),self.P9_sigma.value(),self.use_P1_norm_pr.isChecked()], [self.e9_mean.value(),self.e9_sigma.value(),self.use_e1_norm_pr.isChecked()],[self.om9_mean.value(),self.om9_sigma.value(),self.use_om1_norm_pr.isChecked()], [self.ma9_mean.value(),self.ma9_sigma.value(),self.use_ma1_norm_pr.isChecked()],[self.incl9_mean.value(),self.incl9_sigma.value(),self.use_incl1_norm_pr.isChecked()], [self.Omega9_mean.value(),self.Omega9_sigma.value(), self.use_Omega1_norm_pr.isChecked()],[self.t0_1_mean.value(),self.t0_1_sigma.value(), self.use_t0_1_norm_pr.isChecked()],[self.pl_1_rad_mean.value(),self.pl_1_rad_sigma.value(),self.use_pl_rad1_norm_pr.isChecked()],[self.a_sol_1_mean.value(),self.a_sol_1_sigma.value(),self.use_a_sol_1_norm_pr.isChecked()]               
+        ]
+ 
+        for i in range(fit.npl):
+            fit.K_norm_pr[i]  = param_nr_priors_gui[10*i + 0]    
+            fit.P_norm_pr[i]  = param_nr_priors_gui[10*i + 1]    
+            fit.e_norm_pr[i]  = param_nr_priors_gui[10*i + 2]    
+            fit.w_norm_pr[i]  = param_nr_priors_gui[10*i + 3]    
+            fit.M0_norm_pr[i] = param_nr_priors_gui[10*i + 4]    
+            fit.i_norm_pr[i]  = param_nr_priors_gui[10*i + 5]    
+            fit.Node_norm_pr[i] = param_nr_priors_gui[10*i + 6]    
+            fit.t0_norm_pr[i]   = param_nr_priors_gui[10*i + 7]
+            fit.pl_rad_norm_pr[i]  = param_nr_priors_gui[10*i + 8]
+            fit.pl_a_norm_pr[i]    = param_nr_priors_gui[10*i + 9]
+
+       # offset_nr_priors_gui = [
+      #  [self.Data1_mean.value(),self.Data1_sigma.value()], [self.Data2_mean.value(),self.Data2_sigma.value()], [self.Data3_mean.value(),self.Data3_sigma.value()], [self.Data4_mean.value(),self.Data4_sigma.value()], [self.Data5_mean.value(),self.Data5_sigma.value()],   
+      #  [self.Data6_mean.value(),self.Data6_sigma.value()], [self.Data7_mean.value(),self.Data7_sigma.value()], [self.Data8_mean.value(),self.Data8_sigma.value()], [self.Data9_mean.value(),self.Data9_sigma.value()], [self.Data10_mean.value(),self.Data10_sigma.value()]
+      #  ]
+        
+       # jitter_nr_priors_gui = [
+      #  [self.jitter1_mean.value(),self.jitter1_sigma.value()], [self.jitter2_mean.value(),self.jitter2_sigma.value()], [self.jitter3_mean.value(),self.jitter3_sigma.value()], [self.jitter4_mean.value(),self.jitter4_sigma.value()], [self.jitter5_mean.value(),self.jitter5_sigma.value()],   
+      #  [self.jitter6_mean.value(),self.jitter6_sigma.value()], [self.jitter7_mean.value(),self.jitter7_sigma.value()], [self.jitter8_mean.value(),self.jitter8_sigma.value()], [self.jitter9_mean.value(),self.jitter9_sigma.value()], [self.jitter10_mean.value(),self.Data10_sigma.value()]   
+      #  ]  
+    
+    
+       # for i in range(10): 
+       #     fit.rvoff_norm_pr[i] = offset_nr_priors_gui[i]
+         #   fit.jitt_norm_pr[i]  = jitter_nr_priors_gui[i] 
+    
+ 
+       # fit.rv_lintr_norm_pr[0]  = [self.lin_trend_mean.value(),self.lin_trend_sigma.value()]
+        #self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
+
+        GP_nr_priors_gui = [
+        [self.GP_rot_kernel_Amp_mean.value(),self.GP_rot_kernel_Amp_sigma.value(),self.use_GP_rot_kernel_Amp.isChecked()],  
+        [self.GP_rot_kernel_time_sc_mean.value(),self.GP_rot_kernel_time_sc_sigma.value(),self.use_GP_rot_kernel_time_sc.isChecked()],  
+        [self.GP_rot_kernel_Per_mean.value(),self.GP_rot_kernel_Per_sigma.value(),self.use_GP_rot_kernel_Per_sigma.isChecked()],  
+        [self.GP_rot_kernel_fact_mean.value(),self.GP_rot_kernel_fact_sigma.value(),self.use_GP_rot_kernel_fact.isChecked()],  
+        ]
+ 
+        for i in range(4): 
+            fit.GP_norm_pr[i] = GP_nr_priors_gui[i]            
     
     
 ####################################################        
@@ -2016,7 +2072,7 @@ Transit duration: %s d
          
             
         self.check_bounds()
-        
+        self.check_priors()       
         
         
         if self.radioButton_fortran77.isChecked() and not self.goGP.isChecked() or init == True:
@@ -2561,6 +2617,7 @@ highly appreciated!
             return        
         
         self.check_bounds()
+        self.check_priors()       
         
         
         
