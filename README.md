@@ -36,7 +36,6 @@ What is to be implemented:
 
 * Combined modeling with Astrometry.
 * Variouse of minimization/sampling methods (SciPyOp implemented, but with only limited options, work in progress)
-* GUI accsess to priors (So far only limits work).
 * Print all results and plots into a .tex ready environment.
 * A large arsenal of N-body/dynamical simulation/analysis tools. 
 * Documentation, Instructions and Video tutorials.
