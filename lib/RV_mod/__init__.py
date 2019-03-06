@@ -367,7 +367,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     pp = obj.par_for_mcmc #.tolist()
     ee = obj.e_for_mcmc #.tolist() 
     bb = np.array(obj.b_for_mcmc)
-   # bb = np.array(bb)
+    pr_nr = np.array(obj.nr_pr_for_mcmc)
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
  
@@ -418,7 +418,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         #eps = eps/10.0
        # print('running %s %s %s'%(obj.SciPy_min_use_1, obj.SciPy_min_N_use_1, k))
  
-        result = op.minimize(nll,  pp, args=(mod, par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, gps, rtg ),
+        result = op.minimize(nll,  pp, args=(mod, par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg ),
                              method=method1,bounds=bb, options=options1)       
                             #  bounds=bb, tol=None, callback=None, options={'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxiter': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1, 'disp': True})        
         pp = result["x"]
@@ -429,7 +429,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     for k in range(n2): # run at least 3 times the minimizer
         #print(k,xtol)
       #  print('running %s %s %s'%(obj.SciPy_min_use_2, obj.SciPy_min_N_use_2, k))
-        result = op.minimize(nll, pp, args=(mod,par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, gps, rtg ), 
+        result = op.minimize(nll, pp, args=(mod,par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg ), 
                              method=method2,bounds=bb, options=options2)
         pp = result["x"]
        # print("Best fit par.:", result["x"])
@@ -463,16 +463,25 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     return obj
  
  
-def lnprior(p,b): 
+def lnprior(p,b,pr_nr): 
+    
+    loglik_lnpr = 0
     for j in range(len(p)): 
-        print(p[j],b[j,0], b[j,1]) 
+#        print(p[j],b[j,0], b[j,1]) 
         if p[j] <= b[j,0] or p[j] >= b[j,1]:
             return -np.inf
-    return 0.0      
+        if pr_nr[j,2] == True:
+            loglik_lnpr = loglik_lnpr + normalprior(p[j],pr_nr[j])
+            #print(pr_nr[j,0],pr_nr[j,1],pr_nr[j,2],loglik_lnpr )
+    return loglik_lnpr     
     
-def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass,b, gps,rtg):
+def normalprior(p,b):    
+    loglik = np.log(1.0/(np.sqrt(2.0*np.pi)*b[1])*np.exp(-(p-b[0])**2.0/(2.0*b[1]**2.0)))
+    return loglik
+
+def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, b, pr_nr, gps,rtg):
     #print(p)
-    lp = lnprior(p,b)
+    lp = lnprior(p,b,pr_nr)
     if not np.isfinite(lp):
         return -np.inf
     return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg)  
@@ -514,7 +523,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     pp = obj.par_for_mcmc #.tolist()
     ee = obj.e_for_mcmc #.tolist() 
     bb = np.array(obj.b_for_mcmc)
-   # bb = np.array(bb)
+    pr_nr = np.array(obj.nr_pr_for_mcmc)
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
     
@@ -532,7 +541,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
 
     pos = [pp + 1e-3*np.random.rand(ndim) for i in range(nwalkers)]
 
-    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=( mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass,bb, gps, rtg), threads = threads)
+    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg), threads = threads)
 
     # burning phase
     pos, prob, state  = sampler.run_mcmc(pos,burning_ph)
@@ -920,10 +929,10 @@ class signal_fit(object):
         self.K_str    = {k: r'K$_%s$'%chr(98+k)  for k in range(9)}
         self.P_str    = {k: r'P$_%s$'%chr(98+k)  for k in range(9)}
         self.e_str    = {k: r'e$_%s$'%chr(98+k)  for k in range(9)}
-        self.w_str    = {k: r'\omega$_%s$'%chr(98+k)  for k in range(9)}
+        self.w_str    = {k: r'$\omega_%s$'%chr(98+k)  for k in range(9)}
         self.M0_str   = {k: r'M0$_%s$'%chr(98+k)  for k in range(9)}
-        self.i_str    = {k: r'i$_%s$'%chr(98+k)  for k in range(9)}
-        self.Node_str = {k: r'\Omega$_%s$'%chr(98+k)  for k in range(9)}          
+        self.i_str    = {k: r'i_%s$'%chr(98+k)  for k in range(9)}
+        self.Node_str = {k: r'$\Omega_%s$'%chr(98+k)  for k in range(9)}          
   
     
         
