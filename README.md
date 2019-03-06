@@ -19,21 +19,23 @@ What works:
 
 * Period search: GLS periodograms (RVs, act. data) & TLS (transit data).
 * RVs Keplerian and Dynamical modeling + GP (only one GP kernel integrated so far).
-* Transit modeling (so far only one dataset and not tested for 2+ transiting pl.)
-* RVs + GP + Transit (in principle should work).
-* RVs/Transit/GP MCMC sampling/modeling.
+* Transit modeling (so far only one dataset and not tested for 2+ transiting planets)
+* RVs + GP + Transit best-fit modeling.
+* RVs + GP + Transit MCMC sampling.
 * RV auto-fit (RV automated planet-finder algortm).
-* Long-term stability check of multiplanet systems using SyMBA, MVS, MVS with a GR precession.
+* Long-term stability check of multiplanet systems using SyMBA, MVS and an MVS with a GR precession.
 * Interactive plots.
 * RV vs. Activity time series correlation analysis/plots.
 * Import/Export of work sessions and multi-sessions. 
 * Export plots to a matplotlib window for further customization.
-* Text editor/Calculator/Bash-shell widgets.
+* Text editor.
+* Bash-shell (linux only).
 * Integrated Jupyter widget shell.
 * Print the GUI screen into a .jpeg image (useful for sharing quick results, just like the image above)
 
 What is to be implemented:
 
+* Binary/Triple star modeling mode.
 * Combined modeling with Astrometry.
 * Variouse of minimization/sampling methods (SciPyOp implemented, but with only limited options, work in progress)
 * Print all results and plots into a .tex ready environment.
