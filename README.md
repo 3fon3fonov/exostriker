@@ -20,8 +20,8 @@ What works:
 * Period search: GLS periodograms (RVs, act. data) & TLS (transit data).
 * RVs Keplerian and Dynamical modeling + GP (only one GP kernel integrated so far).
 * Transit modeling (so far only one dataset and not tested for 2+ transiting planets)
-* RVs + GP + Transit best-fit modeling.
-* RVs + GP + Transit MCMC sampling.
+* Joint RVs + GP + Transit best-fit modeling.
+* Joint RVs + GP + Transit MCMC sampling.
 * RV auto-fit (RV automated planet-finder algortm).
 * Long-term stability check of multiplanet systems using SyMBA, MVS and an MVS with a GR precession.
 * Interactive plots.
@@ -35,6 +35,7 @@ What works:
 
 What is to be implemented:
 
+* Nested sampling 
 * Binary/Triple star modeling mode.
 * Combined modeling with Astrometry.
 * Variouse of minimization/sampling methods (SciPyOp implemented, but with only limited options, work in progress)
