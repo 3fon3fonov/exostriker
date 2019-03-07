@@ -2984,7 +2984,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
             self.pl_rad_1.setEnabled(True)
             self.use_pl_rad_1.setEnabled(True)
-            self.t0_2.setEnabled(True)
+            self.pl_rad_2.setEnabled(True)
             self.use_pl_rad_2.setEnabled(True)           
             self.pl_rad_3.setEnabled(True)
             self.use_pl_rad_3.setEnabled(True) 
