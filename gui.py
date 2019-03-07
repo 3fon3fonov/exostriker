@@ -1821,18 +1821,26 @@ Transit duration: %s d
             m =  {k: [] for k in range(9)}
              
             for i in range(fit.npl):
-            
-                t_peri, t_transit = rv.transit_tperi(par[fit.filelist.ndset*2 +7*i+1], par[fit.filelist.ndset*2 +7*i+2], 
-                                                      par[fit.filelist.ndset*2 +7*i+3], par[fit.filelist.ndset*2 +7*i+4], fit.epoch)
-                t00 = par[fit.filelist.ndset*2 +7*i+1] - (fit.epoch%par[fit.filelist.ndset*2 +7*i+1]) + (t_transit-fit.epoch)
-               # par[len(vel_files)*2 +7*npl +5 + 3*i] = t_transit
-           
+                
                 fit.tr_params.per = par[fit.filelist.ndset*2 +7*i+1] #1.0    #orbital period
                 fit.tr_params.ecc = par[fit.filelist.ndset*2 +7*i+2] #0.0  
                 fit.tr_params.w   = par[fit.filelist.ndset*2 +7*i+3] #90.0   #longitude of periastron (in degrees)               
                 fit.tr_params.inc = par[fit.filelist.ndset*2 +7*i+5]#90. #orbital inclination (in degrees)
-                
-                fit.tr_params.t0  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i] = t00%par[fit.filelist.ndset*2 +7*i+1]  #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
+            
+               # par[len(vel_files)*2 +7*npl +5 + 3*i] = t_transit
+            
+               # if fit.rtg[0] == True:
+               #     t_peri, t_transit = rv.transit_tperi(par[fit.filelist.ndset*2 +7*i+1], par[fit.filelist.ndset*2 +7*i+2], 
+               #                                           par[fit.filelist.ndset*2 +7*i+3], par[fit.filelist.ndset*2 +7*i+4], fit.epoch)
+                   # t00 = par[fit.filelist.ndset*2 +7*i+1] - (fit.epoch%par[fit.filelist.ndset*2 +7*i+1]) + (t_transit-fit.epoch)
+               #     t00 = par[fit.filelist.ndset*2 +7*i+1] -  t_transit 
+                   
+               #     fit.tr_params.t0  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i] = t00%par[fit.filelist.ndset*2 +7*i+1]  #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
+               # else:
+               #     fit.tr_params.t0  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i]   #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
+               #     
+                    
+                fit.tr_params.t0  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i]                
                 fit.tr_params.a   = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
                 fit.tr_params.rp  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)
                 #print(tr_params.t0)
@@ -1843,7 +1851,8 @@ Transit duration: %s d
                 flux_model = flux_model * m[i].light_curve(fit.tr_params)       
                 #calculates light curve  
             tr_o_c = flux -flux_model
-            
+ 
+         
             
             p3.plot(t, flux,        
             pen=None,  
@@ -1862,7 +1871,7 @@ Transit duration: %s d
             #flux_model = m.light_curve(fit.tr_params)          #calculates light curve           
             p3.plot(t, flux_model,pen='k',symbol=None )    
             
-            p4.plot(t, flux-flux_model,        
+            p4.plot(t, tr_o_c,        
             pen=None,  
             symbol='o',
             symbolPen={'color': fit.colors[0], 'width': 1.1},
@@ -2513,21 +2522,24 @@ highly appreciated!
         
         input_file = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.ses)')
 
-        file_pi = open(input_file[0], 'rb')
-        fit_new = dill.load(file_pi)
-        file_pi.close()     
-        ses_list.append(fit_new)
-        self.session_list()
+        if str(input_file[0]) != '':
+
+            file_pi = open(input_file[0], 'rb')
+            fit_new = dill.load(file_pi)
+            file_pi.close()     
+            ses_list.append(fit_new)
+            self.session_list()
         
 
     def save_session(self):
         global fit
         
         output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save session', '', 'Data (*.ses)')
-
-        file_pi = open(output_file[0], 'wb')
-        dill.dump(fit, file_pi)
-        file_pi.close()
+        
+        if str(output_file[0]) != '':
+            file_pi = open(output_file[0], 'wb')
+            dill.dump(fit, file_pi)
+            file_pi.close()
 
 
     def open_sessions(self):
@@ -2535,36 +2547,40 @@ highly appreciated!
         
         input_file = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.mses)')
 
-        file_pi = open(input_file[0], 'rb')
-        fit2 = dill.load(file_pi)
-        file_pi.close()   
+        if str(input_file[0]) != '':
+
+            file_pi = open(input_file[0], 'rb')
+            fit2 = dill.load(file_pi)
+            file_pi.close()   
         
-        choice = QtGui.QMessageBox.information(self, 'Warning!',
+            choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "Do you want to overwrite the current sessions? If you choose 'No' will add the session, 'Cancel' will exit",
                                             QtGui.QMessageBox.Cancel | QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
          
-        if choice == QtGui.QMessageBox.No:
-            ses_list = ses_list + fit2
-        elif choice == QtGui.QMessageBox.Yes:
-            ses_list = fit2
-        elif choice == QtGui.QMessageBox.Cancel:        
-            return         
-       #if len(ses_list) == 0: 
-      #      ses_list = fit2
-      #  else:  
-      #      ses_list = ses_list + fit2
-
-        self.session_list()
-        self.select_session(0)
+            if choice == QtGui.QMessageBox.No:
+                ses_list = ses_list + fit2
+            elif choice == QtGui.QMessageBox.Yes:
+                ses_list = fit2
+            elif choice == QtGui.QMessageBox.Cancel:        
+                return         
+           #if len(ses_list) == 0: 
+          #      ses_list = fit2
+          #  else:  
+          #      ses_list = ses_list + fit2
+    
+            self.session_list()
+            self.select_session(0)
 
     def save_sessions(self):
         global fit, ses_list
+
         
         output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save multi-session', '', 'Data (*.mses)')
 
-        file_pi = open(output_file[0], 'wb')
-        dill.dump(ses_list, file_pi)
-        file_pi.close()
+        if str(output_file[0]) != '':
+            file_pi = open(output_file[0], 'wb')
+            dill.dump(ses_list, file_pi)
+            file_pi.close()
 
 
     def quit(self):
@@ -2914,7 +2930,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
 ############################# END Dispatcher ################################  
 
-    def mute_boxes(self):
+    def mute_boxes_old(self):
         if self.radioButton_transit_RV.isChecked():
             self.t0_1.setEnabled(False)
             self.use_t0_1.setEnabled(False)
@@ -2929,7 +2945,118 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.t0_2.setEnabled(True)
             self.use_t0_2.setEnabled(True)           
             self.t0_3.setEnabled(True)
-            self.use_t0_3.setEnabled(True)              
+            self.use_t0_3.setEnabled(True)  
+
+
+    def mute_boxes(self):
+        
+        ######### TESTS!!!!!!!!!!!###########
+        
+        if self.radioButton_transit_RV.isChecked() or self.radioButton_transit.isChecked():
+            
+            self.ma1.setEnabled(False)
+            self.use_ma1.setEnabled(False)
+            self.ma2.setEnabled(False)
+            self.use_ma2.setEnabled(False)           
+            self.ma3.setEnabled(False)
+            self.use_ma3.setEnabled(False)  
+            
+            self.t0_1.setEnabled(True)
+            self.use_t0_1.setEnabled(True)
+            self.t0_2.setEnabled(True)
+            self.use_t0_2.setEnabled(True)           
+            self.t0_3.setEnabled(True)
+            self.use_t0_3.setEnabled(True)  
+
+            self.K1.setEnabled(False)
+            self.use_K1.setEnabled(False)
+            self.K2.setEnabled(False)
+            self.use_K2.setEnabled(False)           
+            self.K3.setEnabled(False)
+            self.use_K3.setEnabled(False)              
+
+            self.t0_1.setEnabled(True)
+            self.use_t0_1.setEnabled(True)
+            self.t0_2.setEnabled(True)
+            self.use_t0_2.setEnabled(True)           
+            self.t0_3.setEnabled(True)
+            self.use_t0_3.setEnabled(True) 
+
+            self.pl_rad_1.setEnabled(True)
+            self.use_pl_rad_1.setEnabled(True)
+            self.t0_2.setEnabled(True)
+            self.use_pl_rad_2.setEnabled(True)           
+            self.pl_rad_3.setEnabled(True)
+            self.use_pl_rad_3.setEnabled(True) 
+            
+            self.a_sol_1.setEnabled(True)
+            self.use_a_sol_1.setEnabled(True)
+            self.a_sol_2.setEnabled(True)
+            self.use_a_sol_2.setEnabled(True)           
+            self.a_sol_3.setEnabled(True)
+            self.use_a_sol_3.setEnabled(True)             
+            
+            if self.radioButton_transit.isChecked():
+
+              
+                self.K1.setEnabled(False)
+                self.use_K1.setEnabled(False)
+                self.K2.setEnabled(False)
+                self.use_K2.setEnabled(False)           
+                self.K3.setEnabled(False)
+                self.use_K3.setEnabled(False)              
+            else:
+                self.K1.setEnabled(True)
+                self.use_K1.setEnabled(True)
+                self.K2.setEnabled(True)
+                self.use_K2.setEnabled(True)           
+                self.K3.setEnabled(True)
+                self.use_K3.setEnabled(True)                
+                
+ 
+              
+            
+        elif self.radioButton_RV.isChecked():
+
+            self.K1.setEnabled(True)
+            self.use_K1.setEnabled(True)
+            self.K2.setEnabled(True)
+            self.use_K2.setEnabled(True)           
+            self.K3.setEnabled(True)
+            self.use_K3.setEnabled(True)               
+ 
+            self.ma1.setEnabled(True)
+            self.use_ma1.setEnabled(True)
+            self.ma2.setEnabled(True)
+            self.use_ma2.setEnabled(True)           
+            self.ma3.setEnabled(True)
+            self.use_ma3.setEnabled(True)   
+ 
+            self.t0_1.setEnabled(False)
+            self.use_t0_1.setEnabled(False)
+            self.t0_2.setEnabled(False)
+            self.use_t0_2.setEnabled(False)           
+            self.t0_3.setEnabled(False)
+            self.use_t0_3.setEnabled(False) 
+
+            self.pl_rad_1.setEnabled(False)
+            self.use_pl_rad_1.setEnabled(False)
+            self.pl_rad_2.setEnabled(False)
+            self.use_pl_rad_2.setEnabled(False)           
+            self.pl_rad_3.setEnabled(False)
+            self.use_pl_rad_3.setEnabled(False) 
+            
+            self.a_sol_1.setEnabled(False)
+            self.use_a_sol_1.setEnabled(False)
+            self.a_sol_2.setEnabled(False)
+            self.use_a_sol_2.setEnabled(False)           
+            self.a_sol_3.setEnabled(False)
+            self.use_a_sol_3.setEnabled(False) 
+              
+    
+
+            
+            
 
     def grab_screen(self):
         p = QtWidgets.QWidget.grab(self)
@@ -3164,6 +3291,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.radioButton_RV_o_c_GLS_period.toggled.connect(self.update_RV_o_c_GLS_plots)
         self.radioButton_RV_GLS_period.toggled.connect(self.update_RV_GLS_plots)
         
+        self.mute_boxes()
         self.radioButton_transit_RV.toggled.connect(self.mute_boxes)
         self.radioButton_transit.toggled.connect(self.mute_boxes)
         self.radioButton_RV.toggled.connect(self.mute_boxes)

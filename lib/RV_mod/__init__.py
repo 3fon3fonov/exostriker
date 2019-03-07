@@ -9,6 +9,7 @@ sys.path.append('./lib/RV_mod/')
 import jac2astrocen
 #import gls as gls 
 import prior_functions as pr
+import emcee
 
 
 #import prior_functions as pr
@@ -226,7 +227,23 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
    # if (rtg[2]):
    #     for i in range(npl):
    #         par[len(vel_files)*2 +7*i+4] = 0 #ma_from_t0(par[len(vel_files)*2 +7*i+1], par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*npl +5 + 3*i], 0)
- 
+
+    if rtg[2] == True:
+        for i in range(npl): # K,P,e,w,M,i,cap0m for each planet, and information which ones we use    
+            par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
+                                                      par[len(vel_files)*2 +7*i+2],
+                                                      par[len(vel_files)*2 +7*i+3],
+                                                      par[len(vel_files)*2 +7*npl +5 + 3*i],epoch)
+   
+   # else:
+    #     for i in range(npl): # K,P,e,w,M,i,cap0m for each planet, and information which ones we use    
+    #        par[len(vel_files)*2 +7*npl +5 + 3*i] = transit_tperi(par[len(vel_files)*2 +7*i+1],
+   #                                                               par[len(vel_files)*2 +7*i+2],
+    #                                                              par[len(vel_files)*2 +7*i+3],
+    #                                                              par[len(vel_files)*2 +7*i+3],epoch)[1]%par[len(vel_files)*2 +7*i+1]
+
+    
+    
     if(rtg[0]):
         
         
@@ -247,7 +264,7 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
                                                par[len(vel_files)*2 +7*i+1],
                                                par[len(vel_files)*2 +7*i+2],
                                                par[len(vel_files)*2 +7*i+3],
-                                               par[len(vel_files)*2 +7*i+4],
+                                               par[len(vel_files)*2 +7*i+4],                                               
                                                par[len(vel_files)*2 +7*i+5],
                                                par[len(vel_files)*2 +7*i+6])
             ppp+='%d %d %d %d %d %d %d\n'%(0,0,0,0,0,0,0)     
@@ -295,18 +312,24 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
             m =  {k: [] for k in range(9)}
              
             for i in range(npl):
-            
-                t_peri, t_transit = transit_tperi(par[len(vel_files)*2 +7*i+1], par[len(vel_files)*2 +7*i+2], 
-                                                      par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4], epoch)
-                t00 = par[len(vel_files)*2 +7*i+1] - (epoch%par[len(vel_files)*2 +7*i+1]) + (t_transit-epoch)
-               # par[len(vel_files)*2 +7*npl +5 + 3*i] = t_transit
-           
+                
+
                 tr_params.per = par[len(vel_files)*2 +7*i+1] #1.0    #orbital period
                 tr_params.ecc = par[len(vel_files)*2 +7*i+2] #0.0  
                 tr_params.w   = par[len(vel_files)*2 +7*i+3] #90.0   #longitude of periastron (in degrees)               
-                tr_params.inc = par[len(vel_files)*2 +7*i+5]#90. #orbital inclination (in degrees)
-                
-                tr_params.t0  = par[len(vel_files)*2 +7*npl +5 + 3*i] = t00%par[len(vel_files)*2 +7*i+1]  #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
+                tr_params.inc = par[len(vel_files)*2 +7*i+5]#90. #orbital inclination (in degrees)                
+ 
+                #if rtg[0] == True:
+               #     t_peri, t_transit = transit_tperi(par[len(vel_files)*2 +7*i+1], par[len(vel_files)*2 +7*i+2], 
+               #                                       par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4], epoch)
+                    #t00 = par[len(vel_files)*2 +7*i+1] - (epoch%par[len(vel_files)*2 +7*i+1]) + (t_transit-epoch)
+                #    t00 = par[len(vel_files)*2 +7*i+1] - t_transit
+                   
+                #    tr_params.t0  = par[len(vel_files)*2 +7*npl +5 + 3*i] = t00%par[len(vel_files)*2 +7*i+1]  #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
+               # else:
+               #     tr_params.t0  = par[len(vel_files)*2 +7*npl +5 + 3*i] #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
+
+                tr_params.t0  = par[len(vel_files)*2 +7*npl +5 + 3*i]
                 tr_params.a   = par[len(vel_files)*2 +7*npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
                 tr_params.rp  = par[len(vel_files)*2 +7*npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)
                 #print(tr_params.t0)
@@ -329,9 +352,8 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
 #       	  loglik =  loglik - 0.5*dy*dy*sig2i -
 #     &               0.5*dlog(twopi*(sig(i)**2
 #     &                + a(5*npl+ndset+idset)**2))  
-    
- 
-    return pr.choose_prior(p,prior)+ rv_loglik + tr_loglik
+   # print(rv_loglik, tr_loglik, p)        
+    return (rv_loglik + tr_loglik)
     
     
 
@@ -374,7 +396,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
    # print(par)
    # print(pp)
 #    print(bb)
-  #  print(flags)
+    #print(flags)
 
     gps = []
     if (rtg[1]):
@@ -449,6 +471,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         
     for i in range(npl):   
         obj.t0[i]     = par[len(vel_files)*2 +7*npl +5 + 3*i] #0.0  #time of inferior conjunction
+        obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])        
+        
         obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
         obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
 
@@ -486,6 +510,145 @@ def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoc
         return -np.inf
     return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg)  
 
+
+def run_mcmc_test(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):      
+
+    
+    '''Performs MCMC and saves results'''  
+    
+    if threads == 'max':
+        threads = multiprocessing.cpu_count()    
+    
+    start_time = time.time()   
+    
+    rtg = obj.rtg
+
+    #nll = lambda *args: -lnprob_new(*args)
+
+    
+    vel_files = []
+    for i in range(obj.filelist.ndset): 
+        # path for each dataset      
+        vel_files.append(obj.filelist.files[i].path)  
+        
+    tr_files = obj.tra_data_sets
+    tr_params = obj.tr_params
+    
+    npl = obj.npl
+    epoch = obj.epoch     
+    stmass = obj.params.stellar_mass    
+    
+    if (obj.mod_dynamical):
+        mod='./lib/fr/loglik_dyn'
+    else:
+        mod='./lib/fr/loglik_kep'
+ 
+   # print(mod)
+    #program='./lib/fr/%s_%s'%(minimized_value,mod) 
+ 
+    obj.prepare_for_mcmc(rtg = rtg)    
+    pp = obj.par_for_mcmc #.tolist()
+    ee = obj.e_for_mcmc #.tolist() 
+    bb = np.array(obj.b_for_mcmc)
+    pr_nr = np.array(obj.nr_pr_for_mcmc)
+    flags = obj.f_for_mcmc 
+    par = np.array(obj.parameters)  
+    
+   # print(par)
+   # print(flags)
+   # print(bb)
+   # print(pp)
+    
+    gps = []
+    if (rtg[1]):
+        gps = initiategps(obj, kernel_id=gp_kernel_id)     
+ 
+    
+    ndim, nwalkers = len(pp), len(pp)*4
+
+    pos = [pp + 1e-3*np.random.rand(ndim) for i in range(nwalkers)]
+
+    sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg), threads = threads)
+
+    # burning phase
+    pos, prob, state  = sampler.run_mcmc(pos,burning_ph)
+    sampler.reset()
+ 
+    # now perform the MCMC
+    pos, prob, state  = sampler.run_mcmc(pos,mcmc_ph)
+     
+    print("--- %s seconds ---" % (time.time() - start_time))  
+
+    samples = sampler.flatchain
+    ln = np.hstack(sampler.lnprobability)
+    ############### Write the distribution in a table format #######################
+
+    outfile = True   
+    if (fileoutput):
+        outfile = open(str(obj.mcmc_sample_file), 'w') # file to save samples
+    
+        for j in range(len(samples)):
+            outfile.write("%s  " %(ln[j]))        
+            for z in range(len(pp)):
+                outfile.write("%s  " %(samples[j,z]))
+            outfile.write("\n")
+            
+        outfile.close()
+
+ 
+   # ln = np.hstack(sampler.lnprobability)
+  #  sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl)
+            
+    
+   # if (fileoutput):
+   #     outfile = open(str(obj.mcmc_sample_file), 'w') # file to save samples
+   #     for j in range(len(sampler.samples)):
+   ##         outfile.write("%s  " %(ln[j]))        
+   #         for z in range(len(pp)):
+   #             outfile.write("%s  " %(sampler.samples[j,z]))
+    #        outfile.write("\n")
+   #     outfile.close()        
+            
+    # Now we will save new parameters and their errors (different + and - errors in this case). Flag save_means determines if we want to take means as new best fit parameters or stick to old ones and calculate errors with respect to that           
+   # if (save_means):
+    #    obj.par_for_mcmc = sampler.means # we will not need to keep the old parameters in this attribbute, so let's store the means now
+        
+    #new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
+    
+    #newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
+    #print(newparams.GP_params)
+    #current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
+   # print(current_GP_params)
+
+    #obj.fitting(minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
+
+   # obj.update_with_mcmc_errors(new_par_errors)
+   
+ 
+    #obj.overwrite_params(newparams)
+   # print(new_par_errors)
+    
+ 
+    #obj.params.update_GP_params(current_GP_params)
+
+    #print(current_GP_params)
+
+    #print("Best fit par.:")  
+    #p#p = obj.par_for_mcmc 
+    #ee = obj.e_for_mcmc.tolist() 
+    #for j in range(len(pp)):
+    #    print(ee[j] + "  =  %s"%pp[j])
+ 
+        
+    #if(save_sampler):
+     #   obj.sampler=sampler             
+    #    obj.sampler_saved=True           
+        
+    #sampler.reset()
+
+    return obj
+
+
 def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):      
 
     
@@ -497,6 +660,8 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     start_time = time.time()   
     
     rtg = obj.rtg
+
+    #nll = lambda *args: -lnprob_new(*args)
 
     
     vel_files = []
@@ -559,7 +724,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     if (fileoutput):
         outfile = open(str(obj.mcmc_sample_file), 'w') # file to save samples
         for j in range(len(sampler.samples)):
-            outfile.write("%s  " %(ln[j]))        
+            outfile.write("%s  " %(ln[j]))        #BUG here!!!!!
             for z in range(len(pp)):
                 outfile.write("%s  " %(sampler.samples[j,z]))
             outfile.write("\n")
