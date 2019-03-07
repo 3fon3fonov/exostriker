@@ -235,14 +235,14 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
                                                       par[len(vel_files)*2 +7*i+3],
                                                       par[len(vel_files)*2 +7*npl +5 + 3*i],epoch)
    
-   # else:
-    #     for i in range(npl): # K,P,e,w,M,i,cap0m for each planet, and information which ones we use    
-    #        par[len(vel_files)*2 +7*npl +5 + 3*i] = transit_tperi(par[len(vel_files)*2 +7*i+1],
-   #                                                               par[len(vel_files)*2 +7*i+2],
-    #                                                              par[len(vel_files)*2 +7*i+3],
-    #                                                              par[len(vel_files)*2 +7*i+3],epoch)[1]%par[len(vel_files)*2 +7*i+1]
+    else:
+        for i in range(npl): # K,P,e,w,M,i,cap0m for each planet, and information which ones we use    
+            par[len(vel_files)*2 +7*npl +5 + 3*i] = transit_tperi(par[len(vel_files)*2 +7*i+1],
+                                                                  par[len(vel_files)*2 +7*i+2],
+                                                                  par[len(vel_files)*2 +7*i+3],
+                                                                  par[len(vel_files)*2 +7*i+3],epoch)[1]%par[len(vel_files)*2 +7*i+1]
 
-    
+           # print(par[len(vel_files)*2 +7*npl +5 + 3*i])
     
     if(rtg[0]):
         
