@@ -2660,7 +2660,7 @@ highly appreciated!
             fit.rtg = [True,self.goGP.isChecked(), True]
 
  
- 
+        self.check_mcmc_params()
         #fit.mcmc(doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), 
         #burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
         #fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked())  
@@ -2681,7 +2681,13 @@ highly appreciated!
             self.mcmc_samples_change_name.setText(output_file[0])
         else:
             return
-        
+
+    def check_mcmc_params(self):
+        global fit
+        fit.gaussian_ball = self.init_gauss_ball.value() 
+            
+
+
     def force_mcmc_check_box(self):
         if self.make_corner_plot.isChecked():
             self.save_samples.setChecked(True)

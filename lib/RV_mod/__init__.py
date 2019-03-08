@@ -696,6 +696,8 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
    # print(flags)
    # print(bb)
    # print(pp)
+    Gball_init_par = obj.gaussian_ball
+    print(Gball_init_par)
     
     gps = []
     if (rtg[1]):
@@ -704,7 +706,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     
     ndim, nwalkers = len(pp), len(pp)*4
 
-    pos = [pp + 1e-3*np.random.rand(ndim) for i in range(nwalkers)]
+    pos = [pp + Gball_init_par*np.random.rand(ndim) for i in range(nwalkers)]
 
     sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg), threads = threads)
 
@@ -982,6 +984,7 @@ class signal_fit(object):
        
         ########## new stuff ##########
         self.init_pl_params()
+        self.init_mcmc_par()
         
         self.fit_performed = False
         self.fitting_method = 'None'
@@ -1047,6 +1050,7 @@ class signal_fit(object):
         
         self.init_sciPy_minimizer()
  
+
 
     def init_pl_params(self): 
 
@@ -1222,7 +1226,11 @@ class signal_fit(object):
         self.evol_e = {k: [] for k in range(9)}
         self.evol_p = {k: [] for k in range(9)}
         self.evol_M = {k: [] for k in range(9)}
-        
+
+
+
+    def init_mcmc_par(self):     
+        self.gaussian_ball = 0.0001        
 
         
     def update_epoch(self,epoch):
