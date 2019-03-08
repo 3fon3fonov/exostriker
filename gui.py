@@ -2685,7 +2685,7 @@ highly appreciated!
     def check_mcmc_params(self):
         global fit
         fit.gaussian_ball = self.init_gauss_ball.value() 
-            
+        fit.nwalkers_fact = int(self.nwalkers_fact.value()) 
 
 
     def force_mcmc_check_box(self):

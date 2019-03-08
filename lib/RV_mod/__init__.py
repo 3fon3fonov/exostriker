@@ -510,145 +510,6 @@ def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoc
         return -np.inf
     return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg)  
 
-
-def run_mcmc_test(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):      
-
-    
-    '''Performs MCMC and saves results'''  
-    
-    if threads == 'max':
-        threads = multiprocessing.cpu_count()    
-    
-    start_time = time.time()   
-    
-    rtg = obj.rtg
-
-    #nll = lambda *args: -lnprob_new(*args)
-
-    
-    vel_files = []
-    for i in range(obj.filelist.ndset): 
-        # path for each dataset      
-        vel_files.append(obj.filelist.files[i].path)  
-        
-    tr_files = obj.tra_data_sets
-    tr_params = obj.tr_params
-    
-    npl = obj.npl
-    epoch = obj.epoch     
-    stmass = obj.params.stellar_mass    
-    
-    if (obj.mod_dynamical):
-        mod='./lib/fr/loglik_dyn'
-    else:
-        mod='./lib/fr/loglik_kep'
- 
-   # print(mod)
-    #program='./lib/fr/%s_%s'%(minimized_value,mod) 
- 
-    obj.prepare_for_mcmc(rtg = rtg)    
-    pp = obj.par_for_mcmc #.tolist()
-    ee = obj.e_for_mcmc #.tolist() 
-    bb = np.array(obj.b_for_mcmc)
-    pr_nr = np.array(obj.nr_pr_for_mcmc)
-    flags = obj.f_for_mcmc 
-    par = np.array(obj.parameters)  
-    
-   # print(par)
-   # print(flags)
-   # print(bb)
-   # print(pp)
-    
-    gps = []
-    if (rtg[1]):
-        gps = initiategps(obj, kernel_id=gp_kernel_id)     
- 
-    
-    ndim, nwalkers = len(pp), len(pp)*4
-
-    pos = [pp + 1e-3*np.random.rand(ndim) for i in range(nwalkers)]
-
-    sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg), threads = threads)
-
-    # burning phase
-    pos, prob, state  = sampler.run_mcmc(pos,burning_ph)
-    sampler.reset()
- 
-    # now perform the MCMC
-    pos, prob, state  = sampler.run_mcmc(pos,mcmc_ph)
-     
-    print("--- %s seconds ---" % (time.time() - start_time))  
-
-    samples = sampler.flatchain
-    ln = np.hstack(sampler.lnprobability)
-    ############### Write the distribution in a table format #######################
-
-    outfile = True   
-    if (fileoutput):
-        outfile = open(str(obj.mcmc_sample_file), 'w') # file to save samples
-    
-        for j in range(len(samples)):
-            outfile.write("%s  " %(ln[j]))        
-            for z in range(len(pp)):
-                outfile.write("%s  " %(samples[j,z]))
-            outfile.write("\n")
-            
-        outfile.close()
-
- 
-   # ln = np.hstack(sampler.lnprobability)
-  #  sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl)
-            
-    
-   # if (fileoutput):
-   #     outfile = open(str(obj.mcmc_sample_file), 'w') # file to save samples
-   #     for j in range(len(sampler.samples)):
-   ##         outfile.write("%s  " %(ln[j]))        
-   #         for z in range(len(pp)):
-   #             outfile.write("%s  " %(sampler.samples[j,z]))
-    #        outfile.write("\n")
-   #     outfile.close()        
-            
-    # Now we will save new parameters and their errors (different + and - errors in this case). Flag save_means determines if we want to take means as new best fit parameters or stick to old ones and calculate errors with respect to that           
-   # if (save_means):
-    #    obj.par_for_mcmc = sampler.means # we will not need to keep the old parameters in this attribbute, so let's store the means now
-        
-    #new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
-    
-    #newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
-    #print(newparams.GP_params)
-    #current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
-   # print(current_GP_params)
-
-    #obj.fitting(minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
-
-   # obj.update_with_mcmc_errors(new_par_errors)
-   
- 
-    #obj.overwrite_params(newparams)
-   # print(new_par_errors)
-    
- 
-    #obj.params.update_GP_params(current_GP_params)
-
-    #print(current_GP_params)
-
-    #print("Best fit par.:")  
-    #p#p = obj.par_for_mcmc 
-    #ee = obj.e_for_mcmc.tolist() 
-    #for j in range(len(pp)):
-    #    print(ee[j] + "  =  %s"%pp[j])
- 
-        
-    #if(save_sampler):
-     #   obj.sampler=sampler             
-    #    obj.sampler_saved=True           
-        
-    #sampler.reset()
-
-    return obj
-
-
 def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):      
 
     
@@ -696,17 +557,15 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
    # print(flags)
    # print(bb)
    # print(pp)
-    Gball_init_par = obj.gaussian_ball
-    print(Gball_init_par)
     
     gps = []
     if (rtg[1]):
         gps = initiategps(obj, kernel_id=gp_kernel_id)     
  
-    
-    ndim, nwalkers = len(pp), len(pp)*4
 
-    pos = [pp + Gball_init_par*np.random.rand(ndim) for i in range(nwalkers)]
+    ndim, nwalkers = len(pp), len(pp)*obj.nwalkers_fact
+
+    pos = [pp + obj.gaussian_ball*np.random.rand(ndim) for i in range(nwalkers)]
 
     sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg), threads = threads)
 
@@ -1231,7 +1090,7 @@ class signal_fit(object):
 
     def init_mcmc_par(self):     
         self.gaussian_ball = 0.0001        
-
+        self.nwalkers_fact = 4
         
     def update_epoch(self,epoch):
         self.epoch=epoch
