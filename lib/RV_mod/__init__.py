@@ -504,8 +504,7 @@ def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoc
         return -np.inf
     return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg)  
 
-def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):      
-
+def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):          
     
     '''Performs MCMC and saves results'''  
     
@@ -546,6 +545,9 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     pr_nr = np.array(obj.nr_pr_for_mcmc)
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
+    
+    level = (100.0- obj.percentile_level)/2.0
+
     
    # print(par)
    # print(flags)
@@ -588,6 +590,8 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     # Now we will save new parameters and their errors (different + and - errors in this case). Flag save_means determines if we want to take means as new best fit parameters or stick to old ones and calculate errors with respect to that           
     if (save_means):
         obj.par_for_mcmc = sampler.means # we will not need to keep the old parameters in this attribbute, so let's store the means now
+        
+        
         
     new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
     
@@ -1099,6 +1103,8 @@ class signal_fit(object):
     def init_mcmc_par(self):     
         self.gaussian_ball = 0.0001        
         self.nwalkers_fact = 4
+        
+        self.percentile_level = 68.3
         
     def update_epoch(self,epoch):
         self.epoch=epoch
