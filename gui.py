@@ -2640,7 +2640,11 @@ highly appreciated!
         self.check_bounds()
         self.check_priors()       
         
-        
+        if self.use_percentile_level.isChecked():
+            fit.percentile_level = self.percentile_level.value()
+        else:
+            fit.percentile_level = 68.3
+           
         
         # Pass the function to execute
         worker = Worker(lambda: self.run_mcmc()) # Any other args, kwargs are passed to the run  
