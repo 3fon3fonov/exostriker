@@ -26,6 +26,9 @@ from worker import Worker #, WorkerSignals
 from doublespinbox import DoubleSpinBox
 from Jupyter_emb import ConsoleWidget_embed
 from stdout_pipe import MyDialog
+from print_info_window import print_info
+from symbols_window import show_symbols
+
 import terminal
 from tree_view import Widget_tree
 
@@ -86,23 +89,7 @@ QtGui.QApplication.processEvents()
 
  
 
-class print_info(QtWidgets.QMainWindow):
-    
-    def __init__(self, parent=None):
-        
-        super(print_info, self).__init__(parent)
-              
-        self.title = 'Text Editor'
-        self.setFixedSize(550, 800)        
-        self.widget = QtWidgets.QWidget(self)
-        #self.text = QtWidgets.QTextEdit(self.widget)
-        self.text = QtWidgets.QTextBrowser(self.widget)
-        self.text.setOpenExternalLinks(True)
-        self.widget.setLayout(QtWidgets.QVBoxLayout())
-        self.widget.layout().addWidget(self.text)
-        self.setCentralWidget(self.widget)
-        
-      
+ 
 class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_labels(self):
@@ -685,6 +672,19 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_color_picker.setId(self.pushButton_color_8,8)
         self.buttonGroup_color_picker.setId(self.pushButton_color_9,9)
         self.buttonGroup_color_picker.setId(self.pushButton_color_10,10)
+        
+        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_1,1)
+        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_2,2)
+        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_3,3)
+        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_4,4)
+        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_5,5)
+        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_6,6)
+        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_7,7)
+        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_8,8)
+        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_9,9)
+        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_10,10)        
+        
+        
       
         
     def initialize_plots(self):
@@ -963,9 +963,7 @@ Polyfit coefficients:
             return
     
         self.update_correlations_data_plots()
-       
-######################## Correlation plots END ##################################         
-       
+              
         
         
 ######################## Activity plots ######################################  
@@ -1054,7 +1052,7 @@ Polyfit coefficients:
 
             return  
 
-######################## Activity plots END ######################################        
+######################## SciPy setup ######################################        
 
 
 
@@ -1079,7 +1077,15 @@ Polyfit coefficients:
         fit.SciPy_min_use_2 = fit.SciPy_min[ind_min_2]
         fit.SciPy_min_N_use_1 = int(self.scipy_N_consecutive_iter_1.value())
         fit.SciPy_min_N_use_2 = int(self.scipy_N_consecutive_iter_2.value())
-       
+        
+        
+        fit.Simplex_opt    = {'disp': True, 'maxiter': int(self.simplex_maxiter.value()), 'return_all': False, 'maxfev': int(self.simplex_maxfev.value()), 'xtol':self.simplex_xtol.value() , 'ftol': self.simplex_ftol.value() ,'adaptive':True }
+        fit.Powell_opt     = {'disp': True, 'return_all': False, 'maxiter': int(self.powell_maxiter.value()), 'direc': None, 'func': None, 'maxfev': int(self.powell_maxfev.value()), 'xtol': self.powell_xtol.value(), 'ftol': self.powell_ftol.value()}
+        fit.CG_opt         = {'disp': True, 'gtol': self.cg_gtol.value(), 'eps': 1.4901161193847656e-08, 'return_all': False, 'maxiter': int(self.cg_maxiter.value()), 'norm': np.inf}
+        fit.BFGS_opt       = {'disp': True, 'gtol': self.bfgs_gtol.value(), 'eps': 1.4901161193847656e-08, 'return_all': False, 'maxiter': int(self.bfgs_maxiter.value()), 'norm': np.inf}
+        fit.Newton_cg_opt  = {'disp': True, 'xtol': self.Newton_cg_xtol.value(), 'eps': 1.4901161193847656e-08, 'return_all': False, 'maxiter': int(self.Newton_cg_maxiter.value())} 
+        fit.L_BFGS_B_opt   = {'disp': True, 'maxcor': int(self.LBFGSB_maxcor.value()), 'ftol': 2.220446049250313e-09, 'gtol': self.LBFGSB_gtol.value(), 'eps': 1e-08, 'maxfun': int(self.LBFGSB_maxiter.value()), 'maxiter': int(self.LBFGSB_maxiter.value()), 'iprint': -1, 'maxls': 20}    
+        fit.TNC_opt        = {'disp': True, 'eps': self.TNC_eps.value(), 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': int(self.TNC_maxcgit.value()), 'maxiter': int(self.TNC_maxiter.value()), 'eta': self.TNC_eta.value(), 'stepmx':self.TNC_stepmx.value(), 'accuracy': self.TNC_accuracy.value(), 'minfev': self.TNC_minfev.value(), 'ftol': self.TNC_ftol.value(), 'xtol':self.TNC_ftol.value(), 'gtol': self.TNC_gtol.value(), 'rescale': -1 }
         
         #print(fit.SciPy_min_use_1,fit.SciPy_min_use_2)
             
@@ -1271,7 +1277,6 @@ Polyfit coefficients:
         #self.change_extra_plot()
         self.update_transit_plots()    
         
-################################ RV plots END ######################################        
 
 ################################ RV files #######################################################
         
@@ -1358,9 +1363,6 @@ Polyfit coefficients:
         self.init_correlations_combo()
 
 
-################################ RV files END #######################################################
-
-
 ################################ transit files #######################################################      
 
     def showDialog_tra_input_file(self):
@@ -1409,8 +1411,6 @@ Polyfit coefficients:
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
         self.update_transit_plots()
  
-################################ transit files END #######################################################
-
 
 ################################ activity files #######################################################
         
@@ -1460,7 +1460,9 @@ Polyfit coefficients:
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
         self.init_correlations_combo()
 
-################################ activity files END #######################################################
+
+##################################### Various ################################# 
+
 
     def init_fit(self): 
         global fit
@@ -1685,8 +1687,7 @@ Transit duration: %s d
 
 
         
-#########################  TLS END ##############################   
-############ transit fitting (Work in progress here) ##############################      
+ ############ transit fitting (Work in progress here) ##############################      
        
     def worker_transit_fitting_complete(self):
         global fit  
@@ -1982,7 +1983,8 @@ Transit duration: %s d
             flux_model = m.light_curve(fit.tr_params)          #calculates light curve
  
             p3.plot(t, flux_model,pen='k',symbol=None )         
-#########################  transit fitting END ##############################      
+ 
+
         
 ############################# N-Body ########################################        
 
@@ -2044,8 +2046,7 @@ Transit duration: %s d
         
         fit.run_stability_last_fit_params(timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
         
-############################# END N-Body #####################################                
-               
+                
        
 ############################# Fortran fitting ###############################        
         
@@ -2174,7 +2175,9 @@ Transit duration: %s d
             self.statusBar().showMessage('')           
             self.jupiter_push_vars()
 
-############################# END Fortran fitting ###############################         
+
+
+
        
     def print_info_for_object(self,text):
         #self.dialog.statusBar().showMessage('Ready')
@@ -2692,9 +2695,7 @@ highly appreciated!
         if self.make_corner_plot.isChecked():
             self.save_samples.setChecked(True)
  
-           
-################################# END MCMC ###################################  
-            
+                       
 ################################## Cornerplot #######################################
 
     def worker_cornerplot_complete(self):
@@ -2743,8 +2744,7 @@ highly appreciated!
             self.corner_plot_change_name.setText(output_file[0])   
             
             
-################################# END Cornerplot ###################################  
-      
+       
 ################################# data inspector ###################################  
         
         
@@ -2897,13 +2897,11 @@ median error    :  %.4f
 """%(len(x), x[0], x[-1], x[-1]-x[0], np.min(y), np.max(y), np.max(y)-np.min(y), np.mean(y),  np.median(y), np.sqrt(np.mean(np.square(y))),
 np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))       
       
-        ################################################        
-    
+     
         return text_info  
               
         
-################################# END data inspector ###################################  
-            
+             
             
        
 ############################# Dispatcher (TO BE REMOVED) #####################################  
@@ -2934,25 +2932,12 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             else:
                 self.worker_transit_fitting()
 
-############################# END Dispatcher ################################  
-
-    def mute_boxes_old(self):
-        if self.radioButton_transit_RV.isChecked():
-            self.t0_1.setEnabled(False)
-            self.use_t0_1.setEnabled(False)
-            self.t0_2.setEnabled(False)
-            self.use_t0_2.setEnabled(False)           
-            self.t0_3.setEnabled(False)
-            self.use_t0_3.setEnabled(False)            
-            
-        else:
-            self.t0_1.setEnabled(True)
-            self.use_t0_1.setEnabled(True)
-            self.t0_2.setEnabled(True)
-            self.use_t0_2.setEnabled(True)           
-            self.t0_3.setEnabled(True)
-            self.use_t0_3.setEnabled(True)  
-
+ 
+    
+    
+    
+    
+##################  Mute box controlls #############################
 
     def mute_boxes(self):
         
@@ -3062,7 +3047,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
     
 
             
-            
+###########################  GUI events #############################            
 
     def grab_screen(self):
         p = QtWidgets.QWidget.grab(self)
@@ -3096,8 +3081,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
  
     
   
-############################# END Tab selector  ################################  
-
+ 
 #############################  Color control ################################  
 
     def update_color_picker(self):
@@ -3125,6 +3109,34 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             #self.update_activity_gls_plots()     
         else:
             return
+
+
+#############################  Color control END ################################  
+
+#############################  TEST ZONE ################################  
+
+        
+    def get_symbol(self):
+        global fit
+
+    
+        but_ind = self.buttonGroup_symbol_picker.checkedId()   
+        #colorz = QtGui.QColorDialog.getColor()    
+        windowww = self.dialog_symbols.show()
+    
+        print(but_ind)
+    
+        return        
+
+    def get_symbol_window(self):
+        #self.dialog.statusBar().showMessage('Ready')
+        self.dialog_symbols.setGeometry(300, 300, 450, 250)
+        self.dialog_symbols.setWindowTitle('Detailed Info')  
+ 
+ 
+        self.dialog_symbols.show()
+
+        
         
     def file_from_path(self, path):
         head, tail = ntpath.split(path)
@@ -3132,8 +3144,11 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
     
 
      
-#############################  Color control END ################################  
-   
+################################################################################################
+    
+    
+    
+    
     def __init__(self):
         global fit
 
@@ -3313,10 +3328,15 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.jupiter_push_vars()
         
         self.update_color_picker()
-        self.buttonGroup_color_picker.buttonClicked.connect(self.get_color)     
- 
+        self.buttonGroup_color_picker.buttonClicked.connect(self.get_color)    
+        
+        
+        self.dialog_symbols = show_symbols(self)
+        self.buttonGroup_symbol_picker.buttonClicked.connect(self.get_symbol) 
+
         self.threadpool = QtCore.QThreadPool()
-        #self.threadpool.setMaxThreadCount(cpu_count())        
+        #self.threadpool.setMaxThreadCount(cpu_count())    
+        
         
 
         #self.treeWidget = tree_view.Widget() #.setModel(self.tree_view)

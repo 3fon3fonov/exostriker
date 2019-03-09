@@ -402,25 +402,19 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     if (rtg[1]):
         gps = initiategps(obj, kernel_id=kernel_id) 
  
-    eps =  0.001
-    xtol = 1e-8
-
-
-
-#    print(obj.SciPy_min_use_1,obj.SciPy_min_N_use_1)
-#    print(obj.SciPy_min_use_2,obj.SciPy_min_N_use_2)
-
+    
+    
     if obj.SciPy_min_use_1 == obj.SciPy_min[6]:
-         options1={'xtol': xtol, 'eps':eps, 'disp': True}
+         options1=obj.TNC_opt
     elif obj.SciPy_min_use_1 == obj.SciPy_min[0]:
-         options1={'xtol': xtol, 'maxiter':30000, 'maxfev':30000, 'adaptive':True, 'disp': True} 
+         options1=obj.Simplex_opt
     else:
          options1={'disp': True}            
     
     if obj.SciPy_min_use_2 == obj.SciPy_min[6]:
-         options2={'xtol': xtol, 'eps':eps, 'disp': True}
+         options2=obj.TNC_opt
     elif obj.SciPy_min_use_2 == obj.SciPy_min[0]:
-         options2={'xtol': xtol, 'maxiter':30000, 'maxfev':30000, 'adaptive':True, 'disp': True} 
+         options2=obj.Simplex_opt
     else:
          options2={'disp': True}   
     
@@ -884,6 +878,9 @@ class signal_fit(object):
         self.sampler_saved=False
         
         self.init_transit_params()
+        
+        
+        
         self.colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
        
         self.mcmc_sample_file = 'mcmc_samples'
@@ -1076,6 +1073,17 @@ class signal_fit(object):
         
         self.SciPy_min_use_2 = self.SciPy_min[0]
         self.SciPy_min_N_use_2 = 1      
+        
+        
+        self.Simplex_opt    = {'disp': True, 'maxiter': None, 'return_all': False, 'func': None, 'maxfev': None, 'xtol': 0.0001, 'ftol': 0.0001,'adaptive':True}
+        self.Powell_opt     = {'disp': True, 'return_all': False, 'maxiter': None, 'direc': None, 'func': None, 'maxfev': None, 'xtol': 0.0001, 'ftol': 0.0001}
+        self.CG_opt         = {'disp': True, 'gtol': 1e-05, 'eps': 1.4901161193847656e-08, 'return_all': False, 'maxiter': None, 'norm': np.inf}
+        self.BFGS_opt       = {'disp': True, 'gtol': 1e-05, 'eps': 1.4901161193847656e-08, 'return_all': False, 'maxiter': None, 'norm': np.inf}
+        self.Newton_cg_opt  = {'disp': True, 'xtol': 1e-05, 'eps': 1.4901161193847656e-08, 'return_all': False, 'maxiter': None}
+        self.L_BFGS_B_opt   = {'disp': True,  'maxcor': 10, 'ftol': 2.220446049250313e-09, 'gtol': 1e-05, 'eps': 1e-08, 'maxfun': 15000, 'maxiter': 15000, 'iprint': -1, 'maxls': 20}
+        self.TNC_opt        = {'disp': True, 'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxiter': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1 }
+
+
 
 
     def init_orb_evol(self):
