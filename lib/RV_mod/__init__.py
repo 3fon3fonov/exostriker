@@ -886,7 +886,16 @@ class signal_fit(object):
         
         
         self.colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+        self.pyqt_symbols_rvs =['o','o','o','o','o','o','o','o','o','o','o'] # ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
+        self.pyqt_symbols_act =['o','o','o','o','o','o','o','o','o','o','o'] # ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
+        self.pyqt_symbols_tra =['o','o','o','o','o','o','o','o','o','o','o'] # ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
+        
+        self.pyqt_symbols_size_rvs =[6,6,6,6,6,6,6,6,6,6] # ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
+        self.pyqt_symbols_size_act =[4,4,4,4,4,4,4,4,4,4] #  
+        self.pyqt_symbols_size_tra =[2,2,2,2,2,2,2,2,2,2] # 
        
+        
+                       
         self.mcmc_sample_file = 'mcmc_samples'
         self.corner_plot_file = 'cornerplot.pdf'
       
