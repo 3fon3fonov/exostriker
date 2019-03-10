@@ -83,7 +83,8 @@ ses_list = [fit]
  
 
 
-colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+colors  = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+symbols = ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
 
 QtGui.QApplication.processEvents()
 
@@ -1217,6 +1218,9 @@ Polyfit coefficients:
         p1.plot(clear=True,)
         p2.plot(clear=True,)
  
+    
+        self.check_RV_symbol_sizes()
+        
         #inf1 = pg.InfiniteLine(movable=False, angle=0, label=None, span=(0, 1), 
         #              labelOpts={'position':0.0, 'color': 'k', 'fill': (200,200,200,50), 'movable': False} )
         #p1.addItem(inf1)    
@@ -1238,9 +1242,9 @@ Polyfit coefficients:
         for i in range(max(fit.filelist.idset)+1):
             p1.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
-            symbol='o',
+            symbol=fit.pyqt_symbols_rvs[i],
             symbolPen={'color': fit.colors[i], 'width': 1.1},
-            symbolSize=self.rv_data_size.value(),enableAutoRange=True,viewRect=True,
+            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.colors[i]
             )        
             err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
@@ -1254,9 +1258,9 @@ Polyfit coefficients:
         for i in range(max(fit.filelist.idset)+1):
             p2.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],fit.fit_results.rv_model.o_c[fit.filelist.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
-            symbol='o',
+            symbol=fit.pyqt_symbols_rvs[i],
             symbolPen={'color': fit.colors[i], 'width': 1.1},
-            symbolSize=self.rv_data_size.value(),enableAutoRange=True,viewRect=True,
+            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.colors[i]
             )        
             err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
@@ -1504,7 +1508,10 @@ Polyfit coefficients:
         global fit
 
         self.comboBox_extra_plot.clear()
-        self.comboBox_extra_plot.setObjectName("which plot")        
+        self.comboBox_extra_plot.setObjectName("which plot")       
+        
+        #self.check_RV_symbol_sizes()
+
 
         if fit.npl != 0:
             for i in range(fit.npl):
@@ -1573,14 +1580,14 @@ Polyfit coefficients:
         
             pe.plot(ph_data[0][ph_data[3]==i],ph_data[1][ph_data[3]==i],             
             pen=None, #{'color': colors[i], 'width': 1.1},
-            symbol='o',
+            symbol=fit.pyqt_symbols_rvs[i],
             symbolPen={'color': fit.colors[i], 'width': 1.1},
-            symbolSize=self.rv_data_size.value(),enableAutoRange=True,viewRect=True,
+            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.colors[i]
             )  
                
             err_ = pg.ErrorBarItem(x=ph_data[0][ph_data[3]==i], y=ph_data[1][ph_data[3]==i],
-            symbol='o', height=error_list[ph_data[3]==i], beam=0.0, pen=fit.colors[i])   
+            symbol=fit.pyqt_symbols_rvs[i], height=error_list[ph_data[3]==i], beam=0.0, pen=fit.colors[i])   
          
             pe.addItem(err_)
         
@@ -2908,7 +2915,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
              
             
        
-############################# Dispatcher (TO BE REMOVED) #####################################  
+############################# Dispatcher #####################################  
 
     def fit_dispatcher(self, init=False):
         global fit
@@ -3090,10 +3097,21 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
     def update_color_picker(self):
         global fit
-  
+        
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(False)
+        #font.setWeight(75)
+        
+ 
         for i in range(10):
             self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-            self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])  
+            self.buttonGroup_color_picker.button(i+1).setFont(font)              
+
+            self.buttonGroup_symbol_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])  
+            self.buttonGroup_symbol_picker.button(i+1).setText(fit.pyqt_symbols_rvs[i]) 
+            self.buttonGroup_symbol_picker.button(i+1).setFont(font)              
+            
           
     def get_color(self):
         global fit
@@ -3108,6 +3126,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.update_RV_file_buttons() 
             self.update_tra_file_buttons() 
             self.update_RV_plots() 
+            self.update_extra_plots()            
             self.update_transit_plots() 
             #self.update_activity_data_plots() 
             #self.update_activity_gls_plots()     
@@ -3115,31 +3134,51 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             return
 
 
-#############################  Color control END ################################  
 
-#############################  TEST ZONE ################################  
+############################# Symbol controls ################################  
 
-        
+            
     def get_symbol(self):
         global fit
 
     
         but_ind = self.buttonGroup_symbol_picker.checkedId()   
-        #colorz = QtGui.QColorDialog.getColor()    
-        windowww = self.dialog_symbols.show()
-    
-        print(but_ind)
-    
-        return        
-
-    def get_symbol_window(self):
-        #self.dialog.statusBar().showMessage('Ready')
-        self.dialog_symbols.setGeometry(300, 300, 450, 250)
-        self.dialog_symbols.setWindowTitle('Detailed Info')  
  
+        but_n = self.dialog_symbols.get_radio()
+        
+        
+        if but_n != None:
+            fit.pyqt_symbols_rvs[but_ind-1] = symbols[but_n-1]
+            self.update_color_picker()
+            self.update_act_file_buttons()      
+            self.update_RV_file_buttons() 
+            self.update_tra_file_buttons() 
+            self.update_RV_plots() 
+            self.update_extra_plots()
+            self.update_transit_plots()     
+        else:
+            return    
  
-        self.dialog_symbols.show()
-
+       # print(self.dialog_symbols.do_test)
+       
+#############################  TEST ZONE ################################  
+      
+       
+    def check_RV_symbol_sizes(self):
+        
+       # for i in range(10):
+        fit.pyqt_symbols_size_rvs[0] = self.rv_data_size_1.value()
+        fit.pyqt_symbols_size_rvs[1] = self.rv_data_size_2.value()
+        fit.pyqt_symbols_size_rvs[2] = self.rv_data_size_3.value()
+        fit.pyqt_symbols_size_rvs[3] = self.rv_data_size_4.value()
+        fit.pyqt_symbols_size_rvs[4] = self.rv_data_size_5.value()
+        fit.pyqt_symbols_size_rvs[5] = self.rv_data_size_6.value()
+        fit.pyqt_symbols_size_rvs[6] = self.rv_data_size_7.value()
+        fit.pyqt_symbols_size_rvs[7] = self.rv_data_size_8.value()
+        fit.pyqt_symbols_size_rvs[8] = self.rv_data_size_9.value()
+        fit.pyqt_symbols_size_rvs[9] = self.rv_data_size_10.value()
+        
+ 
         
         
     def file_from_path(self, path):
