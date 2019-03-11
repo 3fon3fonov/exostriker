@@ -818,6 +818,175 @@ def planet_orbit_xyz(obj, planet):
     return np.array([x,y,z,u,v,w]), np.array([x_p,y_p,z_p,u_p,v_p,w_p]), np.array([x[min_index],y[min_index],z[min_index],u[min_index],v[min_index],w[min_index]]), np.array([x[max_index],y[max_index],z[max_index],u[max_index],v[max_index],w[max_index]])
 
  
+    
+def latex_pl_param_table(obj, width = 10, precision = 2, file_name='test.tex',path='./'):
+    
+    
+    text = '''       
+\\begin{table}[ht]
+% \\begin{adjustwidth}{-4.0cm}{} 
+% \\resizebox{0.69\textheight}{!}
+% {\\begin{minipage}{1.1\textwidth}
+
+\centering   
+\caption{{}}   
+\label{table:}      
+
+\\begin{tabular}{lrrrrrrrr}     % 2 columns 
+
+\hline\hline  \\noalign{\\vskip 0.7mm}      
+'''
+
+ 
+    text = text + '''Parameter \hspace{0.0 mm}'''
+    for i in range(obj.npl):     
+        text = text + '''& Planet %s '''%chr(98+i)
+    text = text + '''\\\\
+\hline \\noalign{\\vskip 0.7mm} 
+    
+    '''
+
+    text = text + '''{0:{width}s}'''.format("$K$  [m\,s$^{-1}$]", width = 30)
+    for i in range(obj.npl):     
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i], max(np.abs(obj.param_errors.planet_params_errors[7*i])), width = width, precision = precision)
+    text = text + '''\\\\
+    '''        
+    text = text + '''{0:{width}s}'''.format("$P$  [day]", width = 30)
+    for i in range(obj.npl):     
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +1], max(np.abs(obj.param_errors.planet_params_errors[7*i +1])), width = width, precision = precision)
+    text = text + '''\\\\
+    '''  
+    text = text + '''{0:{width}s}'''.format("$e$  ", width = 30)
+    for i in range(obj.npl):     
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +2], max(np.abs(obj.param_errors.planet_params_errors[7*i +2])), width = width, precision = precision)
+    text = text + '''\\\\
+    '''  
+    text = text + '''{0:{width}s}'''.format("$\omega$  [deg]", width = 30)
+    for i in range(obj.npl):     
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +3], max(np.abs(obj.param_errors.planet_params_errors[7*i +3])), width = width, precision = precision)
+    text = text + '''\\\\
+    '''  
+    text = text + '''{0:{width}s}'''.format("$M0$  [deg]", width = 30)
+    for i in range(obj.npl):     
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +4], max(np.abs(obj.param_errors.planet_params_errors[7*i +4])), width = width, precision = precision)
+    text = text + '''\\\\
+    '''          
+    text = text + '''{0:{width}s}'''.format("$i$  [deg]", width = 30)
+    for i in range(obj.npl):     
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +5], max(np.abs(obj.param_errors.planet_params_errors[7*i +5])), width = width, precision = precision)
+    text = text + '''\\\\    
+    '''      
+    text = text + '''{0:{width}s}'''.format("$\Omega$  [deg]", width = 30)
+    for i in range(obj.npl):     
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +6], max(np.abs(obj.param_errors.planet_params_errors[7*i +6])), width = width, precision = precision)
+    text = text + '''\\\\
+    '''            
+    text = text + '''{0:{width}s}'''.format("$t_0$  [day]", width = 30)
+    for i in range(obj.npl):     
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.t0[i], max(abs(obj.t0_err[i])), width = width, precision = precision)
+    text = text + '''\\\\
+    '''            
+    text = text + '''{0:{width}s}'''.format("Rad.  [$R_\oplus$]", width = 30)
+    for i in range(obj.npl):     
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.pl_rad[i], max(abs(obj.pl_rad_err[i])), width = width, precision = precision)
+    text = text + '''\\\\
+    '''            
+    text = text + '''{0:{width}s}'''.format("$a$  [$R_\odot$]", width = 30)
+    for i in range(obj.npl):     
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.pl_a[i], max(abs(obj.pl_a_err[i])), width = width, precision = precision)
+    text = text + '''\\\\
+    '''   
+    text = text + '''{0:{width}s}'''.format("$a$  [au]", width = 30)
+    for i in range(obj.npl):     
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.fit_results.a[i], 0, width = width, precision = precision)
+    text = text + '''\\\\
+    '''      
+    text = text + '''{0:{width}s}'''.format("$m \sin i$  [$M_{\\rm jup}$]", width = 30)
+    for i in range(obj.npl):     
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.fit_results.mass[i], 0, width = width, precision = precision)
+    text = text + '''\\\\
+    '''          
+    text = text + '''{0:{width}s}'''.format("$t_{\omega}$  [day]", width = 30)
+    for i in range(obj.npl):     
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format((float(obj.epoch) - (np.radians(obj.params.planet_params[7*i + 4])/(2*np.pi))*obj.params.planet_params[7*i + 1] ), 0, width = width, precision = precision)
+    text = text + '''\\\\
+    '''          
+ 
+         
+    for i in range(obj.filelist.ndset):   
+        text = text + '''{0:{width}s}'''.format("RV$_{\\rm off}$ %s"%(i+1), width = 30)            
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.params.offsets[i]), float(max(np.abs(obj.param_errors.offset_errors[i]))), width = width, precision = precision)
+        text = text + '''\\\\
+    '''   
+    for i in range(obj.filelist.ndset):   
+        text = text + '''{0:{width}s}'''.format("RV$_{\\rm jit}$ %s"%(i+1), width = 30)            
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.params.jitters[i]), float(max(np.abs(obj.param_errors.jitter_errors[i]))), width = width, precision = precision)
+        text = text + '''\\\\
+    '''   
+
+    text = text + '''{0:{width}s}'''.format("$\chi^2$", width = 30)            
+    text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.chi2), width = width, precision = precision)
+    text = text + '''\\\\
+    '''    
+    text = text + '''{0:{width}s}'''.format("$\chi_{\\nu}^2$", width = 30)            
+    text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.reduced_chi2), width = width, precision = precision)
+    text = text + '''\\\\
+    '''        
+    text = text + '''{0:{width}s}'''.format("$r.m.s.$ [m\,s$^{-1}$]", width = 30)            
+    text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.rms), width = width, precision = precision)
+    text = text + '''\\\\
+    '''            
+
+    text = text + '''{0:{width}s}'''.format("$-\ln\mathcal{L}$", width = 30)            
+    text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.loglik), width = width, precision = precision)
+    text = text + '''\\\\
+    '''        
+    text = text + '''{0:{width}s}'''.format("N$_{\\rm RV}$ data", width = 30)            
+    text = text + '''& {0:{width}.{precision}f} '''.format(len(obj.fit_results.jd), width = width, precision = 0)
+    text = text + '''\\\\
+    '''         
+    
+    text = text + '''{0:{width}s}'''.format("Epoch", width = 30)            
+    text = text + '''& {0:{width}.{precision}f} '''.format(obj.epoch, width = width, precision = precision)
+    text = text + '''\\\\
+    '''           
+    
+    text = text + '''\\\\
+\hline \\noalign{\\vskip 0.7mm} 
+    
+    '''     
+    
+    text = text + '''        
+\end{tabular}  
+
+% \end{minipage}}
+% \end{adjustwidth}
+
+%\\tablefoot{\small }
+
+\end{table}
+'''  
+
+
+
+
+
+    table_file = open(file_name, 'wb') 
+        
+    table_file.write(text)
+ 
+    table_file.close()
+
+
+    return "Done"
+
+
+
+
+
+
+
+
                   
 class signal_fit(object):
  
@@ -886,14 +1055,7 @@ class signal_fit(object):
         
         
         self.colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
-        self.pyqt_symbols_rvs =['o','o','o','o','o','o','o','o','o','o','o'] # ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
-        self.pyqt_symbols_act =['o','o','o','o','o','o','o','o','o','o','o'] # ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
-        self.pyqt_symbols_tra =['o','o','o','o','o','o','o','o','o','o','o'] # ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
-        
-        self.pyqt_symbols_size_rvs =[6,6,6,6,6,6,6,6,6,6] # ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
-        self.pyqt_symbols_size_act =[4,4,4,4,4,4,4,4,4,4] #  
-        self.pyqt_symbols_size_tra =[2,2,2,2,2,2,2,2,2,2] # 
-       
+   
         
                        
         self.mcmc_sample_file = 'mcmc_samples'
@@ -915,6 +1077,14 @@ class signal_fit(object):
         self.tra_data_sets = {k: [] for k in range(10)}
         self.rv_data_sets  = {k: [] for k in range(10)}
         
+        self.pyqt_symbols_rvs = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
+        self.pyqt_symbols_act = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
+        self.pyqt_symbols_tra = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
+        
+        self.pyqt_symbols_size_rvs = {k: 6 for k in range(10)} #[6,6,6,6,6,6,6,6,6,6] # 
+        self.pyqt_symbols_size_act = {k: 4 for k in range(10)} #[4,4,4,4,4,4,4,4,4,4] #  
+        self.pyqt_symbols_size_tra = {k: 2 for k in range(10)} #[2,2,2,2,2,2,2,2,2,2] # 
+
 
         
         self.init_sciPy_minimizer()
@@ -932,13 +1102,13 @@ class signal_fit(object):
         self.i    = {k: 90.0 for k in range(9)}
         self.Node = {k: 0.0 for k in range(9)}        
 
-        self.K_err    = {k: 0.0 for k in range(9)}
-        self.P_err    = {k: 0.0 for k in range(9)}
-        self.e_err    = {k: 0.0 for k in range(9)}
-        self.w_err    = {k: 0.0 for k in range(9)}
-        self.M0_err   = {k: 0.0 for k in range(9)}
-        self.i_err    = {k: 0.0 for k in range(9)}
-        self.Node_err = {k: 0.0 for k in range(9)}        
+        self.K_err    = {k: np.array([0,0]) for k in range(9)}
+        self.P_err    = {k: np.array([0,0]) for k in range(9)}
+        self.e_err    = {k: np.array([0,0]) for k in range(9)}
+        self.w_err    = {k: np.array([0,0]) for k in range(9)}
+        self.M0_err   = {k: np.array([0,0]) for k in range(9)}
+        self.i_err    = {k: np.array([0,0]) for k in range(9)}
+        self.Node_err = {k: np.array([0,0]) for k in range(9)}        
 
         self.K_use    = {k: False for k in range(9)}
         self.P_use    = {k: False for k in range(9)}
@@ -984,9 +1154,9 @@ class signal_fit(object):
         self.pl_a_use    = {k: False for k in range(9)}
         self.pl_rad_use  = {k: False for k in range(9)}         
 
-        self.t0_err      = {k: 0 for k in range(9)}
-        self.pl_a_err    = {k: 0 for k in range(9)}
-        self.pl_rad_err  = {k: 0 for k in range(9)}         
+        self.t0_err      = {k: np.array([0,0])  for k in range(9)}
+        self.pl_a_err    = {k: np.array([0,0])  for k in range(9)}
+        self.pl_rad_err  = {k: np.array([0,0])  for k in range(9)}         
 
         self.t0_bound      = {k: np.array([-10000,10000]) for k in range(9)}
         self.pl_a_bound    = {k: np.array([0,100]) for k in range(9)}
@@ -1003,7 +1173,7 @@ class signal_fit(object):
     def init_RV_jitter(self) :       
         
         self.jitt      = {k: 0 for k in range(10)}
-        self.jitt_err  = {k: 0 for k in range(10)}
+        self.jitt_err  = {k: np.array([0,0]) for k in range(10)}
         self.jitt_use  = {k: True for k in range(10)}
         self.jitt_str  = {k: r'jitt$_%s$'%k for k in range(10)}     
         self.jitt_bounds  = {k: np.array([0.0,10000.0] )for k in range(10)} 
@@ -1012,7 +1182,7 @@ class signal_fit(object):
     def init_RV_offset(self) :       
         
         self.rvoff      = {k: 0 for k in range(10)}
-        self.rvoff_err  = {k: 0 for k in range(10)}
+        self.rvoff_err  = {k: np.array([0,0])  for k in range(10)}
         self.rvoff_use  = {k: True for k in range(10)}
         self.rvoff_str  = {k: r'rvoff$_%s$'%k for k in range(10)}     
         self.rvoff_bounds  = {k: np.array([-1000000.0,1000000.0] )for k in range(10)}        
@@ -1022,7 +1192,7 @@ class signal_fit(object):
     def init_RV_lintr(self) :       
          
         self.rv_lintr      = {k: 0 for k in range(1)}
-        self.rv_lintr_err  = {k: 0 for k in range(1)}
+        self.rv_lintr_err  = {k: np.array([0,0]) for k in range(1)}
         self.rv_lintr_use  = {k: False for k in range(1)}
         self.rv_lintr_str  = {k: r'RV lin.tr' for k in range(1)}     
         self.rv_lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(1)} 
@@ -1031,7 +1201,7 @@ class signal_fit(object):
     def init_st_mass(self) :       
          
         self.st_mass      = {k: 1 for k in range(1)}
-        self.st_mass_err  = {k: 0 for k in range(1)}
+        self.st_mass_err  = {k: np.array([0,0]) for k in range(1)}
         self.st_mass_use  = {k: False for k in range(1)}
         self.st_mass_str  = {k: r'St mass' for k in range(1)}     
         self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)}         
@@ -1131,7 +1301,7 @@ class signal_fit(object):
         rv_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
         rv_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
 	
-        rv_data_set = np.array([rv_JD,rv_data,rv_data_sig]) 
+        rv_data_set = np.array([rv_JD,rv_data,rv_data_sig])
 
         #ind = 0 
         #for i in range(10):

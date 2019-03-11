@@ -103,7 +103,6 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.value_chi2.setText("%.4f"%(fit.fit_results.chi2)) 
         self.value_reduced_chi2.setText("%.4f"%(fit.fit_results.reduced_chi2))        
         self.value_loglik.setText("%.4f"%(fit.fit_results.loglik)) 
-        self.value_loglik.setText("%.4f"%(fit.fit_results.loglik)) 
         self.value_Ndata.setText("%s"%(len(fit.fit_results.jd))) 
         self.value_DOF.setText("%s"%(len(fit.fit_results.jd) - fit.fit_results.mfit))        
 
