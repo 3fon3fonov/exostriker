@@ -18,16 +18,19 @@ it capable to solve your scientific problems, too. For updates, follow my Twitte
 What works:
 
 * Period search: GLS periodograms (RVs, act. data) & TLS (transit data).
-* RVs Keplerian and Dynamical modeling + GP (only one GP kernel integrated so far).
+* Keplerian and Dynamical RV modeling. 
 * Transit modeling (so far only one dataset and not tested for 2+ transiting planets)
+* GP modeling (only one GP kernel integrated so far).
 * Joint RVs + GP + Transit best-fit modeling.
 * Joint RVs + GP + Transit MCMC sampling.
 * RV auto-fit (RV automated planet-finder algortm).
-* Long-term stability check of multiplanet systems using SyMBA, MVS and an MVS with a GR precession.
+* Long-term stability check of multiplanet systems using SyMBA, MVS and MVS with an GR precession.
+* Variouse of minimization methods (via SciPyOp).
 * Interactive plots.
 * RV vs. Activity time series correlation analysis/plots.
 * Import/Export of work sessions and multi-sessions. 
 * Export plots to a matplotlib window for further customization.
+* Export ready to use Latex tables with best-fit parameters, errors and statistics. 
 * Text editor.
 * Bash-shell (linux only).
 * Integrated Jupyter widget shell.
@@ -35,13 +38,15 @@ What works:
 
 What is to be implemented:
 
-* Nested sampling 
+* More GP kernels.
+* Nested sampling. 
 * Binary/Triple star modeling mode.
 * Combined modeling with Astrometry.
-* Variouse of minimization/sampling methods (SciPyOp implemented, but with only limited options, work in progress)
-* Print all results and plots into a .tex ready environment.
-* A large arsenal of N-body/dynamical simulation/analysis tools. 
+* A larger arsenal of N-body/dynamical simulation/analysis tools. 
 * Documentation, Instructions and Video tutorials.
 * For more "TBD" list see: "focus_matrix_TBFixed.doc".
 
 If you use this tool and you find a bug or a problem, please report it!
+
+
+
