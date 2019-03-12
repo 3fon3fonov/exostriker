@@ -87,6 +87,7 @@ class ImageExporter(Exporter):
         try:
             self.setExportMode(True, {'antialias': self.params['antialias'], 'background': self.params['background'], 'painter': painter, 'resolutionScale': resolutionScale})
             painter.setRenderHint(QtGui.QPainter.Antialiasing, self.params['antialias'])
+           # painter.setRenderHint(QtGui.QPainter.TextAntialiasing, True)
             self.getScene().render(painter, QtCore.QRectF(targetRect), QtCore.QRectF(sourceRect))
         finally:
             self.setExportMode(False)

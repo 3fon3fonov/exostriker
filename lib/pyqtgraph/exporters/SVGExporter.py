@@ -177,7 +177,7 @@ def _generateItemSvg(item, nodes=None, root=None, options={}):
         p = QtGui.QPainter()
         p.begin(svg)
         if hasattr(item, 'setExportMode'):
-            item.setExportMode(True, {'painter': p})
+            item.setExportMode(True, {'painter': p}) #, 'resolutionScale': 10
         try:
             p.setTransform(tr)
             opt = QtGui.QStyleOptionGraphicsItem()

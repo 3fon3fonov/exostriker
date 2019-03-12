@@ -1236,7 +1236,8 @@ Polyfit coefficients:
  
 
         p1.plot(fit.fit_results.model_jd,fit.fit_results.model, 
-        pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
+        pen={'color': 0.5, 'width': 1.1},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
         for i in range(max(fit.filelist.idset)+1):
             p1.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 

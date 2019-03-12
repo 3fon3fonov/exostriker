@@ -1,6 +1,32 @@
 from ..Qt import QtGui, QtCore, QT_LIB
 import matplotlib
 
+########################### For nice plotting ##################################
+
+#matplotlib.rcParams['axes.linewidth'] = 2.0 #set the value globally
+#matplotlib.rcParams['xtick.major.pad']='1'
+#matplotlib.rcParams['ytick.major.pad']='2'
+
+
+# set tick width
+#matplotlib.rcParams['xtick.major.size'] = 8
+#matplotlib.rcParams['xtick.major.width'] = 2
+#matplotlib.rcParams['xtick.minor.size'] = 5
+#matplotlib.rcParams['xtick.minor.width'] = 2
+
+#matplotlib.rcParams['ytick.major.size'] = 8
+#matplotlib.rcParams['ytick.major.width'] = 2
+#matplotlib.rcParams['ytick.minor.size'] = 5
+#matplotlib.rcParams['ytick.minor.width'] = 2
+
+matplotlib.rcParams['axes.formatter.useoffset'] = False
+
+
+#rc('text',usetex=True)
+#font = {'family' : 'normal','weight' : 'black','size': 22,'serif':['Helvetica']}
+#rc('font', **font)
+
+
 if QT_LIB != 'PyQt5':
     if QT_LIB == 'PySide':
         matplotlib.rcParams['backend.qt4']='PySide'
@@ -29,7 +55,7 @@ class MatplotlibWidget(QtGui.QWidget):
         mw.draw()
     """
     
-    def __init__(self, size=(8.0, 6.0), dpi=150):
+    def __init__(self, size=(8.0, 6.0), dpi=125):
         QtGui.QWidget.__init__(self)
         self.fig = Figure(size, dpi=dpi)
         self.canvas = FigureCanvas(self.fig)

@@ -103,6 +103,18 @@ class MatplotlibExporter(Exporter):
                     fillcolor = tuple([c/255. for c in fn.colorTuple(fillBrush.color())])
                     ax.fill_between(x=x, y1=y, y2=opts['fillLevel'], facecolor=fillcolor)
                 
+                if symbol == 't':
+                    symbol = 'v'
+                elif symbol == 't1':
+                    symbol = '^'
+                elif symbol == 't2':
+                    symbol = '>'
+                elif symbol == 't3':
+                    symbol = '<'
+                elif symbol == 'star':
+                    symbol = '*'
+                    
+                    
                 ax.plot(x, y, marker=symbol, color=color, linewidth=pen.width(), 
                         linestyle=linestyle, 
                         markeredgecolor=markeredgecolor, 
@@ -113,7 +125,6 @@ class MatplotlibExporter(Exporter):
                 xr, yr = self.item.viewRange()
                 ax.set_xbound(*xr)
                 ax.set_ybound(*yr)
-                
                 
                 
             for indx, item in enumerate(self.item.items):
@@ -135,6 +146,9 @@ class MatplotlibExporter(Exporter):
 
             ax.spines['top'].set_color('k')
             ax.spines['right'].set_color('k')
+            #ax.ticklabel_format(useOffset=False)           
+            #fig.gca().get_xaxis().get_major_formatter().set_useOffset(False)
+
                      
             mpw.draw()
         else:
