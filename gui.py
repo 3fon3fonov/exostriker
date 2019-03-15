@@ -91,7 +91,7 @@ QtGui.QApplication.processEvents()
  
 
  
-class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
+class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_labels(self):
         global fit
@@ -476,15 +476,15 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         
         
         param_bounds_gui = [
-        [self.K1_min.value(),self.K1_max.value()],[self.P1_min.value(),self.P1_max.value()], [self.e1_min.value(),self.e1_max.value()],[self.om1_min.value(),self.om1_max.value()], [self.ma1_min.value(),self.ma1_max.value()],[self.incl1_min.value(),self.incl1_max.value()], [self.Omega1_min.value(),self.Omega1_max.value()],[self.t0_1_min.value(),self.t0_1_max.value()],[self.pl_1_rad_min.value(),self.pl_1_rad_max.value()],[self.a_sol_1_min.value(),self.a_sol_1_max.value()],
-        [self.K2_min.value(),self.K2_max.value()],[self.P2_min.value(),self.P2_max.value()], [self.e2_min.value(),self.e2_max.value()],[self.om2_min.value(),self.om2_max.value()], [self.ma2_min.value(),self.ma2_max.value()],[self.incl2_min.value(),self.incl2_max.value()], [self.Omega2_min.value(),self.Omega2_max.value()],[self.t0_2_min.value(),self.t0_2_max.value()],[self.pl_2_rad_min.value(),self.pl_2_rad_max.value()],[self.a_sol_2_min.value(),self.a_sol_2_max.value()],
-        [self.K3_min.value(),self.K3_max.value()],[self.P3_min.value(),self.P3_max.value()], [self.e3_min.value(),self.e3_max.value()],[self.om3_min.value(),self.om3_max.value()], [self.ma3_min.value(),self.ma3_max.value()],[self.incl3_min.value(),self.incl3_max.value()], [self.Omega3_min.value(),self.Omega3_max.value()],[self.t0_3_min.value(),self.t0_3_max.value()],[self.pl_3_rad_min.value(),self.pl_3_rad_max.value()],[self.a_sol_3_min.value(),self.a_sol_3_max.value()],
-        [self.K4_min.value(),self.K4_max.value()],[self.P4_min.value(),self.P4_max.value()], [self.e4_min.value(),self.e4_max.value()],[self.om4_min.value(),self.om4_max.value()], [self.ma4_min.value(),self.ma4_max.value()],[self.incl4_min.value(),self.incl4_max.value()], [self.Omega4_min.value(),self.Omega4_max.value()],[self.t0_1_min.value(),self.t0_1_max.value()],[self.pl_1_rad_min.value(),self.pl_1_rad_max.value()],[self.a_sol_1_min.value(),self.a_sol_1_max.value()],
-        [self.K5_min.value(),self.K5_max.value()],[self.P5_min.value(),self.P5_max.value()], [self.e5_min.value(),self.e5_max.value()],[self.om5_min.value(),self.om5_max.value()], [self.ma5_min.value(),self.ma5_max.value()],[self.incl5_min.value(),self.incl5_max.value()], [self.Omega5_min.value(),self.Omega5_max.value()],[self.t0_1_min.value(),self.t0_1_max.value()],[self.pl_1_rad_min.value(),self.pl_1_rad_max.value()],[self.a_sol_1_min.value(),self.a_sol_1_max.value()],
-        [self.K6_min.value(),self.K6_max.value()],[self.P6_min.value(),self.P6_max.value()], [self.e6_min.value(),self.e6_max.value()],[self.om6_min.value(),self.om6_max.value()], [self.ma6_min.value(),self.ma6_max.value()],[self.incl6_min.value(),self.incl6_max.value()], [self.Omega6_min.value(),self.Omega6_max.value()],[self.t0_1_min.value(),self.t0_1_max.value()],[self.pl_1_rad_min.value(),self.pl_1_rad_max.value()],[self.a_sol_1_min.value(),self.a_sol_1_max.value()],
-        [self.K7_min.value(),self.K7_max.value()],[self.P7_min.value(),self.P7_max.value()], [self.e7_min.value(),self.e7_max.value()],[self.om7_min.value(),self.om7_max.value()], [self.ma7_min.value(),self.ma7_max.value()],[self.incl7_min.value(),self.incl7_max.value()], [self.Omega7_min.value(),self.Omega7_max.value()],[self.t0_1_min.value(),self.t0_1_max.value()],[self.pl_1_rad_min.value(),self.pl_1_rad_max.value()],[self.a_sol_1_min.value(),self.a_sol_1_max.value()],
-        [self.K8_min.value(),self.K8_max.value()],[self.P8_min.value(),self.P8_max.value()], [self.e8_min.value(),self.e8_max.value()],[self.om8_min.value(),self.om8_max.value()], [self.ma8_min.value(),self.ma8_max.value()],[self.incl8_min.value(),self.incl8_max.value()], [self.Omega8_min.value(),self.Omega8_max.value()],[self.t0_1_min.value(),self.t0_1_max.value()],[self.pl_1_rad_min.value(),self.pl_1_rad_max.value()],[self.a_sol_1_min.value(),self.a_sol_1_max.value()],
-        [self.K9_min.value(),self.K9_max.value()],[self.P9_min.value(),self.P9_max.value()], [self.e9_min.value(),self.e9_max.value()],[self.om9_min.value(),self.om9_max.value()], [self.ma9_min.value(),self.ma9_max.value()],[self.incl9_min.value(),self.incl9_max.value()], [self.Omega9_min.value(),self.Omega9_max.value()],[self.t0_1_min.value(),self.t0_1_max.value()],[self.pl_1_rad_min.value(),self.pl_1_rad_max.value()],[self.a_sol_1_min.value(),self.a_sol_1_max.value()]               
+        [self.K_min_1.value(),self.K_max_1.value()],[self.P_min_1.value(),self.P_max_1.value()], [self.e_min_1.value(),self.e_max_1.value()],[self.om_min_1.value(),self.om_max_1.value()], [self.ma_min_1.value(),self.ma_max_1.value()],[self.incl_min_1.value(),self.incl_max_1.value()], [self.Omega_min_1.value(),self.Omega_max_1.value()],[self.t0_min_1.value(),self.t0_max_1.value()],[self.pl_rad_min_1.value(),self.pl_rad_max_1.value()],[self.a_sol_min_1.value(),self.a_sol_max_1.value()],
+        [self.K_min_2.value(),self.K_max_2.value()],[self.P_min_2.value(),self.P_max_2.value()], [self.e_min_2.value(),self.e_max_2.value()],[self.om_min_2.value(),self.om_max_2.value()], [self.ma_min_2.value(),self.ma_max_2.value()],[self.incl_min_2.value(),self.incl_max_2.value()], [self.Omega_min_2.value(),self.Omega_max_2.value()],[self.t0_min_2.value(),self.t0_max_2.value()],[self.pl_rad_min_2.value(),self.pl_rad_max_2.value()],[self.a_sol_min_2.value(),self.a_sol_max_2.value()],
+        [self.K_min_3.value(),self.K_max_3.value()],[self.P_min_3.value(),self.P_max_3.value()], [self.e_min_3.value(),self.e_max_3.value()],[self.om_min_3.value(),self.om_max_3.value()], [self.ma_min_3.value(),self.ma_max_3.value()],[self.incl_min_3.value(),self.incl_max_3.value()], [self.Omega_min_3.value(),self.Omega_max_3.value()],[self.t0_min_3.value(),self.t0_max_3.value()],[self.pl_rad_min_3.value(),self.pl_rad_max_3.value()],[self.a_sol_min_3.value(),self.a_sol_max_3.value()],
+        [self.K_min_4.value(),self.K_max_4.value()],[self.P_min_4.value(),self.P_max_4.value()], [self.e_min_4.value(),self.e_max_4.value()],[self.om_min_4.value(),self.om_max_4.value()], [self.ma_min_4.value(),self.ma_max_4.value()],[self.incl_min_4.value(),self.incl_max_4.value()], [self.Omega_min_4.value(),self.Omega_max_4.value()],[self.t0_min_4.value(),self.t0_max_4.value()],[self.pl_rad_min_4.value(),self.pl_rad_max_4.value()],[self.a_sol_min_4.value(),self.a_sol_max_4.value()],
+        [self.K_min_5.value(),self.K_max_5.value()],[self.P_min_5.value(),self.P_max_5.value()], [self.e_min_5.value(),self.e_max_5.value()],[self.om_min_5.value(),self.om_max_5.value()], [self.ma_min_5.value(),self.ma_max_5.value()],[self.incl_min_5.value(),self.incl_max_5.value()], [self.Omega_min_5.value(),self.Omega_max_5.value()],[self.t0_min_5.value(),self.t0_max_5.value()],[self.pl_rad_min_5.value(),self.pl_rad_max_5.value()],[self.a_sol_min_5.value(),self.a_sol_max_5.value()],
+        [self.K_min_6.value(),self.K_max_6.value()],[self.P_min_6.value(),self.P_max_6.value()], [self.e_min_6.value(),self.e_max_6.value()],[self.om_min_6.value(),self.om_max_6.value()], [self.ma_min_6.value(),self.ma_max_6.value()],[self.incl_min_6.value(),self.incl_max_6.value()], [self.Omega_min_6.value(),self.Omega_max_6.value()],[self.t0_min_6.value(),self.t0_max_6.value()],[self.pl_rad_min_6.value(),self.pl_rad_max_6.value()],[self.a_sol_min_6.value(),self.a_sol_max_6.value()],
+        [self.K_min_7.value(),self.K_max_7.value()],[self.P_min_7.value(),self.P_max_7.value()], [self.e_min_7.value(),self.e_max_7.value()],[self.om_min_7.value(),self.om_max_7.value()], [self.ma_min_7.value(),self.ma_max_7.value()],[self.incl_min_7.value(),self.incl_max_7.value()], [self.Omega_min_7.value(),self.Omega_max_7.value()],[self.t0_min_7.value(),self.t0_max_7.value()],[self.pl_rad_min_7.value(),self.pl_rad_max_7.value()],[self.a_sol_min_7.value(),self.a_sol_max_7.value()],
+        [self.K_min_8.value(),self.K_max_8.value()],[self.P_min_8.value(),self.P_max_8.value()], [self.e_min_8.value(),self.e_max_8.value()],[self.om_min_8.value(),self.om_max_8.value()], [self.ma_min_8.value(),self.ma_max_8.value()],[self.incl_min_8.value(),self.incl_max_8.value()], [self.Omega_min_8.value(),self.Omega_max_8.value()],[self.t0_min_8.value(),self.t0_max_8.value()],[self.pl_rad_min_8.value(),self.pl_rad_max_8.value()],[self.a_sol_min_8.value(),self.a_sol_max_8.value()],
+        [self.K_min_9.value(),self.K_max_9.value()],[self.P_min_9.value(),self.P_max_9.value()], [self.e_min_9.value(),self.e_max_9.value()],[self.om_min_9.value(),self.om_max_9.value()], [self.ma_min_9.value(),self.ma_max_9.value()],[self.incl_min_9.value(),self.incl_max_9.value()], [self.Omega_min_9.value(),self.Omega_max_9.value()],[self.t0_min_9.value(),self.t0_max_9.value()],[self.pl_rad_min_9.value(),self.pl_rad_max_9.value()],[self.a_sol_min_9.value(),self.a_sol_max_9.value()]               
         ]
  
         for i in range(fit.npl):
@@ -535,15 +535,15 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         
         
         param_nr_priors_gui = [
-        [self.K1_mean.value(),self.K1_sigma.value(),self.use_K1_norm_pr.isChecked()],[self.P1_mean.value(),self.P1_sigma.value(),self.use_P1_norm_pr.isChecked()], [self.e1_mean.value(),self.e1_sigma.value(),self.use_e1_norm_pr.isChecked()],[self.om1_mean.value(),self.om1_sigma.value(),self.use_om1_norm_pr.isChecked()], [self.ma1_mean.value(),self.ma1_sigma.value(),self.use_ma1_norm_pr.isChecked()],[self.incl1_mean.value(),self.incl1_sigma.value(),self.use_incl1_norm_pr.isChecked()], [self.Omega1_mean.value(),self.Omega1_sigma.value(), self.use_Omega1_norm_pr.isChecked()],[self.t0_1_mean.value(),self.t0_1_sigma.value(), self.use_t0_1_norm_pr.isChecked()],[self.pl_1_rad_mean.value(),self.pl_1_rad_sigma.value(),self.use_pl_rad1_norm_pr.isChecked()],[self.a_sol_1_mean.value(),self.a_sol_1_sigma.value(),self.use_a_sol_1_norm_pr.isChecked()],
-        [self.K2_mean.value(),self.K2_sigma.value(),self.use_K2_norm_pr.isChecked()],[self.P2_mean.value(),self.P2_sigma.value(),self.use_P2_norm_pr.isChecked()], [self.e2_mean.value(),self.e2_sigma.value(),self.use_e2_norm_pr.isChecked()],[self.om2_mean.value(),self.om2_sigma.value(),self.use_om2_norm_pr.isChecked()], [self.ma2_mean.value(),self.ma2_sigma.value(),self.use_ma2_norm_pr.isChecked()],[self.incl2_mean.value(),self.incl2_sigma.value(),self.use_incl2_norm_pr.isChecked()], [self.Omega2_mean.value(),self.Omega2_sigma.value(), self.use_Omega2_norm_pr.isChecked()],[self.t0_2_mean.value(),self.t0_2_sigma.value(), self.use_t0_2_norm_pr.isChecked()],[self.pl_2_rad_mean.value(),self.pl_2_rad_sigma.value(),self.use_pl_rad2_norm_pr.isChecked()],[self.a_sol_2_mean.value(),self.a_sol_2_sigma.value(),self.use_a_sol_2_norm_pr.isChecked()],
-        [self.K3_mean.value(),self.K3_sigma.value(),self.use_K3_norm_pr.isChecked()],[self.P3_mean.value(),self.P3_sigma.value(),self.use_P3_norm_pr.isChecked()], [self.e3_mean.value(),self.e3_sigma.value(),self.use_e3_norm_pr.isChecked()],[self.om3_mean.value(),self.om3_sigma.value(),self.use_om3_norm_pr.isChecked()], [self.ma3_mean.value(),self.ma3_sigma.value(),self.use_ma3_norm_pr.isChecked()],[self.incl3_mean.value(),self.incl3_sigma.value(),self.use_incl3_norm_pr.isChecked()], [self.Omega3_mean.value(),self.Omega3_sigma.value(), self.use_Omega3_norm_pr.isChecked()],[self.t0_3_mean.value(),self.t0_3_sigma.value(), self.use_t0_3_norm_pr.isChecked()],[self.pl_3_rad_mean.value(),self.pl_3_rad_sigma.value(),self.use_pl_rad3_norm_pr.isChecked()],[self.a_sol_3_mean.value(),self.a_sol_3_sigma.value(),self.use_a_sol_3_norm_pr.isChecked()],
-       # [self.K4_mean.value(),self.K4_sigma.value(),self.use_K1_norm_pr.isChecked()],[self.P4_mean.value(),self.P4_sigma.value(),self.use_P1_norm_pr.isChecked()], [self.e4_mean.value(),self.e4_sigma.value(),self.use_e1_norm_pr.isChecked()],[self.om4_mean.value(),self.om4_sigma.value(),self.use_om1_norm_pr.isChecked()], [self.ma4_mean.value(),self.ma4_sigma.value(),self.use_ma1_norm_pr.isChecked()],[self.incl4_mean.value(),self.incl4_sigma.value(),self.use_incl1_norm_pr.isChecked()], [self.Omega4_mean.value(),self.Omega4_sigma.value(), self.use_Omega1_norm_pr.isChecked()],[self.t0_1_mean.value(),self.t0_1_sigma.value(), self.use_t0_1_norm_pr.isChecked()],[self.pl_1_rad_mean.value(),self.pl_1_rad_sigma.value(),self.use_pl_rad1_norm_pr.isChecked()],[self.a_sol_1_mean.value(),self.a_sol_1_sigma.value(),self.use_a_sol_1_norm_pr.isChecked()],
-       # [self.K5_mean.value(),self.K5_sigma.value(),self.use_K1_norm_pr.isChecked()],[self.P5_mean.value(),self.P5_sigma.value(),self.use_P1_norm_pr.isChecked()], [self.e5_mean.value(),self.e5_sigma.value(),self.use_e1_norm_pr.isChecked()],[self.om5_mean.value(),self.om5_sigma.value(),self.use_om1_norm_pr.isChecked()], [self.ma5_mean.value(),self.ma5_sigma.value(),self.use_ma1_norm_pr.isChecked()],[self.incl5_mean.value(),self.incl5_sigma.value(),self.use_incl1_norm_pr.isChecked()], [self.Omega5_mean.value(),self.Omega5_sigma.value(), self.use_Omega1_norm_pr.isChecked()],[self.t0_1_mean.value(),self.t0_1_sigma.value(), self.use_t0_1_norm_pr.isChecked()],[self.pl_1_rad_mean.value(),self.pl_1_rad_sigma.value(),self.use_pl_rad1_norm_pr.isChecked()],[self.a_sol_1_mean.value(),self.a_sol_1_sigma.value(),self.use_a_sol_1_norm_pr.isChecked()],
-       # [self.K6_mean.value(),self.K6_sigma.value(),self.use_K1_norm_pr.isChecked()],[self.P6_mean.value(),self.P6_sigma.value(),self.use_P1_norm_pr.isChecked()], [self.e6_mean.value(),self.e6_sigma.value(),self.use_e1_norm_pr.isChecked()],[self.om6_mean.value(),self.om6_sigma.value(),self.use_om1_norm_pr.isChecked()], [self.ma6_mean.value(),self.ma6_sigma.value(),self.use_ma1_norm_pr.isChecked()],[self.incl6_mean.value(),self.incl6_sigma.value(),self.use_incl1_norm_pr.isChecked()], [self.Omega6_mean.value(),self.Omega6_sigma.value(), self.use_Omega1_norm_pr.isChecked()],[self.t0_1_mean.value(),self.t0_1_sigma.value(), self.use_t0_1_norm_pr.isChecked()],[self.pl_1_rad_mean.value(),self.pl_1_rad_sigma.value(),self.use_pl_rad1_norm_pr.isChecked()],[self.a_sol_1_mean.value(),self.a_sol_1_sigma.value(),self.use_a_sol_1_norm_pr.isChecked()],
-       # [self.K7_mean.value(),self.K7_sigma.value(),self.use_K1_norm_pr.isChecked()],[self.P7_mean.value(),self.P7_sigma.value(),self.use_P1_norm_pr.isChecked()], [self.e7_mean.value(),self.e7_sigma.value(),self.use_e1_norm_pr.isChecked()],[self.om7_mean.value(),self.om7_sigma.value(),self.use_om1_norm_pr.isChecked()], [self.ma7_mean.value(),self.ma7_sigma.value(),self.use_ma1_norm_pr.isChecked()],[self.incl7_mean.value(),self.incl7_sigma.value(),self.use_incl1_norm_pr.isChecked()], [self.Omega7_mean.value(),self.Omega7_sigma.value(), self.use_Omega1_norm_pr.isChecked()],[self.t0_1_mean.value(),self.t0_1_sigma.value(), self.use_t0_1_norm_pr.isChecked()],[self.pl_1_rad_mean.value(),self.pl_1_rad_sigma.value(),self.use_pl_rad1_norm_pr.isChecked()],[self.a_sol_1_mean.value(),self.a_sol_1_sigma.value(),self.use_a_sol_1_norm_pr.isChecked()],
-      #  [self.K8_mean.value(),self.K8_sigma.value(),self.use_K1_norm_pr.isChecked()],[self.P8_mean.value(),self.P8_sigma.value(),self.use_P1_norm_pr.isChecked()], [self.e8_mean.value(),self.e8_sigma.value(),self.use_e1_norm_pr.isChecked()],[self.om8_mean.value(),self.om8_sigma.value(),self.use_om1_norm_pr.isChecked()], [self.ma8_mean.value(),self.ma8_sigma.value(),self.use_ma1_norm_pr.isChecked()],[self.incl8_mean.value(),self.incl8_sigma.value(),self.use_incl1_norm_pr.isChecked()], [self.Omega8_mean.value(),self.Omega8_sigma.value(), self.use_Omega1_norm_pr.isChecked()],[self.t0_1_mean.value(),self.t0_1_sigma.value(), self.use_t0_1_norm_pr.isChecked()],[self.pl_1_rad_mean.value(),self.pl_1_rad_sigma.value(),self.use_pl_rad1_norm_pr.isChecked()],[self.a_sol_1_mean.value(),self.a_sol_1_sigma.value(),self.use_a_sol_1_norm_pr.isChecked()],
-       # [self.K9_mean.value(),self.K9_sigma.value(),self.use_K1_norm_pr.isChecked()],[self.P9_mean.value(),self.P9_sigma.value(),self.use_P1_norm_pr.isChecked()], [self.e9_mean.value(),self.e9_sigma.value(),self.use_e1_norm_pr.isChecked()],[self.om9_mean.value(),self.om9_sigma.value(),self.use_om1_norm_pr.isChecked()], [self.ma9_mean.value(),self.ma9_sigma.value(),self.use_ma1_norm_pr.isChecked()],[self.incl9_mean.value(),self.incl9_sigma.value(),self.use_incl1_norm_pr.isChecked()], [self.Omega9_mean.value(),self.Omega9_sigma.value(), self.use_Omega1_norm_pr.isChecked()],[self.t0_1_mean.value(),self.t0_1_sigma.value(), self.use_t0_1_norm_pr.isChecked()],[self.pl_1_rad_mean.value(),self.pl_1_rad_sigma.value(),self.use_pl_rad1_norm_pr.isChecked()],[self.a_sol_1_mean.value(),self.a_sol_1_sigma.value(),self.use_a_sol_1_norm_pr.isChecked()]               
+        [self.K_mean_1.value(),self.K_sigma_1.value(),self.use_K_norm_pr_1.isChecked()],[self.P_mean_1.value(),self.P_sigma_1.value(),self.use_P_norm_pr_1.isChecked()], [self.e_mean_1.value(),self.e_sigma_1.value(),self.use_e_norm_pr_1.isChecked()],[self.om_mean_1.value(),self.om_sigma_1.value(),self.use_om_norm_pr_1.isChecked()], [self.ma_mean_1.value(),self.ma_sigma_1.value(),self.use_ma_norm_pr_1.isChecked()],[self.incl_mean_1.value(),self.incl_sigma_1.value(),self.use_incl_norm_pr_1.isChecked()], [self.Omega_mean_1.value(),self.Omega_sigma_1.value(), self.use_Omega_norm_pr_1.isChecked()],[self.t0_mean_1.value(),self.t0_sigma_1.value(), self.use_t0_norm_pr_1.isChecked()],[self.pl_rad_mean_1.value(),self.pl_rad_sigma_1.value(),self.use_pl_rad_norm_pr_1.isChecked()],[self.a_sol_mean_1.value(),self.a_sol_sigma_1.value(),self.use_a_sol_norm_pr_1.isChecked()],
+        [self.K_mean_2.value(),self.K_sigma_2.value(),self.use_K_norm_pr_2.isChecked()],[self.P_mean_2.value(),self.P_sigma_2.value(),self.use_P_norm_pr_2.isChecked()], [self.e_mean_2.value(),self.e_sigma_2.value(),self.use_e_norm_pr_2.isChecked()],[self.om_mean_2.value(),self.om_sigma_2.value(),self.use_om_norm_pr_2.isChecked()], [self.ma_mean_2.value(),self.ma_sigma_2.value(),self.use_ma_norm_pr_2.isChecked()],[self.incl_mean_2.value(),self.incl_sigma_2.value(),self.use_incl_norm_pr_2.isChecked()], [self.Omega_mean_2.value(),self.Omega_sigma_2.value(), self.use_Omega_norm_pr_2.isChecked()],[self.t0_mean_2.value(),self.t0_sigma_2.value(), self.use_t0_norm_pr_2.isChecked()],[self.pl_rad_mean_2.value(),self.pl_rad_sigma_2.value(),self.use_pl_rad_norm_pr_2.isChecked()],[self.a_sol_mean_2.value(),self.a_sol_sigma_2.value(),self.use_a_sol_norm_pr_2.isChecked()],
+        [self.K_mean_3.value(),self.K_sigma_3.value(),self.use_K_norm_pr_3.isChecked()],[self.P_mean_3.value(),self.P_sigma_3.value(),self.use_P_norm_pr_3.isChecked()], [self.e_mean_3.value(),self.e_sigma_3.value(),self.use_e_norm_pr_3.isChecked()],[self.om_mean_3.value(),self.om_sigma_3.value(),self.use_om_norm_pr_3.isChecked()], [self.ma_mean_3.value(),self.ma_sigma_3.value(),self.use_ma_norm_pr_3.isChecked()],[self.incl_mean_3.value(),self.incl_sigma_3.value(),self.use_incl_norm_pr_3.isChecked()], [self.Omega_mean_3.value(),self.Omega_sigma_3.value(), self.use_Omega_norm_pr_3.isChecked()],[self.t0_mean_3.value(),self.t0_sigma_3.value(), self.use_t0_norm_pr_3.isChecked()],[self.pl_rad_mean_3.value(),self.pl_rad_sigma_3.value(),self.use_pl_rad_norm_pr_3.isChecked()],[self.a_sol_mean_3.value(),self.a_sol_sigma_3.value(),self.use_a_sol_norm_pr_3.isChecked()],
+        [self.K_mean_4.value(),self.K_sigma_4.value(),self.use_K_norm_pr_4.isChecked()],[self.P_mean_4.value(),self.P_sigma_4.value(),self.use_P_norm_pr_4.isChecked()], [self.e_mean_4.value(),self.e_sigma_4.value(),self.use_e_norm_pr_4.isChecked()],[self.om_mean_4.value(),self.om_sigma_4.value(),self.use_om_norm_pr_4.isChecked()], [self.ma_mean_4.value(),self.ma_sigma_4.value(),self.use_ma_norm_pr_4.isChecked()],[self.incl_mean_4.value(),self.incl_sigma_4.value(),self.use_incl_norm_pr_4.isChecked()], [self.Omega_mean_4.value(),self.Omega_sigma_4.value(), self.use_Omega_norm_pr_4.isChecked()],[self.t0_mean_4.value(),self.t0_sigma_4.value(), self.use_t0_norm_pr_4.isChecked()],[self.pl_rad_mean_4.value(),self.pl_rad_sigma_4.value(),self.use_pl_rad_norm_pr_4.isChecked()],[self.a_sol_mean_4.value(),self.a_sol_sigma_4.value(),self.use_a_sol_norm_pr_4.isChecked()],
+        [self.K_mean_5.value(),self.K_sigma_5.value(),self.use_K_norm_pr_5.isChecked()],[self.P_mean_5.value(),self.P_sigma_5.value(),self.use_P_norm_pr_5.isChecked()], [self.e_mean_5.value(),self.e_sigma_5.value(),self.use_e_norm_pr_5.isChecked()],[self.om_mean_5.value(),self.om_sigma_5.value(),self.use_om_norm_pr_5.isChecked()], [self.ma_mean_5.value(),self.ma_sigma_5.value(),self.use_ma_norm_pr_5.isChecked()],[self.incl_mean_5.value(),self.incl_sigma_5.value(),self.use_incl_norm_pr_5.isChecked()], [self.Omega_mean_5.value(),self.Omega_sigma_5.value(), self.use_Omega_norm_pr_5.isChecked()],[self.t0_mean_5.value(),self.t0_sigma_5.value(), self.use_t0_norm_pr_5.isChecked()],[self.pl_rad_mean_5.value(),self.pl_rad_sigma_5.value(),self.use_pl_rad_norm_pr_5.isChecked()],[self.a_sol_mean_5.value(),self.a_sol_sigma_5.value(),self.use_a_sol_norm_pr_5.isChecked()],
+        [self.K_mean_6.value(),self.K_sigma_6.value(),self.use_K_norm_pr_6.isChecked()],[self.P_mean_6.value(),self.P_sigma_6.value(),self.use_P_norm_pr_6.isChecked()], [self.e_mean_6.value(),self.e_sigma_6.value(),self.use_e_norm_pr_6.isChecked()],[self.om_mean_6.value(),self.om_sigma_6.value(),self.use_om_norm_pr_6.isChecked()], [self.ma_mean_6.value(),self.ma_sigma_6.value(),self.use_ma_norm_pr_6.isChecked()],[self.incl_mean_6.value(),self.incl_sigma_6.value(),self.use_incl_norm_pr_6.isChecked()], [self.Omega_mean_6.value(),self.Omega_sigma_6.value(), self.use_Omega_norm_pr_6.isChecked()],[self.t0_mean_6.value(),self.t0_sigma_6.value(), self.use_t0_norm_pr_6.isChecked()],[self.pl_rad_mean_6.value(),self.pl_rad_sigma_6.value(),self.use_pl_rad_norm_pr_6.isChecked()],[self.a_sol_mean_6.value(),self.a_sol_sigma_6.value(),self.use_a_sol_norm_pr_6.isChecked()],
+        [self.K_mean_7.value(),self.K_sigma_7.value(),self.use_K_norm_pr_7.isChecked()],[self.P_mean_7.value(),self.P_sigma_7.value(),self.use_P_norm_pr_7.isChecked()], [self.e_mean_7.value(),self.e_sigma_7.value(),self.use_e_norm_pr_7.isChecked()],[self.om_mean_7.value(),self.om_sigma_7.value(),self.use_om_norm_pr_7.isChecked()], [self.ma_mean_7.value(),self.ma_sigma_7.value(),self.use_ma_norm_pr_7.isChecked()],[self.incl_mean_7.value(),self.incl_sigma_7.value(),self.use_incl_norm_pr_7.isChecked()], [self.Omega_mean_7.value(),self.Omega_sigma_7.value(), self.use_Omega_norm_pr_7.isChecked()],[self.t0_mean_7.value(),self.t0_sigma_7.value(), self.use_t0_norm_pr_7.isChecked()],[self.pl_rad_mean_7.value(),self.pl_rad_sigma_7.value(),self.use_pl_rad_norm_pr_7.isChecked()],[self.a_sol_mean_7.value(),self.a_sol_sigma_7.value(),self.use_a_sol_norm_pr_7.isChecked()],
+        [self.K_mean_8.value(),self.K_sigma_8.value(),self.use_K_norm_pr_8.isChecked()],[self.P_mean_8.value(),self.P_sigma_8.value(),self.use_P_norm_pr_8.isChecked()], [self.e_mean_8.value(),self.e_sigma_8.value(),self.use_e_norm_pr_8.isChecked()],[self.om_mean_8.value(),self.om_sigma_8.value(),self.use_om_norm_pr_8.isChecked()], [self.ma_mean_8.value(),self.ma_sigma_8.value(),self.use_ma_norm_pr_8.isChecked()],[self.incl_mean_8.value(),self.incl_sigma_8.value(),self.use_incl_norm_pr_8.isChecked()], [self.Omega_mean_8.value(),self.Omega_sigma_8.value(), self.use_Omega_norm_pr_8.isChecked()],[self.t0_mean_8.value(),self.t0_sigma_8.value(), self.use_t0_norm_pr_8.isChecked()],[self.pl_rad_mean_8.value(),self.pl_rad_sigma_8.value(),self.use_pl_rad_norm_pr_8.isChecked()],[self.a_sol_mean_8.value(),self.a_sol_sigma_8.value(),self.use_a_sol_norm_pr_8.isChecked()],
+        [self.K_mean_9.value(),self.K_sigma_9.value(),self.use_K_norm_pr_9.isChecked()],[self.P_mean_9.value(),self.P_sigma_9.value(),self.use_P_norm_pr_9.isChecked()], [self.e_mean_9.value(),self.e_sigma_9.value(),self.use_e_norm_pr_9.isChecked()],[self.om_mean_9.value(),self.om_sigma_9.value(),self.use_om_norm_pr_9.isChecked()], [self.ma_mean_9.value(),self.ma_sigma_9.value(),self.use_ma_norm_pr_9.isChecked()],[self.incl_mean_9.value(),self.incl_sigma_9.value(),self.use_incl_norm_pr_9.isChecked()], [self.Omega_mean_9.value(),self.Omega_sigma_9.value(), self.use_Omega_norm_pr_9.isChecked()],[self.t0_mean_9.value(),self.t0_sigma_9.value(), self.use_t0_norm_pr_9.isChecked()],[self.pl_rad_mean_9.value(),self.pl_rad_sigma_9.value(),self.use_pl_rad_norm_pr_9.isChecked()],[self.a_sol_mean_9.value(),self.a_sol_sigma_9.value(),self.use_a_sol_norm_pr_9.isChecked()],
         ]
  
         for i in range(fit.npl):
@@ -1570,8 +1570,11 @@ Polyfit coefficients:
         if self.jitter_to_plots.isChecked():
             error_list = self.add_jitter(ph_data[2], ph_data[3])
         else:
-            error_list = ph_data[2]
-        
+            if len(ph_data) != 0:
+                error_list = ph_data[2]
+            else:
+                return
+            
         pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))   
         pe.plot(ph_model[0],ph_model[1], pen={'color': 0.5, 'width': 2.0},
         enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'})   
@@ -2623,16 +2626,38 @@ highly appreciated!
     def worker_mcmc(self):
         global fit  
         
+        
+        if self.radioButton_RV.isChecked():
+            fit.rtg = [True,self.goGP.isChecked(), False]
+        elif self.radioButton_transit.isChecked():
+            fit.rtg = [False, self.goGP.isChecked(), True]
+        elif self.radioButton_transit_RV.isChecked():
+            fit.rtg = [True,self.goGP.isChecked(), True]
+        
         self.button_MCMC.setEnabled(False)
         self.statusBar().showMessage('MCMC in progress....')        
         # check if RV data is present
-        if fit.filelist.ndset <= 0:
+        if fit.rtg[0] == True and fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "Not possible to run MCMC if there are no data loaded. Please add your RV or transit data first. Okay?", QtGui.QMessageBox.Ok)      
+             "Not possible to run MCMC if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
              self.button_MCMC.setEnabled(True)  
              self.statusBar().showMessage('') 
 
-             return        
+             return   
+        
+        ntran_data = 0
+        for i in range(0,10,1):         
+            ntran_data += len(fit.tra_data_sets[i]) 
+            
+        if fit.rtg[2] == True and ntran_data == 0:
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "Not possible to run MCMC if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
+             self.button_MCMC.setEnabled(True)  
+             self.statusBar().showMessage('') 
+
+             return             
+            
+            
 
         choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "This will run in the background and may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
@@ -2666,19 +2691,12 @@ highly appreciated!
     def run_mcmc(self):
         global fit
         
-        if self.radioButton_RV.isChecked():
-            fit.rtg = [True,self.goGP.isChecked(), False]
-        elif self.radioButton_transit.isChecked():
-            fit.rtg = [False, self.goGP.isChecked(), True]
-        elif self.radioButton_transit_RV.isChecked():
-            fit.rtg = [True,self.goGP.isChecked(), True]
-
  
         self.check_mcmc_params()
         #fit.mcmc(doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), 
         #burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
         #fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked())  
- 
+     
         fit = rv.run_mcmc(fit, burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
         fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked())
         
@@ -2950,11 +2968,17 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
     
 ##################  Mute box controlls #############################
 
+
+
+
+
     def mute_boxes(self):
         
         ######### TESTS!!!!!!!!!!!###########
         
         if self.radioButton_transit_RV.isChecked() or self.radioButton_transit.isChecked():
+            
+            
             
             self.ma1.setEnabled(False)
             self.use_ma1.setEnabled(False)
@@ -2962,6 +2986,19 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.use_ma2.setEnabled(False)           
             self.ma3.setEnabled(False)
             self.use_ma3.setEnabled(False)  
+            self.ma4.setEnabled(False)
+            self.use_ma4.setEnabled(False)
+            self.ma5.setEnabled(False)
+            self.use_ma5.setEnabled(False)           
+            self.ma6.setEnabled(False)
+            self.use_ma6.setEnabled(False)  
+            self.ma7.setEnabled(False)
+            self.use_ma7.setEnabled(False)
+            self.ma8.setEnabled(False)
+            self.use_ma8.setEnabled(False)           
+            self.ma9.setEnabled(False)
+            self.use_ma9.setEnabled(False)  
+
             
             self.t0_1.setEnabled(True)
             self.use_t0_1.setEnabled(True)
@@ -2969,13 +3006,40 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.use_t0_2.setEnabled(True)           
             self.t0_3.setEnabled(True)
             self.use_t0_3.setEnabled(True)  
+            self.t0_4.setEnabled(True)
+            self.use_t0_4.setEnabled(True)
+            self.t0_5.setEnabled(True)
+            self.use_t0_5.setEnabled(True)           
+            self.t0_6.setEnabled(True)
+            self.use_t0_6.setEnabled(True)              
+            self.t0_7.setEnabled(True)
+            self.use_t0_7.setEnabled(True)
+            self.t0_8.setEnabled(True)
+            self.use_t0_8.setEnabled(True)           
+            self.t0_9.setEnabled(True)
+            self.use_t0_9.setEnabled(True)              
+            
 
             self.K1.setEnabled(False)
             self.use_K1.setEnabled(False)
             self.K2.setEnabled(False)
             self.use_K2.setEnabled(False)           
             self.K3.setEnabled(False)
-            self.use_K3.setEnabled(False)              
+            self.use_K3.setEnabled(False)        
+            self.K4.setEnabled(False)
+            self.use_K4.setEnabled(False)
+            self.K5.setEnabled(False)
+            self.use_K5.setEnabled(False)           
+            self.K6.setEnabled(False)
+            self.use_K6.setEnabled(False)                    
+            self.K7.setEnabled(False)
+            self.use_K7.setEnabled(False)
+            self.K8.setEnabled(False)
+            self.use_K8.setEnabled(False)           
+            self.K9.setEnabled(False)
+            self.use_K9.setEnabled(False)                    
+            
+            
 
             self.t0_1.setEnabled(True)
             self.use_t0_1.setEnabled(True)
@@ -2983,6 +3047,19 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.use_t0_2.setEnabled(True)           
             self.t0_3.setEnabled(True)
             self.use_t0_3.setEnabled(True) 
+            self.t0_4.setEnabled(True)
+            self.use_t0_4.setEnabled(True)
+            self.t0_5.setEnabled(True)
+            self.use_t0_5.setEnabled(True)           
+            self.t0_6.setEnabled(True)
+            self.use_t0_6.setEnabled(True)             
+            self.t0_7.setEnabled(True)
+            self.use_t0_7.setEnabled(True)
+            self.t0_8.setEnabled(True)
+            self.use_t0_8.setEnabled(True)           
+            self.t0_9.setEnabled(True)
+            self.use_t0_9.setEnabled(True)             
+            
 
             self.pl_rad_1.setEnabled(True)
             self.use_pl_rad_1.setEnabled(True)
@@ -2990,13 +3067,41 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.use_pl_rad_2.setEnabled(True)           
             self.pl_rad_3.setEnabled(True)
             self.use_pl_rad_3.setEnabled(True) 
+            self.pl_rad_4.setEnabled(True)
+            self.use_pl_rad_4.setEnabled(True)
+            self.pl_rad_5.setEnabled(True)
+            self.use_pl_rad_5.setEnabled(True)           
+            self.pl_rad_6.setEnabled(True)
+            self.use_pl_rad_6.setEnabled(True)             
+            self.pl_rad_7.setEnabled(True)
+            self.use_pl_rad_7.setEnabled(True)
+            self.pl_rad_8.setEnabled(True)
+            self.use_pl_rad_8.setEnabled(True)           
+            self.pl_rad_9.setEnabled(True)
+            self.use_pl_rad_9.setEnabled(True)             
             
+      
             self.a_sol_1.setEnabled(True)
             self.use_a_sol_1.setEnabled(True)
             self.a_sol_2.setEnabled(True)
             self.use_a_sol_2.setEnabled(True)           
             self.a_sol_3.setEnabled(True)
-            self.use_a_sol_3.setEnabled(True)             
+            self.use_a_sol_3.setEnabled(True)                        
+            self.a_sol_4.setEnabled(True)
+            self.use_a_sol_4.setEnabled(True)
+            self.a_sol_5.setEnabled(True)
+            self.use_a_sol_5.setEnabled(True)           
+            self.a_sol_6.setEnabled(True)
+            self.use_a_sol_6.setEnabled(True)                 
+            self.a_sol_7.setEnabled(True)
+            self.use_a_sol_7.setEnabled(True)
+            self.a_sol_8.setEnabled(True)
+            self.use_a_sol_8.setEnabled(True)           
+            self.a_sol_9.setEnabled(True)
+            self.use_a_sol_9.setEnabled(True)                
+            
+            
+            
             
             if self.radioButton_transit.isChecked():
 
@@ -3006,7 +3111,20 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
                 self.K2.setEnabled(False)
                 self.use_K2.setEnabled(False)           
                 self.K3.setEnabled(False)
-                self.use_K3.setEnabled(False)              
+                self.use_K3.setEnabled(False)  
+                self.K4.setEnabled(False)
+                self.use_K4.setEnabled(False)
+                self.K5.setEnabled(False)
+                self.use_K5.setEnabled(False)           
+                self.K6.setEnabled(False)
+                self.use_K6.setEnabled(False)                  
+                self.K7.setEnabled(False)
+                self.use_K7.setEnabled(False)
+                self.K8.setEnabled(False)
+                self.use_K8.setEnabled(False)           
+                self.K9.setEnabled(False)
+                self.use_K9.setEnabled(False)                  
+ 
             else:
                 self.K1.setEnabled(True)
                 self.use_K1.setEnabled(True)
@@ -3014,8 +3132,18 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
                 self.use_K2.setEnabled(True)           
                 self.K3.setEnabled(True)
                 self.use_K3.setEnabled(True)                
-                
- 
+                self.K4.setEnabled(True)
+                self.use_K4.setEnabled(True)
+                self.K5.setEnabled(True)
+                self.use_K5.setEnabled(True)           
+                self.K6.setEnabled(True)
+                self.use_K6.setEnabled(True)                   
+                self.K7.setEnabled(True)
+                self.use_K7.setEnabled(True)
+                self.K8.setEnabled(True)
+                self.use_K8.setEnabled(True)           
+                self.K9.setEnabled(True)
+                self.use_K9.setEnabled(True)    
               
             
         elif self.radioButton_RV.isChecked():
@@ -3025,7 +3153,20 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.K2.setEnabled(True)
             self.use_K2.setEnabled(True)           
             self.K3.setEnabled(True)
-            self.use_K3.setEnabled(True)               
+            self.use_K3.setEnabled(True)           
+            self.K4.setEnabled(True)
+            self.use_K4.setEnabled(True)
+            self.K5.setEnabled(True)
+            self.use_K5.setEnabled(True)           
+            self.K6.setEnabled(True)
+            self.use_K6.setEnabled(True)                   
+            self.K7.setEnabled(True)
+            self.use_K7.setEnabled(True)
+            self.K8.setEnabled(True)
+            self.use_K8.setEnabled(True)           
+            self.K9.setEnabled(True)
+            self.use_K9.setEnabled(True)                   
+ 
  
             self.ma1.setEnabled(True)
             self.use_ma1.setEnabled(True)
@@ -3033,6 +3174,19 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.use_ma2.setEnabled(True)           
             self.ma3.setEnabled(True)
             self.use_ma3.setEnabled(True)   
+            self.ma4.setEnabled(True)
+            self.use_ma4.setEnabled(True)
+            self.ma5.setEnabled(True)
+            self.use_ma5.setEnabled(True)           
+            self.ma6.setEnabled(True)
+            self.use_ma6.setEnabled(True)               
+            self.ma7.setEnabled(True)
+            self.use_ma7.setEnabled(True)
+            self.ma8.setEnabled(True)
+            self.use_ma8.setEnabled(True)           
+            self.ma9.setEnabled(True)
+            self.use_ma9.setEnabled(True)               
+  
  
             self.t0_1.setEnabled(False)
             self.use_t0_1.setEnabled(False)
@@ -3040,13 +3194,37 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.use_t0_2.setEnabled(False)           
             self.t0_3.setEnabled(False)
             self.use_t0_3.setEnabled(False) 
-
+            self.t0_4.setEnabled(False)
+            self.use_t0_4.setEnabled(False)
+            self.t0_5.setEnabled(False)
+            self.use_t0_5.setEnabled(False)           
+            self.t0_6.setEnabled(False)
+            self.use_t0_6.setEnabled(False)             
+            self.t0_7.setEnabled(False)
+            self.use_t0_7.setEnabled(False)
+            self.t0_8.setEnabled(False)
+            self.use_t0_8.setEnabled(False)           
+            self.t0_9.setEnabled(False)
+            self.use_t0_9.setEnabled(False)             
+ 
             self.pl_rad_1.setEnabled(False)
             self.use_pl_rad_1.setEnabled(False)
             self.pl_rad_2.setEnabled(False)
             self.use_pl_rad_2.setEnabled(False)           
             self.pl_rad_3.setEnabled(False)
             self.use_pl_rad_3.setEnabled(False) 
+            self.pl_rad_4.setEnabled(False)
+            self.use_pl_rad_4.setEnabled(False)
+            self.pl_rad_5.setEnabled(False)
+            self.use_pl_rad_5.setEnabled(False)           
+            self.pl_rad_6.setEnabled(False)
+            self.use_pl_rad_6.setEnabled(False)             
+            self.pl_rad_7.setEnabled(False)
+            self.use_pl_rad_7.setEnabled(False)
+            self.pl_rad_8.setEnabled(False)
+            self.use_pl_rad_8.setEnabled(False)           
+            self.pl_rad_9.setEnabled(False)
+            self.use_pl_rad_9.setEnabled(False)             
             
             self.a_sol_1.setEnabled(False)
             self.use_a_sol_1.setEnabled(False)
@@ -3054,8 +3232,18 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.use_a_sol_2.setEnabled(False)           
             self.a_sol_3.setEnabled(False)
             self.use_a_sol_3.setEnabled(False) 
-              
-    
+            self.a_sol_4.setEnabled(False)
+            self.use_a_sol_4.setEnabled(False)
+            self.a_sol_5.setEnabled(False)
+            self.use_a_sol_5.setEnabled(False)           
+            self.a_sol_6.setEnabled(False)
+            self.use_a_sol_6.setEnabled(False)               
+            self.a_sol_7.setEnabled(False)
+            self.use_a_sol_7.setEnabled(False)
+            self.a_sol_8.setEnabled(False)
+            self.use_a_sol_8.setEnabled(False)           
+            self.a_sol_9.setEnabled(False)
+            self.use_a_sol_9.setEnabled(False)     
 
             
 ###########################  GUI events #############################            
@@ -3163,7 +3351,12 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
        
 #############################  TEST ZONE ################################  
       
-       
+   # def layout_widgets(layout):
+    #   return (layout.itemAt(i) for i in range(layout.count()))
+
+
+
+      
     def check_RV_symbol_sizes(self):
         
        # for i in range(10):
@@ -3179,6 +3372,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         fit.pyqt_symbols_size_rvs[9] = self.rv_data_size_10.value()
         
  
+        #print(self.gridLayout_72)
+       # for w in self.layout_widgets(self.gridLayout_72):
+      #      print(w)
         
         
     def file_from_path(self, path):
@@ -3391,7 +3587,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 #Function Main START
 def main():
     app = QtWidgets.QApplication(sys.argv)
-    window = MyApp()
+    window = TRIFON()
     window.show()
     sys.exit(app.exec_())
 #Function Main END
