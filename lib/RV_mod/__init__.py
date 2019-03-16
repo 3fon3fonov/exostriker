@@ -404,17 +404,69 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
  
     
     
-    if obj.SciPy_min_use_1 == obj.SciPy_min[6]:
-         options1=obj.TNC_opt
-    elif obj.SciPy_min_use_1 == obj.SciPy_min[0]:
-         options1=obj.Simplex_opt
+
+    if obj.SciPy_min_use_1 == obj.SciPy_min[0]:
+         options1=obj.Simplex_opt  
+         fit_bounds = None
+    elif obj.SciPy_min_use_1 == obj.SciPy_min[1]:
+         options1=obj.Powell_opt   
+         fit_bounds = bb              
+    elif obj.SciPy_min_use_1 == obj.SciPy_min[2]:
+         options1=obj.CG_opt 
+         fit_bounds = bb           
+    elif obj.SciPy_min_use_1 == obj.SciPy_min[3]:
+         options1=obj.BFGS_opt  
+         fit_bounds = bb                    
+    elif obj.SciPy_min_use_1 == obj.SciPy_min[4]:
+         options1=obj.Newton_cg_opt 
+         fit_bounds = bb                    
+    elif obj.SciPy_min_use_1 == obj.SciPy_min[5]:
+         options1=obj.L_BFGS_B_opt  
+         fit_bounds = bb                    
+    elif obj.SciPy_min_use_1 == obj.SciPy_min[6]:
+         options1=obj.TNC_opt     
+         fit_bounds = bb                       
+   # elif obj.SciPy_min_use_1 == obj.SciPy_min[7]:
+   #      options1=obj.COBYLA_opt       
+   #      fit_bounds = None
+    elif obj.SciPy_min_use_1 == obj.SciPy_min[8]:
+         options1=obj.SLSQP_opt 
+         fit_bounds = None         
+   # elif obj.SciPy_min_use_1 == obj.SciPy_min[9]:
+   #      options1=obj.TNC_opt                 
+   # elif obj.SciPy_min_use_1 == obj.SciPy_min[10]:
+   #      options1=obj.TNC_opt             
     else:
-         options1={'disp': True}            
-    
-    if obj.SciPy_min_use_2 == obj.SciPy_min[6]:
-         options2=obj.TNC_opt
-    elif obj.SciPy_min_use_2 == obj.SciPy_min[0]:
-         options2=obj.Simplex_opt
+         options1={'disp': True}  
+
+
+    if obj.SciPy_min_use_2 == obj.SciPy_min[0]:
+         options2=obj.Simplex_opt  
+         fit_bounds = None
+    elif obj.SciPy_min_use_2 == obj.SciPy_min[1]:
+         options2=obj.Powell_opt   
+         fit_bounds = bb              
+    elif obj.SciPy_min_use_2 == obj.SciPy_min[2]:
+         options2=obj.CG_opt 
+         fit_bounds = bb           
+    elif obj.SciPy_min_use_2 == obj.SciPy_min[3]:
+         options2=obj.BFGS_opt  
+         fit_bounds = bb                    
+    elif obj.SciPy_min_use_2 == obj.SciPy_min[4]:
+         options2=obj.Newton_cg_opt 
+         fit_bounds = bb                    
+    elif obj.SciPy_min_use_2 == obj.SciPy_min[5]:
+         options2=obj.L_BFGS_B_opt  
+         fit_bounds = bb                    
+    elif obj.SciPy_min_use_2 == obj.SciPy_min[6]:
+         options2=obj.TNC_opt     
+         fit_bounds = bb                       
+  #  elif obj.SciPy_min_use_2 == obj.SciPy_min[7]:
+#         options2=obj.COBYLA_opt       
+#         fit_bounds = None
+    elif obj.SciPy_min_use_2 == obj.SciPy_min[8]:
+         options2=obj.SLSQP_opt 
+         fit_bounds = bb    
     else:
          options2={'disp': True}   
     
@@ -435,9 +487,10 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
        # print('running %s %s %s'%(obj.SciPy_min_use_1, obj.SciPy_min_N_use_1, k))
  
         result = op.minimize(nll,  pp, args=(mod, par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg ),
-                             method=method1,bounds=bb, options=options1)       
+                             method=method1,bounds=fit_bounds, options=options1)       
                             #  bounds=bb, tol=None, callback=None, options={'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxiter': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1, 'disp': True})        
         pp = result["x"]
+        print(method1,' Done!')
        # print("Best fit par.:", result["x"])
 
     ########################### Secondary minimizer #########################
@@ -446,8 +499,10 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         #print(k,xtol)
       #  print('running %s %s %s'%(obj.SciPy_min_use_2, obj.SciPy_min_N_use_2, k))
         result = op.minimize(nll, pp, args=(mod,par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg ), 
-                             method=method2,bounds=bb, options=options2)
+                             method=method2,bounds=fit_bounds, options=options2)
         pp = result["x"]
+        print(method2,' Done!')
+        
        # print("Best fit par.:", result["x"])
 
    
@@ -1399,7 +1454,8 @@ class signal_fit(object):
  
     def init_sciPy_minimizer(self):
         
-        self.SciPy_min = ['Nelder-Mead','Powell','CG','BFGS','Newton-CG','L-BFGS-B', 'TNC','COBYLA','SLSQP','dogleg','trust-ncg']
+       # self.SciPy_min = ['Nelder-Mead','Powell','CG','BFGS','Newton-CG','L-BFGS-B', 'TNC','COBYLA','SLSQP','dogleg','trust-ncg']
+        self.SciPy_min = ['Nelder-Mead','Powell','CG','BFGS','Newton-CG','L-BFGS-B', 'TNC','SLSQP']
         
         self.SciPy_min_use_1 = self.SciPy_min[6]
         self.SciPy_min_N_use_1 = 1
@@ -1415,10 +1471,11 @@ class signal_fit(object):
         self.Newton_cg_opt  = {'disp': True, 'xtol': 1e-05, 'eps': 1.4901161193847656e-08, 'return_all': False, 'maxiter': None}
         self.L_BFGS_B_opt   = {'disp': True,  'maxcor': 10, 'ftol': 2.220446049250313e-09, 'gtol': 1e-05, 'eps': 1e-08, 'maxfun': 15000, 'maxiter': 15000, 'iprint': -1, 'maxls': 20}
         self.TNC_opt        = {'disp': True, 'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxiter': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1 }
+        #self.COBYLA_opt     = {'disp': True, 'rhobeg': 1.0, 'maxiter': 1000, 'catol': 0.0002 }
+        self.SLSQP_opt      = {'disp': True, 'maxiter': 100,  'eps': 1.4901161193847656e-08, 'ftol': 1e-06, 'iprint': 1}
+       # self.dogleg_opt    = {'disp': True, 'max_trust_radius': 100,  'eta': 1.4901161193847656e-08, 'gtol': 1e-06 }
 
-
-
-
+ 
     def init_orb_evol(self):
         
         self.evol_T = {k: [] for k in range(9)}
