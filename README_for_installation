@@ -31,11 +31,6 @@ rxvt
 
 
 
-The program works for Python 2 and Python 3, but so far I suggest Python 2 
-installation since some MCMC problems with Py3 have been encountered, and 
-not yet fixed.
-
-
 if "linux_debian_install.sh" was executed with no problems, then
 you are ready to go! Just type:
 
@@ -58,12 +53,12 @@ To install "homebrew", open terminal and type:
 
 
 I had problems with pip install of batman, in particular with the local
-numpy installation.With "pip" install it seems that the numpy headers are here:
+numpy installation. With "pip" install it seems that the numpy headers are here:
 
 /Users/trifontrifonov/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy
 
 
-Therefore a copy of the header dir fixed the problem
+Therefore a copy of the header directory fixed the problem
 
 cp -r /Users/trifontrifonov/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy /usr/local/include
 
@@ -72,7 +67,7 @@ If you experineced the same problem after the "cp -r..." run again:
 bash MAC_OS_install.sh
 
 and all shoud be Ok now! (you may skip the swift instalation if you have
-installed the lib the first time.
+installed the lib the first time.)
 
 Alternativly, I have added batman-package in the cource directory and 
 the script may do a local install in ./lib. You will be asked fro this 
@@ -91,7 +86,7 @@ option if batman is not on your system already.
 TBA 
  
 
-############################## Finally #################################
+################################## Finally #####################################
 
 # to load the GUI  + Rvmod 
 
