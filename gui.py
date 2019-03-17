@@ -1102,80 +1102,98 @@ Polyfit coefficients:
         for i in range(len(self.norms)):
             self.gls_norm_combo.addItem('%s'%(self.norms[i]),i+1)   
             
-            
+         
+    def run_gls(self):
+        global fit
+                
+        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
+        ind_norm = self.gls_norm_combo.currentIndex()
+
+        
+        RV_per = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.rvs, fit.fit_results.rv_model.rv_err), 
+        fast=True,  verbose=False, norm=self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[0],)
+        
+        fit.gls = RV_per           
+        
+    def run_gls_o_c(self):
+        global fit
+                        
+        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
+        ind_norm = self.gls_norm_combo.currentIndex()
+ 
+        RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.o_c, fit.fit_results.rv_model.rv_err), 
+        fast=True,  verbose=False, norm= self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)            
+
+        fit.gls_o_c = RV_per_res        
 
 
     def update_RV_GLS_plots(self):
-        global fit, colors, RV_per, p7 
+        global fit, p7 
  
         p7.plot(clear=True,)   
         
-        ind_norm = self.gls_norm_combo.currentIndex()
 
-        #print(ind_norm)
+        self.run_gls()
                           
-        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
   
         if len(fit.fit_results.rv_model.jd) > 5:
 
-            RV_per = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.rvs, fit.fit_results.rv_model.rv_err), 
-            fast=True,  verbose=False, norm=self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[0],)
-            
+
             ######################## GLS ##############################
             if self.radioButton_RV_GLS_period.isChecked():
                 p7.setLogMode(True,False)        
-                p7.plot(1/RV_per.freq, RV_per.power,pen='r',symbol=None ) 
-                p7.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})                
+                p7.plot(1/fit.gls.freq, fit.gls.power,pen='r',symbol=None ) 
+                p7.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})    
+                
             else:
                 p7.setLogMode(False,False)        
-                p7.plot(RV_per.freq, RV_per.power,pen='r',symbol=None )                    
+                p7.plot(fit.gls.freq, fit.gls.power,pen='r',symbol=None )                    
                 p7.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'}) 
-
-            if ind_norm == 0:
-                [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per.powerLevel(np.array(power_levels)))]
+                
+                
+            if fit.gls.norm == 'ZK':
+                [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
  
  
             self.RV_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
             RV_per.info(stdout=False) + 
-            self.identify_power_peaks(1/RV_per.freq, RV_per.power, power_level = power_levels, sig_level = RV_per.powerLevel(np.array(power_levels)) )))   
+            self.identify_power_peaks(1/fit.gls.freq, fit.gls.power, power_level = power_levels, sig_level = fit.gls.powerLevel(np.array(power_levels)) )))   
     
  
     def update_RV_o_c_GLS_plots(self):
-        global fit, colors, RV_per_res
-        global p8  
+        global fit,  p8  
  
         p8.plot(clear=True,)  
+ 
+        self.run_gls_o_c()
         
-        ind_norm = self.gls_norm_combo.currentIndex()
-        
-        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
 
         if len(fit.fit_results.rv_model.jd) > 5:
  
-            RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.o_c, fit.fit_results.rv_model.rv_err), 
-            fast=True,  verbose=False, norm= self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)            
 
             ######################## GLS o-c ##############################
             if self.radioButton_RV_o_c_GLS_period.isChecked():
                 p8.setLogMode(True,False)        
-                p8.plot(1/RV_per_res.freq, RV_per_res.power,pen='r',symbol=None ) 
+                p8.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power,pen='r',symbol=None ) 
                 p8.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})
+ 
             else:
                 p8.setLogMode(False,False)        
-                p8.plot(RV_per_res.freq, RV_per_res.power,pen='r',symbol=None )    
+                p8.plot(fit.gls_o_c.freq, fit.gls_o_c.power,pen='r',symbol=None )    
                 p8.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'})                
+                
+            if fit.gls_o_c.norm == 'ZK':
+                [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]            
 
-            if ind_norm == 0:                  
-                [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(RV_per_res.powerLevel(np.array(power_levels)))]            
-
-            self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(RV_per_res.info(stdout=False)+
-            self.identify_power_peaks(1/RV_per_res.freq, RV_per_res.power, power_level = power_levels, sig_level = RV_per.powerLevel(np.array(power_levels)) ) )  )      
+            self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(fit.gls_o_c.info(stdout=False)+
+            self.identify_power_peaks(1/fit.gls_o_c.freq, fit.gls_o_c.power, power_level = power_levels, sig_level = fit.gls_o_c.powerLevel(np.array(power_levels)) ) )  )      
  
+ 
+    
     def update_WF_plots(self):
-        global fit, colors, RV_per_res
-        global p12  
+        global fit, p12  
  
         p12.plot(clear=True,) 
         p12.setLogMode(True,False)
@@ -1211,8 +1229,7 @@ Polyfit coefficients:
         
 
     def update_RV_plots(self):
-        global fit, colors
-        global p1,p2
+        global fit, p1,p2
  
         p1.plot(clear=True,)
         p2.plot(clear=True,)
@@ -1504,6 +1521,23 @@ Polyfit coefficients:
             
         p15.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
 
+
+
+            
+            
+  
+    def add_jitter(self, errors, ind):
+        global fit
+        
+        errors_with_jitt = np.array([np.sqrt(errors[i]**2 + fit.params.jitters[ii]**2)  for i,ii in enumerate(ind)])
+        
+        return errors_with_jitt
+
+
+################ EXTRA PLOTS (work in progress) ######################
+        
+    
+    
     def update_extra_plots(self):
         global fit
 
@@ -1517,51 +1551,47 @@ Polyfit coefficients:
             for i in range(fit.npl):
                 self.comboBox_extra_plot.addItem('phase pl %s'%(i+1),i+1)
             
-            self.comboBox_extra_plot.addItem('gls',fit.npl+1)
-            self.comboBox_extra_plot.addItem('gls o-c',fit.npl+1)
+            self.comboBox_extra_plot.addItem('RV GLS',fit.npl+1)
+            self.comboBox_extra_plot.addItem('RV GLS o-c',fit.npl+2)
 
             self.phase_plots(1)   
             
         self.comboBox_extra_plot.activated.connect(self.handleActivated)        
-        
+
+     
+
+
+ 
     def handleActivated(self, index):
-        global fit, pe
+        global fit, pe, p2
         
         ind = self.comboBox_extra_plot.itemData(index) 
-        
+ 
         if ind <= fit.npl:
             self.phase_plots(ind)
-        elif ind >= fit.npl+1:
-            pe.clear()          
+        elif ind == fit.npl+1: 
+            self.extra_RV_GLS_plots()
+        elif ind == fit.npl+2: 
+            self.extra_RV_GLS_o_c_plots()            
+            #pe.setYLink(p2)
+           # pe.setXLink(p2)
+
+            #gg = p2.getPlotItem().getViewBox()
+         #   hh = gg.getViewBox()
+         #   pe.scene().addItem(gg)   
+         #   pe.scene().addItem(gg)
         else:
             return
-            
-            
-  
-    def add_jitter(self, errors, ind):
-        global fit
-        
-        errors_with_jitt = np.array([np.sqrt(errors[i]**2 + fit.params.jitters[ii]**2)  for i,ii in enumerate(ind)])
-        
-        return errors_with_jitt
-
 
     def phase_plots(self, ind):
         global fit, colors   
         
         pe.plot(clear=True,)    
-        
- 
-        #if ph_model[0][1][0] != fit.ph_model[0][1][0]:
+        pe.setLogMode(False,False)        
+
     
         ph_data = fit.ph_data[ind-1]
         ph_model = fit.ph_model[ind-1] #rv.phase_planet_signal(fit,ind)
-
-
-      # print(fit.ph_data)
-
-       # fit.ph_data[ind-1], fit.ph_model[ind-1]
-#rv.phase_planet_signal(fit,ind)
 
 
         if len(ph_data) == 1:
@@ -1596,6 +1626,56 @@ Polyfit coefficients:
         
         pe.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})
         pe.setLabel('left',   'RV', units='m/s',  **{'font-size':'12pt'})  
+
+    ############### VERY VERY VERY Ugly fix !!!! it should be 
+    
+    def extra_RV_GLS_plots(self):
+        global fit,  pe 
+ 
+        pe.plot(clear=True,)   
+        power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
+
+ 
+        ######################## GLS ##############################
+        if self.radioButton_RV_GLS_period.isChecked():
+            pe.setLogMode(True,False)        
+            pe.plot(1/fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
+            pe.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})    
+            pe.setLabel('left', 'Power', units='',  **{'font-size':'12pt'})    
+           
+        else:
+            pe.setLogMode(False,False)        
+            pe.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None )                    
+            pe.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'}) 
+            pe.setLabel('left', 'Power', units='',  **{'font-size':'12pt'})    
+
+        if fit.gls.norm == 'ZK':
+            [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
+
+    def extra_RV_GLS_o_c_plots(self):
+        global fit,  pe 
+ 
+        pe.plot(clear=True,)           
+        power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
+        
+        
+        ######################## GLS o-c ##############################
+        if self.radioButton_RV_o_c_GLS_period.isChecked():
+            pe.setLogMode(True,False)        
+            pe.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None ) 
+            pe.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})    
+            pe.setLabel('left', 'Power', units='',  **{'font-size':'12pt'})    
+           
+        else:
+            pe.setLogMode(False,False)        
+            pe.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None )                    
+            pe.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'}) 
+            pe.setLabel('left', 'Power', units='',  **{'font-size':'12pt'})    
+
+
+        if fit.gls.norm == 'ZK':
+            [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]
+
 
 
 ############ TLS (Work in progress here) ##############################      

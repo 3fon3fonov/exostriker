@@ -1270,7 +1270,11 @@ class signal_fit(object):
         self.init_orb_evol()
         
         self.tls = []
- 
+        self.gls = []
+        self.gls_o_c =[]
+       
+        
+        
  
         self.ph_data = {k: [] for k in range(9)}
         self.ph_model = {k: [] for k in range(9)}
@@ -1475,6 +1479,12 @@ class signal_fit(object):
         self.SLSQP_opt      = {'disp': True, 'maxiter': 100,  'eps': 1.4901161193847656e-08, 'ftol': 1e-06, 'iprint': 1}
        # self.dogleg_opt    = {'disp': True, 'max_trust_radius': 100,  'eta': 1.4901161193847656e-08, 'gtol': 1e-06 }
 
+
+   # def init_GLS(self):
+        
+   #     self.RV_gls_power        = {'power': [], 'base': [] }
+   #     self.RV_gls_o_c_power    = {'power': [], 'base': [] }
+       
  
     def init_orb_evol(self):
         
