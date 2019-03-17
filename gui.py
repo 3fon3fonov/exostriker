@@ -2169,7 +2169,9 @@ Transit duration: %s d
          
             
         self.check_bounds()
-        self.check_priors()       
+        self.check_priors()   
+        
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
         
         
         if self.radioButton_fortran77.isChecked() and not self.goGP.isChecked() or init == True:
@@ -2750,7 +2752,10 @@ highly appreciated!
             return        
         
         self.check_bounds()
-        self.check_priors()       
+        self.check_priors() 
+        
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+        
         
         if self.use_percentile_level.isChecked():
             fit.percentile_level = self.percentile_level.value()
