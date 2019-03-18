@@ -774,7 +774,7 @@ unknown
     return
 
 
-def phase_planet_signal(obj,planet):
+def phase_RV_planet_signal(obj,planet):
 
     if obj.npl ==0 or len(obj.fit_results.rv_model.jd) ==0:
         return #[-1], [-1] #[[0],[0]], [[0],[0],[0],[0]]

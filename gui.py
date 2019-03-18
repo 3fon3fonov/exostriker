@@ -1109,11 +1109,14 @@ Polyfit coefficients:
         omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
         ind_norm = self.gls_norm_combo.currentIndex()
 
+        if len(fit.fit_results.rv_model.jd) > 5:      
+            RV_per = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.rvs, fit.fit_results.rv_model.rv_err), 
+            fast=True,  verbose=False, norm=self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[0],)
+            
+            fit.gls = RV_per
+        else:
+            return
         
-        RV_per = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.rvs, fit.fit_results.rv_model.rv_err), 
-        fast=True,  verbose=False, norm=self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[0],)
-        
-        fit.gls = RV_per           
         
     def run_gls_o_c(self):
         global fit
@@ -1121,11 +1124,14 @@ Polyfit coefficients:
         omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
         ind_norm = self.gls_norm_combo.currentIndex()
  
-        RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.o_c, fit.fit_results.rv_model.rv_err), 
-        fast=True,  verbose=False, norm= self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)            
-
-        fit.gls_o_c = RV_per_res        
-
+        if len(fit.fit_results.rv_model.jd) > 5:
+            RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.o_c, fit.fit_results.rv_model.rv_err), 
+            fast=True,  verbose=False, norm= self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)            
+    
+            fit.gls_o_c = RV_per_res        
+        else:
+            return
+        
 
     def update_RV_GLS_plots(self):
         global fit, p7 
@@ -1493,7 +1499,7 @@ Polyfit coefficients:
             #self.worker_RV_fitting(, ff=0, m_ln=True, auto_fit = False , init = True ):
             #self.fit_dispatcher(init=False)
             for i in range(fit.npl):
-                 rv.phase_planet_signal(fit,i+1)       
+                 rv.phase_RV_planet_signal(fit,i+1)       
                  
         self.update_labels()
         self.update_gui_params()
@@ -1591,7 +1597,7 @@ Polyfit coefficients:
 
     
         ph_data = fit.ph_data[ind-1]
-        ph_model = fit.ph_model[ind-1] #rv.phase_planet_signal(fit,ind)
+        ph_model = fit.ph_model[ind-1] #rv.phase_RV_planet_signal(fit,ind)
 
 
         if len(ph_data) == 1:
@@ -1764,8 +1770,7 @@ Transit duration: %s d
 #0.9999   9.1
             [p9.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
    
-            #self.identify_power_peaks(1/RV_per.freq, RV_per.power, power_level = power_levels, sig_level = RV_per.powerLevel(np.array(power_levels)) )))   
-
+ 
             self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(text))            
             return
 
@@ -1792,7 +1797,7 @@ Transit duration: %s d
         
         if fit.rtg[0]:
             for i in range(fit.npl):
-                rv.phase_planet_signal(fit,i+1)        
+                rv.phase_RV_planet_signal(fit,i+1)        
             self.update_plots()  
             
             
@@ -2171,7 +2176,7 @@ Transit duration: %s d
         self.check_bounds()
         self.check_priors()   
         
-        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+        #self.tabWidget_helper.setCurrentWidget(self.tab_info)
         
         
         if self.radioButton_fortran77.isChecked() and not self.goGP.isChecked() or init == True:
@@ -2189,7 +2194,7 @@ Transit duration: %s d
 
             self.statusBar().showMessage('Minimizing parameters using SciPyOp (might be slow)....')                 
             worker2 = Worker(lambda:  self.optimize_fit(ff=0, doGP=self.goGP.isChecked(),  gp_kernel_id=-1, minimize_fortran=False, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
-               # Execute
+            self.tabWidget_helper.setCurrentWidget(self.tab_info)
             
             
         worker2.signals.finished.connect(self.worker_RV_fitting_complete)
@@ -2254,7 +2259,7 @@ Transit duration: %s d
             fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
 
         for i in range(fit.npl):
-             rv.phase_planet_signal(fit,i+1)  
+             rv.phase_RV_planet_signal(fit,i+1)  
 
         if auto_fit:
                           
@@ -2359,7 +2364,7 @@ highly appreciated!
 
 
     def find_planets(self):
-        global fit,RV_per,RV_per_res
+        global fit 
 
         # check if RV data is present
         if fit.filelist.ndset <= 0:
@@ -2369,7 +2374,7 @@ highly appreciated!
              return        
 
         # the first one on the data GLS
-        if RV_per.power.max() <= RV_per.powerLevel(self.auto_fit_FAP_level.value()):
+        if fit.gls.power.max() <= fit.gls.powerLevel(self.auto_fit_FAP_level.value()):
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "No significant power on the GLS. Therefore no planets to fit OK?", QtGui.QMessageBox.Ok)      
              self.button_auto_fit.setEnabled(True)                                                           
@@ -2380,9 +2385,9 @@ highly appreciated!
                 for j in range(fit.npl):
                     fit.remove_planet(fit.npl-(j+1))
 
-            mean_anomaly_from_gls = np.degrees((((fit.epoch - float(RV_per.hpstat["T0"]) )% (RV_per.hpstat["P"]) )/ (RV_per.hpstat["P"]) ) * 2*np.pi)
+            mean_anomaly_from_gls = np.degrees((((fit.epoch - float(fit.gls.hpstat["T0"]) )% (fit.gls.hpstat["P"]) )/ (fit.gls.hpstat["P"]) ) * 2*np.pi)
              
-            fit.add_planet(RV_per.hpstat["amp"],RV_per.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
+            fit.add_planet(fit.gls.hpstat["amp"],fit.gls.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
             fit.use.update_use_planet_params_one_planet(0,True,True,True,True,True,False,False)     
             self.update_use_from_input_file()   
             self.update_use()                     
@@ -2392,7 +2397,7 @@ highly appreciated!
             
             for i in range(1,int(self.auto_fit_N_planets.value())):
                 
-                if RV_per_res.power.max() <= RV_per_res.powerLevel(self.auto_fit_FAP_level.value()):
+                if fit.gls_o_c.power.max() <= fit.gls_o_c.powerLevel(self.auto_fit_FAP_level.value()):
                     for j in range(fit.npl):
                         fit.use.update_use_planet_params_one_planet(j,True,True,True,True,True,False,False)     
             
@@ -2403,9 +2408,9 @@ highly appreciated!
                     return
                 #elif (1/RV_per_res.hpstat["fbest"]) > 1.5:
                 else:    
-                    mean_anomaly_from_gls = np.degrees((((fit.epoch - float(RV_per_res.hpstat["T0"]) )% (RV_per_res.hpstat["P"]) )/ (RV_per_res.hpstat["P"]) ) * 2*np.pi)
+                    mean_anomaly_from_gls = np.degrees((((fit.epoch - float(fit.gls_o_c.hpstat["T0"]) )% (fit.gls_o_c.hpstat["P"]) )/ (fit.gls_o_c.hpstat["P"]) ) * 2*np.pi)
              
-                    fit.add_planet(RV_per_res.hpstat["amp"],RV_per_res.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
+                    fit.add_planet(fit.gls_o_c.hpstat["amp"],fit.gls_o_c.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
                     fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False)  
                     
                     #print(fit.params.planet_params[2 + 7*(i-1)])
