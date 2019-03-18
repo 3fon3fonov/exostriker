@@ -1157,7 +1157,7 @@ Polyfit coefficients:
  
  
             self.RV_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
-            RV_per.info(stdout=False) + 
+            fit.gls.info(stdout=False) + 
             self.identify_power_peaks(1/fit.gls.freq, fit.gls.power, power_level = power_levels, sig_level = fit.gls.powerLevel(np.array(power_levels)) )))   
     
  
