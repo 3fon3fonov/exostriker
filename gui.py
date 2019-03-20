@@ -150,15 +150,24 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             param_gui_tr[i*3+1].setValue(fit.pl_rad[i]) 
             param_gui_tr[i*3+2].setValue(fit.pl_a[i]) 
             
-        data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
+        rvs_data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
                     self.Data6,self.Data7,self.Data8,self.Data9,self.Data10]
-        data_jitter_gui = [self.jitter_Data1,self.jitter_Data2,self.jitter_Data3,self.jitter_Data4,self.jitter_Data5,
+        rvs_data_jitter_gui = [self.jitter_Data1,self.jitter_Data2,self.jitter_Data3,self.jitter_Data4,self.jitter_Data5,
                            self.jitter_Data6,self.jitter_Data7,self.jitter_Data8,self.jitter_Data9,self.jitter_Data10]
 
         for i in range(10): 
-            data_gui[i].setValue(fit.params.offsets[i]) 
-            data_jitter_gui[i].setValue(fit.params.jitters[i])
+            rvs_data_gui[i].setValue(fit.params.offsets[i]) 
+            rvs_data_jitter_gui[i].setValue(fit.params.jitters[i])
+        
+        tra_data_gui = [self.trans_Data1,self.trans_Data2,self.trans_Data3,self.trans_Data4,self.trans_Data5,
+                        self.trans_Data6,self.trans_Data7,self.trans_Data8,self.trans_Data9,self.trans_Data10]
+        tra_data_jitter_gui = [self.jitter_trans_Data1,self.jitter_trans_Data2,self.jitter_trans_Data3,self.jitter_trans_Data4,self.jitter_trans_Data5,
+                               self.jitter_trans_Data6,self.jitter_trans_Data7,self.jitter_trans_Data8,self.jitter_trans_Data9,self.jitter_trans_Data10]
+        
             
+        for i in range(10): 
+            tra_data_gui[i].setValue(fit.tra_off[i]) 
+            tra_data_jitter_gui[i].setValue(fit.tra_jitt[i])            
             
         gp_params = [self.GP_rot_kernel_Amp,
                      self.GP_rot_kernel_time_sc,
@@ -222,15 +231,25 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 
-        data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
+        rvs_data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
                     self.Data6,self.Data7,self.Data8,self.Data9,self.Data10]
-        data_jitter_gui = [self.jitter_Data1,self.jitter_Data2,self.jitter_Data3,self.jitter_Data4,self.jitter_Data5,
+        rvs_data_jitter_gui = [self.jitter_Data1,self.jitter_Data2,self.jitter_Data3,self.jitter_Data4,self.jitter_Data5,
                            self.jitter_Data6,self.jitter_Data7,self.jitter_Data8,self.jitter_Data9,self.jitter_Data10]
 
         for i in range(10): 
-            fit.params.offsets[i] = data_gui[i].value() 
-            fit.params.jitters[i] = data_jitter_gui[i].value()
+            fit.params.offsets[i] = rvs_data_gui[i].value() 
+            fit.params.jitters[i] = rvs_data_jitter_gui[i].value()
+
+        tra_data_gui = [self.trans_Data1,self.trans_Data2,self.trans_Data3,self.trans_Data4,self.trans_Data5,
+                        self.trans_Data6,self.trans_Data7,self.trans_Data8,self.trans_Data9,self.trans_Data10]
+        tra_data_jitter_gui = [self.jitter_trans_Data1,self.jitter_trans_Data2,self.jitter_trans_Data3,self.jitter_trans_Data4,self.jitter_trans_Data5,
+                               self.jitter_trans_Data6,self.jitter_trans_Data7,self.jitter_trans_Data8,self.jitter_trans_Data9,self.jitter_trans_Data10]
+        
             
+        for i in range(10): 
+            fit.tra_off[i]  = tra_data_gui[i].value() 
+            fit.tra_jitt[i] = tra_data_jitter_gui[i].value() 
+ 
             
         gp_params = [self.GP_rot_kernel_Amp,
                      self.GP_rot_kernel_time_sc,
@@ -277,6 +296,18 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10):
             data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.offset_errors[i])))
             data_errors_jitter_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.jitter_errors[i])))
+            
+        tra_data_errors_gui        = [self.err_trans_Data1,self.err_trans_Data2,self.err_trans_Data3,self.err_trans_Data4,self.err_trans_Data5,
+                                      self.err_trans_Data6,self.err_trans_Data7,self.err_trans_Data8,self.err_trans_Data9,self.err_trans_Data10]
+        tra_data_errors_jitter_gui = [self.err_jitter_trans_Data1,self.err_jitter_trans_Data2,self.err_jitter_trans_Data3,self.err_jitter_trans_Data4,
+                                      self.err_jitter_trans_Data5,self.err_jitter_trans_Data6,self.err_jitter_trans_Data7,self.err_jitter_trans_Data8,
+                                      self.err_jitter_trans_Data9,self.err_jitter_trans_Data10]
+
+        for i in range(10):
+            tra_data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_off_err[i])))
+            tra_data_errors_jitter_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_jitt_err[i])))            
+            
+            
 
         self.err_RV_lin_trend.setText("+/- %.8f"%(max(fit.param_errors.linear_trend_error)))
         
@@ -363,6 +394,19 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             #use_data_gui[i].setChecked(bool(fit.use.use_offsets[i])) # attention, TBF
             use_data_jitter_gui[i].setChecked(bool(fit.use.use_jitters[i]))
             use_data_offset_gui[i].setChecked(bool(fit.use.use_offsets[i])) 
+            
+            
+        use_tra_data_offset_gui = [self.use_offset_trans_Data1,self.use_offset_trans_Data2,self.use_offset_trans_Data3,self.use_offset_trans_Data4,
+                                   self.use_offset_trans_Data5,self.use_offset_trans_Data6,self.use_offset_trans_Data7,self.use_offset_trans_Data8,
+                                   self.use_offset_trans_Data9,self.use_offset_trans_Data10]
+        use_tra_data_jitter_gui = [self.use_jitter_trans_Data1,self.use_jitter_trans_Data2,self.use_jitter_trans_Data3,self.use_jitter_trans_Data4,self.use_jitter_trans_Data5,
+                                   self.use_jitter_trans_Data6,self.use_jitter_trans_Data7,self.use_jitter_trans_Data8,self.use_jitter_trans_Data9,self.use_jitter_trans_Data10]
+
+        for i in range(10): 
+            #use_data_gui[i].setChecked(bool(fit.use.use_offsets[i])) # attention, TBF
+            use_tra_data_jitter_gui[i].setChecked(bool(fit.tra_jitt_use[i]))
+            use_tra_data_offset_gui[i].setChecked(bool(fit.tra_off_use[i]))             
+            
 
         planet_checked_gui = [self.use_Planet1,self.use_Planet2,self.use_Planet3,self.use_Planet4,self.use_Planet5,
                               self.use_Planet6,self.use_Planet7,self.use_Planet8,self.use_Planet9]
@@ -455,6 +499,19 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10): 
             fit.use.use_jitters[i] = int(use_data_jitter_gui[i].isChecked())
             fit.use.use_offsets[i] = int(use_data_offset_gui[i].isChecked())   
+
+
+        use_tra_data_offset_gui = [self.use_offset_trans_Data1,self.use_offset_trans_Data2,self.use_offset_trans_Data3,self.use_offset_trans_Data4,
+                                   self.use_offset_trans_Data5,self.use_offset_trans_Data6,self.use_offset_trans_Data7,self.use_offset_trans_Data8,
+                                   self.use_offset_trans_Data9,self.use_offset_trans_Data10]
+        use_tra_data_jitter_gui = [self.use_jitter_trans_Data1,self.use_jitter_trans_Data2,self.use_jitter_trans_Data3,self.use_jitter_trans_Data4,self.use_jitter_trans_Data5,
+                                   self.use_jitter_trans_Data6,self.use_jitter_trans_Data7,self.use_jitter_trans_Data8,self.use_jitter_trans_Data9,self.use_jitter_trans_Data10]
+
+        for i in range(10): 
+            fit.tra_jitt_use[i] = int(use_tra_data_jitter_gui[i].isChecked())
+            fit.tra_off_use[i]  = int(use_tra_data_offset_gui[i].isChecked())
+ 
+ 
 
         fit.use.use_linear_trend = int(self.use_RV_lin_trend.isChecked()) 
 
@@ -1409,6 +1466,8 @@ Polyfit coefficients:
             self.update_tra_file_buttons()
             self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(input_files[0]))
             
+            self.tab_timeseries_RV.setCurrentWidget(self.Phot_timeseries_plot)
+
             
     def remove_tra_file(self):
         global fit
@@ -1861,7 +1920,10 @@ Transit duration: %s d
             old_rv_use = fit.use.use_planet_params
             old_rvoff_use = fit.use.use_offsets
             old_rvjitt_use = fit.use.use_jitters
-
+            old_tra_off_use = fit.tra_off
+            old_tra_jitt_use = fit.tra_jitt
+            
+            
             for i in range(fit.npl):
                 fit.t0_use[i] = False
                 fit.pl_a_use[i] = False
@@ -1875,7 +1937,9 @@ Transit duration: %s d
                 fit.use.use_planet_params[i*7+6] = False 
             for i in range(10): 
                 fit.use.use_jitters[i] = False
-                fit.use.use_offsets[i] = False                
+                fit.use.use_offsets[i] = False   
+                fit.tra_off_use[i] = False
+                fit.tra_jitt_use[i] = False
             #old_tra_use = fit.tr_params_use 
             #fit.tr_params_use = [False, False,False,False,False,False,False]
             #rv.run_SciPyOp_transit(fit)
@@ -1894,7 +1958,10 @@ Transit duration: %s d
                 fit.use.use_planet_params[i*7+6] = old_rv_use[i*7+6] 
             for i in range(10): 
                 fit.use.use_jitters[i] =  old_rvjitt_use[i]  
-                fit.use.use_offsets[i] =  old_rvoff_use[i]      
+                fit.use.use_offsets[i] =  old_rvoff_use[i]  
+                fit.tra_off_use[i] = old_tra_off_use[i]
+                fit.tra_jitt_use[i] = old_tra_jitt_use[i]                
+                
         else:
        # rv.run_SciPyOp_transit(fit)
             rv.run_SciPyOp(fit)
@@ -1905,10 +1972,21 @@ Transit duration: %s d
         p3.plot(clear=True,) 
         p4.plot(clear=True,)         
            
-        if len(fit.tra_data_sets[0]) != 0:
-            t = fit.tra_data_sets[0][0]
-            flux = fit.tra_data_sets[0][1]
-            flux_err = fit.tra_data_sets[0][2]
+
+        tr_files = []
+        
+        for i in range(10):
+            if len(fit.tra_data_sets[i]) != 0:
+                tr_files.append(fit.tra_data_sets[i])
+        
+        for j in range(len(tr_files)):        
+        
+        #if len(fit.tra_data_sets[0]) != 0:
+            t = tr_files[j][0]
+            flux = tr_files[j][1] + fit.tra_off[j]
+            flux_err = np.sqrt(tr_files[j][2]**2 + fit.tra_jitt[j]**2)
+            
+            
             
             fit.prepare_for_mcmc(rtg = fit.rtg)    
             par = np.array(fit.parameters)  
@@ -1936,9 +2014,9 @@ Transit duration: %s d
                #     fit.tr_params.t0  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i]   #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
                #     
                     
-                fit.tr_params.t0  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i]                
-                fit.tr_params.a   = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-                fit.tr_params.rp  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)
+                fit.tr_params.t0  = par[fit.filelist.ndset*2  +7*fit.npl +5 + 3*i]                
+                fit.tr_params.a   = par[fit.filelist.ndset*2  +7*fit.npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+                fit.tr_params.rp  = par[fit.filelist.ndset*2  +7*fit.npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)
                 #print(tr_params.t0)
                 #print(tr_params.per, tr_params.ecc,tr_params.w, tr_params.inc, tr_params.t0,tr_params.a,tr_params.rp )
         
@@ -1953,12 +2031,12 @@ Transit duration: %s d
             p3.plot(t, flux,        
             pen=None,  
             symbol='o',
-            symbolPen={'color': fit.colors[0], 'width': 1.1},
+            symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
             symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[0] ) 
+            symbolBrush=fit.tra_colors[j] ) 
             
             err_ = pg.ErrorBarItem(x=t, y=flux,
-            symbol='o', height=flux_err, beam=0.0, pen=fit.colors[0])   
+            symbol='o', height=flux_err, beam=0.0, pen=fit.tra_colors[j])   
      
             p3.addItem(err_)            
             
@@ -1970,116 +2048,23 @@ Transit duration: %s d
             p4.plot(t, tr_o_c,        
             pen=None,  
             symbol='o',
-            symbolPen={'color': fit.colors[0], 'width': 1.1},
+            symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
             symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[0] )             
+            symbolBrush=fit.tra_colors[j] )             
 
             err_ = pg.ErrorBarItem(x=t, y=flux-flux_model,
-            symbol='o', height=flux_err, beam=0.0, pen=fit.colors[0])               
+            symbol='o', height=flux_err, beam=0.0, pen=fit.tra_colors[j])               
             p4.addItem(err_)   
                      
-        else:    
-            t = np.linspace(-0.25, 0.25, 1000)  #times at which to calculate light curve   
-            m = batman.TransitModel(fit.tr_params, t)    #initializes model
-            flux_model = m.light_curve(fit.tr_params)          #calculates light curve
+        #else:    
+        #    t = np.linspace(-0.25, 0.25, 1000)  #times at which to calculate light curve   
+        #    m = batman.TransitModel(fit.tr_params, t)    #initializes model
+        #    flux_model = m.light_curve(fit.tr_params)          #calculates light curve
  
-            p3.plot(t, flux_model,pen='k',symbol=None )     
+        #    p3.plot(t, flux_model,pen='k',symbol=None )     
   
 
-
  
-    def update_transit_plots_exp(self): 
-        global fit, p3, colors
-    
-        p3.plot(clear=True,) 
-        p4.plot(clear=True,)         
-           
-        if len(fit.tra_data_sets[0]) != 0:
-            t = fit.tra_data_sets[0][0]
-            flux = fit.tra_data_sets[0][1]
-            flux_err = fit.tra_data_sets[0][2]
-           
-            flux_model =[1]*len(flux)
-            par = np.array(fit.parameters)  
-            m =  {k: [] for k in range(9)}
-             
-            tr_params = batman.TransitParams()       #object to store transit parameters
-           
-            # WASP 6
-            tr_params.t0  = [0.0, 0.0] #time of inferior conjunction
-            tr_params.per = [3.36, 4.5]     #orbital period
-            tr_params.ecc = [0.0, 0.0]     
-            tr_params.w   = [90.0, 90.0]    #longitude of periastron (in degrees)                  
-            tr_params.rp  = [0.15, 0.14]  #planet radius (in units of stellar radii)
-            tr_params.inc = [90.0, 90.0]  #orbital inclination (in degrees)
-            tr_params.a   = [15, 14]  #semi-major axis (in units of stellar radii)
-        
-    
-            tr_params.limb_dark = "quadratic"      #limb darkening model
-            tr_params.u = [0.1, 0.3 ] 
-            
-            
-            for i in range(fit.npl):
-            
-                t_peri, t_transit = rv.transit_tperi(par[fit.filelist.ndset*2 +7*i+1], par[fit.filelist.ndset*2 +7*i+2], 
-                                                      par[fit.filelist.ndset*2 +7*i+3], par[fit.filelist.ndset*2 +7*i+4], fit.epoch)
-                t00 = par[fit.filelist.ndset*2 +7*i+1] - (fit.epoch%par[fit.filelist.ndset*2 +7*i+1]) + (t_transit-fit.epoch)
-               # par[len(vel_files)*2 +7*npl +5 + 3*i] = t_transit
-           
-                tr_params.per[i] = par[fit.filelist.ndset*2 +7*i+1] #1.0    #orbital period
-                tr_params.ecc[i] = par[fit.filelist.ndset*2 +7*i+2] #0.0  
-                tr_params.w[i]   = par[fit.filelist.ndset*2 +7*i+3] #90.0   #longitude of periastron (in degrees)               
-                tr_params.inc[i] = par[fit.filelist.ndset*2 +7*i+5]#90. #orbital inclination (in degrees)
-                
-                tr_params.t0[i]  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i] = t00%par[fit.filelist.ndset*2 +7*i+1]  #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
-                tr_params.a[i]   = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-                tr_params.rp[i]  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)
-                #print(tr_params.t0)
-                #print(tr_params.per, tr_params.ecc,tr_params.w, tr_params.inc, tr_params.t0,tr_params.a,tr_params.rp )
-        
-            m = batman.TransitModel(tr_params, t)    #initializes model
- 
-            flux_model = m.light_curve(fit.tr_params)       
-                #calculates light curve  
-            tr_o_c = flux -flux_model
-            
-            
-            p3.plot(t, flux,        
-            pen=None,  
-            symbol='o',
-            symbolPen={'color': fit.colors[0], 'width': 1.1},
-            symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[0] ) 
-            
-            err_ = pg.ErrorBarItem(x=t, y=flux,
-            symbol='o', height=flux_err, beam=0.0, pen=fit.colors[0])   
-     
-            p3.addItem(err_)            
-            
-           # m = batman.TransitModel(fit.tr_params, t)    #initializes model
- 
-            #flux_model = m.light_curve(fit.tr_params)          #calculates light curve           
-            p3.plot(t, flux_model,pen='k',symbol=None )    
-            
-            p4.plot(t, flux-flux_model,        
-            pen=None,  
-            symbol='o',
-            symbolPen={'color': fit.colors[0], 'width': 1.1},
-            symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[0] )             
-
-            err_ = pg.ErrorBarItem(x=t, y=flux-flux_model,
-            symbol='o', height=flux_err, beam=0.0, pen=fit.colors[0])               
-            p4.addItem(err_)   
-                     
-        else:    
-            t = np.linspace(-0.25, 0.25, 1000)  #times at which to calculate light curve   
-            m = batman.TransitModel(fit.tr_params, t)    #initializes model
-            flux_model = m.light_curve(fit.tr_params)          #calculates light curve
- 
-            p3.plot(t, flux_model,pen='k',symbol=None )         
- 
-
         
 ############################# N-Body ########################################        
 
