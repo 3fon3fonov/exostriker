@@ -20,6 +20,9 @@ class CustomSampler(emcee.EnsembleSampler):
         Given an array, remove identical rows and also sort it
         '''
     
+        
+    
+    
         # Perform lex sort and get sorted data
         sorted_idx = np.lexsort(self.flatchain.T)
         sorted_data =  self.flatchain[sorted_idx,:]
@@ -30,6 +33,21 @@ class CustomSampler(emcee.EnsembleSampler):
         # Get unique rows 
         out = sorted_data[row_mask] 
         self.samples = out
+        
+        
+        # same for LnL
+        lnL = np.hstack(self.lnprobability)       
+        sorted_lnL =  lnL[sorted_idx]   
+        self.lnL = sorted_lnL[row_mask]        
+        
+        
+        lnL_min = np.argmin(abs(self.lnL))
+        #print(abs(lnL_min))
+        
+        # get samples at minimum Lnl
+        self.minlnL = out[lnL_min]
+        
+
         return
 
     def correct_rows(self,f,ndset,npl):

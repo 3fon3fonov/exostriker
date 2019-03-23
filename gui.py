@@ -2690,8 +2690,9 @@ highly appreciated!
         self.statusBar().showMessage('') 
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
         
-        if self.adopt_mcmc_means_as_par.isChecked():
+        if self.adopt_mcmc_means_as_par.isChecked() or self.adopt_best_lnL_as_pars.isChecked():
             self.init_fit()
+ 
        # if sys.version_info[0] == 3:
        #     self.print_py3_warning()
 
@@ -2773,7 +2774,7 @@ highly appreciated!
         #fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked())  
      
         fit = rv.run_mcmc(fit, burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
-        fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked())
+        fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked(), save_minlnL=self.adopt_best_lnL_as_pars.isChecked())
         
     
         self.button_MCMC.setEnabled(True)            
