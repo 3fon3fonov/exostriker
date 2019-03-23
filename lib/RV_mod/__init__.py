@@ -754,7 +754,7 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
 
 
 
-def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):          
+def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, save_minlnL=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):          
     
     '''Performs MCMC and saves results'''  
     
@@ -836,7 +836,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     if (fileoutput):
         outfile = open(str(obj.mcmc_sample_file), 'w') # file to save samples
         for j in range(len(sampler.samples)):
-            outfile.write("%s  " %(ln[j]))        #BUG here!!!!!
+            outfile.write("%s  " %(sampler.lnL[j]))        #BUG here!!!!!
             for z in range(len(pp)):
                 outfile.write("%s  " %(sampler.samples[j,z]))
             outfile.write("\n")
@@ -846,6 +846,9 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     if (save_means):
         obj.par_for_mcmc = sampler.means # we will not need to keep the old parameters in this attribbute, so let's store the means now
         
+    elif (save_minlnL):
+        obj.par_for_mcmc = sampler.minlnL # we will not need to keep the old parameters in this attribbute, so let's store the means now
+                
         
         
     new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
@@ -878,8 +881,8 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     if(save_sampler):
         obj.sampler=sampler             
         obj.sampler_saved=True           
-        
-    #sampler.reset()
+    else:   
+        sampler.reset()
 
     return obj
 
