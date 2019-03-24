@@ -41,12 +41,12 @@ class CustomSampler(emcee.EnsembleSampler):
         self.lnL = sorted_lnL[row_mask]        
         
         
-        lnL_min = np.argmin(abs(self.lnL))
+        lnL_min_idx = np.argmax(self.lnL)
         #print(abs(lnL_min))
         
         # get samples at minimum Lnl
-        self.minlnL = out[lnL_min]
-        
+        self.minlnL = out[lnL_min_idx]
+        self.lnL_min = self.lnL[lnL_min_idx]
 
         return
 
