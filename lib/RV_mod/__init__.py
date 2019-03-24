@@ -172,11 +172,47 @@ def initiategps(obj,  kernel_id=-1):
    # print(self.use.use_GP_params)    
     
  
-               
-    return gps
+    obj.gps = gps          
+    return
 
-
+def get_gps_model(obj,  kernel_id=-1): 
     
+    initiategps(obj,  kernel_id=-1)
+    #gp_model_data  = []
+    
+    ############ DATA ####################
+    for i in range(obj.filelist.ndset):
+        #gp.set_parameter_vector(
+         
+        y = obj.fit_results.rv_model.o_c[obj.filelist.idset==i]
+        x = obj.fit_results.rv_model.jd[obj.filelist.idset==i]
+        mu, var = obj.gps[i].predict(y, x, return_var=True)
+        std = np.sqrt(var)
+
+        obj.gp_model_data[i] = [mu,var,std]
+        
+    ############ MODEL ####################
+
+   # kernel=[]
+   # gps=[]
+   # x = obj.fit_results.model_jd
+   # y = obj.fit_results.model
+
+   # kernel = obj.params.GP_params.rot_kernel
+   # gps = celerite.GP(kernel, mean=0.0)
+   # gps.compute(x,[0]*len(x))
+ 
+ 
+   # mu, var = gps.predict(y, x, return_var=True)
+  #  std = np.sqrt(var)
+
+   # obj.gp_model_curve[0] = [mu,var,std]        
+        
+        
+        
+    return
+
+ 
 def transit_tperi(per, ecc, om, ma, epoch):
     '''
     '''
@@ -428,8 +464,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     gps = []
     if (rtg[1]):
-        gps = initiategps(obj, kernel_id=kernel_id) 
- 
+        initiategps(obj, kernel_id=kernel_id) 
+        gps = obj.gps
     
     
 
@@ -534,17 +570,23 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         print(method2,' Done!')
         
        # print("Best fit par.:", result["x"])
+ 
 
-   
-    #print("Best fit par.:", pp)
-    
     obj.par_for_mcmc = pp  
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)   
     obj.overwrite_params(newparams)  
+
+    obj.correct_elements()
     
     obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
 
+    get_gps_model(obj)    
+    
+    
  
+    obj.loglik = result["fun"]
+    
+    
     for j in range(len(pp)):
         par[flags[j]] = pp[j]    
         
@@ -565,11 +607,14 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
 
     if len(flags) != 0:    
-        print("--- %s seconds ---" % (time.time() - start_time))        
+        print("--- %s seconds ---" % (time.time() - start_time))     
+        print("Best lnL: %s"%result["fun"])
         print("Best fit par.:")  
      
         for j in range(len(pp)):
             print(ee[j] + "  =  %s"%pp[j])
+    
+    obj.gps = []
     
     return obj
  
@@ -598,7 +643,7 @@ def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoc
     return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg)  
 
 
-########## Dynesty Work in progress #######
+########## Dynesty Work in progress!!! #######
 
 def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):          
     
@@ -705,7 +750,7 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
    # if (fileoutput):
     #    outfile = open(str(obj.mcmc_sample_file), 'w') # file to save samples
     #    for j in range(len(sampler.samples)):
-    #        outfile.write("%s  " %(ln[j]))        #BUG here!!!!!
+    #        outfile.write("%s  " %(ln[j]))
     #        for z in range(len(pp)):
      #           outfile.write("%s  " %(sampler.samples[j,z]))
      #       outfile.write("\n")
@@ -811,8 +856,10 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     
     gps = []
     if (rtg[1]):
-        gps = initiategps(obj, kernel_id=gp_kernel_id)     
- 
+        initiategps(obj, kernel_id=gp_kernel_id)     
+        gps = obj.gps
+
+    
 
     ndim, nwalkers = len(pp), len(pp)*obj.nwalkers_fact
 
@@ -829,7 +876,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
      
     print("--- %s seconds ---" % (time.time() - start_time))  
  
-    ln = np.hstack(sampler.lnprobability)
+    #ln = np.hstack(sampler.lnprobability)
     sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl)
             
     
@@ -845,11 +892,11 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     # Now we will save new parameters and their errors (different + and - errors in this case). Flag save_means determines if we want to take means as new best fit parameters or stick to old ones and calculate errors with respect to that           
     if (save_means):
         obj.par_for_mcmc = sampler.means # we will not need to keep the old parameters in this attribbute, so let's store the means now
+        pp = sampler.means
         
     elif (save_minlnL):
         obj.par_for_mcmc = sampler.minlnL # we will not need to keep the old parameters in this attribbute, so let's store the means now
-                
-        
+        pp =  sampler.minlnL
         
     new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
     
@@ -860,6 +907,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
 
     obj.fitting(minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
 
+
     obj.update_with_mcmc_errors(new_par_errors)
    
  
@@ -869,8 +917,36 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
  
     obj.params.update_GP_params(current_GP_params)
 
-    #print(current_GP_params)
+    get_gps_model(obj)
+    
+    if (save_means):
+        obj.loglik = sampler.lnL_min 
+        
+    elif (save_minlnL):
+        obj.loglik = sampler.lnL_min 
 
+
+    for j in range(len(pp)):
+        par[flags[j]] = pp[j]    
+        
+    for i in range(npl):   
+        obj.t0[i]     = par[len(vel_files)*2 +7*npl +5 + 3*i] #0.0  #time of inferior conjunction
+        obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])        
+        
+        obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+        obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
+        
+ 
+    j =0 
+    for i in range(10):        
+        if len(obj.tra_data_sets[i]) != 0:
+            obj.tra_off[i] = par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j]
+            obj.tra_jitt[i] = abs(par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j +1])
+            j = j +1
+
+
+    #print(current_GP_params)
+    print("Best lnL: %s"%sampler.lnL_min)
     print("Best fit par.:")  
     pp = obj.par_for_mcmc 
     #ee = obj.e_for_mcmc.tolist() 
@@ -883,6 +959,8 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
         obj.sampler_saved=True           
     else:   
         sampler.reset()
+
+    obj.gps = []
 
     return obj
 
@@ -1470,8 +1548,8 @@ class signal_fit(object):
         
         
         self.rtg = [True,False,False]
+ 
         
-        self.gps=[]
         if (readinputfile):
             self.read_input_file() # after running this a file should be processed and initial values saved in the object properties, unless there was some error
             self.correct_elements() # to make sure angles are between 0 and 360 etc. 
@@ -1679,6 +1757,7 @@ class signal_fit(object):
     def init_GP(self):
 
         self.doGP = False
+        self.gps=[]
         
         self.GP_params_new = [1,10,15,1]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_params_new_err = [0,0,0,0]
@@ -1687,8 +1766,10 @@ class signal_fit(object):
         self.GP_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_params_new))}        
         self.GP_norm_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_params_new))}        
                 
-
-
+        
+        self.gp_model_curve = {k: 0 for k in range(10)}
+        self.gp_model_data  = {k: 0 for k in range(10)}
+        
 
 
     def init_transit_params(self): 
@@ -2525,52 +2606,7 @@ class signal_fit(object):
             self.semimajor=self.fit_results.a
         return
         
-        
-        
-    def fitting_SciPyOp(self,  Kbounds=[[0.0,100000.0]],Pbounds=[[0.0,100000.0]],ebounds=[[-0.99,0.99]],wbounds=[[-2.0*360.0, 2.0*360.0]],Mbounds=[[-2.0*360.0, 2.0*360.0]],ibounds=[[-2.0*180.0, 2.0*180.0]],capbounds=[[-2.0*360.0, 2.0*360.0]],offbounds=[[-100000.0,100000.0]],jitbounds=[[0.0,10000.0]],lintrbounds=[[-10.0,10.0]], GPbounds=[[0.0,100000.0]], stmassbounds=[[0.01,1000.0]], prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False], save_means=False, fileoutput=False, save_sampler=False,burning_ph=20, mcmc_ph=20, **kwargs):      
-
-         #def fittingSciPyOp(, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False]):    
-         ####### find the -LogLik "minimum" using the "truncated Newton" method ######### 
-    
-        if (doGP):
-            self.initiategps(gp_par=gp_par, use_gp_par=use_gp_par, kernel_id=kernel_id)
-            nll = lambda *args: -compute_loglik_SciPyOp2(*args)
-        else:
-            nll = lambda *args: -compute_loglik_SciPyOp(*args)
-            GPbounds=[[x-10.0,x+10.0] for x in self.params.GP_params.gp_par] # just to make sure GPbounds don't cause lnprob return -infinity when we don't do GP (now all GP_params will be within bounds for sure)
-     
- 
-        self.prepare_for_mcmc(Kbounds=Kbounds,Pbounds=Pbounds,ebounds=ebounds,wbounds=wbounds,Mbounds=Mbounds,ibounds=ibounds,capbounds=capbounds,offbounds=offbounds,jitbounds=jitbounds,lintrbounds=lintrbounds, GPbounds=GPbounds, stmassbounds=stmassbounds)    
-        pp = self.par_for_mcmc
- 
-    
-        # b = np.array(obj.bounds.offset_bounds,obj.bounds.jitter_bounds,obj.bounds.planet_params_bounds,
-        #                    obj.bounds.linear_trend_bounds,obj.bounds.GP_params_bounds,obj.bounds.stellar_mass_bounds)
-        # b.flatten()
-        # print(b)
-        # bounds=b,
-        minimzers = ['Nelder-Mead','Powell','CG','BFGS','Newton-CG','L-BFGS-B', 'TNC','COBYLA','SLSQP','dogleg','trust-ncg']
-
-        # for k in range(2): # run at least 3 times the minimizer
-        #     result = op.minimize(nll, pp, args=(obj), method=minimzers[6], bounds=None, options={'xtol': 1e-6, 'disp': True })
-        #     pp = result["x"]
          
-        #  print("Best fit par.:", result["x"])
-        #----------------- one more time using the Simplex method ---------------------#
-        xtol = 1e-3
-        for k in range(3): # run at least 3 times the minimizer
-            xtol = xtol/10.0 
-
-            result = op.minimize(nll, pp, args=(self), method=minimzers[0], options={'xtol': xtol, 'disp': True, 'maxiter':10000, 'maxfev':10000 })
-            pp = result["x"]
-
-        print("Best fit par.:", result["x"])
-    
-        self.par_for_mcmc = result["x"]        
-        
-        #self.initiategps = None
-        self.gps= None
-                
     ### this function is a wrapper calling a fortran program to fit parameters in keplerian mode by minimizing chi^2   WORK IN PROGRESS ON THAT ONE! 
         
     def fitting(self, minimize_fortran=True, minimize_loglik=False, fileinput=False, doGP=False, kernel_id=-1, filename='Kep_input', outputfiles=[1,1,1], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500,model_min =0): # run the fit which will either minimize chi^2 or loglik.
