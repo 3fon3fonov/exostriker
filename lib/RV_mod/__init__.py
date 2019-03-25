@@ -50,95 +50,7 @@ NPLMAX=20
 DEFAULT_PATH='./datafiles/'
 
 
-###################### Fit transits (work in progress) #######################
 
-
-
-def run_SciPyOp_transit(obj):      
- 
-    
-    nll = lambda *args: -compute_loglik_transit(*args)
-
-    flag_ind = [idx for idx in range(len(obj.tr_params_use)) if obj.tr_params_use[idx] == True ]
-    
-    p = []  #'p" are the fitted parameters
-    b = []
-    e = []
-    
-    for j in range(len(obj.tr_par)):
-        if obj.tr_params_use[j]:
-            p.append(obj.tr_par[j])
-            b.append(obj.tr_bounds[j])
-            e.append(obj.tr_el_str[j])
-    
-    b = np.array(b)
-    
-    
-    minimzers = ['Nelder-Mead','Powell','CG','BFGS','Newton-CG','L-BFGS-B', 'TNC','COBYLA','SLSQP','dogleg','trust-ncg']
- 
-    #----------------- one more time using the Simplex method ---------------------#
-    xtol = 1e-3
-    for k in range(3): # run at least 3 times the minimizer
-        xtol = xtol/10.0 
-        if len(p) ==0:
-            #print("Transit fitting not possible: All parameters are fixed! ")
-            loglik_tra = compute_loglik_transit(p,obj,flag_ind,b,e)
-            return
-        else:
-     
-            result = op.minimize(nll, p, args=(obj,flag_ind,b,e), method=minimzers[0], options={'xtol': xtol, 'disp': True, 'maxiter':30000, 'maxfev':30000 })
-            p = result["x"]
-
-    print("Best fit par.:")  
- 
-    for j in range(len(p)):
-        print(e[j] + "  =  %s"%p[j])
-   
- 
-    
-def compute_loglik_transit(p,copied_obj,flag_ind,b,e):
-    #newparams=copied_obj.generate_newparams_for_mcmc(p)
-  #  oldparams=signalfit.params
-              
- 
-    for j in range(len(p)):
- 
-        if p[j] <= b[j,0] or p[j] >= b[j,1]:
-            return -np.inf
-        else:
-            copied_obj.tr_par[flag_ind[j]] = p[j]  
-            
-    #print(copied_obj.tr_par)
-    if len(copied_obj.tra_data_sets[0]) == 0:
-        return -np.inf        
-    else: 
-        t = copied_obj.tra_data_sets[0][0] 
-        flux = copied_obj.tra_data_sets[0][1] 
-        flux_err = copied_obj.tra_data_sets[0][2] 
-        
-        
-        #print(copied_obj.tr_par[0],copied_obj.tr_par[1])
-        copied_obj.tr_params.t0  = copied_obj.tr_par[0] #0.0  #time of inferior conjunction
-        copied_obj.tr_params.per = copied_obj.tr_par[1] #1.0    #orbital period
-        copied_obj.tr_params.ecc = copied_obj.tr_par[2] #0.0  
-        copied_obj.tr_params.w   = copied_obj.tr_par[3] #90.0   #longitude of periastron (in degrees)               
-        copied_obj.tr_params.rp  = copied_obj.tr_par[4] #0.15   #planet radius (in units of stellar radii)
-        copied_obj.tr_params.inc = copied_obj.tr_par[5] #90. #orbital inclination (in degrees)
-        copied_obj.tr_params.a   = copied_obj.tr_par[6] #15  #semi-major axis (in units of stellar radii)
-
-       
-        m = batman.TransitModel(copied_obj.tr_params, t)    #initializes model
- 
-        flux_model = m.light_curve(copied_obj.tr_params)          #calculates light curve  
-        tr_o_c = flux -flux_model
-        S = 0
-        for i in range(len(tr_o_c)):
-            S= S + (((tr_o_c[i]**2)/(2*flux_err[i]**2) ) - 0.5*(np.log(TAU*(flux_err[i]**2))))
- 
-        return -S
-  
- 
-###################### Fit transits END (work in progress) #######################
 
 
 
@@ -244,26 +156,22 @@ def ma_from_t0(per, ecc, om, t_transit, epoch):
     
     
 def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epoch, stmass, gps, rtg, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=300, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
-#def kep_fit(p, mod, par,flag_ind, npl,vel_files,epoch):
-
  
     rv_loglik = 0
     gp_rv_loglik = 0
     tr_loglik = 0
     gp_tr_loglik = 0
    
-
+    
+    if np.isnan(p).any():
+        return -np.inf
+    
     for j in range(len(p)):
         par[flags[j]] = p[j]    
-   # print(rtg)
     
     if (rtg[1]):
         outputfiles = [1,1,0]
     
-   # if (rtg[2]):
-   #     for i in range(npl):
-   #         par[len(vel_files)*2 +7*i+4] = 0 #ma_from_t0(par[len(vel_files)*2 +7*i+1], par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*npl +5 + 3*i], 0)
-
     if rtg[2] == True:
         for i in range(npl): # K,P,e,w,M,i,cap0m for each planet, and information which ones we use    
             par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
@@ -277,13 +185,10 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
                                                                   par[len(vel_files)*2 +7*i+2],
                                                                   par[len(vel_files)*2 +7*i+3],
                                                                   par[len(vel_files)*2 +7*i+3],epoch)[1]%par[len(vel_files)*2 +7*i+1]
-
-           # print(par[len(vel_files)*2 +7*npl +5 + 3*i])
     
     if(rtg[0]):
         
-        
-      
+            
         ppp= '%s << EOF\n%s %f %d %d %d %d %d\n%f %d %d %d \n%d\n'%(program, eps,dt,amoeba_starts,when_to_kill,npoints, model_max, model_min, stmass, outputfiles[0], outputfiles[1],outputfiles[2], len(vel_files)) # first three lines of fortran input: precision and timestep for integration, stellar mass and number of datasets
         for i in range(len(vel_files)): 
             # path for each dataset      
@@ -308,8 +213,6 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
         ppp+='%f\n'%epoch
         ppp+='EOF' 
  
-     
-       # print(ppp)
         # prepare final version of the ppp command to be returned by this function
         
         text,flag=run_command_with_timeout(ppp, 20, output=True, pipe=True) # running command generated by the fortran_input function 
@@ -360,23 +263,11 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
                 tr_params.ecc = par[len(vel_files)*2 +7*i+2] #0.0  
                 tr_params.w   = par[len(vel_files)*2 +7*i+3] #90.0   #longitude of periastron (in degrees)               
                 tr_params.inc = par[len(vel_files)*2 +7*i+5]#90. #orbital inclination (in degrees)                
- 
-                #if rtg[0] == True:
-               #     t_peri, t_transit = transit_tperi(par[len(vel_files)*2 +7*i+1], par[len(vel_files)*2 +7*i+2], 
-               #                                       par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4], epoch)
-                    #t00 = par[len(vel_files)*2 +7*i+1] - (epoch%par[len(vel_files)*2 +7*i+1]) + (t_transit-epoch)
-                #    t00 = par[len(vel_files)*2 +7*i+1] - t_transit
-                   
-                #    tr_params.t0  = par[len(vel_files)*2 +7*npl +5 + 3*i] = t00%par[len(vel_files)*2 +7*i+1]  #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
-               # else:
-               #     tr_params.t0  = par[len(vel_files)*2 +7*npl +5 + 3*i] #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
 
                 tr_params.t0  = par[len(vel_files)*2 +7*npl +5 + 3*i]
                 tr_params.a   = par[len(vel_files)*2 +7*npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
                 tr_params.rp  = par[len(vel_files)*2 +7*npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)
-                #print(tr_params.t0)
-                #print(tr_params.per, tr_params.ecc,tr_params.w, tr_params.inc, tr_params.t0,tr_params.a,tr_params.rp )
-        
+
                 m[i] = batman.TransitModel(tr_params, t)    #initializes model
      
                 flux_model = flux_model * m[i].light_curve(tr_params)    
@@ -384,9 +275,7 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
                 
                 #calculates light curve  
             #tr_o_c = flux -flux_model
-            
-            #chi = 0         
-            #tr_loglik = 0
+
             sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j+1]**2 )
            
             tr_loglik = -0.5*(np.sum((flux -flux_model)**2 * sig2i - np.log(sig2i / 2./ np.pi))) 
@@ -404,12 +293,8 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
 
                 #tr_loglik= tr_loglik - 0.5*(((tr_o_c[i]**2)/(flux_err[i]**2) ) - 0.5*(np.log(TAU*(flux_err[i]**2))))
                 #tr_loglik= tr_loglik - 0.5*(((tr_o_c[i]**2)*sig2i ) - 0.5*(np.log(TAU*(flux_err[i]**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j+1]**2 ))))
- 
-           # return tr_loglik
-            #print(tr_loglik)       
-#       	  loglik =  loglik - 0.5*dy*dy*sig2i -
-#     &               0.5*dlog(twopi*(sig(i)**2
-#     &                + a(5*npl+ndset+idset)**2))  
+
+
    # print(rv_loglik, tr_loglik)        
     return rv_loglik + tr_loglik
     
@@ -984,56 +869,7 @@ def cornerplot(obj, fileinput=False, level=(100.0-68.3)/2.0, **kwargs):
        
   
  
-           
-    
         
-def fitting(obj, minimize_fortran=True, minimize_loglik=False, fileinput=False, doGP=False, gp_par=None, kernel_id=-1, use_gp_par=[False,False,False,False], filename='Kep_input', outputfiles=[1,1,1], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500,model_min =0): # run the fit which will either minimize chi^2 or loglik.
-    '''       
-     eps, dt - accuracy and step for the integration in dynamical case, in keplerian case ignored, just given for input consistency
-     which value to minimize (used for calling an appropriate fortran program)
-    '''      
-    
-    eps = eps * 1e-13 
-    dt  = dt  * 86400.0         
-    
-    if(minimize_loglik):
-        minimized_value='loglik'
-    else:
-        minimized_value='chi2'
-    # which mode to use, analogously as above
-    if(obj.mod_dynamical):
-        mod='dyn'
-    else:
-        mod='kep'
-        
-    if(minimize_fortran):   
-        program='./lib/fr/%s_%s'%(minimized_value,mod) 
-        text,flag=run_command_with_timeout(obj.fortran_input(program=program, fileinput=fileinput, filename=filename, outputfiles=outputfiles,amoeba_starts=amoeba_starts,eps=eps,dt=dt, when_to_kill=fortran_kill, npoints=npoints, model_max = model_max, model_min =model_min), timeout_sec, output=True,pipe=(not bool(outputfiles[2]))) # running command generated by the fortran_input function 
-       
-    else:
-        obj.fitting_SciPyOp(doGP=doGP, gp_par=gp_par, kernel_id=kernel_id, use_gp_par=use_gp_par)         
-        program='./lib/fr/%s_%s'%(minimized_value,mod) 
-        text,flag=run_command_with_timeout(obj.fortran_input(program=program, fileinput=fileinput, filename=filename, outputfiles=outputfiles,amoeba_starts=0,eps=eps,dt=dt, when_to_kill=fortran_kill, npoints=npoints, model_max = model_max, model_min =model_min), timeout_sec, output=True,pipe=(not bool(outputfiles[2]))) # running command generated by the fortran_input function 
-       
-              
-    if (flag==1):
-        fortranoutput=fortran_output(text,obj.npl,obj.filelist.ndset,obj.params.stellar_mass) # create an object for fortran output, which we need to split into part
-        obj.fit_results=fortranoutput.modfit(print_stat=print_stat)
-        obj.stat_saved=obj.fit_results.stat_array_saved
-        if (obj.stat_saved):
-            obj.never_saved=False
-        obj.model_saved=bool(outputfiles[1])
-        obj.fit_performed=True
-        if(obj.fit_results.stat_array_saved): 
-            obj.fitting_method=program
-        obj.update_with_fit_results()
-        obj.correct_elements() #because amoeba might make things wrong here
-    if (return_flag):
-        return flag
-    else:
-        return obj
-
-
 
 def custom_param_file_for_stability(max_time,time_step):
 
@@ -1154,320 +990,6 @@ def planet_orbit_xyz(obj, planet):
     return np.array([x,y,z,u,v,w]), np.array([x_p,y_p,z_p,u_p,v_p,w_p]), np.array([x[min_index],y[min_index],z[min_index],u[min_index],v[min_index],w[min_index]]), np.array([x[max_index],y[max_index],z[max_index],u[max_index],v[max_index],w[max_index]])
 
  
-    
-def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, file_name='test.tex',path='./'):
-    
-
-    if asymmetric != True:
-        
-        text = '''       
-    \\begin{table}[ht]
-    % \\begin{adjustwidth}{-4.0cm}{} 
-    % \\resizebox{0.69\textheight}{!}
-    % {\\begin{minipage}{1.1\textwidth}
-    
-    \centering   
-    \caption{{}}   
-    \label{table:}      
-    
-    \\begin{tabular}{lrrrrrrrr}     % 2 columns 
-    
-    \hline\hline  \\noalign{\\vskip 0.7mm}      
-    '''
-    
-     
-        text = text + '''Parameter \hspace{0.0 mm}'''
-        for i in range(obj.npl):     
-            text = text + '''& Planet %s '''%chr(98+i)
-        text = text + '''\\\\
-    \hline \\noalign{\\vskip 0.7mm} 
-        
-        '''
-    
-        text = text + '''{0:{width}s}'''.format("$K$  [m\,s$^{-1}$]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i], max(np.abs(obj.param_errors.planet_params_errors[7*i])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''        
-        text = text + '''{0:{width}s}'''.format("$P$  [day]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +1], max(np.abs(obj.param_errors.planet_params_errors[7*i +1])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''  
-        text = text + '''{0:{width}s}'''.format("$e$  ", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +2], max(np.abs(obj.param_errors.planet_params_errors[7*i +2])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''  
-        text = text + '''{0:{width}s}'''.format("$\omega$  [deg]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +3], max(np.abs(obj.param_errors.planet_params_errors[7*i +3])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''  
-        text = text + '''{0:{width}s}'''.format("$M_{\\rm 0}$  [deg]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +4], max(np.abs(obj.param_errors.planet_params_errors[7*i +4])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''          
-        text = text + '''{0:{width}s}'''.format("$i$  [deg]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +5], max(np.abs(obj.param_errors.planet_params_errors[7*i +5])), width = width, precision = precision)
-        text = text + '''\\\\    
-        '''      
-        text = text + '''{0:{width}s}'''.format("$\Omega$  [deg]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +6], max(np.abs(obj.param_errors.planet_params_errors[7*i +6])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''            
-        text = text + '''{0:{width}s}'''.format("$t_{\\rm 0}$  [day]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.t0[i], max(abs(obj.t0_err[i])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''            
-        text = text + '''{0:{width}s}'''.format("Rad.  [$R_\oplus$]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.pl_rad[i], max(abs(obj.pl_rad_err[i])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''            
-        text = text + '''{0:{width}s}'''.format("$a$  [$R_\odot$]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.pl_a[i], max(abs(obj.pl_a_err[i])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''   
-        text = text + '''{0:{width}s}'''.format("$a$  [au]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.fit_results.a[i], 0, width = width, precision = precision)
-        text = text + '''\\\\
-        '''      
-        text = text + '''{0:{width}s}'''.format("$m \sin i$  [$M_{\\rm jup}$]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.fit_results.mass[i], 0, width = width, precision = precision)
-        text = text + '''\\\\
-        '''          
-        text = text + '''{0:{width}s}'''.format("$t_{\omega}$  [day]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format((float(obj.epoch) - (np.radians(obj.params.planet_params[7*i + 4])/(2*np.pi))*obj.params.planet_params[7*i + 1] ), 0, width = width, precision = precision)
-        text = text + '''\\\\ 
-        '''          
-     
-             
-        for i in range(obj.filelist.ndset):   
-            text = text + '''{0:{width}s}'''.format("RV$_{\\rm off}$ %s"%(i+1), width = 30)            
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.params.offsets[i]), float(max(np.abs(obj.param_errors.offset_errors[i]))), width = width, precision = precision)
-            text = text + '''\\\\
-        '''   
-        for i in range(obj.filelist.ndset):   
-            text = text + '''{0:{width}s}'''.format("RV$_{\\rm jit}$ %s"%(i+1), width = 30)            
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.params.jitters[i]), float(max(np.abs(obj.param_errors.jitter_errors[i]))), width = width, precision = precision)
-            text = text + '''\\\\
-        '''   
-    
-        text = text + '''{0:{width}s}'''.format("$\chi^2$", width = 30)            
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.chi2), width = width, precision = precision)
-        text = text + '''\\\\
-        '''    
-        text = text + '''{0:{width}s}'''.format("$\chi_{\\nu}^2$", width = 30)            
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.reduced_chi2), width = width, precision = precision)
-        text = text + '''\\\\
-        '''        
-        text = text + '''{0:{width}s}'''.format("$r.m.s.$ [m\,s$^{-1}$]", width = 30)            
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.rms), width = width, precision = precision)
-        text = text + '''\\\\
-        '''            
-    
-        text = text + '''{0:{width}s}'''.format("$-\ln\mathcal{L}$", width = 30)            
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.loglik), width = width, precision = precision)
-        text = text + '''\\\\
-        '''        
-        text = text + '''{0:{width}s}'''.format("N$_{\\rm RV}$ data", width = 30)            
-        text = text + '''& {0:{width}.{precision}f} '''.format(len(obj.fit_results.jd), width = width, precision = 0)
-        text = text + '''\\\\
-        '''         
-        
-        text = text + '''{0:{width}s}'''.format("Epoch", width = 30)            
-        text = text + '''& {0:{width}.{precision}f} '''.format(obj.epoch, width = width, precision = precision)
-        text = text + '''\\\\
-        '''           
-        
-        text = text + '''\\\\
-    \hline \\noalign{\\vskip 0.7mm} 
-        
-        '''     
-        
-        text = text + '''        
-    \end{tabular}  
-    
-    % \end{minipage}}
-    % \end{adjustwidth}
-    
-    %\\tablefoot{\small }
-    
-    \end{table}
-    '''  
-
-    elif asymmetric == True:
-
-        text = '''       
-    \\begin{table}[ht]
-    % \\begin{adjustwidth}{-4.0cm}{} 
-    % \\resizebox{0.69\textheight}{!}
-    % {\\begin{minipage}{1.1\textwidth}
-    
-    \centering   
-    \caption{{}}   
-    \label{table:}      
-    
-    \\begin{tabular}{lrrrrrrrr}     % 2 columns 
-    
-    \hline\hline  \\noalign{\\vskip 0.7mm}      
-    '''
-    
-     
-        text = text + '''Parameter \hspace{0.0 mm}'''
-        for i in range(obj.npl):     
-            text = text + '''& Planet %s '''%chr(98+i)
-        text = text + '''\\\\
-    \hline \\noalign{\\vskip 0.7mm} 
-        
-        '''
-    
-        text = text + '''{0:{width}s}'''.format("$K$  [m\,s$^{-1}$]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i], obj.param_errors.planet_params_errors[7*i][0], obj.param_errors.planet_params_errors[7*i][1], width = width, width2 = 0, precision = precision)
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''        
-        text = text + '''{0:{width}s}'''.format("$P$  [day]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +1], obj.param_errors.planet_params_errors[7*i +1][0], obj.param_errors.planet_params_errors[7*i +1][1], width = width, width2 = 0, precision = precision)
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''  
-        text = text + '''{0:{width}s}'''.format("$e$  ", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +2], obj.param_errors.planet_params_errors[7*i +2][0], obj.param_errors.planet_params_errors[7*i +2][1], width = width, width2 = 0, precision = precision)
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''  
-        text = text + '''{0:{width}s}'''.format("$\omega$  [deg]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +3], obj.param_errors.planet_params_errors[7*i +3][0], obj.param_errors.planet_params_errors[7*i +3][1], width = width, width2 = 0, precision = precision)
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''  
-        text = text + '''{0:{width}s}'''.format("$M_{\\rm 0}$  [deg]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +4], obj.param_errors.planet_params_errors[7*i +4][0], obj.param_errors.planet_params_errors[7*i +4][1], width = width, width2 = 0, precision = precision)
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''          
-        text = text + '''{0:{width}s}'''.format("$i$  [deg]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +5], obj.param_errors.planet_params_errors[7*i +5][0], obj.param_errors.planet_params_errors[7*i +5][1], width = width, width2 = 0, precision = precision)
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
-        '''      
-        text = text + '''{0:{width}s}'''.format("$\Omega$  [deg]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +6], obj.param_errors.planet_params_errors[7*i +6][0], obj.param_errors.planet_params_errors[7*i +6][1], width = width, width2 = 0, precision = precision)
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
-        '''            
-        text = text + '''{0:{width}s}'''.format("$t_{\\rm 0}$  [day]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.t0[i], obj.t0_err[i][0], obj.t0_err[i][1], width = width, width2 = 0, precision = precision)
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
-        '''            
-        text = text + '''{0:{width}s}'''.format("Rad.  [$R_\oplus$]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.pl_rad[i], obj.pl_rad_err[i][0], obj.pl_rad_err[i][1], width = width, width2 = 0, precision = precision)            
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
-        '''            
-        text = text + '''{0:{width}s}'''.format("$a$  [$R_\odot$]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.pl_a[i], obj.pl_a_err[i][0], obj.pl_a_err[i][1], width = width, width2 = 0, precision = precision)                        
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
-        '''   
-        text = text + '''{0:{width}s}'''.format("$a$  [au]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.fit_results.a[i], 0,0, width = width, width2 = 0, precision = precision)                                    
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
-        '''      
-        text = text + '''{0:{width}s}'''.format("$m \sin i$  [$M_{\\rm jup}$]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.fit_results.mass[i], 0,0, width = width, width2 = 0, precision = precision)                                                
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
-        '''          
-        text = text + '''{0:{width}s}'''.format("$t_{\omega}$  [day]", width = 30)
-        for i in range(obj.npl):    
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format((float(obj.epoch) - (np.radians(obj.params.planet_params[7*i + 4])/(2*np.pi))*obj.params.planet_params[7*i + 1] ), 0,0, width = width, width2 = 0, precision = precision)                                                            
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
-        '''          
-     
-             
-        for i in range(obj.filelist.ndset):   
-            text = text + '''{0:{width}s}'''.format("RV$_{\\rm off}$ %s"%(i+1), width = 30)      
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.params.offsets[i]), obj.param_errors.offset_errors[i][0], obj.param_errors.offset_errors[i][1], width = width, width2 = 0, precision = precision)                        
-            text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''   
-        for i in range(obj.filelist.ndset):   
-            text = text + '''{0:{width}s}'''.format("RV$_{\\rm jit}$ %s"%(i+1), width = 30) 
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.params.jitters[i]), obj.param_errors.jitter_errors[i][0], obj.param_errors.jitter_errors[i][1], width = width, width2 = 0, precision = precision)                        
-            text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''   
-    
-        text = text + '''{0:{width}s}'''.format("$\chi^2$", width = 30)            
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.chi2), width = width, precision = precision)
-        text = text + '''\\\\
-        '''    
-        text = text + '''{0:{width}s}'''.format("$\chi_{\\nu}^2$", width = 30)            
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.reduced_chi2), width = width, precision = precision)
-        text = text + '''\\\\
-        '''        
-        text = text + '''{0:{width}s}'''.format("$r.m.s.$ [m\,s$^{-1}$]", width = 30)            
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.rms), width = width, precision = precision)
-        text = text + '''\\\\
-        '''            
-    
-        text = text + '''{0:{width}s}'''.format("$-\ln\mathcal{L}$", width = 30)            
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.loglik), width = width, precision = precision)
-        text = text + '''\\\\
-        '''        
-        text = text + '''{0:{width}s}'''.format("N$_{\\rm RV}$ data", width = 30)            
-        text = text + '''& {0:{width}.{precision}f} '''.format(len(obj.fit_results.jd), width = width, precision = 0)
-        text = text + '''\\\\
-        '''         
-        
-        text = text + '''{0:{width}s}'''.format("Epoch", width = 30)            
-        text = text + '''& {0:{width}.{precision}f} '''.format(obj.epoch, width = width, precision = precision)
-        text = text + '''\\\\
-        '''           
-        
-        text = text + '''\\\\
-    \hline \\noalign{\\vskip 0.7mm} 
-        
-        '''     
-        
-        text = text + '''        
-    \end{tabular}  
-    
-    % \end{minipage}}
-    % \end{adjustwidth}
-    
-    %\\tablefoot{\small }
-    
-    \end{table}
-    '''         
-
-    else:
-        print("asymmetric must be True or False")
-        return
-    
-    
-    table_file = open(file_name, 'wb') 
-        
-    table_file.write(text)
- 
-    table_file.close()
-
-
-    return "Done"
-
-
-
 
 
 class FunctionWrapper(object):

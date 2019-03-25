@@ -285,3 +285,319 @@ def verify_array_with_bounds(ar,bounds):
             break       
         
     return verification
+
+
+
+    
+def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, file_name='test.tex',path='./'):
+    
+
+    if asymmetric != True:
+        
+        text = '''       
+    \\begin{table}[ht]
+    % \\begin{adjustwidth}{-4.0cm}{} 
+    % \\resizebox{0.69\textheight}{!}
+    % {\\begin{minipage}{1.1\textwidth}
+    
+    \centering   
+    \caption{{}}   
+    \label{table:}      
+    
+    \\begin{tabular}{lrrrrrrrr}     % 2 columns 
+    
+    \hline\hline  \\noalign{\\vskip 0.7mm}      
+    '''
+    
+     
+        text = text + '''Parameter \hspace{0.0 mm}'''
+        for i in range(obj.npl):     
+            text = text + '''& Planet %s '''%chr(98+i)
+        text = text + '''\\\\
+    \hline \\noalign{\\vskip 0.7mm} 
+        
+        '''
+    
+        text = text + '''{0:{width}s}'''.format("$K$  [m\,s$^{-1}$]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i], max(np.abs(obj.param_errors.planet_params_errors[7*i])), width = width, precision = precision)
+        text = text + '''\\\\
+        '''        
+        text = text + '''{0:{width}s}'''.format("$P$  [day]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +1], max(np.abs(obj.param_errors.planet_params_errors[7*i +1])), width = width, precision = precision)
+        text = text + '''\\\\
+        '''  
+        text = text + '''{0:{width}s}'''.format("$e$  ", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +2], max(np.abs(obj.param_errors.planet_params_errors[7*i +2])), width = width, precision = precision)
+        text = text + '''\\\\
+        '''  
+        text = text + '''{0:{width}s}'''.format("$\omega$  [deg]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +3], max(np.abs(obj.param_errors.planet_params_errors[7*i +3])), width = width, precision = precision)
+        text = text + '''\\\\
+        '''  
+        text = text + '''{0:{width}s}'''.format("$M_{\\rm 0}$  [deg]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +4], max(np.abs(obj.param_errors.planet_params_errors[7*i +4])), width = width, precision = precision)
+        text = text + '''\\\\
+        '''          
+        text = text + '''{0:{width}s}'''.format("$i$  [deg]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +5], max(np.abs(obj.param_errors.planet_params_errors[7*i +5])), width = width, precision = precision)
+        text = text + '''\\\\    
+        '''      
+        text = text + '''{0:{width}s}'''.format("$\Omega$  [deg]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +6], max(np.abs(obj.param_errors.planet_params_errors[7*i +6])), width = width, precision = precision)
+        text = text + '''\\\\
+        '''            
+        text = text + '''{0:{width}s}'''.format("$t_{\\rm 0}$  [day]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.t0[i], max(abs(obj.t0_err[i])), width = width, precision = precision)
+        text = text + '''\\\\
+        '''            
+        text = text + '''{0:{width}s}'''.format("Rad.  [$R_\oplus$]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.pl_rad[i], max(abs(obj.pl_rad_err[i])), width = width, precision = precision)
+        text = text + '''\\\\
+        '''            
+        text = text + '''{0:{width}s}'''.format("$a$  [$R_\odot$]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.pl_a[i], max(abs(obj.pl_a_err[i])), width = width, precision = precision)
+        text = text + '''\\\\
+        '''   
+        text = text + '''{0:{width}s}'''.format("$a$  [au]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.fit_results.a[i], 0, width = width, precision = precision)
+        text = text + '''\\\\
+        '''      
+        text = text + '''{0:{width}s}'''.format("$m \sin i$  [$M_{\\rm jup}$]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.fit_results.mass[i], 0, width = width, precision = precision)
+        text = text + '''\\\\
+        '''          
+        text = text + '''{0:{width}s}'''.format("$t_{\omega}$  [day]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format((float(obj.epoch) - (np.radians(obj.params.planet_params[7*i + 4])/(2*np.pi))*obj.params.planet_params[7*i + 1] ), 0, width = width, precision = precision)
+        text = text + '''\\\\ 
+        '''          
+     
+             
+        for i in range(obj.filelist.ndset):   
+            text = text + '''{0:{width}s}'''.format("RV$_{\\rm off}$ %s"%(i+1), width = 30)            
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.params.offsets[i]), float(max(np.abs(obj.param_errors.offset_errors[i]))), width = width, precision = precision)
+            text = text + '''\\\\
+        '''   
+        for i in range(obj.filelist.ndset):   
+            text = text + '''{0:{width}s}'''.format("RV$_{\\rm jit}$ %s"%(i+1), width = 30)            
+            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.params.jitters[i]), float(max(np.abs(obj.param_errors.jitter_errors[i]))), width = width, precision = precision)
+            text = text + '''\\\\
+        '''   
+    
+        text = text + '''{0:{width}s}'''.format("$\chi^2$", width = 30)            
+        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.chi2), width = width, precision = precision)
+        text = text + '''\\\\
+        '''    
+        text = text + '''{0:{width}s}'''.format("$\chi_{\\nu}^2$", width = 30)            
+        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.reduced_chi2), width = width, precision = precision)
+        text = text + '''\\\\
+        '''        
+        text = text + '''{0:{width}s}'''.format("$r.m.s.$ [m\,s$^{-1}$]", width = 30)            
+        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.rms), width = width, precision = precision)
+        text = text + '''\\\\
+        '''            
+    
+        text = text + '''{0:{width}s}'''.format("$-\ln\mathcal{L}$", width = 30)            
+        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.loglik), width = width, precision = precision)
+        text = text + '''\\\\
+        '''        
+        text = text + '''{0:{width}s}'''.format("N$_{\\rm RV}$ data", width = 30)            
+        text = text + '''& {0:{width}.{precision}f} '''.format(len(obj.fit_results.jd), width = width, precision = 0)
+        text = text + '''\\\\
+        '''         
+        
+        text = text + '''{0:{width}s}'''.format("Epoch", width = 30)            
+        text = text + '''& {0:{width}.{precision}f} '''.format(obj.epoch, width = width, precision = precision)
+        text = text + '''\\\\
+        '''           
+        
+        text = text + '''\\\\
+    \hline \\noalign{\\vskip 0.7mm} 
+        
+        '''     
+        
+        text = text + '''        
+    \end{tabular}  
+    
+    % \end{minipage}}
+    % \end{adjustwidth}
+    
+    %\\tablefoot{\small }
+    
+    \end{table}
+    '''  
+
+    elif asymmetric == True:
+
+        text = '''       
+    \\begin{table}[ht]
+    % \\begin{adjustwidth}{-4.0cm}{} 
+    % \\resizebox{0.69\textheight}{!}
+    % {\\begin{minipage}{1.1\textwidth}
+    
+    \centering   
+    \caption{{}}   
+    \label{table:}      
+    
+    \\begin{tabular}{lrrrrrrrr}     % 2 columns 
+    
+    \hline\hline  \\noalign{\\vskip 0.7mm}      
+    '''
+    
+     
+        text = text + '''Parameter \hspace{0.0 mm}'''
+        for i in range(obj.npl):     
+            text = text + '''& Planet %s '''%chr(98+i)
+        text = text + '''\\\\
+    \hline \\noalign{\\vskip 0.7mm} 
+        
+        '''
+    
+        text = text + '''{0:{width}s}'''.format("$K$  [m\,s$^{-1}$]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i], obj.param_errors.planet_params_errors[7*i][0], obj.param_errors.planet_params_errors[7*i][1], width = width, width2 = 0, precision = precision)
+        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
+        '''        
+        text = text + '''{0:{width}s}'''.format("$P$  [day]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +1], obj.param_errors.planet_params_errors[7*i +1][0], obj.param_errors.planet_params_errors[7*i +1][1], width = width, width2 = 0, precision = precision)
+        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
+        '''  
+        text = text + '''{0:{width}s}'''.format("$e$  ", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +2], obj.param_errors.planet_params_errors[7*i +2][0], obj.param_errors.planet_params_errors[7*i +2][1], width = width, width2 = 0, precision = precision)
+        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
+        '''  
+        text = text + '''{0:{width}s}'''.format("$\omega$  [deg]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +3], obj.param_errors.planet_params_errors[7*i +3][0], obj.param_errors.planet_params_errors[7*i +3][1], width = width, width2 = 0, precision = precision)
+        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
+        '''  
+        text = text + '''{0:{width}s}'''.format("$M_{\\rm 0}$  [deg]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +4], obj.param_errors.planet_params_errors[7*i +4][0], obj.param_errors.planet_params_errors[7*i +4][1], width = width, width2 = 0, precision = precision)
+        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
+        '''          
+        text = text + '''{0:{width}s}'''.format("$i$  [deg]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +5], obj.param_errors.planet_params_errors[7*i +5][0], obj.param_errors.planet_params_errors[7*i +5][1], width = width, width2 = 0, precision = precision)
+        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
+        '''      
+        text = text + '''{0:{width}s}'''.format("$\Omega$  [deg]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +6], obj.param_errors.planet_params_errors[7*i +6][0], obj.param_errors.planet_params_errors[7*i +6][1], width = width, width2 = 0, precision = precision)
+        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
+        '''            
+        text = text + '''{0:{width}s}'''.format("$t_{\\rm 0}$  [day]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.t0[i], obj.t0_err[i][0], obj.t0_err[i][1], width = width, width2 = 0, precision = precision)
+        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
+        '''            
+        text = text + '''{0:{width}s}'''.format("Rad.  [$R_\oplus$]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.pl_rad[i], obj.pl_rad_err[i][0], obj.pl_rad_err[i][1], width = width, width2 = 0, precision = precision)            
+        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
+        '''            
+        text = text + '''{0:{width}s}'''.format("$a$  [$R_\odot$]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.pl_a[i], obj.pl_a_err[i][0], obj.pl_a_err[i][1], width = width, width2 = 0, precision = precision)                        
+        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
+        '''   
+        text = text + '''{0:{width}s}'''.format("$a$  [au]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.fit_results.a[i], 0,0, width = width, width2 = 0, precision = precision)                                    
+        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
+        '''      
+        text = text + '''{0:{width}s}'''.format("$m \sin i$  [$M_{\\rm jup}$]", width = 30)
+        for i in range(obj.npl):     
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.fit_results.mass[i], 0,0, width = width, width2 = 0, precision = precision)                                                
+        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
+        '''          
+        text = text + '''{0:{width}s}'''.format("$t_{\omega}$  [day]", width = 30)
+        for i in range(obj.npl):    
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format((float(obj.epoch) - (np.radians(obj.params.planet_params[7*i + 4])/(2*np.pi))*obj.params.planet_params[7*i + 1] ), 0,0, width = width, width2 = 0, precision = precision)                                                            
+        text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
+        '''          
+     
+             
+        for i in range(obj.filelist.ndset):   
+            text = text + '''{0:{width}s}'''.format("RV$_{\\rm off}$ %s"%(i+1), width = 30)      
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.params.offsets[i]), obj.param_errors.offset_errors[i][0], obj.param_errors.offset_errors[i][1], width = width, width2 = 0, precision = precision)                        
+            text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
+        '''   
+        for i in range(obj.filelist.ndset):   
+            text = text + '''{0:{width}s}'''.format("RV$_{\\rm jit}$ %s"%(i+1), width = 30) 
+            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.params.jitters[i]), obj.param_errors.jitter_errors[i][0], obj.param_errors.jitter_errors[i][1], width = width, width2 = 0, precision = precision)                        
+            text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
+        '''   
+    
+        text = text + '''{0:{width}s}'''.format("$\chi^2$", width = 30)            
+        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.chi2), width = width, precision = precision)
+        text = text + '''\\\\
+        '''    
+        text = text + '''{0:{width}s}'''.format("$\chi_{\\nu}^2$", width = 30)            
+        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.reduced_chi2), width = width, precision = precision)
+        text = text + '''\\\\
+        '''        
+        text = text + '''{0:{width}s}'''.format("$r.m.s.$ [m\,s$^{-1}$]", width = 30)            
+        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.rms), width = width, precision = precision)
+        text = text + '''\\\\
+        '''            
+    
+        text = text + '''{0:{width}s}'''.format("$-\ln\mathcal{L}$", width = 30)            
+        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.loglik), width = width, precision = precision)
+        text = text + '''\\\\
+        '''        
+        text = text + '''{0:{width}s}'''.format("N$_{\\rm RV}$ data", width = 30)            
+        text = text + '''& {0:{width}.{precision}f} '''.format(len(obj.fit_results.jd), width = width, precision = 0)
+        text = text + '''\\\\
+        '''         
+        
+        text = text + '''{0:{width}s}'''.format("Epoch", width = 30)            
+        text = text + '''& {0:{width}.{precision}f} '''.format(obj.epoch, width = width, precision = precision)
+        text = text + '''\\\\
+        '''           
+        
+        text = text + '''\\\\
+    \hline \\noalign{\\vskip 0.7mm} 
+        
+        '''     
+        
+        text = text + '''        
+    \end{tabular}  
+    
+    % \end{minipage}}
+    % \end{adjustwidth}
+    
+    %\\tablefoot{\small }
+    
+    \end{table}
+    '''         
+
+    else:
+        print("asymmetric must be True or False")
+        return
+    
+    
+    table_file = open(file_name, 'wb') 
+        
+    table_file.write(text)
+ 
+    table_file.close()
+
+
+    return "Done"
+
+
