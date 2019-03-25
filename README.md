@@ -6,7 +6,7 @@
 </p>
  
 
-Very powerful and fast GUI tool for exoplanet orbital analysis. It uses a brang new RV fitting library called "RVmod", which can model the Stellar reflex motion caused by dynamically interacting planets in multi planetary systems. 
+Very powerful and fast GUI tool for exoplanet orbital analysis. It uses a brand new RV fitting library called "RVmod", which can model the Stellar reflex motion caused by dynamically interacting planets in multi planetary systems. 
 
 ![new_es](https://user-images.githubusercontent.com/44244057/53755942-20667180-3eb8-11e9-9802-530618db7e7d.png)
 
@@ -23,24 +23,24 @@ What works:
 * GP modeling (only one GP kernel integrated so far).
 * Joint RVs + GP + Transit best-fit optimization.
 * Joint RVs + GP + Transit MCMC sampling.
-* RV auto-fit (RV automated planet-finder algortm).
-* Long-term stability check of multiplanet systems using SyMBA, MVS and MVS with an GR precession.
-* Variouse of minimization methods (via SciPyOp).
+* RV auto-fit (RV automated planet-finder algorithm).
+* Long-term stability check of multi-planet systems using SyMBA, MVS and MVS with an GR precession.
+* Various of minimization methods (via SciPyOp).
 * Interactive plots.
 * RV vs. Activity time series correlation analysis/plots.
 * Import/Export of work sessions and multi-sessions. 
 * Export plots to a matplotlib window for further customization.
 * Export ready to use Latex tables with best-fit parameters, errors and statistics. 
 * Text editor.
-* Bash-shell (linux only).
+* Bash-shell (Linux only).
 * Integrated Jupyter widget shell.
 * Print the GUI screen into a .jpeg image (useful for sharing quick results, just like the image above)
 
 What is to be implemented:
 
-* More GP kernels (work in progrees). 
-* Nested sampling (work in progrees). 
-* Transit auto-fit (transit automated planet-finder algortm).
+* More GP kernels (work in progress). 
+* Nested sampling (work in progress). 
+* Transit auto-fit (transit automated planet-finder algorithm).
 * Binary/Triple star modeling mode.
 * Combined modeling with Astrometry.
 * A larger arsenal of N-body/dynamical simulation/analysis tools (aka REBOUND). 
@@ -48,7 +48,7 @@ What is to be implemented:
 * For more "TBD" list see: "focus_matrix_TBFixed.doc".
 
 If you use this tool and you find a bug or a problem, please report it!
-A wishlist with your favourite tools and methods to be implemented is also welcome.
+A wish-list with your favorite tools and methods to be implemented is also welcome.
 
 
 
