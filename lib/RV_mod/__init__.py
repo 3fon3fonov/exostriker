@@ -50,6 +50,7 @@ NPLMAX=20
 DEFAULT_PATH='./datafiles/'
 
 
+import rot_kernels
 
 
 
@@ -65,7 +66,7 @@ def initiategps(obj,  kernel_id=-1):
     if len(obj.GP_params_new) != 0:
         obj.params.update_GP_params(obj.GP_params_new,kernel_id=kernel_id)
         obj.use.update_use_GP_params(obj.GP_params_new_use)
-        obj.verify_gp_parameters_number()
+        #obj.verify_gp_parameters_number()
     
 #        kernel_jitters=[]
     kernels=[]
@@ -74,7 +75,14 @@ def initiategps(obj,  kernel_id=-1):
    #copied_obj.gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate((copied_obj.params.GP_params.gp_par,np.atleast_1d(copied_obj.params.jitters[i]))))))) 
 
     for i in range(obj.filelist.ndset):
-        kernels.append(obj.params.GP_params.rot_kernel +terms.JitterTerm(np.log(obj.params.jitters[i])))
+       # kernels.append(obj.params.GP_params.rot_kernel +terms.JitterTerm(np.log(obj.params.jitters[i])))
+        kernels.append(terms.TermSum(rot_kernels.RotationTerm(
+                    log_amp=np.log(obj.GP_params_new[0]),
+                    log_timescale=np.log(obj.GP_params_new[1]),
+                    log_period=np.log(obj.GP_params_new[2]),
+                    log_factor=np.log(obj.GP_params_new[3]))
+                +terms.JitterTerm(np.log(obj.params.jitters[i]))))
+        
         gps.append(celerite.GP(kernels[i], mean=0.0))
         gps[i].compute(obj.filelist.time[obj.filelist.idset==i],obj.filelist.rv_err[obj.filelist.idset==i])
         #gps[i].compute(self.filelist.time[self.filelist.idset==i])
@@ -230,10 +238,33 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
         gp_rv_loglik = 0
         for i in range(len(vel_files)):
             
-            gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate(([par[len(vel_files)*2  +7*npl +1],
-               par[len(vel_files)*2  +7*npl +2],
-               par[len(vel_files)*2  +7*npl +3],
-               par[len(vel_files)*2  +7*npl +4]],np.atleast_1d(np.atleast_1d(par[i + len(vel_files)])))))))) 
+           # gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate(([par[len(vel_files)*2  +7*npl +1],
+           #    par[len(vel_files)*2  +7*npl +2],
+           #    par[len(vel_files)*2  +7*npl +3],
+           #    par[len(vel_files)*2  +7*npl +4]],np.atleast_1d(np.atleast_1d(par[i + len(vel_files)])))))))) 
+            gps[i].set_parameter_vector(np.array(list(np.concatenate(([
+               np.log(par[len(vel_files)*2  +7*npl +1]),
+               np.log(par[len(vel_files)*2  +7*npl +2]),
+               np.log(par[len(vel_files)*2  +7*npl +3]),
+               np.log(par[len(vel_files)*2  +7*npl +4])],
+               np.atleast_1d(np.atleast_1d(
+                       np.log(par[i + len(vel_files)])))))))) 
+ 
+
+    #log_amp=np.log(np.var(y)),
+   # log_timescale=np.log(10.0),
+   # log_period=np.log(period),
+  #  log_factor=np.log(1.0),
+
+                       
+            #gps[i].set_parameter_vector(np.array([par[len(vel_files)*2  +7*npl +1],
+           #    par[len(vel_files)*2  +7*npl +2],
+           #    par[len(vel_files)*2  +7*npl +3],
+           #    par[len(vel_files)*2  +7*npl +4]],np.atleast_1d(par[i + len(vel_files)])))
+            
+        
+    
+    
             gp_rv_loglik = gp_rv_loglik + gps[i].log_likelihood(fit_results.o_c[fit_results.idset==i])
              
         rv_loglik =  gp_rv_loglik 
