@@ -131,7 +131,8 @@ def run_command_with_timeout(args, secs, output=False, pipe=False): # set output
         text=tempfile.TemporaryFile() # because PIPE usually has too low capacity
         proc = Popen(args, shell=True, preexec_fn=os.setsid, stdout=text, stderr=text)
     else:
-        proc = Popen(args, shell=True, preexec_fn=os.setsid, stdout=PIPE, stderr=PIPE)        
+        proc = Popen(args, shell=True, preexec_fn=os.setsid, stdout=PIPE, stderr=PIPE)  
+   # print(proc)    
     proc_thread = Thread(target=proc.wait)
     proc_thread.start()
     proc_thread.join(secs)
