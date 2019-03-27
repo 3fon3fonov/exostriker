@@ -20,7 +20,7 @@ class GP_parameters(object): # class for GP process parameters which allows for 
             gpparameterswarnings.update_warning_list('Different number of parameters declared than the number of parameters actually provided! Redefined.')	          
         self.npar=npar
         self.kernel_id=kernel_id
-        self.rot_kernel=rot_kernels.choose_kernel(kernel_id,parameters)
+        #self.rot_kernel=rot_kernels.choose_kernel(kernel_id,parameters)
         gpparameterswarnings.print_warning_log()
 
 class parameters(object): # class for all parameters which can be fitted
