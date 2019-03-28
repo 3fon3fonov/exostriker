@@ -85,11 +85,7 @@ def initiategps(obj,  kernel_id=-1):
         
         gps.append(celerite.GP(kernels[i], mean=0.0))
         gps[i].compute(obj.filelist.time[obj.filelist.idset==i],obj.filelist.rv_err[obj.filelist.idset==i])
-        #gps[i].compute(self.filelist.time[self.filelist.idset==i])
-    #self.gps=gps
-    
-   # print(self.params.GP_params.gp_par)    
-   # print(self.use.use_GP_params)    
+
     
  
     obj.gps = gps          
