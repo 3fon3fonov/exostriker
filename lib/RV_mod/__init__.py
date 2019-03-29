@@ -85,7 +85,11 @@ def initiategps(obj,  kernel_id=-1):
         
         gps.append(celerite.GP(kernels[i], mean=0.0))
         gps[i].compute(obj.filelist.time[obj.filelist.idset==i],obj.filelist.rv_err[obj.filelist.idset==i])
-
+        #gps[i].compute(self.filelist.time[self.filelist.idset==i])
+    #self.gps=gps
+    
+   # print(self.params.GP_params.gp_par)    
+   # print(self.use.use_GP_params)    
     
  
     obj.gps = gps          
@@ -246,6 +250,8 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
                np.log(par[len(vel_files)*2  +7*npl +4])],
                np.atleast_1d(np.atleast_1d(
                        np.log(par[i + len(vel_files)])))))))) 
+            
+            gps[i].compute(fit_results.jd[fit_results.idset==i], yerr=fit_results.rv_err[fit_results.idset==i])
  
 
     #log_amp=np.log(np.var(y)),
@@ -370,10 +376,12 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
  
-   # print(par)
-   # print(pp)
+    #print(par)
+    #print(pp)
    # print(bb)
    # print(flags)
+    
+    #print(rtg)
 
     gps = []
     if (rtg[1]):
@@ -2401,6 +2409,7 @@ class signal_fit(object):
             bounds.append(self.GP_bounds[i])
             prior_nr.append(self.GP_norm_pr[i])
 
+        #print(self.GP_params_new_use)
             
             
         for i  in range(self.npl):            
