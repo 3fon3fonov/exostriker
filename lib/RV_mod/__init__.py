@@ -53,10 +53,39 @@ DEFAULT_PATH='./datafiles/'
 import rot_kernels
 
 
-
-
-#######################################################################################           
 def initiategps(obj,  kernel_id=-1): 
+    
+    # Prepare objects for Gaussian Processes        
+    
+    # Redefine GP parameters if new ones were provided
+    
+    #if not (gp_par==None):
+    if len(obj.GP_params_new) != 0:
+        obj.params.update_GP_params(obj.GP_params_new,kernel_id=kernel_id)
+        obj.use.update_use_GP_params(obj.GP_params_new_use)
+        #obj.verify_gp_parameters_number()
+    
+#        kernel_jitters=[]
+    kernels=[]
+    gps=[]
+    #print(gp_par[0],gp_par[1],gp_par[2],gp_par[3] )
+   #copied_obj.gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate((copied_obj.params.GP_params.gp_par,np.atleast_1d(copied_obj.params.jitters[i]))))))) 
+
+    #for i in range(obj.filelist.ndset):
+       # kernels.append(obj.params.GP_params.rot_kernel +terms.JitterTerm(np.log(obj.params.jitters[i])))
+    kernel = terms.TermSum(rot_kernels.RotationTerm(
+                log_amp=np.log(obj.GP_params_new[0]),
+                log_timescale=np.log(obj.GP_params_new[1]),
+                log_period=np.log(obj.GP_params_new[2]),
+                log_factor=np.log(obj.GP_params_new[3])))
+    
+    gps = celerite.GP(kernel, mean=0.0)
+    gps.compute(obj.filelist.time, obj.filelist.rv_err)
+    
+    obj.gps = gps          
+    return
+#######################################################################################           
+def initiategps_old(obj,  kernel_id=-1): 
     
     # Prepare objects for Gaussian Processes        
     
@@ -95,7 +124,46 @@ def initiategps(obj,  kernel_id=-1):
     obj.gps = gps          
     return
 
+
 def get_gps_model(obj,  kernel_id=-1): 
+    
+    initiategps(obj,  kernel_id=-1)
+    #gp_model_data  = []
+    
+    ############ DATA ####################
+    #for i in range(obj.filelist.ndset):
+        #gp.set_parameter_vector(
+         
+    y = obj.fit_results.rv_model.o_c
+    x = obj.fit_results.rv_model.jd
+    mu, var = obj.gps.predict(y, x, return_var=True)
+    std = np.sqrt(var)
+
+    obj.gp_model_data = [mu,var,std]
+        
+    ############ MODEL ####################
+
+   # kernel=[]
+   # gps=[]
+   # x = obj.fit_results.model_jd
+   # y = obj.fit_results.model
+
+   # kernel = obj.params.GP_params.rot_kernel
+   # gps = celerite.GP(kernel, mean=0.0)
+   # gps.compute(x,[0]*len(x))
+ 
+ 
+   # mu, var = gps.predict(y, x, return_var=True)
+  #  std = np.sqrt(var)
+
+   # obj.gp_model_curve[0] = [mu,var,std]        
+        
+        
+        
+    return
+
+
+def get_gps_model_old(obj,  kernel_id=-1): 
     
     initiategps(obj,  kernel_id=-1)
     #gp_model_data  = []
@@ -233,43 +301,49 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
     else:
         rv_loglik = 0
         
+    #print(fit_results.o_c)
+    #name = raw_input("What is your name? ")
         
     if(rtg[1]): 
         
         gp_rv_loglik = 0
+        
+        gps.set_parameter_vector(np.array([
+               np.log(par[len(vel_files)*2  +7*npl +1]),
+               np.log(par[len(vel_files)*2  +7*npl +2]),
+               np.log(par[len(vel_files)*2  +7*npl +3]),
+               np.log(par[len(vel_files)*2  +7*npl +4])]) )
+    
+        gp_pred = gps.predict(fit_results.o_c, fit_results.jd, return_cov=False)
+        o_c_kep = fit_results.o_c - gp_pred
+        #gps.compute(fit_results.jd, yerr=fit_results.rv_err)
+         
+        #print(par[len(vel_files)*2  +7*npl +1],par[len(vel_files)*2  +7*npl +2],par[len(vel_files)*2  +7*npl +3],par[len(vel_files)*2  +7*npl +4])           
+        #print(fit_results.o_c[0:5],gp_pred[0:5], o_c_kep[0:5])
+        
         for i in range(len(vel_files)):
+            sig2i_gp = 1.0 / (fit_results.rv_err[fit_results.idset==i]**2 + par[i + len(vel_files)]**2 )
             
+            gp_rv_loglik += -0.5*(np.sum((o_c_kep[fit_results.idset==i])**2 * sig2i_gp - np.log(sig2i_gp / 2./ np.pi)))
+                         
            # gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate(([par[len(vel_files)*2  +7*npl +1],
            #    par[len(vel_files)*2  +7*npl +2],
            #    par[len(vel_files)*2  +7*npl +3],
            #    par[len(vel_files)*2  +7*npl +4]],np.atleast_1d(np.atleast_1d(par[i + len(vel_files)])))))))) 
-            gps[i].set_parameter_vector(np.array(list(np.concatenate(([
-               np.log(par[len(vel_files)*2  +7*npl +1]),
-               np.log(par[len(vel_files)*2  +7*npl +2]),
-               np.log(par[len(vel_files)*2  +7*npl +3]),
-               np.log(par[len(vel_files)*2  +7*npl +4])],
-               np.atleast_1d(np.atleast_1d(
-                       np.log(par[i + len(vel_files)])))))))) 
+          #  gps[i].set_parameter_vector(np.array(list(np.concatenate(([
+         #      np.log(par[len(vel_files)*2  +7*npl +1]),
+          #     np.log(par[len(vel_files)*2  +7*npl +2]),
+         #      np.log(par[len(vel_files)*2  +7*npl +3]),
+          #     np.log(par[len(vel_files)*2  +7*npl +4])],
+          #     np.atleast_1d(np.atleast_1d(
+          #             np.log(par[i + len(vel_files)])))))))) 
             
-            gps[i].compute(fit_results.jd[fit_results.idset==i], yerr=fit_results.rv_err[fit_results.idset==i])
+          #  gps[i].compute(fit_results.jd[fit_results.idset==i], yerr=fit_results.rv_err[fit_results.idset==i])
  
 
-    #log_amp=np.log(np.var(y)),
-   # log_timescale=np.log(10.0),
-   # log_period=np.log(period),
-  #  log_factor=np.log(1.0),
-
-                       
-            #gps[i].set_parameter_vector(np.array([par[len(vel_files)*2  +7*npl +1],
-           #    par[len(vel_files)*2  +7*npl +2],
-           #    par[len(vel_files)*2  +7*npl +3],
-           #    par[len(vel_files)*2  +7*npl +4]],np.atleast_1d(par[i + len(vel_files)])))
-            
+ 
         
-    
-    
-            gp_rv_loglik = gp_rv_loglik + gps[i].log_likelihood(fit_results.o_c[fit_results.idset==i])
-             
+
         rv_loglik =  gp_rv_loglik 
         #print(rv_loglik)
     if(rtg[2]): 
@@ -328,7 +402,8 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
                 #tr_loglik= tr_loglik - 0.5*(((tr_o_c[i]**2)/(flux_err[i]**2) ) - 0.5*(np.log(TAU*(flux_err[i]**2))))
                 #tr_loglik= tr_loglik - 0.5*(((tr_o_c[i]**2)*sig2i ) - 0.5*(np.log(TAU*(flux_err[i]**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j+1]**2 ))))
 
-
+    if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
+        return -np.inf
    # print(rv_loglik, tr_loglik)        
     return rv_loglik + tr_loglik
     
@@ -501,7 +576,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     
     obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
 
-    get_gps_model(obj)    
+    #  
     
     
  
@@ -535,6 +610,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         for j in range(len(pp)):
             print(ee[j] + "  =  %s"%pp[j])
     
+    get_gps_model(obj)  
     obj.gps = []
     
     return obj
@@ -838,7 +914,6 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
  
     obj.params.update_GP_params(current_GP_params)
 
-    get_gps_model(obj)
     
     if (save_means):
         obj.loglik = sampler.lnL_min 
@@ -881,6 +956,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     else:   
         sampler.reset()
 
+    get_gps_model(obj)
     obj.gps = []
 
     return obj
