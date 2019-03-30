@@ -7,7 +7,7 @@ import sys
 #sys.path.insert(0, '../lib')
 import numpy as np
 from Warning_log import Warning_log
-import rot_kernels
+#import GP_kernels
 
 
 class GP_parameters(object): # class for GP process parameters which allows for different kernels with different number of parameters
