@@ -177,7 +177,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.GP_rot_kernel_fact]
         
         for i in range(len(gp_params)):
-            gp_params[i].setValue(fit.GP_params_new[i])
+            gp_params[i].setValue(fit.GP_rot_params[i])
 
          
 
@@ -253,13 +253,23 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.tra_jitt[i] = tra_data_jitter_gui[i].value() 
  
             
-        gp_params = [self.GP_rot_kernel_Amp,
+        gp_rot_params = [self.GP_rot_kernel_Amp,
                      self.GP_rot_kernel_time_sc,
                      self.GP_rot_kernel_Per,
                      self.GP_rot_kernel_fact]
         
-        for i in range(len(gp_params)):
-            fit.GP_params_new[i] = gp_params[i].value()     
+        for i in range(len(gp_rot_params)):
+            fit.GP_rot_params[i] = gp_rot_params[i].value()    
+            
+            
+        gp_sho_params = [self.GP_sho_kernel_S,
+                     self.GP_sho_kernel_Q,
+                     self.GP_sho_kernel_omega]
+        
+        for i in range(len(gp_sho_params)):
+            fit.GP_sho_params[i] = gp_sho_params[i].value()              
+            
+            
   
 
         fit.params.stellar_mass = self.St_mass_input.value() 
@@ -421,15 +431,26 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         self.use_RV_lin_trend.setChecked(bool(fit.use.use_linear_trend)) 
         
 
-        use_gp_params = [self.use_GP_rot_kernel_Amp,
+        use_gp_rot_params = [self.use_GP_rot_kernel_Amp,
                          self.use_GP_rot_kernel_time_sc,
                          self.use_GP_rot_kernel_Per,
                          self.use_GP_rot_kernel_fact]
                     
         
-        for i in range(len(use_gp_params)):
-            use_gp_params[i].setChecked(bool(fit.GP_params_new_use[i]))
-            
+        for i in range(len(use_gp_rot_params)):
+            use_gp_rot_params[i].setChecked(bool(fit.GP_rot_use[i]))
+ 
+    
+        use_gp_sho_params = [self.use_GP_sho_kernel_S,
+                         self.use_GP_sho_kernel_Q,
+                         self.use_GP_sho_kernel_omega]
+                    
+        
+        for i in range(len(use_gp_sho_params)):
+            use_gp_sho_params[i].setChecked(bool(fit.GP_sho_use[i]))
+
+
+           
             
     def update_use(self):
         global fit
@@ -518,14 +539,24 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         fit.use.use_linear_trend = int(self.use_RV_lin_trend.isChecked()) 
 
 
-        use_gp_params = [self.use_GP_rot_kernel_Amp,
+        use_gp_rot_params = [self.use_GP_rot_kernel_Amp,
                          self.use_GP_rot_kernel_time_sc,
                          self.use_GP_rot_kernel_Per,
                          self.use_GP_rot_kernel_fact]
                     
         
-        for i in range(len(use_gp_params)):
-            fit.GP_params_new_use[i] = int(use_gp_params[i].isChecked())
+        for i in range(len(use_gp_rot_params)):
+            fit.GP_rot_use[i] = int(use_gp_rot_params[i].isChecked())
+            
+        use_gp_sho_params = [self.use_GP_sho_kernel_S,
+                         self.use_GP_sho_kernel_Q,
+                         self.use_GP_sho_kernel_omega]
+                    
+        
+        for i in range(len(use_gp_sho_params)):
+            fit.GP_sho_use[i] = int(use_gp_sho_params[i].isChecked())            
+            
+            
             
  
    
@@ -577,7 +608,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         fit.rv_lintr_bounds[0]  = [self.lin_trend_min.value(),self.lin_trend_max.value()]
         #self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
 
-        GP_bounds_gui = [
+        GP_rot_bounds_gui = [
         [self.GP_rot_kernel_Amp_min.value(),self.GP_rot_kernel_Amp_max.value()],  
         [self.GP_rot_kernel_time_sc_min.value(),self.GP_rot_kernel_time_sc_max.value()],  
         [self.GP_rot_kernel_Per_min.value(),self.GP_rot_kernel_Per_max.value()],  
@@ -585,7 +616,18 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         ]
  
         for i in range(4): 
-            fit.GP_bounds[i] = GP_bounds_gui[i]
+            fit.GP_rot_bounds[i] = GP_rot_bounds_gui[i]
+            
+        GP_sho_bounds_gui = [
+        [self.GP_sho_kernel_S_min.value(),self.GP_sho_kernel_S_max.value()],  
+        [self.GP_sho_kernel_Q_min.value(),self.GP_sho_kernel_Q_max.value()],  
+        [self.GP_sho_kernel_omega_min.value(),self.GP_sho_kernel_omega_max.value()],  
+        ]
+ 
+        for i in range(3): 
+            fit.GP_sho_bounds[i] = GP_sho_bounds_gui[i]            
+            
+            
             
             
     def check_priors(self):
@@ -636,16 +678,27 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
        # fit.rv_lintr_norm_pr[0]  = [self.lin_trend_mean.value(),self.lin_trend_sigma.value()]
         #self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
 
-        GP_nr_priors_gui = [
-        [self.GP_rot_kernel_Amp_mean.value(),self.GP_rot_kernel_Amp_sigma.value(),self.use_GP_rot_kernel_Amp.isChecked()],  
-        [self.GP_rot_kernel_time_sc_mean.value(),self.GP_rot_kernel_time_sc_sigma.value(),self.use_GP_rot_kernel_time_sc.isChecked()],  
-        [self.GP_rot_kernel_Per_mean.value(),self.GP_rot_kernel_Per_sigma.value(),self.use_GP_rot_kernel_Per_sigma.isChecked()],  
-        [self.GP_rot_kernel_fact_mean.value(),self.GP_rot_kernel_fact_sigma.value(),self.use_GP_rot_kernel_fact.isChecked()],  
+        GP_rot_nr_priors_gui = [
+        [self.GP_rot_kernel_Amp_mean.value(),self.GP_rot_kernel_Amp_sigma.value(),self.use_GP_rot_kernel_Amp_nr_pr.isChecked()],  
+        [self.GP_rot_kernel_time_sc_mean.value(),self.GP_rot_kernel_time_sc_sigma.value(),self.use_GP_rot_kernel_time_sc_nr_pr.isChecked()],  
+        [self.GP_rot_kernel_Per_mean.value(),self.GP_rot_kernel_Per_sigma.value(),self.use_GP_rot_kernel_Per_sigma_nr_pr.isChecked()],  
+        [self.GP_rot_kernel_fact_mean.value(),self.GP_rot_kernel_fact_sigma.value(),self.use_GP_rot_kernel_fact_nr_pr.isChecked()],  
         ]
  
         for i in range(4): 
-            fit.GP_norm_pr[i] = GP_nr_priors_gui[i]            
+            fit.GP_rot_norm_pr[i] = GP_rot_nr_priors_gui[i]            
     
+
+        GP_sho_nr_priors_gui = [
+        [self.GP_sho_kernel_S_mean.value(),self.GP_sho_kernel_S_sigma.value(), self.use_GP_sho_kernel_S_nr_pr.isChecked()],  
+        [self.GP_sho_kernel_Q_mean.value(),self.GP_sho_kernel_Q_sigma.value(), self.use_GP_sho_kernel_Q_nr_pr.isChecked()],  
+        [self.GP_sho_kernel_omega_mean.value(),self.GP_sho_kernel_omega_sigma.value(), self.use_GP_sho_kernel_omega_nr_pr.isChecked()],  
+        ]
+ 
+        for i in range(3): 
+            fit.GP_sho_norm_pr[i] = GP_sho_nr_priors_gui[i]   
+
+
     
 ####################################################        
   
