@@ -50,30 +50,20 @@ NPLMAX=20
 DEFAULT_PATH='./datafiles/'
 
 
-import rot_kernels
+import GP_kernels
 
 
 def initiategps(obj,  kernel_id=-1): 
     
     # Prepare objects for Gaussian Processes        
     
-    # Redefine GP parameters if new ones were provided
-    
-    #if not (gp_par==None):
     if len(obj.GP_params_new) != 0:
-        obj.params.update_GP_params(obj.GP_params_new,kernel_id=kernel_id)
+        obj.params.update_GP_params(obj.GP_params_new, kernel_id=kernel_id)
         obj.use.update_use_GP_params(obj.GP_params_new_use)
-        #obj.verify_gp_parameters_number()
     
-#        kernel_jitters=[]
-    kernels=[]
-    gps=[]
-    #print(gp_par[0],gp_par[1],gp_par[2],gp_par[3] )
-   #copied_obj.gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate((copied_obj.params.GP_params.gp_par,np.atleast_1d(copied_obj.params.jitters[i]))))))) 
-
-    #for i in range(obj.filelist.ndset):
-       # kernels.append(obj.params.GP_params.rot_kernel +terms.JitterTerm(np.log(obj.params.jitters[i])))
-    kernel = terms.TermSum(rot_kernels.RotationTerm(
+    
+    
+    kernel = terms.TermSum(GP_kernels.RotationTerm(
                 log_amp=np.log(obj.GP_params_new[0]),
                 log_timescale=np.log(obj.GP_params_new[1]),
                 log_period=np.log(obj.GP_params_new[2]),
@@ -84,45 +74,31 @@ def initiategps(obj,  kernel_id=-1):
     
     obj.gps = gps          
     return
-#######################################################################################           
-def initiategps_old(obj,  kernel_id=-1): 
-    
-    # Prepare objects for Gaussian Processes        
-    
-    # Redefine GP parameters if new ones were provided
-    
-    #if not (gp_par==None):
-    if len(obj.GP_params_new) != 0:
-        obj.params.update_GP_params(obj.GP_params_new,kernel_id=kernel_id)
-        obj.use.update_use_GP_params(obj.GP_params_new_use)
-        #obj.verify_gp_parameters_number()
-    
-#        kernel_jitters=[]
-    kernels=[]
-    gps=[]
-    #print(gp_par[0],gp_par[1],gp_par[2],gp_par[3] )
-   #copied_obj.gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate((copied_obj.params.GP_params.gp_par,np.atleast_1d(copied_obj.params.jitters[i]))))))) 
-
-    for i in range(obj.filelist.ndset):
-       # kernels.append(obj.params.GP_params.rot_kernel +terms.JitterTerm(np.log(obj.params.jitters[i])))
-        kernels.append(terms.TermSum(rot_kernels.RotationTerm(
-                    log_amp=np.log(obj.GP_params_new[0]),
-                    log_timescale=np.log(obj.GP_params_new[1]),
-                    log_period=np.log(obj.GP_params_new[2]),
-                    log_factor=np.log(obj.GP_params_new[3]))
-                +terms.JitterTerm(np.log(obj.params.jitters[i]))))
-        
-        gps.append(celerite.GP(kernels[i], mean=0.0))
-        gps[i].compute(obj.filelist.time[obj.filelist.idset==i],obj.filelist.rv_err[obj.filelist.idset==i])
-        #gps[i].compute(self.filelist.time[self.filelist.idset==i])
-    #self.gps=gps
-    
-   # print(self.params.GP_params.gp_par)    
-   # print(self.use.use_GP_params)    
-    
  
-    obj.gps = gps          
-    return
+
+
+def plot_gp(obj):
+    
+    import matplotlib.pyplot as plt
+
+    color="#ff7f0e"
+    colors = ['b','g','r']
+    
+    x     = obj.fit_results.rv_model.jd
+    y     = obj.fit_results.rv_model.o_c
+    y_err = obj.fit_results.rv_model.rv_err
+    idset = obj.filelist.idset
+    
+    
+    x_model = obj.fit_results.model_jd
+    mu,var,std = obj.gp_model_curve
+    
+    
+    for i in range(obj.filelist.ndset):
+        plt.errorbar(x[idset==i],y[idset==i], yerr=y_err[idset==i], fmt=".",color=colors[i],  capsize=0); 
+    
+    plt.plot(x_model, mu, color = '0.5');
+    plt.fill_between(x_model ,mu+std,  mu-std, color=color, alpha=0.3, edgecolor="none")
 
 
 def get_gps_model(obj,  kernel_id=-1): 
@@ -145,61 +121,25 @@ def get_gps_model(obj,  kernel_id=-1):
 
    # kernel=[]
    # gps=[]
-   # x = obj.fit_results.model_jd
-   # y = obj.fit_results.model
+    x = obj.fit_results.model_jd
+    #y = obj.fit_results.model
 
    # kernel = obj.params.GP_params.rot_kernel
    # gps = celerite.GP(kernel, mean=0.0)
    # gps.compute(x,[0]*len(x))
+    #gps.compute(obj.filelist.time, obj.filelist.rv_err)
  
  
-   # mu, var = gps.predict(y, x, return_var=True)
-  #  std = np.sqrt(var)
+    mu, var = obj.gps.predict(y, x, return_var=True)
+    std = np.sqrt(var)
 
-   # obj.gp_model_curve[0] = [mu,var,std]        
+    obj.gp_model_curve = [mu,var,std]        
         
         
         
     return
 
-
-def get_gps_model_old(obj,  kernel_id=-1): 
-    
-    initiategps(obj,  kernel_id=-1)
-    #gp_model_data  = []
-    
-    ############ DATA ####################
-    for i in range(obj.filelist.ndset):
-        #gp.set_parameter_vector(
-         
-        y = obj.fit_results.rv_model.o_c[obj.filelist.idset==i]
-        x = obj.fit_results.rv_model.jd[obj.filelist.idset==i]
-        mu, var = obj.gps[i].predict(y, x, return_var=True)
-        std = np.sqrt(var)
-
-        obj.gp_model_data[i] = [mu,var,std]
-        
-    ############ MODEL ####################
-
-   # kernel=[]
-   # gps=[]
-   # x = obj.fit_results.model_jd
-   # y = obj.fit_results.model
-
-   # kernel = obj.params.GP_params.rot_kernel
-   # gps = celerite.GP(kernel, mean=0.0)
-   # gps.compute(x,[0]*len(x))
  
- 
-   # mu, var = gps.predict(y, x, return_var=True)
-  #  std = np.sqrt(var)
-
-   # obj.gp_model_curve[0] = [mu,var,std]        
-        
-        
-        
-    return
-
  
 def transit_tperi(per, ecc, om, ma, epoch):
     '''
@@ -308,11 +248,13 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
         
         gp_rv_loglik = 0
         
-        gps.set_parameter_vector(np.array([
-               np.log(par[len(vel_files)*2  +7*npl +1]),
-               np.log(par[len(vel_files)*2  +7*npl +2]),
-               np.log(par[len(vel_files)*2  +7*npl +3]),
-               np.log(par[len(vel_files)*2  +7*npl +4])]) )
+        param_vect = []
+        for j in range(1,len(gps.get_parameter_vector())+1):
+            param_vect.append(par[len(vel_files)*2  +7*npl +i])
+        
+        #print(gps.get_parameter_vector())
+       # print(gps.get_parameter_names())
+        gps.set_parameter_vector(np.array(param_vect))
     
         gp_pred = gps.predict(fit_results.o_c, fit_results.jd, return_cov=False)
         o_c_kep = fit_results.o_c - gp_pred
@@ -356,7 +298,7 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
 
             #print(par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j],par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j+1])
             t = tr_files[j][0] 
-            flux = tr_files[j][1] + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j]
+            flux = tr_files[j][1] + par[len(vel_files)*2 +7*npl +1 + len(gps.get_parameter_vector()) + 3*npl + len(tr_files)*j]
             #flux_err = np.sqrt(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j +1]**2)
             flux_err =  tr_files[j][2] 
             
@@ -372,35 +314,20 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
                 tr_params.w   = par[len(vel_files)*2 +7*i+3] #90.0   #longitude of periastron (in degrees)               
                 tr_params.inc = par[len(vel_files)*2 +7*i+5]#90. #orbital inclination (in degrees)                
 
-                tr_params.t0  = par[len(vel_files)*2 +7*npl +5 + 3*i]
-                tr_params.a   = par[len(vel_files)*2 +7*npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-                tr_params.rp  = par[len(vel_files)*2 +7*npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)
+                tr_params.t0  = par[len(vel_files)*2 +7*npl +1 +len(gps.get_parameter_vector()) + 3*i]
+                tr_params.a   = par[len(vel_files)*2 +7*npl +1 +len(gps.get_parameter_vector()) + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+                tr_params.rp  = par[len(vel_files)*2 +7*npl +1 +len(gps.get_parameter_vector()) + 3*i+2] #0.15   #planet radius (in units of stellar radii)
 
                 m[i] = batman.TransitModel(tr_params, t)    #initializes model
      
                 flux_model = flux_model * m[i].light_curve(tr_params)    
                 
-                
-                #calculates light curve  
-            #tr_o_c = flux -flux_model
 
-            sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j+1]**2 )
+
+            sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl +1 +len(gps.get_parameter_vector()) + 3*npl + len(tr_files)*j+1]**2 )
            
             tr_loglik = -0.5*(np.sum((flux -flux_model)**2 * sig2i - np.log(sig2i / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
  
-           # for i in range(len(tr_o_c)):
-            #    sig2i = 1.0 / (flux_err[i]**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j+1]**2 )
-                
-            #    chi = chi + (tr_o_c[i]**2)*sig2i
-                #print(chi, (tr_o_c[i]**2)*sig2i, sig2i)
-                #tr_loglik= tr_loglik - (0.5*((tr_o_c[i]**2)*sig2i ) - np.log(flux_err[i]**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j+1]**2 ) )
-               
-                #tr_loglik -= 0.5*((tr_o_c[i]**2)*sig2i ) - 0.5*(np.log(TAU*(flux_err[i]**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j+1]**2 )))
-                #tr_loglik= tr_loglik - 0.5*(((tr_o_c[i]**2)*sig2i ) -  (np.log(TAU*(flux_err[i]**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j+1]**2 ))))
-            #    tr_loglik = tr_loglik - 0.5*((tr_o_c[i]**2)*sig2i)  - np.log(np.sqrt((2*np.pi)*(flux_err[i]**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j+1]**2 )))
-
-                #tr_loglik= tr_loglik - 0.5*(((tr_o_c[i]**2)/(flux_err[i]**2) ) - 0.5*(np.log(TAU*(flux_err[i]**2))))
-                #tr_loglik= tr_loglik - 0.5*(((tr_o_c[i]**2)*sig2i ) - 0.5*(np.log(TAU*(flux_err[i]**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j+1]**2 ))))
 
     if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
         return -np.inf
