@@ -57,17 +57,17 @@ def initiategps(obj,  kernel_id=-1):
     
     # Prepare objects for Gaussian Processes        
     
-    if len(obj.GP_params_new) != 0:
-        obj.params.update_GP_params(obj.GP_params_new, kernel_id=kernel_id)
-        obj.use.update_use_GP_params(obj.GP_params_new_use)
+    if len(obj.GP_rot_params) != 0:
+        obj.params.update_GP_params(obj.GP_rot_params, kernel_id=kernel_id)
+        obj.use.update_use_GP_params(obj.GP_rot_use)
     
     
     
     kernel = terms.TermSum(GP_kernels.RotationTerm(
-                log_amp=np.log(obj.GP_params_new[0]),
-                log_timescale=np.log(obj.GP_params_new[1]),
-                log_period=np.log(obj.GP_params_new[2]),
-                log_factor=np.log(obj.GP_params_new[3])))
+                log_amp=np.log(obj.GP_rot_params[0]),
+                log_timescale=np.log(obj.GP_rot_params[1]),
+                log_period=np.log(obj.GP_rot_params[2]),
+                log_factor=np.log(obj.GP_rot_params[3])))
     
     gps = celerite.GP(kernel, mean=0.0)
     gps.compute(obj.filelist.time, obj.filelist.rv_err)
@@ -252,39 +252,19 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
         for j in range(1,len(gps.get_parameter_vector())+1):
             param_vect.append(par[len(vel_files)*2  +7*npl +i])
         
-        #print(gps.get_parameter_vector())
-       # print(gps.get_parameter_names())
+ 
         gps.set_parameter_vector(np.array(param_vect))
     
         gp_pred = gps.predict(fit_results.o_c, fit_results.jd, return_cov=False)
         o_c_kep = fit_results.o_c - gp_pred
         #gps.compute(fit_results.jd, yerr=fit_results.rv_err)
-         
-        #print(par[len(vel_files)*2  +7*npl +1],par[len(vel_files)*2  +7*npl +2],par[len(vel_files)*2  +7*npl +3],par[len(vel_files)*2  +7*npl +4])           
-        #print(fit_results.o_c[0:5],gp_pred[0:5], o_c_kep[0:5])
+ 
         
         for i in range(len(vel_files)):
             sig2i_gp = 1.0 / (fit_results.rv_err[fit_results.idset==i]**2 + par[i + len(vel_files)]**2 )
             
             gp_rv_loglik += -0.5*(np.sum((o_c_kep[fit_results.idset==i])**2 * sig2i_gp - np.log(sig2i_gp / 2./ np.pi)))
                          
-           # gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate(([par[len(vel_files)*2  +7*npl +1],
-           #    par[len(vel_files)*2  +7*npl +2],
-           #    par[len(vel_files)*2  +7*npl +3],
-           #    par[len(vel_files)*2  +7*npl +4]],np.atleast_1d(np.atleast_1d(par[i + len(vel_files)])))))))) 
-          #  gps[i].set_parameter_vector(np.array(list(np.concatenate(([
-         #      np.log(par[len(vel_files)*2  +7*npl +1]),
-          #     np.log(par[len(vel_files)*2  +7*npl +2]),
-         #      np.log(par[len(vel_files)*2  +7*npl +3]),
-          #     np.log(par[len(vel_files)*2  +7*npl +4])],
-          #     np.atleast_1d(np.atleast_1d(
-          #             np.log(par[i + len(vel_files)])))))))) 
-            
-          #  gps[i].compute(fit_results.jd[fit_results.idset==i], yerr=fit_results.rv_err[fit_results.idset==i])
- 
-
- 
-        
 
         rv_loglik =  gp_rv_loglik 
         #print(rv_loglik)
@@ -1320,14 +1300,22 @@ class signal_fit(object):
         self.doGP = False
         self.gps=[]
         
-        self.GP_params_new = [1,10,15,1]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
-        self.GP_params_new_err = [0,0,0,0]
-        self.GP_params_new_use = [False,False,False,False]  
-        self.GP_params_new_str = [r'Amp', r't', r'per', r'fact']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway 
-        self.GP_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_params_new))}        
-        self.GP_norm_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_params_new))}        
+        self.GP_rot_params = [1,10,15,1]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_rot_err = [0,0,0,0]
+        self.GP_rot_use = [False,False,False,False]  
+        self.GP_rot_str = [r'Amp', r't', r'per', r'fact']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway 
+        self.GP_rot_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_rot_params))}        
+        self.GP_rot_norm_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_rot_params))}        
                 
         
+        self.GP_sho_params     = [1,0.5,3]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_sho_err = [0,0,0]
+        self.GP_sho_use = [False,False,False]  
+        self.GP_sho_str = [r'S', r'Q', r'omega']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway 
+        self.GP_sho_bounds    = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_sho_params))}        
+        self.GP_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_sho_params))}        
+                
+
         self.gp_model_curve = {k: 0 for k in range(10)}
         self.gp_model_data  = {k: 0 for k in range(10)}
         
@@ -2406,13 +2394,11 @@ class signal_fit(object):
         
         
         for i in range(4):  
-            par.append(self.GP_params_new[i])
-            flag.append(self.GP_params_new_use[i])
-            par_str.append(self.GP_params_new_str[i])
-            bounds.append(self.GP_bounds[i])
-            prior_nr.append(self.GP_norm_pr[i])
-
-        #print(self.GP_params_new_use)
+            par.append(self.GP_rot_params[i])
+            flag.append(self.GP_rot_use[i])
+            par_str.append(self.GP_rot_str[i])
+            bounds.append(self.GP_rot_bounds[i])
+            prior_nr.append(self.GP_rot_norm_pr[i])
             
             
         for i  in range(self.npl):            
@@ -2568,10 +2554,10 @@ class signal_fit(object):
         
         
         for i in range(4):  
-            par.append(self.GP_params_new[i])
-            flag.append(self.GP_params_new_use[i])
-            par_str.append(self.GP_params_new_str[i])
-            bounds.append(self.GP_bounds[i])
+            par.append(self.GP_rot_params[i])
+            flag.append(self.GP_rot_use[i])
+            par_str.append(self.GP_rot_str[i])
+            bounds.append(self.GP_rot_bounds[i])
             
             
             
