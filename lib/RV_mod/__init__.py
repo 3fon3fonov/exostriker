@@ -171,13 +171,15 @@ def ma_from_t0(per, ecc, om, t_transit, epoch):
   
     
     
-def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epoch, stmass, gps, rtg, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=300, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
+def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epoch, stmass, gps, rtg, mix_fit, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=300, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
  
     rv_loglik = 0
     gp_rv_loglik = 0
     tr_loglik = 0
     gp_tr_loglik = 0
    
+    #print(mix_fit[0])
+   # print(mix_fit[1])
     
     if np.isnan(p).any():
         return -np.inf
@@ -215,7 +217,13 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
                 ppp+='%f\n%d\n'%(0,0)           
             else:
                 ppp+='%f\n%d\n'%(par[i + len(vel_files)],0)
+         
+        # if mixed fitting is requested    
         ppp+='%d\n'%npl
+        if mix_fit[0] == True and program == './lib/fr/loglik_dyn+':
+            for i in range(npl): 
+                ppp+='%d\n'%mix_fit[1][i]                
+        
         for i in range(npl): # K,P,e,w,M,i,cap0m for each planet, and information which ones we use
             ppp+='%f %f %f %f %f %f %f\n'%(par[len(vel_files)*2 + 7*i],
                                                par[len(vel_files)*2 +7*i+1],
@@ -341,7 +349,10 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     stmass = obj.params.stellar_mass  
     
     if (obj.mod_dynamical):
-        mod='./lib/fr/loglik_dyn'
+        if (obj.mixed_fit[0]):
+            mod='./lib/fr/loglik_dyn+'
+        else: 
+            mod='./lib/fr/loglik_dyn'       
     else:
         mod='./lib/fr/loglik_kep'    
 
@@ -357,6 +368,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     pr_nr = np.array(obj.nr_pr_for_mcmc)
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
+    mix_fit = obj.mixed_fit
  
     #print(par)
     #print(pp)
@@ -455,7 +467,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         #eps = eps/10.0
        # print('running %s %s %s'%(obj.SciPy_min_use_1, obj.SciPy_min_N_use_1, k))
  
-        result = op.minimize(nll,  pp, args=(mod, par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg ),
+        result = op.minimize(nll,  pp, args=(mod, par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit ),
                              method=method1,bounds=fit_bounds, options=options1)       
                             #  bounds=bb, tol=None, callback=None, options={'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxiter': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1, 'disp': True})        
         pp = result["x"]
@@ -467,7 +479,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     for k in range(n2): # run at least 3 times the minimizer
         #print(k,xtol)
       #  print('running %s %s %s'%(obj.SciPy_min_use_2, obj.SciPy_min_N_use_2, k))
-        result = op.minimize(nll, pp, args=(mod,par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg ), 
+        result = op.minimize(nll, pp, args=(mod,par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit ), 
                              method=method2,bounds=fit_bounds, options=options2)
         pp = result["x"]
         print(method2,' Done!')
@@ -539,12 +551,12 @@ def normalprior(p,b):
     loglik = np.log(1.0/(np.sqrt(2.0*np.pi)*b[1])*np.exp(-(p-b[0])**2.0/(2.0*b[1]**2.0)))
     return loglik
 
-def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, b, pr_nr, gps,rtg):
+def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, b, pr_nr, gps, rtg, mix_fit):
     #print(p)
     lp = lnprior(p,b,pr_nr)
     if not np.isfinite(lp):
         return -np.inf
-    return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg)  
+    return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg, mix_fit)  
 
 
 ########## Dynesty Work in progress!!! #######
@@ -591,9 +603,12 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
     stmass = obj.params.stellar_mass    
     
     if (obj.mod_dynamical):
-        mod='./lib/fr/loglik_dyn'
+        if (obj.mixed_fit[0]):
+            mod='./lib/fr/loglik_dyn+'
+        else: 
+            mod='./lib/fr/loglik_dyn'       
     else:
-        mod='./lib/fr/loglik_kep'
+        mod='./lib/fr/loglik_kep'  
  
    # print(mod)
     #program='./lib/fr/%s_%s'%(minimized_value,mod) 
@@ -605,6 +620,7 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
     pr_nr = np.array(obj.nr_pr_for_mcmc)
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
+    mix_fit = obj.mixed_fit
     
     level = (100.0- obj.percentile_level)/2.0
 
@@ -626,7 +642,7 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
     import dynesty
         
     partial_func = FunctionWrapper(lnprob_new,
-                    (mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg) )
+                    (mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit) )
     print('EXPECTED VALUE BEST', partial_func(obj.par_for_mcmc))
     print("BEST FIT ESTIMATE ", partial_func(prior_transform(np.array([0.] * ndim))))
 
@@ -735,7 +751,10 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     stmass = obj.params.stellar_mass    
     
     if (obj.mod_dynamical):
-        mod='./lib/fr/loglik_dyn'
+        if (obj.mixed_fit[0]):
+            mod='./lib/fr/loglik_dyn+'
+        else: 
+            mod='./lib/fr/loglik_dyn'       
     else:
         mod='./lib/fr/loglik_kep'
  
@@ -749,6 +768,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     pr_nr = np.array(obj.nr_pr_for_mcmc)
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
+    mix_fit = obj.mixed_fit
     
     level = (100.0- obj.percentile_level)/2.0
 
@@ -769,7 +789,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
 
     pos = [pp + obj.gaussian_ball*np.random.rand(ndim) for i in range(nwalkers)]
 
-    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg), threads = threads)
+    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit), threads = threads)
 
     # burning phase
     pos, prob, state  = sampler.run_mcmc(pos,burning_ph)
@@ -1125,6 +1145,7 @@ class signal_fit(object):
         self.gls = []
         self.gls_o_c =[]
        
+        self.mixed_fit = {0: [False], 1:[1,1,1,1,1,1,1,1,1]}
         
         
  
@@ -2082,6 +2103,12 @@ class signal_fit(object):
             ppp+='%f\n%d\n'%(self.params.offsets[i],int(self.use.use_offsets[i]))
             ppp+='%f\n%d\n'%(self.params.jitters[i],int(self.use.use_jitters[i]))  
         ppp+='%d\n'%self.npl
+        
+        # if mixed fitting is requested        
+        if program == './lib/fr/loglik_dyn+':
+            for i in range(self.npl):             
+                ppp+='%d\n'%self.mixed_fit[1][i]  
+                
         for i in range(self.npl): # K,P,e,w,M,i,cap0m for each planet, and information which ones we use
             ppp+='%f %f %f %f %f %f %f\n'%(self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.params.planet_params[7*i+2],self.params.planet_params[7*i+3],self.params.planet_params[7*i+4],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6])
             ppp+='%d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),int(self.use.use_planet_params[7*i+1]),int(self.use.use_planet_params[7*i+2]),int(self.use.use_planet_params[7*i+3]),int(self.use.use_planet_params[7*i+4]),int(self.use.use_planet_params[7*i+5]),int(self.use.use_planet_params[7*i+6]))     
@@ -2172,8 +2199,12 @@ class signal_fit(object):
         else:
             minimized_value='chi2'
         # which mode to use, analogously as above
+             
         if(self.mod_dynamical):
-            mod='dyn'
+            if self.mixed_fit[0] == True and minimized_value=='loglik':            
+                mod='dyn+'
+            else:
+                mod='dyn'                
         else:
             mod='kep'
         #print(doGP)
