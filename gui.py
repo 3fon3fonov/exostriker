@@ -450,7 +450,16 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             use_gp_sho_params[i].setChecked(bool(fit.GP_sho_use[i]))
 
 
-           
+    def update_mixed_fitting(self):
+        global fit
+        
+        fit.mixed_fit[0] =  int(self.use_mix_fitting.isChecked())
+        fit.mixed_fit[1] = [int(self.mix_pl_1.isChecked()),int(self.mix_pl_2.isChecked()),int(self.mix_pl_3.isChecked()),
+                            int(self.mix_pl_4.isChecked()),int(self.mix_pl_5.isChecked()),int(self.mix_pl_6.isChecked()),
+                            int(self.mix_pl_7.isChecked()),int(self.mix_pl_8.isChecked()),int(self.mix_pl_9.isChecked()),
+                            ]       
+        
+        
             
     def update_use(self):
         global fit
@@ -3603,7 +3612,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.buttonGroup_remove_transit_data.buttonClicked.connect(self.remove_tra_file)         
         
         self.buttonGroup_use.buttonClicked.connect(self.update_use)
- 
+        self.buttonGroup_mixed_fitting.buttonClicked.connect(self.update_mixed_fitting)
         
         self.button_orb_evol.clicked.connect(self.worker_Nbody) 
         self.button_MCMC.clicked.connect(self.worker_mcmc)

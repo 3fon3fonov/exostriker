@@ -30,7 +30,7 @@ c*************************************************************************
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
 
-      ftol=0.001d0       
+      ftol=0.0015d0       
       read (*,*) epsil,deltat, amoebastarts,
      &          when_to_kill, nt, model_max,model_min      
       
@@ -41,7 +41,6 @@ c*************************************************************************
       call io_read_data (ndata,t,ts,ys,sigs,jitt,
      & 	           epoch,t0,t_max,a,ia,ma,mfit,dynamical_planets)
 
-  
            i = 0
 c      call timer(t_start)              
  500  continue
@@ -56,7 +55,7 @@ c      call timer(t_start)
          call prepare_for_amoeba(p,MMAX+1,MMAX,yamoeba,a,ia,ma,mfit,
      & compute_abs_loglik,ndata,t,ys,ymod,dyda,ts,sigs,epsil,deltat,i,
      & dynamical_planets)
-
+     
          call amoeba(p,yamoeba,MMAX+1,MMAX,mfit,ftol,compute_abs_loglik,
      & iter,ndata,t,ys,ymod,dyda,ma,ts,sigs,a,ia,epsil,deltat, 
      & dynamical_planets)
@@ -124,8 +123,7 @@ c      stop
       integer dynamical_planets(NPLMAX)
    
       common /DSBLK/ npl,ndset,idsmax,idset      
-      
-
+   
       j=0
       do i=1,ma 
          if (ia(i).ne.0) then
@@ -135,6 +133,7 @@ c      stop
              a3(i)=a(i)
          endif
       enddo
+      
       loglik=0.d0
         call RVDYN (x,a3,y2,dyda,ma,ndata,epsil,deltat, 
      &  dynamical_planets,ts)
@@ -142,7 +141,8 @@ c        write(*,*) a3(2),a2(2),a(2)
 c        write(*,*) a3(1),a3(2),a3(3),a3(4),a3(5)
 c        write(*,*) a3(8),a3(9),a3(10),a3(11),a3(12)
 c        write(*,*) y_in(1),y_in(2)
-        do i = 1,ndata
+
+      do i = 1,ndata
               idset = ts(i)
               y_in(i) = y(i) - a3(7*npl+idset)- 
      &                 a3(7*npl+2*ndset+1)*(x(i)/86400.d0)
@@ -151,7 +151,6 @@ c     &        a3(7*npl +2*ndset + 1)*x(i)
 
           dy = y_in(i) - y2(i)
 
-c          write(*,*),dy
 
           sig2i = 1.d0/(sig(i)**2 + a3(7*npl+ndset+idset)**2)
  
@@ -183,7 +182,7 @@ c      write(*,*) "lnL", loglik
       external funk
     
       common /DSBLK/ npl,ndset,idsmax,idset
-
+      
       k=0
       do j=1,ma
           if(ia(j).ne.0) then
@@ -208,11 +207,13 @@ c      write(*,*) "lnL", loglik
           enddo
           endif
       enddo
+
       do i=1,mfit+1
           do j=1,mfit
               a2(j)=p(i,j)
 c              write(*,*) a2(j)  
           enddo
+
           call funk(ndata,x,z,a2,ymod,dyda,ma,mfit,ts,sig,loglik,i,
      &              a,ia,epsil,deltat, dynamical_planets)
           y(i)=loglik
@@ -258,6 +259,7 @@ c      write(*,*) loglik
         endif
 13    continue
       rtol=2.d0*abs(y(ihi)-y(ilo))/(abs(y(ihi))+abs(y(ilo)))
+c      write (*,*) rtol,ftol
       if (rtol.lt.ftol) then
         swap=y(1)
         y(1)=y(ilo)
@@ -270,19 +272,18 @@ c      write(*,*) loglik
         return
       endif
       if (iter.ge.ITMAX) then
-          write (*,*) 'ITMAX exceeded in amoeba'
           return
       endif
       iter=iter+2
       ytry=amotry(p,y,psum,mp,np,ndim,funk,ihi,-1.0d0,ndata,x,z,ymod,
-     & dyda,ma,ts,sig,a,ia,epsil,deltat)
+     & dyda,ma,ts,sig,a,ia,epsil,deltat, dynamical_planets)
       if (ytry.le.y(ilo)) then
         ytry=amotry(p,y,psum,mp,np,ndim,funk,ihi,2.0d0,ndata,x,z,ymod,
-     & dyda,ma,ts,sig,a,ia,epsil,deltat)
+     & dyda,ma,ts,sig,a,ia,epsil,deltat,dynamical_planets)
       else if (ytry.ge.y(inhi)) then
         ysave=y(ihi)
         ytry=amotry(p,y,psum,mp,np,ndim,funk,ihi,0.5d0,ndata,x,z,ymod,
-     & dyda,ma,ts,sig,a,ia,epsil,deltat)
+     & dyda,ma,ts,sig,a,ia,epsil,deltat,dynamical_planets)
         if (ytry.ge.ysave) then
           do 16 i=1,ndim+1
             if(i.ne.ilo)then
@@ -306,15 +307,15 @@ c      write(*,*) loglik
 C  (C) Copr. 1986-92 Numerical Recipes Software 0=M,173+9.
 
       FUNCTION amotry(p,y,psum,mp,np,ndim,funk,ihi,fac,ndata,x,z,ymod,
-     & dyda,ma,ts,sig,a,ia,epsil,deltat)
+     & dyda,ma,ts,sig,a,ia,epsil,deltat,dynamical_planets)
       implicit none
-      INTEGER ihi,mp,ndim,np,NMAX, MMAX, ma, ts(5000),ndata
-      PARAMETER (NMAX=20, MMAX=200)
+      INTEGER ihi,mp,ndim,np,NMAX, MMAX, NPLMAX, ma, ts(5000),ndata
+      PARAMETER (NMAX=20, MMAX=200, NPLMAX=20)
       REAL*8 amotry,fac,p(mp,np),psum(np),y(mp),x(5000),z(5000),
      & ymod(5000), epsil, deltat
       real*8 dyda(10000,MMAX), sig(5000),loglik
       EXTERNAL funk
-      INTEGER j, ia(MMAX)
+      INTEGER j, ia(MMAX), dynamical_planets(NPLMAX)
       REAL*8 fac1,fac2,ytry,ptry(ndim), a(MMAX)
       fac1=(1.0d0-fac)/ndim
       fac2=fac1-fac
@@ -322,8 +323,7 @@ C  (C) Copr. 1986-92 Numerical Recipes Software 0=M,173+9.
         ptry(j)=psum(j)*fac1-p(ihi,j)*fac2
 11    continue
       call funk(ndata,x,z,ptry,ymod,dyda,ma,ndim,ts,sig,loglik,ihi,
-     & a,ia,epsil,deltat,ts)
-     
+     & a,ia,epsil,deltat,dynamical_planets)   
       ytry=loglik
       if (ytry.lt.y(ihi)) then
         y(ihi)=ytry
@@ -531,11 +531,10 @@ C
       twopi = 2.0d0*PI 
  
 ccccccccccccccccccc t[JD], obs., cal., O-C   ccccccccccccc   
-      
-      
-      call RVDYN(t,a,ymod,dyda,ma,ndata,epsil,deltat,
-     & dynamical_planets,ts)
 
+      call RVDYN(t,a,ymod,dyda,ma,ndata,epsil,deltat,
+     & dynamical_planets,ts)   
+     
       do i = 1,npl
          j = 7*(i-1)
          
@@ -588,16 +587,15 @@ c          write(*,*) a(7*npl+idset), a(7*npl  + 2*ndset + 1)
           sig2i = 1.d0/(sigs(i)**2 + a(7*npl+ndset+idset)**2)
 
           dy =  ys(i) -ymod(i)  
- 
 
  	  chisq  = chisq + dy*dy*sig2i
  
 c          write(*,*) "TEST:",loglik,dy,ymod(i)
+
 	  loglik =  loglik - 0.5*dy*dy*sig2i -
-     &               0.5*dlog(twopi*(sigs(i)**2
-     &                + a(7*npl+ndset+idset)**2)) 
-     
- 
+     &               0.5*dlog(twopi*(sigs(i)**2 + 
+     &               a(7*npl+ndset+idset)**2)) 
+c     &               + dlog(dsqrt(twopi))  
 
           rms = rms + dy**2
       enddo
@@ -667,10 +665,10 @@ c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
           enddo        
 
           call MA_J (a,ma,npl,mstar,sini,mass,ap)
-
+          
           call GENINIT_J3 (nbod,ap,a,
-     &                         mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill)
-
+     &                         mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill) 
+     
           do i = 1,npl
              j = 7*(i-1)
          
@@ -741,8 +739,10 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	
 	k=0
 	d=0
+c	write (*,*) 'HELLO'
 	do i=1,npl
-            if (dynamical_planets(i).eq.1.d0) then
+c           write (*,*) dynamical_planets(i)
+	   if (dynamical_planets(i).eq.1.d0) then
                 do j=1,7
                     a_dyn(7*d+j)=a(7*(i-1)+j)
 
@@ -785,7 +785,7 @@ c                    write(*,*) a(7*(i-1)+j)
           cosw = dcos(a(4+i))
           sinw = dsin(a(4+i))
 
-          capm = TWOPI*x*86400.d0/a(2+i) + a(5+i)
+          capm = TWOPI*x/(a(2+i)*86400.d0) + a(5+i)
           capm = dmod(capm,  2.d0*PI )
 
           cape = ORBEL_EHYBRID (a(3+i),capm)
@@ -800,9 +800,9 @@ c                    write(*,*) a(7*(i-1)+j)
           fac2 = (cosw*sinf + sinw*cosf)/(1.d0 - a(3+i)*cose)**2
           fac3 = -a(1+i)*dsqrt(1.d0 - a(3+i)**2)*fac2
 
-          y = a(1+i)*fac1
+          y = y+a(1+i)*fac1
           dyda(1+i) = fac1
-          dyda(2+i) = -TWOPI*fac3*x*86400.d0/a(2+i)**2
+          dyda(2+i) = -TWOPI*fac3*x/(a(2+i)*86400.d0)**2
           dyda(3+i) = -a(1+i)*sine*(2.d0 - a(3+i)**2 - a(3+i)*cose)*fac2/dsqrt(1.d0 - a(3+i)**2)
           dyda(4+i) = -a(1+i)*(sinw*cosf + cosw*sinf)
           dyda(5+i) = fac3
@@ -835,6 +835,7 @@ c                    write(*,*) a(7*(i-1)+j)
       parameter (NPLMAX=20, NDSMAX=20)
       real*8 a_kep(ma), a_dyn(ma)
       real*8 t(ndata),ymod(ndata),a(ma),a2(ma),dyda(ndata,ma),x(ma)
+      real*8 ymod_kep(ndata)
       real*8 mstar,sini(NPLMAX),ap(NPLMAX),mass(NPLMAX), dyda_kep(ma)
       real*8 xh(NPLMAX),yh(NPLMAX),zh(NPLMAX),vxh(NPLMAX),vyh(NPLMAX)
      &       ,vzh(NPLMAX)
@@ -848,17 +849,10 @@ c                    write(*,*) a(7*(i-1)+j)
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
 
-      
-
-
       do i = 1,ma
           a2(i)=a(i)
       enddo      
 
-      do i = 1, ndata
-          ymod(i) = 0.0
-      enddo
- 
       correct = 1
       if(correct.gt.0) then      
       do i = 1,npl
@@ -901,18 +895,22 @@ c                    write(*,*) a(7*(i-1)+j)
       call split_parameters(a2,a_kep,a_dyn,dynamical_planets,k,d)
       nbod = d + 1
       na = 7*d 
+          do i = 1,ndata        
+             ymod(i)=0.d0
+             ymod_kep(i)=0.d0
+          enddo
  
-      write(*,*) ma, na, ma -na,k,d
 c-----get ymod first
 c        if (a_kep(1).gt.1) then
        do i = 1,ndata        !  initialize ymod 
-          call RVKEP(t(i),a_kep,ymod(i),dyda_kep,ma-na,ts(i),k)
+          call RVKEP(t(i),a_kep,ymod_kep(i),dyda_kep,ma-na,ts(i),k)
  
        enddo 	
 c        endif
-       write(*,*) ymod(0)
 
-       
+        if (d.eq.0.d0) then
+         go to 888
+        endif
 c******calculating masses and radius of planets in Jacobian system********
        call MA_J (a_dyn,na,d,mstar,sini,mass,ap)
            
@@ -948,7 +946,7 @@ c******transform to heliocentric coordinates, in order for using BS integrator**
 C******calculating the RVs of model and the derivatives of orbel elements****** 
        call integrate(x,mass,ymod,dyda,t,a_dyn,ap,nbod,na,ndata,epsil,
      & deltat)
-       write(*,*) ymod(0)
+c       write(*,*) ymod
 c       pause     
     
 c       write(*,*) 'mass(2) , mass(3) , mass(4):'
@@ -960,6 +958,10 @@ c      write(*,*) na,ndata
 c      write(*,*) ap(1),ap(2)
 c      write(*,*) t(1),t(2)
 c      write(*,*) ymod(1),ymod(2)
+
+888      do i=1,ndata
+         ymod(i)=ymod(i)+ymod_kep(i)
+        enddo
 
       return
       end
@@ -2083,7 +2085,6 @@ c Initialize initial time and times for first output and first dump
            vzh(i) = x(j+7)
         enddo
         do i = 1,ndata        !  initialize ymod and dyda and z
-c           ymod(i) = 0.0
            do j = 1,ma
               dyda(i,j) = 0.0
            enddo
