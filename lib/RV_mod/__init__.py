@@ -61,13 +61,18 @@ def initiategps(obj,  kernel_id=-1):
         obj.params.update_GP_params(obj.GP_rot_params, kernel_id=kernel_id)
         obj.use.update_use_GP_params(obj.GP_rot_use)
     
-    
-    
-    kernel = terms.TermSum(GP_kernels.RotationTerm(
+    #print(obj.gp_kernel)
+    if obj.gp_kernel == 'RotKernel':
+        kernel = terms.TermSum(GP_kernels.RotationTerm(
                 log_amp=np.log(obj.GP_rot_params[0]),
                 log_timescale=np.log(obj.GP_rot_params[1]),
                 log_period=np.log(obj.GP_rot_params[2]),
                 log_factor=np.log(obj.GP_rot_params[3])))
+        
+    elif obj.gp_kernel == 'SHOKernel':   
+        kernel = terms.SHOTerm(log_S0=np.log(obj.GP_sho_params[0]), 
+                               log_Q=np.log(obj.GP_sho_params[1]), 
+                               log_omega0=np.log(obj.GP_sho_params[2]))
     
     gps = celerite.GP(kernel, mean=0.0)
     gps.compute(obj.filelist.time, obj.filelist.rv_err)
@@ -77,7 +82,7 @@ def initiategps(obj,  kernel_id=-1):
  
 
 
-def plot_gp(obj):
+def plot_gp(obj, curve=False):
     
     import matplotlib.pyplot as plt
 
@@ -90,14 +95,19 @@ def plot_gp(obj):
     idset = obj.filelist.idset
     
     
-    x_model = obj.fit_results.model_jd
-    mu,var,std = obj.gp_model_curve
+    if curve==True:
+        x_model = obj.fit_results.model_jd
+        mu,var,std = obj.gp_model_curve
+        
+    else:      
+        x_model = x
+        mu,var,std = obj.gp_model_data    
     
     
     for i in range(obj.filelist.ndset):
         plt.errorbar(x[idset==i],y[idset==i], yerr=y_err[idset==i], fmt=".",color=colors[i],  capsize=0); 
     
-    plt.plot(x_model, mu, color = '0.5');
+    plt.plot(x_model, mu, color = '0.5' );
     plt.fill_between(x_model ,mu+std,  mu-std, color=color, alpha=0.3, edgecolor="none")
 
 
@@ -495,8 +505,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     
     obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
 
-    #  
     
+         
     
  
     obj.loglik = -result["fun"]
@@ -504,6 +514,19 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     
     for j in range(len(pp)):
         par[flags[j]] = pp[j]    
+        
+    if (rtg[1]):
+        if obj.gp_kernel == 'RotKernel':
+            for j in range(len(gps.get_parameter_vector())):
+                obj.GP_rot_params[j] = par[len(vel_files)*2  +7*npl +1 +j]
+                print(obj.doGP,obj.gp_kernel)
+            
+        if obj.gp_kernel == 'SHOKernel':
+            for j in range(len(gps.get_parameter_vector())):
+                obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +1 +j]          
+                print(obj.doGP,obj.gp_kernel)
+        
+       
         
     for i in range(npl):   
         obj.t0[i]     = par[len(vel_files)*2 +7*npl +5 + 3*i] #0.0  #time of inferior conjunction
@@ -527,8 +550,9 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         print("Best fit par.:")  
      
         for j in range(len(pp)):
-            print(ee[j] + "  =  %s"%pp[j])
-    
+            #print(ee[j] + "  =  %s"%pp[j])
+            print("{0:{width}s} = {1:{width}.{precision}f}".format(ee[j], pp[j] , width = 10, precision = 4))
+
     get_gps_model(obj)  
     obj.gps = []
     
@@ -826,7 +850,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
     #print(newparams.GP_params)
-    current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
+    #current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
    # print(current_GP_params)
 
     obj.fitting(minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
@@ -839,7 +863,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
    # print(new_par_errors)
     
  
-    obj.params.update_GP_params(current_GP_params)
+   # obj.params.update_GP_params(current_GP_params)
 
     
     if (save_means):
@@ -849,8 +873,22 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
         obj.loglik = sampler.lnL_min 
 
 
+
     for j in range(len(pp)):
         par[flags[j]] = pp[j]    
+        
+        
+    if (rtg[1]):
+        if obj.gp_kernel == 'RotKernel':
+            for j in range(len(gps.get_parameter_vector())):
+                obj.GP_rot_params[j] = par[len(vel_files)*2  +7*npl +1 +j]
+                print(obj.doGP,obj.gp_kernel)
+            
+        if obj.gp_kernel == 'SHOKernel':
+            for j in range(len(gps.get_parameter_vector())):
+                obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +1 +j]          
+                print(obj.doGP,obj.gp_kernel)
+         
         
     for i in range(npl):   
         obj.t0[i]     = par[len(vel_files)*2 +7*npl +5 + 3*i] #0.0  #time of inferior conjunction
@@ -872,10 +910,12 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     print("Best lnL: %s"%sampler.lnL_min)
     print("Best fit par.:")  
     pp = obj.par_for_mcmc 
+    #print(len(pp),len(new_par_errors))
     #ee = obj.e_for_mcmc.tolist() 
     for j in range(len(pp)):
-        print(ee[j] + "  =  %s"%pp[j])
- 
+        #print("%s  =  %s + %s - %s"%(ee[j], pp[j],new_par_errors[j][0],new_par_errors[j][1]))
+        print("{0:{width}s} = {1:{width}.{precision}f} + {2:{width}.{precision}f} - {3:{width}.{precision}f}".format(ee[j], pp[j],new_par_errors[j][0],new_par_errors[j][1], width = 10, precision = 4))
+
         
     if(save_sampler):
         obj.sampler=sampler             
@@ -1329,7 +1369,7 @@ class signal_fit(object):
         self.GP_rot_norm_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_rot_params))}        
                 
         
-        self.GP_sho_params     = [1,0.5,3]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_sho_params     = [1,10,10]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_sho_err = [0,0,0]
         self.GP_sho_use = [False,False,False]  
         self.GP_sho_str = [r'S', r'Q', r'omega']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway 
@@ -1340,7 +1380,9 @@ class signal_fit(object):
         self.gp_model_curve = {k: 0 for k in range(10)}
         self.gp_model_data  = {k: 0 for k in range(10)}
         
-
+        self.gp_kernels = ['SHOKernel','RotKernel']
+        self.gp_kernel = self.gp_kernels[0]
+       
 
     def init_transit_params(self): 
         # from the example in github
@@ -2420,16 +2462,28 @@ class signal_fit(object):
         par_str.append(self.rv_lintr_str[0])
         bounds.append(self.rv_lintr_bounds[0])
         prior_nr.append(self.rv_lintr_norm_pr[0])
+        
+        
        
-        
-        
-        
-        for i in range(4):  
-            par.append(self.GP_rot_params[i])
-            flag.append(self.GP_rot_use[i])
-            par_str.append(self.GP_rot_str[i])
-            bounds.append(self.GP_rot_bounds[i])
-            prior_nr.append(self.GP_rot_norm_pr[i])
+        if self.gp_kernel == 'RotKernel':
+            for i in range(4):  
+                par.append(self.GP_rot_params[i])
+                flag.append(self.GP_rot_use[i])
+                par_str.append(self.GP_rot_str[i])
+                bounds.append(self.GP_rot_bounds[i])
+                prior_nr.append(self.GP_rot_norm_pr[i])
+            
+        elif self.gp_kernel == 'SHOKernel':         
+            for i in range(3):  
+                par.append(self.GP_sho_params[i])
+                flag.append(self.GP_sho_use[i])
+                par_str.append(self.GP_sho_str[i])
+                bounds.append(self.GP_sho_bounds[i])
+                prior_nr.append(self.GP_sho_norm_pr[i])
+            
+            
+            
+            
             
             
         for i  in range(self.npl):            
@@ -2761,37 +2815,7 @@ class signal_fit(object):
                 self.param_errors.update_stellar_mass_error(p[i])            
         return                           
 
-    def initiategps(self, gp_par=None, use_gp_par=[], kernel_id=-1): 
-        
-        # Prepare objects for Gaussian Processes        
-        
-        # Redefine GP parameters if new ones were provided
-        
-        #if not (gp_par==None):
-        if len(gp_par) != 0:
-            self.params.update_GP_params(gp_par,kernel_id=kernel_id)
-            self.use.update_use_GP_params(use_gp_par)
-            self.verify_gp_parameters_number()
-        
-#        kernel_jitters=[]
-        kernels=[]
-        gps=[]
-        #print(gp_par[0],gp_par[1],gp_par[2],gp_par[3] )
-       #copied_obj.gps[i].set_parameter_vector(np.array(list(map(np.log,np.concatenate((copied_obj.params.GP_params.gp_par,np.atleast_1d(copied_obj.params.jitters[i]))))))) 
-
-        for i in range(self.filelist.ndset):
-            kernels.append(self.params.GP_params.rot_kernel +terms.JitterTerm(np.log(self.params.jitters[i])))
-            gps.append(celerite.GP(kernels[i], mean=0.0))
-            gps[i].compute(self.filelist.time[self.filelist.idset==i],self.filelist.rv_err[self.filelist.idset==i])
-            #gps[i].compute(self.filelist.time[self.filelist.idset==i])
-        self.gps=gps
-        
-       # print(self.params.GP_params.gp_par)    
-       # print(self.use.use_GP_params)    
-        
- 
-                   
-        return
+  
 
      
         
