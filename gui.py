@@ -171,15 +171,20 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             tra_data_gui[i].setValue(fit.tra_off[i]) 
             tra_data_jitter_gui[i].setValue(fit.tra_jitt[i])            
             
-        gp_params = [self.GP_rot_kernel_Amp,
+        gp_rot_params = [self.GP_rot_kernel_Amp,
                      self.GP_rot_kernel_time_sc,
                      self.GP_rot_kernel_Per,
                      self.GP_rot_kernel_fact]
         
-        for i in range(len(gp_params)):
-            gp_params[i].setValue(fit.GP_rot_params[i])
-
-         
+        for i in range(len(gp_rot_params)):
+            gp_rot_params[i].setValue(fit.GP_rot_params[i])
+ 
+        gp_sho_params = [self.GP_sho_kernel_S,
+                     self.GP_sho_kernel_Q,
+                     self.GP_sho_kernel_omega]
+        
+        for i in range(len(gp_sho_params)):
+            gp_sho_params[i].setValue(fit.GP_sho_params[i])            
 
             
         self.St_mass_input.setValue(fit.params.stellar_mass)        
@@ -323,13 +328,22 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.err_RV_lin_trend.setText("+/- %.8f"%(max(fit.param_errors.linear_trend_error)))
         
-        gp_errors_gui = [self.err_rot_kernel_Amp,
+        gp_rot_errors_gui = [self.err_rot_kernel_Amp,
                      self.err_rot_kernel_time_sc,
                      self.err_rot_kernel_Per,
                      self.err_rot_kernel_fact]
         
-        for i in range(len(gp_errors_gui)):
-            gp_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))      
+        for i in range(len(gp_rot_errors_gui)):
+            gp_rot_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))  
+            
+        gp_sho_errors_gui = [self.err_sho_kernel_S,
+                     self.err_sho_kernel_Q,
+                     self.err_sho_kernel_omega]
+        
+        #for i in range(len(gp_rot_errors_gui)):
+       #     gp_rot_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_sho_params_errors[i])))              
+            
+            
  #        GP_params_errors
 
 
@@ -2228,13 +2242,13 @@ Transit duration: %s d
         #self.tabWidget_helper.setCurrentWidget(self.tab_info)
         
         
-        if self.radioButton_fortran77.isChecked() and not self.goGP.isChecked() or init == True:
+        if self.radioButton_fortran77.isChecked() and not self.do_RV_GP.isChecked() or init == True:
             self.statusBar().showMessage('Minimizing parameters....')    
             if init == True:
                 ff = 0
                 doGP=False
             else:
-                doGP=self.goGP.isChecked()
+                doGP=self.do_RV_GP.isChecked()
             # Pass the function to execute
             worker2 = Worker(lambda:  self.optimize_fit(ff=ff, doGP=doGP, minimize_fortran=True, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
  
@@ -2242,7 +2256,7 @@ Transit duration: %s d
             self.check_scipy_min()
 
             self.statusBar().showMessage('Minimizing parameters using SciPyOp (might be slow)....')                 
-            worker2 = Worker(lambda:  self.optimize_fit(ff=0, doGP=self.goGP.isChecked(),  gp_kernel_id=-1, minimize_fortran=False, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
+            worker2 = Worker(lambda:  self.optimize_fit(ff=0, doGP=self.do_RV_GP.isChecked(),  gp_kernel_id=-1, minimize_fortran=False, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
             self.tabWidget_helper.setCurrentWidget(self.tab_info)
             
             
@@ -2765,11 +2779,11 @@ highly appreciated!
         
         
         if self.radioButton_RV.isChecked():
-            fit.rtg = [True,self.goGP.isChecked(), False]
+            fit.rtg = [True,self.do_RV_GP.isChecked(), False]
         elif self.radioButton_transit.isChecked():
-            fit.rtg = [False, self.goGP.isChecked(), True]
+            fit.rtg = [False, self.do_RV_GP.isChecked(), True]
         elif self.radioButton_transit_RV.isChecked():
-            fit.rtg = [True,self.goGP.isChecked(), True]
+            fit.rtg = [True,self.do_RV_GP.isChecked(), True]
         
         self.button_MCMC.setEnabled(False)
         self.statusBar().showMessage('MCMC in progress....')        
@@ -2833,10 +2847,7 @@ highly appreciated!
         
  
         self.check_mcmc_params()
-        #fit.mcmc(doGP=self.goGP.isChecked(), gp_par=np.array(gp_params),use_gp_par=np.array(use_gp_params), 
-        #burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
-        #fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked())  
-     
+      
         fit = rv.run_mcmc(fit, burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
         fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked(), save_minlnL=self.adopt_best_lnL_as_pars.isChecked())
         
@@ -3079,7 +3090,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         global fit
    
         if self.radioButton_RV.isChecked():
-            fit.rtg = [True,self.goGP.isChecked(),False]            
+            fit.rtg = [True,self.do_RV_GP.isChecked(),False]            
             if(init):
                 self.worker_RV_fitting(ff=0,m_ln=True, init = init )  
                 #print('test')
@@ -3095,7 +3106,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
                                                
         elif self.radioButton_transit_RV.isChecked():
             
-            fit.rtg=[True,self.goGP.isChecked(),True]
+            fit.rtg=[True,self.do_RV_GP.isChecked(),True]
             if(init):
                 self.worker_transit_fitting(ff=0 )  
             else:
@@ -3495,9 +3506,19 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
     #   return (layout.itemAt(i) for i in range(layout.count()))
 
 
+    def set_RV_GP(self):
+        global fit
+        
+        if self.use_GP_sho_kernel.isChecked():
+            fit.gp_kernel = 'SHOKernel'  
+        elif self.use_GP_rot_kernel.isChecked():
+            fit.gp_kernel = 'RotKernel'
+            
+            
 
       
     def check_RV_symbol_sizes(self):
+        global fit
         
        # for i in range(10):
         fit.pyqt_symbols_size_rvs[0] = self.rv_data_size_1.value()
@@ -3712,6 +3733,10 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
         self.dialog_symbols = show_symbols(self)
         self.buttonGroup_symbol_picker.buttonClicked.connect(self.get_symbol) 
+        
+        self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)    
+       
+        
 
         self.threadpool = QtCore.QThreadPool()
         #self.threadpool.setMaxThreadCount(cpu_count())    
