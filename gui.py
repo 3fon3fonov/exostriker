@@ -2765,6 +2765,12 @@ highly appreciated!
     def worker_mcmc_complete(self):
         global fit  
         #fit.print_info(short_errors=False)
+        
+        self.update_labels()
+        self.update_gui_params()
+        self.update_errors() 
+        self.update_a_mass() 
+        
         self.statusBar().showMessage('') 
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
         

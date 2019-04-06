@@ -926,7 +926,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     else:   
         sampler.reset()
 
-    get_gps_model(obj)
+    #get_gps_model(obj)
     obj.gps = []
 
     return obj
@@ -1372,7 +1372,7 @@ class signal_fit(object):
         self.GP_rot_norm_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_rot_params))}        
                 
         
-        self.GP_sho_params     = [1,10,10]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_sho_params     = [100,1,0.05]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_sho_err = [0,0,0]
         self.GP_sho_use = [False,False,False]  
         self.GP_sho_str = [r'S', r'Q', r'omega']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway 
