@@ -96,13 +96,15 @@ def plot_gp(obj, curve=False):
     
     
     if curve==True:
-        x_model = obj.fit_results.model_jd
+        x_model = np.linspace(min(x), max(x), 5000) #obj.fit_results.model_jd
         mu,var,std = obj.gp_model_curve
         
     else:      
         x_model = x
         mu,var,std = obj.gp_model_data    
     
+    #print(mu[0:10])
+    #print(y[0:10])
     
     for i in range(obj.filelist.ndset):
         plt.errorbar(x[idset==i],y[idset==i], yerr=y_err[idset==i], fmt=".",color=colors[i],  capsize=0); 
@@ -131,7 +133,8 @@ def get_gps_model(obj,  kernel_id=-1):
 
    # kernel=[]
    # gps=[]
-    x = obj.fit_results.model_jd
+    x2 = obj.fit_results.model_jd
+    x= np.linspace(min(x2), max(x2), 5000)
     #y = obj.fit_results.model
 
    # kernel = obj.params.GP_params.rot_kernel
@@ -268,9 +271,9 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
         
         param_vect = []
         for j in range(1,len(gps.get_parameter_vector())+1):
-            param_vect.append(par[len(vel_files)*2  +7*npl +i])
+            param_vect.append(np.log(par[len(vel_files)*2  +7*npl +j]))
         
- 
+        #print(param_vect)  
         gps.set_parameter_vector(np.array(param_vect))
     
         gp_pred = gps.predict(fit_results.o_c, fit_results.jd, return_cov=False)
@@ -940,7 +943,7 @@ def cornerplot(obj, fileinput=False, level=(100.0-68.3)/2.0, **kwargs):
    #     samples=obj.sampler.samples
     else:
         raise Exception ('Please run mcmc and save sampler or provide a valid samples file!')
-    
+    print(len(obj.e_for_mcmc),len(samples),obj.e_for_mcmc)
     fig = corner.corner(samples,bins=25, color="k", reverse=True, upper= True, labels=obj.e_for_mcmc, quantiles=[level/100.0, 1.0-level/100.0],levels=(0.6827, 0.9545,0.9973), smooth=1.0, smooth1d=1.0, plot_contours= True, show_titles=True, truths=obj.par_for_mcmc, dpi = 300, pad=15, labelpad = 50 ,truth_color ='r', title_kwargs={"fontsize": 12}, scale_hist=True,  no_fill_contours=True, plot_datapoints=True, kwargs=kwargs)
     fig.savefig(obj.corner_plot_file)  
  

@@ -20,7 +20,7 @@ What works:
 * Period search: GLS periodograms (RVs, act. data) & TLS (transit data).
 * Keplerian and Dynamical RV modeling. 
 * Transit modeling (not really tested for 2+ transiting planets and more datasets)
-* GP modeling (only one GP kernel integrated so far).
+* GP modeling (only SHO and Rot. GP kernels integrated so far).
 * Joint RVs + GP + Transit best-fit optimization.
 * Joint RVs + GP + Transit MCMC sampling.
 * RV auto-fit (RV automated planet-finder algorithm).
@@ -43,7 +43,7 @@ What is to be implemented:
 * Transit auto-fit (transit automated planet-finder algorithm).
 * Binary/Triple star modeling mode.
 * Combined modeling with Astrometry.
-* A larger arsenal of N-body/dynamical simulation/analysis tools (aka REBOUND). 
+* A larger arsenal of N-body/dynamical simulation/analysis tools (REBOUND to be included). 
 * Documentation, Instructions and Video tutorials.
 * For more "TBD" list see: "focus_matrix_TBFixed.doc".
 
