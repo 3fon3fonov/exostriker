@@ -1126,7 +1126,6 @@ class signal_fit(object):
         self.init_mcmc_par()
         
         self.fit_performed = False
-        self.fitting_method = 'None'
         self.model_saved=False
         self.stat_saved=False      
         self.masses=[0.0]*10
@@ -1188,8 +1187,8 @@ class signal_fit(object):
         self.gls = []
         self.gls_o_c =[]
        
-        self.mixed_fit = {0: [False], 1:[1,1,1,1,1,1,1,1,1]}
         
+        self.init_dynfit_settings()    
         
  
         self.ph_data = {k: [] for k in range(9)}
@@ -1455,6 +1454,17 @@ class signal_fit(object):
         self.nwalkers_fact = 4
         
         self.percentile_level = 68.3
+        
+        
+    def init_dynfit_settings(self):
+        self.mixed_fit = {0: [False], 1:[1,1,1,1,1,1,1,1,1]}     
+        self.fitting_method = 'None'
+        self.time_step_model = 10.0
+        self.dyn_model_accuracy = 1000.0
+        self.dyn_model_to_kill = 86400.0
+        self.kep_model_to_kill = 60.0
+        self.master_timeout = 86400.0
+        
         
     def update_epoch(self,epoch):
         self.epoch=epoch
