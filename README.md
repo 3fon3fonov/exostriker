@@ -21,8 +21,8 @@ What works:
 * Keplerian and Dynamical RV modeling. 
 * Transit modeling (not really tested for 2+ transiting planets and more datasets)
 * GP modeling (only SHO and Rot. GP kernels integrated so far).
-* Joint RVs + GP + Transit best-fit optimization.
-* Joint RVs + GP + Transit MCMC sampling.
+* Joint RVs + RV GP + Transit best-fit optimization.
+* Joint RVs + RV GP + Transit MCMC sampling.
 * RV auto-fit (RV automated planet-finder algorithm).
 * Long-term stability check of multi-planet systems using SyMBA, MVS and MVS with an GR precession.
 * Various of minimization methods (via SciPyOp).
@@ -39,6 +39,7 @@ What works:
 What is to be implemented:
 
 * More GP kernels (work in progress). 
+* GP on the transit photometry 
 * Nested sampling (work in progress). 
 * Transit auto-fit (transit automated planet-finder algorithm).
 * Binary/Triple star modeling mode.

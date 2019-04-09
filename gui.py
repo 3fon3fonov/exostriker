@@ -2301,11 +2301,11 @@ Transit duration: %s d
       #  print(ff)   
 
         if m_ln == True and doGP == False:
-            if ff > 0:        
-                """
-                run one time using the L-M method ignorring the jitter (for speed)
-                """
-                fit.fitting(fileinput=False,outputfiles=[1,0,0], doGP=doGP, kernel_id=gp_kernel_id, minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=False,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
+           # if ff > 0:        
+           #     """
+           #     run one time using the L-M method ignorring the jitter (for speed)
+          #      """
+               # fit.fitting(fileinput=False,outputfiles=[1,0,0], doGP=doGP, kernel_id=gp_kernel_id, minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=False,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
             """
             now run the amoeba code modeling the jitters
             """
@@ -2655,6 +2655,8 @@ highly appreciated!
             fit = ses_list[ind]
         #ses_list[ind-1] = fit
 
+        self.check_settings()
+
         self.init_fit()
 
         self.update_use_from_input_file()   
@@ -2691,6 +2693,8 @@ highly appreciated!
             fit_new = dill.load(file_pi)
             file_pi.close()     
             ses_list.append(fit_new)
+            
+            #self.check_settings()
             self.session_list()
         
 
@@ -2730,6 +2734,8 @@ highly appreciated!
           #      ses_list = fit2
           #  else:  
           #      ses_list = ses_list + fit2
+    
+            self.check_settings()
     
             self.session_list()
             self.select_session(0)
@@ -3512,6 +3518,29 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
     #   return (layout.itemAt(i) for i in range(layout.count()))
 
 
+
+
+    def check_settings(self):
+        global fit
+
+        mixed_fit_use = [self.mix_pl_1,self.mix_pl_2,self.mix_pl_3,
+                         self.mix_pl_4,self.mix_pl_5,self.mix_pl_6,
+                         self.mix_pl_7,self.mix_pl_8,self.mix_pl_9 ]
+        
+        self.use_mix_fitting.setChecked(bool(fit.mixed_fit[0][0]))
+        
+        for i in range(9):
+            mixed_fit_use[i].setChecked(bool(fit.mixed_fit[1][i]))
+        #print("TESTTTT")
+            
+        self.time_step_model.setValue(fit.time_step_model)
+        self.dyn_model_accuracy.setValue(fit.dyn_model_accuracy)
+        self.dyn_model_to_kill.setValue(fit.dyn_model_to_kill)
+        self.kep_model_to_kill.setValue(fit.kep_model_to_kill)
+        self.master_timeout.setValue(fit.master_timeout)    
+    
+
+
     def set_RV_GP(self):
         global fit
         
@@ -3742,7 +3771,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
         self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)    
        
-        
+        self.check_settings()
 
         self.threadpool = QtCore.QThreadPool()
         #self.threadpool.setMaxThreadCount(cpu_count())    
