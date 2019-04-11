@@ -133,8 +133,8 @@ def get_gps_model(obj,  kernel_id=-1):
 
    # kernel=[]
    # gps=[]
-    x2 = obj.fit_results.model_jd
-    x= np.linspace(min(x2), max(x2), 5000)
+    x = obj.fit_results.model_jd
+    #x= np.linspace(min(x2), max(x2), 5000)
     #y = obj.fit_results.model
 
    # kernel = obj.params.GP_params.rot_kernel
@@ -506,7 +506,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     obj.correct_elements()
     
-    obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
+    obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things 
 
     
          
@@ -522,12 +522,12 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         if obj.gp_kernel == 'RotKernel':
             for j in range(len(gps.get_parameter_vector())):
                 obj.GP_rot_params[j] = par[len(vel_files)*2  +7*npl +1 +j]
-                print(obj.doGP,obj.gp_kernel)
+                #print(obj.doGP,obj.gp_kernel)
             
         if obj.gp_kernel == 'SHOKernel':
             for j in range(len(gps.get_parameter_vector())):
                 obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +1 +j]          
-                print(obj.doGP,obj.gp_kernel)
+                #print(obj.doGP,obj.gp_kernel)
         
        
         
@@ -741,7 +741,9 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
  #       obj.sampler_saved=True           
         
     #sampler.reset()
-
+    get_gps_model(obj)
+    obj.gps = []
+    
     return obj
 
 
@@ -856,7 +858,8 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     #current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
    # print(current_GP_params)
 
-    obj.fitting(minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
+   
+    obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things 
 
 
     obj.update_with_mcmc_errors(new_par_errors)
@@ -885,12 +888,12 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
         if obj.gp_kernel == 'RotKernel':
             for j in range(len(gps.get_parameter_vector())):
                 obj.GP_rot_params[j] = par[len(vel_files)*2  +7*npl +1 +j]
-                print(obj.doGP,obj.gp_kernel)
+                #print(obj.doGP,obj.gp_kernel)
             
         if obj.gp_kernel == 'SHOKernel':
             for j in range(len(gps.get_parameter_vector())):
                 obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +1 +j]          
-                print(obj.doGP,obj.gp_kernel)
+                #print(obj.doGP,obj.gp_kernel)
          
         
     for i in range(npl):   
@@ -926,7 +929,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     else:   
         sampler.reset()
 
-    #get_gps_model(obj)
+    get_gps_model(obj)
     obj.gps = []
 
     return obj
@@ -1214,6 +1217,7 @@ class signal_fit(object):
         self.rvs_colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 
         
+        
         self.init_sciPy_minimizer()
  
 
@@ -1465,6 +1469,7 @@ class signal_fit(object):
         self.kep_model_to_kill = 60.0
         self.master_timeout = 86400.0
         
+        self.model_npoints = 2000
         
     def update_epoch(self,epoch):
         self.epoch=epoch
