@@ -1367,7 +1367,14 @@ Polyfit coefficients:
             self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(self.identify_power_peaks(1/np.array(omega), WF_power)))        
          
             #self.lineEdit
-        
+
+    def rv_GP_set_use(self):
+
+        if self.do_RV_GP.isChecked():
+            fit.doGP = True
+        else:
+            fit.doGP = False
+            
 
     def update_RV_plots(self):
         global fit, p1,p2
@@ -1392,11 +1399,25 @@ Polyfit coefficients:
  
         p1.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
  
+ 
+        if fit.doGP == True:
+            y_model = fit.fit_results.model + fit.gp_model_curve[0]
+            y_model_o_c = fit.gp_model_curve[0]
+        else:
+            y_model = fit.fit_results.model 
+            y_model_o_c = np.zeros(len(y_model))
 
-        p1.plot(fit.fit_results.model_jd,fit.fit_results.model, 
+        p1.plot(fit.fit_results.model_jd,y_model, 
         pen={'color': 0.5, 'width': 1.1},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
+        if  fit.doGP == True:
+            pfill = pg.FillBetweenItem(p1.plot(fit.fit_results.model_jd, fit.fit_results.model + fit.gp_model_curve[0]+fit.gp_model_curve[2]), 
+                                       p1.plot(fit.fit_results.model_jd, fit.fit_results.model + fit.gp_model_curve[0]-fit.gp_model_curve[2]), 
+                                       brush = pg.mkColor(244,140,66,128))
+            p1.addItem(pfill)  
+            
+            
         for i in range(max(fit.filelist.idset)+1):
             p1.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
@@ -1412,6 +1433,17 @@ Polyfit coefficients:
             p1.addItem(err1)  
  
         p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
+
+        p2.plot(fit.fit_results.model_jd,y_model_o_c, 
+        pen={'color': 0.5, 'width': 1.1},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
+        
+        if fit.doGP == True:
+            pfill_o_c = pg.FillBetweenItem(p2.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]+fit.gp_model_curve[2]), 
+                                           p2.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]-fit.gp_model_curve[2]), 
+                                           brush = pg.mkColor(244,140,66,128))
+            p2.addItem(pfill_o_c)  
+        
         
         for i in range(max(fit.filelist.idset)+1):
             p2.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],fit.fit_results.rv_model.o_c[fit.filelist.idset==i], 
@@ -1974,6 +2006,7 @@ Transit duration: %s d
            
 
         self.check_scipy_min()
+        fit.model_npoints = self.points_to_draw_model.value()
 
           
         worker4 = Worker(lambda:  self.transit_fit(ff=ff ) )# Any other args, kwargs are passed to the run  
@@ -2239,6 +2272,7 @@ Transit duration: %s d
         self.check_bounds()
         self.check_priors()   
         
+        fit.model_npoints = self.points_to_draw_model.value()
         #self.tabWidget_helper.setCurrentWidget(self.tab_info)
         
         
@@ -2834,6 +2868,7 @@ highly appreciated!
         
         self.check_bounds()
         self.check_priors() 
+        fit.model_npoints = self.points_to_draw_model.value()
         
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
         
@@ -3539,6 +3574,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.kep_model_to_kill.setValue(fit.kep_model_to_kill)
         self.master_timeout.setValue(fit.master_timeout)    
     
+                
 
 
     def set_RV_GP(self):
@@ -3734,6 +3770,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.comboBox_corr_2.activated.connect(self.update_correlations_data_plots) 
         self.plot_corr_err.stateChanged.connect(self.update_correlations_data_plots)
         self.plot_corr_coef.stateChanged.connect(self.update_correlations_data_plots)        
+
+        self.do_RV_GP.stateChanged.connect(self.rv_GP_set_use)
+
                 
         self.color_corr.clicked.connect(self.get_corr_color)
         self.corr_x_label.clicked.connect(self.corr_plot_x_labels)
@@ -3769,7 +3808,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.dialog_symbols = show_symbols(self)
         self.buttonGroup_symbol_picker.buttonClicked.connect(self.get_symbol) 
         
-        self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)    
+        self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)   
+        
+
        
         self.check_settings()
 
