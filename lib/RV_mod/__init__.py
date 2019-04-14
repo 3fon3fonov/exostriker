@@ -571,9 +571,16 @@ def lnprior(p,b,pr_nr):
             return -np.inf
         if pr_nr[j,2] == True:
             loglik_lnpr = loglik_lnpr + normalprior(p[j],pr_nr[j])
+            
+            
             #print(pr_nr[j,0],pr_nr[j,1],pr_nr[j,2],loglik_lnpr )
     return loglik_lnpr     
-    
+   
+##############    
+def jeffereys_prior(p,b):
+    loglik = np.exp(np.log(a) + p*(np.log(b) -np.log(a)))
+    return loglik
+
 def normalprior(p,b):    
     loglik = np.log(1.0/(np.sqrt(2.0*np.pi)*b[1])*np.exp(-(p-b[0])**2.0/(2.0*b[1]**2.0)))
     return loglik
@@ -996,9 +1003,11 @@ def phase_RV_planet_signal(obj,planet):
         #print(pp0)
         copied_obj.params.planet_params[7*index+0] = 0 # then we set Kj to be 0, i.e. remove the j-th planet signal
         copied_obj.fitting(fileinput=False, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, 
-                           outputfiles=[0,1,1],return_flag=False, npoints=int(len(obj.fit_results.model)), 
+                           outputfiles=[0,1,1],return_flag=False, npoints=int(len(obj.fit_results.model)),                     
                            model_max=int(max(obj.fit_results.model_jd)-max(copied_obj.fit_results.rv_model.jd)),
-                           model_min=int(min(copied_obj.fit_results.rv_model.jd)-min(obj.fit_results.model_jd)))
+                           #model_min=int(min(copied_obj.fit_results.rv_model.jd)-min(obj.fit_results.model_jd)))
+                           model_min=int(copied_obj.epoch -min(obj.fit_results.model_jd)))
+        
         # and we create the static Nplanet model for the data and the model curve 
         # now this model residuals will contain ONLY the j-th planet signal + the best fit residuals
        
@@ -1007,16 +1016,20 @@ def phase_RV_planet_signal(obj,planet):
         #########      trick is over      ##########
         ############################################  
         
-    
+        #print((copied_obj.epoch- copied_obj.fit_results.rv_model.jd[0])% copied_obj.params.planet_params[7*index+1] )
         ############ phase fold fix for sparse model ######use_flags
-        model_time_phase = np.array( (copied_obj.fit_results.model_jd -copied_obj.fit_results.rv_model.jd[0] )% copied_obj.params.planet_params[7*index+1] )
+        model_time_phase = np.array( (copied_obj.fit_results.model_jd -copied_obj.fit_results.model_jd[0] )% copied_obj.params.planet_params[7*index+1] )
              
+        model_shift = copied_obj.params.planet_params[7*index+1] - (copied_obj.fit_results.rv_model.jd[0] - copied_obj.epoch )%copied_obj.params.planet_params[7*index+1] 
+        
+        model_time_phase = (model_time_phase + model_shift)% copied_obj.params.planet_params[7*index+1]
+        
         sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])                        
-        model_time_phase  = model_time_phase[sort]
+        model_time_phase  = model_time_phase[sort] 
         phased_model      = obj.fit_results.model[sort] - copied_obj.fit_results.model[sort]
     
         ############ phase data ######
-        data_time_phase = np.array( (copied_obj.fit_results.rv_model.jd - copied_obj.fit_results.rv_model.jd[0])% copied_obj.params.planet_params[7*index+1] )
+        data_time_phase = np.array( (copied_obj.fit_results.rv_model.jd  - copied_obj.fit_results.rv_model.jd[0])% copied_obj.params.planet_params[7*index+1] )
              
         sort = sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])                        
         data_time_phase      = data_time_phase[sort]
@@ -1033,6 +1046,10 @@ def phase_RV_planet_signal(obj,planet):
  
         return data, model
 
+
+
+
+ 
 
 
 def planet_orbit_xyz(obj, planet):
@@ -1265,6 +1282,16 @@ class signal_fit(object):
         self.i_norm_pr    = {k: np.array([90, 90, False]) for k in range(9)}
         self.Node_norm_pr = {k: np.array([0, 360.0, False]) for k in range(9)}  
         
+        self.K_jeff_pr    = {k: np.array([50,100, False]) for k in range(9)}
+        self.P_jeff_pr    = {k: np.array([150,30, False]) for k in range(9)}
+        self.e_jeff_pr    = {k: np.array([0.0,0.1, False]) for k in range(9)}
+        self.w_jeff_pr    = {k: np.array([0, 90, False]) for k in range(9)}
+        self.M0_jeff_pr   = {k: np.array([0, 90, False]) for k in range(9)}
+        self.i_jeff_pr    = {k: np.array([90, 90, False]) for k in range(9)}
+        self.Node_jeff_pr = {k: np.array([0, 360.0, False]) for k in range(9)}          
+        
+        
+        
         self.K_str    = {k: r'K$_%s$'%chr(98+k)  for k in range(9)}
         self.P_str    = {k: r'P$_%s$'%chr(98+k)  for k in range(9)}
         self.e_str    = {k: r'e$_%s$'%chr(98+k)  for k in range(9)}
@@ -1273,9 +1300,8 @@ class signal_fit(object):
         self.i_str    = {k: r'i_%s$'%chr(98+k)  for k in range(9)}
         self.Node_str = {k: r'$\Omega_%s$'%chr(98+k)  for k in range(9)}          
   
-    
-        
 
+        
         #### transit #####       
         self.t0      = {k: 0 for k in range(9)}
         self.pl_a    = {k: 15 for k in range(9)}
@@ -1295,11 +1321,30 @@ class signal_fit(object):
  
         self.t0_norm_pr      = {k: np.array([0,1, False]) for k in range(9)}
         self.pl_a_norm_pr     = {k: np.array([10,10, False]) for k in range(9)}
-        self.pl_rad_norm_pr   = {k: np.array([0.1,0.05, False]) for k in range(9)}        
+        self.pl_rad_norm_pr   = {k: np.array([0.1,0.05, False]) for k in range(9)} 
+        
+        self.t0_jeff_pr      = {k: np.array([0,1, False]) for k in range(9)}
+        self.pl_a_jeff_pr     = {k: np.array([10,10, False]) for k in range(9)}
+        self.pl_rad_jeff_pr   = {k: np.array([0.1,0.05, False]) for k in range(9)}         
+        
  
         self.t0_str      = {k: r't0$_%s$'%chr(98+k) for k in range(9)} 
         self.pl_a_str    = {k: r'pl_a$_%s$'%chr(98+k) for k in range(9)} 
         self.pl_rad_str  = {k: r'pl_rad$_%s$'%chr(98+k) for k in range(9)} 
+
+
+        ######## derived #####################
+        self.t_peri = {k: 0.0 for k in range(9)}
+        
+        
+        
+        #####################################
+        
+        
+
+
+
+
 
     def init_RV_jitter(self) :       
         
@@ -1309,6 +1354,7 @@ class signal_fit(object):
         self.jitt_str  = {k: r'RV jitt$_%s$'%k for k in range(10)}     
         self.jitt_bounds  = {k: np.array([0.0,10000.0] )for k in range(10)} 
         self.jitt_norm_pr = {k: np.array([1.0,5.0, False] )for k in range(10)} 
+        self.jitt_jeff_pr = {k: np.array([1.0,5.0, False] )for k in range(10)} 
         
     def init_RV_offset(self) :       
         
@@ -1318,7 +1364,8 @@ class signal_fit(object):
         self.rvoff_str  = {k: r'RV off$_%s$'%k for k in range(10)}     
         self.rvoff_bounds  = {k: np.array([-1000000.0,1000000.0] )for k in range(10)}        
         self.rvoff_norm_pr = {k: np.array([0,100.0, False] )for k in range(10)}    
-        
+        self.rvoff_jeff_pr = {k: np.array([0,100.0, False] )for k in range(10)}    
+       
         
     def init_tra_jitter(self) :       
         
@@ -1328,6 +1375,7 @@ class signal_fit(object):
         self.tra_jitt_str  = {k: r'transit jitt$_%s$'%k for k in range(10)}     
         self.tra_jitt_bounds  = {k: np.array([-0.2,0.2] )for k in range(10)} 
         self.tra_jitt_norm_pr = {k: np.array([0.00,0.1, False] )for k in range(10)} 
+        self.tra_jitt_jeff_pr = {k: np.array([0.00,0.1, False] )for k in range(10)} 
         
     def init_tra_offset(self) :       
         
@@ -1337,11 +1385,9 @@ class signal_fit(object):
         self.tra_off_str  = {k: r'transit off$_%s$'%k for k in range(10)}     
         self.tra_off_bounds  = {k: np.array([-1,2] )for k in range(10)}        
         self.tra_off_norm_pr = {k: np.array([1,0.1, False] )for k in range(10)}    
-                
-        
-        
-       
-        
+        self.tra_off_jeff_pr = {k: np.array([1,0.1, False] )for k in range(10)}    
+               
+ 
     def init_RV_lintr(self) :       
          
         self.rv_lintr      = {k: 0 for k in range(1)}
@@ -1350,7 +1396,9 @@ class signal_fit(object):
         self.rv_lintr_str  = {k: r'RV lin.tr' for k in range(1)}     
         self.rv_lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(1)} 
         self.rv_lintr_norm_pr = {k: np.array([0,0.001, False]) for k in range(1)} 
+        self.rv_lintr_jeff_pr = {k: np.array([0,0.001, False]) for k in range(1)} 
                
+        
     def init_st_mass(self) :       
          
         self.st_mass      = {k: 1 for k in range(1)}
@@ -1359,7 +1407,8 @@ class signal_fit(object):
         self.st_mass_str  = {k: r'St mass' for k in range(1)}     
         self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)}         
         self.st_mass_norm_pr = {k: np.array([1,0.2, False]) for k in range(1)}         
-       
+        self.st_mass_jeff_pr = {k: np.array([1,0.2, False]) for k in range(1)}         
+      
 
         
     def init_GP(self):
@@ -1373,14 +1422,16 @@ class signal_fit(object):
         self.GP_rot_str = [r'Amp', r't', r'per', r'fact']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway 
         self.GP_rot_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_rot_params))}        
         self.GP_rot_norm_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_rot_params))}        
+        self.GP_rot_jeff_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_rot_params))}        
                 
         
         self.GP_sho_params     = [100,1,0.05]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_sho_err = [0,0,0]
         self.GP_sho_use = [False,False,False]  
         self.GP_sho_str = [r'S', r'Q', r'omega']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway 
-        self.GP_sho_bounds    = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_sho_params))}        
+        self.GP_sho_bounds     = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_sho_params))}        
         self.GP_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_sho_params))}        
+        self.GP_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_sho_params))}        
                 
 
         self.gp_model_curve = {k: 0 for k in range(10)}
@@ -2291,6 +2342,13 @@ class signal_fit(object):
                 self.fitting_method=program
             self.update_with_fit_results()
             self.correct_elements() #because amoeba might make things wrong here
+            
+        ##################### New stuff to be added here ######################    
+        for i in range(self.npl):
+            self.t_peri[i] = (float(self.epoch) - (np.radians(self.params.planet_params[7*i + 4])/(2*np.pi))*self.params.planet_params[7*i + 1] ) # epoch  - ((ma/TWOPI)*a[1])
+          
+        #####################               
+            
         if (return_flag):
             return flag
         else:
