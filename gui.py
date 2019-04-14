@@ -1759,7 +1759,7 @@ Polyfit coefficients:
         else:
             return
 
-    def phase_plots(self, ind):
+    def phase_plots(self, ind, offset = 0):
         global fit, colors   
         
         pe.plot(clear=True,)    
@@ -1782,12 +1782,12 @@ Polyfit coefficients:
                 return
             
         pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))   
-        pe.plot(ph_model[0],ph_model[1], pen={'color': 0.5, 'width': 2.0},
+        pe.plot(ph_model[0]-offset,ph_model[1], pen={'color': 0.5, 'width': 2.0},
         enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'})   
         
         for i in range(max(ph_data[3])+1):
         
-            pe.plot(ph_data[0][ph_data[3]==i],ph_data[1][ph_data[3]==i],             
+            pe.plot(ph_data[0][ph_data[3]==i]-offset,ph_data[1][ph_data[3]==i],             
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
             symbolPen={'color': fit.colors[i], 'width': 1.1},
@@ -1795,7 +1795,7 @@ Polyfit coefficients:
             symbolBrush=fit.colors[i]
             )  
                
-            err_ = pg.ErrorBarItem(x=ph_data[0][ph_data[3]==i], y=ph_data[1][ph_data[3]==i],
+            err_ = pg.ErrorBarItem(x=ph_data[0][ph_data[3]==i]-offset, y=ph_data[1][ph_data[3]==i],
             symbol=fit.pyqt_symbols_rvs[i], height=error_list[ph_data[3]==i], beam=0.0, pen=fit.colors[i])   
          
             pe.addItem(err_)
@@ -3553,8 +3553,12 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
    # def layout_widgets(layout):
     #   return (layout.itemAt(i) for i in range(layout.count()))
 
-
-
+    def rv_plot_phase_chage(self):
+        global fit        
+        
+        RVphase = self.RV_phase_slider.value()
+        #print(RVphase)
+        #self.phase_plots(1, offset = RVphase)
 
     def check_settings(self):
         global fit
@@ -3812,7 +3816,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)   
         
 
-       
+        self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_chage)       
+        
         self.check_settings()
 
         self.threadpool = QtCore.QThreadPool()
