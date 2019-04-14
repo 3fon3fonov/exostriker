@@ -1770,6 +1770,8 @@ Polyfit coefficients:
         ph_model = fit.ph_model[ind-1] #rv.phase_RV_planet_signal(fit,ind)
 
 
+        offset = (self.RV_phase_slider.value()/100.0)* fit.params.planet_params[7*(ind-1)+1] 
+
         if len(ph_data) == 1:
             return
 
@@ -1780,14 +1782,26 @@ Polyfit coefficients:
                 error_list = ph_data[2]
             else:
                 return
-            
+
+
+
+        model_time_phase = np.array((ph_model[0]-offset)%fit.params.planet_params[7*(ind-1)+1] )
+                             
+        sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])                        
+        model_time_phase  = model_time_phase[sort] 
+        ph_model =  ph_model[1][sort] 
+        #print(model_time_phase[0:10],sort[0:10])
+ 
         pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))   
-        pe.plot(ph_model[0]-offset,ph_model[1], pen={'color': 0.5, 'width': 2.0},
+        pe.plot(model_time_phase,ph_model, pen={'color': 0.5, 'width': 2.0},
         enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'})   
+        
+        
+        
         
         for i in range(max(ph_data[3])+1):
         
-            pe.plot(ph_data[0][ph_data[3]==i]-offset,ph_data[1][ph_data[3]==i],             
+            pe.plot((ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1],ph_data[1][ph_data[3]==i],             
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
             symbolPen={'color': fit.colors[i], 'width': 1.1},
@@ -1795,7 +1809,7 @@ Polyfit coefficients:
             symbolBrush=fit.colors[i]
             )  
                
-            err_ = pg.ErrorBarItem(x=ph_data[0][ph_data[3]==i]-offset, y=ph_data[1][ph_data[3]==i],
+            err_ = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=ph_data[1][ph_data[3]==i],
             symbol=fit.pyqt_symbols_rvs[i], height=error_list[ph_data[3]==i], beam=0.0, pen=fit.colors[i])   
          
             pe.addItem(err_)
@@ -3556,10 +3570,16 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
     def rv_plot_phase_chage(self):
         global fit        
         
-        RVphase = self.RV_phase_slider.value()
+        #RVphase = self.RV_phase_slider.value()
         #print(RVphase)
         #self.phase_plots(1, offset = RVphase)
-
+        ind = self.comboBox_extra_plot.currentIndex()
+        if ind+1 <= fit.npl:
+            self.phase_plots(ind+1)
+        else:
+            return
+        
+        
     def check_settings(self):
         global fit
 
