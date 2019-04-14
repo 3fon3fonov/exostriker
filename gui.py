@@ -361,8 +361,9 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             for i in range(fit.npl):
                 param_a_gui[i].setText("%.3f"%(fit.fit_results.a[i])) 
                 param_mass_gui[i].setText("%.3f"%(fit.fit_results.mass[i])) 
-                param_t_peri_gui[i].setText("%.3f"%( (float(fit.epoch) - (np.radians(fit.params.planet_params[7*i + 4])/(2*np.pi))*fit.params.planet_params[7*i + 1] ))) # epoch  - ((ma/TWOPI)*a[1])
-    
+                #param_t_peri_gui[i].setText("%.3f"%( (float(fit.epoch) - (np.radians(fit.params.planet_params[7*i + 4])/(2*np.pi))*fit.params.planet_params[7*i + 1] ))) # epoch  - ((ma/TWOPI)*a[1])
+                param_t_peri_gui[i].setText("%.3f"%(fit.t_peri[i]))
+
 
 
 
@@ -848,8 +849,8 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         
         pdi = self.load_data_plot
 
-        xaxis = ['BJD','BJD','BJD','BJD','BJD','x','days','days','days','days','days','days','yrs','yrs','a','','y']
-        yaxis = ['RV','RV','Relative Flux','Relative Flux','y','y','power','power','SDE','SDE','power','power','a','e','a','','x']       
+        xaxis = ['BJD','BJD','BJD','BJD','BJD','x','days','days','days','days','days','days','yrs','yrs','a','','x']
+        yaxis = ['RV','RV','Relative Flux','Relative Flux','y','y','power','power','SDE','SDE','power','power','a','e','a','','y']       
         xunit = ['d' ,'d','d','d','d','','','','','','','','','','au','','']
         yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','au','','']
 
