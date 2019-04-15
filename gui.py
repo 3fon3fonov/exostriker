@@ -1782,8 +1782,13 @@ Polyfit coefficients:
                 error_list = ph_data[2]
             else:
                 return
-
-
+            
+        #rv_data = ph_data[0]   
+       # if fit.doGP == True:
+        #    rv_data = fit.gp_model_data[0]
+        #else:
+        #    rv_data = ph_data[1]
+        rv_data = ph_data[1]
 
         model_time_phase = np.array((ph_model[0]-offset)%fit.params.planet_params[7*(ind-1)+1] )
                              
@@ -1801,7 +1806,7 @@ Polyfit coefficients:
         
         for i in range(max(ph_data[3])+1):
         
-            pe.plot((ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1],ph_data[1][ph_data[3]==i],             
+            pe.plot((ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1],rv_data[ph_data[3]==i],             
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
             symbolPen={'color': fit.colors[i], 'width': 1.1},
@@ -1809,7 +1814,7 @@ Polyfit coefficients:
             symbolBrush=fit.colors[i]
             )  
                
-            err_ = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=ph_data[1][ph_data[3]==i],
+            err_ = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=rv_data[ph_data[3]==i],
             symbol=fit.pyqt_symbols_rvs[i], height=error_list[ph_data[3]==i], beam=0.0, pen=fit.colors[i])   
          
             pe.addItem(err_)
@@ -3836,7 +3841,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)   
         
 
-        self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_chage)       
+       # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_chage)       
+        self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_chage)       
         
         self.check_settings()
 

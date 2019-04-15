@@ -1037,8 +1037,17 @@ def phase_RV_planet_signal(obj,planet):
         phased_data_err      = copied_obj.fit_results.rv_model.rv_err[sort]  
         phased_data_idset    = copied_obj.fit_results.idset[sort]  
  
+        
+        if copied_obj.doGP == True:
+            phased_data = phased_data - copied_obj.gp_model_data[0][sort]
+        #else:
+        #    rv_data = ph_data[1]
+        
+        
         model = [model_time_phase,  phased_model]
         data  = [data_time_phase,  phased_data, phased_data_err, phased_data_idset]
+        
+        
         
         ##################### 
         obj.ph_data[planet-1] = data 
