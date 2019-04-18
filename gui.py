@@ -681,23 +681,29 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.pl_rad_norm_pr[i]  = param_nr_priors_gui[10*i + 8]
             fit.pl_a_norm_pr[i]    = param_nr_priors_gui[10*i + 9]
 
-       # offset_nr_priors_gui = [
-      #  [self.Data1_mean.value(),self.Data1_sigma.value()], [self.Data2_mean.value(),self.Data2_sigma.value()], [self.Data3_mean.value(),self.Data3_sigma.value()], [self.Data4_mean.value(),self.Data4_sigma.value()], [self.Data5_mean.value(),self.Data5_sigma.value()],   
-      #  [self.Data6_mean.value(),self.Data6_sigma.value()], [self.Data7_mean.value(),self.Data7_sigma.value()], [self.Data8_mean.value(),self.Data8_sigma.value()], [self.Data9_mean.value(),self.Data9_sigma.value()], [self.Data10_mean.value(),self.Data10_sigma.value()]
-      #  ]
+        offset_nr_priors_gui = [
+        [self.RV_Data_mean_1.value(),self.RV_Data_sigma_1.value(),self.use_rvoff_nr_1.isChecked()], [self.RV_Data_mean_2.value(),self.RV_Data_sigma_2.value(),self.use_rvoff_nr_2.isChecked()], 
+        [self.RV_Data_mean_3.value(),self.RV_Data_sigma_3.value(),self.use_rvoff_nr_3.isChecked()], [self.RV_Data_mean_4.value(),self.RV_Data_sigma_4.value(),self.use_rvoff_nr_4.isChecked()], 
+        [self.RV_Data_mean_5.value(),self.RV_Data_sigma_5.value(),self.use_rvoff_nr_5.isChecked()], [self.RV_Data_mean_6.value(),self.RV_Data_sigma_6.value(),self.use_rvoff_nr_6.isChecked()], 
+        [self.RV_Data_mean_7.value(),self.RV_Data_sigma_7.value(),self.use_rvoff_nr_7.isChecked()], [self.RV_Data_mean_8.value(),self.RV_Data_sigma_8.value(),self.use_rvoff_nr_8.isChecked()], 
+        [self.RV_Data_mean_9.value(),self.RV_Data_sigma_9.value(),self.use_rvoff_nr_9.isChecked()], [self.RV_Data_mean_10.value(),self.RV_Data_sigma_10.value(),self.use_rvoff_nr_10.isChecked()]
+        ]
         
-       # jitter_nr_priors_gui = [
-      #  [self.jitter1_mean.value(),self.jitter1_sigma.value()], [self.jitter2_mean.value(),self.jitter2_sigma.value()], [self.jitter3_mean.value(),self.jitter3_sigma.value()], [self.jitter4_mean.value(),self.jitter4_sigma.value()], [self.jitter5_mean.value(),self.jitter5_sigma.value()],   
-      #  [self.jitter6_mean.value(),self.jitter6_sigma.value()], [self.jitter7_mean.value(),self.jitter7_sigma.value()], [self.jitter8_mean.value(),self.jitter8_sigma.value()], [self.jitter9_mean.value(),self.jitter9_sigma.value()], [self.jitter10_mean.value(),self.Data10_sigma.value()]   
-      #  ]  
+        jitter_nr_priors_gui = [
+        [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_1.value(),self.use_rvjitt_nr_1.isChecked()], [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_2.value(),self.use_rvjitt_nr_2.isChecked()], 
+        [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_3.value(),self.use_rvjitt_nr_3.isChecked()], [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_4.value(),self.use_rvjitt_nr_4.isChecked()], 
+        [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_5.value(),self.use_rvjitt_nr_5.isChecked()], [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_6.value(),self.use_rvjitt_nr_6.isChecked()],
+        [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_7.value(),self.use_rvjitt_nr_7.isChecked()], [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_8.value(),self.use_rvjitt_nr_8.isChecked()], 
+        [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_9.value(),self.use_rvjitt_nr_9.isChecked()], [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_10.value(),self.use_rvjitt_nr_10.isChecked()]   
+        ]  
     
     
-       # for i in range(10): 
-       #     fit.rvoff_norm_pr[i] = offset_nr_priors_gui[i]
-         #   fit.jitt_norm_pr[i]  = jitter_nr_priors_gui[i] 
+        for i in range(10): 
+            fit.rvoff_norm_pr[i] = offset_nr_priors_gui[i]
+            fit.jitt_norm_pr[i]  = jitter_nr_priors_gui[i] 
     
  
-       # fit.rv_lintr_norm_pr[0]  = [self.lin_trend_mean.value(),self.lin_trend_sigma.value()]
+        fit.rv_lintr_norm_pr[0]  = [self.lin_trend_mean.value(),self.lin_trend_sigma.value(),self.use_lin_tr_nr_pr.isChecked()]
         #self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
 
         GP_rot_nr_priors_gui = [
