@@ -654,11 +654,9 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             
             
             
-    def check_priors(self):
+    def check_priors_nr(self):
         global fit
 
-        
-        
         param_nr_priors_gui = [
         [self.K_mean_1.value(),self.K_sigma_1.value(),self.use_K_norm_pr_1.isChecked()],[self.P_mean_1.value(),self.P_sigma_1.value(),self.use_P_norm_pr_1.isChecked()], [self.e_mean_1.value(),self.e_sigma_1.value(),self.use_e_norm_pr_1.isChecked()],[self.om_mean_1.value(),self.om_sigma_1.value(),self.use_om_norm_pr_1.isChecked()], [self.ma_mean_1.value(),self.ma_sigma_1.value(),self.use_ma_norm_pr_1.isChecked()],[self.incl_mean_1.value(),self.incl_sigma_1.value(),self.use_incl_norm_pr_1.isChecked()], [self.Omega_mean_1.value(),self.Omega_sigma_1.value(), self.use_Omega_norm_pr_1.isChecked()],[self.t0_mean_1.value(),self.t0_sigma_1.value(), self.use_t0_norm_pr_1.isChecked()],[self.pl_rad_mean_1.value(),self.pl_rad_sigma_1.value(),self.use_pl_rad_norm_pr_1.isChecked()],[self.a_sol_mean_1.value(),self.a_sol_sigma_1.value(),self.use_a_sol_norm_pr_1.isChecked()],
         [self.K_mean_2.value(),self.K_sigma_2.value(),self.use_K_norm_pr_2.isChecked()],[self.P_mean_2.value(),self.P_sigma_2.value(),self.use_P_norm_pr_2.isChecked()], [self.e_mean_2.value(),self.e_sigma_2.value(),self.use_e_norm_pr_2.isChecked()],[self.om_mean_2.value(),self.om_sigma_2.value(),self.use_om_norm_pr_2.isChecked()], [self.ma_mean_2.value(),self.ma_sigma_2.value(),self.use_ma_norm_pr_2.isChecked()],[self.incl_mean_2.value(),self.incl_sigma_2.value(),self.use_incl_norm_pr_2.isChecked()], [self.Omega_mean_2.value(),self.Omega_sigma_2.value(), self.use_Omega_norm_pr_2.isChecked()],[self.t0_mean_2.value(),self.t0_sigma_2.value(), self.use_t0_norm_pr_2.isChecked()],[self.pl_rad_mean_2.value(),self.pl_rad_sigma_2.value(),self.use_pl_rad_norm_pr_2.isChecked()],[self.a_sol_mean_2.value(),self.a_sol_sigma_2.value(),self.use_a_sol_norm_pr_2.isChecked()],
@@ -2290,7 +2288,7 @@ Transit duration: %s d
          
             
         self.check_bounds()
-        self.check_priors()   
+        self.check_priors_nr()   
         
         fit.model_npoints = self.points_to_draw_model.value()
         #self.tabWidget_helper.setCurrentWidget(self.tab_info)
@@ -2887,7 +2885,7 @@ highly appreciated!
             return        
         
         self.check_bounds()
-        self.check_priors() 
+        self.check_priors_nr() 
         fit.model_npoints = self.points_to_draw_model.value()
         
         self.tabWidget_helper.setCurrentWidget(self.tab_info)

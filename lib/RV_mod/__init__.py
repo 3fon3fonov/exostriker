@@ -607,6 +607,7 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
         width = 1.
         return stats.norm.ppf(u) * width + obj.par_for_mcmc
 
+
    
     
     if threads == 'max':
@@ -642,7 +643,7 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
         else: 
             mod='./lib/fr/loglik_dyn'       
     else:
-        mod='./lib/fr/loglik_kep'  
+        mod='./lib/fr/loglik_kep'
  
    # print(mod)
     #program='./lib/fr/%s_%s'%(minimized_value,mod) 
@@ -666,7 +667,9 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
     
     gps = []
     if (rtg[1]):
-        gps = initiategps(obj, kernel_id=gp_kernel_id)     
+        initiategps(obj, kernel_id=gp_kernel_id)     
+        gps = obj.gps
+  
  
 
     ndim, nwalkers = len(pp), len(pp)*obj.nwalkers_fact
@@ -877,20 +880,16 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     
  
    # obj.params.update_GP_params(current_GP_params)
-
-    
+ 
     if (save_means):
         obj.loglik = sampler.lnL_min 
         
     elif (save_minlnL):
         obj.loglik = sampler.lnL_min 
 
-
-
     for j in range(len(pp)):
         par[flags[j]] = pp[j]    
-        
-        
+           
     if (rtg[1]):
         if obj.gp_kernel == 'RotKernel':
             for j in range(len(gps.get_parameter_vector())):
@@ -901,8 +900,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
             for j in range(len(gps.get_parameter_vector())):
                 obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +1 +j]          
                 #print(obj.doGP,obj.gp_kernel)
-         
-        
+   
     for i in range(npl):   
         obj.t0[i]     = par[len(vel_files)*2 +7*npl +5 + 3*i] #0.0  #time of inferior conjunction
         obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])        
@@ -1466,7 +1464,11 @@ class signal_fit(object):
     
 
         self.tr_params.limb_dark = "quadratic"        #limb darkening model
-        self.tr_params.u = [0.1, 0.3 ]           
+        self.tr_params.u = [0.1, 0.3 ]        
+        
+        # ld_options = ["uniform", "linear", "quadratic", "nonlinear"]
+        #ld_coefficients = [[], [0.3], [0.1, 0.3], [0.5, 0.1, 0.1, -0.1]]       
+        
       
         self.tr_params_use = [False, False,False,False,False,False,False]    
         #self.tr_params_use = [False, False,False,False,False,False,False]    
