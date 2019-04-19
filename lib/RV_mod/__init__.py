@@ -578,7 +578,7 @@ def lnprior(p,b,pr_nr):
    
 ##############    
 def jeffereys_prior(p,b):
-    loglik = np.exp(np.log(a) + p*(np.log(b) -np.log(a)))
+    loglik = np.exp(np.log(b[0]) + p*(np.log(b[1]) -np.log(b[0])))
     return loglik
 
 def normalprior(p,b):    

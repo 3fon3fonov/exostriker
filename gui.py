@@ -726,6 +726,78 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(3): 
             fit.GP_sho_norm_pr[i] = GP_sho_nr_priors_gui[i]   
 
+            
+    def check_priors_jeff(self):
+        global fit
+
+        param_jeff_priors_gui = [
+        [self.K_jeff_alpha_1.value(),self.K_jeff_beta_1.value(),self.use_K_jeff_pr_1.isChecked()],[self.P_jeff_alpha_1.value(),self.P_jeff_beta_1.value(),self.use_P_jeff_pr_1.isChecked()], [self.e_jeff_alpha_1.value(),self.e_jeff_beta_1.value(),self.use_e_jeff_pr_1.isChecked()],[self.om_jeff_alpha_1.value(),self.om_jeff_beta_1.value(),self.use_om_jeff_pr_1.isChecked()], [self.ma_jeff_alpha_1.value(),self.ma_jeff_beta_1.value(),self.use_ma_jeff_pr_1.isChecked()],[self.incl_jeff_alpha_1.value(),self.incl_jeff_beta_1.value(),self.use_incl_jeff_pr_1.isChecked()], [self.Omega_jeff_alpha_1.value(),self.Omega_jeff_beta_1.value(), self.use_Omega_jeff_pr_1.isChecked()],[self.t0_jeff_alpha_1.value(),self.t0_jeff_beta_1.value(), self.use_t0_jeff_pr_1.isChecked()],[self.pl_rad_jeff_alpha_1.value(),self.pl_rad_jeff_beta_1.value(),self.use_pl_rad_jeff_pr_1.isChecked()],[self.a_sol_jeff_alpha_1.value(),self.a_sol_jeff_beta_1.value(),self.use_a_sol_jeff_pr_1.isChecked()],
+        [self.K_jeff_alpha_2.value(),self.K_jeff_beta_2.value(),self.use_K_jeff_pr_2.isChecked()],[self.P_jeff_alpha_2.value(),self.P_jeff_beta_2.value(),self.use_P_jeff_pr_2.isChecked()], [self.e_jeff_alpha_2.value(),self.e_jeff_beta_2.value(),self.use_e_jeff_pr_2.isChecked()],[self.om_jeff_alpha_2.value(),self.om_jeff_beta_2.value(),self.use_om_jeff_pr_2.isChecked()], [self.ma_jeff_alpha_2.value(),self.ma_jeff_beta_2.value(),self.use_ma_jeff_pr_2.isChecked()],[self.incl_jeff_alpha_2.value(),self.incl_jeff_beta_2.value(),self.use_incl_jeff_pr_2.isChecked()], [self.Omega_jeff_alpha_2.value(),self.Omega_jeff_beta_2.value(), self.use_Omega_jeff_pr_2.isChecked()],[self.t0_jeff_alpha_2.value(),self.t0_jeff_beta_2.value(), self.use_t0_jeff_pr_2.isChecked()],[self.pl_rad_jeff_alpha_2.value(),self.pl_rad_jeff_beta_2.value(),self.use_pl_rad_jeff_pr_2.isChecked()],[self.a_sol_jeff_alpha_2.value(),self.a_sol_jeff_beta_2.value(),self.use_a_sol_jeff_pr_2.isChecked()],
+        [self.K_jeff_alpha_3.value(),self.K_jeff_beta_3.value(),self.use_K_jeff_pr_3.isChecked()],[self.P_jeff_alpha_3.value(),self.P_jeff_beta_3.value(),self.use_P_jeff_pr_3.isChecked()], [self.e_jeff_alpha_3.value(),self.e_jeff_beta_3.value(),self.use_e_jeff_pr_3.isChecked()],[self.om_jeff_alpha_3.value(),self.om_jeff_beta_3.value(),self.use_om_jeff_pr_3.isChecked()], [self.ma_jeff_alpha_3.value(),self.ma_jeff_beta_3.value(),self.use_ma_jeff_pr_3.isChecked()],[self.incl_jeff_alpha_3.value(),self.incl_jeff_beta_3.value(),self.use_incl_jeff_pr_3.isChecked()], [self.Omega_jeff_alpha_3.value(),self.Omega_jeff_beta_3.value(), self.use_Omega_jeff_pr_3.isChecked()],[self.t0_jeff_alpha_3.value(),self.t0_jeff_beta_3.value(), self.use_t0_jeff_pr_3.isChecked()],[self.pl_rad_jeff_alpha_3.value(),self.pl_rad_jeff_beta_3.value(),self.use_pl_rad_jeff_pr_3.isChecked()],[self.a_sol_jeff_alpha_3.value(),self.a_sol_jeff_beta_3.value(),self.use_a_sol_jeff_pr_3.isChecked()],
+        [self.K_jeff_alpha_4.value(),self.K_jeff_beta_4.value(),self.use_K_jeff_pr_4.isChecked()],[self.P_jeff_alpha_4.value(),self.P_jeff_beta_4.value(),self.use_P_jeff_pr_4.isChecked()], [self.e_jeff_alpha_4.value(),self.e_jeff_beta_4.value(),self.use_e_jeff_pr_4.isChecked()],[self.om_jeff_alpha_4.value(),self.om_jeff_beta_4.value(),self.use_om_jeff_pr_4.isChecked()], [self.ma_jeff_alpha_4.value(),self.ma_jeff_beta_4.value(),self.use_ma_jeff_pr_4.isChecked()],[self.incl_jeff_alpha_4.value(),self.incl_jeff_beta_4.value(),self.use_incl_jeff_pr_4.isChecked()], [self.Omega_jeff_alpha_4.value(),self.Omega_jeff_beta_4.value(), self.use_Omega_jeff_pr_4.isChecked()],[self.t0_jeff_alpha_4.value(),self.t0_jeff_beta_4.value(), self.use_t0_jeff_pr_4.isChecked()],[self.pl_rad_jeff_alpha_4.value(),self.pl_rad_jeff_beta_4.value(),self.use_pl_rad_jeff_pr_4.isChecked()],[self.a_sol_jeff_alpha_4.value(),self.a_sol_jeff_beta_4.value(),self.use_a_sol_jeff_pr_4.isChecked()],
+        [self.K_jeff_alpha_5.value(),self.K_jeff_beta_5.value(),self.use_K_jeff_pr_5.isChecked()],[self.P_jeff_alpha_5.value(),self.P_jeff_beta_5.value(),self.use_P_jeff_pr_5.isChecked()], [self.e_jeff_alpha_5.value(),self.e_jeff_beta_5.value(),self.use_e_jeff_pr_5.isChecked()],[self.om_jeff_alpha_5.value(),self.om_jeff_beta_5.value(),self.use_om_jeff_pr_5.isChecked()], [self.ma_jeff_alpha_5.value(),self.ma_jeff_beta_5.value(),self.use_ma_jeff_pr_5.isChecked()],[self.incl_jeff_alpha_5.value(),self.incl_jeff_beta_5.value(),self.use_incl_jeff_pr_5.isChecked()], [self.Omega_jeff_alpha_5.value(),self.Omega_jeff_beta_5.value(), self.use_Omega_jeff_pr_5.isChecked()],[self.t0_jeff_alpha_5.value(),self.t0_jeff_beta_5.value(), self.use_t0_jeff_pr_5.isChecked()],[self.pl_rad_jeff_alpha_5.value(),self.pl_rad_jeff_beta_5.value(),self.use_pl_rad_jeff_pr_5.isChecked()],[self.a_sol_jeff_alpha_5.value(),self.a_sol_jeff_beta_5.value(),self.use_a_sol_jeff_pr_5.isChecked()],
+        [self.K_jeff_alpha_6.value(),self.K_jeff_beta_6.value(),self.use_K_jeff_pr_6.isChecked()],[self.P_jeff_alpha_6.value(),self.P_jeff_beta_6.value(),self.use_P_jeff_pr_6.isChecked()], [self.e_jeff_alpha_6.value(),self.e_jeff_beta_6.value(),self.use_e_jeff_pr_6.isChecked()],[self.om_jeff_alpha_6.value(),self.om_jeff_beta_6.value(),self.use_om_jeff_pr_6.isChecked()], [self.ma_jeff_alpha_6.value(),self.ma_jeff_beta_6.value(),self.use_ma_jeff_pr_6.isChecked()],[self.incl_jeff_alpha_6.value(),self.incl_jeff_beta_6.value(),self.use_incl_jeff_pr_6.isChecked()], [self.Omega_jeff_alpha_6.value(),self.Omega_jeff_beta_6.value(), self.use_Omega_jeff_pr_6.isChecked()],[self.t0_jeff_alpha_6.value(),self.t0_jeff_beta_6.value(), self.use_t0_jeff_pr_6.isChecked()],[self.pl_rad_jeff_alpha_6.value(),self.pl_rad_jeff_beta_6.value(),self.use_pl_rad_jeff_pr_6.isChecked()],[self.a_sol_jeff_alpha_6.value(),self.a_sol_jeff_beta_6.value(),self.use_a_sol_jeff_pr_6.isChecked()],
+        [self.K_jeff_alpha_7.value(),self.K_jeff_beta_7.value(),self.use_K_jeff_pr_7.isChecked()],[self.P_jeff_alpha_7.value(),self.P_jeff_beta_7.value(),self.use_P_jeff_pr_7.isChecked()], [self.e_jeff_alpha_7.value(),self.e_jeff_beta_7.value(),self.use_e_jeff_pr_7.isChecked()],[self.om_jeff_alpha_7.value(),self.om_jeff_beta_7.value(),self.use_om_jeff_pr_7.isChecked()], [self.ma_jeff_alpha_7.value(),self.ma_jeff_beta_7.value(),self.use_ma_jeff_pr_7.isChecked()],[self.incl_jeff_alpha_7.value(),self.incl_jeff_beta_7.value(),self.use_incl_jeff_pr_7.isChecked()], [self.Omega_jeff_alpha_7.value(),self.Omega_jeff_beta_7.value(), self.use_Omega_jeff_pr_7.isChecked()],[self.t0_jeff_alpha_7.value(),self.t0_jeff_beta_7.value(), self.use_t0_jeff_pr_7.isChecked()],[self.pl_rad_jeff_alpha_7.value(),self.pl_rad_jeff_beta_7.value(),self.use_pl_rad_jeff_pr_7.isChecked()],[self.a_sol_jeff_alpha_7.value(),self.a_sol_jeff_beta_7.value(),self.use_a_sol_jeff_pr_7.isChecked()],
+        [self.K_jeff_alpha_8.value(),self.K_jeff_beta_8.value(),self.use_K_jeff_pr_8.isChecked()],[self.P_jeff_alpha_8.value(),self.P_jeff_beta_8.value(),self.use_P_jeff_pr_8.isChecked()], [self.e_jeff_alpha_8.value(),self.e_jeff_beta_8.value(),self.use_e_jeff_pr_8.isChecked()],[self.om_jeff_alpha_8.value(),self.om_jeff_beta_8.value(),self.use_om_jeff_pr_8.isChecked()], [self.ma_jeff_alpha_8.value(),self.ma_jeff_beta_8.value(),self.use_ma_jeff_pr_8.isChecked()],[self.incl_jeff_alpha_8.value(),self.incl_jeff_beta_8.value(),self.use_incl_jeff_pr_8.isChecked()], [self.Omega_jeff_alpha_8.value(),self.Omega_jeff_beta_8.value(), self.use_Omega_jeff_pr_8.isChecked()],[self.t0_jeff_alpha_8.value(),self.t0_jeff_beta_8.value(), self.use_t0_jeff_pr_8.isChecked()],[self.pl_rad_jeff_alpha_8.value(),self.pl_rad_jeff_beta_8.value(),self.use_pl_rad_jeff_pr_8.isChecked()],[self.a_sol_jeff_alpha_8.value(),self.a_sol_jeff_beta_8.value(),self.use_a_sol_jeff_pr_8.isChecked()],
+        [self.K_jeff_alpha_9.value(),self.K_jeff_beta_9.value(),self.use_K_jeff_pr_9.isChecked()],[self.P_jeff_alpha_9.value(),self.P_jeff_beta_9.value(),self.use_P_jeff_pr_9.isChecked()], [self.e_jeff_alpha_9.value(),self.e_jeff_beta_9.value(),self.use_e_jeff_pr_9.isChecked()],[self.om_jeff_alpha_9.value(),self.om_jeff_beta_9.value(),self.use_om_jeff_pr_9.isChecked()], [self.ma_jeff_alpha_9.value(),self.ma_jeff_beta_9.value(),self.use_ma_jeff_pr_9.isChecked()],[self.incl_jeff_alpha_9.value(),self.incl_jeff_beta_9.value(),self.use_incl_jeff_pr_9.isChecked()], [self.Omega_jeff_alpha_9.value(),self.Omega_jeff_beta_9.value(), self.use_Omega_jeff_pr_9.isChecked()],[self.t0_jeff_alpha_9.value(),self.t0_jeff_beta_9.value(), self.use_t0_jeff_pr_9.isChecked()],[self.pl_rad_jeff_alpha_9.value(),self.pl_rad_jeff_beta_9.value(),self.use_pl_rad_jeff_pr_9.isChecked()],[self.a_sol_jeff_alpha_9.value(),self.a_sol_jeff_beta_9.value(),self.use_a_sol_jeff_pr_9.isChecked()],
+        ]
+ 
+        for i in range(fit.npl):
+            fit.K_jeff_pr[i]  = param_jeff_priors_gui[10*i + 0]    
+            fit.P_jeff_pr[i]  = param_jeff_priors_gui[10*i + 1]    
+            fit.e_jeff_pr[i]  = param_jeff_priors_gui[10*i + 2]    
+            fit.w_jeff_pr[i]  = param_jeff_priors_gui[10*i + 3]    
+            fit.M0_jeff_pr[i] = param_jeff_priors_gui[10*i + 4]    
+            fit.i_jeff_pr[i]  = param_jeff_priors_gui[10*i + 5]    
+            fit.Node_jeff_pr[i] = param_jeff_priors_gui[10*i + 6]    
+            fit.t0_jeff_pr[i]   = param_jeff_priors_gui[10*i + 7]
+            fit.pl_rad_jeff_pr[i]  = param_jeff_priors_gui[10*i + 8]
+            fit.pl_a_jeff_pr[i]    = param_jeff_priors_gui[10*i + 9]
+
+        offset_jeff_priors_gui = [
+        [self.RV_Data_jeff_alpha_1.value(),self.RV_Data_jeff_beta_1.value(),self.use_rvoff_nr_1.isChecked()], [self.RV_Data_jeff_alpha_2.value(),self.RV_Data_jeff_beta_2.value(),self.use_rvoff_nr_2.isChecked()], 
+        [self.RV_Data_jeff_alpha_3.value(),self.RV_Data_jeff_beta_3.value(),self.use_rvoff_nr_3.isChecked()], [self.RV_Data_jeff_alpha_4.value(),self.RV_Data_jeff_beta_4.value(),self.use_rvoff_nr_4.isChecked()], 
+        [self.RV_Data_jeff_alpha_5.value(),self.RV_Data_jeff_beta_5.value(),self.use_rvoff_nr_5.isChecked()], [self.RV_Data_jeff_alpha_6.value(),self.RV_Data_jeff_beta_6.value(),self.use_rvoff_nr_6.isChecked()], 
+        [self.RV_Data_jeff_alpha_7.value(),self.RV_Data_jeff_beta_7.value(),self.use_rvoff_nr_7.isChecked()], [self.RV_Data_jeff_alpha_8.value(),self.RV_Data_jeff_beta_8.value(),self.use_rvoff_nr_8.isChecked()], 
+        [self.RV_Data_jeff_alpha_9.value(),self.RV_Data_jeff_beta_9.value(),self.use_rvoff_nr_9.isChecked()], [self.RV_Data_jeff_alpha_10.value(),self.RV_Data_jeff_beta_10.value(),self.use_rvoff_nr_10.isChecked()]
+        ]
+        
+        jitter_jeff_priors_gui = [
+        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_1.value(),self.use_rvjitt_nr_1.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_2.value(),self.use_rvjitt_nr_2.isChecked()], 
+        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_3.value(),self.use_rvjitt_nr_3.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_4.value(),self.use_rvjitt_nr_4.isChecked()], 
+        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_5.value(),self.use_rvjitt_nr_5.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_6.value(),self.use_rvjitt_nr_6.isChecked()],
+        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_7.value(),self.use_rvjitt_nr_7.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_8.value(),self.use_rvjitt_nr_8.isChecked()], 
+        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_9.value(),self.use_rvjitt_nr_9.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_10.value(),self.use_rvjitt_nr_10.isChecked()]   
+        ]  
+    
+    
+        for i in range(10): 
+            fit.rvoff_jeff_pr[i] = offset_jeff_priors_gui[i]
+            fit.jitt_jeff_pr[i]  = jitter_jeff_priors_gui[i] 
+    
+ 
+        fit.rv_lintr_jeff_pr[0]  = [self.lin_trend_jeff_alpha.value(),self.lin_trend_jeff_beta.value(),self.use_lin_tr_nr_pr.isChecked()]
+        #self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
+
+        GP_rot_jeff_priors_gui = [
+        [self.GP_rot_kernel_Amp_jeff_alpha.value(),self.GP_rot_kernel_Amp_jeff_beta.value(),self.use_GP_rot_kernel_Amp_nr_pr.isChecked()],  
+        [self.GP_rot_kernel_time_sc_jeff_alpha.value(),self.GP_rot_kernel_time_sc_jeff_beta.value(),self.use_GP_rot_kernel_time_sc_nr_pr.isChecked()],  
+        [self.GP_rot_kernel_Per_jeff_alpha.value(),self.GP_rot_kernel_Per_jeff_beta.value(),self.use_GP_rot_kernel_Per_jeff_beta_nr_pr.isChecked()],  
+        [self.GP_rot_kernel_fact_jeff_alpha.value(),self.GP_rot_kernel_fact_jeff_beta.value(),self.use_GP_rot_kernel_fact_nr_pr.isChecked()],  
+        ]
+ 
+        for i in range(4): 
+            fit.GP_rot_jeff_pr[i] = GP_rot_jeff_priors_gui[i]            
+    
+
+        GP_sho_jeff_priors_gui = [
+        [self.GP_sho_kernel_S_jeff_alpha.value(),self.GP_sho_kernel_S_jeff_beta.value(), self.use_GP_sho_kernel_S_nr_pr.isChecked()],  
+        [self.GP_sho_kernel_Q_jeff_alpha.value(),self.GP_sho_kernel_Q_jeff_beta.value(), self.use_GP_sho_kernel_Q_nr_pr.isChecked()],  
+        [self.GP_sho_kernel_omega_jeff_alpha.value(),self.GP_sho_kernel_omega_jeff_beta.value(), self.use_GP_sho_kernel_omega_nr_pr.isChecked()],  
+        ]
+ 
+        for i in range(3): 
+            fit.GP_sho_jeff_pr[i] = GP_sho_jeff_priors_gui[i]   
 
     
 ####################################################        
@@ -1173,7 +1245,11 @@ Polyfit coefficients:
             p5.plot(clear=True,)  
 
             err1 = pg.ErrorBarItem(x=fit.act_data_sets[ind][0], y=fit.act_data_sets[ind][1],symbol='o', 
-            height=fit.act_data_sets[ind][2], beam=0.0, pen=fit.colors[ind])  
+           # height=fit.act_data_sets[ind][2], beam=0.0, pen=fit.colors[ind])  
+            top=fit.act_data_sets[ind][2],
+            bottom=fit.act_data_sets[ind][2],           
+            beam=0.0, pen=fit.colors[ind])
+
 
             p5.addItem(err1)      
             p5.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
@@ -1433,8 +1509,11 @@ Polyfit coefficients:
             )        
             err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
                                    y=fit.fit_results.rv_model.rvs[fit.filelist.idset==i],symbol='o', 
-            height=error_list[fit.filelist.idset==i], beam=0.0, pen=fit.colors[i])  
-
+            #height=error_list[fit.filelist.idset==i],
+            top=error_list[fit.filelist.idset==i],
+            bottom=error_list[fit.filelist.idset==i],           
+            beam=0.0, pen=fit.colors[i])  
+            
             p1.addItem(err1)  
  
         p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
@@ -1460,8 +1539,13 @@ Polyfit coefficients:
             )        
             err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
                                    y=fit.fit_results.rv_model.o_c[fit.filelist.idset==i],symbol='o', 
-            height=error_list[fit.filelist.idset==i], beam=0.0, pen=fit.colors[i])  
-
+            #height=error_list[fit.filelist.idset==i],
+            top=error_list[fit.filelist.idset==i],
+            bottom=error_list[fit.filelist.idset==i],           
+            beam=0.0, pen=fit.colors[i])  
+            
+            
+            
             p2.addItem(err2)  
  
      
@@ -1710,7 +1794,6 @@ Polyfit coefficients:
         global fit
         
         errors_with_jitt = np.array([np.sqrt(errors[i]**2 + fit.params.jitters[ii]**2)  for i,ii in enumerate(ind)])
-        
         return errors_with_jitt
 
 
@@ -1819,8 +1902,12 @@ Polyfit coefficients:
             )  
                
             err_ = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=rv_data[ph_data[3]==i],
-            symbol=fit.pyqt_symbols_rvs[i], height=error_list[ph_data[3]==i], beam=0.0, pen=fit.colors[i])   
-         
+            symbol=fit.pyqt_symbols_rvs[i], 
+            #height=error_list[ph_data[3]==i], beam=0.0, pen=fit.colors[i])   
+            top=error_list[ph_data[3]==i],
+            bottom=error_list[ph_data[3]==i],           
+            beam=0.0, pen=fit.colors[i]) 
+            
             pe.addItem(err_)
         
         pe.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})
@@ -2170,8 +2257,11 @@ Transit duration: %s d
             symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=fit.tra_colors[j] ) 
             
-            err_ = pg.ErrorBarItem(x=t, y=flux,
-            symbol='o', height=flux_err, beam=0.0, pen=fit.tra_colors[j])   
+            err_ = pg.ErrorBarItem(x=t, y=flux, symbol='o',
+                                  # height=flux_err, 
+                                   top=flux_err, 
+                                   bottom=flux_err,                                    
+                                   beam=0.0, pen=fit.tra_colors[j])   
      
             p3.addItem(err_)            
             
@@ -2187,8 +2277,11 @@ Transit duration: %s d
             symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=fit.tra_colors[j] )             
 
-            err_ = pg.ErrorBarItem(x=t, y=flux-flux_model,
-            symbol='o', height=flux_err, beam=0.0, pen=fit.tra_colors[j])               
+            err_ = pg.ErrorBarItem(x=t, y=flux-flux_model, symbol='o', 
+           # height=flux_err,
+            top=flux_err,
+            bottom=flux_err,            
+            beam=0.0, pen=fit.tra_colors[j])               
             p4.addItem(err_)   
                      
         #else:    
@@ -3084,8 +3177,10 @@ highly appreciated!
         symbolBrush=fit.colors[0]
         )  
                
-        err_ = pg.ErrorBarItem(x=x, y=y,
-        symbol='o', height=y_err, beam=0.0, pen=fit.colors[0])   
+        err_ = pg.ErrorBarItem(x=x, y=y, symbol='o', 
+        top = y_err, bottom = y_err,
+        #height=y_err, 
+        beam=0.0, pen=fit.colors[0])   
      
         pdi.addItem(err_)
         
