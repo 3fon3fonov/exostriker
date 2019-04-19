@@ -131,14 +131,28 @@ class MatplotlibExporter(Exporter):
                 if indx <=1:
                     continue
                 
-                if "height" in self.item.items[indx].opts:
-                         ax.errorbar(x=self.item.items[indx].opts["x"], y=self.item.items[indx].opts["y"],
-                                     yerr=self.item.items[indx].opts["height"]/2., linestyle='', marker='o',markersize=0.5, linewidth=1.0, 
+                if self.item.items[indx].__class__.__name__ == "FillBetweenItem":
+                    x1,y1 = self.item.items[indx].curves[0].getData()
+                    x2,y2 = self.item.items[indx].curves[1].getData()
+                    #fillBrush = fn.mkBrush(self.item.items[indx].curves[0].opts['fillBrush'])
+                   # fillcolor = tuple([c/255. for c in fn.colorTuple(fillBrush.color())])                   
+                    ax.fill_between(x=x1, y1=y1, y2=y2, facecolor="#f48c42" )#fn.mkColor(244,140,66,128))
+                    #print(self.item.items[indx].curve1)                    
+                    continue
+                
+                if "top" in self.item.items[indx].opts:
+                    yerr=self.item.items[indx].opts["top"]
+                    ax.errorbar(x=self.item.items[indx].opts["x"], y=self.item.items[indx].opts["y"],
+                                     yerr=yerr, linestyle='', marker='o',markersize=0.5, linewidth=1.0, 
                                      color=self.item.items[indx].opts["pen"], capsize = 0, elinewidth=1,mew=0.0, zorder=-10)
                                      #color="k", capsize = 0, elinewidth=1,mew=0.0, zorder=-10)
-                               
+                if "left" in self.item.items[indx].opts:
+                    xerr=self.item.items[indx].opts["left"]
+                    ax.errorbar(x=self.item.items[indx].opts["x"], y=self.item.items[indx].opts["y"],
+                                     xerr=xerr, linestyle='', marker='o',markersize=0.5, linewidth=1.0, 
+                                     color=self.item.items[indx].opts["pen"], capsize = 0, elinewidth=1,mew=0.0, zorder=-10)                               
                 
-                
+            #print(self.item.items[indx].opts)    
             ax.set_xlabel(xlabel)  # place the labels.
             ax.set_ylabel(ylabel)
             #ax.spines['top'].set_visible(True)
