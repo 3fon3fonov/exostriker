@@ -2216,8 +2216,14 @@ Transit duration: %s d
             flux_model =[1]*len(flux)
             m =  {k: [] for k in range(9)}
              
+            
+            #### a quick fix, TBD! ########
             if fit.rtg[1]:
-                rv_gp_npar = len(fit.gps.get_parameter_vector())
+                if fit.gp_kernel == 'RotKernel':
+                    rv_gp_npar = 4
+                if fit.gp_kernel == 'SHOKernel':
+                    rv_gp_npar = 3
+                #fit.gps = []
             else:
                 rv_gp_npar = 0   
             
