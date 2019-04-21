@@ -80,6 +80,37 @@ def initiategps(obj,  kernel_id=-1):
     obj.gps = gps          
     return
  
+######### transit GP work in progress ###########    
+
+def initiate_tansit_gps(obj,  kernel_id=-1): 
+    
+    # Prepare objects for Gaussian Processes        
+    
+   # if len(obj.tra_GP_rot_params) != 0:
+   #     obj.params.update_GP_params(obj.tra_GP_rot_params, kernel_id=kernel_id)
+   #     obj.use.update_use_GP_params(obj.tra_GP_rot_use)
+    
+    #print(obj.gp_kernel)
+    if obj.tra_gp_kernel == 'RotKernel':
+        tra_kernel = terms.TermSum(GP_kernels.RotationTerm(
+                log_amp=np.log(obj.tra_GP_rot_params[0]),
+                log_timescale=np.log(obj.tra_GP_rot_params[1]),
+                log_period=np.log(obj.tra_GP_rot_params[2]),
+                log_factor=np.log(obj.tra_GP_rot_params[3])))
+        
+    elif obj.tra_gp_kernel == 'SHOKernel':   
+        kernel = terms.SHOTerm(log_S0=np.log(obj.tra_GP_sho_params[0]), 
+                               log_Q=np.log(obj.tra_GP_sho_params[1]), 
+                               log_omega0=np.log(obj.tra_GP_sho_params[2]))
+    
+    tra_gps = celerite.GP(kernel, mean=0.0)
+    tra_gps.compute(obj.filelist.time, obj.filelist.rv_err)
+    
+    obj.tra_gps = tra_gps          
+    return    
+######### transit GP work in progress ###########    
+
+
 
 
 def plot_gp(obj, curve=False):
@@ -1163,7 +1194,9 @@ class signal_fit(object):
         self.b_for_mcmc=[] 
         
         
-        self.init_GP()     
+        self.init_GP()  
+        self.init_transit_GP()
+        
         self.init_RV_jitter()       
         self.init_RV_offset()
         self.init_RV_lintr()
@@ -1347,10 +1380,6 @@ class signal_fit(object):
         
         #####################################
         
-        
-
-
-
 
 
     def init_RV_jitter(self) :       
@@ -1446,6 +1475,37 @@ class signal_fit(object):
         
         self.gp_kernels = ['SHOKernel','RotKernel']
         self.gp_kernel = self.gp_kernels[0]
+        
+        
+    def init_transit_GP(self):
+
+        self.tra_doGP = False
+        self.tra_gps=[]
+        
+        self.tra_GP_rot_params = [1,10,15,1]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.tra_GP_rot_err = [0,0,0,0]
+        self.tra_GP_rot_use = [False,False,False,False]  
+        self.tra_GP_rot_str = [r'Amp', r't', r'per', r'fact']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway 
+        self.tra_GP_rot_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_rot_params))}        
+        self.tra_GP_rot_norm_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_rot_params))}        
+        self.tra_GP_rot_jeff_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_rot_params))}        
+                
+        
+        self.tra_GP_sho_params     = [100,1,0.05]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.tra_GP_sho_err = [0,0,0]
+        self.tra_GP_sho_use = [False,False,False]  
+        self.tra_GP_sho_str = [r'S', r'Q', r'omega']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway 
+        self.tra_GP_sho_bounds     = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_sho_params))}        
+        self.tra_GP_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_sho_params))}        
+        self.tra_GP_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_sho_params))}        
+                
+
+        self.tra_gp_model_curve = {k: 0 for k in range(10)}
+        self.tra_gp_model_data  = {k: 0 for k in range(10)}
+        
+        self.tra_gp_kernels = ['SHOKernel','RotKernel']
+        self.tra_gp_kernel = self.gp_kernels[0]       
+        
        
 
     def init_transit_params(self): 
