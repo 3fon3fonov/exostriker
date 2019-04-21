@@ -627,7 +627,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10): 
             fit.rvoff_bounds[i] = offset_bounds_gui[i]
             fit.jitt_bounds[i]  = jitter_bounds_gui[i] 
-    
+            
  
         fit.rv_lintr_bounds[0]  = [self.lin_trend_min.value(),self.lin_trend_max.value()]
         #self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
