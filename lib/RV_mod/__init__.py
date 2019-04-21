@@ -327,10 +327,17 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
        # else: 
         for j in range(len(tr_files)):
             
-
+            ### a quick fix#
+            if rtg[1]:
+                rv_gp_npar = len(gps.get_parameter_vector())
+            else:
+                rv_gp_npar = 3   
+                
+                
+                
             #print(par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j],par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j+1])
             t = tr_files[j][0] 
-            flux = tr_files[j][1] + par[len(vel_files)*2 +7*npl +1 + len(gps.get_parameter_vector()) + 3*npl + len(tr_files)*j]
+            flux = tr_files[j][1] + par[len(vel_files)*2 +7*npl +1 + rv_gp_npar + 3*npl + len(tr_files)*j]
             #flux_err = np.sqrt(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j +1]**2)
             flux_err =  tr_files[j][2] 
             
@@ -346,9 +353,9 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
                 tr_params.w   = par[len(vel_files)*2 +7*i+3] #90.0   #longitude of periastron (in degrees)               
                 tr_params.inc = par[len(vel_files)*2 +7*i+5]#90. #orbital inclination (in degrees)                
 
-                tr_params.t0  = par[len(vel_files)*2 +7*npl +1 +len(gps.get_parameter_vector()) + 3*i]
-                tr_params.a   = par[len(vel_files)*2 +7*npl +1 +len(gps.get_parameter_vector()) + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-                tr_params.rp  = par[len(vel_files)*2 +7*npl +1 +len(gps.get_parameter_vector()) + 3*i+2] #0.15   #planet radius (in units of stellar radii)
+                tr_params.t0  = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i]
+                tr_params.a   = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+                tr_params.rp  = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
 
                 m[i] = batman.TransitModel(tr_params, t)    #initializes model
      
@@ -356,7 +363,7 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
                 
 
 
-            sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl +1 +len(gps.get_parameter_vector()) + 3*npl + len(tr_files)*j+1]**2 )
+            sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*npl + len(tr_files)*j+1]**2 )
            
             tr_loglik = -0.5*(np.sum((flux -flux_model)**2 * sig2i - np.log(sig2i / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
  
@@ -560,21 +567,25 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
                 obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +1 +j]          
                 #print(obj.doGP,obj.gp_kernel)
         
-       
+    if rtg[1]:
+        rv_gp_npar = len(gps.get_parameter_vector())
+        get_gps_model(obj)  
+    else:
+        rv_gp_npar = 3          
         
     for i in range(npl):   
-        obj.t0[i]     = par[len(vel_files)*2 +7*npl +5 + 3*i] #0.0  #time of inferior conjunction
+        obj.t0[i]     = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i] #0.0  #time of inferior conjunction
         obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])        
         
-        obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-        obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
+        obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+        obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
         
  
     j =0 
     for i in range(10):        
         if len(obj.tra_data_sets[i]) != 0:
-            obj.tra_off[i] = par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j]
-            obj.tra_jitt[i] = abs(par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j +1])
+            obj.tra_off[i] =      par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*npl + len(tr_files)*j]
+            obj.tra_jitt[i] = abs(par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*npl + len(tr_files)*j +1])
             j = j +1
 
 
@@ -587,7 +598,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
             #print(ee[j] + "  =  %s"%pp[j])
             print("{0:{width}s} = {1:{width}.{precision}f}".format(ee[j], pp[j] , width = 10, precision = 4))
 
-    get_gps_model(obj)  
+    
     obj.gps = []
     
     return obj
