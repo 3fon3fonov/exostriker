@@ -331,7 +331,7 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
             if rtg[1]:
                 rv_gp_npar = len(gps.get_parameter_vector())
             else:
-                rv_gp_npar = 3   
+                rv_gp_npar = 0   
                 
                 
                 
@@ -571,7 +571,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         rv_gp_npar = len(gps.get_parameter_vector())
         get_gps_model(obj)  
     else:
-        rv_gp_npar = 3          
+        rv_gp_npar = 0          
         
     for i in range(npl):   
         obj.t0[i]     = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i] #0.0  #time of inferior conjunction
@@ -2622,22 +2622,22 @@ class signal_fit(object):
         prior_nr.append(self.rv_lintr_norm_pr[0])
         
         
-       
-        if self.gp_kernel == 'RotKernel':
-            for i in range(4):  
-                par.append(self.GP_rot_params[i])
-                flag.append(self.GP_rot_use[i])
-                par_str.append(self.GP_rot_str[i])
-                bounds.append(self.GP_rot_bounds[i])
-                prior_nr.append(self.GP_rot_norm_pr[i])
-            
-        elif self.gp_kernel == 'SHOKernel':         
-            for i in range(3):  
-                par.append(self.GP_sho_params[i])
-                flag.append(self.GP_sho_use[i])
-                par_str.append(self.GP_sho_str[i])
-                bounds.append(self.GP_sho_bounds[i])
-                prior_nr.append(self.GP_sho_norm_pr[i])
+        if rtg[1] == True:
+            if self.gp_kernel == 'RotKernel':
+                for i in range(4):  
+                    par.append(self.GP_rot_params[i])
+                    flag.append(self.GP_rot_use[i])
+                    par_str.append(self.GP_rot_str[i])
+                    bounds.append(self.GP_rot_bounds[i])
+                    prior_nr.append(self.GP_rot_norm_pr[i])
+                
+            elif self.gp_kernel == 'SHOKernel':         
+                for i in range(3):  
+                    par.append(self.GP_sho_params[i])
+                    flag.append(self.GP_sho_use[i])
+                    par_str.append(self.GP_sho_str[i])
+                    bounds.append(self.GP_sho_bounds[i])
+                    prior_nr.append(self.GP_sho_norm_pr[i])
             
             
             

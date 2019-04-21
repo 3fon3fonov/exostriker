@@ -2219,7 +2219,7 @@ Transit duration: %s d
             if fit.rtg[1]:
                 rv_gp_npar = len(fit.gps.get_parameter_vector())
             else:
-                rv_gp_npar = 3   
+                rv_gp_npar = 0   
             
             
             for i in range(fit.npl):
