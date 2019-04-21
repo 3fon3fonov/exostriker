@@ -2216,6 +2216,12 @@ Transit duration: %s d
             flux_model =[1]*len(flux)
             m =  {k: [] for k in range(9)}
              
+            if fit.rtg[1]:
+                rv_gp_npar = len(fit.gps.get_parameter_vector())
+            else:
+                rv_gp_npar = 3   
+            
+            
             for i in range(fit.npl):
                 
                 fit.tr_params.per = par[fit.filelist.ndset*2 +7*i+1] #1.0    #orbital period
@@ -2236,9 +2242,9 @@ Transit duration: %s d
                #     fit.tr_params.t0  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i]   #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
                #     
                     
-                fit.tr_params.t0  = par[fit.filelist.ndset*2  +7*fit.npl +5 + 3*i]                
-                fit.tr_params.a   = par[fit.filelist.ndset*2  +7*fit.npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-                fit.tr_params.rp  = par[fit.filelist.ndset*2  +7*fit.npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)
+                fit.tr_params.t0  = par[fit.filelist.ndset*2  +7*fit.npl +1+rv_gp_npar + 3*i]                
+                fit.tr_params.a   = par[fit.filelist.ndset*2  +7*fit.npl +1+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+                fit.tr_params.rp  = par[fit.filelist.ndset*2  +7*fit.npl +1+rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
                 #print(tr_params.t0)
                 #print(tr_params.per, tr_params.ecc,tr_params.w, tr_params.inc, tr_params.t0,tr_params.a,tr_params.rp )
         
