@@ -233,17 +233,20 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
     
     if (rtg[1]):
         outputfiles = [1,1,0]
+        rv_gp_npar = len(gps.get_parameter_vector())
+    else:
+        rv_gp_npar = 0   
 
     if rtg[2] == True:
         for i in range(npl): # (per, ecc, om, t_transit, epoch):
             par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
                                                       par[len(vel_files)*2 +7*i+2],
                                                       par[len(vel_files)*2 +7*i+3],
-                                                      par[len(vel_files)*2 +7*npl +5 + 3*i],epoch)
+                                                      par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i],epoch)
    
     else:
         for i in range(npl): # (per, ecc, om, ma, epoch):
-            par[len(vel_files)*2 + len(tr_files)*2  +7*npl +5 + 3*i] = transit_tperi(par[len(vel_files)*2 +7*i+1],
+            par[len(vel_files)*2 + len(tr_files)*2  +7*npl +1+rv_gp_npar + 3*i] = transit_tperi(par[len(vel_files)*2 +7*i+1],
                                                                   par[len(vel_files)*2 +7*i+2],
                                                                   par[len(vel_files)*2 +7*i+3],
                                                                   par[len(vel_files)*2 +7*i+4],epoch)[1]%par[len(vel_files)*2 +7*i+1]
@@ -326,13 +329,7 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
         #    tr_loglik = 0        
        # else: 
         for j in range(len(tr_files)):
-            
-            ### a quick fix#
-            if rtg[1]:
-                rv_gp_npar = len(gps.get_parameter_vector())
-            else:
-                rv_gp_npar = 0   
-                
+                     
                 
                 
             #print(par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j],par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j+1])
@@ -366,11 +363,12 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
             sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*npl + len(tr_files)*j+1]**2 )
            
             tr_loglik = -0.5*(np.sum((flux -flux_model)**2 * sig2i - np.log(sig2i / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
+            #tr_loglik = -0.5*(np.sum((flux -flux_model)**2 * sig2i - np.log(sig2i))) # - np.log(sig2i / 2./ np.pi)
  
 
     if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
         return -np.inf
-   # print(rv_loglik, tr_loglik)        
+  #  print(rv_loglik, tr_loglik,rv_loglik + tr_loglik)        
     return rv_loglik + tr_loglik
     
     
@@ -579,7 +577,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         
         obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
         obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
-        
+       # print(obj.t0[i],par[len(vel_files)*2 +7*i+4])
  
     j =0 
     for i in range(10):        
