@@ -2187,7 +2187,8 @@ Transit duration: %s d
         else:
        # rv.run_SciPyOp_transit(fit)
             rv.run_SciPyOp(fit)
- 
+
+#### Transit plots ################ 
     def update_transit_plots(self): 
         global fit, p3, colors
     
