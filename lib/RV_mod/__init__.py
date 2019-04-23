@@ -80,38 +80,6 @@ def initiategps(obj,  kernel_id=-1):
     obj.gps = gps          
     return
  
-######### transit GP work in progress ###########    
-
-def initiate_tansit_gps(obj,  kernel_id=-1): 
-    
-    # Prepare objects for Gaussian Processes        
-    
-   # if len(obj.tra_GP_rot_params) != 0:
-   #     obj.params.update_GP_params(obj.tra_GP_rot_params, kernel_id=kernel_id)
-   #     obj.use.update_use_GP_params(obj.tra_GP_rot_use)
-    
-    #print(obj.gp_kernel)
-    if obj.tra_gp_kernel == 'RotKernel':
-        tra_kernel = terms.TermSum(GP_kernels.RotationTerm(
-                log_amp=np.log(obj.tra_GP_rot_params[0]),
-                log_timescale=np.log(obj.tra_GP_rot_params[1]),
-                log_period=np.log(obj.tra_GP_rot_params[2]),
-                log_factor=np.log(obj.tra_GP_rot_params[3])))
-        
-    elif obj.tra_gp_kernel == 'SHOKernel':   
-        kernel = terms.SHOTerm(log_S0=np.log(obj.tra_GP_sho_params[0]), 
-                               log_Q=np.log(obj.tra_GP_sho_params[1]), 
-                               log_omega0=np.log(obj.tra_GP_sho_params[2]))
-    
-    tra_gps = celerite.GP(kernel, mean=0.0)
-    tra_gps.compute(obj.filelist.time, obj.filelist.rv_err)
-    
-    obj.tra_gps = tra_gps          
-    return    
-######### transit GP work in progress ###########    
-
-
-
 
 def plot_gp(obj, curve=False):
     
@@ -178,10 +146,115 @@ def get_gps_model(obj,  kernel_id=-1):
     std = np.sqrt(var)
 
     obj.gp_model_curve = [mu,var,std]        
-        
-        
-        
+
     return
+
+######### Transit GP work in progress ###########    
+
+def initiate_tansit_gps(obj,  kernel_id=-1): 
+    
+    # Prepare objects for Gaussian Processes        
+    
+   # if len(obj.tra_GP_rot_params) != 0:
+   #     obj.params.update_GP_params(obj.tra_GP_rot_params, kernel_id=kernel_id)
+   #     obj.use.update_use_GP_params(obj.tra_GP_rot_use)
+    
+    #print(obj.gp_kernel)
+    if obj.tra_gp_kernel == 'RotKernel':
+        tra_kernel = terms.TermSum(GP_kernels.RotationTerm(
+                log_amp=np.log(obj.tra_GP_rot_params[0]),
+                log_timescale=np.log(obj.tra_GP_rot_params[1]),
+                log_period=np.log(obj.tra_GP_rot_params[2]),
+                log_factor=np.log(obj.tra_GP_rot_params[3])))
+        
+    elif obj.tra_gp_kernel == 'SHOKernel':   
+        tra_kernel = terms.SHOTerm(log_S0=np.log(obj.tra_GP_sho_params[0]), 
+                               log_Q=np.log(obj.tra_GP_sho_params[1]), 
+                               log_omega0=np.log(obj.tra_GP_sho_params[2]))
+    
+    tra_gps = celerite.GP(tra_kernel, mean=1.0)
+    tra_gps.compute(obj.tra_data_sets[0][0], obj.tra_data_sets[0][2])
+    
+    obj.tra_gps = tra_gps          
+    return    
+
+
+def plot_transit_gp(obj, curve=False):
+    
+    import matplotlib.pyplot as plt
+
+    color="#ff7f0e"
+    colors = ['b','g','r']
+    
+    x     = obj.tra_data_sets[0][0]
+    y     = obj.tra_data_sets[0][1]
+    y_err = obj.tra_data_sets[0][2]
+    #idset = obj.filelist.idset
+    
+    
+    if curve==True:
+        x_model = np.linspace(min(x), max(x), 5000) #obj.fit_results.model_jd
+        mu,var,std = obj.tra_gp_model_curve
+        
+    else:      
+        x_model = x
+        mu,var,std = obj.tra_gp_model_data    
+    
+    #print(mu[0:10])
+    #print(y[0:10])
+    
+    #for i in range(obj.filelist.ndset):
+        #plt.errorbar(x[idset==i],y[idset==i], yerr=y_err[idset==i], fmt=".",color=colors[i],  capsize=0); 
+    plt.errorbar(x,y, yerr=y_err, fmt=".",color=colors[0],  capsize=0); 
+   
+    plt.plot(x_model, mu, color = '0.5' );
+    plt.fill_between(x_model ,mu+std,  mu-std, color=color, alpha=0.3, edgecolor="none")
+
+
+def get_transit_gps_model(obj,  kernel_id=-1): 
+    
+    initiate_tansit_gps(obj,  kernel_id=-1)
+    #gp_model_data  = []
+    
+    ############ DATA ####################
+    #for i in range(obj.filelist.ndset):
+        #gp.set_parameter_vector(
+         
+    y = obj.tra_data_sets[0][1] #obj.fit_results.rv_model.o_c
+    x = obj.tra_data_sets[0][0]
+    mu, var = obj.gps.predict(y, x, return_var=True)
+    std = np.sqrt(var)
+
+    obj.tra_gp_model_data = [mu,var,std]
+        
+    ############ MODEL ####################
+
+   # kernel=[]
+   # gps=[]
+    x = obj.fit_results.model_jd
+    #x= np.linspace(min(x2), max(x2), 5000)
+    #y = obj.fit_results.model
+
+   # kernel = obj.params.GP_params.rot_kernel
+   # gps = celerite.GP(kernel, mean=0.0)
+   # gps.compute(x,[0]*len(x))
+    #gps.compute(obj.filelist.time, obj.filelist.rv_err)
+ 
+ 
+    mu, var = obj.gps.predict(y, x, return_var=True)
+    std = np.sqrt(var)
+
+    obj.tra_gp_model_curve = [mu,var,std]        
+
+    return
+
+
+
+
+
+
+
+######### transit GP work in progress ###########   
 
  
  
