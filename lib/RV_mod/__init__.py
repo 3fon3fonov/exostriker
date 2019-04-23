@@ -3055,32 +3055,41 @@ class signal_fit(object):
         
         max_time = float(timemax)*365.2425 # make it is days
  
-        param_file.write("""0.0d0 %s %s
+        param_file.write(b"""0.0d0 %s %s
 %s %s
         
 F T T T T F
 0.0001 50.0 50.0 -1. T
 bin.dat
 unknown
-"""%(max_time, timestep, max_time/1e4, max_time/1e3 ))
+"""%(bytes(str(max_time).encode()), 
+     bytes(str(timestep).encode()),
+     bytes(str(max_time/1e4).encode()), 
+     bytes(str(max_time/1e3).encode())  ))
  
         param_file.close()
         
+        #os.system("cp param.in test_param.in__")
+        
         
         getin_file = open('geninit_j.in', 'wb') 
-        getin_file.write("""1 
+        getin_file.write(b"""1 
 %s
 %s
 1.d0
 pl.in
-    """%(str(self.params.stellar_mass),str(self.npl)))
+    """%(bytes(str(self.params.stellar_mass).encode()), bytes(str(self.npl).encode() ) ))
         
         
   
         for j in range(self.npl):
-            getin_file.write('%s \n'%str(self.fit_results.mass[j]/1047.70266835)) 
-            getin_file.write('%s %s %s %s %s %s \n'%(str(self.fit_results.a[j]),str(self.params.planet_params[7*j + 2]),str(self.params.planet_params[7*j + 5]),
-                                                  str(self.params.planet_params[7*j + 3]),str(self.params.planet_params[7*j + 6]),str(self.params.planet_params[7*j + 4])) ) 
+            getin_file.write(b'%s \n'%bytes(str(self.fit_results.mass[j]/1047.70266835).encode())) 
+            getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(self.fit_results.a[j]).encode()),
+                                                     bytes(str(self.params.planet_params[7*j + 2]).encode()),
+                                                     bytes(str(self.params.planet_params[7*j + 5]).encode()),
+                                                     bytes(str(self.params.planet_params[7*j + 3]).encode()),
+                                                     bytes(str(self.params.planet_params[7*j + 6]).encode()),
+                                                     bytes(str(self.params.planet_params[7*j + 4]).encode() )) ) 
               
         getin_file.close()
 

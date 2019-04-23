@@ -2328,7 +2328,7 @@ Transit duration: %s d
         self.button_orb_evol.setEnabled(False)         
         
         # check if any fits where performed, and tus planets present
-        if fit.fit_results.mass <= 0:
+        if len(fit.fit_results.mass) <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to integrate a fit that does not exist. First perform an orbital fitting and then test the orbital stability. Okay?", QtGui.QMessageBox.Ok)      
              self.button_orb_evol.setEnabled(True)         
