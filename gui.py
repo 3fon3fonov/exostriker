@@ -2326,17 +2326,19 @@ Transit duration: %s d
         global fit  
 
         self.button_orb_evol.setEnabled(False)         
-        
+        npl_to_fit = np.atleast_1d(fit.fit_results.mass)
+ 
         # check if any fits where performed, and tus planets present
-        if len(fit.fit_results.mass) <= 0:
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "Not possible to integrate a fit that does not exist. First perform an orbital fitting and then test the orbital stability. Okay?", QtGui.QMessageBox.Ok)      
-             self.button_orb_evol.setEnabled(True)         
-             return        
+        if len(np.atleast_1d(npl_to_fit)) == 1 and npl_to_fit[0] <= 0:
+            choice = QtGui.QMessageBox.information(self, 'Warning!',
+            "Not possible to integrate a fit that does not exist. First perform an orbital fitting and then test the orbital stability. Okay?", QtGui.QMessageBox.Ok)      
+            self.button_orb_evol.setEnabled(True)         
+            return        
 
         if fit.npl < 2:
             choice = QtGui.QMessageBox.information(self, 'Warning!'," With less than two planets this makes no sense. Okay?",
                                             QtGui.QMessageBox.Ok) 
+            self.button_orb_evol.setEnabled(True)                    
             return
  
         self.statusBar().showMessage('Running Orbital Evolution......')   
