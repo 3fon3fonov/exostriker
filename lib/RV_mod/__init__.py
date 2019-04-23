@@ -251,9 +251,6 @@ def get_transit_gps_model(obj,  kernel_id=-1):
 
 
 
-
-
-
 ######### transit GP work in progress ###########   
 
  
@@ -414,6 +411,9 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
             flux_model =[1]*len(flux)
             
             m =  {k: [] for k in range(9)}
+            
+            #tr_params.limb_dark = {k: [self.ld_options[2]] for k in range(10)}        #limb darkening model
+            #tr_params.u = {k: [0.1, 0.3 ] for k in range(10)}   
              
             for i in range(npl):
                 
@@ -1604,9 +1604,16 @@ class signal_fit(object):
         self.tr_params.inc = 90. #orbital inclination (in degrees)
         self.tr_params.a   = 15  #semi-major axis (in units of stellar radii)
     
+        self.ld_models = ["uniform", "linear", "quadratic", "nonlinear"]
 
-        self.tr_params.limb_dark = "quadratic"        #limb darkening model
-        self.tr_params.u = [0.1, 0.3 ]        
+        self.ld_m = {k: [self.ld_models[2]] for k in range(10)}        #limb darkening model
+        self.ld_u = {k: [0.1, 0.3 ] for k in range(10)}    
+        
+        #self.tr_params.limb_dark = self.ld_m[0]       #limb darkening model
+        #self.tr_params.u =  self.ld_u[0]             
+
+        self.tr_params.limb_dark = "quadratic"      #limb darkening model
+        self.tr_params.u =  [0.1, 0.3 ]            
         
         # ld_options = ["uniform", "linear", "quadratic", "nonlinear"]
         #ld_coefficients = [[], [0.3], [0.1, 0.3], [0.5, 0.1, 0.1, -0.1]]       
