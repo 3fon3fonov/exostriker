@@ -69,7 +69,8 @@ def initiategps(obj,  kernel_id=-1):
                 log_period=np.log(obj.GP_rot_params[2]),
                 log_factor=np.log(obj.GP_rot_params[3])))
         
-    elif obj.gp_kernel == 'SHOKernel':   
+    elif obj.gp_kernel == 'SHOKernel':  
+        
         kernel = terms.SHOTerm(log_S0=np.log(obj.GP_sho_params[0]), 
                                log_Q=np.log(obj.GP_sho_params[1]), 
                                log_omega0=np.log(obj.GP_sho_params[2]))
@@ -503,7 +504,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     if (rtg[1]):
         initiategps(obj, kernel_id=kernel_id) 
         gps = obj.gps
-    
+   
     
 
     if obj.SciPy_min_use_1 == obj.SciPy_min[0]:
@@ -809,7 +810,40 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
     # now perform the MCMC
    # pos, prob, state  = sampler.run_mcmc(pos,mcmc_ph)
     
-    
+    if rtg[1]:
+        rv_gp_npar = len(gps.get_parameter_vector())
+        get_gps_model(obj)  
+    else:
+        rv_gp_npar = 0 
+
+   
+    for i in range(npl):   
+        obj.t0[i]     = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*i] #0.0  #time of inferior conjunction
+        obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])        
+        
+        obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+        obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
+        
+ 
+    j =0 
+    for i in range(10):        
+        if len(obj.tra_data_sets[i]) != 0:
+            obj.tra_off[i] = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*npl + len(tr_files)*j]
+            obj.tra_jitt[i] = abs(par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*npl + len(tr_files)*j +1])
+            j = j +1
+
+
+    #print(current_GP_params)
+    print("Best lnL: %s"%sampler.lnL_min)
+    print("Best fit par.:")  
+    pp = obj.par_for_mcmc 
+    #print(len(pp),len(new_par_errors))
+    #ee = obj.e_for_mcmc.tolist() 
+    for j in range(len(pp)):
+        #print("%s  =  %s + %s - %s"%(ee[j], pp[j],new_par_errors[j][0],new_par_errors[j][1]))
+        print("{0:{width}s} = {1:{width}.{precision}f} + {2:{width}.{precision}f} - {3:{width}.{precision}f}".format(ee[j], pp[j],new_par_errors[j][0],new_par_errors[j][1], width = 10, precision = 4))
+
+            
      
     print("--- %s seconds ---" % (time.time() - start_time))  
  
@@ -864,7 +898,7 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
  #       obj.sampler_saved=True           
         
     #sampler.reset()
-    get_gps_model(obj)
+
     obj.gps = []
     
     return obj
@@ -934,8 +968,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     if (rtg[1]):
         initiategps(obj, kernel_id=gp_kernel_id)     
         gps = obj.gps
-
-    
+ 
 
     ndim, nwalkers = len(pp), len(pp)*obj.nwalkers_fact
 
@@ -1013,20 +1046,27 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
             for j in range(len(gps.get_parameter_vector())):
                 obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +1 +j]          
                 #print(obj.doGP,obj.gp_kernel)
+
+    if rtg[1]:
+        rv_gp_npar = len(gps.get_parameter_vector())
+        get_gps_model(obj)  
+    else:
+        rv_gp_npar = 0 
+
    
     for i in range(npl):   
-        obj.t0[i]     = par[len(vel_files)*2 +7*npl +5 + 3*i] #0.0  #time of inferior conjunction
+        obj.t0[i]     = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*i] #0.0  #time of inferior conjunction
         obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])        
         
-        obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +5 + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-        obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +5 + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
+        obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+        obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
         
  
     j =0 
     for i in range(10):        
         if len(obj.tra_data_sets[i]) != 0:
-            obj.tra_off[i] = par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j]
-            obj.tra_jitt[i] = abs(par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j +1])
+            obj.tra_off[i] = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*npl + len(tr_files)*j]
+            obj.tra_jitt[i] = abs(par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*npl + len(tr_files)*j +1])
             j = j +1
 
 
@@ -1046,8 +1086,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
         obj.sampler_saved=True           
     else:   
         sampler.reset()
-
-    get_gps_model(obj)
+ 
     obj.gps = []
 
     return obj
