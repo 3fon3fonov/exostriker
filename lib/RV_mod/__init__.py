@@ -618,13 +618,23 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     
     obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things 
 
-    
-         
-    
- 
+
     obj.loglik = -result["fun"]
+       
+      
+    obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit)
+
+    print("--- %s seconds ---" % (time.time() - start_time))     
     
-    
+    return obj
+
+
+
+
+
+def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit):
+                
+                
     for j in range(len(pp)):
         par[flags[j]] = pp[j]    
         
@@ -662,15 +672,13 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
 
     if len(flags) != 0:    
-        print("--- %s seconds ---" % (time.time() - start_time))     
-        print("Best lnL: %s"%-result["fun"])
+        print("Best lnL: %s"%obj.loglik)
         print("Best fit par.:")  
      
         for j in range(len(pp)):
             #print(ee[j] + "  =  %s"%pp[j])
             print("{0:{width}s} = {1:{width}.{precision}f}".format(ee[j], pp[j] , width = 10, precision = 4))
 
-    
     obj.gps = []
     
     return obj
@@ -982,9 +990,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
  
     # now perform the MCMC
     pos, prob, state  = sampler.run_mcmc(pos,mcmc_ph)
-     
-    print("--- %s seconds ---" % (time.time() - start_time))  
- 
+  
     #ln = np.hstack(sampler.lnprobability)
     sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl)
             
@@ -1033,54 +1039,10 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     elif (save_minlnL):
         obj.loglik = sampler.lnL_min 
 
-    for j in range(len(pp)):
-        par[flags[j]] = pp[j]    
-           
-    if (rtg[1]):
-        if obj.gp_kernel == 'RotKernel':
-            for j in range(len(gps.get_parameter_vector())):
-                obj.GP_rot_params[j] = par[len(vel_files)*2  +7*npl +1 +j]
-                #print(obj.doGP,obj.gp_kernel)
-            
-        if obj.gp_kernel == 'SHOKernel':
-            for j in range(len(gps.get_parameter_vector())):
-                obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +1 +j]          
-                #print(obj.doGP,obj.gp_kernel)
 
-    if rtg[1]:
-        rv_gp_npar = len(gps.get_parameter_vector())
-        get_gps_model(obj)  
-    else:
-        rv_gp_npar = 0 
-
-   
-    for i in range(npl):   
-        obj.t0[i]     = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*i] #0.0  #time of inferior conjunction
-        obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])        
-        
-        obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-        obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
-        
- 
-    j =0 
-    for i in range(10):        
-        if len(obj.tra_data_sets[i]) != 0:
-            obj.tra_off[i] = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*npl + len(tr_files)*j]
-            obj.tra_jitt[i] = abs(par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*npl + len(tr_files)*j +1])
-            j = j +1
+    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit)
 
 
-    #print(current_GP_params)
-    print("Best lnL: %s"%sampler.lnL_min)
-    print("Best fit par.:")  
-    pp = obj.par_for_mcmc 
-    #print(len(pp),len(new_par_errors))
-    #ee = obj.e_for_mcmc.tolist() 
-    for j in range(len(pp)):
-        #print("%s  =  %s + %s - %s"%(ee[j], pp[j],new_par_errors[j][0],new_par_errors[j][1]))
-        print("{0:{width}s} = {1:{width}.{precision}f} + {2:{width}.{precision}f} - {3:{width}.{precision}f}".format(ee[j], pp[j],new_par_errors[j][0],new_par_errors[j][1], width = 10, precision = 4))
-
-        
     if(save_sampler):
         obj.sampler=sampler             
         obj.sampler_saved=True           
@@ -1088,8 +1050,14 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
         sampler.reset()
  
     obj.gps = []
-
+    
+    print("--- %s seconds ---" % (time.time() - start_time))     
+    
     return obj
+
+
+
+
 
 def cornerplot(obj, fileinput=False, level=(100.0-68.3)/2.0, **kwargs): 
 
