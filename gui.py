@@ -1478,7 +1478,8 @@ Polyfit coefficients:
         else:
             error_list = fit.fit_results.rv_model.rv_err
  
-        p1.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
+        p1.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
+        #p1.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([0]) ) ]            
  
  
         if fit.doGP == True:
