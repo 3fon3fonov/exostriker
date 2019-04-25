@@ -818,40 +818,8 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
     # now perform the MCMC
    # pos, prob, state  = sampler.run_mcmc(pos,mcmc_ph)
     
-    if rtg[1]:
-        rv_gp_npar = len(gps.get_parameter_vector())
-        get_gps_model(obj)  
-    else:
-        rv_gp_npar = 0 
+    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit)
 
-   
-    for i in range(npl):   
-        obj.t0[i]     = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*i] #0.0  #time of inferior conjunction
-        obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])        
-        
-        obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-        obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
-        
- 
-    j =0 
-    for i in range(10):        
-        if len(obj.tra_data_sets[i]) != 0:
-            obj.tra_off[i] = par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*npl + len(tr_files)*j]
-            obj.tra_jitt[i] = abs(par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*npl + len(tr_files)*j +1])
-            j = j +1
-
-
-    #print(current_GP_params)
-    print("Best lnL: %s"%sampler.lnL_min)
-    print("Best fit par.:")  
-    pp = obj.par_for_mcmc 
-    #print(len(pp),len(new_par_errors))
-    #ee = obj.e_for_mcmc.tolist() 
-    for j in range(len(pp)):
-        #print("%s  =  %s + %s - %s"%(ee[j], pp[j],new_par_errors[j][0],new_par_errors[j][1]))
-        print("{0:{width}s} = {1:{width}.{precision}f} + {2:{width}.{precision}f} - {3:{width}.{precision}f}".format(ee[j], pp[j],new_par_errors[j][0],new_par_errors[j][1], width = 10, precision = 4))
-
-            
      
     print("--- %s seconds ---" % (time.time() - start_time))  
  
@@ -1333,6 +1301,8 @@ class signal_fit(object):
         self.init_orb_evol()
         
         self.tls = []
+        self.tls_o_c = []
+       
         self.gls = []
         self.gls_o_c =[]
        
@@ -1751,9 +1721,12 @@ class signal_fit(object):
         tra_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
         tra_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
 	
-        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig]) 
+        tra_data_o_c = tra_data
+   
+    
+        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_data_o_c]) 
  
-        self.tra_data_sets[tra_idset] = tra_data_set
+        self.tra_data_sets[tra_idset] = tra_data_set      
  
         return   
 
