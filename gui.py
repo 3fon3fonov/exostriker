@@ -1967,17 +1967,20 @@ Polyfit coefficients:
 
 ############ TLS (Work in progress here) ##############################      
        
-    def worker_tls_complete(self):
+    def worker_tls_complete(self, resid = False):
         global fit  
  
-              
-        self.update_tls_plots()                   
+        if resid == False:     
+            self.update_tls_plots() 
+        else:    
+            self.update_tls_o_c_plots() 
+                 
         self.statusBar().showMessage('')   
  
         self.jupiter_push_vars()   
         self.calc_TLS.setEnabled(True)         
  
-    def worker_tls(self):
+    def worker_tls(self, resid = False):
         global fit  
         
         #if sys.version_info[0] == 2:
@@ -2005,27 +2008,71 @@ Polyfit coefficients:
             return   
 
         self.statusBar().showMessage('Looking for Transit events (TLS).... ')                 
-        worker_tls = Worker(self.tls_search)# Any other args, kwargs are passed to the run  
+        worker_tls_ = Worker(lambda:  self.tls_search(resid = resid) )# Any other args, kwargs are passed to the run  
  
-        worker_tls.signals.finished.connect(self.worker_tls_complete)
+        worker_tls_.signals.finished.connect(lambda:  self.worker_tls_complete(resid = resid))
         
         # worker.signals.result.connect(self.print_output)
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker_tls)       
+        self.threadpool.start(worker_tls_)       
      
 
-    def tls_search(self):
+    def tls_search(self, resid = False):
         global fit
         
-        tls_model = transitleastsquares(fit.tra_data_sets[0][0], fit.tra_data_sets[0][1])
+        if resid == True:
+            lc_data = fit.tra_data_sets[0][3]
+        else:
+            lc_data = fit.tra_data_sets[0][1]
+            
+        
+        tls_model = transitleastsquares(fit.tra_data_sets[0][0], lc_data)
         tls_results = tls_model.power(oversampling_factor=int(self.tls_ofac.value()), duration_grid_step=self.tls_grid_step.value())
     
-        fit.tls = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
+        if resid == True:
+            fit.tls_o_c = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
+        else:
+            fit.tls = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
         
         
         #print("testeeee",self.tls_obj)
         
+    def update_tls_o_c_plots(self): 
+        global fit, p10, colors
+    
+        p10.plot(clear=True,) 
+            
+        if len(fit.tra_data_sets[0]) != 0:
+            #t = fit.tra_data_sets[0][0]
+            #flux = fit.tra_data_sets[0][1]
+           # flux_err = fit.tra_data_sets[0][2]
+           
+            text = '''
+Period: %s d   
+Transit depth: %s 
+Transit duration: %s d
+'''%(fit.tls_o_c.period,fit.tls_o_c.depth,fit.tls_o_c.duration)
+           
+            p10.plot(fit.tls_o_c.periods, fit.tls_o_c.power,        
+            pen='r',  enableAutoRange=True,viewRect=True)
+#0.9      5.7
+#0.95     6.1
+#0.99     7.0
+#0.999    8.3
+#0.9999   9.1
+            [p10.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
+   
+ 
+            self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(text))            
+            return
+
+        else:    
+            text_err = pg.TextItem('Nothing to plot',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
+            p10.addItem(text_err, ignoreBounds=True)   
+            self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(""))            
+            return
+
     def update_tls_plots(self): 
         global fit, p9, colors
     
@@ -2060,8 +2107,6 @@ Transit duration: %s d
             p9.addItem(text_err, ignoreBounds=True)   
             self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(""))            
             return
-
-
         
  ############ transit fitting (Work in progress here) ##############################      
        
@@ -2262,7 +2307,10 @@ Transit duration: %s d
                 #calculates light curve  
             tr_o_c = flux -flux_model
  
-         
+    
+            ######## TBD this should not be here!
+            fit.tra_data_sets[j][3] = tr_o_c + 1
+            ##################################
             
             p3.plot(t, flux,        
             pen=None,  
@@ -2283,6 +2331,7 @@ Transit duration: %s d
  
             #flux_model = m.light_curve(fit.tr_params)          #calculates light curve           
             p3.plot(t, flux_model,pen='k',symbol=None )    
+            
             
             p4.plot(t, tr_o_c,        
             pen=None,  
@@ -3940,6 +3989,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.radioButton_RV_WF_period.toggled.connect(self.update_WF_plots)
 
         self.calc_TLS.clicked.connect(self.worker_tls)
+        self.calc_TLS_o_c.clicked.connect(lambda: self.worker_tls(resid =True))
 
 
         self.quit_button.clicked.connect(self.quit)
