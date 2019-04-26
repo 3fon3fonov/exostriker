@@ -755,19 +755,19 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.pl_a_jeff_pr[i]    = param_jeff_priors_gui[10*i + 9]
 
         offset_jeff_priors_gui = [
-        [self.RV_Data_jeff_alpha_1.value(),self.RV_Data_jeff_beta_1.value(),self.use_rvoff_nr_1.isChecked()], [self.RV_Data_jeff_alpha_2.value(),self.RV_Data_jeff_beta_2.value(),self.use_rvoff_nr_2.isChecked()], 
-        [self.RV_Data_jeff_alpha_3.value(),self.RV_Data_jeff_beta_3.value(),self.use_rvoff_nr_3.isChecked()], [self.RV_Data_jeff_alpha_4.value(),self.RV_Data_jeff_beta_4.value(),self.use_rvoff_nr_4.isChecked()], 
-        [self.RV_Data_jeff_alpha_5.value(),self.RV_Data_jeff_beta_5.value(),self.use_rvoff_nr_5.isChecked()], [self.RV_Data_jeff_alpha_6.value(),self.RV_Data_jeff_beta_6.value(),self.use_rvoff_nr_6.isChecked()], 
-        [self.RV_Data_jeff_alpha_7.value(),self.RV_Data_jeff_beta_7.value(),self.use_rvoff_nr_7.isChecked()], [self.RV_Data_jeff_alpha_8.value(),self.RV_Data_jeff_beta_8.value(),self.use_rvoff_nr_8.isChecked()], 
-        [self.RV_Data_jeff_alpha_9.value(),self.RV_Data_jeff_beta_9.value(),self.use_rvoff_nr_9.isChecked()], [self.RV_Data_jeff_alpha_10.value(),self.RV_Data_jeff_beta_10.value(),self.use_rvoff_nr_10.isChecked()]
+        [self.RV_Data_jeff_alpha_1.value(),self.RV_Data_jeff_beta_1.value(),self.use_rvoff_jeff_1.isChecked()], [self.RV_Data_jeff_alpha_2.value(),self.RV_Data_jeff_beta_2.value(),self.use_rvoff_jeff_2.isChecked()], 
+        [self.RV_Data_jeff_alpha_3.value(),self.RV_Data_jeff_beta_3.value(),self.use_rvoff_jeff_3.isChecked()], [self.RV_Data_jeff_alpha_4.value(),self.RV_Data_jeff_beta_4.value(),self.use_rvoff_jeff_4.isChecked()], 
+        [self.RV_Data_jeff_alpha_5.value(),self.RV_Data_jeff_beta_5.value(),self.use_rvoff_jeff_5.isChecked()], [self.RV_Data_jeff_alpha_6.value(),self.RV_Data_jeff_beta_6.value(),self.use_rvoff_jeff_6.isChecked()], 
+        [self.RV_Data_jeff_alpha_7.value(),self.RV_Data_jeff_beta_7.value(),self.use_rvoff_jeff_7.isChecked()], [self.RV_Data_jeff_alpha_8.value(),self.RV_Data_jeff_beta_8.value(),self.use_rvoff_jeff_8.isChecked()], 
+        [self.RV_Data_jeff_alpha_9.value(),self.RV_Data_jeff_beta_9.value(),self.use_rvoff_jeff_9.isChecked()], [self.RV_Data_jeff_alpha_10.value(),self.RV_Data_jeff_beta_10.value(),self.use_rvoff_jeff_10.isChecked()]
         ]
         
         jitter_jeff_priors_gui = [
-        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_1.value(),self.use_rvjitt_nr_1.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_2.value(),self.use_rvjitt_nr_2.isChecked()], 
-        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_3.value(),self.use_rvjitt_nr_3.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_4.value(),self.use_rvjitt_nr_4.isChecked()], 
-        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_5.value(),self.use_rvjitt_nr_5.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_6.value(),self.use_rvjitt_nr_6.isChecked()],
-        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_7.value(),self.use_rvjitt_nr_7.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_8.value(),self.use_rvjitt_nr_8.isChecked()], 
-        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_9.value(),self.use_rvjitt_nr_9.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_10.value(),self.use_rvjitt_nr_10.isChecked()]   
+        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_1.value(),self.use_rvjitt_jeff_1.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_2.value(),self.use_rvjitt_jeff_2.isChecked()], 
+        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_3.value(),self.use_rvjitt_jeff_3.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_4.value(),self.use_rvjitt_jeff_4.isChecked()], 
+        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_5.value(),self.use_rvjitt_jeff_5.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_6.value(),self.use_rvjitt_jeff_6.isChecked()],
+        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_7.value(),self.use_rvjitt_jeff_7.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_8.value(),self.use_rvjitt_jeff_8.isChecked()], 
+        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_9.value(),self.use_rvjitt_jeff_9.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_10.value(),self.use_rvjitt_jeff_10.isChecked()]   
         ]  
     
     
@@ -776,14 +776,14 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.jitt_jeff_pr[i]  = jitter_jeff_priors_gui[i] 
     
  
-        fit.rv_lintr_jeff_pr[0]  = [self.lin_trend_jeff_alpha.value(),self.lin_trend_jeff_beta.value(),self.use_lin_tr_nr_pr.isChecked()]
+        fit.rv_lintr_jeff_pr[0]  = [self.lin_trend_jeff_alpha.value(),self.lin_trend_jeff_beta.value(),self.use_lin_tr_jeff_pr.isChecked()]
         #self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
 
         GP_rot_jeff_priors_gui = [
-        [self.GP_rot_kernel_Amp_jeff_alpha.value(),self.GP_rot_kernel_Amp_jeff_beta.value(),self.use_GP_rot_kernel_Amp_nr_pr.isChecked()],  
-        [self.GP_rot_kernel_time_sc_jeff_alpha.value(),self.GP_rot_kernel_time_sc_jeff_beta.value(),self.use_GP_rot_kernel_time_sc_nr_pr.isChecked()],  
-        [self.GP_rot_kernel_Per_jeff_alpha.value(),self.GP_rot_kernel_Per_jeff_beta.value(),self.use_GP_rot_kernel_Per_jeff_beta_nr_pr.isChecked()],  
-        [self.GP_rot_kernel_fact_jeff_alpha.value(),self.GP_rot_kernel_fact_jeff_beta.value(),self.use_GP_rot_kernel_fact_nr_pr.isChecked()],  
+        [self.GP_rot_kernel_Amp_jeff_alpha.value(),self.GP_rot_kernel_Amp_jeff_beta.value(),self.use_GP_rot_kernel_Amp_jeff_pr.isChecked()],  
+        [self.GP_rot_kernel_time_sc_jeff_alpha.value(),self.GP_rot_kernel_time_sc_jeff_beta.value(),self.use_GP_rot_kernel_time_sc_jeff_pr.isChecked()],  
+        [self.GP_rot_kernel_Per_jeff_alpha.value(),self.GP_rot_kernel_Per_jeff_beta.value(),self.use_GP_rot_kernel_Per_jeff_beta_jeff_pr.isChecked()],  
+        [self.GP_rot_kernel_fact_jeff_alpha.value(),self.GP_rot_kernel_fact_jeff_beta.value(),self.use_GP_rot_kernel_fact_jeff_pr.isChecked()],  
         ]
  
         for i in range(4): 
@@ -791,9 +791,9 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
     
 
         GP_sho_jeff_priors_gui = [
-        [self.GP_sho_kernel_S_jeff_alpha.value(),self.GP_sho_kernel_S_jeff_beta.value(), self.use_GP_sho_kernel_S_nr_pr.isChecked()],  
-        [self.GP_sho_kernel_Q_jeff_alpha.value(),self.GP_sho_kernel_Q_jeff_beta.value(), self.use_GP_sho_kernel_Q_nr_pr.isChecked()],  
-        [self.GP_sho_kernel_omega_jeff_alpha.value(),self.GP_sho_kernel_omega_jeff_beta.value(), self.use_GP_sho_kernel_omega_nr_pr.isChecked()],  
+        [self.GP_sho_kernel_S_jeff_alpha.value(),self.GP_sho_kernel_S_jeff_beta.value(), self.use_GP_sho_kernel_S_jeff_pr.isChecked()],  
+        [self.GP_sho_kernel_Q_jeff_alpha.value(),self.GP_sho_kernel_Q_jeff_beta.value(), self.use_GP_sho_kernel_Q_jeff_pr.isChecked()],  
+        [self.GP_sho_kernel_omega_jeff_alpha.value(),self.GP_sho_kernel_omega_jeff_beta.value(), self.use_GP_sho_kernel_omega_jeff_pr.isChecked()],  
         ]
  
         for i in range(3): 
