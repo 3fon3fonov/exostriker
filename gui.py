@@ -1979,6 +1979,7 @@ Polyfit coefficients:
  
         self.jupiter_push_vars()   
         self.calc_TLS.setEnabled(True)         
+        self.calc_TLS_o_c.setEnabled(True)  
  
     def worker_tls(self, resid = False):
         global fit  
@@ -1992,8 +1993,9 @@ Polyfit coefficients:
 
         
         #print("test")
+    
         self.calc_TLS.setEnabled(False)         
- 
+        self.calc_TLS_o_c.setEnabled(False)  
         
         # check if transit data is present
         z=0
@@ -2107,6 +2109,10 @@ Transit duration: %s d
             p9.addItem(text_err, ignoreBounds=True)   
             self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(""))            
             return
+        
+        
+        
+        
         
  ############ transit fitting (Work in progress here) ##############################      
        
