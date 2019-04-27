@@ -494,10 +494,14 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     ee = obj.e_for_mcmc #.tolist() 
     bb = np.array(obj.b_for_mcmc)
     pr_nr = np.array(obj.nr_pr_for_mcmc)
+    jeff_nr = np.array(obj.jeff_pr_for_mcmc)
+    
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
     mix_fit = obj.mixed_fit
  
+    
+    priors = [pr_nr,jeff_nr]
     #print(par)
     #print(pp)
    # print(bb)
@@ -595,7 +599,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         #eps = eps/10.0
        # print('running %s %s %s'%(obj.SciPy_min_use_1, obj.SciPy_min_N_use_1, k))
  
-        result = op.minimize(nll,  pp, args=(mod, par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit ),
+        result = op.minimize(nll,  pp, args=(mod, par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit ),
                              method=method1,bounds=fit_bounds, options=options1)       
                             #  bounds=bb, tol=None, callback=None, options={'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxiter': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1, 'disp': True})        
         pp = result["x"]
@@ -607,7 +611,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     for k in range(n2): # run at least 3 times the minimizer
         #print(k,xtol)
       #  print('running %s %s %s'%(obj.SciPy_min_use_2, obj.SciPy_min_N_use_2, k))
-        result = op.minimize(nll, pp, args=(mod,par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit ), 
+        result = op.minimize(nll, pp, args=(mod,par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit ), 
                              method=method2,bounds=fit_bounds, options=options2)
         pp = result["x"]
         print(method2,' Done!')
@@ -627,7 +631,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     obj.loglik = -result["fun"]
        
       
-    obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit)
+    obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit)
 
     print("--- %s seconds ---" % (time.time() - start_time))     
     
@@ -689,32 +693,39 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_params, e
     return obj
  
  
-def lnprior(p,b,pr_nr): 
+def lnprior(p,b,priors): 
     
     loglik_lnpr = 0
     for j in range(len(p)): 
 #        print(p[j],b[j,0], b[j,1]) 
         if p[j] <= b[j,0] or p[j] >= b[j,1]:
             return -np.inf
-        if pr_nr[j,2] == True:
-            loglik_lnpr = loglik_lnpr + normalprior(p[j],pr_nr[j])
-            
+        if priors[0][j,2] == True:
+            loglik_lnpr = loglik_lnpr + normalprior(p[j],priors[0][j])
+        if priors[1][j,2] == True:
+            loglik_lnpr = loglik_lnpr + jeffereys_prior(p[j],priors[1][j])  
+            #print(p[j],priors[1][j], "TEST")
+        #elif pr_nr[j,2] == True:            
             
             #print(pr_nr[j,0],pr_nr[j,1],pr_nr[j,2],loglik_lnpr )
     return loglik_lnpr     
    
-##############    
+    
+##############  jeffereys_prior needs to be checked bugs are possible! #####       
 def jeffereys_prior(p,b):
-    loglik = np.exp(np.log(b[0]) + p*(np.log(b[1]) -np.log(b[0])))
+    #loglik = np.exp( p*(np.log(b[1]) -np.log(b[0])))
+    loglik = -np.exp( 1.0/ p* (np.log(b[1]) - np.log(b[0])))
+    #loglik = 0
+    #loglik =    1. / p*(np.log(b[1]) np.log(b[0]))
     return loglik
 
 def normalprior(p,b):    
     loglik = np.log(1.0/(np.sqrt(2.0*np.pi)*b[1])*np.exp(-(p-b[0])**2.0/(2.0*b[1]**2.0)))
     return loglik
 
-def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, b, pr_nr, gps, rtg, mix_fit):
+def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, b, priors , gps, rtg, mix_fit):
     #print(p)
-    lp = lnprior(p,b,pr_nr)
+    lp = lnprior(p,b,priors)
     if not np.isfinite(lp):
         return -np.inf
     return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg, mix_fit)  
@@ -2593,6 +2604,7 @@ class signal_fit(object):
         par_str = []
         bounds = []
         prior_nr = []
+        prior_jeff = []
   
  
         for i in range(self.filelist.ndset):           
@@ -2600,7 +2612,8 @@ class signal_fit(object):
             par_str.append(self.rvoff_str[i])
             bounds.append(self.rvoff_bounds[i])        
             prior_nr.append(self.rvoff_norm_pr[i])
-            
+            prior_jeff.append(self.rvoff_jeff_pr[i])
+           
             if rtg == [False,False,True]:
                 flag.append(False) #
             else:   
@@ -2612,6 +2625,7 @@ class signal_fit(object):
             par_str.append(self.jitt_str[i]) #
             bounds.append(self.jitt_bounds[i])   
             prior_nr.append(self.jitt_norm_pr[i])
+            prior_jeff.append(self.jitt_jeff_pr[i])
             
             if rtg == [False,False,True]:
                 flag.append(False) #
@@ -2674,7 +2688,14 @@ class signal_fit(object):
             prior_nr.append(self.i_norm_pr[i])
             prior_nr.append(self.Node_norm_pr[i])
            
-            
+            prior_jeff.append(self.K_jeff_pr[i])
+            prior_jeff.append(self.P_jeff_pr[i])
+            prior_jeff.append(self.e_jeff_pr[i])
+            prior_jeff.append(self.w_jeff_pr[i])
+            prior_jeff.append(self.M0_jeff_pr[i])
+            prior_jeff.append(self.i_jeff_pr[i])
+            prior_jeff.append(self.Node_jeff_pr[i])
+                       
             
             
         
@@ -2683,6 +2704,7 @@ class signal_fit(object):
         par_str.append(self.rv_lintr_str[0])
         bounds.append(self.rv_lintr_bounds[0])
         prior_nr.append(self.rv_lintr_norm_pr[0])
+        prior_jeff.append(self.rv_lintr_jeff_pr[0])
         
         
         if rtg[1] == True:
@@ -2693,6 +2715,7 @@ class signal_fit(object):
                     par_str.append(self.GP_rot_str[i])
                     bounds.append(self.GP_rot_bounds[i])
                     prior_nr.append(self.GP_rot_norm_pr[i])
+                    prior_jeff.append(self.GP_rot_jeff_pr[i])
                 
             elif self.gp_kernel == 'SHOKernel':         
                 for i in range(3):  
@@ -2701,7 +2724,8 @@ class signal_fit(object):
                     par_str.append(self.GP_sho_str[i])
                     bounds.append(self.GP_sho_bounds[i])
                     prior_nr.append(self.GP_sho_norm_pr[i])
-            
+                    prior_jeff.append(self.GP_sho_jeff_pr[i])
+           
             
             
             
@@ -2724,6 +2748,10 @@ class signal_fit(object):
             prior_nr.append(self.pl_a_norm_pr[i])
             prior_nr.append(self.pl_rad_norm_pr[i])   
             
+            prior_jeff.append(self.t0_jeff_pr[i])
+            prior_jeff.append(self.pl_a_jeff_pr[i])
+            prior_jeff.append(self.pl_rad_jeff_pr[i])               
+            
             if rtg[2] == [False]:
                 flag.append(False) #
                 flag.append(False) #
@@ -2742,6 +2770,7 @@ class signal_fit(object):
                 par_str.append(self.tra_off_str[i])
                 bounds.append(self.tra_off_bounds[i])        
                 prior_nr.append(self.tra_off_norm_pr[i])
+                prior_jeff.append(self.tra_off_jeff_pr[i])
                 
                 if rtg == [True, False,False]:
                     flag.append(False) #
@@ -2755,6 +2784,8 @@ class signal_fit(object):
                 par_str.append(self.tra_jitt_str[i]) #
                 bounds.append(self.tra_jitt_bounds[i])   
                 prior_nr.append(self.tra_jitt_norm_pr[i])
+                prior_jeff.append(self.tra_jitt_jeff_pr[i])
+                
                 
                 if rtg == [True,False,False]:
                     flag.append(False) #
@@ -2768,7 +2799,8 @@ class signal_fit(object):
         par_str.append(self.st_mass_str[0])
         bounds.append(self.st_mass_bounds[0])
         prior_nr.append(self.st_mass_norm_pr[0])   
-       
+        prior_jeff.append(self.st_mass_jeff_pr[0])   
+    
         
         #print(par)    
        # print(flag)    
@@ -2782,6 +2814,7 @@ class signal_fit(object):
         self.e_for_mcmc = [] # labels for fitted parameters only
         self.b_for_mcmc = [] # labels for fitted parameters only
         self.nr_pr_for_mcmc = [] # labels for fitted parameters only
+        self.jeff_pr_for_mcmc = [] # labels for fitted parameters only
        
         self.parameters = par
 
@@ -2794,6 +2827,7 @@ class signal_fit(object):
                 self.e_for_mcmc.append(par_str[j])
                 self.b_for_mcmc.append(bounds[j])
                 self.nr_pr_for_mcmc.append(prior_nr[j])
+                self.jeff_pr_for_mcmc.append(prior_jeff[j])
 
        # self.par_for_mcmc = np.array(self.par_for_mcmc )
       #  self.f_for_mcmc = np.array(self.f_for_mcmc )
