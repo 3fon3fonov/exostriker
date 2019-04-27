@@ -943,11 +943,16 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     pp = obj.par_for_mcmc #.tolist()
     ee = obj.e_for_mcmc #.tolist() 
     bb = np.array(obj.b_for_mcmc)
+
     pr_nr = np.array(obj.nr_pr_for_mcmc)
+    jeff_nr = np.array(obj.jeff_pr_for_mcmc)
+    
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
     mix_fit = obj.mixed_fit
+ 
     
+    priors = [pr_nr,jeff_nr]
     level = (100.0- obj.percentile_level)/2.0
 
     
@@ -966,7 +971,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
 
     pos = [pp + obj.gaussian_ball*np.random.rand(ndim) for i in range(nwalkers)]
 
-    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit), threads = threads)
+    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit), threads = threads)
 
     # burning phase
     pos, prob, state  = sampler.run_mcmc(pos,burning_ph)
@@ -1024,7 +1029,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
         obj.loglik = sampler.lnL_min 
 
 
-    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit)
+    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit)
 
 
     if(save_sampler):
