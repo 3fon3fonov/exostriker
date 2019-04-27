@@ -690,11 +690,11 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         ]
         
         jitter_nr_priors_gui = [
-        [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_1.value(),self.use_rvjitt_nr_1.isChecked()], [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_2.value(),self.use_rvjitt_nr_2.isChecked()], 
-        [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_3.value(),self.use_rvjitt_nr_3.isChecked()], [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_4.value(),self.use_rvjitt_nr_4.isChecked()], 
-        [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_5.value(),self.use_rvjitt_nr_5.isChecked()], [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_6.value(),self.use_rvjitt_nr_6.isChecked()],
-        [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_7.value(),self.use_rvjitt_nr_7.isChecked()], [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_8.value(),self.use_rvjitt_nr_8.isChecked()], 
-        [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_9.value(),self.use_rvjitt_nr_9.isChecked()], [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_10.value(),self.use_rvjitt_nr_10.isChecked()]   
+        [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_1.value(),self.use_rvjitt_nr_1.isChecked()], [self.RV_jitter_mean_2.value(),self.RV_jitter_sigma_2.value(),self.use_rvjitt_nr_2.isChecked()], 
+        [self.RV_jitter_mean_3.value(),self.RV_jitter_sigma_3.value(),self.use_rvjitt_nr_3.isChecked()], [self.RV_jitter_mean_4.value(),self.RV_jitter_sigma_4.value(),self.use_rvjitt_nr_4.isChecked()], 
+        [self.RV_jitter_mean_5.value(),self.RV_jitter_sigma_5.value(),self.use_rvjitt_nr_5.isChecked()], [self.RV_jitter_mean_6.value(),self.RV_jitter_sigma_6.value(),self.use_rvjitt_nr_6.isChecked()],
+        [self.RV_jitter_mean_7.value(),self.RV_jitter_sigma_7.value(),self.use_rvjitt_nr_7.isChecked()], [self.RV_jitter_mean_8.value(),self.RV_jitter_sigma_8.value(),self.use_rvjitt_nr_8.isChecked()], 
+        [self.RV_jitter_mean_9.value(),self.RV_jitter_sigma_9.value(),self.use_rvjitt_nr_9.isChecked()], [self.RV_jitter_mean_10.value(),self.RV_jitter_sigma_10.value(),self.use_rvjitt_nr_10.isChecked()]   
         ]  
     
     
@@ -763,11 +763,11 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         ]
         
         jitter_jeff_priors_gui = [
-        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_1.value(),self.use_rvjitt_jeff_1.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_2.value(),self.use_rvjitt_jeff_2.isChecked()], 
-        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_3.value(),self.use_rvjitt_jeff_3.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_4.value(),self.use_rvjitt_jeff_4.isChecked()], 
-        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_5.value(),self.use_rvjitt_jeff_5.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_6.value(),self.use_rvjitt_jeff_6.isChecked()],
-        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_7.value(),self.use_rvjitt_jeff_7.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_8.value(),self.use_rvjitt_jeff_8.isChecked()], 
-        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_9.value(),self.use_rvjitt_jeff_9.isChecked()], [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_10.value(),self.use_rvjitt_jeff_10.isChecked()]   
+        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_1.value(),self.use_rvjitt_jeff_1.isChecked()], [self.RV_jitter_jeff_alpha_2.value(),self.RV_jitter_jeff_beta_2.value(),self.use_rvjitt_jeff_2.isChecked()], 
+        [self.RV_jitter_jeff_alpha_3.value(),self.RV_jitter_jeff_beta_3.value(),self.use_rvjitt_jeff_3.isChecked()], [self.RV_jitter_jeff_alpha_4.value(),self.RV_jitter_jeff_beta_4.value(),self.use_rvjitt_jeff_4.isChecked()], 
+        [self.RV_jitter_jeff_alpha_5.value(),self.RV_jitter_jeff_beta_5.value(),self.use_rvjitt_jeff_5.isChecked()], [self.RV_jitter_jeff_alpha_6.value(),self.RV_jitter_jeff_beta_6.value(),self.use_rvjitt_jeff_6.isChecked()],
+        [self.RV_jitter_jeff_alpha_7.value(),self.RV_jitter_jeff_beta_7.value(),self.use_rvjitt_jeff_7.isChecked()], [self.RV_jitter_jeff_alpha_8.value(),self.RV_jitter_jeff_beta_8.value(),self.use_rvjitt_jeff_8.isChecked()], 
+        [self.RV_jitter_jeff_alpha_9.value(),self.RV_jitter_jeff_beta_9.value(),self.use_rvjitt_jeff_9.isChecked()], [self.RV_jitter_jeff_alpha_10.value(),self.RV_jitter_jeff_beta_10.value(),self.use_rvjitt_jeff_10.isChecked()]   
         ]  
     
     
@@ -782,7 +782,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         GP_rot_jeff_priors_gui = [
         [self.GP_rot_kernel_Amp_jeff_alpha.value(),self.GP_rot_kernel_Amp_jeff_beta.value(),self.use_GP_rot_kernel_Amp_jeff_pr.isChecked()],  
         [self.GP_rot_kernel_time_sc_jeff_alpha.value(),self.GP_rot_kernel_time_sc_jeff_beta.value(),self.use_GP_rot_kernel_time_sc_jeff_pr.isChecked()],  
-        [self.GP_rot_kernel_Per_jeff_alpha.value(),self.GP_rot_kernel_Per_jeff_beta.value(),self.use_GP_rot_kernel_Per_jeff_beta_jeff_pr.isChecked()],  
+        [self.GP_rot_kernel_Per_jeff_alpha.value(),self.GP_rot_kernel_Per_jeff_beta.value(),self.use_GP_rot_kernel_Per_jeff_pr.isChecked()],  
         [self.GP_rot_kernel_fact_jeff_alpha.value(),self.GP_rot_kernel_fact_jeff_beta.value(),self.use_GP_rot_kernel_fact_jeff_pr.isChecked()],  
         ]
  
@@ -2459,6 +2459,8 @@ Transit duration: %s d
             
         self.check_bounds()
         self.check_priors_nr()   
+        self.check_priors_jeff()   
+        
         
         fit.model_npoints = self.points_to_draw_model.value()
         #self.tabWidget_helper.setCurrentWidget(self.tab_info)
