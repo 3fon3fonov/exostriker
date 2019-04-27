@@ -97,7 +97,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         global fit
 
  
-        self.value_stellar_mass.setText("%.2f"%(fit.params.stellar_mass))
+        self.value_stellar_mass.setText("%.4f"%(fit.params.stellar_mass))
         self.value_epoch.setText(str(fit.epoch))
         self.value_rms.setText("%.4f"%(fit.fit_results.rms))
         self.value_chi2.setText("%.4f"%(fit.fit_results.chi2)) 
