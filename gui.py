@@ -78,7 +78,7 @@ pg.setConfigOptions(antialias=True)
 global fit, colors, ses_list
  
 
-fit=rv.signal_fit(name='init')
+fit=rv.signal_fit(name='session')
 ses_list = [fit]
  
 
@@ -1570,7 +1570,7 @@ Polyfit coefficients:
         input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.init)')
         
         if str(input_files[0]) != '':
-            fit_new=rv.signal_fit(str(input_files[0]), 'Test',readinputfile=True)
+            fit_new=rv.signal_fit(str(input_files[0]), 'RVmod session',readinputfile=True)
             
             if len(ses_list) == 1:
                 ses_list[0] = fit_new
@@ -2790,12 +2790,13 @@ highly appreciated!
         #self.console_widget.clear()         
         #self.console_widget.print_text(str("Welcome!"+"\n")) 
 
-       ########################## work in progress ##################################
+
+########################## Sessions ##################################
  
     def getNewses(self):
         global fit, ses_list  
         
-        text, okPressed = QtGui.QInputDialog.getText(self, "New session","Name session: (No space and special characters!)", QtGui.QLineEdit.Normal, "")
+        text, okPressed = QtGui.QInputDialog.getText(self, "New session","Name session: (No special characters!)", QtGui.QLineEdit.Normal, "")
         if okPressed and text != '':
             
             if len(ses_list) == 0:
@@ -2804,7 +2805,7 @@ highly appreciated!
             #file_pi = open('.sessions/empty.ses', 'rb')
             #fit_new = dill.load(file_pi)
             #file_pi.close()
-            fit_new=rv.signal_fit(name='init')
+            fit_new=rv.signal_fit(name=text)
 
             fit_new.name=text
             ses_list.append(fit_new)
@@ -2842,58 +2843,20 @@ highly appreciated!
         
         if len(ses_list) == 0:
             ses_list.append(fit)
-        if ind <=0:
+        if ind < 0:
             fit_new =dill.copy(ses_list[0])
-        elif ind > 0:
+            #fit_new.name = "%s %s"%(ses_list[ind].name, 'copy '+'1')
+        elif ind >= 0:
             fit_new =dill.copy(ses_list[ind])
- 
+            #fit_new.name = "%s %s"%(ses_list[ind].name, str(len(ses_list)))
         
         ses_list.append(fit_new)
+        
+        
         self.session_list() 
         self.select_session(ind-1)            
   
-
-    def session_list(self):
-        global fit, ses_list
-        
-        
-        if len(ses_list) == 0:
-            self.comboBox_select_ses.clear()
-            self.comboBox_select_ses.addItem("session 1") 
-
-        elif len(ses_list) != 0:
-            self.comboBox_select_ses.clear()
-            for i in range(len(ses_list)):
-                self.comboBox_select_ses.addItem('session %s'%(i+1),i)                
-        #self.select_session(0)
-
-    def select_session(self, index):
-        global fit, ses_list
-
-        ind = self.comboBox_select_ses.itemData(index) 
-        #print(ind,index,len(ses_list))
-        if ind == None:
-            return
-            #fit = ses_list[0]
-        else:
-            fit = ses_list[ind]
-        #ses_list[ind-1] = fit
-
-        self.check_settings()
-
-        self.init_fit()
-
-        self.update_use_from_input_file()   
-        self.update_use()
-        self.update_gui_params()
-        self.update_params()
-        self.update_RV_file_buttons() 
-        self.update_color_picker()
-        
-        if not ind == None:    
-            ses_list[ind] = fit
-
-#######################################################################            
+         
 
     def new_session(self):
         global fit, ses_list
@@ -2901,7 +2864,7 @@ highly appreciated!
         #file_pi = open('.sessions/empty.ses', 'rb')
         #fit_new = dill.load(file_pi)
         #file_pi.close()     
-        fit_new=rv.signal_fit(name='init')
+        fit_new=rv.signal_fit(name='new Session')
 
         ses_list.append(fit_new)
         self.session_list()
@@ -2975,20 +2938,60 @@ highly appreciated!
             dill.dump(ses_list, file_pi)
             file_pi.close()
 
+        
+    def session_list(self):
+        global fit, ses_list
+        
+        
+        if len(ses_list) == 0:
+            self.comboBox_select_ses.clear()
+            self.comboBox_select_ses.addItem('1 %s'%fit.name) 
 
-    def quit(self):
-        #os.system("rm temp*.vels")
-        choice = QtGui.QMessageBox.information(self, 'Warning!',
-                                            "Do you want to save the session before you Quit?",
-                                            QtGui.QMessageBox.Cancel | QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
-         
-        if choice == QtGui.QMessageBox.No:
-            self.close()
-        elif choice == QtGui.QMessageBox.Yes:
-            self.save_session()
-        elif choice == QtGui.QMessageBox.Cancel:
-            return 
+        elif len(ses_list) != 0:
+            self.comboBox_select_ses.clear()
+            for i in range(len(ses_list)):
+                #self.comboBox_select_ses.addItem('session %s'%(i+1),i)                  
+                self.comboBox_select_ses.addItem('%s'%(ses_list[i].name),i) 
+                self.comboBox_select_ses.setItemText(i, '#%s %s'%(i+1 , ses_list[i].name))
+        #self.select_session(0)
+
+    def select_session(self, index):
+        global fit, ses_list
+        
+        ind = self.comboBox_select_ses.itemData(index) 
+
+        #print(ind,index,len(ses_list))
+        if ind == None:
+            return
+            #fit = ses_list[0]
+        else:
+            fit = ses_list[ind]
+        #ses_list[ind-1] = fit
+
+       # print(ind,index,self.comboBox_select_ses.itemText(index))
+       # ses_list[ind].name = self.comboBox_select_ses.itemText(index)
+        
+        self.check_settings()
+
+        self.init_fit()
+
+        self.update_use_from_input_file()   
+        self.update_use()
+        self.update_gui_params()
+        self.update_params()
+        self.update_RV_file_buttons() 
+        self.update_color_picker()
+        
+        if not ind == None:    
+            ses_list[ind] = fit 
  
+    def change_session_label(self):
+        global fit, ses_list 
+        fit.name = self.comboBox_select_ses.currentText() 
+  
+        #print("test")
+
+
 
 ################################## MCMC #######################################
 
@@ -3736,25 +3739,40 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.update_transit_plots()     
         else:
             return    
- 
-       # print(self.dialog_symbols.do_test)
-       
-#############################  TEST ZONE ################################  
       
-   # def layout_widgets(layout):
-    #   return (layout.itemAt(i) for i in range(layout.count()))
-
-    def rv_plot_phase_chage(self):
-        global fit        
+    def check_RV_symbol_sizes(self):
+        global fit
         
-        #RVphase = self.RV_phase_slider.value()
-        #print(RVphase)
-        #self.phase_plots(1, offset = RVphase)
-        ind = self.comboBox_extra_plot.currentIndex()
-        if ind+1 <= fit.npl:
-            self.phase_plots(ind+1)
-        else:
-            return
+       # for i in range(10):
+        fit.pyqt_symbols_size_rvs[0] = self.rv_data_size_1.value()
+        fit.pyqt_symbols_size_rvs[1] = self.rv_data_size_2.value()
+        fit.pyqt_symbols_size_rvs[2] = self.rv_data_size_3.value()
+        fit.pyqt_symbols_size_rvs[3] = self.rv_data_size_4.value()
+        fit.pyqt_symbols_size_rvs[4] = self.rv_data_size_5.value()
+        fit.pyqt_symbols_size_rvs[5] = self.rv_data_size_6.value()
+        fit.pyqt_symbols_size_rvs[6] = self.rv_data_size_7.value()
+        fit.pyqt_symbols_size_rvs[7] = self.rv_data_size_8.value()
+        fit.pyqt_symbols_size_rvs[8] = self.rv_data_size_9.value()
+        fit.pyqt_symbols_size_rvs[9] = self.rv_data_size_10.value()
+
+################################## System #######################################
+            
+    def quit(self):
+        #os.system("rm temp*.vels")
+        choice = QtGui.QMessageBox.information(self, 'Warning!',
+                                            "Do you want to save the session before you Quit?",
+                                            QtGui.QMessageBox.Cancel | QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
+         
+        if choice == QtGui.QMessageBox.No:
+            self.close()
+        elif choice == QtGui.QMessageBox.Yes:
+            self.save_session()
+        elif choice == QtGui.QMessageBox.Cancel:
+            return      
+        
+    def file_from_path(self, path):
+        head, tail = ntpath.split(path)
+        return tail or ntpath.basename(head)
         
         
     def check_settings(self):
@@ -3775,8 +3793,24 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.dyn_model_to_kill.setValue(fit.dyn_model_to_kill)
         self.kep_model_to_kill.setValue(fit.kep_model_to_kill)
         self.master_timeout.setValue(fit.master_timeout)    
-    
-                
+       
+#############################  TEST ZONE ################################  
+      
+   # def layout_widgets(layout):
+    #   return (layout.itemAt(i) for i in range(layout.count()))
+
+    def rv_plot_phase_chage(self):
+        global fit        
+        
+        #RVphase = self.RV_phase_slider.value()
+        #print(RVphase)
+        #self.phase_plots(1, offset = RVphase)
+        ind = self.comboBox_extra_plot.currentIndex()
+        if ind+1 <= fit.npl:
+            self.phase_plots(ind+1)
+        else:
+            return
+        
 
 
     def set_RV_GP(self):
@@ -3787,36 +3821,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         elif self.use_GP_rot_kernel.isChecked():
             fit.gp_kernel = 'RotKernel'
             
-            
 
-      
-    def check_RV_symbol_sizes(self):
-        global fit
-        
-       # for i in range(10):
-        fit.pyqt_symbols_size_rvs[0] = self.rv_data_size_1.value()
-        fit.pyqt_symbols_size_rvs[1] = self.rv_data_size_2.value()
-        fit.pyqt_symbols_size_rvs[2] = self.rv_data_size_3.value()
-        fit.pyqt_symbols_size_rvs[3] = self.rv_data_size_4.value()
-        fit.pyqt_symbols_size_rvs[4] = self.rv_data_size_5.value()
-        fit.pyqt_symbols_size_rvs[5] = self.rv_data_size_6.value()
-        fit.pyqt_symbols_size_rvs[6] = self.rv_data_size_7.value()
-        fit.pyqt_symbols_size_rvs[7] = self.rv_data_size_8.value()
-        fit.pyqt_symbols_size_rvs[8] = self.rv_data_size_9.value()
-        fit.pyqt_symbols_size_rvs[9] = self.rv_data_size_10.value()
-        
- 
-        #print(self.gridLayout_72)
-       # for w in self.layout_widgets(self.gridLayout_72):
-      #      print(w)
-        
-        
-    def file_from_path(self, path):
-        head, tail = ntpath.split(path)
-        return tail or ntpath.basename(head)
-    
 
-     
+  
 ################################################################################################
     
     
@@ -3938,6 +3945,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.actionOpen_multi_session.triggered.connect(self.open_sessions) 
         #self.comboBox_extra_plot.activated.connect(self.change_extra_plot)      
         self.comboBox_select_ses.activated.connect(self.select_session)
+        #self.comboBox_select_ses.lineEdit.editingFinished.connect(self.change_session_label)
+
+        
         self.session_list()
         self.new_ses.clicked.connect(self.getNewses)
         self.copy_ses.clicked.connect(self.cop_ses)
@@ -3980,7 +3990,6 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.corr_x_label.clicked.connect(self.corr_plot_x_labels)
         self.corr_y_label.clicked.connect(self.corr_plot_y_labels)
 
- 
     
         self.tab_timeseries_RV.currentChanged.connect(self.tab_selected)
 
