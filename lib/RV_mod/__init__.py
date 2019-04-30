@@ -1240,7 +1240,7 @@ class FunctionWrapper(object):
 class signal_fit(object):
  
 
-    def __init__(self, inputfile='init.init', name='', readinputfile=False): 
+    def __init__(self, inputfile='init.init', name='session', readinputfile=False): 
         # saving the name for the inputfile and the information that it has not yet been processed
         self.inputfile = inputfile
         self.inputfile_read=False
