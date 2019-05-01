@@ -2,7 +2,7 @@
 **T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations : **The Exo-Striker** 
 
 <p align="center">
-  <img width="400" src="https://github.com/3fon3fonov/trifon/blob/master/lib/33_striker.png">
+  <img width="400" src="https://user-images.githubusercontent.com/44244057/57024333-9ecf5d80-6c34-11e9-92f2-1c4d136fa8da.png">
 </p>
  
 
