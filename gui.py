@@ -1806,7 +1806,7 @@ Polyfit coefficients:
         global fit
 
         self.comboBox_extra_plot.clear()
-        self.comboBox_extra_plot.setObjectName("which plot")       
+        #self.comboBox_extra_plot.setObjectName("which plot")       
         
         #self.check_RV_symbol_sizes()
 
@@ -1818,7 +1818,15 @@ Polyfit coefficients:
             self.comboBox_extra_plot.addItem('RV GLS',fit.npl+1)
             self.comboBox_extra_plot.addItem('RV GLS o-c',fit.npl+2)
 
-            self.phase_plots(1)   
+            self.phase_plots(1)  
+            
+        elif fit.filelist.ndset != 0:
+            self.comboBox_extra_plot.addItem('RV GLS',fit.npl+1)
+            self.comboBox_extra_plot.addItem('RV GLS o-c',fit.npl+2)     
+            
+            self.extra_RV_GLS_plots()
+       # else:
+            
             
         self.comboBox_extra_plot.activated.connect(self.handleActivated)        
 
@@ -2818,7 +2826,7 @@ highly appreciated!
         ind = self.comboBox_select_ses.currentIndex()
         
         choice = QtGui.QMessageBox.information(self, 'Warning!',
-        "Do you really want to remove Session %s"%(ind+1),
+        "Do you really want to remove Session %s"%(ses_list[ind].name),
                                             QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
          
         if choice == QtGui.QMessageBox.No:
@@ -2830,8 +2838,6 @@ highly appreciated!
                 self.session_list() 
                 self.select_session(0)
             else:
-            #ses_list[0] = fit
-        #elif choice == QtGui.QMessageBox.Yes and ind > 0:
                 ses_list.pop(ind)
                 self.session_list() 
                 self.select_session(ind-1)
@@ -2845,18 +2851,14 @@ highly appreciated!
             ses_list.append(fit)
         if ind < 0:
             fit_new =dill.copy(ses_list[0])
-            #fit_new.name = "%s %s"%(ses_list[ind].name, 'copy '+'1')
         elif ind >= 0:
             fit_new =dill.copy(ses_list[ind])
-            #fit_new.name = "%s %s"%(ses_list[ind].name, str(len(ses_list)))
-        
+      
         ses_list.append(fit_new)
-        
-        
+           
         self.session_list() 
         self.select_session(ind-1)            
   
-         
 
     def new_session(self):
         global fit, ses_list
@@ -2868,6 +2870,7 @@ highly appreciated!
 
         ses_list.append(fit_new)
         self.session_list()
+              
             
     def open_session(self):
         global fit,ses_list
@@ -2888,7 +2891,7 @@ highly appreciated!
     def save_session(self):
         global fit
         
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save session', '', 'Data (*.ses)')
+        output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save session', '%s.ses'%fit.name, 'Data (*.ses)')
         
         if str(output_file[0]) != '':
             file_pi = open(output_file[0], 'wb')
@@ -2917,21 +2920,15 @@ highly appreciated!
                 ses_list = fit2
             elif choice == QtGui.QMessageBox.Cancel:        
                 return         
-           #if len(ses_list) == 0: 
-          #      ses_list = fit2
-          #  else:  
-          #      ses_list = ses_list + fit2
     
-            self.check_settings()
-    
+            self.check_settings()  
             self.session_list()
             self.select_session(0)
 
     def save_sessions(self):
         global fit, ses_list
-
-        
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save multi-session', '', 'Data (*.mses)')
+      
+        output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save multi-session', 'my_sessions.mses', 'Data (*.mses)')
 
         if str(output_file[0]) != '':
             file_pi = open(output_file[0], 'wb')
@@ -2941,8 +2938,7 @@ highly appreciated!
         
     def session_list(self):
         global fit, ses_list
-        
-        
+              
         if len(ses_list) == 0:
             self.comboBox_select_ses.clear()
             self.comboBox_select_ses.addItem('1 %s'%fit.name) 
@@ -2950,17 +2946,18 @@ highly appreciated!
         elif len(ses_list) != 0:
             self.comboBox_select_ses.clear()
             for i in range(len(ses_list)):
-                #self.comboBox_select_ses.addItem('session %s'%(i+1),i)                  
                 self.comboBox_select_ses.addItem('%s'%(ses_list[i].name),i) 
-                self.comboBox_select_ses.setItemText(i, '#%s %s'%(i+1 , ses_list[i].name))
+                self.comboBox_select_ses.setItemText(i, '%s'%(ses_list[i].name))
+        
         #self.select_session(0)
 
     def select_session(self, index):
         global fit, ses_list
         
         ind = self.comboBox_select_ses.itemData(index) 
+       # text = str(self.comboBox_select_ses.currentText())
 
-        #print(ind,index,len(ses_list))
+       # print(ind,index,len(ses_list),text)
         if ind == None:
             return
             #fit = ses_list[0]
@@ -2987,9 +2984,19 @@ highly appreciated!
  
     def change_session_label(self):
         global fit, ses_list 
-        fit.name = self.comboBox_select_ses.currentText() 
-  
-        #print("test")
+        
+        ind = self.comboBox_select_ses.currentIndex()
+        if ind == None:
+            return
+        elif ind >= 0:
+            ses_list[ind].name = self.comboBox_select_ses.currentText() 
+            self.comboBox_select_ses.setItemText(ind, '%s'%(ses_list[ind].name))
+            
+        #self.session_list()
+        #text = str(self.comboBox_select_ses.currentText())
+
+       # print(ind,index,len(ses_list),text)  
+        #print(fit.name)
 
 
 
@@ -3946,7 +3953,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         #self.comboBox_extra_plot.activated.connect(self.change_extra_plot)      
         self.comboBox_select_ses.activated.connect(self.select_session)
         #self.comboBox_select_ses.lineEdit.editingFinished.connect(self.change_session_label)
-
+        self.comboBox_select_ses.currentTextChanged.connect(self.change_session_label)
         
         self.session_list()
         self.new_ses.clicked.connect(self.getNewses)
