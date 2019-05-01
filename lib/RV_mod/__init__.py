@@ -1525,8 +1525,7 @@ class signal_fit(object):
         self.st_mass_norm_pr = {k: np.array([1,0.2, False]) for k in range(1)}         
         self.st_mass_jeff_pr = {k: np.array([1,0.2, False]) for k in range(1)}         
       
-
-        
+     
     def init_GP(self):
 
         self.doGP = False
@@ -1587,7 +1586,6 @@ class signal_fit(object):
         self.tra_gp_kernel = self.gp_kernels[0]       
         
        
-
     def init_transit_params(self): 
         # from the example in github
 
