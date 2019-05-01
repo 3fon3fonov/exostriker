@@ -901,7 +901,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def initialize_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,pe,pdi
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,pe,pdi
 
         p1  = self.graphicsView_timeseries_RV
         p2  = self.graphicsView_timeseries_RV_o_c
@@ -918,19 +918,23 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         p12 = self.graphicsView_periodogram_window  
         
         p13 = self.graphicsView_orb_evol_elements_a
-        p14 = self.graphicsView_orb_evol_elements_e        
-        p15 = self.graphicsView_orbital_view
+        p14 = self.graphicsView_orb_evol_elements_e   
+        p15 = self.graphicsView_orb_evol_elements_om   
+       
+        p16 = self.graphicsView_orbital_view
+        
+        p17 = self.graphicsView_orb_evol_res_dom
         
         pe  = self.graphicsView_extra_plot
         
         pdi = self.load_data_plot
 
-        xaxis = ['BJD','BJD','BJD','BJD','BJD','x','days','days','days','days','days','days','yrs','yrs','a','','x']
-        yaxis = ['RV','RV','Relative Flux','Relative Flux','y','y','power','power','SDE','SDE','power','power','a','e','a','','y']       
-        xunit = ['d' ,'d','d','d','d','','','','','','','','','','au','','']
-        yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','au','','']
+        xaxis = ['BJD','BJD','BJD','BJD','BJD','x','days','days','days','days','days','days','yr','yr','yr','a','yr','','x']
+        yaxis = ['RV','RV','Relative Flux','Relative Flux','y','y','power','power','SDE','SDE','power','power','a','e','omega','a','delta omega','','y']       
+        xunit = ['d' ,'d','d','d','d','','','','','','','','','','','au','','','']
+        yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','','au','','','']
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,pe,pdi]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,pe,pdi]
         font=QtGui.QFont()
         font.setPixelSize(12) 
         for i in range(len(zzz)):
@@ -955,7 +959,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                 zzz[i].showAxis('right') 
                 zzz[i].getAxis('bottom').enableAutoSIPrefix(enable=False)
 
-        p15.getViewBox().setAspectLocked(True)
+        p16.getViewBox().setAspectLocked(True)
 
         return   
         
@@ -1627,7 +1631,7 @@ Polyfit coefficients:
         global fit, colors    
         
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(10)
         font.setBold(False)
         #font.setWeight(75)
         
@@ -1635,6 +1639,7 @@ Polyfit coefficients:
             if i < fit.filelist.ndset:
                 self.buttonGroup_4.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
                 self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                font.setPointSize(9)
                 self.buttonGroup_4.button(i+1).setText(fit.filelist.files[i].name) 
                 self.buttonGroup_4.button(i+1).setFont(font)
 
@@ -1773,18 +1778,18 @@ Polyfit coefficients:
         
         
     def update_orb_plot(self):
-        global fit, p15
+        global fit, p16
         
-        p15.plot(clear=True,)    
+        p16.plot(clear=True,)    
         
         for i in range(fit.npl):
             orb_xyz, pl_xyz, peri_xyz, apo_xyz = rv.planet_orbit_xyz(fit,i)        
-            p15.plot(orb_xyz[0],orb_xyz[1], pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True)   
-            p15.plot((0,peri_xyz[0]),(0,peri_xyz[1]), pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True)               
+            p16.plot(orb_xyz[0],orb_xyz[1], pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True)   
+            p16.plot((0,peri_xyz[0]),(0,peri_xyz[1]), pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True)               
             
-            p15.plot((pl_xyz[0],pl_xyz[0]), (pl_xyz[1],pl_xyz[1] ), pen=None,symbol='o', symbolSize=6,enableAutoRange=True,viewRect=True, symbolBrush='b') 
+            p16.plot((pl_xyz[0],pl_xyz[0]), (pl_xyz[1],pl_xyz[1] ), pen=None,symbol='o', symbolSize=6,enableAutoRange=True,viewRect=True, symbolBrush='b') 
             
-        p15.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
+        p16.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
 
 
 
@@ -1798,7 +1803,7 @@ Polyfit coefficients:
         return errors_with_jitt
 
 
-################ EXTRA PLOTS (work in progress) ######################
+################ Extra Plots (work in progress) ######################
         
     
     
@@ -2372,16 +2377,59 @@ Transit duration: %s d
  
         
 ############################# N-Body ########################################        
+    def delta_omega_combo(self):
 
+ 
+        self.comboBox_pl_1.clear()
+        self.comboBox_pl_2.clear()
+        
+
+        for i in range(fit.npl):
+            self.comboBox_pl_1.addItem('omega %s'%str(i+1),i+1) 
+            self.comboBox_pl_2.addItem('omega %s'%str(i+1),i+1) 
+            
+            #self.comboBox_pl_2.setItemText(i, '%s'%(ses_list[i].name))
+        self.comboBox_pl_1.setCurrentIndex(0)
+        self.comboBox_pl_2.setCurrentIndex(1)
+
+
+    def plot_delta_omega(self):
+        global fit, colors, p17 
+
+        pl1_ind = self.comboBox_pl_1.currentIndex()
+        pl2_ind = self.comboBox_pl_2.currentIndex()
+        #print(pl1_ind,pl2_ind)
+        
+        p17.plot(clear=True,)
+        p17.plot(fit.evol_T[0], (fit.evol_p[pl1_ind] - fit.evol_p[pl2_ind])%360 ,pen=None, #{'color': colors[i], 'width': 1.1},
+        symbol='o',
+        symbolPen={'color': fit.colors[0], 'width': 1.1},
+        symbolSize=1,enableAutoRange=True,viewRect=True,
+        symbolBrush=fit.colors[0]
+        )  
+        
+        
     def worker_Nbody_complete(self):
-        global fit, colors, p13, p14  
+        global fit, colors, p13, p14, p15  
 
         p13.plot(clear=True,)
         p14.plot(clear=True,)
+        p15.plot(clear=True,)
 
         for i in range(fit.npl):
             p13.plot(fit.evol_T[i], fit.evol_a[i] ,pen=fit.colors[i],symbol=None )     
-            p14.plot(fit.evol_T[i], fit.evol_e[i] ,pen=fit.colors[i],symbol=None )   
+            p14.plot(fit.evol_T[i], fit.evol_e[i] ,pen=fit.colors[i],symbol=None )  
+           # p15.plot(fit.evol_T[i], fit.evol_p[i] ,pen=fit.colors[i],symbol=None )  
+            p15.plot(fit.evol_T[i], fit.evol_p[i] ,pen=None, #{'color': colors[i], 'width': 1.1},
+        symbol='o',
+        symbolPen={'color': fit.colors[i], 'width': 1.1},
+        symbolSize=1,enableAutoRange=True,viewRect=True,
+        symbolBrush=fit.colors[i]
+        )  
+            
+        self.delta_omega_combo()
+        self.plot_delta_omega()
+            
              
         self.button_orb_evol.setEnabled(True)       
         self.statusBar().showMessage('')           
@@ -3964,6 +4012,11 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.actionvisit_TRIFON_on_GitHub.triggered.connect(lambda: webbrowser.open('https://github.com/3fon3fonov/trifon'))    
         self.actionCredits.triggered.connect(lambda: self.print_info_credits())
         
+        ############### Orb. Evol. plotting ####################
+        self.comboBox_pl_1.activated.connect(self.plot_delta_omega)
+        self.comboBox_pl_2.activated.connect(self.plot_delta_omega)
+
+
 
         self.jitter_to_plots.stateChanged.connect(self.update_plots)
         
