@@ -713,10 +713,7 @@ def lnprior(p,b,priors):
     
 ##############  jeffereys_prior needs to be checked bugs are possible! #####       
 def jeffereys_prior(p,b):
-    #loglik = np.exp( p*(np.log(b[1]) -np.log(b[0])))
-    loglik = -np.exp( 1.0/ p* (np.log(b[1]) - np.log(b[0])))
-    #loglik = 0
-    #loglik =    1. / p*(np.log(b[1]) np.log(b[0]))
+    loglik =   np.log( 1.0/  ( p*(np.log(b[1]) - np.log(b[0]) )) )     
     return loglik
 
 def normalprior(p,b):    
