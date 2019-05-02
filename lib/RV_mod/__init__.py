@@ -732,18 +732,8 @@ def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoc
 
 def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):          
     
-    '''Performs MCMC and saves results'''  
+    '''Performs nested sampling and saves results'''  
     
-    from scipy import stats
-    "def prior transform"
-    def prior_transform(u):
-        """Transforms our unit cube samples `u` to a flat prior between -10. and 10. in each variable."""
-        #return 10000. * (2. * u - 1.)
-        width = 1.
-        return stats.norm.ppf(u) * width + obj.par_for_mcmc
-
-
-   
     
     if threads == 'max':
         threads = multiprocessing.cpu_count()    
@@ -788,9 +778,14 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
     ee = obj.e_for_mcmc #.tolist() 
     bb = np.array(obj.b_for_mcmc)
     pr_nr = np.array(obj.nr_pr_for_mcmc)
+    jeff_nr = np.array(obj.jeff_pr_for_mcmc)
+    
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
     mix_fit = obj.mixed_fit
+ 
+    
+    priors = [pr_nr,jeff_nr]
     
     level = (100.0- obj.percentile_level)/2.0
 
@@ -808,15 +803,28 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
  
 
     ndim, nwalkers = len(pp), len(pp)*obj.nwalkers_fact
-
-    pos = [pp + obj.gaussian_ball*np.random.rand(ndim) for i in range(nwalkers)]
+    print(ndim, nwalkers)
+    
+    #pos = [pp + obj.gaussian_ball*np.random.rand(ndim) for i in range(nwalkers)]
     
     import dynesty
+    from scipy import stats
+    "def prior transform"
+    def prior_transform(u):
+        """Transforms our unit cube samples `u` to a flat prior between -10. and 10. in each variable."""
+        #return 10000. * (2. * u - 1.)
+        width = 1.
+        return trans_norm(u,obj.par_for_mcmc,width)
+
+    def trans_norm(p ,mu,sig):
+        return stats.norm.ppf(p,loc=mu,scale=sig)
+
+
         
     partial_func = FunctionWrapper(lnprob_new,
-                    (mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit) )
+                    (mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit) )
     print('EXPECTED VALUE BEST', partial_func(obj.par_for_mcmc))
-    print("BEST FIT ESTIMATE ", partial_func(prior_transform(np.array([0.] * ndim))))
+    print("BEST FIT ESTIMATE ", partial_func(prior_transform(np.array([0.1] * ndim))))
 
     sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers)
 
