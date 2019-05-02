@@ -85,6 +85,7 @@ ses_list = [fit]
 
 colors  = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 symbols = ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
+colors_delta_om = colors
 
 QtGui.QApplication.processEvents()
 
@@ -2394,7 +2395,10 @@ Transit duration: %s d
 
 
     def plot_delta_omega(self):
-        global fit, colors, p17 
+        global fit, colors_delta_om, p17 
+
+        self.color_delta_om.setStyleSheet("color: %s;"%colors_delta_om[0]) 
+
 
         pl1_ind = self.comboBox_pl_1.currentIndex()
         pl2_ind = self.comboBox_pl_2.currentIndex()
@@ -2403,10 +2407,51 @@ Transit duration: %s d
         p17.plot(clear=True,)
         p17.plot(fit.evol_T[0], (fit.evol_p[pl1_ind] - fit.evol_p[pl2_ind])%360 ,pen=None, #{'color': colors[i], 'width': 1.1},
         symbol='o',
-        symbolPen={'color': fit.colors[0], 'width': 1.1},
+        symbolPen={'color': colors_delta_om[0], 'width': 1.1},
         symbolSize=1,enableAutoRange=True,viewRect=True,
         symbolBrush=fit.colors[0]
         )  
+        
+    def get_delta_omega_color(self):
+        global fit, colors_delta_om
+        
+        colorz = QtGui.QColorDialog.getColor()
+        colors_delta_om[0]=colorz.name()   
+ 
+        self.plot_delta_omega()
+
+    def delta_omega_plot_x_labels(self):
+        global fit, p17
+        
+        text, okPressed = QtGui.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
+        
+        if okPressed and text != '':
+            p17.setLabel('bottom', '%s'%text, units='',  **{'font-size':'11pt'})
+ 
+        else:
+            return
+    
+        self.plot_delta_omega()
+ 
+
+    def delta_omega_plot_y_labels(self):
+        global fit, p17
+        
+        text, okPressed = QtGui.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
+        
+        if okPressed and text != '':
+            p17.setLabel('left', '%s'%text, units='',  **{'font-size':'11pt'})
+ 
+        else:
+            return
+    
+        self.plot_delta_omega()        
+        
+        
+        
+        
+        
+        
         
         
     def worker_Nbody_complete(self):
@@ -4049,6 +4094,11 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.color_corr.clicked.connect(self.get_corr_color)
         self.corr_x_label.clicked.connect(self.corr_plot_x_labels)
         self.corr_y_label.clicked.connect(self.corr_plot_y_labels)
+
+        self.color_delta_om.clicked.connect(self.get_delta_omega_color)
+        self.delta_om_x_label.clicked.connect(self.delta_omega_plot_x_labels)
+        self.delta_om_y_label.clicked.connect(self.delta_omega_plot_y_labels)
+
 
     
         self.tab_timeseries_RV.currentChanged.connect(self.tab_selected)
