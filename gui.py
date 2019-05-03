@@ -2404,8 +2404,10 @@ Transit duration: %s d
         pl2_ind = self.comboBox_pl_2.currentIndex()
         #print(pl1_ind,pl2_ind)
         
+        last_stable = min(len(fit.evol_p[pl1_ind]),len(fit.evol_p[pl2_ind]))
+        
         p17.plot(clear=True,)
-        p17.plot(fit.evol_T[0], (fit.evol_p[pl1_ind] - fit.evol_p[pl2_ind])%360 ,pen=None, #{'color': colors[i], 'width': 1.1},
+        p17.plot(fit.evol_T[0][0:last_stable], (fit.evol_p[pl1_ind][0:last_stable] - fit.evol_p[pl2_ind][0:last_stable])%360 ,pen=None, #{'color': colors[i], 'width': 1.1},
         symbol='o',
         symbolPen={'color': colors_delta_om[0], 'width': 1.1},
         symbolSize=1,enableAutoRange=True,viewRect=True,
@@ -2500,6 +2502,12 @@ Transit duration: %s d
                                             QtGui.QMessageBox.Ok) 
             self.button_orb_evol.setEnabled(True)                    
             return
+        
+        ######## this is a fix in case one adds another planet without initialize it 
+        if fit.npl != len(fit.fit_results.mass):  
+            fit.model_saved = False 
+            self.init_fit()
+        
  
         self.statusBar().showMessage('Running Orbital Evolution......')   
         
