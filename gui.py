@@ -2474,6 +2474,8 @@ Transit duration: %s d
             
         self.delta_omega_combo()
         self.plot_delta_omega()
+
+        self.plot_tabs.setCurrentWidget(self.tab_Orbital_evol)
             
              
         self.button_orb_evol.setEnabled(True)       
