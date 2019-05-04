@@ -305,7 +305,8 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
         return -np.inf
     
     for j in range(len(p)):
-        par[flags[j]] = p[j]    
+        par[flags[j]] = p[j]  
+        #print(p[j])
     
     if (rtg[1]):
         outputfiles = [1,1,0]
@@ -631,7 +632,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     obj.loglik = -result["fun"]
        
       
-    obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit)
+    obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit, errors)
 
     print("--- %s seconds ---" % (time.time() - start_time))     
     
@@ -641,12 +642,17 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
 
 
-def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit):
+def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit, errors):
                 
                 
     for j in range(len(pp)):
-        par[flags[j]] = pp[j]    
+        par[flags[j]] = pp[j] 
         
+   # print(par)
+  #  print(pp)
+  #  print(flags)
+       
+    
     if (rtg[1]):
         if obj.gp_kernel == 'RotKernel':
             for j in range(len(gps.get_parameter_vector())):
@@ -686,51 +692,50 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_params, e
      
         for j in range(len(pp)):
             #print(ee[j] + "  =  %s"%pp[j])
-            print("{0:{width}s} = {1:{width}.{precision}f}".format(ee[j], pp[j] , width = 10, precision = 4))
-
+            #print("{0:{width}s} = {1:{width}.{precision}f}".format(ee[j], pp[j] , width = 10, precision = 4))
+            print("{0:{width}s} = {1:{width}.{precision}f} + {2:{width}.{precision}f} - {3:{width}.{precision}f}".format(ee[j], pp[j],errors[j][0],errors[j][1], width = 10, precision = 4))
+   
     obj.gps = []
     
     return obj
  
  
+
 def lnprior(p,b,priors): 
     
     loglik_lnpr = 0
     for j in range(len(p)): 
-#        print(p[j],b[j,0], b[j,1]) 
         if p[j] <= b[j,0] or p[j] >= b[j,1]:
             return -np.inf
         if priors[0][j,2] == True:
             loglik_lnpr = loglik_lnpr + normalprior(p[j],priors[0][j])
         if priors[1][j,2] == True:
             loglik_lnpr = loglik_lnpr + jeffereys_prior(p[j],priors[1][j])  
-            #print(p[j],priors[1][j], "TEST")
-        #elif pr_nr[j,2] == True:            
-            
-            #print(pr_nr[j,0],pr_nr[j,1],pr_nr[j,2],loglik_lnpr )
-    return loglik_lnpr     
-   
-    
-##############  jeffereys_prior needs to be checked bugs are possible! #####       
+    return loglik_lnpr    
+
+
+
 def jeffereys_prior(p,b):
+    
     loglik =   np.log( 1.0/  ( p*(np.log(b[1]) - np.log(b[0]) )) )     
     return loglik
 
-def normalprior(p,b):    
+def normalprior(p,b):  
+    
     loglik = np.log(1.0/(np.sqrt(2.0*np.pi)*b[1])*np.exp(-(p-b[0])**2.0/(2.0*b[1]**2.0)))
     return loglik
 
 def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, b, priors , gps, rtg, mix_fit):
-    #print(p)
+    
     lp = lnprior(p,b,priors)
     if not np.isfinite(lp):
         return -np.inf
-    return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg, mix_fit)  
+    return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg, mix_fit)   
 
 
 ########## Dynesty Work in progress!!! #######
 
-def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):          
+def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):          
     
     '''Performs nested sampling and saves results'''  
     
@@ -743,7 +748,6 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
     rtg = obj.rtg
 
     #nll = lambda *args: -lnprob_new(*args)
-
     
     vel_files = []
     for i in range(obj.filelist.ndset): 
@@ -803,14 +807,30 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
  
 
     ndim, nwalkers = len(pp), len(pp)*obj.nwalkers_fact
-    print(ndim, nwalkers)
-    
-    #pos = [pp + obj.gaussian_ball*np.random.rand(ndim) for i in range(nwalkers)]
+    #print(ndim, nwalkers)
+     
+    ################## prior TESTS ########################
     
     import dynesty
     from scipy import stats
+    
+
+    def prior_transform(p): 
+
+        u_trans = np.zeros(len(p)) 
+        for j in range(len(p)): 
+
+            if priors[0][j,2] == True:
+                u_trans[j] = trans_norm(p[j],bb[j][0],bb[j][1])
+            elif priors[1][j,2] == True:
+                u_trans[j] = trans_loguni(p[j],bb[j][0],bb[j][1]) 
+            else:
+                u_trans[j] = trans_uni(p[j],bb[j][0],bb[j][1])
+        return u_trans   
+  
+ 
     "def prior transform"
-    def prior_transform(u):
+    def prior_transform_old(u):
         """Transforms our unit cube samples `u` to a flat prior between -10. and 10. in each variable."""
         #return 10000. * (2. * u - 1.)
         width = 1.
@@ -819,43 +839,55 @@ def run_dynesty(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1
     def trans_norm(p ,mu,sig):
         return stats.norm.ppf(p,loc=mu,scale=sig)
 
-
+    def trans_uni(p,a,b):
+        #print(a + (b-a)*p)
+        return a + (b-a)*p
+    
+    def trans_loguni(p,a,b):
+        lna=np.log(a)
+        lnb=np.log(b)
+        return np.exp(lna + p*(lnb-lna))    
+    
+    ################## TESTS ########################
         
     partial_func = FunctionWrapper(lnprob_new,
                     (mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit) )
-    print('EXPECTED VALUE BEST', partial_func(obj.par_for_mcmc))
-    print("BEST FIT ESTIMATE ", partial_func(prior_transform(np.array([0.1] * ndim))))
+   # print('EXPECTED VALUE BEST', partial_func(obj.par_for_mcmc))
+   # print("BEST FIT ESTIMATE ", partial_func(prior_transform(obj.par_for_mcmc)))
+    print("Nest. Samp. is running, please wait... (this is still under tests, work in progress!)")
 
     sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers)
 
     #sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg), threads = threads)
 
-    sampler.run_nested()
+    sampler.run_nested(dlogz=0.01, print_progress=False)
 
-    # burning phase
-    #pos, prob, state  = sampler.run_mcmc(pos,burning_ph)
-   # sampler.reset()
- 
-    # now perform the MCMC
-   # pos, prob, state  = sampler.run_mcmc(pos,mcmc_ph)
+    obj.dyn_res = sampler.results
+
     
-    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit)
+
+    new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.results.samples[:,i], [level])),float(np.percentile(sampler.results.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
+
+    #new_par_errors = [[0,0] for i in range(len(obj.par_for_mcmc))] 
+
+    
+    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit,new_par_errors)
 
      
     print("--- %s seconds ---" % (time.time() - start_time))  
  
-    #ln = np.hstack(sampler.lnprobability)
+    ln = np.hstack(sampler.results.logl)
     #sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl)
             
-    
-   # if (fileoutput):
-    #    outfile = open(str(obj.mcmc_sample_file), 'w') # file to save samples
-    #    for j in range(len(sampler.samples)):
-    #        outfile.write("%s  " %(ln[j]))
-    #        for z in range(len(pp)):
-     #           outfile.write("%s  " %(sampler.samples[j,z]))
-     #       outfile.write("\n")
-     #   outfile.close()        
+    fileoutput = True
+    if (fileoutput):
+        outfile = open(str(obj.mcmc_sample_file), 'w') # file to save samples
+        for j in range(len(sampler.results.samples)):
+            outfile.write("%s  " %(ln[j]))
+            for z in range(len(pp)):
+                outfile.write("%s  " %(sampler.results.samples[j,z]))
+            outfile.write("\n")
+        outfile.close()        
             
     # Now we will save new parameters and their errors (different + and - errors in this case). Flag save_means determines if we want to take means as new best fit parameters or stick to old ones and calculate errors with respect to that           
    # if (save_means):
@@ -963,8 +995,8 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     
     #print(par)
     #print(flags)
-   # print(bb)
-   # print(pp)
+    #print(bb)
+    #print(pp)
     
     gps = []
     if (rtg[1]):
@@ -997,16 +1029,20 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
                 outfile.write("%s  " %(sampler.samples[j,z]))
             outfile.write("\n")
         outfile.close()        
-            
+     
+   #print(pp)    
     # Now we will save new parameters and their errors (different + and - errors in this case). Flag save_means determines if we want to take means as new best fit parameters or stick to old ones and calculate errors with respect to that           
     if (save_means):
         obj.par_for_mcmc = sampler.means # we will not need to keep the old parameters in this attribbute, so let's store the means now
-        pp = sampler.means
+        pp = sampler.means   
         
     elif (save_minlnL):
         obj.par_for_mcmc = sampler.minlnL # we will not need to keep the old parameters in this attribbute, so let's store the means now
         pp =  sampler.minlnL
+   # else:
+   #     pp = obj.par_for_mcmc
         
+  
     new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
     
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
@@ -1033,8 +1069,9 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     elif (save_minlnL):
         obj.loglik = sampler.lnL_min 
 
-
-    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit)
+    
+    
+    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit, new_par_errors)
 
 
     if(save_sampler):
@@ -1322,6 +1359,9 @@ class signal_fit(object):
                        
         self.mcmc_sample_file = 'mcmc_samples'
         self.corner_plot_file = 'cornerplot.pdf'
+        
+        self.nest_sample_file = 'nest_samp_samples'
+        self.nest_corner_plot_file = 'nest_samp_cornerplot.pdf'        
       
         
         self.init_orb_evol()

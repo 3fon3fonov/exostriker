@@ -1,6 +1,9 @@
 import sys
 from PyQt5 import QtCore, QtGui
 
+#sys.stdout.isatty = lambda: False
+
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -18,6 +21,9 @@ handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
+#sys.stdout.isatty = lambda: False
+#sys.stdout.encoding = sys.getdefaultencoding()
+
 class XStream(QtCore.QObject):
     _stdout = None
     _stderr = None
@@ -33,6 +39,7 @@ class XStream(QtCore.QObject):
     def stdout():
         if ( not XStream._stdout ):
             XStream._stdout = XStream()
+            #XStream._stdout.isatty = lambda: False
             sys.stdout = XStream._stdout
         return XStream._stdout
     @staticmethod
