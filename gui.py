@@ -3100,6 +3100,130 @@ highly appreciated!
 
        # print(ind,index,len(ses_list),text)  
         #print(fit.name)
+ 
+            
+            
+################################## Nest Samp. #######################################
+
+    def worker_nest_complete(self):
+        global fit  
+        #fit.print_info(short_errors=False)
+        
+        self.update_labels()
+        self.update_gui_params()
+        self.update_errors() 
+        self.update_a_mass() 
+        
+        self.statusBar().showMessage('') 
+        #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
+        
+        #if self.adopt_mcmc_means_as_par.isChecked() or self.adopt_best_lnL_as_pars.isChecked():
+        #    self.init_fit()
+ 
+ 
+
+    def worker_nest(self):
+        global fit  
+        
+        
+        if self.radioButton_RV.isChecked():
+            fit.rtg = [True,self.do_RV_GP.isChecked(), False]
+        elif self.radioButton_transit.isChecked():
+            fit.rtg = [False, self.do_RV_GP.isChecked(), True]
+        elif self.radioButton_transit_RV.isChecked():
+            fit.rtg = [True,self.do_RV_GP.isChecked(), True]
+        
+        self.button_nest_samp.setEnabled(False)
+        self.statusBar().showMessage('Nested Sampling in progress....')        
+        # check if RV data is present
+        if fit.rtg[0] == True and fit.filelist.ndset <= 0:
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "Not possible to run MCMC if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
+             self.button_nest_samp.setEnabled(True)  
+             self.statusBar().showMessage('') 
+
+             return   
+        
+        ntran_data = 0
+        for i in range(0,10,1):         
+            ntran_data += len(fit.tra_data_sets[i]) 
+            
+        if fit.rtg[2] == True and ntran_data == 0:
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "Not possible to run MCMC if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
+             self.button_nest_samp.setEnabled(True)  
+             self.statusBar().showMessage('') 
+
+             return             
+            
+            
+
+        choice = QtGui.QMessageBox.information(self, 'Warning!',
+                                            "This will run in the background and may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
+                                            QtGui.QMessageBox.Cancel | QtGui.QMessageBox.Ok)       
+ 
+         
+        if choice == QtGui.QMessageBox.Cancel:
+            self.statusBar().showMessage('') 
+            self.button_nest_samp.setEnabled(True)
+            return        
+        
+        self.check_bounds()
+        self.check_priors_nr() 
+        fit.model_npoints = self.points_to_draw_model.value()
+        
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+        
+        
+        if self.use_percentile_level.isChecked():
+            fit.percentile_level = self.percentile_level.value()
+        else:
+            fit.percentile_level = 68.3
+           
+        
+        # Pass the function to execute
+        worker_n = Worker(lambda: self.run_nest()) # Any other args, kwargs are passed to the run  
+        # Execute
+        worker_n.signals.finished.connect(self.worker_nest_complete)
+        
+        # worker.signals.result.connect(self.print_output)
+        #worker.signals.finished.connect(self.thread_complete)
+       # worker.signals.progress.connect(self.progress_fn)
+        self.threadpool.start(worker_n)
+        
+    def run_nest(self):
+        global fit
+        
+ 
+        #self.check_mcmc_params()
+      
+        fit = rv.run_nestsamp(fit, burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
+        fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked(), save_minlnL=self.adopt_best_lnL_as_pars.isChecked())
+        
+    
+        self.button_nest_samp.setEnabled(True)            
+ 
+    def change_nest_samples_file_name(self):
+        global fit
+        
+        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the nested samples', '', '')
+        
+        if output_file[0] != '':
+            fit.nest_sample_file = output_file[0] 
+            self.nest_samples_change_name.setText(output_file[0])
+        else:
+            return
+
+    #def check_nested_params(self):
+    #    global fit
+    #    fit.gaussian_ball = self.init_gauss_ball.value() 
+   #     fit.nwalkers_fact = int(self.nwalkers_fact.value()) 
+
+
+    def force_nest_check_box(self):
+        if self.button_make_cornerplot_nested.isChecked():
+            self.save_samples_nested.setChecked(True)
+ 
 
 
 
@@ -4027,7 +4151,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
         self.button_orb_evol.clicked.connect(self.worker_Nbody) 
         self.button_MCMC.clicked.connect(self.worker_mcmc)
-        self.button_nest_samp.clicked.connect(lambda: self.run_nest_samp())
+       # self.button_nest_samp.clicked.connect(lambda: self.run_nest_samp())
+        self.button_nest_samp.clicked.connect(self.worker_nest)
         
         
         self.button_make_cornerplot.clicked.connect(self.worker_cornerplot)
