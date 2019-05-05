@@ -29,13 +29,15 @@ class RotationTerm(terms.Term):
 
 
 
-#class SHOTerm(terms.SHOTerm):
+class SHOTerm2(terms.SHOTerm):
 
-#    parameter_names = ("log_S0", "log_Q", "log_omega0")
+    parameter_names = ("Ampl", "Plife", "Prot")
     
-#    def __init__(self, params):
-#        log_S0, log_Q, log_omega0 = params
+    def __init__(self, params):
+        Ampl, Plife, Prot = params
         
+        S0 = (Ampl*(Prot**2))/(2. * (np.pi**2) * Plife)
+        w0 = (2.0*np.pi)/Prot
+        Q = Plife(np.pi)/Prot 
         
-#kernel = terms.SHOTerm(log_S0=np.log(S0), log_Q=np.log(Q), log_omega0=np.log(w0),
-#                       bounds=bounds)
+        kernel = terms.SHOTerm(log_S0=np.log(S0), log_Q=np.log(Q), log_omega0=np.log(w0) )
