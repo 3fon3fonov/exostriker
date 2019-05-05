@@ -632,7 +632,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     obj.loglik = -result["fun"]
        
-      
+    errors = [[0.0,0.0] for i in range(len(pp))] 
+   
     obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit, errors)
 
     print("--- %s seconds ---" % (time.time() - start_time))     

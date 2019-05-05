@@ -2726,6 +2726,10 @@ Transit duration: %s d
         text = "* " + "<a href='https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor'>megasolid idiom</a>" 
         self.dialog_credits.text.append(text)  
         
+        text = "* " + "<a href='https://dynesty.readthedocs.io/en/latest/'>dynesty</a>" 
+        self.dialog_credits.text.append(text)          
+       
+        
         
         text = "(A few more to be added) \n" 
         self.dialog_credits.text.append(text)   
