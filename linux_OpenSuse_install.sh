@@ -179,7 +179,7 @@ done
  
 
 #python pip install
-arr=( "qtconsole" "jupyter" "dill" "emcee" "corner" "celerite" "transitleastsquares")
+arr=( "qtconsole" "jupyter" "dill" "emcee" "corner" "celerite" "transitleastsquares" "dynesty")
 
 for i in "${arr[@]}";
 do

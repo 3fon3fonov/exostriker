@@ -1,16 +1,16 @@
 #!/usr/bin/python
 
 
-__author__ = 'Trifon Trifonov, Jakub Morawski'
+__author__ = 'Trifon Trifonov'
 
 import sys 
 #sys.path.insert(0, '../lib')
 import numpy as np
-import emcee
+import dynesty
 
 
 
-class CustomSampler(emcee.EnsembleSampler):
+class CustomNestedSampler(dynesty.NestedSampler):
  
     
     def unique_rows(self):

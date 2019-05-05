@@ -27,6 +27,7 @@ plt.switch_backend('SVG')
 import time
 import multiprocessing
 from scipy.signal import argrelextrema
+from scipy.ndimage import gaussian_filter
 
 #from emcee.utils import MPIPool
 import corner
@@ -733,11 +734,69 @@ def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoc
     return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg, mix_fit)   
 
 
+
+
+
+def get_mode_of_samples(samples, nsamp): 
+
+    mode_samp = []
+   # err1_samp = []
+  #  err2_samp = []
+ 
+    
+    for i in range(nsamp):
+    	#ci = np.percentile(samples[:,i], [level, 100.0-level])
+    	#mmm = stats.binned_statistic(np.array([samples[:,i]]), axis=None)
+        n, b = np.histogram(samples[:,i], bins=100)
+        n = gaussian_filter(n, 1.0)
+        x0 = np.array(list(zip(b[:-1], b[1:]))).flatten()
+        y0 = np.array(list(zip(n, n))).flatten()	
+    	k  = np.unravel_index(y0.argmax(),y0.shape)
+        mode_samp.append(x0[k])
+        #err1_samp.append(x0[k]- ci[0])
+        #err2_samp.append(ci[1]- x0[k])        
+   # print el_str[i],'=', x0[k], "- %s"%(x0[k]-ci[0]), "+ %s"%(ci[1]  - x0[k] )
+    return mode_samp #,err1_samp,err2_samp
+
+def get_mean_of_samples(samples, nsamp): 
+
+    mean_samp = []
+    
+    for i in range(nsamp):
+        mean_samp.append(np.mean(samples[:,i]))
+    return mean_samp #,err1_samp,err2_samp
+
+def get_best_lnl_of_samples(samples,lnl, nsamp): 
+
+    best_ln_samp = []
+    lnL_best_idx = np.argmax(lnl)
+    lnL_best = lnl[lnL_best_idx]    
+ 
+    
+    for i in range(nsamp):    
+ 
+        minlnL = samples[lnL_best_idx,i] 
+        best_ln_samp.append(minlnL)
+        
+    
+    return best_ln_samp,lnL_best #,err1_samp,err2_samp
+
+
 ########## Dynesty Work in progress!!! #######
 
-def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):          
+def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, stop_crit = 0.001, Dynamic_nest = False, std_output=False, live_points = 4,
+                 save_means=False, save_maxlnL=False, save_mode=False, fileoutput=False, save_sampler=False, **kwargs):          
     
     '''Performs nested sampling and saves results'''  
+
+
+    
+    import dynesty
+    from scipy import stats
+    from contextlib import closing
+    from multiprocessing import Pool, cpu_count    
+    
+    #from CustomNestedSampler import CustomNestedSampler
     
     
     if threads == 'max':
@@ -791,7 +850,7 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     
     priors = [pr_nr,jeff_nr]
     
-    level = (100.0- obj.percentile_level)/2.0
+    level = (100.0- obj.nest_percentile_level)/2.0
 
     
     #print(par)
@@ -801,19 +860,16 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     
     gps = []
     if (rtg[1]):
-        initiategps(obj, kernel_id=gp_kernel_id)     
+        initiategps(obj)     
         gps = obj.gps
   
  
 
-    ndim, nwalkers = len(pp), len(pp)*obj.nwalkers_fact
+    ndim, nwalkers = len(pp), len(pp)*obj.live_points_fact
     #print(ndim, nwalkers)
      
     ################## prior TESTS ########################
-    
-    import dynesty
-    from scipy import stats
-    
+
 
     def prior_transform(p): 
 
@@ -840,101 +896,161 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
         return stats.norm.ppf(p,loc=mu,scale=sig)
 
     def trans_uni(p,a,b):
-        #print(a + (b-a)*p)
         return a + (b-a)*p
     
     def trans_loguni(p,a,b):
-        lna=np.log(a)
-        lnb=np.log(b)
-        return np.exp(lna + p*(lnb-lna))    
+        return np.exp(np.log(a) + p*(np.log(b)-np.log(a)))    
+    
+    
+    def partial_func2(pp):
+        loglik = model_loglik(pp, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg, mix_fit) 
+        #loglik = lnprob_new(pp, mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit)
+    #    print(loglik)
+        return loglik
     
     ################## TESTS ########################
         
-    partial_func = FunctionWrapper(lnprob_new,
-                    (mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit) )
+    #partial_func = FunctionWrapper(lnprob_new,
+   #                 (mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit) )
+    
+    partial_func = FunctionWrapper(model_loglik, (mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg, mix_fit) )
+    
    # print('EXPECTED VALUE BEST', partial_func(obj.par_for_mcmc))
    # print("BEST FIT ESTIMATE ", partial_func(prior_transform(obj.par_for_mcmc)))
-    print("Nest. Samp. is running, please wait... (this is still under tests, work in progress!)")
 
-    sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers)
+    if threads > 1:
+        print(" Sorry, but currently Nest. Samp. works only with 1 CPU (TBF)")
+        
+        threads = 1
+        
+    print_progress = std_output
 
-    #sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg), threads = threads)
 
-    sampler.run_nested(dlogz=0.01, print_progress=False)
+    if Dynamic_nest == False:
+        print("'Static' Nest. Samp. is running, please wait... (still under tests!)")
+
+        if threads > 1:
+            with closing(Pool(processes=threads-1)) as thread:
+                sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, pool = thread ,queue_size=threads, bootstrap=0)
+     
+                sampler.run_nested(dlogz=stop_crit, print_progress=print_progress)
+        else:
+             sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers)
+             sampler.run_nested(dlogz=stop_crit, print_progress=print_progress)
+
+    else:
+        print("'Dynamic' Nest. Samp. is running, please wait... (still under tests!)")
+        
+        if threads > 1:
+            with closing(Pool(processes=threads-1)) as thread:
+                sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, pool = thread ,queue_size=threads, bootstrap=0)
+     
+                sampler.run_nested(print_progress=print_progress)
+        else:
+             sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers)
+             sampler.run_nested(print_progress=print_progress)        
+        
+
 
     obj.dyn_res = sampler.results
-
+    obj.dyn_res.summary()
     
-
-    new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.results.samples[:,i], [level])),float(np.percentile(sampler.results.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
-
-    #new_par_errors = [[0,0] for i in range(len(obj.par_for_mcmc))] 
-
     
-    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit,new_par_errors)
-
-     
     print("--- %s seconds ---" % (time.time() - start_time))  
- 
+    
     ln = np.hstack(sampler.results.logl)
-    #sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl)
+    samples = np.array(sampler.results.samples)
             
+    
     fileoutput = True
     if (fileoutput):
-        outfile = open(str(obj.mcmc_sample_file), 'w') # file to save samples
-        for j in range(len(sampler.results.samples)):
+        start_time = time.time()   
+        print("Please wait... writing the ascii file")  
+
+        outfile = open(str(obj.nest_sample_file), 'w') # file to save samples
+        for j in range(len(samples)):
             outfile.write("%s  " %(ln[j]))
             for z in range(len(pp)):
-                outfile.write("%s  " %(sampler.results.samples[j,z]))
+                outfile.write("%s  " %(samples[j,z]))
             outfile.write("\n")
         outfile.close()        
-            
-    # Now we will save new parameters and their errors (different + and - errors in this case). Flag save_means determines if we want to take means as new best fit parameters or stick to old ones and calculate errors with respect to that           
-   # if (save_means):
-   #     obj.par_for_mcmc = sampler.means # we will not need to keep the old parameters in this attribbute, so let's store the means now
-        
-        
-        
-   # new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
+        print("--- Done for ---")           
+        print("--- %s seconds ---" % (time.time() - start_time))  
+         
+    start_time = time.time()   
+
+ 
+    obj.nest_stat["mean"] = get_mean_of_samples(sampler.results.samples,len(pp))
+    samp_maxlnl, maxlnl = get_best_lnl_of_samples(sampler.results.samples,ln, len(pp))
+    obj.nest_stat["best"] = samp_maxlnl
+    obj.nest_stat["mode"] = get_mode_of_samples(sampler.results.samples,len(pp))
+ 
     
-   # newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
+    
+    # Now we will save new parameters and their errors (different + and - errors in this case). Flag save_means determines if we want to take means as new best fit parameters or stick to old ones and calculate errors with respect to that           
+    if (save_means):
+        obj.par_for_mcmc = obj.nest_stat["mean"] 
+        pp = obj.nest_stat["mean"]  
+        
+    elif (save_maxlnL):
+        obj.par_for_mcmc = obj.nest_stat["best"]  
+        pp =  obj.nest_stat["best"]
+              
+    elif (save_mode):
+        obj.par_for_mcmc = obj.nest_stat["mode"]  
+        pp =  obj.nest_stat["mode"]  
+    # else:
+   #     pp = obj.par_for_mcmc
+        
+
+    new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.results.samples[:,i], [level])),float(np.percentile(sampler.results.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
+    #new_par_errors = [[0,0] for i in range(len(obj.par_for_mcmc))] 
+
+    newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
+
+     
     #print(newparams.GP_params)
-   # current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
+    #current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
    # print(current_GP_params)
 
-   # obj.fitting(minimize_loglik=True, amoeba_starts=0, outputfiles=[1,1,1]) # this will help update some things 
-
-   # obj.update_with_mcmc_errors(new_par_errors)
    
- 
- #  obj.overwrite_params(newparams)
+    obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things 
+
+    obj.update_with_mcmc_errors(new_par_errors)
+    
+    obj.overwrite_params(newparams)
    # print(new_par_errors)
     
  
-  #  obj.params.update_GP_params(current_GP_params)
-
-    #print(current_GP_params)
-
-  #  print("Best fit par.:")  
-  #  pp = obj.par_for_mcmc 
-    #ee = obj.e_for_mcmc.tolist() 
-  #  for j in range(len(pp)):
-  #      print(ee[j] + "  =  %s"%pp[j])
+   # obj.params.update_GP_params(current_GP_params)
  
+    if (save_means):
+        obj.loglik = maxlnl
         
-  #  if(save_sampler):
- #       obj.sampler=sampler             
- #       obj.sampler_saved=True           
-        
-    #sampler.reset()
+    elif (save_maxlnL):
+        obj.loglik = maxlnl
 
+        
+    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit, new_par_errors)
+
+
+    #if(save_sampler):
+    #    obj.sampler=sampler             
+   #     obj.sampler_saved=True           
+   # else:   
+   #     sampler.reset()
+ 
     obj.gps = []
     
+    print("--- %s seconds ---" % (time.time() - start_time))     
+    
     return obj
+ 
 
 
 
-def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  gp_kernel_id=-1, save_means=False, save_minlnL=False, fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):          
+def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, save_means=False, save_maxlnL=False, save_mode= False, 
+             fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):          
     
     '''Performs MCMC and saves results'''  
     
@@ -1000,7 +1116,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     
     gps = []
     if (rtg[1]):
-        initiategps(obj, kernel_id=gp_kernel_id)     
+        initiategps(obj)     
         gps = obj.gps
  
 
@@ -1019,27 +1135,49 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
   
     #ln = np.hstack(sampler.lnprobability)
     sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl)
+
+
+    print("--- %s seconds ---" % (time.time() - start_time))     
+
+    #print(type(sampler.samples), len(sampler.samples))
+    #print(type(sampler.samples[:,0]), len(sampler.samples[:,0]))
+
             
-    
+    fileoutput = True
     if (fileoutput):
+        start_time = time.time()   
+        print("Please wait... writing the ascii file")          
+        
         outfile = open(str(obj.mcmc_sample_file), 'w') # file to save samples
         for j in range(len(sampler.samples)):
             outfile.write("%s  " %(sampler.lnL[j]))        #BUG here!!!!!
             for z in range(len(pp)):
                 outfile.write("%s  " %(sampler.samples[j,z]))
             outfile.write("\n")
-        outfile.close()        
+        outfile.close()    
+        print("--- Done for ---")           
+        print("--- %s seconds ---" % (time.time() - start_time))     
      
-   #print(pp)    
+    start_time = time.time()   
+ 
+    obj.mcmc_stat["mean"] = sampler.means
+    obj.mcmc_stat["best"] = sampler.minlnL
+    obj.mcmc_stat["mode"] = get_mode_of_samples(sampler.samples,len(pp))
+ 
+    
     # Now we will save new parameters and their errors (different + and - errors in this case). Flag save_means determines if we want to take means as new best fit parameters or stick to old ones and calculate errors with respect to that           
     if (save_means):
-        obj.par_for_mcmc = sampler.means # we will not need to keep the old parameters in this attribbute, so let's store the means now
-        pp = sampler.means   
+        obj.par_for_mcmc = obj.mcmc_stat["mean"] # we will not need to keep the old parameters in this attribbute, so let's store the means now
+        pp = obj.mcmc_stat["mean"]  
         
-    elif (save_minlnL):
-        obj.par_for_mcmc = sampler.minlnL # we will not need to keep the old parameters in this attribbute, so let's store the means now
-        pp =  sampler.minlnL
-   # else:
+    elif (save_maxlnL):
+        obj.par_for_mcmc = obj.mcmc_stat["best"] # we will not need to keep the old parameters in this attribbute, so let's store the means now
+        pp =  obj.mcmc_stat["best"]
+              
+    elif (save_mode):
+        obj.par_for_mcmc = obj.mcmc_stat["mode"] # we will not need to keep the old parameters in this attribbute, so let's store the means now
+        pp =  obj.mcmc_stat["mode"]  
+    # else:
    #     pp = obj.par_for_mcmc
         
   
@@ -1053,10 +1191,8 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
    
     obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things 
 
-
     obj.update_with_mcmc_errors(new_par_errors)
-   
- 
+    
     obj.overwrite_params(newparams)
    # print(new_par_errors)
     
@@ -1066,7 +1202,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
     if (save_means):
         obj.loglik = sampler.lnL_min 
         
-    elif (save_minlnL):
+    elif (save_maxlnL):
         obj.loglik = sampler.lnL_min 
 
     
@@ -1090,21 +1226,31 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1,  
 
 
 
-def cornerplot(obj, fileinput=False, level=(100.0-68.3)/2.0, **kwargs): 
+def cornerplot(obj, fileinput=False, level=(100.0-68.3)/2.0,type_plot = 'mcmc', **kwargs): 
 
     #obj = dill.copy(copied_obj)
     '''Generates a corner plot visualizing the mcmc samples. Optionally samples can be read from a file.'''
     #self.mcmc_sample_file = 'mcmc_samples'+'_%s'%mod
     #self.corner_plot_file = 'cornerplot.png'
     if(fileinput):
-        samples=read_file_as_array_of_arrays_mcmc(obj.mcmc_sample_file)
+        if type_plot == 'mcmc':
+            samples=read_file_as_array_of_arrays_mcmc(obj.mcmc_sample_file)
+        if type_plot == 'nest':
+            samples=read_file_as_array_of_arrays_mcmc(obj.nest_sample_file)        
    # elif(obj.sampler_saved):
    #     samples=obj.sampler.samples
     else:
-        raise Exception ('Please run mcmc and save sampler or provide a valid samples file!')
-    print(len(obj.e_for_mcmc),len(samples),obj.e_for_mcmc)
-    fig = corner.corner(samples,bins=25, color="k", reverse=True, upper= True, labels=obj.e_for_mcmc, quantiles=[level/100.0, 1.0-level/100.0],levels=(0.6827, 0.9545,0.9973), smooth=1.0, smooth1d=1.0, plot_contours= True, show_titles=True, truths=obj.par_for_mcmc, dpi = 300, pad=15, labelpad = 50 ,truth_color ='r', title_kwargs={"fontsize": 12}, scale_hist=True,  no_fill_contours=True, plot_datapoints=True, kwargs=kwargs)
-    fig.savefig(obj.corner_plot_file)  
+        raise Exception ('Please run mcmc/nested sampling and save sampler or provide a valid samples file!')
+    #print(len(obj.e_for_mcmc),len(samples),obj.e_for_mcmc)
+    fig = corner.corner(samples,bins=25, color="k", reverse=True, upper= True, labels=obj.e_for_mcmc, quantiles=[level/100.0, 1.0-level/100.0], 
+                        levels=(0.6827, 0.9545,0.9973), smooth=1.0, smooth1d=1.0, plot_contours= True, show_titles=True, truths=obj.par_for_mcmc, 
+                        dpi = 300, pad=15, labelpad = 50 ,truth_color ='r', title_kwargs={"fontsize": 12}, scale_hist=True,  no_fill_contours=True, 
+                        plot_datapoints=True, kwargs=kwargs)
+    
+    if type_plot == 'mcmc':
+        fig.savefig(obj.mcmc_corner_plot_file)  
+    if type_plot == 'nest':
+        fig.savefig(obj.nest_corner_plot_file)  
  
     return          
        
@@ -1251,7 +1397,6 @@ def planet_orbit_xyz(obj, planet):
 
  
 
-
 class FunctionWrapper(object):
     """
     This is a hack to make the likelihood function pickleable when ``args``
@@ -1358,10 +1503,12 @@ class signal_fit(object):
         
                        
         self.mcmc_sample_file = 'mcmc_samples'
-        self.corner_plot_file = 'cornerplot.pdf'
+        self.mcmc_corner_plot_file = 'cornerplot.pdf'
+        self.mcmc_stat = {"mean": [],"mode": [],"best": []}
         
         self.nest_sample_file = 'nest_samp_samples'
         self.nest_corner_plot_file = 'nest_samp_cornerplot.pdf'        
+        self.nest_stat = {"mean": [],"mode": [],"best": []}
       
         
         self.init_orb_evol()
@@ -1710,6 +1857,13 @@ class signal_fit(object):
         self.nwalkers_fact = 4
         
         self.percentile_level = 68.3
+        
+    def init_nest_par(self):     
+        #self.gaussian_ball = 0.0001        
+        self.live_points_fact = 4
+        
+        self.nest_percentile_level = 68.3        
+        
         
         
     def init_dynfit_settings(self):
