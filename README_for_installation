@@ -21,6 +21,7 @@ celerite
 batman
 qtconsole
 transit least squares
+dynesty
 + the swift N-body library, which is in the ./source directory
 
 # You may also need:
@@ -134,10 +135,17 @@ https://www.cfa.harvard.edu/~lkreidberg/batman/quickstart.html
 
 http://www.astro.physik.uni-goettingen.de/~zechmeister/gls.php
 
+* "TLS" is taken from: 
+
+https://github.com/hippke/tls
+
 * the MCMC sampling is done with "emcee": 
 
 http://dfm.io/emcee/current/
 
+* the Nested Sampling sampling is done with "dynesty": 
+
+https://dynesty.readthedocs.io/en/latest/
 
 
 

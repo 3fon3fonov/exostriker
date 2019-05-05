@@ -3117,8 +3117,8 @@ highly appreciated!
         self.statusBar().showMessage('') 
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
         
-        #if self.adopt_mcmc_means_as_par.isChecked() or self.adopt_best_lnL_as_pars.isChecked():
-        #    self.init_fit()
+        if self.adopt_nest_means_as_par.isChecked() or self.adopt_nest_best_lnL_as_pars.isChecked() or self.adopt_nest_mode_as_par.isChecked():
+            self.init_fit()
  
  
 
@@ -3175,10 +3175,10 @@ highly appreciated!
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
         
         
-        if self.use_percentile_level.isChecked():
-            fit.percentile_level = self.percentile_level.value()
+        if self.use_nest_percentile_level.isChecked():
+            fit.nest_percentile_level = self.nest_percentile_level.value()
         else:
-            fit.percentile_level = 68.3
+            fit.nest_percentile_level = 68.3
            
         
         # Pass the function to execute
@@ -3195,12 +3195,12 @@ highly appreciated!
         global fit
         
  
-        #self.check_mcmc_params()
+        self.check_nested_params()
       
-        fit = rv.run_nestsamp(fit, burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
-        fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked(), save_minlnL=self.adopt_best_lnL_as_pars.isChecked())
-        
-    
+        fit = rv.run_nestsamp(fit, threads=int(self.nest_N_threads.value()), std_output=False, stop_crit = self.stop_crit.value(), 
+        Dynamic_nest = self.radioButton_dyn_nest_samp.isChecked(), live_points = int(self.live_points.value()),fileoutput=self.save_samples.isChecked(),
+        save_means=self.adopt_nest_means_as_par.isChecked(), save_mode=self.adopt_nest_mode_as_par.isChecked(), save_maxlnL=self.adopt_nest_best_lnL_as_pars.isChecked())
+     
         self.button_nest_samp.setEnabled(True)            
  
     def change_nest_samples_file_name(self):
@@ -3214,10 +3214,11 @@ highly appreciated!
         else:
             return
 
-    #def check_nested_params(self):
-    #    global fit
-    #    fit.gaussian_ball = self.init_gauss_ball.value() 
-   #     fit.nwalkers_fact = int(self.nwalkers_fact.value()) 
+    def check_nested_params(self):
+        global fit
+        #fit.gaussian_ball = self.init_gauss_ball.value() 
+        fit.live_points_fact = int(self.live_points.value())
+        
 
 
     def force_nest_check_box(self):
@@ -3241,7 +3242,7 @@ highly appreciated!
         self.statusBar().showMessage('') 
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
         
-        if self.adopt_mcmc_means_as_par.isChecked() or self.adopt_best_lnL_as_pars.isChecked():
+        if self.adopt_mcmc_means_as_par.isChecked() or self.adopt_best_lnL_as_pars.isChecked() or self.adopt_mcmc_mode_as_par.isChecked():
             self.init_fit()
  
        # if sys.version_info[0] == 3:
@@ -3323,7 +3324,8 @@ highly appreciated!
         self.check_mcmc_params()
       
         fit = rv.run_mcmc(fit, burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
-        fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked(), save_minlnL=self.adopt_best_lnL_as_pars.isChecked())
+        fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked(), save_mode=self.adopt_mcmc_mode_as_par.isChecked(),
+        save_maxlnL=self.adopt_best_lnL_as_pars.isChecked())
         
     
         self.button_MCMC.setEnabled(True)            
@@ -3355,25 +3357,37 @@ highly appreciated!
     def worker_cornerplot_complete(self):
         global fit  
         self.statusBar().showMessage('') 
-        self.button_make_cornerplot.setEnabled(True)
+        self.button_make_mcmc_cornerplot.setEnabled(True)
+        self.button_make_nest_cornerplot.setEnabled(True)
+       
 
 
-    def worker_cornerplot(self):
+    def worker_cornerplot(self, type_plot = "mcmc"):
         global fit  
         
-        self.button_make_cornerplot.setEnabled(False)
+        self.button_make_mcmc_cornerplot.setEnabled(False)
+        self.button_make_nest_cornerplot.setEnabled(False)
+       
         self.statusBar().showMessage('Cornerplot in progress....')        
         # check if RV data is present
-        if not os.path.exists(fit.mcmc_sample_file):
+        if type_plot == "mcmc":
+            samp_file = fit.mcmc_sample_file
+            type_samp = "MCMC"
+        elif type_plot == "nest":
+            samp_file = fit.nest_sample_file
+            type_samp = "Nest. Samp."            
+        
+        if not os.path.exists(samp_file):
              choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "MCMC file not found. Generate one and try again?", QtGui.QMessageBox.Ok)      
-             self.button_make_cornerplot.setEnabled(True)
-
+             "%s file not found. Generate one and try again?"%type_samp, QtGui.QMessageBox.Ok)      
+             self.button_make_mcmc_cornerplot.setEnabled(True)
+             self.button_make_nest_cornerplot.setEnabled(True)
+             
              return  
  
  
         # Pass the function to execute
-        worker_cor = Worker(lambda: self.make_cornerplot()) # Any other args, kwargs are passed to the run  
+        worker_cor = Worker(lambda: self.make_cornerplot(type_plot = type_plot)) # Any other args, kwargs are passed to the run  
         # Execute
         worker_cor.signals.finished.connect(self.worker_cornerplot_complete)
         
@@ -3383,20 +3397,23 @@ highly appreciated!
         self.threadpool.start(worker_cor)
  
             
-    def make_cornerplot(self):
+    def make_cornerplot(self,type_plot = 'mcmc'):
         global fit
-        rv.cornerplot(fit, fileinput=True)
+        rv.cornerplot(fit, fileinput=True, type_plot = type_plot )
             
             
       
-    def change_corner_plot_file_name(self):
+    def change_corner_plot_file_name(self, type_plot = "mcmc"):
         global fit
         
         output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the corener plot', '', 'Data (*.png)')
         if output_file[0] != '':
-            fit.corner_plot_file = output_file[0] 
-            self.corner_plot_change_name.setText(output_file[0])   
-            
+            if type_plot == "mcmc":
+                fit.mcmc_corner_plot_file = output_file[0] 
+                self.mcmc_corner_plot_change_name.setText(output_file[0])   
+            elif type_plot == "nest":
+                fit.nest_corner_plot_file = output_file[0] 
+                self.nest_corner_plot_change_name.setText(output_file[0])               
             
        
 ################################# data inspector ###################################  
@@ -4154,11 +4171,16 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
        # self.button_nest_samp.clicked.connect(lambda: self.run_nest_samp())
         self.button_nest_samp.clicked.connect(self.worker_nest)
         
+ 
         
-        self.button_make_cornerplot.clicked.connect(self.worker_cornerplot)
+        self.button_make_mcmc_cornerplot.clicked.connect(lambda: self.worker_cornerplot(type_plot = "mcmc"))
+        self.button_make_nest_cornerplot.clicked.connect(lambda: self.worker_cornerplot(type_plot = "nest"))
         
-        self.corner_plot_change_name.clicked.connect(self.change_corner_plot_file_name)
+        self.mcmc_corner_plot_change_name.clicked.connect(lambda: self.change_corner_plot_file_name(type_plot = "mcmc"))
+        self.nest_corner_plot_change_name.clicked.connect(lambda: self.change_corner_plot_file_name(type_plot = "nest"))
+        
         self.mcmc_samples_change_name.clicked.connect(self.change_mcmc_samples_file_name)
+        self.nest_samples_change_name.clicked.connect(self.change_nest_samples_file_name)
         
         ########## RV fitting ########################
         

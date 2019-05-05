@@ -5,7 +5,7 @@
 echo "For which Python version we want to check/install packages?"
 select py in "Python2" "Python3"; do
    case $py in
-       Python2 ) python="python" ; pip="pip" ; break;;
+       Python2 ) python="python" ; pip="pip2"; break;;
        Python3 ) python="python3"; pip="pip3"; break;;
    esac
 done  
@@ -90,7 +90,7 @@ done
 
 
 #python pip install
-arr=( "qtconsole" "jupyter" "dill" "emcee" "corner" "celerite" "transitleastsquares")
+arr=( "qtconsole" "jupyter" "dill" "emcee" "corner" "celerite" "transitleastsquares" "dynesty")
 
 for i in "${arr[@]}";
 do
