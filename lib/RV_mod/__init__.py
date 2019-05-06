@@ -932,29 +932,43 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
 
         if threads > 1:
             with closing(Pool(processes=threads-1)) as thread:
-                sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, pool = thread ,queue_size=threads, bootstrap=0)
+                sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, pool = thread, 
+                                                queue_size=threads, bootstrap=0)
      
                 sampler.run_nested(dlogz=stop_crit, print_progress=print_progress)
         else:
              sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers)
              sampler.run_nested(dlogz=stop_crit, print_progress=print_progress)
 
+        obj.dyn_res = sampler.results
+        obj.dyn_res.summary()
+
     else:
         print("'Dynamic' Nest. Samp. is running, please wait... (still under tests!)")
         
         if threads > 1:
             with closing(Pool(processes=threads-1)) as thread:
-                sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, pool = thread ,queue_size=threads, bootstrap=0)
+                sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, pool = thread,
+                                                       queue_size=threads, bootstrap=0)
      
-                sampler.run_nested(print_progress=print_progress)
+                sampler.run_nested(nlive_init=nwalkers, print_progress=print_progress)
         else:
-             sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers)
-             sampler.run_nested(print_progress=print_progress)        
+             sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim )
+             sampler.run_nested(nlive_init=nwalkers, print_progress=print_progress)        
         
 
 
-    obj.dyn_res = sampler.results
-    obj.dyn_res.summary()
+        obj.dyn_res = sampler.results
+
+        res = ("niter: {:d}\n"
+               "ncall: {:d}\n"
+               "eff(%): {:6.3f}\n"
+               "logz: {:6.3f} +/- {:6.3f}".format( obj.dyn_res.niter, sum(obj.dyn_res.ncall),
+                       obj.dyn_res.eff, obj.dyn_res.logz[-1], obj.dyn_res.logzerr[-1]))
+
+        print('Summary\n=======\n'+res)
+
+
     
     
     print("--- %s seconds ---" % (time.time() - start_time))  
