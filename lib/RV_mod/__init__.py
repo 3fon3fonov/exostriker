@@ -25,20 +25,25 @@ plt.switch_backend('SVG')
  
 
 import time
-import multiprocessing
-from scipy.signal import argrelextrema
-from scipy.ndimage import gaussian_filter
+#import multiprocessing
+from pathos import multiprocessing
+from pathos.multiprocessing import ProcessingPool as Pool
 
 #from emcee.utils import MPIPool
 import corner
 import celerite 
 from celerite import terms
+import dynesty
 
 import batman
 
 #import copy
 import dill
 import scipy.optimize as op
+from scipy import stats
+from scipy.signal import argrelextrema
+from scipy.ndimage import gaussian_filter
+
 
 from CustomSampler import CustomSampler
 from Warning_log import Warning_log
@@ -790,16 +795,10 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     
     '''Performs nested sampling and saves results'''  
 
-
-    
-    import dynesty
-    from scipy import stats
-    from contextlib import closing
-    from multiprocessing import Pool, cpu_count    
-    
+    #from contextlib import closing
     #from CustomNestedSampler import CustomNestedSampler
     
-    
+   # print("from %s CPS you are using %s CPUs"%(multiprocessing.cpu_count(),threads))
     if threads == 'max':
         threads = multiprocessing.cpu_count()    
     
@@ -886,12 +885,12 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
         return u_trans   
   
  
-    "def prior transform"
-    def prior_transform_old(u):
-        """Transforms our unit cube samples `u` to a flat prior between -10. and 10. in each variable."""
+    #"def prior transform"
+   # def prior_transform_old(u):
+        #"""Transforms our unit cube samples `u` to a flat prior between -10. and 10. in each variable."""
         #return 10000. * (2. * u - 1.)
-        width = 1.
-        return trans_norm(u,obj.par_for_mcmc,width)
+    #    width = 1.
+    #    return trans_norm(u,obj.par_for_mcmc,width)
 
     def trans_norm(p ,mu,sig):
         return stats.norm.ppf(p,loc=mu,scale=sig)
@@ -913,25 +912,26 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
         
     #partial_func = FunctionWrapper(lnprob_new,
    #                 (mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit) )
-    
+  
     partial_func = FunctionWrapper(model_loglik, (mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg, mix_fit) )
     
-   # print('EXPECTED VALUE BEST', partial_func(obj.par_for_mcmc))
+    #from multiprocessing import Pool, cpu_count    
+    from pathos.multiprocessing import ProcessingPool as Pool
+    # print('EXPECTED VALUE BEST', partial_func(obj.par_for_mcmc))
    # print("BEST FIT ESTIMATE ", partial_func(prior_transform(obj.par_for_mcmc)))
 
-    if threads > 1:
-        print(" Sorry, but currently Nest. Samp. works only with 1 CPU (TBF)")
+    #if threads > 10:
+   #     print(" Sorry, but currently Nest. Samp. works only with 1 CPU (TBF)")
         
-        threads = 1
+   #     threads = 1
         
     print_progress = std_output
-
 
     if Dynamic_nest == False:
         print("'Static' Nest. Samp. is running, please wait... (still under tests!)")
 
         if threads > 1:
-            with closing(Pool(processes=threads-1)) as thread:
+            with Pool(processes=threads-1) as thread:
                 sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, pool = thread, 
                                                 queue_size=threads, bootstrap=0)
      
@@ -940,14 +940,18 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
              sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers)
              sampler.run_nested(dlogz=stop_crit, print_progress=print_progress)
 
+        thread.close() 
+        thread.join() 
+        thread.clear() 
+
         obj.dyn_res = sampler.results
         obj.dyn_res.summary()
-
+        
     else:
         print("'Dynamic' Nest. Samp. is running, please wait... (still under tests!)")
         
         if threads > 1:
-            with closing(Pool(processes=threads-1)) as thread:
+            with Pool(processes=threads-1) as thread:
                 sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, pool = thread,
                                                        queue_size=threads, bootstrap=0)
      
@@ -956,8 +960,10 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
              sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim )
              sampler.run_nested(nlive_init=nwalkers, print_progress=print_progress)        
         
-
-
+        thread.close() 
+        thread.join() 
+        thread.clear() 
+       
         obj.dyn_res = sampler.results
 
         res = ("niter: {:d}\n"
@@ -970,17 +976,16 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
 
 
     
-    
-    print("--- %s seconds ---" % (time.time() - start_time))  
+   # print("--- %s seconds ---" % (time.time() - start_time))  
     
     ln = np.hstack(sampler.results.logl)
     samples = np.array(sampler.results.samples)
             
     
-    fileoutput = True
+    #fileoutput = True
     if (fileoutput):
-        start_time = time.time()   
-        print("Please wait... writing the ascii file")  
+       # start_time = time.time()   
+       # print("Please wait... writing the ascii file")  
 
         outfile = open(str(obj.nest_sample_file), 'w') # file to save samples
         for j in range(len(samples)):
@@ -989,10 +994,10 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
                 outfile.write("%s  " %(samples[j,z]))
             outfile.write("\n")
         outfile.close()        
-        print("--- Done for ---")           
-        print("--- %s seconds ---" % (time.time() - start_time))  
+       # print("--- Done for ---")           
+     #   print("--- %s seconds ---" % (time.time() - start_time))  
          
-    start_time = time.time()   
+    #start_time = time.time()   
 
  
     obj.nest_stat["mean"] = get_mean_of_samples(sampler.results.samples,len(pp))
@@ -1001,8 +1006,6 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     obj.nest_stat["mode"] = get_mode_of_samples(sampler.results.samples,len(pp))
  
     
-    
-    # Now we will save new parameters and their errors (different + and - errors in this case). Flag save_means determines if we want to take means as new best fit parameters or stick to old ones and calculate errors with respect to that           
     if (save_means):
         obj.par_for_mcmc = obj.nest_stat["mean"] 
         pp = obj.nest_stat["mean"]  
@@ -1018,7 +1021,7 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
    #     pp = obj.par_for_mcmc
         
 
-    new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.results.samples[:,i], [level])),float(np.percentile(sampler.results.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
+    new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.results.samples[:,i], [level])), float(np.percentile(sampler.results.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
     #new_par_errors = [[0,0] for i in range(len(obj.par_for_mcmc))] 
 
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
@@ -1054,7 +1057,8 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
    #     obj.sampler_saved=True           
    # else:   
    #     sampler.reset()
- 
+   
+    sampler.reset()
     obj.gps = []
     
     print("--- %s seconds ---" % (time.time() - start_time))     
@@ -1152,7 +1156,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl)
 
 
-    print("--- %s seconds ---" % (time.time() - start_time))     
+ #  print("--- %s seconds ---" % (time.time() - start_time))     
 
     #print(type(sampler.samples), len(sampler.samples))
     #print(type(sampler.samples[:,0]), len(sampler.samples[:,0]))
@@ -1160,8 +1164,8 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
             
     fileoutput = True
     if (fileoutput):
-        start_time = time.time()   
-        print("Please wait... writing the ascii file")          
+     #   start_time = time.time()   
+    #    print("Please wait... writing the ascii file")          
         
         outfile = open(str(obj.mcmc_sample_file), 'w') # file to save samples
         for j in range(len(sampler.samples)):
@@ -1170,10 +1174,10 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
                 outfile.write("%s  " %(sampler.samples[j,z]))
             outfile.write("\n")
         outfile.close()    
-        print("--- Done for ---")           
-        print("--- %s seconds ---" % (time.time() - start_time))     
+   #     print("--- Done for ---")           
+   #     print("--- %s seconds ---" % (time.time() - start_time))     
      
-    start_time = time.time()   
+   # start_time = time.time()   
  
     obj.mcmc_stat["mean"] = sampler.means
     obj.mcmc_stat["best"] = sampler.minlnL
@@ -1462,6 +1466,7 @@ class signal_fit(object):
         ########## new stuff ##########
         self.init_pl_params()
         self.init_mcmc_par()
+        self.init_nest_par()
         
         self.fit_performed = False
         self.model_saved=False
@@ -1486,9 +1491,7 @@ class signal_fit(object):
         
         self.init_st_mass()
         
-        
-        
-        
+ 
         
         self.rtg = [True,False,False]
  

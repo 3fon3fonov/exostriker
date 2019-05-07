@@ -5,7 +5,7 @@
 echo "For which Python version we want to check/install packages?"
 select py in "Python2" "Python3"; do
    case $py in
-       Python2 ) python="python" ; pip="pip2" ; break;;
+       Python2 ) python="python2"; pip="pip2"; break;;
        Python3 ) python="python3"; pip="pip3"; break;;
    esac
 done 
@@ -179,7 +179,7 @@ done
  
 
 #python pip install
-arr=( "qtconsole" "jupyter" "dill" "emcee" "corner" "celerite" "transitleastsquares" "dynesty")
+arr=( "qtconsole" "jupyter" "pathos" "dill" "emcee" "corner" "celerite" "transitleastsquares" "dynesty")
 
 for i in "${arr[@]}";
 do
@@ -258,7 +258,7 @@ done
 
 echo " " 
 echo " " 
-echo "Installing the swift N-body lib, OK?  (you must if you haven't already!)"
+echo "Installing the swift N-body lib, OK?  (you must, if you haven't done it already!)"
 echo " " 
 echo " " 
 
@@ -277,7 +277,7 @@ done
 
 echo " " 
 echo " " 
-echo "Compiling the fortran fitting routines, OK? (you must if you haven't already!)"
+echo "Compiling the fortran fitting routines, OK? (you must, if you haven't done it already!)"
 echo " " 
 echo " " 
 
@@ -296,7 +296,7 @@ done
 
 echo " " 
 echo " " 
-echo "Compiling Symba/mvs and other N-body routines, OK? (you must if you haven't already!)"
+echo "Compiling Symba/mvs and other N-body routines, OK? (you must, if you haven't done it already!)"
 echo " " 
 echo " " 
 

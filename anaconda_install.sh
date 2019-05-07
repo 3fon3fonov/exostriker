@@ -77,7 +77,7 @@ done
 
 
 #python system install 
-arr=( "numpy" "scipy" "matplotlib" "qtconsole" "jupyter" "dill" "emcee" "corner" "celerite" "dynesty")
+arr=( "numpy" "scipy" "matplotlib" "qtconsole" "jupyter" "pathos" "dill" "emcee" "corner" "celerite" "dynesty")
 
 for i in "${arr[@]}";
 do
@@ -131,7 +131,7 @@ done
 
 echo " " 
 echo " " 
-echo "Installing the swift N-body lib, OK?  (you must if you haven't already!)"
+echo "Installing the swift N-body lib, OK?  (you must, if you haven't done it already!)"
 echo " " 
 echo " " 
 
@@ -150,7 +150,7 @@ done
 
 echo " " 
 echo " " 
-echo "Compiling the fortran fitting routines, OK? (you must if you haven't already!)"
+echo "Compiling the fortran fitting routines, OK? (you must, if you haven't done it already!)"
 echo " " 
 echo " " 
 
@@ -168,7 +168,7 @@ done
 
 echo " " 
 echo " " 
-echo "Compiling Symba/mvs and other N-body routines, OK? (you must if you haven't already!)"
+echo "Compiling Symba/mvs and other N-body routines, OK? (you must, if you haven't done it already!)"
 echo " " 
 echo " " 
 
