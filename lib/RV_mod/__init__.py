@@ -759,7 +759,7 @@ def get_mode_of_samples(samples, nsamp):
         n = gaussian_filter(n, 1.0)
         x0 = np.array(list(zip(b[:-1], b[1:]))).flatten()
         y0 = np.array(list(zip(n, n))).flatten()	
-    	k  = np.unravel_index(y0.argmax(),y0.shape)
+        k  = np.unravel_index(y0.argmax(),y0.shape)
         mode_samp.append(x0[k])
         #err1_samp.append(x0[k]- ci[0])
         #err2_samp.append(ci[1]- x0[k])        
