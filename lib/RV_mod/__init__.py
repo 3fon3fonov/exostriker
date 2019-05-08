@@ -336,7 +336,7 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
     
     if(rtg[0]):
         
-            
+        print(program, mix_fit[0])
         ppp= '%s << EOF\n%s %f %d %d %d %d %d\n%f %d %d %d \n%d\n'%(program, eps,dt,amoeba_starts,when_to_kill,npoints, model_max, model_min, stmass, outputfiles[0], outputfiles[1],outputfiles[2], len(vel_files)) # first three lines of fortran input: precision and timestep for integration, stellar mass and number of datasets
         for i in range(len(vel_files)): 
             # path for each dataset      
@@ -375,6 +375,7 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
         
         #print(text)
         fit_results=fortranoutput.modfit(print_stat=False)
+        #print(float(fit_results.loglik))
         rv_loglik = float(fit_results.loglik)
     else:
         rv_loglik = 0
@@ -482,9 +483,11 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     npl = obj.npl
     epoch = obj.epoch     
     stmass = obj.params.stellar_mass  
+ 
+    mix_fit = obj.mixed_fit    
     
     if (obj.mod_dynamical):
-        if (obj.mixed_fit[0]):
+        if mix_fit[0] == True:
             mod='./lib/fr/loglik_dyn+'
         else: 
             mod='./lib/fr/loglik_dyn'       
@@ -505,7 +508,6 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
-    mix_fit = obj.mixed_fit
  
     
     priors = [pr_nr,jeff_nr]
@@ -823,15 +825,17 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     
     npl = obj.npl
     epoch = obj.epoch     
-    stmass = obj.params.stellar_mass    
+    stmass = obj.params.stellar_mass   
+    
+    mix_fit = obj.mixed_fit    
     
     if (obj.mod_dynamical):
-        if (obj.mixed_fit[0]):
+        if mix_fit[0] == True:
             mod='./lib/fr/loglik_dyn+'
         else: 
             mod='./lib/fr/loglik_dyn'       
     else:
-        mod='./lib/fr/loglik_kep'
+        mod='./lib/fr/loglik_kep'  
  
    # print(mod)
     #program='./lib/fr/%s_%s'%(minimized_value,mod) 
@@ -845,7 +849,6 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
-    mix_fit = obj.mixed_fit
  
     
     priors = [pr_nr,jeff_nr]
@@ -1099,10 +1102,14 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     npl = obj.npl
     epoch = obj.epoch     
     stmass = obj.params.stellar_mass    
+ 
+    
+    mix_fit = obj.mixed_fit    
     
     if (obj.mod_dynamical):
-        if (obj.mixed_fit[0]):
+        if mix_fit[0] == True:
             mod='./lib/fr/loglik_dyn+'
+            #print(mix_fit[0],mod) 
         else: 
             mod='./lib/fr/loglik_dyn'       
     else:
@@ -1121,8 +1128,9 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
-    mix_fit = obj.mixed_fit
+
  
+    #print(mix_fit)
     
     priors = [pr_nr,jeff_nr]
     level = (100.0- obj.percentile_level)/2.0
