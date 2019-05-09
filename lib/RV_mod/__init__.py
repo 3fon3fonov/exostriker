@@ -873,7 +873,6 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
      
     ################## prior TESTS ########################
 
-
     def prior_transform(p): 
 
         u_trans = np.zeros(len(p)) 
@@ -887,13 +886,6 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
                 u_trans[j] = trans_uni(p[j],bb[j][0],bb[j][1])
         return u_trans   
   
- 
-    #"def prior transform"
-   # def prior_transform_old(u):
-        #"""Transforms our unit cube samples `u` to a flat prior between -10. and 10. in each variable."""
-        #return 10000. * (2. * u - 1.)
-    #    width = 1.
-    #    return trans_norm(u,obj.par_for_mcmc,width)
 
     def trans_norm(p ,mu,sig):
         return stats.norm.ppf(p,loc=mu,scale=sig)
@@ -977,7 +969,6 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
 
         print('Summary\n=======\n'+res)
 
-
     
    # print("--- %s seconds ---" % (time.time() - start_time))  
     
@@ -1025,25 +1016,14 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
         
 
     new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.results.samples[:,i], [level])), float(np.percentile(sampler.results.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
-    #new_par_errors = [[0,0] for i in range(len(obj.par_for_mcmc))] 
 
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
-
-     
-    #print(newparams.GP_params)
-    #current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
-   # print(current_GP_params)
-
    
     obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things 
 
     obj.update_with_mcmc_errors(new_par_errors)
     
     obj.overwrite_params(newparams)
-   # print(new_par_errors)
-    
- 
-   # obj.params.update_GP_params(current_GP_params)
  
     if (save_means):
         obj.loglik = maxlnl
