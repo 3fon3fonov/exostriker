@@ -1352,6 +1352,42 @@ Polyfit coefficients:
             fit.gls_o_c = RV_per_res        
         else:
             return
+
+
+    def cross_hair(self, plot_wg, log=False ):
+        global fit 
+
+        vLine = pg.InfiniteLine(angle=90, movable=False)#, pos=0)
+        hLine = pg.InfiniteLine(angle=0,  movable=False)#, pos=2450000)
+        plot_wg.addItem(vLine, ignoreBounds=True)
+        plot_wg.addItem(hLine, ignoreBounds=True)
+        label = pg.TextItem(anchor=(1, 1))
+        plot_wg.addItem(label, ignoreBounds=True) 
+        
+        vb = plot_wg.getViewBox()   
+       # viewrange = vb.viewRange()
+
+        def mouseMoved(evt):
+            pos = evt[0]  ## using signal proxy turns original arguments into a tuple
+            if plot_wg.sceneBoundingRect().contains(pos):             
+
+                mousePoint = vb.mapSceneToView(pos)
+
+                if log == True:
+                    label.setText("x=%0.3f,  y=%0.3f"%(10**mousePoint.x(), mousePoint.y()))
+                else:
+                    label.setText("x=%0.3f,  y=%0.3f"%(mousePoint.x(), mousePoint.y()))
+                    
+                vLine.setPos(mousePoint.x())
+                hLine.setPos(mousePoint.y())
+                #print(mousePoint.x(),mousePoint.y())
+                label.setPos(mousePoint.x(), mousePoint.y())
+        plot_wg.getViewBox().setAutoVisible(y=True)
+
+        proxy = pg.SignalProxy(plot_wg.scene().sigMouseMoved, rateLimit=60, slot=mouseMoved)    
+        plot_wg.proxy = proxy
+        ################### TETS cross hair ############3    
+    
         
 
     def update_RV_GLS_plots(self):
@@ -1386,7 +1422,11 @@ Polyfit coefficients:
             self.RV_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
             fit.gls.info(stdout=False) + 
             self.identify_power_peaks(1/fit.gls.freq, fit.gls.power, power_level = power_levels, sig_level = fit.gls.powerLevel(np.array(power_levels)) )))   
-    
+ 
+        if self.gls_cross_hair.isChecked():
+            self.cross_hair(p7,log=self.radioButton_RV_GLS_period.isChecked())    
+            
+            
  
     def update_RV_o_c_GLS_plots(self):
         global fit,  p8  
@@ -1417,7 +1457,8 @@ Polyfit coefficients:
             self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(fit.gls_o_c.info(stdout=False)+
             self.identify_power_peaks(1/fit.gls_o_c.freq, fit.gls_o_c.power, power_level = power_levels, sig_level = fit.gls_o_c.powerLevel(np.array(power_levels)) ) )  )      
  
- 
+        if self.gls_o_c_cross_hair.isChecked():
+            self.cross_hair(p8,log=self.radioButton_RV_o_c_GLS_period.isChecked())    
     
     def update_WF_plots(self):
         global fit, p12  
@@ -1471,9 +1512,9 @@ Polyfit coefficients:
     
         self.check_RV_symbol_sizes()
         
-        #inf1 = pg.InfiniteLine(movable=False, angle=0, label=None, span=(0, 1), 
-        #              labelOpts={'position':0.0, 'color': 'k', 'fill': (200,200,200,50), 'movable': False} )
-        #p1.addItem(inf1)    
+        #inf1 = pg.InfiniteLine(movable=True, angle=90, label="%", span=(0, 1), 
+       #               labelOpts={'color': 'r', 'fill': (200,200,200,50), 'movable': True} )
+       # p1.addItem(inf1)    
 
         if len(fit.filelist.idset)==0:
             return
@@ -1521,7 +1562,12 @@ Polyfit coefficients:
             beam=0.0, pen=fit.colors[i])  
             
             p1.addItem(err1)  
- 
+            
+        if self.RV_plot_cross_hair.isChecked():
+            self.cross_hair(p1,log=False)  
+            
+            
+            
         p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
 
         p2.plot(fit.fit_results.model_jd,y_model_o_c, 
@@ -1550,11 +1596,12 @@ Polyfit coefficients:
             bottom=error_list[fit.filelist.idset==i],           
             beam=0.0, pen=fit.colors[i])  
             
-            
-            
             p2.addItem(err2)  
  
-     
+        if self.RV_o_c_plot_cross_hair.isChecked():
+            self.cross_hair(p2,log=False)       
+            
+            
         
     def update_plots(self):
         self.update_RV_GLS_plots()
@@ -4250,6 +4297,13 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.plot_corr_coef.stateChanged.connect(self.update_correlations_data_plots)        
 
         self.do_RV_GP.stateChanged.connect(self.rv_GP_set_use)
+
+        self.gls_cross_hair.stateChanged.connect(self.update_RV_GLS_plots)
+        self.gls_o_c_cross_hair.stateChanged.connect(self.update_RV_o_c_GLS_plots)
+        self.RV_plot_cross_hair.stateChanged.connect(self.update_RV_plots)
+        self.RV_o_c_plot_cross_hair.stateChanged.connect(self.update_RV_plots)
+
+ 
 
                 
         self.color_corr.clicked.connect(self.get_corr_color)
