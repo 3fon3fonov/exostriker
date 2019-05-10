@@ -1888,9 +1888,12 @@ Polyfit coefficients:
 
  
     def handleActivated(self, index):
-        global fit, pe, p2
+        global fit, pe 
         
         ind = self.comboBox_extra_plot.itemData(index) 
+
+       # ind = self.comboBox_extra_plot.currentIndex()
+
  
         if ind <= fit.npl:
             self.phase_plots(ind)
@@ -1975,6 +1978,11 @@ Polyfit coefficients:
         pe.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})
         pe.setLabel('left',   'RV', units='m/s',  **{'font-size':'12pt'})  
 
+        if self.extra_plot_cross_hair.isChecked():
+            self.cross_hair(pe,log=False)   
+
+
+
     ############### VERY VERY VERY Ugly fix !!!! it should be 
     
     def extra_RV_GLS_plots(self):
@@ -2000,6 +2008,10 @@ Polyfit coefficients:
         if fit.gls.norm == 'ZK':
             [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
 
+
+        if self.extra_plot_cross_hair.isChecked():
+            self.cross_hair(pe,log=self.radioButton_RV_GLS_period.isChecked())   
+
     def extra_RV_GLS_o_c_plots(self):
         global fit,  pe 
  
@@ -2024,7 +2036,8 @@ Polyfit coefficients:
         if fit.gls.norm == 'ZK':
             [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]
 
-
+        if self.extra_plot_cross_hair.isChecked():
+            self.cross_hair(pe,log=self.radioButton_RV_o_c_GLS_period.isChecked())   
 
 ############ TLS (Work in progress here) ##############################      
        
@@ -4101,7 +4114,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
    # def layout_widgets(layout):
     #   return (layout.itemAt(i) for i in range(layout.count()))
 
-    def rv_plot_phase_chage(self):
+    def rv_plot_phase_change(self):
         global fit        
         
         #RVphase = self.RV_phase_slider.value()
@@ -4302,6 +4315,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.gls_o_c_cross_hair.stateChanged.connect(self.update_RV_o_c_GLS_plots)
         self.RV_plot_cross_hair.stateChanged.connect(self.update_RV_plots)
         self.RV_o_c_plot_cross_hair.stateChanged.connect(self.update_RV_plots)
+        self.extra_plot_cross_hair.stateChanged.connect(self.update_extra_plots)
 
  
 
@@ -4348,8 +4362,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)   
         
 
-       # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_chage)       
-        self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_chage)       
+       # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_change)       
+        self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_change)       
         
         self.check_settings()
 
