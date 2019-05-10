@@ -336,7 +336,7 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
     
     if(rtg[0]):
         
-        print(program, mix_fit[0])
+        #print(program, mix_fit[0])
         ppp= '%s << EOF\n%s %f %d %d %d %d %d\n%f %d %d %d \n%d\n'%(program, eps,dt,amoeba_starts,when_to_kill,npoints, model_max, model_min, stmass, outputfiles[0], outputfiles[1],outputfiles[2], len(vel_files)) # first three lines of fortran input: precision and timestep for integration, stellar mass and number of datasets
         for i in range(len(vel_files)): 
             # path for each dataset      
