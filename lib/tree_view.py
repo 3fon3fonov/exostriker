@@ -53,8 +53,7 @@ class Widget_tree(QWidget):
         self.listview.setRootIndex(self.fileModel.index(path))
 
         self.treeview.clicked.connect(self.on_clicked)
-
-
+ 
 
     def on_clicked(self, index):
         path = self.dirModel.fileInfo(index).absoluteFilePath()
