@@ -802,7 +802,14 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
 
     
 ####################################################        
-  
+
+    def initialize_color_dialog(self):
+
+        self.colorDialog = QtGui.QColorDialog()
+        self.colorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel, True)
+        self.colorDialog.setOption(QtGui.QColorDialog.DontUseNativeDialog, True)
+
+
     def initialize_buttons(self):
 
         # for some reason this does not work!
@@ -875,27 +882,27 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_remove_activity_data.setId(self.remove_activity_data9,9)
         self.buttonGroup_remove_activity_data.setId(self.remove_activity_data10,10)       
         
-        self.buttonGroup_color_picker.setId(self.pushButton_color_1,1)
-        self.buttonGroup_color_picker.setId(self.pushButton_color_2,2)
-        self.buttonGroup_color_picker.setId(self.pushButton_color_3,3)
-        self.buttonGroup_color_picker.setId(self.pushButton_color_4,4)
-        self.buttonGroup_color_picker.setId(self.pushButton_color_5,5)
-        self.buttonGroup_color_picker.setId(self.pushButton_color_6,6)
-        self.buttonGroup_color_picker.setId(self.pushButton_color_7,7)
-        self.buttonGroup_color_picker.setId(self.pushButton_color_8,8)
-        self.buttonGroup_color_picker.setId(self.pushButton_color_9,9)
-        self.buttonGroup_color_picker.setId(self.pushButton_color_10,10)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_1,1)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_2,2)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_3,3)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_4,4)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_5,5)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_6,6)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_7,7)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_8,8)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_9,9)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_10,10)
         
-        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_1,1)
-        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_2,2)
-        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_3,3)
-        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_4,4)
-        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_5,5)
-        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_6,6)
-        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_7,7)
-        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_8,8)
-        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_9,9)
-        self.buttonGroup_symbol_picker.setId(self.pushButton_symbol_10,10)        
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_1,1)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_2,2)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_3,3)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_4,4)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_5,5)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_6,6)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_7,7)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_8,8)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_9,9)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_10,10)        
         
         
       
@@ -1149,7 +1156,7 @@ Polyfit coefficients:
     def get_corr_color(self):
         global fit
         
-        colorz = QtGui.QColorDialog.getColor()
+        colorz = self.colorDialog.getColor()
         colors[0]=colorz.name()   
 
         self.update_correlations_data_plots()
@@ -1311,7 +1318,39 @@ Polyfit coefficients:
         fit.SLSQP_opt      = {'disp': True, 'maxiter': int(self.slsqp_maxiter.value()),  'eps': 1.4901161193847656e-08, 'ftol': self.slsqp_ftol.value(), 'iprint': 1}
       
         
- 
+    def cross_hair(self, plot_wg, log=False ):
+        global fit 
+
+        vLine = pg.InfiniteLine(angle=90, movable=False)#, pos=0)
+        hLine = pg.InfiniteLine(angle=0,  movable=False)#, pos=2450000)
+        plot_wg.addItem(vLine, ignoreBounds=True)
+        plot_wg.addItem(hLine, ignoreBounds=True)
+        label = pg.TextItem(anchor=(1, 1))
+        plot_wg.addItem(label, ignoreBounds=True) 
+        
+        vb = plot_wg.getViewBox()   
+       # viewrange = vb.viewRange()
+
+        def mouseMoved(evt):
+            pos = evt[0]  ## using signal proxy turns original arguments into a tuple
+            if plot_wg.sceneBoundingRect().contains(pos):             
+
+                mousePoint = vb.mapSceneToView(pos)
+
+                if log == True:
+                    label.setText("x=%0.3f,  y=%0.3f"%(10**mousePoint.x(), mousePoint.y()))
+                else:
+                    label.setText("x=%0.3f,  y=%0.3f"%(mousePoint.x(), mousePoint.y()))
+                    
+                vLine.setPos(mousePoint.x())
+                hLine.setPos(mousePoint.y())
+                #print(mousePoint.x(),mousePoint.y())
+                label.setPos(mousePoint.x(), mousePoint.y())
+        plot_wg.getViewBox().setAutoVisible(y=True)
+
+        proxy = pg.SignalProxy(plot_wg.scene().sigMouseMoved, rateLimit=60, slot=mouseMoved)    
+        plot_wg.proxy = proxy
+  
 
 ######################## RV plots ######################################        
 
@@ -1353,42 +1392,7 @@ Polyfit coefficients:
         else:
             return
 
-
-    def cross_hair(self, plot_wg, log=False ):
-        global fit 
-
-        vLine = pg.InfiniteLine(angle=90, movable=False)#, pos=0)
-        hLine = pg.InfiniteLine(angle=0,  movable=False)#, pos=2450000)
-        plot_wg.addItem(vLine, ignoreBounds=True)
-        plot_wg.addItem(hLine, ignoreBounds=True)
-        label = pg.TextItem(anchor=(1, 1))
-        plot_wg.addItem(label, ignoreBounds=True) 
-        
-        vb = plot_wg.getViewBox()   
-       # viewrange = vb.viewRange()
-
-        def mouseMoved(evt):
-            pos = evt[0]  ## using signal proxy turns original arguments into a tuple
-            if plot_wg.sceneBoundingRect().contains(pos):             
-
-                mousePoint = vb.mapSceneToView(pos)
-
-                if log == True:
-                    label.setText("x=%0.3f,  y=%0.3f"%(10**mousePoint.x(), mousePoint.y()))
-                else:
-                    label.setText("x=%0.3f,  y=%0.3f"%(mousePoint.x(), mousePoint.y()))
-                    
-                vLine.setPos(mousePoint.x())
-                hLine.setPos(mousePoint.y())
-                #print(mousePoint.x(),mousePoint.y())
-                label.setPos(mousePoint.x(), mousePoint.y())
-        plot_wg.getViewBox().setAutoVisible(y=True)
-
-        proxy = pg.SignalProxy(plot_wg.scene().sigMouseMoved, rateLimit=60, slot=mouseMoved)    
-        plot_wg.proxy = proxy
-        ################### TETS cross hair ############3    
-    
-        
+ 
 
     def update_RV_GLS_plots(self):
         global fit, p7 
@@ -2477,7 +2481,8 @@ Transit duration: %s d
     def get_delta_omega_color(self):
         global fit, colors_delta_om
         
-        colorz = QtGui.QColorDialog.getColor()
+        #colorz = QtGui.QColorDialog.getColor()
+        colorz = self.colorDialog.getColor()
         colors_delta_om[0]=colorz.name()   
  
         self.plot_delta_omega()
@@ -3532,11 +3537,19 @@ highly appreciated!
            
         else: 
             return
+        
+    def cross_data_inspect(self):        
+        if self.inpector_plot_cross_hair.isChecked():
+            self.cross_hair(pdi,log=False)   
+            
             
     def plot_data_inspect(self, index):
-        global fit, colors,pdi 
+        global fit, colors, pdi 
         # self.sender() == self.treeView
         # self.sender().model() == self.fileSystemModel
+        
+        #print(index)
+        
         path = self.sender().model().filePath(index)
  
    
@@ -3554,10 +3567,10 @@ highly appreciated!
  
         pdi.addLine(x=None, y=np.mean(y), pen=pg.mkPen('#ff9933', width=0.8))   
  
-        if self.rv_data_size.value() > 2:
-            symbolsize = self.rv_data_size.value() -2
+        if self.insp_data_size.value() > 2:
+            symbolsize = self.insp_data_size.value() -2
         else:
-            symbolsize = self.rv_data_size.value() 
+            symbolsize = self.insp_data_size.value() 
 
     
         pdi.plot(x,y,             
@@ -3601,6 +3614,10 @@ highly appreciated!
         self.data_insp_print_info.clicked.connect(lambda: self.print_info_for_object(self.stat_info(x,y,y_err,path)))   
 
         #self.data_insp_load_data.clicked.connect(lambda: self.load_data_inspect(path))
+ 
+        self.cross_data_inspect()
+
+
         
         
     def stat_info(self,x,y,y_err,path):
@@ -4012,8 +4029,11 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
     def get_color(self):
         global fit
         
-        but_ind = self.buttonGroup_color_picker.checkedId()   
-        colorz = QtGui.QColorDialog.getColor()
+        but_ind = self.buttonGroup_color_picker.checkedId()       
+        colorz = self.colorDialog.getColor()       
+        
+        #QtGui.QColorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel,True)
+        #colorz = QtGui.QColorDialog.getColor()
         
         if colorz.isValid():
             fit.colors[but_ind-1]=colorz.name()   
@@ -4155,7 +4175,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
         self.initialize_buttons()
         self.initialize_plots()   
-                
+ 
+        self.initialize_color_dialog()               
 #        self.init_fit()
         
         ###################### Console #############################
@@ -4316,6 +4337,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.RV_plot_cross_hair.stateChanged.connect(self.update_RV_plots)
         self.RV_o_c_plot_cross_hair.stateChanged.connect(self.update_RV_plots)
         self.extra_plot_cross_hair.stateChanged.connect(self.update_extra_plots)
+        self.inpector_plot_cross_hair.stateChanged.connect(lambda: self.plot_data_inspect(self.tree_view_tab.listview))
 
  
 
