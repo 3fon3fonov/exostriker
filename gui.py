@@ -813,19 +813,19 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
     def initialize_buttons(self):
 
         # for some reason this does not work!
-        #[self.buttonGroup_4.setId(bg4, ii) for ii, bg4 in enumerate(self.buttonGroup_4.buttons())]
+        #[self.buttonGroup_add_RV_data.setId(bg4, ii) for ii, bg4 in enumerate(self.buttonGroup_add_RV_data.buttons())]
         #[self.buttonGroup_remove_RV_data.setId(bg5, jj) for jj, bg5 in enumerate(self.buttonGroup_remove_RV_data.buttons())]   
         
-        self.buttonGroup_4.setId(self.Button_RV_data_1,1)
-        self.buttonGroup_4.setId(self.Button_RV_data_2,2)
-        self.buttonGroup_4.setId(self.Button_RV_data_3,3)
-        self.buttonGroup_4.setId(self.Button_RV_data_4,4)
-        self.buttonGroup_4.setId(self.Button_RV_data_5,5)
-        self.buttonGroup_4.setId(self.Button_RV_data_6,6)
-        self.buttonGroup_4.setId(self.Button_RV_data_7,7)
-        self.buttonGroup_4.setId(self.Button_RV_data_8,8)
-        self.buttonGroup_4.setId(self.Button_RV_data_9,9)
-        self.buttonGroup_4.setId(self.Button_RV_data_10,10)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_1,1)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_2,2)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_3,3)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_4,4)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_5,5)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_6,6)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_7,7)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_8,8)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_9,9)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_10,10)
 
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data1,1)
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data2,2)
@@ -892,6 +892,8 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_8,8)
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_9,9)
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_10,10)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_11,11)
+       
         
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_1,1)
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_2,2)
@@ -1538,9 +1540,9 @@ Polyfit coefficients:
         else:
             y_model = fit.fit_results.model 
             y_model_o_c = np.zeros(len(y_model))
-
+            
         p1.plot(fit.fit_results.model_jd,y_model, 
-        pen={'color': 0.5, 'width': 1.1},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        pen={'color': fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
         if  fit.doGP == True:
@@ -1575,7 +1577,7 @@ Polyfit coefficients:
         p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
 
         p2.plot(fit.fit_results.model_jd,y_model_o_c, 
-        pen={'color': 0.5, 'width': 1.1},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
         if fit.doGP == True:
@@ -1642,7 +1644,7 @@ Polyfit coefficients:
     def showDialog_RV_input_file(self):
         global fit
 
-        but_ind = self.buttonGroup_4.checkedId()   
+        but_ind = self.buttonGroup_add_RV_data.checkedId()   
         input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RV data', '', 'Data (*.vels)')
         
         if str(input_files[0]) != '':
@@ -1656,7 +1658,7 @@ Polyfit coefficients:
             self.update_use()
             self.update_params()
             self.update_RV_file_buttons()
-            #self.buttonGroup_4.button(fit.filelist.ndset).setText(self.file_from_path(input_files[0]))
+            #self.buttonGroup_add_RV_data.button(fit.filelist.ndset).setText(self.file_from_path(input_files[0]))
             
 
    # def RV_file_names(self,ind,name):
@@ -1689,16 +1691,16 @@ Polyfit coefficients:
         
         for i in range(10):
             if i < fit.filelist.ndset:
-                self.buttonGroup_4.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_add_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
                 self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
                 font.setPointSize(9)
-                self.buttonGroup_4.button(i+1).setText(fit.filelist.files[i].name) 
-                self.buttonGroup_4.button(i+1).setFont(font)
+                self.buttonGroup_add_RV_data.button(i+1).setText(fit.filelist.files[i].name) 
+                self.buttonGroup_add_RV_data.button(i+1).setFont(font)
 
             else:
-                self.buttonGroup_4.button(i+1).setStyleSheet("")
+                self.buttonGroup_add_RV_data.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("")
-                self.buttonGroup_4.button(i+1).setText("data %s"%(i+1))
+                self.buttonGroup_add_RV_data.button(i+1).setText("data %s"%(i+1))
 
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
         self.init_correlations_combo()
@@ -1954,7 +1956,7 @@ Polyfit coefficients:
         #print(model_time_phase[0:10],sort[0:10])
  
         pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))   
-        pe.plot(model_time_phase,ph_model, pen={'color': 0.5, 'width': 2.0},
+        pe.plot(model_time_phase,ph_model, pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()+1},
         enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'})   
         
         
@@ -4017,10 +4019,10 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         #font.setWeight(75)
         
  
-        for i in range(10):
+        for i in range(11):
             self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
             self.buttonGroup_color_picker.button(i+1).setFont(font)              
-
+        for i in range(10):    
             self.buttonGroup_symbol_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])  
             self.buttonGroup_symbol_picker.button(i+1).setText(fit.pyqt_symbols_rvs[i]) 
             self.buttonGroup_symbol_picker.button(i+1).setFont(font)              
@@ -4034,7 +4036,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
         #QtGui.QColorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel,True)
         #colorz = QtGui.QColorDialog.getColor()
-        
+        print(but_ind-1)
+        print(fit.colors[but_ind-1])       
         if colorz.isValid():
             fit.colors[but_ind-1]=colorz.name()   
             self.update_color_picker()
@@ -4048,6 +4051,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             #self.update_activity_gls_plots()     
         else:
             return
+        
+        
 
 
 
@@ -4239,7 +4244,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
        
         self.load_fort_in_file.clicked.connect(self.showDialog_fortran_input_file)
 
-        self.buttonGroup_4.buttonClicked.connect(self.showDialog_RV_input_file)
+        self.buttonGroup_add_RV_data.buttonClicked.connect(self.showDialog_RV_input_file)
         self.buttonGroup_remove_RV_data.buttonClicked.connect(self.remove_RV_file)
  
         self.buttonGroup_activity_data.buttonClicked.connect(self.showDialog_act_input_file)
@@ -4304,8 +4309,13 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.comboBox_pl_2.activated.connect(self.plot_delta_omega)
 
 
-
+        ############### RV plotting controll ####################      
+        self.rv_model_width.valueChanged.connect(self.update_RV_plots)
+        self.rv_model_width.valueChanged.connect(self.update_extra_plots)    
         self.jitter_to_plots.stateChanged.connect(self.update_plots)
+        
+        
+        
         
         self.init_correlations_combo()
         self.init_activity_combo()
@@ -4331,6 +4341,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.plot_corr_coef.stateChanged.connect(self.update_correlations_data_plots)        
 
         self.do_RV_GP.stateChanged.connect(self.rv_GP_set_use)
+
+
+        ############### Cross hair ####################      
 
         self.gls_cross_hair.stateChanged.connect(self.update_RV_GLS_plots)
         self.gls_o_c_cross_hair.stateChanged.connect(self.update_RV_o_c_GLS_plots)
