@@ -161,6 +161,8 @@ def get_gps_model(obj,  kernel_id=-1):
 
     return
 
+
+
 ######### Transit GP work in progress ###########    
 
 def initiate_tansit_gps(obj,  kernel_id=-1): 

@@ -76,19 +76,32 @@ def mut_incl(i1,i2,capOm):
     (np.sin(np.radians(i1))*np.sin(np.radians(i2))*np.cos(np.radians(capOm))))))
     return fb
  
+def add_jitter(obj, errors, ind):
     
-def get_time_series(obj, file, idset_ts, jitter=False, o_c=False):
+    errors_with_jitt = np.array([np.sqrt(errors[i]**2 + obj.params.jitters[ii]**2)  for i,ii in enumerate(ind)])
+    return errors_with_jitt 
+    
+
+def get_RV_data(obj, file, idset_ts, jitter=False, o_c=False, print_data=False, width = 10, precision = 3):
  
     if len(obj.filelist.idset)==0:
         return
     
+   # if idset_ts ==0:
+   #     print("dataset IDs start from 1")
+   #     return
+   # elif len(np.atleast_1d(idset_ts)) > 1:
+   #     if 0 in idset_ts:
+   #         print("dataset IDs start from 1")
+   #         return            
+            
     #if not os.path.exists(path):
    #     os.makedirs(path)
  
     output_file = str(file) 
     f = open(output_file, 'w') 
     
-    idset_ts = np.array(np.atleast_1d(idset_ts)) -1
+    idset_ts = np.array(np.atleast_1d(idset_ts)) #-1
     
     
     JD = obj.fit_results.rv_model.jd
@@ -96,29 +109,34 @@ def get_time_series(obj, file, idset_ts, jitter=False, o_c=False):
         rv = obj.fit_results.rv_model.rvs
     else:
         rv = obj.fit_results.rv_model.o_c    
-    sigma =  obj.fit_results.rv_model.rv_err 
     id_set = obj.filelist.idset
-    #if not jitter: jitter need to be added in the fit class TBD !
+    
+    if jitter==True:
+        sigma = add_jitter(obj,obj.fit_results.rv_model.rv_err, id_set)   
+    else:
+        sigma =  obj.fit_results.rv_model.rv_err 
+ 
     
     if len(idset_ts)==1:
       
         for i in range(len(JD[id_set==idset_ts[0]])):  
-            print(float(JD[i]), float(rv[i]), float(sigma[i]))
-            f.write('%.4f   %.4f    %.4f  \n'%(float(JD[i]), float(rv[i]), float(sigma[i]) ))  
+            if print_data  ==  True:
+                print(float(JD[i]), float(rv[i]), float(sigma[i]))
+	    f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  \n'.format(float(JD[i]), float(rv[i]), float(sigma[i]),  width = width, precision = precision )   )          
     else:
         
         for i in range(len(idset_ts)):
             for ii in range(len(JD)):   
-                 if id_set[ii] != idset_ts[i]:
+                 if int(id_set[ii]) != int(idset_ts[i]):
                      continue
                  else:
-	                 f.write('%.4f     %.4f     %.4f  %s \n'%(float(JD[ii]), float(rv[ii]), float(sigma[ii]), idset_ts[i]) )             
+	                 f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  {3:{width}.{precision}f}  \n'.format(float(JD[ii]), float(rv[ii]), float(sigma[ii]), idset_ts[i], width = width, precision = precision )   )          
     
     f.close()   
     print('Done!')    
     return 
   
-def get_RV_model(obj, file, width = 10, precision = 5):
+def get_RV_model(obj, file, width = 10, precision = 4):
  
     if len(obj.fit_results.rv_model.jd)==0:
         return
