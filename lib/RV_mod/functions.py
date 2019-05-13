@@ -77,7 +77,7 @@ def mut_incl(i1,i2,capOm):
     return fb
  
     
-def get_time_series(obj, path, idset_ts, jitter=False, o_c=False):
+def get_time_series(obj, file, idset_ts, jitter=False, o_c=False):
  
     if len(obj.filelist.idset)==0:
         return
@@ -85,7 +85,7 @@ def get_time_series(obj, path, idset_ts, jitter=False, o_c=False):
     #if not os.path.exists(path):
    #     os.makedirs(path)
  
-    output_file = str(path) 
+    output_file = str(file) 
     f = open(output_file, 'w') 
     
     idset_ts = np.array(np.atleast_1d(idset_ts)) -1
@@ -115,7 +115,33 @@ def get_time_series(obj, path, idset_ts, jitter=False, o_c=False):
 	                 f.write('%.4f     %.4f     %.4f  %s \n'%(float(JD[ii]), float(rv[ii]), float(sigma[ii]), idset_ts[i]) )             
     
     f.close()   
+    print('Done!')    
+    return 
+  
+def get_RV_model(obj, file, width = 10, precision = 5):
+ 
+    if len(obj.fit_results.rv_model.jd)==0:
+        return
     
+    #if not os.path.exists(path):
+   #     os.makedirs(path)
+ 
+    output_file = str(file) 
+    f = open(output_file, 'w') 
+    
+    
+    JD = obj.fit_results.model_jd
+    
+    if obj.doGP == True:
+        y_model = obj.fit_results.model + obj.gp_model_curve[0]
+    else:
+        y_model = obj.fit_results.model     
+        
+    for i in range(len(JD)):  
+       # f.write('%.4f   %.4f  \n'%(float(JD[i]), float(y_model[i]) ))  
+        f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f} \n'.format(float(JD[i]), float(y_model[i]), width = width, precision = precision) )
+    f.close()   
+    print('Done!')
     return 
 
 
