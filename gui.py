@@ -3977,6 +3977,16 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
     def grab_screen(self):
         p = QtWidgets.QWidget.grab(self)
+       # p.scaled(40, 40)
+        #painter = QtGui.QPainter(p)
+       # painter.setRenderHint(QtGui.QPainter.TextAntialiasing, True)
+        
+        #painter.setRenderHint(QtGui.QPainter.Antialiasing, True)       
+        #p.scaled(8000, 8000, transformMode=QtCore.Qt.SmoothTransformation)
+       # p.setDevicePixelRatio(2.0)
+        #screen = QtWidgets.QApplication.primaryScreen()
+        #p =  screen.grabWindow(0)
+        #painter.setRenderHint(QtGui.QPainter.Antialiasing, self.params['antialias'])
         filename = QtGui.QFileDialog.getSaveFileName(self, 'Save image', '', '')
         p.save(filename[0], 'jpg')
         #label.setPixmap(p)        # just for fun :)
