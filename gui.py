@@ -1899,7 +1899,7 @@ Polyfit coefficients:
         ind = self.comboBox_extra_plot.itemData(index) 
 
        # ind = self.comboBox_extra_plot.currentIndex()
-
+ 
  
         if ind <= fit.npl:
             self.phase_plots(ind)
@@ -1922,7 +1922,11 @@ Polyfit coefficients:
         
         pe.plot(clear=True,)    
         pe.setLogMode(False,False)        
-
+        
+        ######## TBF #############
+        if self.radioButton_transit.isChecked():
+            return
+        ########################
     
         ph_data = fit.ph_data[ind-1]
         ph_model = fit.ph_model[ind-1] #rv.phase_RV_planet_signal(fit,ind)
@@ -2248,6 +2252,11 @@ Transit duration: %s d
             self.statusBar().showMessage('Minimizing Transit parameters.... SciPy in action, please be patient. ')       
            
 
+        self.set_tra_ld()            
+        self.check_bounds()
+        self.check_priors_nr()   
+        self.check_priors_jeff()   
+
         self.check_scipy_min()
         fit.model_npoints = self.points_to_draw_model.value()
 
@@ -2359,6 +2368,12 @@ Transit duration: %s d
                 #fit.gps = []
             else:
                 rv_gp_npar = 0   
+                
+
+
+            fit.tr_params.limb_dark = str(fit.ld_m[j])      #limb darkening model       
+            #print(tr_model[0][j], tr_model[1][j] )
+            fit.tr_params.u = fit.ld_u[j]
             
             
             for i in range(fit.npl):
@@ -2634,7 +2649,7 @@ Transit duration: %s d
              self.button_fit.setEnabled(True)         
              return   
          
-            
+       # self.set_tra_ld()            
         self.check_bounds()
         self.check_priors_nr()   
         self.check_priors_jeff()   
@@ -3239,6 +3254,7 @@ highly appreciated!
             self.button_nest_samp.setEnabled(True)
             return        
         
+        self.set_tra_ld()
         self.check_bounds()
         self.check_priors_nr() 
         fit.model_npoints = self.points_to_draw_model.value()
@@ -3364,7 +3380,8 @@ highly appreciated!
             self.statusBar().showMessage('') 
             self.button_MCMC.setEnabled(True)
             return        
-        
+
+        self.set_tra_ld()        
         self.check_bounds()
         self.check_priors_nr() 
         fit.model_npoints = self.points_to_draw_model.value()
@@ -4145,7 +4162,56 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.master_timeout.setValue(fit.master_timeout)    
        
 #############################  TEST ZONE ################################  
+ 
+    def set_tra_ld(self):
+        global fit   
+
+
+        uni_ld_models = [self.use_uniform_ld_1,self.use_uniform_ld_2,self.use_uniform_ld_3,self.use_uniform_ld_4,self.use_uniform_ld_5,
+                         self.use_uniform_ld_6,self.use_uniform_ld_7,self.use_uniform_ld_8,self.use_uniform_ld_9,self.use_uniform_ld_10]
+        
+        lin_ld_models = [self.use_linear_ld_1,self.use_linear_ld_2,self.use_linear_ld_3,self.use_linear_ld_4,self.use_linear_ld_5,
+                         self.use_linear_ld_6,self.use_linear_ld_7,self.use_linear_ld_8,self.use_linear_ld_9,self.use_linear_ld_10]        
+
+        quad_ld_models = [self.use_quadratic_ld_1,self.use_quadratic_ld_2,self.use_quadratic_ld_3,self.use_quadratic_ld_4,self.use_quadratic_ld_5,
+                          self.use_quadratic_ld_6,self.use_quadratic_ld_7,self.use_quadratic_ld_8,self.use_quadratic_ld_9,self.use_quadratic_ld_10] 
       
+        nonlin_ld_models = [self.use_nonlinear_ld_1,self.use_nonlinear_ld_2,self.use_nonlinear_ld_3,self.use_nonlinear_ld_4,self.use_nonlinear_ld_5,
+                          self.use_nonlinear_ld_6,self.use_nonlinear_ld_7,self.use_nonlinear_ld_8,self.use_nonlinear_ld_9,self.use_nonlinear_ld_10] 
+
+        lin_u1 = [self.u1_linear_1, self.u1_linear_2, self.u1_linear_3, self.u1_linear_4, self.u1_linear_5,
+                  self.u1_linear_6, self.u1_linear_7, self.u1_linear_8, self.u1_linear_9, self.u1_linear_10]
+
+        quad_u1 = [self.u1_quadratic_1, self.u1_quadratic_2, self.u1_quadratic_3, self.u1_quadratic_4, self.u1_quadratic_5,
+                   self.u1_quadratic_6, self.u1_quadratic_7, self.u1_quadratic_8, self.u1_quadratic_9, self.u1_quadratic_10]
+        quad_u2 = [self.u2_quadratic_1, self.u2_quadratic_2, self.u2_quadratic_3, self.u2_quadratic_4, self.u2_quadratic_5,
+                   self.u2_quadratic_6, self.u2_quadratic_7, self.u2_quadratic_8, self.u2_quadratic_9, self.u2_quadratic_10]
+        
+        nonlin_u1 = [self.u1_nonlin_1, self.u1_nonlin_2, self.u1_nonlin_3, self.u1_nonlin_4, self.u1_nonlin_5,
+                     self.u1_nonlin_6, self.u1_nonlin_7, self.u1_nonlin_8, self.u1_nonlin_9, self.u1_nonlin_10]
+        nonlin_u2 = [self.u2_nonlin_1, self.u2_nonlin_2, self.u2_nonlin_3, self.u2_nonlin_4, self.u2_nonlin_5,
+                     self.u2_nonlin_6, self.u2_nonlin_7, self.u2_nonlin_8, self.u2_nonlin_9, self.u2_nonlin_10]   
+        nonlin_u3 = [self.u3_nonlin_1, self.u3_nonlin_2, self.u3_nonlin_3, self.u3_nonlin_4, self.u3_nonlin_5,
+                     self.u3_nonlin_6, self.u3_nonlin_7, self.u3_nonlin_8, self.u3_nonlin_9, self.u3_nonlin_10]
+        nonlin_u4 = [self.u4_nonlin_1, self.u4_nonlin_2, self.u4_nonlin_3, self.u4_nonlin_4, self.u4_nonlin_5,
+                     self.u4_nonlin_6, self.u4_nonlin_7, self.u4_nonlin_8, self.u4_nonlin_9, self.u4_nonlin_10]
+        for i in range(10):
+            if uni_ld_models[i].isChecked():
+                fit.ld_m[i] = "uniform"
+                fit.ld_u[i] = []               
+            elif lin_ld_models[i].isChecked():
+                fit.ld_m[i] = "linear" 
+                fit.ld_u[i] = [lin_u1[i].value()]                              
+            elif quad_ld_models[i].isChecked():
+                fit.ld_m[i] = "quadratic"        
+                fit.ld_u[i] = [quad_u1[i].value(),quad_u2[i].value()]                                              
+            elif nonlin_ld_models[i].isChecked():
+                fit.ld_m[i] = "nonlinear"        
+                fit.ld_u[i] = [nonlin_u1[i].value(),nonlin_u2[i].value(),nonlin_u3[i].value(),nonlin_u4[i].value()]                  
+            else:
+                fit.ld_m[i] = "quadratic"              
+                fit.ld_u[i] = [quad_u1[i].value(),quad_u2[i].value()]                                              
+     
    # def layout_widgets(layout):
     #   return (layout.itemAt(i) for i in range(layout.count()))
 
@@ -4406,6 +4472,11 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
         self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)   
         
+        ####### LD models #############
+ 
+        #self.buttonGroup_use_ld_1.buttonClicked.connect(self.set_tra_ld)   
+        #self.buttonGroup_use_ld_2.buttonClicked.connect(self.set_tra_ld)   
+ 
 
        # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_change)       
         self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_change)       

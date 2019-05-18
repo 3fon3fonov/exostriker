@@ -83,13 +83,13 @@ class MatplotlibExporter(Exporter):
 
                 #print(self.item.curves[indx].__class__.__name__)
 
-                opts = item.opts
-                #print(opts)
                 pen = fn.mkPen(opts['pen'])
                 if pen.style() == QtCore.Qt.NoPen:
                     linestyle = ''
+                    zorder = 10
                 else:
                     linestyle = '-'
+                    zorder = -100
                 color = tuple([c/255. for c in fn.colorTuple(pen.color())])
                 symbol = opts['symbol']
                 if symbol == 't':
@@ -121,7 +121,7 @@ class MatplotlibExporter(Exporter):
                         linestyle=linestyle, 
                         markeredgecolor=markeredgecolor, 
                         markerfacecolor=markerfacecolor,
-                        markersize=markersize)
+                        markersize=markersize, zorder = zorder)
 
  
                 xr, yr = self.item.viewRange()
