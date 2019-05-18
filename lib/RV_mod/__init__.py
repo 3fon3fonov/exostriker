@@ -299,7 +299,7 @@ def ma_from_t0(per, ecc, om, t_transit, epoch):
   
     
     
-def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epoch, stmass, gps, rtg, mix_fit, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=300, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
+def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, rtg, mix_fit, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=300, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
  
     rv_loglik = 0
     gp_rv_loglik = 0
@@ -428,9 +428,22 @@ def model_loglik(p, program, par, flags, npl, vel_files,tr_files, tr_params, epo
             
             m =  {k: [] for k in range(9)}
             
-            #tr_params.limb_dark = {k: [self.ld_options[2]] for k in range(10)}        #limb darkening model
-            #tr_params.u = {k: [0.1, 0.3 ] for k in range(10)}   
-             
+            #print(tr_model[j])
+            #print(tr_model)
+            tr_params.limb_dark = str(tr_model[0][j])      #limb darkening model       
+            #print(tr_model[0][j], tr_model[1][j] )
+            tr_params.u = tr_model[1][j]   
+
+          #  if str(tr_model[j]) == "uniform":               
+          #      tr_params.u = tr_model[1][j]   
+           # elif  str(tr_model[j]) == "linear":
+          #      tr_params.u = [0.1]                  
+           # elif  str(tr_model[j]) == "quadratic":
+          #      tr_params.u = [0.1,0.3]               
+          #  elif  str(tr_model[j]) == "nonlinear":
+          #      tr_params.u = [0.5,0.1,0.1,-0.1]   
+           
+                
             for i in range(npl):
                 
 
@@ -472,15 +485,23 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     for i in range(obj.filelist.ndset): 
          vel_files.append(obj.filelist.files[i].path)  
 
+
+    
     tr_files = []
+    tr_mo = []
+    tr_ld = []
     
     for i in range(10):
         if len(obj.tra_data_sets[i]) != 0:
             tr_files.append(obj.tra_data_sets[i])
+            tr_mo.append(obj.ld_m[i])
+            tr_ld.append(obj.ld_u[i])
+   
     
-    
+    tr_model = np.array([tr_mo,tr_ld])
     tr_params = obj.tr_params
     
+ 
     
     npl = obj.npl
     epoch = obj.epoch     
@@ -610,7 +631,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         #eps = eps/10.0
        # print('running %s %s %s'%(obj.SciPy_min_use_1, obj.SciPy_min_N_use_1, k))
  
-        result = op.minimize(nll,  pp, args=(mod, par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit ),
+        result = op.minimize(nll,  pp, args=(mod, par,flags, npl,vel_files, tr_files, tr_model, tr_params,  epoch, stmass, bb, priors, gps, rtg, mix_fit ),
                              method=method1,bounds=fit_bounds, options=options1)       
                             #  bounds=bb, tol=None, callback=None, options={'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxiter': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1, 'disp': True})        
         pp = result["x"]
@@ -622,7 +643,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     for k in range(n2): # run at least 3 times the minimizer
         #print(k,xtol)
       #  print('running %s %s %s'%(obj.SciPy_min_use_2, obj.SciPy_min_N_use_2, k))
-        result = op.minimize(nll, pp, args=(mod,par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit ), 
+        result = op.minimize(nll, pp, args=(mod,par,flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit ), 
                              method=method2,bounds=fit_bounds, options=options2)
         pp = result["x"]
         print(method2,' Done!')
@@ -643,7 +664,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
        
     errors = [[0.0,0.0] for i in range(len(pp))] 
    
-    obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit, errors)
+    obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit, errors)
 
     print("--- %s seconds ---" % (time.time() - start_time))     
     
@@ -653,7 +674,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
 
 
-def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit, errors):
+def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, pr_nr, gps, rtg, mix_fit, errors):
                 
                 
     for j in range(len(pp)):
@@ -736,12 +757,12 @@ def normalprior(p,b):
     loglik = np.log(1.0/(np.sqrt(2.0*np.pi)*b[1])*np.exp(-(p-b[0])**2.0/(2.0*b[1]**2.0)))
     return loglik
 
-def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, b, priors , gps, rtg, mix_fit):
+def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, b, priors , gps, rtg, mix_fit):
     
     lp = lnprior(p,b,priors)
     if not np.isfinite(lp):
         return -np.inf
-    return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg, mix_fit)   
+    return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, rtg, mix_fit)   
 
 
 
@@ -818,11 +839,17 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
         vel_files.append(obj.filelist.files[i].path)  
 
     tr_files = []
+    tr_mo = []
+    tr_ld = []
     
     for i in range(10):
         if len(obj.tra_data_sets[i]) != 0:
             tr_files.append(obj.tra_data_sets[i])
-            
+            tr_mo.append(obj.ld_m[i])
+            tr_ld.append(obj.ld_u[i])
+   
+    
+    tr_model = np.array([tr_mo,tr_ld])
     tr_params = obj.tr_params
     
     npl = obj.npl
@@ -900,7 +927,7 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     
     
     def partial_func2(pp):
-        loglik = model_loglik(pp, program, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg, mix_fit) 
+        loglik = model_loglik(pp, program, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, gps, rtg, mix_fit) 
         #loglik = lnprob_new(pp, mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit)
     #    print(loglik)
         return loglik
@@ -910,7 +937,7 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     #partial_func = FunctionWrapper(lnprob_new,
    #                 (mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit) )
   
-    partial_func = FunctionWrapper(model_loglik, (mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, gps, rtg, mix_fit) )
+    partial_func = FunctionWrapper(model_loglik, (mod, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, rtg, mix_fit) )
     
     #from multiprocessing import Pool, cpu_count    
     from pathos.multiprocessing import ProcessingPool as Pool
@@ -1034,7 +1061,7 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
         obj.loglik = maxlnl
 
         
-    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit, new_par_errors)
+    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit, new_par_errors)
 
 
     #if(save_sampler):
@@ -1074,11 +1101,17 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
         vel_files.append(obj.filelist.files[i].path)  
 
     tr_files = []
+    tr_mo = []
+    tr_ld = []
     
     for i in range(10):
         if len(obj.tra_data_sets[i]) != 0:
             tr_files.append(obj.tra_data_sets[i])
-            
+            tr_mo.append(obj.ld_m[i])
+            tr_ld.append(obj.ld_u[i])
+   
+    
+    tr_model = np.array([tr_mo,tr_ld])
     tr_params = obj.tr_params
     
     npl = obj.npl
@@ -1133,7 +1166,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
 
     pos = [pp + obj.gaussian_ball*np.random.rand(ndim) for i in range(nwalkers)]
 
-    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit), threads = threads)
+    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit), threads = threads)
 
     # burning phase
     pos, prob, state  = sampler.run_mcmc(pos,burning_ph)
@@ -1216,7 +1249,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
 
     
     
-    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit, new_par_errors)
+    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit, new_par_errors)
 
 
     if(save_sampler):
@@ -1802,7 +1835,7 @@ class signal_fit(object):
     
         self.ld_models = ["uniform", "linear", "quadratic", "nonlinear"]
 
-        self.ld_m = {k: [self.ld_models[2]] for k in range(10)}        #limb darkening model
+        self.ld_m = ["quadratic", "quadratic",  "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic"]    #limb darkening model
         self.ld_u = {k: [0.1, 0.3 ] for k in range(10)}    
         
         #self.tr_params.limb_dark = self.ld_m[0]       #limb darkening model
@@ -2684,7 +2717,7 @@ class signal_fit(object):
                 mod='dyn'                
         else:
             mod='kep'
-        #print(doGP)
+        #print(mod, self.mixed_fit)
         if minimize_fortran == True and doGP ==False:   
             program='./lib/fr/%s_%s'%(minimized_value,mod) 
             text,flag=run_command_with_timeout(self.fortran_input(program=program, fileinput=fileinput, filename=filename, outputfiles=outputfiles,amoeba_starts=amoeba_starts,eps=eps,dt=dt, when_to_kill=fortran_kill, npoints=npoints, model_max = model_max, model_min =model_min), timeout_sec, output=True,pipe=(not bool(outputfiles[2]))) # running command generated by the fortran_input function 
