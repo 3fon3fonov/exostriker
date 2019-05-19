@@ -79,8 +79,9 @@ class MatplotlibExporter(Exporter):
                 x, y = item.getData() 
                 
                 if x is None:
-                     continue
+                    continue
 
+                opts = item.opts
                 #print(self.item.curves[indx].__class__.__name__)
 
                 pen = fn.mkPen(opts['pen'])
