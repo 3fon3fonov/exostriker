@@ -2475,6 +2475,7 @@ Transit duration: %s d
         self.comboBox_pl_2.setCurrentIndex(1)
 
 
+
     def plot_delta_omega(self):
         global fit, colors_delta_om, p17 
 
@@ -2487,13 +2488,21 @@ Transit duration: %s d
         
         last_stable = min(len(fit.evol_p[pl1_ind]),len(fit.evol_p[pl2_ind]))
         
+        dom = (fit.evol_p[pl1_ind][0:last_stable] - fit.evol_p[pl2_ind][0:last_stable])%360
+
+        if self.radioButton_dom_180_fold.isChecked():
+            dom[dom>=180.0] -= 360.0
+        
+        
+        
         p17.plot(clear=True,)
-        p17.plot(fit.evol_T[0][0:last_stable], (fit.evol_p[pl1_ind][0:last_stable] - fit.evol_p[pl2_ind][0:last_stable])%360 ,pen=None, #{'color': colors[i], 'width': 1.1},
+        p17.plot(fit.evol_T[0][0:last_stable], dom ,pen=None, #{'color': colors[i], 'width': 1.1},
         symbol='o',
         symbolPen={'color': colors_delta_om[0], 'width': 1.1},
         symbolSize=1,enableAutoRange=True,viewRect=True,
         symbolBrush=fit.colors[0]
         )  
+        
         
     def get_delta_omega_color(self):
         global fit, colors_delta_om
@@ -4383,6 +4392,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         ############### Orb. Evol. plotting ####################
         self.comboBox_pl_1.activated.connect(self.plot_delta_omega)
         self.comboBox_pl_2.activated.connect(self.plot_delta_omega)
+        self.radioButton_dom_180_fold.toggled.connect(self.plot_delta_omega)
 
 
         ############### RV plotting controll ####################      

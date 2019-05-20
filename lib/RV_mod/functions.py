@@ -12,7 +12,8 @@ import signal
 import tempfile, shutil
 from threading import Thread
 from Warning_log import Warning_log
-
+import scipy.stats as pdf
+import dill
 
 
 
@@ -644,5 +645,86 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
 
 
     return "Done"
+
+
+
+def f_test(obj, obj2 = None, alpha = 0.01):
+
+
+    chi2 = obj.fit_results.chi2
+    ndata = len(obj.fit_results.jd)
+    par2 = obj.fit_results.mfit      
+   #     self.value_reduced_chi2.setText("%.4f"%(fit.fit_results.reduced_chi2))        
+        #self.value_loglik.setText("%.4f"%(fit.fit_results.loglik)) 
+   #     self.value_loglik.setText("%.4f"%(fit.loglik)) 
+       
+
+    if obj2 == None:
+        obj2 = dill.copy(obj) 
+        obj2.npl = 0
+        obj2.fitting()
+    else:
+        obj2 = dill.copy(obj2) 
+
+        if len(obj.fit_results.jd) != len(obj2.fit_results.jd):
+            print("not the same data, test make no sense")
+            return
+ 
+    
+    chi1 = obj2.fit_results.chi2
+    par1 = obj2.fit_results.mfit      
+    
+    print(chi2,par1)
+    #chi1_red = chi1/(ndata - par1)
+    chi2_red = chi2/(ndata - par2)
+    
+     
+    #raw_input("chi1_red = %s, Press Enter to continue <Enter>"%chi1_red)
+    #F = (chi1 - chi2)/chi2_red
+    
+    F = ((chi1 - chi2)/(par2-par1))/chi2_red
+    
+     
+    #raw_input("alpha = %s, Press Enter to continue <Enter>"%alpha)
+    #print F, chi1_red, chi2_red
+    
+    p_value = pdf.f.sf(F, par2 - par1, ndata - par2, loc=0, scale=1) 
+ 
+
+
+    print("""
+\chi^2 null model = %s
+\chi^2 tested model = %s
+N parametrs null model = %s
+N parametrs tested model = %s
+F value = %s
+p-value = %s
+alpha value = %s
+"""%(chi1,chi2,par1,par2,F,p_value,alpha))
+    
+    
+    if float(p_value) < alpha:
+    	print("Null hypothesis rejected")
+    	print("Probability = ", (1.0-float(p_value))*100.0,'%')
+    else:
+    	print("Null hypothesis cannot be rejected")    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
