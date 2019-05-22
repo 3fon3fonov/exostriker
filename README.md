@@ -19,7 +19,7 @@ What works:
 
 * Period search: GLS periodograms (RVs, act. data) & TLS (transit data).
 * Keplerian and Dynamical RV modeling. 
-* Transit modeling (not really tested for 2+ transiting planets and more datasets)
+* Transit modeling 
 * GP modeling (only SHO and Rot. GP kernels integrated so far).
 * Joint RVs + RV GP + Transit best-fit optimization.
 * Joint RVs + RV GP + Transit MCMC/Nested Sampling sampling (via "emcee" & "dynesty").
@@ -39,7 +39,7 @@ What works:
 What is to be implemented:
 
 * More GP kernels (work in progress). 
-* GP on the transit photometry  (work in progress)
+* GP on the transit photometry (work in progress)
 * Transit auto-fit (transit automated planet-finder algorithm).
 * Binary/Triple star modeling mode.
 * Combined modeling with Astrometry.
