@@ -1541,9 +1541,13 @@ Polyfit coefficients:
             y_model = fit.fit_results.model 
             y_model_o_c = np.zeros(len(y_model))
             
-        p1.plot(fit.fit_results.model_jd,y_model, 
+            
+        model_curve = p1.plot(fit.fit_results.model_jd,y_model, 
         pen={'color': fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
+        
+        model_curve.setZValue(self.RV_model_z.value()) 
+        
         
         if  fit.doGP == True:
             pfill = pg.FillBetweenItem(p1.plot(fit.fit_results.model_jd, fit.fit_results.model + fit.gp_model_curve[0]+fit.gp_model_curve[2]), 
@@ -1958,12 +1962,13 @@ Polyfit coefficients:
         model_time_phase  = model_time_phase[sort] 
         ph_model =  ph_model[1][sort] 
         #print(model_time_phase[0:10],sort[0:10])
- 
-        pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))   
-        pe.plot(model_time_phase,ph_model, pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()+1},
+         
+        pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))  
+                        
+        model_curve = pe.plot(model_time_phase,ph_model, pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()+1},
         enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'})   
-        
-        
+ 
+        model_curve.setZValue(self.RV_model_z.value())        
         
         
         for i in range(max(ph_data[3])+1):
@@ -4398,6 +4403,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         ############### RV plotting controll ####################      
         self.rv_model_width.valueChanged.connect(self.update_RV_plots)
         self.rv_model_width.valueChanged.connect(self.update_extra_plots)    
+        self.RV_model_z.valueChanged.connect(self.update_RV_plots)
+        self.RV_model_z.valueChanged.connect(self.update_extra_plots)       
+        
         self.jitter_to_plots.stateChanged.connect(self.update_plots)
         
         
