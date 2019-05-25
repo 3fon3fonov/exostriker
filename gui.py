@@ -86,6 +86,8 @@ ses_list = [fit]
 colors  = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 symbols = ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
 colors_delta_om = colors
+colors_theta = colors
+
 
 QtGui.QApplication.processEvents()
 
@@ -911,7 +913,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def initialize_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,pe,pdi
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,pe,pdi
 
         p1  = self.graphicsView_timeseries_RV
         p2  = self.graphicsView_timeseries_RV_o_c
@@ -934,17 +936,18 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         p16 = self.graphicsView_orbital_view
         
         p17 = self.graphicsView_orb_evol_res_dom
+        p18 = self.graphicsView_orb_evol_res_theta
         
         pe  = self.graphicsView_extra_plot
         
         pdi = self.load_data_plot
 
-        xaxis = ['BJD','BJD','BJD','BJD','BJD','x','days','days','days','days','days','days','yr','yr','yr','a','yr','','x']
-        yaxis = ['RV','RV','Relative Flux','Relative Flux','y','y','power','power','SDE','SDE','power','power','a','e','omega','a','delta omega','','y']       
-        xunit = ['d' ,'d','d','d','d','','','','','','','','','','','au','','','']
-        yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','','au','','','']
+        xaxis = ['BJD','BJD','BJD','BJD','BJD','x','days','days','days','days','days','days','yr','yr','yr','a','yr','yr','','x']
+        yaxis = ['RV','RV','Relative Flux','Relative Flux','y','y','power','power','SDE','SDE','power','power','a','e','omega','a','delta omega','theta','','y']       
+        xunit = ['d' ,'d','d','d','d','','','','','','','','','','','au','','','','']
+        yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','','au','','','','']
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,pe,pdi]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,pe,pdi]
         font=QtGui.QFont()
         font.setPixelSize(12) 
         for i in range(len(zzz)):
@@ -2463,14 +2466,14 @@ Transit duration: %s d
 
  
         
-############################# N-Body ########################################        
+############################# N-Body ########################################     
+        
     def delta_omega_combo(self):
 
  
         self.comboBox_pl_1.clear()
         self.comboBox_pl_2.clear()
         
-
         for i in range(fit.npl):
             self.comboBox_pl_1.addItem('omega %s'%str(i+1),i+1) 
             self.comboBox_pl_2.addItem('omega %s'%str(i+1),i+1) 
@@ -2478,7 +2481,6 @@ Transit duration: %s d
             #self.comboBox_pl_2.setItemText(i, '%s'%(ses_list[i].name))
         self.comboBox_pl_1.setCurrentIndex(0)
         self.comboBox_pl_2.setCurrentIndex(1)
-
 
 
     def plot_delta_omega(self):
@@ -2489,9 +2491,11 @@ Transit duration: %s d
 
         pl1_ind = self.comboBox_pl_1.currentIndex()
         pl2_ind = self.comboBox_pl_2.currentIndex()
-        #print(pl1_ind,pl2_ind)
-        
-        last_stable = min(len(fit.evol_p[pl1_ind]),len(fit.evol_p[pl2_ind]))
+ 
+        if pl1_ind ==-1 or pl2_ind ==-1 or len(fit.evol_p[pl1_ind]) ==0 or len(fit.evol_p[pl2_ind]) ==0:
+            return
+        else:
+            last_stable = min(len(fit.evol_p[pl1_ind]),len(fit.evol_p[pl2_ind]))
         
         dom = (fit.evol_p[pl1_ind][0:last_stable] - fit.evol_p[pl2_ind][0:last_stable])%360
 
@@ -2507,7 +2511,8 @@ Transit duration: %s d
         symbolSize=1,enableAutoRange=True,viewRect=True,
         symbolBrush=fit.colors[0]
         )  
-        
+ 
+
         
     def get_delta_omega_color(self):
         global fit, colors_delta_om
@@ -2545,9 +2550,136 @@ Transit duration: %s d
     
         self.plot_delta_omega()        
         
+    ######### theta ############################## 
+ 
+
+    def theta_which_pl_combo(self):
+
+        self.comboBox_MMR_which_pl_1.clear()
+        self.comboBox_MMR_which_pl_2.clear()
         
+        for i in range(fit.npl):
+            self.comboBox_MMR_which_pl_1.addItem('pl. %s'%str(i+1),i+1) 
+            self.comboBox_MMR_which_pl_2.addItem('pl. %s'%str(i+1),i+1) 
+            
+        self.comboBox_MMR_which_pl_1.setCurrentIndex(0)
+        self.comboBox_MMR_which_pl_2.setCurrentIndex(1)
+
+  
+    def theta_combo(self):
+ 
+        self.comboBox_MMR_theta.clear()
         
+        ind1 = self.comboBox_MMR_pl_1.currentIndex()
+        ind2 = self.comboBox_MMR_pl_2.currentIndex()              
         
+        if ind1 == ind2:
+            return
+        
+        for i in range(abs(ind2-ind1)+1):
+            self.comboBox_MMR_theta.addItem('%s'%str(i+1),i+1) 
+            
+        self.comboBox_MMR_theta.setCurrentIndex(0)
+  
+        
+    def MMR_combo(self):
+ 
+        self.comboBox_MMR_pl_1.clear()
+        self.comboBox_MMR_pl_2.clear()
+        
+        for i in range(10):
+            self.comboBox_MMR_pl_1.addItem('%s'%str(i+1),i+1) 
+            self.comboBox_MMR_pl_2.addItem('%s'%str(i+1),i+1) 
+            
+        self.comboBox_MMR_pl_1.setCurrentIndex(1)
+        self.comboBox_MMR_pl_2.setCurrentIndex(0)        
+        
+        self.theta_combo()
+
+
+    def plot_theta(self):
+        global fit, colors_delta_om, p18
+
+        self.color_theta.setStyleSheet("color: %s;"%colors_theta[0]) 
+
+        pl1_ind = self.comboBox_MMR_which_pl_1.currentIndex()
+        pl2_ind = self.comboBox_MMR_which_pl_2.currentIndex()
+        
+        Per_1 = self.comboBox_MMR_pl_1.currentIndex()
+        Per_2 = self.comboBox_MMR_pl_2.currentIndex()  
+       
+        
+        tet_n = self.comboBox_MMR_theta.currentIndex()
+       # print(tet_n)
+        
+        if Per_1 == Per_2:
+            return
+ 
+        if pl1_ind ==-1 or pl2_ind ==-1 or len(fit.evol_p[pl1_ind]) ==0 or len(fit.evol_p[pl2_ind]) ==0:
+            return
+        else:
+            last_stable = min(len(fit.evol_p[pl1_ind]),len(fit.evol_p[pl2_ind]))
+      
+        lambda1  = (fit.evol_M[pl1_ind][0:last_stable]    + fit.evol_p[pl1_ind][0:last_stable]   + 0)%360
+        lambda2  = (fit.evol_M[pl2_ind][0:last_stable]    + fit.evol_p[pl2_ind][0:last_stable]   + 0)%360
+ 
+        theta = {k: [ ] for k in range(10)}    
+        coef1 = Per_2 +1
+        coef2 = Per_1 +1
+        order = abs(coef2 - coef1)
+ 
+        for i in range(order+1):
+ 
+            theta[i] = (coef1*lambda1%360 - coef2*lambda2%360 )%360 + (((coef2 -coef1) -i)*fit.evol_p[pl1_ind][0:last_stable] + i*fit.evol_p[pl2_ind][0:last_stable])%360 
+            theta[i] = theta[i]%360
+
+            if self.radioButton_theta_180_fold.isChecked():
+                theta[i][theta[i]>=180.0] -= 360.0
+ 
+        
+        p18.plot(clear=True,)
+        p18.plot(fit.evol_T[0][0:last_stable], theta[tet_n] ,pen=None, #{'color': colors[i], 'width': 1.1},
+        symbol='o',
+        symbolPen={'color': colors_theta[0], 'width': 1.1},
+        symbolSize=1,enableAutoRange=True,viewRect=True,
+        symbolBrush=fit.colors[0]
+        )  
+               
+    def get_theta_color(self):
+        global fit, colors_delta_om
+        
+        #colorz = QtGui.QColorDialog.getColor()
+        colorz = self.colorDialog.getColor()
+        colors_theta[0]=colorz.name()   
+ 
+        self.plot_theta()
+
+    def theta_plot_x_labels(self):
+        global fit, p18
+        
+        text, okPressed = QtGui.QInputDialog.getText(self, "x-axis label","", QtGui.QLineEdit.Normal, "")
+        
+        if okPressed and text != '':
+            p18.setLabel('bottom', '%s'%text, units='',  **{'font-size':'11pt'})
+ 
+        else:
+            return
+    
+        self.plot_theta()
+ 
+
+    def theta_plot_y_labels(self):
+        global fit, p18
+        
+        text, okPressed = QtGui.QInputDialog.getText(self, "y-axis label","", QtGui.QLineEdit.Normal, "")
+        
+        if okPressed and text != '':
+            p18.setLabel('left', '%s'%text, units='',  **{'font-size':'11pt'})
+ 
+        else:
+            return
+    
+        self.plot_theta()             
         
         
         
@@ -2571,7 +2703,9 @@ Transit duration: %s d
         )  
             
         self.delta_omega_combo()
+        self.theta_which_pl_combo()
         self.plot_delta_omega()
+        self.plot_theta()
 
         self.plot_tabs.setCurrentWidget(self.tab_Orbital_evol)
             
@@ -4252,6 +4386,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             fit.gp_kernel = 'RotKernel'
             
 
+    #def update_inspector(self):
+   #     self.tree_view_tab.listview.clicked.connect(self.plot_data_inspect)
 
   
 ################################################################################################
@@ -4398,6 +4534,23 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.comboBox_pl_1.activated.connect(self.plot_delta_omega)
         self.comboBox_pl_2.activated.connect(self.plot_delta_omega)
         self.radioButton_dom_180_fold.toggled.connect(self.plot_delta_omega)
+        self.radioButton_theta_180_fold.toggled.connect(self.plot_theta)
+        
+        self.MMR_combo()
+        self.comboBox_MMR_pl_1.activated.connect(self.theta_combo)
+        self.comboBox_MMR_pl_1.activated.connect(self.plot_theta)
+        self.comboBox_MMR_pl_2.activated.connect(self.theta_combo)
+        self.comboBox_MMR_pl_2.activated.connect(self.plot_theta)
+        self.comboBox_MMR_theta.activated.connect(self.plot_theta)
+        #self.comboBox_MMR_which_pl_1.activated.connect(self.theta_combo)
+        self.comboBox_MMR_which_pl_1.activated.connect(self.plot_theta)
+        #self.comboBox_MMR_which_pl_2.activated.connect(self.theta_combo)
+        self.comboBox_MMR_which_pl_2.activated.connect(self.plot_theta)        
+        
+        
+      #  self.insp_data_size.valueChanged.connect(self.update_inspector)
+        
+        
 
 
         ############### RV plotting controll ####################      
@@ -4457,6 +4610,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.delta_om_x_label.clicked.connect(self.delta_omega_plot_x_labels)
         self.delta_om_y_label.clicked.connect(self.delta_omega_plot_y_labels)
 
+        self.color_theta.clicked.connect(self.get_theta_color)
+        self.theta_x_label.clicked.connect(self.theta_plot_x_labels)
+        self.theta_y_label.clicked.connect(self.theta_plot_y_labels)
 
     
         self.tab_timeseries_RV.currentChanged.connect(self.tab_selected)
