@@ -2762,11 +2762,15 @@ Transit duration: %s d
         elif self.radioButton_MVS.isChecked():
             integrator = 'mvs'        
         elif self.radioButton_MVS_GR.isChecked():       
-             integrator = 'mvs_gr'       
+             integrator = 'mvs_gr'      
+             
+        import time
+        start_time = time.time()        
+       # fit.run_stability_last_fit_params(timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
+       
+        fit = rv.run_stability(fit, timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
         
-        fit.run_stability_last_fit_params(timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
-        
-                
+        print("--- %s seconds ---" % (time.time() - start_time))                   
        
 ############################# Fortran fitting ###############################        
         
@@ -4289,6 +4293,14 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         head, tail = ntpath.split(path)
         return tail or ntpath.basename(head)
         
+
+
+    def print_f_test_stat(self):
+        global fit
+
+        rv.f_test(fit, alpha = 0.01)
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+
         
     def check_settings(self):
         global fit
@@ -4509,6 +4521,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.radioButton_Keplerian.toggled.connect(self.update_dyn_kep_flag)
         
 
+        ############ Stat #################
+
+        self.actionprint_f_test_FAP.triggered.connect(self.print_f_test_stat)
         ############ Sessions #################
         
         self.actionNew_session.triggered.connect(self.new_session)

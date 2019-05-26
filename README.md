@@ -19,7 +19,7 @@ What works:
 
 * Period search: GLS periodograms (RVs, act. data) & TLS (transit data).
 * Keplerian and Dynamical RV modeling. 
-* Transit modeling 
+* Transit photometry modeling.
 * GP modeling (only SHO and Rot. GP kernels integrated so far).
 * Joint RVs + RV GP + Transit best-fit optimization.
 * Joint RVs + RV GP + Transit MCMC/Nested Sampling sampling (via "emcee" & "dynesty").
@@ -30,16 +30,17 @@ What works:
 * RV vs. Activity time series correlation analysis/plots.
 * Import/Export of work sessions and multi-sessions. 
 * Export plots to a matplotlib window for further customization.
-* Export ready to use Latex tables with best-fit parameters, errors and statistics. 
-* Text editor.
-* Bash-shell (Linux only).
-* Integrated Jupyter widget shell.
+* Export ready to use LaTeX tables with best-fit parameters, errors and statistics. 
+* Handy text editor and calculator tools.
+* Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
+* Integrated Bash-shell (Linux only).
+* Integrated Jupyter shell.
 * Print the GUI screen into a .jpeg image (useful for sharing quick results, just like the image above)
 
 What is to be implemented:
 
 * More GP kernels (work in progress). 
-* GP on the transit photometry (work in progress)
+* GP on the transit photometry (work in progress).
 * Transit auto-fit (transit automated planet-finder algorithm).
 * Binary/Triple star modeling mode.
 * Combined modeling with Astrometry.
