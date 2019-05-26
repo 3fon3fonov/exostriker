@@ -14,6 +14,7 @@ matplotlib
 PyQt5
 csh
 jupyter
+pathos
 dill
 emcee 
 corner 
@@ -30,7 +31,18 @@ setuptools
 pip 
 rxvt
 
+-------------------------------------------
+Important for linux Mint users!!!
 
+It looks like a fresh Mint OS installation is more compact w.r.t
+Ubuntu and some packages are missing. One must run these before the script:
+
+
+sudo apt-get install python-dev
+sudo apt-get install g++
+sudo apt-get install python-tk
+
+-------------------------------------------
 
 if "linux_debian_install.sh" was executed with no problems, then
 you are ready to go! Just type:
@@ -76,6 +88,39 @@ option if batman is not on your system already.
 
 ################################################################################
 
+ 
+
+################################  WINDOWS 10  ######################################
+
+
+Installation on Windows 10 works trough the "Windows Subsystem for Linux".
+Please follow this guide:
+
+https://docs.microsoft.com/en-us/windows/wsl/install-win10
+
+Thus way you will be able to run all linux native programs on your WINDOWS 10 
+bash shell. 
+
+To make TRIFON:The Exo-Striker work, however, you also will need an XServer installed.
+Follow these instructions:
+
+https://seanthegeek.net/234/graphical-linux-applications-bash-ubuntu-windows/
+
+
+These two tutorials worked for me, but there might be other options too. 
+
+
+Running the tool via the official Windows 10 python installation, should generally 
+works too. For example if one has an Anaconda installation the "anaconda_installer.sh"
+could be an option. However, one must recompile all the fortran/C++ 
+routines like Swift and batman manually. This may be a bit complicated, time consuming,
+and with an unknown outcome (I would probably never try it!), but it should be definitely doable. 
+If you want to experiment, and you successfully install the tool under the official
+Windows python path, I would appreciate if you share your experience and some instructions.
+
+
+For now, the recommended Win10 installation option of the Striker is via the "Windows 
+Subsystem for Linux" as pointed above.
  
  
  

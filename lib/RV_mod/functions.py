@@ -1,11 +1,14 @@
  #!/usr/bin/python
 
 
-__author__ = 'Trifon Trifonov, Jakub Morawski'
+__author__ = 'Trifon Trifonov'
 
 import sys, os
 #sys.path.insert(0, '../lib')
 import numpy as np
+import jac2astrocen
+import corner
+
 import re
 from subprocess import PIPE, Popen 
 import signal 
@@ -14,13 +17,164 @@ from threading import Thread
 from Warning_log import Warning_log
 import scipy.stats as pdf
 import dill
+from scipy.signal import argrelextrema
+from scipy.ndimage import gaussian_filter
+
+
+TAU= 2.0*np.pi 
+
+
+ 
+def transit_tperi(per, ecc, om, ma, epoch):
+    '''
+    '''
+    om = np.radians(om)
+    ma = np.radians(ma)
+
+    E = 2.0*np.arctan( np.sqrt( ( (1.0-ecc)/(1.0+ecc) ) ) * np.tan( (np.pi/4.0)-(om/2.0) ) )
+   # print(E)
+    t_peri    = epoch  - ((ma/TAU)*per)
+    t_transit = t_peri + (E + ecc*np.sin(E)) * (per/TAU)    
+
+    return t_peri, t_transit    
+
+    
+def ma_from_t0(per, ecc, om, t_transit, epoch):
+    '''
+    '''
+    om = np.radians(om)
+    E = 2.0*np.arctan( np.sqrt( ( (1.0-ecc)/(1.0+ecc) ) ) * np.tan( (np.pi/4.0)-(om/2.0) ) )
+ 
+   # t_transit = epoch  - ((ma/TAU)*per) + (E + ecc*np.sin(E)) * (per/TAU)          
+    
+    ma =  ((epoch  - t_transit + (E + ecc*np.sin(E)) * (per/TAU))*TAU)/per 
+    ma = np.degrees(ma)%360.0
+
+    return ma   
 
 
 
 
 
+def get_mode_of_samples(samples, nsamp): 
+
+    mode_samp = []
+   # err1_samp = []
+  #  err2_samp = []
+ 
+    
+    for i in range(nsamp):
+    	#ci = np.percentile(samples[:,i], [level, 100.0-level])
+    	#mmm = stats.binned_statistic(np.array([samples[:,i]]), axis=None)
+        n, b = np.histogram(samples[:,i], bins=100)
+        n = gaussian_filter(n, 1.0)
+        x0 = np.array(list(zip(b[:-1], b[1:]))).flatten()
+        y0 = np.array(list(zip(n, n))).flatten()	
+        k  = np.unravel_index(y0.argmax(),y0.shape)
+        mode_samp.append(x0[k])
+        #err1_samp.append(x0[k]- ci[0])
+        #err2_samp.append(ci[1]- x0[k])        
+   # print el_str[i],'=', x0[k], "- %s"%(x0[k]-ci[0]), "+ %s"%(ci[1]  - x0[k] )
+    return mode_samp #,err1_samp,err2_samp
+
+def get_mean_of_samples(samples, nsamp): 
+
+    mean_samp = []
+    
+    for i in range(nsamp):
+        mean_samp.append(np.mean(samples[:,i]))
+    return mean_samp #,err1_samp,err2_samp
+
+def get_best_lnl_of_samples(samples,lnl, nsamp): 
+
+    best_ln_samp = []
+    lnL_best_idx = np.argmax(lnl)
+    lnL_best = lnl[lnL_best_idx]    
+ 
+    
+    for i in range(nsamp):    
+ 
+        minlnL = samples[lnL_best_idx,i] 
+        best_ln_samp.append(minlnL)
+        
+    
+    return best_ln_samp,lnL_best #,err1_samp,err2_samp
 
 
+
+
+
+def cornerplot(obj, fileinput=False, level=(100.0-68.3)/2.0,type_plot = 'mcmc', **kwargs): 
+
+    #obj = dill.copy(copied_obj)
+    '''Generates a corner plot visualizing the mcmc samples. Optionally samples can be read from a file.'''
+    #self.mcmc_sample_file = 'mcmc_samples'+'_%s'%mod
+    #self.corner_plot_file = 'cornerplot.png'
+    if(fileinput):
+        if type_plot == 'mcmc':
+            samples=read_file_as_array_of_arrays_mcmc(obj.mcmc_sample_file)
+        if type_plot == 'nest':
+            samples=read_file_as_array_of_arrays_mcmc(obj.nest_sample_file)        
+   # elif(obj.sampler_saved):
+   #     samples=obj.sampler.samples
+    else:
+        raise Exception ('Please run mcmc/nested sampling and save sampler or provide a valid samples file!')
+    #print(len(obj.e_for_mcmc),len(samples),obj.e_for_mcmc)
+    fig = corner.corner(samples,bins=25, color="k", reverse=True, upper= True, labels=obj.e_for_mcmc, quantiles=[level/100.0, 1.0-level/100.0], 
+                        levels=(0.6827, 0.9545,0.9973), smooth=1.0, smooth1d=1.0, plot_contours= True, show_titles=True, truths=obj.par_for_mcmc, 
+                        dpi = 300, pad=15, labelpad = 50 ,truth_color ='r', title_kwargs={"fontsize": 12}, scale_hist=True,  no_fill_contours=True, 
+                        plot_datapoints=True, kwargs=kwargs)
+    
+    if type_plot == 'mcmc':
+        fig.savefig(obj.mcmc_corner_plot_file)  
+    if type_plot == 'nest':
+        fig.savefig(obj.nest_corner_plot_file)  
+ 
+    return          
+       
+
+
+def planet_orbit_xyz(obj, planet):
+
+    u1 = obj.params.stellar_mass * (4*np.pi*np.pi)/(365.25*365.25)
+    mean_orb = np.linspace(0,2.0*np.pi, 360.0)
+    
+    x = np.zeros(len(mean_orb))
+    y = np.zeros(len(mean_orb))
+    z = np.zeros(len(mean_orb))
+    u = np.zeros(len(mean_orb))
+    v = np.zeros(len(mean_orb))
+    w = np.zeros(len(mean_orb))
+    
+    dist =  np.zeros(len(mean_orb))
+        
+    q = (1.0 - obj.params.planet_params[2 + int(planet)*7])*float(obj.fit_results.a[int(planet)])
+    
+    
+    #this need to be fixed to work with arrays
+    for f in range(len(mean_orb)):
+        x[f],y[f],z[f],u[f],v[f],w[f] = jac2astrocen.mco_el2x(u1,q,
+                                                       obj.params.planet_params[2 + int(planet)*7],
+                                                       np.radians(obj.params.planet_params[5 + int(planet)*7]-90.0),
+                                                       np.radians(obj.params.planet_params[3 + int(planet)*7]) - np.radians(obj.params.planet_params[6 + int(planet)*7]),
+                                                       np.radians(obj.params.planet_params[6 + int(planet)*7] ), mean_orb[f])    
+                                                       
+        dist[f] =  np.sqrt(x[f]**2.0 + y[f]**2.0 + z[f]**2.0)                                        
+    
+    x_p,y_p,z_p,u_p,v_p,w_p = jac2astrocen.mco_el2x(u1,q,
+                                                       obj.params.planet_params[2 + int(planet)*7],
+                                                       np.radians(obj.params.planet_params[5 + int(planet)*7] -90.0),
+                                                       np.radians(obj.params.planet_params[3 + int(planet)*7]) - np.radians(obj.params.planet_params[6 + int(planet)*7]),
+                                                       np.radians(obj.params.planet_params[6 + int(planet)*7]), np.radians(obj.params.planet_params[4 + int(planet)*7]))    
+ 
+
+    min_index = np.unravel_index(np.argmin(dist, axis=None), dist.shape)                                                    
+    max_index = np.unravel_index(np.argmax(dist, axis=None), dist.shape)                                                                                                           
+                                                       
+    return np.array([x,y,z,u,v,w]), np.array([x_p,y_p,z_p,u_p,v_p,w_p]), np.array([x[min_index],y[min_index],z[min_index],u[min_index],v[min_index],w[min_index]]), np.array([x[max_index],y[max_index],z[max_index],u[max_index],v[max_index],w[max_index]])
+
+   
+ 
 
 def create_temporary_copy(path): # not really a good idea......
     '''
