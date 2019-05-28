@@ -99,7 +99,7 @@ Please follow this guide:
 https://docs.microsoft.com/en-us/windows/wsl/install-win10
 
 Thus way you will be able to run all linux native programs on your WINDOWS 10 
-bash shell. 
+bash shell, which is very usefull in general!
 
 To make TRIFON:The Exo-Striker work, however, you also will need an XServer installed.
 Follow these instructions:
@@ -110,7 +110,7 @@ https://seanthegeek.net/234/graphical-linux-applications-bash-ubuntu-windows/
 These two tutorials worked for me, but there might be other options too. 
 
 
-Running the tool via the official Windows 10 python installation, should generally 
+Running the tool via the official Windows 10 python 2/3 installation, should generally 
 works too. For example if one has an Anaconda installation the "anaconda_installer.sh"
 could be an option. However, one must recompile all the fortran/C++ 
 routines like Swift and batman manually. This may be a bit complicated, time consuming,
@@ -142,7 +142,8 @@ python gui.py
 
 import RVmod as rv 
  
-(but the RVmod directory must be in your path!)
+(but the RVmod directory must be in your path! Not to mation that one must be familiar with 
+the functions o the RVmod... A manual on RVmod is planned but not available at the moment.)
 
 
 
@@ -152,7 +153,7 @@ Some comments:
 * All fortran and python codes in this version need very 
 serious clean up from junk.
 
-* All fortan code must be translated with f2py.
+* All fortan code is planned to be translated with f2py.
 
 * The transit fitting + RV + GP is still not tested 
 well

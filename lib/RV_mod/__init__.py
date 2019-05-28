@@ -964,7 +964,10 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     partial_func = FunctionWrapper(model_loglik, (mod, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, rtg, mix_fit) )
     
     #from multiprocessing import Pool, cpu_count    
-    from pathos.multiprocessing import ProcessingPool as Pool
+   # from pathos.multiprocessing import ProcessingPool as Pool
+    from pathos.pools import ProcessPool as Pool
+    
+    
     # print('EXPECTED VALUE BEST', partial_func(obj.par_for_mcmc))
    # print("BEST FIT ESTIMATE ", partial_func(prior_transform(obj.par_for_mcmc)))
 
@@ -999,7 +1002,7 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
         print("'Dynamic' Nest. Samp. is running, please wait... (still under tests!)")
         
         if threads > 1:
-            with Pool(processes=threads-1) as thread:
+            with Pool(ncpus=threads) as thread:
                 sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, pool = thread,
                                                        queue_size=threads, bootstrap=0)
      
@@ -1028,7 +1031,7 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     ln = np.hstack(sampler.results.logl)
     samples = np.array(sampler.results.samples)
             
-    
+    print(ln)
     #fileoutput = True
     if (fileoutput):
        # start_time = time.time()   
@@ -1109,8 +1112,8 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     
     '''Performs MCMC and saves results'''  
     
-    if threads == 'max':
-        threads = multiprocessing.cpu_count()    
+    #if threads == 'max':
+    #    threads = multiprocessing.cpu_count()    
     
     start_time = time.time()   
     
@@ -1184,18 +1187,36 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     if (rtg[1]):
         initiategps(obj)     
         gps = obj.gps
- 
+
+
+    #from pathos.multiprocessing import ProcessingPool as Pool
+    from pathos.pools import ProcessPool as Pool
+    #from pathos.pools import ParallelPool as Pool
+
+    
+    #import mkl
+   # mkl.set_num_threads(1)    
+    #from multiprocessing import Pool 
+   
+   
+    pool=Pool(ncpus=threads)
+
 
     ndim, nwalkers = len(pp), len(pp)*obj.nwalkers_fact
 
     pos = [pp + obj.gaussian_ball*np.random.rand(ndim) for i in range(nwalkers)]
 
-    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit), threads = threads)
+    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit), pool=pool)
+
+    #sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit), threads = threads)
 
     # burning phase
     pos, prob, state  = sampler.run_mcmc(pos,burning_ph)
     sampler.reset()
- 
+    pool.close()
+    pool.join() 
+    pool.clear()     
+    
     # now perform the MCMC
     pos, prob, state  = sampler.run_mcmc(pos,mcmc_ph)
   
