@@ -2801,7 +2801,10 @@ Transit duration: %s d
              self.button_fit.setEnabled(True)         
              return   
          
-       # self.set_tra_ld()            
+       # self.set_tra_ld()   
+
+        self.check_model_params()
+         
         self.check_bounds()
         self.check_priors_nr()   
         self.check_priors_jeff()   
@@ -3433,7 +3436,7 @@ highly appreciated!
     def run_nest(self):
         global fit
         
- 
+        self.check_model_params() 
         self.check_nested_params()
       
         fit = rv.run_nestsamp(fit, threads=int(self.nest_N_threads.value()), std_output=False, stop_crit = self.stop_crit.value(), 
@@ -3561,6 +3564,7 @@ highly appreciated!
         global fit
         
  
+        self.check_model_params()
         self.check_mcmc_params()
       
         fit = rv.run_mcmc(fit, burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
@@ -3585,6 +3589,12 @@ highly appreciated!
         global fit
         fit.gaussian_ball = self.init_gauss_ball.value() 
         fit.nwalkers_fact = int(self.nwalkers_fact.value()) 
+
+    def check_model_params(self):
+        global fit
+        fit.time_step_model = self.time_step_model.value()
+        fit.dyn_model_accuracy = self.dyn_model_accuracy.value()
+        fit.master_timeout = self.master_timeout.value()   
 
 
     def force_mcmc_check_box(self):
