@@ -1590,7 +1590,11 @@ class signal_fit(object):
         self.w    = {k: 0.0 for k in range(9)}
         self.M0   = {k: 0.0 for k in range(9)}
         self.i    = {k: 90.0 for k in range(9)}
-        self.Node = {k: 0.0 for k in range(9)}        
+        self.Node = {k: 0.0 for k in range(9)}     
+        self.w_dot= {k: 0.0 for k in range(9)}     
+       
+        
+        
 
         self.K_err    = {k: np.array([0,0]) for k in range(9)}
         self.P_err    = {k: np.array([0,0]) for k in range(9)}
@@ -1598,7 +1602,9 @@ class signal_fit(object):
         self.w_err    = {k: np.array([0,0]) for k in range(9)}
         self.M0_err   = {k: np.array([0,0]) for k in range(9)}
         self.i_err    = {k: np.array([0,0]) for k in range(9)}
-        self.Node_err = {k: np.array([0,0]) for k in range(9)}        
+        self.Node_err = {k: np.array([0,0]) for k in range(9)}  
+        self.w_dot_err= {k: np.array([0,0]) for k in range(9)}  
+        
 
         self.K_use    = {k: False for k in range(9)}
         self.P_use    = {k: False for k in range(9)}
@@ -1606,7 +1612,9 @@ class signal_fit(object):
         self.w_use    = {k: False for k in range(9)}
         self.M0_use   = {k: False for k in range(9)}
         self.i_use    = {k: False for k in range(9)}
-        self.Node_use = {k: False for k in range(9)}                 
+        self.Node_use = {k: False for k in range(9)}  
+        self.w_dot_use= {k: False for k in range(9)}  
+               
         
         self.K_bound    = {k: np.array([0,10000]) for k in range(9)}
         self.P_bound    = {k: np.array([0,100000]) for k in range(9)}
@@ -1615,6 +1623,8 @@ class signal_fit(object):
         self.M0_bound   = {k: np.array([0.0, 360.0]) for k in range(9)}
         self.i_bound    = {k: np.array([0.0, 180.0]) for k in range(9)}
         self.Node_bound = {k: np.array([0.0, 360.0]) for k in range(9)}
+        self.w_dot_bound= {k: np.array([0.0, 360.0]) for k in range(9)}
+        
         
         self.K_norm_pr    = {k: np.array([50,100, False]) for k in range(9)}
         self.P_norm_pr    = {k: np.array([150,30, False]) for k in range(9)}
@@ -1622,7 +1632,9 @@ class signal_fit(object):
         self.w_norm_pr    = {k: np.array([0, 90, False]) for k in range(9)}
         self.M0_norm_pr   = {k: np.array([0, 90, False]) for k in range(9)}
         self.i_norm_pr    = {k: np.array([90, 90, False]) for k in range(9)}
-        self.Node_norm_pr = {k: np.array([0, 360.0, False]) for k in range(9)}  
+        self.Node_norm_pr = {k: np.array([0, 360.0, False]) for k in range(9)} 
+        self.w_dot_norm_pr= {k: np.array([0, 360.0, False]) for k in range(9)} 
+     
         
         self.K_jeff_pr    = {k: np.array([50,100, False]) for k in range(9)}
         self.P_jeff_pr    = {k: np.array([150,30, False]) for k in range(9)}
@@ -1631,6 +1643,7 @@ class signal_fit(object):
         self.M0_jeff_pr   = {k: np.array([0, 90, False]) for k in range(9)}
         self.i_jeff_pr    = {k: np.array([90, 90, False]) for k in range(9)}
         self.Node_jeff_pr = {k: np.array([0, 360.0, False]) for k in range(9)}          
+        self.w_dot_jeff_pr= {k: np.array([0, 360.0, False]) for k in range(9)}          
         
         
         
@@ -1641,6 +1654,7 @@ class signal_fit(object):
         self.M0_str   = {k: r'MA$_%s$'%chr(98+k)  for k in range(9)}
         self.i_str    = {k: r'i_%s$'%chr(98+k)  for k in range(9)}
         self.Node_str = {k: r'$\Omega_%s$'%chr(98+k)  for k in range(9)}          
+        self.w_dot_str= {k: r'$\dot{\omega_%s}$'%chr(98+k)  for k in range(9)}          
   
 
         
