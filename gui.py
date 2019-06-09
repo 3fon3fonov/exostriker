@@ -4151,6 +4151,58 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.a_sol_9.setEnabled(False)
             self.use_a_sol_9.setEnabled(False)     
 
+
+
+    def mute_boxes_dyn(self):
+        
+        ######### TESTS!!!!!!!!!!!###########
+        
+        if self.radioButton_Keplerian.isChecked():
+            
+            # These must be True when the precession is included
+            
+            self.om_dot_1.setEnabled(False)
+            self.use_om_dot_1.setEnabled(False)
+            self.om_dot_2.setEnabled(False)
+            self.use_om_dot_2.setEnabled(False)           
+            self.om_dot_3.setEnabled(False)
+            self.use_om_dot_3.setEnabled(False) 
+            self.om_dot_4.setEnabled(False)
+            self.use_om_dot_4.setEnabled(False)
+            self.om_dot_5.setEnabled(False)
+            self.use_om_dot_5.setEnabled(False)           
+            self.om_dot_6.setEnabled(False)
+            self.use_om_dot_6.setEnabled(False)             
+            self.om_dot_7.setEnabled(False)
+            self.use_om_dot_7.setEnabled(False)
+            self.om_dot_8.setEnabled(False)
+            self.use_om_dot_8.setEnabled(False)           
+            self.om_dot_9.setEnabled(False)
+            self.use_om_dot_9.setEnabled(False)             
+                        
+        elif self.radioButton_Dynamical.isChecked():
+            
+            
+            self.om_dot_1.setEnabled(False)
+            self.use_om_dot_1.setEnabled(False)
+            self.om_dot_2.setEnabled(False)
+            self.use_om_dot_2.setEnabled(False)           
+            self.om_dot_3.setEnabled(False)
+            self.use_om_dot_3.setEnabled(False) 
+            self.om_dot_4.setEnabled(False)
+            self.use_om_dot_4.setEnabled(False)
+            self.om_dot_5.setEnabled(False)
+            self.use_om_dot_5.setEnabled(False)           
+            self.om_dot_6.setEnabled(False)
+            self.use_om_dot_6.setEnabled(False)             
+            self.om_dot_7.setEnabled(False)
+            self.use_om_dot_7.setEnabled(False)
+            self.om_dot_8.setEnabled(False)
+            self.use_om_dot_8.setEnabled(False)           
+            self.om_dot_9.setEnabled(False)
+            self.use_om_dot_9.setEnabled(False)             
+                                    
+
             
 ###########################  GUI events #############################            
 
@@ -4528,7 +4580,10 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.minimize_1param()
 
         self.radioButton_Dynamical.toggled.connect(self.update_dyn_kep_flag)
+       # self.radioButton_Dynamical.toggled.connect(self.mute_boxes_dyn)
+        
         self.radioButton_Keplerian.toggled.connect(self.update_dyn_kep_flag)
+       # self.radioButton_Keplerian.toggled.connect(self.mute_boxes_dyn)
         
 
         ############ Stat #################
@@ -4680,7 +4735,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
        # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_change)       
         self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_change)       
         
-        self.check_settings()
+        self.check_settings()       
+        self.mute_boxes_dyn()
 
         self.threadpool = QtCore.QThreadPool()
         #self.threadpool.setMaxThreadCount(cpu_count())    
