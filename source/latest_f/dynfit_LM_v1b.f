@@ -135,8 +135,8 @@ c*******final output******************
      &  writeflag_best_par,writeflag_fit,jitter,epsil,deltat,
      &  nt, model_max,model_min)
 
-      write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
-      write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
+c      write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
+c      write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
      
 c      stop
       end
@@ -293,11 +293,11 @@ Cc    Xianyu Tan 2011
       integer MMAX,NDSMAX,NPLMAX 
       parameter (PI=3.14159265358979d0,MMAX=200  ,NDSMAX=20,NPLMAX=20)
       real*8 a(MMAX),ia(MMAX),t(5000),ymod(5000),ys(5000)
-      real*8 covar(MMAX,MMAX),dyda(5000,MMAX),AU,day
+      real*8 covar(MMAX,MMAX),dyda(5000,MMAX),AU,day,loglik,dy,twopi
       real*8 rms,mstar,sini,mass(NPLMAX),ap(NPLMAX)
       integer ts(5000),nbod,nt,writeflag_RV,
      &           writeflag_best_par,writeflag_fit
-      real*8 t0,t1,t2,dt,offset,t_max,chisq,deltat,epsil
+      real*8 t0,t1,t2,dt,offset,t_max,chisq,deltat,epsil,sig2i 
       real*8 x(5000),y(5000),sigs(5000),jitter(NDSMAX)
       integer i,j,npl,ndset,ndata,idset,mfit,ma,idsmax(NDSMAX)
       real*8 xh(NPLMAX),yh(NPLMAX),zh(NPLMAX),vxh(NPLMAX),vyh(NPLMAX)
@@ -315,7 +315,7 @@ Cc    Xianyu Tan 2011
             
       nbod = npl+1
       rms = 0.d0
- 
+      twopi = 2.0d0*PI  
  
 ccccccccccccccccccc t[JD], obs., cal., O-C   ccccccccccccc   
 
@@ -326,7 +326,7 @@ ccccccccccccccccccc t[JD], obs., cal., O-C   ccccccccccccc
       do i = 1,ndata
           idset = ts(i)
  
-	  ys(i) = ys(i) - a(7*npl+idset) -
+	      ys(i) = ys(i) - a(7*npl +idset) -
      &                a(7*npl +ndset + 1)*(t(i)/86400.d0)
 
  
@@ -337,7 +337,23 @@ ccccccccccccccccccc t[JD], obs., cal., O-C   ccccccccccccc
 
           endif
      
-          rms = rms + (ys(i) - ymod(i))**2
+          sig2i = 1.d0/(sigs(i)**2 + jitter(idset)**2)
+
+          dy =  ys(i) -ymod(i)  
+ 
+
+ 	      chisq  = chisq + dy*dy*sig2i
+ 
+c          write(*,*) "TEST:",loglik,dy,ymod(i),jitter(idset)
+	      loglik =  loglik - 0.5*dy*dy*sig2i -
+     &               0.5*dlog(twopi*(sigs(i)**2
+     &                + jitter(idset)**2)) 
+     
+ 
+
+          rms = rms + dy**2     
+
+c          rms = rms + (ys(i) - ymod(i))**2
       enddo
       rms = dsqrt(rms/dble(ndata))
 
@@ -345,6 +361,10 @@ ccccccccccccccccccc t[JD], obs., cal., O-C   ccccccccccccc
 
 
       if(writeflag_best_par.gt.0) then
+
+
+                write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
+                write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
 
                 write (*,*) 'Best-fit K [m/s], P [days], e, w [deg], 
      &          M0 [deg], i[deg], cap0m[deg] and their errors'
