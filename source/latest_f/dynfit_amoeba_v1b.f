@@ -76,7 +76,7 @@ c      call timer(t_start)
          dloglikk = ologlikk - loglikk
 
 
-         write (*,*) i, dloglikk, loglikk
+c         write (*,*) i, dloglikk, loglikk
          j=0
          do ii=1,ma
            if (ia(ii).ne.0) then
@@ -85,11 +85,11 @@ c      call timer(t_start)
            endif
          enddo
 c      call timer(t_stop)
-      CALL SECOND(t_stop)
-      if (t_stop.ge.10) then
-            write(*,*) t_stop 
-            goto 502
-      endif
+c      CALL SECOND(t_stop)
+c      if (t_stop.ge.10) then
+c            write(*,*) t_stop 
+c            goto 502
+c      endif
          
       if (dabs(dloglikk).ge.0.000001d0) goto 500
 
@@ -493,10 +493,10 @@ C**************************************************************************
 C
  
 
-       subroutine io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
+      subroutine io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
      &           ma,mfit,t0,t_max,sigs,chisq,rms,loglik,writeflag_RV,
-     &           writeflag_best_par,writeflag_fit,jitter,epsil,deltat,
-     &  nt, model_max,model_min)
+     &           writeflag_best_par,writeflag_fit,jitter,epsil,
+     &           deltat,nt, model_max,model_min)
    
       implicit none 
       real*8 PI
@@ -514,7 +514,7 @@ C
      &       ,vzh(NPLMAX)
       real*8 xj(NPLMAX),yj(NPLMAX),zj(NPLMAX),vxj(NPLMAX),vyj(NPLMAX)
      &       ,vzj(NPLMAX)
-      real*8 rpl(NPLMAX),rhill(NPLMAX),epsil,deltat
+      real*8 rpl(NPLMAX),rhill(NPLMAX),deltat,epsil
       real*8 swift_mass(NPLMAX),s_mass(NPLMAX),j_mass(NPLMAX)
       real*4 model_max,model_min
       parameter (AU=1.49597892d11, day = 86400.d0)
@@ -569,7 +569,7 @@ ccccccccccccccccccc t[JD], obs., cal., O-C   ccccccccccccc
       do i = 1,ndata
           idset = ts(i)
  
-	  ys(i) = ys(i) - a(7*npl+idset) - 
+	      ys(i) = ys(i) - a(7*npl+idset) - 
      &               a(7*npl  + 2*ndset + 1)*(t(i)/8.64d4)
 
 c          write(*,*) a(7*npl+idset), a(7*npl  + 2*ndset + 1)
@@ -586,10 +586,10 @@ c          write(*,*) a(7*npl+idset), a(7*npl  + 2*ndset + 1)
           dy =  ys(i) -ymod(i)  
  
 
- 	  chisq  = chisq + dy*dy*sig2i
+ 	      chisq  = chisq + dy*dy*sig2i
  
-c          write(*,*) "TEST:",loglik,dy,ymod(i)
-	  loglik =  loglik - 0.5*dy*dy*sig2i -
+c          write(*,*) "TEST:",loglik,dy,ymod(i),a(7*npl+ndset+idset)
+	      loglik =  loglik - 0.5*dy*dy*sig2i -
      &               0.5*dlog(twopi*(sigs(i)**2
      &                + a(7*npl+ndset+idset)**2)) 
      
