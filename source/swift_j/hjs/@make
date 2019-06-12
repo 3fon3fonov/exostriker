@@ -1,10 +1,11 @@
-#!/bin/csh
+#!/bin/csh -f 
 
-set SWIFT_DIR=/home/trifonov/git/trifon/source/swift_j
-set FORTRAN=gfortran
-# set FFLAGS='-auto -O3 -xW -c'
+# USERS MUST CHANGE THESE !!!!!!
+set SWIFT_DIR=/home/beust/swiftori
+set FORTRAN=ifort
+#set FFLAGS='-O3 +Onolimit +Oall +Odataprefetch +Ovectorize +Ocache_pad_common -c'
 set FFLAGS='-O3 -c'
-set PRECOMP=/usr/bin/cpp
+set PRECOMP=/usr/ccs/lbin/cpp
 set CPPFLAGS='-D_OPEN_POSITION -D_RECUR_SUB'
 
 # To Profile the code:
@@ -14,10 +15,10 @@ if (`ls *.F | wc -l` != 0 ) then
     echo Doing precompiler
     foreach file (*.F)
         echo $file | set file2=`awk -F"." '{print$1}'`
-        echo $PRECOMP $CPPFLAGS "$file2".F "$file2"_CPP.f
+        echo $file2
         $PRECOMP $CPPFLAGS "$file2".F "$file2"_CPP.f
      end
-else
+else  
     echo No need to precompile
 endif
 
@@ -31,5 +32,4 @@ end
 
 rm *.o
 rm *CPP.f
-echo Done directory $PWD
-
+echo Done directory $PWD 

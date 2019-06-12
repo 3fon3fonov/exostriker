@@ -1,0 +1,169 @@
+****************************************************************************
+                        USER INSTRUCTIONS FOR SWIFT/HJS
+****************************************************************************
+Author : Hervé Beust
+Date   : January 10, 2003 
+
+1 Introduction
+--------------
+
+The HJS package (Hierarchic Jacobi Symplectic) is a set of routines
+that need to be added to the SWIFT package and allow to integrate
+the dynamics of multiple stellar system, provided they assume a
+hierarchical structure. The SWIFT package, by H. Levison and 
+M. Duncan, is a set of routines designed to symplectically
+integrate the motion of massive bodies and test particles orbiting
+a more massive center. It is well suited for studying the dynamics
+of planetary systems (Refs: Wisdom & Holman, 1991, AJ 102, 1528;
+Levison & Duncan, 1994, Icarus 108, 18). The HJS package is a set
+of additional routines that permit the integration of systems
+with more than one massive center provided a full hierarchical
+is assumed.  
+
+Anyone willing to use HST must thus first get the SWIFT package,
+freely available via http://www.boulder.swri.edu/~hal/swift.html
+Once this is achieved, the installation of the HJS routines can
+be done.
+
+2 Installation
+--------------
+
+The HJS package consists of the following files:
+
+1) swift_hjs.f  :  A driver that needs to be placed in the "main" subdirectory
+                of the swift distribution, together with the other similar
+                files (swift_whm.f, swift_rmvs3.f, etc...)
+
+
+2) anal_energy_hjs.f        anal_energy_write_hjs.f  discard_hjs.f 
+   io_init_tp_hjs.f         coord_b2g.f              drift_hjs.f     
+   io_write_frame_hjs.f     coord_g2b.f              getacch_hjs.f    
+   io_write_frame_r_hjs.f   coord_g2b_tp.f           getacch_tp_hjs.f  
+   step_kdk_hjs.f           coord_vb2bg.f            io_dump_pl_hjs.f 
+   step_kdk_pl_hjs.f        coord_vb2bg_tp.f         io_dump_tp_hjs.f
+   step_kdk_tp_hjs.f        discard_hjs.f
+   discard_center_hjs.f     io_init_pl_hjs.f    
+
+   A collection of subroutines that make the HJS package. You may either
+   put them in the directories of the swift distributrion
+   that correspond to their names (for example, the coord.. routines
+   in the /coord directory, or the step.. routines in the /mvs/step
+   directory), or alternatively create a /hjs subdirectory to store all
+   of them. In this last case, in order to compile the whole swift routine
+   together with HJS, you need to edit the @makeall file supplied in
+   the root swift directory and add the following lines
+  
+echo DIRECTORY: hjs
+cd ../hjs
+ln -s ../@make .
+csh -f  @make   
+
+3) README : this file
+4) @make : a makefile 
+5) a directory of tools and examples related to HJS. There is already
+a /tools directory in the main swift distribution. You may create a
+/tools/hjs subdirectory to store the present contents. Please refer
+to the README file of that directory for specific instructions.
+
+In order to compile the whole SWIFT package, together with HJS
+(once tha above line have been added if necessary), just go to
+the root SWIFT directory and execute @makeall. This creates the
+library. Then go to the /main subdirectory and execute @make to
+compile the various drivers, including swift_hjs.f. Apart from that
+you may refer to the general compiling instructions provided in
+the original SWIFT distribution.
+
+3 Execution
+-----------
+
+The HJS package was built trying to keep as much as possible full
+compatibily with the original SWIFT package. So, exactly as for SWIFT,
+a simple way to run it is to type     swift_hjs < mvs.in, where
+mvs.in is a file containing the names of three input files,
+that may for example be paramhjs.in, plhjs.in, tphjs.in  
+
+- The parameter file paramhjs.in assumes exactly the same structure as
+  the param.in file used in SWIFT, so you may refer to the corresponding
+  instructions. Note that for compatibility, the logical L3 (Jacobi integral
+  computation) has been kept but it is not used here, as computing Jacobi
+  integral is of no use in multiple stellar systems. Note also that the
+  inclusion of J2 and J4 for the central body is currently disabled, but
+  the logical L1 is kept for compatibility. J2 and J4 for all massive bodies
+  will be reintroduced furthermore (if needed) in future releases of HJS.
+
+- The planet file plhjs.in is identical to the pl.in file for SWIFT, except
+  that at the end of the file, some information about the hierarchical
+  structure of the system of massive bodies must be supplied. This consists of 
+  a series of lines of integers that may be equal to 0, 1 or -1 only.
+  If NBOD bodies are present, then each line should contain NBOD integers
+  and there should be NBOD-1 lines. Each one corresponds to one orbit
+  of the system (see Beust et al. 2003). For each orbit (i.e., line) 
+  an integer at rank j will be equal to -1 if body #j is a center in that
+  orbit, 1 if body #j is a satellite in that  orbit, and 0 if it is
+  not concerned. Let for take an example: suppose a quadruple system
+  consisting of two binaries (one binary made of bodies 1 and 2, and
+  the other one made of bodies 3 and 4) orbiting each other. 
+  We will refer as orbit#1 the orbit of the first binary, orbit#2
+  the orbit of the second binary, and orbit#3 the relative orbit between
+  the centers of mass of the two binaries. Then the integer lines added
+  at the end of paramhjs.in should be           
+ -1  1  0  0
+  0  0 -1  1
+ -1 -1  1  1
+   The first line concerns orbit#1. It means that for that orbit, body 1
+   should be considered as a center, body 2 as a satellite and the 
+   other ones are not concerned. Indeed, orbit#1 describes the orbital
+   motion of body 2 around body 1. Similarly, the second line means that
+   orbit#2 describes the motion of body 4 relative to body 3. Finally, for
+   orbit#3 (3rd line), bodies 1 and 2 are satellites and bodies 3 and 4 are
+   satellites, as this orbit describes the motion of the center of mass of
+   bodies 3 and 4 relative to the center or mass of bodies 1 and 2.
+
+- tphjs.in is the test particle file. Here again the file assumes
+  the same structure as tp.in for SWIFT, but one must supply for each test
+  particle which subset of massive bodies it should be considered as
+  orbiting. Therefore a line of integers should be added, after the lines
+  giving x,y,z and vx,vy,vz, and before the lines giving the istat
+  and rstat parameters. This additional line should consists of 0's and -1's
+  only, a -1 at rank j meaning that body j must be added to the list of
+  orbital centers for the test particle. Let us take once again the double
+  binary example system given above. If one wants to consider a circumbinary
+  disk of test particles orbiting the first binary, then the line to be added
+  for each of these particles should be
+ -1 -1 0 0
+  This means that these particles are considered to orbit the center of
+  mass of bodies 1 and 2. Similarly, for a circumbinary disk orbiting the
+  other binary, the corresponding line should be
+ 0 0 -1 -1
+  If one wants to consider particles orbiting only body 2 (e.g. a
+  circumstellar disk), then the line should be
+ 0 -1 0 0 
+  Finally, there may be particles orbiting the center of mass of
+  the whole system at some large distance. The corresponding line is then
+-1 -1 -1 -1
+
+NOTE : Examples of input files are given in the /tools directory of
+       the present distribution, as well as drivers that may help to
+       create them from simple input. Please refer to the README
+       file of this directory.
+
+The execution procedure of swift_hjs is then identical as for the other
+drivers supplied in the main SWIFT distribution.
+
+4 The binary output file
+------------------------
+
+The binary output file of swift_hjs assumes the same structure as 
+for SWIFT. At each time an output is done, we find
+- a header line. Same as for SWIFT
+- nbod-1 massive bodies data lines. In fact, these lines contain the
+  orbital elements of the nbod-1 ORBITS of the massive bodies system.
+  For compatibility wity SWIFT, these orbits are here given the numbers
+  -2,...,-nbod
+- ntp test particle data lines. NOTE: The orbital elements for each test
+  particles are given relative to the plane perpendicular to the angular
+  momentum of the centers that particle is intended to orbit. This helps
+  handling for example circumbinary disks. This is nevertheless valid
+  if there is of course more than one center for that particle. Otherwize,
+  the orbital elements are given realtive to the same base plane as for
+  the nbod-1 orbits between the massive bodies. 
