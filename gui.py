@@ -2841,13 +2841,30 @@ Transit duration: %s d
         
 
      
+    def update_RV_jitter_flag(self):
+        global fit
+
+        use_data_jitter_gui = [self.use_jitter_Data1,self.use_jitter_Data2,self.use_jitter_Data3,self.use_jitter_Data4,self.use_jitter_Data5,
+                               self.use_jitter_Data6,self.use_jitter_Data7,self.use_jitter_Data8,self.use_jitter_Data9,self.use_jitter_Data10]
+
+        if self.amoeba_radio_button.isChecked():
+            for i in range(10):     
+                use_data_jitter_gui[i].setEnabled(True)
+        else:
+            for i in range(10):     
+                use_data_jitter_gui[i].setEnabled(False)
+                
+                
+     
     def update_dyn_kep_flag(self):
+        global fit
 
         if self.radioButton_Dynamical.isChecked():
             fit.mod_dynamical = True
         else:
             fit.mod_dynamical = False
-            
+
+           
             
             
     def optimize_fit(self,ff=20,m_ln=True, doGP=False, gp_kernel_id=-1, auto_fit = False, minimize_fortran=True):  
@@ -4583,6 +4600,11 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
        # self.radioButton_Dynamical.toggled.connect(self.mute_boxes_dyn)
         
         self.radioButton_Keplerian.toggled.connect(self.update_dyn_kep_flag)
+        
+        
+        self.amoeba_radio_button.toggled.connect(self.update_RV_jitter_flag)
+        self.lm_radio_button.toggled.connect(self.update_RV_jitter_flag)
+        
        # self.radioButton_Keplerian.toggled.connect(self.mute_boxes_dyn)
         
 
@@ -4737,6 +4759,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
         self.check_settings()       
         self.mute_boxes_dyn()
+        self.update_RV_jitter_flag()
 
         self.threadpool = QtCore.QThreadPool()
         #self.threadpool.setMaxThreadCount(cpu_count())    
