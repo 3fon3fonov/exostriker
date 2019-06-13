@@ -214,7 +214,7 @@ c*************************************************************************
 
 C     Xianyu Tan 2011
                                                                             
-      subroutine io_read_data (ndata,t,ts,ys,sigs,jitt,epoch,t0,t_max,
+      subroutine io_read_data(ndata,t,ts,ys,sigs,jitt,epoch,t0,t_max,
      &          ar,iar,ma,incl,cap0m,hkl)  
 
       implicit none
@@ -782,11 +782,11 @@ c*******expectively.
      &                  dsqrt(1.d0 - ecc**2)
            endif
            
-	   dm = dabs(mass(i+2)-mpold(i+1))/mass(i+2)
-	   mpold(i+1) = mass(i+2)
+	    dm = dabs(mass(i+2)-mpold(i+1))/mass(i+2)
+	    mpold(i+1) = mass(i+2)
            if (dm.gt.0) goto 101
 
-	   ap(i+1) = (GMSUN*(mtotal + mass(i+2))*(1.d0/mm(i+1))
+	    ap(i+1) = (GMSUN*(mtotal + mass(i+2))*(1.d0/mm(i+1))
      &               **2)**THIRD
            
         enddo
@@ -796,8 +796,8 @@ c*******expectively.
         enddo
 
         
-	return
-	end
+	    return
+	    end
 
 
 c GAUSSJ solves linear equation by Gauss-Jordan elimination.
