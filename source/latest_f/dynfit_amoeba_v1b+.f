@@ -11,7 +11,7 @@ c*************************************************************************
       real*8 mstar,sini(7),sig2i,dy, loglik,sig2l,ftol
       parameter (NDSMAX=20, NPLMAX=20, MMAX=200)
       integer idsmax(NDSMAX),ia(MMAX),ts(10000) ,nt, iter, ii
-      integer writeflag_best_par
+      integer writeflag_best_par,hkl
       integer writeflag_RV,writeflag_fit, amoebastarts
       integer dynamical_planets(NPLMAX)
       real*8 t(10000),x(10000),y(10000),sig(10000),ys(10000),sigs(10000)
@@ -39,7 +39,7 @@ c*************************************************************************
      &	             writeflag_RV,writeflag_fit 
     
       call io_read_data (ndata,t,ts,ys,sigs,jitt,
-     & 	           epoch,t0,t_max,a,ia,ma,mfit,dynamical_planets)
+     & 	           epoch,t0,t_max,a,ia,ma,mfit,dynamical_planets,hkl)
 
            i = 0
 c      call timer(t_start)              
@@ -345,11 +345,11 @@ c*************************************************************************
  
                                                                             
       subroutine io_read_data (ndata,t,ts,ys,sigs,jitter,epoch,
-     &               t0,t_max,ar,iar,ma,mfit, dynamical_planets)  
+     &               t0,t_max,ar,iar,ma,mfit, dynamical_planets,hkl)  
 
 
       implicit none
-      integer ndset,idset,ndata,NDSMAX,NPLMAX,MMAX,npl
+      integer ndset,idset,ndata,NDSMAX,NPLMAX,MMAX,npl,hkl
       real*8 t(10000),y(10000),sig(10000),ys(10000),sigs(10000)
       parameter (NDSMAX=20,NPLMAX=20,MMAX=200)
       integer idsmax(NDSMAX),ts(10000), dynamical_planets(NPLMAX)
@@ -469,6 +469,21 @@ c      write (*,*) 'linear trend:'
       else
          t0 = epoch
       endif
+      
+      read (*,*) hkl      
+         
+      do j = 1,npl
+          i = 7*(j-1)
+          if (hkl.eq.0) then 
+              ar(i+4) = ar(i+4)*PI/180.d0
+          endif
+              
+          ar(i+5) = ar(i+5)*PI/180.d0
+          ar(i+6) = ar(i+6)*PI/180.d0
+          ar(i+7) = ar(i+7)*PI/180.d0          
+      enddo            
+            
+      
       
       do i = 1,ndata
          t(i) = (t(i) - t0)*8.64d4               ! time unit is second

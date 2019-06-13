@@ -442,6 +442,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             ppp+='%d %d %d %d %d %d %d\n'%(0,0,0,0,0,0,0)     
         ppp+='%f\n%d\n'%(par[len(vel_files)*2 +7*npl],0) # information about linear trend
         ppp+='%f\n'%epoch
+        ppp+='0\n'
         ppp+='EOF' 
  
         # prepare final version of the ppp command to be returned by this function
@@ -2627,6 +2628,7 @@ class signal_fit(object):
             ppp+='%d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),int(self.use.use_planet_params[7*i+1]),int(self.use.use_planet_params[7*i+2]),int(self.use.use_planet_params[7*i+3]),int(self.use.use_planet_params[7*i+4]),int(self.use.use_planet_params[7*i+5]),int(self.use.use_planet_params[7*i+6]))     
         ppp+='%f\n%d\n'%(self.params.linear_trend,int(self.use.use_linear_trend)) # information about linear trend
         ppp+='%f\n'%self.epoch
+        ppp+='0\n'         
         # prepare final version of the ppp command to be returned by this function
         if not (fileinput):
             ppp+='EOF' # end of the command to run in the case of saving input directly
