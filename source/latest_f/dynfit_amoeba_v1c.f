@@ -11,7 +11,7 @@ c*************************************************************************
       real*8 mstar,sini(7),sig2i,dy, loglik,sig2l,ftol
       parameter (NDSMAX=20, NPLMAX=20, MMAX=200)
       integer idsmax(NDSMAX),ia(MMAX),ts(10000) ,nt, iter, ii
-      integer writeflag_best_par
+      integer writeflag_best_par,hkl
       integer writeflag_RV,writeflag_fit, amoebastarts
       real*8 t(10000),x(10000),y(10000),sig(10000),ys(10000),sigs(10000)
       real*8 a(MMAX),covar(MMAX,MMAX),alpha(MMAX,MMAX)
@@ -40,7 +40,7 @@ c*************************************************************************
    
 
       call io_read_data (ndata,t,ts,ys,sigs,jitt,
-     & 	           epoch,t0,t_max,a,ia,ma,mfit)
+     & 	           epoch,t0,t_max,a,ia,ma,mfit,hkl)
 
   
            i = 0
@@ -56,13 +56,14 @@ c      call timer(t_start)
       
       
          call prepare_for_amoeba(p,MMAX+1,MMAX,yamoeba,a,ia,ma,mfit,
-     & compute_abs_loglik,ndata,t,ys,ymod,dyda,ts,sigs,epsil,deltat,i)
+     &        compute_abs_loglik,ndata,t,ys,ymod,dyda,
+     &        ts,sigs,epsil,deltat,i,hkl)
      
      
          call amoeba(p,yamoeba,MMAX+1,MMAX,mfit,ftol,compute_abs_loglik,
-     & iter,ndata,t,ys,ymod,dyda,ma,ts,sigs,a,ia,epsil,deltat)
-     
-     
+     & iter,ndata,t,ys,ymod,dyda,ma,ts,sigs,a,ia,epsil,deltat,hkl)
+ 
+c         write (*,*) i, dloglikk, loglikk     
          CALL SECOND(t_stop)
          if (t_stop.ge.when_to_kill) then
             write(*,*) 'Max. time=',when_to_kill, 'sec ', 
@@ -103,7 +104,7 @@ c      endif
       call io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
      & 	           ma,mfit,t0,t_max,sigs,chisq,rms,loglik,writeflag_RV,
      &             writeflag_best_par,writeflag_fit,jitt,epsil,deltat,
-     &  nt, model_max, model_min)
+     &  nt, model_max, model_min,hkl)
 
 
    
@@ -113,10 +114,10 @@ c      stop
 
 
       subroutine compute_abs_loglik(ndata,x,y,a2,ymod,dyda,ma,mfit,ts,
-     & sig,loglik, num,a,ia,epsil,deltat)
+     & sig,loglik, num,a,ia,epsil,deltat,hkl)
       implicit none
       
-      integer MMAX,npl,ndset,NDSMAX,idset,num, mfit    
+      integer MMAX,npl,ndset,NDSMAX,idset,num, mfit,hkl    
       parameter (MMAX=200, NDSMAX=20)
       real*8 twopi, loglik
       parameter (twopi=6.28318530717958d0)
@@ -138,10 +139,10 @@ c      stop
              a3(i)=a(i)
          endif
       enddo
-
-     
+      
+ 
       loglik=0.d0
-        call RVKEP (x,a3,y2,dyda,ma,ndata,epsil,deltat)
+        call RVKEP (x,a3,y2,dyda,ma,ndata,epsil,deltat,hkl)
 c        write(*,*) a3(2),a2(2),a(2)
 c        write(*,*) a3(1),a3(2),a3(3),a3(4),a3(5)
 c        write(*,*) a3(8),a3(9),a3(10),a3(11),a3(12)
@@ -162,7 +163,7 @@ c          write(*,*),dy
        
  
 
-	  loglik =  loglik + 0.5*dy*dy*sig2i +
+	      loglik =  loglik + 0.5*dy*dy*sig2i +
      &               dlog(dsqrt(twopi*(sig(i)**2 + 
      &               a3(7*npl+ndset+idset)**2))) 
      &               - dlog(dsqrt(twopi)) 
@@ -176,8 +177,8 @@ c      write(*,*) "lnL", loglik
       end            
       
       subroutine prepare_for_amoeba(p,mp,np,y,a,ia,ma,mfit,funk,ndata,
-     & x,z,ymod,dyda,ts,sig,epsil,deltat,it)
-      integer MMAX, NDSMAX,ma,ts(5000), ndata,mp,np,mfit,it
+     & x,z,ymod,dyda,ts,sig,epsil,deltat,it,hkl)
+      integer MMAX, NDSMAX,ma,ts(5000), ndata,mp,np,mfit,it,hkl
       parameter(MMAX=200, NDSMAX=20)
       REAL*8 ftol,p(mp,np),y(mp),a(MMAX), a2(mfit),fr,frjitt
       real*8 x(5000),z(5000),ymod(5000)
@@ -218,24 +219,23 @@ c      write(*,*) "lnL", loglik
 c              write(*,*) a2(j)  
           enddo
           call funk(ndata,x,z,a2,ymod,dyda,ma,mfit,ts,sig,loglik,i,
-     &              a,ia,epsil,deltat)
+     &              a,ia,epsil,deltat,hkl)
           y(i)=loglik
 c          write(*,*) loglik 	  
-	  
       enddo
 c      write(*,*) loglik 
       return
       end
       
       SUBROUTINE amoeba(p,y,mp,np,ndim,ftol,funk,iter,ndata,x,z,ymod,
-     & dyda,ma,ts,sig,a,ia,epsil,deltat)
+     & dyda,ma,ts,sig,a,ia,epsil,deltat,hkl)
       implicit none
       INTEGER iter,mp,ndim,np,NMAX,ITMAX, MMAX,ma,ts(5000), ndata
       REAL*8 ftol,p(mp,np),y(mp),x(5000),z(5000),ymod(5000)
       PARAMETER (NMAX=20,ITMAX=50000,MMAX=200)
       real*8 dyda(10000,MMAX), sig(5000), loglik, a(MMAX)
       EXTERNAL funk
-      INTEGER i,ihi,ilo,inhi,j,m,n, ia(MMAX)
+      INTEGER i,ihi,ilo,inhi,j,m,n, ia(MMAX),hkl
       REAL*8 rtol,summ,swap,ysave,ytry,psum(ndim),amotry,epsil,deltat
       iter=0
 1     do 12 n=1,ndim
@@ -280,14 +280,14 @@ c      write(*,*) loglik
       endif
       iter=iter+2
       ytry=amotry(p,y,psum,mp,np,ndim,funk,ihi,-1.0d0,ndata,x,z,ymod,
-     & dyda,ma,ts,sig,a,ia,epsil,deltat)
+     & dyda,ma,ts,sig,a,ia,epsil,deltat,hkl)
       if (ytry.le.y(ilo)) then
         ytry=amotry(p,y,psum,mp,np,ndim,funk,ihi,2.0d0,ndata,x,z,ymod,
-     & dyda,ma,ts,sig,a,ia,epsil,deltat)
+     & dyda,ma,ts,sig,a,ia,epsil,deltat,hkl)
       else if (ytry.ge.y(inhi)) then
         ysave=y(ihi)
         ytry=amotry(p,y,psum,mp,np,ndim,funk,ihi,0.5d0,ndata,x,z,ymod,
-     & dyda,ma,ts,sig,a,ia,epsil,deltat)
+     & dyda,ma,ts,sig,a,ia,epsil,deltat,hkl)
         if (ytry.ge.ysave) then
           do 16 i=1,ndim+1
             if(i.ne.ilo)then
@@ -296,7 +296,7 @@ c      write(*,*) loglik
                 p(i,j)=psum(j)
 15            continue
               call funk(ndata,x,z,psum,ymod,dyda,ma,ndim,ts,sig,loglik,
-     &                 i,a,ia,epsil,deltat)
+     &                 i,a,ia,epsil,deltat,hkl)
               y(i)=loglik
              endif
 16        continue
@@ -311,7 +311,7 @@ c      write(*,*) loglik
 C  (C) Copr. 1986-92 Numerical Recipes Software 0=M,173+9.
 
       FUNCTION amotry(p,y,psum,mp,np,ndim,funk,ihi,fac,ndata,x,z,ymod,
-     & dyda,ma,ts,sig,a,ia,epsil,deltat)
+     & dyda,ma,ts,sig,a,ia,epsil,deltat,hkl)
       implicit none
       INTEGER ihi,mp,ndim,np,NMAX, MMAX, ma, ts(5000),ndata
       PARAMETER (NMAX=20, MMAX=200)
@@ -319,7 +319,7 @@ C  (C) Copr. 1986-92 Numerical Recipes Software 0=M,173+9.
      & ymod(5000), epsil, deltat
       real*8 dyda(10000,MMAX), sig(5000),loglik
       EXTERNAL funk
-      INTEGER j, ia(MMAX)
+      INTEGER j, ia(MMAX),hkl
       REAL*8 fac1,fac2,ytry,ptry(ndim), a(MMAX)
       fac1=(1.0d0-fac)/ndim
       fac2=fac1-fac
@@ -327,7 +327,7 @@ C  (C) Copr. 1986-92 Numerical Recipes Software 0=M,173+9.
         ptry(j)=psum(j)*fac1-p(ihi,j)*fac2
 11    continue
       call funk(ndata,x,z,ptry,ymod,dyda,ma,ndim,ts,sig,loglik,ihi,
-     & a,ia,epsil,deltat)
+     & a,ia,epsil,deltat,hkl)
 
       ytry=loglik
       if (ytry.lt.y(ihi)) then
@@ -350,14 +350,14 @@ c*************************************************************************
  
                                                                             
       subroutine io_read_data (ndata,t,ts,ys,sigs,jitter,epoch,
-     &               t0,t_max,ar,iar,ma,mfit)  
+     &               t0,t_max,ar,iar,ma,mfit,hkl)  
 
 
       implicit none
       integer ndset,idset,ndata,NDSMAX,NPLMAX,MMAX,npl
       real*8 t(10000),y(10000),sig(10000),ys(10000),sigs(10000)
       parameter (NDSMAX=20,NPLMAX=20,MMAX=200)
-      integer idsmax(NDSMAX),ts(10000)
+      integer idsmax(NDSMAX),ts(10000),hkl
       real*8 jitter(NDSMAX),t0,t_max,epoch,ar(MMAX),off(NDSMAX), PI
       parameter(PI=3.14159265358979d0)
       integer i,k,j, iar(MMAX), u_off(NDSMAX), u_jit(NDSMAX), ma, mfit
@@ -449,10 +449,6 @@ c      write(*,*) 'Initial K, P, e, w, M0,Inc,Capom and their flags: '
  
 c          ar(i+2) = 2.d0*PI/(ar(i+2)*8.64d4)         ! mean motion 
 c          ar(i+2) = ar(i+2)*8.64d4         ! second as unit
-          ar(i+4) = ar(i+4)*PI/180.d0                ! radians
-          ar(i+5) = ar(i+5)*PI/180.d0
-          ar(i+6) = ar(i+6)*PI/180.d0
-          ar(i+7) = ar(i+7)*PI/180.d0
  
       enddo
   
@@ -471,6 +467,19 @@ c      write (*,*) 'linear trend:'
          t0 = epoch
       endif
       
+      read (*,*) hkl      
+         
+      do j = 1,npl
+          i = 7*(j-1)
+          if (hkl.eq.0) then 
+              ar(i+4) = ar(i+4)*PI/180.d0
+          endif
+              
+          ar(i+5) = ar(i+5)*PI/180.d0
+          ar(i+6) = ar(i+6)*PI/180.d0
+          ar(i+7) = ar(i+7)*PI/180.d0          
+      enddo          
+      
       do i = 1,ndata
          t(i) = (t(i) - t0)*8.64d4               ! time unit is second
       enddo
@@ -479,7 +488,7 @@ c      write (*,*) 'linear trend:'
       do j = 1,ma
           if (iar(j).ne.0) mfit = mfit + 1
       enddo
-      
+         
       return
       end
 C##########################################################################
@@ -499,7 +508,7 @@ C
       subroutine io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
      &           ma,mfit,t0,t_max,sigs,chisq,rms,loglik,writeflag_RV,
      &           writeflag_best_par,writeflag_fit,jitter,epsil,
-     &           deltat,nt, model_max,model_min)
+     &           deltat,nt, model_max,model_min,hkl)
    
       implicit none 
       real*8 PI
@@ -509,7 +518,7 @@ C
       real*8 covar(MMAX,MMAX),dyda(5000,MMAX),AU,day
       real*8 rms,mstar,sini(7),mass(NPLMAX),ap(NPLMAX)
       integer ts(5000),nbod,nt,writeflag_RV,
-     &           writeflag_best_par,writeflag_fit
+     &           writeflag_best_par,writeflag_fit,hkl
       real*8 t0,t1,t2,dt,offset,t_max,chisq,loglik,dy,sig2i,twopi
       real*8 x(5000),y(5000),sigs(5000),jitter(NDSMAX)
       integer i,j,npl,ndset,ndata,idset,mfit,ma,idsmax(NDSMAX)
@@ -519,7 +528,7 @@ C
      &       ,vzj(NPLMAX)
       real*8 rpl(NPLMAX),rhill(NPLMAX),deltat,epsil
       real*8 swift_mass(NPLMAX),s_mass(NPLMAX),j_mass(NPLMAX)
-      real*4 model_max,model_min
+      real*4 model_max,model_min,best_w,best_we
       parameter (AU=1.49597892d11, day = 86400.d0)
 
 
@@ -533,41 +542,66 @@ C
 ccccccccccccccccccc t[JD], obs., cal., O-C   ccccccccccccc   
 
 
-      call RVKEP(t,a,ymod,dyda,ma,ndata,epsil,deltat)
+      call RVKEP(t,a,ymod,dyda,ma,ndata,epsil,deltat,hkl)
 
       do i = 1,npl
          j = 7*(i-1)
          
-!         a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
-         
-         if (a(j+2).lt.0.d0) then  ! if P<0, set P>0 
-            a(j+2) = abs(a(j+2))
-         endif         
-         
-         if (a(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
-            a(j+4) = a(j+4) + PI
-            a(j+1) = abs(a(j+1))
-            if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
-         endif
-         if (a(j+3).lt.0.d0) then  ! if e<0, set e>0 and w=w+PI, M0=M0-PI
-            a(j+3) = abs(a(j+3))
-            a(j+4) = a(j+4) +  PI
-            if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
-            a(j+5) = a(j+5) - PI
-            if (a(j+5).lt.0.d0) a(j+5) = a(j+5)+2.d0*PI
-         endif  
-         if(a(j+3).ge.1.d0) then ! if e>=1 set it to 0.99 to prevent errors
-             a(j+3)=0.99d0
-         endif
-         if (a(j+4).lt.0.d0) a(j+4) = dmod(a(j+4)+2.d0*PI,  2.d0*PI )  
-         if (a(j+5).lt.0.d0) a(j+5) = dmod(a(j+5)+2.d0*PI,  2.d0*PI ) 
-         if (a(j+4).gt.2.d0*PI) a(j+4) = dmod(a(j+4),  2.d0*PI )  
-         if (a(j+5).gt.2.d0*PI) a(j+5) = dmod(a(j+5),  2.d0*PI )         
-         if (a(j+6).lt.0.d0) a(j+6) = dmod(a(j+6)+2.d0*PI,  2.d0*PI )  
-         if (a(j+7).lt.0.d0) a(j+7) = dmod(a(j+7)+2.d0*PI,  2.d0*PI ) 
-         if (a(j+6).gt.2.d0*PI) a(j+6) = dmod(a(j+6),  2.d0*PI )  
-         if (a(j+7).gt.2.d0*PI) a(j+7) = dmod(a(j+7),  2.d0*PI )                         
-      enddo  
+   
+          if (hkl.eq.0) then
+              
+c             a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
+             
+             if (a(j+2).lt.0.d0) then  ! if P<0, set P>0 
+                a(j+2) = abs(a(j+2))
+             endif         
+             
+             if (a(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
+                a(j+4) = a(j+4) + PI
+                a(j+1) = abs(a(j+1))
+                if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
+             endif
+             if (a(j+3).lt.0.d0) then  ! if e<0, set e>0 and w=w+PI, M0=M0-PI
+                a(j+3) = abs(a(j+3))
+                a(j+4) = a(j+4) +  PI
+                if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
+                a(j+5) = a(j+5) - PI
+                if (a(j+5).lt.0.d0) a(j+5) = a(j+5)+2.d0*PI
+             endif  
+             if(a(j+3).ge.1.d0) then ! if e>=1 set it to 0.99 to prevent errors
+                 a(j+3)=0.99d0
+             endif
+             if (a(j+4).lt.0.d0) a(j+4)=dmod(a(j+4)+2.d0*PI,2.d0*PI)  
+             if (a(j+5).lt.0.d0) a(j+5)=dmod(a(j+5)+2.d0*PI,2.d0*PI) 
+             if (a(j+4).gt.2.d0*PI) a(j+4)=dmod(a(j+4),2.d0*PI )  
+             if (a(j+5).gt.2.d0*PI) a(j+5)=dmod(a(j+5),2.d0*PI )         
+             if (a(j+6).lt.0.d0) a(j+6)=dmod(a(j+6)+2.d0*PI,2.d0*PI)  
+             if (a(j+7).lt.0.d0) a(j+7)=dmod(a(j+7)+2.d0*PI,2.d0*PI) 
+             if (a(j+6).gt.2.d0*PI) a(j+6)=dmod(a(j+6),2.d0*PI)  
+             if (a(j+7).gt.2.d0*PI) a(j+7)=dmod(a(j+7),2.d0*PI)                         
+     
+          else   
+     
+             if (a(j+2).lt.0.d0) then  ! if P<0, set P>0 
+                a(j+2) = abs(a(j+2))
+             endif                   
+             
+             if (a(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
+                a(j+4) = -1.d0*a(j+4)       !     which is h = -h, k = -k
+                a(j+3) = -1.d0*a(j+3)
+                a(j+1) = abs(a(j+1))    
+             endif
+          
+                         
+             if (a(j+5).lt.0.d0) a(j+5)=dmod(a(j+5)+2.d0*PI,2.d0*PI) 
+             if (a(j+6).lt.0.d0) a(j+6)=dmod(a(j+6)+2.d0*PI,2.d0*PI)  
+             if (a(j+7).lt.0.d0) a(j+7)=dmod(a(j+7)+2.d0*PI,2.d0*PI) 
+             if (a(j+5).gt.2.d0*PI) a(j+5)=dmod(a(j+5),2.d0*PI)               
+             if (a(j+6).gt.2.d0*PI) a(j+6)=dmod(a(j+6),2.d0*PI)  
+             if (a(j+7).gt.2.d0*PI) a(j+7)=dmod(a(j+7),2.d0*PI)    
+     
+          endif
+      enddo
 
       do i = 1,ndata
           idset = ts(i)
@@ -605,27 +639,32 @@ c          write(*,*) "TEST:",loglik,dy,ymod(i),a(7*npl+ndset+idset)
 
       if(writeflag_best_par.gt.0) then
 
-                write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
-                write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
+        write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
+        write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
 
 
-                write (*,*) 'Best-fit K [m/s], P [days], e, w [deg], 
-     &          M0 [deg], i[deg], cap0m[deg] and their errors'
-              do j = 1,npl
+        write (*,*) 'Best-fit K [m/s], P [days], e, w [deg], 
+     &                M0 [deg], i[deg], cap0m[deg] and their errors'
+          do j = 1,npl
               i = 7*(j-1)
+      
+              if (hkl.eq.0) then
+                  best_w = a(i+4)*180.d0/PI
+                  best_we = dsqrt(covar(i+4,i+4))*180.d0/PI
+              else    
+                  best_w = a(i+4) 
+                  best_we = dsqrt(covar(i+4,i+4)) 
+              endif    
 
 !         a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
               write(*,*) a(i+1),
-     &                a(i+2),
-     &                a(i+3),
-     &                a(i+4)*180.d0/PI,a(i+5)*180.d0/PI,
+     &                a(i+2),a(i+3),best_w, a(i+5)*180.d0/PI,
      &                dmod(a(i+6)*180.d0/PI,180.d0),
      &                dmod(a(i+7)*180.d0/PI,360.d0)
               write(*,*) dsqrt(covar(i+1,i+1)),
      &                dsqrt(covar(i+2,i+2)),
 c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
-     &                dsqrt(covar(i+3,i+3)),
-     &                dsqrt(covar(i+4,i+4))*180.d0/PI,
+     &                dsqrt(covar(i+3,i+3)),best_we,
      &                dsqrt(covar(i+5,i+5))*180.d0/PI,
      &                dmod(dsqrt(covar(i+6,i+6))*180.d0/PI,180.d0),
      &                dmod(dsqrt(covar(i+7,i+7))*180.d0/PI,360.d0)
@@ -665,10 +704,10 @@ c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
              
           enddo        
 
-          call MA_J (a,ma,npl,mstar,sini,mass,ap)
+          call MA_J (a,ma,npl,mstar,sini,mass,ap,hkl)
 
           call GENINIT_J3 (nbod,ap,a,
-     &                         mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill)
+     &                         mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill,hkl)
 
           do i = 1,npl
              j = 7*(i-1)
@@ -676,8 +715,6 @@ c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
              a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)   
              
           enddo        
-
-
 
 
           do j = 1,npl+1
@@ -707,7 +744,7 @@ c           write(*,*) (j_mass(i),i=1,npl+1)
 
              x(i) = (i-1)*dt*8.64d4
           enddo
-          call RVKEP (x,a,ymod,dyda,ma,nt,epsil,deltat)
+          call RVKEP (x,a,ymod,dyda,ma,nt,epsil,deltat,hkl)
           do i = 1,nt
              write(*,*) t0 + x(i)/8.64d4, 
      &       ymod(i) + a(7*npl  + 2*ndset + 1)*(x(i)/8.64d4)           
@@ -726,14 +763,14 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
-      subroutine RVKEP (t,a,ymod,dyda,ma,ndata,epsil,deltat)   ! actually, is RVDYN
+      subroutine RVKEP_old (t,a,ymod,dyda,ma,ndata,epsil,deltat,hkl)   ! actually, is RVDYN
       
       implicit none
       real*8 PI,TWOPI,GMSUN,AU
       parameter (GMSUN=1.32712497d26,AU=1.49597892d11)
       parameter (PI=3.14159265358979d0)
       parameter (TWOPI=2.0d0*PI)
-      integer npl,nbod,ndata,ma,i,j,NPLMAX,na,ndset,NDSMAX,idset
+      integer npl,nbod,ndata,ma,i,j,NPLMAX,na,ndset,NDSMAX,idset,hkl
       parameter (NPLMAX=20, NDSMAX=20)
       real*8 t(ndata),ymod(ndata),a(ma),a2(ma),dyda(ndata,ma),x(ma)
       real*8 mstar,sini(NPLMAX),ap(NPLMAX),mass(NPLMAX)
@@ -753,9 +790,8 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
       do i = 1,ma
           a2(i)=a(i)
-      enddo    
+      enddo      
       
- 
       correct = 1
       if(correct.gt.0) then
       do i = 1,npl
@@ -796,17 +832,14 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 c      write(*,*) a2(1),a2(2),a2(3),a2(4),a2(5),a2(6),a2(7)
 c      write(*,*) a2(8),a2(9),a2(10),a2(11),a2(12),a2(13),a2(14)  
-c      pause
+
 
 c******calculating masses and radius of planets in Jacobian system********
-       call MA_J (a2,ma,npl,mstar,sini,mass,ap)
-           
-c      write(*,*) ap(1),ap(2),ap(3),mass(2),mass(3)
-c       pause           
+       call MA_J (a2,ma,npl,mstar,sini,mass,ap,hkl)
            
 c******getting Xs and Vs in Jacobian system**********
        call GENINIT_J3 (nbod,ap,a2,
-     &                         mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill)
+     &                         mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill,hkl)
 
 c       write(*,*) a2(1),a2(2),a2(3),a2(4),a2(5)
 c       write(*,*) a2(8),a2(9),a2(10),a2(11),a2(12)
@@ -814,6 +847,8 @@ c       write(*,*) a2(15),a2(16),a2(17)
 
 c       write(*,*) mass(1),mass(2),mass(3)
 c       write(*,*) ap(1),ap(2)
+c       write(*,*)  xj(1),yj(1),zj(1),vxj(1),vyj(1),vzj(1)
+c       write(*,*)  xj(2),yj(2),zj(2),vxj(2),vyj(2),vzj(2)
 
 c******transform to heliocentric coordinates, in order for using BS integrator**
 
@@ -834,7 +869,165 @@ c******transform to heliocentric coordinates, in order for using BS integrator**
  
 C******calculating the RVs of model and the derivatives of orbel elements****** 
        call integrate(x,mass,ymod,dyda,t,a2,ap,nbod,na,ndata,epsil,
-     & deltat)
+     & deltat,hkl)
+     
+c       write(*,*) ymod
+c       pause        
+     
+c       write(*,*) 'mass(2) , mass(3) , mass(4):'
+c       write(*,*) mass(2)/1.2667d17,mass(3)/1.2667d17,mass(4)/1.2667d17
+                               ! compare to Jupiter mass
+c      write(*,*) mass(1),mass(2)
+c      write(*,*) x(1),x(2)
+c      write(*,*) na,ndata
+c      write(*,*) ap(1),ap(2)
+c      write(*,*) t(1),t(2)
+c      write(*,*) ymod(1),ymod(2)
+
+      return
+      end
+
+
+
+      subroutine RVKEP (t,a,ymod,dyda,ma,ndata,epsil,deltat,hkl)   ! actually, is RVDYN
+      
+      implicit none
+      real*8 PI,TWOPI,GMSUN,AU
+      parameter (GMSUN=1.32712497d26,AU=1.49597892d11)
+      parameter (PI=3.14159265358979d0)
+      parameter (TWOPI=2.0d0*PI)
+      integer npl,nbod,ndata,ma,i,j,NPLMAX,na,ndset,NDSMAX,idset,hkl
+      parameter (NPLMAX=20, NDSMAX=20)
+      real*8 t(ndata),ymod(ndata),a(ma),a2(ma),dyda(ndata,ma),x(ma)
+      real*8 mstar,sini(NPLMAX),ap(NPLMAX),mass(NPLMAX)
+      real*8 xh(NPLMAX),yh(NPLMAX),zh(NPLMAX),vxh(NPLMAX),vyh(NPLMAX)
+     &       ,vzh(NPLMAX)
+      real*8 xj(NPLMAX),yj(NPLMAX),zj(NPLMAX),vxj(NPLMAX),vyj(NPLMAX)
+     &       ,vzj(NPLMAX)
+      real*8 rpl(NPLMAX),rhill(NPLMAX),epsil,deltat
+
+      integer correct, idsmax(NDSMAX)
+
+      common /DSBLK/ npl,ndset,idsmax,idset
+      common mstar,sini
+
+      nbod = npl + 1
+      na = 7*npl
+
+      do i = 1,ma
+          a2(i)=a(i)
+      enddo      
+      
+      
+      if (hkl.eq.0) then
+
+          do i = 1,npl
+             j = 7*(i-1)
+             
+             a2(j+2) = 2.d0*PI/(a2(j+2)*8.64d4)
+             
+             if (a2(j+2).lt.0.d0) then  ! if P<0, set P>0 
+                a2(j+2) = abs(a2(j+2))
+             endif         
+             
+             if (a2(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
+                a2(j+4) = a2(j+4) + PI
+                a2(j+1) = abs(a2(j+1))
+                if (a2(j+4).gt.2.d0*PI) a2(j+4) = a2(j+4)-2.d0*PI
+             endif
+             if (a2(j+3).lt.0.d0) then  ! if e<0, set e>0 and w=w+PI, M0=M0-PI
+                a2(j+3) = abs(a2(j+3))
+                a2(j+4) = a2(j+4) +  PI
+                if (a2(j+4).gt.2.d0*PI) a2(j+4) = a2(j+4)-2.d0*PI
+                a2(j+5) = a2(j+5) - PI
+                if (a2(j+5).lt.0.d0) a2(j+5) = a2(j+5)+2.d0*PI
+             endif  
+             if(a2(j+3).ge.1.d0) then ! if e>=1 set it to 0.99 to prevent errors
+                 a2(j+3)=0.99d0
+             endif
+             if (a2(j+4).lt.0.d0) a2(j+4)=dmod(a2(j+4)+2.d0*PI,2.d0*PI)  
+             if (a2(j+5).lt.0.d0) a2(j+5)=dmod(a2(j+5)+2.d0*PI,2.d0*PI) 
+             if (a2(j+4).gt.2.d0*PI) a2(j+4)=dmod(a2(j+4),2.d0*PI )  
+             if (a2(j+5).gt.2.d0*PI) a2(j+5)=dmod(a2(j+5),2.d0*PI )         
+             if (a2(j+6).lt.0.d0) a2(j+6)=dmod(a2(j+6)+2.d0*PI,2.d0*PI)  
+             if (a2(j+7).lt.0.d0) a2(j+7)=dmod(a2(j+7)+2.d0*PI,2.d0*PI) 
+             if (a2(j+6).gt.2.d0*PI) a2(j+6)=dmod(a2(j+6),2.d0*PI)  
+             if (a2(j+7).gt.2.d0*PI) a2(j+7)=dmod(a2(j+7),2.d0*PI)                         
+          enddo  
+
+
+      else   
+            
+          do i = 1,npl
+             j = 7*(i-1)
+             
+             a2(j+2) = 2.d0*PI/(a2(j+2)*8.64d4)
+             
+             
+             if (a2(j+2).lt.0.d0) then  ! if P<0, set P>0 
+                a2(j+2) = abs(a2(j+2))
+             endif                   
+             
+             if (a2(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
+                a2(j+4) = -1.d0*a2(j+4)       !     which is h = -h, k = -k
+                a2(j+3) = -1.d0*a2(j+3)
+                a2(j+1) = abs(a2(j+1))    
+             endif
+          
+                         
+             if (a2(j+5).lt.0.d0) a2(j+5)=dmod(a2(j+5)+2.d0*PI,2.d0*PI) 
+             if (a2(j+6).lt.0.d0) a2(j+6)=dmod(a2(j+6)+2.d0*PI,2.d0*PI)  
+             if (a2(j+7).lt.0.d0) a2(j+7)=dmod(a2(j+7)+2.d0*PI,2.d0*PI) 
+             if (a2(j+5).gt.2.d0*PI) a2(j+5)=dmod(a2(j+5),2.d0*PI)               
+             if (a2(j+6).gt.2.d0*PI) a2(j+6)=dmod(a2(j+6),2.d0*PI)  
+             if (a2(j+7).gt.2.d0*PI) a2(j+7)=dmod(a2(j+7),2.d0*PI)    
+          enddo        
+         
+      endif
+
+c      write(*,*) a2(1),a2(2),a2(3),a2(4),a2(5),a2(6),a2(7)
+c      write(*,*) a2(8),a2(9),a2(10),a2(11),a2(12),a2(13),a2(14)   
+c      pause
+
+c******calculating masses and radius of planets in Jacobian system********
+       call MA_J (a2,ma,npl,mstar,sini,mass,ap,hkl)
+  
+c       write(*,*) ap(1),ap(2),ap(3),mass(2),mass(3)
+c       pause         
+           
+c******getting Xs and Vs in Jacobian system**********
+       call GENINIT_J3 (nbod,ap,a2,
+     &                         mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill,hkl)
+
+c       write(*,*) a2(1),a2(2),a2(3),a2(4),a2(5)
+c       write(*,*) a2(8),a2(9),a2(10),a2(11),a2(12)
+c       write(*,*) a2(15),a2(16),a2(17)
+
+c       write(*,*) mass(1),mass(2),mass(3)
+c       write(*,*) ap(1),ap(2)
+c       write(*,*)  xj(1),yj(1),zj(1),vxj(1),vyj(1),vzj(1)
+c       write(*,*)  xj(2),yj(2),zj(2),vxj(2),vyj(2),vzj(2)
+c       pause
+c******transform to heliocentric coordinates, in order for using BS integrator**
+
+       call coord_j2h(nbod,mass,xj,yj,zj,vxj,vyj,vzj,
+     &                 xh,yh,zh,vxh,vyh,vzh)
+          
+
+       do i = 1,npl
+          j = 7*(i-1)
+          x(j+1) = mass(i+1)
+          x(j+2) = xh(i+1)
+          x(j+3) = yh(i+1)
+          x(j+4) = zh(i+1)
+          x(j+5) = vxh(i+1)
+          x(j+6) = vyh(i+1)
+          x(j+7) = vzh(i+1) 
+          enddo
+ 
+C******calculating the RVs of model and the derivatives of orbel elements****** 
+       call integrate(x,mass,ymod,dyda,t,a2,ap,nbod,na,ndata,epsil,
+     & deltat,hkl)
      
 c       write(*,*) ymod
 c       pause        
@@ -858,25 +1051,38 @@ c MA_J calculates the actual masses and Jacobi semimajor axes of a two-planet
 c system for assumed sin(i) using the parameters P, K and e from a
 c two-Kepler fit.
 
-	subroutine MA_J (a,ma,npl,m0,sini,mass,ap)
+
+c MA_J calculates the actual masses and Jacobi semimajor axes of a two-planet
+c system for assumed sin(i) using the parameters P, K and e from a
+c two-Kepler fit.
+ 
+
+
+	subroutine MA_J (a,ma,npl,m0,sini,mass,ap,hkl)
         
 	implicit none
 	real*8 m0,PI,TWOPI,THIRD,GMSUN,dm,MSUN
-        integer npl,ma,i,j,NPLMAX
+        integer npl,ma,i,j,NPLMAX,hkl
         parameter (NPLMAX=20)
         real*8 sini(ma)
-        real*8 a(ma),mass(NPLMAX),ap(NPLMAX),mpold(NPLMAX),mtotal
+        real*8 a(ma),mass(NPLMAX),ap(NPLMAX),mpold(NPLMAX),mtotal,ecc
 	parameter (THIRD=1.d0/3.d0)
         parameter (PI=3.14159265358979d0,TWOPI=2.d0*PI)
 	parameter (GMSUN=1.32712497d20,MSUN=1.32712497d20)
 
 c*******G is set to be unit, and s, m, kg as unit of time, length and mass
-c*******expectively.     
-   
-c        write(*,*) a(1),a(2),a(3),a(4),a(5),a(6),a(7) 
-                                         
+c*******expectively.        
+                                          
 
         do i = 0,npl-1
+        
+           if (hkl.eq.0) then             
+               ecc = a(7*i+3)     
+           else
+               ecc = dsqrt(a(7*i+3)**2+a(7*i+4)**2)    !! only for h, k
+           endif
+           
+           
 
            mass(1) = m0
 	       mpold(i+1) = 0.d0
@@ -885,7 +1091,7 @@ c        write(*,*) a(1),a(2),a(3),a(4),a(5),a(6),a(7)
            mtotal = m0
 	       mass(i+2) = a(7*i+1)*(TWOPI/a(7*i+2)*(m0 + mpold(i+1))**2/
      &               (TWOPI*GMSUN))**THIRD*
-     &               dsqrt(1.d0 - a(7*i+3)**2)
+     &               dsqrt(1.d0 - ecc**2)
            else
               mtotal = m0
               do j = 0, i-1
@@ -893,7 +1099,7 @@ c        write(*,*) a(1),a(2),a(3),a(4),a(5),a(6),a(7)
               enddo
               mass(i+2) = a(7*i+1)*(TWOPI/a(7*i+2)*(mtotal
      &                  +mpold(i+1))**2/(TWOPI*GMSUN))**THIRD*
-     &                  dsqrt(1.d0 - a(7*i+3)**2)
+     &                  dsqrt(1.d0 - ecc**2)
            endif
            
 	       dm = dabs(mass(i+2)-mpold(i+1))/mass(i+2)
@@ -920,8 +1126,10 @@ c This version outputs rpl and rhill.
 
 c Last modified by Man Hoi Lee, Aug 16, 2003.
 
+ 
+
       subroutine GENINIT_J3 (nbod,ap,a,
-     &                       mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill)
+     &                       mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill,hkl)
 
 c      include 'swift_loglik_Jakub.inc'
 
@@ -930,9 +1138,9 @@ c      include 'swift_loglik_Jakub.inc'
       parameter (SMASSYR=4.d0*PI*PI)
       parameter (MSUN=1.32712497d20)
 
-      integer nbod,NPLMAX,i,j
+      integer nbod,NPLMAX,i,j,hkl
       parameter (NPLMAX=20)
-      real*8 mass(NPLMAX)
+      real*8 mass(NPLMAX),ecc,omega,capm
       real*8 xj(NPLMAX),yj(NPLMAX),zj(NPLMAX)
       real*8 vxj(NPLMAX),vyj(NPLMAX),vzj(NPLMAX)
       real*8 rpl(NPLMAX),rhill(NPLMAX)
@@ -962,24 +1170,34 @@ c SET F/RHO^(1/3) FOR RADIUS (RHO IN G/CM^3) TO 1.D0 FOR NOW.
 
       do i = 2,nbod
          j = 7*(i-2)
+         
+         if (hkl.eq.0) then  
+             ecc = a(j+3)
+             omega = a(j+4)
+             capm = a(j+5)      
+         else
+             ecc = dsqrt(a(j+3)**2 + a(j+4)**2)
+             omega = datan2(a(j+3),a(j+4))
+             capm = a(j+5) - omega         
+         endif
+                  
 
-      gm = gm + mass(i)
-      rpl(i) = frho3*(1.5d0*mass(i)/2.d0*PI)**0.3333333333d0
-      rhill(i) = ap(i-1)*(mass(i)/(3.d0*mass(1)))**0.3333333333d0
 
-      call ORBEL_EL2XV (gm,ialpha,ap(i-1),a(j+3),a(j+6),a(j+7),a(j+4),
-     &               a(j+5),xj(i),yj(i),zj(i),vxj(i),vyj(i),vzj(i))
+          gm = gm + mass(i)
+          rpl(i) = frho3*(1.5d0*mass(i)/2.d0*PI)**0.3333333333d0
+          rhill(i) = ap(i-1)*(mass(i)/(3.d0*mass(1)))**0.3333333333d0
+    
+          call ORBEL_EL2XV (gm,ialpha,ap(i-1),ecc,a(j+6),a(j+7),
+     &       omega,capm,xj(i),yj(i),zj(i),vxj(i),vyj(i),vzj(i))
+ 
+     
+          enddo
 
-c      write(*,*) a(j+4),a(j+5),ap(i-1),a(j+3),gm
-      enddo
 c       write(*,*)  mass(1),mass(2),mass(3), ap(1),ap(2)
 c       write(*,*)  xj(2),yj(2),zj(2),vxj(2),vyj(2),vzj(2)
 c       write(*,*)  xj(3),yj(3),zj(3),vxj(3),vyj(3),vzj(3)
        
 c       pause
-
-
-
 
       return
       end
@@ -1230,11 +1448,11 @@ c       pause
 
 
 
-      subroutine transfer (ma,npl,mass,a,ap,dxda)
+      subroutine transfer (ma,npl,mass,a,ap,dxda,hkl)
       
       implicit none
       real*8 PI,M
-      integer npl,ma,i,j,NPLMAX,k,l
+      integer npl,ma,i,j,NPLMAX,k,l,hkl
       parameter (NPLMAX=20)
       parameter (PI=3.14159265358979d0)
       real*8 dxda(ma,ma),ap(NPLMAX),mp(NPLMAX),a(ma),mass(NPLMAX)
@@ -1244,9 +1462,12 @@ c       pause
       real*8 r,coswf,sinwf,drdm,drdecc,drdw
       real*8 dcoswfdm,dcoswfdw,dcoswfdecc,dsinwfdm,dsinwfdecc,dsinwfdw
       real*8 dadk,dadn,dv1,dv2,x1,x2,x3,v1,v2,v3 
-      real*8 orbel_ehybrid
+      real*8 orbel_ehybrid,ecc,omeg
       real*8 mstar,sini(7),lamda(npl)
-
+      real*8 dxdh,dxdk,ddxdh,ddxdk,dydh,dydk,ddydh,ddydk 
+      real*8 ddxdlam,ddydlam
+      real*8 q,p,c,s,capj,x,y,dx,dy
+      
       common mstar,sini
 
 
@@ -1274,12 +1495,20 @@ c       pause
             M = lamda(j-1) - mp(j)
          endif         
 
-
-c      write(*,*) a(3+i), a(4+i), a(5+i)
-
-
-      cosw = dcos(a(4+i))
-      sinw = dsin(a(4+i))
+      if (hkl.eq.0) then
+          ecc = a(i+3)
+          omeg = a(i+4)
+          capm = a(i+5)
+      else
+          ecc = dsqrt(a(i+3)**2 + a(i+4)**2)
+          omeg = atan2(a(i+3),a(i+4))
+          capm = a(i+5) - omeg        
+      endif
+      
+c      write(*,*) hkl, ecc, omeg, capm
+      if (hkl.eq.0) then
+      cosw = dcos(omeg)
+      sinw = dsin(omeg)
       
       inc = a(i+6)
       capom = a(i+7)
@@ -1287,26 +1516,28 @@ c      write(*,*) a(3+i), a(4+i), a(5+i)
       sincapom = dsin(capom)
       cosinc = dcos(inc)
       sininc = dsin(inc)
-      capm = a(i+5)
-      cape = ORBEL_EHYBRID (a(i+3),capm)
+
+
+
+      cape = ORBEL_EHYBRID (ecc,capm)
       cose = dcos(cape)
       sine = dsin(cape)
-      cosf = (cose - a(i+3))/(1.d0 - a(3+i)*cose)
-      sinf = dsqrt(1.d0 - a(3+i)**2)*sine/(1.d0 - a(3+i)*cose)
+      cosf = (cose - ecc)/(1.d0 - ecc*cose)
+      sinf = dsqrt(1.d0 - ecc**2)*sine/(1.d0 - ecc*cose)
 
-      r = ap(j)*(1.d0 - a(i+3)*cose)
+      r = ap(j)*(1.d0 - ecc*cose)
       coswf = cosw*cosf - sinw*sinf
       sinwf = sinw*cosf + cosw*sinf
       
 c*********************************************************
-      dfde = dsqrt((1.d0 + a(3+i))/(1.d0-a(i+3)))*(1.d0 + cosf)
+      dfde = dsqrt((1.d0 + ecc)/(1.d0-ecc))*(1.d0 + cosf)
      &       /(1.d0 + cose)
-      dedm = 1.d0/(1.d0 - a(i+3)*cose)
-      dedecc = sine/(1.d0 - a(i+3)*cose) 
-      dfdecc = dfde*(sine/(1.d0 - a(i+3)**2))
+      dedm = 1.d0/(1.d0 - ecc*cose)
+      dedecc = sine/(1.d0 - ecc*cose) 
+      dfdecc = dfde*(sine/(1.d0 - ecc**2))
       
-      drdm = ap(j)*a(3+i)*sine*dedm
-      drdecc = ap(j)*(-1.d0*cose + a(i+3)*sine*dedecc)
+      drdm = ap(j)*ecc*sine*dedm
+      drdecc = ap(j)*(-1.d0*cose + ecc*sine*dedecc)
 
       drdw = 0
       dcoswfdm = -1.d0*sinwf*dfde*dedm
@@ -1319,30 +1550,30 @@ c*********************************************************
       dsinwfdw = coswf
 
 c*****************************************
-      dadk = 3.d0*ap(j)*a(i+1)**2*(M+mp(j))**2*(1.d0-a(i+3)**2)**1.5
+      dadk = 3.d0*ap(j)*a(i+1)**2*(M+mp(j))**2*(1.d0-ecc**2)**1.5
      &       /(3.d0*a(i+2)*mp(j)**2*(3.d0*M+mp(j)))
       dadn = -2.d0*ap(j)/(3.d0*a(i+2)) - ap(j)*a(i+1)**3*(M+mp(j))**2*
-     &       (1.d0-a(i+3)**2)**1.5/(3.d0*a(i+2)**2*mp(j)**2*
+     &       (1.d0-ecc**2)**1.5/(3.d0*a(i+2)**2*mp(j)**2*
      &       (3.d0*M+mp(j)))
-      dv1 =  a(i+2)*ap(j)/dsqrt(1.d0-a(i+3)**2)
-      dv2 =  a(i+2)*ap(j)*a(i+3)/(1.d0-a(i+3)**2)**1.5
+      dv1 =  a(i+2)*ap(j)/dsqrt(1.d0-ecc**2)
+      dv2 =  a(i+2)*ap(j)*ecc/(1.d0-ecc**2)**1.5
 
       x1 = coscapom*coswf - sincapom*sinwf*cosinc
       x2 = sincapom*coswf + coscapom*sinwf*cosinc
       x3 = sinwf*sininc
-      v1 = coscapom*sinwf + sincapom*cosinc*coswf + a(i+3)*(coscapom*
+      v1 = coscapom*sinwf + sincapom*cosinc*coswf + ecc*(coscapom*
      &     sinw + sincapom*cosinc*cosw)
-      v2 = -1.d0*sincapom*sinwf + coscapom*cosinc*coswf + a(i+3)*(-1.d0*
+      v2 = -1.d0*sincapom*sinwf + coscapom*cosinc*coswf + ecc*(-1.d0*
      &     sincapom*sinw + coscapom*cosinc*cosw)
-      v3 = sininc*coswf + a(i+3)*sininc*cosw
+      v3 = sininc*coswf + ecc*sininc*cosw
 *************************************************************
 ccccccccccccccccccc     begin matrix      cccccccccccccccc
 
       dxda(i+1,i+1) = 3.d0*a(i+1)**2*(M + mp(j))**3*
-     &        (1.d0-a(i+3)**2)**1.5
+     &        (1.d0-ecc**2)**1.5
      &        /(a(i+2)*(3.d0*M+mp(j))*mp(j)**2)
       dxda(i+2,i+1) = -1.d0*a(i+1)**3*(M + mp(j))**3*
-     &        (1.d0-a(i+3)**2)**1.5
+     &        (1.d0-ecc**2)**1.5
      &        /(a(i+2)**2*(3.d0*M + mp(j))*mp(j)**2)
       dxda(i+3,i+1) = 0.0
       dxda(i+4,i+1) = 0.0
@@ -1350,8 +1581,8 @@ ccccccccccccccccccc     begin matrix      cccccccccccccccc
       dxda(i+6,i+1) = 0.0
       dxda(i+7,i+1) = 0.0
 
-      dxda(i+1,i+2) = dadk*(1.d0 - a(i+3)*cose)*x1
-      dxda(i+2,i+2) = dadn*(1.d0 - a(i+3)*cose)*x1
+      dxda(i+1,i+2) = dadk*(1.d0 - ecc*cose)*x1
+      dxda(i+2,i+2) = dadn*(1.d0 - ecc*cose)*x1
       dxda(i+3,i+2) = drdecc*x1 + r*(coscapom*dcoswfdecc - sincapom*
      &                cosinc*dsinwfdecc)
       dxda(i+4,i+2) = drdw*x1 + r*(coscapom*dcoswfdw - sincapom*
@@ -1361,8 +1592,8 @@ ccccccccccccccccccc     begin matrix      cccccccccccccccc
       dxda(i+6,i+2) = r*sincapom*sinwf*sininc
       dxda(i+7,i+2) = r*(-1.d0*sincapom*coswf - coscapom*sinwf*cosinc)
 
-      dxda(i+1,i+3) = dadk*(1.d0 - a(i+3)*cose)*x2
-      dxda(i+2,i+3) = dadn*(1.d0 - a(i+3)*cose)*x2
+      dxda(i+1,i+3) = dadk*(1.d0 - ecc*cose)*x2
+      dxda(i+2,i+3) = dadn*(1.d0 - ecc*cose)*x2
       dxda(i+3,i+3) = drdecc*x2 + r*(sincapom*dcoswfdecc + coscapom*
      &                cosinc*dsinwfdecc)
       dxda(i+4,i+3) = drdw*x2 + r*(sincapom*dcoswfdw + coscapom*
@@ -1372,59 +1603,141 @@ ccccccccccccccccccc     begin matrix      cccccccccccccccc
       dxda(i+6,i+3) = -1.d0*r*coscapom*sinwf*sininc
       dxda(i+7,i+3) = r*(coscapom*coswf - sincapom*sinwf*cosinc)
 
-      dxda(i+1,i+4) = dadk*(1.d0 - a(i+3)*cose)*x3
-      dxda(i+2,i+4) = dadn*(1.d0 - a(i+3)*cose)*x3
+      dxda(i+1,i+4) = dadk*(1.d0 - ecc*cose)*x3
+      dxda(i+2,i+4) = dadn*(1.d0 - ecc*cose)*x3
       dxda(i+3,i+4) = drdecc*x3 + r*dsinwfdecc*sininc
       dxda(i+4,i+4) = drdw*x3 + r*dsinwfdw*sininc
       dxda(i+5,i+4) = drdm*x3 + r*dsinwfdm*sininc
       dxda(i+6,i+4) = r*sinwf*cosinc
       dxda(i+7,i+4) = 0.0
 
-      dxda(i+1,i+5) = -1.d0*dadk*a(i+2)/dsqrt(1.d0 - a(i+3)**2)*v1
+      dxda(i+1,i+5) = -1.d0*dadk*a(i+2)/dsqrt(1.d0 - ecc**2)*v1
       dxda(i+2,i+5) = (a(i+2)*dadn + ap(j))*(-1.d0/
-     &                dsqrt(1.d0 - a(i+3)**2)*v1)
+     &                dsqrt(1.d0 - ecc**2)*v1)
       dxda(i+3,i+5) = -1.d0*dv2*v1 - dv1*(coscapom*dsinwfdecc + 
      &                sincapom*cosinc*dcoswfdecc + coscapom*sinw +
      &                sincapom*cosinc*cosw)
       dxda(i+4,i+5) = -1.d0*dv1*(coscapom*coswf - sincapom*cosinc*sinwf
-     &                + a(i+3)*(coscapom*cosw - sincapom*cosinc*sinw))
+     &                + ecc*(coscapom*cosw - sincapom*cosinc*sinw))
 c      dxda(i+5,i+4) = -1.d0*dv1*(dsinwfdm + sinw/sine)
       dxda(i+5,i+5) = -1.d0*dv1*(coscapom*dsinwfdm + sincapom*cosinc*
      &                dcoswfdm)
-      dxda(i+6,i+5) = -1.d0*dv1*(-1.d0*sincapom*sininc*coswf - a(i+3)*
+      dxda(i+6,i+5) = -1.d0*dv1*(-1.d0*sincapom*sininc*coswf - ecc*
      &                sincapom*sininc*cosw)
       dxda(i+7,i+5) = -1.d0*dv1*(-1.d0*sincapom*sinwf + coscapom*cosinc*
-     &                coswf + a(i+3)*(-1.d0*sincapom*sinw + coscapom*
+     &                coswf + ecc*(-1.d0*sincapom*sinw + coscapom*
      &                cosinc*cosw)) 
 
-      dxda(i+1,i+6) = dadk*a(i+2)/dsqrt(1.d0 - a(i+3)**2)*v2
+      dxda(i+1,i+6) = dadk*a(i+2)/dsqrt(1.d0 - ecc**2)*v2
       dxda(i+2,i+6) = (a(i+2)*dadn + ap(j))*1.d0/dsqrt(1.d0
-     &                - a(i+3)**2)*v2
+     &                - ecc**2)*v2
       dxda(i+3,i+6) = dv2*v2 + dv1*(-1.d0*sincapom*dsinwfdecc + coscapom
      &                *cosinc*dcoswfdecc - sincapom*sinw + coscapom*
      &                cosinc*cosw)
       dxda(i+4,i+6) = dv1*(-1.d0*sincapom*coswf - coscapom*cosinc*sinwf
-     &                + a(i+3)*(-1.d0*sincapom*cosw - coscapom*cosinc*
+     &                + ecc*(-1.d0*sincapom*cosw - coscapom*cosinc*
      &                sinw))
 c      dxda(i+5,i+5) = dv1*(dcoswfdm + cosw/sine)
       dxda(i+5,i+6) = dv1*(-1.d0*sincapom*dsinwfdm + coscapom*cosinc*
      &                dcoswfdm)
-      dxda(i+6,i+6) = dv1*(-1.d0*coscapom*sininc*coswf - a(i+3)*
+      dxda(i+6,i+6) = dv1*(-1.d0*coscapom*sininc*coswf - ecc*
      &                coscapom*sininc*cosw)
       dxda(i+7,i+6) = dv1*(-1.d0*coscapom*sinwf - sincapom*cosinc*coswf
-     &                + a(i+3)*(-1.d0*coscapom*sinw - sincapom*cosinc
+     &                + ecc*(-1.d0*coscapom*sinw - sincapom*cosinc
      &                *cosw))
 
-      dxda(i+1,i+7) = dadk*a(i+2)/dsqrt(1.d0 - a(i+3)**2)*v3
+      dxda(i+1,i+7) = dadk*a(i+2)/dsqrt(1.d0 - ecc**2)*v3
       dxda(i+2,i+7) =  (a(i+2)*dadn + ap(j))*1.d0/dsqrt(1.d0
-     &                - a(i+3)**2)*v3
+     &                - ecc**2)*v3
       dxda(i+3,i+7) = dv2*v3 + dv1*(sininc*dcoswfdecc + sininc*cosw)
-      dxda(i+4,i+7) = dv1*(-1.d0*sininc*sinwf - a(i+3)*sininc*sinw)
+      dxda(i+4,i+7) = dv1*(-1.d0*sininc*sinwf - ecc*sininc*sinw)
       dxda(i+5,i+7) = dv1*sininc*dcoswfdm
-      dxda(i+6,i+7) = dv1*(cosinc*coswf + a(i+3)*cosinc*cosw)
+      dxda(i+6,i+7) = dv1*(cosinc*coswf + ecc*cosinc*cosw)
       dxda(i+7,i+7) = 0.0
+      else
+      
+         ecc = dsqrt(a(i+3)**2 + a(i+4)**2)
+         omeg = atan2(a(i+3),a(i+4))
+      
+         capm = a(i+5) - omeg
+         cape = ORBEL_EHYBRID (ecc,capm)
+         cose = dcos(cape)
+         sine = dsin(cape)
+         q = ecc*cose
+         p = ecc*sine
+         c = dcos(a(i+5) + p)
+         s = dsin(a(i+5) + p)
+         capj = dsqrt(1.d0 - a(i+3)**2 - a(i+4)**2)
+         x = c + p/(1.d0+capj)*a(i+3) - a(i+4)
+         y = s - p/(1.d0+capj)*a(i+4) - a(i+3)
+         dx = 1.d0/(1.d0-q)*(q/(1.d0+capj)*a(i+3) - s)
+         dy = 1.d0/(1.d0-q)*(c - q/(1.d0+capj)*a(i+4))
+         dadk = 3.d0*ap(j)*a(i+1)**2*(M+mp(j))**2*(1.d0-ecc**2)**1.5
+     &       /(3.d0*a(i+2)*mp(j)**2*(3.d0*M+mp(j))) 
+         dadn = -2.d0*ap(j)/(3.d0*a(i+2))-ap(j)*a(i+1)**3*(M+mp(j))**2*
+     &       (1.d0-ecc**2)**1.5/(3.d0*a(i+2)**2*mp(j)**2*
+     &       (3.d0*M+mp(j)))          
 
+         dxdk = 1.d0/(1.d0-q)*(-1.d0*s**2 + 1.d0/(1.d0+capj)*s*a(i+3))
+     &          + p/(capj*(1.d0+capj)**2)*a(i+4)*a(i+3) - 1.d0
+         dxdh = 1.d0/(1.d0-q)*(s*c - 1.d0/(1.d0+capj)*c*a(i+3))
+     &          + p/(capj*(1.d0+capj)**2)*a(i+3)**2 + p/(1.d0 + capj)
+         dydk = 1.d0/(1.d0-q)*(s*c - 1.d0/(1.d0+capj)*s*a(i+4))
+     &          - p/(capj*(1.d0+capj)**2)*a(i+4)**2 - p/(1.d0 + capj)
+         dydh = 1.d0/(1.d0-q)*(-1.d0*c**2 + 1.d0/(1.d0+capj)*c*a(i+4))
+     &          - p/(capj*(1.d0+capj)**2)*a(i+3)*a(i+4) - 1.d0
 
+         ddxdlam = 1.d0/(1.d0-q)**3*(-1.d0*c - p/(1.d0+capj)*a(i+3)
+     &             + a(i+4))
+         ddydlam = 1.d0/(1.d0-q)**3*(-1.d0*s + p/(1.d0+capj)*a(i+4)
+     &             + a(i+3))
+
+         ddxdk = 1.d0/(1.d0-q)**3*(-2.d0*s*c+a(i+4)*s-q*s*c+a(i+3)*
+     &           (c-a(i+4))/(1.d0+capj)) + q/(1.d0-q)/capj/
+     &           (1.d0+capj)**2*a(i+3)*a(i+4) 
+         ddxdh = 1.d0/(1.d0-q)**3*(c**2-s**2+a(i+3)*s-q*c**2+
+     &           a(i+3)*(s-a(i+3))/(1.d0+capj)) + q/(1.d0-q)/capj/
+     &           (1.d0+capj)**2*a(i+3)**2 + q/(1.d0-q)/(1.d0+capj)
+         ddydk = 1.d0/(1.d0-q)**3*(c**2-s**2-c*a(i+4)+q*s**2-
+     &           a(i+4)*(c-a(i+4))/(1.d0+capj)) - q/(1.d0-q)/capj/
+     &           (1.d0+capj)**2*a(i+4)**2 - q/(1.d0-q)/(1.d0+capj)
+         ddydh = 1.d0/(1.d0-q)**3*(2.d0*s*c-c*a(i+3)-q*s*c-a(i+4)*
+     &           (s-a(i+3))/(1.d0+capj)) - q/(1.d0-q)/capj/
+     &           (1.d0+capj)**2*a(i+3)*a(i+4)
+         dxda(i+1,i+1) = 3.d0*a(i+1)**2*(M + mp(j))**3*
+     &        (1.d0-ecc**2)**1.5
+     &        /(a(i+2)*(3.d0*M+mp(j))*mp(j)**2)
+         dxda(i+2,i+1) = -1.d0*a(i+1)**3*(M + mp(j))**3*
+     &                   (1.d0-ecc**2)**1.5
+     &                   /(a(i+2)**2*(3.d0*M + mp(j))*mp(j)**2)
+         dxda(i+3,i+1) = 0.0
+         dxda(i+4,i+1) = 0.0
+         dxda(i+5,i+1) = 0.0         
+      
+         dxda(i+1,i+2) = dadk*x
+         dxda(i+2,i+2) = dadn*x
+         dxda(i+3,i+2) = ap(j)*dxdh
+         dxda(i+4,i+2) = ap(j)*dxdk
+         dxda(i+5,i+2) = ap(j)*dx
+
+         dxda(i+1,i+3) = dadk*y
+         dxda(i+2,i+3) = dadn*y
+         dxda(i+3,i+3) = ap(j)*dydh
+         dxda(i+4,i+3) = ap(j)*dydk
+         dxda(i+5,i+3) = ap(j)*dy
+
+         dxda(i+1,i+4) = dadk*a(i+2)*dx
+         dxda(i+2,i+4) = (ap(j) + a(i+2)*dadn)*dx
+         dxda(i+3,i+4) = ap(j)*a(i+2)*ddxdh
+         dxda(i+4,i+4) = ap(j)*a(i+2)*ddxdk
+         dxda(i+5,i+4) = ap(j)*a(i+2)*ddxdlam
+
+         dxda(i+1,i+5) = dadk*a(i+2)*dy
+         dxda(i+2,i+5) = (ap(j) + a(i+2)*dadn)*dy
+         dxda(i+3,i+5) = ap(j)*a(i+2)*ddydh
+         dxda(i+4,i+5) = ap(j)*a(i+2)*ddydk
+         dxda(i+5,i+5) = ap(j)*a(i+2)*ddydlam     
+      endif
       enddo
  
       return
@@ -1911,20 +2224,20 @@ c Date:    8/5/93
 c Last revision: 12/27/96
 
         subroutine integrate(x,mass,ymod,dyda,t,a,ap,nbod,ma,ndata,
-     & epsil,dt)
-	    include 'swift_loglik_Jakub.inc'
+     & epsil,dt,hkl)
+	include 'swift_loglik_Jakub.inc'
 
         integer IO_NBITS
         parameter(IO_NBITS=6)
-	    real*8 mass(NPLMAX),j2rp2,j4rp4
-	    real*8 xh(NPLMAX),yh(NPLMAX),zh(NPLMAX)
-	    real*8 vxh(NPLMAX),vyh(NPLMAX),vzh(NPLMAX)
+	real*8 mass(NPLMAX),j2rp2,j4rp4
+	real*8 xh(NPLMAX),yh(NPLMAX),zh(NPLMAX)
+	real*8 vxh(NPLMAX),vyh(NPLMAX),vzh(NPLMAX)
         real*8 xht(NPLMAX),yht(NPLMAX),zht(NPLMAX)
         real*8 vxht(NPLMAX),vyht(NPLMAX),vzht(NPLMAX)
 
 
 	integer istat(NTPMAX,NSTAT),i1st
-	integer nbod,ntp,nleft
+	integer nbod,ntp,nleft,hkl
 	integer iflgchk,iub,iuj,iud,iue
         real*8 rstat(NTPMAX,NSTATR)
 
@@ -2007,7 +2320,7 @@ c***************here's the big loop *************************************
         nd = 1
 c-------output the first round--------
         if (t(1).lt.1.d-10) then
-           call output(ndata,nd,nbod,ma,x,a,z,ymod,dyda,mass,ap)
+           call output(ndata,nd,nbod,ma,x,a,z,ymod,dyda,mass,ap,hkl)
            nd = nd + 1
         endif
 	  do while ( time .le. tstop )
@@ -2034,7 +2347,7 @@ c-------output the first round--------
              enddo
 
              if (flag.eq.1) then
-             call output(ndata,nd,nbod,ma,x,a,z,ymod,dyda,mass,ap)
+             call output(ndata,nd,nbod,ma,x,a,z,ymod,dyda,mass,ap,hkl)
 c             write(*,*) "TEST:", time, t(1),dt
              nd = nd + 1
              endif
@@ -2061,9 +2374,9 @@ c---------------------------------------------------------------------
 
 
 
-         subroutine output(ndata,nd,nbod,ma,x,a,z,ymod,dyda,mass,ap)
+         subroutine output(ndata,nd,nbod,ma,x,a,z,ymod,dyda,mass,ap,hkl)
          implicit none
-         integer ndata,nbod,nd,npl,i,j,p,ma,NPLMAX
+         integer ndata,nbod,nd,npl,i,j,p,ma,NPLMAX,hkl
          parameter (NPLMAX=20)
          real*8 mstar,sini(7)
          real*8 x(ma),z(ma,ma),mass(nbod),ymod(ndata),dyda(ndata,ma)
@@ -2118,7 +2431,7 @@ c---------------------------------------------------------------------
                mp(i) = mass(i+1)
             enddo 
 
-            call transfer (ma,npl,mass,a,ap,dxda)       !    here need a dxda
+            call transfer (ma,npl,mass,a,ap,dxda,hkl)       !    here need a dxda
 
            
             do i = 1,7*npl

@@ -3149,7 +3149,43 @@ highly appreciated!
         self.om3.minimize_signal.connect(lambda: fit.minimize_one_param_w(2)) #TBD!
         self.om3.minimize_signal.connect(self.init_fit) #TBD!  
         self.ma3.minimize_signal.connect(lambda: fit.minimize_one_param_M0(2)) #TBD!
-        self.ma3.minimize_signal.connect(self.init_fit) #TBD!               
+        self.ma3.minimize_signal.connect(self.init_fit) #TBD!   
+
+
+        self.K4.minimize_signal.connect(lambda: fit.minimize_one_param_K(3)) #TBD!
+        self.K4.minimize_signal.connect(self.init_fit) #TBD!       
+        self.P4.minimize_signal.connect(lambda: fit.minimize_one_param_P(3)) #TBD!
+        self.P4.minimize_signal.connect(self.init_fit) #TBD!     
+        self.e4.minimize_signal.connect(lambda: fit.minimize_one_param_e(3)) #TBD!
+        self.e4.minimize_signal.connect(self.init_fit) #TBD!  
+        self.om4.minimize_signal.connect(lambda: fit.minimize_one_param_w(3)) #TBD!
+        self.om4.minimize_signal.connect(self.init_fit) #TBD!  
+        self.ma4.minimize_signal.connect(lambda: fit.minimize_one_param_M0(3)) #TBD!
+        self.ma4.minimize_signal.connect(self.init_fit) #TBD!  
+        
+        self.K5.minimize_signal.connect(lambda: fit.minimize_one_param_K(4)) #TBD!
+        self.K5.minimize_signal.connect(self.init_fit) #TBD!       
+        self.P5.minimize_signal.connect(lambda: fit.minimize_one_param_P(4)) #TBD!
+        self.P5.minimize_signal.connect(self.init_fit) #TBD!     
+        self.e5.minimize_signal.connect(lambda: fit.minimize_one_param_e(4)) #TBD!
+        self.e5.minimize_signal.connect(self.init_fit) #TBD!  
+        self.om5.minimize_signal.connect(lambda: fit.minimize_one_param_w(4)) #TBD!
+        self.om5.minimize_signal.connect(self.init_fit) #TBD!  
+        self.ma5.minimize_signal.connect(lambda: fit.minimize_one_param_M0(4)) #TBD!
+        self.ma5.minimize_signal.connect(self.init_fit) #TBD!         
+        
+        self.K6.minimize_signal.connect(lambda: fit.minimize_one_param_K(5)) #TBD!
+        self.K6.minimize_signal.connect(self.init_fit) #TBD!       
+        self.P6.minimize_signal.connect(lambda: fit.minimize_one_param_P(5)) #TBD!
+        self.P6.minimize_signal.connect(self.init_fit) #TBD!     
+        self.e6.minimize_signal.connect(lambda: fit.minimize_one_param_e(5)) #TBD!
+        self.e6.minimize_signal.connect(self.init_fit) #TBD!  
+        self.om6.minimize_signal.connect(lambda: fit.minimize_one_param_w(5)) #TBD!
+        self.om6.minimize_signal.connect(self.init_fit) #TBD!  
+        self.ma6.minimize_signal.connect(lambda: fit.minimize_one_param_M0(5)) #TBD!
+        self.ma6.minimize_signal.connect(self.init_fit) #TBD!   
+
+ 
         
     def jupiter_push_vars(self):
         global fit        
@@ -4178,24 +4214,24 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             
             # These must be True when the precession is included
             
-            self.om_dot_1.setEnabled(False)
-            self.use_om_dot_1.setEnabled(False)
-            self.om_dot_2.setEnabled(False)
-            self.use_om_dot_2.setEnabled(False)           
-            self.om_dot_3.setEnabled(False)
-            self.use_om_dot_3.setEnabled(False) 
-            self.om_dot_4.setEnabled(False)
-            self.use_om_dot_4.setEnabled(False)
-            self.om_dot_5.setEnabled(False)
-            self.use_om_dot_5.setEnabled(False)           
-            self.om_dot_6.setEnabled(False)
-            self.use_om_dot_6.setEnabled(False)             
-            self.om_dot_7.setEnabled(False)
-            self.use_om_dot_7.setEnabled(False)
-            self.om_dot_8.setEnabled(False)
-            self.use_om_dot_8.setEnabled(False)           
-            self.om_dot_9.setEnabled(False)
-            self.use_om_dot_9.setEnabled(False)             
+            self.om_dot_1.setEnabled(True)
+            self.use_om_dot_1.setEnabled(True)
+            self.om_dot_2.setEnabled(True)
+            self.use_om_dot_2.setEnabled(True)           
+            self.om_dot_3.setEnabled(True)
+            self.use_om_dot_3.setEnabled(True) 
+            self.om_dot_4.setEnabled(True)
+            self.use_om_dot_4.setEnabled(True)
+            self.om_dot_5.setEnabled(True)
+            self.use_om_dot_5.setEnabled(True)           
+            self.om_dot_6.setEnabled(True)
+            self.use_om_dot_6.setEnabled(True)             
+            self.om_dot_7.setEnabled(True)
+            self.use_om_dot_7.setEnabled(True)
+            self.om_dot_8.setEnabled(True)
+            self.use_om_dot_8.setEnabled(True)           
+            self.om_dot_9.setEnabled(True)
+            self.use_om_dot_9.setEnabled(True)             
                         
         elif self.radioButton_Dynamical.isChecked():
             
@@ -4597,15 +4633,14 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.minimize_1param()
 
         self.radioButton_Dynamical.toggled.connect(self.update_dyn_kep_flag)
-       # self.radioButton_Dynamical.toggled.connect(self.mute_boxes_dyn)
+        self.radioButton_Dynamical.toggled.connect(self.mute_boxes_dyn)
         
         self.radioButton_Keplerian.toggled.connect(self.update_dyn_kep_flag)
         
         
         self.amoeba_radio_button.toggled.connect(self.update_RV_jitter_flag)
-        self.lm_radio_button.toggled.connect(self.update_RV_jitter_flag)
-        
-       # self.radioButton_Keplerian.toggled.connect(self.mute_boxes_dyn)
+        self.lm_radio_button.toggled.connect(self.update_RV_jitter_flag)       
+        self.radioButton_Keplerian.toggled.connect(self.mute_boxes_dyn)
         
 
         ############ Stat #################

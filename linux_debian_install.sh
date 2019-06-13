@@ -23,7 +23,7 @@ do
        select yn in "Yes" "No"; do
            case $yn in
                Yes ) sudo apt install $i; break;;
-               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
+               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
            esac
        done     
    fi
@@ -43,7 +43,7 @@ do
        select yn in "Yes" "No"; do
            case $yn in
                Yes ) sudo apt install $python-$i; break;;
-               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
+               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
            esac
        done
    fi
@@ -62,7 +62,7 @@ do
        select yn in "Yes" "No"; do
            case $yn in
                Yes ) sudo apt install $python-pyqt5; break;;
-               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
+               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
            esac
        done
    fi
@@ -80,7 +80,7 @@ do
        select yn in "Yes" "No"; do
            case $yn in
                Yes ) sudo apt install $python-pyqt5.qtsvg; break;;
-               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
+               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
            esac
        done
    fi
@@ -101,7 +101,7 @@ do
        select yn in "Yes" "No"; do
            case $yn in
                Yes ) sudo $pip install $i; break;;
-               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
+               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
            esac
        done
    fi
@@ -125,7 +125,7 @@ do
        select yn in "Yes" "No"; do
            case $yn in
                Yes ) sudo apt install $i; break;;
-               No ) echo "WARNING: RVmod/TRIFON may not work properly without $i!!!"; break;;
+               No ) echo "WARNING: 'The Exo-Striker' may not work properly without $i!!!"; break;;
            esac
        done  
    fi
@@ -161,7 +161,7 @@ do
                      fi
                      break;;          
 
-               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
+               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
 
            esac
        done
@@ -196,10 +196,10 @@ echo " "
 
 select yn in "Yes" "No"; do
    case $yn in
-       Yes ) gfortran -O3 ./source/latest_f/kepfit_LM_v1b.f -o ./lib/fr/chi2_kep ./lib/libswift.a; # chi2 keplerian
-             gfortran -O3 ./source/latest_f/dynfit_LM_v1b.f -o ./lib/fr/chi2_dyn ./lib/libswift.a; # chi2 dynamical
-             gfortran -O3 ./source/latest_f/kepfit_amoeba_v1b.f -o ./lib/fr/loglik_kep ./lib/libswift.a; # lnL keplerian
-             gfortran -O3 ./source/latest_f/dynfit_amoeba_v1b.f -o ./lib/fr/loglik_dyn ./lib/libswift.a; # lnL dynamical 
+       Yes ) gfortran -O3 ./source/latest_f/kepfit_LM_v1c.f -o ./lib/fr/chi2_kep ./lib/libswift.a; # chi2 keplerian
+             gfortran -O3 ./source/latest_f/dynfit_LM_v1c.f -o ./lib/fr/chi2_dyn ./lib/libswift.a; # chi2 dynamical
+             gfortran -O3 ./source/latest_f/kepfit_amoeba_v1c.f -o ./lib/fr/loglik_kep ./lib/libswift.a; # lnL keplerian
+             gfortran -O3 ./source/latest_f/dynfit_amoeba_v1d.f -o ./lib/fr/loglik_dyn ./lib/libswift.a; # lnL dynamical               
              gfortran -O3 ./source/latest_f/dynfit_amoeba_v1b+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a; # lnL dynamical/keplerian mixed                 
              break;;
        No ) echo "skiped..."; break;;
