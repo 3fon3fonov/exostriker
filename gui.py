@@ -1652,8 +1652,8 @@ Polyfit coefficients:
         global fit
 
         but_ind = self.buttonGroup_add_RV_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RV data', '', 'Data (*.vels)')
-        
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RV data', '', 'Data (*.vels);;All (*.*)')
+
         if str(input_files[0]) != '':
  
             fit.add_dataset(self.file_from_path(input_files[0]), str(input_files[0]),0.0,1.0)
@@ -1719,7 +1719,7 @@ Polyfit coefficients:
         global fit
 
         but_ind = self.buttonGroup_transit_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'Data (*.tran)')
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'Data (*.tran);;All (*.*)')
 
         if str(input_files[0]) != '':
  
@@ -1770,7 +1770,7 @@ Polyfit coefficients:
         global fit
 
         but_ind = self.buttonGroup_activity_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'Data (*.act)')
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'Data (*.act);;All (*.*)')
 
         if str(input_files[0]) != '':
  
@@ -4435,6 +4435,26 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.dyn_model_to_kill.setValue(fit.dyn_model_to_kill)
         self.kep_model_to_kill.setValue(fit.kep_model_to_kill)
         self.master_timeout.setValue(fit.master_timeout)    
+        
+        
+    def adopt_RV_GLS_param(self):
+        global fit   
+        
+        mean_anomaly_from_gls = np.degrees((((fit.epoch - float(fit.gls_o_c.hpstat["T0"]) )% (fit.gls_o_c.hpstat["P"]) )/ (fit.gls_o_c.hpstat["P"]) ) * 2*np.pi)
+ 
+        fit.add_planet(fit.gls_o_c.hpstat["amp"],fit.gls_o_c.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
+        fit.use.update_use_planet_params_one_planet(fit.npl+1,True,True,True,True,True,False,False)  
+        
+        #print(fit.params.planet_params[2 + 7*(i-1)])
+        #fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False)  
+       
+        self.update_use_from_input_file()   
+        self.update_use() 
+        #self.update_params()  
+       # self.update_gui_params()                  
+        self.optimize_fit(0,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)          
+        
+        
        
 #############################  TEST ZONE ################################  
  
@@ -4641,6 +4661,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.amoeba_radio_button.toggled.connect(self.update_RV_jitter_flag)
         self.lm_radio_button.toggled.connect(self.update_RV_jitter_flag)       
         self.radioButton_Keplerian.toggled.connect(self.mute_boxes_dyn)
+        
+        
+        self.adopt_best_RV__o_c_GLS_per.clicked.connect(self.adopt_RV_GLS_param)
         
 
         ############ Stat #################
