@@ -49,11 +49,11 @@ class ConsoleWidget_embed(RichJupyterWidget,ConsoleWidget):
 
         # self.kernel_manager
 
-    def print_text(self, text):
+    def print_text(self, text, before_prompt=True):
         """
         Prints some plain text to the console
         """
-        self._append_plain_text(text, before_prompt=True)
+        self._append_plain_text(text, before_prompt=before_prompt)
 
     def execute_command(self, command):
         """

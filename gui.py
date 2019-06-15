@@ -4339,22 +4339,6 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             
             
 ###########################  GUI events #############################            
-
-    def grab_screen(self):
-        p = QtWidgets.QWidget.grab(self)
-       # p.scaled(40, 40)
-        #painter = QtGui.QPainter(p)
-       # painter.setRenderHint(QtGui.QPainter.TextAntialiasing, True)
-        
-        #painter.setRenderHint(QtGui.QPainter.Antialiasing, True)       
-        #p.scaled(8000, 8000, transformMode=QtCore.Qt.SmoothTransformation)
-       # p.setDevicePixelRatio(2.0)
-        #screen = QtWidgets.QApplication.primaryScreen()
-        #p =  screen.grabWindow(0)
-        #painter.setRenderHint(QtGui.QPainter.Antialiasing, self.params['antialias'])
-        filename = QtGui.QFileDialog.getSaveFileName(self, 'Save image', '', '')
-        p.save(filename[0], 'jpg')
-        #label.setPixmap(p)        # just for fun :)
         
     def keyPressEvent(self, event):
         global fit
@@ -4470,6 +4454,58 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         fit.pyqt_symbols_size_rvs[8] = self.rv_data_size_9.value()
         fit.pyqt_symbols_size_rvs[9] = self.rv_data_size_10.value()
 
+
+
+
+
+################################## View Actions #######################################
+
+    def grab_screen(self):
+        p = QtWidgets.QWidget.grab(self)
+       # p.scaled(40, 40)
+        #painter = QtGui.QPainter(p)
+       # painter.setRenderHint(QtGui.QPainter.TextAntialiasing, True)
+        
+        #painter.setRenderHint(QtGui.QPainter.Antialiasing, True)       
+        #p.scaled(8000, 8000, transformMode=QtCore.Qt.SmoothTransformation)
+       # p.setDevicePixelRatio(2.0)
+        #screen = QtWidgets.QApplication.primaryScreen()
+        #p =  screen.grabWindow(0)
+        #painter.setRenderHint(QtGui.QPainter.Antialiasing, self.params['antialias'])
+        filename = QtGui.QFileDialog.getSaveFileName(self, 'Save image', '', '')
+        p.save(filename[0], 'jpg')
+        #label.setPixmap(p)        # just for fun :)
+
+    def print_f_test_stat(self):
+        global fit
+
+        rv.f_test(fit, alpha = 0.01)
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+
+    def get_latex_table(self):
+        global fit       
+
+        self.console_widget.print_text("rv.latex_pl_param_table(fit, width = 10, precision = 2, asymmetric = False, file_name='test.tex',path='./')", before_prompt=False)  
+#        self.console_widget.execute_command("rv.latex_pl_param_table(fit, width = 10, precision = 2, asymmetric = False, file_name='test.tex',path='./')")  
+        self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
+        self.terminal_embeded.setCurrentWidget(self.console_widget)
+        
+    def get_RV_model(self):
+        global fit       
+
+        self.console_widget.print_text("rv.export_RV_model(fit, file='RV_model.txt', width = 10, precision = 4)", before_prompt=False)  
+        self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
+        self.terminal_embeded.setCurrentWidget(self.console_widget)        
+        
+    def get_RV_data(self):
+        global fit       
+
+        self.console_widget.print_text("rv.export_RV_data(fit, [0], file='RV_data.txt',  jitter=False, o_c=False, print_data=False, width = 10, precision = 3)", before_prompt=False)  
+        self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
+        self.terminal_embeded.setCurrentWidget(self.console_widget)       
+
+
+
 ################################## System #######################################
             
     def quit(self):
@@ -4489,13 +4525,6 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         head, tail = ntpath.split(path)
         return tail or ntpath.basename(head)
         
-
-
-    def print_f_test_stat(self):
-        global fit
-
-        rv.f_test(fit, alpha = 0.01)
-        self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
         
     def check_settings(self):
@@ -4535,8 +4564,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
        # self.update_gui_params()                  
         self.optimize_fit(0,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)          
         
+   
         
-       
 #############################  TEST ZONE ################################  
  
     def set_tra_ld(self):
@@ -4750,9 +4779,15 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.adopt_best_RV__o_c_GLS_per.clicked.connect(self.adopt_RV_GLS_param)
         
 
-        ############ Stat #################
+        ############ View #################
 
+        self.actiongrab_screen.triggered.connect(self.grab_screen) 
         self.actionprint_f_test_FAP.triggered.connect(self.print_f_test_stat)
+        self.actionGet_LaTeX_table_with_parameters.triggered.connect(self.get_latex_table)
+        self.actionGet_RV_model.triggered.connect(self.get_RV_model)
+        self.actionGet_RV_data.triggered.connect(self.get_RV_data)        
+        
+        
         ############ Sessions #################
         
         self.actionNew_session.triggered.connect(self.new_session)
@@ -4770,9 +4805,13 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.copy_ses.clicked.connect(self.cop_ses)
         self.remove_ses.clicked.connect(self.rem_ses)
   
-        self.actiongrab_screen.triggered.connect(self.grab_screen) 
         self.actionvisit_TRIFON_on_GitHub.triggered.connect(lambda: webbrowser.open('https://github.com/3fon3fonov/trifon'))    
         self.actionCredits.triggered.connect(lambda: self.print_info_credits())
+        
+        
+
+
+
         
         ############### Orb. Evol. plotting ####################
         self.comboBox_pl_1.activated.connect(self.plot_delta_omega)
@@ -4905,8 +4944,6 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
         self.threadpool = QtCore.QThreadPool()
         #self.threadpool.setMaxThreadCount(cpu_count())    
-        
-        
 
         #self.treeWidget = tree_view.Widget() #.setModel(self.tree_view)
 
