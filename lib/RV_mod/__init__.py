@@ -1656,7 +1656,7 @@ class signal_fit(object):
         self.e_str    = {k: r'e$_%s$'%chr(98+k)  for k in range(9)}
         self.w_str    = {k: r'$\omega_%s$'%chr(98+k)  for k in range(9)}
         self.M0_str   = {k: r'MA$_%s$'%chr(98+k)  for k in range(9)}
-        self.i_str    = {k: r'i_%s$'%chr(98+k)  for k in range(9)}
+        self.i_str    = {k: r'i$_%s$'%chr(98+k)  for k in range(9)}
         self.Node_str = {k: r'$\Omega_%s$'%chr(98+k)  for k in range(9)}          
         self.w_dot_str= {k: r'$\dot{\omega_%s}$'%chr(98+k)  for k in range(9)}          
   
@@ -3255,8 +3255,10 @@ class signal_fit(object):
                     i=i+1       
                 elif (np.mod(nr,7)==5):
                     newparams.update_inclination(x,p[i])
+                    i=i+1  
                 elif (np.mod(nr,7)==6):
                     newparams.update_lineofnodes(x,p[i])
+                    i=i+1  
             elif (idx<2*self.filelist.ndset+7*self.npl+1):
                 newparams.update_linear_trend(p[i]) 
                 i=i+1       

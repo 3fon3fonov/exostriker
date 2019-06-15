@@ -237,7 +237,7 @@ def add_jitter(obj, errors, ind):
     return errors_with_jitt 
     
 
-def get_RV_data(obj, file, idset_ts, jitter=False, o_c=False, print_data=False, width = 10, precision = 3):
+def export_RV_data(obj, idset_ts, file="RV_data.txt",  jitter=False, o_c=False, print_data=False, width = 10, precision = 3):
  
     if len(obj.filelist.idset)==0:
         return
@@ -277,7 +277,7 @@ def get_RV_data(obj, file, idset_ts, jitter=False, o_c=False, print_data=False, 
         for i in range(len(JD[id_set==idset_ts[0]])):  
             if print_data  ==  True:
                 print(float(JD[i]), float(rv[i]), float(sigma[i]))
-        f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  \n'.format(float(JD[i]), float(rv[i]), float(sigma[i]),  width = width, precision = precision )   ) 
+            f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  \n'.format(float(JD[i]), float(rv[i]), float(sigma[i]),  width = width, precision = precision )   ) 
     else:
         
         for i in range(len(idset_ts)):
@@ -291,7 +291,7 @@ def get_RV_data(obj, file, idset_ts, jitter=False, o_c=False, print_data=False, 
     print('Done!')    
     return 
   
-def get_RV_model(obj, file, width = 10, precision = 4):
+def export_RV_model(obj, file="RV_model.txt", width = 10, precision = 4):
  
     if len(obj.fit_results.rv_model.jd)==0:
         return
