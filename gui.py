@@ -24,7 +24,9 @@ from worker import Worker #, WorkerSignals
 
 #import BKR as bkr
 from doublespinbox import DoubleSpinBox
+#from Jupyter_emb import ConsoleWidget_embed
 from Jupyter_emb import ConsoleWidget_embed
+
 from stdout_pipe import MyDialog
 from print_info_window import print_info
 from symbols_window import show_symbols
@@ -4231,7 +4233,48 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.om_dot_8.setEnabled(True)
             self.use_om_dot_8.setEnabled(True)           
             self.om_dot_9.setEnabled(True)
-            self.use_om_dot_9.setEnabled(True)             
+            self.use_om_dot_9.setEnabled(True)  
+            
+            
+            self.incl1.setEnabled(False)  
+            self.use_incl1.setEnabled(False)  
+            self.incl2.setEnabled(False)  
+            self.use_incl2.setEnabled(False)              
+            self.incl3.setEnabled(False)  
+            self.use_incl3.setEnabled(False)  
+            self.incl4.setEnabled(False)  
+            self.use_incl4.setEnabled(False)  
+            self.incl5.setEnabled(False)  
+            self.use_incl5.setEnabled(False)  
+            self.incl6.setEnabled(False)  
+            self.use_incl6.setEnabled(False)  
+            self.incl7.setEnabled(False)  
+            self.use_incl7.setEnabled(False)  
+            self.incl8.setEnabled(False)  
+            self.use_incl8.setEnabled(False)  
+            self.incl9.setEnabled(False)  
+            self.use_incl9.setEnabled(False) 
+            
+            self.Omega1.setEnabled(False)  
+            self.use_Omega1.setEnabled(False)  
+            self.Omega2.setEnabled(False)  
+            self.use_Omega2.setEnabled(False)             
+            self.Omega3.setEnabled(False)  
+            self.use_Omega3.setEnabled(False)  
+            self.Omega4.setEnabled(False)  
+            self.use_Omega4.setEnabled(False)
+            self.Omega5.setEnabled(False)  
+            self.use_Omega5.setEnabled(False)  
+            self.Omega6.setEnabled(False)  
+            self.use_Omega6.setEnabled(False)             
+            self.Omega7.setEnabled(False)  
+            self.use_Omega7.setEnabled(False)  
+            self.Omega8.setEnabled(False)  
+            self.use_Omega8.setEnabled(False) 
+            self.Omega9.setEnabled(False)  
+            self.use_Omega9.setEnabled(False) 
+
+                   
                         
         elif self.radioButton_Dynamical.isChecked():
             
@@ -4255,7 +4298,45 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.om_dot_9.setEnabled(False)
             self.use_om_dot_9.setEnabled(False)             
                                     
-
+            self.incl1.setEnabled(True)  
+            self.use_incl1.setEnabled(True)  
+            self.incl2.setEnabled(True)  
+            self.use_incl2.setEnabled(True)              
+            self.incl3.setEnabled(True)  
+            self.use_incl3.setEnabled(True)  
+            self.incl4.setEnabled(True)  
+            self.use_incl4.setEnabled(True)  
+            self.incl5.setEnabled(True)  
+            self.use_incl5.setEnabled(True)  
+            self.incl6.setEnabled(True)  
+            self.use_incl6.setEnabled(True)  
+            self.incl7.setEnabled(True)  
+            self.use_incl7.setEnabled(True)  
+            self.incl8.setEnabled(True)  
+            self.use_incl8.setEnabled(True)  
+            self.incl9.setEnabled(True)  
+            self.use_incl9.setEnabled(True)    
+            
+            self.Omega1.setEnabled(True)  
+            self.use_Omega1.setEnabled(True)  
+            self.Omega2.setEnabled(True)  
+            self.use_Omega2.setEnabled(True)             
+            self.Omega3.setEnabled(True)  
+            self.use_Omega3.setEnabled(True)  
+            self.Omega4.setEnabled(True)  
+            self.use_Omega4.setEnabled(True)
+            self.Omega5.setEnabled(True)  
+            self.use_Omega5.setEnabled(True)  
+            self.Omega6.setEnabled(True)  
+            self.use_Omega6.setEnabled(True)             
+            self.Omega7.setEnabled(True)  
+            self.use_Omega7.setEnabled(True)  
+            self.Omega8.setEnabled(True)  
+            self.use_Omega8.setEnabled(True) 
+            self.Omega9.setEnabled(True)  
+            self.use_Omega9.setEnabled(True)             
+            
+            
             
 ###########################  GUI events #############################            
 
@@ -4531,7 +4612,10 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             fit.gp_kernel = 'SHOKernel'  
         elif self.use_GP_rot_kernel.isChecked():
             fit.gp_kernel = 'RotKernel'
-            
+      
+    def set_force_copl_incl(self):
+        global fit   
+        fit.copl_incl = self.force_copl_incl.isChecked()
 
     #def update_inspector(self):
    #     self.tree_view_tab.listview.clicked.connect(self.plot_data_inspect)
@@ -4722,8 +4806,6 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.jitter_to_plots.stateChanged.connect(self.update_plots)
         
         
-        
-        
         self.init_correlations_combo()
         self.init_activity_combo()
         self.init_scipy_combo()
@@ -4818,6 +4900,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.check_settings()       
         self.mute_boxes_dyn()
         self.update_RV_jitter_flag()
+        
+        self.force_copl_incl.stateChanged.connect(self.set_force_copl_incl)       
 
         self.threadpool = QtCore.QThreadPool()
         #self.threadpool.setMaxThreadCount(cpu_count())    

@@ -379,6 +379,9 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     dt = opt["dt"] 
     eps = opt["eps"]   
     when_to_kill = opt["master_timeout"] 
+    copl_incl = opt["copl_incl"]
+    hkl = opt["hkl"]
+
     
    # print(dt,eps)
     #print(mix_fit[0])
@@ -610,7 +613,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
  
     priors = [pr_nr,jeff_nr]
     
-    opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,"master_timeout":obj.master_timeout}
+    opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,
+           "master_timeout":obj.master_timeout,"copl_incl":obj.copl_incl,"hkl":obj.hkl}
     
     
     #print(par)
@@ -917,8 +921,8 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     
     level = (100.0- obj.nest_percentile_level)/2.0
 
-    opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,"master_timeout":obj.master_timeout}
-    
+    opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,
+           "master_timeout":obj.master_timeout,"copl_incl":obj.copl_incl,"hkl":obj.hkl}    
     #print(par)
     #print(flags)
    # print(bb)
@@ -1187,8 +1191,8 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     priors = [pr_nr,jeff_nr]
     level = (100.0- obj.percentile_level)/2.0
  
-    opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,"master_timeout":obj.master_timeout}
-    
+    opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,
+           "master_timeout":obj.master_timeout,"copl_incl":obj.copl_incl,"hkl":obj.hkl}    
     #print(par)
     #print(flags)
     #print(bb)
@@ -1198,7 +1202,6 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
    # when_to_kill = opt["master_timeout"] 
     
  
-    
     gps = []
     if (rtg[1]):
         initiategps(obj)     
@@ -1216,8 +1219,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
    
    
     pool=Pool(ncpus=threads)
-
-
+ 
     ndim, nwalkers = len(pp), len(pp)*obj.nwalkers_fact
 
     pos = [pp + obj.gaussian_ball*np.random.rand(ndim) for i in range(nwalkers)]
@@ -1505,7 +1507,8 @@ class signal_fit(object):
         self.init_st_mass()
         
  
-        
+        self.hkl = False
+        self.copl_incl = False        
         self.rtg = [True,False,False]
  
         

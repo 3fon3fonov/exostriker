@@ -123,13 +123,27 @@ class Calculator(QWidget):
                 self.unaryOperatorClicked)
         self.equalButton = self.createButton("=", self.equalClicked)
 
+        self.log10Button = self.createButton("Log10",
+                self.unaryOperatorClicked)
+        self.logButton = self.createButton("Log",
+                self.unaryOperatorClicked)
+        self.sinButton = self.createButton("sin(rad)",
+                self.unaryOperatorClicked)
+        self.cosButton = self.createButton("cos(rad)",                 
+                self.unaryOperatorClicked)
+#        self.modButton = self.createButton("cos(rad)",                 
+#                self.unaryOperatorClicked)        
+        
+
         mainLayout = QGridLayout()
        # mainLayout.setSizeConstraint(QLayout.SetFixedSize)
 
-        mainLayout.addWidget(self.display, 0, 0, 1, 6)
-        mainLayout.addWidget(self.backspaceButton, 1, 0, 1, 2)
-        mainLayout.addWidget(self.clearButton, 1, 2, 1, 2)
-        mainLayout.addWidget(self.clearAllButton, 1, 4, 1, 2)
+        mainLayout.addWidget(self.display, 0, 0, 1, 7)
+        mainLayout.addWidget(self.backspaceButton, 1, 0, 1, 3)
+        mainLayout.addWidget(self.clearButton,    1, 3, 1, 2)
+        mainLayout.addWidget(self.clearAllButton, 1, 5, 1, 2)
+#        mainLayout.addWidget(self.modButton, 1, 6, 1, 1)
+        
 
         mainLayout.addWidget(self.clearMemoryButton, 2, 0)
         mainLayout.addWidget(self.readMemoryButton, 3, 0)
@@ -150,10 +164,19 @@ class Calculator(QWidget):
         mainLayout.addWidget(self.minusButton, 4, 4)
         mainLayout.addWidget(self.plusButton, 5, 4)
 
+#        mainLayout.addWidget(self.plusButton, 6, 4)
+
         mainLayout.addWidget(self.squareRootButton, 2, 5)
         mainLayout.addWidget(self.powerButton, 3, 5)
         mainLayout.addWidget(self.reciprocalButton, 4, 5)
         mainLayout.addWidget(self.equalButton, 5, 5)
+        
+        mainLayout.addWidget(self.log10Button, 2, 6)
+        mainLayout.addWidget(self.logButton, 3, 6)
+        mainLayout.addWidget(self.sinButton, 4, 6)
+        mainLayout.addWidget(self.cosButton, 5, 6)       
+        
+        
         self.setLayout(mainLayout)
 
         self.setWindowTitle("Calculator")
@@ -175,6 +198,8 @@ class Calculator(QWidget):
         clickedButton = self.sender()
         clickedOperator = clickedButton.text()
         operand = float(self.display.text())
+        
+        
 
         if clickedOperator == "Sqrt":
             if operand < 0.0:
@@ -190,6 +215,32 @@ class Calculator(QWidget):
                 return
 
             result = 1.0 / operand
+
+        elif clickedOperator == "Log10":
+            if operand <= 0.0:
+                self.abortOperation()
+                return
+            result = math.log10(operand)
+            
+        elif clickedOperator == "Log":
+            if operand <= 0.0:
+                self.abortOperation()
+                return
+            result = math.log(operand)
+            
+        elif clickedOperator == "sin(rad)":
+            if operand <= 0.0:
+                self.abortOperation()
+                return
+            result = math.sin(operand)
+            
+        elif clickedOperator == "cos(rad)":
+            if operand <= 0.0:
+                self.abortOperation()
+                return
+            result = math.cos(operand)            
+            
+            
 
         self.display.setText(str(result))
         self.waitingForOperand = True
