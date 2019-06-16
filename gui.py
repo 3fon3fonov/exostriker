@@ -1436,7 +1436,8 @@ Polyfit coefficients:
  
         if self.gls_cross_hair.isChecked():
             self.cross_hair(p7,log=self.radioButton_RV_GLS_period.isChecked())    
-            
+           
+        #fit.rv_plot = p7    
             
  
     def update_RV_o_c_GLS_plots(self):

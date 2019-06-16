@@ -1496,7 +1496,10 @@ class signal_fit(object):
         
         self.init_GP()  
         self.init_transit_GP()
-        
+
+        self.init_hkl()  
+        self.init_omega_dot()
+             
         self.init_RV_jitter()       
         self.init_RV_offset()
         self.init_RV_lintr()
@@ -1691,6 +1694,41 @@ class signal_fit(object):
         self.t0_str      = {k: r't0$_%s$'%chr(98+k) for k in range(9)} 
         self.pl_a_str    = {k: r'pl_a$_%s$'%chr(98+k) for k in range(9)} 
         self.pl_rad_str  = {k: r'pl_rad$_%s$'%chr(98+k) for k in range(9)} 
+        
+
+
+    def init_hkl(self) : 
+        
+        #### h,k,l #####             
+        self.e_sinw        = {k: 0 for k in range(9)}
+        self.e_cosw        = {k: 0 for k in range(9)}
+        self.lamb          = {k: 0 for k in range(9)}       
+
+        self.e_sinw_use    = {k: False for k in range(9)}
+        self.e_cosw_use    = {k: False for k in range(9)}
+        self.lamb_use    = {k: False for k in range(9)}         
+
+        self.e_sinw_err    = {k: np.array([0.0,0.0])  for k in range(9)}
+        self.e_cosw_err    = {k: np.array([0.0,0.0])  for k in range(9)}
+        self.lamb_err    = {k: np.array([0.0,0.0])  for k in range(9)}         
+
+        self.e_sinw_bound  = {k: np.array([-1.0,1.0]) for k in range(9)}
+        self.e_cosw_bound  = {k: np.array([-1.0,1.0]) for k in range(9)}
+        self.lamb_bound  = {k: np.array([0.0,360.0]) for k in range(9)} 
+ 
+        self.e_sinw_norm_pr = {k: np.array([0.0,0.1, False]) for k in range(9)}
+        self.e_cosw_norm_pr = {k: np.array([0.0,0.1, False]) for k in range(9)}
+        self.lamb_norm_pr = {k: np.array([0.0,30.0, False]) for k in range(9)} 
+        
+        self.e_sinw_jeff_pr = {k: np.array([-1,1, False]) for k in range(9)}
+        self.e_cosw_jeff_pr = {k: np.array([-1,1, False]) for k in range(9)}
+        self.lamb_jeff_pr = {k: np.array([0.0,360.0, False]) for k in range(9)}         
+        
+ 
+        self.e_sinw_str     = {k: r'$e sin(\omega_%s)$'%chr(98+k) for k in range(9)} 
+        self.e_cosw_str     = {k: r'$e cos(\omega_%s)$'%chr(98+k) for k in range(9)} 
+        self.lamb_str     = {k: r'$\lambda_%s$'%chr(98+k) for k in range(9)} 
+                
 
 
         ######## derived #####################
@@ -1700,6 +1738,16 @@ class signal_fit(object):
         
         #####################################
         
+
+    def init_omega_dot(self) :       
+        
+        self.omega_dot       = {k: 0 for k in range(9)}
+        self.omega_dot_err   = {k: np.array([0,0]) for k in range(9)}
+        self.omega_dot_use   = {k: False for k in range(9)}
+        self.omega_dot_str   = {k: r'$\omega_%s dot$'%k for k in range(9)}     
+        self.omega_dot_bounds  = {k: np.array([0.0,10000.0] )for k in range(9)} 
+        self.omega_dot_norm_pr = {k: np.array([0.0,50.0, False] )for k in range(9)} 
+        self.omega_dot_jeff_pr = {k: np.array([0.0,360.0, False] )for k in range(9)} 
 
 
     def init_RV_jitter(self) :       
