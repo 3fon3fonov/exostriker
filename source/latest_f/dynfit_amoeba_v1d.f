@@ -192,6 +192,10 @@ c      write(*,*) "lnL", loglik
                      p(i,k)=(1+fr)*(p(1,k) + 0.1)
                   else if (mod(j,7).eq.3) then
                      p(i,k)=(1+frjitt)*(p(1,k)+0.1)
+                  else if (mod(j,7).eq.6) then
+                     p(i,k)=(1+0.2)*(p(1,k)+0.1)  
+                  else if (mod(j,7).eq.7) then
+                     p(i,k)=(1+0.4)*(p(1,k)+0.1)                                          
                   else
                      p(i,k)=(1+fr)*(p(1,k)+0.1)
                   endif
@@ -211,7 +215,11 @@ c      write(*,*) "lnL", loglik
                   else if (mod(j,7).eq.3) then
                      p(i,k)=(1+frjitt)*(p(1,k)+0.0001)
                   else if (mod(j,7).eq.4) then
-                     p(i,k)=(1+frjitt)*(p(1,k)+0.0001)                     
+                     p(i,k)=(1+frjitt)*(p(1,k)+0.0001)  
+                  else if (mod(j,7).eq.6) then
+                     p(i,k)=(1+0.2)*(p(1,k)+0.1) 
+                  else if (mod(j,7).eq.7) then
+                     p(i,k)=(1+0.4)*(p(1,k)+0.1)                                                               
                   else
                      p(i,k)=(1+fr)*(p(1,k)+0.1)
                   endif
