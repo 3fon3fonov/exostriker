@@ -577,7 +577,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
             tr_ld.append(obj.ld_u[i])
    
     
-    tr_model = np.array([tr_mo,tr_ld])
+    tr_model = np.array([tr_mo,tr_ld], dtype=object)
     tr_params = obj.tr_params
     
  
@@ -885,8 +885,7 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
             tr_mo.append(obj.ld_m[i])
             tr_ld.append(obj.ld_u[i])
    
-    
-    tr_model = np.array([tr_mo,tr_ld])
+    tr_model = np.array([tr_mo,tr_ld], dtype=object)  
     tr_params = obj.tr_params
     
     npl = obj.npl
@@ -1151,8 +1150,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
             tr_mo.append(obj.ld_m[i])
             tr_ld.append(obj.ld_u[i])
    
-    
-    tr_model = np.array([tr_mo,tr_ld])
+    tr_model = np.array([tr_mo,tr_ld], dtype=object)    
     tr_params = obj.tr_params
     
     npl = obj.npl
