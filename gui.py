@@ -944,7 +944,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         
         pdi = self.load_data_plot
 
-        xaxis = ['BJD','BJD','BJD','BJD','BJD','x','days','days','days','days','days','days','yr','yr','yr','a','yr','yr','','x']
+        xaxis = ['BJD','BJD','BJD','BJD','BJD','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','yr','yr','yr','a','yr','yr','','x']
         yaxis = ['RV','RV','Relative Flux','Relative Flux','y','y','power','power','SDE','SDE','power','power','a','e','omega','a','delta omega','theta','','y']       
         xunit = ['d' ,'d','d','d','d','','','','','','','','','','','au','','','','']
         yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','','au','','','','']
@@ -1234,12 +1234,12 @@ Polyfit coefficients:
             if self.radioButton_act_GLS_period.isChecked():
                 p11.setLogMode(True,False)        
                 p11.plot(1/act_per.freq, act_per.power,pen=fit.colors[ind],symbol=None ) 
-                p11.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'}) 
+                p11.setLabel('bottom', 'period [d]', units='',  **{'font-size':'12pt'}) 
 
             else:
                 p11.setLogMode(False,False)        
                 p11.plot(act_per.freq, act_per.power,pen=fit.colors[ind],symbol=None )                    
-                p11.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'}) 
+                p11.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'12pt'}) 
 
                                                
             [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
@@ -1418,12 +1418,12 @@ Polyfit coefficients:
             if self.radioButton_RV_GLS_period.isChecked():
                 p7.setLogMode(True,False)        
                 p7.plot(1/fit.gls.freq, fit.gls.power,pen='r',symbol=None ) 
-                p7.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})    
+                p7.setLabel('bottom', 'period [d]', units='',  **{'font-size':'12pt'})    
                 
             else:
                 p7.setLogMode(False,False)        
                 p7.plot(fit.gls.freq, fit.gls.power,pen='r',symbol=None )                    
-                p7.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'}) 
+                p7.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'12pt'}) 
                 
                 
             if fit.gls.norm == 'ZK':
@@ -1456,12 +1456,12 @@ Polyfit coefficients:
             if self.radioButton_RV_o_c_GLS_period.isChecked():
                 p8.setLogMode(True,False)        
                 p8.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power,pen='r',symbol=None ) 
-                p8.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})
+                p8.setLabel('bottom', 'period [d]', units='',  **{'font-size':'12pt'})
  
             else:
                 p8.setLogMode(False,False)        
                 p8.plot(fit.gls_o_c.freq, fit.gls_o_c.power,pen='r',symbol=None )    
-                p8.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'})                
+                p8.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'12pt'})                
                 
             if fit.gls_o_c.norm == 'ZK':
                 [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]            
@@ -1495,11 +1495,11 @@ Polyfit coefficients:
             if self.radioButton_RV_WF_period.isChecked():
                 p12.setLogMode(True,False)        
                 p12.plot(1/np.array(omega), WF_power,pen='k',symbol=None )   
-                p12.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})
+                p12.setLabel('bottom', 'period [d]', units='',  **{'font-size':'12pt'})
             else:
                 p12.setLogMode(False,False)        
                 p12.plot(np.array(omega), WF_power,pen='k',symbol=None )   
-                p12.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'})      
+                p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'12pt'})      
 
 
                         
@@ -2017,13 +2017,13 @@ Polyfit coefficients:
         if self.radioButton_RV_GLS_period.isChecked():
             pe.setLogMode(True,False)        
             pe.plot(1/fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-            pe.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})    
+            pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'12pt'})    
             pe.setLabel('left', 'Power', units='',  **{'font-size':'12pt'})    
            
         else:
             pe.setLogMode(False,False)        
             pe.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None )                    
-            pe.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'}) 
+            pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'12pt'}) 
             pe.setLabel('left', 'Power', units='',  **{'font-size':'12pt'})    
 
         if fit.gls.norm == 'ZK':
@@ -2044,13 +2044,13 @@ Polyfit coefficients:
         if self.radioButton_RV_o_c_GLS_period.isChecked():
             pe.setLogMode(True,False)        
             pe.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None ) 
-            pe.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})    
+            pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'12pt'})    
             pe.setLabel('left', 'Power', units='',  **{'font-size':'12pt'})    
            
         else:
             pe.setLogMode(False,False)        
             pe.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None )                    
-            pe.setLabel('bottom', 'frequency', units='',  **{'font-size':'12pt'}) 
+            pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'12pt'}) 
             pe.setLabel('left', 'Power', units='',  **{'font-size':'12pt'})    
 
 
