@@ -85,7 +85,9 @@ ses_list = [fit]
  
 
 
-colors  = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+colors      = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+colors_tra  = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+         
 symbols = ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
 colors_delta_om = colors
 colors_theta = colors
@@ -897,6 +899,19 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_9,9)
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_10,10)
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_11,11)
+        
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_1,1)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_2,2)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_3,3)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_4,4)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_5,5)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_6,6)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_7,7)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_8,8)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_9,9)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_10,10)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_11,11)
+        
        
         
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_1,1)
@@ -910,7 +925,16 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_9,9)
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_10,10)        
         
-        
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_1,1)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_2,2)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_3,3)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_4,4)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_5,5)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_6,6)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_7,7)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_8,8)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_9,9)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_10,10)            
       
         
     def initialize_plots(self):
@@ -944,9 +968,9 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         
         pdi = self.load_data_plot
 
-        xaxis = ['BJD','BJD','BJD','BJD','BJD','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','yr','yr','yr','a','yr','yr','','x']
-        yaxis = ['RV','RV','Relative Flux','Relative Flux','y','y','power','power','SDE','SDE','power','power','a','e','omega','a','delta omega','theta','','y']       
-        xunit = ['d' ,'d','d','d','d','','','','','','','','','','','au','','','','']
+        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','yr','yr','yr','a','yr','yr','','x']
+        yaxis = ['RV','RV','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a','e','omega','a','delta omega','theta','','y']       
+        xunit = ['' ,'','','','','','','','','','','','','','','au','','','','']
         yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','','au','','','','']
 
         zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,pe,pdi]
@@ -1996,7 +2020,7 @@ Polyfit coefficients:
             
             pe.addItem(err_)
         
-        pe.setLabel('bottom', 'days', units='',  **{'font-size':'12pt'})
+        pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'12pt'})
         pe.setLabel('left',   'RV', units='m/s',  **{'font-size':'12pt'})  
 
         if self.extra_plot_cross_hair.isChecked():
@@ -2347,6 +2371,7 @@ Transit duration: %s d
         p3.plot(clear=True,) 
         p4.plot(clear=True,)         
            
+        self.check_tra_symbol_sizes()
 
         tr_files = []
         
@@ -2419,22 +2444,24 @@ Transit duration: %s d
                 
                 ############### Phase signal TBD this should not be here! ####################################
                 
-                transit_phase = True
-                if transit_phase == True:
+                if self.plot_phase_pholded_tran.isChecked():
                     data_time_phase = np.array( (t  - t[0]- fit.tr_params.per/2.0)% fit.tr_params.per  )  
                  
                     sort = np.array(sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])    )                    
                      
-                   # t      = data_time_phase[sort] 
-                   # flux          = flux[sort] 
-                   # flux_err      = flux_err[sort]  
-                   # flux_model    = flux_model[sort] 
-                    
-                    
+                    t      = data_time_phase[sort] 
+                    flux          = flux[sort] 
+                    flux_err      = flux_err[sort]  
+                    flux_model    = flux_model[sort] 
+                                       
                     fit.ph_data_tra[i] = [data_time_phase[sort] ,flux[sort], flux_err[sort]]
                     fit.ph_model_tra[i] = [data_time_phase[sort] ,flux_model[sort]]
                 
-                
+                    p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'12pt'})
+                else:
+                    p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'12pt'})
+                    
+               
                 
             tr_o_c = flux -flux_model     
             ######## TBD this should not be here!
@@ -2445,9 +2472,9 @@ Transit duration: %s d
             
             p3.plot(t, flux,        
             pen=None,  
-            symbol='o',
+            symbol=fit.pyqt_symbols_tra[i],
             symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
-            symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
+            symbolSize=fit.pyqt_symbols_size_tra[i],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.tra_colors[j] ) 
             
             err_ = pg.ErrorBarItem(x=t, y=flux, symbol='o',
@@ -2461,16 +2488,22 @@ Transit duration: %s d
            # m = batman.TransitModel(fit.tr_params, t)    #initializes model
  
             #flux_model = m.light_curve(fit.tr_params)          #calculates light curve           
-            p3.plot(t, flux_model,pen='k',symbol=None )    
+            #p3.plot(t, flux_model,pen=fit.tra_colors[-],symbol=None )   
             
+            model_curve = p3.plot(t, flux_model, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
+            enableAutoRange=True,viewRect=True )               
+ 
+            model_curve.setZValue(self.tra_model_z.value())            
             
+            if self.trans_plot_cross_hair.isChecked():
+                self.cross_hair(p3,log=False)     
             
             
             p4.plot(t, tr_o_c,        
             pen=None,  
-            symbol='o',
+            symbol=fit.pyqt_symbols_tra[i],
             symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
-            symbolSize=self.transit_data_size.value(),enableAutoRange=True,viewRect=True,
+            symbolSize=fit.pyqt_symbols_size_tra[i],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.tra_colors[j] )             
 
             err_ = pg.ErrorBarItem(x=t, y=flux-flux_model, symbol='o', 
@@ -2479,7 +2512,15 @@ Transit duration: %s d
             bottom=flux_err,            
             beam=0.0, pen=fit.tra_colors[j])               
             p4.addItem(err_)   
-                     
+  
+            if self.trans_o_c_plot_cross_hair.isChecked():
+                self.cross_hair(p4,log=False)  
+          
+            #model_curve = p4.plot(t, flux_model, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
+            #enableAutoRange=True,viewRect=True )               
+ 
+           # model_curve.setZValue(self.tra_model_z.value())   
+
         #else:    
         #    t = np.linspace(-0.25, 0.25, 1000)  #times at which to calculate light curve   
         #    m = batman.TransitModel(fit.tr_params, t)    #initializes model
@@ -4176,6 +4217,49 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
   
  
 #############################  Color control ################################  
+    def update_color_picker_tra(self):
+        global fit
+        
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(False)
+        #font.setWeight(75)
+        
+ 
+        for i in range(11):
+            self.buttonGroup_color_picker_tra.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
+            self.buttonGroup_color_picker_tra.button(i+1).setFont(font)              
+        for i in range(10):    
+            self.buttonGroup_symbol_picker_tra.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])  
+            self.buttonGroup_symbol_picker_tra.button(i+1).setText(fit.pyqt_symbols_tra[i]) 
+            self.buttonGroup_symbol_picker_tra.button(i+1).setFont(font)         
+
+          
+    def get_color_tra(self):
+        global fit
+        
+        but_ind = self.buttonGroup_color_picker_tra.checkedId()       
+        colorz = self.colorDialog.getColor()       
+        
+        #QtGui.QColorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel,True)
+        #colorz = QtGui.QColorDialog.getColor()
+        print(but_ind-1)
+        print(fit.colors[but_ind-1])       
+        if colorz.isValid():
+            fit.tra_colors[but_ind-1]=colorz.name()   
+            self.update_color_picker_tra()
+            self.update_act_file_buttons()      
+            self.update_RV_file_buttons() 
+            self.update_tra_file_buttons() 
+            self.update_RV_plots() 
+            self.update_extra_plots()            
+            self.update_transit_plots() 
+            #self.update_activity_data_plots() 
+            #self.update_activity_gls_plots()     
+        else:
+            return
+
+
 
     def update_color_picker(self):
         global fit
@@ -4225,6 +4309,43 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
 ############################# Symbol controls ################################  
 
+
+    def get_symbol_tra(self):
+        global fit
+ 
+        but_ind = self.buttonGroup_symbol_picker_tra.checkedId()   
+        but_n = self.dialog_symbols.get_radio()
+            
+        if but_n != None:
+            fit.pyqt_symbols_tra[but_ind-1] = symbols[but_n-1]
+            self.update_color_picker_tra()
+            self.update_act_file_buttons()      
+            self.update_RV_file_buttons() 
+            self.update_tra_file_buttons() 
+            self.update_RV_plots() 
+            self.update_extra_plots()
+            self.update_transit_plots()     
+        else:
+            return    
+        
+    def check_tra_symbol_sizes(self):
+        global fit
+       
+       # for i in range(10):
+        fit.pyqt_symbols_size_tra[0] = self.trans_data_size_1.value()
+        fit.pyqt_symbols_size_tra[1] = self.trans_data_size_2.value()
+        fit.pyqt_symbols_size_tra[2] = self.trans_data_size_3.value()
+        fit.pyqt_symbols_size_tra[3] = self.trans_data_size_4.value()
+        fit.pyqt_symbols_size_tra[4] = self.trans_data_size_5.value()
+        fit.pyqt_symbols_size_tra[5] = self.trans_data_size_6.value()
+        fit.pyqt_symbols_size_tra[6] = self.trans_data_size_7.value()
+        fit.pyqt_symbols_size_tra[7] = self.trans_data_size_8.value()
+        fit.pyqt_symbols_size_tra[8] = self.trans_data_size_9.value()
+        fit.pyqt_symbols_size_tra[9] = self.trans_data_size_10.value()
+
+
+
+
             
     def get_symbol(self):
         global fit
@@ -4243,6 +4364,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.update_transit_plots()     
         else:
             return    
+        
+
+        
       
     def check_RV_symbol_sizes(self):
         global fit
@@ -4627,17 +4751,26 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
       #  self.insp_data_size.valueChanged.connect(self.update_inspector)
         
-        
+        ############### transit plotting controll ####################      
+        self.plot_phase_pholded_tran.stateChanged.connect(self.update_transit_plots)
+        self.tra_model_width.valueChanged.connect(self.update_transit_plots)
+#        self.tra_model_width.valueChanged.connect(self.update_transit_plots)    
+        self.tra_model_z.valueChanged.connect(self.update_transit_plots)
+#        self.tra_model_z.valueChanged.connect(self.update_transit_plots)    
 
 
         ############### RV plotting controll ####################      
         self.rv_model_width.valueChanged.connect(self.update_RV_plots)
         self.rv_model_width.valueChanged.connect(self.update_extra_plots)    
         self.RV_model_z.valueChanged.connect(self.update_RV_plots)
-        self.RV_model_z.valueChanged.connect(self.update_extra_plots)       
+        self.RV_model_z.valueChanged.connect(self.update_extra_plots)    
+        
+        
+        
         
         self.jitter_to_plots.stateChanged.connect(self.update_plots)
         
+
         
         self.init_correlations_combo()
         self.init_activity_combo()
@@ -4671,6 +4804,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.gls_o_c_cross_hair.stateChanged.connect(self.update_RV_o_c_GLS_plots)
         self.RV_plot_cross_hair.stateChanged.connect(self.update_RV_plots)
         self.RV_o_c_plot_cross_hair.stateChanged.connect(self.update_RV_plots)
+        self.trans_plot_cross_hair.stateChanged.connect(self.update_transit_plots)
+        self.trans_o_c_plot_cross_hair.stateChanged.connect(self.update_transit_plots)
+        
         self.extra_plot_cross_hair.stateChanged.connect(self.update_extra_plots)
         self.inpector_plot_cross_hair.stateChanged.connect(lambda: self.plot_data_inspect(self.tree_view_tab.listview))
 
@@ -4713,11 +4849,16 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.jupiter_push_vars()
         
         self.update_color_picker()
-        self.buttonGroup_color_picker.buttonClicked.connect(self.get_color)    
+        self.buttonGroup_color_picker.buttonClicked.connect(self.get_color)
+        self.update_color_picker_tra()        
+        self.buttonGroup_color_picker_tra.buttonClicked.connect(self.get_color_tra)    
+       
         
         
         self.dialog_symbols = show_symbols(self)
         self.buttonGroup_symbol_picker.buttonClicked.connect(self.get_symbol) 
+        self.buttonGroup_symbol_picker_tra.buttonClicked.connect(self.get_symbol_tra) 
+        
         
         self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)   
         

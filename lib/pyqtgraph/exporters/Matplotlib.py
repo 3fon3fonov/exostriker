@@ -90,7 +90,12 @@ class MatplotlibExporter(Exporter):
                     zorder = 10
                 else:
                     linestyle = '-'
-                    zorder = -100
+                    if len(y) < 500:
+                        zorder = -100
+                    else:
+                        zorder = 10
+ 
+                    
                 color = tuple([c/255. for c in fn.colorTuple(pen.color())])
                 symbol = opts['symbol']
                 if symbol == 't':
