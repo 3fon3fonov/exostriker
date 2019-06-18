@@ -1561,6 +1561,8 @@ class signal_fit(object):
         self.ph_data = {k: [] for k in range(9)}
         self.ph_model = {k: [] for k in range(9)}
 
+        self.ph_data_tra = {k: [] for k in range(9)}
+        self.ph_model_tra = {k: [] for k in range(9)}
         
         self.parameters = []
  

@@ -2357,8 +2357,8 @@ Transit duration: %s d
         for j in range(len(tr_files)):        
         
         #if len(fit.tra_data_sets[0]) != 0:
-            t = tr_files[j][0]
-            flux = tr_files[j][1] + fit.tra_off[j]
+            t = np.array(tr_files[j][0])
+            flux = np.array(tr_files[j][1] + fit.tra_off[j])
             flux_err = np.sqrt(tr_files[j][2]**2 + fit.tra_jitt[j]**2)
             
             
@@ -2366,7 +2366,7 @@ Transit duration: %s d
             fit.prepare_for_mcmc(rtg = fit.rtg)    
             par = np.array(fit.parameters)  
 
-            flux_model =[1]*len(flux)
+            flux_model = np.ones(len(flux))
             m =  {k: [] for k in range(9)}
              
             
@@ -2415,14 +2415,33 @@ Transit duration: %s d
         
                 m[i] = batman.TransitModel(fit.tr_params, t)    #initializes model
      
-                flux_model = flux_model * m[i].light_curve(fit.tr_params)       
-                #calculates light curve  
-            tr_o_c = flux -flux_model
- 
-    
+                flux_model = flux_model * m[i].light_curve(fit.tr_params)     
+                
+                ############### Phase signal TBD this should not be here! ####################################
+                
+                transit_phase = True
+                if transit_phase == True:
+                    data_time_phase = np.array( (t  - t[0]- fit.tr_params.per/2.0)% fit.tr_params.per  )  
+                 
+                    sort = np.array(sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])    )                    
+                     
+                   # t      = data_time_phase[sort] 
+                   # flux          = flux[sort] 
+                   # flux_err      = flux_err[sort]  
+                   # flux_model    = flux_model[sort] 
+                    
+                    
+                    fit.ph_data_tra[i] = [data_time_phase[sort] ,flux[sort], flux_err[sort]]
+                    fit.ph_model_tra[i] = [data_time_phase[sort] ,flux_model[sort]]
+                
+                
+                
+            tr_o_c = flux -flux_model     
             ######## TBD this should not be here!
             fit.tra_data_sets[j][3] = tr_o_c + 1
             ##################################
+        
+                
             
             p3.plot(t, flux,        
             pen=None,  
@@ -2443,6 +2462,8 @@ Transit duration: %s d
  
             #flux_model = m.light_curve(fit.tr_params)          #calculates light curve           
             p3.plot(t, flux_model,pen='k',symbol=None )    
+            
+            
             
             
             p4.plot(t, tr_o_c,        
@@ -3925,436 +3946,222 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
  
     
-    
-    
-    
-##################  Mute box controlls #############################
-
-
-
-
-
+ 
+###########################  GUI events #############################            
+ 
     def mute_boxes(self):
         
         ######### TESTS!!!!!!!!!!!###########
         
-        if self.radioButton_transit_RV.isChecked() or self.radioButton_transit.isChecked():
+        self.mute_boxes_dyn()
+        
+        if self.radioButton_transit_RV.isChecked():
             
+            ma_flag = False
+            t0_flag = True
+            K_flag = True
+            pl_rad_flag = True
+            a_sol_flag = True
             
+        elif self.radioButton_transit.isChecked():            
             
-            self.ma1.setEnabled(False)
-            self.use_ma1.setEnabled(False)
-            self.ma2.setEnabled(False)
-            self.use_ma2.setEnabled(False)           
-            self.ma3.setEnabled(False)
-            self.use_ma3.setEnabled(False)  
-            self.ma4.setEnabled(False)
-            self.use_ma4.setEnabled(False)
-            self.ma5.setEnabled(False)
-            self.use_ma5.setEnabled(False)           
-            self.ma6.setEnabled(False)
-            self.use_ma6.setEnabled(False)  
-            self.ma7.setEnabled(False)
-            self.use_ma7.setEnabled(False)
-            self.ma8.setEnabled(False)
-            self.use_ma8.setEnabled(False)           
-            self.ma9.setEnabled(False)
-            self.use_ma9.setEnabled(False)  
+            ma_flag = False
+            t0_flag = True
+            K_flag = False
+            pl_rad_flag = True
+            a_sol_flag = True
+            
+        elif self.radioButton_RV.isChecked():            
+            
+            ma_flag = True
+            t0_flag = False
+            K_flag = True
+            pl_rad_flag = False
+            a_sol_flag = False                        
+            
+        self.ma1.setEnabled(ma_flag)
+        self.use_ma1.setEnabled(ma_flag)
+        self.ma2.setEnabled(ma_flag)
+        self.use_ma2.setEnabled(ma_flag)           
+        self.ma3.setEnabled(ma_flag)
+        self.use_ma3.setEnabled(ma_flag)  
+        self.ma4.setEnabled(ma_flag)
+        self.use_ma4.setEnabled(ma_flag)
+        self.ma5.setEnabled(ma_flag)
+        self.use_ma5.setEnabled(ma_flag)           
+        self.ma6.setEnabled(ma_flag)
+        self.use_ma6.setEnabled(ma_flag)  
+        self.ma7.setEnabled(ma_flag)
+        self.use_ma7.setEnabled(ma_flag)
+        self.ma8.setEnabled(ma_flag)
+        self.use_ma8.setEnabled(ma_flag)           
+        self.ma9.setEnabled(ma_flag)
+        self.use_ma9.setEnabled(ma_flag)  
+        
+        self.t0_1.setEnabled(t0_flag)
+        self.use_t0_1.setEnabled(t0_flag)
+        self.t0_2.setEnabled(t0_flag)
+        self.use_t0_2.setEnabled(t0_flag)           
+        self.t0_3.setEnabled(t0_flag)
+        self.use_t0_3.setEnabled(t0_flag)  
+        self.t0_4.setEnabled(t0_flag)
+        self.use_t0_4.setEnabled(t0_flag)
+        self.t0_5.setEnabled(t0_flag)
+        self.use_t0_5.setEnabled(t0_flag)           
+        self.t0_6.setEnabled(t0_flag)
+        self.use_t0_6.setEnabled(t0_flag)              
+        self.t0_7.setEnabled(t0_flag)
+        self.use_t0_7.setEnabled(t0_flag)
+        self.t0_8.setEnabled(t0_flag)
+        self.use_t0_8.setEnabled(t0_flag)           
+        self.t0_9.setEnabled(t0_flag)
+        self.use_t0_9.setEnabled(t0_flag)              
+        
+        self.K1.setEnabled(K_flag)
+        self.use_K1.setEnabled(K_flag)
+        self.K2.setEnabled(K_flag)
+        self.use_K2.setEnabled(K_flag)           
+        self.K3.setEnabled(K_flag)
+        self.use_K3.setEnabled(K_flag)        
+        self.K4.setEnabled(K_flag)
+        self.use_K4.setEnabled(K_flag)
+        self.K5.setEnabled(K_flag)
+        self.use_K5.setEnabled(K_flag)           
+        self.K6.setEnabled(K_flag)
+        self.use_K6.setEnabled(K_flag)                    
+        self.K7.setEnabled(K_flag)
+        self.use_K7.setEnabled(K_flag)
+        self.K8.setEnabled(K_flag)
+        self.use_K8.setEnabled(K_flag)           
+        self.K9.setEnabled(K_flag)
+        self.use_K9.setEnabled(K_flag)                    
 
-            
-            self.t0_1.setEnabled(True)
-            self.use_t0_1.setEnabled(True)
-            self.t0_2.setEnabled(True)
-            self.use_t0_2.setEnabled(True)           
-            self.t0_3.setEnabled(True)
-            self.use_t0_3.setEnabled(True)  
-            self.t0_4.setEnabled(True)
-            self.use_t0_4.setEnabled(True)
-            self.t0_5.setEnabled(True)
-            self.use_t0_5.setEnabled(True)           
-            self.t0_6.setEnabled(True)
-            self.use_t0_6.setEnabled(True)              
-            self.t0_7.setEnabled(True)
-            self.use_t0_7.setEnabled(True)
-            self.t0_8.setEnabled(True)
-            self.use_t0_8.setEnabled(True)           
-            self.t0_9.setEnabled(True)
-            self.use_t0_9.setEnabled(True)              
-            
-
-            self.K1.setEnabled(False)
-            self.use_K1.setEnabled(False)
-            self.K2.setEnabled(False)
-            self.use_K2.setEnabled(False)           
-            self.K3.setEnabled(False)
-            self.use_K3.setEnabled(False)        
-            self.K4.setEnabled(False)
-            self.use_K4.setEnabled(False)
-            self.K5.setEnabled(False)
-            self.use_K5.setEnabled(False)           
-            self.K6.setEnabled(False)
-            self.use_K6.setEnabled(False)                    
-            self.K7.setEnabled(False)
-            self.use_K7.setEnabled(False)
-            self.K8.setEnabled(False)
-            self.use_K8.setEnabled(False)           
-            self.K9.setEnabled(False)
-            self.use_K9.setEnabled(False)                    
-            
-            
-
-            self.t0_1.setEnabled(True)
-            self.use_t0_1.setEnabled(True)
-            self.t0_2.setEnabled(True)
-            self.use_t0_2.setEnabled(True)           
-            self.t0_3.setEnabled(True)
-            self.use_t0_3.setEnabled(True) 
-            self.t0_4.setEnabled(True)
-            self.use_t0_4.setEnabled(True)
-            self.t0_5.setEnabled(True)
-            self.use_t0_5.setEnabled(True)           
-            self.t0_6.setEnabled(True)
-            self.use_t0_6.setEnabled(True)             
-            self.t0_7.setEnabled(True)
-            self.use_t0_7.setEnabled(True)
-            self.t0_8.setEnabled(True)
-            self.use_t0_8.setEnabled(True)           
-            self.t0_9.setEnabled(True)
-            self.use_t0_9.setEnabled(True)             
-            
-
-            self.pl_rad_1.setEnabled(True)
-            self.use_pl_rad_1.setEnabled(True)
-            self.pl_rad_2.setEnabled(True)
-            self.use_pl_rad_2.setEnabled(True)           
-            self.pl_rad_3.setEnabled(True)
-            self.use_pl_rad_3.setEnabled(True) 
-            self.pl_rad_4.setEnabled(True)
-            self.use_pl_rad_4.setEnabled(True)
-            self.pl_rad_5.setEnabled(True)
-            self.use_pl_rad_5.setEnabled(True)           
-            self.pl_rad_6.setEnabled(True)
-            self.use_pl_rad_6.setEnabled(True)             
-            self.pl_rad_7.setEnabled(True)
-            self.use_pl_rad_7.setEnabled(True)
-            self.pl_rad_8.setEnabled(True)
-            self.use_pl_rad_8.setEnabled(True)           
-            self.pl_rad_9.setEnabled(True)
-            self.use_pl_rad_9.setEnabled(True)             
-            
-      
-            self.a_sol_1.setEnabled(True)
-            self.use_a_sol_1.setEnabled(True)
-            self.a_sol_2.setEnabled(True)
-            self.use_a_sol_2.setEnabled(True)           
-            self.a_sol_3.setEnabled(True)
-            self.use_a_sol_3.setEnabled(True)                        
-            self.a_sol_4.setEnabled(True)
-            self.use_a_sol_4.setEnabled(True)
-            self.a_sol_5.setEnabled(True)
-            self.use_a_sol_5.setEnabled(True)           
-            self.a_sol_6.setEnabled(True)
-            self.use_a_sol_6.setEnabled(True)                 
-            self.a_sol_7.setEnabled(True)
-            self.use_a_sol_7.setEnabled(True)
-            self.a_sol_8.setEnabled(True)
-            self.use_a_sol_8.setEnabled(True)           
-            self.a_sol_9.setEnabled(True)
-            self.use_a_sol_9.setEnabled(True)                
-            
-            
-            
-            
-            if self.radioButton_transit.isChecked():
-
-              
-                self.K1.setEnabled(False)
-                self.use_K1.setEnabled(False)
-                self.K2.setEnabled(False)
-                self.use_K2.setEnabled(False)           
-                self.K3.setEnabled(False)
-                self.use_K3.setEnabled(False)  
-                self.K4.setEnabled(False)
-                self.use_K4.setEnabled(False)
-                self.K5.setEnabled(False)
-                self.use_K5.setEnabled(False)           
-                self.K6.setEnabled(False)
-                self.use_K6.setEnabled(False)                  
-                self.K7.setEnabled(False)
-                self.use_K7.setEnabled(False)
-                self.K8.setEnabled(False)
-                self.use_K8.setEnabled(False)           
-                self.K9.setEnabled(False)
-                self.use_K9.setEnabled(False)                  
- 
-            else:
-                self.K1.setEnabled(True)
-                self.use_K1.setEnabled(True)
-                self.K2.setEnabled(True)
-                self.use_K2.setEnabled(True)           
-                self.K3.setEnabled(True)
-                self.use_K3.setEnabled(True)                
-                self.K4.setEnabled(True)
-                self.use_K4.setEnabled(True)
-                self.K5.setEnabled(True)
-                self.use_K5.setEnabled(True)           
-                self.K6.setEnabled(True)
-                self.use_K6.setEnabled(True)                   
-                self.K7.setEnabled(True)
-                self.use_K7.setEnabled(True)
-                self.K8.setEnabled(True)
-                self.use_K8.setEnabled(True)           
-                self.K9.setEnabled(True)
-                self.use_K9.setEnabled(True)    
-              
-            
-        elif self.radioButton_RV.isChecked():
-
-            self.K1.setEnabled(True)
-            self.use_K1.setEnabled(True)
-            self.K2.setEnabled(True)
-            self.use_K2.setEnabled(True)           
-            self.K3.setEnabled(True)
-            self.use_K3.setEnabled(True)           
-            self.K4.setEnabled(True)
-            self.use_K4.setEnabled(True)
-            self.K5.setEnabled(True)
-            self.use_K5.setEnabled(True)           
-            self.K6.setEnabled(True)
-            self.use_K6.setEnabled(True)                   
-            self.K7.setEnabled(True)
-            self.use_K7.setEnabled(True)
-            self.K8.setEnabled(True)
-            self.use_K8.setEnabled(True)           
-            self.K9.setEnabled(True)
-            self.use_K9.setEnabled(True)                   
- 
- 
-            self.ma1.setEnabled(True)
-            self.use_ma1.setEnabled(True)
-            self.ma2.setEnabled(True)
-            self.use_ma2.setEnabled(True)           
-            self.ma3.setEnabled(True)
-            self.use_ma3.setEnabled(True)   
-            self.ma4.setEnabled(True)
-            self.use_ma4.setEnabled(True)
-            self.ma5.setEnabled(True)
-            self.use_ma5.setEnabled(True)           
-            self.ma6.setEnabled(True)
-            self.use_ma6.setEnabled(True)               
-            self.ma7.setEnabled(True)
-            self.use_ma7.setEnabled(True)
-            self.ma8.setEnabled(True)
-            self.use_ma8.setEnabled(True)           
-            self.ma9.setEnabled(True)
-            self.use_ma9.setEnabled(True)               
+        self.pl_rad_1.setEnabled(pl_rad_flag)
+        self.use_pl_rad_1.setEnabled(pl_rad_flag)
+        self.pl_rad_2.setEnabled(pl_rad_flag)
+        self.use_pl_rad_2.setEnabled(pl_rad_flag)           
+        self.pl_rad_3.setEnabled(pl_rad_flag)
+        self.use_pl_rad_3.setEnabled(pl_rad_flag) 
+        self.pl_rad_4.setEnabled(pl_rad_flag)
+        self.use_pl_rad_4.setEnabled(pl_rad_flag)
+        self.pl_rad_5.setEnabled(pl_rad_flag)
+        self.use_pl_rad_5.setEnabled(pl_rad_flag)           
+        self.pl_rad_6.setEnabled(pl_rad_flag)
+        self.use_pl_rad_6.setEnabled(pl_rad_flag)             
+        self.pl_rad_7.setEnabled(pl_rad_flag)
+        self.use_pl_rad_7.setEnabled(pl_rad_flag)
+        self.pl_rad_8.setEnabled(pl_rad_flag)
+        self.use_pl_rad_8.setEnabled(pl_rad_flag)           
+        self.pl_rad_9.setEnabled(pl_rad_flag)
+        self.use_pl_rad_9.setEnabled(pl_rad_flag)                   
   
+        self.a_sol_1.setEnabled(a_sol_flag)
+        self.use_a_sol_1.setEnabled(a_sol_flag)
+        self.a_sol_2.setEnabled(a_sol_flag)
+        self.use_a_sol_2.setEnabled(a_sol_flag)           
+        self.a_sol_3.setEnabled(a_sol_flag)
+        self.use_a_sol_3.setEnabled(a_sol_flag)                        
+        self.a_sol_4.setEnabled(a_sol_flag)
+        self.use_a_sol_4.setEnabled(a_sol_flag)
+        self.a_sol_5.setEnabled(a_sol_flag)
+        self.use_a_sol_5.setEnabled(a_sol_flag)           
+        self.a_sol_6.setEnabled(a_sol_flag)
+        self.use_a_sol_6.setEnabled(a_sol_flag)                 
+        self.a_sol_7.setEnabled(a_sol_flag)
+        self.use_a_sol_7.setEnabled(a_sol_flag)
+        self.a_sol_8.setEnabled(a_sol_flag)
+        self.use_a_sol_8.setEnabled(a_sol_flag)           
+        self.a_sol_9.setEnabled(a_sol_flag)
+        self.use_a_sol_9.setEnabled(a_sol_flag)                
  
-            self.t0_1.setEnabled(False)
-            self.use_t0_1.setEnabled(False)
-            self.t0_2.setEnabled(False)
-            self.use_t0_2.setEnabled(False)           
-            self.t0_3.setEnabled(False)
-            self.use_t0_3.setEnabled(False) 
-            self.t0_4.setEnabled(False)
-            self.use_t0_4.setEnabled(False)
-            self.t0_5.setEnabled(False)
-            self.use_t0_5.setEnabled(False)           
-            self.t0_6.setEnabled(False)
-            self.use_t0_6.setEnabled(False)             
-            self.t0_7.setEnabled(False)
-            self.use_t0_7.setEnabled(False)
-            self.t0_8.setEnabled(False)
-            self.use_t0_8.setEnabled(False)           
-            self.t0_9.setEnabled(False)
-            self.use_t0_9.setEnabled(False)             
- 
-            self.pl_rad_1.setEnabled(False)
-            self.use_pl_rad_1.setEnabled(False)
-            self.pl_rad_2.setEnabled(False)
-            self.use_pl_rad_2.setEnabled(False)           
-            self.pl_rad_3.setEnabled(False)
-            self.use_pl_rad_3.setEnabled(False) 
-            self.pl_rad_4.setEnabled(False)
-            self.use_pl_rad_4.setEnabled(False)
-            self.pl_rad_5.setEnabled(False)
-            self.use_pl_rad_5.setEnabled(False)           
-            self.pl_rad_6.setEnabled(False)
-            self.use_pl_rad_6.setEnabled(False)             
-            self.pl_rad_7.setEnabled(False)
-            self.use_pl_rad_7.setEnabled(False)
-            self.pl_rad_8.setEnabled(False)
-            self.use_pl_rad_8.setEnabled(False)           
-            self.pl_rad_9.setEnabled(False)
-            self.use_pl_rad_9.setEnabled(False)             
-            
-            self.a_sol_1.setEnabled(False)
-            self.use_a_sol_1.setEnabled(False)
-            self.a_sol_2.setEnabled(False)
-            self.use_a_sol_2.setEnabled(False)           
-            self.a_sol_3.setEnabled(False)
-            self.use_a_sol_3.setEnabled(False) 
-            self.a_sol_4.setEnabled(False)
-            self.use_a_sol_4.setEnabled(False)
-            self.a_sol_5.setEnabled(False)
-            self.use_a_sol_5.setEnabled(False)           
-            self.a_sol_6.setEnabled(False)
-            self.use_a_sol_6.setEnabled(False)               
-            self.a_sol_7.setEnabled(False)
-            self.use_a_sol_7.setEnabled(False)
-            self.a_sol_8.setEnabled(False)
-            self.use_a_sol_8.setEnabled(False)           
-            self.a_sol_9.setEnabled(False)
-            self.use_a_sol_9.setEnabled(False)     
-
 
 
     def mute_boxes_dyn(self):
-        
-        ######### TESTS!!!!!!!!!!!###########
-        
-        if self.radioButton_Keplerian.isChecked():
+                
+        if self.radioButton_Keplerian.isChecked() and self.radioButton_RV.isChecked():
             
-            # These must be True when the precession is included
-            
-            self.om_dot_1.setEnabled(True)
-            self.use_om_dot_1.setEnabled(True)
-            self.om_dot_2.setEnabled(True)
-            self.use_om_dot_2.setEnabled(True)           
-            self.om_dot_3.setEnabled(True)
-            self.use_om_dot_3.setEnabled(True) 
-            self.om_dot_4.setEnabled(True)
-            self.use_om_dot_4.setEnabled(True)
-            self.om_dot_5.setEnabled(True)
-            self.use_om_dot_5.setEnabled(True)           
-            self.om_dot_6.setEnabled(True)
-            self.use_om_dot_6.setEnabled(True)             
-            self.om_dot_7.setEnabled(True)
-            self.use_om_dot_7.setEnabled(True)
-            self.om_dot_8.setEnabled(True)
-            self.use_om_dot_8.setEnabled(True)           
-            self.om_dot_9.setEnabled(True)
-            self.use_om_dot_9.setEnabled(True)  
-            
-            
-            self.incl1.setEnabled(False)  
-            self.use_incl1.setEnabled(False)  
-            self.incl2.setEnabled(False)  
-            self.use_incl2.setEnabled(False)              
-            self.incl3.setEnabled(False)  
-            self.use_incl3.setEnabled(False)  
-            self.incl4.setEnabled(False)  
-            self.use_incl4.setEnabled(False)  
-            self.incl5.setEnabled(False)  
-            self.use_incl5.setEnabled(False)  
-            self.incl6.setEnabled(False)  
-            self.use_incl6.setEnabled(False)  
-            self.incl7.setEnabled(False)  
-            self.use_incl7.setEnabled(False)  
-            self.incl8.setEnabled(False)  
-            self.use_incl8.setEnabled(False)  
-            self.incl9.setEnabled(False)  
-            self.use_incl9.setEnabled(False) 
-            
-            self.Omega1.setEnabled(False)  
-            self.use_Omega1.setEnabled(False)  
-            self.Omega2.setEnabled(False)  
-            self.use_Omega2.setEnabled(False)             
-            self.Omega3.setEnabled(False)  
-            self.use_Omega3.setEnabled(False)  
-            self.Omega4.setEnabled(False)  
-            self.use_Omega4.setEnabled(False)
-            self.Omega5.setEnabled(False)  
-            self.use_Omega5.setEnabled(False)  
-            self.Omega6.setEnabled(False)  
-            self.use_Omega6.setEnabled(False)             
-            self.Omega7.setEnabled(False)  
-            self.use_Omega7.setEnabled(False)  
-            self.Omega8.setEnabled(False)  
-            self.use_Omega8.setEnabled(False) 
-            self.Omega9.setEnabled(False)  
-            self.use_Omega9.setEnabled(False) 
+            om_flag = True
+            incl_flag = False
+            Dom_flag = False
 
-                   
-                        
+        elif self.radioButton_Keplerian.isChecked() and self.radioButton_RV.isChecked()==False:
+
+            om_flag = True
+            incl_flag = True
+            Dom_flag = True
+                                    
         elif self.radioButton_Dynamical.isChecked():
             
+            om_flag = False
+            incl_flag = True
+            Dom_flag = True 
             
-            self.om_dot_1.setEnabled(False)
-            self.use_om_dot_1.setEnabled(False)
-            self.om_dot_2.setEnabled(False)
-            self.use_om_dot_2.setEnabled(False)           
-            self.om_dot_3.setEnabled(False)
-            self.use_om_dot_3.setEnabled(False) 
-            self.om_dot_4.setEnabled(False)
-            self.use_om_dot_4.setEnabled(False)
-            self.om_dot_5.setEnabled(False)
-            self.use_om_dot_5.setEnabled(False)           
-            self.om_dot_6.setEnabled(False)
-            self.use_om_dot_6.setEnabled(False)             
-            self.om_dot_7.setEnabled(False)
-            self.use_om_dot_7.setEnabled(False)
-            self.om_dot_8.setEnabled(False)
-            self.use_om_dot_8.setEnabled(False)           
-            self.om_dot_9.setEnabled(False)
-            self.use_om_dot_9.setEnabled(False)             
-                                    
-            self.incl1.setEnabled(True)  
-            self.use_incl1.setEnabled(True)  
-            self.incl2.setEnabled(True)  
-            self.use_incl2.setEnabled(True)              
-            self.incl3.setEnabled(True)  
-            self.use_incl3.setEnabled(True)  
-            self.incl4.setEnabled(True)  
-            self.use_incl4.setEnabled(True)  
-            self.incl5.setEnabled(True)  
-            self.use_incl5.setEnabled(True)  
-            self.incl6.setEnabled(True)  
-            self.use_incl6.setEnabled(True)  
-            self.incl7.setEnabled(True)  
-            self.use_incl7.setEnabled(True)  
-            self.incl8.setEnabled(True)  
-            self.use_incl8.setEnabled(True)  
-            self.incl9.setEnabled(True)  
-            self.use_incl9.setEnabled(True)    
-            
-            self.Omega1.setEnabled(True)  
-            self.use_Omega1.setEnabled(True)  
-            self.Omega2.setEnabled(True)  
-            self.use_Omega2.setEnabled(True)             
-            self.Omega3.setEnabled(True)  
-            self.use_Omega3.setEnabled(True)  
-            self.Omega4.setEnabled(True)  
-            self.use_Omega4.setEnabled(True)
-            self.Omega5.setEnabled(True)  
-            self.use_Omega5.setEnabled(True)  
-            self.Omega6.setEnabled(True)  
-            self.use_Omega6.setEnabled(True)             
-            self.Omega7.setEnabled(True)  
-            self.use_Omega7.setEnabled(True)  
-            self.Omega8.setEnabled(True)  
-            self.use_Omega8.setEnabled(True) 
-            self.Omega9.setEnabled(True)  
-            self.use_Omega9.setEnabled(True)             
-            
-            
-            
-###########################  GUI events #############################            
+        self.om_dot_1.setEnabled(om_flag)
+        self.use_om_dot_1.setEnabled(om_flag)
+        self.om_dot_2.setEnabled(om_flag)
+        self.use_om_dot_2.setEnabled(om_flag)           
+        self.om_dot_3.setEnabled(om_flag)
+        self.use_om_dot_3.setEnabled(om_flag) 
+        self.om_dot_4.setEnabled(om_flag)
+        self.use_om_dot_4.setEnabled(om_flag)
+        self.om_dot_5.setEnabled(om_flag)
+        self.use_om_dot_5.setEnabled(om_flag)           
+        self.om_dot_6.setEnabled(om_flag)
+        self.use_om_dot_6.setEnabled(om_flag)             
+        self.om_dot_7.setEnabled(om_flag)
+        self.use_om_dot_7.setEnabled(om_flag)
+        self.om_dot_8.setEnabled(om_flag)
+        self.use_om_dot_8.setEnabled(om_flag)           
+        self.om_dot_9.setEnabled(om_flag)
+        self.use_om_dot_9.setEnabled(om_flag)             
+                                
+        self.incl1.setEnabled(incl_flag)  
+        self.use_incl1.setEnabled(incl_flag)  
+        self.incl2.setEnabled(incl_flag)  
+        self.use_incl2.setEnabled(incl_flag)              
+        self.incl3.setEnabled(incl_flag)  
+        self.use_incl3.setEnabled(incl_flag)  
+        self.incl4.setEnabled(incl_flag)  
+        self.use_incl4.setEnabled(incl_flag)  
+        self.incl5.setEnabled(incl_flag)  
+        self.use_incl5.setEnabled(incl_flag)  
+        self.incl6.setEnabled(incl_flag)  
+        self.use_incl6.setEnabled(incl_flag)  
+        self.incl7.setEnabled(incl_flag)  
+        self.use_incl7.setEnabled(incl_flag)  
+        self.incl8.setEnabled(incl_flag)  
+        self.use_incl8.setEnabled(incl_flag)  
+        self.incl9.setEnabled(incl_flag)  
+        self.use_incl9.setEnabled(incl_flag)    
         
+        self.Omega1.setEnabled(Dom_flag)  
+        self.use_Omega1.setEnabled(Dom_flag)  
+        self.Omega2.setEnabled(Dom_flag)  
+        self.use_Omega2.setEnabled(Dom_flag)             
+        self.Omega3.setEnabled(Dom_flag)  
+        self.use_Omega3.setEnabled(Dom_flag)  
+        self.Omega4.setEnabled(Dom_flag)  
+        self.use_Omega4.setEnabled(Dom_flag)
+        self.Omega5.setEnabled(Dom_flag)  
+        self.use_Omega5.setEnabled(Dom_flag)  
+        self.Omega6.setEnabled(Dom_flag)  
+        self.use_Omega6.setEnabled(Dom_flag)             
+        self.Omega7.setEnabled(Dom_flag)  
+        self.use_Omega7.setEnabled(Dom_flag)  
+        self.Omega8.setEnabled(Dom_flag)  
+        self.use_Omega8.setEnabled(Dom_flag) 
+        self.Omega9.setEnabled(Dom_flag)  
+        self.use_Omega9.setEnabled(Dom_flag)             
+            
+       
     def keyPressEvent(self, event):
         global fit
         if event.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
             self.update_use()
             self.update_params() 
             #self.init_fit()
-            self.fit_dispatcher( init=True)
+            self.fit_dispatcher(init=True)
             return
-       # super(Settings, self).keyPressEvent(event)  
-       
-   # def print_py3_warning(self):
-        #self.console_widget.clear()                            
-   #     self.console_widget.print_text(str("You are using Python3! The 'stdout/stderr' widget (so far) does not work with Py3. For system output see the shell you started the GUI"+"\n"))
-            
 
 ############################# Tab selector (not ready) ################################  
 
@@ -4421,13 +4228,10 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             
     def get_symbol(self):
         global fit
-
-    
-        but_ind = self.buttonGroup_symbol_picker.checkedId()   
  
+        but_ind = self.buttonGroup_symbol_picker.checkedId()   
         but_n = self.dialog_symbols.get_radio()
-        
-        
+            
         if but_n != None:
             fit.pyqt_symbols_rvs[but_ind-1] = symbols[but_n-1]
             self.update_color_picker()
@@ -4442,7 +4246,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
       
     def check_RV_symbol_sizes(self):
         global fit
-        
+       
        # for i in range(10):
         fit.pyqt_symbols_size_rvs[0] = self.rv_data_size_1.value()
         fit.pyqt_symbols_size_rvs[1] = self.rv_data_size_2.value()
@@ -4454,9 +4258,6 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         fit.pyqt_symbols_size_rvs[7] = self.rv_data_size_8.value()
         fit.pyqt_symbols_size_rvs[8] = self.rv_data_size_9.value()
         fit.pyqt_symbols_size_rvs[9] = self.rv_data_size_10.value()
-
-
-
 
 
 ################################## View Actions #######################################
@@ -4506,7 +4307,6 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.terminal_embeded.setCurrentWidget(self.console_widget)       
 
 
-
 ################################## System #######################################
             
     def quit(self):
@@ -4526,8 +4326,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         head, tail = ntpath.split(path)
         return tail or ntpath.basename(head)
         
-
-        
+       
     def check_settings(self):
         global fit
 
@@ -4539,7 +4338,6 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
         for i in range(9):
             mixed_fit_use[i].setChecked(bool(fit.mixed_fit[1][i]))
-        #print("TESTTTT")
             
         self.time_step_model.setValue(fit.time_step_model)
         self.dyn_model_accuracy.setValue(fit.dyn_model_accuracy)
@@ -4554,10 +4352,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         mean_anomaly_from_gls = np.degrees((((fit.epoch - float(fit.gls_o_c.hpstat["T0"]) )% (fit.gls_o_c.hpstat["P"]) )/ (fit.gls_o_c.hpstat["P"]) ) * 2*np.pi)
  
         fit.add_planet(fit.gls_o_c.hpstat["amp"],fit.gls_o_c.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
-        fit.use.update_use_planet_params_one_planet(fit.npl+1,True,True,True,True,True,False,False)  
-        
-        #print(fit.params.planet_params[2 + 7*(i-1)])
-        #fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False)  
+        fit.use.update_use_planet_params_one_planet(fit.npl+1,True,True,True,True,True,False,False)   
        
         self.update_use_from_input_file()   
         self.update_use() 
@@ -4653,9 +4448,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
   
 ################################################################################################
     
-    
-    
-    
+
     def __init__(self):
         global fit
 
