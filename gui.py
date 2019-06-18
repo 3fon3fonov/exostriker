@@ -4483,11 +4483,49 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         #self.update_params()  
        # self.update_gui_params()                  
         self.optimize_fit(0,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)          
-        
-   
+ 
+
+
+
         
 #############################  TEST ZONE ################################  
+  
+    def set_hkl(self):
+        global fit  
+        
+        #font = QtGui.QFont()
+        #font.setPointSize(8)
+        #font.setBold(False)
+        #font.setWeight(75)
  
+        if self.radioButton_ewm.isChecked():
+            self.label_ecc.setText("e")
+            self.label_omega.setText("<html><head/><body><p>&omega; [deg]</p></body></html>")
+            self.label_Ma.setText("Ma [deg]")   
+            self.label_ecc2.setText("e")
+            self.label_omega2.setText("<html><head/><body><p>&omega; [deg]</p></body></html>")
+            self.label_Ma2.setText("Ma [deg]")               
+            self.label_ecc3.setText("e")
+            self.label_omega3.setText("<html><head/><body><p>&omega; [deg]</p></body></html>")
+            self.label_Ma3.setText("Ma [deg]")        
+            
+            
+            
+            
+            
+        elif self.radioButton_hkl.isChecked():
+            self.label_ecc.setText("<html><head/><body><p>h=esin(&omega;)</p></body></html>")
+            self.label_omega.setText("<html><head/><body><p>k=ecos(&omega;)</p></body></html>")
+            self.label_Ma.setText("<html><head/><body><p>&lambda; [deg]</p></body></html>")      
+            self.label_ecc2.setText("<html><head/><body><p>h=esin(&omega;)</p></body></html>")
+            self.label_omega2.setText("<html><head/><body><p>k=ecos(&omega;)</p></body></html>")
+            self.label_Ma2.setText("<html><head/><body><p>&lambda; [deg]</p></body></html>")    
+            self.label_ecc3.setText("<html><head/><body><p>h=esin(&omega;)</p></body></html>")
+            self.label_omega3.setText("<html><head/><body><p>k=ecos(&omega;)</p></body></html>")
+            self.label_Ma3.setText("<html><head/><body><p>&lambda; [deg]</p></body></html>")    
+ 
+    
+    
     def set_tra_ld(self):
         global fit   
 
@@ -4836,6 +4874,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.radioButton_transit_RV.toggled.connect(self.mute_boxes)
         self.radioButton_transit.toggled.connect(self.mute_boxes)
         self.radioButton_RV.toggled.connect(self.mute_boxes)
+        
+        self.radioButton_ewm.toggled.connect(self.set_hkl)
+#        self.radioButton_hkl.toggled.connect(self.set_hkl)
 
 
         self.radioButton_RV_WF_period.toggled.connect(self.update_WF_plots)

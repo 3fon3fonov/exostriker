@@ -765,7 +765,9 @@ class AxisItem(GraphicsWidget):
         return strings
         
     def logTickStrings(self, values, scale, spacing):
-        return ["%0.1g"%x for x in 10 ** np.array(values).astype(float)]
+        #return ["%0.1g"%x for x in 10 ** np.array(values).astype(float)]
+        return ["%1g"%x for x in 10 ** np.array(values).astype(float)]
+   
         
     def generateDrawSpecs(self, p):
         """
