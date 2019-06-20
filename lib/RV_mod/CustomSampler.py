@@ -65,9 +65,9 @@ class CustomSampler(emcee.EnsembleSampler):
                 if (np.mod(nr,7)<2):
                     self.means[i]=np.mean(self.samples[:,i]) 
                 elif (np.mod(nr,7)==2): # correct eccentricities
-                    for j in range(len(self.samples)):
-                        if (self.samples[j,i]<0):
-                            self.samples[j,i]=abs(self.samples[j,i])
+                    #for j in range(len(self.samples)):
+                       # if (self.samples[j,i]<0):
+                       #     self.samples[j,i]=abs(self.samples[j,i])
                             #if(f[k+1]==i+1):     
                             #    self.samples[j,i+1]=self.samples[j,i+1]+180.0
                             #if(f[k+2]==i+2):
@@ -76,9 +76,9 @@ class CustomSampler(emcee.EnsembleSampler):
                 elif (np.mod(nr,7)==3): # correct w to be in a 360 interval around mean value 
                     self.means[i]=np.mean(self.samples[:,i]) 
                     meanw=self.means[i]                
-                    for j in range(len(self.samples)):
-                        self.samples[j,i]=np.where(self.samples[j,i]<meanw-180.0,self.samples[j,i]+360.0,self.samples[j,i])    
-                        self.samples[j,i]=np.where(self.samples[j,i]>meanw+180.0,self.samples[j,i]-360.0,self.samples[j,i])
+                   # for j in range(len(self.samples)):
+                   #     self.samples[j,i]=np.where(self.samples[j,i]<meanw-180.0,self.samples[j,i]+360.0,self.samples[j,i])    
+                   #     self.samples[j,i]=np.where(self.samples[j,i]>meanw+180.0,self.samples[j,i]-360.0,self.samples[j,i])
                     # now let's make sure meanw is between 0 and 360:
                     newmeanw=np.fmod(meanw,360.0)
                     delta=newmeanw-meanw
@@ -88,9 +88,9 @@ class CustomSampler(emcee.EnsembleSampler):
                 elif (np.mod(nr,7)==4):# correct M to be in a 360 interval around mean value
                     self.means[i]=np.mean(self.samples[:,i]) 
                     meanM=self.means[i]               
-                    for j in range(len(self.samples)):
-                        self.samples[j,i]=np.where(self.samples[j,i]<meanM-180.0,self.samples[j,i]+360.0,self.samples[j,i])    
-                        self.samples[j,i]=np.where(self.samples[j,i]>meanM+180.0,self.samples[j,i]-360.0,self.samples[j,i])
+                   # for j in range(len(self.samples)):
+                   #     self.samples[j,i]=np.where(self.samples[j,i]<meanM-180.0,self.samples[j,i]+360.0,self.samples[j,i])    
+                   #     self.samples[j,i]=np.where(self.samples[j,i]>meanM+180.0,self.samples[j,i]-360.0,self.samples[j,i])
                     # now let's make sure meanw is between 0 and 360:
                     newmeanM=np.fmod(meanM,360.0)
                     delta=newmeanM-meanM
@@ -100,9 +100,9 @@ class CustomSampler(emcee.EnsembleSampler):
             elif (idx<2*ndset+6*npl):# correct i to be in a 180 interval around mean value
                 self.means[i]=np.mean(self.samples[:,i])          
                 meani=self.means[i]               
-                for j in range(len(self.samples)):
-                    self.samples[j,i]=np.where(self.samples[j,i]<meani-90.0,self.samples[j,i]+180.0,self.samples[j,i])    
-                    self.samples[j,i]=np.where(self.samples[j,i]>meani+90.0,self.samples[j,i]-180.0,self.samples[j,i])
+               # for j in range(len(self.samples)):
+               #     self.samples[j,i]=np.where(self.samples[j,i]<meani-90.0,self.samples[j,i]+180.0,self.samples[j,i])    
+               #     self.samples[j,i]=np.where(self.samples[j,i]>meani+90.0,self.samples[j,i]-180.0,self.samples[j,i])
                 # now let's make sure meani is between 0 and 180:
                 newmeani=np.fmod(meani,180.0)
                 delta=newmeani-meani
@@ -112,9 +112,9 @@ class CustomSampler(emcee.EnsembleSampler):
             elif (idx<2*ndset+7*npl):# correct lineofnodes to be in a 360 interval around mean value 
                 self.means[i]=np.mean(self.samples[:,i])
                 meancap=self.means[i]              
-                for j in range(len(self.samples)):
-                    self.samples[j,i]=np.where(self.samples[j,i]<meancap-180.0,self.samples[j,i]+360.0,self.samples[j,i])    
-                    self.samples[j,i]=np.where(self.samples[j,i]>meancap+180.0,self.samples[j,i]-360.0,self.samples[j,i])
+              #  for j in range(len(self.samples)):
+               #     self.samples[j,i]=np.where(self.samples[j,i]<meancap-180.0,self.samples[j,i]+360.0,self.samples[j,i])    
+               #     self.samples[j,i]=np.where(self.samples[j,i]>meancap+180.0,self.samples[j,i]-360.0,self.samples[j,i])
                 # now let's make sure meancap is between 0 and 360:
                 newmeancap=np.fmod(meancap,360.0)
                 delta=newmeancap-meancap
