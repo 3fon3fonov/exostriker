@@ -199,6 +199,7 @@ class fortran_output(object):
                 fortran_stat_warnings.update_warning_list('Wrong data format in line %d of best fit parameter information in fortran output, line skipped. Please check if number of planets and number of datasets is specified correctly!'%i) #i, not i+1, becase we increase it above    
         self.params=parameters(offsets,jitters,planet_params,linear_trend,self.stellar_mass)
         self.param_errors=parameter_errors(offset_errors,jitter_errors,planet_params_errors,linear_trend_error,0.0)
+
         fortran_stat_warnings.print_warning_log()
         return
      

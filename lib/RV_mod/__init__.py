@@ -369,7 +369,7 @@ def get_transit_gps_model(obj,  kernel_id=-1):
   
     
     
-def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, rtg, mix_fit, opt, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=3000, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
+def model_loglik3(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, rtg, mix_fit, opt, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=3000, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
  
     rv_loglik = 0
     gp_rv_loglik = 0
@@ -552,7 +552,206 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
   #  print(rv_loglik, tr_loglik,rv_loglik + tr_loglik)        
     return rv_loglik + tr_loglik
     
+
+ 
+def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, rtg, mix_fit, opt, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=3000, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
+ 
+    rv_loglik = 0
+    gp_rv_loglik = 0
+    tr_loglik = 0
+    gp_tr_loglik = 0
+   
+    dt = opt["dt"] 
+    eps = opt["eps"]   
+    when_to_kill = opt["master_timeout"] 
+    copl_incl = opt["copl_incl"]
+    hkl = opt["hkl"]
+
     
+   # print(dt,eps)
+    #print(mix_fit[0])
+   # print(mix_fit[1])
+    
+    if np.isnan(p).any():
+        return -np.inf
+    
+    for j in range(len(p)):
+        par[flags[j]] = p[j]  
+        #print(p[j])
+    
+    if (rtg[1]):
+        outputfiles = [1,1,0]
+        rv_gp_npar = len(gps.get_parameter_vector())
+    else:
+        rv_gp_npar = 0   
+
+    if rtg[2] == True:
+        for i in range(npl): # (per, ecc, om, t_transit, epoch):
+            
+            if hkl == True:
+                ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
+                om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
+            else:
+                ecc_, om_, = par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]
+            
+            
+            par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
+                                                      ecc_, om_, par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i],epoch)
+     
+    else:
+        for i in range(npl): # (per, ecc, om, ma, epoch):
+            if hkl == True:
+                ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
+                om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
+                Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0  
+            else:
+                ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]               
+            
+            par[len(vel_files)*2 + len(tr_files)*2  +7*npl +1+rv_gp_npar + 3*i] = transit_tperi(par[len(vel_files)*2 +7*i+1],
+                                                                  ecc_, om_, Ma_ ,epoch)[1]%par[len(vel_files)*2 +7*i+1]
+    
+    if(rtg[0]):
+        
+        #print(program, mix_fit[0])
+        ppp= '%s << EOF\n%s %f %d %d %d %d %d\n%f %d %d %d \n%d\n'%(program, eps,dt,amoeba_starts,when_to_kill,npoints, model_max, model_min, stmass, outputfiles[0], outputfiles[1],outputfiles[2], len(vel_files)) # first three lines of fortran input: precision and timestep for integration, stellar mass and number of datasets
+        for i in range(len(vel_files)): 
+            # path for each dataset      
+            ppp+='%s\n'%(vel_files[i])    
+            # offset and jitter information for each dataset
+            ppp+='%f\n%d\n'%(par[i],0)
+            if (rtg[1]): 
+                ppp+='%f\n%d\n'%(0,0)           
+            else:
+                ppp+='%f\n%d\n'%(par[i + len(vel_files)],0)
+         
+        # if mixed fitting is requested    
+        ppp+='%d\n'%npl
+        if mix_fit[0] == True and program == './lib/fr/loglik_dyn+':
+            for i in range(npl): 
+                ppp+='%d\n'%mix_fit[1][i]                
+        
+        for i in range(npl): # K,P,e,w,M,i,cap0m for each planet, and information which ones we use
+            ppp+='%f %f %f %f %f %f %f\n'%(par[len(vel_files)*2 + 7*i],
+                                               par[len(vel_files)*2 +7*i+1],
+                                               par[len(vel_files)*2 +7*i+2],
+                                               par[len(vel_files)*2 +7*i+3],
+                                               par[len(vel_files)*2 +7*i+4],                                               
+                                               par[len(vel_files)*2 +7*i+5],
+                                               par[len(vel_files)*2 +7*i+6])
+            ppp+='%d %d %d %d %d %d %d\n'%(0,0,0,0,0,0,0)     
+        ppp+='%f\n%d\n'%(par[len(vel_files)*2 +7*npl],0) # information about linear trend
+        ppp+='%f\n'%epoch
+        ppp+='%d\n'%hkl
+        ppp+='EOF' 
+ 
+        # prepare final version of the ppp command to be returned by this function
+        #print(ppp)
+        
+        text,flag=run_command_with_timeout(ppp, when_to_kill, output=True, pipe=True) # running command generated by the fortran_input function 
+        fortranoutput=fortran_output(text,npl,len(vel_files),stmass)
+        
+        #print(text)
+        fit_results=fortranoutput.modfit(print_stat=False)
+        #print(float(fit_results.loglik))
+        rv_loglik = float(fit_results.loglik)
+    else:
+        rv_loglik = 0
+        
+    #print(fit_results.o_c)
+    #name = raw_input("What is your name? ")
+        
+    if(rtg[1]): 
+        
+        gp_rv_loglik = 0
+        
+        param_vect = []
+        for j in range(1,len(gps.get_parameter_vector())+1):
+            param_vect.append(np.log(par[len(vel_files)*2  +7*npl +j]))
+        
+        #print(param_vect)  
+        gps.set_parameter_vector(np.array(param_vect))
+    
+        gp_pred = gps.predict(fit_results.o_c, fit_results.jd, return_cov=False)
+        o_c_kep = fit_results.o_c - gp_pred
+        #gps.compute(fit_results.jd, yerr=fit_results.rv_err)
+ 
+        
+        for i in range(len(vel_files)):
+            sig2i_gp = 1.0 / (fit_results.rv_err[fit_results.idset==i]**2 + par[i + len(vel_files)]**2 )
+            
+            gp_rv_loglik += -0.5*(np.sum((o_c_kep[fit_results.idset==i])**2 * sig2i_gp - np.log(sig2i_gp / 2./ np.pi)))
+                         
+
+        rv_loglik =  gp_rv_loglik 
+        #print(rv_loglik)
+    if(rtg[2]): 
+        
+        #if len(tr_files[0]) == 0:
+        #    tr_loglik = 0        
+       # else: 
+        for j in range(len(tr_files)):
+                     
+                
+                
+            #print(par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j],par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j+1])
+            t = tr_files[j][0] 
+            flux = tr_files[j][1] + par[len(vel_files)*2 +7*npl +1 + rv_gp_npar + 3*npl + len(tr_files)*j]
+            #flux_err = np.sqrt(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j +1]**2)
+            flux_err =  tr_files[j][2] 
+            
+            flux_model =[1]*len(flux)
+            
+            m =  {k: [] for k in range(9)}
+            
+            #print(tr_model[j])
+            #print(tr_model)
+            tr_params.limb_dark = str(tr_model[0][j])      #limb darkening model       
+            #print(tr_model[0][j], tr_model[1][j] )
+            tr_params.u = tr_model[1][j]   
+
+          #  if str(tr_model[j]) == "uniform":               
+          #      tr_params.u = tr_model[1][j]   
+           # elif  str(tr_model[j]) == "linear":
+          #      tr_params.u = [0.1]                  
+           # elif  str(tr_model[j]) == "quadratic":
+          #      tr_params.u = [0.1,0.3]               
+          #  elif  str(tr_model[j]) == "nonlinear":
+          #      tr_params.u = [0.5,0.1,0.1,-0.1]   
+           
+                
+            for i in range(npl):
+
+                if hkl == True:
+                    tr_params.ecc = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
+                    tr_params.w  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
+                else:
+                    tr_params.ecc = par[len(vel_files)*2 +7*i+2] #0.0  
+                    tr_params.w   = par[len(vel_files)*2 +7*i+3] #90.0   #longitude of periastron (in degrees)               
+                
+                tr_params.per = par[len(vel_files)*2 +7*i+1] #1.0    #orbital period
+                tr_params.inc = par[len(vel_files)*2 +7*i+5]#90. #orbital inclination (in degrees)                
+
+                tr_params.t0  = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i]
+                tr_params.a   = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+                tr_params.rp  = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
+
+                m[i] = batman.TransitModel(tr_params, t)    #initializes model
+     
+                flux_model = flux_model * m[i].light_curve(tr_params)    
+                
+
+
+            sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*npl + len(tr_files)*j+1]**2 )
+           
+            tr_loglik = -0.5*(np.sum((flux -flux_model)**2 * sig2i - np.log(sig2i / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
+            #tr_loglik = -0.5*(np.sum((flux -flux_model)**2 * sig2i - np.log(sig2i))) # - np.log(sig2i / 2./ np.pi)
+ 
+
+    if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
+        return -np.inf
+    #print(rv_loglik, tr_loglik,rv_loglik + tr_loglik)        
+    return rv_loglik + tr_loglik
+        
 
 def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=False, save_sampler=False, **kwargs):      
  
@@ -608,6 +807,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     pr_nr = np.array(obj.nr_pr_for_mcmc)
     jeff_nr = np.array(obj.jeff_pr_for_mcmc)
     
+    
+    
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
  
@@ -618,7 +819,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     
     
     #print(par)
-    #print(pp)
+   # print(pp)
    # print(bb)
    # print(flags)
     
@@ -739,6 +940,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     obj.overwrite_params(newparams)  
 
     obj.correct_elements()
+    obj.hack_around_rv_params() 
+
     
     obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things 
 
@@ -749,6 +952,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
    
     obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit, errors)
 
+   # print(obj.loglik)
     print("--- %s seconds ---" % (time.time() - start_time))     
     
     return obj
@@ -786,8 +990,15 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         rv_gp_npar = 0          
         
     for i in range(npl):   
+#        if obj.hkl == True:
+           # ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
+#            om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
+#            Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0  
+#            obj.params.update_M0(i,Ma_)                 
+        if obj.hkl == False:
+            obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])                 
+        
         obj.t0[i]     = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i] #0.0  #time of inferior conjunction
-        obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])        
         
         obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
         obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
@@ -1093,6 +1304,9 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     obj.update_with_mcmc_errors(new_par_errors)
     
     obj.overwrite_params(newparams)
+    
+    obj.hack_around_rv_params() 
+    
  
     if (save_means):
         obj.loglik = maxlnl
@@ -1300,6 +1514,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     obj.overwrite_params(newparams)
    # print(new_par_errors)
     
+    obj.hack_around_rv_params() 
  
    # obj.params.update_GP_params(current_GP_params)
  
@@ -1384,6 +1599,7 @@ def phase_RV_planet_signal(obj,planet):
         #########      trick is over      ##########
         ############################################  
         
+        #print(copied_obj.params.planet_params[7*index+1])
         #print((copied_obj.epoch- copied_obj.fit_results.rv_model.jd[0])% copied_obj.params.planet_params[7*index+1] )
         ############ phase fold fix for sparse model ######use_flags
         model_time_phase = np.array( (copied_obj.fit_results.model_jd -copied_obj.fit_results.model_jd[0] )% copied_obj.params.planet_params[7*index+1] )
@@ -1584,9 +1800,13 @@ class signal_fit(object):
 
          
         self.init_sciPy_minimizer()
- 
+          
 
-
+#        self.hack_around_rv_params()
+#        self.calc_hkl()
+#        self.calc_ewm()  
+        
+        
     def init_pl_params(self): 
 
         #### RV #####
@@ -1729,14 +1949,13 @@ class signal_fit(object):
         self.lamb_str     = {k: r'$\lambda_%s$'%chr(98+k) for k in range(9)} 
                 
 
-
         ######## derived #####################
         self.t_peri = {k: 0.0 for k in range(9)}
         
         
-        
-        #####################################
-        
+
+
+
 
     def init_omega_dot(self) :       
         
@@ -1975,9 +2194,51 @@ class signal_fit(object):
     def update_epoch(self,epoch):
         self.epoch=epoch
         return
-    
-    
-#    def update_param(self,pp):
+
+
+
+    def calc_hkl(self):
+ 
+        for i in range(9):
+            self.e_sinw[i] = self.e[i]*np.sin(np.radians(self.w[i]))
+            self.e_cosw[i] = self.e[i]*np.cos(np.radians(self.w[i]))
+            self.lamb[i]   = (self.w[i] + self.M0[i])%360.0
+            
+    def calc_ewm(self):            
+ 
+        for i in range(9):
+            self.e[i]   = np.sqrt(self.e_sinw[i]**2 + self.e_cosw[i]**2)
+            self.w[i]   = np.degrees(np.arctan2(np.radians(self.e_sinw[i]),np.radians(self.e_cosw[i])))
+            self.M0[i]  = (self.lamb[i] - self.w[i])%360.0  
+            
+    def hack_around_rv_params(self):
+
+        
+         for i in range(9):        
+             self.K[i]    = self.params.planet_params[i*7+0]            
+             self.P[i]    = self.params.planet_params[i*7+1]                     
+             self.i[i]    = self.params.planet_params[i*7+5]           
+             self.Node[i] = self.params.planet_params[i*7+6]   
+             
+            # print( self.params.planet_params[i*7+2] , self.params.planet_params[i*7+3] )
+             if self.hkl ==False:
+                 self.e[i]    = self.params.planet_params[i*7+2]            
+                 self.w[i]    = self.params.planet_params[i*7+3]            
+                 self.M0[i]   = self.params.planet_params[i*7+4] 
+                 self.e_sinw[i]    = self.e[i]*np.sin(np.radians(self.w[i]))           
+                 self.e_cosw[i]    = self.e[i]*np.cos(np.radians(self.w[i]))            
+                 self.lamb[i]      = (self.w[i]  + self.M0[i])%360.0 
+ 
+             if self.hkl ==True:
+                 
+                 self.e_sinw[i]    = self.params.planet_params[i*7+2]            
+                 self.e_cosw[i]    = self.params.planet_params[i*7+3]            
+                 self.lamb[i]   = self.params.planet_params[i*7+4] 
+                 self.e[i]   = np.sqrt(self.e_sinw[i]**2 + self.e_cosw[i]**2)
+                 self.w[i]   = np.degrees(np.arctan2(self.e_sinw[i],self.e_cosw[i]))%360
+                 self.M0[i]  = (self.lamb[i] - self.w[i])%360.0     
+#                
+
    
     
         
@@ -2457,6 +2718,9 @@ class signal_fit(object):
             if self.params.jitters[i]<0.0:
                 self.params.jitters[i]=-self.params.jitters[i]
  
+        if self.hkl == True:
+            return
+    
         for i in range(self.npl): # looping over all planets
             j = 7*i # 5 parameters per planet
 
@@ -2674,11 +2938,18 @@ class signal_fit(object):
                 ppp+='%d\n'%self.mixed_fit[1][i]  
                 
         for i in range(self.npl): # K,P,e,w,M,i,cap0m for each planet, and information which ones we use
-            ppp+='%f %f %f %f %f %f %f\n'%(self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.params.planet_params[7*i+2],self.params.planet_params[7*i+3],self.params.planet_params[7*i+4],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6])
-            ppp+='%d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),int(self.use.use_planet_params[7*i+1]),int(self.use.use_planet_params[7*i+2]),int(self.use.use_planet_params[7*i+3]),int(self.use.use_planet_params[7*i+4]),int(self.use.use_planet_params[7*i+5]),int(self.use.use_planet_params[7*i+6]))     
+            if self.hkl:
+                ppp+='%f %f %f %f %f %f %f\n'%(self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.e_sinw[i],self.e_cosw[i],self.lamb[i],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6])
+                ppp+='%d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),int(self.use.use_planet_params[7*i+1]),int(self.use.use_planet_params[7*i+2]),int(self.use.use_planet_params[7*i+3]),int(self.use.use_planet_params[7*i+4]),int(self.use.use_planet_params[7*i+5]),int(self.use.use_planet_params[7*i+6]))     
+            else:
+                ppp+='%f %f %f %f %f %f %f\n'%(self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.params.planet_params[7*i+2],self.params.planet_params[7*i+3],self.params.planet_params[7*i+4],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6])
+                ppp+='%d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),int(self.use.use_planet_params[7*i+1]),int(self.use.use_planet_params[7*i+2]),int(self.use.use_planet_params[7*i+3]),int(self.use.use_planet_params[7*i+4]),int(self.use.use_planet_params[7*i+5]),int(self.use.use_planet_params[7*i+6]))                                
+                
         ppp+='%f\n%d\n'%(self.params.linear_trend,int(self.use.use_linear_trend)) # information about linear trend
         ppp+='%f\n'%self.epoch
-        ppp+='0\n'         
+        ppp+='%s\n'%int(self.hkl)    
+#        print(ppp)
+#        print(int(self.hkl),self.npl)    
         # prepare final version of the ppp command to be returned by this function
         if not (fileinput):
             ppp+='EOF' # end of the command to run in the case of saving input directly
@@ -2802,6 +3073,8 @@ class signal_fit(object):
             self.t_peri[i] = (float(self.epoch) - (np.radians(self.params.planet_params[7*i + 4])/(2*np.pi))*self.params.planet_params[7*i + 1] ) # epoch  - ((ma/TWOPI)*a[1])
           
         #####################               
+        self.hack_around_rv_params()  
+
             
         if (return_flag):
             return flag
@@ -2963,48 +3236,75 @@ class signal_fit(object):
             
             
             par_str.append(self.K_str[i])
-            par_str.append(self.P_str[i])
-            par_str.append(self.e_str[i])
-            par_str.append(self.w_str[i])
-            par_str.append(self.M0_str[i])
-            par_str.append(self.i_str[i])
-            par_str.append(self.Node_str[i] )            
+            par_str.append(self.P_str[i])         
             
             bounds.append(self.K_bound[i])        
             bounds.append(self.P_bound[i]) 
-            bounds.append(self.e_bound[i]) 
-            bounds.append(self.w_bound[i])  
-            bounds.append(self.M0_bound[i])
-            bounds.append(self.i_bound[i])
-            bounds.append(self.Node_bound[i])
 
             prior_nr.append(self.K_norm_pr[i])
             prior_nr.append(self.P_norm_pr[i])
-            prior_nr.append(self.e_norm_pr[i])
-            prior_nr.append(self.w_norm_pr[i])
-            prior_nr.append(self.M0_norm_pr[i])
-            prior_nr.append(self.i_norm_pr[i])
-            prior_nr.append(self.Node_norm_pr[i])
            
             prior_jeff.append(self.K_jeff_pr[i])
             prior_jeff.append(self.P_jeff_pr[i])
-            prior_jeff.append(self.e_jeff_pr[i])
-            prior_jeff.append(self.w_jeff_pr[i])
-            prior_jeff.append(self.M0_jeff_pr[i])
+
+               
+            if self.hkl == False:
+                par_str.append(self.e_str[i])
+                par_str.append(self.w_str[i])
+                par_str.append(self.M0_str[i])            
+    
+                bounds.append(self.e_bound[i]) 
+                bounds.append(self.w_bound[i])  
+                bounds.append(self.M0_bound[i])
+    
+                prior_nr.append(self.e_norm_pr[i])
+                prior_nr.append(self.w_norm_pr[i])
+                prior_nr.append(self.M0_norm_pr[i]) 
+                
+                prior_jeff.append(self.e_jeff_pr[i])
+                prior_jeff.append(self.w_jeff_pr[i])
+                prior_jeff.append(self.M0_jeff_pr[i])    
+            else:   
+                par_str.append(self.e_sinw_str[i])
+                par_str.append(self.e_cosw_str[i])
+                par_str.append(self.lamb_str[i])            
+    
+                bounds.append(self.e_sinw_bound[i]) 
+                bounds.append(self.e_cosw_bound[i])  
+                bounds.append(self.lamb_bound[i])
+    
+                prior_nr.append(self.e_sinw_norm_pr[i])
+                prior_nr.append(self.e_cosw_norm_pr[i])
+                prior_nr.append(self.lamb_norm_pr[i]) 
+                
+                prior_jeff.append(self.e_sinw_jeff_pr[i])
+                prior_jeff.append(self.e_cosw_jeff_pr[i])
+                prior_jeff.append(self.lamb_jeff_pr[i])              
+        
+
+
+            par_str.append(self.i_str[i])
+            par_str.append(self.Node_str[i] )           
+
+            bounds.append(self.i_bound[i])
+            bounds.append(self.Node_bound[i])
+
+            prior_nr.append(self.i_norm_pr[i])
+            prior_nr.append(self.Node_norm_pr[i]) 
+            
             prior_jeff.append(self.i_jeff_pr[i])
             prior_jeff.append(self.Node_jeff_pr[i])
-                       
-            
-            
-        
+
+
         par.append(self.params.linear_trend)
         flag.append(self.use.use_linear_trend)
         par_str.append(self.rv_lintr_str[0])
         bounds.append(self.rv_lintr_bounds[0])
         prior_nr.append(self.rv_lintr_norm_pr[0])
         prior_jeff.append(self.rv_lintr_jeff_pr[0])
-        
-        
+
+
+       
         if rtg[1] == True:
             if self.gp_kernel == 'RotKernel':
                 for i in range(4):  
@@ -3134,123 +3434,7 @@ class signal_fit(object):
         preparingwarnings.print_warning_log()
         return                  
                       
- 
-    def prepare_for_mcmc_new(self, rtg=[1,0,0], customdatasetlabels=[]):
-        '''Prepare bounds and par array needed for the MCMC''' 
- 
-        preparingwarnings=Warning_log([],'Preparing for MCMC')  
-        # put together bounds for K,P,e,w,M0, so they are in an order we are used to
- 
-        par = []
-        flag = []
-        par_str = []
-        bounds = []
- 
-        
-        
-        for i  in range(self.npl):
-            
-            par.append(self.K[i])
-            par.append(self.P[i])
-            par.append(self.e[i])
-            par.append(self.w[i])
-            par.append(self.M0[i])
-            par.append(self.i[i])
-            par.append(self.Node[i] )
-            
-            flag.append(self.K_use[i])
-            flag.append(self.P_use[i])
-            flag.append(self.e_use[i])
-            flag.append(self.w_use[i])
-            flag.append(self.M0_use[i])
-            flag.append(self.i_use[i])
-            flag.append(self.Node_use[i] )
-            
-            par_str.append(self.K_str[i])
-            par_str.append(self.P_str[i])
-            par_str.append(self.e_str[i])
-            par_str.append(self.w_str[i])
-            par_str.append(self.M0_str[i])
-            par_str.append(self.i_str[i])
-            par_str.append(self.Node_str[i] )            
-            
-            bounds.append(self.K_bound[i])        
-            bounds.append(self.P_bound[i]) 
-            bounds.append(self.e_bound[i]) 
-            bounds.append(self.w_bound[i])  
-            bounds.append(self.M0_bound[i])
-            bounds.append(self.i_bound[i])
-            bounds.append(self.Node_bound[i])
-             
-        
-        par.append(self.rv_lintr[0])
-        flag.append(self.rv_lintr_use[0])
-        par_str.append(self.rv_lintr_str[0])
-        bounds.append(self.rv_lintr_bounds[0])
-       
-        
-        
-        
-        for i in range(4):  
-            par.append(self.GP_rot_params[i])
-            flag.append(self.GP_rot_use[i])
-            par_str.append(self.GP_rot_str[i])
-            bounds.append(self.GP_rot_bounds[i])
-            
-            
-            
-        for i  in range(self.npl):            
-            par.append(self.t0[i])
-            par.append(self.pl_a[i])
-            par.append(self.pl_rad[i])
-            
-            flag.append(self.t0_use[i])
-            flag.append(self.pl_a_use[i])
-            flag.append(self.pl_rad_use[i])    
-            
-            par_str.append(self.t0_str[i])
-            par_str.append(self.pl_a_str[i])
-            par_str.append(self.pl_rad_str[i])
-            
-            bounds.append(self.t0_bound[i])
-            bounds.append(self.pl_a_bound[i])
-            bounds.append(self.pl_rad_bound[i])            
-            
-        par.append(self.params.stellar_mass)
-        flag.append(self.st_mass_use[0])
-        par_str.append(self.st_mass_str[0])
-        bounds.append(self.st_mass_bounds[0])
-       
-        
-       # print(par)    
-       # print(flag)    
-      #  print(par_str)    
-      #  print(bounds)    
-        
- 
-        self.f_for_mcmc = [idx for idx in range(len(flag)) if flag[idx] ==1 ] # indices for fitted parameters
-
-        self.par_for_mcmc = []  # self par_for_mcmc are the fitted parameters   
-        self.e_for_mcmc = [] # labels for fitted parameters only
-        self.b_for_mcmc = [] # labels for fitted parameters only
-        self.parameters = par
-
-       # print(el_str)
-
-        for j in range(len(par)):
-            print(flag[j])
-            if flag[j] > 0:
-                self.par_for_mcmc.append(par[j])
-                self.e_for_mcmc.append(par_str[j])
-                #self.b_for_mcmc=np.concatenate((self.b_for_mcmc,np.atleast_1d(bounds[j])))
-                self.b_for_mcmc.append(bounds[j])
-
-        
-        print(self.b_for_mcmc)
- 
-        preparingwarnings.print_warning_log()
-        return             
-        
+  
 
     def verify_params_with_bounds(self):
 

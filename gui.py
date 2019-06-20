@@ -122,6 +122,8 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_gui_params(self):
         global fit
+        
+        #self.set_hkl()
 
         param_gui = [self.K1, self.P1, self.e1, self.om1, self.ma1, self.incl1, self.Omega1,
                      self.K2, self.P2, self.e2, self.om2, self.ma2, self.incl2, self.Omega2,
@@ -136,7 +138,13 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
          
         for i in range(fit.npl*7):
             param_gui[i].setValue(fit.params.planet_params[i]) 
+#            print(param_gui[i].value(),fit.params.planet_params[i] )
             
+            
+            
+            
+            
+#        fit.hack_around_rv_params()            
             
        # param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans, self.pl1_radii, self.incl1_trans, self.a1_trans,]     
         
@@ -216,15 +224,14 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(fit.npl*7):
             fit.params.planet_params[i] = param_gui[i].value() 
-            
-            
+           # print(param_gui[i].value(),fit.params.planet_params[i] )
+        
+        fit.hack_around_rv_params() 
        # param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans,self.pl1_radii, self.incl1_trans, self.a1_trans,]
          
        ## for i in range(len(param_gui_trans)):
        #     fit.tr_par[i] = param_gui_trans[i].value()    
 
-       # fit.update_trans_params()  
-        
         
         param_gui_tr = [self.t0_1, self.pl_rad_1, self.a_sol_1,
              self.t0_2, self.pl_rad_2, self.a_sol_2,
@@ -1862,7 +1869,8 @@ Polyfit coefficients:
         self.update_plots() 
         self.update_transit_plots() 
         #print("--- %s seconds ---" % (time.time() - start_time))      
-        self.jupiter_push_vars()       
+        self.jupiter_push_vars() 
+
         
         
     def update_orb_plot(self):
@@ -4121,13 +4129,13 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
                 
         if self.radioButton_Keplerian.isChecked() and self.radioButton_RV.isChecked():
             
-            om_flag = True
+            om_flag = False
             incl_flag = False
             Dom_flag = False
 
         elif self.radioButton_Keplerian.isChecked() and self.radioButton_RV.isChecked()==False:
 
-            om_flag = True
+            om_flag = False
             incl_flag = True
             Dom_flag = True
                                     
@@ -4489,7 +4497,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
         
 #############################  TEST ZONE ################################  
-  
+
+    
+    
     def set_hkl(self):
         global fit  
         
@@ -4497,8 +4507,24 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         #font.setPointSize(8)
         #font.setBold(False)
         #font.setWeight(75)
- 
+    
+        param_gui = [self.e1, self.om1, self.ma1,
+                     self.e2, self.om2, self.ma2,
+                     self.e3, self.om3, self.ma3,
+                     self.e4, self.om4, self.ma4, 
+                     self.e5, self.om5, self.ma5,
+                     self.e6, self.om6, self.ma6,
+                     self.e7, self.om7, self.ma7,  
+                     self.e8, self.om8, self.ma8, 
+                     self.e9, self.om9, self.ma9]    
+    
+    
         if self.radioButton_ewm.isChecked():
+            
+            fit.hkl = False
+#            fit.hack_around_rv_params()  
+#            fit.calc_ewm()
+            
             self.label_ecc.setText("e")
             self.label_omega.setText("<html><head/><body><p>&omega; [deg]</p></body></html>")
             self.label_Ma.setText("Ma [deg]")   
@@ -4508,12 +4534,32 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.label_ecc3.setText("e")
             self.label_omega3.setText("<html><head/><body><p>&omega; [deg]</p></body></html>")
             self.label_Ma3.setText("Ma [deg]")        
+
             
+            for i in range(9):
+                param_gui[i*3].setRange(0.0,1.0)
+               #param_gui[i*3].singleStep(0.001)
+                param_gui[i*3+1].setRange(0.0,360.0)
+                param_gui[i*3+2].setRange(0.0,360.0)                
+                #param_gui[i*3+1].singleStep(0.001)                
+                param_gui[i*3].setValue(fit.e[i])             
+                param_gui[i*3+1].setValue(fit.w[i])             
+                param_gui[i*3+2].setValue(fit.M0[i])             
+
+#                fit.params.update_e(i,fit.e[i]) # update e for a given planet
+#                fit.params.update_w(i,fit.w[i]) # update w for a given planet
+#                fit.params.update_M0(i,fit.M0[i]) # update w for a given planet
+ 
+
             
-            
-            
-            
+         
         elif self.radioButton_hkl.isChecked():
+            
+            fit.hkl = True
+#            fit.hack_around_rv_params()  
+#            fit.calc_hkl()
+
+           
             self.label_ecc.setText("<html><head/><body><p>h=esin(&omega;)</p></body></html>")
             self.label_omega.setText("<html><head/><body><p>k=ecos(&omega;)</p></body></html>")
             self.label_Ma.setText("<html><head/><body><p>&lambda; [deg]</p></body></html>")      
@@ -4523,8 +4569,25 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.label_ecc3.setText("<html><head/><body><p>h=esin(&omega;)</p></body></html>")
             self.label_omega3.setText("<html><head/><body><p>k=ecos(&omega;)</p></body></html>")
             self.label_Ma3.setText("<html><head/><body><p>&lambda; [deg]</p></body></html>")    
+
+  
+            for i in range(9):
+                param_gui[i*3].setRange(-1.0,1.0)
+               # param_gui[i*3].singleStep(0.01)                
+                param_gui[i*3+1].setRange(-1.0,1.0) 
+                param_gui[i*3+2].setRange(0.0,360.0)  
+                param_gui[i*3].setValue(fit.e_sinw[i])              
+                param_gui[i*3+1].setValue(fit.e_cosw[i])            
+                param_gui[i*3+2].setValue(fit.lamb[i])   
+                
+#                fit.params.update_e(i,fit.e_sinw[i]) # update e for a given planet
+#                fit.params.update_w(i,fit.e_cosw[i]) # update w for a given planet
+#                fit.params.update_M0(i,fit.lamb[i]) # update w for a given planet
  
-    
+
+        self.update_params()
+        self.update_gui_params() 
+        #self.update_params() 
     
     def set_tra_ld(self):
         global fit   
