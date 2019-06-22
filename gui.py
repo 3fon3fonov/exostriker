@@ -118,8 +118,22 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         if fit.mod_dynamical == True:
             self.radioButton_Dynamical.setChecked(True)        
         else:
-            self.radioButton_Keplerian.setChecked(True)        
-
+            self.radioButton_Keplerian.setChecked(True)       
+            
+        if fit.type_fit["RV"] == True and fit.type_fit["Transit"] == False:
+            self.radioButton_RV.setChecked(True)        
+        elif fit.type_fit["RV"] == False and fit.type_fit["Transit"] == True:           
+            self.radioButton_transit.setChecked(True)                    
+        elif fit.type_fit["RV"] == True and fit.type_fit["Transit"] == True:          
+            self.radioButton_transit_RV.setChecked(True)    
+            
+        if fit.hkl == True:
+            self.radioButton_hkl.setChecked(True)    
+        else:
+            self.radioButton_ewm.setChecked(True)    
+            
+           
+            
     def update_gui_params(self):
         global fit
         
@@ -522,7 +536,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                           self.use_K9, self.use_P9, self.use_e9, self.use_om9, self.use_ma9, self.use_incl9, self.use_Omega9,                       
                           ]
 
-        for i in range(fit.npl*7):
+        for i in range(9*7):
             fit.use.use_planet_params[i] = int(use_param_gui[i].isChecked())         
             
        # use_param_gui_trans = [self.use_t0_1_trans, self.use_P1_trans, self.use_e1_trans, self.use_om1_trans, self.use_pl1_rad_trans, self.use_incl1_trans, self.use_a1_trans,
@@ -542,11 +556,11 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
              self.use_t0_9, self.use_pl_rad_9, self.use_a_sol_9,
              ]
          
-        for i in range(fit.npl):        
+        for i in range(9):        
             #print('test')
             fit.t0_use[i] =  use_param_gui_tr[i*3].isChecked()  
             fit.pl_rad_use[i] = use_param_gui_tr[i*3+1].isChecked()  
-            fit.pl_a_use [i] =  use_param_gui_tr[i*3+2].isChecked()  
+            fit.pl_a_use[i] =  use_param_gui_tr[i*3+2].isChecked()  
        
             
             
@@ -571,8 +585,6 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10): 
             fit.tra_jitt_use[i] = int(use_tra_data_jitter_gui[i].isChecked())
             fit.tra_off_use[i]  = int(use_tra_data_offset_gui[i].isChecked())
- 
- 
 
         fit.use.use_linear_trend = int(self.use_RV_lin_trend.isChecked()) 
 
@@ -646,6 +658,22 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         fit.rv_lintr_bounds[0]  = [self.lin_trend_min.value(),self.lin_trend_max.value()]
         #self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
 
+        offset_bounds_gui_tra = [
+        [self.tra_Data_min_1.value(),self.tra_Data_max_1.value()], [self.tra_Data_min_2.value(),self.tra_Data_max_2.value()], [self.tra_Data_min_3.value(),self.tra_Data_max_3.value()], [self.tra_Data_min_4.value(),self.tra_Data_max_4.value()], [self.tra_Data_min_5.value(),self.tra_Data_max_5.value()],   
+        [self.tra_Data_min_6.value(),self.tra_Data_max_6.value()], [self.tra_Data_min_7.value(),self.tra_Data_max_7.value()], [self.tra_Data_min_8.value(),self.tra_Data_max_8.value()], [self.tra_Data_min_9.value(),self.tra_Data_max_9.value()], [self.tra_Data_min_10.value(),self.tra_Data_max_10.value()]
+        ]
+        
+        jitter_bounds_gui_tra = [
+        [self.tra_jitter_min_1.value(),self.tra_jitter_max_1.value()], [self.tra_jitter_min_2.value(),self.tra_jitter_max_2.value()], [self.tra_jitter_min_3.value(),self.tra_jitter_max_3.value()], [self.tra_jitter_min_4.value(),self.tra_jitter_max_4.value()], [self.tra_jitter_min_5.value(),self.tra_jitter_max_5.value()],   
+        [self.tra_jitter_min_6.value(),self.tra_jitter_max_6.value()], [self.tra_jitter_min_7.value(),self.tra_jitter_max_7.value()], [self.tra_jitter_min_8.value(),self.tra_jitter_max_8.value()], [self.tra_jitter_min_9.value(),self.tra_jitter_max_9.value()], [self.tra_jitter_min_10.value(),self.tra_jitter_max_10.value()]
+        ]
+        
+    
+        for i in range(10): 
+            fit.tra_off_bounds[i] = offset_bounds_gui_tra[i]
+            fit.tra_jitt_bounds[i]  = jitter_bounds_gui_tra[i] 
+            
+
         GP_rot_bounds_gui = [
         [self.GP_rot_kernel_Amp_min.value(),self.GP_rot_kernel_Amp_max.value()],  
         [self.GP_rot_kernel_time_sc_min.value(),self.GP_rot_kernel_time_sc_max.value()],  
@@ -696,19 +724,29 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.pl_a_norm_pr[i]    = param_nr_priors_gui[10*i + 9]
 
         offset_nr_priors_gui = [
-        [self.RV_Data_mean_1.value(),self.RV_Data_sigma_1.value(),self.use_rvoff_nr_1.isChecked()], [self.RV_Data_mean_2.value(),self.RV_Data_sigma_2.value(),self.use_rvoff_nr_2.isChecked()], 
-        [self.RV_Data_mean_3.value(),self.RV_Data_sigma_3.value(),self.use_rvoff_nr_3.isChecked()], [self.RV_Data_mean_4.value(),self.RV_Data_sigma_4.value(),self.use_rvoff_nr_4.isChecked()], 
-        [self.RV_Data_mean_5.value(),self.RV_Data_sigma_5.value(),self.use_rvoff_nr_5.isChecked()], [self.RV_Data_mean_6.value(),self.RV_Data_sigma_6.value(),self.use_rvoff_nr_6.isChecked()], 
-        [self.RV_Data_mean_7.value(),self.RV_Data_sigma_7.value(),self.use_rvoff_nr_7.isChecked()], [self.RV_Data_mean_8.value(),self.RV_Data_sigma_8.value(),self.use_rvoff_nr_8.isChecked()], 
-        [self.RV_Data_mean_9.value(),self.RV_Data_sigma_9.value(),self.use_rvoff_nr_9.isChecked()], [self.RV_Data_mean_10.value(),self.RV_Data_sigma_10.value(),self.use_rvoff_nr_10.isChecked()]
+        [self.RV_Data_mean_1.value(),self.RV_Data_sigma_1.value(),self.use_rvoff_nr_1.isChecked()], 
+        [self.RV_Data_mean_2.value(),self.RV_Data_sigma_2.value(),self.use_rvoff_nr_2.isChecked()], 
+        [self.RV_Data_mean_3.value(),self.RV_Data_sigma_3.value(),self.use_rvoff_nr_3.isChecked()], 
+        [self.RV_Data_mean_4.value(),self.RV_Data_sigma_4.value(),self.use_rvoff_nr_4.isChecked()], 
+        [self.RV_Data_mean_5.value(),self.RV_Data_sigma_5.value(),self.use_rvoff_nr_5.isChecked()], 
+        [self.RV_Data_mean_6.value(),self.RV_Data_sigma_6.value(),self.use_rvoff_nr_6.isChecked()], 
+        [self.RV_Data_mean_7.value(),self.RV_Data_sigma_7.value(),self.use_rvoff_nr_7.isChecked()], 
+        [self.RV_Data_mean_8.value(),self.RV_Data_sigma_8.value(),self.use_rvoff_nr_8.isChecked()], 
+        [self.RV_Data_mean_9.value(),self.RV_Data_sigma_9.value(),self.use_rvoff_nr_9.isChecked()], 
+        [self.RV_Data_mean_10.value(),self.RV_Data_sigma_10.value(),self.use_rvoff_nr_10.isChecked()]
         ]
         
         jitter_nr_priors_gui = [
-        [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_1.value(),self.use_rvjitt_nr_1.isChecked()], [self.RV_jitter_mean_2.value(),self.RV_jitter_sigma_2.value(),self.use_rvjitt_nr_2.isChecked()], 
-        [self.RV_jitter_mean_3.value(),self.RV_jitter_sigma_3.value(),self.use_rvjitt_nr_3.isChecked()], [self.RV_jitter_mean_4.value(),self.RV_jitter_sigma_4.value(),self.use_rvjitt_nr_4.isChecked()], 
-        [self.RV_jitter_mean_5.value(),self.RV_jitter_sigma_5.value(),self.use_rvjitt_nr_5.isChecked()], [self.RV_jitter_mean_6.value(),self.RV_jitter_sigma_6.value(),self.use_rvjitt_nr_6.isChecked()],
-        [self.RV_jitter_mean_7.value(),self.RV_jitter_sigma_7.value(),self.use_rvjitt_nr_7.isChecked()], [self.RV_jitter_mean_8.value(),self.RV_jitter_sigma_8.value(),self.use_rvjitt_nr_8.isChecked()], 
-        [self.RV_jitter_mean_9.value(),self.RV_jitter_sigma_9.value(),self.use_rvjitt_nr_9.isChecked()], [self.RV_jitter_mean_10.value(),self.RV_jitter_sigma_10.value(),self.use_rvjitt_nr_10.isChecked()]   
+        [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_1.value(),self.use_rvjitt_nr_1.isChecked()], 
+        [self.RV_jitter_mean_2.value(),self.RV_jitter_sigma_2.value(),self.use_rvjitt_nr_2.isChecked()], 
+        [self.RV_jitter_mean_3.value(),self.RV_jitter_sigma_3.value(),self.use_rvjitt_nr_3.isChecked()], 
+        [self.RV_jitter_mean_4.value(),self.RV_jitter_sigma_4.value(),self.use_rvjitt_nr_4.isChecked()], 
+        [self.RV_jitter_mean_5.value(),self.RV_jitter_sigma_5.value(),self.use_rvjitt_nr_5.isChecked()], 
+        [self.RV_jitter_mean_6.value(),self.RV_jitter_sigma_6.value(),self.use_rvjitt_nr_6.isChecked()],
+        [self.RV_jitter_mean_7.value(),self.RV_jitter_sigma_7.value(),self.use_rvjitt_nr_7.isChecked()], 
+        [self.RV_jitter_mean_8.value(),self.RV_jitter_sigma_8.value(),self.use_rvjitt_nr_8.isChecked()], 
+        [self.RV_jitter_mean_9.value(),self.RV_jitter_sigma_9.value(),self.use_rvjitt_nr_9.isChecked()], 
+        [self.RV_jitter_mean_10.value(),self.RV_jitter_sigma_10.value(),self.use_rvjitt_nr_10.isChecked()]   
         ]  
     
     
@@ -718,8 +756,39 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
     
  
         fit.rv_lintr_norm_pr[0]  = [self.lin_trend_mean.value(),self.lin_trend_sigma.value(),self.use_lin_tr_nr_pr.isChecked()]
-        #self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
 
+        offset_nr_priors_gui_tra = [
+        [self.tra_Data_mean_1.value(),self.tra_Data_sigma_1.value(),self.use_traoff_nr_1.isChecked()], 
+        [self.tra_Data_mean_2.value(),self.tra_Data_sigma_2.value(),self.use_traoff_nr_2.isChecked()], 
+        [self.tra_Data_mean_3.value(),self.tra_Data_sigma_3.value(),self.use_traoff_nr_3.isChecked()],
+        [self.tra_Data_mean_4.value(),self.tra_Data_sigma_4.value(),self.use_traoff_nr_4.isChecked()], 
+        [self.tra_Data_mean_5.value(),self.tra_Data_sigma_5.value(),self.use_traoff_nr_5.isChecked()],   
+        [self.tra_Data_mean_6.value(),self.tra_Data_sigma_6.value(),self.use_traoff_nr_6.isChecked()],
+        [self.tra_Data_mean_7.value(),self.tra_Data_sigma_7.value(),self.use_traoff_nr_7.isChecked()],
+        [self.tra_Data_mean_8.value(),self.tra_Data_sigma_8.value(),self.use_traoff_nr_8.isChecked()], 
+        [self.tra_Data_mean_9.value(),self.tra_Data_sigma_9.value(),self.use_traoff_nr_9.isChecked()], 
+        [self.tra_Data_mean_10.value(),self.tra_Data_sigma_10.value(),self.use_traoff_nr_10.isChecked()]
+        ]
+        
+        jitter_nr_priors_gui_tra = [
+        [self.tra_jitter_mean_1.value(),self.tra_jitter_sigma_1.value(),self.use_trajitt_nr_1.isChecked()], 
+        [self.tra_jitter_mean_2.value(),self.tra_jitter_sigma_2.value(),self.use_trajitt_nr_2.isChecked()], 
+        [self.tra_jitter_mean_3.value(),self.tra_jitter_sigma_3.value(),self.use_trajitt_nr_3.isChecked()], 
+        [self.tra_jitter_mean_4.value(),self.tra_jitter_sigma_4.value(),self.use_trajitt_nr_4.isChecked()], 
+        [self.tra_jitter_mean_5.value(),self.tra_jitter_sigma_5.value(),self.use_trajitt_nr_5.isChecked()],   
+        [self.tra_jitter_mean_6.value(),self.tra_jitter_sigma_6.value(),self.use_trajitt_nr_6.isChecked()], 
+        [self.tra_jitter_mean_7.value(),self.tra_jitter_sigma_7.value(),self.use_trajitt_nr_7.isChecked()], 
+        [self.tra_jitter_mean_8.value(),self.tra_jitter_sigma_8.value(),self.use_trajitt_nr_8.isChecked()], 
+        [self.tra_jitter_mean_9.value(),self.tra_jitter_sigma_9.value(),self.use_trajitt_nr_9.isChecked()], 
+        [self.tra_jitter_mean_10.value(),self.tra_jitter_sigma_10.value(),self.use_trajitt_nr_10.isChecked()]
+        ]
+        
+    
+        for i in range(10): 
+            fit.tra_off_norm_pr[i] = offset_nr_priors_gui_tra[i]
+            fit.tra_jitt_norm_pr[i] = jitter_nr_priors_gui[i] 
+
+ 
         GP_rot_nr_priors_gui = [
         [self.GP_rot_kernel_Amp_mean.value(),self.GP_rot_kernel_Amp_sigma.value(),self.use_GP_rot_kernel_Amp_nr_pr.isChecked()],  
         [self.GP_rot_kernel_time_sc_mean.value(),self.GP_rot_kernel_time_sc_sigma.value(),self.use_GP_rot_kernel_time_sc_nr_pr.isChecked()],  
@@ -769,19 +838,29 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.pl_a_jeff_pr[i]    = param_jeff_priors_gui[10*i + 9]
 
         offset_jeff_priors_gui = [
-        [self.RV_Data_jeff_alpha_1.value(),self.RV_Data_jeff_beta_1.value(),self.use_rvoff_jeff_1.isChecked()], [self.RV_Data_jeff_alpha_2.value(),self.RV_Data_jeff_beta_2.value(),self.use_rvoff_jeff_2.isChecked()], 
-        [self.RV_Data_jeff_alpha_3.value(),self.RV_Data_jeff_beta_3.value(),self.use_rvoff_jeff_3.isChecked()], [self.RV_Data_jeff_alpha_4.value(),self.RV_Data_jeff_beta_4.value(),self.use_rvoff_jeff_4.isChecked()], 
-        [self.RV_Data_jeff_alpha_5.value(),self.RV_Data_jeff_beta_5.value(),self.use_rvoff_jeff_5.isChecked()], [self.RV_Data_jeff_alpha_6.value(),self.RV_Data_jeff_beta_6.value(),self.use_rvoff_jeff_6.isChecked()], 
-        [self.RV_Data_jeff_alpha_7.value(),self.RV_Data_jeff_beta_7.value(),self.use_rvoff_jeff_7.isChecked()], [self.RV_Data_jeff_alpha_8.value(),self.RV_Data_jeff_beta_8.value(),self.use_rvoff_jeff_8.isChecked()], 
-        [self.RV_Data_jeff_alpha_9.value(),self.RV_Data_jeff_beta_9.value(),self.use_rvoff_jeff_9.isChecked()], [self.RV_Data_jeff_alpha_10.value(),self.RV_Data_jeff_beta_10.value(),self.use_rvoff_jeff_10.isChecked()]
+        [self.RV_Data_jeff_alpha_1.value(),self.RV_Data_jeff_beta_1.value(),self.use_rvoff_jeff_1.isChecked()], 
+        [self.RV_Data_jeff_alpha_2.value(),self.RV_Data_jeff_beta_2.value(),self.use_rvoff_jeff_2.isChecked()], 
+        [self.RV_Data_jeff_alpha_3.value(),self.RV_Data_jeff_beta_3.value(),self.use_rvoff_jeff_3.isChecked()], 
+        [self.RV_Data_jeff_alpha_4.value(),self.RV_Data_jeff_beta_4.value(),self.use_rvoff_jeff_4.isChecked()], 
+        [self.RV_Data_jeff_alpha_5.value(),self.RV_Data_jeff_beta_5.value(),self.use_rvoff_jeff_5.isChecked()], 
+        [self.RV_Data_jeff_alpha_6.value(),self.RV_Data_jeff_beta_6.value(),self.use_rvoff_jeff_6.isChecked()], 
+        [self.RV_Data_jeff_alpha_7.value(),self.RV_Data_jeff_beta_7.value(),self.use_rvoff_jeff_7.isChecked()], 
+        [self.RV_Data_jeff_alpha_8.value(),self.RV_Data_jeff_beta_8.value(),self.use_rvoff_jeff_8.isChecked()], 
+        [self.RV_Data_jeff_alpha_9.value(),self.RV_Data_jeff_beta_9.value(),self.use_rvoff_jeff_9.isChecked()], 
+        [self.RV_Data_jeff_alpha_10.value(),self.RV_Data_jeff_beta_10.value(),self.use_rvoff_jeff_10.isChecked()]
         ]
         
         jitter_jeff_priors_gui = [
-        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_1.value(),self.use_rvjitt_jeff_1.isChecked()], [self.RV_jitter_jeff_alpha_2.value(),self.RV_jitter_jeff_beta_2.value(),self.use_rvjitt_jeff_2.isChecked()], 
-        [self.RV_jitter_jeff_alpha_3.value(),self.RV_jitter_jeff_beta_3.value(),self.use_rvjitt_jeff_3.isChecked()], [self.RV_jitter_jeff_alpha_4.value(),self.RV_jitter_jeff_beta_4.value(),self.use_rvjitt_jeff_4.isChecked()], 
-        [self.RV_jitter_jeff_alpha_5.value(),self.RV_jitter_jeff_beta_5.value(),self.use_rvjitt_jeff_5.isChecked()], [self.RV_jitter_jeff_alpha_6.value(),self.RV_jitter_jeff_beta_6.value(),self.use_rvjitt_jeff_6.isChecked()],
-        [self.RV_jitter_jeff_alpha_7.value(),self.RV_jitter_jeff_beta_7.value(),self.use_rvjitt_jeff_7.isChecked()], [self.RV_jitter_jeff_alpha_8.value(),self.RV_jitter_jeff_beta_8.value(),self.use_rvjitt_jeff_8.isChecked()], 
-        [self.RV_jitter_jeff_alpha_9.value(),self.RV_jitter_jeff_beta_9.value(),self.use_rvjitt_jeff_9.isChecked()], [self.RV_jitter_jeff_alpha_10.value(),self.RV_jitter_jeff_beta_10.value(),self.use_rvjitt_jeff_10.isChecked()]   
+        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_1.value(),self.use_rvjitt_jeff_1.isChecked()], 
+        [self.RV_jitter_jeff_alpha_2.value(),self.RV_jitter_jeff_beta_2.value(),self.use_rvjitt_jeff_2.isChecked()], 
+        [self.RV_jitter_jeff_alpha_3.value(),self.RV_jitter_jeff_beta_3.value(),self.use_rvjitt_jeff_3.isChecked()], 
+        [self.RV_jitter_jeff_alpha_4.value(),self.RV_jitter_jeff_beta_4.value(),self.use_rvjitt_jeff_4.isChecked()], 
+        [self.RV_jitter_jeff_alpha_5.value(),self.RV_jitter_jeff_beta_5.value(),self.use_rvjitt_jeff_5.isChecked()], 
+        [self.RV_jitter_jeff_alpha_6.value(),self.RV_jitter_jeff_beta_6.value(),self.use_rvjitt_jeff_6.isChecked()],
+        [self.RV_jitter_jeff_alpha_7.value(),self.RV_jitter_jeff_beta_7.value(),self.use_rvjitt_jeff_7.isChecked()], 
+        [self.RV_jitter_jeff_alpha_8.value(),self.RV_jitter_jeff_beta_8.value(),self.use_rvjitt_jeff_8.isChecked()], 
+        [self.RV_jitter_jeff_alpha_9.value(),self.RV_jitter_jeff_beta_9.value(),self.use_rvjitt_jeff_9.isChecked()], 
+        [self.RV_jitter_jeff_alpha_10.value(),self.RV_jitter_jeff_beta_10.value(),self.use_rvjitt_jeff_10.isChecked()]   
         ]  
     
     
@@ -792,6 +871,39 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
  
         fit.rv_lintr_jeff_pr[0]  = [self.lin_trend_jeff_alpha.value(),self.lin_trend_jeff_beta.value(),self.use_lin_tr_jeff_pr.isChecked()]
         #self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
+
+
+        offset_jeff_priors_gui_tra = [
+        [self.tra_Data_alpha_1.value(),self.tra_Data_beta_1.value(),self.use_traoff_jeff_1.isChecked()], 
+        [self.tra_Data_alpha_2.value(),self.tra_Data_beta_2.value(),self.use_traoff_jeff_2.isChecked()], 
+        [self.tra_Data_alpha_3.value(),self.tra_Data_beta_3.value(),self.use_traoff_jeff_3.isChecked()], 
+        [self.tra_Data_alpha_4.value(),self.tra_Data_beta_4.value(),self.use_traoff_jeff_4.isChecked()], 
+        [self.tra_Data_alpha_5.value(),self.tra_Data_beta_5.value(),self.use_traoff_jeff_5.isChecked()],   
+        [self.tra_Data_alpha_6.value(),self.tra_Data_beta_6.value(),self.use_traoff_jeff_6.isChecked()], 
+        [self.tra_Data_alpha_7.value(),self.tra_Data_beta_7.value(),self.use_traoff_jeff_7.isChecked()], 
+        [self.tra_Data_alpha_8.value(),self.tra_Data_beta_8.value(),self.use_traoff_jeff_8.isChecked()], 
+        [self.tra_Data_alpha_9.value(),self.tra_Data_beta_9.value(),self.use_traoff_jeff_9.isChecked()], 
+        [self.tra_Data_alpha_10.value(),self.tra_Data_beta_10.value(),self.use_traoff_jeff_10.isChecked()]
+        ]
+        
+        jitter_jeff_priors_gui_tra = [
+        [self.tra_jitter_alpha_1.value(),self.tra_jitter_beta_1.value(),self.use_trajitt_jeff_1.isChecked()],
+        [self.tra_jitter_alpha_2.value(),self.tra_jitter_beta_2.value(),self.use_trajitt_jeff_2.isChecked()], 
+        [self.tra_jitter_alpha_3.value(),self.tra_jitter_beta_3.value(),self.use_trajitt_jeff_3.isChecked()], 
+        [self.tra_jitter_alpha_4.value(),self.tra_jitter_beta_4.value(),self.use_trajitt_jeff_4.isChecked()], 
+        [self.tra_jitter_alpha_5.value(),self.tra_jitter_beta_5.value(),self.use_trajitt_jeff_5.isChecked()],   
+        [self.tra_jitter_alpha_6.value(),self.tra_jitter_beta_6.value(),self.use_trajitt_jeff_6.isChecked()], 
+        [self.tra_jitter_alpha_7.value(),self.tra_jitter_beta_7.value(),self.use_trajitt_jeff_7.isChecked()], 
+        [self.tra_jitter_alpha_8.value(),self.tra_jitter_beta_8.value(),self.use_trajitt_jeff_8.isChecked()], 
+        [self.tra_jitter_alpha_9.value(),self.tra_jitter_beta_9.value(),self.use_trajitt_jeff_9.isChecked()], 
+        [self.tra_jitter_alpha_10.value(),self.tra_jitter_beta_10.value(),self.use_trajitt_jeff_10.isChecked()]
+        ]
+        
+    
+        for i in range(10): 
+            fit.tra_off_jeff_pr[i] = offset_jeff_priors_gui_tra[i]
+            fit.tra_jitt_jeff_pr[i] = jitter_jeff_priors_gui_tra[i] 
+
 
         GP_rot_jeff_priors_gui = [
         [self.GP_rot_kernel_Amp_jeff_alpha.value(),self.GP_rot_kernel_Amp_jeff_beta.value(),self.use_GP_rot_kernel_Amp_jeff_pr.isChecked()],  
@@ -2092,7 +2204,7 @@ Polyfit coefficients:
         if self.extra_plot_cross_hair.isChecked():
             self.cross_hair(pe,log=self.radioButton_RV_o_c_GLS_period.isChecked())   
 
-############ TLS (Work in progress here) ##############################      
+############ TLS ##############################      
        
     def worker_tls_complete(self, resid = False):
         global fit  
@@ -2141,6 +2253,9 @@ Polyfit coefficients:
  
         worker_tls_.signals.finished.connect(lambda:  self.worker_tls_complete(resid = resid))
         
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+
+        
         # worker.signals.result.connect(self.print_output)
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
@@ -2171,6 +2286,10 @@ Polyfit coefficients:
         global fit, p10, colors
     
         p10.plot(clear=True,) 
+
+            
+        if self.tls_o_c_cross_hair.isChecked():
+            self.cross_hair(p10,log=False) 
             
         if len(fit.tra_data_sets[0]) != 0:
             #t = fit.tra_data_sets[0][0]
@@ -2193,7 +2312,8 @@ Transit duration: %s d
             [p10.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
    
  
-            self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(text))            
+            self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(text))          
+            
             return
 
         else:    
@@ -2202,10 +2322,14 @@ Transit duration: %s d
             self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(""))            
             return
 
+
     def update_tls_plots(self): 
         global fit, p9, colors
     
         p9.plot(clear=True,) 
+        
+        if self.tls_cross_hair.isChecked():
+            self.cross_hair(p9,log=False)      
             
         if len(fit.tra_data_sets[0]) != 0:
             #t = fit.tra_data_sets[0][0]
@@ -2228,7 +2352,8 @@ Transit duration: %s d
             [p9.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
    
  
-            self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(text))            
+            self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(text))   
+            
             return
 
         else:    
@@ -2237,7 +2362,8 @@ Transit duration: %s d
             self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(""))            
             return
         
-        
+            
+    
         
         
         
@@ -2254,7 +2380,7 @@ Transit duration: %s d
                  
         self.statusBar().showMessage('')  
         
-        if fit.rtg[0]:
+        if fit.type_fit["RV"] == True:
             for i in range(fit.npl):
                 rv.phase_RV_planet_signal(fit,i+1)        
             self.update_plots()  
@@ -2282,14 +2408,14 @@ Transit duration: %s d
             self.button_fit.setEnabled(True)         
             return 
         
-        if fit.rtg[0] == True:
+        if fit.type_fit["RV"] == True:
              if fit.filelist.ndset <= 0:
                  choice = QtGui.QMessageBox.information(self, 'Warning!',
                  "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
                  self.button_fit.setEnabled(True)         
                  return   
 
-        if fit.rtg[0] == True:        
+        if fit.type_fit["RV"] == True :        
             self.statusBar().showMessage('Minimizing Transit + RV parameters.... SciPy in action, please be patient.  ')       
         else:
             self.statusBar().showMessage('Minimizing Transit parameters.... SciPy in action, please be patient. ')       
@@ -2317,18 +2443,21 @@ Transit duration: %s d
     def transit_fit(self, ff=0 ):
         global fit
         
-        
-        # this is only a simple hack.. junk removed later on
-        if ff ==0:
-            old_t0_use = fit.t0_use
-            old_pl_a_use = fit.pl_a_use
-            old_pl_rad_use = fit.pl_rad_use
-            old_rv_use = fit.use.use_planet_params
-            old_rvoff_use = fit.use.use_offsets
-            old_rvjitt_use = fit.use.use_jitters
-            old_tra_off_use = fit.tra_off
-            old_tra_jitt_use = fit.tra_jitt
-            
+        if ff ==0:        
+            fit.init_fit = True
+        else:
+            fit.init_fit = False
+
+        # this is only a simple hack.. A junk will be removed later on
+        if ff ==3034:
+            old_t0_use = dill.copy(fit.t0_use)
+            old_pl_a_use = dill.copy(fit.pl_a_use)
+            old_pl_rad_use = dill.copy(fit.pl_rad_use)
+            old_rv_use = dill.copy(fit.use.use_planet_params)
+            old_rvoff_use = dill.copy(fit.use.use_offsets)
+            old_rvjitt_use = dill.copy(fit.use.use_jitters)
+            old_tra_off_use = dill.copy(fit.tra_off)
+            old_tra_jitt_use = dill.copy(fit.tra_jitt)
             
             for i in range(fit.npl):
                 fit.t0_use[i] = False
@@ -2355,21 +2484,22 @@ Transit duration: %s d
                 fit.t0_use[i] = old_t0_use[i]
                 fit.pl_a_use[i] = old_pl_a_use[i]
                 fit.pl_rad_use[i] = old_pl_rad_use[i]             
-                fit.use.use_planet_params[i*7] = old_rv_use[i*7]  
-                fit.use.use_planet_params[i*7+1] = old_rv_use[i*7+1]  
-                fit.use.use_planet_params[i*7+2] = old_rv_use[i*7+2] 
-                fit.use.use_planet_params[i*7+3] = old_rv_use[i*7+3] 
-                fit.use.use_planet_params[i*7+4] = old_rv_use[i*7+4]  
-                fit.use.use_planet_params[i*7+5] = old_rv_use[i*7+5]  
-                fit.use.use_planet_params[i*7+6] = old_rv_use[i*7+6] 
+                fit.use.use_planet_params[i*7] = dill.copy(old_rv_use[i*7])  
+                fit.use.use_planet_params[i*7+1] = dill.copy(old_rv_use[i*7+1])  
+                fit.use.use_planet_params[i*7+2] = dill.copy(old_rv_use[i*7+2]) 
+                fit.use.use_planet_params[i*7+3] = dill.copy(old_rv_use[i*7+3]) 
+                fit.use.use_planet_params[i*7+4] = dill.copy(old_rv_use[i*7+4])  
+                fit.use.use_planet_params[i*7+5] = dill.copy(old_rv_use[i*7+5])  
+                fit.use.use_planet_params[i*7+6] = dill.copy(old_rv_use[i*7+6]) 
             for i in range(10): 
-                fit.use.use_jitters[i] =  old_rvjitt_use[i]  
-                fit.use.use_offsets[i] =  old_rvoff_use[i]  
-                fit.tra_off_use[i] = old_tra_off_use[i]
-                fit.tra_jitt_use[i] = old_tra_jitt_use[i]                
+                fit.use.use_jitters[i] =  dill.copy(old_rvjitt_use[i]) 
+                fit.use.use_offsets[i] =  dill.copy(old_rvoff_use[i])  
+                fit.tra_off_use[i] = dill.copy(old_tra_off_use[i])
+                fit.tra_jitt_use[i] = dill.copy(old_tra_jitt_use[i])   
+
                 
         else:
-       # rv.run_SciPyOp_transit(fit)
+
             rv.run_SciPyOp(fit)
 
 #### Transit plots ################ 
@@ -2421,24 +2551,17 @@ Transit duration: %s d
             
             
             for i in range(fit.npl):
+
+
+                if fit.hkl == True:
+                    fit.tr_params.ecc = np.sqrt(par[fit.filelist.ndset*2 +7*i+2]**2 + par[fit.filelist.ndset*2 +7*i+3]**2)
+                    fit.tr_params.w  = np.degrees(np.arctan2(par[fit.filelist.ndset*2 +7*i+2],par[fit.filelist.ndset*2 +7*i+3]))%360
+                else:
+                    fit.tr_params.ecc = par[fit.filelist.ndset*2 +7*i+2] #0.0  
+                    fit.tr_params.w   = par[fit.filelist.ndset*2 +7*i+3] #90
                 
                 fit.tr_params.per = par[fit.filelist.ndset*2 +7*i+1] #1.0    #orbital period
-                fit.tr_params.ecc = par[fit.filelist.ndset*2 +7*i+2] #0.0  
-                fit.tr_params.w   = par[fit.filelist.ndset*2 +7*i+3] #90.0   #longitude of periastron (in degrees)               
                 fit.tr_params.inc = par[fit.filelist.ndset*2 +7*i+5]#90. #orbital inclination (in degrees)
-            
-               # par[len(vel_files)*2 +7*npl +5 + 3*i] = t_transit
-            
-               # if fit.rtg[0] == True:
-               #     t_peri, t_transit = rv.transit_tperi(par[fit.filelist.ndset*2 +7*i+1], par[fit.filelist.ndset*2 +7*i+2], 
-               #                                           par[fit.filelist.ndset*2 +7*i+3], par[fit.filelist.ndset*2 +7*i+4], fit.epoch)
-                   # t00 = par[fit.filelist.ndset*2 +7*i+1] - (fit.epoch%par[fit.filelist.ndset*2 +7*i+1]) + (t_transit-fit.epoch)
-               #     t00 = par[fit.filelist.ndset*2 +7*i+1] -  t_transit 
-                   
-               #     fit.tr_params.t0  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i] = t00%par[fit.filelist.ndset*2 +7*i+1]  #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
-               # else:
-               #     fit.tr_params.t0  = par[fit.filelist.ndset*2 +7*fit.npl +5 + 3*i]   #= (t_transit-epoch)%par[len(vel_files)*2 +7*i+1]#0.0  #time of inferior conjunction
-               #     
                     
                 fit.tr_params.t0  = par[fit.filelist.ndset*2  +7*fit.npl +1+rv_gp_npar + 3*i]                
                 fit.tr_params.a   = par[fit.filelist.ndset*2  +7*fit.npl +1+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
@@ -2892,7 +3015,9 @@ Transit duration: %s d
             if init == True:
                 ff = 0
                 doGP=False
+                fit.init_fit= True
             else:
+                fit.init_fit= False
                 doGP=self.do_RV_GP.isChecked()
             # Pass the function to execute
             worker2 = Worker(lambda:  self.optimize_fit(ff=ff, doGP=doGP, minimize_fortran=True, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
@@ -2936,6 +3061,9 @@ Transit duration: %s d
             fit.mod_dynamical = True
         else:
             fit.mod_dynamical = False
+            
+            
+            
 
            
             
@@ -3190,6 +3318,7 @@ highly appreciated!
         self.init_fit() ? ? ?
         
         """
+            
         
         self.K1.minimize_signal.connect(lambda: fit.minimize_one_param_K(0)) #TBD!
         self.K1.minimize_signal.connect(self.init_fit) #TBD!       
@@ -3503,7 +3632,7 @@ highly appreciated!
         self.button_nest_samp.setEnabled(False)
         self.statusBar().showMessage('Nested Sampling in progress....')        
         # check if RV data is present
-        if fit.rtg[0] == True and fit.filelist.ndset <= 0:
+        if fit.type_fit["RV"] == True and fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to run MCMC if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
              self.button_nest_samp.setEnabled(True)  
@@ -3515,7 +3644,7 @@ highly appreciated!
         for i in range(0,10,1):         
             ntran_data += len(fit.tra_data_sets[i]) 
             
-        if fit.rtg[2] == True and ntran_data == 0:
+        if fit.type_fit["Transit"] == True  and ntran_data == 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to run MCMC if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
              self.button_nest_samp.setEnabled(True)  
@@ -3630,7 +3759,7 @@ highly appreciated!
         self.button_MCMC.setEnabled(False)
         self.statusBar().showMessage('MCMC in progress....')        
         # check if RV data is present
-        if fit.rtg[0] == True and fit.filelist.ndset <= 0:
+        if fit.type_fit["RV"] == True and fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to run MCMC if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
              self.button_MCMC.setEnabled(True)  
@@ -3642,7 +3771,7 @@ highly appreciated!
         for i in range(0,10,1):         
             ntran_data += len(fit.tra_data_sets[i]) 
             
-        if fit.rtg[2] == True and ntran_data == 0:
+        if fit.type_fit["Transit"] == True  and ntran_data == 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to run MCMC if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
              self.button_MCMC.setEnabled(True)  
@@ -4011,6 +4140,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             K_flag = True
             pl_rad_flag = True
             a_sol_flag = True
+            fit.type_fit["RV"] = True           
+            fit.type_fit["Transit"] = True 
             
         elif self.radioButton_transit.isChecked():            
             
@@ -4019,6 +4150,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             K_flag = False
             pl_rad_flag = True
             a_sol_flag = True
+            fit.type_fit["RV"] = False           
+            fit.type_fit["Transit"] = True 
             
         elif self.radioButton_RV.isChecked():            
             
@@ -4027,6 +4160,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             K_flag = True
             pl_rad_flag = False
             a_sol_flag = False                        
+            fit.type_fit["RV"] = True           
+            fit.type_fit["Transit"] = False 
+
             
         self.ma1.setEnabled(ma_flag)
         self.use_ma1.setEnabled(ma_flag)
@@ -4127,7 +4263,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
     def mute_boxes_dyn(self):
                 
-        if self.radioButton_Keplerian.isChecked() and self.radioButton_RV.isChecked():
+        if self.radioButton_Keplerian.isChecked() and self.radioButton_RV.isChecked()==True:
             
             om_flag = False
             incl_flag = False
@@ -4137,7 +4273,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
             om_flag = False
             incl_flag = True
-            Dom_flag = True
+            Dom_flag = False
                                     
         elif self.radioButton_Dynamical.isChecked():
             
@@ -4492,9 +4628,28 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
        # self.update_gui_params()                  
         self.optimize_fit(0,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)          
  
+    def adopt_trans_TLS_param(self):
+        global fit   
+ 
+        
+        mean_anomaly_from_tls = np.degrees((((fit.epoch - fit.tls_o_c.transit_times[0] )% (fit.tls_o_c.period) )/ (fit.tls_o_c.period) ) * 2*np.pi)
+       
+        fit.t0[fit.npl]     = fit.tls_o_c.transit_times[0]
+        fit.pl_rad[fit.npl] = 0.10
+        fit.pl_a[fit.npl]   = 11.44
+ 
+        fit.add_planet(10.0,fit.tls_o_c.period,0.0,0.0,mean_anomaly_from_tls,90.0,0.0)
+        fit.use.update_use_planet_params_one_planet(fit.npl+1,True,True,True,True,True,False,False)   
+       
+ 
+            
+        self.update_use_from_input_file()   
+        self.update_use() 
+       # self.update_params()  
+        self.update_gui_params()                  
+        self.radioButton_transit.setChecked(True)                    
 
-
-
+        self.worker_transit_fitting(ff=0 ) 
         
 #############################  TEST ZONE ################################  
 
@@ -4797,6 +4952,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
         self.adopt_best_RV__o_c_GLS_per.clicked.connect(self.adopt_RV_GLS_param)
         
+        self.adopt_tls_o_c_param.clicked.connect(self.adopt_trans_TLS_param)
+        
+        
 
         ############ View #################
 
@@ -4907,7 +5065,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.RV_o_c_plot_cross_hair.stateChanged.connect(self.update_RV_plots)
         self.trans_plot_cross_hair.stateChanged.connect(self.update_transit_plots)
         self.trans_o_c_plot_cross_hair.stateChanged.connect(self.update_transit_plots)
-        
+        self.tls_cross_hair.stateChanged.connect(self.update_tls_plots)
+        self.tls_o_c_cross_hair.stateChanged.connect(self.update_tls_o_c_plots)
+
         self.extra_plot_cross_hair.stateChanged.connect(self.update_extra_plots)
         self.inpector_plot_cross_hair.stateChanged.connect(lambda: self.plot_data_inspect(self.tree_view_tab.listview))
 
