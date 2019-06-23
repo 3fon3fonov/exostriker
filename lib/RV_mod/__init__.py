@@ -61,104 +61,7 @@ DEFAULT_PATH='./datafiles/'
 import GP_kernels
 
 
-
-
-    
-def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = './', integrator='symba'):
-
-#if not os.path.exists(directory):
-#    os.makedirs(directory)
-
-    if integrator=='symba':
-        os.chdir('./stability/symba/')
-    elif integrator=='mvs':
-        os.chdir('./stability/mvs/')
-    elif integrator=='mvs_gr':
-        os.chdir('./stability/mvs_gr/')
-
-    print("running stability with: %s"%integrator) 
-    ##### crate the param.in file (change only the "t_max" and the "dt" for now) ######
-    param_file = open('param.in', 'wb') 
-    
-    max_time = float(timemax)*365.2425 # make it is days
  
-    param_file.write(b"""0.0d0 %s %s
-%s %s
-    
-F T T T T F
-0.0001 50.0 50.0 -1. T
-bin.dat
-unknown
-"""%(bytes(str(max_time).encode()), 
- bytes(str(timestep).encode()),
- bytes(str(max_time/1e4).encode()), 
- bytes(str(max_time/1e3).encode())  ))
- 
-    param_file.close()
-    
-    #os.system("cp param.in test_param.in__")
-    
-    
-    getin_file = open('geninit_j.in', 'wb') 
-    getin_file.write(b"""1 
-%s
-%s
-1.d0
-pl.in
-"""%(bytes(str(obj.params.stellar_mass).encode()), bytes(str(obj.npl).encode() ) ))
-    
-    
-  
-    for j in range(obj.npl):
-        getin_file.write(b'%s \n'%bytes(str(obj.fit_results.mass[j]/1047.70266835).encode())) 
-        getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.fit_results.a[j]).encode()),
-                                                 bytes(str(obj.params.planet_params[7*j + 2]).encode()),
-                                                 bytes(str(obj.params.planet_params[7*j + 5]).encode()),
-                                                 bytes(str(obj.params.planet_params[7*j + 3]).encode()),
-                                                 bytes(str(obj.params.planet_params[7*j + 6]).encode()),
-                                                 bytes(str(obj.params.planet_params[7*j + 4]).encode() )) ) 
-          
-    getin_file.close()
-
-    # runnning fortran codes
-    result, flag = run_command_with_timeout('./geninit_j3_in_days < geninit_j.in', timeout_sec)         
-
-    if integrator=='symba':
-        result, flag = run_command_with_timeout('./swift_symba5_j << EOF \nparam.in \npl.in \n1e-40 \nEOF', timeout_sec)                  
-    elif integrator=='mvs':
-        result, flag = run_command_with_timeout('./swift_mvs_j << EOF \nparam.in \npl.in \nEOF', timeout_sec)                          
-    elif integrator=='mvs_gr':
-        result, flag = run_command_with_timeout('./swift_mvs_j_GR << EOF \nparam.in \npl.in \nEOF', timeout_sec)          
-             
-    
-    for k in range(obj.npl):
-    
-        if integrator=='symba':
-            result, flag = run_command_with_timeout('./follow_symba2 << EOF \nparam.in \npl.in \n%s \nEOF'%(k+2),timeout_sec)
-            result, flag = run_command_with_timeout('mv follow_symba.out pl_%s.out'%(k+1),timeout_sec) 
-        elif integrator=='mvs' or integrator=='mvs_gr': 
-            result, flag = run_command_with_timeout('./follow2 << EOF \nparam.in \npl.in \n-%s \nEOF'%(k+2),timeout_sec)
-            result, flag = run_command_with_timeout('mv follow2.out pl_%s.out'%(k+1),timeout_sec)                 
-
-        obj.evol_T[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.2425
-        obj.evol_a[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [2])
-        obj.evol_e[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [3])
-        obj.evol_p[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [6])      
-        obj.evol_M[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [7])
-    
-    try:
-        os.system('rm *.out *.dat *.in') 
-    except OSError:
-        pass
-    
-    os.chdir('../../')
-    
-    print("stability with: %s done!"%integrator) 
-    
-    return obj
-        
-              
-
 
 def initiategps(obj,  kernel_id=-1): 
     
@@ -1554,7 +1457,11 @@ class signal_fit(object):
         self.init_tra_offset()        
         
         self.init_st_mass()
-        
+
+
+        self.init_pl_arb()
+        self.init_orb_evol_arb()
+       
 
         self.type_fit = {"RV": True,"Transit": False}
  
@@ -1989,6 +1896,37 @@ class signal_fit(object):
    #     self.RV_gls_power        = {'power': [], 'base': [] }
    #     self.RV_gls_o_c_power    = {'power': [], 'base': [] }
        
+    def init_pl_arb(self): 
+
+        self.arb_st_mass = 1.0
+        self.npl_arb = 0
+        self.pl_arb_use    = {k: False for k in range(9)}
+        
+        #### RV #####
+        self.K_arb    = {k: 50.0 for k in range(9)}
+        self.P_arb    = {k: 300.0 + 50*k for k in range(9)}
+        self.e_arb    = {k: 0.0  for k in range(9)}
+        self.w_arb    = {k: 0.0 for k in range(9)}
+        self.M0_arb   = {k: 0.0 for k in range(9)}
+        self.i_arb    = {k: 90.0 for k in range(9)}
+        self.Node_arb = {k: 0.0 for k in range(9)}     
+
+        self.mass_arb    = {k: 50.0 for k in range(9)}
+        self.a_arb    = {k: 300.0 + 50*k for k in range(9)}
+
+        self.pl_arb_use    = {k: False for k in range(9)}
+        self.pl_arb_test = False
+ 
+
+       
+    def init_orb_evol_arb(self):
+        
+        self.evol_T_arb = {k: [] for k in range(9)}
+        self.evol_a_arb = {k: [] for k in range(9)}
+        self.evol_e_arb = {k: [] for k in range(9)}
+        self.evol_p_arb = {k: [] for k in range(9)}
+        self.evol_M_arb = {k: [] for k in range(9)}
+
  
     def init_orb_evol(self):
         
