@@ -867,9 +867,283 @@ alpha value = %s
 
 
 
+def a_to_P(a,m0):
+    GMSUN = 1.32712497e20
+    AU=1.49597892e11
+    T = np.sqrt( (a*AU)**3.0 * (2.0*np.pi)**2.0 /(GMSUN*(m0)))
+    T = T /86400.0
+    return T
+
+def P_to_a(P,m0):
+    GMSUN = 1.32712497e20
+    AU=1.49597892e11    
+    P = P * 86400.0   
+    a = ((P**2.0 * (GMSUN*(m0)))/(4.0*(np.pi)**2.0))**(1.0/3.0)
+ 
+    return a/AU
 
 
 
+####################### mass_semimajor ###########################################
+def mass_a_from_Kepler_fit(a,npl,m0):
+    '''Calculates the actual masses and Jacobi semimajor axes of a
+       system for assumed sin(i) using the parameters P, K and e from a Kepler fit
+       The output is now in Mjup and AU
+    '''
+    THIRD = 1.0/3.0
+    PI    = 3.14159265358979e0
+    TWOPI = 2.0*PI
+    GMSUN = 1.32712497e20
+    AU=1.49597892e11
+    incl = 90.0
+    sini = np.sin(PI*(incl/180.0))
+    mass  = np.zeros(npl+1)
+    ap    = np.zeros(npl)
+    pl_mass = np.zeros(npl)
+    mpold = pl_mass
+
+#*******G is set to be unit, and s, m, kg as unit of time, length and mass
+#*****  and there is a reason for that! later I might correct for that.
+    mtotal = m0
+    f = 5e-6
+    for i in range(npl):
+  
+        T = a[5*i+1]*86400.0
+        mass[0] = m0
+
+        # we need innitial guess for each planet mass
+        dm = 0 
+        mass[i+1] = abs(a[5*i])*(T*(m0)**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-a[5*i+2]**2.0)/abs(sini)
+        mpold[i] = mass[i+1]          
+        # This is a simple iteration to solve for mp
+        while (dm <= 0):
+        
+            if i == 0:
+                mtotal = m0
+                mass[i+1] = abs(a[5*i])*(T*(m0 + mpold[i])**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-a[5*i+2]**2.0)/abs(sini)
+            else:
+                mtotal = m0
+                for j in range(i):
+                    mtotal = mtotal + mass[j+1]
+                mass[i+1] = abs(a[5*i])*(T*(mtotal + mpold[i])**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-a[5*i+2]**2.0)/abs(sini)
+
+            dm = (mpold[i] - mass[i+1]) 
+            mpold[i] =  mpold[i] + f
+           # print mass[i+1], mpold[i]
+    
+        ap[i] = (GMSUN*(mtotal + mass[i+1])*(T/TWOPI)**2)**THIRD
+
+#    for i in range(npl+1):
+#        mass[i] = mass[i]*GMSUN
+    for i in range(npl): 
+ 
+        ap[i] = ap[i]/AU # to be in AU   
+        pl_mass[i] = mass[i+1]*1047.70266835 # to be in Jup. masses
+        # I have seen that 1 Sol Mass = 1047.92612 Jup. masses???
+    return pl_mass,ap   
+
+
+
+    
+def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = './', integrator='symba'):
+
+#if not os.path.exists(directory):
+#    os.makedirs(directory)
+
+    if integrator=='symba':
+        os.chdir('./stability/symba/')
+    elif integrator=='mvs':
+        os.chdir('./stability/mvs/')
+    elif integrator=='mvs_gr':
+        os.chdir('./stability/mvs_gr/')
+
+    print("running stability with: %s"%integrator) 
+    ##### crate the param.in file (change only the "t_max" and the "dt" for now) ######
+    param_file = open('param.in', 'wb') 
+    
+    max_time = float(timemax)*365.2425 # make it is days
+ 
+    param_file.write(b"""0.0d0 %s %s
+%s %s
+    
+F T T T T F
+0.0001 50.0 50.0 -1. T
+bin.dat
+unknown
+"""%(bytes(str(max_time).encode()), 
+ bytes(str(timestep).encode()),
+ bytes(str(max_time/1e4).encode()), 
+ bytes(str(max_time/1e3).encode())  ))
+ 
+    param_file.close()
+    
+    #os.system("cp param.in test_param.in__")
+    
+    
+    getin_file = open('geninit_j.in', 'wb') 
+    getin_file.write(b"""1 
+%s
+%s
+1.d0
+pl.in
+"""%(bytes(str(obj.params.stellar_mass).encode()), bytes(str(obj.npl).encode() ) ))
+    
+    
+  
+    for j in range(obj.npl):
+        getin_file.write(b'%s \n'%bytes(str(obj.fit_results.mass[j]/1047.70266835).encode())) 
+        getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.fit_results.a[j]).encode()),
+                                                 bytes(str(obj.params.planet_params[7*j + 2]).encode()),
+                                                 bytes(str(obj.params.planet_params[7*j + 5]).encode()),
+                                                 bytes(str(obj.params.planet_params[7*j + 3]).encode()),
+                                                 bytes(str(obj.params.planet_params[7*j + 6]).encode()),
+                                                 bytes(str(obj.params.planet_params[7*j + 4]).encode() )) ) 
+          
+    getin_file.close()
+
+    # runnning fortran codes
+    result, flag = run_command_with_timeout('./geninit_j3_in_days < geninit_j.in', timeout_sec)         
+
+    if integrator=='symba':
+        result, flag = run_command_with_timeout('./swift_symba5_j << EOF \nparam.in \npl.in \n1e-40 \nEOF', timeout_sec)                  
+    elif integrator=='mvs':
+        result, flag = run_command_with_timeout('./swift_mvs_j << EOF \nparam.in \npl.in \nEOF', timeout_sec)                          
+    elif integrator=='mvs_gr':
+        result, flag = run_command_with_timeout('./swift_mvs_j_GR << EOF \nparam.in \npl.in \nEOF', timeout_sec)          
+             
+    
+    for k in range(obj.npl):
+    
+        if integrator=='symba':
+            result, flag = run_command_with_timeout('./follow_symba2 << EOF \nparam.in \npl.in \n%s \nEOF'%(k+2),timeout_sec)
+            result, flag = run_command_with_timeout('mv follow_symba.out pl_%s.out'%(k+1),timeout_sec) 
+        elif integrator=='mvs' or integrator=='mvs_gr': 
+            result, flag = run_command_with_timeout('./follow2 << EOF \nparam.in \npl.in \n-%s \nEOF'%(k+2),timeout_sec)
+            result, flag = run_command_with_timeout('mv follow2.out pl_%s.out'%(k+1),timeout_sec)                 
+
+        obj.evol_T[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.2425
+        obj.evol_a[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [2])
+        obj.evol_e[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [3])
+        obj.evol_p[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [6])      
+        obj.evol_M[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [7])
+    
+    try:
+        os.system('rm *.out *.dat *.in') 
+       # os.system('mv *.out *.dat *.in ../../stab_test/') 
+
+    except OSError:
+        pass 
+    
+    os.chdir('../../')
+    
+    print("stability with: %s done!"%integrator) 
+    
+    return obj
+        
+               
+    
+def run_stability_arb(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = './', integrator='symba'):
+
+#if not os.path.exists(directory):
+#    os.makedirs(directory)
+
+    
+    
+    if integrator=='symba':
+        os.chdir('./stability/symba/')
+    elif integrator=='mvs':
+        os.chdir('./stability/mvs/')
+    elif integrator=='mvs_gr':
+        os.chdir('./stability/mvs_gr/')
+
+    print("running stability with: %s"%integrator) 
+    ##### crate the param.in file (change only the "t_max" and the "dt" for now) ######
+    param_file = open('param.in', 'wb') 
+    
+    max_time = float(timemax)*365.2425 # make it is days
+ 
+    param_file.write(b"""0.0d0 %s %s
+%s %s
+    
+F T T T T F
+0.0001 50.0 50.0 -1. T
+bin.dat
+unknown
+"""%(bytes(str(max_time).encode()), 
+ bytes(str(timestep).encode()),
+ bytes(str(max_time/1e4).encode()), 
+ bytes(str(max_time/1e3).encode())  ))
+ 
+    param_file.close()
+    
+    #os.system("cp param.in test_param.in__")
+    
+    
+    getin_file = open('geninit_j.in', 'wb') 
+    getin_file.write(b"""1 
+%s
+%s
+1.d0
+pl.in
+"""%(bytes(str(obj.arb_st_mass).encode()), bytes(str(obj.npl_arb).encode() ) ))
+    
+    
+  
+    for j in range(9):
+        if obj.pl_arb_use[j] == True:
+            getin_file.write(b'%s \n'%bytes(str(obj.mass_arb[j]/1047.70266835).encode())) 
+            getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.a_arb[j]).encode()),
+                                                 bytes(str(obj.e_arb[j]).encode()),
+                                                 bytes(str(obj.i_arb[j]).encode()),
+                                                 bytes(str(obj.w_arb[j]).encode()),
+                                                 bytes(str(obj.Node_arb[j]).encode()),
+                                                 bytes(str(obj.M0_arb[j]).encode() )) ) 
+        else:
+            continue
+   
+#          
+    getin_file.close()
+
+    # runnning fortran codes
+    result, flag = run_command_with_timeout('./geninit_j3_in_days < geninit_j.in', timeout_sec)         
+
+    if integrator=='symba':
+        result, flag = run_command_with_timeout('./swift_symba5_j << EOF \nparam.in \npl.in \n1e-40 \nEOF', timeout_sec)                  
+    elif integrator=='mvs':
+        result, flag = run_command_with_timeout('./swift_mvs_j << EOF \nparam.in \npl.in \nEOF', timeout_sec)                          
+    elif integrator=='mvs_gr':
+        result, flag = run_command_with_timeout('./swift_mvs_j_GR << EOF \nparam.in \npl.in \nEOF', timeout_sec)          
+             
+    
+    for k in range(obj.npl_arb):
+    
+        if integrator=='symba':
+            result, flag = run_command_with_timeout('./follow_symba2 << EOF \nparam.in \npl.in \n%s \nEOF'%(k+2),timeout_sec)
+            result, flag = run_command_with_timeout('mv follow_symba.out pl_%s.out'%(k+1),timeout_sec) 
+        elif integrator=='mvs' or integrator=='mvs_gr': 
+            result, flag = run_command_with_timeout('./follow2 << EOF \nparam.in \npl.in \n-%s \nEOF'%(k+2),timeout_sec)
+            result, flag = run_command_with_timeout('mv follow2.out pl_%s.out'%(k+1),timeout_sec)                 
+
+        obj.evol_T[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.2425
+        obj.evol_a[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [2])
+        obj.evol_e[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [3])
+        obj.evol_p[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [6])      
+        obj.evol_M[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [7])
+    
+    try:
+        os.system('rm *.out *.dat *.in') 
+    except OSError:
+        pass
+    
+    os.chdir('../../')
+    
+    print("stability with: %s done!"%integrator) 
+    
+    
+    
+    return obj
+        
+              
 
 
 

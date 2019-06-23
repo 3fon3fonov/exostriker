@@ -62,8 +62,8 @@ import dill
 #if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
 #    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
-#if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
-#    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps,True)
+if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps,True)
 
 
 
@@ -925,6 +925,60 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(3): 
             fit.GP_sho_jeff_pr[i] = GP_sho_jeff_priors_gui[i]   
 
+ 
+    
+ 
+   
+    def check_arb_pl(self):
+        global fit
+
+
+        fit.arb_st_mass = self.arb_st_mass.value()
+        
+        arb_param_gui_use = [self.use_arb_Planet_1,self.use_arb_Planet_2,self.use_arb_Planet_3,
+                             self.use_arb_Planet_4,self.use_arb_Planet_5,self.use_arb_Planet_6,
+                             self.use_arb_Planet_7,self.use_arb_Planet_8,self.use_arb_Planet_9]
+ 
+        
+        arb_param_gui = [
+                     self.arb_K_1, self.arb_P_1, self.arb_e_1, self.arb_om_1, self.arb_ma_1, self.arb_incl_1, self.arb_Om_1,
+                     self.arb_K_2, self.arb_P_2, self.arb_e_1, self.arb_om_2, self.arb_ma_2, self.arb_incl_2, self.arb_Om_2,
+                     self.arb_K_3, self.arb_P_3, self.arb_e_1, self.arb_om_3, self.arb_ma_3, self.arb_incl_3, self.arb_Om_3,
+                     self.arb_K_4, self.arb_P_4, self.arb_e_1, self.arb_om_4, self.arb_ma_4, self.arb_incl_4, self.arb_Om_4, 
+                     self.arb_K_5, self.arb_P_5, self.arb_e_1, self.arb_om_5, self.arb_ma_5, self.arb_incl_5, self.arb_Om_5,
+                     self.arb_K_6, self.arb_P_6, self.arb_e_1, self.arb_om_6, self.arb_ma_6, self.arb_incl_6, self.arb_Om_6,
+                     self.arb_K_7, self.arb_P_7, self.arb_e_1, self.arb_om_7, self.arb_ma_7, self.arb_incl_7, self.arb_Om_7, 
+                     self.arb_K_8, self.arb_P_8, self.arb_e_1, self.arb_om_8, self.arb_ma_8, self.arb_incl_8, self.arb_Om_8,
+                     self.arb_K_9, self.arb_P_9, self.arb_e_1, self.arb_om_9, self.arb_ma_9, self.arb_incl_9, self.arb_Om_9,
+                     ]
+        
+        for i in range(9):
+            fit.pl_arb_use[i] = arb_param_gui_use[i].isChecked()
+            
+            fit.e_arb[i]    = arb_param_gui[7*i + 2].value()    
+            fit.w_arb[i]    = arb_param_gui[7*i + 3].value()    
+            fit.M0_arb[i]   = arb_param_gui[7*i + 4].value()    
+            fit.i_arb[i]    = arb_param_gui[7*i + 5].value()    
+            fit.Node_arb[i] = arb_param_gui[7*i + 6].value()    
+ 
+            if self.radioButton_KP.isChecked():
+                fit.K_arb[i]    = arb_param_gui[7*i + 0].value()    
+                fit.P_arb[i]    = arb_param_gui[7*i + 1].value()                 
+                mass_,a_ = rv.mass_a_from_Kepler_fit([fit.K_arb[i],  fit.P_arb[i], fit.e_arb[i],  fit.w_arb[i], fit.M0_arb[i]],1,fit.arb_st_mass)
+                fit.mass_arb[i] = float(mass_[0])
+                fit.a_arb[i] = float(a_[0])
+            else:                
+                fit.mass_arb[i] = arb_param_gui[7*i + 0].value()  
+                fit.a_arb[i]    = arb_param_gui[7*i + 1].value()  
+            
+            
+        fit.npl_arb = np.sum(fit.pl_arb_use.values())
+ 
+    
+    
+    
+    
+    
     
 ####################################################        
 
@@ -1984,26 +2038,7 @@ Polyfit coefficients:
         self.jupiter_push_vars() 
 
         
-        
-    def update_orb_plot(self):
-        global fit, p16
-        
-        p16.plot(clear=True,)    
-        
-        for i in range(fit.npl):
-            orb_xyz, pl_xyz, peri_xyz, apo_xyz = rv.planet_orbit_xyz(fit,i)        
-            p16.plot(orb_xyz[0],orb_xyz[1], pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True)   
-            p16.plot((0,peri_xyz[0]),(0,peri_xyz[1]), pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True)               
-            
-            p16.plot((pl_xyz[0],pl_xyz[0]), (pl_xyz[1],pl_xyz[1] ), pen=None,symbol='o', symbolSize=6,enableAutoRange=True,viewRect=True, symbolBrush='b') 
-            
-        p16.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
-
-
-
-            
-            
-  
+ 
     def add_jitter(self, errors, ind):
         global fit
         
@@ -2663,14 +2698,40 @@ Transit duration: %s d
  
         
 ############################# N-Body ########################################     
+
+
+    def update_orb_plot(self):
+        global fit, p16
+        
+        p16.plot(clear=True,)    
+
+        if fit.pl_arb_test == True:
+            npl = fit.npl_arb
+        else:
+            npl = fit.npl     
+        
+        for i in range(npl):
+            orb_xyz, pl_xyz, peri_xyz, apo_xyz = rv.planet_orbit_xyz(fit,i)        
+            p16.plot(orb_xyz[0],orb_xyz[1], pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True)   
+            p16.plot((0,peri_xyz[0]),(0,peri_xyz[1]), pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True)               
+            
+            p16.plot((pl_xyz[0],pl_xyz[0]), (pl_xyz[1],pl_xyz[1] ), pen=None,symbol='o', symbolSize=6,enableAutoRange=True,viewRect=True, symbolBrush='b') 
+            
+        p16.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
+
+
         
     def delta_omega_combo(self):
 
+        if fit.pl_arb_test == True:
+            npl = fit.npl_arb
+        else:
+            npl = fit.npl           
  
         self.comboBox_pl_1.clear()
         self.comboBox_pl_2.clear()
         
-        for i in range(fit.npl):
+        for i in range(npl):
             self.comboBox_pl_1.addItem('omega %s'%str(i+1),i+1) 
             self.comboBox_pl_2.addItem('omega %s'%str(i+1),i+1) 
             
@@ -2681,6 +2742,7 @@ Transit duration: %s d
 
     def plot_delta_omega(self):
         global fit, colors_delta_om, p17 
+        
 
         self.color_delta_om.setStyleSheet("color: %s;"%colors_delta_om[0]) 
 
@@ -2750,11 +2812,16 @@ Transit duration: %s d
  
 
     def theta_which_pl_combo(self):
+        
+        if fit.pl_arb_test == True:
+            npl = fit.npl_arb
+        else:
+            npl = fit.npl    
 
         self.comboBox_MMR_which_pl_1.clear()
         self.comboBox_MMR_which_pl_2.clear()
         
-        for i in range(fit.npl):
+        for i in range(npl):
             self.comboBox_MMR_which_pl_1.addItem('pl. %s'%str(i+1),i+1) 
             self.comboBox_MMR_which_pl_2.addItem('pl. %s'%str(i+1),i+1) 
             
@@ -2882,12 +2949,17 @@ Transit duration: %s d
         
     def worker_Nbody_complete(self):
         global fit, colors, p13, p14, p15  
+        
+        if fit.pl_arb_test == True:
+            npl = fit.npl_arb
+        else:
+            npl = fit.npl           
 
         p13.plot(clear=True,)
         p14.plot(clear=True,)
         p15.plot(clear=True,)
 
-        for i in range(fit.npl):
+        for i in range(npl):
             p13.plot(fit.evol_T[i], fit.evol_a[i] ,pen=fit.colors[i],symbol=None )     
             p14.plot(fit.evol_T[i], fit.evol_e[i] ,pen=fit.colors[i],symbol=None )  
            # p15.plot(fit.evol_T[i], fit.evol_p[i] ,pen=fit.colors[i],symbol=None )  
@@ -2902,12 +2974,14 @@ Transit duration: %s d
         self.theta_which_pl_combo()
         self.plot_delta_omega()
         self.plot_theta()
+#        self.update_orb_plot()
 
         self.plot_tabs.setCurrentWidget(self.tab_Orbital_evol)
             
              
         self.button_orb_evol.setEnabled(True)       
-        self.statusBar().showMessage('')           
+        self.statusBar().showMessage('')      
+        fit.pl_arb_test = False
           
  
     def worker_Nbody(self):
@@ -2947,11 +3021,42 @@ Transit duration: %s d
        # worker.signals.progress.connect(self.progress_fn)
         self.threadpool.start(worker3)  
 
+
+
+    def worker_Nbody_arb(self):
+        global fit  
+
+        self.run_orb_evol_arbitary.setEnabled(False)         
+   
+        self.check_arb_pl()
+
+        if fit.npl_arb < 2:
+            choice = QtGui.QMessageBox.information(self, 'Warning!'," With less than two planets this makes no sense. Okay?",
+                                            QtGui.QMessageBox.Ok) 
+            self.run_orb_evol_arbitary.setEnabled(True)                    
+            return
  
-    def run_orbital_simulations(self):
+        fit.pl_arb_test = True
+        
+        self.statusBar().showMessage('Running Orbital Evolution......')   
+        
+        # Pass the function to execute
+        worker_arb = Worker(lambda: self.run_orbital_simulations(arbitary=True)) # Any other args, kwargs are passed to the run  
+        # Execute
+        worker_arb.signals.finished.connect(self.worker_Nbody_complete)
+        
+        # worker.signals.result.connect(self.print_output)
+        #worker.signals.finished.connect(self.thread_complete)
+       # worker.signals.progress.connect(self.progress_fn)
+        self.threadpool.start(worker_arb)  
+
+        self.run_orb_evol_arbitary.setEnabled(True)   
+        
+        
+    def run_orbital_simulations(self, arbitary=False):
         global fit
 
-        self.max_time_of_evol
+        #self.max_time_of_evol
 
         if self.radioButton_SyMBA.isChecked():
             integrator = 'symba'
@@ -2964,9 +3069,19 @@ Transit duration: %s d
         start_time = time.time()        
        # fit.run_stability_last_fit_params(timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
        
-        fit = rv.run_stability(fit, timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
+        if arbitary == True:
+            fit = rv.run_stability_arb(fit, timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
+        else:         
+            fit = rv.run_stability(fit, timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
         
-        print("--- %s seconds ---" % (time.time() - start_time))                   
+        print("--- %s seconds ---" % (time.time() - start_time))          
+
+
+
+
+
+
+         
        
 ############################# Fortran fitting ###############################        
         
@@ -4542,10 +4657,20 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         #screen = QtWidgets.QApplication.primaryScreen()
         #p =  screen.grabWindow(0)
         #painter.setRenderHint(QtGui.QPainter.Antialiasing, self.params['antialias'])
-        filename = QtGui.QFileDialog.getSaveFileName(self, 'Save image', '', '')
-        p.save(filename[0], 'jpg')
+       # filename = QtGui.QFileDialog.getSaveFileName(self, 'Save image', filter="PNG(*.png);; JPEG(*.jpg)")
+        #p.save(filename[0], 'jpg')        
         #label.setPixmap(p)        # just for fun :)
-
+        img, _ = QtGui.QFileDialog.getSaveFileName(self,"Save image",
+                                            filter="PNG(*.png);; JPEG(*.jpg)")
+        if img[-3:] == "png":
+            p.save(img, "png")
+        elif img[-3:] == "jpg":
+            p.save(img, "jpg")       
+            
+            
+            
+            
+        
     def print_f_test_stat(self):
         global fit
 
@@ -4653,6 +4778,18 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
 #############################  TEST ZONE ################################  
 
+    def set_kp_ma(self):
+        global fit  
+ 
+        if self.radioButton_KP.isChecked():
+            
+            self.label_K_mass_arb.setText("K [m/s]")
+            self.label_P_a_arb.setText("P [day]")
+        else:
+            
+            self.label_K_mass_arb.setText("mass [Mj]")
+            self.label_P_a_arb.setText("a [au]")
+     
     
     
     def set_hkl(self):
@@ -4921,6 +5058,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
        # self.button_nest_samp.clicked.connect(lambda: self.run_nest_samp())
         self.button_nest_samp.clicked.connect(self.worker_nest)
         
+        self.run_orb_evol_arbitary.clicked.connect(self.worker_Nbody_arb) 
  
         
         self.button_make_mcmc_cornerplot.clicked.connect(lambda: self.worker_cornerplot(type_plot = "mcmc"))
@@ -5100,6 +5238,8 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         
         self.radioButton_ewm.toggled.connect(self.set_hkl)
 #        self.radioButton_hkl.toggled.connect(self.set_hkl)
+        self.radioButton_KP.toggled.connect(self.set_kp_ma)
+ 
 
 
         self.radioButton_RV_WF_period.toggled.connect(self.update_WF_plots)
