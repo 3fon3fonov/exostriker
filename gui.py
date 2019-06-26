@@ -165,7 +165,8 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
       #  for i in range(len(param_gui_trans)):
       #      param_gui_trans[i].setValue(fit.tr_par[i])
             
-        param_gui_tr = [self.t0_1, self.pl_rad_1, self.a_sol_1,
+        param_gui_tr = [
+                     self.t0_1, self.pl_rad_1, self.a_sol_1,
                      self.t0_2, self.pl_rad_2, self.a_sol_2,
                      self.t0_3, self.pl_rad_3, self.a_sol_3,
                      self.t0_4, self.pl_rad_4, self.a_sol_4, 
@@ -545,7 +546,8 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         #for i in range(len(use_param_gui_trans)):
        #     fit.tr_params_use[i] =  use_param_gui_trans[i].isChecked()       
             
-        use_param_gui_tr = [self.use_t0_1, self.use_pl_rad_1, self.use_a_sol_1,
+        use_param_gui_tr = [
+             self.use_t0_1, self.use_pl_rad_1, self.use_a_sol_1,
              self.use_t0_2, self.use_pl_rad_2, self.use_a_sol_2,
              self.use_t0_3, self.use_pl_rad_3, self.use_a_sol_3,
              self.use_t0_4, self.use_pl_rad_4, self.use_a_sol_4, 
