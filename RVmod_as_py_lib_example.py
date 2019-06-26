@@ -251,10 +251,23 @@ ax1.cla()
 #####################
 
 
+# Run MCMC 
+#fit = rv.run_mcmc(fit, burning_ph=1000, mcmc_ph=5000, threads=30, output=False, fileoutput=True,save_means=False, save_mode=True, save_maxlnL=False)
+
+# Run Nested sampling 
+
+#fit = rv.run_nestsamp(fit, threads=30, std_output=False, stop_crit = 0.0001, Dynamic_nest = False, live_points = 500, fileoutput=True, save_means=False, save_mode=False, save_maxlnL=True)
+
+# WARNING! setup the bounds/prioirs first. Usually these are wide open and if you dont set them up 
+# it my take forever for the Nest. Samp. to finish. Unfortunatly I have to provide another example how to work with the RVmod priors/
+# Work in progress....
+      
+
+
+
 #if you already have a session saved you may try:
 
 #import dill
-
 
 #file = open("session.ses", 'rb')
 #fit = dill.load(file)
