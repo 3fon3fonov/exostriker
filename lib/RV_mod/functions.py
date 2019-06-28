@@ -53,6 +53,26 @@ def ma_from_t0(per, ecc, om, t_transit, epoch):
     return ma   
 
 
+        
+
+def custom_param_file_for_stability(max_time,time_step):
+
+        ##### create the param.in file (change only the "t_max" and the "dt" for now) ######
+    param_file = open('param.in', 'wb') 
+        
+    max_time = float(max_time)*365.2425 # make it is days
+ 
+    param_file.write("""0.0d0 %s %s
+%s %s
+        
+F T T T T F
+0.001 50.0 50.0 -1. T
+ bin.dat
+unknown
+"""%(max_time, time_step, max_time/1e4, max_time/1e3 ))
+ 
+    param_file.close()
+    return
 
 
 
@@ -173,7 +193,44 @@ def planet_orbit_xyz(obj, planet):
                                                        
     return np.array([x,y,z,u,v,w]), np.array([x_p,y_p,z_p,u_p,v_p,w_p]), np.array([x[min_index],y[min_index],z[min_index],u[min_index],v[min_index],w[min_index]]), np.array([x[max_index],y[max_index],z[max_index],u[max_index],v[max_index],w[max_index]])
 
-   
+  
+
+def get_xyz(obj):
+
+    st_mass = obj.params.stellar_mass * (4*np.pi*np.pi)/(365.25*365.25)
+    frho3 = 1.0
+    u1 = st_mass
+    obj.xyz_mass[0] = u1
+    
+    Msun = 1.989e33
+    Au = 1.49597892e13 
+    
+    for i in range(obj.npl):
+        
+        pl_mass_in_st = float(obj.fit_results.mass[i])/ 1047.70266835
+        
+        pl_mass = pl_mass_in_st * (4*np.pi*np.pi)/(365.25*365.25)      
+        q = (1.0 - obj.params.planet_params[2 + i*7])*float(obj.fit_results.a[i])
+       
+        obj.rpl[i+1] = frho3*(1.5*pl_mass_in_st*Msun/(2*np.pi))**0.3333333333/Au 
+#             rpl(i) =  frho3*(1.5d0*mpl0*MSUN/TWOPI)**0.3333333333d0/AU
+       
+        obj.rhill[i+1] = float(obj.fit_results.a[i])*(pl_mass/(3.0*st_mass))**0.3333333333
+
+        u1 = u1 +pl_mass
+        obj.xyz_mass[i+1] = pl_mass
+        
+        x_p,y_p,z_p,u_p,v_p,w_p = jac2astrocen.mco_el2x(u1,q,
+                                                       obj.params.planet_params[2 + i*7],
+                                                       np.radians(obj.params.planet_params[5 + i*7]),
+                                                       np.radians(obj.params.planet_params[3 + i*7]) - np.radians(obj.params.planet_params[6 + i*7]),
+                                                       np.radians(obj.params.planet_params[6 + i*7]),  np.radians(obj.params.planet_params[4 + i*7]))    
+     
+        obj.xzy[i+1] =     np.array([x_p,y_p,z_p])
+        obj.uvw[i+1] =     np.array([u_p,v_p,w_p])
+    
+    
+    return obj
  
 
 def create_temporary_copy(path): # not really a good idea......
@@ -1029,7 +1086,7 @@ pl.in
     
     try:
         os.system('rm *.out *.dat *.in') 
-       # os.system('mv *.out *.dat *.in ../../stab_test/') 
+        #os.system('mv *.out *.dat *.in last_run') 
 
     except OSError:
         pass 
@@ -1132,6 +1189,7 @@ pl.in
     
     try:
         os.system('rm *.out *.dat *.in') 
+        #os.system('mv *.out *.dat *.in last_run')         
     except OSError:
         pass
     

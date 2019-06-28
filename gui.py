@@ -2036,7 +2036,7 @@ Polyfit coefficients:
         #start_time = time.time()
         self.update_plots() 
         self.update_transit_plots() 
-        #print("--- %s seconds ---" % (time.time() - start_time))      
+        #print("--- %s seconds ---" % (time.time() - start_time))   
         self.jupiter_push_vars() 
 
         
@@ -2408,7 +2408,10 @@ Transit duration: %s d
        
     def worker_transit_fitting_complete(self):
         global fit  
-        
+ 
+        fit=rv.get_xyz(fit)
+    
+       
         self.update_labels()
         self.update_gui_params()
         self.update_errors() 
@@ -3090,10 +3093,13 @@ Transit duration: %s d
     def worker_RV_fitting_complete(self):
         global fit  
         
+        fit=rv.get_xyz(fit)
+        
         self.update_labels()
         self.update_gui_params()
         self.update_errors() 
-        self.update_a_mass()                    
+        self.update_a_mass()    
+                
                  
         self.statusBar().showMessage('')   
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 

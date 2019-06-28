@@ -1278,26 +1278,6 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
 
 
 
-        
-
-def custom_param_file_for_stability(max_time,time_step):
-
-        ##### create the param.in file (change only the "t_max" and the "dt" for now) ######
-    param_file = open('param.in', 'wb') 
-        
-    max_time = float(max_time)*365.2425 # make it is days
- 
-    param_file.write("""0.0d0 %s %s
-%s %s
-        
-F T T T T F
-0.001 50.0 50.0 -1. T
- bin.dat
-unknown
-"""%(max_time, time_step, max_time/1e4, max_time/1e3 ))
- 
-    param_file.close()
-    return
 
 
 def phase_RV_planet_signal(obj,planet):
@@ -1541,7 +1521,21 @@ class signal_fit(object):
 
          
         self.init_sciPy_minimizer()
-          
+       
+        self.init_xyz()
+ 
+
+
+#    def constants(self):   
+#        self.AU
+
+       
+    def init_xyz(self):         
+        self.xyz_mass = {k: [] for k in range(10)}       
+        self.xzy    = {k: [] for k in range(10)}
+        self.uvw    = {k: [] for k in range(10)}
+        self.rpl    = {k: [] for k in range(10)}
+        self.rhill  = {k: [] for k in range(10)}
 
 #        self.hack_around_rv_params()
 #        self.calc_hkl()
