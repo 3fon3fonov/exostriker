@@ -5,15 +5,16 @@
   <img width="400" src="https://github.com/3fon3fonov/trifon/blob/master/lib/33_striker.png">
 </p>
  
-
-Very powerful and fast GUI tool for exoplanet orbital analysis. It uses a brand new RV fitting library called "RVmod", which can model the Stellar reflex motion caused by dynamically interacting planets in multi planetary systems. 
+The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and models the RV stellar reflex motion caused by dynamically interacting planets in multi-planetary systems. It offers a broad range of tools for detailed analysis of transit and Doppler data, including power spectrum analysis for Doppler and transit data; Keplerian and dynamical modeling of multi-planet systems; MCMC and nested sampling; Gaussian Processes modeling; and a long-term stability check of multi-planet systems. The Exo-Striker can also analyze Mean Motion Resonance (MMR) analysis, create fast fully interactive plots, and export ready-to-use LaTeX tables with best-fit parameters, errors, and statistics. It combines Fortran efficiency and Python flexibility and is cross-platform compatible (MAC OS, Linux, Windows). The tool relies on a number of open-source packages, including RVmod engine (Trifonov et al. in prep.), emcee (ascl:1303.002), batman (ascl:1510.002), celerite (ascl:1709.008), and dynesty (ascl:1809.013).
 
 ![new_es](https://user-images.githubusercontent.com/44244057/57973277-ccdbce00-79a6-11e9-9930-60a40beb0b04.png)
 
 **WARNING!** This tool is under active development and its functionality is enhanced on a daily basis! Therefore, although very unlikely, the version you download today may not be fully compatible with the version uploaded tomorrow! Use at your own risk!
 
 Also, please keep in mind that this software is developed mostly for my needs and for fun. I hope, however, that you may find 
-it capable to solve your scientific problems, too. For updates, follow my Twitter account https://twitter.com/3fon3fonov 
+it capable to solve your scientific problems, too. If you made the use of The Exo-Striker for your paper please 
+cite the tool with its ASCL ID ascl:1906.004 (see https://ascl.net/1906.004).
+
 
 What works:
 
