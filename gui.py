@@ -314,7 +314,146 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             fit.epoch =  self.Epoch.value()
        
+   
+    
+    def set_hkl(self):
+        global fit  
+        
+        #font = QtGui.QFont()
+        #font.setPointSize(8)
+        #font.setBold(False)
+        #font.setWeight(75)
+    
+        param_gui = [self.e1, self.om1, self.ma1,
+                     self.e2, self.om2, self.ma2,
+                     self.e3, self.om3, self.ma3,
+                     self.e4, self.om4, self.ma4, 
+                     self.e5, self.om5, self.ma5,
+                     self.e6, self.om6, self.ma6,
+                     self.e7, self.om7, self.ma7,  
+                     self.e8, self.om8, self.ma8, 
+                     self.e9, self.om9, self.ma9]    
+    
+    
+        if self.radioButton_ewm.isChecked():
+            
+            fit.hkl = False
+#            fit.hack_around_rv_params()  
+#            fit.calc_ewm()
+            
+            self.label_ecc.setText("e")
+            self.label_omega.setText("<html><head/><body><p>&omega; [deg]</p></body></html>")
+            self.label_Ma.setText("Ma [deg]")   
+            self.label_ecc2.setText("e")
+            self.label_omega2.setText("<html><head/><body><p>&omega; [deg]</p></body></html>")
+            self.label_Ma2.setText("Ma [deg]")               
+            self.label_ecc3.setText("e")
+            self.label_omega3.setText("<html><head/><body><p>&omega; [deg]</p></body></html>")
+            self.label_Ma3.setText("Ma [deg]")        
 
+            
+            for i in range(9):
+                param_gui[i*3].setRange(0.0,1.0)
+               #param_gui[i*3].singleStep(0.001)
+                param_gui[i*3+1].setRange(0.0,360.0)
+                param_gui[i*3+2].setRange(0.0,360.0)                
+                #param_gui[i*3+1].singleStep(0.001)                
+                param_gui[i*3].setValue(fit.e[i])             
+                param_gui[i*3+1].setValue(fit.w[i])             
+                param_gui[i*3+2].setValue(fit.M0[i])             
+
+#                fit.params.update_e(i,fit.e[i]) # update e for a given planet
+#                fit.params.update_w(i,fit.w[i]) # update w for a given planet
+#                fit.params.update_M0(i,fit.M0[i]) # update w for a given planet
+ 
+
+            
+         
+        elif self.radioButton_hkl.isChecked():
+            
+            fit.hkl = True
+#            fit.hack_around_rv_params()  
+#            fit.calc_hkl()
+
+           
+            self.label_ecc.setText("<html><head/><body><p>h=esin(&omega;)</p></body></html>")
+            self.label_omega.setText("<html><head/><body><p>k=ecos(&omega;)</p></body></html>")
+            self.label_Ma.setText("<html><head/><body><p>&lambda; [deg]</p></body></html>")      
+            self.label_ecc2.setText("<html><head/><body><p>h=esin(&omega;)</p></body></html>")
+            self.label_omega2.setText("<html><head/><body><p>k=ecos(&omega;)</p></body></html>")
+            self.label_Ma2.setText("<html><head/><body><p>&lambda; [deg]</p></body></html>")    
+            self.label_ecc3.setText("<html><head/><body><p>h=esin(&omega;)</p></body></html>")
+            self.label_omega3.setText("<html><head/><body><p>k=ecos(&omega;)</p></body></html>")
+            self.label_Ma3.setText("<html><head/><body><p>&lambda; [deg]</p></body></html>")    
+
+  
+            for i in range(9):
+                param_gui[i*3].setRange(-1.0,1.0)
+               # param_gui[i*3].singleStep(0.01)                
+                param_gui[i*3+1].setRange(-1.0,1.0) 
+                param_gui[i*3+2].setRange(0.0,360.0)  
+                param_gui[i*3].setValue(fit.e_sinw[i])              
+                param_gui[i*3+1].setValue(fit.e_cosw[i])            
+                param_gui[i*3+2].setValue(fit.lamb[i])   
+                
+#                fit.params.update_e(i,fit.e_sinw[i]) # update e for a given planet
+#                fit.params.update_w(i,fit.e_cosw[i]) # update w for a given planet
+#                fit.params.update_M0(i,fit.lamb[i]) # update w for a given planet
+ 
+
+        self.update_params()
+        self.update_gui_params() 
+        #self.update_params() 
+    
+    def set_tra_ld(self):
+        global fit   
+
+
+        uni_ld_models = [self.use_uniform_ld_1,self.use_uniform_ld_2,self.use_uniform_ld_3,self.use_uniform_ld_4,self.use_uniform_ld_5,
+                         self.use_uniform_ld_6,self.use_uniform_ld_7,self.use_uniform_ld_8,self.use_uniform_ld_9,self.use_uniform_ld_10]
+        
+        lin_ld_models = [self.use_linear_ld_1,self.use_linear_ld_2,self.use_linear_ld_3,self.use_linear_ld_4,self.use_linear_ld_5,
+                         self.use_linear_ld_6,self.use_linear_ld_7,self.use_linear_ld_8,self.use_linear_ld_9,self.use_linear_ld_10]        
+
+        quad_ld_models = [self.use_quadratic_ld_1,self.use_quadratic_ld_2,self.use_quadratic_ld_3,self.use_quadratic_ld_4,self.use_quadratic_ld_5,
+                          self.use_quadratic_ld_6,self.use_quadratic_ld_7,self.use_quadratic_ld_8,self.use_quadratic_ld_9,self.use_quadratic_ld_10] 
+      
+        nonlin_ld_models = [self.use_nonlinear_ld_1,self.use_nonlinear_ld_2,self.use_nonlinear_ld_3,self.use_nonlinear_ld_4,self.use_nonlinear_ld_5,
+                          self.use_nonlinear_ld_6,self.use_nonlinear_ld_7,self.use_nonlinear_ld_8,self.use_nonlinear_ld_9,self.use_nonlinear_ld_10] 
+
+        lin_u1 = [self.u1_linear_1, self.u1_linear_2, self.u1_linear_3, self.u1_linear_4, self.u1_linear_5,
+                  self.u1_linear_6, self.u1_linear_7, self.u1_linear_8, self.u1_linear_9, self.u1_linear_10]
+
+        quad_u1 = [self.u1_quadratic_1, self.u1_quadratic_2, self.u1_quadratic_3, self.u1_quadratic_4, self.u1_quadratic_5,
+                   self.u1_quadratic_6, self.u1_quadratic_7, self.u1_quadratic_8, self.u1_quadratic_9, self.u1_quadratic_10]
+        quad_u2 = [self.u2_quadratic_1, self.u2_quadratic_2, self.u2_quadratic_3, self.u2_quadratic_4, self.u2_quadratic_5,
+                   self.u2_quadratic_6, self.u2_quadratic_7, self.u2_quadratic_8, self.u2_quadratic_9, self.u2_quadratic_10]
+        
+        nonlin_u1 = [self.u1_nonlin_1, self.u1_nonlin_2, self.u1_nonlin_3, self.u1_nonlin_4, self.u1_nonlin_5,
+                     self.u1_nonlin_6, self.u1_nonlin_7, self.u1_nonlin_8, self.u1_nonlin_9, self.u1_nonlin_10]
+        nonlin_u2 = [self.u2_nonlin_1, self.u2_nonlin_2, self.u2_nonlin_3, self.u2_nonlin_4, self.u2_nonlin_5,
+                     self.u2_nonlin_6, self.u2_nonlin_7, self.u2_nonlin_8, self.u2_nonlin_9, self.u2_nonlin_10]   
+        nonlin_u3 = [self.u3_nonlin_1, self.u3_nonlin_2, self.u3_nonlin_3, self.u3_nonlin_4, self.u3_nonlin_5,
+                     self.u3_nonlin_6, self.u3_nonlin_7, self.u3_nonlin_8, self.u3_nonlin_9, self.u3_nonlin_10]
+        nonlin_u4 = [self.u4_nonlin_1, self.u4_nonlin_2, self.u4_nonlin_3, self.u4_nonlin_4, self.u4_nonlin_5,
+                     self.u4_nonlin_6, self.u4_nonlin_7, self.u4_nonlin_8, self.u4_nonlin_9, self.u4_nonlin_10]
+        for i in range(10):
+            if uni_ld_models[i].isChecked():
+                fit.ld_m[i] = "uniform"
+                fit.ld_u[i] = []               
+            elif lin_ld_models[i].isChecked():
+                fit.ld_m[i] = "linear" 
+                fit.ld_u[i] = [lin_u1[i].value()]                              
+            elif quad_ld_models[i].isChecked():
+                fit.ld_m[i] = "quadratic"        
+                fit.ld_u[i] = [quad_u1[i].value(),quad_u2[i].value()]                                              
+            elif nonlin_ld_models[i].isChecked():
+                fit.ld_m[i] = "nonlinear"        
+                fit.ld_u[i] = [nonlin_u1[i].value(),nonlin_u2[i].value(),nonlin_u3[i].value(),nonlin_u4[i].value()]                  
+            else:
+                fit.ld_m[i] = "quadratic"              
+                fit.ld_u[i] = [quad_u1[i].value(),quad_u2[i].value()]                                              
+     
 
     def update_errors(self):
         global fit
@@ -413,13 +552,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         
         for i in range(fit.npl*7):
             use_param_gui[i].setChecked(bool(fit.use.use_planet_params[i]))
-
-       # use_param_gui_trans = [self.use_t0_1_trans, self.use_P1_trans, self.use_e1_trans, self.use_om1_trans, self.use_pl1_rad_trans, self.use_incl1_trans, self.use_a1_trans,
-      #               ]
-         
-      #  for i in range(len(use_param_gui_trans)):
-       #     use_param_gui_trans[i].setChecked(bool(  fit.tr_params_use[i] ))   
-            
+ 
             
         use_param_gui_tr = [self.use_t0_1, self.use_pl_rad_1, self.use_a_sol_1,
              self.use_t0_2, self.use_pl_rad_2, self.use_a_sol_2,
@@ -436,9 +569,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             use_param_gui_tr[i*3].setChecked(bool(fit.t0_use[i]) )        
             use_param_gui_tr[i*3+1].setChecked(bool(fit.pl_rad_use[i]) )
             use_param_gui_tr[i*3+2].setChecked(bool(fit.pl_a_use [i]) )
-                        
-            
-
+ 
 
         use_data_offset_gui = [self.use_offset_Data1,self.use_offset_Data2,self.use_offset_Data3,self.use_offset_Data4,
                                self.use_offset_Data5,self.use_offset_Data6,self.use_offset_Data7,self.use_offset_Data8,
@@ -503,8 +634,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                             int(self.mix_pl_7.isChecked()),int(self.mix_pl_8.isChecked()),int(self.mix_pl_9.isChecked()),
                             ]       
         
-        
-            
+ 
     def update_use(self):
         global fit
         
@@ -609,13 +739,10 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.GP_sho_use[i] = int(use_gp_sho_params[i].isChecked())            
             
             
-            
  
-   
     def check_bounds(self):
         global fit
-
-        
+ 
         
         param_bounds_gui = [
         [self.K_min_1.value(),self.K_max_1.value()],[self.P_min_1.value(),self.P_max_1.value()], [self.e_min_1.value(),self.e_max_1.value()],[self.om_min_1.value(),self.om_max_1.value()], [self.ma_min_1.value(),self.ma_max_1.value()],[self.incl_min_1.value(),self.incl_max_1.value()], [self.Omega_min_1.value(),self.Omega_max_1.value()],[self.t0_min_1.value(),self.t0_max_1.value()],[self.pl_rad_min_1.value(),self.pl_rad_max_1.value()],[self.a_sol_min_1.value(),self.a_sol_max_1.value()],
@@ -788,7 +915,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
     
         for i in range(10): 
             fit.tra_off_norm_pr[i] = offset_nr_priors_gui_tra[i]
-            fit.tra_jitt_norm_pr[i] = jitter_nr_priors_gui[i] 
+            fit.tra_jitt_norm_pr[i] = jitter_nr_priors_gui_tra[i] 
 
  
         GP_rot_nr_priors_gui = [
@@ -928,9 +1055,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.GP_sho_jeff_pr[i] = GP_sho_jeff_priors_gui[i]   
 
  
-    
  
-   
     def check_arb_pl(self):
         global fit
 
@@ -1878,11 +2003,21 @@ Polyfit coefficients:
         global fit
 
         but_ind = self.buttonGroup_remove_RV_data.checkedId()   
+        
+        try:
+            dirname, basename = os.path.split(fit.filelist.files[but_ind-1].path)
+            os.system('rm -r %s'%dirname)
+        except:
+            return
+        
         fit.remove_dataset(but_ind -1)
         #### new stuf ####
         fit.remove_rv_dataset(but_ind -1)
         #### new stuf ####
        
+
+        
+        
         self.init_fit()         
         self.update_use_from_input_file()   
         self.update_use()
@@ -3604,10 +3739,14 @@ highly appreciated!
             file_pi = open(input_file[0], 'rb')
             fit_new = dill.load(file_pi)
             file_pi.close()     
+            
             ses_list.append(fit_new)
             
             #self.check_settings()
             self.session_list()
+            self.select_session(-1)
+            
+ 
         
 
     def save_session(self):
@@ -3630,7 +3769,7 @@ highly appreciated!
 
             file_pi = open(input_file[0], 'rb')
             fit2 = dill.load(file_pi)
-            file_pi.close()   
+            file_pi.close()           
         
             choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "Do you want to overwrite the current sessions? If you choose 'No' will add the session, 'Cancel' will exit",
@@ -3645,7 +3784,7 @@ highly appreciated!
     
             self.check_settings()  
             self.session_list()
-            self.select_session(0)
+            self.select_session(-1)
 
     def save_sessions(self):
         global fit, ses_list
@@ -3670,22 +3809,22 @@ highly appreciated!
             for i in range(len(ses_list)):
                 self.comboBox_select_ses.addItem('%s'%(ses_list[i].name),i) 
                 self.comboBox_select_ses.setItemText(i, '%s'%(ses_list[i].name))
-        
-        #self.select_session(0)
+ 
 
     def select_session(self, index):
         global fit, ses_list
         
-        ind = self.comboBox_select_ses.itemData(index) 
-       # text = str(self.comboBox_select_ses.currentText())
+        if index == -1:
+            ind = -1
+            self.comboBox_select_ses.setCurrentIndex(len(ses_list)-1)
+        else:
+            ind = self.comboBox_select_ses.itemData(index) 
 
-       # print(ind,index,len(ses_list),text)
         if ind == None:
             return
-            #fit = ses_list[0]
         else:
             fit = ses_list[ind]
-        #ses_list[ind-1] = fit
+ 
 
        # print(ind,index,self.comboBox_select_ses.itemText(index))
        # ses_list[ind].name = self.comboBox_select_ses.itemText(index)
@@ -3714,13 +3853,7 @@ highly appreciated!
             ses_list[ind].name = self.comboBox_select_ses.currentText() 
             self.comboBox_select_ses.setItemText(ind, '%s'%(ses_list[ind].name))
             
-        #self.session_list()
-        #text = str(self.comboBox_select_ses.currentText())
 
-       # print(ind,index,len(ses_list),text)  
-        #print(fit.name)
- 
-            
             
 ################################## Nest Samp. #######################################
 
@@ -4711,12 +4844,18 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 ################################## System #######################################
             
     def quit(self):
+        global fit            
         #os.system("rm temp*.vels")
         choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "Do you want to save the session before you Quit?",
                                             QtGui.QMessageBox.Cancel | QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
          
         if choice == QtGui.QMessageBox.No:
+            
+            for i in range(fit.filelist.ndset): 
+                dirname, basename = os.path.split(fit.filelist.files[i].path)
+                os.system('rm -r %s'%dirname) 
+            
             self.close()
         elif choice == QtGui.QMessageBox.Yes:
             self.save_session()
@@ -4798,146 +4937,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             self.label_K_mass_arb.setText("mass [Mj]")
             self.label_P_a_arb.setText("a [au]")
      
-    
-    
-    def set_hkl(self):
-        global fit  
-        
-        #font = QtGui.QFont()
-        #font.setPointSize(8)
-        #font.setBold(False)
-        #font.setWeight(75)
-    
-        param_gui = [self.e1, self.om1, self.ma1,
-                     self.e2, self.om2, self.ma2,
-                     self.e3, self.om3, self.ma3,
-                     self.e4, self.om4, self.ma4, 
-                     self.e5, self.om5, self.ma5,
-                     self.e6, self.om6, self.ma6,
-                     self.e7, self.om7, self.ma7,  
-                     self.e8, self.om8, self.ma8, 
-                     self.e9, self.om9, self.ma9]    
-    
-    
-        if self.radioButton_ewm.isChecked():
-            
-            fit.hkl = False
-#            fit.hack_around_rv_params()  
-#            fit.calc_ewm()
-            
-            self.label_ecc.setText("e")
-            self.label_omega.setText("<html><head/><body><p>&omega; [deg]</p></body></html>")
-            self.label_Ma.setText("Ma [deg]")   
-            self.label_ecc2.setText("e")
-            self.label_omega2.setText("<html><head/><body><p>&omega; [deg]</p></body></html>")
-            self.label_Ma2.setText("Ma [deg]")               
-            self.label_ecc3.setText("e")
-            self.label_omega3.setText("<html><head/><body><p>&omega; [deg]</p></body></html>")
-            self.label_Ma3.setText("Ma [deg]")        
-
-            
-            for i in range(9):
-                param_gui[i*3].setRange(0.0,1.0)
-               #param_gui[i*3].singleStep(0.001)
-                param_gui[i*3+1].setRange(0.0,360.0)
-                param_gui[i*3+2].setRange(0.0,360.0)                
-                #param_gui[i*3+1].singleStep(0.001)                
-                param_gui[i*3].setValue(fit.e[i])             
-                param_gui[i*3+1].setValue(fit.w[i])             
-                param_gui[i*3+2].setValue(fit.M0[i])             
-
-#                fit.params.update_e(i,fit.e[i]) # update e for a given planet
-#                fit.params.update_w(i,fit.w[i]) # update w for a given planet
-#                fit.params.update_M0(i,fit.M0[i]) # update w for a given planet
  
-
-            
-         
-        elif self.radioButton_hkl.isChecked():
-            
-            fit.hkl = True
-#            fit.hack_around_rv_params()  
-#            fit.calc_hkl()
-
-           
-            self.label_ecc.setText("<html><head/><body><p>h=esin(&omega;)</p></body></html>")
-            self.label_omega.setText("<html><head/><body><p>k=ecos(&omega;)</p></body></html>")
-            self.label_Ma.setText("<html><head/><body><p>&lambda; [deg]</p></body></html>")      
-            self.label_ecc2.setText("<html><head/><body><p>h=esin(&omega;)</p></body></html>")
-            self.label_omega2.setText("<html><head/><body><p>k=ecos(&omega;)</p></body></html>")
-            self.label_Ma2.setText("<html><head/><body><p>&lambda; [deg]</p></body></html>")    
-            self.label_ecc3.setText("<html><head/><body><p>h=esin(&omega;)</p></body></html>")
-            self.label_omega3.setText("<html><head/><body><p>k=ecos(&omega;)</p></body></html>")
-            self.label_Ma3.setText("<html><head/><body><p>&lambda; [deg]</p></body></html>")    
-
-  
-            for i in range(9):
-                param_gui[i*3].setRange(-1.0,1.0)
-               # param_gui[i*3].singleStep(0.01)                
-                param_gui[i*3+1].setRange(-1.0,1.0) 
-                param_gui[i*3+2].setRange(0.0,360.0)  
-                param_gui[i*3].setValue(fit.e_sinw[i])              
-                param_gui[i*3+1].setValue(fit.e_cosw[i])            
-                param_gui[i*3+2].setValue(fit.lamb[i])   
-                
-#                fit.params.update_e(i,fit.e_sinw[i]) # update e for a given planet
-#                fit.params.update_w(i,fit.e_cosw[i]) # update w for a given planet
-#                fit.params.update_M0(i,fit.lamb[i]) # update w for a given planet
- 
-
-        self.update_params()
-        self.update_gui_params() 
-        #self.update_params() 
-    
-    def set_tra_ld(self):
-        global fit   
-
-
-        uni_ld_models = [self.use_uniform_ld_1,self.use_uniform_ld_2,self.use_uniform_ld_3,self.use_uniform_ld_4,self.use_uniform_ld_5,
-                         self.use_uniform_ld_6,self.use_uniform_ld_7,self.use_uniform_ld_8,self.use_uniform_ld_9,self.use_uniform_ld_10]
-        
-        lin_ld_models = [self.use_linear_ld_1,self.use_linear_ld_2,self.use_linear_ld_3,self.use_linear_ld_4,self.use_linear_ld_5,
-                         self.use_linear_ld_6,self.use_linear_ld_7,self.use_linear_ld_8,self.use_linear_ld_9,self.use_linear_ld_10]        
-
-        quad_ld_models = [self.use_quadratic_ld_1,self.use_quadratic_ld_2,self.use_quadratic_ld_3,self.use_quadratic_ld_4,self.use_quadratic_ld_5,
-                          self.use_quadratic_ld_6,self.use_quadratic_ld_7,self.use_quadratic_ld_8,self.use_quadratic_ld_9,self.use_quadratic_ld_10] 
-      
-        nonlin_ld_models = [self.use_nonlinear_ld_1,self.use_nonlinear_ld_2,self.use_nonlinear_ld_3,self.use_nonlinear_ld_4,self.use_nonlinear_ld_5,
-                          self.use_nonlinear_ld_6,self.use_nonlinear_ld_7,self.use_nonlinear_ld_8,self.use_nonlinear_ld_9,self.use_nonlinear_ld_10] 
-
-        lin_u1 = [self.u1_linear_1, self.u1_linear_2, self.u1_linear_3, self.u1_linear_4, self.u1_linear_5,
-                  self.u1_linear_6, self.u1_linear_7, self.u1_linear_8, self.u1_linear_9, self.u1_linear_10]
-
-        quad_u1 = [self.u1_quadratic_1, self.u1_quadratic_2, self.u1_quadratic_3, self.u1_quadratic_4, self.u1_quadratic_5,
-                   self.u1_quadratic_6, self.u1_quadratic_7, self.u1_quadratic_8, self.u1_quadratic_9, self.u1_quadratic_10]
-        quad_u2 = [self.u2_quadratic_1, self.u2_quadratic_2, self.u2_quadratic_3, self.u2_quadratic_4, self.u2_quadratic_5,
-                   self.u2_quadratic_6, self.u2_quadratic_7, self.u2_quadratic_8, self.u2_quadratic_9, self.u2_quadratic_10]
-        
-        nonlin_u1 = [self.u1_nonlin_1, self.u1_nonlin_2, self.u1_nonlin_3, self.u1_nonlin_4, self.u1_nonlin_5,
-                     self.u1_nonlin_6, self.u1_nonlin_7, self.u1_nonlin_8, self.u1_nonlin_9, self.u1_nonlin_10]
-        nonlin_u2 = [self.u2_nonlin_1, self.u2_nonlin_2, self.u2_nonlin_3, self.u2_nonlin_4, self.u2_nonlin_5,
-                     self.u2_nonlin_6, self.u2_nonlin_7, self.u2_nonlin_8, self.u2_nonlin_9, self.u2_nonlin_10]   
-        nonlin_u3 = [self.u3_nonlin_1, self.u3_nonlin_2, self.u3_nonlin_3, self.u3_nonlin_4, self.u3_nonlin_5,
-                     self.u3_nonlin_6, self.u3_nonlin_7, self.u3_nonlin_8, self.u3_nonlin_9, self.u3_nonlin_10]
-        nonlin_u4 = [self.u4_nonlin_1, self.u4_nonlin_2, self.u4_nonlin_3, self.u4_nonlin_4, self.u4_nonlin_5,
-                     self.u4_nonlin_6, self.u4_nonlin_7, self.u4_nonlin_8, self.u4_nonlin_9, self.u4_nonlin_10]
-        for i in range(10):
-            if uni_ld_models[i].isChecked():
-                fit.ld_m[i] = "uniform"
-                fit.ld_u[i] = []               
-            elif lin_ld_models[i].isChecked():
-                fit.ld_m[i] = "linear" 
-                fit.ld_u[i] = [lin_u1[i].value()]                              
-            elif quad_ld_models[i].isChecked():
-                fit.ld_m[i] = "quadratic"        
-                fit.ld_u[i] = [quad_u1[i].value(),quad_u2[i].value()]                                              
-            elif nonlin_ld_models[i].isChecked():
-                fit.ld_m[i] = "nonlinear"        
-                fit.ld_u[i] = [nonlin_u1[i].value(),nonlin_u2[i].value(),nonlin_u3[i].value(),nonlin_u4[i].value()]                  
-            else:
-                fit.ld_m[i] = "quadratic"              
-                fit.ld_u[i] = [quad_u1[i].value(),quad_u2[i].value()]                                              
-     
    # def layout_widgets(layout):
     #   return (layout.itemAt(i) for i in range(layout.count()))
 
@@ -5257,6 +5257,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
 
         self.quit_button.clicked.connect(self.quit)
+        
  
         self.jupiter_push_vars()
         

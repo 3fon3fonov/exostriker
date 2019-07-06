@@ -2,45 +2,53 @@
 # -*- coding: utf-8 -*-
 """
 This is one VERY simple example how to use RVmod as a fitting library. 
-The RVmod options however, are a lot more and it can do much more than the
-Exo-Striker GUI interface (which is warped around the RVmod). 
+The RVmod options however, are a lot more. Reminder: the Exo-Striker 
+GUI interface is warped around the RVmod. 
 
 
 This example script delas with the Eta Ceti system (the usual demo in 
-the Exo-Striker tool). 
+the Exo-Striker tool) and demonstrates how to fit Keplerian 
+and Dynamical models to RV data.
+
 
 1. We add the RV data
-2. We find the offsets
-3. We run GLS to identify the significant peaks
-4. We apply an autofitting routine
-5. We make a simple plot showing the the Keplerian model find on the data
+2. We find the RV offsets
+3. We apply approx. parameters (to be taken from a GLS, for example.)
+4. We fit to get the best two-planet Keplerian model
+5. We adopt the best Keplerian fit and we include the dynamics into the modeling.
+6. We make a simple plot showing the deviation between Keplerian and N-body models.
 
- 
+There are some (commented) examples how one can run mcmc and/or nested sampling
+to get errors and/or posterior distributions. 
 
 More detailed examples of how to use the RVmod will be provided 
 as Jupyter notebooks in future.
 
 
-Created on Sun Jul  2 08:23:07 2019
+Created on Sun Jun  2 09:30:02 2019
 
 @author: Trifon Trifonov
 """
 
-
 import sys 
-sys.path.append('./lib/') #RV_mod directory must be in your path
+sys.path.append('../lib/') #RV_mod directory must be in your path
 import RV_mod as rv
-import gls as gls
-import numpy as np
+
+
 
 # Lets create the RVmod object
 fit=rv.signal_fit('Eta Ceti demo',readinputfile=False);
 
-fit.add_dataset("./datafiles/", "./datafiles/hip5364.vels",0.0,0.0)  # the last two entries are initial offset and jitter
-fit.add_dataset("./datafiles/", "./datafiles/hip5364_crires.vels",0.0,0.0)
+fit.cwd = '../' # it is also important that the ES current working directory (cwd) point to the "lib" directory. This will be fixed in future releases 
 
 # add the stellar mass
 fit.params.stellar_mass = 1.7 # In M sol.
+
+ 
+
+fit.add_dataset("hip5364_lick", "../datafiles/hip5364.vels",0.0,0.0)  # the last two entries are initial offset and jitter
+fit.add_dataset("hip5364_VLT", "../datafiles/hip5364_crires.vels",0.0,0.0)
+
 
 # Lets not fit for jitters now, i.e. keep at the initial value of 0 m/s
 fit.use.use_jitters[0] = False
@@ -55,110 +63,45 @@ print("Loglik = %s"%fit.loglik)
 fit.print_info() #this is an obsolete function call, will be replaced!
 
 
-
-def find_planets(obj):
- 
-    # check if RV data is present
-    #if obj.filelist.ndset <= 0:  
-   #      return        
-
-    # the first one on the data GLS
-    if obj.gls.power.max() <= obj.gls.powerLevel(0.001):                                                       
-         return obj
-    
-    else:
-        if obj.npl !=0:
-            for j in range(obj.npl):
-                obj.remove_planet(obj.npl-(j+1))
-
-        mean_anomaly_from_gls = np.degrees((((obj.epoch - float(obj.gls.hpstat["T0"]) )% (obj.gls.hpstat["P"]) )/ (obj.gls.hpstat["P"]) ) * 2*np.pi)
-         
-        obj.add_planet(obj.gls.hpstat["amp"],obj.gls.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
-        obj.use.update_use_planet_params_one_planet(0,True,True,False,False,True,False,False)     
-               
-        obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
-        obj = run_gls_o_c(obj)
-        for i in range(obj.npl):
-             rv.phase_RV_planet_signal(obj,i+1)          
-        #now inspect the residuals
-        
-        for i in range(1,int(2)):
-            
-            if obj.gls_o_c.power.max() <= obj.gls_o_c.powerLevel(0.001):
-                for j in range(obj.npl):
-                    obj.use.update_use_planet_params_one_planet(j,True,True,False,False,True,False,False)     
-           
-                    obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
-                    obj = run_gls_o_c(obj)   
-                return obj
-            #elif (1/RV_per_res.hpstat["fbest"]) > 1.5:
-            else:    
-                mean_anomaly_from_gls = np.degrees((((obj.epoch - float(obj.gls_o_c.hpstat["T0"]) )% (obj.gls_o_c.hpstat["P"]) )/ (obj.gls_o_c.hpstat["P"]) ) * 2*np.pi)
-         
-                obj.add_planet(obj.gls_o_c.hpstat["amp"],obj.gls_o_c.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
-                obj.use.update_use_planet_params_one_planet(i,True,True,False,False,True,False,False)  
-                
-                 
-                obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
-                obj = run_gls_o_c(obj)
-
-            #else:
-             #   continue
-                                   
-        for j in range(obj.npl):
-            obj.use.update_use_planet_params_one_planet(j,True,True,False,False,True,False,False)     
-
-                  
-        obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
-        obj = run_gls_o_c(obj) 
-    return obj
+# now add the planets. Adding planets can be done automatically using the GLS first, but this will be 
+# covered in another intro. Since we know aprrox. the Keplerian parameters lets dirrectly add them as initial params.
+fit.add_planet(50,  400,  0.10,  200, 230, 90.0, 0.0)  # K,P,e,omega,M0,i,Omega of planet 1
+fit.add_planet(50,  770,  0.10,  170, 170, 90.0, 0.0)  # K,P,e,omega,M0,i,Omega of planet 2 
 
 
+# lets fix the eccentricities first, this is advisable if you don't know well the system you are fitting.
+fit.use.update_use_planet_params_one_planet(0,True,True,False,True,True,False,False)     
+fit.use.update_use_planet_params_one_planet(1,True,True,False,True,True,False,False)     
 
-def run_gls(obj):
-             
-    omega = 1/ np.logspace(np.log10(0.85), np.log10(5000), num=int(1000))
- 
- 
+# alternativly one can apply priors on the eccentricity, but this will be another exercise.... 
+# one must get familiar with the priors 
+# for example:
+#fit.e_norm_pr[0] = [0.0,0.1, True] first is \mu, second is \sigma, the Boolean is weather to use or not the prior
+#fit.e_norm_pr[1] = [0.0,0.1, True]
+#also if you apply priors with the fitting you must select minimize_fortran=False to use the SciPy wrapper.
 
-    if len(fit.fit_results.rv_model.jd) > 5:      
-        RV_per = gls.Gls((obj.fit_results.rv_model.jd, obj.fit_results.rv_model.rvs, obj.fit_results.rv_model.rv_err), 
-        fast=True,  verbose=False, norm='ZK',ofac=10, fbeg=omega[-1], fend=omega[0],)
-        
-        obj.gls = RV_per
-    else:
-        return obj
-    
-    return obj
+fit.fitting(outputfiles=[1,1,1], doGP=False,  minimize_fortran=True,  minimize_loglik=False, amoeba_starts=20, print_stat=False)
 
-def run_gls_o_c(obj):
-                     
-    omega = 1/ np.logspace(np.log10(0.85), np.log10(5000), num=int(1000))
+#lets print the best fit params  
+print("Loglik = %s"%fit.loglik)
+fit.print_info() #this is an obsolete function call, will be replaced!
 
  
-    if len(obj.fit_results.rv_model.jd) > 5:
-        RV_per_res = gls.Gls((obj.fit_results.rv_model.jd, obj.fit_results.rv_model.o_c, obj.fit_results.rv_model.rv_err), 
-        fast=True,  verbose=False, norm='ZK', ofac=10, fbeg=omega[-1], fend=omega[ 0],)            
+# We can now relax the eccentricities and jitters
+fit.use.update_use_planet_params_one_planet(0,True,True,True,True,True,False,False)     
+fit.use.update_use_planet_params_one_planet(1,True,True,True,True,True,False,False)     
 
-        obj.gls_o_c = RV_per_res        
-    else:
-        return obj
-
-    return obj
+fit.use.use_jitters[0] = True
+fit.use.use_jitters[1] = True
 
 
+fit.fitting(outputfiles=[1,1,1], doGP=False,  minimize_fortran=True,  minimize_loglik=True, amoeba_starts=20, print_stat=False)
+
+#lets print the best fit params  
+print("Loglik = %s"%fit.loglik)
+fit.print_info() #this is an obsolete function call, will be replaced!
 
 
- 
- 
-fit = run_gls(fit)
-fit = run_gls_o_c(fit)
-
- 
-
-fit = find_planets(fit)
-
- 
  
  
  
@@ -170,10 +113,23 @@ import dill
 
 kep_fit = dill.copy(fit)
 
+
+fit.mod_dynamical=True
+
+fit.fitting(outputfiles=[1,1,1], doGP=False,  minimize_fortran=True,  minimize_loglik=True, amoeba_starts=20, print_stat=False, eps=1000, dt=10, npoints=6000, model_max=0, model_min=0)
+
+#lets print the best fit params  
+print("Loglik = %s"%fit.loglik)
+fit.print_info() #this is an obsolete function call, will be replaced!
  
  
-
-
+ 
+ 
+#lets copy the fit object as dyn_fit, we will need it later for plotting 
+dyn_fit = dill.copy(fit)
+ 
+ 
+ 
  
  
 ################# Plotting #############################
@@ -207,9 +163,10 @@ mpl.rcParams['ytick.minor.width'] = 2
 mpl.rc('text',usetex=True)
 font = {'family' : 'normal','weight' : 'bold','size'   : 18,'serif':['Helvetica']}
 mpl.rc('font', **font)
-########################################
 
 
+
+################## Time series plotting ###############
 
 f = plt.figure(0, figsize=(8,6.5))
 plt.subplots_adjust(hspace=0.005)
@@ -219,8 +176,8 @@ dpi = 300
 gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
 #gs.update(  wspace=0.05)
 
-ax1 = plt.subplot(gs[0])
-ax2 = plt.subplot(gs[1])
+ax1 = plt.subplot(gs[:-1, -1])
+ax2 = plt.subplot(gs[-1, -1])
 
  
 color = ['b', 'r', 'g', 'r']
@@ -251,7 +208,9 @@ if add_jitter == True:
 kep_model_x = kep_fit.fit_results.model_jd
 kep_model_y = kep_fit.fit_results.model
 
- 
+# Dyn model time series #
+dyn_model_x = dyn_fit.fit_results.model_jd
+dyn_model_y = dyn_fit.fit_results.model
 
 ###################################################################
 
@@ -264,7 +223,9 @@ zero_point   = np.zeros(len(zero_point_T))
 ax1.plot(kep_model_x, kep_model_y,       '-', linewidth=model_lw, color=model_color)
 ax2.plot(zero_point_T,zero_point,'-', linewidth=model_lw, color=model_color)      
 
- 
+overplot_dyn = True
+if overplot_dyn == True:
+    ax1.plot(dyn_model_x, dyn_model_y,       '--', linewidth=1.5, color='r')
 
 for i in range(len(data_set)):
 
@@ -277,7 +238,7 @@ ax1.set_ylabel(r'RV [m/s]',fontsize=16, rotation = 'vertical')
 ax1.set_xlim(min(jd),max(jd))
  
 
-ax2.set_xlabel(r'JD - 2450000 [day]',fontsize=16)
+ax2.set_xlabel(r'JD [day]',fontsize=16)
 ax2.set_ylabel(r'o$-$c  [m/s]',fontsize=16, rotation = 'vertical') 
 ax2.set_xlim(min(jd),max(jd))
 
@@ -291,14 +252,9 @@ plt.setp( ax2.get_xticklabels(), fontsize=15,weight='bold')
 plt.setp([a.get_xticklabels() for a in f.axes[:-1]], visible=False) 
 
 
-plt.savefig('RV_plot_example_2.%s'%(format_im), format=format_im,dpi=dpi, bbox_inches='tight' )
+plt.savefig('RV_plot_example.%s'%(format_im), format=format_im,dpi=dpi, bbox_inches='tight' )
 ax1.cla() 
-
-
-
-
-
-
+ax2.cla()
 
 
 

@@ -466,7 +466,9 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     start_time = time.time()    
  
     rtg = obj.rtg
-    
+
+    check_temp_RV_file(obj)
+
     vel_files = []
     for i in range(obj.filelist.ndset): 
          vel_files.append(obj.filelist.files[i].path)  
@@ -497,15 +499,15 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     
     if (obj.mod_dynamical):
         if mix_fit[0] == True:
-            mod='./lib/fr/loglik_dyn+'
+            mod='%s/lib/fr/loglik_dyn+'%obj.cwd
             when_to_kill =  obj.dyn_model_to_kill
             #print(mix_fit[0],mod) 
         else: 
-            mod='./lib/fr/loglik_dyn'   
+            mod='%s/lib/fr/loglik_dyn'%obj.cwd  
             when_to_kill =  obj.dyn_model_to_kill
 
     else:
-        mod='./lib/fr/loglik_kep'
+        mod='%s/lib/fr/loglik_kep'%obj.cwd
         when_to_kill =  obj.kep_model_to_kill   
 
 
@@ -802,6 +804,8 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     
     rtg = obj.rtg
 
+    check_temp_RV_file(obj)
+
     #nll = lambda *args: -lnprob_new(*args)
     
     vel_files = []
@@ -830,16 +834,16 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     
     if (obj.mod_dynamical):
         if mix_fit[0] == True:
-            mod='./lib/fr/loglik_dyn+'
+            mod='%s/lib/fr/loglik_dyn+'%obj.cwd
             when_to_kill =  obj.dyn_model_to_kill
             #print(mix_fit[0],mod) 
         else: 
-            mod='./lib/fr/loglik_dyn'   
+            mod='%s/lib/fr/loglik_dyn'%obj.cwd  
             when_to_kill =  obj.dyn_model_to_kill
 
     else:
-        mod='./lib/fr/loglik_kep'
-        when_to_kill =  obj.kep_model_to_kill  
+        mod='%s/lib/fr/loglik_kep'%obj.cwd
+        when_to_kill =  obj.kep_model_to_kill   
  
    # print(mod)
     #program='./lib/fr/%s_%s'%(minimized_value,mod) 
@@ -1074,6 +1078,8 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     
     rtg = obj.rtg
 
+    check_temp_RV_file(obj)
+
     #nll = lambda *args: -lnprob_new(*args)
 
     
@@ -1104,16 +1110,16 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     
     if (obj.mod_dynamical):
         if mix_fit[0] == True:
-            mod='./lib/fr/loglik_dyn+'
+            mod='%s/lib/fr/loglik_dyn+'%obj.cwd
             when_to_kill =  obj.dyn_model_to_kill
             #print(mix_fit[0],mod) 
         else: 
-            mod='./lib/fr/loglik_dyn'   
+            mod='%s/lib/fr/loglik_dyn'%obj.cwd  
             when_to_kill =  obj.dyn_model_to_kill
 
     else:
-        mod='./lib/fr/loglik_kep'
-        when_to_kill =  obj.kep_model_to_kill
+        mod='%s/lib/fr/loglik_kep'%obj.cwd
+        when_to_kill =  obj.kep_model_to_kill   
  
    # print(mod)
     #program='./lib/fr/%s_%s'%(minimized_value,mod) 
@@ -1280,82 +1286,6 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
 
 
 
-def phase_RV_planet_signal(obj,planet):
-
-    if obj.npl ==0 or len(obj.fit_results.rv_model.jd) ==0:
-        return #[-1], [-1] #[[0],[0]], [[0],[0],[0],[0]]
-    else:
-        #copied_obj = copy.deepcopy(obj) 
-         
-        copied_obj = dill.copy(obj) 
-        
-        if(copied_obj.mod_dynamical):
-            copied_obj.mod_dynamical = False
-   
-        index = planet - 1
-        ############################################      
-        ######### and here is the trick!  ##########
-        ############################################        
-        pp0 =  copied_obj.params.planet_params[7*index+0]  # we define a variable to be the planet amplitude Kj   
-        #print(pp0)
-        copied_obj.params.planet_params[7*index+0] = 0 # then we set Kj to be 0, i.e. remove the j-th planet signal
-        copied_obj.fitting(fileinput=False, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, 
-                           outputfiles=[0,1,1],return_flag=False, npoints=int(len(obj.fit_results.model)),                     
-                           model_max=int(max(obj.fit_results.model_jd)-max(copied_obj.fit_results.rv_model.jd)),
-                           #model_min=int(min(copied_obj.fit_results.rv_model.jd)-min(obj.fit_results.model_jd)))
-                           model_min=int(copied_obj.epoch -min(obj.fit_results.model_jd)))
-        
-        # and we create the static Nplanet model for the data and the model curve 
-        # now this model residuals will contain ONLY the j-th planet signal + the best fit residuals
-       
-        copied_obj.params.planet_params[7*index+0] = pp0 # we restore Kj to its best fit value.
-        ############################################      
-        #########      trick is over      ##########
-        ############################################  
-        
-        #print(copied_obj.params.planet_params[7*index+1])
-        #print((copied_obj.epoch- copied_obj.fit_results.rv_model.jd[0])% copied_obj.params.planet_params[7*index+1] )
-        ############ phase fold fix for sparse model ######use_flags
-        model_time_phase = np.array( (copied_obj.fit_results.model_jd -copied_obj.fit_results.model_jd[0] )% copied_obj.params.planet_params[7*index+1] )
-             
-        model_shift = copied_obj.params.planet_params[7*index+1] - (copied_obj.fit_results.rv_model.jd[0] - copied_obj.epoch )%copied_obj.params.planet_params[7*index+1] 
-        
-        model_time_phase = (model_time_phase + model_shift)% copied_obj.params.planet_params[7*index+1]
-        
-        sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])                        
-        model_time_phase  = model_time_phase[sort] 
-        phased_model      = obj.fit_results.model[sort] - copied_obj.fit_results.model[sort]
-    
-        ############ phase data ######
-        data_time_phase = np.array( (copied_obj.fit_results.rv_model.jd  - copied_obj.fit_results.rv_model.jd[0])% copied_obj.params.planet_params[7*index+1] )
-             
-        sort = sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])                        
-        data_time_phase      = data_time_phase[sort]
-        phased_data          = copied_obj.fit_results.rv_model.o_c[sort]#  - copied_obj.fit_results.rv_model.rvs[sort] 
-        phased_data_err      = copied_obj.fit_results.rv_model.rv_err[sort]  
-        phased_data_idset    = copied_obj.fit_results.idset[sort]  
- 
-        
-        if copied_obj.doGP == True:
-            phased_data = phased_data - copied_obj.gp_model_data[0][sort]
-        #else:
-        #    rv_data = ph_data[1]
-        
-        
-        model = [model_time_phase,  phased_model]
-        data  = [data_time_phase,  phased_data, phased_data_err, phased_data_idset]
-        
-        
-        
-        ##################### 
-        obj.ph_data[planet-1] = data 
-        obj.ph_model[planet-1] = model  
- 
-        return data, model
-
-
-
-
  
 
 
@@ -1437,7 +1367,7 @@ class signal_fit(object):
         self.init_tra_offset()        
         
         self.init_st_mass()
-
+        self.cwd = os.getcwd()
 
         self.init_pl_arb()
         self.init_orb_evol_arb()
@@ -1467,7 +1397,7 @@ class signal_fit(object):
         self.sampler_saved=False
         
         self.init_transit_params()
-        
+        self.init_auto_fit()
         
         
         self.colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#808080']
@@ -1529,7 +1459,12 @@ class signal_fit(object):
 #    def constants(self):   
 #        self.AU
 
-       
+ 
+    def init_auto_fit(self):
+        self.auto_fit_max_pl = 2
+        self.auto_fit_allow_ecc = False
+        self.auto_fit_FAP_level = 0.001
+      
     def init_xyz(self):         
         self.xyz_mass = {k: [] for k in range(10)}       
         self.xzy    = {k: [] for k in range(10)}
@@ -2408,8 +2343,23 @@ class signal_fit(object):
             path = DEFAULT_PATH
         else: 
             path = alltheinput[1][1]
-        filenames=np.char.array(alltheinput[2])  # the third line contains a list of RV file names
-        self.filelist=rvfile_list(int(alltheinput[1][0]),filenames,path+filenames) # creating a rvfile_list object
+            
+       # path =  copy_file_to_datafiles(path) 
+ 
+        #filenames = []
+
+        
+        for j in range(len(alltheinput[2])):
+            #print(alltheinput[2][j], path)
+            self.add_dataset(alltheinput[2][j], path+alltheinput[2][j] ,alltheinput[3][j],alltheinput[4][j])
+       
+        #filenames.append(copy_file_to_datafiles(path))
+        #filenames=np.char.array(alltheinput[2])  # the third line contains a list of RV file names
+        
+        #print(filenames)
+        
+        
+        #self.filelist=rvfile_list(int(alltheinput[1][0]),filenames,path+filenames) # creating a rvfile_list object
         # arrays for offset and jitter, and their use flags, will be used later to create params and use_flags objects
         use_offsets=[]
         use_jitters=[]
@@ -2631,9 +2581,9 @@ class signal_fit(object):
             if (self.stellar_mass_known):
                 message_str = message_str +"""\nThe mass of the host star is {0:5.4f} solar masses.
 """.format(self.params.stellar_mass)
-            else:
-                message_str = message_str +"""\nThe mass of the host star is not known. Default value of %f is assumed.
-"""%DEFAULT_STELLAR_MASS
+            #else:
+            #    message_str = message_str +"""\nThe mass of the host star is not known. Default value of %f is assumed.
+#"""%DEFAULT_STELLAR_MASS
         else:
             if(short_errors):  
                 message_str = message_str +"""\nThe mass of the host star is expected to be {0:5.4f} +/- {1:>7.4f} solar masses.
@@ -2686,7 +2636,7 @@ class signal_fit(object):
         ### ppp will be the input string. Depending on fileinput parameter we either save it in a file or save it directly 
      
         if not (fileinput): # if we want to save input in a file we don't want this line in the input string    
-            ppp = './%s << EOF\n'%program
+            ppp = '%s << EOF\n'%program
         else:
             ppp = '' 
         ppp+= '%s %f %d %d %d %d %d\n%f %d %d %d \n%d\n'%(eps,dt,amoeba_starts,when_to_kill,npoints, model_max, model_min, self.params.stellar_mass,outputfiles[0], outputfiles[1],outputfiles[2],self.filelist.ndset) # first three lines of fortran input: precision and timestep for integration, stellar mass and number of datasets
@@ -2787,14 +2737,16 @@ class signal_fit(object):
          
     ### this function is a wrapper calling a fortran program to fit parameters in keplerian mode by minimizing chi^2   WORK IN PROGRESS ON THAT ONE! 
         
-    def fitting(self, minimize_fortran=True, minimize_loglik=False, fileinput=False, doGP=False, kernel_id=-1, filename='Kep_input', outputfiles=[1,1,1], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500,model_min =0): # run the fit which will either minimize chi^2 or loglik.
+    def fitting(self, minimize_fortran=True, minimize_loglik=False, fileinput=False, doGP=False, kernel_id=-1, filename='Kep_input', outputfiles=[1,1,1], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 5,model_min =0): # run the fit which will either minimize chi^2 or loglik.
         '''       
          eps, dt - accuracy and step for the integration in dynamical case, in keplerian case ignored, just given for input consistency
          which value to minimize (used for calling an appropriate fortran program)
         '''      
         
         eps = eps * 1e-13 
-        dt  = dt  * 86400.0         
+        dt  = dt  * 86400.0        
+        
+        check_temp_RV_file(self)
         
         if(minimize_loglik):
             minimized_value='loglik'
@@ -2811,13 +2763,14 @@ class signal_fit(object):
             mod='kep'
         #print(mod, self.mixed_fit)
         if minimize_fortran == True and doGP ==False:   
-            program='./lib/fr/%s_%s'%(minimized_value,mod) 
-            text,flag=run_command_with_timeout(self.fortran_input(program=program, fileinput=fileinput, filename=filename, outputfiles=outputfiles,amoeba_starts=amoeba_starts,eps=eps,dt=dt, when_to_kill=fortran_kill, npoints=npoints, model_max = model_max, model_min =model_min), timeout_sec, output=True,pipe=(not bool(outputfiles[2]))) # running command generated by the fortran_input function 
+             program='%s/lib/fr/%s_%s'%(self.cwd,minimized_value,mod) 
+             #print(program)
+             text,flag=run_command_with_timeout(self.fortran_input(program=program, fileinput=fileinput, filename=filename, outputfiles=outputfiles,amoeba_starts=amoeba_starts,eps=eps,dt=dt, when_to_kill=fortran_kill, npoints=npoints, model_max = model_max, model_min =model_min), timeout_sec, output=True,pipe=(not bool(outputfiles[2]))) # running command generated by the fortran_input function 
            
         else:
             #self.fitting_SciPyOp(doGP=doGP, gp_par=gp_par, kernel_id=kernel_id, use_gp_par=use_gp_par)  
             self = run_SciPyOp(self, kernel_id=kernel_id)           
-            program='./lib/fr/%s_%s'%(minimized_value,mod) 
+            program='%s/lib/fr/%s_%s'%(self.cwd,minimized_value,mod) 
             text,flag=run_command_with_timeout(self.fortran_input(program=program, fileinput=fileinput, filename=filename, outputfiles=outputfiles,amoeba_starts=0,eps=eps,dt=dt, when_to_kill=fortran_kill, npoints=npoints, model_max = model_max, model_min =model_min), timeout_sec, output=True,pipe=(not bool(outputfiles[2]))) # running command generated by the fortran_input function 
             #print(text)
             

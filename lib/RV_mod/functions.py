@@ -20,6 +20,7 @@ import dill
 from scipy.signal import argrelextrema
 from scipy.ndimage import gaussian_filter
 
+import gls as gls 
 
 TAU= 2.0*np.pi 
 
@@ -233,20 +234,7 @@ def get_xyz(obj):
     return obj
  
 
-def create_temporary_copy(path): # not really a good idea......
-    '''
-    creates a temp_ velocity file in the root directory of the GUI.   
-    
-    input: full path to the file  
-    output: temp_name of the file to be loaded
-    '''    
-
-    dirname, basename = os.path.split(path)
-    temp_dir = './'#tempfile.gettempdir()
-    temp_path = os.path.join(temp_dir, '.temp_'+basename)
-    shutil.copy2(path, temp_path)
-    #temp = tempfile.NamedTemporaryFile(prefix=basename, dir='./',delete=False)
-    return temp_path
+ 
 
 def copy_file_to_datafiles(path):
     '''
@@ -257,8 +245,11 @@ def copy_file_to_datafiles(path):
     '''    
 
     dirname, basename = os.path.split(path)
-    temp_dir = './datafiles'#tempfile.gettempdir()   
-    temp_path = os.path.join(temp_dir, basename)
+    #temp_dir = './datafiles'#tempfile.gettempdir()   
+    
+    tmp = tempfile.mkdtemp()
+    temp_path = os.path.join(tmp, basename)
+#    print(temp_path)
     
     os.system("cp %s %s"%(path, temp_path))
     #print(temp_path, path)
@@ -374,7 +365,28 @@ def export_RV_model(obj, file="RV_model.txt", width = 10, precision = 4):
     print('Done!')
     return 
 
-
+def check_temp_RV_file(obj):
+#        global fit,ses_list
+    
+    #print(fit_new.filelist.ndset)
+ 
+    for i in range(obj.filelist.ndset):
+       # print(fit_new.filelist.files[i].path)
+        if os.path.exists(obj.filelist.files[i].path):
+            #print("TEST 1")
+            continue
+        else:
+            dirname, basename = os.path.split(obj.filelist.files[i].path)
+            #print(dirname)
+            os.makedirs(dirname)
+            f  = open(obj.filelist.files[i].path, 'wb') # open the file  
+        
+            for j in range(len(obj.rv_data_sets[i+1][0])):
+                #print(fit_new.rv_data_sets[i][0][j])
+                text = "{0:13.5f} {1:8.3f} {2:6.3f} \n".format(obj.rv_data_sets[i+1][0][j],obj.rv_data_sets[i+1][1][j],obj.rv_data_sets[i+1][2][j])
+                f.write(text)
+                
+            f.close()
 
 def run_command_with_timeout(args, secs, output=False, pipe=False): # set output=True if you need to save the output
     '''
@@ -416,7 +428,181 @@ def run_command_with_timeout(args, secs, output=False, pipe=False): # set output
         return string_to_output,flag # besides the flag which informs about successful termination we also return all the console output in case we want to save it in a variable
     else:
         return '',flag
+   
+
+
+
+
+
+
+def phase_RV_planet_signal(obj,planet):
+
+    if obj.npl ==0 or len(obj.fit_results.rv_model.jd) ==0:
+        return #[-1], [-1] #[[0],[0]], [[0],[0],[0],[0]]
+    else:
+        #copied_obj = copy.deepcopy(obj) 
          
+        copied_obj = dill.copy(obj) 
+        
+        if(copied_obj.mod_dynamical):
+            copied_obj.mod_dynamical = False
+   
+        index = planet - 1
+        ############################################      
+        ######### and here is the trick!  ##########
+        ############################################        
+        pp0 =  copied_obj.params.planet_params[7*index+0]  # we define a variable to be the planet amplitude Kj   
+        #print(pp0)
+        copied_obj.params.planet_params[7*index+0] = 0 # then we set Kj to be 0, i.e. remove the j-th planet signal
+        copied_obj.fitting(fileinput=False, filename='Kep_input', minimize_loglik=True, amoeba_starts=0, 
+                           outputfiles=[0,1,1],return_flag=False, npoints=int(len(obj.fit_results.model)),                     
+                           model_max=int(max(obj.fit_results.model_jd)-max(copied_obj.fit_results.rv_model.jd)),
+                           #model_min=int(min(copied_obj.fit_results.rv_model.jd)-min(obj.fit_results.model_jd)))
+                           model_min=int(copied_obj.epoch -min(obj.fit_results.model_jd)))
+        
+        # and we create the static Nplanet model for the data and the model curve 
+        # now this model residuals will contain ONLY the j-th planet signal + the best fit residuals
+       
+        copied_obj.params.planet_params[7*index+0] = pp0 # we restore Kj to its best fit value.
+        ############################################      
+        #########      trick is over      ##########
+        ############################################  
+        
+        #print(copied_obj.params.planet_params[7*index+1])
+        #print((copied_obj.epoch- copied_obj.fit_results.rv_model.jd[0])% copied_obj.params.planet_params[7*index+1] )
+        ############ phase fold fix for sparse model ######use_flags
+        model_time_phase = np.array( (copied_obj.fit_results.model_jd -copied_obj.fit_results.model_jd[0] )% copied_obj.params.planet_params[7*index+1] )
+             
+        model_shift = copied_obj.params.planet_params[7*index+1] - (copied_obj.fit_results.rv_model.jd[0] - copied_obj.epoch )%copied_obj.params.planet_params[7*index+1] 
+        
+        model_time_phase = (model_time_phase + model_shift)% copied_obj.params.planet_params[7*index+1]
+        
+        sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])                        
+        model_time_phase  = model_time_phase[sort] 
+        phased_model      = obj.fit_results.model[sort] - copied_obj.fit_results.model[sort]
+    
+        ############ phase data ######
+        data_time_phase = np.array( (copied_obj.fit_results.rv_model.jd  - copied_obj.fit_results.rv_model.jd[0])% copied_obj.params.planet_params[7*index+1] )
+             
+        sort = sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])                        
+        data_time_phase      = data_time_phase[sort]
+        phased_data          = copied_obj.fit_results.rv_model.o_c[sort]#  - copied_obj.fit_results.rv_model.rvs[sort] 
+        phased_data_err      = copied_obj.fit_results.rv_model.rv_err[sort]  
+        phased_data_idset    = copied_obj.fit_results.idset[sort]  
+ 
+        
+        if copied_obj.doGP == True:
+            phased_data = phased_data - copied_obj.gp_model_data[0][sort]
+        #else:
+        #    rv_data = ph_data[1]
+        
+        
+        model = [model_time_phase,  phased_model]
+        data  = [data_time_phase,  phased_data, phased_data_err, phased_data_idset]
+        
+        
+        
+        ##################### 
+        obj.ph_data[planet-1] = data 
+        obj.ph_model[planet-1] = model  
+ 
+        return data, model
+
+
+
+
+
+def find_planets(obj):
+ 
+    # check if RV data is present
+    if obj.filelist.ndset <= 0:  
+         return        
+
+    # the first one on the data GLS
+    if obj.gls.power.max() <= obj.gls.powerLevel(obj.auto_fit_FAP_level):                                                       
+         return obj
+    
+    else:
+        if obj.npl !=0:
+            for j in range(obj.npl):
+                obj.remove_planet(obj.npl-(j+1))
+
+        mean_anomaly_from_gls = np.degrees((((obj.epoch - float(obj.gls.hpstat["T0"]) )% (obj.gls.hpstat["P"]) )/ (obj.gls.hpstat["P"]) ) * 2*np.pi)
+         
+        obj.add_planet(obj.gls.hpstat["amp"],obj.gls.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
+        obj.use.update_use_planet_params_one_planet(0,True,True,obj.auto_fit_allow_ecc,obj.auto_fit_allow_ecc,True,False,False)     
+               
+        obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
+        run_gls_o_c(obj)
+
+        
+        #now inspect the residuals
+ 
+        for i in range(1,int(obj.auto_fit_max_pl)):
+            
+            if obj.gls_o_c.power.max() <= obj.gls_o_c.powerLevel(obj.auto_fit_FAP_level):
+                for j in range(obj.npl):
+                    obj.use.update_use_planet_params_one_planet(j,True,True,obj.auto_fit_allow_ecc,obj.auto_fit_allow_ecc,True,False,False)     
+           
+                    obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
+                    obj = run_gls_o_c(obj)   
+                return obj
+            #elif (1/RV_per_res.hpstat["fbest"]) > 1.5:
+            else:    
+                mean_anomaly_from_gls = np.degrees((((obj.epoch - float(obj.gls_o_c.hpstat["T0"]) )% (obj.gls_o_c.hpstat["P"]) )/ (obj.gls_o_c.hpstat["P"]) ) * 2*np.pi)
+         
+                obj.add_planet(obj.gls_o_c.hpstat["amp"],obj.gls_o_c.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
+                obj.use.update_use_planet_params_one_planet(i,True,True,obj.auto_fit_allow_ecc,obj.auto_fit_allow_ecc,True,False,False)  
+                
+                 
+                obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
+                run_gls_o_c(obj)
+
+            #else:
+             #   continue
+                                   
+        for j in range(obj.npl):
+            obj.use.update_use_planet_params_one_planet(j,True,True,obj.auto_fit_allow_ecc,obj.auto_fit_allow_ecc,True,False,False)     
+
+                  
+        obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
+        run_gls_o_c(obj) 
+    return obj
+
+
+
+def run_gls(obj):
+             
+    omega = 1/ np.logspace(np.log10(0.85), np.log10(5000), num=int(1000))
+ 
+ 
+
+    if len(obj.fit_results.rv_model.jd) > 5:      
+        RV_per = gls.Gls((obj.fit_results.rv_model.jd, obj.fit_results.rv_model.rvs, obj.fit_results.rv_model.rv_err), 
+        fast=True,  verbose=False, norm='ZK',ofac=10, fbeg=omega[-1], fend=omega[0],)
+        
+        obj.gls = RV_per
+    else:
+        return obj
+    
+    return obj
+
+def run_gls_o_c(obj):
+                     
+    omega = 1/ np.logspace(np.log10(0.85), np.log10(5000), num=int(1000))
+
+ 
+    if len(obj.fit_results.rv_model.jd) > 5:
+        RV_per_res = gls.Gls((obj.fit_results.rv_model.jd, obj.fit_results.rv_model.o_c, obj.fit_results.rv_model.rv_err), 
+        fast=True,  verbose=False, norm='ZK', ofac=10, fbeg=omega[-1], fend=omega[ 0],)            
+
+        obj.gls_o_c = RV_per_res        
+    else:
+        return obj
+
+    return obj
+
+      
 def is_float(n):
     '''
     Given a string n, verify if it expresses a valid float.
@@ -554,8 +740,8 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
         text = '''       
     \\begin{table}[ht]
     % \\begin{adjustwidth}{-4.0cm}{} 
-    % \\resizebox{0.69\textheight}{!}
-    % {\\begin{minipage}{1.1\textwidth}
+    % \\resizebox{0.69\\textheight}{!}
+    % {\\begin{minipage}{1.1\\textwidth}
     
     \centering   
     \caption{{}}   
@@ -574,12 +760,13 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
     \hline \\noalign{\\vskip 0.7mm} 
         
         '''
-    
-        text = text + '''{0:{width}s}'''.format("$K$  [m\,s$^{-1}$]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i], max(np.abs(obj.param_errors.planet_params_errors[7*i])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''        
+        if obj.type_fit["RV"] == True:
+            text = text + '''{0:{width}s}'''.format("$K$  [m\,s$^{-1}$]", width = 30)
+            for i in range(obj.npl):     
+                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i], max(np.abs(obj.param_errors.planet_params_errors[7*i])), width = width, precision = precision)
+            text = text + '''\\\\
+            '''        
+            
         text = text + '''{0:{width}s}'''.format("$P$  [day]", width = 30)
         for i in range(obj.npl):     
             text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +1], max(np.abs(obj.param_errors.planet_params_errors[7*i +1])), width = width, precision = precision)
@@ -610,21 +797,24 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
             text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +6], max(np.abs(obj.param_errors.planet_params_errors[7*i +6])), width = width, precision = precision)
         text = text + '''\\\\
         '''            
-        text = text + '''{0:{width}s}'''.format("$t_{\\rm 0}$  [day]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.t0[i], max(abs(obj.t0_err[i])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''            
-        text = text + '''{0:{width}s}'''.format("Rad.  [$R_\oplus$]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.pl_rad[i], max(abs(obj.pl_rad_err[i])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''            
-        text = text + '''{0:{width}s}'''.format("$a$  [$R_\odot$]", width = 30)
-        for i in range(obj.npl):     
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.pl_a[i], max(abs(obj.pl_a_err[i])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''   
+        
+        if obj.type_fit["Transit"] == True:
+            text = text + '''{0:{width}s}'''.format("$t_{\\rm 0}$  [day]", width = 30)
+            for i in range(obj.npl):     
+                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.t0[i], max(abs(obj.t0_err[i])), width = width, precision = precision)
+            text = text + '''\\\\
+            '''            
+            text = text + '''{0:{width}s}'''.format("Rad.  [$R_\oplus$]", width = 30)
+            for i in range(obj.npl):     
+                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.pl_rad[i], max(abs(obj.pl_rad_err[i])), width = width, precision = precision)
+            text = text + '''\\\\
+            '''            
+            text = text + '''{0:{width}s}'''.format("$a$  [$R_\odot$]", width = 30)
+            for i in range(obj.npl):     
+                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.pl_a[i], max(abs(obj.pl_a_err[i])), width = width, precision = precision)
+            text = text + '''\\\\
+            '''   
+            
         text = text + '''{0:{width}s}'''.format("$a$  [au]", width = 30)
         for i in range(obj.npl):     
             text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.fit_results.a[i], 0, width = width, precision = precision)
