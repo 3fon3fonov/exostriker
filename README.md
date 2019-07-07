@@ -44,7 +44,6 @@ What is to be implemented:
 
 * More GP kernels (work in progress). 
 * GP on the transit photometry (work in progress).
-* Transit auto-fit (transit automated planet-finder algorithm).
 * Binary/Triple star modeling mode.
 * Combined modeling with Astrometry.
 * A larger arsenal of N-body/dynamical simulation/analysis tools (REBOUND to be included). 
