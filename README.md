@@ -37,6 +37,7 @@ What works:
 * Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
 * Integrated Bash-shell (Linux only).
 * Integrated Jupyter shell.
+* Importable as a standard python library (i.e. ideal for scripting and notebooks).
 * Print the GUI screen into a .jpeg image (useful for sharing quick results, just like the image above)
 
 What is to be implemented:
