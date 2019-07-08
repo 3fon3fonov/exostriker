@@ -1315,6 +1315,8 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         per_x   = per_x[peaks_sort]   
         per_y   = per_y[peaks_sort]  
         
+        peaks_pos = [per_x,per_y]
+        
         ################## text generator #################
         text_peaks = """ 
 """
@@ -1340,7 +1342,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 
         ################################################        
     
-        return text_peaks  
+        return text_peaks , peaks_pos 
         
   
     
@@ -1568,9 +1570,10 @@ Polyfit coefficients:
                                                
             [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
   
+            text_peaks, pos_peaks = self.identify_power_peaks(1/act_per.freq, act_per.power, power_level = power_levels, sig_level = act_per.powerLevel(np.array(power_levels)) )    
+    
             self.act_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
-            act_per.info(stdout=False) + 
-            self.identify_power_peaks(1/act_per.freq, act_per.power, power_level = power_levels, sig_level = act_per.powerLevel(np.array(power_levels)) )))   
+            act_per.info(stdout=False) + text_peaks ))   
     
             return
         else:   
@@ -1753,16 +1756,39 @@ Polyfit coefficients:
             if fit.gls.norm == 'ZK':
                 [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
  
- 
+            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls.freq, fit.gls.power, power_level = power_levels, sig_level = fit.gls.powerLevel(np.array(power_levels)) )   
+
+
+            if self.avoid_GLS_RV_alias.isChecked():
+                x_peaks = pos_peaks[0][pos_peaks[0]>1.2]
+                y_peaks = pos_peaks[1][pos_peaks[0]>1.2]
+            else:            
+                x_peaks = pos_peaks[0] 
+                y_peaks = pos_peaks[1]                        
+
+            for i in range(int(self.N_GLS_peak_to_point.value())):
+
+                text_arrow = pg.TextItem("test", anchor=(0.5,1.9))
+                
+                if self.radioButton_RV_GLS_period.isChecked():
+                    arrow = pg.ArrowItem(pos=(np.log10(x_peaks[i]), y_peaks[i]), angle=270)
+                    text_arrow.setText('%0.2f d' % (x_peaks[i]))               
+                    text_arrow.setPos(np.log10(x_peaks[i]),y_peaks[i])
+                else:   
+                    arrow = pg.ArrowItem(pos=(1/x_peaks[i], y_peaks[i]), angle=270)
+                    text_arrow.setText('%0.2f d' % (x_peaks[i]))               
+                    text_arrow.setPos(1/x_peaks[i],y_peaks[i])                    
+                #text_arrow.setText('[%0.1f, %0.1f]' % (pos_peaks[0][0], pos_peaks[1][0]))
+                p7.addItem(arrow) 
+                p7.addItem(text_arrow)
+
             self.RV_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
-            fit.gls.info(stdout=False) + 
-            self.identify_power_peaks(1/fit.gls.freq, fit.gls.power, power_level = power_levels, sig_level = fit.gls.powerLevel(np.array(power_levels)) )))   
- 
+            fit.gls.info(stdout=False) + text_peaks   ))   
+
+
         if self.gls_cross_hair.isChecked():
             self.cross_hair(p7,log=self.radioButton_RV_GLS_period.isChecked())    
-           
-        #fit.rv_plot = p7    
-            
+ 
  
     def update_RV_o_c_GLS_plots(self):
         global fit,  p8  
@@ -1790,8 +1816,36 @@ Polyfit coefficients:
             if fit.gls_o_c.norm == 'ZK':
                 [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]            
 
-            self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(fit.gls_o_c.info(stdout=False)+
-            self.identify_power_peaks(1/fit.gls_o_c.freq, fit.gls_o_c.power, power_level = power_levels, sig_level = fit.gls_o_c.powerLevel(np.array(power_levels)) ) )  )      
+            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls_o_c.freq, fit.gls_o_c.power, power_level = power_levels, sig_level = fit.gls_o_c.powerLevel(np.array(power_levels)) )
+
+
+            if self.avoid_GLS_RV_alias.isChecked():
+                x_peaks = pos_peaks[0][pos_peaks[0]>1.2]
+                y_peaks = pos_peaks[1][pos_peaks[0]>1.2]
+            else:            
+                x_peaks = pos_peaks[0] 
+                y_peaks = pos_peaks[1]          
+                
+
+            for i in range(int(self.N_GLS_peak_to_point.value())):
+
+                text_arrow = pg.TextItem("test", anchor=(0.5,1.9))
+                
+                if self.radioButton_RV_o_c_GLS_period.isChecked():
+                    arrow = pg.ArrowItem(pos=(np.log10(x_peaks[i]), y_peaks[i]), angle=270)
+                    text_arrow.setText('%0.2f d' % (x_peaks[i]))               
+                    text_arrow.setPos(np.log10(x_peaks[i]),y_peaks[i])
+                else:   
+                    arrow = pg.ArrowItem(pos=(1/x_peaks[i], y_peaks[i]), angle=270)
+                    text_arrow.setText('%0.2f d' % (x_peaks[i]))               
+                    text_arrow.setPos(1/x_peaks[i],y_peaks[i])                    
+ 
+
+                p8.addItem(arrow) 
+                p8.addItem(text_arrow)
+
+
+            self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(fit.gls_o_c.info(stdout=False)+ text_peaks  )  )      
  
         if self.gls_o_c_cross_hair.isChecked():
             self.cross_hair(p8,log=self.radioButton_RV_o_c_GLS_period.isChecked())    
@@ -1825,9 +1879,10 @@ Polyfit coefficients:
                 p12.plot(np.array(omega), WF_power,pen='k',symbol=None )   
                 p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'12pt'})      
 
+            text_peaks, pos_peaks = self.identify_power_peaks(1/np.array(omega), WF_power)
 
                         
-            self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(self.identify_power_peaks(1/np.array(omega), WF_power)))        
+            self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(text_peaks))        
          
             #self.lineEdit
 
@@ -5170,8 +5225,10 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.RV_model_z.valueChanged.connect(self.update_RV_plots)
         self.RV_model_z.valueChanged.connect(self.update_extra_plots)    
         
-        
-        
+        self.N_GLS_peak_to_point.valueChanged.connect(self.update_RV_GLS_plots)
+        self.N_GLS_peak_to_point.valueChanged.connect(self.update_RV_o_c_GLS_plots)
+        self.avoid_GLS_RV_alias.stateChanged.connect(self.update_RV_GLS_plots)
+        self.avoid_GLS_RV_alias.stateChanged.connect(self.update_RV_o_c_GLS_plots)
         
         self.jitter_to_plots.stateChanged.connect(self.update_plots)
         

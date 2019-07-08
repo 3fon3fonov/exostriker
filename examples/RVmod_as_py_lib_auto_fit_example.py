@@ -33,6 +33,10 @@ import RV_mod as rv
 import gls as gls
 import numpy as np
 
+
+
+
+
 # Lets create the RVmod object
 fit=rv.signal_fit('Eta Ceti demo',readinputfile=False);
 
