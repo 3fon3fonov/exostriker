@@ -1685,7 +1685,49 @@ Polyfit coefficients:
         proxy = pg.SignalProxy(plot_wg.scene().sigMouseMoved, rateLimit=60, slot=mouseMoved)    
         plot_wg.proxy = proxy
   
+   
+            
+    def label_peaks(self, plot_wg2, pos_peaks, GLS = True):
+    
+        if GLS == True and self.avoid_GLS_RV_alias.isChecked():
+            x_peaks = pos_peaks[0][pos_peaks[0]>1.2]
+            y_peaks = pos_peaks[1][pos_peaks[0]>1.2]
+        else:            
+            x_peaks = pos_peaks[0] 
+            y_peaks = pos_peaks[1]          
+            
+            
+        if GLS == True:
+            N_peaks = int(self.N_GLS_peak_to_point.value())
+            log = self.radioButton_RV_o_c_GLS_period.isChecked()
+        else:
+            N_peaks = int(self.N_TLS_peak_to_point.value())
+            log = False
+            
 
+        for i in range(N_peaks):
+
+            text_arrow = pg.TextItem("test", anchor=(0.5,1.9))
+            
+            if log == True:
+                arrow = pg.ArrowItem(pos=(np.log10(x_peaks[i]), y_peaks[i]), angle=270)
+                text_arrow.setText('%0.2f d' % (x_peaks[i]))               
+                text_arrow.setPos(np.log10(x_peaks[i]),y_peaks[i])
+                
+            elif log == False and GLS == True:   
+                arrow = pg.ArrowItem(pos=(1/x_peaks[i], y_peaks[i]), angle=270)
+                text_arrow.setText('%0.2f d' % (x_peaks[i]))               
+                text_arrow.setPos(1/x_peaks[i],y_peaks[i])     
+                
+            elif log == False and GLS == False: 
+                arrow = pg.ArrowItem(pos=(x_peaks[i], y_peaks[i]), angle=270)
+                text_arrow.setText('%0.2f d' % (x_peaks[i]))               
+                text_arrow.setPos(x_peaks[i],y_peaks[i])                    
+  
+
+            plot_wg2.addItem(arrow) 
+            plot_wg2.addItem(text_arrow)        
+        
 ######################## RV plots ######################################        
 
     def init_gls_norm_combo(self):    
@@ -1758,29 +1800,7 @@ Polyfit coefficients:
  
             text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls.freq, fit.gls.power, power_level = power_levels, sig_level = fit.gls.powerLevel(np.array(power_levels)) )   
 
-
-            if self.avoid_GLS_RV_alias.isChecked():
-                x_peaks = pos_peaks[0][pos_peaks[0]>1.2]
-                y_peaks = pos_peaks[1][pos_peaks[0]>1.2]
-            else:            
-                x_peaks = pos_peaks[0] 
-                y_peaks = pos_peaks[1]                        
-
-            for i in range(int(self.N_GLS_peak_to_point.value())):
-
-                text_arrow = pg.TextItem("test", anchor=(0.5,1.9))
-                
-                if self.radioButton_RV_GLS_period.isChecked():
-                    arrow = pg.ArrowItem(pos=(np.log10(x_peaks[i]), y_peaks[i]), angle=270)
-                    text_arrow.setText('%0.2f d' % (x_peaks[i]))               
-                    text_arrow.setPos(np.log10(x_peaks[i]),y_peaks[i])
-                else:   
-                    arrow = pg.ArrowItem(pos=(1/x_peaks[i], y_peaks[i]), angle=270)
-                    text_arrow.setText('%0.2f d' % (x_peaks[i]))               
-                    text_arrow.setPos(1/x_peaks[i],y_peaks[i])                    
-                #text_arrow.setText('[%0.1f, %0.1f]' % (pos_peaks[0][0], pos_peaks[1][0]))
-                p7.addItem(arrow) 
-                p7.addItem(text_arrow)
+            self.label_peaks(p7, pos_peaks, GLS = True)
 
             self.RV_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
             fit.gls.info(stdout=False) + text_peaks   ))   
@@ -1818,33 +1838,8 @@ Polyfit coefficients:
 
             text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls_o_c.freq, fit.gls_o_c.power, power_level = power_levels, sig_level = fit.gls_o_c.powerLevel(np.array(power_levels)) )
 
-
-            if self.avoid_GLS_RV_alias.isChecked():
-                x_peaks = pos_peaks[0][pos_peaks[0]>1.2]
-                y_peaks = pos_peaks[1][pos_peaks[0]>1.2]
-            else:            
-                x_peaks = pos_peaks[0] 
-                y_peaks = pos_peaks[1]          
-                
-
-            for i in range(int(self.N_GLS_peak_to_point.value())):
-
-                text_arrow = pg.TextItem("test", anchor=(0.5,1.9))
-                
-                if self.radioButton_RV_o_c_GLS_period.isChecked():
-                    arrow = pg.ArrowItem(pos=(np.log10(x_peaks[i]), y_peaks[i]), angle=270)
-                    text_arrow.setText('%0.2f d' % (x_peaks[i]))               
-                    text_arrow.setPos(np.log10(x_peaks[i]),y_peaks[i])
-                else:   
-                    arrow = pg.ArrowItem(pos=(1/x_peaks[i], y_peaks[i]), angle=270)
-                    text_arrow.setText('%0.2f d' % (x_peaks[i]))               
-                    text_arrow.setPos(1/x_peaks[i],y_peaks[i])                    
+            self.label_peaks(p8, pos_peaks, GLS=True)
  
-
-                p8.addItem(arrow) 
-                p8.addItem(text_arrow)
-
-
             self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(fit.gls_o_c.info(stdout=False)+ text_peaks  )  )      
  
         if self.gls_o_c_cross_hair.isChecked():
@@ -2508,9 +2503,64 @@ Polyfit coefficients:
         
         
         #print("testeeee",self.tls_obj)
+
+
+
+    def update_tls_plots(self): 
+        global fit, p9, colors
+
+        if len(fit.tls) == 0:
+            return
+    
+        p9.plot(clear=True,) 
+        
+        if self.tls_cross_hair.isChecked():
+            self.cross_hair(p9,log=False)      
+            
+        if len(fit.tra_data_sets[0]) != 0:
+            #t = fit.tra_data_sets[0][0]
+            #flux = fit.tra_data_sets[0][1]
+           # flux_err = fit.tra_data_sets[0][2]
+           
+            text = '''
+Best results from TLS:
+ 
+Period: %s d   
+Transit depth: %s 
+Transit duration: %s d
+'''%(fit.tls.period,fit.tls.depth,fit.tls.duration)
+           
+            p9.plot(fit.tls.periods, fit.tls.power,        
+            pen='r',  enableAutoRange=True,viewRect=True)
+#0.9      5.7
+#0.95     6.1
+#0.99     7.0
+#0.999    8.3
+#0.9999   9.1
+            [p9.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
+
+            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls.periods,fit.tls.power,  sig_level = np.array([5.7,7.0,8.3] )   )
+
+#power_level = power_levels,
+
+            self.label_peaks(p9, pos_peaks, GLS = False)
+ 
+            self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(text + text_peaks))   
+            
+            return
+
+        else:    
+            text_err = pg.TextItem('Nothing to plot',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
+            p9.addItem(text_err, ignoreBounds=True)   
+            self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(""))            
+            return
+     
         
     def update_tls_o_c_plots(self): 
         global fit, p10, colors
+    
+        if len(fit.tls_o_c) == 0:
+            return
     
         p10.plot(clear=True,) 
 
@@ -2524,6 +2574,8 @@ Polyfit coefficients:
            # flux_err = fit.tra_data_sets[0][2]
            
             text = '''
+Best results from TLS:
+          
 Period: %s d   
 Transit depth: %s 
 Transit duration: %s d
@@ -2538,8 +2590,11 @@ Transit duration: %s d
 #0.9999   9.1
             [p10.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
    
+            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls_o_c.periods,fit.tls_o_c.power,  sig_level = np.array([5.7,7.0,8.3] )   )
  
-            self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(text))          
+            self.label_peaks(p10, pos_peaks, GLS = False)
+            
+            self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(text + text_peaks))          
             
             return
 
@@ -2550,49 +2605,6 @@ Transit duration: %s d
             return
 
 
-    def update_tls_plots(self): 
-        global fit, p9, colors
-    
-        p9.plot(clear=True,) 
-        
-        if self.tls_cross_hair.isChecked():
-            self.cross_hair(p9,log=False)      
-            
-        if len(fit.tra_data_sets[0]) != 0:
-            #t = fit.tra_data_sets[0][0]
-            #flux = fit.tra_data_sets[0][1]
-           # flux_err = fit.tra_data_sets[0][2]
-           
-            text = '''
-Period: %s d   
-Transit depth: %s 
-Transit duration: %s d
-'''%(fit.tls.period,fit.tls.depth,fit.tls.duration)
-           
-            p9.plot(fit.tls.periods, fit.tls.power,        
-            pen='r',  enableAutoRange=True,viewRect=True)
-#0.9      5.7
-#0.95     6.1
-#0.99     7.0
-#0.999    8.3
-#0.9999   9.1
-            [p9.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
-   
- 
-            self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(text))   
-            
-            return
-
-        else:    
-            text_err = pg.TextItem('Nothing to plot',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
-            p9.addItem(text_err, ignoreBounds=True)   
-            self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(""))            
-            return
-        
-            
-    
-        
-        
         
  ############ transit fitting (Work in progress here) ##############################      
        
@@ -5229,6 +5241,10 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.N_GLS_peak_to_point.valueChanged.connect(self.update_RV_o_c_GLS_plots)
         self.avoid_GLS_RV_alias.stateChanged.connect(self.update_RV_GLS_plots)
         self.avoid_GLS_RV_alias.stateChanged.connect(self.update_RV_o_c_GLS_plots)
+        
+        self.N_TLS_peak_to_point.valueChanged.connect(self.update_tls_plots)
+        self.N_TLS_peak_to_point.valueChanged.connect(self.update_tls_o_c_plots)        
+        
         
         self.jitter_to_plots.stateChanged.connect(self.update_plots)
         
