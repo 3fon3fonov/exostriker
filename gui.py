@@ -55,7 +55,7 @@ try:
         bat_test = batman.TransitParams()
         batman_not_found = False 
         bat_test = 0     
-    except (ImportError, KeyError) as e:        
+    except (ImportError, KeyError, AttributeError) as e:     
         batman_not_found = True 
         
 except (ImportError, KeyError) as e:
