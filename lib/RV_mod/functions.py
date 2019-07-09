@@ -206,6 +206,12 @@ def get_xyz(obj):
     Msun = 1.989e33
     Au = 1.49597892e13 
     
+    ##### this is a hack avoiding transit init crash!!!! TB fixed/removed   
+    if obj.fit_results.mass == 0 or len(np.atleast_1d(obj.fit_results.mass)) == 0:
+        return obj
+    ##################################################################### 
+    
+    
     for i in range(obj.npl):
         
         pl_mass_in_st = float(obj.fit_results.mass[i])/ 1047.70266835
