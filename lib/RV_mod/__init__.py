@@ -42,12 +42,21 @@ from scipy import stats
 
 
 try:
-    import batman as batman    
-    batman_not_found = False 
+    import batman as batman   
+    
+    try: 
+        bat_test = batman.TransitParams()
+        batman_not_found = False 
+        bat_test = 0     
+    except (ImportError, KeyError, AttributeError) as e:     
+        batman_not_found = True 
+        
 except (ImportError, KeyError) as e:
     batman_not_found = True
-    pass  
- 
+    pass     
+
+
+
 
 from CustomSampler import CustomSampler
 from Warning_log import Warning_log
