@@ -39,7 +39,7 @@ import ntpath
 from scipy.signal import argrelextrema
 from scipy.stats.stats import pearsonr   
 
-import batman as batman
+#import batman as batman
 
 try:
     from transitleastsquares import transitleastsquares    
@@ -47,7 +47,20 @@ try:
 except (ImportError, KeyError) as e:
     tls_not_found = True
     pass               
-       
+  
+try:
+    import batman as batman   
+    
+    try: 
+        bat_test = batman.TransitParams()
+        batman_not_found = False 
+        bat_test = 0     
+    except (ImportError, KeyError) as e:        
+        batman_not_found = True 
+        
+except (ImportError, KeyError) as e:
+    batman_not_found = True
+    pass       
 
     
 import webbrowser
@@ -4452,6 +4465,17 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
  
     def mute_boxes(self):
         
+        if batman_not_found == True:
+            self.radioButton_transit.setEnabled(False)          
+            self.radioButton_transit_RV.setEnabled(False)       
+            print("""
+You dont have batman installed or you have the wrong 'batman'! 
+Therefore, you cannnot use the transit modelling. 
+Please install 'batman' and try again. 
+For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> Credits' 
+""")
+            self.tabWidget_helper.setCurrentWidget(self.tab_info)
+
         ######### TESTS!!!!!!!!!!!###########
         
         self.mute_boxes_dyn()

@@ -33,7 +33,7 @@ import celerite
 from celerite import terms
 import dynesty
 
-import batman
+#import batman
 
 #import copy
 import dill
@@ -41,6 +41,13 @@ import scipy.optimize as op
 from scipy import stats
 
 
+try:
+    import batman as batman    
+    batman_not_found = False 
+except (ImportError, KeyError) as e:
+    batman_not_found = True
+    pass  
+ 
 
 from CustomSampler import CustomSampler
 from Warning_log import Warning_log
@@ -1396,7 +1403,6 @@ class signal_fit(object):
         self.sampler=None
         self.sampler_saved=False
         
-        self.init_transit_params()
         self.init_auto_fit()
         
         
@@ -1412,7 +1418,8 @@ class signal_fit(object):
         self.nest_corner_plot_file = 'nest_samp_cornerplot.pdf'        
         self.nest_stat = {"mean": [],"mode": [],"best": []}
       
-        
+
+       
         self.init_orb_evol()
         
         self.tls = []
@@ -1454,6 +1461,24 @@ class signal_fit(object):
        
         self.init_xyz()
  
+        ############################################ 
+        try:
+           self.init_transit_params()
+        except:
+            if batman_not_found == True:
+                print("You dont have the batman package")            
+            else:
+                print("You have probably the wrong batman packages")
+            self.tr_params = []
+                
+        self.ld_models = ["uniform", "linear", "quadratic", "nonlinear"]
+        self.ld_m = ["quadratic", "quadratic",  "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic"]    #limb darkening model
+        self.ld_u = {k: [0.1, 0.3 ] for k in range(10)}    
+        
+        #self.tr_params.limb_dark = self.ld_m[0]       #limb darkening model
+        #self.tr_params.u =  self.ld_u[0]             
+
+        ############################################
 
 
 #    def constants(self):   
@@ -1776,24 +1801,16 @@ class signal_fit(object):
         self.tr_params.inc = 90. #orbital inclination (in degrees)
         self.tr_params.a   = 15  #semi-major axis (in units of stellar radii)
     
-        self.ld_models = ["uniform", "linear", "quadratic", "nonlinear"]
-
-        self.ld_m = ["quadratic", "quadratic",  "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic"]    #limb darkening model
-        self.ld_u = {k: [0.1, 0.3 ] for k in range(10)}    
-        
-        #self.tr_params.limb_dark = self.ld_m[0]       #limb darkening model
-        #self.tr_params.u =  self.ld_u[0]             
+ 
+        #self.tr_params_use = [False, False,False,False,False,False,False]    
 
         self.tr_params.limb_dark = "quadratic"      #limb darkening model
         self.tr_params.u =  [0.1, 0.3 ]            
         
         # ld_options = ["uniform", "linear", "quadratic", "nonlinear"]
         #ld_coefficients = [[], [0.3], [0.1, 0.3], [0.5, 0.1, 0.1, -0.1]]       
-        
       
-        self.tr_params_use = [False, False,False,False,False,False,False]    
-        #self.tr_params_use = [False, False,False,False,False,False,False]    
-       
+        self.tr_params_use = [False, False,False,False,False,False,False]          
  
  
     def init_sciPy_minimizer(self):
