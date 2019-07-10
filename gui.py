@@ -93,8 +93,46 @@ pg.setConfigOptions(antialias=True)
 global fit, colors, ses_list
  
 
-fit=rv.signal_fit(name='session')
-ses_list = [fit]
+arguments = len(sys.argv) - 1
+
+if arguments==2 and sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
+    try:
+        file_pi = open(sys.argv[2], 'rb')
+        fit_ses = dill.load(file_pi)
+        file_pi.close()   
+        fit = fit_ses 
+        ses_list = [fit_ses] 
+        fit.init_pl_arb()
+#        rv.check_temp_RV_file(fit)
+        
+        start_arg_ses = True  
+    except (ImportError, KeyError, AttributeError) as e:
+        print("You have entered non-RVmod session. %s cannot be recognaized"%sys.argv[2])
+        fit=rv.signal_fit(name='session')
+        ses_list = [fit]            
+        start_arg_ses = False    
+        
+elif arguments==2 and sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
+    try:
+        file_pi = open(sys.argv[2], 'rb')
+        fit_ses = dill.load(file_pi)
+        file_pi.close()   
+        ses_list = fit_ses
+        fit = ses_list[0]
+        fit.init_pl_arb()
+#        rv.check_temp_RV_file(fit)
+        start_arg_ses = True  
+    except (ImportError, KeyError, TypeError, AttributeError) as e:
+        print("You have entered non-RVmod multi-session. %s cannot be recognaized"%sys.argv[2])
+        fit=rv.signal_fit(name='session')
+        ses_list = [fit]            
+        start_arg_ses = False          
+  
+else:    
+    fit=rv.signal_fit(name='session')
+    ses_list = [fit]            
+    start_arg_ses = False         
+     
  
 
 
@@ -108,7 +146,7 @@ colors_theta = colors
 
 QtGui.QApplication.processEvents()
 
- 
+
 
  
 class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -3823,6 +3861,7 @@ highly appreciated!
             ses_list.append(fit_new)
             
             #self.check_settings()
+            rv.check_temp_RV_file(fit_new)
             self.session_list()
             self.select_session(-1)
             
@@ -3861,6 +3900,8 @@ highly appreciated!
                 ses_list = fit2
             elif choice == QtGui.QMessageBox.Cancel:        
                 return         
+
+            #fit_new.check_temp_RV_file()
     
             self.check_settings()  
             self.session_list()
@@ -5078,10 +5119,10 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.initialize_plots()   
  
         self.initialize_color_dialog()               
-#        self.init_fit()
+
+
         
         ###################### Console #############################
-
         self.console_widget = ConsoleWidget_embed(font_size = 8)
         # add the console widget to the user interface
         # push some variables to the console
@@ -5125,7 +5166,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.tree_view_tab.listview.clicked.connect(self.plot_data_inspect)
         self.data_insp_load_data.clicked.connect(self.load_data_inspect)  
         
-        
+    
         
         #################### stdout pipe ########################
        
@@ -5190,8 +5231,6 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.adopt_best_RV__o_c_GLS_per.clicked.connect(self.adopt_RV_GLS_param)
         
         self.adopt_tls_o_c_param.clicked.connect(self.adopt_trans_TLS_param)
-        
-        
 
         ############ View #################
 
@@ -5222,11 +5261,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.actionvisit_TRIFON_on_GitHub.triggered.connect(lambda: webbrowser.open('https://github.com/3fon3fonov/trifon'))    
         self.actionCredits.triggered.connect(lambda: self.print_info_credits())
         
-        
 
-
-
-        
         ############### Orb. Evol. plotting ####################
         self.comboBox_pl_1.activated.connect(self.plot_delta_omega)
         self.comboBox_pl_2.activated.connect(self.plot_delta_omega)
@@ -5391,6 +5426,22 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         #self.threadpool.setMaxThreadCount(cpu_count())    
 
         #self.treeWidget = tree_view.Widget() #.setModel(self.tree_view)
+
+        
+        
+        if start_arg_ses == True:
+            self.init_fit()         
+            self.update_use_from_input_file()   
+            self.update_use()
+            self.update_gui_params()
+            self.update_params()
+            self.update_RV_file_buttons()
+            self.fit_dispatcher(init=True)  
+
+
+        
+
+
 
         print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and piped results.")
 
