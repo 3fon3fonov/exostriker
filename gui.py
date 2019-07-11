@@ -1355,7 +1355,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         
 
         
-    def identify_power_peaks(self,x,y,sig_level=np.array([]), power_level=np.array([])):
+    def identify_power_peaks(self,x,y,sig_level=np.array([]), power_level=np.array([]) ):
  
         per_ind = argrelextrema(y, np.greater)
         per_x   = x[per_ind]
@@ -1385,7 +1385,16 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
 The 10 strongest peaks
 ----------------------------------------------
 """         
-        for j in range(10):
+
+        if len(per_x)  < 10:
+            max_peaks = len(per_x) 
+        else:
+            max_peaks = 10
+            
+      #  per_x   = per_x[0:5]   
+      #  per_y   = per_y[0:5]
+            
+        for j in range(max_peaks):
             text_peaks = text_peaks +"""
 period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])  
             if sig_level.size != 0 and per_y[j] > sig_level[-1]:
