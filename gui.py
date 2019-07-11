@@ -1386,13 +1386,12 @@ The 10 strongest peaks
 ----------------------------------------------
 """         
 
+ 
         if len(per_x)  < 10:
             max_peaks = len(per_x) 
         else:
             max_peaks = 10
-            
-      #  per_x   = per_x[0:5]   
-      #  per_y   = per_y[0:5]
+
             
         for j in range(max_peaks):
             text_peaks = text_peaks +"""
@@ -1760,10 +1759,18 @@ Polyfit coefficients:
         if GLS == True:
             N_peaks = int(self.N_GLS_peak_to_point.value())
             log = self.radioButton_RV_o_c_GLS_period.isChecked()
+            type_per = "GLS"
         else:
             N_peaks = int(self.N_TLS_peak_to_point.value())
             log = False
+            type_per = "TLS"
             
+#        x_peaks = x_peaks[0:3] 
+#        y_peaks = y_peaks[0:3]                 
+            
+        if len(x_peaks) <  N_peaks:
+            N_peaks = len(x_peaks)              
+            print("You have reached the maximum number of %s peaks."%type_per)
 
         for i in range(N_peaks):
 
