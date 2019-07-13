@@ -1120,14 +1120,14 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         
         arb_param_gui = [
                      self.arb_K_1, self.arb_P_1, self.arb_e_1, self.arb_om_1, self.arb_ma_1, self.arb_incl_1, self.arb_Om_1,
-                     self.arb_K_2, self.arb_P_2, self.arb_e_1, self.arb_om_2, self.arb_ma_2, self.arb_incl_2, self.arb_Om_2,
-                     self.arb_K_3, self.arb_P_3, self.arb_e_1, self.arb_om_3, self.arb_ma_3, self.arb_incl_3, self.arb_Om_3,
-                     self.arb_K_4, self.arb_P_4, self.arb_e_1, self.arb_om_4, self.arb_ma_4, self.arb_incl_4, self.arb_Om_4, 
-                     self.arb_K_5, self.arb_P_5, self.arb_e_1, self.arb_om_5, self.arb_ma_5, self.arb_incl_5, self.arb_Om_5,
-                     self.arb_K_6, self.arb_P_6, self.arb_e_1, self.arb_om_6, self.arb_ma_6, self.arb_incl_6, self.arb_Om_6,
-                     self.arb_K_7, self.arb_P_7, self.arb_e_1, self.arb_om_7, self.arb_ma_7, self.arb_incl_7, self.arb_Om_7, 
-                     self.arb_K_8, self.arb_P_8, self.arb_e_1, self.arb_om_8, self.arb_ma_8, self.arb_incl_8, self.arb_Om_8,
-                     self.arb_K_9, self.arb_P_9, self.arb_e_1, self.arb_om_9, self.arb_ma_9, self.arb_incl_9, self.arb_Om_9,
+                     self.arb_K_2, self.arb_P_2, self.arb_e_2, self.arb_om_2, self.arb_ma_2, self.arb_incl_2, self.arb_Om_2,
+                     self.arb_K_3, self.arb_P_3, self.arb_e_3, self.arb_om_3, self.arb_ma_3, self.arb_incl_3, self.arb_Om_3,
+                     self.arb_K_4, self.arb_P_4, self.arb_e_4, self.arb_om_4, self.arb_ma_4, self.arb_incl_4, self.arb_Om_4, 
+                     self.arb_K_5, self.arb_P_5, self.arb_e_5, self.arb_om_5, self.arb_ma_5, self.arb_incl_5, self.arb_Om_5,
+                     self.arb_K_6, self.arb_P_6, self.arb_e_6, self.arb_om_6, self.arb_ma_6, self.arb_incl_6, self.arb_Om_6,
+                     self.arb_K_7, self.arb_P_7, self.arb_e_7, self.arb_om_7, self.arb_ma_7, self.arb_incl_7, self.arb_Om_7, 
+                     self.arb_K_8, self.arb_P_8, self.arb_e_8, self.arb_om_8, self.arb_ma_8, self.arb_incl_8, self.arb_Om_8,
+                     self.arb_K_9, self.arb_P_9, self.arb_e_9, self.arb_om_9, self.arb_ma_9, self.arb_incl_9, self.arb_Om_9,
                      ]
         
         for i in range(9):

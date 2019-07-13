@@ -2532,26 +2532,31 @@ class signal_fit(object):
         
         message_str = """ 
 """        
-        if(self.inputfile_read):
-            message_str = message_str +"""This is the information for signal fit %s, based on input file %s. 
+#        if(self.inputfile_read):
+#            message_str = message_str +"""This is the information for signal fit %s, based on input file %s. 
             
-"""%(self.name, self.inputfile) 
-        else:
-            message_str = message_str +"""This is the information for signal fit %s.
+#"""%(self.name, self.inputfile) 
+#        else:
+#            message_str = message_str +"""This is the information for signal fit %s.
             
-"""%self.name          
+#"""%self.name          
         # checking if we are dealing with fitted parameters or original data
-        if (self.fit_performed and not self.never_saved):
-            message_str = message_str +"""Presenting optimal parameters fitted using %s fitting method.
-            
-"""%self.fitting_method
-            message_str = message_str +"""Fit properties: \n chi^2: %f \n reduced chi^2: %f \n rms: %f \n loglik: %f
+#        if (self.fit_performed and not self.never_saved):
+#            message_str = message_str +"""Presenting optimal parameters fitted using %s fitting method.
+#            
+#"""%self.fitting_method
+#            message_str = message_str +"""Fit properties: \n chi^2: %f \n reduced chi^2: %f \n rms: %f \n loglik: %f
+#            
+#"""%(self.fit_results.chi2,self.fit_results.reduced_chi2,self.fit_results.rms,self.fit_results.loglik)
+#        else:
+#            message_str = message_str +"""No fit has yet been conducted (or parameters have never been saved), presenting parameters from user\'s original input
+#
+#"""
+
+        message_str = message_str +"""Fit properties: \n chi^2: %f \n reduced chi^2: %f \n rms: %f \n loglik: %f
             
 """%(self.fit_results.chi2,self.fit_results.reduced_chi2,self.fit_results.rms,self.fit_results.loglik)
-        else:
-            message_str = message_str +"""No fit has yet been conducted (or parameters have never been saved), presenting parameters from user\'s original input
 
-"""
 
         # Now let's print information about RV files
         if (self.filelist.ndset==1): # because word file has a singular and plural form
@@ -2652,7 +2657,7 @@ class signal_fit(object):
  
         if show:
             print(message_str)
- 
+            return
         return message_str  
         
   

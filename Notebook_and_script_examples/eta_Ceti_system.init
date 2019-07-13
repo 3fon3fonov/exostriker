@@ -1,0 +1,16 @@
+Stellar_mass_is_known: 1 Stellar_mass_value: 1.7 Use_stellar_mass: 1
+number_of_datasets: 2 Optional_path: ./datafiles 
+list_of_files_with_datasets: hip5364.vels hip5364_crires.vels 
+Offsets: 0.0 680.0 
+Use_offests: 1 1  
+Jitters: 19.0 14.0
+Use_jitters: 1 1  
+Linear_trend: 0 use_linear_trend: 0
+Fitting_in_dynamical_mode: 0
+Epoch: 2451745.994
+Number_of_known_planets: 2 planet_parameters_below:
+ 51.13231  404.12694  0.1663   216.89239 227.95899  90.0  0.0
+Use_K1,P1,e1,w1,M1,i1: 1 1 1 1 1 0 0
+ 49.17725  771.70901 0.07726 170.38211 168.05172  90.0  0.0
+1 1 1 1 1 0 0
+ 
