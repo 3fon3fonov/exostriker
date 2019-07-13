@@ -4,7 +4,7 @@ For Debian based OS the only thing you have to do is to run:
  
 bash linux_debian_install.sh
 
-the script will automatically check if your system is RVmod/TRIFON ready 
+the script will automatically check if your system is ready for Exo-Striker
 and will ask you to install packages if needed. Particularly you will need:
 
 gfortran
@@ -21,7 +21,7 @@ corner
 celerite
 batman
 qtconsole
-transit least squares
+transitleastsquares
 dynesty
 + the swift N-body library, which is in the ./source directory
 
@@ -129,7 +129,7 @@ Subsystem for Linux" as pointed above.
 ################################################################################
  
  
-TBA 
+See "focus_matrix_TBFixed.doc" in the root dir.
  
 
 ################################## Finally #####################################
@@ -140,10 +140,10 @@ python gui.py
  
 # if you want to use RVmod on the Python shell
 
-import RVmod as rv 
+import RV_mod as rv 
  
 (but the RVmod directory must be in your path! Not to mation that one must be familiar with 
-the functions o the RVmod... A manual on RVmod is planned but not available at the moment.)
+the functions of the RVmod... A manual on RVmod is planned but not available at the moment.)
 
 
 
@@ -155,12 +155,11 @@ serious clean up from junk.
 
 * All fortan code is planned to be translated with f2py.
 
-* The transit fitting + RV + GP is still not tested 
-well
+* The transit fitting + RV + GP is still not well tested
 
 * A pip installer must be made.
 
-* Bugs are likely to occur! 
+* Bugs may occur! 
 
 
 

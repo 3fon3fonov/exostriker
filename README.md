@@ -28,7 +28,7 @@ What works:
 * RV auto-fit (RV automated planet-finder algorithm).
 * Long-term stability check of multi-planet systems using SyMBA, MVS and MVS with an GR precession.
 * Various of minimization methods (via "SciPyOp").
-* Interactive plots.
+* Fully interactive, super-fast interactive plots.
 * RV vs. Activity time series correlation analysis/plots.
 * Import/Export of work sessions and multi-sessions. 
 * Export plots to a matplotlib window for further customization.
@@ -37,7 +37,7 @@ What works:
 * Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
 * Integrated Bash-shell (Linux only).
 * Integrated Jupyter shell.
-* Importable as a standard python library (i.e. ideal for scripting and notebooks).
+* Importable as a standard python library (i.e. ideal for scripting and notebooks, see "Examples").
 * Print the GUI screen into a .jpeg image (useful for sharing quick results, just like the image above)
 
 What is to be implemented:
