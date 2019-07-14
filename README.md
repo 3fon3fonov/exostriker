@@ -24,15 +24,15 @@ What works:
 * Transit photometry modeling.
 * GP modeling (only SHO and Rot. GP kernels integrated so far).
 * Joint RVs + RV GP + Transit best-fit optimization.
-* Joint RVs + RV GP + Transit MCMC/Nested Sampling sampling (via "emcee" & "dynesty").
+* Joint RVs + RV GP + Transit MCMC/Nested Sampling (via "emcee" & "dynesty").
 * RV auto-fit (RV automated planet-finder algorithm).
 * Long-term stability check of multi-planet systems using SyMBA, MVS and MVS with an GR precession.
 * Various of minimization methods (via "SciPyOp").
-* Fully interactive, super-fast interactive plots.
+* Fully interactive, super-fast, high-quality, exportable plots.
 * RV vs. Activity time series correlation analysis/plots.
 * Import/Export of work sessions and multi-sessions. 
 * Export plots to a matplotlib window for further customization.
-* Export ready to use LaTeX tables with best-fit parameters, errors and statistics. 
+* Export ready to use LaTeX tables with best-fit parameters, errors, and statistics. 
 * Handy text editor and calculator tools.
 * Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
 * Integrated Bash-shell (Linux only).
@@ -51,7 +51,8 @@ What is to be implemented:
 * For more "TBD" list see: "focus_matrix_TBFixed.doc".
 
 If you use this tool and you find a bug or a problem, please report it!
-A wish-list with your favorite tools and methods to be implemented is also welcome.
+A wish-list with your favorite tools and methods to be implemented is also welcome!
+Just open an "Issue", or send a PM to trifonov@mpia.de.
 
 
 

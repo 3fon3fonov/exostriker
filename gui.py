@@ -127,6 +127,20 @@ elif arguments==2 and sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
         fit=rv.signal_fit(name='session')
         ses_list = [fit]            
         start_arg_ses = False          
+        
+elif arguments==2 and sys.argv[1] == '-rv_init' and os.path.exists(sys.argv[2]):
+    try:
+        
+        fit=rv.signal_fit(str(sys.argv[2]), 'RVmod session',readinputfile=True)
+        fit.init_pl_arb()
+        ses_list = [fit]      
+        start_arg_ses = True  
+    except (ImportError, KeyError, TypeError, AttributeError) as e:
+        print("You have entered non-RVmod .init file. %s cannot be recognaized"%sys.argv[2])
+        fit=rv.signal_fit(name='session')
+        ses_list = [fit]            
+        start_arg_ses = False             
+        
   
 else:    
     fit=rv.signal_fit(name='session')
@@ -5195,7 +5209,6 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.dialog = print_info(self)
         self.dialog_credits = print_info(self)
        
-        self.load_fort_in_file.clicked.connect(self.showDialog_fortran_input_file)
 
         self.buttonGroup_add_RV_data.buttonClicked.connect(self.showDialog_RV_input_file)
         self.buttonGroup_remove_RV_data.buttonClicked.connect(self.remove_RV_file)
@@ -5405,6 +5418,9 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
 
 
         self.quit_button.clicked.connect(self.quit)
+        self.actionQuit.triggered.connect(self.quit) 
+
+        self.actionopen_RVmod_init_file.triggered.connect(self.showDialog_fortran_input_file)
         
  
         self.jupiter_push_vars()
@@ -5441,8 +5457,6 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.threadpool = QtCore.QThreadPool()
         #self.threadpool.setMaxThreadCount(cpu_count())    
 
-        #self.treeWidget = tree_view.Widget() #.setModel(self.tree_view)
-
         
         
         if start_arg_ses == True:
@@ -5453,12 +5467,9 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             self.update_params()
             self.update_RV_file_buttons()
             self.fit_dispatcher(init=True)  
-
-
-        
-
-
-
+ 
+    
+    
         print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and piped results.")
 
 
