@@ -1144,8 +1144,12 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.arb_K_9, self.arb_P_9, self.arb_e_9, self.arb_om_9, self.arb_ma_9, self.arb_incl_9, self.arb_Om_9,
                      ]
         
+        j = 0
         for i in range(9):
             fit.pl_arb_use[i] = arb_param_gui_use[i].isChecked()
+            
+            if fit.pl_arb_use[i] == True:
+                j += 1
             
             fit.e_arb[i]    = arb_param_gui[7*i + 2].value()    
             fit.w_arb[i]    = arb_param_gui[7*i + 3].value()    
@@ -1163,8 +1167,9 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                 fit.mass_arb[i] = arb_param_gui[7*i + 0].value()  
                 fit.a_arb[i]    = arb_param_gui[7*i + 1].value()  
             
-            
-        fit.npl_arb = np.sum(fit.pl_arb_use.values())
+
+       # fit.npl_arb = np.sum(fit.pl_arb_use.values())
+        fit.npl_arb = j# np.count_nonzero(fit.pl_arb_use.values())
  
     
     
@@ -3314,9 +3319,10 @@ Transit duration: %s d
     def worker_Nbody_arb(self):
         global fit  
 
-        self.run_orb_evol_arbitary.setEnabled(False)         
-   
+        self.run_orb_evol_arbitary.setEnabled(False)           
         self.check_arb_pl()
+
+        print(fit.npl_arb)
 
         if fit.npl_arb < 2:
             choice = QtGui.QMessageBox.information(self, 'Warning!'," With less than two planets this makes no sense. Okay?",
