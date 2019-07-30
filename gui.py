@@ -1309,7 +1309,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def initialize_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,pe,pdi
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi
 
         p1  = self.graphicsView_timeseries_RV
         p2  = self.graphicsView_timeseries_RV_o_c
@@ -1334,16 +1334,19 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         p17 = self.graphicsView_orb_evol_res_dom
         p18 = self.graphicsView_orb_evol_res_theta
         
+        p19 = self.graphicsView_orb_evol_elements_i
+        p20 = self.graphicsView_orb_evol_energy
+        
         pe  = self.graphicsView_extra_plot
         
         pdi = self.load_data_plot
 
-        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','yr','yr','yr','a','yr','yr','','x']
-        yaxis = ['RV','RV','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a','e','omega','a','delta omega','theta','','y']       
-        xunit = ['' ,'','','','','','','','','','','','','','','au','','','','']
-        yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','','au','','','','']
+        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x']
+        yaxis = ['RV','RV','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y']       
+        xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','']
+        yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','','','','','','','','']
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,pe,pdi]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi]
         font=QtGui.QFont()
         font.setPixelSize(12) 
         for i in range(len(zzz)):
@@ -3237,8 +3240,58 @@ Transit duration: %s d
     
         self.plot_theta()             
         
-        
-        
+ 
+    def plot_i_Om(self):
+        global fit, colors, p19
+
+        if fit.pl_arb_test == True:
+            npl = fit.npl_arb
+        else:
+            npl = fit.npl  
+            
+        p19.plot(clear=True,)   
+
+        if self.plot_i.isChecked():
+            for i in range(npl):
+                p19.plot(fit.evol_T[i], fit.evol_i[i] ,pen=fit.colors[i],symbol=None )    
+            p19.setLabel('left', 'i [deg]', units='',  **{'font-size':'12pt'})    
+    
+        elif self.plot_Om.isChecked():
+            for i in range(npl):
+                
+                Om_evol = np.array(fit.evol_Om[i])
+                
+                if self.radioButton_Omega_180_fold.isChecked():
+                    Om_evol[Om_evol>=180.0] -= 360.0
+
+                #p19.plot(fit.evol_T[i], fit.evol_Om[i] ,pen=fit.colors[i],symbol=None )      
+                p19.plot(fit.evol_T[i], Om_evol ,pen=None, #{'color': colors[i], 'width': 1.1},
+                symbol='o',
+                symbolPen={'color': fit.colors[i], 'width': 1.1},
+                symbolSize=1,enableAutoRange=True,viewRect=True,
+                symbolBrush=fit.colors[i]
+                )
+                
+                
+            p19.setLabel('left', 'Omega [deg]', units='',  **{'font-size':'11pt'})    
+            Om_evol = 0
+ 
+    def plot_energy(self):
+        global fit, colors, p20
+
+ 
+        p20.plot(clear=True,)   
+
+        if self.radioButton_energy.isChecked():
+ 
+            p20.plot(fit.evol_T_energy, fit.evol_energy ,pen=fit.colors[0],symbol=None )    
+            p20.setLabel('left', 'Energy', units='',  **{'font-size':'10pt'})    
+    
+        elif self.radioButton_ang_mom.isChecked():
+            p20.plot(fit.evol_T_energy, fit.evol_momentum ,pen=fit.colors[0],symbol=None )    
+            p20.setLabel('left', 'Momentum', units='',  **{'font-size':'10pt'})    
+                
+ 
         
     def worker_Nbody_complete(self):
         global fit, colors, p13, p14, p15  
@@ -3251,6 +3304,8 @@ Transit duration: %s d
         p13.plot(clear=True,)
         p14.plot(clear=True,)
         p15.plot(clear=True,)
+
+  
 
         for i in range(npl):
             p13.plot(fit.evol_T[i], fit.evol_a[i] ,pen=fit.colors[i],symbol=None )     
@@ -3267,6 +3322,8 @@ Transit duration: %s d
         self.theta_which_pl_combo()
         self.plot_delta_omega()
         self.plot_theta()
+        self.plot_i_Om()    
+        self.plot_energy()           
 #        self.update_orb_plot()
 
         self.plot_tabs.setCurrentWidget(self.tab_Orbital_evol)
@@ -3274,7 +3331,6 @@ Transit duration: %s d
              
         self.button_orb_evol.setEnabled(True)       
         self.statusBar().showMessage('')      
-        fit.pl_arb_test = False
           
  
     def worker_Nbody(self):
@@ -3300,10 +3356,12 @@ Transit duration: %s d
         if fit.npl != len(fit.fit_results.mass):  
             fit.model_saved = False 
             self.init_fit()
-        
+
+        fit.pl_arb_test = False        
  
         self.statusBar().showMessage('Running Orbital Evolution......')   
-        
+
+
         # Pass the function to execute
         worker3 = Worker(lambda: self.run_orbital_simulations()) # Any other args, kwargs are passed to the run  
         # Execute
@@ -5301,7 +5359,18 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.comboBox_pl_1.activated.connect(self.plot_delta_omega)
         self.comboBox_pl_2.activated.connect(self.plot_delta_omega)
         self.radioButton_dom_180_fold.toggled.connect(self.plot_delta_omega)
-        self.radioButton_theta_180_fold.toggled.connect(self.plot_theta)
+        self.radioButton_theta_180_fold.toggled.connect(self.plot_theta)        
+        
+        self.plot_i.toggled.connect(self.plot_i_Om)
+        self.plot_Om.toggled.connect(self.plot_i_Om)
+        #self.radioButton_Omega_no_fold.toggled.connect(self.plot_i_Om)
+        self.radioButton_Omega_180_fold.toggled.connect(self.plot_i_Om)
+       
+        self.radioButton_energy.toggled.connect(self.plot_energy)
+        
+
+
+
         
         self.MMR_combo()
         self.comboBox_MMR_pl_1.activated.connect(self.theta_combo)

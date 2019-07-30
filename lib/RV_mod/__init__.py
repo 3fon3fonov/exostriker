@@ -1882,15 +1882,24 @@ class signal_fit(object):
         self.evol_p_arb = {k: [] for k in range(9)}
         self.evol_M_arb = {k: [] for k in range(9)}
 
+        self.evol_T_energy_arb   = 0
+        self.evol_energy_arb   = 0
+        self.evol_momentum_arb = 0
+
  
     def init_orb_evol(self):
         
-        self.evol_T = {k: [] for k in range(9)}
-        self.evol_a = {k: [] for k in range(9)}
-        self.evol_e = {k: [] for k in range(9)}
-        self.evol_p = {k: [] for k in range(9)}
-        self.evol_M = {k: [] for k in range(9)}
+        self.evol_T  = {k: [] for k in range(9)}
+        self.evol_a  = {k: [] for k in range(9)}
+        self.evol_e  = {k: [] for k in range(9)}
+        self.evol_p  = {k: [] for k in range(9)}
+        self.evol_M  = {k: [] for k in range(9)}
+        self.evol_i  = {k: [] for k in range(9)}
+        self.evol_Om = {k: [] for k in range(9)}
 
+        self.evol_T_energy   = 0
+        self.evol_energy   = 0
+        self.evol_momentum = 0
 
 
     def init_mcmc_par(self):     
