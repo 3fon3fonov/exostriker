@@ -11,7 +11,8 @@ import corner
 
 import re
 from subprocess import PIPE, Popen 
-import signal 
+import signal
+import platform
 import tempfile, shutil
 from threading import Thread
 from Warning_log import Warning_log
@@ -19,6 +20,9 @@ import scipy.stats as pdf
 import dill
 from scipy.signal import argrelextrema
 from scipy.ndimage import gaussian_filter
+import random
+import string
+
 
 import gls as gls 
 
@@ -240,7 +244,11 @@ def get_xyz(obj):
     return obj
  
 
- 
+
+def randomString(stringLength=5):
+    """Generate a random string of fixed length """
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))
 
 def copy_file_to_datafiles(path):
     '''
@@ -252,8 +260,15 @@ def copy_file_to_datafiles(path):
 
     dirname, basename = os.path.split(path)
     #temp_dir = './datafiles'#tempfile.gettempdir()   
-    
-    tmp = tempfile.mkdtemp()
+
+    tmp = '/tmp'
+    if platform.system() == 'Darwin':
+        tmp = '/tmp/es2/%s'%randomString(5)       
+        if not os.path.exists(tmp):
+            os.system("mkdir %s"%tmp)
+    else:
+        tmp = tempfile.mkdtemp()
+        
     temp_path = os.path.join(tmp, basename)
 #    print(temp_path)
     
