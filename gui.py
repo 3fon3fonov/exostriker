@@ -1768,7 +1768,7 @@ Polyfit coefficients:
   
    
             
-    def label_peaks(self, plot_wg2, pos_peaks, GLS = True):
+    def label_peaks(self, plot_wg2, pos_peaks, GLS = True, o_c = False):
     
         if GLS == True and self.avoid_GLS_RV_alias.isChecked():
             x_peaks = pos_peaks[0][pos_peaks[0]>1.2]
@@ -1780,7 +1780,11 @@ Polyfit coefficients:
             
         if GLS == True:
             N_peaks = int(self.N_GLS_peak_to_point.value())
-            log = self.radioButton_RV_o_c_GLS_period.isChecked()
+            if o_c == True:
+                log = self.radioButton_RV_o_c_GLS_period.isChecked()
+            else:
+                log = self.radioButton_RV_GLS_period.isChecked()
+                
             type_per = "GLS"
         else:
             N_peaks = int(self.N_TLS_peak_to_point.value())
@@ -1889,7 +1893,7 @@ Polyfit coefficients:
  
             text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls.freq, fit.gls.power, power_level = power_levels, sig_level = fit.gls.powerLevel(np.array(power_levels)) )   
 
-            self.label_peaks(p7, pos_peaks, GLS = True)
+            self.label_peaks(p7, pos_peaks, GLS = True, o_c = False)
 
             self.RV_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
             fit.gls.info(stdout=False) + text_peaks   ))   
@@ -1927,7 +1931,7 @@ Polyfit coefficients:
 
             text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls_o_c.freq, fit.gls_o_c.power, power_level = power_levels, sig_level = fit.gls_o_c.powerLevel(np.array(power_levels)) )
 
-            self.label_peaks(p8, pos_peaks, GLS=True)
+            self.label_peaks(p8, pos_peaks, GLS=True, o_c = True)
  
             self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(fit.gls_o_c.info(stdout=False)+ text_peaks  )  )      
  

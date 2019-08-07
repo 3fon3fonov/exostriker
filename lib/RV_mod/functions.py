@@ -246,7 +246,9 @@ def get_xyz(obj):
 
 
 def randomString(stringLength=5):
-    """Generate a random string of fixed length """
+    """
+    Generate a random string of fixed length 
+    """
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(stringLength))
 
@@ -261,27 +263,17 @@ def copy_file_to_datafiles(path):
     dirname, basename = os.path.split(path)
     #temp_dir = './datafiles'#tempfile.gettempdir()   
 
-    tmp = '/tmp'
+    tmp = '/tmp/es2'
     if platform.system() == 'Darwin':
-        tmp = '/tmp/es2/%s'%randomString(5)       
         if not os.path.exists(tmp):
-            os.system("mkdir %s"%tmp)
+            os.system("mkdir %s"%tmp)    
+        tmp = '/tmp/es2/%s'%randomString(5)       
     else:
         tmp = tempfile.mkdtemp()
         
     temp_path = os.path.join(tmp, basename)
-#    print(temp_path)
-    
     os.system("cp %s %s"%(path, temp_path))
-    #print(temp_path, path)
-   # if os.path.exists(temp_path):
-    #    try:
-   #         shutil.copy2(path, temp_path)
-   #     except shutil.Error:
-   #         temp_path == path    
- 
-        #os.system("cp %s %s"%(path, temp_path))
-    #temp = tempfile.NamedTemporaryFile(prefix=basename, dir='./',delete=False)
+
     return temp_path
 
 def mut_incl(i1,i2,capOm):
@@ -300,8 +292,8 @@ def mut_incl(i1,i2,capOm):
     (np.sin(np.radians(i1))*np.sin(np.radians(i2))*np.cos(np.radians(capOm))))))
     return fb
  
-def add_jitter(obj, errors, ind):
     
+def add_jitter(obj, errors, ind):
     errors_with_jitt = np.array([np.sqrt(errors[i]**2 + obj.params.jitters[ii]**2)  for i,ii in enumerate(ind)])
     return errors_with_jitt 
     
