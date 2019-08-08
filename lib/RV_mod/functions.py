@@ -267,7 +267,8 @@ def copy_file_to_datafiles(path):
     if platform.system() == 'Darwin':
         if not os.path.exists(tmp):
             os.system("mkdir %s"%tmp)    
-        tmp = '/tmp/es2/%s'%randomString(5)       
+        tmp = '/tmp/es2/%s'%randomString(5) 
+        os.system("mkdir %s"%tmp)          
     else:
         tmp = tempfile.mkdtemp()
         
