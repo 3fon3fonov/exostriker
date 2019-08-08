@@ -5556,6 +5556,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
 #Function Main START
 def main():
     app = QtWidgets.QApplication(sys.argv)
+    app.setStyle('Fusion') #The available styles depend on your platform but are usually 'Fusion', 'Windows', 'WindowsVista' (Windows only) and 'Macintosh' (Mac only). 
     window = TRIFON()
     window.show()
     sys.exit(app.exec_())
