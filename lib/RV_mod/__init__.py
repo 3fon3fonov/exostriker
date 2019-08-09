@@ -1432,6 +1432,8 @@ class signal_fit(object):
         self.tra_colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
         self.rvs_colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 
+        self.gls_colors = ['#ff0000',  '#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#000000']
+
          
         self.init_sciPy_minimizer()
        
@@ -1442,9 +1444,9 @@ class signal_fit(object):
            self.init_transit_params()
         except:
             if batman_not_found == True:
-                print("You dont have the batman package")            
+                print("You dont have the 'batman' package")            
             else:
-                print("You have probably the wrong batman packages")
+                print("Most likely you have the wrong 'batman' package")
             self.tr_params = []
                 
         self.ld_models = ["uniform", "linear", "quadratic", "nonlinear"]
@@ -1852,6 +1854,7 @@ class signal_fit(object):
         self.evol_T_energy_arb   = 0
         self.evol_energy_arb   = 0
         self.evol_momentum_arb = 0
+        self.evol_momentum_arb2 = {'lx': [], 'ly': [], 'lz': []}
 
  
     def init_orb_evol(self):
@@ -1867,6 +1870,7 @@ class signal_fit(object):
         self.evol_T_energy   = 0
         self.evol_energy   = 0
         self.evol_momentum = 0
+        self.evol_momentum2 = {'lx': [], 'ly': [], 'lz': []}
 
 
     def init_mcmc_par(self):     
