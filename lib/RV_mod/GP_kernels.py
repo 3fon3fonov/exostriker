@@ -1,6 +1,6 @@
-from pylab import *
+#from pylab import *
 import numpy as np
-import celerite 
+#import celerite 
 from celerite import terms
 
 '''Here you can define custom rotational kernels for Gaussian Processes. Give each an id, then you will be able to choose it by passing the id to the GP_parameters object

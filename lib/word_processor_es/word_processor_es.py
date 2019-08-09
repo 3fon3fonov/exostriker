@@ -72,10 +72,10 @@ class MainWindow(QMainWindow):
         self.editor.setAutoFormatting(QTextEdit.AutoAll)
         self.editor.selectionChanged.connect(self.update_format)
         # Initialize default font size.
-        font = QFont('Times', 12)
+        font = QFont('Times', 10)
         self.editor.setFont(font)
         # We need to repeat the size to init the current format.
-        self.editor.setFontPointSize(12)
+        self.editor.setFontPointSize(10)
 
         # self.path holds the path of the currently open file.
         # If none, we haven't got a file open yet (or creating new).

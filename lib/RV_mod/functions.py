@@ -1274,7 +1274,13 @@ pl.in
 
     obj.evol_T_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.2425
     obj.evol_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [1]) 
-    obj.evol_momentum = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2])             
+   # obj.evol_momentum = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2])             
+
+    obj.evol_momentum['lx'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2])             
+    obj.evol_momentum['ly'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [3])             
+    obj.evol_momentum['lz'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [4])             
+
+
     
     for k in range(obj.npl):
     
@@ -1383,7 +1389,12 @@ pl.in
              
     obj.evol_T_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [0])  /  365.2425   
     obj.evol_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [1]) 
-    obj.evol_momentum = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2]) 
+#    obj.evol_momentum = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2]) 
+
+    obj.evol_momentum['lx'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2])             
+    obj.evol_momentum['ly'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [3])             
+    obj.evol_momentum['lz'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [4]) 
+
    
     for k in range(obj.npl_arb):
     

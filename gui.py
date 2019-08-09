@@ -1,11 +1,15 @@
 #!/usr/bin/python
 __author__ = 'Trifon Trifonov'
 
+from pathos.multiprocessing import freeze_support
+freeze_support()
+
 import numpy as np
 #import matplotlib as mpl
 #mpl.use('Qt5Agg')
 import sys, os, traceback 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
+
 
 sys.path.insert(0, './lib')
 
@@ -85,9 +89,9 @@ Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 pg.setConfigOption('background', '#ffffff')
 pg.setConfigOption('foreground', 'k')
+ 
+#pg.setConfigOptions(useOpenGL=True) 
 pg.setConfigOptions(antialias=True)  
- 
- 
 
 
 global fit, colors, ses_list
@@ -151,7 +155,7 @@ else:
 
 
 colors      = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
-colors_tra  = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+colors_gls  = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
          
 symbols = ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
 colors_delta_om = colors
@@ -1305,6 +1309,11 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_8,8)
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_9,9)
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_10,10)            
+        
+        
+        self.colors_gls.setFont(self.font) 
+        self.colors_gls_o_c.setFont(self.font) 
+
       
         
     def initialize_plots(self):
@@ -1365,8 +1374,8 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                 zzz[i].getAxis('top').setHeight(10)
                 zzz[i].getAxis('bottom').setHeight(50)
                             
-                zzz[i].setLabel('bottom', '%s'%xaxis[i], units='%s'%xunit[i],  **{'font-size':'12pt'})
-                zzz[i].setLabel('left',   '%s'%yaxis[i], units='%s'%yunit[i],  **{'font-size':'12pt'})       
+                zzz[i].setLabel('bottom', '%s'%xaxis[i], units='%s'%xunit[i],  **{'font-size':'10pt'})
+                zzz[i].setLabel('left',   '%s'%yaxis[i], units='%s'%yunit[i],  **{'font-size':'10pt'})       
                 zzz[i].showAxis('top') 
                 zzz[i].showAxis('right') 
                 zzz[i].getAxis('bottom').enableAutoSIPrefix(enable=False)
@@ -1641,12 +1650,12 @@ Polyfit coefficients:
             if self.radioButton_act_GLS_period.isChecked():
                 p11.setLogMode(True,False)        
                 p11.plot(1/act_per.freq, act_per.power,pen=fit.colors[ind],symbol=None ) 
-                p11.setLabel('bottom', 'period [d]', units='',  **{'font-size':'12pt'}) 
+                p11.setLabel('bottom', 'period [d]', units='',  **{'font-size':'10pt'}) 
 
             else:
                 p11.setLogMode(False,False)        
                 p11.plot(act_per.freq, act_per.power,pen=fit.colors[ind],symbol=None )                    
-                p11.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'12pt'}) 
+                p11.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'10pt'}) 
 
                                                
             [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
@@ -1822,7 +1831,8 @@ Polyfit coefficients:
             plot_wg2.addItem(text_arrow)        
         
 ######################## RV plots ######################################        
-
+      
+ 
     def init_gls_norm_combo(self):    
         global fit
         
@@ -1846,6 +1856,8 @@ Polyfit coefficients:
         else:
             return
         
+        self.update_RV_GLS_plots()
+        
         
     def run_gls_o_c(self):
         global fit
@@ -1860,32 +1872,53 @@ Polyfit coefficients:
             fit.gls_o_c = RV_per_res        
         else:
             return
+        
+        self.update_RV_o_c_GLS_plots()  
+        
+        
 
- 
+    def get_RV_GLS_plot_color(self):
+        global fit
+        
+        colorz = self.colorDialog.getColor()
+        fit.gls_colors[0]=colorz.name()   
+
+        self.update_RV_GLS_plots() 
+        
+    def get_RV_o_c_GLS_plot_color(self):
+        global fit
+        
+        colorz = self.colorDialog.getColor()
+        fit.gls_colors[1]=colorz.name()   
+         
+        self.update_RV_o_c_GLS_plots()  
+        
 
     def update_RV_GLS_plots(self):
         global fit, p7 
  
         p7.plot(clear=True,)   
         
-
-        self.run_gls()
+        self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])               
+        #self.run_gls()
                           
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
-  
+        gls_model_width = float(self.gls_model_width.value())
+    
         if len(fit.fit_results.rv_model.jd) > 5:
-
 
             ######################## GLS ##############################
             if self.radioButton_RV_GLS_period.isChecked():
                 p7.setLogMode(True,False)        
-                p7.plot(1/fit.gls.freq, fit.gls.power,pen='r',symbol=None ) 
-                p7.setLabel('bottom', 'period [d]', units='',  **{'font-size':'12pt'})    
+                p7.plot(1/fit.gls.freq, fit.gls.power,pen={'color': fit.gls_colors[0], 'width': gls_model_width},symbol=None ) 
+               # p7.plot(1/fit.gls.freq, fit.gls.power,pen={'color':fit.gls_colors[0]},symbol=None ) 
+
+                p7.setLabel('bottom', 'period [d]', units='',  **{'font-size':'10pt'})    
                 
             else:
                 p7.setLogMode(False,False)        
-                p7.plot(fit.gls.freq, fit.gls.power,pen='r',symbol=None )                    
-                p7.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'12pt'}) 
+                p7.plot(fit.gls.freq, fit.gls.power,pen={'color': fit.gls_colors[0], 'width': self.gls_model_width.value()},symbol=None )                
+                p7.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'10pt'}) 
                 
                 
             if fit.gls.norm == 'ZK':
@@ -1907,8 +1940,10 @@ Polyfit coefficients:
         global fit,  p8  
  
         p8.plot(clear=True,)  
- 
-        self.run_gls_o_c()
+
+        self.colors_gls_o_c.setStyleSheet("color: %s;"%fit.gls_colors[1]) 
+       # self.run_gls_o_c()
+        gls_o_c_model_width = float(self.gls_o_c_model_width.value())
         
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
 
@@ -1918,13 +1953,13 @@ Polyfit coefficients:
             ######################## GLS o-c ##############################
             if self.radioButton_RV_o_c_GLS_period.isChecked():
                 p8.setLogMode(True,False)        
-                p8.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power,pen='r',symbol=None ) 
-                p8.setLabel('bottom', 'period [d]', units='',  **{'font-size':'12pt'})
+                p8.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen={'color': fit.gls_colors[1], 'width': gls_o_c_model_width},symbol=None ) 
+                p8.setLabel('bottom', 'period [d]', units='',  **{'font-size':'10pt'})
  
             else:
                 p8.setLogMode(False,False)        
-                p8.plot(fit.gls_o_c.freq, fit.gls_o_c.power,pen='r',symbol=None )    
-                p8.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'12pt'})                
+                p8.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen={'color': fit.gls_colors[1], 'width': gls_o_c_model_width},symbol=None )   
+                p8.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'10pt'})                
                 
             if fit.gls_o_c.norm == 'ZK':
                 [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]            
@@ -1961,11 +1996,11 @@ Polyfit coefficients:
             if self.radioButton_RV_WF_period.isChecked():
                 p12.setLogMode(True,False)        
                 p12.plot(1/np.array(omega), WF_power,pen='k',symbol=None )   
-                p12.setLabel('bottom', 'period [d]', units='',  **{'font-size':'12pt'})
+                p12.setLabel('bottom', 'period [d]', units='',  **{'font-size':'10pt'})
             else:
                 p12.setLogMode(False,False)        
                 p12.plot(np.array(omega), WF_power,pen='k',symbol=None )   
-                p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'12pt'})      
+                p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'10pt'})      
 
             text_peaks, pos_peaks = self.identify_power_peaks(1/np.array(omega), WF_power)
 
@@ -2088,7 +2123,8 @@ Polyfit coefficients:
         
     def update_plots(self):
         self.update_RV_GLS_plots()
-        self.update_RV_o_c_GLS_plots()    
+        self.update_RV_o_c_GLS_plots()     
+        
         self.update_WF_plots()                
         self.update_RV_plots()
         self.update_extra_plots()
@@ -2311,6 +2347,9 @@ Polyfit coefficients:
         self.update_errors() 
         self.update_a_mass() 
         
+        self.run_gls()
+        self.run_gls_o_c()
+        
         #start_time = time.time()
         self.update_plots() 
         self.update_transit_plots() 
@@ -2455,8 +2494,8 @@ Polyfit coefficients:
             
             pe.addItem(err_)
         
-        pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'12pt'})
-        pe.setLabel('left',   'RV', units='m/s',  **{'font-size':'12pt'})  
+        pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'10pt'})
+        pe.setLabel('left',   'RV', units='m/s',  **{'font-size':'10pt'})  
 
         if self.extra_plot_cross_hair.isChecked():
             self.cross_hair(pe,log=False)   
@@ -2476,14 +2515,14 @@ Polyfit coefficients:
         if self.radioButton_RV_GLS_period.isChecked():
             pe.setLogMode(True,False)        
             pe.plot(1/fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-            pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'12pt'})    
-            pe.setLabel('left', 'Power', units='',  **{'font-size':'12pt'})    
+            pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'10pt'})    
+            pe.setLabel('left', 'Power', units='',  **{'font-size':'10pt'})    
            
         else:
             pe.setLogMode(False,False)        
             pe.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None )                    
-            pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'12pt'}) 
-            pe.setLabel('left', 'Power', units='',  **{'font-size':'12pt'})    
+            pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'10pt'}) 
+            pe.setLabel('left', 'Power', units='',  **{'font-size':'10pt'})    
 
         if fit.gls.norm == 'ZK':
             [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
@@ -2503,14 +2542,14 @@ Polyfit coefficients:
         if self.radioButton_RV_o_c_GLS_period.isChecked():
             pe.setLogMode(True,False)        
             pe.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None ) 
-            pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'12pt'})    
-            pe.setLabel('left', 'Power', units='',  **{'font-size':'12pt'})    
+            pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'10pt'})    
+            pe.setLabel('left', 'Power', units='',  **{'font-size':'10pt'})    
            
         else:
             pe.setLogMode(False,False)        
             pe.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None )                    
-            pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'12pt'}) 
-            pe.setLabel('left', 'Power', units='',  **{'font-size':'12pt'})    
+            pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'10pt'}) 
+            pe.setLabel('left', 'Power', units='',  **{'font-size':'10pt'})    
 
 
         if fit.gls.norm == 'ZK':
@@ -2717,7 +2756,9 @@ Transit duration: %s d
         
         if fit.type_fit["RV"] == True:
             for i in range(fit.npl):
-                rv.phase_RV_planet_signal(fit,i+1)        
+                rv.phase_RV_planet_signal(fit,i+1) 
+            self.run_gls()
+            self.run_gls_o_c()                
             self.update_plots()  
             
             
@@ -2923,9 +2964,9 @@ Transit duration: %s d
                     fit.ph_data_tra[i] = [data_time_phase[sort] ,flux[sort], flux_err[sort]]
                     fit.ph_model_tra[i] = [data_time_phase[sort] ,flux_model[sort]]
                 
-                    p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'12pt'})
+                    p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'10pt'})
                 else:
-                    p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'12pt'})
+                    p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'10pt'})
                     
                
                 
@@ -3258,7 +3299,7 @@ Transit duration: %s d
         if self.plot_i.isChecked():
             for i in range(npl):
                 p19.plot(fit.evol_T[i], fit.evol_i[i] ,pen=fit.colors[i],symbol=None )    
-            p19.setLabel('left', 'i [deg]', units='',  **{'font-size':'12pt'})    
+            p19.setLabel('left', 'i [deg]', units='',  **{'font-size':'10pt'})    
     
         elif self.plot_Om.isChecked():
             for i in range(npl):
@@ -3284,17 +3325,28 @@ Transit duration: %s d
         global fit, colors, p20
 
  
-        p20.plot(clear=True,)   
+        p20.plot(clear=True,)  
+        
+        if len(np.atleast_1d(fit.evol_T_energy)) < 3:
+            return
+        
 
         if self.radioButton_energy.isChecked():
  
             p20.plot(fit.evol_T_energy, fit.evol_energy ,pen=fit.colors[0],symbol=None )    
             p20.setLabel('left', 'Energy', units='',  **{'font-size':'10pt'})    
     
-        elif self.radioButton_ang_mom.isChecked():
-            p20.plot(fit.evol_T_energy, fit.evol_momentum ,pen=fit.colors[0],symbol=None )    
-            p20.setLabel('left', 'Momentum', units='',  **{'font-size':'10pt'})    
-                
+        elif self.radioButton_lx.isChecked():
+            p20.plot(fit.evol_T_energy, fit.evol_momentum['lx'] ,pen=fit.colors[0],symbol=None )    
+            p20.setLabel('left', 'Momentum lx', units='',  **{'font-size':'10pt'})    
+
+        elif self.radioButton_ly.isChecked():
+            p20.plot(fit.evol_T_energy, fit.evol_momentum['ly'] ,pen=fit.colors[0],symbol=None )    
+            p20.setLabel('left', 'Momentum ly', units='',  **{'font-size':'10pt'}) 
+            
+        elif self.radioButton_lz.isChecked():
+            p20.plot(fit.evol_T_energy, fit.evol_momentum['lz'] ,pen=fit.colors[0],symbol=None )    
+            p20.setLabel('left', 'Momentum lz', units='',  **{'font-size':'10pt'})                    
  
         
     def worker_Nbody_complete(self):
@@ -3456,7 +3508,9 @@ Transit duration: %s d
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
 
         self.jupiter_push_vars()   
-        self.button_fit.setEnabled(True)       
+        self.button_fit.setEnabled(True)  
+        self.run_gls()
+        self.run_gls_o_c()        
         self.update_plots()  
  
     def worker_RV_fitting(self, ff=20, m_ln=True, auto_fit = False , init = False ):
@@ -3594,7 +3648,10 @@ Transit duration: %s d
             self.update_labels()
             self.update_gui_params()
             self.update_errors() 
-            self.update_a_mass()                    
+            self.update_a_mass() 
+
+            #self.run_gls()
+            self.run_gls_o_c()                   
             self.update_plots()                   
             self.statusBar().showMessage('')           
             self.jupiter_push_vars()
@@ -4610,7 +4667,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             print("""
 You dont have batman installed or you have the wrong 'batman'! 
 Therefore, you cannnot use the transit modelling. 
-Please install 'batman' and try again. 
+Please install via ' pip install batman-package' not 'pip install batman' and try again. 
 For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> Credits' 
 """)
             self.tabWidget_helper.setCurrentWidget(self.tab_info)
@@ -5199,7 +5256,12 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
 
     #def update_inspector(self):
    #     self.tree_view_tab.listview.clicked.connect(self.plot_data_inspect)
-
+   
+    def initialize_font(self):    
+            
+        self.font = QtGui.QFont()
+        self.font.setPointSize(9)
+        self.font.setBold(False)
   
 ################################################################################################
     
@@ -5212,16 +5274,17 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
        # self.showMaximized()
 
         self.setupUi(self)
+        self.initialize_font()
+
         
         self.initialize_buttons()
         self.initialize_plots()   
  
         self.initialize_color_dialog()               
 
-
         
         ###################### Console #############################
-        self.console_widget = ConsoleWidget_embed(font_size = 8)
+        self.console_widget = ConsoleWidget_embed(font_size = 9)
         # add the console widget to the user interface
         # push some variables to the console
         self.console_widget.push_vars({"rv": rv,
@@ -5370,8 +5433,10 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         #self.radioButton_Omega_no_fold.toggled.connect(self.plot_i_Om)
         self.radioButton_Omega_180_fold.toggled.connect(self.plot_i_Om)
        
-        self.radioButton_energy.toggled.connect(self.plot_energy)
-        
+        self.radioButton_energy.clicked.connect(self.plot_energy)       
+        self.radioButton_lx.clicked.connect(self.plot_energy)
+        self.radioButton_ly.clicked.connect(self.plot_energy)
+        self.radioButton_lz.clicked.connect(self.plot_energy)
 
 
 
@@ -5397,13 +5462,20 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.tra_model_z.valueChanged.connect(self.update_transit_plots)
 #        self.tra_model_z.valueChanged.connect(self.update_transit_plots)    
 
+        ############### RV GLS plotting controll ####################      
+        self.rv_model_width.valueChanged.connect(self.update_RV_plots)
+        self.rv_model_width.valueChanged.connect(self.update_extra_plots) 
 
         ############### RV plotting controll ####################      
         self.rv_model_width.valueChanged.connect(self.update_RV_plots)
         self.rv_model_width.valueChanged.connect(self.update_extra_plots)    
         self.RV_model_z.valueChanged.connect(self.update_RV_plots)
         self.RV_model_z.valueChanged.connect(self.update_extra_plots)    
-        
+  
+        ############### RV GLS plotting controll ####################      
+        self.gls_model_width.valueChanged.connect(self.update_RV_GLS_plots)
+        self.gls_o_c_model_width.valueChanged.connect(self.update_RV_o_c_GLS_plots) 
+      
         self.N_GLS_peak_to_point.valueChanged.connect(self.update_RV_GLS_plots)
         self.N_GLS_peak_to_point.valueChanged.connect(self.update_RV_o_c_GLS_plots)
         self.avoid_GLS_RV_alias.stateChanged.connect(self.update_RV_GLS_plots)
@@ -5463,6 +5535,10 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.color_corr.clicked.connect(self.get_corr_color)
         self.corr_x_label.clicked.connect(self.corr_plot_x_labels)
         self.corr_y_label.clicked.connect(self.corr_plot_y_labels)
+        
+        self.colors_gls.clicked.connect(self.get_RV_GLS_plot_color)
+        self.colors_gls_o_c.clicked.connect(self.get_RV_o_c_GLS_plot_color)
+
 
         self.color_delta_om.clicked.connect(self.get_delta_omega_color)
         self.delta_om_x_label.clicked.connect(self.delta_omega_plot_x_labels)
