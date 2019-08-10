@@ -1318,7 +1318,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def initialize_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor
 
         p1  = self.graphicsView_timeseries_RV
         p2  = self.graphicsView_timeseries_RV_o_c
@@ -1350,32 +1350,34 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         
         pdi = self.load_data_plot
 
-        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x']
-        yaxis = ['RV','RV','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y']       
-        xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','']
-        yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','','','','','','','','']
+        pcor = self.graphicsView_corner
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi]
-        font=QtGui.QFont()
-        font.setPixelSize(12) 
+        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x','x']
+        yaxis = ['RV','RV','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y']       
+        xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','']
+        yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','','','','','','','','','']
+
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor]
+        #font=QtGui.QFont()
+        #font.setPixelSize(9) 
         for i in range(len(zzz)):
  
 
-                zzz[i].getAxis("bottom").tickFont = font
+                zzz[i].getAxis("bottom").tickFont = self.font
                 zzz[i].getAxis("bottom").setStyle(tickTextOffset = 12)
-                zzz[i].getAxis("top").tickFont = font
+                zzz[i].getAxis("top").tickFont = self.font
                 zzz[i].getAxis("top").setStyle(tickTextOffset = 12)
-                zzz[i].getAxis("left").tickFont = font
+                zzz[i].getAxis("left").tickFont = self.font
                 zzz[i].getAxis("left").setStyle(tickTextOffset = 12)
-                zzz[i].getAxis("right").tickFont = font
+                zzz[i].getAxis("right").tickFont = self.font
                 zzz[i].getAxis("right").setStyle(tickTextOffset = 12)
                 zzz[i].getAxis('left').setWidth(50)
                 zzz[i].getAxis('right').setWidth(10)
                 zzz[i].getAxis('top').setHeight(10)
                 zzz[i].getAxis('bottom').setHeight(50)
                             
-                zzz[i].setLabel('bottom', '%s'%xaxis[i], units='%s'%xunit[i],  **{'font-size':'10pt'})
-                zzz[i].setLabel('left',   '%s'%yaxis[i], units='%s'%yunit[i],  **{'font-size':'10pt'})       
+                zzz[i].setLabel('bottom', '%s'%xaxis[i], units='%s'%xunit[i],  **{'font-size':'9pt'})
+                zzz[i].setLabel('left',   '%s'%yaxis[i], units='%s'%yunit[i],  **{'font-size':'9pt'})       
                 zzz[i].showAxis('top') 
                 zzz[i].showAxis('right') 
                 zzz[i].getAxis('bottom').enableAutoSIPrefix(enable=False)
@@ -1590,7 +1592,7 @@ Polyfit coefficients:
         text, okPressed = QtGui.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p6.setLabel('bottom', '%s'%text, units='',  **{'font-size':'11pt'})
+            p6.setLabel('bottom', '%s'%text, units='',  **{'font-size':'9pt'})
  
         else:
             return
@@ -1604,7 +1606,7 @@ Polyfit coefficients:
         text, okPressed = QtGui.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p6.setLabel('left', '%s'%text, units='',  **{'font-size':'11pt'})
+            p6.setLabel('left', '%s'%text, units='',  **{'font-size':'9pt'})
  
         else:
             return
@@ -1650,12 +1652,12 @@ Polyfit coefficients:
             if self.radioButton_act_GLS_period.isChecked():
                 p11.setLogMode(True,False)        
                 p11.plot(1/act_per.freq, act_per.power,pen=fit.colors[ind],symbol=None ) 
-                p11.setLabel('bottom', 'period [d]', units='',  **{'font-size':'10pt'}) 
+                p11.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'}) 
 
             else:
                 p11.setLogMode(False,False)        
                 p11.plot(act_per.freq, act_per.power,pen=fit.colors[ind],symbol=None )                    
-                p11.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'10pt'}) 
+                p11.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
 
                                                
             [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
@@ -1696,7 +1698,7 @@ Polyfit coefficients:
             symbolBrush=fit.colors[ind]            
             )      
 
-            p5.setLabel('left', 'y', units='',  **{'font-size':'11pt'})     
+            p5.setLabel('left', 'y', units='',  **{'font-size':'9pt'})     
 
             return
         else:   
@@ -1913,12 +1915,12 @@ Polyfit coefficients:
                 p7.plot(1/fit.gls.freq, fit.gls.power,pen={'color': fit.gls_colors[0], 'width': gls_model_width},symbol=None ) 
                # p7.plot(1/fit.gls.freq, fit.gls.power,pen={'color':fit.gls_colors[0]},symbol=None ) 
 
-                p7.setLabel('bottom', 'period [d]', units='',  **{'font-size':'10pt'})    
+                p7.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
                 
             else:
                 p7.setLogMode(False,False)        
                 p7.plot(fit.gls.freq, fit.gls.power,pen={'color': fit.gls_colors[0], 'width': self.gls_model_width.value()},symbol=None )                
-                p7.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'10pt'}) 
+                p7.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
                 
                 
             if fit.gls.norm == 'ZK':
@@ -1954,12 +1956,12 @@ Polyfit coefficients:
             if self.radioButton_RV_o_c_GLS_period.isChecked():
                 p8.setLogMode(True,False)        
                 p8.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen={'color': fit.gls_colors[1], 'width': gls_o_c_model_width},symbol=None ) 
-                p8.setLabel('bottom', 'period [d]', units='',  **{'font-size':'10pt'})
+                p8.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})
  
             else:
                 p8.setLogMode(False,False)        
                 p8.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen={'color': fit.gls_colors[1], 'width': gls_o_c_model_width},symbol=None )   
-                p8.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'10pt'})                
+                p8.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'})                
                 
             if fit.gls_o_c.norm == 'ZK':
                 [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]            
@@ -1996,11 +1998,11 @@ Polyfit coefficients:
             if self.radioButton_RV_WF_period.isChecked():
                 p12.setLogMode(True,False)        
                 p12.plot(1/np.array(omega), WF_power,pen='k',symbol=None )   
-                p12.setLabel('bottom', 'period [d]', units='',  **{'font-size':'10pt'})
+                p12.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})
             else:
                 p12.setLogMode(False,False)        
                 p12.plot(np.array(omega), WF_power,pen='k',symbol=None )   
-                p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'10pt'})      
+                p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'})      
 
             text_peaks, pos_peaks = self.identify_power_peaks(1/np.array(omega), WF_power)
 
@@ -2494,8 +2496,8 @@ Polyfit coefficients:
             
             pe.addItem(err_)
         
-        pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'10pt'})
-        pe.setLabel('left',   'RV', units='m/s',  **{'font-size':'10pt'})  
+        pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
+        pe.setLabel('left',   'RV', units='m/s',  **{'font-size':'9pt'})  
 
         if self.extra_plot_cross_hair.isChecked():
             self.cross_hair(pe,log=False)   
@@ -2515,14 +2517,14 @@ Polyfit coefficients:
         if self.radioButton_RV_GLS_period.isChecked():
             pe.setLogMode(True,False)        
             pe.plot(1/fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-            pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'10pt'})    
-            pe.setLabel('left', 'Power', units='',  **{'font-size':'10pt'})    
+            pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
+            pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
            
         else:
             pe.setLogMode(False,False)        
             pe.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None )                    
-            pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'10pt'}) 
-            pe.setLabel('left', 'Power', units='',  **{'font-size':'10pt'})    
+            pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
+            pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
 
         if fit.gls.norm == 'ZK':
             [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
@@ -2542,14 +2544,14 @@ Polyfit coefficients:
         if self.radioButton_RV_o_c_GLS_period.isChecked():
             pe.setLogMode(True,False)        
             pe.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None ) 
-            pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'10pt'})    
-            pe.setLabel('left', 'Power', units='',  **{'font-size':'10pt'})    
+            pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
+            pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
            
         else:
             pe.setLogMode(False,False)        
             pe.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None )                    
-            pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'10pt'}) 
-            pe.setLabel('left', 'Power', units='',  **{'font-size':'10pt'})    
+            pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
+            pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
 
 
         if fit.gls.norm == 'ZK':
@@ -2964,9 +2966,9 @@ Transit duration: %s d
                     fit.ph_data_tra[i] = [data_time_phase[sort] ,flux[sort], flux_err[sort]]
                     fit.ph_model_tra[i] = [data_time_phase[sort] ,flux_model[sort]]
                 
-                    p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'10pt'})
+                    p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
                 else:
-                    p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'10pt'})
+                    p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'9pt'})
                     
                
                 
@@ -3128,7 +3130,7 @@ Transit duration: %s d
         text, okPressed = QtGui.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p17.setLabel('bottom', '%s'%text, units='',  **{'font-size':'11pt'})
+            p17.setLabel('bottom', '%s'%text, units='',  **{'font-size':'9pt'})
  
         else:
             return
@@ -3142,7 +3144,7 @@ Transit duration: %s d
         text, okPressed = QtGui.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p17.setLabel('left', '%s'%text, units='',  **{'font-size':'11pt'})
+            p17.setLabel('left', '%s'%text, units='',  **{'font-size':'9pt'})
  
         else:
             return
@@ -3264,7 +3266,7 @@ Transit duration: %s d
         text, okPressed = QtGui.QInputDialog.getText(self, "x-axis label","", QtGui.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p18.setLabel('bottom', '%s'%text, units='',  **{'font-size':'11pt'})
+            p18.setLabel('bottom', '%s'%text, units='',  **{'font-size':'9pt'})
  
         else:
             return
@@ -3278,7 +3280,7 @@ Transit duration: %s d
         text, okPressed = QtGui.QInputDialog.getText(self, "y-axis label","", QtGui.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p18.setLabel('left', '%s'%text, units='',  **{'font-size':'11pt'})
+            p18.setLabel('left', '%s'%text, units='',  **{'font-size':'9pt'})
  
         else:
             return
@@ -3299,7 +3301,7 @@ Transit duration: %s d
         if self.plot_i.isChecked():
             for i in range(npl):
                 p19.plot(fit.evol_T[i], fit.evol_i[i] ,pen=fit.colors[i],symbol=None )    
-            p19.setLabel('left', 'i [deg]', units='',  **{'font-size':'10pt'})    
+            p19.setLabel('left', 'i [deg]', units='',  **{'font-size':'9pt'})    
     
         elif self.plot_Om.isChecked():
             for i in range(npl):
@@ -3318,7 +3320,7 @@ Transit duration: %s d
                 )
                 
                 
-            p19.setLabel('left', 'Omega [deg]', units='',  **{'font-size':'11pt'})    
+            p19.setLabel('left', 'Omega [deg]', units='',  **{'font-size':'9pt'})    
             Om_evol = 0
  
     def plot_energy(self):
@@ -3334,19 +3336,19 @@ Transit duration: %s d
         if self.radioButton_energy.isChecked():
  
             p20.plot(fit.evol_T_energy, fit.evol_energy ,pen=fit.colors[0],symbol=None )    
-            p20.setLabel('left', 'Energy', units='',  **{'font-size':'10pt'})    
+            p20.setLabel('left', 'Energy', units='',  **{'font-size':'9pt'})    
     
         elif self.radioButton_lx.isChecked():
             p20.plot(fit.evol_T_energy, fit.evol_momentum['lx'] ,pen=fit.colors[0],symbol=None )    
-            p20.setLabel('left', 'Momentum lx', units='',  **{'font-size':'10pt'})    
+            p20.setLabel('left', 'Momentum lx', units='',  **{'font-size':'9pt'})    
 
         elif self.radioButton_ly.isChecked():
             p20.plot(fit.evol_T_energy, fit.evol_momentum['ly'] ,pen=fit.colors[0],symbol=None )    
-            p20.setLabel('left', 'Momentum ly', units='',  **{'font-size':'10pt'}) 
+            p20.setLabel('left', 'Momentum ly', units='',  **{'font-size':'9pt'}) 
             
         elif self.radioButton_lz.isChecked():
             p20.plot(fit.evol_T_energy, fit.evol_momentum['lz'] ,pen=fit.colors[0],symbol=None )    
-            p20.setLabel('left', 'Momentum lz', units='',  **{'font-size':'10pt'})                    
+            p20.setLabel('left', 'Momentum lz', units='',  **{'font-size':'9pt'})                    
  
         
     def worker_Nbody_complete(self):
@@ -4268,6 +4270,8 @@ highly appreciated!
         self.update_errors() 
         self.update_a_mass() 
         
+        self.init_plot_corr()
+        
         self.statusBar().showMessage('') 
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
         
@@ -4356,7 +4360,7 @@ highly appreciated!
       
         fit = rv.run_mcmc(fit, burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
         fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked(), save_mode=self.adopt_mcmc_mode_as_par.isChecked(),
-        save_maxlnL=self.adopt_best_lnL_as_pars.isChecked())
+        save_maxlnL=self.adopt_best_lnL_as_pars.isChecked(),save_sampler=True)
         
     
         self.button_MCMC.setEnabled(True)            
@@ -4529,8 +4533,8 @@ highly appreciated!
             y_err = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2]) 
         except:
             #pdi.addLine(x=[0,1], y=0, pen=pg.mkPen('#ff9933', width=0.8)) 
-            pdi.setLabel('bottom', 'x', units='',  **{'font-size':'11pt'})
-            pdi.setLabel('left',   'y', units='',  **{'font-size':'11pt'})
+            pdi.setLabel('bottom', 'x', units='',  **{'font-size':'9pt'})
+            pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
             return
  
         pdi.addLine(x=None, y=np.mean(y), pen=pg.mkPen('#ff9933', width=0.8))   
@@ -4562,20 +4566,20 @@ highly appreciated!
         filename, file_extension = os.path.splitext(path)  
             
         if file_extension == '.vels':
-            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'11pt'})
-            pdi.setLabel('left',   'RV', units='m/s',  **{'font-size':'11pt'})         
+            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'9pt'})
+            pdi.setLabel('left',   'RV', units='m/s',  **{'font-size':'9pt'})         
  
         elif file_extension == '.act':
-            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'11pt'})
-            pdi.setLabel('left',   'y', units='',  **{'font-size':'11pt'})    
+            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'9pt'})
+            pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})    
             
         elif file_extension == '.tran':      
-            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'11pt'})
-            pdi.setLabel('left',   'flux', units='',  **{'font-size':'11pt'})
+            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'9pt'})
+            pdi.setLabel('left',   'flux', units='',  **{'font-size':'9pt'})
 
         else:      
-            pdi.setLabel('bottom', 'x', units='',  **{'font-size':'11pt'})
-            pdi.setLabel('left',   'y', units='',  **{'font-size':'11pt'})
+            pdi.setLabel('bottom', 'x', units='',  **{'font-size':'9pt'})
+            pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
         
  
         self.inspector_file = path     
@@ -5211,6 +5215,67 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.worker_transit_fitting(ff=0 ) 
         
 #############################  TEST ZONE ################################  
+        
+    def init_plot_corr(self):
+        global fit  
+  
+        self.comboBox_samp_corr_1.clear()
+        self.comboBox_samp_corr_2.clear()
+      
+        for i in range(len(fit.e_for_mcmc)):
+            self.comboBox_samp_corr_1.addItem(fit.e_for_mcmc[i],i)
+            self.comboBox_samp_corr_2.addItem(fit.e_for_mcmc[i],i)
+
+            #self.comboBox_pl_2.setItemText(i, '%s'%(ses_list[i].name))
+        self.comboBox_samp_corr_1.setCurrentIndex(0)
+        self.comboBox_samp_corr_2.setCurrentIndex(0)
+
+
+
+
+
+    def update_plot_corr(self):
+        global fit,pcor
+ 
+        corr1_ind = self.comboBox_samp_corr_1.currentIndex()
+        corr2_ind = self.comboBox_samp_corr_2.currentIndex()
+ 
+        if corr1_ind ==-1 or corr2_ind ==-1 or len(fit.e_for_mcmc) ==0:
+            return
+        #else:
+       #     last_stable = min(len(fit.evol_p[pl1_ind]),len(fit.evol_p[pl2_ind]))
+        
+ 
+        pcor.plot(clear=True,)
+        pcor.plot(fit.sampler.samples[:,corr1_ind], fit.sampler.samples[:,corr2_ind] ,pen=None, #{'color': colors[i], 'width': 1.1},
+        symbol='o',
+        symbolPen={'color': 'b', 'width': 1},
+        symbolSize=1,enableAutoRange=True,viewRect=True,
+        symbolBrush='b'
+        )  
+
+        pcor.setLabel('bottom', '%s'%fit.e_for_mcmc[corr1_ind], units='',  **{'font-size':'9pt'}) 
+        pcor.setLabel('left', '%s'%fit.e_for_mcmc[corr2_ind], units='',  **{'font-size':'9pt'}) 
+        
+
+        ## generate empty curves
+        #curves = []
+        #levels = np.linspace(0, 1, 3)
+        #for i in range(len(levels)):
+        #    v = levels[i]
+            ## generate isocurve with automatic color selection
+        #    c = pg.IsocurveItem(level=v, pen=(i, len(levels)*1.5))
+           # c.setParentItem(pcor)  ## make sure isocurve is always correctly displayed over image
+        #    c.setZValue(10)
+        #    curves.append(c)        
+        
+        
+        
+        #c = pg.IsocurveItem(level=0.6, pen=('r'))#i, len(levels)*1.5))
+        #c.setParentItem(pcor)  ## make sure isocurve is always correctly displayed over image
+       # c.setZValue(10)
+        #curves.append(c)  
+        
 
     def set_kp_ma(self):
         global fit  
@@ -5369,6 +5434,10 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         
         self.mcmc_samples_change_name.clicked.connect(self.change_mcmc_samples_file_name)
         self.nest_samples_change_name.clicked.connect(self.change_nest_samples_file_name)
+        
+        self.comboBox_samp_corr_1.activated.connect(self.update_plot_corr)
+        self.comboBox_samp_corr_2.activated.connect(self.update_plot_corr)        
+        
         
         ########## RV fitting ########################
         
@@ -5612,8 +5681,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.threadpool = QtCore.QThreadPool()
         #self.threadpool.setMaxThreadCount(cpu_count())    
 
-        
-        
+ 
         if start_arg_ses == True:
             self.init_fit()         
             self.update_use_from_input_file()   
@@ -5622,8 +5690,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             self.update_params()
             self.update_RV_file_buttons()
             self.fit_dispatcher(init=True)  
- 
-    
+            self.init_plot_corr()
+            self.update_plot_corr()    
     
         print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and piped results.")
 
