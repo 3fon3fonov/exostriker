@@ -1853,8 +1853,8 @@ class signal_fit(object):
 
         self.evol_T_energy_arb   = 0
         self.evol_energy_arb   = 0
-        self.evol_momentum_arb = 0
-        self.evol_momentum_arb2 = {'lx': [], 'ly': [], 'lz': []}
+        #self.evol_momentum_arb = 0
+        self.evol_momentum_arb = {'lx': [], 'ly': [], 'lz': []}
 
  
     def init_orb_evol(self):
@@ -1869,8 +1869,8 @@ class signal_fit(object):
 
         self.evol_T_energy   = 0
         self.evol_energy   = 0
-        self.evol_momentum = 0
-        self.evol_momentum2 = {'lx': [], 'ly': [], 'lz': []}
+        #self.evol_momentum = 0
+        self.evol_momentum = {'lx': [], 'ly': [], 'lz': []}
 
 
     def init_mcmc_par(self):     
