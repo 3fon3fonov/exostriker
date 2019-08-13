@@ -283,7 +283,24 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.GP_sho_kernel_omega]
         
         for i in range(len(gp_sho_params)):
-            gp_sho_params[i].setValue(fit.GP_sho_params[i])            
+            gp_sho_params[i].setValue(fit.GP_sho_params[i])    
+            
+            
+        tra_gp_rot_params = [self.tra_GP_rot_kernel_Amp,
+                     self.tra_GP_rot_kernel_time_sc,
+                     self.tra_GP_rot_kernel_Per,
+                     self.tra_GP_rot_kernel_fact]
+        
+        for i in range(len(tra_gp_rot_params)):
+            tra_gp_rot_params[i].setValue(fit.tra_GP_rot_params[i])
+ 
+        tra_gp_sho_params = [self.tra_GP_sho_kernel_S,
+                     self.tra_GP_sho_kernel_Q,
+                     self.tra_GP_sho_kernel_omega]
+        
+        for i in range(len(tra_gp_sho_params)):
+            tra_gp_sho_params[i].setValue(fit.tra_GP_sho_params[i])                
+            
 
             
         self.St_mass_input.setValue(fit.params.stellar_mass)        
@@ -356,6 +373,47 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.tra_jitt[i] = tra_data_jitter_gui[i].value() 
  
             
+            
+        self.read_RV_GP() 
+        self.read_tra_GP()
+
+           
+  
+
+        fit.params.stellar_mass = self.St_mass_input.value() 
+        fit.params.linear_trend = self.RV_lin_trend.value()   
+        
+        if self.checkBox_first_RV_epoch.isChecked() and len(fit.fit_results.rv_model.jd) != 0:
+            fit.epoch = min(fit.fit_results.rv_model.jd)
+        else:
+            fit.epoch =  self.Epoch.value()
+       
+
+    def read_tra_GP(self):
+        global fit  
+
+            
+        tra_gp_rot_params = [self.tra_GP_rot_kernel_Amp,
+                     self.tra_GP_rot_kernel_time_sc,
+                     self.tra_GP_rot_kernel_Per,
+                     self.tra_GP_rot_kernel_fact]
+        
+        for i in range(len(tra_gp_rot_params)):
+            fit.tra_GP_rot_params[i] = tra_gp_rot_params[i].value()    
+            
+            
+        tra_gp_sho_params = [self.tra_GP_sho_kernel_S,
+                     self.tra_GP_sho_kernel_Q,
+                     self.tra_GP_sho_kernel_omega]
+        
+        for i in range(len(tra_gp_sho_params)):
+            fit.tra_GP_sho_params[i] = tra_gp_sho_params[i].value()   
+            
+
+
+    def read_RV_GP(self):
+        global fit  
+            
         gp_rot_params = [self.GP_rot_kernel_Amp,
                      self.GP_rot_kernel_time_sc,
                      self.GP_rot_kernel_Per,
@@ -370,19 +428,8 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.GP_sho_kernel_omega]
         
         for i in range(len(gp_sho_params)):
-            fit.GP_sho_params[i] = gp_sho_params[i].value()              
+            fit.GP_sho_params[i] = gp_sho_params[i].value()             
             
-            
-  
-
-        fit.params.stellar_mass = self.St_mass_input.value() 
-        fit.params.linear_trend = self.RV_lin_trend.value()   
-        
-        if self.checkBox_first_RV_epoch.isChecked() and len(fit.fit_results.rv_model.jd) != 0:
-            fit.epoch = min(fit.fit_results.rv_model.jd)
-        else:
-            fit.epoch =  self.Epoch.value()
-       
    
     
     def set_hkl(self):
@@ -434,9 +481,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
 #                fit.params.update_e(i,fit.e[i]) # update e for a given planet
 #                fit.params.update_w(i,fit.w[i]) # update w for a given planet
 #                fit.params.update_M0(i,fit.M0[i]) # update w for a given planet
- 
-
-            
+           
          
         elif self.radioButton_hkl.isChecked():
             
@@ -805,7 +850,34 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                     
         
         for i in range(len(use_gp_sho_params)):
-            fit.GP_sho_use[i] = int(use_gp_sho_params[i].isChecked())            
+            fit.GP_sho_use[i] = int(use_gp_sho_params[i].isChecked())  
+            
+
+        self.update_tra_GP_use()
+        
+        
+
+    def update_tra_GP_use(self):
+        global fit
+            
+        use_tra_gp_rot_params = [self.use_tra_GP_rot_kernel_Amp,
+                         self.use_tra_GP_rot_kernel_time_sc,
+                         self.use_tra_GP_rot_kernel_Per,
+                         self.use_tra_GP_rot_kernel_fact]
+                    
+        
+        for i in range(len(use_tra_gp_rot_params)):
+            fit.tra_GP_rot_use[i] = int(use_tra_gp_rot_params[i].isChecked())
+            
+        use_tra_gp_sho_params = [self.use_tra_GP_sho_kernel_S,
+                         self.use_tra_GP_sho_kernel_Q,
+                         self.use_tra_GP_sho_kernel_omega]
+                    
+        
+        for i in range(len(use_tra_gp_sho_params)):
+            fit.tra_GP_sho_use[i] = int(use_tra_gp_sho_params[i].isChecked())              
+            
+            
             
             
  
@@ -872,6 +944,12 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.tra_jitt_bounds[i]  = jitter_bounds_gui_tra[i] 
             
 
+        self.check_RV_GP_bounds()            
+        self.check_tra_GP_bounds()
+        
+    def check_RV_GP_bounds(self):
+        global fit
+        
         GP_rot_bounds_gui = [
         [self.GP_rot_kernel_Amp_min.value(),self.GP_rot_kernel_Amp_max.value()],  
         [self.GP_rot_kernel_time_sc_min.value(),self.GP_rot_kernel_time_sc_max.value()],  
@@ -889,9 +967,29 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         ]
  
         for i in range(3): 
-            fit.GP_sho_bounds[i] = GP_sho_bounds_gui[i]            
+            fit.GP_sho_bounds[i] = GP_sho_bounds_gui[i]        
+                               
+    def check_tra_GP_bounds(self):
+        global fit
+
+        tra_GP_rot_bounds_gui = [
+        [self.tra_GP_rot_kernel_Amp_min.value(),self.tra_GP_rot_kernel_Amp_max.value()],  
+        [self.tra_GP_rot_kernel_time_sc_min.value(),self.tra_GP_rot_kernel_time_sc_max.value()],  
+        [self.tra_GP_rot_kernel_Per_min.value(),self.tra_GP_rot_kernel_Per_max.value()],  
+        [self.tra_GP_rot_kernel_fact_min.value(),self.tra_GP_rot_kernel_fact_max.value()],  
+        ]
+ 
+        for i in range(4): 
+            fit.tra_GP_rot_bounds[i] = tra_GP_rot_bounds_gui[i]
             
-            
+        tra_GP_sho_bounds_gui = [
+        [self.tra_GP_sho_kernel_S_min.value(),self.tra_GP_sho_kernel_S_max.value()],  
+        [self.tra_GP_sho_kernel_Q_min.value(),self.tra_GP_sho_kernel_Q_max.value()],  
+        [self.tra_GP_sho_kernel_omega_min.value(),self.tra_GP_sho_kernel_omega_max.value()],  
+        ]
+ 
+        for i in range(3): 
+            fit.tra_GP_sho_bounds[i] = tra_GP_sho_bounds_gui[i]                  
             
             
     def check_priors_nr(self):
@@ -986,6 +1084,16 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.tra_off_norm_pr[i] = offset_nr_priors_gui_tra[i]
             fit.tra_jitt_norm_pr[i] = jitter_nr_priors_gui_tra[i] 
 
+
+
+        self.check_RV_GP_priors_nr()
+        self.check_tra_GP_priors_nr()
+    
+    
+
+    def check_RV_GP_priors_nr(self):
+        global fit
+
  
         GP_rot_nr_priors_gui = [
         [self.GP_rot_kernel_Amp_mean.value(),self.GP_rot_kernel_Amp_sigma.value(),self.use_GP_rot_kernel_Amp_nr_pr.isChecked()],  
@@ -1006,6 +1114,32 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
  
         for i in range(3): 
             fit.GP_sho_norm_pr[i] = GP_sho_nr_priors_gui[i]   
+            
+
+    def check_tra_GP_priors_nr(self):
+        global fit
+
+ 
+        tra_GP_rot_nr_priors_gui = [
+        [self.tra_GP_rot_kernel_Amp_mean.value(),self.tra_GP_rot_kernel_Amp_sigma.value(),self.use_tra_GP_rot_kernel_Amp_nr_pr.isChecked()],  
+        [self.tra_GP_rot_kernel_time_sc_mean.value(),self.tra_GP_rot_kernel_time_sc_sigma.value(),self.use_tra_GP_rot_kernel_time_sc_nr_pr.isChecked()],  
+        [self.tra_GP_rot_kernel_Per_mean.value(),self.tra_GP_rot_kernel_Per_sigma.value(),self.use_tra_GP_rot_kernel_Per_sigma_nr_pr.isChecked()],  
+        [self.tra_GP_rot_kernel_fact_mean.value(),self.tra_GP_rot_kernel_fact_sigma.value(),self.use_tra_GP_rot_kernel_fact_nr_pr.isChecked()],  
+        ]
+ 
+        for i in range(4): 
+            fit.tra_GP_rot_norm_pr[i] = tra_GP_rot_nr_priors_gui[i]            
+    
+
+        tra_GP_sho_nr_priors_gui = [
+        [self.tra_GP_sho_kernel_S_mean.value(),self.tra_GP_sho_kernel_S_sigma.value(), self.use_tra_GP_sho_kernel_S_nr_pr.isChecked()],  
+        [self.tra_GP_sho_kernel_Q_mean.value(),self.tra_GP_sho_kernel_Q_sigma.value(), self.use_tra_GP_sho_kernel_Q_nr_pr.isChecked()],  
+        [self.tra_GP_sho_kernel_omega_mean.value(),self.tra_GP_sho_kernel_omega_sigma.value(), self.use_tra_GP_sho_kernel_omega_nr_pr.isChecked()],  
+        ]
+ 
+        for i in range(3): 
+            fit.tra_GP_sho_norm_pr[i] = tra_GP_sho_nr_priors_gui[i]               
+            
 
             
     def check_priors_jeff(self):
@@ -1103,6 +1237,15 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.tra_jitt_jeff_pr[i] = jitter_jeff_priors_gui_tra[i] 
 
 
+
+        self.check_RV_GP_priors_jeff()
+        self.check_tra_GP_priors_jeff()
+    
+    
+
+    def check_RV_GP_priors_jeff(self):
+        global fit
+
         GP_rot_jeff_priors_gui = [
         [self.GP_rot_kernel_Amp_jeff_alpha.value(),self.GP_rot_kernel_Amp_jeff_beta.value(),self.use_GP_rot_kernel_Amp_jeff_pr.isChecked()],  
         [self.GP_rot_kernel_time_sc_jeff_alpha.value(),self.GP_rot_kernel_time_sc_jeff_beta.value(),self.use_GP_rot_kernel_time_sc_jeff_pr.isChecked()],  
@@ -1111,8 +1254,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         ]
  
         for i in range(4): 
-            fit.GP_rot_jeff_pr[i] = GP_rot_jeff_priors_gui[i]            
-    
+            fit.GP_rot_jeff_pr[i] = GP_rot_jeff_priors_gui[i]               
 
         GP_sho_jeff_priors_gui = [
         [self.GP_sho_kernel_S_jeff_alpha.value(),self.GP_sho_kernel_S_jeff_beta.value(), self.use_GP_sho_kernel_S_jeff_pr.isChecked()],  
@@ -1122,7 +1264,30 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
  
         for i in range(3): 
             fit.GP_sho_jeff_pr[i] = GP_sho_jeff_priors_gui[i]   
+            
+            
+    def check_tra_GP_priors_jeff(self):
+        global fit
 
+        tra_GP_rot_jeff_priors_gui = [
+        [self.tra_GP_rot_kernel_Amp_jeff_alpha.value(),self.tra_GP_rot_kernel_Amp_jeff_beta.value(),self.use_tra_GP_rot_kernel_Amp_jeff_pr.isChecked()],  
+        [self.tra_GP_rot_kernel_time_sc_jeff_alpha.value(),self.tra_GP_rot_kernel_time_sc_jeff_beta.value(),self.use_tra_GP_rot_kernel_time_sc_jeff_pr.isChecked()],  
+        [self.tra_GP_rot_kernel_Per_jeff_alpha.value(),self.tra_GP_rot_kernel_Per_jeff_beta.value(),self.use_tra_GP_rot_kernel_Per_jeff_pr.isChecked()],  
+        [self.tra_GP_rot_kernel_fact_jeff_alpha.value(),self.tra_GP_rot_kernel_fact_jeff_beta.value(),self.use_tra_GP_rot_kernel_fact_jeff_pr.isChecked()],  
+        ]
+ 
+        for i in range(4): 
+            fit.tra_GP_rot_jeff_pr[i] = tra_GP_rot_jeff_priors_gui[i]            
+    
+        tra_GP_sho_jeff_priors_gui = [
+        [self.tra_GP_sho_kernel_S_jeff_alpha.value(),self.tra_GP_sho_kernel_S_jeff_beta.value(), self.use_tra_GP_sho_kernel_S_jeff_pr.isChecked()],  
+        [self.tra_GP_sho_kernel_Q_jeff_alpha.value(),self.tra_GP_sho_kernel_Q_jeff_beta.value(), self.use_tra_GP_sho_kernel_Q_jeff_pr.isChecked()],  
+        [self.tra_GP_sho_kernel_omega_jeff_alpha.value(),self.tra_GP_sho_kernel_omega_jeff_beta.value(), self.use_tra_GP_sho_kernel_omega_jeff_pr.isChecked()],  
+        ]
+ 
+        for i in range(3): 
+            fit.tra_GP_sho_jeff_pr[i] = tra_GP_sho_jeff_priors_gui[i]   
+            
  
  
     def check_arb_pl(self):
@@ -2018,6 +2183,14 @@ Polyfit coefficients:
         else:
             fit.doGP = False
             
+    def tra_GP_set_use(self):
+
+        if self.do_tra_GP.isChecked():
+            fit.tra_doGP = True
+        else:
+            fit.tra_doGP = False            
+            
+            
 
     def update_RV_plots(self):
         global fit, p1,p2
@@ -2045,6 +2218,7 @@ Polyfit coefficients:
  
  
         if fit.doGP == True:
+            #rv.get_gps_model(self) 
             y_model = fit.fit_results.model + fit.gp_model_curve[0]
             y_model_o_c = fit.gp_model_curve[0]
         else:
@@ -2242,10 +2416,14 @@ Polyfit coefficients:
         if str(input_files[0]) != '':
  
             fit.add_transit_dataset('test', str(input_files[0]),tra_idset =but_ind-1)
+              
             self.update_use_from_input_file()            
             self.update_use()
             self.update_gui_params()
-             
+          
+            self.init_fit()            
+
+            
             self.update_params()
             self.update_tra_file_buttons()
             self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(input_files[0]))
@@ -2447,7 +2625,7 @@ Polyfit coefficients:
         if len(ph_data) == 1:
             return
 
-        if self.jitter_to_plots.isChecked():
+        if self.jitter_to_plots.isChecked() and len(ph_data) != 0:
             error_list = self.add_jitter(ph_data[2], ph_data[3])
         else:
             if len(ph_data) != 0:
@@ -2953,7 +3131,7 @@ Transit duration: %s d
                 
                 ############### Phase signal TBD this should not be here! ####################################
                 
-                if self.plot_phase_pholded_tran.isChecked():
+                if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True:
                     data_time_phase = np.array( (t  - t[0]- fit.tr_params.per/2.0)% fit.tr_params.per  )  
                  
                     sort = np.array(sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])    )                    
@@ -2975,9 +3153,22 @@ Transit duration: %s d
             tr_o_c = flux -flux_model     
             ######## TBD this should not be here!
             fit.tra_data_sets[j][3] = tr_o_c + 1
-            ##################################
-        
+            fit.tra_data_sets[j][4] = tr_o_c 
+           
+ 
+            #if fit.rtg[3] == True:
                 
+            if fit.tra_doGP == True:
+                y_model = flux_model + fit.tra_gp_model_curve[0]
+                y_model_o_c = fit.tra_gp_model_curve[0]
+            else:
+                y_model = flux_model 
+                y_model_o_c = np.zeros(len(flux_model))
+                
+                       
+                
+                
+ 
             
             p3.plot(t, flux,        
             pen=None,  
@@ -2999,9 +3190,10 @@ Transit duration: %s d
             #flux_model = m.light_curve(fit.tr_params)          #calculates light curve           
             #p3.plot(t, flux_model,pen=fit.tra_colors[-],symbol=None )   
             
-            model_curve = p3.plot(t, flux_model, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
-            enableAutoRange=True,viewRect=True )               
  
+            model_curve = p3.plot(t,y_model,  pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
+            enableAutoRange=True,viewRect=True ) 
+            
             model_curve.setZValue(self.tra_model_z.value())            
             
             if self.trans_plot_cross_hair.isChecked():
@@ -3021,6 +3213,12 @@ Transit duration: %s d
             bottom=flux_err,            
             beam=0.0, pen=fit.tra_colors[j])               
             p4.addItem(err_)   
+            
+            #print(y_model_o_c)
+            #model_curve_o_c = p4.plot(t,y_model_o_c,  pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1}, enableAutoRange=True,viewRect=True ) 
+            
+            #model_curve_o_c.setZValue(self.tra_model_z.value())                
+            
   
             if self.trans_o_c_plot_cross_hair.isChecked():
                 self.cross_hair(p4,log=False)  
@@ -3538,21 +3736,23 @@ Transit duration: %s d
         
         fit.model_npoints = self.points_to_draw_model.value()
         #self.tabWidget_helper.setCurrentWidget(self.tab_info)
-        
+
+        if init == True:
+            fit.init_fit= True
+            ff = 0
+            doGP=False
+        else:
+            doGP=self.do_RV_GP.isChecked()            
+            fit.init_fit= False  
+       
         
         if self.radioButton_fortran77.isChecked() and not self.do_RV_GP.isChecked() or init == True:
             self.statusBar().showMessage('Minimizing parameters....')    
-            if init == True:
-                ff = 0
-                doGP=False
-                fit.init_fit= True
-            else:
-                fit.init_fit= False
-                doGP=self.do_RV_GP.isChecked()
-            # Pass the function to execute
+             # Pass the function to execute
             worker2 = Worker(lambda:  self.optimize_fit(ff=ff, doGP=doGP, minimize_fortran=True, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
  
-        else:         
+        else:    
+              
             self.check_scipy_min()
 
             self.statusBar().showMessage('Minimizing parameters using SciPyOp (might be slow)....')                 
@@ -3640,6 +3840,9 @@ Transit duration: %s d
         
         else:      
             fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
+
+        if fit.doGP == True:
+            rv.get_gps_model(fit)
 
         for i in range(fit.npl):
              rv.phase_RV_planet_signal(fit,i+1)  
@@ -4157,11 +4360,11 @@ highly appreciated!
         
         
         if self.radioButton_RV.isChecked():
-            fit.rtg = [True,self.do_RV_GP.isChecked(), False]
+            fit.rtg = [True,self.do_RV_GP.isChecked(), False, self.do_tra_GP.isChecked()]
         elif self.radioButton_transit.isChecked():
-            fit.rtg = [False, self.do_RV_GP.isChecked(), True]
+            fit.rtg = [False, self.do_RV_GP.isChecked(), True, self.do_tra_GP.isChecked()]
         elif self.radioButton_transit_RV.isChecked():
-            fit.rtg = [True,self.do_RV_GP.isChecked(), True]
+            fit.rtg = [True,self.do_RV_GP.isChecked(), True, self.do_tra_GP.isChecked()]
         
         self.button_nest_samp.setEnabled(False)
         self.statusBar().showMessage('Nested Sampling in progress....')        
@@ -4286,11 +4489,11 @@ highly appreciated!
         
         
         if self.radioButton_RV.isChecked():
-            fit.rtg = [True,self.do_RV_GP.isChecked(), False]
+            fit.rtg = [True,self.do_RV_GP.isChecked(), False, self.do_tra_GP.isChecked()]
         elif self.radioButton_transit.isChecked():
-            fit.rtg = [False, self.do_RV_GP.isChecked(), True]
+            fit.rtg = [False, self.do_RV_GP.isChecked(), True, self.do_tra_GP.isChecked()]
         elif self.radioButton_transit_RV.isChecked():
-            fit.rtg = [True,self.do_RV_GP.isChecked(), True]
+            fit.rtg = [True,self.do_RV_GP.isChecked(), True, self.do_tra_GP.isChecked()]
         
         self.button_MCMC.setEnabled(False)
         self.statusBar().showMessage('MCMC in progress....')        
@@ -4636,7 +4839,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         global fit
    
         if self.radioButton_RV.isChecked():
-            fit.rtg = [True,self.do_RV_GP.isChecked(),False]            
+            fit.rtg = [True,self.do_RV_GP.isChecked(),False, self.do_tra_GP.isChecked()]            
             if(init):
                 self.worker_RV_fitting(ff=0,m_ln=True, init = init )  
                 #print('test')
@@ -4644,7 +4847,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
                 self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked())  
                                
         elif self.radioButton_transit.isChecked(): 
-            fit.rtg = [False,False,True]
+            fit.rtg = [False,False,True, self.do_tra_GP.isChecked()]
             if(init):             
                 self.worker_transit_fitting(ff=0)  
             else:
@@ -4652,7 +4855,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
                                                
         elif self.radioButton_transit_RV.isChecked():
             
-            fit.rtg=[True,self.do_RV_GP.isChecked(),True]
+            fit.rtg=[True,self.do_RV_GP.isChecked(),True, self.do_tra_GP.isChecked()]
             if(init):
                 self.worker_transit_fitting(ff=0 )  
             else:
@@ -5240,7 +5443,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         corr1_ind = self.comboBox_samp_corr_1.currentIndex()
         corr2_ind = self.comboBox_samp_corr_2.currentIndex()
  
-        if corr1_ind ==-1 or corr2_ind ==-1 or len(fit.e_for_mcmc) ==0:
+        if corr1_ind ==-1 or corr2_ind ==-1 or len(fit.e_for_mcmc) ==0 or fit.sampler==None:
             return
         #else:
        #     last_stable = min(len(fit.evol_p[pl1_ind]),len(fit.evol_p[pl2_ind]))
@@ -5306,7 +5509,6 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             return
         
 
-
     def set_RV_GP(self):
         global fit
         
@@ -5314,6 +5516,30 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             fit.gp_kernel = 'SHOKernel'  
         elif self.use_GP_rot_kernel.isChecked():
             fit.gp_kernel = 'RotKernel'
+            
+            
+    def set_tra_GP(self):
+        global fit
+        
+        if self.use_tra_GP_sho_kernel.isChecked():
+            fit.tra_gp_kernel = 'SHOKernel'  
+        elif self.use_tra_GP_rot_kernel.isChecked():
+            fit.tra_gp_kernel = 'RotKernel'                 
+            
+            
+    def set_use_GP(self):
+        global fit            
+            
+        if  self.do_RV_GP.isChecked():
+            fit.doGP = True
+        else:
+            fit.doGP = False
+            
+        if  self.do_tra_GP.isChecked():
+            fit.tra_doGP = True
+        else:
+            fit.tra_doGP = False   
+
       
     def set_force_copl_incl(self):
         global fit   
@@ -5582,6 +5808,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.plot_corr_coef.stateChanged.connect(self.update_correlations_data_plots)        
 
         self.do_RV_GP.stateChanged.connect(self.rv_GP_set_use)
+        self.do_tra_GP.stateChanged.connect(self.tra_GP_set_use)
 
 
         ############### Cross hair ####################      
@@ -5662,6 +5889,10 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         
         
         self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)   
+        self.buttonGroup_use_tra_GP_kernel.buttonClicked.connect(self.set_tra_GP)
+        
+        self.buttonGroup_use_GP.buttonClicked.connect(self.set_use_GP)
+        
         
         ####### LD models #############
  
