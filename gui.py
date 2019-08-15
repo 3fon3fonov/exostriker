@@ -84,7 +84,7 @@ if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
 
 
 
-qtCreatorFile = "./lib/UI/rvmod_gui.ui" # Enter file here.
+qtCreatorFile = "./lib/UI/es.ui" 
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 pg.setConfigOption('background', '#ffffff')
@@ -167,7 +167,7 @@ QtGui.QApplication.processEvents()
 
 
  
-class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
+class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_labels(self):
         global fit
@@ -205,8 +205,6 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             
     def update_gui_params(self):
         global fit
-        
-        #self.set_hkl()
 
         param_gui = [self.K1, self.P1, self.e1, self.om1, self.ma1, self.incl1, self.Omega1,
                      self.K2, self.P2, self.e2, self.om2, self.ma2, self.incl2, self.Omega2,
@@ -220,19 +218,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                      ]
          
         for i in range(fit.npl*7):
-            param_gui[i].setValue(fit.params.planet_params[i]) 
-#            print(param_gui[i].value(),fit.params.planet_params[i] )
-            
-            
-            
-            
-            
-#        fit.hack_around_rv_params()            
-            
-       # param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans, self.pl1_radii, self.incl1_trans, self.a1_trans,]     
-        
-      #  for i in range(len(param_gui_trans)):
-      #      param_gui_trans[i].setValue(fit.tr_par[i])
+            param_gui[i].setValue(fit.params.planet_params[i])             
             
         param_gui_tr = [
                      self.t0_1, self.pl_rad_1, self.a_sol_1,
@@ -320,20 +306,13 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.K7, self.P7, self.e7, self.om7, self.ma7, self.incl7, self.Omega7, 
                      self.K8, self.P8, self.e8, self.om8, self.ma8, self.incl8, self.Omega8,
                      self.K9, self.P9, self.e9, self.om9, self.ma9, self.incl9, self.Omega9,
-                     ]
-                     
+                     ]                  
 
         for i in range(fit.npl*7):
             fit.params.planet_params[i] = param_gui[i].value() 
-           # print(param_gui[i].value(),fit.params.planet_params[i] )
         
         fit.hack_around_rv_params() 
-       # param_gui_trans = [self.t0_1_trans, self.P1_trans, self.e1_trans, self.om1_trans,self.pl1_radii, self.incl1_trans, self.a1_trans,]
          
-       ## for i in range(len(param_gui_trans)):
-       #     fit.tr_par[i] = param_gui_trans[i].value()    
-
-        
         param_gui_tr = [self.t0_1, self.pl_rad_1, self.a_sol_1,
              self.t0_2, self.pl_rad_2, self.a_sol_2,
              self.t0_3, self.pl_rad_3, self.a_sol_3,
@@ -350,9 +329,6 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.pl_rad[i] = param_gui_tr[i*3+1].value() 
             fit.pl_a[i]   = param_gui_tr[i*3+2].value() 
 
-
-
-
         rvs_data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
                     self.Data6,self.Data7,self.Data8,self.Data9,self.Data10]
         rvs_data_jitter_gui = [self.jitter_Data1,self.jitter_Data2,self.jitter_Data3,self.jitter_Data4,self.jitter_Data5,
@@ -366,19 +342,14 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                         self.trans_Data6,self.trans_Data7,self.trans_Data8,self.trans_Data9,self.trans_Data10]
         tra_data_jitter_gui = [self.jitter_trans_Data1,self.jitter_trans_Data2,self.jitter_trans_Data3,self.jitter_trans_Data4,self.jitter_trans_Data5,
                                self.jitter_trans_Data6,self.jitter_trans_Data7,self.jitter_trans_Data8,self.jitter_trans_Data9,self.jitter_trans_Data10]
-        
-            
+ 
         for i in range(10): 
             fit.tra_off[i]  = tra_data_gui[i].value() 
             fit.tra_jitt[i] = tra_data_jitter_gui[i].value() 
  
-            
-            
+ 
         self.read_RV_GP() 
         self.read_tra_GP()
-
-           
-  
 
         fit.params.stellar_mass = self.St_mass_input.value() 
         fit.params.linear_trend = self.RV_lin_trend.value()   
@@ -389,10 +360,10 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.epoch =  self.Epoch.value()
        
 
+
     def read_tra_GP(self):
         global fit  
 
-            
         tra_gp_rot_params = [self.tra_GP_rot_kernel_Amp,
                      self.tra_GP_rot_kernel_time_sc,
                      self.tra_GP_rot_kernel_Per,
@@ -435,10 +406,6 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
     def set_hkl(self):
         global fit  
         
-        #font = QtGui.QFont()
-        #font.setPointSize(8)
-        #font.setBold(False)
-        #font.setWeight(75)
     
         param_gui = [self.e1, self.om1, self.ma1,
                      self.e2, self.om2, self.ma2,
@@ -455,7 +422,6 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             
             fit.hkl = False
 #            fit.hack_around_rv_params()  
-#            fit.calc_ewm()
             
             self.label_ecc.setText("e")
             self.label_omega.setText("<html><head/><body><p>&omega; [deg]</p></body></html>")
@@ -486,9 +452,6 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         elif self.radioButton_hkl.isChecked():
             
             fit.hkl = True
-#            fit.hack_around_rv_params()  
-#            fit.calc_hkl()
-
            
             self.label_ecc.setText("<html><head/><body><p>h=esin(&omega;)</p></body></html>")
             self.label_omega.setText("<html><head/><body><p>k=ecos(&omega;)</p></body></html>")
@@ -509,15 +472,11 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                 param_gui[i*3].setValue(fit.e_sinw[i])              
                 param_gui[i*3+1].setValue(fit.e_cosw[i])            
                 param_gui[i*3+2].setValue(fit.lamb[i])   
-                
-#                fit.params.update_e(i,fit.e_sinw[i]) # update e for a given planet
-#                fit.params.update_w(i,fit.e_cosw[i]) # update w for a given planet
-#                fit.params.update_M0(i,fit.lamb[i]) # update w for a given planet
- 
 
         self.update_params()
         self.update_gui_params() 
-        #self.update_params() 
+    
+    
     
     def set_tra_ld(self):
         global fit   
@@ -551,6 +510,8 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.u3_nonlin_6, self.u3_nonlin_7, self.u3_nonlin_8, self.u3_nonlin_9, self.u3_nonlin_10]
         nonlin_u4 = [self.u4_nonlin_1, self.u4_nonlin_2, self.u4_nonlin_3, self.u4_nonlin_4, self.u4_nonlin_5,
                      self.u4_nonlin_6, self.u4_nonlin_7, self.u4_nonlin_8, self.u4_nonlin_9, self.u4_nonlin_10]
+        
+        
         for i in range(10):
             if uni_ld_models[i].isChecked():
                 fit.ld_m[i] = "uniform"
@@ -582,15 +543,16 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                             self.err_K8,self.err_P8,self.err_e8,self.err_om8,self.err_ma8, self.err_i8, self.err_Om8,
                             self.err_K9,self.err_P9,self.err_e9,self.err_om9,self.err_ma9, self.err_i9, self.err_Om9,                       
                             ]
+        
         for i in range(fit.npl*7):
             param_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.planet_params_errors[i])))
-
 
         data_errors_gui        = [self.err_Data1,self.err_Data2,self.err_Data3,self.err_Data4,self.err_Data5,
                                   self.err_Data6,self.err_Data7,self.err_Data8,self.err_Data9,self.err_Data10]
         data_errors_jitter_gui = [self.err_jitter_Data1,self.err_jitter_Data2,self.err_jitter_Data3,self.err_jitter_Data4,
                                   self.err_jitter_Data5,self.err_jitter_Data6,self.err_jitter_Data7,self.err_jitter_Data8,
                                   self.err_jitter_Data9,self.err_jitter_Data10]
+        
 
         for i in range(10):
             data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.offset_errors[i])))
@@ -605,8 +567,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10):
             tra_data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_off_err[i])))
             tra_data_errors_jitter_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_jitt_err[i])))            
-            
-            
+                      
 
         self.err_RV_lin_trend.setText("+/- %.8f"%(max(fit.param_errors.linear_trend_error)))
         
@@ -621,12 +582,6 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         gp_sho_errors_gui = [self.err_sho_kernel_S,
                      self.err_sho_kernel_Q,
                      self.err_sho_kernel_omega]
-        
-        #for i in range(len(gp_rot_errors_gui)):
-       #     gp_rot_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_sho_params_errors[i])))              
-            
-            
- #        GP_params_errors
 
 
     def update_a_mass(self):
@@ -783,12 +738,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(9*7):
             fit.use.use_planet_params[i] = int(use_param_gui[i].isChecked())         
-            
-       # use_param_gui_trans = [self.use_t0_1_trans, self.use_P1_trans, self.use_e1_trans, self.use_om1_trans, self.use_pl1_rad_trans, self.use_incl1_trans, self.use_a1_trans,
-       #              ]
-         
-        #for i in range(len(use_param_gui_trans)):
-       #     fit.tr_params_use[i] =  use_param_gui_trans[i].isChecked()       
+   
             
         use_param_gui_tr = [
              self.use_t0_1, self.use_pl_rad_1, self.use_a_sol_1,
@@ -803,13 +753,11 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
              ]
          
         for i in range(9):        
-            #print('test')
+
             fit.t0_use[i] =  use_param_gui_tr[i*3].isChecked()  
             fit.pl_rad_use[i] = use_param_gui_tr[i*3+1].isChecked()  
             fit.pl_a_use[i] =  use_param_gui_tr[i*3+2].isChecked()  
        
-            
-            
 
         use_data_offset_gui = [self.use_offset_Data1,self.use_offset_Data2,self.use_offset_Data3,self.use_offset_Data4,
                                self.use_offset_Data5,self.use_offset_Data6,self.use_offset_Data7,self.use_offset_Data8,
@@ -852,7 +800,6 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(len(use_gp_sho_params)):
             fit.GP_sho_use[i] = int(use_gp_sho_params[i].isChecked())  
             
-
         self.update_tra_GP_use()
         
         
@@ -877,9 +824,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(len(use_tra_gp_sho_params)):
             fit.tra_GP_sho_use[i] = int(use_tra_gp_sho_params[i].isChecked())              
             
-            
-            
-            
+
  
     def check_bounds(self):
         global fit
@@ -926,7 +871,6 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             
  
         fit.rv_lintr_bounds[0]  = [self.lin_trend_min.value(),self.lin_trend_max.value()]
-        #self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
 
         offset_bounds_gui_tra = [
         [self.tra_Data_min_1.value(),self.tra_Data_max_1.value()], [self.tra_Data_min_2.value(),self.tra_Data_max_2.value()], [self.tra_Data_min_3.value(),self.tra_Data_max_3.value()], [self.tra_Data_min_4.value(),self.tra_Data_max_4.value()], [self.tra_Data_min_5.value(),self.tra_Data_max_5.value()],   
@@ -946,6 +890,9 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.check_RV_GP_bounds()            
         self.check_tra_GP_bounds()
+        
+        
+        
         
     def check_RV_GP_bounds(self):
         global fit
@@ -1084,8 +1031,6 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.tra_off_norm_pr[i] = offset_nr_priors_gui_tra[i]
             fit.tra_jitt_norm_pr[i] = jitter_nr_priors_gui_tra[i] 
 
-
-
         self.check_RV_GP_priors_nr()
         self.check_tra_GP_priors_nr()
     
@@ -1202,7 +1147,6 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
     
  
         fit.rv_lintr_jeff_pr[0]  = [self.lin_trend_jeff_alpha.value(),self.lin_trend_jeff_beta.value(),self.use_lin_tr_jeff_pr.isChecked()]
-        #self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)} 
 
 
         offset_jeff_priors_gui_tra = [
@@ -1235,8 +1179,6 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10): 
             fit.tra_off_jeff_pr[i] = offset_jeff_priors_gui_tra[i]
             fit.tra_jitt_jeff_pr[i] = jitter_jeff_priors_gui_tra[i] 
-
-
 
         self.check_RV_GP_priors_jeff()
         self.check_tra_GP_priors_jeff()
@@ -1336,15 +1278,10 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
                 fit.mass_arb[i] = arb_param_gui[7*i + 0].value()  
                 fit.a_arb[i]    = arb_param_gui[7*i + 1].value()  
             
-
-       # fit.npl_arb = np.sum(fit.pl_arb_use.values())
         fit.npl_arb = j# np.count_nonzero(fit.pl_arb_use.values())
  
     
-    
-    
-    
-    
+
     
 ####################################################        
 
@@ -1450,9 +1387,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_9,9)
         self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_10,10)
         self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_11,11)
-        
-       
-        
+     
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_1,1)
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_2,2)
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_3,3)
@@ -1523,8 +1458,7 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
         yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','','','','','','','','','']
 
         zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor]
-        #font=QtGui.QFont()
-        #font.setPixelSize(9) 
+ 
         for i in range(len(zzz)):
  
 
@@ -1583,14 +1517,12 @@ class TRIFON(QtWidgets.QMainWindow, Ui_MainWindow):
 The 10 strongest peaks
 ----------------------------------------------
 """         
-
  
         if len(per_x)  < 10:
             max_peaks = len(per_x) 
         else:
             max_peaks = 10
 
-            
         for j in range(max_peaks):
             text_peaks = text_peaks +"""
 period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])  
@@ -1602,7 +1534,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         return text_peaks , peaks_pos 
         
   
-    
         
 ######################## Correlation plots ###################################### 
         
@@ -1660,13 +1591,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
         if not ind1 == None and not ind2 == None:
 
-
-            #err1 = pg.ErrorBarItem(x=fit.act_data_sets[ind][0], y=fit.act_data_sets[ind][1],symbol='o', 
-            #height=fit.act_data_sets[ind][2], beam=0.0, pen=fit.colors[ind])  
-
-            #p6.addItem(err1)      
-            #p6.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
-            
             
             if len(self.initialize_corr_y[ind1][0]) == len(self.initialize_corr_y[ind2][0]):
                 p6.plot(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1], pen=None,symbol='o',
@@ -1712,8 +1636,6 @@ Polyfit coefficients:
 
                 self.corr_print_info.clicked.connect(lambda: self.print_info_for_object(text))
 
-                #self.console_widget.print_text(text)
-                #print(text)
                 
                 if self.plot_corr_err.isChecked():
                     err1 = pg.ErrorBarItem(x=self.initialize_corr_y[ind1][1], y=self.initialize_corr_y[ind2][1],symbol='o', 
@@ -1726,9 +1648,6 @@ Polyfit coefficients:
                 if self.plot_corr_coef.isChecked():
 
                     p6.plot(self.initialize_corr_y[ind1][1], self.initialize_corr_y[ind1][1]*m[0] +m[1] , pen='k')                            
- 
-                    #p6.addItem(trend)                      
-                    
 
                 
                 p6.autoRange()
@@ -1789,15 +1708,6 @@ Polyfit coefficients:
             self.comboBox_act_data_gls.addItem('act. data %s'%(i+1),i+1)       
             self.comboBox_act_data.addItem('act. data %s'%(i+1),i+1)       
                 
-        #self.comboBox_act_data_gls.activated.connect(self.handleActivated_act_gls) 
-        
-   # def handleActivated_act_gls(self, index):
-   #     global fit 
-    
-   #     ind = self.comboBox_act_data_gls.itemData(index)         
-   #     self.update_activity_gls_plots(ind-1)
-        
-        
         
  
     def update_activity_gls_plots(self,ind):
@@ -1858,7 +1768,6 @@ Polyfit coefficients:
             p5.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
 
             p5.plot(fit.act_data_sets[ind][0],fit.act_data_sets[ind][1], pen=None,symbol='o',
-            #symbolPen=,
             symbolSize=self.act_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=fit.colors[ind]            
             )      
@@ -1871,9 +1780,9 @@ Polyfit coefficients:
 
             return  
 
+
+
 ######################## SciPy setup ######################################        
-
-
 
     def init_scipy_combo(self):    
         global fit 
@@ -1966,10 +1875,7 @@ Polyfit coefficients:
             N_peaks = int(self.N_TLS_peak_to_point.value())
             log = False
             type_per = "TLS"
-            
-#        x_peaks = x_peaks[0:3] 
-#        y_peaks = y_peaks[0:3]                 
-            
+
         if len(x_peaks) <  N_peaks:
             N_peaks = len(x_peaks)              
             print("You have reached the maximum number of %s peaks."%type_per)
@@ -1993,9 +1899,10 @@ Polyfit coefficients:
                 text_arrow.setText('%0.2f d' % (x_peaks[i]))               
                 text_arrow.setPos(x_peaks[i],y_peaks[i])                    
   
-
             plot_wg2.addItem(arrow) 
             plot_wg2.addItem(text_arrow)        
+        
+        
         
 ######################## RV plots ######################################        
       
@@ -2067,7 +1974,6 @@ Polyfit coefficients:
         p7.plot(clear=True,)   
         
         self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])               
-        #self.run_gls()
                           
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
         gls_model_width = float(self.gls_model_width.value())
@@ -2078,7 +1984,6 @@ Polyfit coefficients:
             if self.radioButton_RV_GLS_period.isChecked():
                 p7.setLogMode(True,False)        
                 p7.plot(1/fit.gls.freq, fit.gls.power,pen={'color': fit.gls_colors[0], 'width': gls_model_width},symbol=None ) 
-               # p7.plot(1/fit.gls.freq, fit.gls.power,pen={'color':fit.gls_colors[0]},symbol=None ) 
 
                 p7.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
                 
@@ -2109,7 +2014,6 @@ Polyfit coefficients:
         p8.plot(clear=True,)  
 
         self.colors_gls_o_c.setStyleSheet("color: %s;"%fit.gls_colors[1]) 
-       # self.run_gls_o_c()
         gls_o_c_model_width = float(self.gls_o_c_model_width.value())
         
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
@@ -2173,8 +2077,7 @@ Polyfit coefficients:
 
                         
             self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(text_peaks))        
-         
-            #self.lineEdit
+
 
     def rv_GP_set_use(self):
 
@@ -2200,10 +2103,6 @@ Polyfit coefficients:
  
     
         self.check_RV_symbol_sizes()
-        
-        #inf1 = pg.InfiniteLine(movable=True, angle=90, label="%", span=(0, 1), 
-       #               labelOpts={'color': 'r', 'fill': (200,200,200,50), 'movable': True} )
-       # p1.addItem(inf1)    
 
         if len(fit.filelist.idset)==0:
             return
@@ -2214,7 +2113,6 @@ Polyfit coefficients:
             error_list = fit.fit_results.rv_model.rv_err
  
         p1.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
-        #p1.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([0]) ) ]            
  
  
         if fit.doGP == True:
@@ -2347,12 +2245,8 @@ Polyfit coefficients:
             self.update_use()
             self.update_params()
             self.update_RV_file_buttons()
-            #self.buttonGroup_add_RV_data.button(fit.filelist.ndset).setText(self.file_from_path(input_files[0]))
             
 
-   # def RV_file_names(self,ind,name):
-   #     global fit
-   #     rv_file_namez = ["data 1","data 2","data 3","data 4","data 5","data 6","data 7","data 8","data 9","data 10"]
 
     def remove_RV_file(self):
         global fit
@@ -2366,13 +2260,11 @@ Polyfit coefficients:
             return
         
         fit.remove_dataset(but_ind -1)
+        
         #### new stuf ####
         fit.remove_rv_dataset(but_ind -1)
         #### new stuf ####
-       
-
-        
-        
+           
         self.init_fit()         
         self.update_use_from_input_file()   
         self.update_use()
@@ -2530,10 +2422,8 @@ Polyfit coefficients:
         self.run_gls()
         self.run_gls_o_c()
         
-        #start_time = time.time()
         self.update_plots() 
         self.update_transit_plots() 
-        #print("--- %s seconds ---" % (time.time() - start_time))   
         self.jupiter_push_vars() 
 
         
@@ -2545,18 +2435,15 @@ Polyfit coefficients:
         return errors_with_jitt
 
 
+
+
 ################ Extra Plots (work in progress) ######################
-        
-    
+         
     
     def update_extra_plots(self):
         global fit
 
         self.comboBox_extra_plot.clear()
-        #self.comboBox_extra_plot.setObjectName("which plot")       
-        
-        #self.check_RV_symbol_sizes()
-
 
         if fit.npl != 0:
             for i in range(fit.npl):
@@ -2572,12 +2459,8 @@ Polyfit coefficients:
             self.comboBox_extra_plot.addItem('RV GLS o-c',fit.npl+2)     
             
             self.extra_RV_GLS_plots()
-       # else:
-            
-            
-        self.comboBox_extra_plot.activated.connect(self.handleActivated)        
 
-     
+        self.comboBox_extra_plot.activated.connect(self.handleActivated)        
 
 
  
@@ -2586,8 +2469,6 @@ Polyfit coefficients:
         
         ind = self.comboBox_extra_plot.itemData(index) 
 
-       # ind = self.comboBox_extra_plot.currentIndex()
- 
  
         if ind <= fit.npl:
             self.phase_plots(ind)
@@ -2617,7 +2498,7 @@ Polyfit coefficients:
         ########################
     
         ph_data = fit.ph_data[ind-1]
-        ph_model = fit.ph_model[ind-1] #rv.phase_RV_planet_signal(fit,ind)
+        ph_model = fit.ph_model[ind-1]
 
 
         offset = (self.RV_phase_slider.value()/100.0)* fit.params.planet_params[7*(ind-1)+1] 
@@ -2645,7 +2526,6 @@ Polyfit coefficients:
         sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])                        
         model_time_phase  = model_time_phase[sort] 
         ph_model =  ph_model[1][sort] 
-        #print(model_time_phase[0:10],sort[0:10])
          
         pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))  
                         
@@ -2667,7 +2547,6 @@ Polyfit coefficients:
                
             err_ = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=rv_data[ph_data[3]==i],
             symbol=fit.pyqt_symbols_rvs[i], 
-            #height=error_list[ph_data[3]==i], beam=0.0, pen=fit.colors[i])   
             top=error_list[ph_data[3]==i],
             bottom=error_list[ph_data[3]==i],           
             beam=0.0, pen=fit.colors[i]) 
@@ -2682,7 +2561,7 @@ Polyfit coefficients:
 
 
 
-    ############### VERY VERY VERY Ugly fix !!!! it should be 
+    ############### VERY VERY VERY Ugly fix !!!! 
     
     def extra_RV_GLS_plots(self):
         global fit,  pe 
@@ -2738,6 +2617,8 @@ Polyfit coefficients:
         if self.extra_plot_cross_hair.isChecked():
             self.cross_hair(pe,log=self.radioButton_RV_o_c_GLS_period.isChecked())   
 
+
+
 ############ TLS ##############################      
        
     def worker_tls_complete(self, resid = False):
@@ -2757,20 +2638,14 @@ Polyfit coefficients:
     def worker_tls(self, resid = False):
         global fit  
         
-        #if sys.version_info[0] == 2:
-        ##    print("TLS not working with Py2 at the moment") 
-        #    return
         if tls_not_found==True:
             print("TLS Not found, try to install with 'pip install transitleastsquares'") 
             return
 
-        
-        #print("test")
-    
+
         self.calc_TLS.setEnabled(False)         
         self.calc_TLS_o_c.setEnabled(False)  
         
-        # check if transit data is present
         z=0
         for i in range(10):
             if len(fit.tra_data_sets[i]) != 0:
@@ -2812,9 +2687,6 @@ Polyfit coefficients:
             fit.tls_o_c = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
         else:
             fit.tls = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
-        
-        
-        #print("testeeee",self.tls_obj)
 
 
 
@@ -2830,10 +2702,7 @@ Polyfit coefficients:
             self.cross_hair(p9,log=False)      
             
         if len(fit.tra_data_sets[0]) != 0:
-            #t = fit.tra_data_sets[0][0]
-            #flux = fit.tra_data_sets[0][1]
-           # flux_err = fit.tra_data_sets[0][2]
-           
+
             text = '''
 Best results from TLS:
  
@@ -2852,8 +2721,6 @@ Transit duration: %s d
             [p9.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
 
             text_peaks, pos_peaks = self.identify_power_peaks(fit.tls.periods,fit.tls.power,  sig_level = np.array([5.7,7.0,8.3] )   )
-
-#power_level = power_levels,
 
             self.label_peaks(p9, pos_peaks, GLS = False)
  
@@ -3004,7 +2871,7 @@ Transit duration: %s d
         else:
             fit.init_fit = False
 
-        # this is only a simple hack.. A junk will be removed later on
+        # this is only a simple hack.. This junk will be removed later on
         if ff ==3034:
             old_t0_use = dill.copy(fit.t0_use)
             old_pl_a_use = dill.copy(fit.pl_a_use)
@@ -3099,12 +2966,8 @@ Transit duration: %s d
             else:
                 rv_gp_npar = 0   
                 
-
-
             fit.tr_params.limb_dark = str(fit.ld_m[j])      #limb darkening model       
-            #print(tr_model[0][j], tr_model[1][j] )
             fit.tr_params.u = fit.ld_u[j]
-            
             
             for i in range(fit.npl):
 
@@ -3122,8 +2985,6 @@ Transit duration: %s d
                 fit.tr_params.t0  = par[fit.filelist.ndset*2  +7*fit.npl +1+rv_gp_npar + 3*i]                
                 fit.tr_params.a   = par[fit.filelist.ndset*2  +7*fit.npl +1+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
                 fit.tr_params.rp  = par[fit.filelist.ndset*2  +7*fit.npl +1+rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
-                #print(tr_params.t0)
-                #print(tr_params.per, tr_params.ecc,tr_params.w, tr_params.inc, tr_params.t0,tr_params.a,tr_params.rp )
         
                 m[i] = batman.TransitModel(fit.tr_params, t)    #initializes model
      
@@ -3154,9 +3015,7 @@ Transit duration: %s d
             ######## TBD this should not be here!
             fit.tra_data_sets[j][3] = tr_o_c + 1
             fit.tra_data_sets[j][4] = tr_o_c 
-           
- 
-            #if fit.rtg[3] == True:
+
                 
             if fit.tra_doGP == True:
                 y_model = flux_model + fit.tra_gp_model_curve[0]
@@ -3165,10 +3024,7 @@ Transit duration: %s d
                 y_model = flux_model 
                 y_model_o_c = np.zeros(len(flux_model))
                 
-                       
-                
-                
- 
+
             
             p3.plot(t, flux,        
             pen=None,  
@@ -3214,7 +3070,6 @@ Transit duration: %s d
             beam=0.0, pen=fit.tra_colors[j])               
             p4.addItem(err_)   
             
-            #print(y_model_o_c)
             #model_curve_o_c = p4.plot(t,y_model_o_c,  pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1}, enableAutoRange=True,viewRect=True ) 
             
             #model_curve_o_c.setZValue(self.tra_model_z.value())                
@@ -3276,7 +3131,6 @@ Transit duration: %s d
             self.comboBox_pl_1.addItem('omega %s'%str(i+1),i+1) 
             self.comboBox_pl_2.addItem('omega %s'%str(i+1),i+1) 
             
-            #self.comboBox_pl_2.setItemText(i, '%s'%(ses_list[i].name))
         self.comboBox_pl_1.setCurrentIndex(0)
         self.comboBox_pl_2.setCurrentIndex(1)
 
@@ -3411,10 +3265,8 @@ Transit duration: %s d
         
         Per_1 = self.comboBox_MMR_pl_1.currentIndex()
         Per_2 = self.comboBox_MMR_pl_2.currentIndex()  
-       
         
         tet_n = self.comboBox_MMR_theta.currentIndex()
-       # print(tet_n)
         
         if Per_1 == Per_2:
             return
@@ -3452,7 +3304,6 @@ Transit duration: %s d
     def get_theta_color(self):
         global fit, colors_delta_om
         
-        #colorz = QtGui.QColorDialog.getColor()
         colorz = self.colorDialog.getColor()
         colors_theta[0]=colorz.name()   
  
@@ -3509,7 +3360,6 @@ Transit duration: %s d
                 if self.radioButton_Omega_180_fold.isChecked():
                     Om_evol[Om_evol>=180.0] -= 360.0
 
-                #p19.plot(fit.evol_T[i], fit.evol_Om[i] ,pen=fit.colors[i],symbol=None )      
                 p19.plot(fit.evol_T[i], Om_evol ,pen=None, #{'color': colors[i], 'width': 1.1},
                 symbol='o',
                 symbolPen={'color': fit.colors[i], 'width': 1.1},
@@ -3524,7 +3374,6 @@ Transit duration: %s d
     def plot_energy(self):
         global fit, colors, p20
 
- 
         p20.plot(clear=True,)  
         
         if len(np.atleast_1d(fit.evol_T_energy)) < 3:
@@ -3566,7 +3415,6 @@ Transit duration: %s d
         for i in range(npl):
             p13.plot(fit.evol_T[i], fit.evol_a[i] ,pen=fit.colors[i],symbol=None )     
             p14.plot(fit.evol_T[i], fit.evol_e[i] ,pen=fit.colors[i],symbol=None )  
-           # p15.plot(fit.evol_T[i], fit.evol_p[i] ,pen=fit.colors[i],symbol=None )  
             p15.plot(fit.evol_T[i], fit.evol_p[i] ,pen=None, #{'color': colors[i], 'width': 1.1},
         symbol='o',
         symbolPen={'color': fit.colors[i], 'width': 1.1},
@@ -3685,10 +3533,6 @@ Transit duration: %s d
         print("--- %s seconds ---" % (time.time() - start_time))          
 
 
-
-
-
-
          
        
 ############################# Fortran fitting ###############################        
@@ -3782,8 +3626,7 @@ Transit duration: %s d
             for i in range(10):     
                 use_data_jitter_gui[i].setEnabled(False)
                 
-                
-     
+  
     def update_dyn_kep_flag(self):
         global fit
 
@@ -3792,12 +3635,7 @@ Transit duration: %s d
         else:
             fit.mod_dynamical = False
             
-            
-            
-
-           
-            
-            
+          
     def optimize_fit(self,ff=20,m_ln=True, doGP=False, gp_kernel_id=-1, auto_fit = False, minimize_fortran=True):  
         global fit
         
@@ -3848,8 +3686,7 @@ Transit duration: %s d
              rv.phase_RV_planet_signal(fit,i+1)  
 
         if auto_fit:
-                          
-                 
+                                          
             self.update_labels()
             self.update_gui_params()
             self.update_errors() 
@@ -4005,10 +3842,7 @@ highly appreciated!
              
                     fit.add_planet(fit.gls_o_c.hpstat["amp"],fit.gls_o_c.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
                     fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False)  
-                    
-                    #print(fit.params.planet_params[2 + 7*(i-1)])
-                    #fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False)  
-                   
+
                     self.update_use_from_input_file()   
                     self.update_use()                     
                     self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)  
@@ -4305,10 +4139,7 @@ highly appreciated!
             return
         else:
             fit = ses_list[ind]
- 
 
-       # print(ind,index,self.comboBox_select_ses.itemText(index))
-       # ses_list[ind].name = self.comboBox_select_ses.itemText(index)
         
         self.check_settings()
 
@@ -4517,13 +4348,11 @@ highly appreciated!
              self.statusBar().showMessage('') 
 
              return             
-            
-            
+    
 
         choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "This will run in the background and may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
                                             QtGui.QMessageBox.Cancel | QtGui.QMessageBox.Ok)       
- 
          
         if choice == QtGui.QMessageBox.Cancel:
             self.statusBar().showMessage('') 
@@ -4722,9 +4551,7 @@ highly appreciated!
         global fit, colors, pdi 
         # self.sender() == self.treeView
         # self.sender().model() == self.fileSystemModel
-        
-        #print(index)
-        
+
         path = self.sender().model().filePath(index)
  
    
@@ -5435,8 +5262,6 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
 
 
 
-
-
     def update_plot_corr(self):
         global fit,pcor
  
@@ -5881,8 +5706,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.update_color_picker_tra()        
         self.buttonGroup_color_picker_tra.buttonClicked.connect(self.get_color_tra)    
        
-        
-        
+  
         self.dialog_symbols = show_symbols(self)
         self.buttonGroup_symbol_picker.buttonClicked.connect(self.get_symbol) 
         self.buttonGroup_symbol_picker_tra.buttonClicked.connect(self.get_symbol_tra) 
@@ -5924,30 +5748,29 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("Hi there! Here you can get some more information from the tool's workflow, stdout/strerr, and piped results.")
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.01). 
+              
+This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
+""")
+
+        if sys.version_info[0] == 2:
+            print("""
+It seems that you started the 'Exo-Striker' with Python 2. Please consider Python 3 for your work with the 'Exo-Striker'.
+""") 
+            
+         
+        print("""Here you can get some more information from the tool's workflow, stdout/strerr, and piped results.""")
 
 
-
-#Function Main START
 def main():
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle('Fusion') #The available styles depend on your platform but are usually 'Fusion', 'Windows', 'WindowsVista' (Windows only) and 'Macintosh' (Mac only). 
-    window = TRIFON()
+    window = Exo_striker()
     window.show()
     sys.exit(app.exec_())
-#Function Main END
-
 
 if __name__ == '__main__':
     main() 
-
-
-
-
-
-
-
-
 
 
 

@@ -47,7 +47,7 @@ c Last modified by Man Hoi Lee, Aug 16, 2003.
       if (iuflg.eq.0) then
           mass(1) = mstar0
       else
-          mass(1) = mstar0*SMASSYR/(365.2524*365.2524)
+          mass(1) = mstar0*SMASSYR/(365.25*365.25)
       endif
       j2rp2 = 0.d0
       j4rp4 = 0.d0
@@ -69,7 +69,7 @@ c Last modified by Man Hoi Lee, Aug 16, 2003.
           if (iuflg.eq.0) then
               mass(i) = mpl0
           else
-              mass(i) = mpl0*SMASSYR/(365.2524*365.2524)
+              mass(i) = mpl0*SMASSYR/(365.25*365.25)
           endif
           rpl(i) = frho3*(1.5d0*mpl0*MSUN/TWOPI)**0.3333333333d0/AU
 

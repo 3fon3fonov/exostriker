@@ -65,7 +65,7 @@ def custom_param_file_for_stability(max_time,time_step):
         ##### create the param.in file (change only the "t_max" and the "dt" for now) ######
     param_file = open('param.in', 'wb') 
         
-    max_time = float(max_time)*365.2425 # make it is days
+    max_time = float(max_time)*365.25 # make it is days
  
     param_file.write("""0.0d0 %s %s
 %s %s
@@ -1222,7 +1222,7 @@ def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_sav
     ##### crate the param.in file (change only the "t_max" and the "dt" for now) ######
     param_file = open('param.in', 'wb') 
     
-    max_time = float(timemax)*365.2425 # make it is days
+    max_time = float(timemax)*365.25 # make it is days
  
     param_file.write(b"""0.0d0 %s %s
 %s %s
@@ -1272,7 +1272,7 @@ pl.in
     elif integrator=='mvs_gr':
         result, flag = run_command_with_timeout('./swift_mvs_j_GR << EOF \nparam.in \npl.in \nEOF', timeout_sec)          
 
-    obj.evol_T_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.2425
+    obj.evol_T_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.25
     obj.evol_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [1]) 
    # obj.evol_momentum = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2])             
 
@@ -1291,7 +1291,7 @@ pl.in
             result, flag = run_command_with_timeout('./follow2 << EOF \nparam.in \npl.in \n-%s \nEOF'%(k+2),timeout_sec)
             result, flag = run_command_with_timeout('mv follow2.out pl_%s.out'%(k+1),timeout_sec)                 
 
-        obj.evol_T[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.2425
+        obj.evol_T[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.25
         obj.evol_a[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [2])
         obj.evol_e[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [3])
         obj.evol_p[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [6])      
@@ -1333,7 +1333,7 @@ def run_stability_arb(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab
     ##### crate the param.in file (change only the "t_max" and the "dt" for now) ######
     param_file = open('param.in', 'wb') 
     
-    max_time = float(timemax)*365.2425 # make it is days
+    max_time = float(timemax)*365.25 # make it is days
  
     param_file.write(b"""0.0d0 %s %s
 %s %s
@@ -1387,7 +1387,7 @@ pl.in
     elif integrator=='mvs_gr':
         result, flag = run_command_with_timeout('./swift_mvs_j_GR << EOF \nparam.in \npl.in \nEOF', timeout_sec)          
              
-    obj.evol_T_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [0])  /  365.2425   
+    obj.evol_T_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [0])  /  365.25   
     obj.evol_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [1]) 
 #    obj.evol_momentum = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2]) 
 
@@ -1405,7 +1405,7 @@ pl.in
             result, flag = run_command_with_timeout('./follow2 << EOF \nparam.in \npl.in \n-%s \nEOF'%(k+2),timeout_sec)
             result, flag = run_command_with_timeout('mv follow2.out pl_%s.out'%(k+1),timeout_sec)                 
 
-        obj.evol_T[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.2425
+        obj.evol_T[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.25
         obj.evol_a[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [2])
         obj.evol_e[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [3])
         obj.evol_p[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [6])      
