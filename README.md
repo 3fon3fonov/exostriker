@@ -46,6 +46,7 @@ What is to be implemented:
 * Binary/Triple star modeling mode.
 * Combined modeling with Astrometry.
 * A larger arsenal of N-body/dynamical simulation/analysis tools (REBOUND to be included). 
+* A pip installer, and a ready-to-use pre-installed binary of the tool.
 * Documentation, Instructions and Video tutorials.
 * For more "TBD" list see: "focus_matrix_TBFixed.doc".
 
