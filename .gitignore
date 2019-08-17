@@ -1,4 +1,4 @@
-#lib/fr/chi*
-#lib/fr/log*
-#stability/*
+lib/fr/chi*
+lib/fr/log*
+stability/*
 *.pyc
