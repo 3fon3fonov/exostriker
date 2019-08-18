@@ -1482,6 +1482,9 @@ class signal_fit(object):
         self.e_for_mcmc=[]  
         self.b_for_mcmc=[] 
         
+        #### TBD here ###########
+        self.stellar_radius = 1.0
+        #########################
         
         self.init_GP()  
         self.init_transit_GP()

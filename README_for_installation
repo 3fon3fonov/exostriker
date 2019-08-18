@@ -19,17 +19,17 @@ dill
 emcee 
 corner 
 celerite
-batman
 qtconsole
 transitleastsquares
+batman
 dynesty
 + the swift N-body library, which is in the ./source directory
 
-# You may also need:
 
-setuptools
+You may also need:
+
 pip 
-rxvt
+rxvt (optional bash shell)
 
 -------------------------------------------
 Important for linux Mint users!!!
@@ -48,7 +48,7 @@ if "linux_debian_install.sh" was executed with no problems, then
 you are ready to go! Just type:
 
 
-python gui.py   
+python es_gui.py   
 
 
 ################################  MAC OS  ######################################
@@ -61,30 +61,36 @@ bash MAC_OS_install.sh
 Before that you will need to install "homebrew" which requires sudo privileges 
 To install "homebrew", open terminal and type:
 
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+/usr/bin/ruby -e "(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 
 
-I had problems with pip install of batman, in particular with the local
-numpy installation. With "pip" install it seems that the numpy headers are here:
+I had problems with "pip install" of batman/transitleastsquares, in particular with the local
+numpy installation. With a "pip" install it seems that the numpy headers are here:
 
-/Users/trifontrifonov/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy
-
+/Users/YOUR_USER/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy
 
 Therefore a copy of the header directory fixed the problem
 
-cp -r /Users/trifontrifonov/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy /usr/local/include
+cp -r /Users/YOUR_USER/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy /usr/local/include
 
-If you experineced the same problem after the "cp -r..." run again:
+(perhaps the same story for Python 3)
+
+If you had experienced the same problem as above, than after the "cp -r..." run again:
 
 bash MAC_OS_install.sh
 
-and all shoud be Ok now! (you may skip the swift instalation if you have
+and all should be Ok now! (you may skip the swift installation if you have
 installed the lib the first time.)
 
-Alternativly, I have added batman-package in the cource directory and 
-the script may do a local install in ./lib. You will be asked fro this 
-option if batman is not on your system already.
+Alternatively, I have added the "batman-package" in the source directory and 
+with the "MAC_OS_install.sh" script you may do also a local install in ./lib. 
+You will be asked fro this option if batman is not on your system already.
+
+(WARNING! there is another "batman" on pip.
+
+pip install batman <-- wrong!
+pip install batman-package <-- correct)
 
 ################################################################################
 
@@ -99,7 +105,7 @@ Please follow this guide:
 https://docs.microsoft.com/en-us/windows/wsl/install-win10
 
 Thus way you will be able to run all linux native programs on your WINDOWS 10 
-bash shell, which is very usefull in general!
+bash shell, which is very useful in general!
 
 To make TRIFON:The Exo-Striker work, however, you also will need an XServer installed.
 Follow these instructions:
@@ -111,10 +117,10 @@ These two tutorials worked for me, but there might be other options too.
 
 
 Running the tool via the official Windows 10 python 2/3 installation, should generally 
-works too. For example if one has an Anaconda installation the "anaconda_installer.sh"
+work too. For example, if one has an Anaconda installation the "anaconda_installer.sh"
 could be an option. However, one must recompile all the fortran/C++ 
-routines like Swift and batman manually. This may be a bit complicated, time consuming,
-and with an unknown outcome (I would probably never try it!), but it should be definitely doable. 
+routines like "Swift" and "batman" manually. This may be a bit complicated, time consuming,
+and with an unknown outcome, but it should be definitely doable. 
 If you want to experiment, and you successfully install the tool under the official
 Windows python path, I would appreciate if you share your experience and some instructions.
 
@@ -122,6 +128,9 @@ Windows python path, I would appreciate if you share your experience and some in
 For now, the recommended Win10 installation option of the Striker is via the "Windows 
 Subsystem for Linux" as pointed above.
  
+
+(I am also working on a "pip" installation of the Exo-Striker, which should work 
+also on the official Windows python installation)
  
  
 ################################################################################
@@ -129,35 +138,37 @@ Subsystem for Linux" as pointed above.
 ################################################################################
  
  
-See "focus_matrix_TBFixed.doc" in the root dir.
+See "focus_matrix_TBFixed.doc" in the root directory.
  
 
 ################################## Finally #####################################
 
-# to load the GUI  + Rvmod 
+To load the GUI  + Rvmod 
 
-python gui.py 
+python es_gui.py 
  
-# if you want to use RVmod on the Python shell
+If you want to use RVmod on the Python shell
 
 import RV_mod as rv 
  
-(but the RVmod directory must be in your path! Not to mation that one must be familiar with 
-the functions of the RVmod... A manual on RVmod is planned but not available at the moment.)
+(but the RVmod directory must be in your path!However, one must be familiar with 
+the functions of the RVmod... A manual on RVmod is planned, but not available at the moment.)
 
 
 
 
 Some comments:
 
-* All fortran and python codes in this version need very 
-serious clean up from junk.
+* All Fortran and python codes in this version need serious clean-up from junk.
 
-* All fortan code is planned to be translated with f2py.
+* All Fortran codes are planned to be translated with f2py into python-importable libraries.
 
-* The transit fitting + RV + GP is still not well tested
+* The transit fitting + RV + GP is still not well tested.
 
 * A pip installer must be made.
+
+* Dont ever run MCMC runs (or Nest. Samp.) directly in the embeded Jupyter shell! This will freeze the GUI untill is the MCMC done! 
+This is not a bug, simply the jupyter shell needs its own thread and this is not done, yet. Hopefully, this will be fixed soon.
 
 * Bugs may occur! 
 
@@ -166,9 +177,25 @@ serious clean up from junk.
 
  
 
-Some credits (more to come)
+Some credits (more need to be added)
 
-* The text_editor used in the tool is the "Megasolid Idiom":
+* Some of the dynamical RV fitting routines are done by 
+Xianyu Tan (University of Hong Kong now in Oxford) during
+his Master studies with Man Hoi Lee (HKU). 
+
+* Some of the Keplerian RV fitting routines and other N-body codes 
+are initially written by Man Hoi Lee. 
+
+* Jakub Morawski (Warsaw University) worked on the "RVmod" library 
+as my intern student in the summer of 2018. His numerous contributions 
+during the early stages of this project are highly appreciated.
+
+
+* The interactive plotting is done with (a modified version of) the "pyqtgraph": 
+
+http://www.pyqtgraph.org/
+
+* The "Text editor" used in the tool is the "Megasolid Idiom":
 
 https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor
 
@@ -178,7 +205,7 @@ https://www.cfa.harvard.edu/~lkreidberg/batman/quickstart.html
 
 * "GLS" periodogram is taken from: 
 
-http://www.astro.physik.uni-goettingen.de/~zechmeister/gls.php
+https://github.com/mzechmeister/GLS
 
 * "TLS" is taken from: 
 

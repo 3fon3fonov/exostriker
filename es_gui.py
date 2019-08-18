@@ -289,7 +289,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             
 
             
-        self.St_mass_input.setValue(fit.params.stellar_mass)        
+        self.St_mass_input.setValue(fit.params.stellar_mass)  
+        self.St_radius_input.setValue(fit.stellar_radius)  
+        
         self.RV_lin_trend.setValue(fit.params.linear_trend)   
         self.Epoch.setValue(fit.epoch)
 
@@ -353,6 +355,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         fit.params.stellar_mass = self.St_mass_input.value() 
         fit.params.linear_trend = self.RV_lin_trend.value()   
+
+        fit.stellar_radius = self.St_radius_input.value()        
         
         if self.checkBox_first_RV_epoch.isChecked() and len(fit.fit_results.rv_model.jd) != 0:
             fit.epoch = min(fit.fit_results.rv_model.jd)
@@ -5228,7 +5232,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         mean_anomaly_from_tls = np.degrees((((fit.epoch - fit.tls_o_c.transit_times[0] )% (fit.tls_o_c.period) )/ (fit.tls_o_c.period) ) * 2*np.pi)
        
         fit.t0[fit.npl]     = fit.tls_o_c.transit_times[0]
-        fit.pl_rad[fit.npl] = 0.10
+        fit.pl_rad[fit.npl] = fit.stellar_radius*np.sqrt(1.0 - fit.tls_o_c.depth_mean[0])  # alternativly fit.tls_o_c.rp_rs ?
         fit.pl_a[fit.npl]   = 11.44
  
         fit.add_planet(10.0,fit.tls_o_c.period,0.0,0.0,mean_anomaly_from_tls,90.0,0.0)
@@ -5245,6 +5249,12 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.worker_transit_fitting(ff=0 ) 
         
 #############################  TEST ZONE ################################  
+        
+#     def update_stellar_params(self):
+#        global fit         
+        
+#        fit.stellar_radius = self.St_radius_input.value()
+        
         
     def init_plot_corr(self):
         global fit  
