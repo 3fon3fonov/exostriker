@@ -2428,6 +2428,8 @@ Polyfit coefficients:
         
         self.update_plots() 
         self.update_transit_plots() 
+        self.plot_evol_all()
+
         self.jupiter_push_vars() 
 
         
@@ -3401,37 +3403,92 @@ Transit duration: %s d
             p20.plot(fit.evol_T_energy, fit.evol_momentum['lz'] ,pen=fit.colors[0],symbol=None )    
             p20.setLabel('left', 'Momentum lz', units='',  **{'font-size':'9pt'})                    
  
-        
-    def worker_Nbody_complete(self):
-        global fit, colors, p13, p14, p15  
+    
+    def plot_evol_a(self):
+        global fit, colors, p13
         
         if fit.pl_arb_test == True:
             npl = fit.npl_arb
         else:
-            npl = fit.npl           
-
-        p13.plot(clear=True,)
-        p14.plot(clear=True,)
-        p15.plot(clear=True,)
-
-  
-
+            npl = fit.npl   
+            
+        if not self.hold_old_plot_a.isChecked():    
+            p13.plot(clear=True,)
+        else:
+            p13.plot(clear=False,)
+            
+ 
         for i in range(npl):
             p13.plot(fit.evol_T[i], fit.evol_a[i] ,pen=fit.colors[i],symbol=None )     
+ 
+            
+ 
+    def plot_evol_e(self):
+        global fit, colors,   p14 
+        
+        if fit.pl_arb_test == True:
+            npl = fit.npl_arb
+        else:
+            npl = fit.npl      
+    
+ 
+        if not self.hold_old_plot_e.isChecked():    
+            p14.plot(clear=True,)
+        else:
+            p14.plot(clear=False,)
+ 
+
+        for i in range(npl):
             p14.plot(fit.evol_T[i], fit.evol_e[i] ,pen=fit.colors[i],symbol=None )  
+ 
+            
+    def plot_evol_p(self):
+        global fit, colors, p15  
+        
+        if fit.pl_arb_test == True:
+            npl = fit.npl_arb
+        else:
+            npl = fit.npl      
+    
+ 
+        if not self.hold_old_plot_om.isChecked():    
+            p15.plot(clear=True,)
+        else:
+            p15.plot(clear=False,)
+ 
+        for i in range(npl):
+ 
             p15.plot(fit.evol_T[i], fit.evol_p[i] ,pen=None, #{'color': colors[i], 'width': 1.1},
         symbol='o',
         symbolPen={'color': fit.colors[i], 'width': 1.1},
         symbolSize=1,enableAutoRange=True,viewRect=True,
         symbolBrush=fit.colors[i]
-        )  
+        )    
             
+      
+            
+            
+    def plot_evol_all(self):
+        global fit        
+        
+        self.plot_evol_a()
+        self.plot_evol_e()
+        self.plot_evol_p()
+        
+
         self.delta_omega_combo()
         self.theta_which_pl_combo()
         self.plot_delta_omega()
         self.plot_theta()
         self.plot_i_Om()    
-        self.plot_energy()           
+        self.plot_energy()              
+        
+    def worker_Nbody_complete(self):
+        global fit, colors, p13, p14, p15  
+          
+
+
+        self.plot_evol_all()
 #        self.update_orb_plot()
 
         self.plot_tabs.setCurrentWidget(self.tab_Orbital_evol)
