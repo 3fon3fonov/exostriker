@@ -2004,7 +2004,6 @@ class signal_fit(object):
         self.evol_energy_arb   = 0
         #self.evol_momentum_arb = 0
         self.evol_momentum_arb = {'lx': [], 'ly': [], 'lz': []}
-
  
     def init_orb_evol(self):
         
@@ -2020,6 +2019,8 @@ class signal_fit(object):
         self.evol_energy   = 0
         #self.evol_momentum = 0
         self.evol_momentum = {'lx': [], 'ly': [], 'lz': []}
+
+        self.GR_step = 1000
 
 
     def init_mcmc_par(self):     

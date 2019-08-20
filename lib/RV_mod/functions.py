@@ -379,6 +379,45 @@ def export_RV_model(obj, file="RV_model.txt", width = 10, precision = 4):
     print('Done!')
     return 
 
+
+def export_orbital_evol(obj, file="orb_evol.txt", planet = 1, width = 10, precision = 6):
+ 
+    k = int(planet-1)  
+ 
+    
+    if len(obj.evol_T[k])==0 or k < 0:
+        print("No N-body integrations done?")
+        return
+ 
+    output_file = str(file) 
+    f = open(output_file, 'w') 
+    
+    #obj.evol_T_energy   
+    #obj.evol_energy    
+
+    #obj.evol_momentum['lx']            
+    #obj.evol_momentum['ly']      
+    #obj.evol_momentum['lz'] 
+    
+
+            
+    T = obj.evol_T[k]  
+    a = obj.evol_a[k]  
+    e = obj.evol_e[k] 
+    om = obj.evol_p[k] 
+    M = obj.evol_M[k]  
+
+    inc = obj.evol_i[k]   
+    Om =obj.evol_Om[k] 
+       
+    
+    for i in range(len(T)):  
+       # f.write('%.4f   %.4f  \n'%(float(JD[i]), float(y_model[i]) ))  
+        f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  {3:{width}.{precision}f}  {4:{width}.{precision}f}  {5:{width}.{precision}f}  {6:{width}.{precision}f}  \n'.format(float(T[i]), float(a[i]), float(e[i]), float(om[i]),float(M[i]),float(inc[i]),float(Om[i]), width = width, precision = precision) )
+    f.close()   
+    print('Done!')
+    return 
+
 def check_temp_RV_file(obj):
 #        global fit,ses_list
     
@@ -1270,7 +1309,9 @@ pl.in
     elif integrator=='mvs':
         result, flag = run_command_with_timeout('./swift_mvs_j << EOF \nparam.in \npl.in \nEOF', timeout_sec)                          
     elif integrator=='mvs_gr':
-        result, flag = run_command_with_timeout('./swift_mvs_j_GR << EOF \nparam.in \npl.in \nEOF', timeout_sec)          
+        result, flag = run_command_with_timeout('./swift_mvs_j_GR << EOF \nparam.in \npl.in \n%s \nEOF'%int(obj.GR_step), timeout_sec)   
+    
+    #print('./swift_mvs_j_GR << EOF \nparam.in \npl.in \n%s \nEOF'%obj.GR_step)
 
     obj.evol_T_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.25
     obj.evol_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [1]) 
@@ -1385,7 +1426,7 @@ pl.in
     elif integrator=='mvs':
         result, flag = run_command_with_timeout('./swift_mvs_j << EOF \nparam.in \npl.in \nEOF', timeout_sec)                          
     elif integrator=='mvs_gr':
-        result, flag = run_command_with_timeout('./swift_mvs_j_GR << EOF \nparam.in \npl.in \nEOF', timeout_sec)          
+        result, flag = run_command_with_timeout('./swift_mvs_j_GR << EOF \nparam.in \npl.in \n%s \nEOF'%int(obj.GR_step), timeout_sec)   
              
     obj.evol_T_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [0])  /  365.25   
     obj.evol_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [1]) 
