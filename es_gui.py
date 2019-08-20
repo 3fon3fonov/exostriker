@@ -3580,7 +3580,8 @@ Transit duration: %s d
         elif self.radioButton_MVS.isChecked():
             integrator = 'mvs'        
         elif self.radioButton_MVS_GR.isChecked():       
-             integrator = 'mvs_gr'      
+             integrator = 'mvs_gr'
+             fit.GR_step = self.mvs_GR_steps.value()
              
         import time
         start_time = time.time()        
@@ -5220,7 +5221,16 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
 
         self.console_widget.print_text("rv.export_RV_data(fit, [0], file='RV_data.txt',  jitter=False, o_c=False, print_data=False, width = 10, precision = 3)", before_prompt=False)  
         self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
-        self.terminal_embeded.setCurrentWidget(self.console_widget)       
+        self.terminal_embeded.setCurrentWidget(self.console_widget)   
+        
+        
+    def get_orb_evol(self):
+        global fit       
+
+        self.console_widget.print_text("rv.export_orbital_evol(fit, file='planet_N.txt', planet = 1, width = 10, precision = 6)", before_prompt=False)  
+        self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
+        self.terminal_embeded.setCurrentWidget(self.console_widget)           
+        
 
 
 ################################## System #######################################
@@ -5585,7 +5595,9 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.actionprint_f_test_FAP.triggered.connect(self.print_f_test_stat)
         self.actionGet_LaTeX_table_with_parameters.triggered.connect(self.get_latex_table)
         self.actionGet_RV_model.triggered.connect(self.get_RV_model)
-        self.actionGet_RV_data.triggered.connect(self.get_RV_data)        
+        self.actionGet_RV_data.triggered.connect(self.get_RV_data)     
+        
+        self.actionGet_Orb_evol.triggered.connect(self.get_orb_evol)   
         
         
         ############ Sessions #################

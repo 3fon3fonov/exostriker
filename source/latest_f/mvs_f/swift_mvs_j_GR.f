@@ -67,6 +67,9 @@ c Prompt and read name of planet data file
 	call io_init_pl(inplfile,lclose,iflgchk,nbod,mass,xj,yj,zj,
      &       vxj,vyj,vzj,rplsq,j2rp2,j4rp4)
 
+	write(*,*) 'On which step to apply GR precession (int) ?'
+	read(*,*) ll
+
 c Initialize initial time and times for first output and first dump
 	t = t0
 	tout = t0 + dtout
@@ -100,29 +103,9 @@ c...    must initize discard io routine
         nleft = ntp
 	i1st = 0
 	
-c        gmi = mass(1)	
-c        do i=2,nbod
-c           gmi = gmi + mass(i)
-cc            if ((dadt(i).ne.0.d0).or.(dedt(i).ne.0.d0)) then
-c           call orbel_xv2el(xj(i),yj(i),zj(i),vxj(i),vyj(i),vzj(i),
-c     &           gmi,ialphai,ai,ei,inci,capomi,omegai,capmi)
  
-c           call gr_corr(ai,ei,gmi,mass(i),i,corr(i),dt)
-cc           omegai = omegai + corr(i)
-c           write(*,*) corr(i)
-           
-            
-c           call orbel_el2xv(gmi,ialphai,ai,ei,inci,capomi,omegai,
-c     &           capmi,xj(i),yj(i),zj(i),vxj(i),vyj(i),vzj(i))
-cc            endif
-c        enddo 	
 	
-	
-c	pause
-	
-c	gmi = mass(1)	
-	
-	ll = 1000
+c	ll = 1000
 c***************here's the big loop *************************************
         write(*,*) ' ************** MAIN LOOP ****************** '
 
@@ -234,7 +217,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         real*8 PI, c, GMSUN, AU, st_mass
         parameter (PI=3.14159265358979d0)
         parameter (c = 299792458.0d0)
-	parameter (GMSUN=1.32712497d20, AU=1.49597892d13)
+	    parameter (GMSUN=1.32712497d20, AU=1.49597892d13)
         parameter (THIRD=1.d0/3.d0)
  
 
