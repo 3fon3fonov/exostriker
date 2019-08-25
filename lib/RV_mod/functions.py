@@ -436,7 +436,9 @@ def check_temp_RV_file(obj):
         
             for j in range(len(obj.rv_data_sets[i+1][0])):
                 #print(fit_new.rv_data_sets[i][0][j])
-                text = "{0:13.5f} {1:8.3f} {2:6.3f} \n".format(obj.rv_data_sets[i+1][0][j],obj.rv_data_sets[i+1][1][j],obj.rv_data_sets[i+1][2][j])
+                text = b"%s  %s  %s \n"%(bytes(str(obj.rv_data_sets[i+1][0][j]).encode()),bytes(str(obj.rv_data_sets[i+1][1][j]).encode()),bytes(str(obj.rv_data_sets[i+1][2][j]).encode()) )
+                #text = "{0:13.5f} {1:8.3f} {2:6.3f} \n".format(obj.rv_data_sets[i+1][0][j],obj.rv_data_sets[i+1][1][j],obj.rv_data_sets[i+1][2][j])
+               # print(text)
                 f.write(text)
                 
             f.close()

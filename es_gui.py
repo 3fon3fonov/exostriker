@@ -2257,11 +2257,11 @@ Polyfit coefficients:
 
         but_ind = self.buttonGroup_remove_RV_data.checkedId()   
         
-        try:
-            dirname, basename = os.path.split(fit.filelist.files[but_ind-1].path)
-            os.system('rm -r %s'%dirname)
-        except:
-            return
+       # try:
+       #     dirname, basename = os.path.split(fit.filelist.files[but_ind-1].path)
+       #     os.system('rm -r %s'%dirname)
+       # except:
+       #     return
         
         fit.remove_dataset(but_ind -1)
         
@@ -5244,9 +5244,10 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
          
         if choice == QtGui.QMessageBox.No:
             
-            for i in range(fit.filelist.ndset): 
-                dirname, basename = os.path.split(fit.filelist.files[i].path)
-                os.system('rm -r %s'%dirname) 
+            # to remove the /tmp created files. Unfortunatly this leads to problems later (TBF)
+           # for i in range(fit.filelist.ndset): 
+           #     dirname, basename = os.path.split(fit.filelist.files[i].path)
+           #     os.system('rm -r %s'%dirname) 
             
             self.close()
         elif choice == QtGui.QMessageBox.Yes:
