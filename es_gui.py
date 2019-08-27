@@ -5840,7 +5840,7 @@ It seems that you started the 'Exo-Striker' with Python 2. Please consider Pytho
             
          
         print("""Here you can get some more information from the tool's workflow, stdout/strerr, and piped results.""")
-
+        #self.use_K1.setStyleSheet("color: red")
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
