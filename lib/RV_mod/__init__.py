@@ -1483,8 +1483,8 @@ class signal_fit(object):
         self.b_for_mcmc=[] 
         
         #### TBD here ###########
-        self.stellar_radius = 1.0
-        #########################
+     
+        self.init_St_params()   
         
         self.init_GP()  
         self.init_transit_GP()
@@ -1627,6 +1627,7 @@ class signal_fit(object):
 #        self.hack_around_rv_params()
 #        self.calc_hkl()
 #        self.calc_ewm()  
+  
         
         
     def init_pl_params(self): 
@@ -1852,6 +1853,27 @@ class signal_fit(object):
         self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)}         
         self.st_mass_norm_pr = {k: np.array([1,0.2, False]) for k in range(1)}         
         self.st_mass_jeff_pr = {k: np.array([1,0.2, False]) for k in range(1)}         
+
+
+    def init_St_params(self): 
+
+        self.stellar_mass = 1.0
+        self.stellar_mass_err = 0.0         
+        
+        self.stellar_radius = 1.0
+        self.stellar_radius_err = 0.0    
+        
+        self.stellar_luminosity = 1.0
+        self.stellar_luminosity_err = 0.0            
+        
+        self.stellar_Teff = 5777.0
+        self.stellar_Teff_err = 0.0             
+ 
+        self.stellar_vsini = 2.0
+        self.stellar_vsini_err = 0.0        
+        
+        self.stellar_rotation = 25.0
+        self.stellar_rotation_err = 0.0     
       
      
     def init_GP(self):
