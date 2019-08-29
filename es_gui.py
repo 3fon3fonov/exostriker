@@ -5451,6 +5451,39 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
     #def update_inspector(self):
    #     self.tree_view_tab.listview.clicked.connect(self.plot_data_inspect)
    
+   
+    def update_St_params(self):
+        global fit  
+
+        fit.stellar_mass     = self.St_mass_input.value()
+        fit.stellar_mass_err = self.err_St_mass_input.value()         
+        
+        fit.stellar_radius     = self.St_radius_input.value()
+        fit.stellar_radius_err = self.err_St_radius_input.value()    
+        
+        fit.stellar_luminosity     = self.St_lumin_input.value()
+        fit.stellar_luminosity_err = self.err_St_lumin_input .value()           
+        
+        fit.stellar_Teff       = self.St_teff_input.value()
+        fit.stellar_Teff_err   = self.err_St_teff_input.value()             
+ 
+        fit.stellar_vsini       = self.St_vsini_input.value()
+        fit.stellar_vsini_err   = self.err_St_vsini_input.value()       
+        
+        st_rot = rv.get_stellar_rotation(fit)
+        kb1995 = rv.get_rv_scatter(fit)
+        kb2011 = rv.get_rv_scatter(fit,use_kb2011=True)
+        
+        self.label_St_rot_value.setText("%.4f +/- %.4f [days]"%(st_rot[0],st_rot[1]))
+        self.label_kb1995.setText("%.4f +/- %.4f [m/sec]"%(kb1995[0],kb1995[1]))
+        self.label_kb2011.setText("%.4f +/- %.4f [m/sec]"%(kb2011[0],kb2011[1]))
+       
+        
+        #fit.stellar_rotation = 25.0
+       # fit.stellar_rotation_err = 0.0     
+   
+   
+   
     def initialize_font(self):    
             
         self.font = QtGui.QFont()
@@ -5816,7 +5849,22 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.threadpool = QtCore.QThreadPool()
         #self.threadpool.setMaxThreadCount(cpu_count())    
 
+
+        self.update_St_params() 
+
+        ############### Stellar params ####################      
+        self.St_mass_input.valueChanged.connect(self.update_St_params)
+        self.St_radius_input.valueChanged.connect(self.update_St_params)
+        self.St_lumin_input.valueChanged.connect(self.update_St_params)
+        self.St_teff_input.valueChanged.connect(self.update_St_params)
+        self.St_vsini_input.valueChanged.connect(self.update_St_params)
  
+        self.err_St_mass_input.valueChanged.connect(self.update_St_params)
+        self.err_St_radius_input.valueChanged.connect(self.update_St_params)
+        self.err_St_lumin_input.valueChanged.connect(self.update_St_params)
+        self.err_St_teff_input.valueChanged.connect(self.update_St_params)
+        self.err_St_vsini_input.valueChanged.connect(self.update_St_params)    
+    
         if start_arg_ses == True:
             self.init_fit()         
             self.update_use_from_input_file()   

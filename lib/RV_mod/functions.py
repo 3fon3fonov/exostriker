@@ -57,7 +57,6 @@ def ma_from_t0(per, ecc, om, t_transit, epoch):
 
     return ma   
 
-
         
 
 def custom_param_file_for_stability(max_time,time_step):
@@ -298,6 +297,77 @@ def add_jitter(obj, errors, ind):
     errors_with_jitt = np.array([np.sqrt(errors[i]**2 + obj.params.jitters[ii]**2)  for i,ii in enumerate(ind)])
     return errors_with_jitt 
     
+
+
+
+
+def get_stellar_rotation(obj, print_output=False):
+    '''
+    '''
+    vsini   = float(obj.stellar_vsini)
+    vsini_d = float(obj.stellar_vsini_err)
+    
+    R   = float(obj.stellar_radius)
+    R_d = float(obj.stellar_radius_err)
+    
+    Rot = (2*np.pi*R*695700.0)/ (vsini * 86400.0)
+
+    Delta_Rot = np.sqrt( ( ( (2*np.pi*R*695700.0)**2 * (vsini_d*86400.0)**2) + ((2*np.pi*R_d*695700.0)**2 * (vsini*86400.0)**2) ) /
+(vsini*86400.0)**4
+)
+
+    if print_output == True:
+        print("Stellar Rot. period = %s  +/- %s [days]"%(Rot, Delta_Rot))
+
+    return [Rot,  Delta_Rot]
+
+
+def get_rv_scatter(obj, print_output=False,use_kb2011=False):
+    '''
+    '''
+    Solar_fact = 0.234
+    Solar_fact_d = 0.014
+    
+    M   = float(obj.stellar_mass)
+    M_d = float(obj.stellar_mass_err)
+
+    L   = float(obj.stellar_luminosity)
+    L_d = float(obj.stellar_luminosity_err)
+
+    Teff   = float(obj.stellar_Teff)/5771.0
+    Teff_d = float(obj.stellar_Teff_err)/5771.0
+
+    if use_kb2011==True:
+        
+        A = (L / ((M**1.5)*(Teff**4.25))) * Solar_fact
+        
+        # error propagation 
+        #delta_A = 0.25*np.sqrt( ( L**2.0 * ( (36.0 * Teff**2.0 * M_d**2.0) +(289.0 * Teff_d**2.0 * M**2.0)) + (16.0 * L_d**2.0 * Teff**2.0 * M**2.0) ) / (Teff**(21.0/2) * M**5) ) 
+        
+        delta_A = 0.25*np.sqrt( 
+        (L**2.0 * ( 
+        4.0*Teff**2.0 *( 
+        (4.0 * (M**2.0) * (Solar_fact_d**2.0)) + 
+        (9.0 * M_d**2.0 * Solar_fact**2.0)) + 
+        (289.0 * (Teff_d**2.0) * (M**2.0) * (Solar_fact**2.0) )) + 
+        (16.0 * (L_d**2.0) * (Teff**2.0) * (M**2.0) * (Solar_fact**2.0)) ) / ((Teff**(21.0/2.0)) * (M**5.0)) )   
+        
+        if print_output == True:
+            print("KB2011 jitter = %s +/- %s [m/s]"%(A, delta_A))        
+        
+    else:    
+        A = (L/M) * Solar_fact
+    
+        delta_A = np.sqrt( (L**2.0 * ((M**2.0)*(Solar_fact_d**2.0) + (M_d**2.0)*(Solar_fact**2.0)  ) +
+        ((L_d**2.0) *(M**2.0) * (Solar_fact**2.0) ) )/ M**4.0 ) 
+    
+     
+        if print_output == True:
+            print("KB1995 jitter = %s +/- %s [m/s]"%(A, delta_A))
+
+
+    return [A, delta_A]
+
 
 def export_RV_data(obj, idset_ts, file="RV_data.txt",  jitter=False, o_c=False, print_data=False, width = 10, precision = 3):
  
