@@ -22,6 +22,9 @@ class fortran_output(object):
     keplerian_fit=[]
     params=parameters([],[],[],0.0,0.0)
     param_errors=parameter_errors([],[],[],0.0,0.0)
+    omega_dot = []
+    omega_err = []
+    
     ndata_str=''
     mfit_str=''
     rms_str=''
@@ -151,6 +154,10 @@ class fortran_output(object):
     def save_stat_array(self):
         planet_params=[]
         planet_params_errors=[]
+        # a stupid hack...
+        omega_dot       = {k: 0 for k in range(9)}
+        omega_dot_err   = {k: np.array([0,0]) for k in range(9)} 
+        
         offsets=[]
         offset_errors=[]
         jitters=[]
@@ -169,6 +176,13 @@ class fortran_output(object):
                 for k in range(self.npl):
                     planet_params  = np.concatenate((planet_params,np.array(list(map(float,self.best_par[i+1+(k*2)][:7])))))
                     planet_params_errors  = np.concatenate((planet_params_errors,np.array(list(map(float,self.best_par[i+2+(k*2)][:7])))))
+                    #print(self.best_par[i+1+(k*2)], self.best_par[i+1+(k*2)][7])
+                    omega_dot[k] = float(self.best_par[i+1+(k*2)][7])    
+                    omega_dot_err[k] = [float(self.best_par[i+2+(k*2)][7]),float(self.best_par[i+2+(k*2)][7])]             
+                    #self.omega_dot[k] = float(self.best_par[i+1+(k*2)][7])
+                    #self.omega_dot_err[k] = float(self.best_par[i+2+(k*2)][7])
+                    
+                    
                 i=i+2*self.npl+1
             elif (self.best_par[i][1]=='V0'):# characteristic of beginning of RV offsets and their errors information 
                 for k in range(self.ndset):
@@ -199,7 +213,10 @@ class fortran_output(object):
                 fortran_stat_warnings.update_warning_list('Wrong data format in line %d of best fit parameter information in fortran output, line skipped. Please check if number of planets and number of datasets is specified correctly!'%i) #i, not i+1, becase we increase it above    
         self.params=parameters(offsets,jitters,planet_params,linear_trend,self.stellar_mass)
         self.param_errors=parameter_errors(offset_errors,jitter_errors,planet_params_errors,linear_trend_error,0.0)
-
+    
+        self.omega_dot = omega_dot
+        self.omega_dot_err = omega_dot_err 
+        
         fortran_stat_warnings.print_warning_log()
         return
      
@@ -218,5 +235,5 @@ class fortran_output(object):
         self.save_stat_array()
         self.dismantle_keplerian_fit()
         self.dismantle_RV_kep()
-        results = kernel(self.generate_summary(), self.jd, self.rv_obs, self.rv_error,self.o_c, self.model, self.JD_model, self.npl,self.semiM,self.masses,self.data_set,self.stat_array_saved,self.reduced_chi2,self.chi2,self.rms,self.loglik, self.mfit) 
+        results = kernel(self.generate_summary(), self.jd, self.rv_obs, self.rv_error,self.o_c, self.model, self.JD_model, self.npl,self.semiM,self.masses,self.data_set,self.stat_array_saved,self.reduced_chi2,self.chi2,self.rms,self.loglik, self.mfit,self.omega_dot,self.omega_dot_err) 
         return results

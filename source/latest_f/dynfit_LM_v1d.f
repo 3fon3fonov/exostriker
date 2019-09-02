@@ -8,7 +8,7 @@ ccc   The final version will be available in the Python RVMod lib.
       parameter (PI=3.14159265358979d0)
       integer npl,ndset,idset,ndata,ma,mfit,i,j,NDSMAX,NPLMAX,MMAX,k
       real*8 inc,sini,mstar
-      integer writeflag_best_par, nt
+      integer writeflag_best_par, nt,hkl
       integer writeflag_RV,writeflag_fit, amoebastarts
       parameter (NDSMAX=20, NPLMAX=20, MMAX=200)
       integer idsmax(NDSMAX),ia(MMAX),ts(10000)
@@ -18,6 +18,7 @@ ccc   The final version will be available in the Python RVMod lib.
       real*8 jitter(NDSMAX),sigscale,t0,t_max,epoch
       real*8 rms,ymod(10000),dyda(10000,MMAX)
       real*8 a0(MMAX),asave(MMAX),ap(NPLMAX)
+      real*8 wdot(NPLMAX),u_wdot(NPLMAX)
  
       real*8 tstop,dt,dtout
       real*4 t_stop,when_to_kill,model_max,model_min
@@ -43,7 +44,7 @@ c      write(*,*) 'Stellar mass: '
    
 
       call io_read_data (ndata,t,ts,ys,sigs,jitter,
-     & 	           epoch,t0,t_max,a,ia,ma,mfit)
+     & 	           epoch,t0,t_max,a,ia,ma,mfit,hkl,wdot,u_wdot)
 
 
 
@@ -133,7 +134,7 @@ c*******final output******************
       call io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
      & 	           ma,mfit,t0,t_max,sigs,chisq,rms,writeflag_RV,
      &  writeflag_best_par,writeflag_fit,jitter,epsil,deltat,
-     &  nt, model_max,model_min)
+     &  nt, model_max,model_min,hkl,wdot,u_wdot)
 
 c      write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
 c      write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
@@ -144,18 +145,19 @@ c      stop
 
 
       subroutine io_read_data (ndata,t,ts,ys,sigs,jitter,epoch,
-     &               t0,t_max,ar,iar,ma,mfit)  
+     &               t0,t_max,ar,iar,ma,mfit,hkl,wdot,u_wdot) 
 
 
       implicit none
       integer ndset,idset,ndata,NDSMAX,NPLMAX,MMAX,npl
       real*8 t(10000),y(10000),sig(10000),ys(10000),sigs(10000)
       parameter (NDSMAX=20,NPLMAX=20,MMAX=200)
-      integer idsmax(NDSMAX),ts(10000)
+      integer idsmax(NDSMAX),ts(10000),hkl
       real*8 jitter(NDSMAX),t0,t_max,epoch,ar(MMAX),off(NDSMAX), PI
       parameter(PI=3.14159265358979d0)
       integer i,k,j, iar(MMAX), u_off(NDSMAX), u_jit, ma, mfit
       character*80 infile
+      real*8 wdot(NPLMAX),u_wdot(NPLMAX)
    
       common /DSBLK/ npl,ndset,idsmax,idset
 
@@ -234,19 +236,17 @@ c      write(*,*) 'Initial K, P, e, w, M0,Inc,Capom and their flags: '
       do j = 1,npl
           i = 7*(j-1)
           read (*,*) ar(i+1),ar(i+2),ar(i+3),ar(i+4),ar(i+5),ar(i+6),
-     &               ar(i+7)
+     &               ar(i+7),wdot(i)
           read (*,*) iar(i+1),iar(i+2),iar(i+3),iar(i+4),iar(i+5),
-     &               iar(i+6),iar(i+7)
+     &               iar(i+6),iar(i+7),u_wdot(i)
  
  
 c          a(i+2) = 2.d0*PI/(a(i+2)*8.64d4)         ! mean motion 
           ar(i+2) = ar(i+2)*8.64d4         ! second as unit
-          ar(i+4) = ar(i+4)*PI/180.d0                ! radians
-          ar(i+5) = ar(i+5)*PI/180.d0
-          ar(i+6) = ar(i+6)*PI/180.d0
-          ar(i+7) = ar(i+7)*PI/180.d0
- 
+          u_wdot(i) = 0 
       enddo
+
+
       
 c      write (*,*) 'linear trend:'      
       read (*,*) ar(7*npl + ndset + 1)
@@ -262,6 +262,21 @@ c      write (*,*) 'linear trend:'
       else
          t0 = epoch
       endif
+      
+      read (*,*) hkl      
+         
+      do j = 1,npl
+          i = 7*(j-1)
+          if (hkl.eq.0) then 
+              ar(i+4) = ar(i+4)*PI/180.d0
+          endif
+              
+          ar(i+5) = ar(i+5)*PI/180.d0
+          ar(i+6) = ar(i+6)*PI/180.d0
+          ar(i+7) = ar(i+7)*PI/180.d0          
+      enddo          
+      
+      
       
       do i = 1,ndata
          t(i) = (t(i) - t0)*8.64d4               ! time unit is second
@@ -286,7 +301,7 @@ Cc    Xianyu Tan 2011
       subroutine io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
      &           ma,mfit,t0,t_max,sigs,chisq,rms,writeflag_RV,
      &           writeflag_best_par,writeflag_fit,jitter,epsil,
-     &           deltat,nt, model_max,model_min)
+     &           deltat,nt, model_max,model_min,hkl,wdot,u_wdot)
    
       implicit none 
       real*8 PI
@@ -299,7 +314,7 @@ Cc    Xianyu Tan 2011
      &           writeflag_best_par,writeflag_fit
       real*8 t0,t1,t2,dt,offset,t_max,chisq,deltat,epsil,sig2i 
       real*8 x(5000),y(5000),sigs(5000),jitter(NDSMAX)
-      integer i,j,npl,ndset,ndata,idset,mfit,ma,idsmax(NDSMAX)
+      integer i,j,npl,ndset,ndata,idset,mfit,ma,idsmax(NDSMAX),hkl
       real*8 xh(NPLMAX),yh(NPLMAX),zh(NPLMAX),vxh(NPLMAX),vyh(NPLMAX)
      &       ,vzh(NPLMAX)
       real*8 xj(NPLMAX),yj(NPLMAX),zj(NPLMAX),vxj(NPLMAX),vyj(NPLMAX)
@@ -308,6 +323,7 @@ Cc    Xianyu Tan 2011
       real*8 swift_mass(NPLMAX),s_mass(NPLMAX),j_mass(NPLMAX)
       real*4 model_max,model_min
       parameter (AU=1.49597892d11, day = 86400.d0)
+      real*8 wdot(NPLMAX),u_wdot(NPLMAX)      
 
 
       common /DSBLK/ npl,ndset,idsmax,idset
@@ -375,7 +391,7 @@ c          rms = rms + (ys(i) - ymod(i))**2
               write(*,*) a(i+1),a(i+2)/8.64d4,a(i+3),
      &                a(i+4)*180.d0/PI,a(i+5)*180.d0/PI,
      &                dmod(a(i+6)*180.d0/PI,180.d0),
-     &                dmod(a(i+7)*180.d0/PI,360.d0)
+     &                dmod(a(i+7)*180.d0/PI,360.d0),wdot(i)
               write(*,*) dsqrt(covar(i+1,i+1)),
      &                dsqrt(covar(i+2,i+2))/8.64d4,
 c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
@@ -383,7 +399,8 @@ c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
      &                dsqrt(covar(i+4,i+4))*180.d0/PI,
      &                dsqrt(covar(i+5,i+5))*180.d0/PI,
      &                dmod(dsqrt(covar(i+6,i+6))*180.d0/PI,180.d0),
-     &                dmod(dsqrt(covar(i+7,i+7))*180.d0/PI,360.d0)
+     &                dmod(dsqrt(covar(i+7,i+7))*180.d0/PI,360.d0),
+     &                u_wdot(i)
           enddo
  
    
