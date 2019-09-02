@@ -218,7 +218,16 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                      ]
          
         for i in range(fit.npl*7):
-            param_gui[i].setValue(fit.params.planet_params[i])             
+            param_gui[i].setValue(fit.params.planet_params[i])        
+            
+        param_gui_wd = [self.om_dot_1, self.om_dot_2, self.om_dot_3, 
+                        self.om_dot_4, self.om_dot_5, self.om_dot_6, 
+                        self.om_dot_7, self.om_dot_8, self.om_dot_9]
+
+        for i in range(9):
+            param_gui_wd[i].setValue(fit.omega_dot[i])        
+           
+            
             
         param_gui_tr = [
                      self.t0_1, self.pl_rad_1, self.a_sol_1,
@@ -312,6 +321,14 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(fit.npl*7):
             fit.params.planet_params[i] = param_gui[i].value() 
+            
+            
+        param_gui_wd = [self.om_dot_1, self.om_dot_2, self.om_dot_3, 
+                        self.om_dot_4, self.om_dot_5, self.om_dot_6, 
+                        self.om_dot_7, self.om_dot_8, self.om_dot_9]
+
+        for i in range(9):
+            fit.omega_dot[i] = param_gui_wd[i].value()             
         
         fit.hack_around_rv_params() 
          
@@ -550,6 +567,16 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         
         for i in range(fit.npl*7):
             param_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.planet_params_errors[i])))
+            
+            
+        param_errors_gui_wd = [self.err_om_dot_1,self.err_om_dot_2,self.err_om_dot_3,
+                               self.err_om_dot_4,self.err_om_dot_5,self.err_om_dot_6,
+                               self.err_om_dot_7,self.err_om_dot_8,self.err_om_dot_9,                      
+                            ]
+        
+        for i in range(9):
+            param_errors_gui_wd[i].setText("+/- %.3f"%max(np.abs(fit.omega_dot_err[i])))            
+            
 
         data_errors_gui        = [self.err_Data1,self.err_Data2,self.err_Data3,self.err_Data4,self.err_Data5,
                                   self.err_Data6,self.err_Data7,self.err_Data8,self.err_Data9,self.err_Data10]
@@ -625,6 +652,14 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         
         for i in range(fit.npl*7):
             use_param_gui[i].setChecked(bool(fit.use.use_planet_params[i]))
+            
+            
+        use_param_gui_wd = [self.use_om_dot_1, self.use_om_dot_2, self.use_om_dot_3, 
+                            self.use_om_dot_4, self.use_om_dot_5, self.use_om_dot_6, 
+                            self.use_om_dot_7, self.use_om_dot_8, self.use_om_dot_9]
+
+        for i in range(fit.npl):
+            use_param_gui_wd[i].setChecked(bool(fit.omega_dot_use[i]))           
  
             
         use_param_gui_tr = [self.use_t0_1, self.use_pl_rad_1, self.use_a_sol_1,
@@ -729,7 +764,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
        #         fit.add_planet(i)  
        #         
 
-        use_param_gui = [self.use_K1, self.use_P1, self.use_e1, self.use_om1, self.use_ma1, self.use_incl1, self.use_Omega1,
+        use_param_gui  = [self.use_K1, self.use_P1, self.use_e1, self.use_om1, self.use_ma1, self.use_incl1, self.use_Omega1,
                           self.use_K2, self.use_P2, self.use_e2, self.use_om2, self.use_ma2, self.use_incl2, self.use_Omega2,
                           self.use_K3, self.use_P3, self.use_e3, self.use_om3, self.use_ma3, self.use_incl3, self.use_Omega3,                        
                           self.use_K4, self.use_P4, self.use_e4, self.use_om4, self.use_ma4, self.use_incl4, self.use_Omega4,    
@@ -742,6 +777,14 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(9*7):
             fit.use.use_planet_params[i] = int(use_param_gui[i].isChecked())         
+
+
+        use_param_gui_wd = [self.use_om_dot_1, self.use_om_dot_2, self.use_om_dot_3, 
+                            self.use_om_dot_4, self.use_om_dot_5, self.use_om_dot_6, 
+                            self.use_om_dot_7, self.use_om_dot_8, self.use_om_dot_9]
+
+        for i in range(9):
+            fit.omega_dot_use[i] = int(use_param_gui_wd[i].isChecked())
    
             
         use_param_gui_tr = [
@@ -4907,6 +4950,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             om_flag = False
             incl_flag = False
             Dom_flag = False
+            if self.deattach_omega_dot.isChecked():
+                om_flag = True
 
         elif self.radioButton_Keplerian.isChecked() and self.radioButton_RV.isChecked()==False:
 
@@ -5610,10 +5655,11 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
 
         self.radioButton_Dynamical.toggled.connect(self.update_dyn_kep_flag)
         self.radioButton_Dynamical.toggled.connect(self.mute_boxes_dyn)
-        
+
         self.radioButton_Keplerian.toggled.connect(self.update_dyn_kep_flag)
         
-        
+        self.deattach_omega_dot.stateChanged.connect(self.mute_boxes_dyn)
+                
         self.amoeba_radio_button.toggled.connect(self.update_RV_jitter_flag)
         self.lm_radio_button.toggled.connect(self.update_RV_jitter_flag)       
         self.radioButton_Keplerian.toggled.connect(self.mute_boxes_dyn)

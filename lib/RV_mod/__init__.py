@@ -2818,6 +2818,8 @@ class signal_fit(object):
 
         ### ppp will be the input string. Depending on fileinput parameter we either save it in a file or save it directly 
      
+       # print(program, self.mixed_fit[1])
+         
         if not (fileinput): # if we want to save input in a file we don't want this line in the input string    
             ppp = '%s << EOF\n'%program
         else:
@@ -2832,22 +2834,24 @@ class signal_fit(object):
         ppp+='%d\n'%self.npl
         
         # if mixed fitting is requested        
-        if program == './lib/fr/loglik_dyn+':
+        if program == '%s/lib/fr/loglik_dyn+'%(self.cwd):       
             for i in range(self.npl):             
-                ppp+='%d\n'%self.mixed_fit[1][i]  
+                ppp+='%d\n'%self.mixed_fit[1][i] 
                 
         for i in range(self.npl): # K,P,e,w,M,i,cap0m for each planet, and information which ones we use
             if self.hkl:
-                ppp+='%f %f %f %f %f %f %f\n'%(self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.e_sinw[i],self.e_cosw[i],self.lamb[i],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6])
-                ppp+='%d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),int(self.use.use_planet_params[7*i+1]),int(self.use.use_planet_params[7*i+2]),int(self.use.use_planet_params[7*i+3]),int(self.use.use_planet_params[7*i+4]),int(self.use.use_planet_params[7*i+5]),int(self.use.use_planet_params[7*i+6]))     
+                ppp+='%f %f %f %f %f %f %f %f\n'%(self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.e_sinw[i],self.e_cosw[i],self.lamb[i],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6],self.omega_dot[i])
+                ppp+='%d %d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),int(self.use.use_planet_params[7*i+1]),int(self.use.use_planet_params[7*i+2]),int(self.use.use_planet_params[7*i+3]),int(self.use.use_planet_params[7*i+4]),int(self.use.use_planet_params[7*i+5]),int(self.use.use_planet_params[7*i+6]),int(self.omega_dot_use[i]))     
             else:
-                ppp+='%f %f %f %f %f %f %f\n'%(self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.params.planet_params[7*i+2],self.params.planet_params[7*i+3],self.params.planet_params[7*i+4],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6])
-                ppp+='%d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),int(self.use.use_planet_params[7*i+1]),int(self.use.use_planet_params[7*i+2]),int(self.use.use_planet_params[7*i+3]),int(self.use.use_planet_params[7*i+4]),int(self.use.use_planet_params[7*i+5]),int(self.use.use_planet_params[7*i+6]))                                
+                ppp+='%f %f %f %f %f %f %f %f\n'%(self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.params.planet_params[7*i+2],self.params.planet_params[7*i+3],self.params.planet_params[7*i+4],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6],self.omega_dot[i])
+                ppp+='%d %d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),int(self.use.use_planet_params[7*i+1]),int(self.use.use_planet_params[7*i+2]),int(self.use.use_planet_params[7*i+3]),int(self.use.use_planet_params[7*i+4]),int(self.use.use_planet_params[7*i+5]),int(self.use.use_planet_params[7*i+6]),int(self.omega_dot_use[i]))                                
                 
         ppp+='%f\n%d\n'%(self.params.linear_trend,int(self.use.use_linear_trend)) # information about linear trend
         ppp+='%f\n'%self.epoch
-        ppp+='%s\n'%int(self.hkl)    
-#        print(ppp)
+        ppp+='%s\n'%int(self.hkl)  
+        
+       # if program == '%s/lib/fr/loglik_dyn+'%(self.cwd):       
+      #      print(ppp)
 #        print(int(self.hkl),self.npl)    
         # prepare final version of the ppp command to be returned by this function
         if not (fileinput):
@@ -2915,6 +2919,9 @@ class signal_fit(object):
             self.param_errors=self.fit_results.stat.param_errors
             self.masses=self.fit_results.mass
             self.semimajor=self.fit_results.a
+           # print(self.fit_results.omega_dot,self.fit_results.omega_dot_err)
+            self.omega_dot = self.fit_results.omega_dot
+            self.omega_dot_err = self.fit_results.omega_dot_err
         return
         
          
@@ -2960,6 +2967,11 @@ class signal_fit(object):
         if (flag==1):
             fortranoutput=fortran_output(text,self.npl,self.filelist.ndset,self.params.stellar_mass) # create an object for fortran output, which we need to split into part
             self.fit_results=fortranoutput.modfit(print_stat=print_stat)
+            
+            #print(self.fit_results.omega_dot)
+            
+            
+            
             self.stat_saved=self.fit_results.stat_array_saved
             if (self.stat_saved):
                 self.never_saved=False
@@ -3068,7 +3080,6 @@ class signal_fit(object):
         return       
                     
 #### prep. #########
-   # def prepare_for_mcmc(self, customdatasetlabels=[]):
     def prepare_for_mcmc(self, rtg=[True,False,False,False], customdatasetlabels=[]):
         '''Prepare bounds and par array needed for the MCMC''' 
  
@@ -3331,6 +3342,24 @@ class signal_fit(object):
                     prior_jeff.append(self.tra_GP_sho_jeff_pr[i])
            
 
+        for i in range(10):         
+            if len(self.tra_data_sets[i]) != 0:
+                par.append(self.tra_jitt[i]) #
+                par_str.append(self.tra_jitt_str[i]) #
+                bounds.append(self.tra_jitt_bounds[i])   
+                prior_nr.append(self.tra_jitt_norm_pr[i])
+                prior_jeff.append(self.tra_jitt_jeff_pr[i])
+                
+                
+                if rtg == [True, False,False,True]:
+                    flag.append(False) #
+                elif rtg == [True,False,False,False]:
+                    flag.append(False) #
+                else:   
+                    flag.append(self.tra_jitt_use[i])                  
+                
+
+
                 
         par.append(self.params.stellar_mass)
         flag.append(self.use.use_stellar_mass)
@@ -3338,6 +3367,7 @@ class signal_fit(object):
         bounds.append(self.st_mass_bounds[0])
         prior_nr.append(self.st_mass_norm_pr[0])   
         prior_jeff.append(self.st_mass_jeff_pr[0])   
+    
     
         
         #print(par)    

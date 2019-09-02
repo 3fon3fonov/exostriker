@@ -92,15 +92,15 @@ c             if (i.gt.idsmax(idset)) idset = idset + 1
 	      xmax = x0 + x(i)
  
  
-              y_in(i) = y(i) - a(5*npl+idset) - a(5*npl+2*ndset+1)*x(i)
-	      ymod(i) = ymod(i) - a(5*npl+idset) 
-     &    - a(5*npl +2*ndset + 1)*x(i)
+              y_in(i) = y(i) - a(6*npl+idset) - a(6*npl+2*ndset+1)*x(i)
+	      ymod(i) = ymod(i) - a(6*npl+idset) 
+     &    - a(6*npl +2*ndset + 1)*x(i)
 
               dy = y_in(i) - ymod(i)
               rms = rms + (y_in(i) - ymod(i))**2
               if (writeflag_RV.gt.0) then 
                   write(*,*) x0 + x(i),
-     &            ymod(i), y_in(i) + a(5*npl+2*ndset+1)*x(i),
+     &            ymod(i), y_in(i) + a(6*npl+2*ndset+1)*x(i),
      &            dy, sig(i), idset
    
               endif
@@ -133,7 +133,7 @@ c     &           /(365.25*365.25))
           write (*,*) 'Best-fit K [m/s], P [days], e, w [deg], 
      & M0 [deg], i[deg], cap0m[deg] and their errors'
           do j = 1,npl
-              i = 5*(j-1)
+              i = 6*(j-1)
               
               if (hkl.eq.0) then
                   best_w = a(i+4)*180.d0/PI
@@ -144,16 +144,16 @@ c     &           /(365.25*365.25))
               endif    
                                 
               write (*,*) a(i+1),a(i+2),a(i+3),best_w,
-     &        a(i+5)*180.d0/PI,incl(j),cap0m(j)
+     &        a(i+5)*180.d0/PI,incl(j),cap0m(j),a(i+6)
               write (*,*) dsqrt(covar(i+1,i+1)),dsqrt(covar(i+2,i+2)),
      &                 dsqrt(covar(i+3,i+3)), 
      &                 best_we,
-     &                 dsqrt(covar(i+5,i+5))*180.d0/PI, 0.0, 0.0
-
+     &                 dsqrt(covar(i+5,i+5))*180.d0/PI, 0.0, 0.0,
+     &                 dsqrt(covar(i+6,i+6))*180.d0/PI
           enddo
           write (*,*) 'Best-fit V0 [m/s] and their error bars:'
           do j = 1,ndset
-              i = 5*npl + j
+              i = 6*npl + j
               write (*,*) a(i)
 c              offset(j) = a(i)
               write (*,*) dsqrt(covar(i,i))
@@ -166,8 +166,8 @@ c              offset(j) = a(i)
           enddo          
           
           write (*,*) 'linear trend [m/s per day]:'
-          write (*,*) a(5*npl + ndset + 1)  
-          write (*,*) dsqrt(covar(5*npl + ndset + 1,5*npl + ndset + 1))
+          write (*,*) a(6*npl + ndset + 1)  
+          write (*,*) dsqrt(covar(6*npl + ndset + 1,6*npl + ndset + 1))
 
           write (*,*) ' ndata =',ndata
           write (*,*) ' mfit =',mfit
@@ -193,7 +193,7 @@ c      nt = 10000
 	            x(i) = ((i-1)*dt)-model_min
 
                     do j = 1,ndset
-                         a(5*npl + j) = 0.0
+                         a(6*npl + j) = 0.0
                     enddo	  
 	  
                     call RVKEP (x(i),a,ymod(i),dyda,ma,1,hkl)
@@ -294,26 +294,26 @@ c          WRITE (*,*) idsmax(i)
       if (npl.gt.NPLMAX) stop ' KEPFIT: npl > NPLMAX.'
 
       do i = 1,ndset
-          ar(5*npl+i)=off(i)
-          iar(5*npl+i)=u_off(i)
+          ar(6*npl+i)=off(i)
+          iar(6*npl+i)=u_off(i)
       enddo
       
-      ma = 5*npl + ndset + 1
+      ma = 6*npl + ndset + 1
 c      write (*,*) 'Initial K, P, e, w, M0 and their flags: '
       do j = 1,npl
-          i = 5*(j-1)
-          read (*,*) ar(i+1),ar(i+2),ar(i+3),ar(i+4),ar(i+5),incl(j)
-     &    ,cap0m(j)
-          read (*,*) iar(i+1),iar(i+2),iar(i+3),iar(i+4),iar(i+5)
-     &    ,u_incl, u_cap0m
+          i = 6*(j-1)
+          read (*,*) ar(i+1),ar(i+2),ar(i+3),ar(i+4),ar(i+5),incl(j),
+     &    cap0m(j),ar(i+6)
+          read (*,*) iar(i+1),iar(i+2),iar(i+3),iar(i+4),iar(i+5),
+     &    u_incl, u_cap0m,iar(i+6)
 
 c         inclinations and cap0m are always ignored in the fit, just for consistency with dynamical input and output
  
       enddo
 c u_jit read for consistency with input/output in loglik case, but here we don't actually save this information and not use it, jitters cannot be used for fit in chi^2 minimization
           
-      read (*,*) ar(5*npl+ ndset+1)
-      read (*,*) iar(5*npl+ndset+1)    
+      read (*,*) ar(6*npl+ ndset+1)
+      read (*,*) iar(6*npl+ndset+1)    
 
       ndata = ndata - 1
 
@@ -331,12 +331,12 @@ c      write(*,*) 'for epoch :'
       read (*,*) hkl      
          
       do j = 1,npl
-          i = 5*(j-1)
+          i = 6*(j-1)
           if (hkl.eq.0) then 
               ar(i+4) = ar(i+4)*PI/180.d0
           endif
-              
-          ar(i+5) = ar(i+5)*PI/180.d0
+          ar(i+5) = ar(i+5)*PI/180.d0              
+          ar(i+6) = ar(i+6)*PI/180.d0
       enddo
  
       do i = 1,ndata
@@ -358,7 +358,7 @@ c      write(*,*) 'for epoch :'
       real*8 x,y,a(ma),dyda(ma)
       real*8 cosw,sinw,capm,cape,cose,sine,cosf,sinf,fac1,fac2,fac3
       real*8 orbel_ehybrid, f, coswf,omega(10),capmm(10),ecc(10)
-      real*8 ecc2,wm,sinwm,coswm,sin2wm,cos2wm,sin3wm,cos3wm
+      real*8 ecc2,wm,sinwm,coswm,sin2wm,cos2wm,sin3wm,cos3wm,omegad(10)
 
       common /DSBLK/ npl,ndset,idsmax,idset
       
@@ -368,7 +368,7 @@ c      write(*,*) 'for epoch :'
       if (hkl.eq.0) then
 
           do i = 1,npl
-             j = 5*(i-1)
+             j = 6*(i-1)
              
              if (a(j+2).lt.0.d0) then  ! if P<0, set P>0 
                 a(j+2) = abs(a(j+2))
@@ -388,20 +388,26 @@ c      write(*,*) 'for epoch :'
              endif  
              if (a(j+4).lt.0.d0) a(j+4) = dmod(a(j+4)+2.d0*PI, 2.d0*PI)  
              if (a(j+5).lt.0.d0) a(j+5) = dmod(a(j+5)+2.d0*PI, 2.d0*PI) 
-             if (a(j+4).gt.2.d0*PI) a(j+4) = dmod(a(j+4), 2.d0*PI )  
-             if (a(j+5).gt.2.d0*PI) a(j+5) = dmod(a(j+5), 2.d0*PI )   
+             if (a(j+6).lt.0.d0) a(j+6) = dmod(a(j+6)+2.d0*PI, 2.d0*PI) 
+             
+             
+             if (a(j+4).gt.2.d0*PI) a(j+4) = dmod(a(j+4), 2.d0*PI)  
+             if (a(j+5).gt.2.d0*PI) a(j+5) = dmod(a(j+5), 2.d0*PI)   
+             if (a(j+6).gt.2.d0*PI) a(j+6) = dmod(a(j+6), 2.d0*PI)   
              
              ecc(i) = a(j+3) 
              omega(i) = a(j+4) 
-             capmm(i) = a(j+5)                 
-c             write(*,*) ecc(i) ,omega(i) ,capmm(i) 
+             capmm(i) = a(j+5)    
+             omegad(i) = a(j+6)                           
+                          
+c             write(*,*) ecc(i) ,omega(i) ,capmm(i),omegad(i)
                                                    
           enddo  
 
       else   
             
           do i = 1,npl
-             j = 5*(i-1)
+             j = 6*(i-1)
              if (a(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
                 a(j+4) = -1.d0*a(j+4)       !     which is h = -h, k = -k
                 a(j+3) = -1.d0*a(j+3)
@@ -429,10 +435,12 @@ c             write(*,*) a(j+4),a(j+4),ecc(i) ,omega(i) ,capmm(i)
       if (hkl.eq.0) then
       do j = 1,npl
 
-          i = 5*(j-1)
-          cosw = dcos(omega(j))
-          sinw = dsin(omega(j))
-
+          i = 6*(j-1)
+c          cosw = dcos(omega(j))
+c          sinw = dsin(omega(j))
+          cosw = dcos(omega(j)+omegad(j)*x/365.25d0)
+          sinw = dsin(omega(j)+omegad(j)*x/365.25d0)
+          
           capm = TWOPI*x/a(2+i) + capmm(j)
           capm = dmod(capm,  2.d0*PI )
 
@@ -458,16 +466,18 @@ c          fac1 = coswf + ecc(j)*cosw
           dyda(2+i) = -TWOPI*fac3*x/a(2+i)**2
           dyda(3+i) = -a(1+i)*sine*(2.d0 - ecc(j)**2 - ecc(j)*cose)*
      &                 fac2/dsqrt(1.d0 - ecc(j)**2)
-          dyda(4+i) = -a(1+i)*(sinw*cosf + cosw*sinf)
+          dyda(4+i) = -a(1+i)*(sinw*cosf + cosw*sinf + ecc(j)*sinw)
           dyda(5+i) = fac3
-
+          dyda(6+i) = -a(1+i)*(sinw*cosf + cosw*sinf
+     &                 + ecc(j)*sinw)*x/365.25d0
+          
       enddo
       
       else
       
       do j = 1,npl
 
-          i = 5*(j-1)
+          i = 6*(j-1)
 c          ecc2 = dsqrt(a(3+i)**2 + a(4+i)**2)
 
           if (ecc(j).gt.1.d-2) then
@@ -503,6 +513,7 @@ c             write(*,*) capm
      &                   (1.d0 - ecc(j)*cose)**2 +
      &                   a(1+i)*fac2*sinw/ecc(j)
              dyda(5+i) = fac3
+             dyda(6+i) = dyda(4+i)*x/365.25d0             
           else
              wm = TWOPI*x/a(2+i) + a(5+i)
              wm = dmod(wm,  2.d0*PI )
@@ -533,6 +544,8 @@ c             write(*,*) capm
      &              a(3+i)**(0.25d0*sinwm - 2.25d0*sin3wm) -
      &              a(4+i)*2.25d0*(coswm - cos3wm))
              dyda(5+i) = a(1+i)*fac3
+             dyda(6+i) = dyda(4+i)*x/365.25d0             
+             
           endif
 
       enddo      
@@ -541,19 +554,19 @@ c             write(*,*) capm
       
 
 c      do i = 1,idset
-      y = y + a(5*npl+ts)
+      y = y + a(6*npl+ts)
 
       do i = 1,ts-1
-          dyda(5*npl+i) = 0.d0
+          dyda(6*npl+i) = 0.d0
       enddo
       
-      dyda(5*npl+ts) = 1.d0
+      dyda(6*npl+ts) = 1.d0
 
-      y = y + a(5*npl +ndset + 1)*x  
-      dyda(5*npl + ndset + 1) = x
+      y = y + a(6*npl +ndset + 1)*x  
+      dyda(6*npl + ndset + 1) = x
    
       do i = ts+1,ndset
-          dyda(5*npl+i) = 0.d0
+          dyda(6*npl+i) = 0.d0
       enddo
 
       return
@@ -750,7 +763,7 @@ c*******expectively.
  
         
         do j = 1,npl
-           i = 5*(j-1) 
+           i = 6*(j-1) 
 
            mm(j) = 2.d0*PI/(a(i+2)*8.64d4)
            
@@ -759,9 +772,9 @@ c*******expectively.
         do i = 0,npl-1
         
            if (hkl.eq.0) then             
-               ecc = a(5*i+3)     
+               ecc = a(6*i+3)     
            else
-               ecc = dsqrt(a(5*i+3)**2+a(5*i+4)**2)    !! only for h, k
+               ecc = dsqrt(a(6*i+3)**2+a(6*i+4)**2)    !! only for h, k
            endif
 
            mass(1) = m0
@@ -769,7 +782,7 @@ c*******expectively.
  101       continue
            if (i.eq.0) then
            mtotal = m0
-	       mass(i+2) = a(5*i+1)*(TWOPI/mm(i+1)*(m0 + mpold(i+1))**2/
+	       mass(i+2) = a(6*i+1)*(TWOPI/mm(i+1)*(m0 + mpold(i+1))**2/
      &               (TWOPI*GMSUN))**THIRD*
      &               dsqrt(1.d0 - ecc**2)
            else
@@ -777,7 +790,7 @@ c*******expectively.
               do j = 0, i-1
                  mtotal = mtotal + mass(j+2)
               enddo
-              mass(i+2) = a(5*i+1)*(TWOPI/mm(i+1)*(mtotal
+              mass(i+2) = a(6*i+1)*(TWOPI/mm(i+1)*(mtotal
      &                  +mpold(i+1))**2/(TWOPI*GMSUN))**THIRD*
      &                  dsqrt(1.d0 - ecc**2)
            endif

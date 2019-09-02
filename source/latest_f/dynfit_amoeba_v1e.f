@@ -20,8 +20,9 @@ c*************************************************************************
       real*8 sigscale,t0,t_max,twopi,dt, epoch, epsil,deltat
       real*8 rms,ymod(10000),dyda(10000,MMAX),jitt(NDSMAX)
       real*4 t_stop, when_to_kill,model_max,model_min
+      real*8 wdot(NPLMAX),u_wdot(NPLMAX)
       
-      
+            
       external rvkep, compute_abs_loglik
       character*80 infile
 
@@ -40,7 +41,7 @@ c*************************************************************************
    
 
       call io_read_data (ndata,t,ts,ys,sigs,jitt,
-     & 	           epoch,t0,t_max,a,ia,ma,mfit,hkl)
+     & 	           epoch,t0,t_max,a,ia,ma,mfit,hkl,wdot,u_wdot)
 
   
            i = 0
@@ -104,7 +105,7 @@ c      endif
       call io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
      & 	           ma,mfit,t0,t_max,sigs,chisq,rms,loglik,writeflag_RV,
      &             writeflag_best_par,writeflag_fit,jitt,epsil,deltat,
-     &  nt, model_max, model_min,hkl)
+     &  nt, model_max, model_min,hkl,wdot,u_wdot)
 
 
       end
@@ -374,7 +375,7 @@ c*************************************************************************
  
                                                                             
       subroutine io_read_data (ndata,t,ts,ys,sigs,jitter,epoch,
-     &               t0,t_max,ar,iar,ma,mfit,hkl)  
+     &               t0,t_max,ar,iar,ma,mfit,hkl,wdot,u_wdot)  
 
 
       implicit none
@@ -386,7 +387,9 @@ c*************************************************************************
       parameter(PI=3.14159265358979d0)
       integer i,k,j, iar(MMAX), u_off(NDSMAX), u_jit(NDSMAX), ma, mfit
       character*80 infile
-   
+      real*8 wdot(NPLMAX),u_wdot(NPLMAX)
+      
+         
       common /DSBLK/ npl,ndset,idsmax,idset
 
 c      write(*,*)  ' Number of Data Sets: '
@@ -466,15 +469,17 @@ c      write(*,*) 'Initial K, P, e, w, M0,Inc,Capom and their flags: '
       do j = 1,npl
           i = 7*(j-1)
           read (*,*) ar(i+1),ar(i+2),ar(i+3),ar(i+4),ar(i+5),ar(i+6),
-     &               ar(i+7)
+     &               ar(i+7),wdot(i)
           read (*,*) iar(i+1),iar(i+2),iar(i+3),iar(i+4),iar(i+5),
-     &               iar(i+6),iar(i+7)
+     &               iar(i+6),iar(i+7),u_wdot(i)
  
  
 c          ar(i+2) = 2.d0*PI/(ar(i+2)*8.64d4)         ! mean motion 
           ar(i+2) = ar(i+2)*8.64d4         ! second as unit
- 
+          u_wdot(i) = 0 
       enddo
+  
+
   
 c      write (*,*) 'linear trend:'      
       read (*,*) ar(7*npl + 2*ndset + 1)
@@ -526,7 +531,7 @@ C
       subroutine io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
      &           ma,mfit,t0,t_max,sigs,chisq,rms,loglik,writeflag_RV,
      &           writeflag_best_par,writeflag_fit,jitter,epsil,
-     &           deltat,nt, model_max,model_min,hkl)
+     &           deltat,nt, model_max,model_min,hkl, wdot,u_wdot)
    
       implicit none 
       real*8 PI
@@ -547,6 +552,8 @@ C
       real*8 rpl(NPLMAX),rhill(NPLMAX),deltat,epsil
       real*8 swift_mass(NPLMAX),s_mass(NPLMAX),j_mass(NPLMAX)
       real*4 model_max,model_min,best_w,best_we
+      real*8 wdot(NPLMAX),u_wdot(NPLMAX)      
+      
       parameter (AU=1.49597892d11, day = 86400.d0)
 
 
@@ -680,14 +687,15 @@ c          write(*,*) "TEST:",loglik,dy,ymod(i),a(7*npl+ndset+idset)
               write(*,*) a(i+1),
      &                a(i+2)/8.64d4,a(i+3),best_w, a(i+5)*180.d0/PI,
      &                dmod(a(i+6)*180.d0/PI,180.d0),
-     &                dmod(a(i+7)*180.d0/PI,360.d0)
+     &                dmod(a(i+7)*180.d0/PI,360.d0),wdot(i)
               write(*,*) dsqrt(covar(i+1,i+1)),
      &                dsqrt(covar(i+2,i+2)),
 c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
      &                dsqrt(covar(i+3,i+3)),best_we,
      &                dsqrt(covar(i+5,i+5))*180.d0/PI,
      &                dmod(dsqrt(covar(i+6,i+6))*180.d0/PI,180.d0),
-     &                dmod(dsqrt(covar(i+7,i+7))*180.d0/PI,360.d0)
+     &                dmod(dsqrt(covar(i+7,i+7))*180.d0/PI,360.d0),
+     &                u_wdot(i)
           enddo
  
    
