@@ -613,7 +613,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         gp_sho_errors_gui = [self.err_sho_kernel_S,
                      self.err_sho_kernel_Q,
                      self.err_sho_kernel_omega]
-
+        
+        for i in range(len(gp_sho_errors_gui)):
+            gp_sho_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))  
 
     def update_a_mass(self):
         global fit
@@ -916,6 +918,18 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.rvoff_bounds[i] = offset_bounds_gui[i]
             fit.jitt_bounds[i]  = jitter_bounds_gui[i] 
             
+        om_dot_bounds_gui = [
+        [self.omega_dot_min_1.value(),self.omega_dot_max_1.value()], [self.omega_dot_min_2.value(),self.omega_dot_max_2.value()], 
+        [self.omega_dot_min_3.value(),self.omega_dot_max_3.value()], [self.omega_dot_min_4.value(),self.omega_dot_max_4.value()], 
+        [self.omega_dot_min_5.value(),self.omega_dot_max_5.value()], [self.omega_dot_min_6.value(),self.omega_dot_max_6.value()], 
+        [self.omega_dot_min_7.value(),self.omega_dot_max_7.value()], [self.omega_dot_min_8.value(),self.omega_dot_max_8.value()], 
+        [self.omega_dot_min_9.value(),self.omega_dot_max_9.value()] 
+        ]  
+    
+    
+        for i in range(9): 
+            fit.omega_dot_bounds[i] = om_dot_bounds_gui[i]
+             
  
         fit.rv_lintr_bounds[0]  = [self.lin_trend_min.value(),self.lin_trend_max.value()]
 
@@ -1043,6 +1057,19 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10): 
             fit.rvoff_norm_pr[i] = offset_nr_priors_gui[i]
             fit.jitt_norm_pr[i]  = jitter_nr_priors_gui[i] 
+            
+            
+        om_nr_priors_gui = [
+        [self.omega_dot_mean_1.value(),self.omega_dot_sigma_1.value(),self.use_omega_dot_norm_pr_1.isChecked()], [self.omega_dot_mean_2.value(),self.omega_dot_sigma_2.value(),self.use_omega_dot_norm_pr_2.isChecked()], 
+        [self.omega_dot_mean_3.value(),self.omega_dot_sigma_3.value(),self.use_omega_dot_norm_pr_3.isChecked()], [self.omega_dot_mean_4.value(),self.omega_dot_sigma_4.value(),self.use_omega_dot_norm_pr_4.isChecked()], 
+        [self.omega_dot_mean_5.value(),self.omega_dot_sigma_5.value(),self.use_omega_dot_norm_pr_5.isChecked()], [self.omega_dot_mean_6.value(),self.omega_dot_sigma_6.value(),self.use_omega_dot_norm_pr_6.isChecked()], 
+        [self.omega_dot_mean_7.value(),self.omega_dot_sigma_7.value(),self.use_omega_dot_norm_pr_7.isChecked()], [self.omega_dot_mean_8.value(),self.omega_dot_sigma_8.value(),self.use_omega_dot_norm_pr_8.isChecked()], 
+        [self.omega_dot_mean_9.value(),self.omega_dot_sigma_9.value(),self.use_omega_dot_norm_pr_9.isChecked()]   
+        ]  
+    
+    
+        for i in range(9): 
+            fit.omega_dot_norm_pr[i] = om_nr_priors_gui[i]            
     
  
         fit.rv_lintr_norm_pr[0]  = [self.lin_trend_mean.value(),self.lin_trend_sigma.value(),self.use_lin_tr_nr_pr.isChecked()]
@@ -1191,6 +1218,19 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10): 
             fit.rvoff_jeff_pr[i] = offset_jeff_priors_gui[i]
             fit.jitt_jeff_pr[i]  = jitter_jeff_priors_gui[i] 
+
+
+        om_dot_jeff_priors_gui = [
+        [self.omega_dot_alpha_1.value(),self.omega_dot_beta_1.value(),self.use_omega_dot_jeff_pr_1.isChecked()], [self.omega_dot_alpha_2.value(),self.omega_dot_beta_2.value(),self.use_omega_dot_jeff_pr_2.isChecked()], 
+        [self.omega_dot_alpha_3.value(),self.omega_dot_beta_3.value(),self.use_omega_dot_jeff_pr_3.isChecked()], [self.omega_dot_alpha_4.value(),self.omega_dot_beta_4.value(),self.use_omega_dot_jeff_pr_4.isChecked()], 
+        [self.omega_dot_alpha_5.value(),self.omega_dot_beta_5.value(),self.use_omega_dot_jeff_pr_5.isChecked()], [self.omega_dot_alpha_6.value(),self.omega_dot_beta_6.value(),self.use_omega_dot_jeff_pr_6.isChecked()], 
+        [self.omega_dot_alpha_7.value(),self.omega_dot_beta_7.value(),self.use_omega_dot_jeff_pr_7.isChecked()], [self.omega_dot_alpha_8.value(),self.omega_dot_beta_8.value(),self.use_omega_dot_jeff_pr_8.isChecked()], 
+        [self.omega_dot_alpha_9.value(),self.omega_dot_beta_9.value(),self.use_omega_dot_jeff_pr_9.isChecked()]    
+        ]  
+    
+    
+        for i in range(9): 
+            fit.omega_dot_jeff_pr[i] = om_dot_jeff_priors_gui[i]   
     
  
         fit.rv_lintr_jeff_pr[0]  = [self.lin_trend_jeff_alpha.value(),self.lin_trend_jeff_beta.value(),self.use_lin_tr_jeff_pr.isChecked()]

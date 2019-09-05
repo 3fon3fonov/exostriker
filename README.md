@@ -26,7 +26,7 @@ What works:
 * Joint RVs + Transit + GPs best-fit optimization.
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty").
 * RV auto-fit (RV automated planet-finder algorithm).
-* Possible to fit for Precession and/or GR precession. 
+* Fit for orbital precession, or apply GR precession. 
 * Long-term stability check of multi-planet systems using SyMBA, MVS and MVS with an GR precession.
 * Various of minimization methods (via "SciPyOp").
 * Fully interactive, super-fast, high-quality, exportable plots.
@@ -44,7 +44,7 @@ What works:
 What is to be implemented:
 
 * More GP kernels (work in progress). 
-* Larger arsenal of N-body/dynamical simulation/analysis tools (REBOUND to be included). 
+* Larger arsenal of N-body/dynamical simulation/analysis tools (REBOUNDx to be included). 
 * A pip installer, and a ready-to-use pre-installed binary of the tool (work in progress). 
 * Binary/Triple star modeling mode.
 * Combined modeling with Astrometry.
