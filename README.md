@@ -26,6 +26,7 @@ What works:
 * Joint RVs + Transit + GPs best-fit optimization.
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty").
 * RV auto-fit (RV automated planet-finder algorithm).
+* Possible to fit for Precession and/or GR precession. 
 * Long-term stability check of multi-planet systems using SyMBA, MVS and MVS with an GR precession.
 * Various of minimization methods (via "SciPyOp").
 * Fully interactive, super-fast, high-quality, exportable plots.
