@@ -4941,7 +4941,16 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.a_sol_9.setEnabled(a_sol_flag)
         self.use_a_sol_9.setEnabled(a_sol_flag)                
  
-
+    
+    def set_gr_flag(self):
+        global fit
+        
+        if self.radioButton_omega_dot_free.isChecked():
+            fit.gr_flag = False
+        elif self.deattach_omega_dot.isChecked() and self.radioButton_omega_dot_GR.isChecked():
+            fit.gr_flag = True
+        else:
+            fit.gr_flag = False
 
     def mute_boxes_dyn(self):
                 
@@ -4951,7 +4960,9 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             incl_flag = False
             Dom_flag = False
             if self.deattach_omega_dot.isChecked():
-                om_flag = True
+                self.set_gr_flag()
+                if not self.radioButton_omega_dot_GR.isChecked(): 
+                    om_flag = True                                
 
         elif self.radioButton_Keplerian.isChecked() and self.radioButton_RV.isChecked()==False:
 
@@ -5655,6 +5666,11 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
 
         self.radioButton_Dynamical.toggled.connect(self.update_dyn_kep_flag)
         self.radioButton_Dynamical.toggled.connect(self.mute_boxes_dyn)
+
+        self.radioButton_omega_dot_free.toggled.connect(self.mute_boxes_dyn)
+#        self.radioButton_omega_dot_GR.toggled.connect(self.set_gr_flag)
+
+ 
 
         self.radioButton_Keplerian.toggled.connect(self.update_dyn_kep_flag)
         

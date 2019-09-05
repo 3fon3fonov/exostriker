@@ -8,7 +8,7 @@ ccc   The final version will be available in the Python RVMod lib.
       parameter (PI=3.14159265358979d0)
       integer npl,ndset,idset,ndata,ma,mfit,i,j,NDSMAX,NPLMAX,MMAX,k
       real*8 inc,sini,mstar
-      integer writeflag_best_par, nt,hkl
+      integer writeflag_best_par, nt,hkl,gr_flag
       integer writeflag_RV,writeflag_fit, amoebastarts
       parameter (NDSMAX=20, NPLMAX=20, MMAX=200)
       integer idsmax(NDSMAX),ia(MMAX),ts(10000)
@@ -35,7 +35,7 @@ ccc   The final version will be available in the Python RVMod lib.
 c amoebastarts for consistency with loglik input
      
       read (*,*) epsil,deltat, amoebastarts,
-     &          when_to_kill, nt, model_max,model_min
+     &          when_to_kill, nt, model_max,model_min,gr_flag
      
 c      write(*,*) 'Stellar mass: '
       read (*,*) mstar,
