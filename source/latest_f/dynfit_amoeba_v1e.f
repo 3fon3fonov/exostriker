@@ -11,7 +11,7 @@ c*************************************************************************
       parameter (NDSMAX=20, NPLMAX=20, MMAX=200)
       real*8 mstar,sini(NPLMAX),sig2i,dy, loglik,sig2l,ftol      
       integer idsmax(NDSMAX),ia(MMAX),ts(10000) ,nt, iter, ii
-      integer writeflag_best_par,hkl
+      integer writeflag_best_par,hkl,gr_flag
       integer writeflag_RV,writeflag_fit, amoebastarts
       real*8 t(10000),x(10000),y(10000),sig(10000),ys(10000),sigs(10000)
       real*8 a(MMAX),covar(MMAX,MMAX),alpha(MMAX,MMAX)
@@ -33,7 +33,7 @@ c*************************************************************************
       ftol=0.001d0
       
       read (*,*) epsil,deltat, amoebastarts,
-     &          when_to_kill, nt, model_max,model_min      
+     &          when_to_kill, nt, model_max,model_min,gr_flag      
       
       read (*,*) mstar,
      &          writeflag_best_par, 
