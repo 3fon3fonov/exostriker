@@ -42,6 +42,7 @@ import ntpath
 
 from scipy.signal import argrelextrema
 from scipy.stats.stats import pearsonr   
+import scipy.stats as stat
 
 #import batman as batman
 
@@ -3858,6 +3859,54 @@ Transit duration: %s d
         self.dialog.show()
 
 
+
+
+    def print_chi_table(self):
+        #self.dialog.statusBar().showMessage('Ready')
+        self.dialog_chi_table.setFixedSize(900,350)
+        self.dialog_chi_table.setWindowTitle('Confidence intervals table')  
+        #self.dialog.setGeometry(300, 300, 800, 800)
+        #self.dialog_credits.acceptRichText(True)
+        
+        # standard deviations to calculate 
+        # (You can ofcourse simplify here for only 1,2 and 3 sigma)
+        sigma = [1.0,  np.sqrt(stat.chi2.ppf(0.8,1)),
+            np.sqrt(stat.chi2.ppf(0.9,1)),
+            np.sqrt(stat.chi2.ppf(0.95,1)),          2.0,
+            np.sqrt(stat.chi2.ppf(0.99,1)),        3.0,
+            np.sqrt(stat.chi2.ppf(0.999,1)),       4.0,5.0  ]
+        
+        #confidence intervals these sigmas represent:
+        conf_int = [ stat.chi2.cdf( s**2,1) for s in sigma ]
+        
+        #degrees of freedom to calculate instead of 10 you can put k = 20, 30 or even 100
+        dof = range(1,12)        
+        
+        text = ''
+        self.dialog_chi_table.text.setText(text) 
+        
+        text = "sigma     \t" + "\t".join(["%1.2f"%(s) for s in sigma])
+        self.dialog_chi_table.text.append(text)        
+        
+        text = "conf_int  \t" + "\t".join(["%1.2f%%"%(100*ci) for ci in conf_int])
+        self.dialog_chi_table.text.append(text)        
+
+        text = "p-value   \t" + "\t".join(["%1.5f"%(1-ci) for ci in conf_int])        
+        self.dialog_chi_table.text.append(text)        
+ 
+    
+        for d in dof:
+            chi_squared = [stat.chi2.ppf( ci, d) for ci in conf_int ]
+            text = "chi2(k=%d)\t"%d + "\t".join(["%1.2f" % c for c in chi_squared])     
+            self.dialog_chi_table.text.append(text)  
+
+
+        self.dialog_chi_table.text.setReadOnly(True)       
+   
+        self.dialog_chi_table.show()
+
+
+
     def print_info_credits(self, image=False):
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
@@ -5662,7 +5711,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
     
         self.dialog = print_info(self)
         self.dialog_credits = print_info(self)
-       
+        self.dialog_chi_table = print_info(self)      
 
         self.buttonGroup_add_RV_data.buttonClicked.connect(self.showDialog_RV_input_file)
         self.buttonGroup_remove_RV_data.buttonClicked.connect(self.remove_RV_file)
@@ -5755,7 +5804,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
   
         self.actionvisit_TRIFON_on_GitHub.triggered.connect(lambda: webbrowser.open('https://github.com/3fon3fonov/trifon'))    
         self.actionCredits.triggered.connect(lambda: self.print_info_credits())
-        
+        self.actionConfidence_Intervals_Table.triggered.connect(lambda: self.print_chi_table())
 
         ############### Orb. Evol. plotting ####################
         self.comboBox_pl_1.activated.connect(self.plot_delta_omega)
