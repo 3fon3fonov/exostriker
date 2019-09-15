@@ -1385,6 +1385,12 @@ pl.in
     
     #print('./swift_mvs_j_GR << EOF \nparam.in \npl.in \n%s \nEOF'%obj.GR_step)
 
+    if not os.path.exists("energy.out"):
+        os.chdir('../../')        
+        print("something went wrong!!! No output generated.")
+        return obj    
+
+
     obj.evol_T_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.25
     obj.evol_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [1]) 
    # obj.evol_momentum = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2])             
@@ -1492,13 +1498,19 @@ pl.in
 
     # runnning fortran codes
     result, flag = run_command_with_timeout('./geninit_j3_in_days < geninit_j.in', timeout_sec)         
-
+ 
     if integrator=='symba':
         result, flag = run_command_with_timeout('./swift_symba5_j << EOF \nparam.in \npl.in \n1e-40 \nEOF', timeout_sec)                  
     elif integrator=='mvs':
         result, flag = run_command_with_timeout('./swift_mvs_j << EOF \nparam.in \npl.in \nEOF', timeout_sec)                          
     elif integrator=='mvs_gr':
         result, flag = run_command_with_timeout('./swift_mvs_j_GR << EOF \nparam.in \npl.in \n%s \nEOF'%int(obj.GR_step), timeout_sec)   
+        
+    
+    if not os.path.exists("energy.out"):
+        os.chdir('../../')        
+        print("something went wrong!!! No output generated.")
+        return obj    
              
     obj.evol_T_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [0])  /  365.25   
     obj.evol_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [1]) 
@@ -1510,7 +1522,7 @@ pl.in
 
    
     for k in range(obj.npl_arb):
-    
+        
         if integrator=='symba':
             result, flag = run_command_with_timeout('./follow_symba2 << EOF \nparam.in \npl.in \n%s \nEOF'%(k+2),timeout_sec)
             result, flag = run_command_with_timeout('mv follow_symba.out pl_%s.out'%(k+1),timeout_sec) 

@@ -15,6 +15,8 @@ class Widget_tree(QWidget):
     def __init__(self, *args, **kwargs):
         QWidget.__init__(self, *args, **kwargs)
         hlay = QVBoxLayout(self)
+        
+        self.setMaximumWidth(250)
 
         self.treeview = QTreeView() 
         self.listview = QListView()

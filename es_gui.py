@@ -1359,7 +1359,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             if self.radioButton_KP.isChecked():
                 fit.K_arb[i]    = arb_param_gui[7*i + 0].value()    
                 fit.P_arb[i]    = arb_param_gui[7*i + 1].value()                 
-                mass_,a_ = rv.mass_a_from_Kepler_fit([fit.K_arb[i],  fit.P_arb[i], fit.e_arb[i],  fit.w_arb[i], fit.M0_arb[i]],1,fit.arb_st_mass)
+               # mass_,a_ = rv.mass_a_from_Kepler_fit([fit.K_arb[i],  fit.P_arb[i], fit.e_arb[i],  fit.w_arb[i], fit.M0_arb[i]],1,fit.arb_st_mass)
+                mass_,a_ = rv.mass_a_from_Kepler_fit([fit.K_arb[i]/np.sin(np.radians(fit.i_arb[i])),  fit.P_arb[i], fit.e_arb[i],  fit.w_arb[i], fit.M0_arb[i]],1,fit.arb_st_mass)
+
                 fit.mass_arb[i] = float(mass_[0])
                 fit.a_arb[i] = float(a_[0])
             else:                
@@ -5679,7 +5681,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
       
         
         if sys.platform[0:5] == "linux":
-            self.terminal_embeded.addTab(terminal.mainWindow(), "Bash shell")        
+            self.terminal_embeded.addTab(terminal.EmbTerminal(), "Bash shell")        
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")  
         
         
