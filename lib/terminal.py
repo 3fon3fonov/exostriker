@@ -19,9 +19,9 @@ class EmbTerminal(QtWidgets.QWidget):
             #self.process.start('xterm',['-into', str(int(self.winId()))])
             self.process.start('urxvt',['-embed', str(int(self.winId()))])
         #self.setFixedSize(450, 340)
-        self.setGeometry(1,1, 495, 315) 
+        self.setGeometry(1,1, 495, 325) 
         #self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-
+        self.setLayout(layout)
         
 class mainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
