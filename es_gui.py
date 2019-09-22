@@ -6051,11 +6051,20 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle('Fusion') #The available styles depend on your platform but are usually 'Fusion', 'Windows', 'WindowsVista' (Windows only) and 'Macintosh' (Mac only). 
     window = Exo_striker()
+    screen_resolution = app.desktop().screenGeometry()
+    width, height = screen_resolution.width(), screen_resolution.height()
+    #print(width, height)
+    if height < 920:
+        window.setMinimumWidth(width*0.6)
+        window.setMinimumHeight(height*0.6)
+        window.resize(width*0.8, height*0.8)
+    else:
+        pass
     window.show()
+
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
     main() 
-
 
 
