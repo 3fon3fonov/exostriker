@@ -153,7 +153,13 @@ def cornerplot(obj, fileinput=False, level=(100.0-68.3)/2.0,type_plot = 'mcmc', 
         fig.savefig(obj.mcmc_corner_plot_file)  
     if type_plot == 'nest':
         fig.savefig(obj.nest_corner_plot_file)  
- 
+        
+        
+    ### memory leak in loops!
+    fig.clf()
+    del fig
+    samples = 0
+    
     return          
        
 

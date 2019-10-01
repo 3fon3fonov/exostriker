@@ -26,7 +26,7 @@ plt.switch_backend('SVG')
 import time
 #import multiprocessing
 from pathos import multiprocessing
-from pathos.multiprocessing import ProcessingPool as Pool
+#from pathos.multiprocessing import ProcessingPool as Pool
 
 #from emcee.utils import MPIPool
 import celerite 
@@ -1332,18 +1332,16 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
 
     # burning phase
     pos, prob, state  = sampler.run_mcmc(pos,burning_ph)
-    sampler.reset()
-
-    pool.close()
-    pool.join() 
-    pool.clear()     
+    sampler.reset()  
     
     # now perform the MCMC
     pos, prob, state  = sampler.run_mcmc(pos,mcmc_ph)
-  
     #ln = np.hstack(sampler.lnprobability)
     sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl)
 
+    pool.close()
+    pool.join() 
+    pool.clear()   
 
  #  print("--- %s seconds ---" % (time.time() - start_time))     
 
