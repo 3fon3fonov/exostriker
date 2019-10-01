@@ -1543,9 +1543,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         pcor = self.graphicsView_corner
 
         xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x','x']
-        yaxis = ['RV','RV','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y']       
+        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y']       
         xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','']
-        yunit = ['m/s' ,'m/s' , '','','','','','','','','','','','','','','','','','','','','']
+        yunit = ['' ,'' , '','','','','','','','','','','','','','','','','','','','','']
 
         zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor]
  
@@ -2650,8 +2650,9 @@ Polyfit coefficients:
             pe.addItem(err_)
         
         pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
-        pe.setLabel('left',   'RV', units='m/s',  **{'font-size':'9pt'})  
+        pe.setLabel('left',   'RV [m/s]', units='',  **{'font-size':'9pt'})  
 
+ 
         if self.extra_plot_cross_hair.isChecked():
             self.cross_hair(pe,log=False)   
 
