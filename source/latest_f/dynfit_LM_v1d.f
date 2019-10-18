@@ -11,12 +11,12 @@ ccc   The final version will be available in the Python RVMod lib.
       integer writeflag_best_par, nt,hkl,gr_flag
       integer writeflag_RV,writeflag_fit, amoebastarts
       parameter (NDSMAX=20, NPLMAX=20, MMAX=200)
-      integer idsmax(NDSMAX),ia(MMAX),ts(10000)
-      real*8 t(10000),y(10000),sig(10000),ys(10000),sigs(10000)
+      integer idsmax(NDSMAX),ia(MMAX),ts(20000)
+      real*8 t(20000),y(20000),sig(20000),ys(20000),sigs(20000)
       real*8 a(MMAX),covar(MMAX,MMAX),alpha(MMAX,MMAX)
       real*8 chisq,alamda,ochisq,dchisq,loglik,epsil,deltat
       real*8 jitter(NDSMAX),sigscale,t0,t_max,epoch
-      real*8 rms,ymod(10000),dyda(10000,MMAX)
+      real*8 rms,ymod(20000),dyda(20000,MMAX)
       real*8 a0(MMAX),asave(MMAX),ap(NPLMAX)
       real*8 wdot(NPLMAX),u_wdot(NPLMAX)
  
@@ -150,9 +150,9 @@ c      stop
 
       implicit none
       integer ndset,idset,ndata,NDSMAX,NPLMAX,MMAX,npl
-      real*8 t(10000),y(10000),sig(10000),ys(10000),sigs(10000)
+      real*8 t(20000),y(20000),sig(20000),ys(20000),sigs(20000)
       parameter (NDSMAX=20,NPLMAX=20,MMAX=200)
-      integer idsmax(NDSMAX),ts(10000),hkl
+      integer idsmax(NDSMAX),ts(20000),hkl
       real*8 jitter(NDSMAX),t0,t_max,epoch,ar(MMAX),off(NDSMAX), PI
       parameter(PI=3.14159265358979d0)
       integer i,k,j, iar(MMAX), u_off(NDSMAX), u_jit, ma, mfit
