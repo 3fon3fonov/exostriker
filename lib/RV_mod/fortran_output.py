@@ -30,8 +30,8 @@ class fortran_output(object):
     rms_str=''
     chi_str=''
     epoch_str=''
-    masses=[]
-    semiM=[]
+    masses=[0]*10
+    semiM=[0]*10
     JD_model=[]
     model=[]    
     jd=[]
@@ -93,7 +93,9 @@ class fortran_output(object):
             if(len(T[i])==0): # skip empty lines
                 i=i+1
             elif(T[i][0]=='ITMAX'): # error in amoeba
-                raise RuntimeError ('Runtime error in amoeba (fortran subroutine). Change initial parameters.')
+                #raise RuntimeError ('Runtime error in amoeba (fortran subroutine). Change initial parameters.')
+                print('Runtime error in amoeba (fortran subroutine). Change initial parameters.')  
+                return              
             elif(T[i][0]=='loglik,'): # these two lines always appear in the output
                 self.loglik=float(T[i+1][0]) 
                 self.reduced_chi2=float(T[i+1][1])

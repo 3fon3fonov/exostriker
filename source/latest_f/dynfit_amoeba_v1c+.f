@@ -10,16 +10,16 @@ c*************************************************************************
       integer npl,ndset,idset,ndata,ma,mfit,i,j,NDSMAX,NPLMAX,MMAX,k
       real*8 mstar,sini(7),sig2i,dy, loglik,sig2l,ftol
       parameter (NDSMAX=20, NPLMAX=20, MMAX=200)
-      integer idsmax(NDSMAX),ia(MMAX),ts(10000) ,nt, iter, ii
+      integer idsmax(NDSMAX),ia(MMAX),ts(20000) ,nt, iter, ii
       integer writeflag_best_par,hkl,gr_flag
       integer writeflag_RV,writeflag_fit, amoebastarts
       integer dynamical_planets(NPLMAX)
-      real*8 t(10000),x(10000),y(10000),sig(10000),ys(10000),sigs(10000)
+      real*8 t(20000),x(20000),y(20000),sig(20000),ys(20000),sigs(20000)
       real*8 a(MMAX),covar(MMAX,MMAX),alpha(MMAX,MMAX)
       real*8 chisq,alamda,ochisq,dchisq,red_chisq, p(MMAX+1,MMAX),
      &       yamoeba(MMAX+1), loglikk, ologlikk, dloglikk
       real*8 sigscale,t0,t_max,twopi,dt, epoch, epsil,deltat
-      real*8 rms,ymod(10000),dyda(10000,MMAX),jitt(NDSMAX)
+      real*8 rms,ymod(20000),dyda(20000,MMAX),jitt(NDSMAX)
       real*4 t_stop, when_to_kill,model_max,model_min
       real*8 wdot(NPLMAX),u_wdot(NPLMAX)
       
@@ -120,7 +120,7 @@ c      stop
       real*8 twopi, loglik
       parameter (twopi=6.28318530717958d0)
       integer ndata, i, j, ma, ts(5000), ia(MMAX), idsmax(NDSMAX)
-      real*8 dy, sig(5000), dyda(10000,MMAX), x(5000), y(5000)
+      real*8 dy, sig(5000), dyda(20000,MMAX), x(5000), y(5000)
       real*8 ymod(5000), a(MMAX), a2(mfit), a3(MMAX),sig2i, y_in(5000)
      & , y2(5000), epsil,deltat
       integer dynamical_planets(NPLMAX)
@@ -232,7 +232,7 @@ c      write(*,*) loglik
       INTEGER iter,mp,ndim,np,NMAX,ITMAX, MMAX,ma,ts(5000),ndata,NPLMAX
       REAL*8 ftol,p(mp,np),y(mp),x(5000),z(5000),ymod(5000)
       PARAMETER (NMAX=20,ITMAX=50000,MMAX=200,NPLMAX=20)
-      real*8 dyda(10000,MMAX), sig(5000), loglik, a(MMAX)
+      real*8 dyda(20000,MMAX), sig(5000), loglik, a(MMAX)
       EXTERNAL funk
       INTEGER i,ihi,ilo,inhi,j,m,n, ia(MMAX), dynamical_planets(NPLMAX)
       REAL*8 rtol,summ,swap,ysave,ytry,psum(ndim),amotry,epsil,deltat
@@ -316,7 +316,7 @@ C  (C) Copr. 1986-92 Numerical Recipes Software 0=M,173+9.
       PARAMETER (NMAX=20, MMAX=200, NPLMAX=20)
       REAL*8 amotry,fac,p(mp,np),psum(np),y(mp),x(5000),z(5000),
      & ymod(5000), epsil, deltat
-      real*8 dyda(10000,MMAX), sig(5000),loglik
+      real*8 dyda(20000,MMAX), sig(5000),loglik
       EXTERNAL funk
       INTEGER j, ia(MMAX), dynamical_planets(NPLMAX)
       REAL*8 fac1,fac2,ytry,ptry(ndim), a(MMAX)
@@ -354,9 +354,9 @@ c*************************************************************************
 
       implicit none
       integer ndset,idset,ndata,NDSMAX,NPLMAX,MMAX,npl,hkl
-      real*8 t(10000),y(10000),sig(10000),ys(10000),sigs(10000)
+      real*8 t(20000),y(20000),sig(20000),ys(20000),sigs(20000)
       parameter (NDSMAX=20,NPLMAX=20,MMAX=200)
-      integer idsmax(NDSMAX),ts(10000), dynamical_planets(NPLMAX)
+      integer idsmax(NDSMAX),ts(20000), dynamical_planets(NPLMAX)
       real*8 jitter(NDSMAX),t0,t_max,epoch,ar(MMAX),off(NDSMAX), PI
       parameter(PI=3.14159265358979d0)
       integer i,k,j, iar(MMAX), u_off(NDSMAX), u_jit(NDSMAX), ma, mfit

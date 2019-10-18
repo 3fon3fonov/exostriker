@@ -2196,15 +2196,9 @@ Polyfit coefficients:
 
         if len(fit.filelist.idset)==0:
             return
-
-        if self.jitter_to_plots.isChecked():
-            error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)
-        else:
-            error_list = fit.fit_results.rv_model.rv_err
  
         p1.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
- 
- 
+  
         if fit.doGP == True:
             #rv.get_gps_model(self) 
             y_model = fit.fit_results.model + fit.gp_model_curve[0]
@@ -2226,6 +2220,16 @@ Polyfit coefficients:
                                        p1.plot(fit.fit_results.model_jd, fit.fit_results.model + fit.gp_model_curve[0]-fit.gp_model_curve[2]), 
                                        brush = pg.mkColor(244,140,66,128))
             p1.addItem(pfill)  
+
+
+
+        if self.jitter_to_plots.isChecked() and not self.split_jitter.isChecked():
+            error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)
+        elif self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
+            error_list = fit.fit_results.rv_model.rv_err
+            error_list2 = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)            
+        else:
+            error_list = fit.fit_results.rv_model.rv_err
             
             
         for i in range(max(fit.filelist.idset)+1):
@@ -2235,15 +2239,32 @@ Polyfit coefficients:
             symbolPen={'color': fit.colors[i], 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.colors[i]
-            )        
+            )    
+              
             err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
                                    y=fit.fit_results.rv_model.rvs[fit.filelist.idset==i],symbol='o', 
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.filelist.idset==i],
             bottom=error_list[fit.filelist.idset==i],           
             beam=0.0, pen=fit.colors[i])  
+ 
+            p1.addItem(err1)
             
-            p1.addItem(err1)  
+            
+            if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
+            
+                err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
+                                       y=fit.fit_results.rv_model.rvs[fit.filelist.idset==i],symbol='o', 
+                #height=error_list[fit.filelist.idset==i],
+                top=error_list2[fit.filelist.idset==i],
+                bottom=error_list2[fit.filelist.idset==i],           
+                beam=0.0, pen='#000000')  
+                err2.setZValue(-10)
+                p1.addItem(err2)            
+            
+            
+            
+            
             
         if self.RV_plot_cross_hair.isChecked():
             self.cross_hair(p1,log=False)  
@@ -2887,15 +2908,16 @@ Transit duration: %s d
     def worker_transit_fitting_complete(self):
         global fit  
  
-        fit=rv.get_xyz(fit)
-    
+   
        
         self.update_labels()
         self.update_gui_params()
         self.update_errors() 
         self.update_a_mass()                 
         self.update_transit_plots()  
-                 
+
+        fit=rv.get_xyz(fit)
+                         
         self.statusBar().showMessage('')  
         
         if fit.type_fit["RV"] == True:
@@ -5133,11 +5155,22 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
     def keyPressEvent(self, event):
         global fit
         if event.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
-            self.update_use()
-            self.update_params() 
+            self.update_veiw()
+            #self.update_use()
+            #self.update_params() 
             #self.init_fit()
-            self.fit_dispatcher(init=True)
+            #self.fit_dispatcher(init=True)
             return
+
+    def update_veiw(self):
+        global fit
+ 
+        self.update_use()
+        self.update_params() 
+        #self.init_fit()
+        self.fit_dispatcher(init=True)
+        return
+
 
 ############################# Tab selector (not ready) ################################  
 
@@ -5178,8 +5211,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         
         #QtGui.QColorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel,True)
         #colorz = QtGui.QColorDialog.getColor()
-        print(but_ind-1)
-        print(fit.colors[but_ind-1])       
+        #print(but_ind-1)
+        #print(fit.colors[but_ind-1])       
         if colorz.isValid():
             fit.tra_colors[but_ind-1]=colorz.name()   
             self.update_color_picker_tra()
@@ -5877,9 +5910,12 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         
         
         self.jitter_to_plots.stateChanged.connect(self.update_plots)
+        self.split_jitter.stateChanged.connect(self.update_plots)
+                
+        self.buttonGroup_use_planets.buttonClicked.connect(self.update_veiw)               
+#        self.use_Planet1.stateChanged.connect(self.update_veiw)        
         
-
-        
+                
         self.init_correlations_combo()
         self.init_activity_combo()
         self.init_scipy_combo()
