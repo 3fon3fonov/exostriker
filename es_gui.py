@@ -788,7 +788,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(9):
             fit.omega_dot_use[i] = int(use_param_gui_wd[i].isChecked())
-   
+            print(self.buttonGroup_use_planets.buttons()[i].isChecked())
+        print("###")
             
         use_param_gui_tr = [
              self.use_t0_1, self.use_pl_rad_1, self.use_a_sol_1,
@@ -1498,7 +1499,19 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_7,7)
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_8,8)
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_9,9)
-        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_10,10)            
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_10,10)      
+        
+        
+        
+        self.buttonGroup_use_planets.setId(self.use_Planet1,1)
+        self.buttonGroup_use_planets.setId(self.use_Planet2,2)
+        self.buttonGroup_use_planets.setId(self.use_Planet3,3)      
+        self.buttonGroup_use_planets.setId(self.use_Planet4,4)
+        self.buttonGroup_use_planets.setId(self.use_Planet5,5)
+        self.buttonGroup_use_planets.setId(self.use_Planet6,6)
+        self.buttonGroup_use_planets.setId(self.use_Planet7,7)
+        self.buttonGroup_use_planets.setId(self.use_Planet8,8)
+        self.buttonGroup_use_planets.setId(self.use_Planet9,9)
         
         
         self.colors_gls.setFont(self.font) 
@@ -2253,14 +2266,14 @@ Polyfit coefficients:
             
             if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
             
-                err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
+                err1a = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
                                        y=fit.fit_results.rv_model.rvs[fit.filelist.idset==i],symbol='o', 
                 #height=error_list[fit.filelist.idset==i],
                 top=error_list2[fit.filelist.idset==i],
                 bottom=error_list2[fit.filelist.idset==i],           
                 beam=0.0, pen='#000000')  
-                err2.setZValue(-10)
-                p1.addItem(err2)            
+                err1a.setZValue(-10)
+                p1.addItem(err1a)            
             
             
             
@@ -2300,6 +2313,21 @@ Polyfit coefficients:
             beam=0.0, pen=fit.colors[i])  
             
             p2.addItem(err2)  
+            
+            
+            if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
+            
+                err2a = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
+                                       y=fit.fit_results.rv_model.o_c[fit.filelist.idset==i],symbol='o', 
+                #height=error_list[fit.filelist.idset==i],
+                top=error_list2[fit.filelist.idset==i],
+                bottom=error_list2[fit.filelist.idset==i],           
+                beam=0.0, pen='#000000')  
+                err2a.setZValue(-10)
+                p2.addItem(err2a)            
+                        
+            
+            
  
         if self.RV_o_c_plot_cross_hair.isChecked():
             self.cross_hair(p2,log=False)       
@@ -2623,13 +2651,17 @@ Polyfit coefficients:
         if len(ph_data) == 1:
             return
 
-        if self.jitter_to_plots.isChecked() and len(ph_data) != 0:
+        if self.jitter_to_plots.isChecked() and len(ph_data) != 0 and not self.split_jitter.isChecked() :
             error_list = self.add_jitter(ph_data[2], ph_data[3])
+        elif self.jitter_to_plots.isChecked() and len(ph_data) != 0 and self.split_jitter.isChecked() :
+            error_list = ph_data[2]
+            error_list2 = self.add_jitter(ph_data[2], ph_data[3])
         else:
             if len(ph_data) != 0:
                 error_list = ph_data[2]
             else:
                 return
+ 
             
         #rv_data = ph_data[0]   
        # if fit.doGP == True:
@@ -2669,6 +2701,19 @@ Polyfit coefficients:
             beam=0.0, pen=fit.colors[i]) 
             
             pe.addItem(err_)
+            
+            if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
+ 
+                err_2 = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=rv_data[ph_data[3]==i],
+                symbol=fit.pyqt_symbols_rvs[i], 
+                top=error_list2[ph_data[3]==i],
+                bottom=error_list2[ph_data[3]==i],           
+                beam=0.0, pen='#000000')  
+                err_2.setZValue(-10)
+                pe.addItem(err_2) 
+                
+            
+            
         
         pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
         pe.setLabel('left',   'RV [m/s]', units='',  **{'font-size':'9pt'})  
