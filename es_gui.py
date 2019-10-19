@@ -2386,7 +2386,7 @@ Polyfit coefficients:
         global fit
 
         but_ind = self.buttonGroup_add_RV_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RV data', '', 'Data (*.vels);;All (*.*)')
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RV data', '', 'All (*.*);;Data (*.vels)')
 
         if str(input_files[0]) != '':
  
@@ -2457,7 +2457,7 @@ Polyfit coefficients:
         global fit
 
         but_ind = self.buttonGroup_transit_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'Data (*.tran);;All (*.*)')
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'All (*.*);;Data (*.tran)')
 
         if str(input_files[0]) != '':
  
