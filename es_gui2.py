@@ -218,8 +218,17 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.K9, self.P9, self.e9, self.om9, self.ma9, self.incl9, self.Omega9,
                      ]
          
-        for i in range(fit.npl*7):
-            param_gui[i].setValue(fit.params.planet_params[i])        
+       # for i in range(fit.npl*7):
+       #     param_gui[i].setValue(fit.params.planet_params[i])        
+
+        zz = 0
+        for i in range(9):
+            if not self.buttonGroup_use_planets.buttons()[i].isChecked():
+                continue
+            j = 7*i
+            for k in range(7):
+                 param_gui[j+k].setValue(fit.params.planet_params[7*zz+k])        
+            zz=zz+1 
             
         param_gui_wd = [self.om_dot_1, self.om_dot_2, self.om_dot_3, 
                         self.om_dot_4, self.om_dot_5, self.om_dot_6, 
@@ -228,8 +237,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(9):
             param_gui_wd[i].setValue(fit.omega_dot[i])        
            
-            
-            
+             
         param_gui_tr = [
                      self.t0_1, self.pl_rad_1, self.a_sol_1,
                      self.t0_2, self.pl_rad_2, self.a_sol_2,
@@ -320,9 +328,15 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.K9, self.P9, self.e9, self.om9, self.ma9, self.incl9, self.Omega9,
                      ]                  
 
-        for i in range(fit.npl*7):
-            fit.params.planet_params[i] = param_gui[i].value() 
-            
+        #print([i for i, button in enumerate(self.buttonGroup_use_planets.buttons()) if button.isChecked()])
+        zz = 0
+        for i in range(9):
+            if not self.buttonGroup_use_planets.buttons()[i].isChecked():
+                continue           
+            j = 7*i
+            for k in range(7):
+                fit.params.planet_params[7*zz+k] = param_gui[j+k].value() 
+            zz = zz +1
             
         param_gui_wd = [self.om_dot_1, self.om_dot_2, self.om_dot_3, 
                         self.om_dot_4, self.om_dot_5, self.om_dot_6, 
@@ -566,9 +580,19 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                             self.err_K9,self.err_P9,self.err_e9,self.err_om9,self.err_ma9, self.err_i9, self.err_Om9,                       
                             ]
         
-        for i in range(fit.npl*7):
-            param_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.planet_params_errors[i])))
-            
+      #  for i in range(fit.npl*7):
+     #       param_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.planet_params_errors[i])))
+     
+        zz = 0
+        for i in range(9):
+            if not self.buttonGroup_use_planets.buttons()[i].isChecked():
+                continue           
+            j = 7*i
+            for k in range(7):
+               # fit.params.planet_params[7*zz+k] = param_gui[j+k].value() 
+                param_errors_gui[j+k].setText("+/- %.3f"%max(np.abs(fit.param_errors.planet_params_errors[7*zz+k])))
+
+            zz = zz +1            
             
         param_errors_gui_wd = [self.err_om_dot_1,self.err_om_dot_2,self.err_om_dot_3,
                                self.err_om_dot_4,self.err_om_dot_5,self.err_om_dot_6,
@@ -788,10 +812,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(9):
             fit.omega_dot_use[i] = int(use_param_gui_wd[i].isChecked())
-           # print(self.buttonGroup_use_planets.buttons()[i].checkedId())
-       # print("###")
-              
-       # print([i for i, button in enumerate(self.buttonGroup_use_planets.buttons()) if button.isChecked()])
+
             
         use_param_gui_tr = [
              self.use_t0_1, self.use_pl_rad_1, self.use_a_sol_1,
