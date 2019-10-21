@@ -37,10 +37,25 @@ if QT_LIB != 'PyQt5':
     except ImportError:
         from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 else:
-    from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-    from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+   # from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+   # from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+    from .backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+    from .backend_qt5agg import NavigationToolbar2QT as NavigationToolbar    
+    
+    #from matplotlib.backends.qt_editor import figureoptions as figureoptions #https://github.com/matplotlib/matplotlib/blob/master/lib/matplotlib/backends/qt_editor/figureoptions.py
+from matplotlib.figure import Figure 
 
-from matplotlib.figure import Figure
+#print(figureoptions)
+
+#class NavigationToolbar(NavigationToolbar):
+#    # only display the buttons we need
+#    toolitems = [t for t in NavigationToolbar.toolitems if
+#                 t[0] in ('Home', 'Pan', 'Zoom', 'Save')]
+
+
+
+
+
 
 class MatplotlibWidget(QtGui.QWidget):
     """
@@ -67,6 +82,7 @@ class MatplotlibWidget(QtGui.QWidget):
         self.vbox.addWidget(self.canvas)
         
         self.setLayout(self.vbox)
+        
 
     def getFigure(self):
         return self.fig
