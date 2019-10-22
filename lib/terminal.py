@@ -8,9 +8,9 @@ class EmbTerminal(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(EmbTerminal, self).__init__(parent)
         self.process = QtCore.QProcess(self)
-        self.terminal = QtWidgets.QWidget(self)
+        #self.terminal = QtWidgets.QWidget(self)
         layout = QtWidgets.QVBoxLayout(self)
-        layout.addWidget(self.terminal)
+
         
         # Works also with urxvt:
         if subprocess.call(["which", 'urxvt'], stdout=open(os.devnull, 'wb')) == 1:
@@ -21,7 +21,12 @@ class EmbTerminal(QtWidgets.QWidget):
         #self.setFixedSize(450, 340)
         self.setGeometry(1,1, 495, 325) 
         #self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        layout.addWidget(self) 
         self.setLayout(layout)
+        #self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        
+    def close(self):
+        self.process.kill()
         
 class mainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -43,6 +48,6 @@ class mainWindow(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    main = mainWindow()
+    main = EmbTerminal()
     main.show()
     sys.exit(app.exec_())
