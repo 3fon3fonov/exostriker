@@ -2277,6 +2277,42 @@ class signal_fit(object):
     def update_mod_dynamical(self, mod_dynamical):
         self.mod_dynamical=mod_dynamical
         return     
+    
+    
+    
+    
+    
+    def add_RVbank_dataset(self, name, path, offset=0, jitter= 0):    
+    
+    
+       self.add_dataset(name,path,offset,jitter,useoffset=True,usejitter=True)
+ 
+       BJD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])    
+    
+       for i in range(3):
+           
+           act_ind = 11 + (2*i)
+           act_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [act_ind])
+           act_data = act_data - np.mean(act_data)
+           
+           act_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [act_ind+1])
+           act_data_set = np.array([BJD,act_data,act_data_sig]) 
+ 
+           self.act_data_sets[i] = act_data_set    
+    
+       z = 0
+       for ii in range(i,i+4,1):
+           
+           act_ind = 18 + z
+           act_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [act_ind])
+           act_data = act_data - np.mean(act_data)
+           act_data_sig = act_data*0.05
+           act_data_set = np.array([BJD,act_data,act_data_sig]) 
+           z = z +1
+ 
+           self.act_data_sets[ii] = act_data_set       
+    
+    
 
     def verify_gp_parameters_number(self):
         # Since parameters, use flags and errors are stored in separate objects, and the number of GP parameters can vary, it can lead to problems. To prevent them, verify things by running this function     	
