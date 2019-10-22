@@ -2403,6 +2403,26 @@ Polyfit coefficients:
             self.init_fit()
             self.update_RV_file_buttons()
 
+            
+    def showDialog_RVbank_input_file(self):
+        global fit, ses_list
+ 
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RVBank data', '', 'All (*.*);;Data (*.csv)')
+
+        if str(input_files[0]) != '':
+ 
+            fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]))
+
+            ##################
+            self.init_fit()            
+            self.update_use_from_input_file()            
+            self.update_use()
+            self.update_params()
+            self.update_RV_file_buttons()
+            self.update_act_file_buttons()
+            #self.update_activity_gls_plots(0)
+            #self.buttonGroup_activity_data.button(but_ind).setText(self.file_from_path(input_files[0]))          
+
     def showDialog_RV_input_file(self):
         global fit
 
@@ -6088,6 +6108,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.actionQuit.triggered.connect(self.quit) 
 
         self.actionopen_RVmod_init_file.triggered.connect(self.showDialog_fortran_input_file)
+        self.actionOpen_RVbank_file.triggered.connect(self.showDialog_RVbank_input_file)
         
  
         self.jupiter_push_vars()
