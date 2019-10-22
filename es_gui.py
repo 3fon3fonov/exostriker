@@ -5494,11 +5494,14 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
            #     dirname, basename = os.path.split(fit.filelist.files[i].path)
            #     os.system('rm -r %s'%dirname) 
             
+            self.term_emb.close()            
             self.close()
         elif choice == QtGui.QMessageBox.Yes:
             self.save_session()
+            self.term_emb.close()            
+            self.close()            
         elif choice == QtGui.QMessageBox.Cancel:
-            return      
+            return    
         
     def file_from_path(self, path):
         head, tail = ntpath.split(path)
@@ -5779,7 +5782,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
       
         
         if sys.platform[0:5] == "linux":
-            self.terminal_embeded.addTab(terminal.EmbTerminal(), "Bash shell")        
+            self.term_emb = terminal.EmbTerminal()
+            self.terminal_embeded.addTab(self.term_emb, "Bash shell")        
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")  
         
         
