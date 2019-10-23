@@ -1,4 +1,6 @@
 lib/fr/chi*
 lib/fr/log*
-stability/*
+stability/mvs/*
+stability/mvs_gr/*
+stability/symba/*
 *.pyc
