@@ -313,7 +313,7 @@ class use_flags(object): # class for all use flags
         self.update_use_w(planet,wflag)
         self.update_use_M0(planet,M0flag)
         self.update_use_inclination(planet,iflag)
-        self.update_use_lineofnodes(planet,lineofnodesflag)        
+        self.update_use_lineofnodes(planet,lineofnodesflag)   
         return                
                 
     def update_use_linear_trend(self,use_linear_trend): # update use_linear_trend flag
