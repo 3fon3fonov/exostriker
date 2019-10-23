@@ -2390,8 +2390,17 @@ Polyfit coefficients:
 
         if str(input_files[0]) != '':
  
-            fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]))
-
+            
+            choice = QtGui.QMessageBox.information(self, 'Warning!',
+                                            "Do you want to split the RV data to pre- and post- (if applicable)?",
+                                            QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
+         
+            if choice == QtGui.QMessageBox.No:                       
+                fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = False)
+            elif choice == QtGui.QMessageBox.Yes:            
+                fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = True)
+            else:
+                return
             ##################
             self.init_fit()            
             self.update_use_from_input_file()            
@@ -2400,8 +2409,7 @@ Polyfit coefficients:
             self.update_RV_file_buttons()
             self.update_act_file_buttons()
             #self.update_activity_gls_plots(0)
-            #self.buttonGroup_activity_data.button(but_ind).setText(self.file_from_path(input_files[0]))          
-            
+            #self.buttonGroup_activity_data.button(but_ind).setText(self.file_from_path(input_files[0])) 
 
     def showDialog_RV_input_file(self):
         global fit
