@@ -4462,6 +4462,7 @@ highly appreciated!
         self.update_gui_params()
         self.update_params()
         self.update_RV_file_buttons() 
+        self.update_act_file_buttons()        
         self.update_color_picker()
         
         if not ind == None:    
@@ -6160,6 +6161,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             self.update_gui_params()
             self.update_params()
             self.update_RV_file_buttons()
+            self.update_act_file_buttons()         
             self.fit_dispatcher(init=True)  
             self.init_plot_corr()
             self.update_plot_corr()    
