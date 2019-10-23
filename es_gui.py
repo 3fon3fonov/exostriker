@@ -2757,8 +2757,8 @@ Polyfit coefficients:
                 pe.addItem(err_2) 
                 
             
-            
-        
+        pe.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)    
+        #pe.autoRange(padding=0, items=None, item=None) 
         pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
         pe.setLabel('left',   'RV [m/s]', units='',  **{'font-size':'9pt'})  
 
