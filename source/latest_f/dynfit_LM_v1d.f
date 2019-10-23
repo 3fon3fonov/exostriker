@@ -291,12 +291,9 @@ c      write (*,*) 'linear trend:'
       end
       
 
-
 C**************************************************************************
 C**********   output best-fit parameters and errorbars    *****************
 C**************************************************************************
-C
-Cc    Xianyu Tan 2011
 
       subroutine io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
      &           ma,mfit,t0,t_max,sigs,chisq,rms,writeflag_RV,
@@ -307,13 +304,13 @@ Cc    Xianyu Tan 2011
       real*8 PI
       integer MMAX,NDSMAX,NPLMAX 
       parameter (PI=3.14159265358979d0,MMAX=200  ,NDSMAX=20,NPLMAX=20)
-      real*8 a(MMAX),ia(MMAX),t(5000),ymod(5000),ys(5000)
-      real*8 covar(MMAX,MMAX),dyda(5000,MMAX),AU,day,loglik,dy,twopi
+      real*8 a(MMAX),ia(MMAX),t(20000),ymod(20000),ys(20000)
+      real*8 covar(MMAX,MMAX),dyda(20000,MMAX),AU,day,loglik,dy,twopi
       real*8 rms,mstar,sini,mass(NPLMAX),ap(NPLMAX)
-      integer ts(5000),nbod,nt,writeflag_RV,
+      integer ts(20000),nbod,nt,writeflag_RV,
      &           writeflag_best_par,writeflag_fit
       real*8 t0,t1,t2,dt,offset,t_max,chisq,deltat,epsil,sig2i 
-      real*8 x(5000),y(5000),sigs(5000),jitter(NDSMAX)
+      real*8 x(20000),y(20000),sigs(20000),jitter(NDSMAX)
       integer i,j,npl,ndset,ndata,idset,mfit,ma,idsmax(NDSMAX),hkl
       real*8 xh(NPLMAX),yh(NPLMAX),zh(NPLMAX),vxh(NPLMAX),vyh(NPLMAX)
      &       ,vzh(NPLMAX)
@@ -332,10 +329,9 @@ Cc    Xianyu Tan 2011
       nbod = npl+1
       rms = 0.d0
       twopi = 2.0d0*PI  
- 
+      chisq = 0
 ccccccccccccccccccc t[JD], obs., cal., O-C   ccccccccccccc   
 
- 
       call RVKEP_ewcop_fin (t,a,ymod,dyda,ma,ndata,ia,epsil,deltat)
       call MA_J_cop_fin (a,ma,npl,mstar,sini,mass,ap)
 
@@ -498,7 +494,7 @@ c Initialization.
 	  enddo
 	  alamda = 0.001d0
 cc	  alamda = 0.00001d0
-CC	  alamda = 5000.d0
+CC	  alamda = 20000.d0
       call MRQCOF (x,ts,y,sig,ndata,a,ia,ma,alpha,beta,
      &                 nca,chisq,funcs,loglik,jitt,epsil,deltat)
    

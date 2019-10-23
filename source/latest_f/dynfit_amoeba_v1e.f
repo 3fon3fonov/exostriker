@@ -525,8 +525,6 @@ c      write (*,*) 'linear trend:'
 C**************************************************************************
 C**********   output best-fit parameters and errorbars    *****************
 C**************************************************************************
-C
- 
 
       subroutine io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
      &           ma,mfit,t0,t_max,sigs,chisq,rms,loglik,writeflag_RV,
