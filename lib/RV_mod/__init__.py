@@ -2957,7 +2957,7 @@ class signal_fit(object):
             # then we overwrite ppp with the command to pass this file as input for the fortran code
             ppp='./%s < %s'%(program,filename)
         
-#        print(ppp)
+        print(ppp)
         return ppp 
 
     # sort planets by one of the parameters (K,P,e,w,M0)

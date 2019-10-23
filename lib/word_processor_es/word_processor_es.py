@@ -3,9 +3,13 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtPrintSupport import *
 
+
 import os
 import sys
 import uuid
+
+from syntax_py import Highlighter
+
 
 FONT_SIZES = [7, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
 IMAGE_EXTENSIONS = ['.jpg','.png','.bmp']
@@ -30,6 +34,7 @@ class TextEdit(QTextEdit):
 
         cursor = self.textCursor()
         document = self.document()
+        self.highlighter = Highlighter(document)
 
         if source.hasUrls():
 

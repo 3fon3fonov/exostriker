@@ -12,8 +12,8 @@ ccc   Trifonov et al. (in prep).
       integer writeflag_best_par,hkl
       integer writeflag_RV,writeflag_fit, amoebastarts
       parameter (NDSMAX=20, NPLMAX=20, MMAX=200)
-      integer idsmax(NDSMAX),ia(MMAX),nt, ts(10000),ii, iter
-      real*8 x(10000),y(10000),sig(10000),y_in(10000)
+      integer idsmax(NDSMAX),ia(MMAX),nt, ts(20000),ii, iter
+      real*8 x(20000),y(20000),sig(20000),y_in(20000)
       real*8 a(MMAX),covar(MMAX,MMAX),alpha(MMAX,MMAX)
       real*8 rms,mstar, mass(NPLMAX),ap(NPLMAX)
       real*8 swift_mass(NPLMAX),s_mass(NPLMAX),j_mass(NPLMAX)
@@ -21,7 +21,7 @@ ccc   Trifonov et al. (in prep).
       real*8 sigscale,x0,xmax, incl(NPLMAX),cap0m(NPLMAX)
       real*8 t0,t1,t2,dt,offset,t_max,loglik,dy,sig2i
       real*8 st_mass,sini,m1,a1,m2,a2,epoch,ftol
-      real*8 ymod(10000),dyda(MMAX), p(MMAX+1,MMAX),yamoeba(MMAX+1)
+      real*8 ymod(20000),dyda(MMAX), p(MMAX+1,MMAX),yamoeba(MMAX+1)
       real*8 loglikk, ologlikk, dloglikk,best_w,best_we
       external rvkep, compute_abs_loglik
       character*80 infile
@@ -292,10 +292,10 @@ c      stop
       parameter (MMAX=200, NDSMAX=20)
       real*8 twopi, loglik
       parameter (twopi=6.28318530717958d0)
-      integer ndata, i, j, ma, ts(10000), ia(MMAX), idsmax(NDSMAX),hkl
-      real*8 dy, sig(10000), dyda(MMAX), x(10000), y(10000)
-      real*8 ymod(10000), a(MMAX), a2(mfit), a3(MMAX),sig2i, y_in(10000)
-     & , y2(10000)
+      integer ndata, i, j, ma, ts(20000), ia(MMAX), idsmax(NDSMAX),hkl
+      real*8 dy, sig(20000), dyda(MMAX), x(20000), y(20000)
+      real*8 ymod(20000), a(MMAX), a2(mfit), a3(MMAX),sig2i, y_in(20000)
+     & , y2(20000)
       
    
       common /DSBLK/ npl,ndset,idsmax,idset      
@@ -338,12 +338,12 @@ c      stop
       integer ndset,idset,ndata,NDSMAX,NPLMAX,MMAX,npl,ma
       
    
-      real*8 t(10000),y(10000),sig(10000),ys(10000),sigs(10000),PI
+      real*8 t(20000),y(20000),sig(20000),ys(20000),sigs(20000),PI
       parameter (NDSMAX=20,NPLMAX=20,MMAX=200)
       parameter(PI=3.14159265358979d0)
       real*8 ar(MMAX),incl(NPLMAX),cap0m(NPLMAX)
       integer iar(MMAX),u_off(NDSMAX),u_jit(NDSMAX),hkl
-      integer idsmax(NDSMAX),ts(10000), u_incl, u_cap0m
+      integer idsmax(NDSMAX),ts(20000), u_incl, u_cap0m
       real*8 jitt(NDSMAX),sigscale,t0,t_max, epoch
       real*8 off(NDSMAX),loglik
       integer i,k,j
@@ -695,11 +695,11 @@ c      enddo
 
       subroutine prepare_for_amoeba(p,mp,np,y,a,ia,ma,mfit,funk,ndata,
      & x,z,ymod,dyda,ts,sig, it,hkl)
-      integer MMAX,NDSMAX,ma,ts(10000), ndata,mp,np,mfit,it
+      integer MMAX,NDSMAX,ma,ts(20000), ndata,mp,np,mfit,it
       parameter(MMAX=200,NDSMAX=20)
       REAL*8 ftol,p(mp,np),y(mp),a(MMAX), a2(mfit),fr,frjitt
-      real*8 x(10000),z(10000),ymod(10000)
-      real*8 dyda(MMAX), sig(10000), loglik
+      real*8 x(20000),z(20000),ymod(20000)
+      real*8 dyda(MMAX), sig(20000), loglik
       parameter(fr=0.05, frjitt=0.05)
       INTEGER i,j,k, ia(MMAX), idsmax(NDSMAX),hkl
       external funk
@@ -745,10 +745,10 @@ c      enddo
       SUBROUTINE amoeba(p,y,mp,np,ndim,ftol,funk,iter,ndata,x,z,ymod,
      & dyda,ma,ts,sig,a,ia,ytry,hkl)
       implicit none
-      INTEGER iter,mp,ndim,np,NMAX,ITMAX, MMAX,ma,ts(10000), ndata
-      REAL*8 ftol,p(mp,np),y(mp),x(10000),z(10000),ymod(10000)
+      INTEGER iter,mp,ndim,np,NMAX,ITMAX, MMAX,ma,ts(20000), ndata
+      REAL*8 ftol,p(mp,np),y(mp),x(20000),z(20000),ymod(20000)
       PARAMETER (NMAX=20,ITMAX=100000,MMAX=200)
-      real*8 dyda(MMAX), sig(10000), loglik, a(MMAX)
+      real*8 dyda(MMAX), sig(20000), loglik, a(MMAX)
       EXTERNAL funk
       INTEGER i,ihi,ilo,inhi,j,m,n, ia(MMAX),hkl
       REAL*8 rtol,summ,swap,ysave,ytry,psum(ndim),amotry
@@ -830,11 +830,11 @@ C  (C) Copr. 1986-92 Numerical Recipes Software 0=M,173+9.
       FUNCTION amotry(p,y,psum,mp,np,ndim,funk,ihi,fac,ndata,x,z,ymod,
      & dyda,ma,ts,sig,a,ia,hkl)
       implicit none
-      INTEGER ihi,mp,ndim,np,NMAX, MMAX, ma, ts(10000),ndata
+      INTEGER ihi,mp,ndim,np,NMAX, MMAX, ma, ts(20000),ndata
       PARAMETER (NMAX=20, MMAX=200)
-      REAL*8 amotry,fac,p(mp,np),psum(np),y(mp),x(10000),z(10000),
-     & ymod(10000)
-      real*8 dyda(MMAX), sig(10000),loglik
+      REAL*8 amotry,fac,p(mp,np),psum(np),y(mp),x(20000),z(20000),
+     & ymod(20000)
+      real*8 dyda(MMAX), sig(20000),loglik
       EXTERNAL funk
       INTEGER j, ia(MMAX),hkl
       REAL*8 fac1,fac2,ytry,ptry(ndim), a(MMAX)
