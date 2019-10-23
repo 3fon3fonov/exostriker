@@ -2282,14 +2282,47 @@ class signal_fit(object):
     
     
     
-    def add_RVbank_dataset(self, name, path, offset=0, jitter= 0):    
-    
-    
-       self.add_dataset(name,path,offset,jitter,useoffset=True,usejitter=True)
+    def add_RVbank_dataset(self, name, path, offset=0, jitter= 0, split = False):    
+
+       dirname, basename = os.path.split(path)
+        
+       BJD = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])    
+      # indices = np.where(BJD > 2457161.5)
  
-       BJD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])    
-    
-       for i in range(3):
+       fo = open(path, "r")
+       lines = fo.readlines() 
+       
+       
+       name1 = '%s_pre.dat'%basename[:-4]
+       name2 = '%s_post.dat'%basename[:-4]    
+       path1 = 'datafiles/%s'%name1
+       path2 = 'datafiles/%s'%name2
+ 
+       out1 = open('%s'%path1, 'w')
+       out2 = open('%s'%path2, 'w')      
+       
+       
+       for i in range(len(lines)):
+ 
+           line = lines[i].split()
+           if float(line[0]) <= 2457161.5:
+               out1.write(lines[i])
+           elif float(line[0]) > 2457161.5:
+               out2.write(lines[i])               
+ 
+       out1.close()
+       out2.close()       
+       
+       if split == True:
+           if len(BJD[BJD <= 2457161.5]) !=0:
+               self.add_dataset(name1,path1,offset,jitter,useoffset=True,usejitter=True)
+           if len(BJD[BJD > 2457161.5]) !=0:           
+               self.add_dataset(name2,path2,offset,jitter,useoffset=True,usejitter=True)
+       else:
+           self.add_dataset(name,path,offset,jitter,useoffset=True,usejitter=True)
+           
+ 
+       for i in range(5):
            
            act_ind = 11 + (2*i)
            act_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [act_ind])
@@ -2298,19 +2331,24 @@ class signal_fit(object):
            act_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [act_ind+1])
            act_data_set = np.array([BJD,act_data,act_data_sig]) 
  
-           self.act_data_sets[i] = act_data_set    
+           self.act_data_sets[i] = act_data_set   
+           #print(act_data[0])
     
-       z = 0
-       for ii in range(i,i+4,1):
+       #z = 0
+       for ii in range(3):
            
-           act_ind = 18 + z
+           act_ind = 22 + ii
            act_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [act_ind])
            act_data = act_data - np.mean(act_data)
+           if ii == 1:
+               act_data = act_data * 1000.0
+               
            act_data_sig = act_data*0.05
            act_data_set = np.array([BJD,act_data,act_data_sig]) 
-           z = z +1
+           i = i +1
+          # print(act_data[0])
  
-           self.act_data_sets[ii] = act_data_set       
+           self.act_data_sets[i] = act_data_set       
     
     
 
