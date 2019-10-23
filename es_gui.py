@@ -5563,7 +5563,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         mean_anomaly_from_gls = np.degrees((((fit.epoch - float(fit.gls_o_c.hpstat["T0"]) )% (fit.gls_o_c.hpstat["P"]) )/ (fit.gls_o_c.hpstat["P"]) ) * 2*np.pi)
  
         fit.add_planet(fit.gls_o_c.hpstat["amp"],fit.gls_o_c.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
-        fit.use.update_use_planet_params_one_planet(fit.npl+1,True,True,True,True,True,False,False)   
+        fit.use.update_use_planet_params_one_planet(fit.npl-1,True,True,fit.auto_fit_allow_ecc,fit.auto_fit_allow_ecc,True,False,False)   
        
         self.update_use_from_input_file()   
         self.update_use() 
@@ -5582,7 +5582,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         fit.pl_a[fit.npl]   = 11.44
  
         fit.add_planet(10.0,fit.tls_o_c.period,0.0,0.0,mean_anomaly_from_tls,90.0,0.0)
-        fit.use.update_use_planet_params_one_planet(fit.npl+1,True,True,True,True,True,False,False)   
+        fit.use.update_use_planet_params_one_planet(fit.npl-1,True,True,True,True,True,False,False)   
        
  
             

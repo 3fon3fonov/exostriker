@@ -5583,13 +5583,14 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         mean_anomaly_from_gls = np.degrees((((fit.epoch - float(fit.gls_o_c.hpstat["T0"]) )% (fit.gls_o_c.hpstat["P"]) )/ (fit.gls_o_c.hpstat["P"]) ) * 2*np.pi)
  
         fit.add_planet(fit.gls_o_c.hpstat["amp"],fit.gls_o_c.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
-        fit.use.update_use_planet_params_one_planet(fit.npl+1,True,True,True,True,True,False,False)   
+        fit.use.update_use_planet_params_one_planet(fit.npl-1,True,True,fit.auto_fit_allow_ecc,fit.auto_fit_allow_ecc,True,False,False)   
        
         self.update_use_from_input_file()   
         self.update_use() 
         #self.update_params()  
        # self.update_gui_params()                  
         self.optimize_fit(0,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)          
+    
  
     def adopt_trans_TLS_param(self):
         global fit   
