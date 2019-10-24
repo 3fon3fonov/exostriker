@@ -26,10 +26,18 @@ c*************************************************************************
       
       external rvdyn, compute_abs_loglik
       character*80 infile
-
+      character*80 version_input, version
       
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
+
+      version = "0.01"
+       
+      CALL getarg(1, version_input)     
+      if(version_input.eq.'-version') then
+          write(*,*) version
+          goto 222
+      endif
 
       ftol=0.0015d0       
       read (*,*) epsil,deltat, amoebastarts,
@@ -108,7 +116,7 @@ c      call timer(t_stop)
         
 
 c      stop
-      end
+222   end
 
 
       subroutine compute_abs_loglik(ndata,x,y,a2,ymod,dyda,ma,mfit,ts,

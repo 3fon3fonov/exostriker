@@ -25,9 +25,18 @@ ccc   The final version will be available in the Python RVMod lib.
        
       external rvkep_ewcop_fin
       character*80 infile
+      character*80 version_input, version
 
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
+
+      version = "0.01"
+       
+      CALL getarg(1, version_input)     
+      if(version_input.eq.'-version') then
+          write(*,*) version
+          goto 222
+      endif
 
       loglik=0.d0
       rms=0.d0
@@ -140,7 +149,7 @@ c      write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
 c      write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
      
 c      stop
-      end
+222   end
 
 
 

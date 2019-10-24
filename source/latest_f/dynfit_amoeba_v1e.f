@@ -1,4 +1,3 @@
-
 c*************************************************************************
 C****************   Radial Velocity dynamical model      *****************
 c*************************************************************************
@@ -25,10 +24,18 @@ c*************************************************************************
             
       external rvkep, compute_abs_loglik
       character*80 infile
-
+      character*80 version_input, version
       
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
+
+      version = "0.01"
+       
+      CALL getarg(1, version_input)     
+      if(version_input.eq.'-version') then
+          write(*,*) version
+          goto 222
+      endif
 
       ftol=0.001d0
       
@@ -108,7 +115,7 @@ c      endif
      &  nt, model_max, model_min,hkl,wdot,u_wdot)
 
 
-      end
+222   end
 
 
       subroutine compute_abs_loglik(ndata,x,y,a2,ymod,dyda,ma,mfit,ts,
