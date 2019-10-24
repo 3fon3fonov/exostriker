@@ -1,12 +1,12 @@
 1e-13 86400.000000 0 300 2000 50 0 0
-1.700000 0 1 1 
+1.700000 1 0 0  
 2
-/tmp/tmpbLwfE3/hip5364.vels
+../../datafiles/hip5364.vels
 0.553413
 1
 15.480000
 1
-/tmp/tmptukT0I/hip5364_crires.vels
+../../datafiles/hip5364_crires.vels
 707.089594
 1
 12.498000

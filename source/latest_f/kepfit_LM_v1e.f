@@ -24,9 +24,21 @@ ccc   The final version will be available in the Python RVMod lib.
       
       external rvkep
       character*80 infile
+      character*80 version_input, version
 
       common /DSBLK/ npl,ndset,idsmax,idset,gr_flag
 
+
+      version = "0.01"
+       
+      CALL getarg(1, version_input)     
+      if(version_input.eq.'-version') then
+          write(*,*) version
+          goto 222
+      endif
+      
+      
+      
       loglik=0.d0
       
 c     these two just for consistency with dynamical input and amoebastarts for consistency with loglik, not really used
@@ -207,7 +219,7 @@ c      nt = 20000
 
 
 c      stop
-      end
+222   end
       
 
 c*************************************************************************      

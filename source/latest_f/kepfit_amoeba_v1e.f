@@ -25,10 +25,21 @@ ccc   Trifonov et al. (in prep).
       real*8 loglikk, ologlikk, dloglikk,best_w,best_we
       external rvkep, compute_abs_loglik
       character*80 infile
+      character*80 version_input, version
+      
       real*4 t_stop,when_to_kill, model_max,model_min
       
       
       common /DSBLK/ npl,ndset,idsmax,idset,gr_flag
+
+
+      version = "0.01"
+       
+      CALL getarg(1, version_input)     
+      if(version_input.eq.'-version') then
+          write(*,*) version
+          goto 222
+      endif
 
       twopi=2.d0*PI
       ftol=0.000001d0
@@ -279,7 +290,7 @@ c     &           /(365.25*365.25))
 
 
 c      stop
-      end
+222   end
 
 
 
