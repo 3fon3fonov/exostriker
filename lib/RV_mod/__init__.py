@@ -1076,19 +1076,20 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
         
    #     threads = 1
         
-    print_progress = std_output
-
+    print_progress = False #std_output
+    dynesty_samp = 'slice'
+    
     if Dynamic_nest == False:
         print("'Static' Nest. Samp. is running, please wait... (still under tests!)")
 
         if threads > 1:
             with Pool(processes=threads-1) as thread:
                 sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, pool = thread, 
-                                                queue_size=threads, bootstrap=0)
+                                                queue_size=threads, bootstrap=0, sample = dynesty_samp)
      
                 sampler.run_nested(dlogz=stop_crit, print_progress=print_progress)
         else:
-             sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers)
+             sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, sample = dynesty_samp)
              sampler.run_nested(dlogz=stop_crit, print_progress=print_progress)
 
         if threads > 1:
@@ -1104,12 +1105,12 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
         
         if threads > 1:
             with Pool(ncpus=threads) as thread:
-                sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, pool = thread,
-                                                       queue_size=threads, bootstrap=0)
+                sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, pool = thread, nlive=nwalkers, 
+                                                       queue_size=threads, bootstrap=0, sample = dynesty_samp)
      
                 sampler.run_nested(nlive_init=nwalkers, print_progress=print_progress)
         else:
-             sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim )
+             sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, sample = dynesty_samp)
              sampler.run_nested(nlive_init=nwalkers, print_progress=print_progress)        
         
         if threads > 1:
