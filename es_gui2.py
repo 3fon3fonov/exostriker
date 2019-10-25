@@ -5795,32 +5795,33 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         version_kep_loglik= "0.01"        
         result, flag = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)              
         if flag == -1 or str(result[0][0]) != version_kep_loglik:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba_v1e.f -o ./lib/fr/loglik_kep ./lib/libswift.a', 1,output=True)             
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba_v1e.f -o ./lib/fr/loglik_kep ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating Keplerian Simplex")
                        
         version_kep_LM= "0.01"         
         result, flag = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)              
         if flag == -1 or str(result[0][0]) != version_kep_LM:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM_v1e.f -o ./lib/fr/chi2_kep ./lib/libswift.a', 1,output=True)             
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM_v1e.f -o ./lib/fr/chi2_kep ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating Keplerian L-M") 
                         
         version_dyn_loglik= "0.01"        
         result, flag = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)              
         if flag == -1 or str(result[0][0]) != version_dyn_loglik:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba_v1e.f -o ./lib/fr/loglik_dyn ./lib/libswift.a', 1,output=True)             
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba_v1e.f -o ./lib/fr/loglik_dyn ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating N-body Simplex")   
             
         version_dyn_LM= "0.01"         
         result, flag = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)              
         if flag == -1 or str(result[0][0]) != version_dyn_LM:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM_v1d.f -o ./lib/fr/chi2_dyn ./lib/libswift.a', 1,output=True)             
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM_v1d.f -o ./lib/fr/chi2_dyn ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating  N-body L-M")    
             
         version_dyn_loglik_= "0.01"        
         result, flag = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)              
         if flag == -1 or str(result[0][0]) != version_dyn_loglik_:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba_v1c+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a', 1,output=True)             
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba_v1c+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating Mixed Simplex")               
+                      
                 
 ################################################################################################
     

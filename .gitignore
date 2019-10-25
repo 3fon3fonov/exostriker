@@ -4,3 +4,5 @@ stability/mvs/*
 stability/mvs_gr/*
 stability/symba/*
 *.pyc
+libswift.a
+@make

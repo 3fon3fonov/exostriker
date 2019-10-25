@@ -117,7 +117,7 @@ c      endif
 
 222   end
 
-
+ 
       subroutine compute_abs_loglik(ndata,x,y,a2,ymod,dyda,ma,mfit,ts,
      & sig,loglik, num,a,ia,epsil,deltat,hkl)
       implicit none
@@ -529,6 +529,32 @@ c      write (*,*) 'linear trend:'
       end
 
 
+
+
+
+
+      subroutine transit_tperi(per, ecc, om, ma, epoch,t_peri,t_transit)
+      implicit none
+
+      real*8 per, om, ma, E, ecc, epoch,t_peri,t_transit 
+      real*8 PI, TWOPI,per_days
+      parameter (PI=3.14159265358979d0)      
+      parameter (TWOPI=2.0*PI)  
+      
+      per_days = per/8.64d4    
+ 
+      write(*,*) per_days, om, ma, ecc, epoch
+      E = 2.0*datan(dsqrt(((1.0-ecc)/(1.0+ecc)))*
+     &               dtan((PI/4.0)-(om/2.0)))
+ 
+      write(*,*) E
+      t_peri    = epoch  - ((ma/TWOPI)*per_days)
+      t_transit = t_peri + (E + ecc*dsin(E)) * (per_days/TWOPI)    
+
+      return
+      end  
+      
+
 C**************************************************************************
 C**********   output best-fit parameters and errorbars    *****************
 C**************************************************************************
@@ -554,7 +580,7 @@ C**************************************************************************
      &       ,vzh(NPLMAX)
       real*8 xj(NPLMAX),yj(NPLMAX),zj(NPLMAX),vxj(NPLMAX),vyj(NPLMAX)
      &       ,vzj(NPLMAX)
-      real*8 rpl(NPLMAX),rhill(NPLMAX),deltat,epsil
+      real*8 rpl(NPLMAX),rhill(NPLMAX),deltat,epsil,t_p,t_tr
       real*8 swift_mass(NPLMAX),s_mass(NPLMAX),j_mass(NPLMAX)
       real*4 model_max,model_min,best_w,best_we
       real*8 wdot(NPLMAX),u_wdot(NPLMAX)      
@@ -640,11 +666,12 @@ c             a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
      &               a(7*npl  + 2*ndset + 1)*(t(i)/8.64d4)
 
 c          write(*,*) a(7*npl+idset), a(7*npl  + 2*ndset + 1)
-
+c          write(*,*)     a(1),a(2),a(3),a(4),     t0
+          
           if (writeflag_RV.gt.0) then
           write(*,*) t0 + t(i)/8.64d4 ,ymod(i),ys(i) +
      &                a(7*npl  + 2*ndset + 1)*(t(i)/8.64d4), 
-     &                ys(i) - ymod(i),sigs(i),ts(i)
+     &                ys(i) - ymod(i),sigs(i),ts(i) 
 
           endif
      
