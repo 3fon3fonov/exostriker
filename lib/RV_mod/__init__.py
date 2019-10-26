@@ -1006,7 +1006,8 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     level = (100.0- obj.nest_percentile_level)/2.0
 
     opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,
-           "when_to_kill":when_to_kill,"copl_incl":obj.copl_incl,"hkl":obj.hkl,"cwd":obj.cwd, "gr_flag":obj.gr_flag}     
+           "when_to_kill":when_to_kill,"copl_incl":obj.copl_incl,"hkl":obj.hkl,
+           "cwd":obj.cwd, "gr_flag":obj.gr_flag,"ns_samp_method":obj.ns_samp_method}     
     #print(par)
     #print(flags)
    # print(bb)
@@ -1075,10 +1076,10 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
    #     print(" Sorry, but currently Nest. Samp. works only with 1 CPU (TBF)")
         
    #     threads = 1
-        
-    print_progress = False #std_output
-    dynesty_samp = 'slice'
-    
+       
+    dynesty_samp = obj.ns_samp_method
+    print_progress = True #std_output
+     
     if Dynamic_nest == False:
         print("'Static' Nest. Samp. is running, please wait... (still under tests!)")
 
@@ -1312,19 +1313,19 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     from pathos.pools import ProcessPool as Pool
     #from pathos.pools import ParallelPool as Pool
 
+    pool=Pool(ncpus=threads)
     
     #import mkl
    # mkl.set_num_threads(1)    
     #from multiprocessing import Pool 
-   # pool=Pool(threads)  
+    #pool=Pool(threads)  
    
-    pool=Pool(ncpus=threads)
  
     ndim, nwalkers = len(pp), len(pp)*obj.nwalkers_fact
 
     pos = [pp + obj.gaussian_ball*np.random.rand(ndim) for i in range(nwalkers)]
  
-    
+    #print(mod)
     sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit,opt), pool=pool)
  
 
@@ -2075,10 +2076,11 @@ class signal_fit(object):
     def init_nest_par(self):     
         #self.gaussian_ball = 0.0001        
         self.live_points_fact = 4
+        self.nest_percentile_level = 68.3    
         
-        self.nest_percentile_level = 68.3        
-        
-        
+        self.ns_samp_method_opt = ['slice','unif','rwalk','rstagger','rslice','hslice']
+        self.ns_samp_method = self.ns_samp_method_opt[0]     
+
         
     def init_dynfit_settings(self):
         self.mixed_fit = {0: [False], 1:[1,1,1,1,1,1,1,1,1]}     
