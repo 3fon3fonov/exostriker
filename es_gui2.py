@@ -76,6 +76,9 @@ import webbrowser
 #    import pickle
 import dill
 
+#os.system("taskset -p %s" %os.getpid())
+os.environ["OPENBLAS_MAIN_FREE"] = "1"
+
 
 #if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
 #    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -5622,6 +5625,20 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         
 #        fit.stellar_radius = self.St_radius_input.value()
         
+    def init_ns_samp_opt_combo(self):    
+        global fit
+        
+        for i in range(len(fit.ns_samp_method_opt)):
+            self.comboBox_ns_samp_opt.addItem('%s'%(fit.ns_samp_method_opt[i]),i+1)   
+      
+    def check_ns_samp_opt_combo(self):    
+        global fit             
+            
+        ind_ns_opt = self.comboBox_ns_samp_opt.currentIndex()       
+        fit.ns_samp_method = fit.ns_samp_method_opt[ind_ns_opt]  
+        
+        
+        
         
     def init_plot_corr(self):
         global fit  
@@ -6068,12 +6085,14 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.init_correlations_combo()
         self.init_activity_combo()
         self.init_scipy_combo()
-        self.comboBox_scipy_minimizer_1.activated.connect(self.check_scipy_min)
-        self.comboBox_scipy_minimizer_2.activated.connect(self.check_scipy_min)
-        
-        
         self.init_gls_norm_combo()
+        
+        self.comboBox_scipy_minimizer_1.activated.connect(self.check_scipy_min)
+        self.comboBox_scipy_minimizer_2.activated.connect(self.check_scipy_min) 
         self.gls_norm_combo.activated.connect(self.update_plots) 
+
+        self.init_ns_samp_opt_combo() 
+        self.comboBox_ns_samp_opt.activated.connect(self.check_ns_samp_opt_combo)
 
         
         self.setWindowIcon(QtGui.QIcon('./lib/33_striker.png'))
