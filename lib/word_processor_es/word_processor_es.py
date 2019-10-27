@@ -32,10 +32,11 @@ class TextEdit(QTextEdit):
 
     def insertFromMimeData(self, source):
 
-        cursor = self.textCursor()
         document = self.document()
-        self.highlighter = Highlighter(document)
 
+        #self.highlighter = Highlighter(document)
+        cursor = self.textCursor()
+        
         if source.hasUrls():
 
             for u in source.urls():
@@ -77,11 +78,11 @@ class MainWindow(QMainWindow):
         self.editor.setAutoFormatting(QTextEdit.AutoAll)
         self.editor.selectionChanged.connect(self.update_format)
         # Initialize default font size.
-        font = QFont('Times', 10)
+        font = QFont('Times', 9)
         self.editor.setFont(font)
         # We need to repeat the size to init the current format.
-        self.editor.setFontPointSize(10)
-
+        self.editor.setFontPointSize(9)
+        self.highlighter = Highlighter(self.editor)
         # self.path holds the path of the currently open file.
         # If none, we haven't got a file open yet (or creating new).
         self.path = None
