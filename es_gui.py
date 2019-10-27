@@ -22,6 +22,7 @@ import word_processor_es as text_editor_es
 import calculator as calc 
 import gls as gls 
 from worker import Worker #, WorkerSignals
+import gui_groups 
 
 #from multiprocessing import cpu_count
 #import time
@@ -221,8 +222,17 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.K9, self.P9, self.e9, self.om9, self.ma9, self.incl9, self.Omega9,
                      ]
          
-        for i in range(fit.npl*7):
-            param_gui[i].setValue(fit.params.planet_params[i])        
+       # for i in range(fit.npl*7):
+       #     param_gui[i].setValue(fit.params.planet_params[i])        
+
+        zz = 0
+        for i in range(9):
+            if not self.buttonGroup_use_planets.buttons()[i].isChecked():
+                continue
+            j = 7*i
+            for k in range(7):
+                 param_gui[j+k].setValue(fit.params.planet_params[7*zz+k])        
+            zz=zz+1 
             
         param_gui_wd = [self.om_dot_1, self.om_dot_2, self.om_dot_3, 
                         self.om_dot_4, self.om_dot_5, self.om_dot_6, 
@@ -231,8 +241,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(9):
             param_gui_wd[i].setValue(fit.omega_dot[i])        
            
-            
-            
+             
         param_gui_tr = [
                      self.t0_1, self.pl_rad_1, self.a_sol_1,
                      self.t0_2, self.pl_rad_2, self.a_sol_2,
@@ -323,9 +332,15 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.K9, self.P9, self.e9, self.om9, self.ma9, self.incl9, self.Omega9,
                      ]                  
 
-        for i in range(fit.npl*7):
-            fit.params.planet_params[i] = param_gui[i].value() 
-            
+        #print([i for i, button in enumerate(self.buttonGroup_use_planets.buttons()) if button.isChecked()])
+        zz = 0
+        for i in range(9):
+            if not self.buttonGroup_use_planets.buttons()[i].isChecked():
+                continue           
+            j = 7*i
+            for k in range(7):
+                fit.params.planet_params[7*zz+k] = param_gui[j+k].value() 
+            zz = zz +1
             
         param_gui_wd = [self.om_dot_1, self.om_dot_2, self.om_dot_3, 
                         self.om_dot_4, self.om_dot_5, self.om_dot_6, 
@@ -569,9 +584,19 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                             self.err_K9,self.err_P9,self.err_e9,self.err_om9,self.err_ma9, self.err_i9, self.err_Om9,                       
                             ]
         
-        for i in range(fit.npl*7):
-            param_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.planet_params_errors[i])))
-            
+      #  for i in range(fit.npl*7):
+     #       param_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.planet_params_errors[i])))
+     
+        zz = 0
+        for i in range(9):
+            if not self.buttonGroup_use_planets.buttons()[i].isChecked():
+                continue           
+            j = 7*i
+            for k in range(7):
+               # fit.params.planet_params[7*zz+k] = param_gui[j+k].value() 
+                param_errors_gui[j+k].setText("+/- %.3f"%max(np.abs(fit.param_errors.planet_params_errors[7*zz+k])))
+
+            zz = zz +1            
             
         param_errors_gui_wd = [self.err_om_dot_1,self.err_om_dot_2,self.err_om_dot_3,
                                self.err_om_dot_4,self.err_om_dot_5,self.err_om_dot_6,
@@ -791,10 +816,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(9):
             fit.omega_dot_use[i] = int(use_param_gui_wd[i].isChecked())
-           # print(self.buttonGroup_use_planets.buttons()[i].checkedId())
-       # print("###")
-              
-       # print([i for i, button in enumerate(self.buttonGroup_use_planets.buttons()) if button.isChecked()])
+
             
         use_param_gui_tr = [
              self.use_t0_1, self.use_pl_rad_1, self.use_a_sol_1,
@@ -881,49 +903,52 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.tra_GP_sho_use[i] = int(use_tra_gp_sho_params[i].isChecked())              
             
 
+
+    def update_bounds(self):
+        global fit
+      
+ 
+        for i in range(fit.npl):
+            for z in range(2):
+                self.param_bounds_gui[10*i + 0][z].setValue(fit.K_bound[i][z])
+                self.param_bounds_gui[10*i + 1][z].setValue(fit.P_bound[i][z])              
+                self.param_bounds_gui[10*i + 2][z].setValue(fit.e_bound[i][z])              
+                self.param_bounds_gui[10*i + 3][z].setValue(fit.w_bound[i][z])              
+                self.param_bounds_gui[10*i + 4][z].setValue(fit.M0_bound[i][z])              
+                self.param_bounds_gui[10*i + 5][z].setValue(fit.i_bound[i][z])  
+                self.param_bounds_gui[10*i + 6][z].setValue(fit.Node_bound[i][z])              
+                self.param_bounds_gui[10*i + 7][z].setValue(fit.t0_bound[i][z])              
+                self.param_bounds_gui[10*i + 8][z].setValue(fit.pl_rad_bound[i][z])              
+                self.param_bounds_gui[10*i + 9][z].setValue(fit.pl_a_bound[i][z])              
+    
+        for i in range(10): 
+            for z in range(2):
+                self.offset_bounds_gui[i][z].setValue(fit.rvoff_bounds[i][z])
+                self.jitter_bounds_gui[i][z].setValue(fit.jitt_bounds[i][z])
+
+
  
     def check_bounds(self):
         global fit
- 
-        
-        param_bounds_gui = [
-        [self.K_min_1.value(),self.K_max_1.value()],[self.P_min_1.value(),self.P_max_1.value()], [self.e_min_1.value(),self.e_max_1.value()],[self.om_min_1.value(),self.om_max_1.value()], [self.ma_min_1.value(),self.ma_max_1.value()],[self.incl_min_1.value(),self.incl_max_1.value()], [self.Omega_min_1.value(),self.Omega_max_1.value()],[self.t0_min_1.value(),self.t0_max_1.value()],[self.pl_rad_min_1.value(),self.pl_rad_max_1.value()],[self.a_sol_min_1.value(),self.a_sol_max_1.value()],
-        [self.K_min_2.value(),self.K_max_2.value()],[self.P_min_2.value(),self.P_max_2.value()], [self.e_min_2.value(),self.e_max_2.value()],[self.om_min_2.value(),self.om_max_2.value()], [self.ma_min_2.value(),self.ma_max_2.value()],[self.incl_min_2.value(),self.incl_max_2.value()], [self.Omega_min_2.value(),self.Omega_max_2.value()],[self.t0_min_2.value(),self.t0_max_2.value()],[self.pl_rad_min_2.value(),self.pl_rad_max_2.value()],[self.a_sol_min_2.value(),self.a_sol_max_2.value()],
-        [self.K_min_3.value(),self.K_max_3.value()],[self.P_min_3.value(),self.P_max_3.value()], [self.e_min_3.value(),self.e_max_3.value()],[self.om_min_3.value(),self.om_max_3.value()], [self.ma_min_3.value(),self.ma_max_3.value()],[self.incl_min_3.value(),self.incl_max_3.value()], [self.Omega_min_3.value(),self.Omega_max_3.value()],[self.t0_min_3.value(),self.t0_max_3.value()],[self.pl_rad_min_3.value(),self.pl_rad_max_3.value()],[self.a_sol_min_3.value(),self.a_sol_max_3.value()],
-        [self.K_min_4.value(),self.K_max_4.value()],[self.P_min_4.value(),self.P_max_4.value()], [self.e_min_4.value(),self.e_max_4.value()],[self.om_min_4.value(),self.om_max_4.value()], [self.ma_min_4.value(),self.ma_max_4.value()],[self.incl_min_4.value(),self.incl_max_4.value()], [self.Omega_min_4.value(),self.Omega_max_4.value()],[self.t0_min_4.value(),self.t0_max_4.value()],[self.pl_rad_min_4.value(),self.pl_rad_max_4.value()],[self.a_sol_min_4.value(),self.a_sol_max_4.value()],
-        [self.K_min_5.value(),self.K_max_5.value()],[self.P_min_5.value(),self.P_max_5.value()], [self.e_min_5.value(),self.e_max_5.value()],[self.om_min_5.value(),self.om_max_5.value()], [self.ma_min_5.value(),self.ma_max_5.value()],[self.incl_min_5.value(),self.incl_max_5.value()], [self.Omega_min_5.value(),self.Omega_max_5.value()],[self.t0_min_5.value(),self.t0_max_5.value()],[self.pl_rad_min_5.value(),self.pl_rad_max_5.value()],[self.a_sol_min_5.value(),self.a_sol_max_5.value()],
-        [self.K_min_6.value(),self.K_max_6.value()],[self.P_min_6.value(),self.P_max_6.value()], [self.e_min_6.value(),self.e_max_6.value()],[self.om_min_6.value(),self.om_max_6.value()], [self.ma_min_6.value(),self.ma_max_6.value()],[self.incl_min_6.value(),self.incl_max_6.value()], [self.Omega_min_6.value(),self.Omega_max_6.value()],[self.t0_min_6.value(),self.t0_max_6.value()],[self.pl_rad_min_6.value(),self.pl_rad_max_6.value()],[self.a_sol_min_6.value(),self.a_sol_max_6.value()],
-        [self.K_min_7.value(),self.K_max_7.value()],[self.P_min_7.value(),self.P_max_7.value()], [self.e_min_7.value(),self.e_max_7.value()],[self.om_min_7.value(),self.om_max_7.value()], [self.ma_min_7.value(),self.ma_max_7.value()],[self.incl_min_7.value(),self.incl_max_7.value()], [self.Omega_min_7.value(),self.Omega_max_7.value()],[self.t0_min_7.value(),self.t0_max_7.value()],[self.pl_rad_min_7.value(),self.pl_rad_max_7.value()],[self.a_sol_min_7.value(),self.a_sol_max_7.value()],
-        [self.K_min_8.value(),self.K_max_8.value()],[self.P_min_8.value(),self.P_max_8.value()], [self.e_min_8.value(),self.e_max_8.value()],[self.om_min_8.value(),self.om_max_8.value()], [self.ma_min_8.value(),self.ma_max_8.value()],[self.incl_min_8.value(),self.incl_max_8.value()], [self.Omega_min_8.value(),self.Omega_max_8.value()],[self.t0_min_8.value(),self.t0_max_8.value()],[self.pl_rad_min_8.value(),self.pl_rad_max_8.value()],[self.a_sol_min_8.value(),self.a_sol_max_8.value()],
-        [self.K_min_9.value(),self.K_max_9.value()],[self.P_min_9.value(),self.P_max_9.value()], [self.e_min_9.value(),self.e_max_9.value()],[self.om_min_9.value(),self.om_max_9.value()], [self.ma_min_9.value(),self.ma_max_9.value()],[self.incl_min_9.value(),self.incl_max_9.value()], [self.Omega_min_9.value(),self.Omega_max_9.value()],[self.t0_min_9.value(),self.t0_max_9.value()],[self.pl_rad_min_9.value(),self.pl_rad_max_9.value()],[self.a_sol_min_9.value(),self.a_sol_max_9.value()]               
-        ]
- 
-        for i in range(fit.npl):
-            fit.K_bound[i] = param_bounds_gui[10*i + 0]    
-            fit.P_bound[i] = param_bounds_gui[10*i + 1]    
-            fit.e_bound[i] = param_bounds_gui[10*i + 2]    
-            fit.w_bound[i] = param_bounds_gui[10*i + 3]    
-            fit.M0_bound[i] = param_bounds_gui[10*i + 4]    
-            fit.i_bound[i] = param_bounds_gui[10*i + 5]    
-            fit.Node_bound[i] = param_bounds_gui[10*i + 6]    
-            fit.t0_bound[i]  =  param_bounds_gui[10*i + 7]
-            fit.pl_rad_bound[i]  =   param_bounds_gui[10*i + 8]
-            fit.pl_a_bound[i]   =   param_bounds_gui[10*i + 9]
 
-        offset_bounds_gui = [
-        [self.Data1_min.value(),self.Data1_max.value()], [self.Data2_min.value(),self.Data2_max.value()], [self.Data3_min.value(),self.Data3_max.value()], [self.Data4_min.value(),self.Data4_max.value()], [self.Data5_min.value(),self.Data5_max.value()],   
-        [self.Data6_min.value(),self.Data6_max.value()], [self.Data7_min.value(),self.Data7_max.value()], [self.Data8_min.value(),self.Data8_max.value()], [self.Data9_min.value(),self.Data9_max.value()], [self.Data10_min.value(),self.Data10_max.value()]
-        ]
-        
-        jitter_bounds_gui = [
-        [self.jitter1_min.value(),self.jitter1_max.value()], [self.jitter2_min.value(),self.jitter2_max.value()], [self.jitter3_min.value(),self.jitter3_max.value()], [self.jitter4_min.value(),self.jitter4_max.value()], [self.jitter5_min.value(),self.jitter5_max.value()],   
-        [self.jitter6_min.value(),self.jitter6_max.value()], [self.jitter7_min.value(),self.jitter7_max.value()], [self.jitter8_min.value(),self.jitter8_max.value()], [self.jitter9_min.value(),self.jitter9_max.value()], [self.jitter10_min.value(),self.Data10_max.value()]   
-        ]  
-    
+        for i in range(fit.npl):
+            for z in range(2):            
+                fit.K_bound[i][z] = self.param_bounds_gui[10*i + 0][z].value()    
+                fit.P_bound[i][z] = self.param_bounds_gui[10*i + 1][z].value()    
+                fit.e_bound[i][z] = self.param_bounds_gui[10*i + 2][z].value()     
+                fit.w_bound[i][z] = self.param_bounds_gui[10*i + 3][z].value()     
+                fit.M0_bound[i][z] = self.param_bounds_gui[10*i + 4][z].value()     
+                fit.i_bound[i][z] = self.param_bounds_gui[10*i + 5][z].value()     
+                fit.Node_bound[i][z] =self.param_bounds_gui[10*i + 6][z].value()     
+                fit.t0_bound[i][z]  =  self.param_bounds_gui[10*i + 7][z].value() 
+                fit.pl_rad_bound[i][z]  =   self.param_bounds_gui[10*i + 8][z].value() 
+                fit.pl_a_bound[i][z]   =   self.param_bounds_gui[10*i + 9][z].value() 
+     
     
         for i in range(10): 
-            fit.rvoff_bounds[i] = offset_bounds_gui[i]
-            fit.jitt_bounds[i]  = jitter_bounds_gui[i] 
+            for z in range(2):    
+                fit.rvoff_bounds[i][z] = self.offset_bounds_gui[i][z].value()
+                fit.jitt_bounds[i][z]  = self.jitter_bounds_gui[i][z].value()
             
         om_dot_bounds_gui = [
         [self.omega_dot_min_1.value(),self.omega_dot_max_1.value()], [self.omega_dot_min_2.value(),self.omega_dot_max_2.value()], 
@@ -2384,7 +2409,7 @@ Polyfit coefficients:
             self.update_use_from_input_file()
             self.init_fit()
             self.update_RV_file_buttons()
-            
+
             
     def showDialog_RVbank_input_file(self):
         global fit, ses_list
@@ -2412,7 +2437,7 @@ Polyfit coefficients:
             self.update_RV_file_buttons()
             self.update_act_file_buttons()
             #self.update_activity_gls_plots(0)
-            #self.buttonGroup_activity_data.button(but_ind).setText(self.file_from_path(input_files[0])) 
+            #self.buttonGroup_activity_data.button(but_ind).setText(self.file_from_path(input_files[0]))          
 
     def showDialog_RV_input_file(self):
         global fit
@@ -2760,8 +2785,8 @@ Polyfit coefficients:
                 pe.addItem(err_2) 
                 
             
-        pe.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)    
-        #pe.autoRange(padding=0, items=None, item=None) 
+#        pe.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)                
+        
         pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
         pe.setLabel('left',   'RV [m/s]', units='',  **{'font-size':'9pt'})  
 
@@ -4370,7 +4395,7 @@ highly appreciated!
             ses_list.append(fit_new)
             
             #self.check_settings()
-            rv.check_temp_RV_file(fit_new)
+            rv.check_temp_RV_file(fit_new)         
             self.session_list()
             self.select_session(-1)
             
@@ -4457,6 +4482,7 @@ highly appreciated!
 
         
         self.check_settings()
+        self.update_bounds()
 
         self.init_fit()
 
@@ -4465,7 +4491,7 @@ highly appreciated!
         self.update_gui_params()
         self.update_params()
         self.update_RV_file_buttons() 
-        self.update_act_file_buttons()        
+        self.update_act_file_buttons()       
         self.update_color_picker()
         
         if not ind == None:    
@@ -5526,7 +5552,6 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
            # for i in range(fit.filelist.ndset): 
            #     dirname, basename = os.path.split(fit.filelist.files[i].path)
            #     os.system('rm -r %s'%dirname) 
-            
             self.term_emb.close()            
             self.close()
         elif choice == QtGui.QMessageBox.Yes:
@@ -5534,7 +5559,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             self.term_emb.close()            
             self.close()            
         elif choice == QtGui.QMessageBox.Cancel:
-            return    
+            return      
         
     def file_from_path(self, path):
         head, tail = ntpath.split(path)
@@ -5573,6 +5598,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         #self.update_params()  
        # self.update_gui_params()                  
         self.optimize_fit(0,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)          
+    
  
     def adopt_trans_TLS_param(self):
         global fit   
@@ -5585,7 +5611,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         fit.pl_a[fit.npl]   = 11.44
  
         fit.add_planet(10.0,fit.tls_o_c.period,0.0,0.0,mean_anomaly_from_tls,90.0,0.0)
-        fit.use.update_use_planet_params_one_planet(fit.npl-1,True,True,True,True,True,False,False)   
+        fit.use.update_use_planet_params_one_planet(fit.npl+1,True,True,True,True,True,False,False)   
        
  
             
@@ -5603,7 +5629,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
 #        global fit         
         
 #        fit.stellar_radius = self.St_radius_input.value()
-
+        
     def init_ns_samp_opt_combo(self):    
         global fit
         
@@ -5614,10 +5640,10 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         global fit             
             
         ind_ns_opt = self.comboBox_ns_samp_opt.currentIndex()       
-        fit.ns_samp_method = fit.ns_samp_method_opt[ind_ns_opt]
+        fit.ns_samp_method = fit.ns_samp_method_opt[ind_ns_opt]  
         
         
- 
+        
         
     def init_plot_corr(self):
         global fit  
@@ -5784,8 +5810,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.font = QtGui.QFont()
         self.font.setPointSize(9)
         self.font.setBold(False)
-        
-        
+ 
+    
     def check_fortran_routines(self):
         
         version_kep_loglik= "0.01"        
@@ -5817,13 +5843,13 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         if flag == -1 or str(result[0][0]) != version_dyn_loglik_:
             result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba_v1c+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating Mixed Simplex")               
-            
-  
+                      
+                
 ################################################################################################
     
 
     def __init__(self):
-        global fit
+        global fit 
 
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
@@ -5831,7 +5857,11 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
 
         self.setupUi(self)
         self.initialize_font()
-
+        
+        self.param_bounds_gui  = gui_groups.param_bounds_gui(self)
+        self.offset_bounds_gui = gui_groups.offset_bounds_gui(self)
+        self.jitter_bounds_gui = gui_groups.jitter_bounds_gui(self)
+ 
         
         self.initialize_buttons()
         self.initialize_plots()   
@@ -5864,7 +5894,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         
         if sys.platform[0:5] == "linux":
             self.term_emb = terminal.EmbTerminal()
-            self.terminal_embeded.addTab(self.term_emb, "Bash shell")        
+            self.terminal_embeded.addTab(self.term_emb, "Bash shell")   
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")  
         
         
@@ -6072,6 +6102,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
 
         self.init_ns_samp_opt_combo() 
         self.comboBox_ns_samp_opt.activated.connect(self.check_ns_samp_opt_combo)
+
         
         self.setWindowIcon(QtGui.QIcon('./lib/33_striker.png'))
         
@@ -6205,17 +6236,18 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.err_St_lumin_input.valueChanged.connect(self.update_St_params)
         self.err_St_teff_input.valueChanged.connect(self.update_St_params)
         self.err_St_vsini_input.valueChanged.connect(self.update_St_params)    
-        
+
         self.check_fortran_routines()
-    
+
         if start_arg_ses == True:
-            self.init_fit()         
+            self.update_bounds()            
+            self.init_fit()                
             self.update_use_from_input_file()   
             self.update_use()
             self.update_gui_params()
             self.update_params()
             self.update_RV_file_buttons()
-            self.update_act_file_buttons()         
+            self.update_act_file_buttons()
             self.fit_dispatcher(init=True)  
             self.init_plot_corr()
             self.update_plot_corr()    
@@ -6229,11 +6261,11 @@ This version is almost full, but there are still some parts of the tool, which a
             print("""
 It seems that you started the 'Exo-Striker' with Python 2. Please consider Python 3 for your work with the 'Exo-Striker'.
 """) 
+            
          
         print("""Here you can get some more information from the tool's workflow, stdout/strerr, and piped results.""")
         #self.use_K1.setStyleSheet("color: red")
- 
-        
+
 def main():
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle('Fusion') #The available styles depend on your platform but are usually 'Fusion', 'Windows', 'WindowsVista' (Windows only) and 'Macintosh' (Mac only). 
@@ -6249,10 +6281,8 @@ def main():
         pass
     window.show()
 
-    #window.closing.emit()                   
-    
     sys.exit(app.exec_())
-    
+
 if __name__ == '__main__':
     main() 
 

@@ -1088,10 +1088,10 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
                 sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, pool = thread, 
                                                 queue_size=threads, bootstrap=0, sample = dynesty_samp)
      
-                sampler.run_nested(dlogz=stop_crit, print_progress=print_progress)
+                sampler.run_nested(print_progress=print_progress) #dlogz=stop_crit,
         else:
              sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, sample = dynesty_samp)
-             sampler.run_nested(dlogz=stop_crit, print_progress=print_progress)
+             sampler.run_nested(print_progress=print_progress)
 
         if threads > 1:
             thread.close() 
@@ -1109,10 +1109,10 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
                 sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, pool = thread, nlive=nwalkers, 
                                                        queue_size=threads, bootstrap=0, sample = dynesty_samp)
      
-                sampler.run_nested(nlive_init=nwalkers, print_progress=print_progress)
+                sampler.run_nested(print_progress=print_progress) #nlive_init=nwalkers, 
         else:
              sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, sample = dynesty_samp)
-             sampler.run_nested(nlive_init=nwalkers, print_progress=print_progress)        
+             sampler.run_nested(nprint_progress=print_progress)        
         
         if threads > 1:
             thread.close() 
