@@ -41,13 +41,16 @@ class XStream(QtCore.QObject):
             XStream._stdout = XStream()
             #XStream._stdout.isatty = lambda: False
             sys.stdout = XStream._stdout
+            sys.stdout.isatty = lambda: False            
+            
         return XStream._stdout
     @staticmethod
     def stderr():
         if ( not XStream._stderr ):
             XStream._stderr = XStream()
             sys.stderr = XStream._stderr
-
+            sys.stderr.isatty = lambda: False            
+ 
         return XStream._stderr
 
 class LogMessageViewer(QtGui.QTextBrowser):

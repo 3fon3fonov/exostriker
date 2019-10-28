@@ -702,9 +702,11 @@ def find_planets(obj):
 
 
 
-def run_gls(obj):
+def run_gls(obj,fend =1.0,fbeg=10000):
              
-    omega = 1/ np.logspace(np.log10(0.85), np.log10(5000), num=int(1000))
+             
+    #fbeg = abs(max(obj.fit_results.rv_model.jd)-min(obj.fit_results.rv_model.jd))  * 2.0      
+    omega = 1/ np.logspace(np.log10(fend), np.log10(fbeg), num=int(1000))
  
  
 
@@ -718,14 +720,15 @@ def run_gls(obj):
     
     return obj
 
-def run_gls_o_c(obj):
-                     
-    omega = 1/ np.logspace(np.log10(0.85), np.log10(5000), num=int(1000))
+def run_gls_o_c(obj,fend =1.0,fbeg=10000):
+ 
+    #fbeg = abs(max(obj.fit_results.rv_model.jd)-min(obj.fit_results.rv_model.jd))  * 2.0                           
+    omega = 1/ np.logspace(np.log10(fend), np.log10(fbeg), num=int(1000))
 
  
     if len(obj.fit_results.rv_model.jd) > 5:
         RV_per_res = gls.Gls((obj.fit_results.rv_model.jd, obj.fit_results.rv_model.o_c, obj.fit_results.rv_model.rv_err), 
-        fast=True,  verbose=False, norm='ZK', ofac=10, fbeg=omega[-1], fend=omega[ 0],)            
+        fast=True,  verbose=False, norm='ZK', ofac=10, fbeg=omega[-1], fend=omega[0],)            
 
         obj.gls_o_c = RV_per_res        
     else:
