@@ -1112,7 +1112,7 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
                 sampler.run_nested(print_progress=print_progress) #nlive_init=nwalkers, 
         else:
              sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, sample = dynesty_samp)
-             sampler.run_nested(nprint_progress=print_progress)        
+             sampler.run_nested(print_progress=print_progress)        
         
         if threads > 1:
             thread.close() 
