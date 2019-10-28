@@ -41,7 +41,8 @@ class XStream(QtCore.QObject):
             XStream._stdout = XStream()
             #XStream._stdout.isatty = lambda: False
             sys.stdout = XStream._stdout
-            sys.stdout.isatty = lambda: False            
+            sys.stdout.isatty = lambda: False  
+            sys.stdout.encoding = sys.getdefaultencoding()
             
         return XStream._stdout
     @staticmethod
@@ -50,6 +51,7 @@ class XStream(QtCore.QObject):
             XStream._stderr = XStream()
             sys.stderr = XStream._stderr
             sys.stderr.isatty = lambda: False            
+            sys.stderr.encoding = sys.getdefaultencoding()
  
         return XStream._stderr
 
