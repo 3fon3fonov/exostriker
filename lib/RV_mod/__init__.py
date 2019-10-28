@@ -1053,7 +1053,7 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     
     
     def partial_func2(pp):
-        loglik = model_loglik(pp, program, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, gps, tra_gps, rtg, mix_fit, opt) 
+        loglik = model_loglik(pp, mod, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, tra_gps, rtg, mix_fit, opt) 
         #loglik = lnprob_new(pp, mod, par, flags, npl, vel_files, tr_files, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit)
     #    print(loglik)
         return loglik
@@ -1067,7 +1067,8 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     #from multiprocessing import Pool, cpu_count    
    # from pathos.multiprocessing import ProcessingPool as Pool
     from pathos.pools import ProcessPool as Pool
-    
+#    from multiprocessing import Pool    
+    from contextlib import closing    
     
     # print('EXPECTED VALUE BEST', partial_func(obj.par_for_mcmc))
    # print("BEST FIT ESTIMATE ", partial_func(prior_transform(obj.par_for_mcmc)))
@@ -1084,14 +1085,17 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
         print("'Static' Nest. Samp. is running, please wait... (still under tests!)")
 
         if threads > 1:
-            with Pool(processes=threads-1) as thread:
+            with closing(Pool(processes=threads)) as thread:
                 sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, pool = thread, 
-                                                queue_size=threads, bootstrap=0, sample = dynesty_samp)
+                                                queue_size=threads, sample = dynesty_samp)
      
-                sampler.run_nested(print_progress=print_progress) #dlogz=stop_crit,
+                sampler.run_nested(print_progress=print_progress,dlogz=stop_crit) #dlogz=stop_crit,
+                thread.close() 
+                thread.join() 
+                thread.clear()                
         else:
              sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, sample = dynesty_samp)
-             sampler.run_nested(print_progress=print_progress)
+             sampler.run_nested(print_progress=print_progress,dlogz=stop_crit)
 
         if threads > 1:
             thread.close() 
@@ -1105,14 +1109,18 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
         print("'Dynamic' Nest. Samp. is running, please wait... (still under tests!)")
         
         if threads > 1:
-            with Pool(ncpus=threads) as thread:
-                sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, pool = thread, nlive=nwalkers, 
-                                                       queue_size=threads, bootstrap=0, sample = dynesty_samp)
+            with closing(Pool(processes=threads)) as thread:
+                sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, pool = thread,
+                                                       queue_size=threads, sample = dynesty_samp, bound='multi') # nlive=nwalkers, 
      
-                sampler.run_nested(print_progress=print_progress) #nlive_init=nwalkers, 
+                sampler.run_nested(print_progress=print_progress,dlogz_init=stop_crit,nlive_init=nwalkers) #nlive_init=nwalkers, , nlive_batch=1
+                thread.close() 
+                thread.join() 
+                thread.clear()
+
         else:
-             sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, sample = dynesty_samp)
-             sampler.run_nested(print_progress=print_progress)        
+             sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, sample = dynesty_samp, bound='multi')
+             sampler.run_nested(print_progress=print_progress,dlogz_init=stop_crit,nlive_init=nwalkers) #nlive_init=nwalkers, 
         
         if threads > 1:
             thread.close() 
