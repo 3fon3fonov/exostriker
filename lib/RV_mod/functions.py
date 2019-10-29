@@ -1186,7 +1186,7 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
         return
     
     
-    table_file = open(file_name, 'wb') 
+    table_file = open(file_name, 'w') 
         
     table_file.write(text)
  

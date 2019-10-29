@@ -4589,7 +4589,7 @@ highly appreciated!
            
         
         # Pass the function to execute
-        worker_n = Worker(lambda: self.run_nest()) # Any other args, kwargs are passed to the run  
+        worker_n = Worker(self.run_nest) # Any other args, kwargs are passed to the run  
         # Execute
         worker_n.signals.finished.connect(self.worker_nest_complete)
         
@@ -4732,6 +4732,8 @@ highly appreciated!
         self.check_model_params()
         self.check_mcmc_params()
       
+        #fit = rv.run_mcmc2(fit)
+        
         fit = rv.run_mcmc(fit, burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
         fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked(), save_mode=self.adopt_mcmc_mode_as_par.isChecked(),
         save_maxlnL=self.adopt_best_lnL_as_pars.isChecked(),save_sampler=True)
