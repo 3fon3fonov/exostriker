@@ -2419,7 +2419,8 @@ class signal_fit(object):
            act_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [act_ind])
            act_data = act_data - np.mean(act_data)
            if ii == 1:
-               act_data = act_data / 1000.0
+               act_data = act_data * 1000.0
+              # print(act_data[0:10])
                
            act_data_sig = act_data*0.05
            act_data_set = np.array([BJD,act_data,act_data_sig]) 
