@@ -4603,8 +4603,11 @@ highly appreciated!
         
         self.check_model_params() 
         self.check_nested_params()
-      
-        fit = rv.run_nestsamp(fit, threads=int(self.nest_N_threads.value()), std_output=False, stop_crit = self.stop_crit.value(), 
+
+        if self.run_ns_in_bg.isChecked():
+            fit = rv.run_nestsamp_bg(fit)
+        else:      
+            fit = rv.run_nestsamp(fit, threads=int(self.nest_N_threads.value()), std_output=False, stop_crit = self.stop_crit.value(), 
         Dynamic_nest = self.radioButton_dyn_nest_samp.isChecked(), live_points = int(self.live_points.value()),fileoutput=self.save_samples.isChecked(),
         save_means=self.adopt_nest_means_as_par.isChecked(), save_mode=self.adopt_nest_mode_as_par.isChecked(), save_maxlnL=self.adopt_nest_best_lnL_as_pars.isChecked())
      
@@ -4732,9 +4735,10 @@ highly appreciated!
         self.check_model_params()
         self.check_mcmc_params()
       
-        #fit = rv.run_mcmc2(fit)
-        
-        fit = rv.run_mcmc(fit, burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
+        if self.run_mcmc_in_bg.isChecked():
+            fit = rv.run_mcmc_bg(fit)
+        else:
+            fit = rv.run_mcmc(fit, burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
         fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked(), save_mode=self.adopt_mcmc_mode_as_par.isChecked(),
         save_maxlnL=self.adopt_best_lnL_as_pars.isChecked(),save_sampler=True)
         
@@ -5840,7 +5844,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM_v1d.f -o ./lib/fr/chi2_dyn ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating  N-body L-M")    
             
-        version_dyn_loglik_= "0.01"        
+        version_dyn_loglik_= "0.02"        
         result, flag = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)              
         if flag == -1 or str(result[0][0]) != version_dyn_loglik_:
             result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba_v1c+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a', 3,output=True)             

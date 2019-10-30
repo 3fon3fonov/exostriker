@@ -561,7 +561,24 @@ def run_command_with_timeout(args, secs, output=False, pipe=False): # set output
         return '',flag
    
 
+def run_command_with_timeout_old(args, secs, output=False, pipe=False): # set output=True if you need to save the output
+    proc = Popen(args, shell=True, preexec_fn=os.setsid, stdout=PIPE)
+    proc_thread = Thread(target=proc.wait)
+    proc_thread.start()
+    proc_thread.join(secs)
+    text = proc.communicate()[0]
+    flag = 1
+    if proc_thread.is_alive():
+        try:
+            os.killpg(proc.pid, signal.SIGTERM)
+        except OSError:
 
+            print('Process #{} killed after {} seconds'.format(proc.pid, secs))
+            flag = -1
+            #text = '0 0 0 0'
+            return text.decode('utf-8'),flag
+    #return proc, flag , text.decode('utf-8')
+    return text.decode('utf-8'),flag
 
 
 

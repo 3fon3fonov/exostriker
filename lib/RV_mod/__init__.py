@@ -930,6 +930,35 @@ def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_pa
 
 
 ########## Dynesty Work in progress!!! #######
+    
+def run_nestsamp_bg(obj):
+    start_time = time.time()  
+     
+    target_name = 'ns_run'
+    
+    print("Nested Sampling running in backdround. For status see the main terminal.")
+    file_ses = open(r"%s.ses"%target_name, 'wb')
+    dill.dump(obj, file_ses)
+    file_ses.close()    
+ 
+    if sys.version_info[0] == 2:    
+        os.system("python2 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))  
+    elif sys.version_info[0] == 3:    
+        os.system("python3 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))            
+          
+
+    file_ses2 = open(r"%s_out.ses"%target_name, 'rb')
+    obj = dill.load(file_ses2)
+    file_ses2.close()       
+     
+    print("--- %s seconds ---" % (time.time() - start_time))  
+    os.system("rm %s.ses"%target_name)
+    os.system("rm %s_out.ses"%target_name)
+    
+    return obj
+
+ 
+
 def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, stop_crit = 0.001, Dynamic_nest = False, std_output=False, live_points = 4,
                  save_means=False, save_maxlnL=False, save_mode=False, fileoutput=False, save_sampler=False, **kwargs):          
     
@@ -1222,23 +1251,30 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     
     return obj
  
-def run_mcmc2(obj):
+def run_mcmc_bg(obj):
     start_time = time.time()  
      
     target_name = 'mcmc_run'
+    
+    print("MCMC running in backdround. For status see the main terminal.")
     file_ses = open(r"%s.ses"%target_name, 'wb')
     dill.dump(obj, file_ses)
     file_ses.close()    
-    
+ 
+    if sys.version_info[0] == 2:    
+        os.system("python2 ./lib/run_mcmc_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))  
+    elif sys.version_info[0] == 3:    
+        os.system("python3 ./lib/run_mcmc_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))            
+          
 
-    os.system("python3 ./lib/run_mcmc_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
-                
-
-    file_ses = open(r"%s.ses"%target_name, 'rb')
-    obj = dill.load(file_ses)
-    file_ses.close()       
-    
+    file_ses2 = open(r"%s_out.ses"%target_name, 'rb')
+    obj = dill.load(file_ses2)
+    file_ses2.close()       
+     
     print("--- %s seconds ---" % (time.time() - start_time))  
+    os.system("rm %s.ses"%target_name)
+    os.system("rm %s_out.ses"%target_name)
+    
     return obj
 
 def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, save_means=False, save_maxlnL=False, save_mode= False, 
@@ -1340,18 +1376,25 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
         tra_gps = obj.tra_gps        
 
 
-   # from pathos.multiprocessing import ProcessingPool as Pool
+    #from pathos.multiprocessing import ProcessingPool as Pool
     from pathos.pools import ProcessPool as Pool
-    #from pathos.pools import ParallelPool as Pool
-
+    #from pathos.threading import ThreadPool as Pool
     pool=Pool(ncpus=threads)
-    
+    #pool=Pool(processes=threads-1)
+    #from pathos.threading import ThreadPool
     #import mkl
    # mkl.set_num_threads(1)    
     #from multiprocessing import Pool 
     #pool=Pool(threads)  
-   
- 
+    
+    #from schwimmbad import MPIPool
+
+    #with MPIPool() as pool:
+
+   #     if not pool.is_master():
+   #         pool.wait()
+   #         sys.exit(0) 
+            
     ndim, nwalkers = len(pp), len(pp)*obj.nwalkers_fact
 
     pos = [pp + obj.gaussian_ball*np.random.rand(ndim) for i in range(nwalkers)]
@@ -1360,7 +1403,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit,opt), pool=pool)
  
 
-    #sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, rtg, mix_fit), threads = threads)
+    #sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit,opt), threads = threads)
 
 
     # burning phase
@@ -1457,6 +1500,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
         sampler.reset()
  
     obj.gps = []
+    print(obj.param_errors.offset_errors)
     
     print("--- %s seconds ---" % (time.time() - start_time))     
     
@@ -2375,7 +2419,7 @@ class signal_fit(object):
            act_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [act_ind])
            act_data = act_data - np.mean(act_data)
            if ii == 1:
-               act_data = act_data * 1000.0
+               act_data = act_data / 1000.0
                
            act_data_sig = act_data*0.05
            act_data_set = np.array([BJD,act_data,act_data_sig]) 
