@@ -31,7 +31,7 @@ c*************************************************************************
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
 
-      version = "0.01"
+      version = "0.02"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -111,8 +111,8 @@ c      call timer(t_stop)
      &             hkl,wdot,u_wdot)
 
 
-      write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
-      write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
+c      write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
+c      write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
         
 
 c      stop
@@ -547,7 +547,7 @@ C
      &       ,vzj(NPLMAX)
       real*8 rpl(NPLMAX),rhill(NPLMAX),epsil,deltat
       real*8 swift_mass(NPLMAX),s_mass(NPLMAX),j_mass(NPLMAX)
-      real*4 model_max,model_min
+      real*4 model_max,model_min,best_w,best_we
       parameter (AU=1.49597892d11, day = 86400.d0)
       real*8 wdot(NPLMAX),u_wdot(NPLMAX)      
  
@@ -566,35 +566,59 @@ ccccccccccccccccccc t[JD], obs., cal., O-C   ccccccccccccc
       do i = 1,npl
          j = 7*(i-1)
          
-!         a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
-         
-         if (a(j+2).lt.0.d0) then  ! if P<0, set P>0 
-            a(j+2) = abs(a(j+2))
-         endif         
-         
-         if (a(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
-            a(j+4) = a(j+4) + PI
-            a(j+1) = abs(a(j+1))
-            if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
-         endif
-         if (a(j+3).lt.0.d0) then  ! if e<0, set e>0 and w=w+PI, M0=M0-PI
-            a(j+3) = abs(a(j+3))
-            a(j+4) = a(j+4) +  PI
-            if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
-            a(j+5) = a(j+5) - PI
-            if (a(j+5).lt.0.d0) a(j+5) = a(j+5)+2.d0*PI
-         endif  
-         if(a(j+3).ge.1.d0) then ! if e>=1 set it to 0.99 to prevent errors
-             a(j+3)=0.99d0
-         endif
-         if (a(j+4).lt.0.d0) a(j+4) = dmod(a(j+4)+2.d0*PI,  2.d0*PI )  
-         if (a(j+5).lt.0.d0) a(j+5) = dmod(a(j+5)+2.d0*PI,  2.d0*PI ) 
-         if (a(j+4).gt.2.d0*PI) a(j+4) = dmod(a(j+4),  2.d0*PI )  
-         if (a(j+5).gt.2.d0*PI) a(j+5) = dmod(a(j+5),  2.d0*PI )         
-         if (a(j+6).lt.0.d0) a(j+6) = dmod(a(j+6)+2.d0*PI,  2.d0*PI )  
-         if (a(j+7).lt.0.d0) a(j+7) = dmod(a(j+7)+2.d0*PI,  2.d0*PI ) 
-         if (a(j+6).gt.2.d0*PI) a(j+6) = dmod(a(j+6),  2.d0*PI )  
-         if (a(j+7).gt.2.d0*PI) a(j+7) = dmod(a(j+7),  2.d0*PI )                         
+          if (hkl.eq.0) then
+              
+c             a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
+             
+             if (a(j+2).lt.0.d0) then  ! if P<0, set P>0 
+                a(j+2) = abs(a(j+2))
+             endif         
+             
+             if (a(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
+                a(j+4) = a(j+4) + PI
+                a(j+1) = abs(a(j+1))
+                if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
+             endif
+             if (a(j+3).lt.0.d0) then  ! if e<0, set e>0 and w=w+PI, M0=M0-PI
+                a(j+3) = abs(a(j+3))
+                a(j+4) = a(j+4) +  PI
+                if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
+                a(j+5) = a(j+5) - PI
+                if (a(j+5).lt.0.d0) a(j+5) = a(j+5)+2.d0*PI
+             endif  
+             if(a(j+3).ge.1.d0) then ! if e>=1 set it to 0.99 to prevent errors
+                 a(j+3)=0.99d0
+             endif
+             if (a(j+4).lt.0.d0) a(j+4)=dmod(a(j+4)+2.d0*PI,2.d0*PI)  
+             if (a(j+5).lt.0.d0) a(j+5)=dmod(a(j+5)+2.d0*PI,2.d0*PI) 
+             if (a(j+4).gt.2.d0*PI) a(j+4)=dmod(a(j+4),2.d0*PI )  
+             if (a(j+5).gt.2.d0*PI) a(j+5)=dmod(a(j+5),2.d0*PI )         
+             if (a(j+6).lt.0.d0) a(j+6)=dmod(a(j+6)+2.d0*PI,2.d0*PI)  
+             if (a(j+7).lt.0.d0) a(j+7)=dmod(a(j+7)+2.d0*PI,2.d0*PI) 
+             if (a(j+6).gt.2.d0*PI) a(j+6)=dmod(a(j+6),2.d0*PI)  
+             if (a(j+7).gt.2.d0*PI) a(j+7)=dmod(a(j+7),2.d0*PI)                         
+     
+          else   
+     
+             if (a(j+2).lt.0.d0) then  ! if P<0, set P>0 
+                a(j+2) = abs(a(j+2))
+             endif                   
+             
+             if (a(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
+                a(j+4) = -1.d0*a(j+4)       !     which is h = -h, k = -k
+                a(j+3) = -1.d0*a(j+3)
+                a(j+1) = abs(a(j+1))    
+             endif
+          
+                         
+             if (a(j+5).lt.0.d0) a(j+5)=dmod(a(j+5)+2.d0*PI,2.d0*PI) 
+             if (a(j+6).lt.0.d0) a(j+6)=dmod(a(j+6)+2.d0*PI,2.d0*PI)  
+             if (a(j+7).lt.0.d0) a(j+7)=dmod(a(j+7)+2.d0*PI,2.d0*PI) 
+             if (a(j+5).gt.2.d0*PI) a(j+5)=dmod(a(j+5),2.d0*PI)               
+             if (a(j+6).gt.2.d0*PI) a(j+6)=dmod(a(j+6),2.d0*PI)  
+             if (a(j+7).gt.2.d0*PI) a(j+7)=dmod(a(j+7),2.d0*PI)    
+     
+          endif                        
       enddo  
 
       do i = 1,ndata
@@ -632,27 +656,31 @@ c     &               + dlog(dsqrt(twopi))
 
       if(writeflag_best_par.gt.0) then
 
-                write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
-                write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
+        write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
+        write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
 
 
-                write (*,*) 'Best-fit K [m/s], P [days], e, w [deg], 
-     &          M0 [deg], i[deg], cap0m[deg] and their errors'
-              do j = 1,npl
+        write (*,*) 'Best-fit K [m/s], P [days], e, w [deg], 
+     &                M0 [deg], i[deg], cap0m[deg] and their errors'
+          do j = 1,npl
               i = 7*(j-1)
-
+              
+              if (hkl.eq.0) then
+                  best_w = a(i+4)*180.d0/PI
+                  best_we = dsqrt(covar(i+4,i+4))*180.d0/PI
+              else    
+                  best_w = a(i+4) 
+                  best_we = dsqrt(covar(i+4,i+4)) 
+              endif    
 !         a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
               write(*,*) a(i+1),
-     &                a(i+2),
-     &                a(i+3),
-     &                a(i+4)*180.d0/PI,a(i+5)*180.d0/PI,
+     &                a(i+2),a(i+3),best_w, a(i+5)*180.d0/PI,
      &                dmod(a(i+6)*180.d0/PI,180.d0),
      &                dmod(a(i+7)*180.d0/PI,360.d0),wdot(i)
               write(*,*) dsqrt(covar(i+1,i+1)),
      &                dsqrt(covar(i+2,i+2)),
 c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
-     &                dsqrt(covar(i+3,i+3)),
-     &                dsqrt(covar(i+4,i+4))*180.d0/PI,
+     &                dsqrt(covar(i+3,i+3)),best_we,
      &                dsqrt(covar(i+5,i+5))*180.d0/PI,
      &                dmod(dsqrt(covar(i+6,i+6))*180.d0/PI,180.d0),
      &                dmod(dsqrt(covar(i+7,i+7))*180.d0/PI,360.d0),
@@ -684,7 +712,6 @@ c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
           write(*,*) ' RMS =',rms
           write(*,*) ' Chi^2 =',chisq/dble(ndata-mfit)
           write(*,*) ' epoch = ', t0
-
 
           do i = 1,npl
              j = 7*(i-1)
@@ -832,7 +859,8 @@ c                    write(*,*) a(7*(i-1)+j)
           y = y+a(1+i)*fac1
           dyda(1+i) = fac1
           dyda(2+i) = -TWOPI*fac3*x/(a(2+i)*86400.d0)**2
-          dyda(3+i) = -a(1+i)*sine*(2.d0 - a(3+i)**2 - a(3+i)*cose)*fac2/dsqrt(1.d0 - a(3+i)**2)
+          dyda(3+i) = -a(1+i)*sine*(2.d0 - a(3+i)**2 - 
+     &       a(3+i)*cose)*fac2/dsqrt(1.d0 - a(3+i)**2)
           dyda(4+i) = -a(1+i)*(sinw*cosf + cosw*sinf)
           dyda(5+i) = fac3
 
@@ -1103,12 +1131,21 @@ c SET F/RHO^(1/3) FOR RADIUS (RHO IN G/CM^3) TO 1.D0 FOR NOW.
 
       do i = 2,nbod
          j = 7*(i-2)
+         
+         if (hkl.eq.0) then  
+             ecc = a(j+3)
+             omega = a(j+4)
+             capm = a(j+5)      
+         else
+             ecc = dsqrt(a(j+3)**2 + a(j+4)**2)
+             omega = datan2(a(j+3),a(j+4))
+             capm = a(j+5) - omega                      
+         endif
+         gm = gm + mass(i)
+         rpl(i) = frho3*(1.5d0*mass(i)/2.d0*PI)**0.3333333333d0
+         rhill(i) = ap(i-1)*(mass(i)/(3.d0*mass(1)))**0.3333333333d0
 
-      gm = gm + mass(i)
-      rpl(i) = frho3*(1.5d0*mass(i)/2.d0*PI)**0.3333333333d0
-      rhill(i) = ap(i-1)*(mass(i)/(3.d0*mass(1)))**0.3333333333d0
-
-      call ORBEL_EL2XV (gm,ialpha,ap(i-1),a(j+3),a(j+6),a(j+7),a(j+4),
+         call ORBEL_EL2XV (gm,ialpha,ap(i-1),a(j+3),a(j+6),a(j+7),a(j+4),
      &               a(j+5),xj(i),yj(i),zj(i),vxj(i),vyj(i),vzj(i))
 
 

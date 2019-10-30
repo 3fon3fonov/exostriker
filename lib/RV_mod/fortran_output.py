@@ -86,6 +86,12 @@ class fortran_output(object):
         # similar action to read_file_as_array_of_arrays, except on a string
         T=self.text
         l=len(T)
+        
+       # f = open("TTTTT","w")
+        #for i in range(l):
+       #     f.write("%s  \n"%str(T[i]))
+       # f.close()  
+ 
         fortran_output_warnings=Warning_log([],'Reading fortran output')
         # now a loop which will do the sorting out
         i=0
@@ -206,6 +212,7 @@ class fortran_output(object):
                 self.rms_str   = self.best_par[i+2]
                 self.chi_str   = self.best_par[i+3]
                 self.epoch_str = self.best_par[i+4]
+#                print(self.best_par[i+4],self.best_par[i+5],self.best_par[i+6])
                 self.masses  = list(map(float,self.best_par[i+6]))
                 self.semiM = list(map(float,self.best_par[i+8]))
                 self.mfit = int(self.mfit_str[2])

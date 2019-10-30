@@ -14,7 +14,7 @@ import glob
 import dill
 import os
  
-
+ 
 arguments = len(sys.argv) - 1
 
 if arguments==3 and sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
@@ -28,9 +28,9 @@ if arguments==3 and sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
         print("%s cannot be recognaized"%sys.argv[2])
  
     target_name = sys.argv[3] 
-
+ 
     fit.live_points_fact = 100
-    fit = rv.run_mcmc(fit, burning_ph=100, mcmc_ph=100, threads=4, output=False, fileoutput=True, save_means=False, save_mode=False, save_maxlnL=False)
+    fit = rv.run_nestsamp(fit, threads=4, std_output=False, stop_crit = 0.01, Dynamic_nest = False, live_points = 400,fileoutput=False )
      
     file_ses = open(r"%s_out.ses"%target_name, 'wb')
     dill.dump(fit, file_ses)
