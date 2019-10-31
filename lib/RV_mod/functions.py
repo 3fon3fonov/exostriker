@@ -22,6 +22,7 @@ from scipy.signal import argrelextrema
 from scipy.ndimage import gaussian_filter
 import random
 import string
+import ntpath
 
 
 import gls as gls 
@@ -518,6 +519,11 @@ def check_temp_RV_file(obj):
                 f.write(text)
                 
             f.close()
+
+def file_from_path(path):
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
+
 
 def run_command_with_timeout(args, secs, output=False, pipe=False): # set output=True if you need to save the output
     '''

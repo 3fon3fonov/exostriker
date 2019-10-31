@@ -1141,12 +1141,13 @@ c SET F/RHO^(1/3) FOR RADIUS (RHO IN G/CM^3) TO 1.D0 FOR NOW.
              omega = datan2(a(j+3),a(j+4))
              capm = a(j+5) - omega                      
          endif
+         
          gm = gm + mass(i)
          rpl(i) = frho3*(1.5d0*mass(i)/2.d0*PI)**0.3333333333d0
          rhill(i) = ap(i-1)*(mass(i)/(3.d0*mass(1)))**0.3333333333d0
 
-         call ORBEL_EL2XV (gm,ialpha,ap(i-1),a(j+3),a(j+6),a(j+7),a(j+4),
-     &               a(j+5),xj(i),yj(i),zj(i),vxj(i),vyj(i),vzj(i))
+         call ORBEL_EL2XV (gm,ialpha,ap(i-1),a(j+3),a(j+6),a(j+7),
+     &          a(j+4),a(j+5),xj(i),yj(i),zj(i),vxj(i),vyj(i),vzj(i))
 
 
       enddo

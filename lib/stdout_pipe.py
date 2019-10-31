@@ -88,10 +88,26 @@ class MyDialog(QtGui.QDialog):
         XStream.stdout().messageWritten.connect(self._console.appendLogMessage)
         XStream.stderr().messageWritten.connect(self._console.appendLogMessage)
 
-        # test
-        #timer = QtCore.QTimer(self, timeout=self.pipe_output, interval=500)
-       # timer.start()
 
+    def pipe_output( self ):
+        logger.debug('debug message')
+        logger.info('info message')
+        logger.warning('warning message')
+        logger.error('error message')
+
+
+class DebugDialog(QtGui.QDialog):
+    def __init__( self, parent = None ):
+        super(DebugDialog, self).__init__(parent)
+
+        self._console = LogMessageViewer(self)
+
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(self._console)
+        self.setLayout(layout)
+
+        self._console.appendLogMessage("The Exo-Striker is in a '-debug' mode. All stdout/stderr output is redirected to the main Terminal.")
+ 
 
     def pipe_output( self ):
         logger.debug('debug message')
