@@ -24,7 +24,7 @@ import gls as gls
 from worker import Worker #, WorkerSignals
 import gui_groups 
 
-#from multiprocessing import cpu_count
+from multiprocessing import cpu_count
 #import time
 
 #import BKR as bkr
@@ -32,7 +32,7 @@ from doublespinbox import DoubleSpinBox
 #from Jupyter_emb import ConsoleWidget_embed
 from Jupyter_emb import ConsoleWidget_embed
 
-from stdout_pipe import MyDialog
+from stdout_pipe import MyDialog, DebugDialog
 from print_info_window import print_info
 from symbols_window import show_symbols
 
@@ -104,7 +104,13 @@ global fit, colors, ses_list
 
 arguments = len(sys.argv) - 1
 
-if arguments==2 and sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
+
+if '-debug' in sys.argv:
+    debug = True
+else:
+    debug = False
+
+if sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
     try:
         file_pi = open(sys.argv[2], 'rb')
         fit_ses = dill.load(file_pi)
@@ -121,7 +127,7 @@ if arguments==2 and sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
         ses_list = [fit]            
         start_arg_ses = False    
         
-elif arguments==2 and sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
+elif sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
     try:
         file_pi = open(sys.argv[2], 'rb')
         fit_ses = dill.load(file_pi)
@@ -137,7 +143,7 @@ elif arguments==2 and sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
         ses_list = [fit]            
         start_arg_ses = False          
         
-elif arguments==2 and sys.argv[1] == '-rv_init' and os.path.exists(sys.argv[2]):
+elif sys.argv[1] == '-rv_init' and os.path.exists(sys.argv[2]):
     try:
         
         fit=rv.signal_fit(str(sys.argv[2]), 'RVmod session',readinputfile=True)
@@ -149,6 +155,20 @@ elif arguments==2 and sys.argv[1] == '-rv_init' and os.path.exists(sys.argv[2]):
         fit=rv.signal_fit(name='session')
         ses_list = [fit]            
         start_arg_ses = False             
+
+elif sys.argv[1] == '-rvbank' and os.path.exists(sys.argv[2]):
+    try:     
+        fit=rv.signal_fit(name='session')
+        fit.init_pl_arb()
+        fit.add_RVbank_dataset(rv.file_from_path(str(sys.argv[2])), str(sys.argv[2]), split = False)     
+        fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=True,  fortran_kill=3, timeout_sec=3, minimize_loglik=True,amoeba_starts=0)
+        ses_list = [fit]      
+        start_arg_ses = True  
+    except (ImportError, KeyError, TypeError, AttributeError) as e:
+        print("You have entered non-RVBank file. %s cannot be recognaized"%sys.argv[2])
+        fit=rv.signal_fit(name='session')
+        ses_list = [fit]            
+        start_arg_ses = False         
         
   
 else:    
@@ -170,14 +190,11 @@ colors_theta = colors
 QtGui.QApplication.processEvents()
 
 
-
- 
 class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_labels(self):
         global fit
 
- 
         self.value_stellar_mass.setText("%.4f"%(fit.params.stellar_mass))
         self.value_epoch.setText(str(fit.epoch))
         self.value_rms.setText("%.4f"%(fit.fit_results.rms))
@@ -211,53 +228,23 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def update_gui_params(self):
         global fit
 
-        param_gui = [self.K1, self.P1, self.e1, self.om1, self.ma1, self.incl1, self.Omega1,
-                     self.K2, self.P2, self.e2, self.om2, self.ma2, self.incl2, self.Omega2,
-                     self.K3, self.P3, self.e3, self.om3, self.ma3, self.incl3, self.Omega3,
-                     self.K4, self.P4, self.e4, self.om4, self.ma4, self.incl4, self.Omega4, 
-                     self.K5, self.P5, self.e5, self.om5, self.ma5, self.incl5, self.Omega5,
-                     self.K6, self.P6, self.e6, self.om6, self.ma6, self.incl6, self.Omega6,
-                     self.K7, self.P7, self.e7, self.om7, self.ma7, self.incl7, self.Omega7, 
-                     self.K8, self.P8, self.e8, self.om8, self.ma8, self.incl8, self.Omega8,
-                     self.K9, self.P9, self.e9, self.om9, self.ma9, self.incl9, self.Omega9,
-                     ]
-         
-       # for i in range(fit.npl*7):
-       #     param_gui[i].setValue(fit.params.planet_params[i])        
-
         zz = 0
         for i in range(9):
             if not self.buttonGroup_use_planets.buttons()[i].isChecked():
                 continue
             j = 7*i
             for k in range(7):
-                 param_gui[j+k].setValue(fit.params.planet_params[7*zz+k])        
+                 self.param_gui[j+k].setValue(fit.params.planet_params[7*zz+k])        
             zz=zz+1 
             
-        param_gui_wd = [self.om_dot_1, self.om_dot_2, self.om_dot_3, 
-                        self.om_dot_4, self.om_dot_5, self.om_dot_6, 
-                        self.om_dot_7, self.om_dot_8, self.om_dot_9]
 
         for i in range(9):
-            param_gui_wd[i].setValue(fit.omega_dot[i])        
+            self.param_gui_wd[i].setValue(fit.omega_dot[i])        
            
-             
-        param_gui_tr = [
-                     self.t0_1, self.pl_rad_1, self.a_sol_1,
-                     self.t0_2, self.pl_rad_2, self.a_sol_2,
-                     self.t0_3, self.pl_rad_3, self.a_sol_3,
-                     self.t0_4, self.pl_rad_4, self.a_sol_4, 
-                     self.t0_5, self.pl_rad_5, self.a_sol_5,
-                     self.t0_6, self.pl_rad_6, self.a_sol_6,
-                     self.t0_7, self.pl_rad_7, self.a_sol_7, 
-                     self.t0_8, self.pl_rad_8, self.a_sol_8,
-                     self.t0_9, self.pl_rad_9, self.a_sol_9,
-                     ]
-         
         for i in range(fit.npl):
-            param_gui_tr[i*3].setValue(fit.t0[i])           
-            param_gui_tr[i*3+1].setValue(fit.pl_rad[i]) 
-            param_gui_tr[i*3+2].setValue(fit.pl_a[i]) 
+            self.param_gui_tr[i*3].setValue(fit.t0[i])           
+            self.param_gui_tr[i*3+1].setValue(fit.pl_rad[i]) 
+            self.param_gui_tr[i*3+2].setValue(fit.pl_a[i]) 
             
         rvs_data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
                     self.Data6,self.Data7,self.Data8,self.Data9,self.Data10]
@@ -321,17 +308,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def update_params(self):
         global fit
 
-        param_gui = [self.K1, self.P1, self.e1, self.om1, self.ma1, self.incl1, self.Omega1,
-                     self.K2, self.P2, self.e2, self.om2, self.ma2, self.incl2, self.Omega2,
-                     self.K3, self.P3, self.e3, self.om3, self.ma3, self.incl3, self.Omega3,
-                     self.K4, self.P4, self.e4, self.om4, self.ma4, self.incl4, self.Omega4, 
-                     self.K5, self.P5, self.e5, self.om5, self.ma5, self.incl5, self.Omega5,
-                     self.K6, self.P6, self.e6, self.om6, self.ma6, self.incl6, self.Omega6,
-                     self.K7, self.P7, self.e7, self.om7, self.ma7, self.incl7, self.Omega7, 
-                     self.K8, self.P8, self.e8, self.om8, self.ma8, self.incl8, self.Omega8,
-                     self.K9, self.P9, self.e9, self.om9, self.ma9, self.incl9, self.Omega9,
-                     ]                  
-
+ 
         #print([i for i, button in enumerate(self.buttonGroup_use_planets.buttons()) if button.isChecked()])
         zz = 0
         for i in range(9):
@@ -339,33 +316,20 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 continue           
             j = 7*i
             for k in range(7):
-                fit.params.planet_params[7*zz+k] = param_gui[j+k].value() 
+                fit.params.planet_params[7*zz+k] = self.param_gui[j+k].value() 
             zz = zz +1
-            
-        param_gui_wd = [self.om_dot_1, self.om_dot_2, self.om_dot_3, 
-                        self.om_dot_4, self.om_dot_5, self.om_dot_6, 
-                        self.om_dot_7, self.om_dot_8, self.om_dot_9]
+ 
 
         for i in range(9):
-            fit.omega_dot[i] = param_gui_wd[i].value()             
+            fit.omega_dot[i] = self.param_gui_wd[i].value()             
         
         fit.hack_around_rv_params() 
          
-        param_gui_tr = [self.t0_1, self.pl_rad_1, self.a_sol_1,
-             self.t0_2, self.pl_rad_2, self.a_sol_2,
-             self.t0_3, self.pl_rad_3, self.a_sol_3,
-             self.t0_4, self.pl_rad_4, self.a_sol_4, 
-             self.t0_5, self.pl_rad_5, self.a_sol_5,
-             self.t0_6, self.pl_rad_6, self.a_sol_6,
-             self.t0_7, self.pl_rad_7, self.a_sol_7, 
-             self.t0_8, self.pl_rad_8, self.a_sol_8,
-             self.t0_9, self.pl_rad_9, self.a_sol_9,
-             ]
-         
+ 
         for i in range(fit.npl):
-            fit.t0[i]     = param_gui_tr[i*3].value()   
-            fit.pl_rad[i] = param_gui_tr[i*3+1].value() 
-            fit.pl_a[i]   = param_gui_tr[i*3+2].value() 
+            fit.t0[i]     = self.param_gui_tr[i*3].value()   
+            fit.pl_rad[i] = self.param_gui_tr[i*3+1].value() 
+            fit.pl_a[i]   = self.param_gui_tr[i*3+2].value() 
 
         rvs_data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
                     self.Data6,self.Data7,self.Data8,self.Data9,self.Data10]
@@ -1696,6 +1660,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             for i in range(max(fit.filelist.idset)+1):
                 self.comboBox_corr_1.addItem('RV %s'%(i+1),i+1) 
                 self.comboBox_corr_2.addItem('RV %s'%(i+1),i+1) 
+                
+                #print(fit.filelist.idset,fit.fit_results.rv_model.jd)
             
                 self.initialize_corr_y[z] = np.array([fit.fit_results.rv_model.jd[fit.filelist.idset==i],
                                                       fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
@@ -2418,7 +2384,6 @@ Polyfit coefficients:
 
         if str(input_files[0]) != '':
  
-            
             choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "Do you want to split the RV data to pre- and post- (if applicable)?",
                                             QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
@@ -5869,7 +5834,10 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.param_bounds_gui  = gui_groups.param_bounds_gui(self)
         self.offset_bounds_gui = gui_groups.offset_bounds_gui(self)
         self.jitter_bounds_gui = gui_groups.jitter_bounds_gui(self)
- 
+        self.param_gui         = gui_groups.param_gui(self)
+        self.param_gui_wd      = gui_groups.param_gui_wd(self)    
+        self.param_gui_tr      = gui_groups.param_gui_tr(self)
+        
         
         self.initialize_buttons()
         self.initialize_plots()   
@@ -5927,7 +5895,11 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         #################### stdout pipe ########################
        
         #if sys.version_info[0] == 3:
-        self.pipe_text = MyDialog()
+        if debug == False:
+            self.pipe_text = MyDialog()
+        else:
+            self.pipe_text = DebugDialog()
+           
         self.gridLayout_stdout.addWidget(self.pipe_text)  
    
         #################### credits  ########################
@@ -6227,7 +6199,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.force_copl_incl.stateChanged.connect(self.set_force_copl_incl)       
 
         self.threadpool = QtCore.QThreadPool()
-        #self.threadpool.setMaxThreadCount(cpu_count())    
+        self.threadpool.setMaxThreadCount(cpu_count())    
 
 
         self.update_St_params() 

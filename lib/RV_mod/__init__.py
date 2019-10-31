@@ -936,7 +936,7 @@ def run_nestsamp_bg(obj):
      
     target_name = 'ns_run'
     
-    print("Nested Sampling running in backdround. For status see the main terminal.")
+    print("Nested Sampling is running behind the GUI. For status, see the main terminal.")
     file_ses = open(r"%s.ses"%target_name, 'wb')
     dill.dump(obj, file_ses)
     file_ses.close()    
@@ -1256,7 +1256,7 @@ def run_mcmc_bg(obj):
      
     target_name = 'mcmc_run'
     
-    print("MCMC running in backdround. For status see the main terminal.")
+    print("MCMC is running behind the GUI. For status, see the main terminal.")
     file_ses = open(r"%s.ses"%target_name, 'wb')
     dill.dump(obj, file_ses)
     file_ses.close()    
@@ -1500,7 +1500,6 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
         sampler.reset()
  
     obj.gps = []
-    print(obj.param_errors.offset_errors)
     
     print("--- %s seconds ---" % (time.time() - start_time))     
     
