@@ -110,7 +110,7 @@ if '-debug' in sys.argv:
 else:
     debug = False
 
-if sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
+if arguments != 0 and sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
     try:
         file_pi = open(sys.argv[2], 'rb')
         fit_ses = dill.load(file_pi)
@@ -127,7 +127,7 @@ if sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
         ses_list = [fit]            
         start_arg_ses = False    
         
-elif sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
+elif arguments != 0 and sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
     try:
         file_pi = open(sys.argv[2], 'rb')
         fit_ses = dill.load(file_pi)
@@ -143,7 +143,7 @@ elif sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
         ses_list = [fit]            
         start_arg_ses = False          
         
-elif sys.argv[1] == '-rv_init' and os.path.exists(sys.argv[2]):
+elif  arguments != 0 and sys.argv[1] == '-rv_init' and os.path.exists(sys.argv[2]):
     try:
         
         fit=rv.signal_fit(str(sys.argv[2]), 'RVmod session',readinputfile=True)
@@ -156,7 +156,7 @@ elif sys.argv[1] == '-rv_init' and os.path.exists(sys.argv[2]):
         ses_list = [fit]            
         start_arg_ses = False             
 
-elif sys.argv[1] == '-rvbank' and os.path.exists(sys.argv[2]):
+elif arguments != 0 and sys.argv[1] == '-rvbank' and os.path.exists(sys.argv[2]):
     try:     
         fit=rv.signal_fit(name='session')
         fit.init_pl_arb()
