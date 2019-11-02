@@ -4530,7 +4530,7 @@ highly appreciated!
             
 
         choice = QtGui.QMessageBox.information(self, 'Warning!',
-                                            "This will run in the background and may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
+                                            "This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
                                             QtGui.QMessageBox.Cancel | QtGui.QMessageBox.Ok)       
  
          
@@ -4661,7 +4661,7 @@ highly appreciated!
     
 
         choice = QtGui.QMessageBox.information(self, 'Warning!',
-                                            "This will run in the background and may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
+                                            "This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
                                             QtGui.QMessageBox.Cancel | QtGui.QMessageBox.Ok)       
          
         if choice == QtGui.QMessageBox.Cancel:
