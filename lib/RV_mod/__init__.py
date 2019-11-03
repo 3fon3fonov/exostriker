@@ -886,8 +886,9 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         for j in range(len(pp)):
             #print(ee[j] + "  =  %s"%pp[j])
             #print("{0:{width}s} = {1:{width}.{precision}f}".format(ee[j], pp[j] , width = 10, precision = 4))
-            print("{0:{width}s} = {1:{width}.{precision}f} + {2:{width}.{precision}f} - {3:{width}.{precision}f}".format(ee[j], pp[j],errors[j][0],errors[j][1], width = 10, precision = 4))
-   
+            #print("{0:{width}s} = {1:{width}.{precision}f} + {2:{width}.{precision}f} - {3:{width}.{precision}f}".format(ee[j], pp[j],errors[j][0],errors[j][1], width = 10, precision = 4))
+            print("{0:{width2}s} = {1:{width}.{precision}f}  -{2:{width}.{precision}f} +{3:{width}.{precision}f}".format(ee[j], pp[j],errors[j][0],errors[j][1], width2 = 16, width = 10, precision = 4))
+  
     obj.gps = []
     obj.tra_gps = []    
     

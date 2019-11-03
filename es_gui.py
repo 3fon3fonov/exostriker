@@ -1824,13 +1824,15 @@ Polyfit coefficients:
  
     def update_activity_gls_plots(self,ind):
         global fit, colors,  p11 
- 
-        omega = 1/ np.logspace(np.log(self.gls_min_period.value()), np.log(self.gls_max_period.value()), num=self.gls_n_omega.value())
+
+        p11.plot(clear=True,) 
+
+        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
-  
+   
+    
         if len(fit.act_data_sets[ind]) != 0 and len(fit.act_data_sets[ind][0]) > 5:
 
-            p11.plot(clear=True,)        
  
             act_per = gls.Gls((fit.act_data_sets[ind][0], fit.act_data_sets[ind][1],fit.act_data_sets[ind][2]), 
             fast=True,  verbose=False, norm= "ZK",ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)
@@ -1850,16 +1852,19 @@ Polyfit coefficients:
             [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
   
             text_peaks, pos_peaks = self.identify_power_peaks(1/act_per.freq, act_per.power, power_level = power_levels, sig_level = act_per.powerLevel(np.array(power_levels)) )    
-    
-            self.act_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
-            act_per.info(stdout=False) + text_peaks ))   
-    
-            return
-        else:   
-            p11.plot(clear=True,)        
 
-            return
+            self.label_peaks(p11, pos_peaks, GLS = True, activity = True)
+    
+            self.act_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(act_per.info(stdout=False) + text_peaks ))   
+   
+#            return
+      #  else:   
+      #      p11.plot(clear=True,)        
 
+      #      return
+
+        if self.gls_act_cross_hair.isChecked():
+            self.cross_hair(p11,log=self.radioButton_act_GLS_period.isChecked()) 
 
 
     def update_activity_data_plots(self,ind):
@@ -1965,7 +1970,7 @@ Polyfit coefficients:
   
    
             
-    def label_peaks(self, plot_wg2, pos_peaks, GLS = True, o_c = False):
+    def label_peaks(self, plot_wg2, pos_peaks, GLS = True, o_c = False, activity = False):
     
         if GLS == True and self.avoid_GLS_RV_alias.isChecked():
             x_peaks = pos_peaks[0][pos_peaks[0]>1.2]
@@ -1979,6 +1984,8 @@ Polyfit coefficients:
             N_peaks = int(self.N_GLS_peak_to_point.value())
             if o_c == True:
                 log = self.radioButton_RV_o_c_GLS_period.isChecked()
+            elif activity == True:
+                log = self.radioButton_act_GLS_period.isChecked()             
             else:
                 log = self.radioButton_RV_GLS_period.isChecked()
                 
@@ -6110,6 +6117,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.trans_o_c_plot_cross_hair.stateChanged.connect(self.update_transit_plots)
         self.tls_cross_hair.stateChanged.connect(self.update_tls_plots)
         self.tls_o_c_cross_hair.stateChanged.connect(self.update_tls_o_c_plots)
+        self.gls_act_cross_hair.stateChanged.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
+
 
         self.extra_plot_cross_hair.stateChanged.connect(self.update_extra_plots)
         self.inpector_plot_cross_hair.stateChanged.connect(lambda: self.plot_data_inspect(self.tree_view_tab.listview))
