@@ -29,7 +29,7 @@ ccc   The final version will be available in the Python RVMod lib.
       common /DSBLK/ npl,ndset,idsmax,idset,gr_flag
 
 
-      version = "0.01"
+      version = "0.03"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -106,15 +106,21 @@ c             if (i.gt.idsmax(idset)) idset = idset + 1
 	      xmax = x0 + x(i)
  
  
-              y_in(i) = y(i) - a(6*npl+idset) - a(6*npl+2*ndset+1)*x(i)
+          y_in(i) = y(i) - a(6*npl+idset) 
+     &    - a(6*npl+ndset+1)*x(i)
+     &    - a(6*npl+ndset+2)*x(i)**2
+                   
 	      ymod(i) = ymod(i) - a(6*npl+idset) 
-     &    - a(6*npl +2*ndset + 1)*x(i)
+     &    - a(6*npl+ndset+1)*x(i)
+     &    - a(6*npl+ndset+2)*x(i)**2
 
               dy = y_in(i) - ymod(i)
               rms = rms + (y_in(i) - ymod(i))**2
               if (writeflag_RV.gt.0) then 
                   write(*,*) x0 + x(i),
-     &            ymod(i), y_in(i) + a(6*npl+2*ndset+1)*x(i),
+     &            ymod(i), y_in(i) 
+     &            + a(6*npl+ndset+1)*x(i)
+     &            + a(6*npl+ndset+2)*x(i)**2,    
      &            dy, sig(i), idset
    
               endif
@@ -182,6 +188,10 @@ c              offset(j) = a(i)
           write (*,*) 'linear trend [m/s per day]:'
           write (*,*) a(6*npl + ndset + 1)  
           write (*,*) dsqrt(covar(6*npl + ndset + 1,6*npl + ndset + 1))
+          
+          write (*,*) 'quad. trend [m/s per day]:'
+          write (*,*) a(6*npl + ndset + 2)  
+          write (*,*) dsqrt(covar(6*npl + ndset + 2,6*npl + ndset + 2))          
 
           write (*,*) ' ndata =',ndata
           write (*,*) ' mfit =',mfit
@@ -312,7 +322,7 @@ c          WRITE (*,*) idsmax(i)
           iar(6*npl+i)=u_off(i)
       enddo
       
-      ma = 6*npl + ndset + 1
+      ma = 6*npl + ndset + 2
 c      write (*,*) 'Initial K, P, e, w, M0 and their flags: '
       do j = 1,npl
           i = 6*(j-1)
@@ -328,6 +338,9 @@ c u_jit read for consistency with input/output in loglik case, but here we don't
           
       read (*,*) ar(6*npl+ ndset+1)
       read (*,*) iar(6*npl+ndset+1)    
+
+      read (*,*) ar(6*npl+ ndset+2)
+      read (*,*) iar(6*npl+ndset+2) 
 
       ndata = ndata - 1
 
@@ -581,12 +594,14 @@ c      do i = 1,idset
       
       dyda(6*npl+ts) = 1.d0
 
-      y = y + a(6*npl +ndset + 1)*x  
+      y = y + a(6*npl +ndset + 1)*x + a(6*npl + ndset + 2)*x**2
+        
       dyda(6*npl + ndset + 1) = x
+      dyda(6*npl + ndset + 2) = x**2
    
-      do i = ts+1,ndset
-          dyda(6*npl+i) = 0.d0
-      enddo
+c      do i = ts+1,ndset
+c          dyda(6*npl+i) = 0.d0
+c      enddo
 
       return
       end

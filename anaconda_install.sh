@@ -156,10 +156,10 @@ echo " "
 
 select yn in "Yes" "No"; do
    case $yn in
-       Yes ) gfortran -O3 ./source/latest_f/kepfit_LM_v1e.f -o ./lib/fr/chi2_kep ./lib/libswift.a; # chi2 keplerian
-             gfortran -O3 ./source/latest_f/dynfit_LM_v1d.f -o ./lib/fr/chi2_dyn ./lib/libswift.a; # chi2 dynamical
-             gfortran -O3 ./source/latest_f/kepfit_amoeba_v1e.f -o ./lib/fr/loglik_kep ./lib/libswift.a; # lnL keplerian
-             gfortran -O3 ./source/latest_f/dynfit_amoeba_v1e.f -o ./lib/fr/loglik_dyn ./lib/libswift.a; # lnL dynamical               
+       Yes ) gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep ./lib/libswift.a; # chi2 keplerian
+             gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn ./lib/libswift.a; # chi2 dynamical
+             gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep ./lib/libswift.a; # lnL keplerian
+             gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn ./lib/libswift.a; # lnL dynamical               
              gfortran -O3 ./source/latest_f/dynfit_amoeba_v1c+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a; # lnL dynamical/keplerian mixed                 
              break;;
        No ) echo "skiped..."; break;;

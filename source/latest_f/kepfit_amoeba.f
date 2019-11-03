@@ -9,7 +9,7 @@ ccc   Trifonov et al. (in prep).
       real*8 PI, twopi
       parameter (PI=3.14159265358979d0)
       integer npl,ndset,idset,ndata,ma,mfit,i,j,NDSMAX,NPLMAX,MMAX
-      integer writeflag_best_par,hkl
+      integer writeflag_best_par,hkl,gr_flag
       integer writeflag_RV,writeflag_fit, amoebastarts
       parameter (NDSMAX=20, NPLMAX=20, MMAX=200)
       integer idsmax(NDSMAX),ia(MMAX),nt, ts(20000),ii, iter
@@ -25,17 +25,28 @@ ccc   Trifonov et al. (in prep).
       real*8 loglikk, ologlikk, dloglikk,best_w,best_we
       external rvkep, compute_abs_loglik
       character*80 infile
+      character*80 version_input, version
+      
       real*4 t_stop,when_to_kill, model_max,model_min
       
       
-      common /DSBLK/ npl,ndset,idsmax,idset
+      common /DSBLK/ npl,ndset,idsmax,idset,gr_flag
+
+
+      version = "0.03"
+       
+      CALL getarg(1, version_input)     
+      if(version_input.eq.'-version') then
+          write(*,*) version
+          goto 222
+      endif
 
       twopi=2.d0*PI
       ftol=0.000001d0
 
 c     first two just for consistency with dynamical input, not really used
       read (*,*) epsil,deltat, amoebastarts,
-     &          when_to_kill, nt, model_max, model_min  
+     &          when_to_kill, nt, model_max, model_min ,gr_flag 
      
      
 c      write(*,*) 'Stellar mass'
@@ -44,12 +55,13 @@ c      write(*,*) 'Stellar mass'
  
       call io_read_data (ndata,x,ts,y,sig,epoch,
      &               x0,t_max,a,ia,ma,incl,cap0m,hkl)
-       
+ 
       mfit = 0
       do j = 1,ma
           if (ia(j).ne.0) mfit = mfit + 1
       enddo
-      
+ 
+ 
 c      call prepare_for_amoeba(p,MMAX+1,MMAX,yamoeba,a,ia,ma,mfit,
 c     & compute_abs_loglik,ndata,x,y,ymod,dyda,ts,sig)
  
@@ -65,6 +77,9 @@ c     & compute_abs_loglik,ndata,x,y,ymod,dyda,ts,sig)
  
          i = i + 1
          ologlikk = loglikk
+         
+       
+         
 
          call prepare_for_amoeba(p,MMAX+1,MMAX,yamoeba,a,ia,ma,mfit,
      & compute_abs_loglik,ndata,x,y,ymod,dyda,ts,sig, i,hkl)
@@ -122,11 +137,11 @@ c     & compute_abs_loglik,ndata,x,y,ymod,dyda,ts,sig)
              endif  
              if (a(j+4).lt.0.d0) a(j+4) = dmod(a(j+4)+2.d0*PI, 2.d0*PI)  
              if (a(j+5).lt.0.d0) a(j+5) = dmod(a(j+5)+2.d0*PI, 2.d0*PI) 
-             if (a(j+6).lt.0.d0) a(j+6) = dmod(a(j+6)+2.d0*PI, 2.d0*PI) 
+c             if (a(j+6).lt.0.d0) a(j+6) = dmod(a(j+6)+2.d0*PI, 2.d0*PI) 
              
              if (a(j+4).gt.2.d0*PI) a(j+4) = dmod(a(j+4), 2.d0*PI )  
              if (a(j+5).gt.2.d0*PI) a(j+5) = dmod(a(j+5), 2.d0*PI )   
-             if (a(j+6).gt.2.d0*PI) a(j+6) = dmod(a(j+6), 2.d0*PI )   
+c             if (a(j+6).gt.2.d0*PI) a(j+6) = dmod(a(j+6), 2.d0*PI )   
            
  
                                                    
@@ -160,15 +175,18 @@ c             write(*,*) a(j+4),a(j+4),ecc(i) ,omega(i) ,capmm(i)
           idset = ts(i)
           call RVKEP (x(i),a,ymod(i),dyda,ma,idset,hkl)
 
-          y_in(i) = y(i) - a(6*npl+idset) - a(6*npl+2*ndset+1)*x(i)
+          y_in(i) = y(i) - a(6*npl+idset) - a(6*npl+2*ndset+1)*x(i) -
+     &      a(6*npl +2*ndset + 2)*x(i)**2
 	      ymod(i) = ymod(i) - a(6*npl+idset) 
-     &    - a(6*npl +2*ndset + 1)*x(i)
+     &    - a(6*npl +2*ndset + 1)*x(i) - 
+     &      a(6*npl +2*ndset + 2)*x(i)**2
 
           dy = y_in(i) - ymod(i)
 
           if (writeflag_RV.gt.0) then 
               write(*,*) x0 + x(i),
-     &        ymod(i), y_in(i) + a(6*npl+2*ndset+1)*x(i),
+     &        ymod(i), y_in(i) + a(6*npl+2*ndset+1)*x(i) +
+     &        a(6*npl +2*ndset + 2)*x(i)**2,
      &        dy, sig(i), idset
    
           endif
@@ -194,7 +212,7 @@ c             write(*,*) a(j+4),a(j+4),ecc(i) ,omega(i) ,capmm(i)
 52    format(a,f14.3)
 53    format(a,i4,a,i4,a,f7.3,a,f7.3,a,f12.3)    
     
-      call MA_J (a,ma,npl,st_mass,sini,mass,ap,hkl)    
+      call MA_J (a,ma,npl,st_mass,sini,mass,ap,hkl,gr_flag)    
     
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
@@ -247,7 +265,12 @@ c     &           /(365.25*365.25))
           
           write (*,*) 'linear trend [m/s per day]:'
           write (*,*) a(6*npl + 2*ndset + 1)  
-          write (*,*) dsqrt(covar(6*npl + ndset + 1,6*npl + ndset + 1))              
+          write (*,*) dsqrt(covar(6*npl + ndset + 1,6*npl + ndset + 1))    
+          
+          write (*,*) 'quad. trend [m/s per day]:'
+          write (*,*) a(6*npl + 2*ndset + 2)  
+          write (*,*) dsqrt(covar(6*npl + ndset + 2,6*npl + ndset + 2))           
+                    
           
           write (*,*) ' ndata =',ndata
           write (*,*) ' mfit =',mfit
@@ -279,7 +302,7 @@ c     &           /(365.25*365.25))
 
 
 c      stop
-      end
+222   end
 
 
 
@@ -288,7 +311,7 @@ c      stop
      & sig,loglik, num,a,ia,hkl)
       implicit none
       
-      integer MMAX,NDSMAX,npl,ndset,idset,num, mfit    
+      integer MMAX,NDSMAX,npl,ndset,idset,num, mfit,gr_flag    
       parameter (MMAX=200, NDSMAX=20)
       real*8 twopi, loglik
       parameter (twopi=6.28318530717958d0)
@@ -298,7 +321,7 @@ c      stop
      & , y2(20000)
       
    
-      common /DSBLK/ npl,ndset,idsmax,idset      
+      common /DSBLK/ npl,ndset,idsmax,idset,gr_flag      
       
       loglik=0.d0
       j=0
@@ -310,13 +333,18 @@ c      stop
              a3(i)=a(i)
          endif
       enddo
+ 
+      
         do i = 1,ndata
               idset = ts(i)
               call RVKEP (x(i),a3,y2(i),dyda,ma,idset,hkl)
               y_in(i) = y(i) - a3(6*npl+idset)- 
-     &                 a3(6*npl+2*ndset+1)*x(i)
+     &                 a3(6*npl+2*ndset+1)*x(i) 
+     &               - a3(6*npl+2*ndset+2)*x(i)**2
+     
 	          y2(i) = y2(i) - a3(6*npl+idset) - 
-     &        a3(6*npl +2*ndset + 1)*x(i)
+     &         a3(6*npl+2*ndset+1)*x(i) 
+     &       - a3(6*npl+2*ndset+2)*x(i)**2
 
           dy = y_in(i) - y2(i)
 
@@ -326,8 +354,9 @@ c      stop
      &               dlog(dsqrt(twopi*(sig(i)**2 + 
      &               a3(6*npl+ndset+idset)**2))) 
      &               - dlog(dsqrt(twopi)) 
-        enddo
      
+        enddo
+       
       return
       end      
 
@@ -346,10 +375,10 @@ c      stop
       integer idsmax(NDSMAX),ts(20000), u_incl, u_cap0m
       real*8 jitt(NDSMAX),sigscale,t0,t_max, epoch
       real*8 off(NDSMAX),loglik
-      integer i,k,j
+      integer i,k,j,gr_flag
       character*80 infile
    
-      common /DSBLK/ npl,ndset,idsmax,idset
+      common /DSBLK/ npl,ndset,idsmax,idset,gr_flag
 
 c      write (*,*)  ' Number of Data Sets: '
       read (*,*) ndset
@@ -417,7 +446,7 @@ c              sig(ndata) = dsqrt(sig(ndata)**2 + jitt(i)**2)
           iar(6*npl+ndset+i)=u_jit(i)
       enddo
       
-      ma = 6*npl + 2*ndset + 1
+      ma = 6*npl + 2*ndset + 2
       do j = 1,npl
           i = 6*(j-1)
           read (*,*) ar(i+1),ar(i+2),ar(i+3),ar(i+4),ar(i+5),incl(j),
@@ -431,8 +460,11 @@ c         inclinations and cap0m are always ignored in the fit, just for consist
 
           
       read (*,*) ar(6*npl+ 2*ndset+1)
-      read (*,*) iar(6*npl+2*ndset+1)    
-
+      read (*,*) iar(6*npl+2*ndset+1)   
+      
+      read (*,*) ar(6*npl+ 2*ndset+2)
+      read (*,*) iar(6*npl+2*ndset+2)   
+      
       ndata = ndata - 1
  
 c      write(*,*) 'for epoch :'
@@ -471,15 +503,15 @@ c      write(*,*) 'for epoch :'
       real*8 PI,TWOPI
       parameter (PI=3.14159265358979d0)
       parameter (TWOPI=2.0d0*PI)
-      integer npl,ndset,idset,ma,i,j,NDSMAX,ts,hkl
+      integer npl,ndset,idset,ma,i,j,NDSMAX,ts,hkl,gr_flag
       parameter (NDSMAX=20)
       integer idsmax(NDSMAX)
-      real*8 x,y,a(ma),a2(ma),dyda(ma)
+      real*8 x,y,a(ma),a2(ma),dyda(ma),mass(10),ap(10)
       real*8 cosw,sinw,capm,cape,cose,sine,cosf,sinf,fac1,fac2,fac3
       real*8 orbel_ehybrid, f, coswf,omega(10),capmm(10),ecc(10)
       real*8 ecc2,wm,sinwm,coswm,sin2wm,cos2wm,sin3wm,cos3wm,omegad(10)
 
-      common /DSBLK/ npl,ndset,idsmax,idset
+      common /DSBLK/ npl,ndset,idsmax,idset,gr_flag
       
       y = 0.d0
       
@@ -510,17 +542,23 @@ c      write(*,*) 'for epoch :'
              endif  
              if (a2(j+4).lt.0.d0) a2(j+4)=dmod(a2(j+4)+2.d0*PI,2.d0*PI)  
              if (a2(j+5).lt.0.d0) a2(j+5)=dmod(a2(j+5)+2.d0*PI,2.d0*PI) 
-             if (a2(j+6).lt.0.d0) a2(j+6)=dmod(a2(j+6)+2.d0*PI,2.d0*PI) 
+c             if (a2(j+6).lt.0.d0) a2(j+6)=dmod(a2(j+6)+2.d0*PI,2.d0*PI) 
             
              
              if (a2(j+4).gt.2.d0*PI) a2(j+4)=dmod(a2(j+4), 2.d0*PI)  
              if (a2(j+5).gt.2.d0*PI) a2(j+5)=dmod(a2(j+5), 2.d0*PI)   
-             if (a2(j+6).gt.2.d0*PI) a2(j+6)=dmod(a2(j+6), 2.d0*PI)   
+c             if (a2(j+6).gt.2.d0*PI) a2(j+6)=dmod(a2(j+6), 2.d0*PI)   
             
              ecc(i) = a2(j+3) 
              omega(i) = a2(j+4) 
              capmm(i) = a2(j+5)   
-             omegad(i) = a2(j+6)                           
+c             omegad(i) = a2(j+6)      
+             
+             if(gr_flag.ne.0) call MA_J (a,ma,npl,1.0d0,1.0d0,
+     & 	           mass,ap,hkl,gr_flag)               
+        
+             omegad(i) = a(j+6)             
+                                  
 c             write(*,*) ecc(i) ,omega(i) ,capmm(i),omegad(i) 
                                                    
           enddo  
@@ -682,8 +720,12 @@ c          dyda(5*npl+i) = 1.d0
 c      enddo
 
 
-      y = y + a2(6*npl +2*ndset + 1)*x  
-      dyda(6*npl + ndset + 1) = x
+      y = y + a2(6*npl +2*ndset + 1)*x 
+      y = y + a2(6*npl +2*ndset + 2) + a2(6*npl+2*ndset + 2)*x**2
+c      write(*,*) a2(6*npl +2*ndset + 1), a2(6*npl+ndset + 2)
+c      dyda(6*npl + ndset + 1) = x
+c      dyda(6*npl + ndset + 2) = x**2         
+      
    
       do i = ts+1,ndset
           dyda(6*npl+i) = 0.d0
@@ -701,10 +743,10 @@ c      enddo
       real*8 x(20000),z(20000),ymod(20000)
       real*8 dyda(MMAX), sig(20000), loglik
       parameter(fr=0.05, frjitt=0.05)
-      INTEGER i,j,k, ia(MMAX), idsmax(NDSMAX),hkl
+      INTEGER i,j,k, ia(MMAX), idsmax(NDSMAX),hkl,gr_flag
       external funk
     
-      common /DSBLK/ npl,ndset,idsmax,idset
+      common /DSBLK/ npl,ndset,idsmax,idset,gr_flag
 
       k=0
       do j=1,ma
@@ -737,6 +779,9 @@ c      enddo
           call funk(ndata,x,z,a2,ymod,dyda,ma,mfit,ts,sig,loglik,i,
      &              a,ia,hkl)
           y(i)=loglik
+c          write(*,*) a2(1),a2(2),a2(3),a2(4),a2(5),a2(6),a2(7) 
+c          write(*,*) a2(8),a2(9),a2(10),a2(11),a2(12),a2(13),a2(14)
+c          write(*,*) a2(15),a2(16),a2(17),a2(18),a2(19),a2(20),a2(21)          
       enddo
       return
       end
@@ -747,7 +792,7 @@ c      enddo
       implicit none
       INTEGER iter,mp,ndim,np,NMAX,ITMAX, MMAX,ma,ts(20000), ndata
       REAL*8 ftol,p(mp,np),y(mp),x(20000),z(20000),ymod(20000)
-      PARAMETER (NMAX=20,ITMAX=100000,MMAX=200)
+      PARAMETER (NMAX=20,ITMAX=200000,MMAX=200)
       real*8 dyda(MMAX), sig(20000), loglik, a(MMAX)
       EXTERNAL funk
       INTEGER i,ihi,ilo,inhi,j,m,n, ia(MMAX),hkl
@@ -863,17 +908,17 @@ C  (C) Copr. 1986-92 Numerical Recipes Software 0=M,173+9.
 
 
 
-	subroutine MA_J (a,ma,npl,m0,sini,mass,ap,hkl)
+	    subroutine MA_J (a,ma,npl,m0,sini,mass,ap,hkl,gr_flag)
         
-	implicit none
-	real*8 m0,PI,TWOPI,THIRD,GMSUN,dm,MSUN
-        integer npl,ma,i,j,NPLMAX,hkl
+	    implicit none
+	    real*8 m0,PI,TWOPI,THIRD,GMSUN,dm,MSUN
+        integer npl,ma,i,j,NPLMAX,hkl,gr_flag
         parameter (NPLMAX=7)
-        real*8 sini,mm(NPLMAX),ecc
+        real*8 sini,mm(NPLMAX),ecc,corr
         real*8 a(ma),mass(NPLMAX),ap(NPLMAX),mpold(NPLMAX),mtotal
-	parameter (THIRD=1.d0/3.d0)
+	    parameter (THIRD=1.d0/3.d0)
         parameter (PI=3.14159265358979d0,TWOPI=2.d0*PI)
-	parameter (GMSUN=1.32712497d20,MSUN=1.32712497d20)
+	    parameter (GMSUN=1.32712497d20,MSUN=1.32712497d20)
 
 c*******G is set to be unit, and s, m, kg as unit of time, length and mass
 c*******expectively.        
@@ -924,6 +969,40 @@ c*******expectively.
            mass(i) = mass(i)*MSUN
         enddo
 
+        if(gr_flag.ne.0) then
+           do i = 1,npl
+             j = 6*(i-1)
+             call gr_corr(ap(i),a(j+3),mass(1),mass(i+1),i,corr,1.0d0) 
+             a(j+6) = corr*365.25
+           enddo
+        endif      
+
         
 	    return
 	    end
+
+
+        subroutine gr_corr(a,e,gmi,mass,n,corr,dt)	
+        implicit none
+	
+        real*8  a ,e, T, PI, c, GMSUN, AU, st_mass
+        integer n,NPLMAX
+      	real*8 mass, corr,THIRD,gmi,dt,prec_frac
+        parameter (PI=3.14159265358979d0)
+        parameter (c = 299792458.0d0)
+	    parameter (GMSUN=1.32712497d20, AU=1.49597892d13)
+        parameter (THIRD=1.d0/3.d0)
+ 
+               
+        T = 2.0d0*PI * sqrt((a**3.0d0)/(gmi ) ) 
+        
+         corr = (24.0d0 * (PI**3.0d0) * (a**2.0d0)) / ( (T**2.0d0) *
+     &    (c**2.0d0)*(1.0d0-e**2.0d0) )
+         
+        corr = corr/T 
+      
+        return
+        end
+
+
+
