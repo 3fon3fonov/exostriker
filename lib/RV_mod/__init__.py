@@ -529,6 +529,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             #print(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + rv_gp_npar + 1 + i ]  )
             ppp+='%d %d %d %d %d %d %d %d\n'%(0,0,0,0,0,0,0,0)     
         ppp+='%f\n%d\n'%(par[len(vel_files)*2 +7*npl],0) # information about linear trend
+        ppp+='%f\n%d\n'%(0,0) # information about linear trend   
         ppp+='%f\n'%epoch
         ppp+='%d\n'%hkl
         ppp+='EOF' 
@@ -1589,6 +1590,7 @@ class signal_fit(object):
         self.init_RV_jitter()       
         self.init_RV_offset()
         self.init_RV_lintr()
+        self.init_RV_quadtr()        
         
         self.init_tra_jitter()       
         self.init_tra_offset()        
@@ -1939,6 +1941,16 @@ class signal_fit(object):
         self.rv_lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(1)} 
         self.rv_lintr_norm_pr = {k: np.array([0,0.001, False]) for k in range(1)} 
         self.rv_lintr_jeff_pr = {k: np.array([0,0.001, False]) for k in range(1)} 
+        
+    def init_RV_quadtr(self) :       
+         
+        self.rv_quadtr      = 0
+        self.rv_quadtr_err  = [0,0]
+        self.rv_quadtr_use  = False
+        self.rv_quadtr_str  = {k: r'RV quad.tr' for k in range(1)}     
+        self.rv_quadtr_bounds  = {k: np.array([-1.0,1.0]) for k in range(1)} 
+        self.rv_quadtr_norm_pr = {k: np.array([0,0.001, False]) for k in range(1)} 
+        self.rv_quadtr_jeff_pr = {k: np.array([0,0.001, False]) for k in range(1)}         
                
         
     def init_st_mass(self) :       
@@ -3020,6 +3032,8 @@ class signal_fit(object):
                 ppp+='%d %d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),int(self.use.use_planet_params[7*i+1]),int(self.use.use_planet_params[7*i+2]),int(self.use.use_planet_params[7*i+3]),int(self.use.use_planet_params[7*i+4]),int(self.use.use_planet_params[7*i+5]),int(self.use.use_planet_params[7*i+6]),int(self.omega_dot_use[i]))                                
                 
         ppp+='%f\n%d\n'%(self.params.linear_trend,int(self.use.use_linear_trend)) # information about linear trend
+        ppp+='%f\n%d\n'%(self.rv_quadtr,int(bool(self.rv_quadtr_use))) # information about linear trend
+              
         ppp+='%f\n'%self.epoch
         ppp+='%s\n'%int(self.hkl)  
         
@@ -3094,6 +3108,9 @@ class signal_fit(object):
            # print(self.fit_results.omega_dot,self.fit_results.omega_dot_err)
             self.omega_dot = self.fit_results.omega_dot
             self.omega_dot_err = self.fit_results.omega_dot_err
+            self.rv_quadtr = self.fit_results.rv_quadtr
+            self.rv_quadtr_err = self.fit_results.rv_quadtr_err            
+            
         return
         
          

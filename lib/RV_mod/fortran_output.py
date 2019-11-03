@@ -172,6 +172,9 @@ class fortran_output(object):
         jitter_errors=[]
         linear_trend=0.0
         linear_trend_error=0.0
+        quad_trend=0.0
+        quad_trend_error = np.array([0,0])       
+        
         i=0
         l=len(self.best_par)
         if(l==0): # to know that if there was no best_par in the output we do not really save anything here
@@ -205,7 +208,12 @@ class fortran_output(object):
             elif (self.best_par[i][0]=='linear'): # characteristic of beginning of linear trend and it's error information
                 linear_trend  = float(self.best_par[i+1][0])
                 linear_trend_error  = float(self.best_par[i+2][0])
-                i=i+3
+#                i=i+3
+#            elif (self.best_par[i][0]=='quad'): # characteristic of beginning of linear trend and it's error information
+                quad_trend  = float(self.best_par[i+4][0])
+                quad_trend_error  = [float(self.best_par[i+5][0]),float(self.best_par[i+5][0])]
+                i=i+6                
+                
             elif (self.best_par[i][0]=='ndata'): # rest of the information is below that
                 self.ndata_str = self.best_par[i]
                 self.mfit_str = self.best_par[i+1]
@@ -222,7 +230,9 @@ class fortran_output(object):
                 fortran_stat_warnings.update_warning_list('Wrong data format in line %d of best fit parameter information in fortran output, line skipped. Please check if number of planets and number of datasets is specified correctly!'%i) #i, not i+1, becase we increase it above    
         self.params=parameters(offsets,jitters,planet_params,linear_trend,self.stellar_mass)
         self.param_errors=parameter_errors(offset_errors,jitter_errors,planet_params_errors,linear_trend_error,0.0)
-    
+   
+        self.rv_quadtr = quad_trend   
+        self.rv_quadtr_err= quad_trend_error      
         self.omega_dot = omega_dot
         self.omega_dot_err = omega_dot_err 
         
@@ -244,5 +254,8 @@ class fortran_output(object):
         self.save_stat_array()
         self.dismantle_keplerian_fit()
         self.dismantle_RV_kep()
-        results = kernel(self.generate_summary(), self.jd, self.rv_obs, self.rv_error,self.o_c, self.model, self.JD_model, self.npl,self.semiM,self.masses,self.data_set,self.stat_array_saved,self.reduced_chi2,self.chi2,self.rms,self.loglik, self.mfit,self.omega_dot,self.omega_dot_err) 
+        results = kernel(self.generate_summary(), self.jd, self.rv_obs, self.rv_error,self.o_c, self.model, 
+                         self.JD_model, self.npl,self.semiM,self.masses,self.data_set,self.stat_array_saved,
+                         self.reduced_chi2,self.chi2,self.rms,self.loglik, self.mfit,self.omega_dot,
+                         self.omega_dot_err,self.rv_quadtr,self.rv_quadtr_err) 
         return results

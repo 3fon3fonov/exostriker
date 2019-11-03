@@ -30,7 +30,7 @@ ccc   The final version will be available in the Python RVMod lib.
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
 
-      version = "0.01"
+      version = "0.03"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -55,15 +55,8 @@ c      write(*,*) 'Stellar mass: '
       call io_read_data (ndata,t,ts,ys,sigs,jitter,
      & 	           epoch,t0,t_max,a,ia,ma,mfit,hkl,wdot,u_wdot)
 
-
-
-c      write(*,*) ' i_max,i_min,isteps: '
-c      read (*,*) i_max,i_min,istep
-c      write(*,*) i_max,i_min,istep
-
-c     call io_read_initpa_ewcop_fin (a,ia,t,ma,ndata,mfit)
+ 
        
-c      write(*,*)            
 c*****set alamda to be negtive for initializing******
       alamda = -1.d0
    
@@ -73,9 +66,6 @@ c*****set alamda to be negtive for initializing******
 c     write(*,*) ' alamda,chi_nu^2: ',alamda,chisq/dble(ndata-mfit)
 
  
-
-c      pause
-
       i = 0
  500  continue
           i = i + 1
@@ -84,14 +74,11 @@ c      pause
      &  chisq,rvkep_ewcop_fin,alamda,loglik,jitter,epsil,deltat)
  
  
-c          write(*,*) ' alamda,chi_nu^2: ',alamda,chisq/dble(ndata-mfit)
-
           dchisq = chisq - ochisq
 
           if ((i.eq.200).or.(alamda.ge.1d6)) then
               i = 0
               goto 502
-c              pause
           endif
           
           CALL SECOND(t_stop)
@@ -100,8 +87,6 @@ c              pause
      &                 'exceeded t_stop =', t_stop, 'sec ' 
                goto 502
           endif        
-          
-          
 
       if ((chisq.ge.ochisq).or.(dchisq.lt.-1d-3)) goto 500
 
@@ -114,19 +99,14 @@ c              pause
           call MRQMIN (t,ts,ys,sigs,ndata,a,ia,ma,covar,alpha,MMAX,
      &  chisq,rvkep_ewcop_fin,alamda,loglik,jitter,epsil,deltat)
 
-      
-c          write(*,*) ' alamda,chi_nu^2: ',alamda,chisq/dble(ndata-mfit)
-          
-          
+ 
 c          if (alamda.gt.1d12) alamda = -1.d0
           dchisq = chisq - ochisq
 
           if ((i.eq.200).or.(alamda.ge.1d6)) then
-c          if (i.eq.200) then
               i = 0
               alamda = -1.d0
               goto 333
-c              pause
           endif
       if ((chisq.ge.ochisq).or.(dchisq.lt.-1d-5)) then
       goto 501
@@ -147,8 +127,7 @@ c*******final output******************
 
 c      write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
 c      write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
-     
-c      stop
+ 
 222   end
 
 
@@ -239,7 +218,7 @@ c              sig(ndata) = dsqrt(sig(ndata)**2 + jitter(i)**2)
 c           write(*,*) ' Number of Planets: '
       if (npl.gt.NPLMAX) stop ' KEPFIT: npl > NPLMAX.'
 
-      ma = 7*npl + ndset + 1
+      ma = 7*npl + ndset + 2
       
 c      write(*,*) 'Initial K, P, e, w, M0,Inc,Capom and their flags: '
       do j = 1,npl
@@ -260,7 +239,9 @@ c          a(i+2) = 2.d0*PI/(a(i+2)*8.64d4)         ! mean motion
 c      write (*,*) 'linear trend:'      
       read (*,*) ar(7*npl + ndset + 1)
       read (*,*) iar(7*npl + ndset + 1)   
-      
+
+      read (*,*) ar(7*npl + ndset + 2)
+      read (*,*) iar(7*npl + ndset + 2)        
 
       read (*,*) epoch
  
@@ -347,13 +328,14 @@ ccccccccccccccccccc t[JD], obs., cal., O-C   ccccccccccccc
       do i = 1,ndata
           idset = ts(i)
  
-	      ys(i) = ys(i) - a(7*npl +idset) -
-     &                a(7*npl +ndset + 1)*(t(i)/86400.d0)
-
+	      ys(i) = ys(i) - a(7*npl +idset)
+     &                -a(7*npl +ndset + 1)*(t(i)/86400.d0)
+     &                -a(7*npl +ndset + 2)*(t(i)/86400.d0)**2
  
           if (writeflag_RV.gt.0) then
-          write(*,*) t0 + t(i)/8.64d4 ,ymod(i),ys(i) +
-     &                a(7*npl +ndset + 1)*(t(i)/86400.d0),
+          write(*,*) t0 + t(i)/8.64d4 ,ymod(i),ys(i)
+     &                +a(7*npl +ndset + 1)*(t(i)/86400.d0)
+     &                +a(7*npl +ndset + 2)*(t(i)/86400.d0)**2,     
      &                ys(i) - ymod(i),sigs(i),ts(i)
 
           endif
@@ -426,6 +408,10 @@ c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
           write (*,*) 'linear trend  [m/s per day]:'
           write (*,*) a(7*npl + ndset + 1)
           write (*,*) dsqrt(covar(7*npl + ndset + 1,7*npl + ndset + 1))          
+
+          write (*,*) 'quad. trend  [m/s per day]:'
+          write (*,*) a(7*npl + ndset + 2)
+          write (*,*) dsqrt(covar(7*npl + ndset + 2,7*npl + ndset + 2))  
          
           write(*,*) ' ndata =',ndata
           write(*,*) ' mfit =',mfit
@@ -464,6 +450,8 @@ c           write(*,*) (j_mass(i),i=1,npl+1)
           do i = 1,nt
              write(*,*) t0 + x(i)/8.64d4,
      &       ymod(i) + a(7*npl +ndset + 1)*(x(i)/86400.d0)
+     &               + a(7*npl +ndset +2)*(x(i)/86400.d0)**2
+     
           enddo
 
       endif
@@ -629,13 +617,14 @@ c             dyda(i,7*npl+j) = 1.d0
 c          enddo
        
           ymod(i) = ymod(i) + a(7*npl+idset)
-
           dyda(i,7*npl+idset) = 1.d0 
           
 cccccccccccccccccccccc     lin. trend:     cccccccccccccccccccccccc
            
           ymod(i) = ymod(i) + a(7*npl +ndset + 1)*(x(i)/86400.d0)  
+     &                      + a(7*npl +ndset + 2)*(x(i)/86400.d0)**2  
           dyda(i,7*npl + ndset + 1) = (x(i)/86400.d0)
+          dyda(i,7*npl + ndset + 2) = (x(i)/86400.d0)**2
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

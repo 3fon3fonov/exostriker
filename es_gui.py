@@ -302,6 +302,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.St_radius_input.setValue(fit.stellar_radius)  
         
         self.RV_lin_trend.setValue(fit.params.linear_trend)   
+        self.RV_quad_trend.setValue(fit.rv_quadtr)   
+       
         self.Epoch.setValue(fit.epoch)
 
 
@@ -355,6 +357,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         fit.params.stellar_mass = self.St_mass_input.value() 
         fit.params.linear_trend = self.RV_lin_trend.value()   
+        fit.rv_quadtr = self.RV_quad_trend.value() 
+        
 
         fit.stellar_radius = self.St_radius_input.value()        
         
@@ -594,6 +598,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                       
 
         self.err_RV_lin_trend.setText("+/- %.8f"%(max(fit.param_errors.linear_trend_error)))
+        self.err_RV_quad_trend.setText("+/- %.8f"%(max(fit.rv_quadtr_err)))
+
+
         
         gp_rot_errors_gui = [self.err_rot_kernel_Amp,
                      self.err_rot_kernel_time_sc,
@@ -707,6 +714,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 planet_checked_gui[i].setChecked(False)  
             
         self.use_RV_lin_trend.setChecked(bool(fit.use.use_linear_trend)) 
+        self.use_RV_quad_trend.setChecked(bool(fit.rv_quadtr_use)) 
         
 
         use_gp_rot_params = [self.use_GP_rot_kernel_Amp,
@@ -823,6 +831,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.tra_off_use[i]  = int(use_tra_data_offset_gui[i].isChecked())
 
         fit.use.use_linear_trend = int(self.use_RV_lin_trend.isChecked()) 
+        fit.rv_quadtr_use = int(self.use_RV_quad_trend.isChecked())
 
 
         use_gp_rot_params = [self.use_GP_rot_kernel_Amp,
@@ -5794,28 +5803,28 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
     
     def check_fortran_routines(self):
         
-        version_kep_loglik= "0.01"        
+        version_kep_loglik= "0.03"        
         result, flag = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)              
         if flag == -1 or str(result[0][0]) != version_kep_loglik:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba_v1e.f -o ./lib/fr/loglik_kep ./lib/libswift.a', 3,output=True)             
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating Keplerian Simplex")
                        
-        version_kep_LM= "0.01"         
+        version_kep_LM= "0.03"         
         result, flag = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)              
         if flag == -1 or str(result[0][0]) != version_kep_LM:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM_v1e.f -o ./lib/fr/chi2_kep ./lib/libswift.a', 3,output=True)             
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating Keplerian L-M") 
                         
-        version_dyn_loglik= "0.01"        
+        version_dyn_loglik= "0.03"        
         result, flag = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)              
         if flag == -1 or str(result[0][0]) != version_dyn_loglik:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba_v1e.f -o ./lib/fr/loglik_dyn ./lib/libswift.a', 3,output=True)             
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating N-body Simplex")   
             
-        version_dyn_LM= "0.01"         
+        version_dyn_LM= "0.03"         
         result, flag = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)              
         if flag == -1 or str(result[0][0]) != version_dyn_LM:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM_v1d.f -o ./lib/fr/chi2_dyn ./lib/libswift.a', 3,output=True)             
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating  N-body L-M")    
             
         version_dyn_loglik_= "0.02"        
@@ -6241,7 +6250,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.01). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.03). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
