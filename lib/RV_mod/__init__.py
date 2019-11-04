@@ -294,9 +294,9 @@ def get_transit_ts(obj,  kernel_id=-1):
             obj.tr_params.per = par[obj.filelist.ndset*2 +7*i+1] #1.0    #orbital period
             obj.tr_params.inc = par[obj.filelist.ndset*2 +7*i+5]#90. #orbital inclination (in degrees)
                 
-            obj.tr_params.t0  = par[obj.filelist.ndset*2  +7*obj.npl +1+rv_gp_npar + 3*i]                
-            obj.tr_params.a   = par[obj.filelist.ndset*2  +7*obj.npl +1+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-            obj.tr_params.rp  = par[obj.filelist.ndset*2  +7*obj.npl +1+rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
+            obj.tr_params.t0  = par[obj.filelist.ndset*2  +7*obj.npl +2+rv_gp_npar + 3*i]                
+            obj.tr_params.a   = par[obj.filelist.ndset*2  +7*obj.npl +2+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+            obj.tr_params.rp  = par[obj.filelist.ndset*2  +7*obj.npl +2+rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
             #print(tr_params.t0)
             #print(tr_params.per, tr_params.ecc,tr_params.w, tr_params.inc, tr_params.t0,tr_params.a,tr_params.rp )
     
@@ -366,7 +366,7 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
     for j in range(len(tr_files)):
                  
         t = tr_files[j][0] 
-        flux = tr_files[j][1] + par[len(vel_files)*2 +7*npl +1 + rv_gp_npar + 3*npl + len(tr_files)*j]
+        flux = tr_files[j][1] + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + len(tr_files)*j]
         #flux_err = np.sqrt(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j +1]**2)
         flux_err =  tr_files[j][2] 
         
@@ -399,9 +399,9 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
             tr_params.per = par[len(vel_files)*2 +7*i+1] #1.0    #orbital period
             tr_params.inc = par[len(vel_files)*2 +7*i+5]#90. #orbital inclination (in degrees)                
 
-            tr_params.t0  = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i]
-            tr_params.a   = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-            tr_params.rp  = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
+            tr_params.t0  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+            tr_params.a   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+            tr_params.rp  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
 
             m[i] = batman.TransitModel(tr_params, t)    #initializes model
  
@@ -409,7 +409,7 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
 
 
         if rtg[3] == False:
-            sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*npl + len(tr_files)*j+1]**2 )
+            sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*npl + len(tr_files)*j+1]**2 )
             #sig2i = sig2i/len(flux_err)
             tr_loglik = -0.5*(np.sum((flux -flux_model)**2 * sig2i - np.log(sig2i / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
             #tr_loglik = -0.5*(np.sum((flux -flux_model)**2 * sig2i - np.log(sig2i))) # - np.log(sig2i / 2./ np.pi)
@@ -417,14 +417,14 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
             
             param_vect = []
             for k in range(len(tra_gps.get_parameter_vector())):
-                param_vect.append(np.log(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + 1 + k ]))
+                param_vect.append(np.log(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + 2 + k ]))
                 #print(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + rv_gp_npar + 1 + k  ])
             tra_gps.set_parameter_vector(np.array(param_vect))
         
             tra_gp_pred = tra_gps.predict(flux -flux_model, t, return_cov=False)
             o_c_tra = (flux -flux_model) - tra_gp_pred
             
-            sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*npl + len(tr_files)*j+1]**2 )
+            sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + len(tr_files)*j+1]**2 )
             gp_tr_loglik = -0.5*(np.sum((o_c_tra)**2 * sig2i - np.log(sig2i / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
                                              
     
@@ -481,7 +481,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             
             
             par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
-                                                      ecc_, om_, par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i],epoch)
+                                                      ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
      
     else:
         for i in range(npl): # (per, ecc, om, ma, epoch):
@@ -492,7 +492,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             else:
                 ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]               
             
-            par[len(vel_files)*2 +7*npl +1+rv_gp_npar + 3*i] = transit_tperi(par[len(vel_files)*2 +7*i+1],
+            par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i] = transit_tperi(par[len(vel_files)*2 +7*i+1],
                                                                   ecc_, om_, Ma_ ,epoch)[1]%par[len(vel_files)*2 +7*i+1]
     
     if(rtg[0]):
@@ -525,11 +525,11 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                                                par[len(vel_files)*2 +7*i+6],
                                                #0
                                                #)
-                                               par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + tra_gp_npar + 1 + i ])
+                                               par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + tra_gp_npar + 2 + i ])
             #print(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + rv_gp_npar + 1 + i ]  )
             ppp+='%d %d %d %d %d %d %d %d\n'%(0,0,0,0,0,0,0,0)     
         ppp+='%f\n%d\n'%(par[len(vel_files)*2 +7*npl],0) # information about linear trend
-        ppp+='%f\n%d\n'%(0,0) # information about linear trend   
+        ppp+='%f\n%d\n'%(par[len(vel_files)*2 +7*npl + 1],0) # information about linear trend
         ppp+='%f\n'%epoch
         ppp+='%d\n'%hkl
         ppp+='EOF' 
@@ -816,12 +816,12 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
     if (rtg[1]):
         if obj.gp_kernel == 'RotKernel':
             for j in range(len(gps.get_parameter_vector())):
-                obj.GP_rot_params[j] = par[len(vel_files)*2  +7*npl +1 +j]
+                obj.GP_rot_params[j] = par[len(vel_files)*2  +7*npl +2 +j]
                 #print(obj.doGP,obj.gp_kernel)
             
         if obj.gp_kernel == 'SHOKernel':
             for j in range(len(gps.get_parameter_vector())):
-                obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +1 +j]          
+                obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +2 +j]          
         
     if rtg[1]:
         rv_gp_npar = len(gps.get_parameter_vector())
@@ -838,11 +838,11 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
     if (rtg[3]) and len(tr_files) != 0:
         if obj.tra_gp_kernel == 'RotKernel':
             for j in range(len(tra_gps.get_parameter_vector())):
-                obj.tra_GP_rot_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + rv_gp_npar +1 +j]
+                obj.tra_GP_rot_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + rv_gp_npar + 2 +j]
             
         if obj.tra_gp_kernel == 'SHOKernel':
             for j in range(len(tra_gps.get_parameter_vector())):
-                obj.tra_GP_sho_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + rv_gp_npar +1 + j]          
+                obj.tra_GP_sho_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + rv_gp_npar + 2 +j]          
             
         
         
@@ -856,12 +856,12 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4]) 
             obj.M0[i] = float(par[len(vel_files)*2 +7*i+4])
         
-        obj.t0[i]     = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i] #0.0  #time of inferior conjunction
+        obj.t0[i]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i] #0.0  #time of inferior conjunction
         
-        obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-        obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
+        obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+        obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
         
-        obj.omega_dot[i] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + tra_gp_npar + 1 + i ]
+        obj.omega_dot[i] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + tra_gp_npar + 2 + i ]
        # print(obj.t0[i],par[len(vel_files)*2 +7*i+4])
  
     j =0 
@@ -869,13 +869,13 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         if len(obj.tra_data_sets[i]) == 0:
             continue
         else:
-            obj.tra_off[i] =      par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*npl + j]
+            obj.tra_off[i] =      par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + j]
             print(obj.tra_off[i],obj.tra_jitt[i])
             j = j +1
     j =0 
     for i in range(10):        
         if len(obj.tra_data_sets[i]) != 0:
-            obj.tra_jitt[i] = abs(par[len(vel_files)*2 +7*npl +1 +rv_gp_npar + 3*npl + len(tr_files) + j])
+            obj.tra_jitt[i] = abs(par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + len(tr_files) + j])
             print(obj.tra_off[i],obj.tra_jitt[i])
             j = j +1            
             
@@ -888,7 +888,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             #print(ee[j] + "  =  %s"%pp[j])
             #print("{0:{width}s} = {1:{width}.{precision}f}".format(ee[j], pp[j] , width = 10, precision = 4))
             #print("{0:{width}s} = {1:{width}.{precision}f} + {2:{width}.{precision}f} - {3:{width}.{precision}f}".format(ee[j], pp[j],errors[j][0],errors[j][1], width = 10, precision = 4))
-            print("{0:{width2}s} = {1:{width}.{precision}f}  -{2:{width}.{precision}f} +{3:{width}.{precision}f}".format(ee[j], pp[j],errors[j][0],errors[j][1], width2 = 16, width = 10, precision = 4))
+            print("{0:{width2}s} = {1:{width}.{precision}f}  -{2:{width}.{precision}f} +{3:{width}.{precision}f}".format(ee[j], pp[j],errors[j][0],errors[j][1], width2 = 16, width = 10, precision = 9))
   
     obj.gps = []
     obj.tra_gps = []    
@@ -1097,7 +1097,7 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
    # from pathos.multiprocessing import ProcessingPool as Pool
     from pathos.pools import ProcessPool as Pool
 #    from multiprocessing import Pool    
-    from contextlib import closing    
+#    from contextlib import closing    
     
     # print('EXPECTED VALUE BEST', partial_func(obj.par_for_mcmc))
    # print("BEST FIT ESTIMATE ", partial_func(prior_transform(obj.par_for_mcmc)))
@@ -2998,7 +2998,7 @@ class signal_fit(object):
         return message_str  
         
   
-    def fortran_input(self, program='chi2_kep', fileinput=False, filename='Kep_input', amoeba_starts=0, outputfiles=[1,1,1],eps='1.0E-8',dt=864000, when_to_kill=300, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
+    def fortran_input(self, program='chi2_kep', fileinput=False, filename='debug_input', amoeba_starts=0, outputfiles=[1,1,1],eps='1.0E-8',dt=864000, when_to_kill=300, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
 
 
         ### ppp will be the input string. Depending on fileinput parameter we either save it in a file or save it directly 
@@ -3044,7 +3044,7 @@ class signal_fit(object):
             ppp+='EOF' # end of the command to run in the case of saving input directly
         else: # here's what we do if we want to generate a file as well 
             # first we save the ppp string in a file (by default 'Kep_input')
-            file_kep = open(filename, 'w')
+            file_kep = open("%s/lib/fr/%s"%(self.cwd,filename), 'w')
             file_kep.write('%s'%ppp) 
             file_kep.close()
             # then we overwrite ppp with the command to pass this file as input for the fortran code
@@ -3415,12 +3415,31 @@ class signal_fit(object):
             prior_jeff.append(self.Node_jeff_pr[i])
 
 
+
         par.append(self.params.linear_trend)
-        flag.append(self.use.use_linear_trend)
+        #flag.append(self.use.use_linear_trend)
         par_str.append(self.rv_lintr_str[0])
         bounds.append(self.rv_lintr_bounds[0])
         prior_nr.append(self.rv_lintr_norm_pr[0])
         prior_jeff.append(self.rv_lintr_jeff_pr[0])
+        
+        
+        par.append(self.rv_quadtr)
+       # flag.append(self.rv_quadtr_use)
+        par_str.append(self.rv_quadtr_str[0])
+        bounds.append(self.rv_quadtr_bounds[0])
+        prior_nr.append(self.rv_quadtr_norm_pr[0])
+        prior_jeff.append(self.rv_quadtr_jeff_pr[0])   
+        
+        if rtg == [False,False,True,True]:
+            flag.append(False) #
+            flag.append(False) #            
+        elif rtg == [False,False,True,False]:
+            flag.append(False) # 
+            flag.append(False) #            
+        else:   
+            flag.append(self.use.use_linear_trend) #        
+            flag.append(self.rv_quadtr_use)
 
        
         if rtg[1] == True:

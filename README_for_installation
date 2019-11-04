@@ -1,6 +1,10 @@
 
 A Set of bash installers are available in the ./installers directory.
 
+please run these from the ES root directory, e.g.,
+
+"trifonov@xyz:~/trifon> bash installers/linux_OpenSuse_install.sh"
+
 ##############################  LINUX  #########################################
 
 For Debian based OS the only thing you have to do is to run:

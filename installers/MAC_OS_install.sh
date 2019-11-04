@@ -9,8 +9,7 @@ select py in "Python2" "Python3"; do
        Python3 ) python="python3"; pip="pip3"; break;;
    esac
 done  
-
-cd ../ 
+ 
 
 #system needed
 arr=( "gfortran")
