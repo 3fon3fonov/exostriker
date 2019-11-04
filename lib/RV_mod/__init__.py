@@ -378,7 +378,7 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
         #print(tr_model[0][j], tr_model[1][j] )
         tr_params.u = tr_model[1][j]   
 
-      #  if str(tr_model[j]) == "uniform":               
+      #  if str(tr_model[0][j]) == "uniform":    
       #      tr_params.u = tr_model[1][j]   
        # elif  str(tr_model[j]) == "linear":
       #      tr_params.u = [0.1]                  
@@ -1684,7 +1684,8 @@ class signal_fit(object):
 
          
         self.init_sciPy_minimizer()
-       
+        self.init_ld_model()
+        
         self.init_xyz()
  
         ############################################ 
@@ -1696,13 +1697,47 @@ class signal_fit(object):
             else:
                 print("Most likely you have the wrong 'batman' package")
             self.tr_params = []
+
+
+
+
+    def init_ld_model(self):
+
                 
         self.ld_models = ["uniform", "linear", "quadratic", "nonlinear"]
         self.ld_m = ["quadratic", "quadratic",  "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic"]    #limb darkening model
+
         self.ld_u = {k: [0.1, 0.3 ] for k in range(10)}    
+
+        self.ld_u_quad = {k: [0.1, 0.3 ] for k in range(10)}    
+        self.ld_u_nonlin = {k: [0.5,0.1, 0.3,-0.1] for k in range(10)}    
+        self.ld_u_lin    = {k: [0.3] for k in range(10)}         
+
         
-        #self.tr_params.limb_dark = self.ld_m[0]       #limb darkening model
-        #self.tr_params.u =  self.ld_u[0]             
+        self.ld_u_quad_use   = {k: [False, False] for k in range(10)}         
+        self.ld_u_nonlin_use = {k: [False, False,False, False] for k in range(10)}         
+        self.ld_u_lin_use    = {k: [False] for k in range(10)}         
+
+        self.ld_u_quad_err   = {k: [[0,0], [0,0]] for k in range(10)}         
+        self.ld_u_nonlin_err = {k: [[0,0], [0,0],[0,0], [0,0]] for k in range(10)}         
+        self.ld_u_lin_err    = {k: [0,0] for k in range(10)}         
+        
+        self.ld_u_quad_bound      = {k: np.array([[-1,1],[-1,1]]) for k in range(10)}
+        self.ld_u_nonlin_bound    = {k: np.array([[-1,1],[-1,1],[-1,1],[-1,1]]) for k in range(10)}
+        self.ld_u_lin_bound       = {k: np.array([-1,1]) for k in range(10)} 
+ 
+        self.ld_u_quad_norm_pr    = {k: np.array([[0,1, False],[0,1, False]]) for k in range(10)}
+        self.ld_u_nonlin_norm_pr  = {k: np.array([[0,1, False],[0,1, False],[0,1, False],[0,1, False]]) for k in range(10)}
+        self.ld_u_lin_norm_pr     = {k: np.array([0.1,0.05, False]) for k in range(10)} 
+
+        self.ld_u_quad_jeff_pr    = {k: np.array([[0,1, False],[0,1, False]]) for k in range(10)}
+        self.ld_u_nonlin_jeff_pr  = {k: np.array([[0,1, False],[0,1, False],[0,1, False],[0,1, False]]) for k in range(10)}
+        self.ld_u_lin_jeff_pr     = {k: np.array([0.1,0.05, False]) for k in range(10)} 
+ 
+        self.ld_u_quad_str        = {k: [[r'ld-quad-1$_%s$'%str(k+1)],[r'ld-quad-2$_%s$'%str(k+1)]] for k in range(10)} 
+        self.ld_u_nonlin_str      = {k: [[r'ld-quad-1$_%s$'%str(k+1)],[r'ld-quad-2$_%s$'%str(k+1)],[r'ld-quad-3$_%s$'%str(k+1)],[r'ld-quad-4$_%s$'%str(k+1)]] for k in range(10)} 
+        self.ld_u_lin_str         = {k: [r'ld-quad-1$_%s$'%str(k+1)] for k in range(10)} 
+
 
         ############################################
 
