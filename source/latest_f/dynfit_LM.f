@@ -30,7 +30,7 @@ ccc   The final version will be available in the Python RVMod lib.
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
 
-      version = "0.03"
+      version = "0.04"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -1207,6 +1207,7 @@ c        if (a(j+7).lt.0.d0) a(j+7) = dmod(a(j+7) + 2.d0*PI,  2.d0*PI )
 c        if (a(j+6).gt.PI) a(j+6) = PI - dmod(a(j+6),  PI )  
 c        if (a(j+7).gt.2.d0*PI) a(j+7) = dmod(a(j+7),2.d0*PI)   
         
+        if (a(j+3).lt.0.d0) a(j+3) = 0.000001d0 
         
                
         call ORBEL_EL2XV (gm,ialpha,ap(i-1),a(j+3),a(j+6),a(j+7)     

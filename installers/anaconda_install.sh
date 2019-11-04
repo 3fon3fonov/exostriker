@@ -10,7 +10,6 @@ select py in "anaconda2" "anaconda3"; do
    esac
 done 
 
-cd ../ 
 
 conda config --add channels conda-forge
 

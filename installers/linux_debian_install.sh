@@ -10,7 +10,7 @@ select py in "Python2" "Python3"; do
    esac
 done  
 
-cd ../ 
+
 
 #system needed
 arr=( "gfortran" "csh")

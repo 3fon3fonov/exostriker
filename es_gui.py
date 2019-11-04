@@ -3199,9 +3199,9 @@ Transit duration: %s d
                 fit.tr_params.per = par[fit.filelist.ndset*2 +7*i+1] #1.0    #orbital period
                 fit.tr_params.inc = par[fit.filelist.ndset*2 +7*i+5]#90. #orbital inclination (in degrees)
                     
-                fit.tr_params.t0  = par[fit.filelist.ndset*2  +7*fit.npl +1+rv_gp_npar + 3*i]                
-                fit.tr_params.a   = par[fit.filelist.ndset*2  +7*fit.npl +1+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-                fit.tr_params.rp  = par[fit.filelist.ndset*2  +7*fit.npl +1+rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
+                fit.tr_params.t0  = par[fit.filelist.ndset*2  +7*fit.npl +2+rv_gp_npar + 3*i]                
+                fit.tr_params.a   = par[fit.filelist.ndset*2  +7*fit.npl +2+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
+                fit.tr_params.rp  = par[fit.filelist.ndset*2  +7*fit.npl +2+rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
         
                 m[i] = batman.TransitModel(fit.tr_params, t)    #initializes model
      
@@ -3941,16 +3941,16 @@ Transit duration: %s d
             now run the amoeba code modeling the jitters
             """
 #            fit.fitting(fileinput=False,outputfiles=[1,0,0], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
-            fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
+            fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
 
         elif m_ln == True and doGP == True:       
-            fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff,  print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
+            fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff,  print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
         
         elif m_ln == False and   minimize_fortran==False:      
-            fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=0, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
+            fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=0, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
         
         else:      
-            fit.fitting(fileinput=False,outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
+            fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
 
         if fit.doGP == True:
             rv.get_gps_model(fit)
@@ -5821,7 +5821,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating N-body Simplex")   
             
-        version_dyn_LM= "0.03"         
+        version_dyn_LM= "0.04"         
         result, flag = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)              
         if flag == -1 or str(result[0][0]) != version_dyn_LM:
             result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn ./lib/libswift.a', 3,output=True)             
