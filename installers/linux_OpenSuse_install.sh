@@ -10,6 +10,7 @@ select py in "Python2" "Python3"; do
    esac
 done 
 
+cd ../ 
 
 #echo "Do you want to update the system? (Highly recommended if this is a fresh installation! If 'Yes', it may take some time....."
 #select py in "Yes" "No"; do

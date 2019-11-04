@@ -31,7 +31,7 @@ c*************************************************************************
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
 
-      version = "0.02"
+      version = "0.03"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -155,8 +155,9 @@ c        write(*,*) y_in(1),y_in(2)
 
       do i = 1,ndata
               idset = ts(i)
-              y_in(i) = y(i) - a3(7*npl+idset)- 
-     &                 a3(7*npl+2*ndset+1)*(x(i)/86400.d0)
+              y_in(i) = y(i) - a3(7*npl+idset) 
+     &                 -a3(7*npl+2*ndset+1)*(x(i)/86400.d0) 
+     &                 -a3(7*npl+2*ndset+2)*(x(i)/86400.d0)**2     
 c	      y2(i) = y2(i) - a3(7*npl+idset) - 
 c     &        a3(7*npl +2*ndset + 1)*x(i)
 
@@ -448,7 +449,7 @@ c              sig(ndata) = dsqrt(sig(ndata)**2 + jitter(i)**2)
 c           write(*,*) ' Number of Planets: '
       if (npl.gt.NPLMAX) stop ' KEPFIT: npl > NPLMAX.'
 
-      ma = 7*npl + 2*ndset + 1
+      ma = 7*npl + 2*ndset + 2
       
 c      write(*,*) 'Initial K, P, e, w, M0,Inc,Capom and their flags: '
       do j = 1,npl
@@ -472,7 +473,9 @@ c      write (*,*) 'linear trend:'
       read (*,*) ar(7*npl + 2*ndset + 1)
       read (*,*) iar(7*npl + 2*ndset + 1)   
       
-
+      read (*,*) ar(7*npl + 2*ndset + 2)
+      read (*,*) iar(7*npl + 2*ndset + 2)  
+      
       read (*,*) epoch
  
       t_max = t(ndata) 
@@ -625,13 +628,15 @@ c             a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
           idset = ts(i)
  
 	  ys(i) = ys(i) - a(7*npl+idset) - 
-     &               a(7*npl  + 2*ndset + 1)*(t(i)/8.64d4)
+     &               a(7*npl  + 2*ndset + 1)*(t(i)/8.64d4)- 
+     &               a(7*npl  + 2*ndset + 2)*(t(i)/8.64d4)**2
 
 c          write(*,*) a(7*npl+idset), a(7*npl  + 2*ndset + 1)
 
           if (writeflag_RV.gt.0) then
           write(*,*) t0 + t(i)/8.64d4 ,ymod(i),ys(i) +
-     &                a(7*npl  + 2*ndset + 1)*(t(i)/8.64d4), 
+     &                a(7*npl  + 2*ndset + 1)*(t(i)/8.64d4)+ 
+     &                a(7*npl  + 2*ndset + 2)*(t(i)/8.64d4)**2, 
      &                ys(i) - ymod(i),sigs(i),ts(i)
 
           endif
@@ -706,6 +711,11 @@ c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
           write (*,*) a(7*npl + 2*ndset + 1)
           write (*,*) dsqrt(covar(7*npl + 2*ndset + 1,
      &                7*npl + 2*ndset + 1))
+     
+          write (*,*) 'quad. trend  [m/s per day]:'
+          write (*,*) a(7*npl + 2*ndset + 2)
+          write (*,*) dsqrt(covar(7*npl + 2*ndset + 2,
+     &                7*npl + 2*ndset + 2))     
 
           write(*,*) ' ndata =',ndata
           write(*,*) ' mfit =',mfit
@@ -766,7 +776,8 @@ c           write(*,*) (j_mass(i),i=1,npl+1)
      &    dynamical_planets,ts)
           do i = 1,nt
              write(*,*) t0 + x(i)/8.64d4, 
-     &       ymod(i) + a(7*npl  + 2*ndset + 1)*(x(i)/8.64d4)           
+     &       ymod(i) + a(7*npl  + 2*ndset + 1)*(x(i)/8.64d4)+ 
+     &                 a(7*npl  + 2*ndset + 2)*(x(i)/8.64d4)**2          
           enddo
 
        endif
@@ -873,6 +884,7 @@ c                    write(*,*) a(7*(i-1)+j)
       dyda(7*npl+ts) = 1.d0
 
       dyda(7*npl + ndset + 1) = x
+      dyda(7*npl + ndset + 2) = x*x
    
       do i = ts+1,ndset
           dyda(7*npl+i) = 0.d0
