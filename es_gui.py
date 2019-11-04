@@ -368,6 +368,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.epoch =  self.Epoch.value()
        
 
+#        self.set_tra_ld()        
+
 
     def read_tra_GP(self):
         global fit  
@@ -6203,8 +6205,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         
         ####### LD models #############
  
-        #self.buttonGroup_use_ld_1.buttonClicked.connect(self.set_tra_ld)   
-        #self.buttonGroup_use_ld_2.buttonClicked.connect(self.set_tra_ld)   
+        self.buttonGroup_use_ld_1.buttonClicked.connect(self.set_tra_ld)   
+        self.buttonGroup_use_ld_2.buttonClicked.connect(self.set_tra_ld)   
  
 
        # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_change)       
