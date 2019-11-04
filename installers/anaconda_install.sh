@@ -2,115 +2,44 @@
 ## Check your Debian based system if is ready for RVmod/TRIFON. 
 
 
-echo "For which Python version we want to check/install packages?"
-select py in "Python2" "Python3"; do
+echo "For which anaconda version we want to check/install packages?"
+select py in "anaconda2" "anaconda3"; do
    case $py in
-       Python2 ) python="python2"; pip="pip2"; break;;
-       Python3 ) python="python3"; pip="pip3"; break;;
+       anaconda2 ) python="python2" ; break;;
+       anaconda3 ) python="python3"; break;;
    esac
-done  
+done 
 
+cd ../ 
+
+conda config --add channels conda-forge
 
 #system needed
-arr=( "gfortran" "csh")
+arr=( "gfortran")
 
 for i in "${arr[@]}";
 do
    if type $i >/dev/null 2>&1; then
        echo "$i - yes!"
    else
-       echo "$i - not installed! Do you wish to install $i?"
-       select yn in "Yes" "No"; do
-           case $yn in
-               Yes ) sudo apt install $i; break;;
-               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
-           esac
-       done     
+       echo "$i - not installed! Please install $i version <= 7 and try again"; 
+       exit 1
    fi
 done
 
 
-
-#python system install (sudo apt install)
-arr=( "setuptools" "pip" "numpy" "scipy" "matplotlib")
+#system needed
+arr=( "csh")
 
 for i in "${arr[@]}";
 do
-   if $python -c "import $i" &> /dev/null; then
+   if type $i >/dev/null 2>&1; then
        echo "$i - yes!"
    else
-       echo "$i - not installed! Do you wish to install $i?"
-       select yn in "Yes" "No"; do
-           case $yn in
-               Yes ) sudo apt install $python-$i; break;;
-               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
-           esac
-       done
+       echo "$i - not installed! Please install $i and try again"; 
+       exit 1
    fi
 done
-
-
-#python system install (sudo apt install)
-arr=( "PyQt5" )
-
-for i in "${arr[@]}";
-do
-   if $python -c "import $i" &> /dev/null; then
-       echo "$i - yes!"
-   else
-       echo "$i - not installed! Do you wish to install $i?"
-       select yn in "Yes" "No"; do
-           case $yn in
-               Yes ) sudo apt install $python-pyqt5; break;;
-               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
-           esac
-       done
-   fi
-done
-
-#python system install (sudo apt install)
-arr=("PyQt5.QtSvg")
-
-for i in "${arr[@]}";
-do
-   if $python -c "import $i" &> /dev/null; then
-       echo "$i - yes!"
-   else
-       echo "$i - not installed! Do you wish to install $i?"
-       select yn in "Yes" "No"; do
-           case $yn in
-               Yes ) sudo apt install $python-pyqt5.qtsvg; break;;
-               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
-           esac
-       done
-   fi
-done
-
-
-
-
-#python pip install
-arr=( "qtconsole" "jupyter" "pathos" "dill" "emcee" "corner" "celerite" "transitleastsquares" "dynesty")
-
-for i in "${arr[@]}";
-do
-   if $python -c "import $i" &> /dev/null; then
-       echo "$i - yes!"
-   else
-       echo "$i - not installed! Do you wish to install $i?"
-       select yn in "Yes" "No"; do
-           case $yn in
-               Yes ) sudo $pip install $i; break;;
-               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
-           esac
-       done
-   fi
-done
-
-
-# odd python isnstall 
-
-
 
 
 #system optional
@@ -121,15 +50,52 @@ do
    if type $i >/dev/null 2>&1; then
        echo "$i - yes!"
    else
-       echo "$i - not installed! Do you wish to install $i?"
-       select yn in "Yes" "No"; do
-           case $yn in
-               Yes ) sudo apt install $i; break;;
-               No ) echo "WARNING: 'The Exo-Striker' may not work properly without $i!!!"; break;;
-           esac
-       done  
+       echo "$i - not installed! Please install the $i bash shell for better experience (xterm used by default)"; 
    fi
 done
+
+
+
+#python system install 
+arr=( "PyQt5" )
+
+for i in "${arr[@]}";
+do
+   if $python -c "import $i" &> /dev/null; then
+       echo "$i - yes!"
+   else
+       echo "$i - not installed! Do you wish to install $i in your $python?"
+       select yn in "Yes" "No"; do
+           case $yn in
+               Yes ) conda install pyqt; break;;
+               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
+           esac
+       done
+   fi
+done
+ 
+
+
+#python system install 
+arr=( "numpy" "scipy" "matplotlib" "qtconsole" "jupyter" "pathos" "dill" "emcee" "corner" "celerite" "dynesty")
+
+for i in "${arr[@]}";
+do
+   if $python -c "import $i" &> /dev/null; then
+       echo "$i - yes!"
+   else
+       echo "$i - not installed! Do you wish to install $i in your $python?"
+       select yn in "Yes" "No"; do
+           case $yn in
+               Yes ) conda install $i; break;;
+               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
+           esac
+       done
+   fi
+done
+
+
+ 
 
 
 #python local install (under test)
@@ -140,21 +106,15 @@ do
    if $python -c "import $i" &> /dev/null; then
        echo "$i - yes!"
    else
-       echo "$i - not installed! Do you wish a install $i from source (from ./source directory)?"
-       select yn in "Yes" "Yes-Local" "No"; do
+       echo "$i - not installed! Only a local instalation possible... Do you wish a install $i from source (from ./source directory)?"
+       select yn in "Yes" "No"; do
            case $yn in
                Yes ) if [ $i=="batman" ]; then 
-                         sudo $pip install $i-package;
-                     else 
-                         echo "TBD for another package!";
-                     fi
-                     break;;   
-
-               Yes-Local ) if [ $i=="batman" ]; then 
-                         echo "We are installing $i from source ./source ---> ./lib  ...";
+                         echo "Installing $i from source ./source ---> ./lib  ...";
                          cd source/batman-package-2.4.6/;
-                         sudo $python setup.py install;
-                         cp -r ./build/lib.linux-x86_64-2.7/batman ../../lib/;
+                         $python setup.py install;
+                         cp -r ./build/lib*/batman ../../lib/;
+                         rm -r ./build
                          cd ../../;
                      else 
                          echo "TBD for another package!";
@@ -183,7 +143,7 @@ select yn in "Yes" "No"; do
              cp libswift.a ../../lib/;
              cd ../../;         
              break;;
-       No ) echo "skiped..."; break;;
+       No ) echo "skipped..."; break;;
    esac
 done
 
@@ -223,9 +183,9 @@ select yn in "Yes" "No"; do
              gfortran -O3 ./source/latest_f/mvs_f/follow2.f -o ./stability/mvs_gr/follow2 ./lib/libswift.a;                
              gfortran -O3 ./source/latest_f/symba_f/geninit_j3_in_days.f -o ./stability/symba/geninit_j3_in_days ./lib/libswift.a;   
              gfortran -O3 ./source/latest_f/mvs_f/geninit_j3_in_days.f -o ./stability/mvs/geninit_j3_in_days ./lib/libswift.a;              
-             gfortran -O3 ./source/latest_f/mvs_f/geninit_j3_in_days.f -o ./stability/mvs_gr/geninit_j3_in_days ./lib/libswift.a;   
+             gfortran -O3 ./source/latest_f/mvs_f/geninit_j3_in_days.f -o ./stability/mvs_gr/geninit_j3_in_days ./lib/libswift.a;                                    
              break;;
-       No ) echo "skiped..."; break;;
+       No ) echo "skipped..."; break;;
    esac
 done
 
@@ -233,41 +193,4 @@ done
 
 
 
-
-
-
-
-
-# Not working, not sure why...
-
-
-#python system install (sudo apt install)
-#arr=( "setuptools" "pip" "numpy" "scipy" "matplotlib" "PyQt5" "PyQt5.QtSvg")
-
-#for i in "${arr[@]}";
-#do
-#   if $python -c "import $i" &> /dev/null; then
-#       echo "$i - yes!"
-#   else
-#       echo "$i - not installed! Do you wish to install $i?"
-#       select yn in "Yes" "No"; do
-#           case $yn in
-#               Yes ) if [ $i=="PyQt5" ]; then 
-#                         sudo apt install $python-pyqt5;
-#                     elif [ $i=="PyQt5.QtSvg" ]; then 
-#                         sudo apt install $python-pyqt5.qtsvg; 
-#                     else
-#                         sudo apt install $python-$i; 
-#                     fi
-#                     break;;
-#               No ) echo "WARNING: RVmod/TRIFON will not work without $i!!!"; break;;
-#           esac
-#       done
-#   fi
-#done
-
-
-
-
-
-
+ 

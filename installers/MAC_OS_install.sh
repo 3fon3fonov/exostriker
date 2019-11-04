@@ -1,18 +1,16 @@
 #!/bin/bash
-## Check your Debian based system if is ready for RVmod/TRIFON. 
+## Check your Mac OS based system if is ready for RVmod/TRIFON. 
 
 
-echo "For which anaconda version we want to check/install packages?"
-select py in "anaconda2" "anaconda3"; do
+echo "For which Python version we want to check/install packages?"
+select py in "Python2" "Python3"; do
    case $py in
-       anaconda2 ) python="python2" ; break;;
-       anaconda3 ) python="python3"; break;;
+       Python2 ) python="python2"; pip="pip2"; break;;
+       Python3 ) python="python3"; pip="pip3"; break;;
    esac
-done 
+done  
 
- 
-
-conda config --add channels conda-forge
+cd ../ 
 
 #system needed
 arr=( "gfortran")
@@ -22,13 +20,16 @@ do
    if type $i >/dev/null 2>&1; then
        echo "$i - yes!"
    else
-       echo "$i - not installed! Please install $i version <= 7 and try again"; 
-       exit 1
+       echo "$i - not installed! Do you wish to install $i?"
+       select yn in "Yes" "No"; do
+           case $yn in
+               Yes ) brew install gcc; break;;
+               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
+           esac
+       done     
    fi
 done
 
-
-#system needed
 arr=( "csh")
 
 for i in "${arr[@]}";
@@ -36,27 +37,18 @@ do
    if type $i >/dev/null 2>&1; then
        echo "$i - yes!"
    else
-       echo "$i - not installed! Please install $i and try again"; 
-       exit 1
+       echo "$i - not installed! Do you wish to install $i?"
+       select yn in "Yes" "No"; do
+           case $yn in
+               Yes ) brew install tcsh; break;;
+               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
+           esac
+       done
    fi
 done
 
 
-#system optional
-arr=( "rxvt" )
-
-for i in "${arr[@]}";
-do
-   if type $i >/dev/null 2>&1; then
-       echo "$i - yes!"
-   else
-       echo "$i - not installed! Please install the $i bash shell for better experience (xterm used by default)"; 
-   fi
-done
-
-
-
-#python system install 
+#python system install  
 arr=( "PyQt5" )
 
 for i in "${arr[@]}";
@@ -64,30 +56,28 @@ do
    if $python -c "import $i" &> /dev/null; then
        echo "$i - yes!"
    else
-       echo "$i - not installed! Do you wish to install $i in your $python?"
+       echo "$i - not installed! Do you wish to install $i?"
        select yn in "Yes" "No"; do
            case $yn in
-               Yes ) conda install pyqt; break;;
+               Yes ) brew install pyqt5; break;;
                No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
            esac
        done
    fi
 done
- 
 
-
-#python system install 
-arr=( "numpy" "scipy" "matplotlib" "qtconsole" "jupyter" "pathos" "dill" "emcee" "corner" "celerite" "dynesty")
+#python system install  
+arr=( "PyQt5.QtSvg" )
 
 for i in "${arr[@]}";
 do
    if $python -c "import $i" &> /dev/null; then
        echo "$i - yes!"
    else
-       echo "$i - not installed! Do you wish to install $i in your $python?"
+       echo "$i - not installed! Do you wish to install $i?"
        select yn in "Yes" "No"; do
            case $yn in
-               Yes ) conda install $i; break;;
+               Yes ) brew install pyqt5.qtsvg; break;;
                No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
            esac
        done
@@ -95,7 +85,49 @@ do
 done
 
 
- 
+
+
+#python system install 
+arr=( "setuptools" "numpy" "scipy" "matplotlib")
+
+for i in "${arr[@]}";
+do
+   if $python -c "import $i" &> /dev/null; then
+       echo "$i - yes!"
+   else
+       echo "$i - not installed! Do you wish to install $i?"
+       select yn in "Yes" "No"; do
+           case $yn in
+               Yes ) $pip install $i --user; break;;
+               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
+           esac
+       done
+   fi
+done
+
+
+
+
+#python pip install
+arr=( "qtconsole" "jupyter" "pathos" "dill" "emcee" "corner" "celerite" "transitleastsquares" "dynesty")
+
+for i in "${arr[@]}";
+do
+   if $python -c "import $i" &> /dev/null; then
+       echo "$i - yes!"
+   else
+       echo "$i - not installed! Do you wish to install $i?"
+       select yn in "Yes" "No"; do
+           case $yn in
+               Yes ) $pip install $i --user; break;;
+               No ) echo "WARNING: 'The Exo-Striker' will not work without $i!!!"; break;;
+           esac
+       done
+   fi
+done
+
+
+
 
 
 #python local install (under test)
@@ -106,15 +138,22 @@ do
    if $python -c "import $i" &> /dev/null; then
        echo "$i - yes!"
    else
-       echo "$i - not installed! Only a local instalation possible... Do you wish a install $i from source (from ./source directory)?"
-       select yn in "Yes" "No"; do
+       echo "$i - not installed! Do you wish a install $i from source (from ./source directory)?"
+       select yn in "Yes" "Yes-Local" "No"; do
            case $yn in
                Yes ) if [ $i=="batman" ]; then 
-                         echo "Installing $i from source ./source ---> ./lib  ...";
+                         $pip install --user --install-option="--prefix=" $i-package;
+                     else 
+                         echo "TBD for another package!";
+                     fi
+                     break;;   
+
+               Yes-Local ) if [ $i=="batman" ]; then 
+                         echo "We are installing $i from source ./source ---> ./lib  ...";
                          cd source/batman-package-2.4.6/;
-                         $python setup.py install;
-                         cp -r ./build/lib*/batman ../../lib/;
-                         rm -r ./build
+                         $python setup.py install --user --prefix=;
+                         #sudo python setup.py install;
+                         cp -r ./build/lib.linux-x86_64-2.7/batman ../../lib/;
                          cd ../../;
                      else 
                          echo "TBD for another package!";
@@ -143,7 +182,7 @@ select yn in "Yes" "No"; do
              cp libswift.a ../../lib/;
              cd ../../;         
              break;;
-       No ) echo "skipped..."; break;;
+       No ) echo "skiped..."; break;;
    esac
 done
 
@@ -167,6 +206,7 @@ select yn in "Yes" "No"; do
 done
 
 
+
 echo " " 
 echo " " 
 echo "Compiling Symba/mvs and other N-body routines, OK? (you must, if you haven't done it already!)"
@@ -183,14 +223,30 @@ select yn in "Yes" "No"; do
              gfortran -O3 ./source/latest_f/mvs_f/follow2.f -o ./stability/mvs_gr/follow2 ./lib/libswift.a;                
              gfortran -O3 ./source/latest_f/symba_f/geninit_j3_in_days.f -o ./stability/symba/geninit_j3_in_days ./lib/libswift.a;   
              gfortran -O3 ./source/latest_f/mvs_f/geninit_j3_in_days.f -o ./stability/mvs/geninit_j3_in_days ./lib/libswift.a;              
-             gfortran -O3 ./source/latest_f/mvs_f/geninit_j3_in_days.f -o ./stability/mvs_gr/geninit_j3_in_days ./lib/libswift.a;                                    
+             gfortran -O3 ./source/latest_f/mvs_f/geninit_j3_in_days.f -o ./stability/mvs_gr/geninit_j3_in_days ./lib/libswift.a;
              break;;
-       No ) echo "skipped..."; break;;
+       No ) echo "skiped..."; break;;
    esac
 done
 
 
+#system optional
+#arr=( "urxvt" )
+
+#for i in "${arr[@]}";
+#do
+#   if type $i >/dev/null 2>&1; then
+#       echo "$i - yes!"
+#   else
+#       echo "$i - not installed! Do you wish to install $i?"
+#       select yn in "Yes" "No"; do
+#           case $yn in
+#               Yes ) brew cask install xquartz; brew install rxvt-unicode; break;;
+#               No ) echo "WARNING: RVmod/TRIFON may not work properly without $i!!!"; break;;
+#           esac
+#       done  
+#   fi
+#done
 
 
 
- 

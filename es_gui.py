@@ -5827,10 +5827,10 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating  N-body L-M")    
             
-        version_dyn_loglik_= "0.02"        
+        version_dyn_loglik_= "0.03"        
         result, flag = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)              
         if flag == -1 or str(result[0][0]) != version_dyn_loglik_:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba_v1c+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a', 3,output=True)             
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating Mixed Simplex")               
                       
                 

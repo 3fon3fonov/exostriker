@@ -1,3 +1,6 @@
+
+A Set of bash installers are available in the ./installers directory.
+
 ##############################  LINUX  #########################################
 
 For Debian based OS the only thing you have to do is to run:
@@ -14,8 +17,7 @@ matplotlib
 PyQt5
 csh
 jupyter
-pathos
-dill
+pathos (which comes with dill)
 emcee 
 corner 
 celerite
@@ -42,6 +44,11 @@ sudo apt-get install python-dev
 sudo apt-get install g++
 sudo apt-get install python-tk
 
+for Python3 (recommended)
+
+sudo apt-get install python3-dev
+sudo apt-get install python3-tk
+
 -------------------------------------------
 
 if "linux_debian_install.sh" was executed with no problems, then
@@ -64,7 +71,6 @@ To install "homebrew", open terminal and type:
 /usr/bin/ruby -e "(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 
-
 I had problems with "pip install" of batman/transitleastsquares, in particular with the local
 numpy installation. With a "pip" install it seems that the numpy headers are here:
 
@@ -75,6 +81,7 @@ Therefore a copy of the header directory fixed the problem
 cp -r /Users/YOUR_USER/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy /usr/local/include
 
 (perhaps the same story for Python 3)
+
 
 If you had experienced the same problem as above, than after the "cp -r..." run again:
 
@@ -151,7 +158,7 @@ If you want to use RVmod on the Python shell
 
 import RV_mod as rv 
  
-(but the RVmod directory must be in your path!However, one must be familiar with 
+(but the RVmod directory must be in your path! However, one must be familiar with 
 the functions of the RVmod... A manual on RVmod is planned, but not available at the moment.)
 
 
