@@ -1,9 +1,9 @@
 lib/fr/chi*
 lib/fr/log*
-stability/mvs/*
-stability/mvs_gr/*
-stability/symba/*
-datafiles/*
+#stability/mvs/*
+#stability/mvs_gr/*
+#stability/symba/*
+#datafiles/*
 *.pyc
 lib/libswift.a
 source/libswift.a
