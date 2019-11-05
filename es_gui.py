@@ -194,14 +194,20 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_labels(self):
         global fit
+        
+        
 
         self.value_stellar_mass.setText("%.4f"%(fit.params.stellar_mass))
         self.value_epoch.setText(str(fit.epoch))
         self.value_rms.setText("%.4f"%(fit.fit_results.rms))
+        self.value_wrms.setText("%.4f"%(fit.wrms()))
+        
         self.value_chi2.setText("%.4f"%(fit.fit_results.chi2)) 
         self.value_reduced_chi2.setText("%.4f"%(fit.fit_results.reduced_chi2))        
         #self.value_loglik.setText("%.4f"%(fit.fit_results.loglik)) 
         self.value_loglik.setText("%.4f"%(fit.loglik)) 
+        self.value_BIC.setText("%.2f"%(fit.BIC()))
+        self.value_AIC.setText("%.2f"%(fit.AIC()))
        
         self.value_Ndata.setText("%s"%(len(fit.fit_results.jd))) 
         self.value_DOF.setText("%s"%(len(fit.fit_results.jd) - fit.fit_results.mfit))        

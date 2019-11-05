@@ -2476,6 +2476,21 @@ class signal_fit(object):
  
            self.act_data_sets[i] = act_data_set       
     
+    def BIC(self):        
+        BIC = 2*self.loglik + self.fit_results.mfit*np.log(len(self.fit_results.jd))    
+        return BIC
+      
+    def AIC(self):      
+        AIC = 2*self.loglik - 2*self.fit_results.mfit     
+        return AIC    
+    
+    def wrms(self):  
+        if len(self.fit_results.o_c) != 0:
+            wrms = np.sqrt(np.average(self.fit_results.o_c**2, weights=1/self.fit_results.rv_err)) 
+        else:
+            wrms = 0
+        return wrms        
+    
     
 
     def verify_gp_parameters_number(self):
