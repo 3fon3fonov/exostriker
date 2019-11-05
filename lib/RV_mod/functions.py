@@ -588,7 +588,6 @@ def run_command_with_timeout_old(args, secs, output=False, pipe=False): # set ou
 
 
 
-
 def phase_RV_planet_signal(obj,planet):
 
     if obj.npl ==0 or len(obj.fit_results.rv_model.jd) ==0:
