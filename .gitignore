@@ -6,5 +6,5 @@ stability/symba/*
 datafiles/*
 *.pyc
 lib/libswift.a
-source/libswift.a
+source/swift_j/libswift.a
 @make
