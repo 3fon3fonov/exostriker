@@ -5548,12 +5548,15 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
            #     dirname, basename = os.path.split(fit.filelist.files[i].path)
            #     os.system('rm -r %s'%dirname) 
             if sys.platform[0:5] == "linux":
-                self.term_emb.close()            
+                self.term_emb.close()  
+            self.removeEventFilter(self)    
             self.close()
         elif choice == QtGui.QMessageBox.Yes:
             self.save_session()
             if sys.platform[0:5] == "linux":
-                self.term_emb.close()            
+                self.term_emb.close()    
+            #QtGui.QApplication.instance().removeEventFilter(self) 
+            self.removeEventFilter(self)                    
             self.close()            
         elif choice == QtGui.QMessageBox.Cancel:
             return      
@@ -5842,7 +5845,26 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             print("New source code available: Updating Mixed Simplex")               
                       
                 
+    def eventFilter(self, obj, event):
+        if event.type() == QtCore.QEvent.ToolTip:  # Catch the TouchBegin event.
+           # helpEvent = event
+           # index = self.itemAt(helpEvent.pos())
+           # if index != -1:
+           #     QtGui.QToolTip.showText(helpEvent.globalPos(), self.shapeItems[index].toolTip())
+           # else:
+            print("TEST")
+            QtGui.QToolTip.hideText()
+            event.ignore()
+
+            return True
+ 
+        else:
+            return super(Exo_striker, self).eventFilter(obj, event)
+
+
 ################################################################################################
+
+
     
 
     def __init__(self):
@@ -5854,6 +5876,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
 
         self.setupUi(self)
         self.initialize_font()
+        
+#        self.installEventFilter(self)
         
         self.param_bounds_gui  = gui_groups.param_bounds_gui(self)
         self.offset_bounds_gui = gui_groups.offset_bounds_gui(self)
@@ -6285,6 +6309,7 @@ def main():
         window.resize(width*0.8, height*0.8)
     else:
         pass
+#    window.installEventFilter(window)
     window.show()
 
     sys.exit(app.exec_())
