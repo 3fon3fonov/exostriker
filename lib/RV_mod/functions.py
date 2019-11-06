@@ -664,6 +664,71 @@ def phase_RV_planet_signal(obj,planet):
 
 
 
+def find_planets_restricted(obj,fend=1.5):
+ 
+    power_levels = np.array([0.1,0.01,0.001])
+    
+    # check if RV data is present
+    if obj.filelist.ndset <= 0:  
+         return        
+
+    # the first one on the data GLS
+    if obj.gls.power.max() <= obj.gls.powerLevel(obj.auto_fit_FAP_level):                                                       
+         return obj
+    
+    else:
+        if obj.npl !=0:
+            for j in range(obj.npl):
+                obj.remove_planet(obj.npl-(j+1))
+
+        mean_anomaly_from_gls = np.degrees((((obj.epoch - float(obj.gls.hpstat["T0"]) )% (obj.gls.hpstat["P"]) )/ (obj.gls.hpstat["P"]) ) * 2*np.pi)
+         
+        
+       # obj.add_planet(obj.gls.hpstat["amp"],obj.gls.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
+        
+        obj.add_planet(obj.gls.hpstat["amp"],obj.gls.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
+        
+        obj.use.update_use_planet_params_one_planet(0,True,True,obj.auto_fit_allow_ecc,obj.auto_fit_allow_ecc,True,False,False)     
+               
+        obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
+
+        run_gls_o_c(obj,fend=fend)
+        
+        #now inspect the residuals
+ 
+        for i in range(1,int(obj.auto_fit_max_pl)):
+            
+            if obj.gls_o_c.power.max() <= obj.gls_o_c.powerLevel(obj.auto_fit_FAP_level):
+                for j in range(obj.npl):
+                    obj.use.update_use_planet_params_one_planet(j,True,True,obj.auto_fit_allow_ecc,obj.auto_fit_allow_ecc,True,False,False)     
+           
+                    obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
+                    obj = run_gls_o_c(obj)   
+                return obj
+            #elif (1/RV_per_res.hpstat["fbest"]) > 1.5:
+            else:    
+                mean_anomaly_from_gls = np.degrees((((obj.epoch - float(obj.gls_o_c.hpstat["T0"]) )% (obj.gls_o_c.hpstat["P"]) )/ (obj.gls_o_c.hpstat["P"]) ) * 2*np.pi)
+         
+                obj.add_planet(obj.gls_o_c.hpstat["amp"],obj.gls_o_c.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
+                obj.use.update_use_planet_params_one_planet(i,True,True,obj.auto_fit_allow_ecc,obj.auto_fit_allow_ecc,True,False,False)  
+                
+                 
+                obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
+                run_gls_o_c(obj,fend=fend)
+
+            #else:
+             #   continue
+                                   
+        for j in range(obj.npl):
+            obj.use.update_use_planet_params_one_planet(j,True,True,obj.auto_fit_allow_ecc,obj.auto_fit_allow_ecc,True,False,False)     
+
+                  
+        obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
+        run_gls_o_c(obj,fend=fend)
+    return obj
+
+
+
 
 def find_planets(obj):
  
@@ -742,7 +807,7 @@ def run_gls(obj,fend =1.0,fbeg=10000):
     
     return obj
 
-def run_gls_o_c(obj,fend =1.0,fbeg=10000):
+def run_gls_o_c(obj,fend =1.0,fbeg=10000, as_main = False):
  
     #fbeg = abs(max(obj.fit_results.rv_model.jd)-min(obj.fit_results.rv_model.jd))  * 2.0                           
     omega = 1/ np.logspace(np.log10(fend), np.log10(fbeg), num=int(1000))
@@ -752,7 +817,10 @@ def run_gls_o_c(obj,fend =1.0,fbeg=10000):
         RV_per_res = gls.Gls((obj.fit_results.rv_model.jd, obj.fit_results.rv_model.o_c, obj.fit_results.rv_model.rv_err), 
         fast=True,  verbose=False, norm='ZK', ofac=10, fbeg=omega[-1], fend=omega[0],)            
 
-        obj.gls_o_c = RV_per_res        
+        if as_main == False:
+            obj.gls_o_c = RV_per_res       
+        elif as_main == True:
+            obj.gls = RV_per_res                  
     else:
         return obj
 
@@ -990,11 +1058,15 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
         text = text + '''\\\\ 
         '''          
      
-        text = text + '''{0:{width}s}'''.format("Rv trend.", width = 30)            
+        text = text + '''{0:{width}s}'''.format("RV lin. trend", width = 30)            
         text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.params.linear_trend),float(max(np.abs(obj.param_errors.linear_trend_error))) , width = 30, precision = 6)
         text = text + '''\\\\
         '''   
-        
+
+        text = text + '''{0:{width}s}'''.format("RV quad. trend", width = 30)            
+        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.rv_quadtr),float(max(np.abs(obj.rv_quadtr_err))) , width = 30, precision = 6)
+        text = text + '''\\\\
+        '''           
                      
         for i in range(obj.filelist.ndset):   
             text = text + '''{0:{width}s}'''.format("RV$_{\\rm off}$ %s"%(i+1), width = 30)            
@@ -1146,8 +1218,17 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
         for i in range(obj.npl):    
             text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format((float(obj.epoch) - (np.radians(obj.params.planet_params[7*i + 4])/(2*np.pi))*obj.params.planet_params[7*i + 1] ), 0,0, width = width, width2 = 0, precision = precision)                                                            
         text = text + '''\\\\ \\noalign{\\vskip 0.9mm} 
-        '''          
-     
+        '''      
+        
+        text = text + '''{0:{width}s}'''.format("RV lin. trend", width = 30)            
+        text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.params.linear_trend),float(obj.param_errors.linear_trend_error[0]),float(obj.param_errors.linear_trend_error[1]) , width = width, width2 = 0, precision = precision)
+        text = text + '''\\\\
+        '''   
+
+        text = text + '''{0:{width}s}'''.format("RV quad. trend", width = 30)            
+        text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$  '''.format(float(obj.rv_quadtr),float(obj.rv_quadtr_err[0]),float(obj.rv_quadtr_err[1]) , width = width, width2 = 0, precision = precision)
+        text = text + '''\\\\
+        '''                
              
         for i in range(obj.filelist.ndset):   
             text = text + '''{0:{width}s}'''.format("RV$_{\\rm off}$ %s"%(i+1), width = 30)      
