@@ -29,7 +29,7 @@ ccc   The final version will be available in the Python RVMod lib.
       common /DSBLK/ npl,ndset,idsmax,idset,gr_flag
 
 
-      version = "0.03"
+      version = "0.04"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -79,7 +79,7 @@ c      gr_flag = 0
               i = 0
 CC              pause
           endif
-          
+
           CALL SECOND(t_stop)
           if (t_stop.ge.when_to_kill) then
             write(*,*) 'Max. time=',when_to_kill, 'sec ', 
@@ -587,10 +587,10 @@ c             write(*,*) capm
 
 c      do i = 1,idset
       y = y + a(6*npl+ts)
-
-      do i = 1,ts-1
-          dyda(6*npl+i) = 0.d0
-      enddo
+c      write(*,*) ts
+c      do i = 1,ts-1
+c          dyda(6*npl+i) = 0.d0
+c      enddo
       
       dyda(6*npl+ts) = 1.d0
 
@@ -599,9 +599,9 @@ c      do i = 1,idset
       dyda(6*npl + ndset + 1) = x
       dyda(6*npl + ndset + 2) = x**2
    
-c      do i = ts+1,ndset
-c          dyda(6*npl+i) = 0.d0
-c      enddo
+      do i = ts+1,ndset
+          dyda(6*npl+i) = 0.d0
+      enddo
 
       return
       end
