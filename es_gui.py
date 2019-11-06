@@ -25,7 +25,7 @@ from worker import Worker #, WorkerSignals
 import gui_groups 
 
 from multiprocessing import cpu_count
-#import time
+import time
 
 #import BKR as bkr
 from doublespinbox import DoubleSpinBox
@@ -2848,6 +2848,8 @@ Polyfit coefficients:
     def worker_tls_complete(self, resid = False):
         global fit  
  
+        #start_time = time.time()   
+        
         if resid == False:     
             self.update_tls_plots() 
         else:    
@@ -2858,6 +2860,7 @@ Polyfit coefficients:
         self.jupiter_push_vars()   
         self.calc_TLS.setEnabled(True)         
         self.calc_TLS_o_c.setEnabled(True)  
+       # print("--- %s seconds ---" % (time.time() - start_time))     
  
     def worker_tls(self, resid = False):
         global fit  
@@ -3020,21 +3023,11 @@ Transit duration: %s d
         self.update_gui_params()
         self.update_errors() 
         self.update_a_mass()                 
-        self.update_transit_plots()  
 
         fit=rv.get_xyz(fit)
                          
         self.statusBar().showMessage('')  
         
-        if fit.type_fit["RV"] == True:
-            for i in range(fit.npl):
-                rv.phase_RV_planet_signal(fit,i+1) 
-            self.run_gls()
-            self.run_gls_o_c()                
-            self.update_plots()  
-            
-            
-        self.jupiter_push_vars()   
         self.button_fit.setEnabled(True)         
  
     def worker_transit_fitting(self, ff=1, auto_fit = False ):
@@ -3085,8 +3078,18 @@ Transit duration: %s d
         # worker.signals.result.connect(self.print_output)
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker4)       
+        self.threadpool.start(worker4)
+        
+        ### Here because gls() couses lag if executed in "worker_transit_fitting_complete"
+        self.update_transit_plots()  
      
+        if fit.type_fit["RV"] == True:
+            for i in range(fit.npl):
+                rv.phase_RV_planet_signal(fit,i+1) 
+            self.run_gls()
+            self.run_gls_o_c()                
+            self.update_plots()  
+        self.jupiter_push_vars()        
 
     def transit_fit(self, ff=0 ):
         global fit
@@ -3802,7 +3805,6 @@ Transit duration: %s d
              integrator = 'mvs_gr'
              fit.GR_step = self.mvs_GR_steps.value()
              
-        import time
         start_time = time.time()        
        # fit.run_stability_last_fit_params(timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
        
@@ -3821,6 +3823,7 @@ Transit duration: %s d
     def worker_RV_fitting_complete(self):
         global fit  
         
+#        start_time =time.time()   
         fit=rv.get_xyz(fit)
         
         self.update_labels()
@@ -3831,13 +3834,12 @@ Transit duration: %s d
                  
         self.statusBar().showMessage('')   
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
-
-        self.jupiter_push_vars()   
+  
         self.button_fit.setEnabled(True)  
-        self.run_gls()
-        self.run_gls_o_c()        
-        self.update_plots()  
  
+
+#        print("--- %s seconds ---" % (time.time() - start_time))     
+
     def worker_RV_fitting(self, ff=20, m_ln=True, auto_fit = False , init = False ):
         global fit  
         
@@ -3891,8 +3893,13 @@ Transit duration: %s d
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
         self.threadpool.start(worker2) 
-        
 
+
+        ### Here because gls() causes lag if added in the "worker_RV_fitting_complete"   
+        self.run_gls()
+        self.run_gls_o_c()        
+        self.update_plots()          
+        self.jupiter_push_vars() 
      
     def update_RV_jitter_flag(self):
         global fit
@@ -5530,8 +5537,42 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
         self.terminal_embeded.setCurrentWidget(self.console_widget)           
         
+################################## Version controll #######################################
 
-
+    
+    def check_fortran_routines(self):
+        
+        version_kep_loglik= "0.03"        
+        result, flag = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)              
+        if flag == -1 or str(result[0][0]) != version_kep_loglik:
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep ./lib/libswift.a', 3,output=True)             
+            print("New source code available: Updating Keplerian Simplex")
+                       
+        version_kep_LM= "0.04"         
+        result, flag = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)              
+        if flag == -1 or str(result[0][0]) != version_kep_LM:
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep ./lib/libswift.a', 3,output=True)             
+            print("New source code available: Updating Keplerian L-M") 
+                        
+        version_dyn_loglik= "0.03"        
+        result, flag = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)              
+        if flag == -1 or str(result[0][0]) != version_dyn_loglik:
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn ./lib/libswift.a', 3,output=True)             
+            print("New source code available: Updating N-body Simplex")   
+            
+        version_dyn_LM= "0.04"         
+        result, flag = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)              
+        if flag == -1 or str(result[0][0]) != version_dyn_LM:
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn ./lib/libswift.a', 3,output=True)             
+            print("New source code available: Updating  N-body L-M")    
+            
+        version_dyn_loglik_= "0.03"        
+        result, flag = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)              
+        if flag == -1 or str(result[0][0]) != version_dyn_loglik_:
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a', 3,output=True)             
+            print("New source code available: Updating Mixed Simplex")               
+                      
+                
 ################################## System #######################################
             
     def quit(self):
@@ -5811,40 +5852,6 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.font.setPointSize(9)
         self.font.setBold(False)
  
-    
-    def check_fortran_routines(self):
-        
-        version_kep_loglik= "0.03"        
-        result, flag = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)              
-        if flag == -1 or str(result[0][0]) != version_kep_loglik:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep ./lib/libswift.a', 3,output=True)             
-            print("New source code available: Updating Keplerian Simplex")
-                       
-        version_kep_LM= "0.03"         
-        result, flag = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)              
-        if flag == -1 or str(result[0][0]) != version_kep_LM:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep ./lib/libswift.a', 3,output=True)             
-            print("New source code available: Updating Keplerian L-M") 
-                        
-        version_dyn_loglik= "0.03"        
-        result, flag = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)              
-        if flag == -1 or str(result[0][0]) != version_dyn_loglik:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn ./lib/libswift.a', 3,output=True)             
-            print("New source code available: Updating N-body Simplex")   
-            
-        version_dyn_LM= "0.04"         
-        result, flag = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)              
-        if flag == -1 or str(result[0][0]) != version_dyn_LM:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn ./lib/libswift.a', 3,output=True)             
-            print("New source code available: Updating  N-body L-M")    
-            
-        version_dyn_loglik_= "0.03"        
-        result, flag = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)              
-        if flag == -1 or str(result[0][0]) != version_dyn_loglik_:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a', 3,output=True)             
-            print("New source code available: Updating Mixed Simplex")               
-                      
-                
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.ToolTip:  # Catch the TouchBegin event.
            # helpEvent = event
