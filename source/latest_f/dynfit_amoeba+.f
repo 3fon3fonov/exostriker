@@ -31,7 +31,7 @@ c*************************************************************************
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
 
-      version = "0.03"
+      version = "0.05"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -81,7 +81,7 @@ c      call timer(t_start)
  
          dloglikk = ologlikk - loglikk      
 
-         write (*,*) i, dloglikk, loglikk
+c         write (*,*) i, dloglikk, loglikk
          j=0
          do ii=1,ma
            if (ia(ii).ne.0) then
@@ -90,11 +90,11 @@ c      call timer(t_start)
            endif
          enddo
 c      call timer(t_stop)
-      CALL SECOND(t_stop)
-      if (t_stop.ge.10) then
-            write(*,*) t_stop 
-            goto 502
-      endif
+c      CALL SECOND(t_stop)
+c      if (t_stop.ge.10) then
+c            write(*,*) t_stop 
+c            goto 502
+c      endif
          
       if (dabs(dloglikk).ge.0.000001d0) goto 500
 
@@ -127,10 +127,10 @@ c      stop
       parameter (MMAX=200, NDSMAX=20,NPLMAX=20)
       real*8 twopi, loglik
       parameter (twopi=6.28318530717958d0)
-      integer ndata, i, j, ma, ts(5000), ia(MMAX), idsmax(NDSMAX)
-      real*8 dy, sig(5000), dyda(20000,MMAX), x(5000), y(5000)
-      real*8 ymod(5000), a(MMAX), a2(mfit), a3(MMAX),sig2i, y_in(5000)
-     & , y2(5000), epsil,deltat
+      integer ndata, i, j, ma, ts(20000), ia(MMAX), idsmax(NDSMAX)
+      real*8 dy, sig(20000), dyda(20000,MMAX), x(20000), y(20000)
+      real*8 ymod(20000), a(MMAX), a2(mfit), a3(MMAX),sig2i, y_in(20000)
+     & , y2(20000), epsil,deltat
       integer dynamical_planets(NPLMAX)
    
       common /DSBLK/ npl,ndset,idsmax,idset      
@@ -184,11 +184,11 @@ c      write(*,*) "lnL", loglik
       
       subroutine prepare_for_amoeba(p,mp,np,y,a,ia,ma,mfit,funk,ndata,
      & x,z,ymod,dyda,ts,sig,epsil,deltat,it,dynamical_planets)
-      integer MMAX, NDSMAX, NPLMAX,ma,ts(5000), ndata,mp,np,mfit,it
+      integer MMAX, NDSMAX, NPLMAX,ma,ts(20000), ndata,mp,np,mfit,it
       parameter(MMAX=200, NDSMAX=20, NPLMAX=20)
       REAL*8 ftol,p(mp,np),y(mp),a(MMAX), a2(mfit),fr,frjitt
-      real*8 x(5000),z(5000),ymod(5000)
-      real*8 dyda(MMAX), sig(5000), loglik,epsil,deltat
+      real*8 x(20000),z(20000),ymod(20000)
+      real*8 dyda(MMAX), sig(20000), loglik,epsil,deltat
       parameter(fr=0.01, frjitt=0.05)
       integer i,j,k,ia(MMAX),idsmax(NDSMAX),dynamical_planets(NPLMAX)
       external funk
@@ -238,10 +238,10 @@ c      write(*,*) loglik
       SUBROUTINE amoeba(p,y,mp,np,ndim,ftol,funk,iter,ndata,x,z,ymod,
      & dyda,ma,ts,sig,a,ia,epsil,deltat,dynamical_planets)
       implicit none
-      INTEGER iter,mp,ndim,np,NMAX,ITMAX, MMAX,ma,ts(5000),ndata,NPLMAX
-      REAL*8 ftol,p(mp,np),y(mp),x(5000),z(5000),ymod(5000)
+      INTEGER iter,mp,ndim,np,NMAX,ITMAX, MMAX,ma,ts(20000),ndata,NPLMAX
+      REAL*8 ftol,p(mp,np),y(mp),x(20000),z(20000),ymod(20000)
       PARAMETER (NMAX=20,ITMAX=50000,MMAX=200,NPLMAX=20)
-      real*8 dyda(20000,MMAX), sig(5000), loglik, a(MMAX)
+      real*8 dyda(20000,MMAX), sig(20000), loglik, a(MMAX)
       EXTERNAL funk
       INTEGER i,ihi,ilo,inhi,j,m,n, ia(MMAX), dynamical_planets(NPLMAX)
       REAL*8 rtol,summ,swap,ysave,ytry,psum(ndim),amotry,epsil,deltat
@@ -321,11 +321,11 @@ C  (C) Copr. 1986-92 Numerical Recipes Software 0=M,173+9.
       FUNCTION amotry(p,y,psum,mp,np,ndim,funk,ihi,fac,ndata,x,z,ymod,
      & dyda,ma,ts,sig,a,ia,epsil,deltat,dynamical_planets)
       implicit none
-      INTEGER ihi,mp,ndim,np,NMAX, MMAX, NPLMAX, ma, ts(5000),ndata
+      INTEGER ihi,mp,ndim,np,NMAX, MMAX, NPLMAX, ma, ts(20000),ndata
       PARAMETER (NMAX=20, MMAX=200, NPLMAX=20)
-      REAL*8 amotry,fac,p(mp,np),psum(np),y(mp),x(5000),z(5000),
-     & ymod(5000), epsil, deltat
-      real*8 dyda(20000,MMAX), sig(5000),loglik
+      REAL*8 amotry,fac,p(mp,np),psum(np),y(mp),x(20000),z(20000),
+     & ymod(20000), epsil, deltat
+      real*8 dyda(20000,MMAX), sig(20000),loglik
       EXTERNAL funk
       INTEGER j, ia(MMAX), dynamical_planets(NPLMAX)
       REAL*8 fac1,fac2,ytry,ptry(ndim), a(MMAX)
@@ -536,13 +536,13 @@ C
       real*8 PI
       integer MMAX,NDSMAX,NPLMAX 
       parameter (PI=3.14159265358979d0,MMAX=200  ,NDSMAX=20,NPLMAX=20)
-      real*8 a(MMAX),ia(MMAX),t(5000),ymod(5000),ys(5000)
-      real*8 covar(MMAX,MMAX),dyda(5000,MMAX),AU,day
+      real*8 a(MMAX),ia(MMAX),t(20000),ymod(20000),ys(20000)
+      real*8 covar(MMAX,MMAX),dyda(20000,MMAX),AU,day
       real*8 rms,mstar,sini(7),mass(NPLMAX),ap(NPLMAX)
-      integer ts(5000),nbod,nt,writeflag_RV,hkl,
+      integer ts(20000),nbod,nt,writeflag_RV,hkl,
      &  writeflag_best_par,writeflag_fit, dynamical_planets(NPLMAX)
       real*8 t0,t1,t2,dt,offset,t_max,chisq,loglik,dy,sig2i,twopi
-      real*8 x(5000),y(5000),sigs(5000),jitter(NDSMAX)
+      real*8 x(20000),y(20000),sigs(20000),jitter(NDSMAX)
       integer i,j,npl,ndset,ndata,idset,mfit,ma,idsmax(NDSMAX)
       real*8 xh(NPLMAX),yh(NPLMAX),zh(NPLMAX),vxh(NPLMAX),vyh(NPLMAX)
      &       ,vzh(NPLMAX)
@@ -913,7 +913,7 @@ c                    write(*,*) a(7*(i-1)+j)
       real*8 rpl(NPLMAX),rhill(NPLMAX),epsil,deltat
 
       integer correct, idsmax(NDSMAX),
-     &         dynamical_planets(NPLMAX), k, d, ts(5000)
+     &         dynamical_planets(NPLMAX), k, d, ts(20000)
      
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
@@ -2217,16 +2217,16 @@ c             write(*,*) "TEST:", time, t(1),dt
 
              time = time + h              
 
-             if(btest(iflgchk,4))  then    ! bit 4 is set
-                call discard(t,dt,nbod,ntp,mass,xh,yh,zh,vxh,vyh,vzh,
-     &               xht,yht,zht,vxht,vyht,vzht,rmin,rmax,rmaxu,
-     &               qmin,lclose,rplsq,istat,rstat)
-                call io_discard_write(1,t,nbod,ntp,xh,yh,zh,vxh,vyh,
-     &               vzh,xht,yht,zht,vxht,vyht,vzht,istat,rstat,iud,
-     &               'discard.out',fopenstat,nleft)
-             else
-                nleft = ntp
-             endif
+c             if(btest(iflgchk,4))  then    ! bit 4 is set
+c                call discard(t,dt,nbod,ntp,mass,xh,yh,zh,vxh,vyh,vzh,
+c     &               xht,yht,zht,vxht,vyht,vzht,rmin,rmax,rmaxu,
+c     &               qmin,lclose,rplsq,istat,rstat)
+c                call io_discard_write(1,t,nbod,ntp,xh,yh,zh,vxh,vyh,
+c     &               vzh,xht,yht,zht,vxht,vyht,vzht,istat,rstat,iud,
+c     &               'discard.out',fopenstat,nleft)
+c             else
+c                nleft = ntp
+c             endif
 
 	enddo
 

@@ -58,8 +58,10 @@ c...  do sun part first
          yy = yb(i) - yb(j)
          zz = zb(i) - zb(j)
          rr2 = xx**2 + yy**2 + zz**2
+
          fac1 = 1.d0/sqrt(rr2)
          fac = fac1/rr2
+c         if (j.eq.2) write(*,*) fac, rr2, xx , yy , zz
 
 c..      save for the J2 and J4 calculations
          xh(j) = -xx
