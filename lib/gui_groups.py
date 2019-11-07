@@ -45,6 +45,40 @@ def param_gui_tr(self):
 
 
 
+
+def rvs_data_gui(self):
+        rvs_data_gui = [
+                self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
+                self.Data6,self.Data7,self.Data8,self.Data9,self.Data10
+                ]
+        return rvs_data_gui
+
+def rvs_data_jitter_gui(self):        
+        rvs_data_jitter_gui = [
+                self.jitter_Data1,self.jitter_Data2,self.jitter_Data3,self.jitter_Data4,self.jitter_Data5,
+                self.jitter_Data6,self.jitter_Data7,self.jitter_Data8,self.jitter_Data9,self.jitter_Data10
+                ]
+        return rvs_data_jitter_gui
+
+
+def tra_data_gui(self):        
+        tra_data_gui = [
+                self.trans_Data1,self.trans_Data2,self.trans_Data3,self.trans_Data4,self.trans_Data5,
+                self.trans_Data6,self.trans_Data7,self.trans_Data8,self.trans_Data9,self.trans_Data10
+                ]
+        return tra_data_gui
+               
+def tra_data_jitter_gui(self):        
+        tra_data_jitter_gui = [
+                self.jitter_trans_Data1,self.jitter_trans_Data2,self.jitter_trans_Data3,self.jitter_trans_Data4,self.jitter_trans_Data5,
+                self.jitter_trans_Data6,self.jitter_trans_Data7,self.jitter_trans_Data8,self.jitter_trans_Data9,self.jitter_trans_Data10
+                ]
+        return tra_data_jitter_gui
+        
+            
+
+
+
 def param_bounds_gui(self):
   
     param_bounds_gui = [
@@ -60,6 +94,8 @@ def param_bounds_gui(self):
     ]
  
     return param_bounds_gui
+
+
 
 
 def offset_bounds_gui(self):
@@ -81,6 +117,19 @@ def jitter_bounds_gui(self):
     ]  
     
     return jitter_bounds_gui    
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     
