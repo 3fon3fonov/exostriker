@@ -1,9 +1,9 @@
 
 A Set of bash installers are available in the ./installers directory.
 
-please run these from the ES root directory, e.g.,
+please run these from the ES root directory, e.g.:
 
-"trifonov@xyz:~/trifon> bash installers/linux_OpenSuse_install.sh"
+trifonov@xyz:~/trifon> bash installers/linux_OpenSuse_install.sh
 
 ##############################  LINUX  #########################################
 
@@ -37,6 +37,11 @@ You may also need:
 pip 
 rxvt (optional bash shell)
 
+(WARNING! there is another "batman" on pip.
+
+pip install batman <-- wrong!
+pip install batman-package <-- correct)
+
 -------------------------------------------
 Important for linux Mint users!!!
 
@@ -51,6 +56,7 @@ sudo apt-get install python-tk
 for Python3 (recommended)
 
 sudo apt-get install python3-dev
+sudo apt-get install g++
 sudo apt-get install python3-tk
 
 -------------------------------------------
@@ -97,11 +103,6 @@ installed the lib the first time.)
 Alternatively, I have added the "batman-package" in the source directory and 
 with the "MAC_OS_install.sh" script you may do also a local install in ./lib. 
 You will be asked fro this option if batman is not on your system already.
-
-(WARNING! there is another "batman" on pip.
-
-pip install batman <-- wrong!
-pip install batman-package <-- correct)
 
 ################################################################################
 
@@ -154,7 +155,7 @@ See "focus_matrix_TBFixed.doc" in the root directory.
 
 ################################## Finally #####################################
 
-To load the GUI  + Rvmod 
+To load the GUI  + RVmod 
 
 python es_gui.py 
  
