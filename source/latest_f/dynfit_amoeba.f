@@ -29,7 +29,7 @@ c*************************************************************************
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
 
-      version = "0.03"
+      version = "0.05"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -78,12 +78,10 @@ c         write (*,*) i, dloglikk, loglikk
      &                 'exceeded t_stop =', t_stop, 'sec ' 
             goto 502
          endif     
-     
- 
+      
          loglikk = yamoeba(1)
  
          dloglikk = ologlikk - loglikk
-
 
 c         write (*,*) i, dloglikk, loglikk
          j=0
@@ -1300,9 +1298,9 @@ c...  set things up if this is the initial call
 c...  Convert to barycentric coords
       call coord_h2b(nbod,mass,xh,yh,zh,vxh,vyh,vzh,
      &     xb,yb,zb,vxb,vyb,vzb,msys)
-      call coord_h2b_tp(ntp,xht,yht,zht,vxht,vyht,vzht,
-     &     xb(1),yb(1),zb(1),vxb(1),vyb(1),vzb(1),
-     &     xbt,ybt,zbt,vxbt,vybt,vzbt)
+c      call coord_h2b_tp(ntp,xht,yht,zht,vxht,vyht,vzht,
+c     &     xb(1),yb(1),zb(1),vxb(1),vyb(1),vzb(1),
+c     &     xbt,ybt,zbt,vxbt,vybt,vzbt)
 
 c...  copy to the big array
       do i=1,nbod
@@ -1315,29 +1313,29 @@ c...  copy to the big array
       enddo
 
       ntpi = 0
-      do i=1,ntp
-         if(istat(i,1).eq.0) then
-            ntpi = ntpi + 1
-            j = ntpi + nbod
-            link(ntpi) = i
-            ybs(1,j) = xbt(i)
-            ybs(2,j) = ybt(i)
-            ybs(3,j) = zbt(i)
-            ybs(4,j) = vxbt(i)
-            ybs(5,j) = vybt(i)
-            ybs(6,j) = vzbt(i)
-            do jj = 1,NSTAT
-               istattmp(ntpi,jj) = istat(i,jj)
-            enddo
-         endif
-      enddo
+c      do i=1,ntp
+c         if(istat(i,1).eq.0) then
+c            ntpi = ntpi + 1
+c            j = ntpi + nbod
+c            link(ntpi) = i
+c            ybs(1,j) = xbt(i)
+c            ybs(2,j) = ybt(i)
+c            ybs(3,j) = zbt(i)
+c            ybs(4,j) = vxbt(i)
+c            ybs(5,j) = vybt(i)
+c            ybs(6,j) = vzbt(i)
+c            do jj = 1,NSTAT
+c               istattmp(ntpi,jj) = istat(i,jj)
+c            enddo
+c         endif
+c      enddo
 
       tfake = 0.0d0
       dttmp = dt
 
 c      do while(tfake.lt.dt)
       do while( (abs(tfake-dt)/dt) .gt. 1.0e-7 )    ! just to be real safe
-         call bs_int(nbod,ntpi,mass,j2rp2,j4rp4,istattmp,
+         call bs_int_pl(nbod,ntpi,mass,j2rp2,j4rp4,istattmp,
      &        tfake,dttmp,ybs,eps)
 
          dttmp = dt - tfake
@@ -1353,25 +1351,25 @@ c...  put things back
          vzb(i) = ybs(6,i)
       enddo
 
-      do i=1,ntpi
-         j = i + nbod
-         xbt(link(i)) = ybs(1,j)
-         ybt(link(i)) = ybs(2,j)
-         zbt(link(i)) = ybs(3,j)
-         vxbt(link(i)) = ybs(4,j)
-         vybt(link(i)) = ybs(5,j)
-         vzbt(link(i)) = ybs(6,j)
-         do jj = 1,NSTAT
-            istat(link(i),jj) = istattmp(i,jj)
-         enddo
-      enddo
+c      do i=1,ntpi
+c         j = i + nbod
+c         xbt(link(i)) = ybs(1,j)
+c         ybt(link(i)) = ybs(2,j)
+c         zbt(link(i)) = ybs(3,j)
+c         vxbt(link(i)) = ybs(4,j)
+c         vybt(link(i)) = ybs(5,j)
+c         vzbt(link(i)) = ybs(6,j)
+c         do jj = 1,NSTAT
+c            istat(link(i),jj) = istattmp(i,jj)
+c         enddo
+c      enddo
 
 c...  Convert back to helio. coords at the end of the step
 	call coord_b2h(nbod,mass,xb,yb,zb,vxb,vyb,vzb,
      &         xh,yh,zh,vxh,vyh,vzh)
-	call coord_b2h_tp(ntp,xbt,ybt,zbt,vxbt,vybt,vzbt,
-     &         xb(1),yb(1),zb(1),vxb(1),vyb(1),vzb(1),
-     &         xht,yht,zht,vxht,vyht,vzht)
+c	call coord_b2h_tp(ntp,xbt,ybt,zbt,vxbt,vybt,vzbt,
+c     &         xb(1),yb(1),zb(1),vxb(1),vyb(1),vzb(1),
+c     &         xht,yht,zht,vxht,vyht,vzht)
 
       return
 

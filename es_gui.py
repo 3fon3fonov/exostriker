@@ -3011,6 +3011,17 @@ Transit duration: %s d
         self.statusBar().showMessage('')  
         
         self.button_fit.setEnabled(True)         
+        self.update_transit_plots()  
+     
+        if fit.type_fit["RV"] == True:
+            for i in range(fit.npl):
+                rv.phase_RV_planet_signal(fit,i+1) 
+            self.run_gls()
+            self.run_gls_o_c()                
+            self.update_plots()  
+        self.jupiter_push_vars() 
+
+
  
     def worker_transit_fitting(self, ff=1, auto_fit = False ):
         global fit  
@@ -3062,17 +3073,7 @@ Transit duration: %s d
        # worker.signals.progress.connect(self.progress_fn)
         self.threadpool.start(worker4)
         
-        ### Here because gls() couses lag if executed in "worker_transit_fitting_complete"
-        self.update_transit_plots()  
-     
-        if fit.type_fit["RV"] == True:
-            for i in range(fit.npl):
-                rv.phase_RV_planet_signal(fit,i+1) 
-            self.run_gls()
-            self.run_gls_o_c()                
-            self.update_plots()  
-        self.jupiter_push_vars()        
-
+ 
     def transit_fit(self, ff=0 ):
         global fit
         
@@ -3812,13 +3813,15 @@ Transit duration: %s d
         self.update_gui_params()
         self.update_errors() 
         self.update_a_mass()    
-                
+        self.update_plots()          
+        self.jupiter_push_vars()                      
                  
         self.statusBar().showMessage('')   
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
   
         self.button_fit.setEnabled(True)  
- 
+        self.run_gls()
+        self.run_gls_o_c()     
 
 #        print("--- %s seconds ---" % (time.time() - start_time))     
 
@@ -3841,7 +3844,7 @@ Transit duration: %s d
         self.check_bounds()
         self.check_priors_nr()   
         self.check_priors_jeff()   
-        
+   
         
         fit.model_npoints = self.points_to_draw_model.value()
         #self.tabWidget_helper.setCurrentWidget(self.tab_info)
@@ -3875,13 +3878,7 @@ Transit duration: %s d
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
         self.threadpool.start(worker2) 
-
-
-        ### Here because gls() causes lag if added in the "worker_RV_fitting_complete"   
-        self.run_gls()
-        self.run_gls_o_c()        
-        self.update_plots()          
-        self.jupiter_push_vars() 
+ 
      
     def update_RV_jitter_flag(self):
         global fit
@@ -5540,36 +5537,58 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
     
     def check_fortran_routines(self):
         
+        
+        #if os.WIFEXITED(info1[1]) : 
+        #    code = os.WEXITSTATUS(info1[1]) 
+        #    print("First child's exit code:", code) 
+        #else : 
+        #    print("First child does not exited using exit(2) system call.") 
+  
+        
         version_kep_loglik= "0.03"        
-        result, flag = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)              
-        if flag == -1 or str(result[0][0]) != version_kep_loglik:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep ./lib/libswift.a', 3,output=True)             
+        result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)              
+        if flag1 == -1 or str(result1[0][0]) != version_kep_loglik:
             print("New source code available: Updating Keplerian Simplex")
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep ./lib/libswift.a', 3,output=True)             
                        
         version_kep_LM= "0.04"         
-        result, flag = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)              
-        if flag == -1 or str(result[0][0]) != version_kep_LM:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep ./lib/libswift.a', 3,output=True)             
+        result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)              
+        if flag2 == -1 or str(result2[0][0]) != version_kep_LM:
             print("New source code available: Updating Keplerian L-M") 
+            result2, flag2 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep ./lib/libswift.a', 3,output=True)             
                         
-        version_dyn_loglik= "0.03"        
-        result, flag = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)              
-        if flag == -1 or str(result[0][0]) != version_dyn_loglik:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn ./lib/libswift.a', 3,output=True)             
+        version_dyn_loglik= "0.05"        
+        result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)              
+        if flag3 == -1 or str(result3[0][0]) != version_dyn_loglik:
             print("New source code available: Updating N-body Simplex")   
+            result3, flag3 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn ./lib/libswift.a', 3,output=True)             
             
-        version_dyn_LM= "0.04"         
-        result, flag = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)              
-        if flag == -1 or str(result[0][0]) != version_dyn_LM:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn ./lib/libswift.a', 3,output=True)             
+        version_dyn_LM= "0.05"         
+        result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)              
+        if flag4 == -1 or str(result4[0][0]) != version_dyn_LM:
             print("New source code available: Updating  N-body L-M")    
+            result4, flag4 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn ./lib/libswift.a', 3,output=True)             
             
-        version_dyn_loglik_= "0.03"        
-        result, flag = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)              
-        if flag == -1 or str(result[0][0]) != version_dyn_loglik_:
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a', 3,output=True)             
+        version_dyn_loglik_= "0.05"        
+        result5, flag5 = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)              
+        if flag5 == -1 or str(result5[0][0]) != version_dyn_loglik_:
+            result5, flag5 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a', 3,output=True)             
             print("New source code available: Updating Mixed Simplex")               
-                      
+
+  
+        if isinstance(float(result1[0][0]), float)==False or isinstance(float(result2[0][0]), float)==False or isinstance(float(result3[0][0]), float)==False or isinstance(float(result4[0][0]), float)==False or isinstance(float(result5[0][0]), float)==False:             
+            print("""
+                  
+            Something went wrong!!! Most likely the swift library was updated and now you 
+            need to recompile it. E.g. use: 
+                
+               $ bash installers/XXXXX_install.sh 
+                
+            (see README_for_installation)
+            
+            """
+            )               
+                    
                 
 ################################## System #######################################
             
@@ -6291,7 +6310,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.03). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.05). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
