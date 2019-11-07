@@ -252,24 +252,15 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.param_gui_tr[i*3+1].setValue(fit.pl_rad[i]) 
             self.param_gui_tr[i*3+2].setValue(fit.pl_a[i]) 
             
-        rvs_data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
-                    self.Data6,self.Data7,self.Data8,self.Data9,self.Data10]
-        rvs_data_jitter_gui = [self.jitter_Data1,self.jitter_Data2,self.jitter_Data3,self.jitter_Data4,self.jitter_Data5,
-                           self.jitter_Data6,self.jitter_Data7,self.jitter_Data8,self.jitter_Data9,self.jitter_Data10]
 
         for i in range(10): 
-            rvs_data_gui[i].setValue(fit.params.offsets[i]) 
-            rvs_data_jitter_gui[i].setValue(fit.params.jitters[i])
+            self.rvs_data_gui[i].setValue(fit.params.offsets[i]) 
+            self.rvs_data_jitter_gui[i].setValue(fit.params.jitters[i])
         
-        tra_data_gui = [self.trans_Data1,self.trans_Data2,self.trans_Data3,self.trans_Data4,self.trans_Data5,
-                        self.trans_Data6,self.trans_Data7,self.trans_Data8,self.trans_Data9,self.trans_Data10]
-        tra_data_jitter_gui = [self.jitter_trans_Data1,self.jitter_trans_Data2,self.jitter_trans_Data3,self.jitter_trans_Data4,self.jitter_trans_Data5,
-                               self.jitter_trans_Data6,self.jitter_trans_Data7,self.jitter_trans_Data8,self.jitter_trans_Data9,self.jitter_trans_Data10]
-        
-            
+
         for i in range(10): 
-            tra_data_gui[i].setValue(fit.tra_off[i]) 
-            tra_data_jitter_gui[i].setValue(fit.tra_jitt[i])            
+            self.tra_data_gui[i].setValue(fit.tra_off[i]) 
+            self.tra_data_jitter_gui[i].setValue(fit.tra_jitt[i])            
             
         gp_rot_params = [self.GP_rot_kernel_Amp,
                      self.GP_rot_kernel_time_sc,
@@ -338,24 +329,15 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.t0[i]     = self.param_gui_tr[i*3].value()   
             fit.pl_rad[i] = self.param_gui_tr[i*3+1].value() 
             fit.pl_a[i]   = self.param_gui_tr[i*3+2].value() 
-
-        rvs_data_gui = [self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
-                    self.Data6,self.Data7,self.Data8,self.Data9,self.Data10]
-        rvs_data_jitter_gui = [self.jitter_Data1,self.jitter_Data2,self.jitter_Data3,self.jitter_Data4,self.jitter_Data5,
-                           self.jitter_Data6,self.jitter_Data7,self.jitter_Data8,self.jitter_Data9,self.jitter_Data10]
+ 
 
         for i in range(10): 
-            fit.params.offsets[i] = rvs_data_gui[i].value() 
-            fit.params.jitters[i] = rvs_data_jitter_gui[i].value()
-
-        tra_data_gui = [self.trans_Data1,self.trans_Data2,self.trans_Data3,self.trans_Data4,self.trans_Data5,
-                        self.trans_Data6,self.trans_Data7,self.trans_Data8,self.trans_Data9,self.trans_Data10]
-        tra_data_jitter_gui = [self.jitter_trans_Data1,self.jitter_trans_Data2,self.jitter_trans_Data3,self.jitter_trans_Data4,self.jitter_trans_Data5,
-                               self.jitter_trans_Data6,self.jitter_trans_Data7,self.jitter_trans_Data8,self.jitter_trans_Data9,self.jitter_trans_Data10]
+            fit.params.offsets[i] = self.rvs_data_gui[i].value() 
+            fit.params.jitters[i] = self.rvs_data_jitter_gui[i].value()
  
         for i in range(10): 
-            fit.tra_off[i]  = tra_data_gui[i].value() 
-            fit.tra_jitt[i] = tra_data_jitter_gui[i].value() 
+            fit.tra_off[i]  = self.tra_data_gui[i].value() 
+            fit.tra_jitt[i] = self.tra_data_jitter_gui[i].value() 
  
  
         self.read_RV_GP() 
@@ -5892,7 +5874,11 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.param_gui         = gui_groups.param_gui(self)
         self.param_gui_wd      = gui_groups.param_gui_wd(self)    
         self.param_gui_tr      = gui_groups.param_gui_tr(self)
-        
+        self.rvs_data_gui      = gui_groups.rvs_data_gui(self)
+        self.rvs_data_jitter_gui      = gui_groups.rvs_data_jitter_gui(self)     
+        self.tra_data_gui             = gui_groups.tra_data_gui(self)
+        self.tra_data_jitter_gui      = gui_groups.tra_data_jitter_gui(self)
+
         
         self.initialize_buttons()
         self.initialize_plots()   
