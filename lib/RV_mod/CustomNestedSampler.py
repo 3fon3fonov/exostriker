@@ -11,7 +11,9 @@ import dynesty
 
 
 class CustomNestedSampler(dynesty.NestedSampler):
- 
+
+    def convert_to_samples(self):
+        self.samples = self.results.samples
     
     def unique_rows(self):
     

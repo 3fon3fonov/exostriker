@@ -4497,7 +4497,9 @@ highly appreciated!
         self.update_gui_params()
         self.update_errors() 
         self.update_a_mass() 
-        
+
+        self.init_plot_corr()
+
         self.statusBar().showMessage('') 
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
         
@@ -4585,9 +4587,7 @@ highly appreciated!
         if self.run_ns_in_bg.isChecked():
             fit = rv.run_nestsamp_bg(fit)
         else:      
-            fit = rv.run_nestsamp(fit, threads=int(self.nest_N_threads.value()), std_output=False, stop_crit = self.stop_crit.value(), 
-        Dynamic_nest = self.radioButton_dyn_nest_samp.isChecked(), live_points = int(self.live_points.value()),fileoutput=self.save_samples.isChecked(),
-        save_means=self.adopt_nest_means_as_par.isChecked(), save_mode=self.adopt_nest_mode_as_par.isChecked(), save_maxlnL=self.adopt_nest_best_lnL_as_pars.isChecked())
+            fit = rv.run_nestsamp(fit)
      
         self.button_nest_samp.setEnabled(True)            
  
@@ -4606,7 +4606,16 @@ highly appreciated!
         global fit
         #fit.gaussian_ball = self.init_gauss_ball.value() 
         fit.live_points_fact = int(self.live_points.value())
-        
+        fit.ns_threads=int(self.nest_N_threads.value())
+        fit.Dynamic_nest = self.radioButton_dyn_nest_samp.isChecked()
+        fit.std_output=True
+        fit.stop_crit = self.stop_crit.value()
+        fit.ns_fileoutput=self.save_samples.isChecked()
+        fit.ns_save_means=self.adopt_nest_means_as_par.isChecked() 
+        fit.ns_save_mode=self.adopt_nest_mode_as_par.isChecked() 
+        fit.ns_save_maxlnL=self.adopt_nest_best_lnL_as_pars.isChecked() 
+        fit.ns_save_sampler=self.save_samples_nested_in_memory.isChecked()
+       # print(fit.ns_save_sampler,self.save_samples_nested_in_memory.isChecked())        
 
 
     def force_nest_check_box(self):
@@ -4712,13 +4721,12 @@ highly appreciated!
  
         self.check_model_params()
         self.check_mcmc_params()
+    
       
         if self.run_mcmc_in_bg.isChecked():
             fit = rv.run_mcmc_bg(fit)
         else:
-            fit = rv.run_mcmc(fit, burning_ph=self.burning_phase.value(), mcmc_ph=self.mcmc_phase.value(), threads=int(self.N_threads.value()), output=False,
-        fileoutput=self.save_samples.isChecked(),save_means=self.adopt_mcmc_means_as_par.isChecked(), save_mode=self.adopt_mcmc_mode_as_par.isChecked(),
-        save_maxlnL=self.adopt_best_lnL_as_pars.isChecked(),save_sampler=True)
+            fit = rv.run_mcmc(fit)
         
     
         self.button_MCMC.setEnabled(True)            
@@ -4738,7 +4746,15 @@ highly appreciated!
         global fit
         fit.gaussian_ball = self.init_gauss_ball.value() 
         fit.nwalkers_fact = int(self.nwalkers_fact.value()) 
-
+        fit.mcmc_burning_ph = self.burning_phase.value() 
+        fit.mcmc_ph = self.mcmc_phase.value() 
+        fit.mcmc_threads=int(self.N_threads.value())
+        fit.mcmc_fileoutput=self.save_samples.isChecked()
+        fit.mcmc_save_means=self.adopt_mcmc_means_as_par.isChecked() 
+        fit.mcmc_save_mode=self.adopt_mcmc_mode_as_par.isChecked() 
+        fit.mcmc_save_maxlnL=self.adopt_best_lnL_as_pars.isChecked() 
+        fit.mcmc_save_sampler=self.save_samples_mcmc_in_memory.isChecked()     
+        
     def check_model_params(self):
         global fit
         fit.time_step_model = self.time_step_model.value()

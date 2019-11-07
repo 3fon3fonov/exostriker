@@ -961,8 +961,7 @@ def run_nestsamp_bg(obj):
 
  
 
-def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, stop_crit = 0.001, Dynamic_nest = False, std_output=False, live_points = 4,
-                 save_means=False, save_maxlnL=False, save_mode=False, fileoutput=False, save_sampler=False, **kwargs):          
+def run_nestsamp(obj, **kwargs):          
     
     '''Performs nested sampling and saves results'''  
 
@@ -970,8 +969,9 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     #from CustomNestedSampler import CustomNestedSampler
     
    # print("from %s CPS you are using %s CPUs"%(multiprocessing.cpu_count(),threads))
-    if threads == 'max':
-        threads = multiprocessing.cpu_count()    
+   # if obj.ns_threads == 'max':
+   #     threads = multiprocessing.cpu_count()    
+      
     
     start_time = time.time()   
     
@@ -1098,18 +1098,16 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     from pathos.pools import ProcessPool as Pool
 #    from multiprocessing import Pool    
 #    from contextlib import closing    
-    
-    # print('EXPECTED VALUE BEST', partial_func(obj.par_for_mcmc))
-   # print("BEST FIT ESTIMATE ", partial_func(prior_transform(obj.par_for_mcmc)))
-
-    #if threads > 10:
-   #     print(" Sorry, but currently Nest. Samp. works only with 1 CPU (TBF)")
-        
-   #     threads = 1
+ 
        
     dynesty_samp = obj.ns_samp_method
-    print_progress = True #std_output
+    print_progress = obj.std_output #std_output
+    threads = int(obj.ns_threads)
+    stop_crit = obj.stop_crit
+    Dynamic_nest = obj.Dynamic_nest
+
     thread = Pool(ncpus=threads)
+
     
     if Dynamic_nest == False:
         print("'Static' Nest. Samp. is running, please wait... (still under tests!)")
@@ -1178,9 +1176,9 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
    # print("--- %s seconds ---" % (time.time() - start_time))  
     ln = np.hstack(sampler.results.logl)
     samples = np.array(sampler.results.samples)
-            
-    #fileoutput = True
-    if (fileoutput):
+ 
+        
+    if obj.ns_fileoutput == True:
        # start_time = time.time()   
        # print("Please wait... writing the ascii file")  
 
@@ -1191,10 +1189,6 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
                 outfile.write("%s  " %(samples[j,z]))
             outfile.write("\n")
         outfile.close()        
-       # print("--- Done for ---")           
-     #   print("--- %s seconds ---" % (time.time() - start_time))  
-         
-    #start_time = time.time()   
 
  
     obj.nest_stat["mean"] = get_mean_of_samples(sampler.results.samples,len(pp))
@@ -1203,20 +1197,22 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     obj.nest_stat["mode"] = get_mode_of_samples(sampler.results.samples,len(pp))
  
     
-    if (save_means):
+    if (obj.ns_save_means):
         obj.par_for_mcmc = obj.nest_stat["mean"] 
         pp = obj.nest_stat["mean"]  
         
-    elif (save_maxlnL):
+    elif (obj.ns_save_maxlnL):
         obj.par_for_mcmc = obj.nest_stat["best"]  
         pp =  obj.nest_stat["best"]
               
-    elif (save_mode):
+    elif (obj.ns_save_mode):
         obj.par_for_mcmc = obj.nest_stat["mode"]  
         pp =  obj.nest_stat["mode"]  
     # else:
    #     pp = obj.par_for_mcmc
-        
+ 
+    sampler.samples = sampler.results.samples
+       
     new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.results.samples[:,i], [level])), float(np.percentile(sampler.results.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
 
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
@@ -1228,24 +1224,23 @@ def run_nestsamp(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=
     obj.overwrite_params(newparams)
     
     obj.hack_around_rv_params() 
-    
  
-    if (save_means):
+ 
+    if (obj.ns_save_means):
         obj.loglik = maxlnl
         
-    elif (save_maxlnL):
+    elif (obj.ns_save_maxlnL):
         obj.loglik = maxlnl
 
         
     obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, new_par_errors)
 
-
-    #if(save_sampler):
-    #    obj.sampler=sampler             
-   #     obj.sampler_saved=True           
-   # else:   
-   #     sampler.reset()
-   
+ 
+    if(obj.ns_save_sampler):
+        obj.sampler=sampler             
+        obj.sampler_saved=True 
+  #      sampler.reset()     
+  #  else:   
     sampler.reset()
     obj.gps = []
     
@@ -1279,8 +1274,7 @@ def run_mcmc_bg(obj):
     
     return obj
 
-def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, save_means=False, save_maxlnL=False, save_mode= False, 
-             fileoutput=False, save_sampler=False,burning_ph=10, mcmc_ph=10, **kwargs):          
+def run_mcmc(obj,  **kwargs):          
     
     '''Performs MCMC and saves results'''  
     
@@ -1290,11 +1284,9 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     start_time = time.time()   
     
     rtg = obj.rtg
-
     check_temp_RV_file(obj)
 
     #nll = lambda *args: -lnprob_new(*args)
-
     
     vel_files = []
     for i in range(obj.filelist.ndset): 
@@ -1318,7 +1310,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     epoch = obj.epoch     
     stmass = obj.params.stellar_mass    
  
-    
+ 
     mix_fit = obj.mixed_fit    
     
     if (obj.mod_dynamical):
@@ -1381,7 +1373,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     #from pathos.multiprocessing import ProcessingPool as Pool
     from pathos.pools import ProcessPool as Pool
     #from pathos.threading import ThreadPool as Pool
-    pool=Pool(ncpus=threads)
+    pool=Pool(ncpus=obj.mcmc_threads)
     #pool=Pool(processes=threads-1)
     #from pathos.threading import ThreadPool
     #import mkl
@@ -1401,7 +1393,6 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
 
     pos = [pp + obj.gaussian_ball*np.random.rand(ndim) for i in range(nwalkers)]
  
-    #print(mod)
     sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit,opt), pool=pool)
  
 
@@ -1409,11 +1400,11 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
 
 
     # burning phase
-    pos, prob, state  = sampler.run_mcmc(pos,burning_ph)
+    pos, prob, state  = sampler.run_mcmc(pos,obj.mcmc_burning_ph)
     sampler.reset()  
     
     # now perform the MCMC
-    pos, prob, state  = sampler.run_mcmc(pos,mcmc_ph)
+    pos, prob, state  = sampler.run_mcmc(pos,obj.mcmc_ph)
     #ln = np.hstack(sampler.lnprobability)
     sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl)
 
@@ -1427,7 +1418,7 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     #print(type(sampler.samples[:,0]), len(sampler.samples[:,0]))
 
             
-    fileoutput = True
+    fileoutput = obj.mcmc_fileoutput
     if (fileoutput):
      #   start_time = time.time()   
     #    print("Please wait... writing the ascii file")          
@@ -1447,18 +1438,18 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
     obj.mcmc_stat["mean"] = sampler.means
     obj.mcmc_stat["best"] = sampler.minlnL
     obj.mcmc_stat["mode"] = get_mode_of_samples(sampler.samples,len(pp))
- 
-    
+
+
     # Now we will save new parameters and their errors (different + and - errors in this case). Flag save_means determines if we want to take means as new best fit parameters or stick to old ones and calculate errors with respect to that           
-    if (save_means):
+    if (obj.mcmc_save_means):
         obj.par_for_mcmc = obj.mcmc_stat["mean"] # we will not need to keep the old parameters in this attribbute, so let's store the means now
         pp = obj.mcmc_stat["mean"]  
         
-    elif (save_maxlnL):
+    elif (obj.mcmc_save_maxlnL):
         obj.par_for_mcmc = obj.mcmc_stat["best"] # we will not need to keep the old parameters in this attribbute, so let's store the means now
         pp =  obj.mcmc_stat["best"]
               
-    elif (save_mode):
+    elif (obj.mcmc_save_mode):
         obj.par_for_mcmc = obj.mcmc_stat["mode"] # we will not need to keep the old parameters in this attribbute, so let's store the means now
         pp =  obj.mcmc_stat["mode"]  
     # else:
@@ -1484,18 +1475,16 @@ def run_mcmc(obj,  prior=0, samplesfile='', level=(100.0-68.3)/2.0, threads=1, s
  
    # obj.params.update_GP_params(current_GP_params)
  
-    if (save_means):
+    if (obj.mcmc_save_means):
         obj.loglik = sampler.lnL_min 
         
-    elif (save_maxlnL):
+    elif (obj.mcmc_save_maxlnL):
         obj.loglik = sampler.lnL_min 
 
-    
     
     obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps,tra_gps, rtg, mix_fit, new_par_errors)
 
-
-    if(save_sampler):
+    if(obj.mcmc_save_sampler):
         obj.sampler=sampler             
         obj.sampler_saved=True           
     else:   
@@ -1633,17 +1622,7 @@ class signal_fit(object):
         
         self.colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#808080']
  
-                       
-        self.mcmc_sample_file = 'mcmc_samples'
-        self.mcmc_corner_plot_file = 'cornerplot.pdf'
-        self.mcmc_stat = {"mean": [],"mode": [],"best": []}
-        
-        self.nest_sample_file = 'nest_samp_samples'
-        self.nest_corner_plot_file = 'nest_samp_cornerplot.pdf'        
-        self.nest_stat = {"mean": [],"mode": [],"best": []}
       
-
-       
         self.init_orb_evol()
         
         self.tls = []
@@ -2195,6 +2174,21 @@ class signal_fit(object):
         
         self.percentile_level = 68.3
         
+        self.mcmc_burning_ph = 100 
+        self.mcmc_ph = 100 
+        self.mcmc_threads= 1
+        self.mcmc_fileoutput=True
+        self.mcmc_save_means=False 
+        self.mcmc_save_mode=False 
+        self.mcmc_save_maxlnL=False 
+        self.mcmc_save_sampler=True        
+                                   
+        self.mcmc_sample_file = 'mcmc_samples'
+        self.mcmc_corner_plot_file = 'cornerplot.pdf'
+        self.mcmc_stat = {"mean": [],"mode": [],"best": []}
+        
+        
+        
     def init_nest_par(self):     
         #self.gaussian_ball = 0.0001        
         self.live_points_fact = 4
@@ -2202,7 +2196,23 @@ class signal_fit(object):
         
         self.ns_samp_method_opt = ['slice','unif','rwalk','rstagger','rslice','hslice']
         self.ns_samp_method = self.ns_samp_method_opt[0]     
-
+        
+        self.ns_threads=1
+        self.Dynamic_nest = False
+        self.std_output=False
+        self.stop_crit = 0.001
+        self.ns_fileoutput=True
+        self.ns_save_means=False 
+        self.ns_save_mode=False 
+        self.ns_save_maxlnL=False 
+        self.ns_save_sampler=True    
+        
+        self.nest_sample_file = 'nest_samp_samples'
+        self.nest_corner_plot_file = 'nest_samp_cornerplot.pdf'        
+        self.nest_stat = {"mean": [],"mode": [],"best": []}
+           
+    
+    
         
     def init_dynfit_settings(self):
         self.mixed_fit = {0: [False], 1:[1,1,1,1,1,1,1,1,1]}     
