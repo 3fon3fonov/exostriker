@@ -5576,7 +5576,16 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             print("New source code available: Updating Mixed Simplex")               
 
   
-        if isinstance(float(result1[0][0]), float)==False or isinstance(float(result2[0][0]), float)==False or isinstance(float(result3[0][0]), float)==False or isinstance(float(result4[0][0]), float)==False or isinstance(float(result5[0][0]), float)==False:             
+    
+        try:
+            r1 = float(result1[0][0])
+            r2 = float(result2[0][0])
+            r3 = float(result3[0][0])
+            r4 = float(result4[0][0])
+            r5 = float(result5[0][0])
+        except (ImportError, KeyError, AttributeError,ValueError) as e:     
+     
+       # if isinstance(r1, float)==False or isinstance(r2, float)==False or isinstance(r3, float)==False or isinstance(r4, float)==False or isinstance(r5, float)==False:             
             print("""
                   
             Something went wrong!!! Most likely the swift library was updated and now you 
