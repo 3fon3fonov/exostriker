@@ -2487,11 +2487,17 @@ class signal_fit(object):
            self.act_data_sets[i] = act_data_set       
     
     def BIC(self):        
-        BIC = 2*self.loglik + self.fit_results.mfit*np.log(len(self.fit_results.jd))    
+        if len(self.fit_results.jd) != 0:    
+            BIC = 2*self.loglik + self.fit_results.mfit*np.log(len(self.fit_results.jd))    
+        else:
+            BIC = 0        
         return BIC
       
-    def AIC(self):      
-        AIC = 2*self.loglik - 2*self.fit_results.mfit     
+    def AIC(self):     
+        if len(self.fit_results.jd) != 0:    
+            AIC = 2*self.loglik - 2*self.fit_results.mfit     
+        else:
+            AIC = 0        
         return AIC    
     
     def wrms(self):  

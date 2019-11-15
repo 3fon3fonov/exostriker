@@ -531,19 +531,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def update_errors(self):
         global fit
 
-        param_errors_gui = [self.err_K1,self.err_P1,self.err_e1,self.err_om1,self.err_ma1, self.err_i1, self.err_Om1,
-                            self.err_K2,self.err_P2,self.err_e2,self.err_om2,self.err_ma2, self.err_i2, self.err_Om2,
-                            self.err_K3,self.err_P3,self.err_e3,self.err_om3,self.err_ma3, self.err_i3, self.err_Om3,
-                            self.err_K4,self.err_P4,self.err_e4,self.err_om4,self.err_ma4, self.err_i4, self.err_Om4,  
-                            self.err_K5,self.err_P5,self.err_e5,self.err_om5,self.err_ma5, self.err_i5, self.err_Om5,
-                            self.err_K6,self.err_P6,self.err_e6,self.err_om6,self.err_ma6, self.err_i6, self.err_Om6,
-                            self.err_K7,self.err_P7,self.err_e7,self.err_om7,self.err_ma7, self.err_i7, self.err_Om7, 
-                            self.err_K8,self.err_P8,self.err_e8,self.err_om8,self.err_ma8, self.err_i8, self.err_Om8,
-                            self.err_K9,self.err_P9,self.err_e9,self.err_om9,self.err_ma9, self.err_i9, self.err_Om9,                       
-                            ]
-        
-      #  for i in range(fit.npl*7):
-     #       param_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.planet_params_errors[i])))
      
         zz = 0
         for i in range(9):
@@ -552,7 +539,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             j = 7*i
             for k in range(7):
                # fit.params.planet_params[7*zz+k] = param_gui[j+k].value() 
-                param_errors_gui[j+k].setText("+/- %.3f"%max(np.abs(fit.param_errors.planet_params_errors[7*zz+k])))
+                self.param_errors_gui[j+k].setText("+/- %.3f"%max(np.abs(fit.param_errors.planet_params_errors[7*zz+k])))
 
             zz = zz +1            
             
@@ -629,21 +616,10 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_use_from_input_file(self):
         global fit
-
-
-        use_param_gui =  [self.use_K1, self.use_P1, self.use_e1, self.use_om1, self.use_ma1, self.use_incl1, self.use_Omega1,
-                          self.use_K2, self.use_P2, self.use_e2, self.use_om2, self.use_ma2, self.use_incl2, self.use_Omega2,
-                          self.use_K3, self.use_P3, self.use_e3, self.use_om3, self.use_ma3, self.use_incl3, self.use_Omega3,                        
-                          self.use_K4, self.use_P4, self.use_e4, self.use_om4, self.use_ma4, self.use_incl4, self.use_Omega4,    
-                          self.use_K5, self.use_P5, self.use_e5, self.use_om5, self.use_ma5, self.use_incl5, self.use_Omega5,    
-                          self.use_K6, self.use_P6, self.use_e6, self.use_om6, self.use_ma6, self.use_incl6, self.use_Omega6, 
-                          self.use_K7, self.use_P7, self.use_e7, self.use_om7, self.use_ma7, self.use_incl7, self.use_Omega7,    
-                          self.use_K8, self.use_P8, self.use_e8, self.use_om8, self.use_ma8, self.use_incl8, self.use_Omega8,    
-                          self.use_K9, self.use_P9, self.use_e9, self.use_om9, self.use_ma9, self.use_incl9, self.use_Omega9,                       
-                          ]
+ 
         
         for i in range(fit.npl*7):
-            use_param_gui[i].setChecked(bool(fit.use.use_planet_params[i]))
+            self.use_param_gui[i].setChecked(bool(fit.use.use_planet_params[i]))
             
             
         use_param_gui_wd = [self.use_om_dot_1, self.use_om_dot_2, self.use_om_dot_3, 
@@ -757,19 +733,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
        #         fit.add_planet(i)  
        #         
 
-        use_param_gui  = [self.use_K1, self.use_P1, self.use_e1, self.use_om1, self.use_ma1, self.use_incl1, self.use_Omega1,
-                          self.use_K2, self.use_P2, self.use_e2, self.use_om2, self.use_ma2, self.use_incl2, self.use_Omega2,
-                          self.use_K3, self.use_P3, self.use_e3, self.use_om3, self.use_ma3, self.use_incl3, self.use_Omega3,                        
-                          self.use_K4, self.use_P4, self.use_e4, self.use_om4, self.use_ma4, self.use_incl4, self.use_Omega4,    
-                          self.use_K5, self.use_P5, self.use_e5, self.use_om5, self.use_ma5, self.use_incl5, self.use_Omega5,    
-                          self.use_K6, self.use_P6, self.use_e6, self.use_om6, self.use_ma6, self.use_incl6, self.use_Omega6, 
-                          self.use_K7, self.use_P7, self.use_e7, self.use_om7, self.use_ma7, self.use_incl7, self.use_Omega7,    
-                          self.use_K8, self.use_P8, self.use_e8, self.use_om8, self.use_ma8, self.use_incl8, self.use_Omega8,    
-                          self.use_K9, self.use_P9, self.use_e9, self.use_om9, self.use_ma9, self.use_incl9, self.use_Omega9,                       
-                          ]
 
         for i in range(9*7):
-            fit.use.use_planet_params[i] = int(use_param_gui[i].isChecked())         
+            fit.use.use_planet_params[i] = int(self.use_param_gui[i].isChecked())         
 
 
         use_param_gui_wd = [self.use_om_dot_1, self.use_om_dot_2, self.use_om_dot_3, 
@@ -5954,7 +5920,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.rvs_data_jitter_gui      = gui_groups.rvs_data_jitter_gui(self)     
         self.tra_data_gui             = gui_groups.tra_data_gui(self)
         self.tra_data_jitter_gui      = gui_groups.tra_data_jitter_gui(self)
-
+        self.param_errors_gui  = gui_groups.param_errors_gui(self)
+        self.use_param_gui     = gui_groups.use_param_gui(self)
         
         self.initialize_buttons()
         self.initialize_plots()   
