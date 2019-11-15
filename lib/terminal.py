@@ -21,7 +21,7 @@ class EmbTerminal(QtWidgets.QWidget):
         #self.setFixedSize(450, 340)
         self.setGeometry(1,1, 495, 325) 
         #self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        layout.addWidget(self) 
+        #layout.addWidget(self) 
         self.setLayout(layout)
         #self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         
