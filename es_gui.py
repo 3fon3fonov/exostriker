@@ -2121,7 +2121,6 @@ Polyfit coefficients:
             self.RV_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(
             fit.gls.info(stdout=False) + text_peaks   ))   
 
-
         if self.gls_cross_hair.isChecked():
             self.cross_hair(p7,log=self.radioButton_RV_GLS_period.isChecked())    
  
@@ -2290,9 +2289,7 @@ Polyfit coefficients:
                 err1a.setZValue(-10)
                 p1.addItem(err1a)            
             
-            
-            
-            
+                        
             
         if self.RV_plot_cross_hair.isChecked():
             self.cross_hair(p1,log=False)  
@@ -2340,14 +2337,14 @@ Polyfit coefficients:
                 beam=0.0, pen='#000000')  
                 err2a.setZValue(-10)
                 p2.addItem(err2a)            
-                        
-            
-            
+                           
  
         if self.RV_o_c_plot_cross_hair.isChecked():
             self.cross_hair(p2,log=False)       
             
-            
+        if self.RV_plot_autorange.isChecked():
+            p1.autoRange()           
+            p2.autoRange()               
         
     def update_plots(self):
         self.update_RV_GLS_plots()
@@ -3288,7 +3285,12 @@ Transit duration: %s d
   
             if self.trans_o_c_plot_cross_hair.isChecked():
                 self.cross_hair(p4,log=False)  
-          
+
+
+        if self.tra_plot_autorange.isChecked():
+            p3.autoRange()           
+            p4.autoRange()  
+
             #model_curve = p4.plot(t, flux_model, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
             #enableAutoRange=True,viewRect=True )               
  
@@ -3626,8 +3628,11 @@ Transit duration: %s d
         for i in range(npl):
             p13.plot(fit.evol_T[i], fit.evol_a[i] ,pen=fit.colors[i],symbol=None )     
  
-            
- 
+        if self.orb_evol_auto_range_a.isChecked():
+            p13.autoRange()   
+
+         
+     
     def plot_evol_e(self):
         global fit, colors,   p14 
         
@@ -3645,6 +3650,9 @@ Transit duration: %s d
 
         for i in range(npl):
             p14.plot(fit.evol_T[i], fit.evol_e[i] ,pen=fit.colors[i],symbol=None )  
+
+        if self.orb_evol_auto_range_e.isChecked():
+            p14.autoRange()   
  
             
     def plot_evol_p(self):
@@ -3670,7 +3678,8 @@ Transit duration: %s d
         symbolBrush=fit.colors[i]
         )    
             
-      
+        if self.orb_evol_auto_range_p.isChecked():
+            p15.autoRange()        
             
             
     def plot_evol_all(self):
@@ -4886,12 +4895,15 @@ highly appreciated!
             self.cross_hair(pdi,log=False)   
             
             
-    def plot_data_inspect(self, index):
+    def plot_data_inspect(self, index, no_sender=False):
         global fit, colors, pdi 
         # self.sender() == self.treeView
         # self.sender().model() == self.fileSystemModel
-
-        path = self.sender().model().filePath(index)
+        
+        if no_sender==True:
+            path = self.tree_view_tab.listview.model().filePath(self.tree_view_tab.listview.currentIndex()) 
+        else:
+            path = self.sender().model().filePath(index)
  
    
         pdi.plot(clear=True,)  
@@ -6199,9 +6211,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
 
 
         self.extra_plot_cross_hair.stateChanged.connect(self.update_extra_plots)
-        self.inpector_plot_cross_hair.stateChanged.connect(lambda: self.plot_data_inspect(self.tree_view_tab.listview))
-
- 
+        self.inpector_plot_cross_hair.stateChanged.connect(lambda: self.plot_data_inspect(0,no_sender=True))
+        #self.inpector_plot_cross_hair.stateChanged.connect(lambda: self.tree_view_tab.listview.connect(self.plot_data_inspect))
 
                 
         self.color_corr.clicked.connect(self.get_corr_color)
