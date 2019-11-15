@@ -25,7 +25,9 @@ class Widget_tree(QWidget):
       #  hlay.addStretch(1)
           
 
-        path = QDir.homePath() #QDir.currentPath() #QDir.rootPath()
+#        path = QDir.homePath() #QDir.currentPath() #QDir.rootPath()
+        path = ""
+#        self.tree_view_tab.setRootIndex(QtGui.QFileSystemModel().index(fit.cwd))
 
 
         self.dirModel = QFileSystemModel()

@@ -2024,15 +2024,7 @@ Polyfit coefficients:
         
 ######################## RV plots ######################################        
       
- 
-    def init_gls_norm_combo(self):    
-        global fit
-        
-        self.norms = ['ZK',  'HorneBaliunas', 'Cumming', 'wrms', 'chisq', 'lnL', 'dlnL']
-        #'Scargle',
-        for i in range(len(self.norms)):
-            self.gls_norm_combo.addItem('%s'%(self.norms[i]),i+1)   
-            
+             
          
     def run_gls(self):
         global fit
@@ -2051,6 +2043,7 @@ Polyfit coefficients:
         self.update_RV_GLS_plots()
         
         
+        
     def run_gls_o_c(self):
         global fit
                         
@@ -2067,7 +2060,14 @@ Polyfit coefficients:
         
         self.update_RV_o_c_GLS_plots()  
         
+
+    def init_gls_norm_combo(self):    
+        global fit
         
+        self.norms = ['ZK',  'HorneBaliunas', 'Cumming', 'wrms', 'chisq', 'lnL', 'dlnL']
+        #'Scargle',
+        for i in range(len(self.norms)):
+            self.gls_norm_combo.addItem('%s'%(self.norms[i]),i+1)           
 
     def get_RV_GLS_plot_color(self):
         global fit
@@ -2194,22 +2194,6 @@ Polyfit coefficients:
 
                         
             self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(text_peaks))        
-
-
-    def rv_GP_set_use(self):
-
-        if self.do_RV_GP.isChecked():
-            fit.doGP = True
-        else:
-            fit.doGP = False
-            
-    def tra_GP_set_use(self):
-
-        if self.do_tra_GP.isChecked():
-            fit.tra_doGP = True
-        else:
-            fit.tra_doGP = False            
-            
             
 
     def update_RV_plots(self):
@@ -2356,7 +2340,66 @@ Polyfit coefficients:
         self.update_orb_plot()
         #self.change_extra_plot()
         self.update_transit_plots()    
+ 
+
+
+    def rv_plot_phase_change(self):
+        global fit        
         
+        #RVphase = self.RV_phase_slider.value()
+        #print(RVphase)
+        #self.phase_plots(1, offset = RVphase)
+        ind = self.comboBox_extra_plot.currentIndex()
+        if ind+1 <= fit.npl:
+            self.phase_plots(ind+1)
+        else:
+            return    
+    
+
+    def rv_GP_set_use(self):
+
+        if self.do_RV_GP.isChecked():
+            fit.doGP = True
+        else:
+            fit.doGP = False
+            
+    def tra_GP_set_use(self):
+
+        if self.do_tra_GP.isChecked():
+            fit.tra_doGP = True
+        else:
+            fit.tra_doGP = False            
+            
+    def set_RV_GP(self):
+        global fit
+        
+        if self.use_GP_sho_kernel.isChecked():
+            fit.gp_kernel = 'SHOKernel'  
+        elif self.use_GP_rot_kernel.isChecked():
+            fit.gp_kernel = 'RotKernel'
+            
+            
+    def set_tra_GP(self):
+        global fit
+        
+        if self.use_tra_GP_sho_kernel.isChecked():
+            fit.tra_gp_kernel = 'SHOKernel'  
+        elif self.use_tra_GP_rot_kernel.isChecked():
+            fit.tra_gp_kernel = 'RotKernel'                 
+            
+            
+    def set_use_GP(self):
+        global fit            
+            
+        if  self.do_RV_GP.isChecked():
+            fit.doGP = True
+        else:
+            fit.doGP = False
+            
+        if  self.do_tra_GP.isChecked():
+            fit.tra_doGP = True
+        else:
+            fit.tra_doGP = False          
 
 ################################ RV files #######################################################
         
@@ -2618,6 +2661,8 @@ Polyfit coefficients:
         
         errors_with_jitt = np.array([np.sqrt(errors[i]**2 + fit.params.jitters[ii]**2)  for i,ii in enumerate(ind)])
         return errors_with_jitt
+
+
 
 
 
@@ -4628,7 +4673,18 @@ highly appreciated!
         if self.button_make_cornerplot_nested.isChecked():
             self.save_samples_nested.setChecked(True)
  
-
+    def init_ns_samp_opt_combo(self):    
+        global fit
+        
+        for i in range(len(fit.ns_samp_method_opt)):
+            self.comboBox_ns_samp_opt.addItem('%s'%(fit.ns_samp_method_opt[i]),i+1)   
+      
+    def check_ns_samp_opt_combo(self):    
+        global fit             
+            
+        ind_ns_opt = self.comboBox_ns_samp_opt.currentIndex()       
+        fit.ns_samp_method = fit.ns_samp_method_opt[ind_ns_opt]  
+        
 
 
 ################################## MCMC #######################################
@@ -5609,8 +5665,48 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             
             """
             )               
-                    
-                
+
+
+################################## Stellar params #######################################
+
+  
+    def update_St_params(self):
+        global fit  
+
+        fit.stellar_mass     = self.St_mass_input.value()
+        fit.stellar_mass_err = self.err_St_mass_input.value()         
+        
+        fit.stellar_radius     = self.St_radius_input.value()
+        fit.stellar_radius_err = self.err_St_radius_input.value()    
+        
+        fit.stellar_luminosity     = self.St_lumin_input.value()
+        fit.stellar_luminosity_err = self.err_St_lumin_input .value()           
+        
+        fit.stellar_Teff       = self.St_teff_input.value()
+        fit.stellar_Teff_err   = self.err_St_teff_input.value()             
+ 
+        fit.stellar_vsini       = self.St_vsini_input.value()
+        fit.stellar_vsini_err   = self.err_St_vsini_input.value()       
+        
+        st_rot = rv.get_stellar_rotation(fit)
+        kb1995 = rv.get_rv_scatter(fit)
+        kb2011 = rv.get_rv_scatter(fit,use_kb2011=True)
+        
+        self.label_St_rot_value.setText("%.4f +/- %.4f [days]"%(st_rot[0],st_rot[1]))
+        self.label_kb1995.setText("%.4f +/- %.4f [m/sec]"%(kb1995[0],kb1995[1]))
+        self.label_kb2011.setText("%.4f +/- %.4f [m/sec]"%(kb2011[0],kb2011[1]))
+       
+        
+        #fit.stellar_rotation = 25.0
+       # fit.stellar_rotation_err = 0.0    
+       
+   
+    def initialize_font(self):    
+            
+        self.font = QtGui.QFont()
+        self.font.setPointSize(9)
+        self.font.setBold(False)       
+              
 ################################## System #######################################
             
     def quit(self):
@@ -5703,26 +5799,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.worker_transit_fitting(ff=0 ) 
         
 #############################  TEST ZONE ################################  
-        
-#     def update_stellar_params(self):
-#        global fit         
-        
-#        fit.stellar_radius = self.St_radius_input.value()
-        
-    def init_ns_samp_opt_combo(self):    
-        global fit
-        
-        for i in range(len(fit.ns_samp_method_opt)):
-            self.comboBox_ns_samp_opt.addItem('%s'%(fit.ns_samp_method_opt[i]),i+1)   
-      
-    def check_ns_samp_opt_combo(self):    
-        global fit             
-            
-        ind_ns_opt = self.comboBox_ns_samp_opt.currentIndex()       
-        fit.ns_samp_method = fit.ns_samp_method_opt[ind_ns_opt]  
-        
-        
-        
+ 
         
     def init_plot_corr(self):
         global fit  
@@ -5799,49 +5876,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
    # def layout_widgets(layout):
     #   return (layout.itemAt(i) for i in range(layout.count()))
 
-    def rv_plot_phase_change(self):
-        global fit        
-        
-        #RVphase = self.RV_phase_slider.value()
-        #print(RVphase)
-        #self.phase_plots(1, offset = RVphase)
-        ind = self.comboBox_extra_plot.currentIndex()
-        if ind+1 <= fit.npl:
-            self.phase_plots(ind+1)
-        else:
-            return
-        
 
-    def set_RV_GP(self):
-        global fit
         
-        if self.use_GP_sho_kernel.isChecked():
-            fit.gp_kernel = 'SHOKernel'  
-        elif self.use_GP_rot_kernel.isChecked():
-            fit.gp_kernel = 'RotKernel'
-            
-            
-    def set_tra_GP(self):
-        global fit
-        
-        if self.use_tra_GP_sho_kernel.isChecked():
-            fit.tra_gp_kernel = 'SHOKernel'  
-        elif self.use_tra_GP_rot_kernel.isChecked():
-            fit.tra_gp_kernel = 'RotKernel'                 
-            
-            
-    def set_use_GP(self):
-        global fit            
-            
-        if  self.do_RV_GP.isChecked():
-            fit.doGP = True
-        else:
-            fit.doGP = False
-            
-        if  self.do_tra_GP.isChecked():
-            fit.tra_doGP = True
-        else:
-            fit.tra_doGP = False   
 
       
     def set_force_copl_incl(self):
@@ -5851,44 +5887,28 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
     #def update_inspector(self):
    #     self.tree_view_tab.listview.clicked.connect(self.plot_data_inspect)
    
-   
-    def update_St_params(self):
-        global fit  
 
-        fit.stellar_mass     = self.St_mass_input.value()
-        fit.stellar_mass_err = self.err_St_mass_input.value()         
-        
-        fit.stellar_radius     = self.St_radius_input.value()
-        fit.stellar_radius_err = self.err_St_radius_input.value()    
-        
-        fit.stellar_luminosity     = self.St_lumin_input.value()
-        fit.stellar_luminosity_err = self.err_St_lumin_input .value()           
-        
-        fit.stellar_Teff       = self.St_teff_input.value()
-        fit.stellar_Teff_err   = self.err_St_teff_input.value()             
- 
-        fit.stellar_vsini       = self.St_vsini_input.value()
-        fit.stellar_vsini_err   = self.err_St_vsini_input.value()       
-        
-        st_rot = rv.get_stellar_rotation(fit)
-        kb1995 = rv.get_rv_scatter(fit)
-        kb2011 = rv.get_rv_scatter(fit,use_kb2011=True)
-        
-        self.label_St_rot_value.setText("%.4f +/- %.4f [days]"%(st_rot[0],st_rot[1]))
-        self.label_kb1995.setText("%.4f +/- %.4f [m/sec]"%(kb1995[0],kb1995[1]))
-        self.label_kb2011.setText("%.4f +/- %.4f [m/sec]"%(kb2011[0],kb2011[1]))
-       
-        
-        #fit.stellar_rotation = 25.0
-       # fit.stellar_rotation_err = 0.0     
-   
-   
-   
-    def initialize_font(self):    
+    def run_mlp(self):
+        global fit
+                
+        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
+        ind_norm = self.gls_norm_combo.currentIndex()
+
+        if len(fit.fit_results.rv_model.jd) > 5:  
             
-        self.font = QtGui.QFont()
-        self.font.setPointSize(9)
-        self.font.setBold(False)
+            gls_ts = [(fit.fit_results.rv_model.jd, fit.fit_results.rv_model.rvs, fit.fit_results.rv_model.rv_err)]
+            import mlp as mlp
+            RV_per = mlp.Gls(gls_ts, 
+            fast=True,  verbose=False, norm='dlnL',ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[0],)
+            
+            fit.gls = RV_per
+        else:
+            return
+        
+        self.update_RV_GLS_plots()     
+
+   
+ 
  
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.ToolTip:  # Catch the TouchBegin event.
@@ -6330,7 +6350,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.05). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.06). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
