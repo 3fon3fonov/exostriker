@@ -5571,14 +5571,6 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
     
     def check_fortran_routines(self):
         
-        
-        #if os.WIFEXITED(info1[1]) : 
-        #    code = os.WEXITSTATUS(info1[1]) 
-        #    print("First child's exit code:", code) 
-        #else : 
-        #    print("First child does not exited using exit(2) system call.") 
-  
-        
         version_kep_loglik= "0.03"        
         result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)              
         if flag1 == -1 or str(result1[0][0]) != version_kep_loglik:
@@ -5600,7 +5592,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         version_dyn_LM= "0.05"         
         result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)              
         if flag4 == -1 or str(result4[0][0]) != version_dyn_LM:
-            print("New source code available: Updating  N-body L-M")    
+            print("New source code available: Updating N-body L-M")    
             result4, flag4 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn ./lib/libswift.a', 3,output=True)             
             
         version_dyn_loglik_= "0.05"        
@@ -5617,7 +5609,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             r3 = float(result3[0][0])
             r4 = float(result4[0][0])
             r5 = float(result5[0][0])
-        except (ImportError, KeyError, AttributeError,ValueError) as e:     
+        except (ImportError, KeyError, AttributeError,ValueError, IndexError) as e:     
      
        # if isinstance(r1, float)==False or isinstance(r2, float)==False or isinstance(r3, float)==False or isinstance(r4, float)==False or isinstance(r5, float)==False:             
             print("""
