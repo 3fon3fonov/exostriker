@@ -84,8 +84,10 @@ os.environ["OPENBLAS_MAIN_FREE"] = "1"
 #if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
 #    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
-if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
-    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps,True)
+QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_Use96Dpi)
+
+#if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+#    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps,True)
 
 
 
@@ -6336,6 +6338,7 @@ def main():
         window.resize(width*0.8, height*0.8)
     else:
         pass
+    
 #    window.installEventFilter(window)
     window.show()
 
