@@ -84,10 +84,10 @@ os.environ["OPENBLAS_MAIN_FREE"] = "1"
 #if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
 #    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
-QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_Use96Dpi)
+#QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_Use96Dpi)
 
-#if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
-#    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps,True)
+if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps,True)
 
 
 
