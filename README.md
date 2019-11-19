@@ -51,9 +51,9 @@ What is to be implemented:
 * For more "TBD" list see: "focus_matrix_TBFixed.doc".
 
 
-##### Installation #####
+**Installation**
 
-Please read "README_for_installation"! 
+**Please read "README_for_installation"!**
 
 I believe the installation instructions are very clear and easy to run.
 
