@@ -212,8 +212,19 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.value_AIC.setText("%.2f"%(fit.AIC()))
        
         self.value_Ndata.setText("%s"%(len(fit.fit_results.jd))) 
-        self.value_DOF.setText("%s"%(len(fit.fit_results.jd) - fit.fit_results.mfit))        
-
+        self.value_DOF.setText("%s"%(len(fit.fit_results.jd) - fit.fit_results.mfit))      
+        
+        hill = rv.get_hill_satb(fit)
+        
+        if fit.npl >1 and hill == True:
+            Hill_LED = './lib/UI/green_led.png'
+        elif fit.npl >1 and hill == False:
+            Hill_LED = './lib/UI/red_led.png'    
+        else:
+            Hill_LED = './lib/UI/grey_led.png'
+           
+        self.Hill_led.setPixmap(QtGui.QPixmap(Hill_LED))
+        
         if fit.mod_dynamical == True:
             self.radioButton_Dynamical.setChecked(True)        
         else:
@@ -4117,7 +4128,7 @@ highly appreciated!
   
         self.dialog_credits.text.setReadOnly(True)       
         
-        self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(./lib/33_striker.png) 0 0 0 0 stretch stretch;} ")
+        self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(./lib/UI/33_striker.png) 0 0 0 0 stretch stretch;} ")
 
         #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
         
@@ -5920,8 +5931,11 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.initialize_buttons()
         self.initialize_plots()   
  
-        self.initialize_color_dialog()               
-
+        self.initialize_color_dialog()             
+        Hill_LED = './lib/UI/grey_led.png'
+        self.Hill_led.setPixmap(QtGui.QPixmap(Hill_LED))
+        AMD_LED = './lib/UI/grey_led.png'
+        self.AMD_led.setPixmap(QtGui.QPixmap(AMD_LED))
         
         ###################### Console #############################
         self.console_widget = ConsoleWidget_embed(font_size = 9)
@@ -6162,7 +6176,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.comboBox_ns_samp_opt.activated.connect(self.check_ns_samp_opt_combo)
 
         
-        self.setWindowIcon(QtGui.QIcon('./lib/33_striker.png'))
+        self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
         
         self.radioButton_act_GLS_period.toggled.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
        
