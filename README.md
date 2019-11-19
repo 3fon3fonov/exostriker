@@ -2,7 +2,7 @@
 **T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations : **The Exo-Striker** 
 
 <p align="center">
-  <img width="400" src="https://github.com/3fon3fonov/trifon/blob/master/lib/33_striker.png">
+  <img width="400" src="https://github.com/3fon3fonov/trifon/blob/master/lib/UI/33_striker.png">
 </p>
  
 The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and models the RV stellar reflex motion caused by dynamically interacting planets in multi-planetary systems. It offers a broad range of tools for detailed analysis of transit and Doppler data, including power spectrum analysis for Doppler and transit data; Keplerian and dynamical modeling of multi-planet systems; MCMC and nested sampling; Gaussian Processes modeling; and a long-term stability check of multi-planet systems. The Exo-Striker can also perform Mean Motion Resonance (MMR) analysis, create fast fully interactive plots, and export ready-to-use LaTeX tables with best-fit parameters, errors, and statistics. It combines Fortran efficiency and Python flexibility and is cross-platform compatible (MAC OS, Linux, Windows). The tool relies on a number of open-source packages, including the RVmod engine (Trifonov et al. in prep.), emcee (ascl:1303.002), batman (ascl:1510.002), celerite (ascl:1709.008), and dynesty (ascl:1809.013).
@@ -42,6 +42,7 @@ What works:
 What is to be implemented:
 
 * More GP kernels (work in progress). 
+* TTV modeling (work in progress).
 * Larger arsenal of N-body/dynamical simulation/analysis tools (REBOUNDx to be included). 
 * A pip installer, and a ready-to-use pre-installed binary of the tool (work in progress). 
 * Binary/Triple star modeling mode.
@@ -49,6 +50,19 @@ What is to be implemented:
 * Documentation, Instructions, and Video tutorials.
 * For more "TBD" list see: "focus_matrix_TBFixed.doc".
 
-If you use this tool and you find a bug or a problem, please report it!
+
+##### Installation #####
+
+Please read "README_for_installation"! 
+
+I believe the installation instructions are very clear and easy to run.
+
+After 'successful' installation, if you still cannot boot the tool, please try:
+
+python es_gui.py -debug 
+
+copy the output error and please open an issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
+'stdout/stderr' tab of the tool. If you use this tool and you find a bug or a problem, please report it!
+
 A wish-list with your favorite tools and methods to be implemented is also welcome!
 Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.
