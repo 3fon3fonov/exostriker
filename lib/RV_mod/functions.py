@@ -249,7 +249,24 @@ def get_xyz(obj):
     
     return obj
  
+def get_hill_satb(obj):
 
+    st_mass = float(obj.params.stellar_mass)* 1047.70266835  
+    
+    if obj.fit_results.mass == 0 or len(np.atleast_1d(obj.fit_results.mass)) <=1:
+        return False
+    ##################################################################### 
+    
+    else:
+                
+        Delta_a = (float(obj.fit_results.a[1]) - float(obj.fit_results.a[0]))/float(obj.fit_results.a[0])   
+        Mu = 2.4*( (float(obj.fit_results.mass[0])/ st_mass) + (float(obj.fit_results.mass[1])/ st_mass) )**(1.0/3.0)
+  
+        if Mu > Delta_a:
+            return False
+        else:
+            return True
+ 
 
 def randomString(stringLength=5):
     """
