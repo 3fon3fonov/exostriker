@@ -57,11 +57,11 @@ What is to be implemented:
 
 I believe the installation instructions are very clear and easy to run.
 
-After 'successful' installation, if you still cannot boot the tool, please try:
+If you still cannot boot the tool after 'successful' installation, please try:
 
 python es_gui.py -debug 
 
-copy the output error and please open an issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
+Then, copy the output error and please open an issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
 'stdout/stderr' tab of the tool. If you use this tool and you find a bug or a problem, please report it!
 
 A wish-list with your favorite tools and methods to be implemented is also welcome!
