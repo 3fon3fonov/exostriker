@@ -51,84 +51,91 @@ What is to be implemented:
 * For more "TBD" list see: "focus_matrix_TBFixed.doc".
 
 
-**Installation**
+**Installation:**
 
-*for a first download, just do:*
+
+**for a first download, just do:**
 
 $ git clone https://github.com/3fon3fonov/trifon
 
-*you can rename the directory:*
+**you can rename the directory:**
 
 $ mv trifon exostriker
 
-*then:*
+**then:**
 
-$ cd exostriker
+$ cd exostriker 
+
 $ bash installers/linux_debian_install.sh (e.g. for Ubuntu installation)
 
-*Successful installation should look like this:*
+**Successful installation should look like this:**
 
 For which Python version we want to check/install packages?
 1) Python2
 2) Python3
 #? 2
-*(now it will check if you have the needed dependencies. If packages are missing it will ask you to install it")*
 
-gfortran - yes!
-csh - yes!
-setuptools - yes!
+**(now it will check if you have the needed dependencies. If packages are missing it will ask you to install it")**
+
+gfortran - yes! 
+csh - yes! 
+setuptools - yes! 
 pip - yes!
 numpy - yes!
 scipy - yes!
 matplotlib - yes!
 PyQt5 - yes!
-PyQt5.QtSvg - yes!
-qtconsole - yes!
-jupyter - yes!
-pathos - yes!
-dill - yes!
-emcee - yes!
-corner - yes!
-celerite - yes!
-transitleastsquares - yes!
-dynesty - yes!
-rxvt - yes!
-batman - yes!
- 
- 
-Installing the swift N-body lib, OK?  (you must, if you haven't done it already!)
+PyQt5.QtSvg - yes! 
+qtconsole - yes! 
+jupyter - yes! 
+pathos - yes! 
+dill - yes! 
+emcee - yes! 
+corner - yes! 
+celerite - yes! 
+transitleastsquares - yes! 
+dynesty - yes! 
+rxvt - yes! 
+batman - yes! 
+
+
+*Installing the swift N-body lib, OK?  (you must, if you haven't done it already!)*
  
  
 1) Yes
-2) No
+2) No 
 #? 1
-*(some output will be printed, it takes ~1 min.)*
+
+**(some output will be printed, it takes ~1 min.)**
 DONE
  
  
-Compiling the fortran fitting routines, OK? (you must, if you haven't done it already!)
+*Compiling the fortran fitting routines, OK? (you must, if you haven't done it already!)*
  
  
-1) Yes
-2) No
+1) Yes 
+2) No 
 #? 1
  
  
-Compiling Symba/mvs and other N-body routines, OK? (you must, if you haven't done it already!)
+*Compiling Symba/mvs and other N-body routines, OK? (you must, if you haven't done it already!)*
  
  
-1) Yes
-2) No
-#? 1
+1) Yes 
+2) No 
+#? 1 
 
-*Thats it! Then simply:*
+**Thats it! Then simply:**
 
 $ python es_gui.py
 
-*to update the tool:*
+**to update the tool:**
 
 $ cd exodtriker
+
 $ git pull
+
+
 
 **Also please read "README_for_installation"!**
 
