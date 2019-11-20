@@ -64,88 +64,60 @@ $ mv trifon exostriker
 
 **then, e.g. for Ubuntu installation:**
 
-$ cd exostriker 
-
-$ bash installers/linux_debian_install.sh 
+$ cd exostriker  
+$ bash installers/linux_debian_install.sh  
 
 **Successful installation should look like this:**
 
-For which Python version we want to check/install packages?
-1) Python2
-2) Python3
-#? 2
+For which Python version we want to check/install packages?  
+1) Python2  
+2) Python3  
+*#? 2*  
 
 **(now it will check if you have the needed dependencies. If packages are missing it will ask you to install it")**
 
-gfortran - yes! 
-
-csh - yes! 
-
-setuptools - yes! 
-
-pip - yes!
-
-numpy - yes!
-
-scipy - yes!
-
-matplotlib - yes!
-
-PyQt5 - yes!
-
-PyQt5.QtSvg - yes! 
-
-qtconsole - yes! 
-
-jupyter - yes! 
-
-pathos - yes! 
-
-dill - yes! 
-
-emcee - yes! 
-
-corner - yes! 
-
-celerite - yes! 
-
-transitleastsquares - yes! 
-
-dynesty - yes! 
-
-rxvt - yes! 
-
-batman - yes! 
-
+gfortran - yes!  
+csh - yes!  
+setuptools - yes!  
+pip - yes!  
+numpy - yes!  
+scipy - yes!  
+matplotlib - yes!  
+PyQt5 - yes!  
+PyQt5.QtSvg - yes!   
+qtconsole - yes!   
+jupyter - yes!   
+pathos - yes!  
+dill - yes!  
+emcee - yes!  
+corner - yes!  
+celerite - yes!  
+transitleastsquares - yes!  
+dynesty - yes!  
+rxvt - yes!  
+batman - yes!   
 
 *Installing the swift N-body lib, OK?  (you must, if you haven't done it already!)*
- 
- 
-1) Yes
-2) No 
-
-#? 1
+  
+1) Yes  
+2) No   
+*#? 1*  
 
 **(some output will be printed, it takes ~1 min.)**
 DONE
  
- 
+
 *Compiling the fortran fitting routines, OK? (you must, if you haven't done it already!)*
  
- 
-1) Yes 
-2) No 
-
-#? 1
- 
+1) Yes  
+2) No   
+*#? 1*  
  
 *Compiling Symba/mvs and other N-body routines, OK? (you must, if you haven't done it already!)*
  
- 
-1) Yes 
-2) No 
-
-#? 1 
+1) Yes  
+2) No   
+*#? 1*   
 
 **Thats it! Then simply:**
 
@@ -153,9 +125,8 @@ $ python es_gui.py
 
 **to update the tool:**
 
-$ cd exodtriker
-
-$ git pull
+$ cd exodtriker  
+$ git pull  
 
 
 
@@ -165,7 +136,7 @@ I believe the installation instructions are very clear, and easy to run.
 
 If you still cannot boot the tool after 'successful' installation, please try:
 
-python es_gui.py -debug 
+$ python es_gui.py -debug 
 
 Then, copy the output error and please open an issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
 'stdout/stderr' tab of the tool. If you use this tool and you find a bug or a problem, please report it!
