@@ -1920,27 +1920,37 @@ Polyfit coefficients:
         hLine = pg.InfiniteLine(angle=0,  movable=False)#, pos=2450000)
         plot_wg.addItem(vLine, ignoreBounds=True)
         plot_wg.addItem(hLine, ignoreBounds=True)
-        label = pg.TextItem(anchor=(1, 1))
-        plot_wg.addItem(label, ignoreBounds=True) 
-        
+        label = pg.TextItem()
+        #plot_wg.addItem(label, ignoreBounds=True) 
+        plot_wg.addItem(label, ignoreBounds=True)  
+         
         vb = plot_wg.getViewBox()   
-       # viewrange = vb.viewRange()
+        viewrange = vb.viewRange()
 
         def mouseMoved(evt):
+                            
+            
             pos = evt[0]  ## using signal proxy turns original arguments into a tuple
             if plot_wg.sceneBoundingRect().contains(pos):             
 
                 mousePoint = vb.mapSceneToView(pos)
-
+                    
                 if log == True:
                     label.setText("x=%0.3f,  y=%0.3f"%(10**mousePoint.x(), mousePoint.y()))
                 else:
                     label.setText("x=%0.3f,  y=%0.3f"%(mousePoint.x(), mousePoint.y()))
+                    #label.rotateAxis=(1, 0)
                     
                 vLine.setPos(mousePoint.x())
                 hLine.setPos(mousePoint.y())
-                #print(mousePoint.x(),mousePoint.y())
+ 
+                if mousePoint.x() < (viewrange[0][1]+viewrange[0][0])/2.0:
+                    label.setAnchor((0,1))
+                else:
+                    label.setAnchor((1,1))
                 label.setPos(mousePoint.x(), mousePoint.y())
+                fit.label = label
+                
         plot_wg.getViewBox().setAutoVisible(y=True)
 
         proxy = pg.SignalProxy(plot_wg.scene().sigMouseMoved, rateLimit=60, slot=mouseMoved)    
