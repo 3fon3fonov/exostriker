@@ -62,11 +62,11 @@ $ git clone https://github.com/3fon3fonov/trifon
 
 $ mv trifon exostriker
 
-**then:**
+**then, e.g. for Ubuntu installation:**
 
 $ cd exostriker 
 
-$ bash installers/linux_debian_install.sh (e.g. for Ubuntu installation)
+$ bash installers/linux_debian_install.sh 
 
 **Successful installation should look like this:**
 
@@ -78,24 +78,43 @@ For which Python version we want to check/install packages?
 **(now it will check if you have the needed dependencies. If packages are missing it will ask you to install it")**
 
 gfortran - yes! 
+
 csh - yes! 
+
 setuptools - yes! 
+
 pip - yes!
+
 numpy - yes!
+
 scipy - yes!
+
 matplotlib - yes!
+
 PyQt5 - yes!
+
 PyQt5.QtSvg - yes! 
+
 qtconsole - yes! 
+
 jupyter - yes! 
+
 pathos - yes! 
+
 dill - yes! 
+
 emcee - yes! 
+
 corner - yes! 
+
 celerite - yes! 
+
 transitleastsquares - yes! 
+
 dynesty - yes! 
+
 rxvt - yes! 
+
 batman - yes! 
 
 
@@ -104,6 +123,7 @@ batman - yes!
  
 1) Yes
 2) No 
+
 #? 1
 
 **(some output will be printed, it takes ~1 min.)**
@@ -115,6 +135,7 @@ DONE
  
 1) Yes 
 2) No 
+
 #? 1
  
  
@@ -123,6 +144,7 @@ DONE
  
 1) Yes 
 2) No 
+
 #? 1 
 
 **Thats it! Then simply:**
