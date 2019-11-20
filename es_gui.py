@@ -1949,7 +1949,7 @@ Polyfit coefficients:
                 else:
                     label.setAnchor((1,1))
                 label.setPos(mousePoint.x(), mousePoint.y())
-                fit.label = label
+                #fit.label = label
                 
         plot_wg.getViewBox().setAutoVisible(y=True)
 
@@ -2684,7 +2684,7 @@ Polyfit coefficients:
 
  
     def handleActivated(self, index):
-        global fit, pe 
+        global fit, pe,p2 
         
         ind = self.comboBox_extra_plot.itemData(index) 
 
@@ -2697,7 +2697,7 @@ Polyfit coefficients:
             self.extra_RV_GLS_o_c_plots()            
             #pe.setYLink(p2)
            # pe.setXLink(p2)
-
+            #fit.p2 = p2
             #gg = p2.getPlotItem().getViewBox()
          #   hh = gg.getViewBox()
          #   pe.scene().addItem(gg)   
