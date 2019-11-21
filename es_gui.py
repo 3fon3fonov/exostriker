@@ -2276,6 +2276,8 @@ Polyfit coefficients:
             
                         
             
+            
+            
         if self.RV_plot_cross_hair.isChecked():
             self.cross_hair(p1,log=False)  
             
@@ -2306,7 +2308,7 @@ Polyfit coefficients:
                                    y=fit.fit_results.rv_model.o_c[fit.filelist.idset==i],symbol='o', 
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.filelist.idset==i],
-            bottom=error_list[fit.filelist.idset==i],           
+            bottom=error_list[fit.filelist.idset==i],
             beam=0.0, pen=fit.colors[i])  
             
             p2.addItem(err2)  
@@ -2328,14 +2330,14 @@ Polyfit coefficients:
             self.cross_hair(p2,log=False)       
             
         if self.RV_plot_autorange.isChecked():
-            p1.autoRange()           
-            p2.autoRange()               
-        
+            p1.autoRange()
+            p2.autoRange()
+
+
     def update_plots(self):
         self.update_RV_GLS_plots()
-        self.update_RV_o_c_GLS_plots()     
-        
-        self.update_WF_plots()                
+        self.update_RV_o_c_GLS_plots()
+        self.update_WF_plots()
         self.update_RV_plots()
         self.update_extra_plots()
         self.update_orb_plot()
@@ -2375,7 +2377,7 @@ Polyfit coefficients:
         global fit
         
         if self.use_GP_sho_kernel.isChecked():
-            fit.gp_kernel = 'SHOKernel'  
+            fit.gp_kernel = 'SHOKernel'
         elif self.use_GP_rot_kernel.isChecked():
             fit.gp_kernel = 'RotKernel'
             
@@ -2384,13 +2386,13 @@ Polyfit coefficients:
         global fit
         
         if self.use_tra_GP_sho_kernel.isChecked():
-            fit.tra_gp_kernel = 'SHOKernel'  
+            fit.tra_gp_kernel = 'SHOKernel'
         elif self.use_tra_GP_rot_kernel.isChecked():
-            fit.tra_gp_kernel = 'RotKernel'                 
+            fit.tra_gp_kernel = 'RotKernel'
             
             
     def set_use_GP(self):
-        global fit            
+        global fit
             
         if  self.do_RV_GP.isChecked():
             fit.doGP = True
@@ -2400,7 +2402,7 @@ Polyfit coefficients:
         if  self.do_tra_GP.isChecked():
             fit.tra_doGP = True
         else:
-            fit.tra_doGP = False          
+            fit.tra_doGP = False
 
 ################################ RV files #######################################################
         
@@ -2696,7 +2698,7 @@ Polyfit coefficients:
 
  
     def handleActivated(self, index):
-        global fit, pe,p2 
+        global fit, pe
         
         ind = self.comboBox_extra_plot.itemData(index) 
 
@@ -6353,7 +6355,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.06). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.07). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
