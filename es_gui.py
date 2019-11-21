@@ -176,11 +176,9 @@ elif arguments != 0 and sys.argv[1] == '-rvbank' and os.path.exists(sys.argv[2])
 else:    
     fit=rv.signal_fit(name='session')
     ses_list = [fit]            
-    start_arg_ses = False         
-     
- 
-
-
+    start_arg_ses = False
+    
+    
 colors      = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 colors_gls  = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
          
@@ -214,16 +212,31 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.value_Ndata.setText("%s"%(len(fit.fit_results.jd))) 
         self.value_DOF.setText("%s"%(len(fit.fit_results.jd) - fit.fit_results.mfit))      
         
-        hill = rv.get_hill_satb(fit)
+        #hill = rv.get_Hill_satb(fit)
         
-        if fit.npl >1 and hill == True:
-            Hill_LED = './lib/UI/green_led.png'
-        elif fit.npl >1 and hill == False:
-            Hill_LED = './lib/UI/red_led.png'    
-        else:
-            Hill_LED = './lib/UI/grey_led.png'
+        #if fit.npl >1 and hill == True:
+        #    Hill_LED = './lib/UI/green_led.png'
+        #elif fit.npl >1 and hill == False:
+        #    Hill_LED = './lib/UI/red_led.png'    
+        #else:
+        #    Hill_LED = './lib/UI/grey_led.png'
            
-        self.Hill_led.setPixmap(QtGui.QPixmap(Hill_LED))
+        #self.Hill_led.setPixmap(QtGui.QPixmap(Hill_LED))
+        
+        
+        amd = rv.get_AMD_stab(fit)
+        
+        if fit.npl >1 and amd == True:
+            AMD_LED = './lib/UI/green_led.png'
+        elif fit.npl >1 and amd == False:
+            AMD_LED = './lib/UI/red_led.png'
+        else:
+            AMD_LED = './lib/UI/grey_led.png'
+           
+        self.AMD_led.setPixmap(QtGui.QPixmap(AMD_LED))
+        
+        
+        
         
         if fit.mod_dynamical == True:
             self.radioButton_Dynamical.setChecked(True)        
@@ -351,8 +364,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10): 
             fit.tra_off[i]  = self.tra_data_gui[i].value() 
             fit.tra_jitt[i] = self.tra_data_jitter_gui[i].value() 
- 
- 
+
         self.read_RV_GP() 
         self.read_tra_GP()
 
@@ -387,7 +399,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         tra_gp_sho_params = [self.tra_GP_sho_kernel_S,
                      self.tra_GP_sho_kernel_Q,
                      self.tra_GP_sho_kernel_omega]
-        
+
         for i in range(len(tra_gp_sho_params)):
             fit.tra_GP_sho_params[i] = tra_gp_sho_params[i].value()   
             
@@ -395,7 +407,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def read_RV_GP(self):
         global fit  
-            
+
         gp_rot_params = [self.GP_rot_kernel_Amp,
                      self.GP_rot_kernel_time_sc,
                      self.GP_rot_kernel_Per,
@@ -853,9 +865,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(fit.npl):
             for z in range(2):
                 self.param_bounds_gui[10*i + 0][z].setValue(fit.K_bound[i][z])
-                self.param_bounds_gui[10*i + 1][z].setValue(fit.P_bound[i][z])              
-                self.param_bounds_gui[10*i + 2][z].setValue(fit.e_bound[i][z])              
-                self.param_bounds_gui[10*i + 3][z].setValue(fit.w_bound[i][z])              
+                self.param_bounds_gui[10*i + 1][z].setValue(fit.P_bound[i][z])
+                self.param_bounds_gui[10*i + 2][z].setValue(fit.e_bound[i][z])
+                self.param_bounds_gui[10*i + 3][z].setValue(fit.w_bound[i][z])
                 self.param_bounds_gui[10*i + 4][z].setValue(fit.M0_bound[i][z])              
                 self.param_bounds_gui[10*i + 5][z].setValue(fit.i_bound[i][z])  
                 self.param_bounds_gui[10*i + 6][z].setValue(fit.Node_bound[i][z])              
@@ -874,7 +886,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         global fit
 
         for i in range(fit.npl):
-            for z in range(2):            
+            for z in range(2):
                 fit.K_bound[i][z] = self.param_bounds_gui[10*i + 0][z].value()    
                 fit.P_bound[i][z] = self.param_bounds_gui[10*i + 1][z].value()    
                 fit.e_bound[i][z] = self.param_bounds_gui[10*i + 2][z].value()     
@@ -938,7 +950,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         [self.GP_rot_kernel_Per_min.value(),self.GP_rot_kernel_Per_max.value()],  
         [self.GP_rot_kernel_fact_min.value(),self.GP_rot_kernel_fact_max.value()],  
         ]
- 
+
         for i in range(4): 
             fit.GP_rot_bounds[i] = GP_rot_bounds_gui[i]
             
@@ -949,8 +961,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         ]
  
         for i in range(3): 
-            fit.GP_sho_bounds[i] = GP_sho_bounds_gui[i]        
-                               
+            fit.GP_sho_bounds[i] = GP_sho_bounds_gui[i]
+
     def check_tra_GP_bounds(self):
         global fit
 
@@ -4551,6 +4563,8 @@ highly appreciated!
     def worker_nest(self):
         global fit  
         
+        self.update_params()
+        self.update_use()
         
         if self.radioButton_RV.isChecked():
             fit.rtg = [True,self.do_RV_GP.isChecked(), False, self.do_tra_GP.isChecked()]
@@ -4702,6 +4716,10 @@ highly appreciated!
         global fit  
         
         
+        self.update_params()
+        self.update_use()
+
+        
         if self.radioButton_RV.isChecked():
             fit.rtg = [True,self.do_RV_GP.isChecked(), False, self.do_tra_GP.isChecked()]
         elif self.radioButton_transit.isChecked():
@@ -4769,7 +4787,7 @@ highly appreciated!
     def run_mcmc(self):
         global fit
         
- 
+
         self.check_model_params()
         self.check_mcmc_params()
     
@@ -5942,8 +5960,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.initialize_plots()   
  
         self.initialize_color_dialog()             
-        Hill_LED = './lib/UI/grey_led.png'
-        self.Hill_led.setPixmap(QtGui.QPixmap(Hill_LED))
+        #Hill_LED = './lib/UI/grey_led.png'
+        #self.Hill_led.setPixmap(QtGui.QPixmap(Hill_LED))
         AMD_LED = './lib/UI/grey_led.png'
         self.AMD_led.setPixmap(QtGui.QPixmap(AMD_LED))
         

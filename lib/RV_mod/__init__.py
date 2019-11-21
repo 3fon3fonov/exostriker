@@ -1266,15 +1266,15 @@ def run_mcmc_bg(obj):
 
     file_ses2 = open(r"%s_out.ses"%target_name, 'rb')
     obj = dill.load(file_ses2)
-    file_ses2.close()       
+    file_ses2.close()
      
-    print("--- %s seconds ---" % (time.time() - start_time))  
+    print("--- %s seconds ---" % (time.time() - start_time))
     os.system("rm %s.ses"%target_name)
     os.system("rm %s_out.ses"%target_name)
     
     return obj
 
-def run_mcmc(obj,  **kwargs):          
+def run_mcmc(obj, **kwargs):
     
     '''Performs MCMC and saves results'''  
     

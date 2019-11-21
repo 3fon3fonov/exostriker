@@ -249,7 +249,7 @@ def get_xyz(obj):
     
     return obj
  
-def get_hill_satb(obj):
+def get_Hill_satb(obj):
 
     st_mass = float(obj.params.stellar_mass)* 1047.70266835  
     
@@ -262,10 +262,40 @@ def get_hill_satb(obj):
         Delta_a = (float(obj.fit_results.a[1]) - float(obj.fit_results.a[0]))/float(obj.fit_results.a[0])   
         Mu = 2.4*( (float(obj.fit_results.mass[0])/ st_mass) + (float(obj.fit_results.mass[1])/ st_mass) )**(1.0/3.0)
   
-        if Mu > Delta_a:
+        if Mu >= Delta_a:
             return False
         else:
             return True
+
+
+def get_AMD_stab(obj):
+
+    st_mass = float(obj.params.stellar_mass)* 1047.70266835  
+    
+    if obj.fit_results.mass == 0 or len(np.atleast_1d(obj.fit_results.mass)) <=1:
+        return False
+    
+    else:
+
+        alpha    = float(obj.fit_results.a[0])/float(obj.fit_results.a[1])
+        gamma    = float(obj.fit_results.mass[0])/float(obj.fit_results.mass[1])
+        
+        epsilon  = (float(obj.fit_results.mass[0])+float(obj.fit_results.mass[1]))/st_mass
+ 
+        AMD = gamma*np.sqrt(alpha)*(1.-np.sqrt(1.-float(obj.params.planet_params[2 + 0*7])**2)) + 1.-np.sqrt(1.-float(obj.params.planet_params[2 + 1*7])**2) 
+        #print(e1,1.-np.sqrt(1.-e1**2))
+        #print(e2,1.-np.sqrt(1.-e2**2))
+
+        AMD_Hill = gamma*np.sqrt(alpha) + 1. - (1.+gamma)**1.5 * np.sqrt(alpha/(gamma+alpha) * (1.+(3.**(4./3.)*epsilon**(2./3.)*gamma)/((1.+gamma)**2)))
+                   
+       # Delta_a = (float(obj.fit_results.a[1]) - float(obj.fit_results.a[0]))/float(obj.fit_results.a[0])   
+        #Mu = 2.4*( (float(obj.fit_results.mass[0])/ st_mass) + (float(obj.fit_results.mass[1])/ st_mass) )**(1.0/3.0)
+  
+        if AMD >= AMD_Hill:
+            return False
+        else:
+            return True
+
  
 
 def randomString(stringLength=5):
