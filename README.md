@@ -62,7 +62,7 @@ $ git clone https://github.com/3fon3fonov/trifon
 
 $ mv trifon exostriker
 
-**then, e.g. for Ubuntu installation:**
+**then, e.g. for an Ubuntu (Debian) installation:**
 
 $ cd exostriker  
 $ bash installers/linux_debian_install.sh  
@@ -125,20 +125,20 @@ $ python es_gui.py
 
 **to update the tool:**
 
-$ cd exodtriker  
+$ cd exostriker  
 $ git pull  
 
 
 
 **Also please read "README_for_installation"!**
 
-I believe the installation instructions are very clear, and easy to run.
+I believe the installation instructions are very clear and easy to run.
 
-If you still cannot boot the tool after 'successful' installation, please try:
+If you still cannot boot the tool after a 'successful' installation, please try:
 
 $ python es_gui.py -debug 
 
-Then, copy the output error and please open an issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
+Then, copy the output error and please open a 'github' issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
 'stdout/stderr' tab of the tool. If you use this tool and you find a bug or a problem, please report it!
 
 A wish-list with your favorite tools and methods to be implemented is also welcome!
