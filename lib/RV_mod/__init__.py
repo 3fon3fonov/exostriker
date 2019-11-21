@@ -3780,7 +3780,8 @@ class signal_fit(object):
                 self.param_errors.update_linear_trend_error(p[i]) 
                 i=i+1       
             elif (idx<2*self.filelist.ndset+7*self.npl+1+self.params.GP_params.npar):
-                self.param_errors.update_GP_param_errors(idx-2*self.filelist.ndset-7*self.npl-1,p[i])
+                self.param_errors.update_GP_param_errors(idx-2*self.filelist.ndset-7*self.npl-2,p[i])
+               # print(idx-2*self.filelist.ndset-7*self.npl-2,p[i])  TBD!!!
                 
                 i=i+1
             else:    
