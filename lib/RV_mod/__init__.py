@@ -3111,16 +3111,16 @@ class signal_fit(object):
                 
         for i in range(self.npl): # K,P,e,w,M,i,cap0m for each planet, and information which ones we use
             if self.hkl:
-                ppp+='%f %f %f %f %f %f %f %f\n'%(self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.e_sinw[i],self.e_cosw[i],self.lamb[i],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6],self.omega_dot[i])
+                ppp+='%f %.8f %.8f %f %f %f %f %f\n'%(self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.e_sinw[i],self.e_cosw[i],self.lamb[i],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6],self.omega_dot[i])
                 ppp+='%d %d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),int(self.use.use_planet_params[7*i+1]),int(self.use.use_planet_params[7*i+2]),int(self.use.use_planet_params[7*i+3]),int(self.use.use_planet_params[7*i+4]),int(self.use.use_planet_params[7*i+5]),int(self.use.use_planet_params[7*i+6]),int(self.omega_dot_use[i]))     
             else:
-                ppp+='%f %f %f %f %f %f %f %f\n'%(self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.params.planet_params[7*i+2],self.params.planet_params[7*i+3],self.params.planet_params[7*i+4],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6],self.omega_dot[i])
+                ppp+='%f %.8f %.8f %f %f %f %f %f\n'%(self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.params.planet_params[7*i+2],self.params.planet_params[7*i+3],self.params.planet_params[7*i+4],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6],self.omega_dot[i])
                 ppp+='%d %d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),int(self.use.use_planet_params[7*i+1]),int(self.use.use_planet_params[7*i+2]),int(self.use.use_planet_params[7*i+3]),int(self.use.use_planet_params[7*i+4]),int(self.use.use_planet_params[7*i+5]),int(self.use.use_planet_params[7*i+6]),int(self.omega_dot_use[i]))                                
                 
-        ppp+='%f\n%d\n'%(self.params.linear_trend,int(self.use.use_linear_trend)) # information about linear trend
-        ppp+='%f\n%d\n'%(self.rv_quadtr,int(bool(self.rv_quadtr_use))) # information about linear trend
+        ppp+='%.15f\n%d\n'%(self.params.linear_trend,int(self.use.use_linear_trend)) # information about linear trend
+        ppp+='%.15f\n%d\n'%(self.rv_quadtr,int(bool(self.rv_quadtr_use))) # information about linear trend
               
-        ppp+='%f\n'%self.epoch
+        ppp+='%.5f\n'%self.epoch
         ppp+='%s\n'%int(self.hkl)  
         
        # if program == '%s/lib/fr/loglik_dyn+'%(self.cwd):       
@@ -3136,7 +3136,7 @@ class signal_fit(object):
             # then we overwrite ppp with the command to pass this file as input for the fortran code
             ppp='./%s < %s'%(program,filename)
         
-#        print(ppp)
+        #print(ppp)
         return ppp 
 
     # sort planets by one of the parameters (K,P,e,w,M0)
