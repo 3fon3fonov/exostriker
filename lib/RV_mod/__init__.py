@@ -1028,6 +1028,14 @@ def run_nestsamp(obj, **kwargs):
     
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
+
+
+    for l in range(len(pp)): 
+        if not bb[l,0] <= pp[l] <= bb[l,1]:
+            obj.bound_error = True
+            obj.bound_error_msg = "Parameter %s is initially out of bounds. This is unlikely to work out! Please set the initial parametrs withing the parameter limits!"%ee[l]
+            
+            return obj
  
     
     priors = [pr_nr,jeff_nr]
@@ -1339,6 +1347,13 @@ def run_mcmc(obj, **kwargs):
     
     flags = obj.f_for_mcmc 
     par = np.array(obj.parameters)  
+    
+    for l in range(len(pp)): 
+        if not bb[l,0] <= pp[l] <= bb[l,1]:
+            obj.bound_error = True
+            obj.bound_error_msg = "Parameter %s is initially out of bounds. This is unlikely to work out! Please set the initial parametrs withing the parameter limits!"%ee[l]
+            
+            return obj
 
  
     #print(mix_fit)

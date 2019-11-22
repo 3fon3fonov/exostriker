@@ -4556,6 +4556,11 @@ highly appreciated!
 
         self.statusBar().showMessage('') 
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
+
+        if fit.bound_error == True:
+            self.get_error_msg(fit.bound_error_msg)
+            return
+
         
         if self.adopt_nest_means_as_par.isChecked() or self.adopt_nest_best_lnL_as_pars.isChecked() or self.adopt_nest_mode_as_par.isChecked():
             self.init_fit()
@@ -4707,6 +4712,10 @@ highly appreciated!
         
         self.statusBar().showMessage('') 
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
+
+        if fit.bound_error == True:
+            self.get_error_msg(fit.bound_error_msg)
+            return
         
         if self.adopt_mcmc_means_as_par.isChecked() or self.adopt_best_lnL_as_pars.isChecked() or self.adopt_mcmc_mode_as_par.isChecked():
             self.init_fit()
@@ -4798,10 +4807,10 @@ highly appreciated!
             fit = rv.run_mcmc_bg(fit)
         else:
             fit = rv.run_mcmc(fit)
-        
     
-        self.button_MCMC.setEnabled(True)            
- 
+        self.button_MCMC.setEnabled(True)   
+
+
     def change_mcmc_samples_file_name(self):
         global fit
         
@@ -5800,7 +5809,11 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.worker_transit_fitting(ff=0 ) 
         
 #############################  TEST ZONE ################################  
+    def get_error_msg(self, msg):
+        global fit  
  
+        choice = QtGui.QMessageBox.information(self, 'Warning!', "%s"%str(msg), QtGui.QMessageBox.Ok)      
+        #return 
         
     def init_plot_corr(self):
         global fit  
