@@ -1034,7 +1034,9 @@ def run_nestsamp(obj, **kwargs):
         if not bb[l,0] <= pp[l] <= bb[l,1]:
             obj.bound_error = True
             obj.bound_error_msg = "Parameter %s is initially out of bounds. This is unlikely to work out! Please set the initial parametrs withing the parameter limits!"%ee[l]
-            
+        else:
+            obj.bound_error = False
+            obj.bound_error_msg = ""
             return obj
  
     
@@ -1352,7 +1354,9 @@ def run_mcmc(obj, **kwargs):
         if not bb[l,0] <= pp[l] <= bb[l,1]:
             obj.bound_error = True
             obj.bound_error_msg = "Parameter %s is initially out of bounds. This is unlikely to work out! Please set the initial parametrs withing the parameter limits!"%ee[l]
-            
+        else:
+            obj.bound_error = False
+            obj.bound_error_msg = ""
             return obj
 
  
