@@ -26,7 +26,7 @@ What works:
 * RV auto-fit (RV automated planet-finder algorithm).
 * Fit for orbital precession, or apply GR precession. 
 * Instant AMD/Hill stability check for multiple planetary systems.
-* Long-term stability check of multi-planet systems using SyMBA, MVS, and MVS with a GR precession.
+* Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.
 * Various of minimization methods (via "SciPyOp").
 * Fully interactive, super-fast, high-quality, exportable plots.
 * RV vs. Activity time-series correlation analysis/plots.
@@ -49,7 +49,8 @@ What is to be implemented:
 * Binary/Triple star modeling mode.
 * Combined modeling with Astrometry.
 * Documentation, Instructions, and Video tutorials.
-* For more "TBD" list see: "focus_matrix_TBFixed.doc".
+
+For more "TBD" list see: "focus_matrix_TBFixed.doc".
 
 
 **Installation:**
