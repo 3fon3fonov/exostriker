@@ -10,7 +10,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 ![new_es](https://user-images.githubusercontent.com/44244057/68542130-4f1edb00-03a9-11ea-8630-2f1c07d660a9.png)
 
 
-**WARNING!** This tool is under active development, and its functionality is enhanced on a daily basis! Therefore, although very unlikely, the version you download today may not be fully compatible with the version uploaded tomorrow! Use it at your own risk!
+**WARNING!** This tool is under active development, and its functionality is enhanced on a daily basis! Use it at your own risk!
 
 Also, please keep in mind that this software is developed mostly for my needs and fun. I hope, however, that you may find it capable of solving your scientific problems, too. If you made the use of The Exo-Striker for your paper, please cite the tool with its ASCL ID ascl:1906.004 (see https://ascl.net/1906.004).
  
@@ -42,8 +42,8 @@ What works:
 What is to be implemented:
 
 * More GP kernels (work in progress). 
-* TTV modeling (work in progress).
-* Larger arsenal of N-body/dynamical simulation/analysis tools (REBOUNDx to be included). 
+* TTVs modeling (work in progress).
+* Larger arsenal of N-body/dynamical simulation/analysis tools (+ REBOUNDx is planned to be included). 
 * A pip installer, and a ready-to-use pre-installed binary of the tool (work in progress). 
 * Binary/Triple star modeling mode.
 * Combined modeling with Astrometry.
@@ -56,11 +56,8 @@ What is to be implemented:
 
 **for a first download, just do:**
 
-$ git clone https://github.com/3fon3fonov/trifon
+$ git clone https://github.com/3fon3fonov/exostriker  
 
-**you can rename the directory:**
-
-$ mv trifon exostriker
 
 **then, e.g. for an Ubuntu (Debian) installation:**
 
@@ -123,9 +120,8 @@ DONE
 
 $ python es_gui.py
 
-**to update the tool:**
+**to update the tool (inside the "exostriker" directory) just do:**
 
-$ cd exostriker  
 $ git pull  
 
 
