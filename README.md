@@ -7,7 +7,7 @@
  
 The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and models the RV stellar reflex motion caused by dynamically interacting planets in multi-planetary systems. It offers a broad range of tools for detailed analysis of transit and Doppler data, including power spectrum analysis for Doppler and transit data; Keplerian and dynamical modeling of multi-planet systems; MCMC and nested sampling; Gaussian Processes modeling; and a long-term stability check of multi-planet systems. The Exo-Striker can also perform Mean Motion Resonance (MMR) analysis, create fast fully interactive plots, and export ready-to-use LaTeX tables with best-fit parameters, errors, and statistics. It combines Fortran efficiency and Python flexibility and is cross-platform compatible (MAC OS, Linux, Windows). The tool relies on a number of open-source packages, including the RVmod engine (Trifonov et al. in prep.), emcee (ascl:1303.002), batman (ascl:1510.002), celerite (ascl:1709.008), and dynesty (ascl:1809.013).
 
-![new_es](https://user-images.githubusercontent.com/44244057/68542130-4f1edb00-03a9-11ea-8630-2f1c07d660a9.png)
+![new_es](/lib/png/Exo_striker_demo_image.png)
 
 
 **WARNING!** This tool is under active development, and its functionality is enhanced on a daily basis! Use it at your own risk!
@@ -51,6 +51,8 @@ What is to be implemented:
 * Documentation, Instructions, and Video tutorials.
 
 For more "TBD" list see: "focus_matrix_TBFixed.doc".
+
+
 
 
 **Installation:**
