@@ -19,10 +19,10 @@ import pyqtgraph as pg
 import pyqtgraph.console as pg_console
 
 import word_processor_es as text_editor_es
-import calculator as calc 
-import gls as gls 
+import calculator as calc
+import gls as gls
 from worker import Worker #, WorkerSignals
-import gui_groups 
+import gui_groups
 
 from multiprocessing import cpu_count
 import time
@@ -52,8 +52,8 @@ try:
     tls_not_found = False 
 except (ImportError, KeyError) as e:
     tls_not_found = True
-    pass               
-  
+    pass
+
 try:
     import batman as batman   
     
@@ -61,16 +61,15 @@ try:
         bat_test = batman.TransitParams()
         batman_not_found = False 
         bat_test = 0     
-    except (ImportError, KeyError, AttributeError) as e:     
+    except (ImportError, KeyError, AttributeError) as e:
         batman_not_found = True 
         
 except (ImportError, KeyError) as e:
     batman_not_found = True
-    pass       
+    pass
 
-    
 import webbrowser
- 
+
 #try:
 #    import cPickle as pickle
 #except ModuleNotFoundError:
@@ -89,8 +88,6 @@ os.environ["OPENBLAS_MAIN_FREE"] = "1"
 if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps,True)
 
-
-
 qtCreatorFile = "./lib/UI/es.ui" 
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
@@ -102,10 +99,7 @@ pg.setConfigOptions(antialias=True)
 
 
 global fit, colors, ses_list
- 
-
 arguments = len(sys.argv) - 1
-
 
 if '-debug' in sys.argv:
     debug = True
@@ -121,19 +115,19 @@ if arguments != 0 and sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
         ses_list = [fit_ses] 
         fit.init_pl_arb()
 #        rv.check_temp_RV_file(fit)
-        
+
         start_arg_ses = True  
     except (ImportError, KeyError, AttributeError) as e:
         print("You have entered non-RVmod session. %s cannot be recognaized"%sys.argv[2])
         fit=rv.signal_fit(name='session')
-        ses_list = [fit]            
-        start_arg_ses = False    
+        ses_list = [fit]
+        start_arg_ses = False
         
 elif arguments != 0 and sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
     try:
         file_pi = open(sys.argv[2], 'rb')
         fit_ses = dill.load(file_pi)
-        file_pi.close()   
+        file_pi.close()
         ses_list = fit_ses
         fit = ses_list[0]
         fit.init_pl_arb()
@@ -142,40 +136,39 @@ elif arguments != 0 and sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
     except (ImportError, KeyError, TypeError, AttributeError) as e:
         print("You have entered non-RVmod multi-session. %s cannot be recognaized"%sys.argv[2])
         fit=rv.signal_fit(name='session')
-        ses_list = [fit]            
-        start_arg_ses = False          
+        ses_list = [fit]
+        start_arg_ses = False
         
 elif  arguments != 0 and sys.argv[1] == '-rv_init' and os.path.exists(sys.argv[2]):
     try:
         
         fit=rv.signal_fit(str(sys.argv[2]), 'RVmod session',readinputfile=True)
         fit.init_pl_arb()
-        ses_list = [fit]      
-        start_arg_ses = True  
+        ses_list = [fit]
+        start_arg_ses = True
     except (ImportError, KeyError, TypeError, AttributeError) as e:
         print("You have entered non-RVmod .init file. %s cannot be recognaized"%sys.argv[2])
         fit=rv.signal_fit(name='session')
-        ses_list = [fit]            
-        start_arg_ses = False             
+        ses_list = [fit]
+        start_arg_ses = False
 
 elif arguments != 0 and sys.argv[1] == '-rvbank' and os.path.exists(sys.argv[2]):
     try:     
         fit=rv.signal_fit(name='session')
         fit.init_pl_arb()
-        fit.add_RVbank_dataset(rv.file_from_path(str(sys.argv[2])), str(sys.argv[2]), split = False)     
+        fit.add_RVbank_dataset(rv.file_from_path(str(sys.argv[2])), str(sys.argv[2]), split = False)
         fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=True,  fortran_kill=3, timeout_sec=3, minimize_loglik=True,amoeba_starts=0)
-        ses_list = [fit]      
-        start_arg_ses = True  
+        ses_list = [fit]
+        start_arg_ses = True
     except (ImportError, KeyError, TypeError, AttributeError) as e:
         print("You have entered non-RVBank file. %s cannot be recognaized"%sys.argv[2])
         fit=rv.signal_fit(name='session')
-        ses_list = [fit]            
-        start_arg_ses = False         
-        
-  
+        ses_list = [fit]
+        start_arg_ses = False
+
 else:    
     fit=rv.signal_fit(name='session')
-    ses_list = [fit]            
+    ses_list = [fit]
     start_arg_ses = False
     
     
@@ -232,31 +225,28 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             AMD_LED = './lib/UI/red_led.png'
         else:
             AMD_LED = './lib/UI/grey_led.png'
-           
+
         self.AMD_led.setPixmap(QtGui.QPixmap(AMD_LED))
-        
-        
-        
-        
+
         if fit.mod_dynamical == True:
-            self.radioButton_Dynamical.setChecked(True)        
+            self.radioButton_Dynamical.setChecked(True)
         else:
-            self.radioButton_Keplerian.setChecked(True)       
+            self.radioButton_Keplerian.setChecked(True)
             
         if fit.type_fit["RV"] == True and fit.type_fit["Transit"] == False:
             self.radioButton_RV.setChecked(True)        
-        elif fit.type_fit["RV"] == False and fit.type_fit["Transit"] == True:           
+        elif fit.type_fit["RV"] == False and fit.type_fit["Transit"] == True:
             self.radioButton_transit.setChecked(True)                    
-        elif fit.type_fit["RV"] == True and fit.type_fit["Transit"] == True:          
+        elif fit.type_fit["RV"] == True and fit.type_fit["Transit"] == True:
             self.radioButton_transit_RV.setChecked(True)    
-            
+
         if fit.hkl == True:
             self.radioButton_hkl.setChecked(True)    
         else:
             self.radioButton_ewm.setChecked(True)    
-            
-           
-            
+
+
+
     def update_gui_params(self):
         global fit
 
@@ -266,27 +256,25 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 continue
             j = 7*i
             for k in range(7):
-                 self.param_gui[j+k].setValue(fit.params.planet_params[7*zz+k])        
-            zz=zz+1 
-            
+                 self.param_gui[j+k].setValue(fit.params.planet_params[7*zz+k])
+            zz=zz+1
+
 
         for i in range(9):
-            self.param_gui_wd[i].setValue(fit.omega_dot[i])        
-           
+            self.param_gui_wd[i].setValue(fit.omega_dot[i])
+
         for i in range(fit.npl):
-            self.param_gui_tr[i*3].setValue(fit.t0[i])           
-            self.param_gui_tr[i*3+1].setValue(fit.pl_rad[i]) 
-            self.param_gui_tr[i*3+2].setValue(fit.pl_a[i]) 
-            
+            self.param_gui_tr[i*3].setValue(fit.t0[i])
+            self.param_gui_tr[i*3+1].setValue(fit.pl_rad[i])
+            self.param_gui_tr[i*3+2].setValue(fit.pl_a[i])
 
         for i in range(10): 
             self.rvs_data_gui[i].setValue(fit.params.offsets[i]) 
             self.rvs_data_jitter_gui[i].setValue(fit.params.jitters[i])
-        
 
         for i in range(10): 
             self.tra_data_gui[i].setValue(fit.tra_off[i]) 
-            self.tra_data_jitter_gui[i].setValue(fit.tra_jitt[i])            
+            self.tra_data_jitter_gui[i].setValue(fit.tra_jitt[i])
             
         gp_rot_params = [self.GP_rot_kernel_Amp,
                      self.GP_rot_kernel_time_sc,
@@ -299,41 +287,37 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         gp_sho_params = [self.GP_sho_kernel_S,
                      self.GP_sho_kernel_Q,
                      self.GP_sho_kernel_omega]
-        
+
         for i in range(len(gp_sho_params)):
-            gp_sho_params[i].setValue(fit.GP_sho_params[i])    
-            
-            
+            gp_sho_params[i].setValue(fit.GP_sho_params[i])
+
         tra_gp_rot_params = [self.tra_GP_rot_kernel_Amp,
                      self.tra_GP_rot_kernel_time_sc,
                      self.tra_GP_rot_kernel_Per,
                      self.tra_GP_rot_kernel_fact]
-        
+
         for i in range(len(tra_gp_rot_params)):
             tra_gp_rot_params[i].setValue(fit.tra_GP_rot_params[i])
  
         tra_gp_sho_params = [self.tra_GP_sho_kernel_S,
                      self.tra_GP_sho_kernel_Q,
                      self.tra_GP_sho_kernel_omega]
-        
-        for i in range(len(tra_gp_sho_params)):
-            tra_gp_sho_params[i].setValue(fit.tra_GP_sho_params[i])                
-            
 
-            
+        for i in range(len(tra_gp_sho_params)):
+            tra_gp_sho_params[i].setValue(fit.tra_GP_sho_params[i])
+
         self.St_mass_input.setValue(fit.params.stellar_mass)  
         self.St_radius_input.setValue(fit.stellar_radius)  
-        
+
         self.RV_lin_trend.setValue(fit.params.linear_trend)   
         self.RV_quad_trend.setValue(fit.rv_quadtr)   
-       
+
         self.Epoch.setValue(fit.epoch)
 
 
     def update_params(self):
         global fit
 
- 
         #print([i for i, button in enumerate(self.buttonGroup_use_planets.buttons()) if button.isChecked()])
         zz = 0
         for i in range(9):
@@ -341,47 +325,42 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 continue           
             j = 7*i
             for k in range(7):
-                fit.params.planet_params[7*zz+k] = self.param_gui[j+k].value() 
+                fit.params.planet_params[7*zz+k] = self.param_gui[j+k].value()
             zz = zz +1
  
 
         for i in range(9):
-            fit.omega_dot[i] = self.param_gui_wd[i].value()             
-        
-        fit.hack_around_rv_params() 
-         
- 
+            fit.omega_dot[i] = self.param_gui_wd[i].value()
+
+        fit.hack_around_rv_params()
+
         for i in range(fit.npl):
-            fit.t0[i]     = self.param_gui_tr[i*3].value()   
-            fit.pl_rad[i] = self.param_gui_tr[i*3+1].value() 
-            fit.pl_a[i]   = self.param_gui_tr[i*3+2].value() 
+            fit.t0[i]     = self.param_gui_tr[i*3].value()
+            fit.pl_rad[i] = self.param_gui_tr[i*3+1].value()
+            fit.pl_a[i]   = self.param_gui_tr[i*3+2].value()
  
 
-        for i in range(10): 
-            fit.params.offsets[i] = self.rvs_data_gui[i].value() 
+        for i in range(10):
+            fit.params.offsets[i] = self.rvs_data_gui[i].value()
             fit.params.jitters[i] = self.rvs_data_jitter_gui[i].value()
  
-        for i in range(10): 
-            fit.tra_off[i]  = self.tra_data_gui[i].value() 
-            fit.tra_jitt[i] = self.tra_data_jitter_gui[i].value() 
+        for i in range(10):
+            fit.tra_off[i]  = self.tra_data_gui[i].value()
+            fit.tra_jitt[i] = self.tra_data_jitter_gui[i].value()
 
-        self.read_RV_GP() 
+        self.read_RV_GP()
         self.read_tra_GP()
 
-        fit.params.stellar_mass = self.St_mass_input.value() 
-        fit.params.linear_trend = self.RV_lin_trend.value()   
-        fit.rv_quadtr = self.RV_quad_trend.value() 
-        
+        fit.params.stellar_mass = self.St_mass_input.value()
+        fit.params.linear_trend = self.RV_lin_trend.value()
+        fit.rv_quadtr = self.RV_quad_trend.value()
 
-        fit.stellar_radius = self.St_radius_input.value()        
-        
+        fit.stellar_radius = self.St_radius_input.value()
+
         if self.checkBox_first_RV_epoch.isChecked() and len(fit.fit_results.rv_model.jd) != 0:
             fit.epoch = min(fit.fit_results.rv_model.jd)
         else:
             fit.epoch =  self.Epoch.value()
-       
-
-#        self.set_tra_ld()        
 
 
     def read_tra_GP(self):
@@ -393,7 +372,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.tra_GP_rot_kernel_fact]
         
         for i in range(len(tra_gp_rot_params)):
-            fit.tra_GP_rot_params[i] = tra_gp_rot_params[i].value()    
+            fit.tra_GP_rot_params[i] = tra_gp_rot_params[i].value()
             
             
         tra_gp_sho_params = [self.tra_GP_sho_kernel_S,
@@ -401,8 +380,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.tra_GP_sho_kernel_omega]
 
         for i in range(len(tra_gp_sho_params)):
-            fit.tra_GP_sho_params[i] = tra_gp_sho_params[i].value()   
-            
+            fit.tra_GP_sho_params[i] = tra_gp_sho_params[i].value()
 
 
     def read_RV_GP(self):
@@ -414,7 +392,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.GP_rot_kernel_fact]
         
         for i in range(len(gp_rot_params)):
-            fit.GP_rot_params[i] = gp_rot_params[i].value()    
+            fit.GP_rot_params[i] = gp_rot_params[i].value()
             
             
         gp_sho_params = [self.GP_sho_kernel_S,
@@ -422,25 +400,11 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                      self.GP_sho_kernel_omega]
         
         for i in range(len(gp_sho_params)):
-            fit.GP_sho_params[i] = gp_sho_params[i].value()             
-            
-   
-    
+            fit.GP_sho_params[i] = gp_sho_params[i].value()
+
     def set_hkl(self):
         global fit  
-        
-    
-        param_gui = [self.e1, self.om1, self.ma1,
-                     self.e2, self.om2, self.ma2,
-                     self.e3, self.om3, self.ma3,
-                     self.e4, self.om4, self.ma4, 
-                     self.e5, self.om5, self.ma5,
-                     self.e6, self.om6, self.ma6,
-                     self.e7, self.om7, self.ma7,  
-                     self.e8, self.om8, self.ma8, 
-                     self.e9, self.om9, self.ma9]    
-    
-    
+
         if self.radioButton_ewm.isChecked():
             
             fit.hkl = False
@@ -458,14 +422,14 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
             
             for i in range(9):
-                param_gui[i*3].setRange(0.0,1.0)
+                self.param_gui[i*7 +2].setRange(0.0,1.0)
                #param_gui[i*3].singleStep(0.001)
-                param_gui[i*3+1].setRange(0.0,360.0)
-                param_gui[i*3+2].setRange(0.0,360.0)                
-                #param_gui[i*3+1].singleStep(0.001)                
-                param_gui[i*3].setValue(fit.e[i])             
-                param_gui[i*3+1].setValue(fit.w[i])             
-                param_gui[i*3+2].setValue(fit.M0[i])             
+                self.param_gui[i*7 +3].setRange(0.0,360.0)
+                self.param_gui[i*7 +4].setRange(0.0,360.0)
+                #param_gui[i*3+1].singleStep(0.001)
+                self.param_gui[i*7 +2].setValue(fit.e[i])
+                self.param_gui[i*7 +3].setValue(fit.w[i])
+                self.param_gui[i*7 +4].setValue(fit.M0[i])
 
 #                fit.params.update_e(i,fit.e[i]) # update e for a given planet
 #                fit.params.update_w(i,fit.w[i]) # update w for a given planet
@@ -488,13 +452,13 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
   
             for i in range(9):
-                param_gui[i*3].setRange(-1.0,1.0)
-               # param_gui[i*3].singleStep(0.01)                
-                param_gui[i*3+1].setRange(-1.0,1.0) 
-                param_gui[i*3+2].setRange(0.0,360.0)  
-                param_gui[i*3].setValue(fit.e_sinw[i])              
-                param_gui[i*3+1].setValue(fit.e_cosw[i])            
-                param_gui[i*3+2].setValue(fit.lamb[i])   
+                self.param_gui[i*7 +2].setRange(-1.0,1.0)
+               # param_gui[i*3].singleStep(0.01)
+                self.param_gui[i*7 +3].setRange(-1.0,1.0)
+                self.param_gui[i*7 +4].setRange(0.0,360.0)
+                self.param_gui[i*7 +2].setValue(fit.e_sinw[i])
+                self.param_gui[i*7 +3].setValue(fit.e_cosw[i])
+                self.param_gui[i*7 +4].setValue(fit.lamb[i])
 
         self.update_params()
         self.update_gui_params() 
@@ -567,14 +531,10 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.param_errors_gui[j+k].setText("+/- %.3f"%max(np.abs(fit.param_errors.planet_params_errors[7*zz+k])))
 
             zz = zz +1            
-            
-        param_errors_gui_wd = [self.err_om_dot_1,self.err_om_dot_2,self.err_om_dot_3,
-                               self.err_om_dot_4,self.err_om_dot_5,self.err_om_dot_6,
-                               self.err_om_dot_7,self.err_om_dot_8,self.err_om_dot_9,                      
-                            ]
+ 
         
         for i in range(9):
-            param_errors_gui_wd[i].setText("+/- %.3f"%max(np.abs(fit.omega_dot_err[i])))            
+            self.param_errors_gui_wd[i].setText("+/- %.3f"%max(np.abs(fit.omega_dot_err[i])))            
             
 
         data_errors_gui        = [self.err_Data1,self.err_Data2,self.err_Data3,self.err_Data4,self.err_Data5,
@@ -647,29 +607,18 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.use_param_gui[i].setChecked(bool(fit.use.use_planet_params[i]))
             
             
-        use_param_gui_wd = [self.use_om_dot_1, self.use_om_dot_2, self.use_om_dot_3, 
-                            self.use_om_dot_4, self.use_om_dot_5, self.use_om_dot_6, 
-                            self.use_om_dot_7, self.use_om_dot_8, self.use_om_dot_9]
+
 
         for i in range(fit.npl):
-            use_param_gui_wd[i].setChecked(bool(fit.omega_dot_use[i]))           
+            self.use_param_gui_wd[i].setChecked(bool(fit.omega_dot_use[i]))           
  
             
-        use_param_gui_tr = [self.use_t0_1, self.use_pl_rad_1, self.use_a_sol_1,
-             self.use_t0_2, self.use_pl_rad_2, self.use_a_sol_2,
-             self.use_t0_3, self.use_pl_rad_3, self.use_a_sol_3,
-             self.use_t0_4, self.use_pl_rad_4, self.use_a_sol_4, 
-             self.use_t0_5, self.use_pl_rad_5, self.use_a_sol_5,
-             self.use_t0_6, self.use_pl_rad_6, self.use_a_sol_6,
-             self.use_t0_7, self.use_pl_rad_7, self.use_a_sol_7, 
-             self.use_t0_8, self.use_pl_rad_8, self.use_a_sol_8,
-             self.use_t0_9, self.use_pl_rad_9, self.use_a_sol_9,
-             ]
+
          
         for i in range(fit.npl):         
-            use_param_gui_tr[i*3].setChecked(bool(fit.t0_use[i]) )        
-            use_param_gui_tr[i*3+1].setChecked(bool(fit.pl_rad_use[i]) )
-            use_param_gui_tr[i*3+2].setChecked(bool(fit.pl_a_use [i]) )
+            self.use_param_gui_tr[i*3].setChecked(bool(fit.t0_use[i]) )        
+            self.use_param_gui_tr[i*3+1].setChecked(bool(fit.pl_rad_use[i]) )
+            self.use_param_gui_tr[i*3+2].setChecked(bool(fit.pl_a_use [i]) )
  
 
         use_data_offset_gui = [self.use_offset_Data1,self.use_offset_Data2,self.use_offset_Data3,self.use_offset_Data4,
@@ -761,33 +710,16 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(9*7):
             fit.use.use_planet_params[i] = int(self.use_param_gui[i].isChecked())         
-
-
-        use_param_gui_wd = [self.use_om_dot_1, self.use_om_dot_2, self.use_om_dot_3, 
-                            self.use_om_dot_4, self.use_om_dot_5, self.use_om_dot_6, 
-                            self.use_om_dot_7, self.use_om_dot_8, self.use_om_dot_9]
-
+ 
         for i in range(9):
-            fit.omega_dot_use[i] = int(use_param_gui_wd[i].isChecked())
+            fit.omega_dot_use[i] = int(self.use_param_gui_wd[i].isChecked())
 
-            
-        use_param_gui_tr = [
-             self.use_t0_1, self.use_pl_rad_1, self.use_a_sol_1,
-             self.use_t0_2, self.use_pl_rad_2, self.use_a_sol_2,
-             self.use_t0_3, self.use_pl_rad_3, self.use_a_sol_3,
-             self.use_t0_4, self.use_pl_rad_4, self.use_a_sol_4, 
-             self.use_t0_5, self.use_pl_rad_5, self.use_a_sol_5,
-             self.use_t0_6, self.use_pl_rad_6, self.use_a_sol_6,
-             self.use_t0_7, self.use_pl_rad_7, self.use_a_sol_7, 
-             self.use_t0_8, self.use_pl_rad_8, self.use_a_sol_8,
-             self.use_t0_9, self.use_pl_rad_9, self.use_a_sol_9,
-             ]
-         
+
         for i in range(9):        
 
-            fit.t0_use[i] =  use_param_gui_tr[i*3].isChecked()  
-            fit.pl_rad_use[i] = use_param_gui_tr[i*3+1].isChecked()  
-            fit.pl_a_use[i] =  use_param_gui_tr[i*3+2].isChecked()  
+            fit.t0_use[i] = self.use_param_gui_tr[i*3].isChecked()  
+            fit.pl_rad_use[i] = self.use_param_gui_tr[i*3+1].isChecked()  
+            fit.pl_a_use[i] = self.use_param_gui_tr[i*3+2].isChecked()  
        
 
         use_data_offset_gui = [self.use_offset_Data1,self.use_offset_Data2,self.use_offset_Data3,self.use_offset_Data4,
@@ -2436,16 +2368,16 @@ Polyfit coefficients:
             choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "Do you want to split the RV data to pre- and post- (if applicable)?",
                                             QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
-         
-            if choice == QtGui.QMessageBox.No:                       
+
+            if choice == QtGui.QMessageBox.No:
                 fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = False)
             elif choice == QtGui.QMessageBox.Yes:            
                 fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = True)
             else:
                 return
-            ##################
-            self.init_fit()            
-            self.update_use_from_input_file()            
+
+            self.init_fit()
+            self.update_use_from_input_file()
             self.update_use()
             self.update_params()
             self.update_RV_file_buttons()
@@ -5961,16 +5893,24 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.param_bounds_gui  = gui_groups.param_bounds_gui(self)
         self.offset_bounds_gui = gui_groups.offset_bounds_gui(self)
         self.jitter_bounds_gui = gui_groups.jitter_bounds_gui(self)
+
         self.param_gui         = gui_groups.param_gui(self)
-        self.param_gui_wd      = gui_groups.param_gui_wd(self)    
+        self.use_param_gui     = gui_groups.use_param_gui(self)
+        self.param_errors_gui  = gui_groups.param_errors_gui(self)
+
+        self.param_gui_wd      = gui_groups.param_gui_wd(self)
+        self.use_param_gui_wd  = gui_groups.use_param_gui_wd(self)
+        self.param_errors_gui_wd = gui_groups.param_errors_gui_wd(self)
+        
         self.param_gui_tr      = gui_groups.param_gui_tr(self)
+        self.use_param_gui_tr  = gui_groups.use_param_gui_tr(self)
+
         self.rvs_data_gui      = gui_groups.rvs_data_gui(self)
         self.rvs_data_jitter_gui      = gui_groups.rvs_data_jitter_gui(self)     
         self.tra_data_gui             = gui_groups.tra_data_gui(self)
         self.tra_data_jitter_gui      = gui_groups.tra_data_jitter_gui(self)
-        self.param_errors_gui  = gui_groups.param_errors_gui(self)
-        self.use_param_gui     = gui_groups.use_param_gui(self)
-        
+
+
         self.initialize_buttons()
         self.initialize_plots()   
  

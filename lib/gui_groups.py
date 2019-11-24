@@ -46,6 +46,12 @@ def use_param_gui(self):
     return use_param_gui
 
 
+
+
+###########################################################################
+
+
+
 def param_gui_wd(self):
     
     param_gui_wd = [
@@ -54,6 +60,28 @@ def param_gui_wd(self):
             self.om_dot_7, self.om_dot_8, self.om_dot_9
             ]
     return param_gui_wd
+
+def use_param_gui_wd(self):
+
+    use_param_gui_wd = [
+            self.use_om_dot_1, self.use_om_dot_2, self.use_om_dot_3, 
+            self.use_om_dot_4, self.use_om_dot_5, self.use_om_dot_6, 
+            self.use_om_dot_7, self.use_om_dot_8, self.use_om_dot_9
+            ]
+    return use_param_gui_wd
+
+def param_errors_gui_wd(self):
+
+    param_errors_gui_wd = [
+                self.err_om_dot_1,self.err_om_dot_2,self.err_om_dot_3,
+                self.err_om_dot_4,self.err_om_dot_5,self.err_om_dot_6,
+                self.err_om_dot_7,self.err_om_dot_8,self.err_om_dot_9,
+            ]
+    return param_errors_gui_wd
+
+###########################################################################
+
+
 
 def param_gui_tr(self):
     
@@ -72,7 +100,23 @@ def param_gui_tr(self):
 
 
 
+def use_param_gui_tr(self):
 
+    use_param_gui_tr = [self.use_t0_1, self.use_pl_rad_1, self.use_a_sol_1,
+             self.use_t0_2, self.use_pl_rad_2, self.use_a_sol_2,
+             self.use_t0_3, self.use_pl_rad_3, self.use_a_sol_3,
+             self.use_t0_4, self.use_pl_rad_4, self.use_a_sol_4, 
+             self.use_t0_5, self.use_pl_rad_5, self.use_a_sol_5,
+             self.use_t0_6, self.use_pl_rad_6, self.use_a_sol_6,
+             self.use_t0_7, self.use_pl_rad_7, self.use_a_sol_7, 
+             self.use_t0_8, self.use_pl_rad_8, self.use_a_sol_8,
+             self.use_t0_9, self.use_pl_rad_9, self.use_a_sol_9,
+             ]
+
+
+    return use_param_gui_tr
+
+###########################################################################
 
 
 def rvs_data_gui(self):
@@ -146,6 +190,7 @@ def jitter_bounds_gui(self):
     ]  
     
     return jitter_bounds_gui    
+
 
 
 
