@@ -943,15 +943,15 @@ def run_nestsamp_bg(obj):
     dill.dump(obj, file_ses)
     file_ses.close()    
  
-    if sys.version_info[0] == 2:    
+    if sys.version_info[0] == 2:
         os.system("python2 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))  
-    elif sys.version_info[0] == 3:    
+    elif sys.version_info[0] == 3:
         os.system("python3 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))            
           
 
     file_ses2 = open(r"%s_out.ses"%target_name, 'rb')
     obj = dill.load(file_ses2)
-    file_ses2.close()       
+    file_ses2.close()
      
     print("--- %s seconds ---" % (time.time() - start_time))  
     os.system("rm %s.ses"%target_name)
@@ -961,9 +961,10 @@ def run_nestsamp_bg(obj):
 
  
 
-def run_nestsamp(obj, **kwargs):          
+def run_nestsamp(obj, **kwargs):
     
-    '''Performs nested sampling and saves results'''  
+    '''Performs nested sampling and saves results'''
+    
 
     #from contextlib import closing
     #from CustomNestedSampler import CustomNestedSampler
@@ -984,7 +985,7 @@ def run_nestsamp(obj, **kwargs):
     vel_files = []
     for i in range(obj.filelist.ndset): 
         # path for each dataset      
-        vel_files.append(obj.filelist.files[i].path)  
+        vel_files.append(obj.filelist.files[i].path)
 
     tr_files = []
     tr_mo = []
@@ -996,43 +997,43 @@ def run_nestsamp(obj, **kwargs):
             tr_mo.append(obj.ld_m[i])
             tr_ld.append(obj.ld_u[i])
    
-    tr_model = np.array([tr_mo,tr_ld], dtype=object)  
+    tr_model = np.array([tr_mo,tr_ld], dtype=object)
     tr_params = obj.tr_params
     
     npl = obj.npl
-    epoch = obj.epoch     
-    stmass = obj.params.stellar_mass   
+    epoch = obj.epoch
+    stmass = obj.params.stellar_mass
     
-    mix_fit = obj.mixed_fit    
+    mix_fit = obj.mixed_fit
     
     if (obj.mod_dynamical):
         if mix_fit[0] == True:
             mod='%s/lib/fr/loglik_dyn+'%obj.cwd
             when_to_kill =  obj.dyn_model_to_kill
-            #print(mix_fit[0],mod) 
-        else: 
-            mod='%s/lib/fr/loglik_dyn'%obj.cwd  
+            #print(mix_fit[0],mod)
+        else:
+            mod='%s/lib/fr/loglik_dyn'%obj.cwd
             when_to_kill =  obj.dyn_model_to_kill
 
     else:
         mod='%s/lib/fr/loglik_kep'%obj.cwd
-        when_to_kill =  obj.kep_model_to_kill   
+        when_to_kill =  obj.kep_model_to_kill
 
  
-    obj.prepare_for_mcmc(rtg = rtg)    
+    obj.prepare_for_mcmc(rtg = rtg)
     pp = obj.par_for_mcmc #.tolist()
-    ee = obj.e_for_mcmc #.tolist() 
+    ee = obj.e_for_mcmc #.tolist()
     bb = np.array(obj.b_for_mcmc)
     pr_nr = np.array(obj.nr_pr_for_mcmc)
     jeff_nr = np.array(obj.jeff_pr_for_mcmc)
     
-    flags = obj.f_for_mcmc 
-    par = np.array(obj.parameters)  
+    flags = obj.f_for_mcmc
+    par = np.array(obj.parameters)
     
     obj.bound_error = False
     obj.bound_error_msg = ""
 
-    for l in range(len(pp)): 
+    for l in range(len(pp)):
         if not bb[l,0] <= pp[l] <= bb[l,1]:
             obj.bound_error = True
             obj.bound_error_msg = "Parameter %s is initially out of bounds. This is unlikely to work out! Please set the initial parametrs withing the parameter limits!"%ee[l]
@@ -1047,7 +1048,7 @@ def run_nestsamp(obj, **kwargs):
 
     opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,
            "when_to_kill":when_to_kill,"copl_incl":obj.copl_incl,"hkl":obj.hkl,
-           "cwd":obj.cwd, "gr_flag":obj.gr_flag,"ns_samp_method":obj.ns_samp_method}     
+           "cwd":obj.cwd, "gr_flag":obj.gr_flag,"ns_samp_method":obj.ns_samp_method}
     #print(par)
     #print(flags)
    # print(bb)
@@ -1055,14 +1056,13 @@ def run_nestsamp(obj, **kwargs):
     
     gps = []
     if (rtg[1]):
-        initiategps(obj)     
+        initiategps(obj)
         gps = obj.gps
 
     tra_gps = []
     if (rtg[3]) and len(tr_files) != 0:
-        initiate_tansit_gps(obj)     
-        tra_gps = obj.tra_gps     
- 
+        initiate_tansit_gps(obj)
+        tra_gps = obj.tra_gps
 
     ndim, nwalkers = len(pp), len(pp)*obj.live_points_fact
      
@@ -1253,8 +1253,13 @@ def run_nestsamp(obj, **kwargs):
   #      sampler.reset()     
   #  else:   
     sampler.reset()
-    obj.gps = []
     
+    # To avoid memory leak
+    del gps
+    del tra_gps
+    del obj.gps
+    del obj.tra_gps
+
     print("--- %s seconds ---" % (time.time() - start_time))     
     
     return obj
@@ -1510,7 +1515,13 @@ def run_mcmc(obj, **kwargs):
     else:   
         sampler.reset()
  
-    obj.gps = []
+#    obj.gps = []
+    # To avoid memory leak
+    del gps
+    del tra_gps
+    del obj.gps
+    del obj.tra_gps
+
     
     print("--- %s seconds ---" % (time.time() - start_time))     
     
