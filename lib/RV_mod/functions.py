@@ -566,6 +566,35 @@ def check_temp_RV_file(obj):
                 f.write(text)
                 
             f.close()
+            
+
+### some experimets! ###
+def gen_RV_curve(obj,x=None):
+    obj2 = dill.copy(obj)
+    f  = open('datafiles/RV_curve', 'wb') # open the file  
+
+    if len(x) > 3:
+        for j in range(len(x)):
+            #print(fit_new.rv_data_sets[i][0][j])
+            text = b"%s  %s  %s \n"%(bytes(str(x[j]).encode()),bytes(str(0.0).encode()),bytes(str(1.0).encode()) )
+            f.write(text)
+                
+        f.close()
+    
+        obj2.add_dataset("RV_curve", "datafiles/RV_curve",0.0,0.0)  # the last two entries are initial offset and jitter
+
+
+    os.system("rm datafiles/RV_curve")
+    obj2.fitting(outputfiles=[0,1,0], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, print_stat=False)
+    jd        = obj2.fit_results.rv_model.jd
+#    rvs       = obj2.fit_results.rv_model.rvs
+    o_c       = obj2.fit_results.rv_model.o_c*(-1)
+    #print(o_c)
+    return np.array([jd,o_c])
+        
+        
+        
+#############################
 
 def file_from_path(path):
     head, tail = ntpath.split(path)

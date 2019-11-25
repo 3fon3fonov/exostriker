@@ -436,7 +436,7 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
 
 
 def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, tra_gps, rtg, mix_fit, opt, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=3000, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
- 
+
     rv_loglik = 0
     gp_rv_loglik = 0
     tr_loglik = 0
@@ -3679,8 +3679,16 @@ class signal_fit(object):
                 self.b_for_mcmc.append(bounds[j])
                 self.nr_pr_for_mcmc.append(prior_nr[j])
                 self.jeff_pr_for_mcmc.append(prior_jeff[j])
-
-       # self.par_for_mcmc = np.array(self.par_for_mcmc )
+        
+        
+        
+        #np.asarray(self.par_for_mcmc)
+        #np.asarray(self.f_for_mcmc)
+        #np.asarray(self.e_for_mcmc)
+        #np.asarray(self.b_for_mcmc)
+        #np.asarray(self.nr_pr_for_mcmc)
+        #np.asarray(self.jeff_pr_for_mcmc)
+        # self.par_for_mcmc = np.array(self.par_for_mcmc )
       #  self.f_for_mcmc = np.array(self.f_for_mcmc )
        # print(self.b_for_mcmc)
  

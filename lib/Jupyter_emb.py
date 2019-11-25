@@ -23,7 +23,10 @@ class ConsoleWidget_embed(RichJupyterWidget,ConsoleWidget):
         self.kernel = self.kernel_manager.kernel
         self.kernel_client = self._kernel_manager.client()
         self.kernel_client.start_channels()
-        
+
+        def _abort_queues(kernel):
+            pass
+        self.kernel_manager.kernel._abort_queues = _abort_queues
         #self._execute("kernel = %s"%fit, False) 
      
         def stop():
