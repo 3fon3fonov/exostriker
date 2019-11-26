@@ -326,7 +326,24 @@ def copy_file_to_datafiles(path):
         tmp = tempfile.mkdtemp()
         
     temp_path = os.path.join(tmp, basename)
-    os.system("cp %s %s"%(path, temp_path))
+    
+   # os.system("cp %s %s"%(path, temp_path))
+   
+    f_in = open(path, "r")
+    lines = f_in.readlines()
+    f  = open(temp_path, 'wb') # open the file  
+
+    for j in range(len(lines)):
+        line = lines[j].split()
+        if line[0].startswith("#"):
+            continue                                   
+        text = b"%s  %s  %s \n"%(bytes(str(line[0]).encode()),bytes(str(line[1]).encode()),bytes(str(line[2]).encode()) )
+        f.write(text)      
+    f.close()
+    f_in.close()
+
+
+
 
     return temp_path
 
@@ -548,9 +565,8 @@ def check_temp_RV_file(obj):
     #print(fit_new.filelist.ndset)
  
     for i in range(obj.filelist.ndset):
-       # print(fit_new.filelist.files[i].path)
+       #print(obj.rv_data_sets[i][0][j])
         if os.path.exists(obj.filelist.files[i].path):
-            #print("TEST 1")
             continue
         else:
             dirname, basename = os.path.split(obj.filelist.files[i].path)
@@ -559,10 +575,12 @@ def check_temp_RV_file(obj):
             f  = open(obj.filelist.files[i].path, 'wb') # open the file  
         
             for j in range(len(obj.rv_data_sets[i+1][0])):
-                #print(fit_new.rv_data_sets[i][0][j])
+                if str(obj.rv_data_sets[i+1][0][j]).startswith("#"):
+                    continue                                   
                 text = b"%s  %s  %s \n"%(bytes(str(obj.rv_data_sets[i+1][0][j]).encode()),bytes(str(obj.rv_data_sets[i+1][1][j]).encode()),bytes(str(obj.rv_data_sets[i+1][2][j]).encode()) )
                 #text = "{0:13.5f} {1:8.3f} {2:6.3f} \n".format(obj.rv_data_sets[i+1][0][j],obj.rv_data_sets[i+1][1][j],obj.rv_data_sets[i+1][2][j])
                # print(text)
+                
                 f.write(text)
                 
             f.close()
