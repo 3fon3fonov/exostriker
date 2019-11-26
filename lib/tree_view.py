@@ -5,7 +5,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui  import *
 
 font = QFont()
-font.setPointSize(8)
+font.setPointSize(7)
 font.setBold(False)
         #font.setWeight(75)
         

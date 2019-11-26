@@ -1255,10 +1255,16 @@ def run_nestsamp(obj, **kwargs):
     sampler.reset()
     
     # To avoid memory leak
-    del gps
-    del tra_gps
-    del obj.gps
-    del obj.tra_gps
+    if (rtg[1]):    
+        obj.gps = []
+        gps = []
+       # del gps
+       # del obj.gps 
+    if (rtg[3]):        
+       # del tra_gps
+       # del obj.tra_gps
+       obj.tra_gps = []    
+       tra_gps = []
 
     print("--- %s seconds ---" % (time.time() - start_time))     
     
@@ -1517,10 +1523,17 @@ def run_mcmc(obj, **kwargs):
  
 #    obj.gps = []
     # To avoid memory leak
-    del gps
-    del tra_gps
-    del obj.gps
-    del obj.tra_gps
+    if (rtg[1]):    
+        obj.gps = []
+        gps = []
+       # del gps
+       # del obj.gps 
+    if (rtg[3]):        
+       # del tra_gps
+       # del obj.tra_gps
+       obj.tra_gps = []    
+       tra_gps = []
+
 
     
     print("--- %s seconds ---" % (time.time() - start_time))     
