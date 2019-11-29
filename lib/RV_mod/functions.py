@@ -271,32 +271,33 @@ def get_Hill_satb(obj):
 def get_AMD_stab(obj):
 
     st_mass = float(obj.params.stellar_mass)* 1047.70266835  
-    
+
+    AMD_stable = True
+
     if obj.fit_results.mass == 0 or len(np.atleast_1d(obj.fit_results.mass)) <=1:
         return False
-    
     else:
-
-        alpha    = float(obj.fit_results.a[0])/float(obj.fit_results.a[1])
-        gamma    = float(obj.fit_results.mass[0])/float(obj.fit_results.mass[1])
+        pl_ecc    = np.array([float(obj.params.planet_params[2 + i*7]) for i in range(obj.npl)])
+        pl_a      = np.array([float(obj.fit_results.a[i]) for i in range(obj.npl)])
+        pl_mass   = np.array([float(obj.fit_results.mass[i]) for i in range(obj.npl)])
+        inds = pl_a.argsort()
+        sorted_pl_ecc = pl_ecc[inds]
+        sorted_pl_a = pl_a[inds]
+        sorted_pl_mass = pl_mass[inds]
         
-        epsilon  = (float(obj.fit_results.mass[0])+float(obj.fit_results.mass[1]))/st_mass
- 
-        AMD = gamma*np.sqrt(alpha)*(1.-np.sqrt(1.-float(obj.params.planet_params[2 + 0*7])**2)) + 1.-np.sqrt(1.-float(obj.params.planet_params[2 + 1*7])**2) 
-        #print(e1,1.-np.sqrt(1.-e1**2))
-        #print(e2,1.-np.sqrt(1.-e2**2))
+        for i in range(obj.npl - 1):
 
-        AMD_Hill = gamma*np.sqrt(alpha) + 1. - (1.+gamma)**1.5 * np.sqrt(alpha/(gamma+alpha) * (1.+(3.**(4./3.)*epsilon**(2./3.)*gamma)/((1.+gamma)**2)))
-                   
-       # Delta_a = (float(obj.fit_results.a[1]) - float(obj.fit_results.a[0]))/float(obj.fit_results.a[0])   
-        #Mu = 2.4*( (float(obj.fit_results.mass[0])/ st_mass) + (float(obj.fit_results.mass[1])/ st_mass) )**(1.0/3.0)
-  
-        if AMD >= AMD_Hill:
-            return False
-        else:
-            return True
+            alpha    = sorted_pl_a[i]/sorted_pl_a[i+1]
+            gamma    = sorted_pl_mass[i]/sorted_pl_mass[i+1]
+            epsilon  = (sorted_pl_mass[i]+sorted_pl_mass[i+1])/st_mass
 
- 
+            AMD = gamma*np.sqrt(alpha)*(1.-np.sqrt(1.-sorted_pl_ecc[i]**2)) + 1.-np.sqrt(1.-sorted_pl_ecc[i+1]**2) 
+
+            AMD_Hill = gamma*np.sqrt(alpha) + 1. - (1.+gamma)**1.5 * np.sqrt(alpha/(gamma+alpha) * (1.+(3.**(4./3.)*epsilon**(2./3.)*gamma)/((1.+gamma)**2)))
+            if AMD >= AMD_Hill:
+                return False
+
+    return AMD_stable
 
 def randomString(stringLength=5):
     """
@@ -412,9 +413,6 @@ def get_rv_scatter(obj, print_output=False,use_kb2011=False):
         
         A = (L / ((M**1.5)*(Teff**4.25))) * Solar_fact
         
-        # error propagation 
-        #delta_A = 0.25*np.sqrt( ( L**2.0 * ( (36.0 * Teff**2.0 * M_d**2.0) +(289.0 * Teff_d**2.0 * M**2.0)) + (16.0 * L_d**2.0 * Teff**2.0 * M**2.0) ) / (Teff**(21.0/2) * M**5) ) 
-        
         delta_A = 0.25*np.sqrt( 
         (L**2.0 * ( 
         4.0*Teff**2.0 *( 
@@ -425,14 +423,14 @@ def get_rv_scatter(obj, print_output=False,use_kb2011=False):
         
         if print_output == True:
             print("KB2011 jitter = %s +/- %s [m/s]"%(A, delta_A))        
-        
-    else:    
+
+    else:
         A = (L/M) * Solar_fact
     
         delta_A = np.sqrt( (L**2.0 * ((M**2.0)*(Solar_fact_d**2.0) + (M_d**2.0)*(Solar_fact**2.0)  ) +
         ((L_d**2.0) *(M**2.0) * (Solar_fact**2.0) ) )/ M**4.0 ) 
-    
-     
+
+
         if print_output == True:
             print("KB1995 jitter = %s +/- %s [m/s]"%(A, delta_A))
 
@@ -575,6 +573,7 @@ def check_temp_RV_file(obj):
             f  = open(obj.filelist.files[i].path, 'wb') # open the file  
         
             for j in range(len(obj.rv_data_sets[i+1][0])):
+                #print(j)
                 if str(obj.rv_data_sets[i+1][0][j]).startswith("#"):
                     continue                                   
                 text = b"%s  %s  %s \n"%(bytes(str(obj.rv_data_sets[i+1][0][j]).encode()),bytes(str(obj.rv_data_sets[i+1][1][j]).encode()),bytes(str(obj.rv_data_sets[i+1][2][j]).encode()) )

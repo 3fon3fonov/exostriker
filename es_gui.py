@@ -250,6 +250,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def update_gui_params(self):
         global fit
 
+
         zz = 0
         for i in range(9):
             if not self.buttonGroup_use_planets.buttons()[i].isChecked():
@@ -315,8 +316,17 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.Epoch.setValue(fit.epoch)
 
 
+
+#    def sort_planets(self):
+#        global fit
+        
+        
+
     def update_params(self):
         global fit
+        
+        
+        
 
         #print([i for i, button in enumerate(self.buttonGroup_use_planets.buttons()) if button.isChecked()])
         zz = 0
@@ -327,7 +337,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             for k in range(7):
                 fit.params.planet_params[7*zz+k] = self.param_gui[j+k].value()
             zz = zz +1
- 
+
 
         for i in range(9):
             fit.omega_dot[i] = self.param_gui_wd[i].value()
@@ -338,7 +348,10 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.t0[i]     = self.param_gui_tr[i*3].value()
             fit.pl_rad[i] = self.param_gui_tr[i*3+1].value()
             fit.pl_a[i]   = self.param_gui_tr[i*3+2].value()
- 
+
+
+#        self.sort_planets()
+
 
         for i in range(10):
             fit.params.offsets[i] = self.rvs_data_gui[i].value()
@@ -1673,23 +1686,21 @@ Polyfit coefficients:
                 
                 if self.plot_corr_err.isChecked():
                     err1 = pg.ErrorBarItem(x=self.initialize_corr_y[ind1][1], y=self.initialize_corr_y[ind2][1],symbol='o', 
-                    top=self.initialize_corr_y[ind2][2],bottom=self.initialize_corr_y[ind2][2], 
-                    left=self.initialize_corr_y[ind1][2],right=self.initialize_corr_y[ind1][2],                     
+                    top=self.initialize_corr_y[ind2][2],bottom=self.initialize_corr_y[ind2][2],
+                    left=self.initialize_corr_y[ind1][2],right=self.initialize_corr_y[ind1][2],
                     beam=0.0, pen=colors[0])  
 
                     p6.addItem(err1)   
                     
                 if self.plot_corr_coef.isChecked():
 
-                    p6.plot(self.initialize_corr_y[ind1][1], self.initialize_corr_y[ind1][1]*m[0] +m[1] , pen='k')                            
+                    p6.plot(self.initialize_corr_y[ind1][1], self.initialize_corr_y[ind1][1]*m[0] +m[1] , pen='k')
 
-                
                 p6.autoRange()
-            
 
                 return   
-            
-            else:               
+
+            else:
                 text_err = pg.TextItem('Not the same time series!',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
                 p6.addItem(text_err, ignoreBounds=True)   
         else:   
@@ -1700,7 +1711,7 @@ Polyfit coefficients:
         global fit
         
         colorz = self.colorDialog.getColor()
-        colors[0]=colorz.name()   
+        colors[0]=colorz.name()
 
         self.update_correlations_data_plots()
 
@@ -2204,12 +2215,9 @@ Polyfit coefficients:
                 bottom=error_list2[fit.filelist.idset==i],           
                 beam=0.0, pen='#000000')  
                 err1a.setZValue(-10)
-                p1.addItem(err1a)            
-            
-                        
-            
-            
-            
+                p1.addItem(err1a)
+
+
         if self.RV_plot_cross_hair.isChecked():
             self.cross_hair(p1,log=False)  
             
@@ -4192,8 +4200,7 @@ highly appreciated!
         self.init_fit() ? ? ?
         
         """
-            
-        
+
         self.K1.minimize_signal.connect(lambda: fit.minimize_one_param_K(0)) #TBD!
         self.K1.minimize_signal.connect(self.init_fit) #TBD!       
         self.P1.minimize_signal.connect(lambda: fit.minimize_one_param_P(0)) #TBD!
@@ -4226,7 +4233,6 @@ highly appreciated!
         self.om3.minimize_signal.connect(self.init_fit) #TBD!  
         self.ma3.minimize_signal.connect(lambda: fit.minimize_one_param_M0(2)) #TBD!
         self.ma3.minimize_signal.connect(self.init_fit) #TBD!   
-
 
         self.K4.minimize_signal.connect(lambda: fit.minimize_one_param_K(3)) #TBD!
         self.K4.minimize_signal.connect(self.init_fit) #TBD!       
@@ -4261,11 +4267,44 @@ highly appreciated!
         self.ma6.minimize_signal.connect(lambda: fit.minimize_one_param_M0(5)) #TBD!
         self.ma6.minimize_signal.connect(self.init_fit) #TBD!   
 
- 
+        self.K7.minimize_signal.connect(lambda: fit.minimize_one_param_K(6)) #TBD!
+        self.K7.minimize_signal.connect(self.init_fit) #TBD!       
+        self.P7.minimize_signal.connect(lambda: fit.minimize_one_param_P(6)) #TBD!
+        self.P7.minimize_signal.connect(self.init_fit) #TBD!     
+        self.e7.minimize_signal.connect(lambda: fit.minimize_one_param_e(6)) #TBD!
+        self.e7.minimize_signal.connect(self.init_fit) #TBD!  
+        self.om7.minimize_signal.connect(lambda: fit.minimize_one_param_w(6)) #TBD!
+        self.om7.minimize_signal.connect(self.init_fit) #TBD!  
+        self.ma7.minimize_signal.connect(lambda: fit.minimize_one_param_M0(6)) #TBD!
+        self.ma7.minimize_signal.connect(self.init_fit) #TBD!   
+
+        self.K8.minimize_signal.connect(lambda: fit.minimize_one_param_K(7)) #TBD!
+        self.K8.minimize_signal.connect(self.init_fit) #TBD!       
+        self.P8.minimize_signal.connect(lambda: fit.minimize_one_param_P(7)) #TBD!
+        self.P8.minimize_signal.connect(self.init_fit) #TBD!     
+        self.e8.minimize_signal.connect(lambda: fit.minimize_one_param_e(7)) #TBD!
+        self.e8.minimize_signal.connect(self.init_fit) #TBD!  
+        self.om8.minimize_signal.connect(lambda: fit.minimize_one_param_w(7)) #TBD!
+        self.om8.minimize_signal.connect(self.init_fit) #TBD!  
+        self.ma8.minimize_signal.connect(lambda: fit.minimize_one_param_M0(7)) #TBD!
+        self.ma8.minimize_signal.connect(self.init_fit) #TBD!   
+
+        self.K9.minimize_signal.connect(lambda: fit.minimize_one_param_K(8)) #TBD!
+        self.K9.minimize_signal.connect(self.init_fit) #TBD!       
+        self.P9.minimize_signal.connect(lambda: fit.minimize_one_param_P(8)) #TBD!
+        self.P9.minimize_signal.connect(self.init_fit) #TBD!     
+        self.e9.minimize_signal.connect(lambda: fit.minimize_one_param_e(8)) #TBD!
+        self.e9.minimize_signal.connect(self.init_fit) #TBD!  
+        self.om9.minimize_signal.connect(lambda: fit.minimize_one_param_w(8)) #TBD!
+        self.om9.minimize_signal.connect(self.init_fit) #TBD!  
+        self.ma9.minimize_signal.connect(lambda: fit.minimize_one_param_M0(8)) #TBD!
+        self.ma9.minimize_signal.connect(self.init_fit) #TBD!   
+
         
     def jupiter_push_vars(self):
         global fit        
-        self.console_widget.push_vars({'fit':fit})    
+        self.console_widget.push_vars({'fit':fit})
+        
         #self.console_widget.push_vars({'pg':pg})    
 
         #self.console_widget.clear()         
@@ -5931,7 +5970,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
                                 #"clc": self.clc,
                                 #'app': self
                                 })        
-        
+        #self.console_widget.execute_command("%matplotlib")
         
         #self.console_widget = ConsoleWidget_embed(font_size = 10)
         
@@ -6308,7 +6347,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.07). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.08). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
