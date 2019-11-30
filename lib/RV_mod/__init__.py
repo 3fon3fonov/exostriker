@@ -345,7 +345,6 @@ def get_transit_gps_model(obj,  kernel_id=-1):
         
         mu = obj.tra_gps.predict(y, x, return_cov=False)
         #std = np.sqrt(var)
-    
         obj.tra_gp_model_data = [mu,np.zeros(len(mu)),np.zeros(len(mu))]
             
         ############ MODEL ####################
@@ -729,12 +728,12 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     else:
          options2={'disp': True}   
     
- 
     
     if len(flags) == 0:
         method1 = 'TNC'
         n1 = 0
         n2 = 0
+        
         
     else:
         method1 = obj.SciPy_min_use_1

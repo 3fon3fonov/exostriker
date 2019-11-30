@@ -48,7 +48,7 @@ import scipy.stats as stat
 #import batman as batman
 
 try:
-    from transitleastsquares import transitleastsquares    
+    from transitleastsquares import transitleastsquares
     tls_not_found = False 
 except (ImportError, KeyError) as e:
     tls_not_found = True
@@ -93,9 +93,9 @@ Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 pg.setConfigOption('background', '#ffffff')
 pg.setConfigOption('foreground', 'k')
- 
+pg.setConfigOptions(antialias=True)
 #pg.setConfigOptions(useOpenGL=True) 
-pg.setConfigOptions(antialias=True)  
+
 
 
 global fit, colors, ses_list
@@ -122,7 +122,7 @@ if arguments != 0 and sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
         fit=rv.signal_fit(name='session')
         ses_list = [fit]
         start_arg_ses = False
-        
+
 elif arguments != 0 and sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
     try:
         file_pi = open(sys.argv[2], 'rb')
@@ -138,7 +138,7 @@ elif arguments != 0 and sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
         fit=rv.signal_fit(name='session')
         ses_list = [fit]
         start_arg_ses = False
-        
+
 elif  arguments != 0 and sys.argv[1] == '-rv_init' and os.path.exists(sys.argv[2]):
     try:
         
@@ -153,11 +153,11 @@ elif  arguments != 0 and sys.argv[1] == '-rv_init' and os.path.exists(sys.argv[2
         start_arg_ses = False
 
 elif arguments != 0 and sys.argv[1] == '-rvbank' and os.path.exists(sys.argv[2]):
-    try:     
+    try:
         fit=rv.signal_fit(name='session')
         fit.init_pl_arb()
         fit.add_RVbank_dataset(rv.file_from_path(str(sys.argv[2])), str(sys.argv[2]), split = False)
-        fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=True,  fortran_kill=3, timeout_sec=3, minimize_loglik=True,amoeba_starts=0)
+        fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=True, fortran_kill=3, timeout_sec=3, minimize_loglik=True,amoeba_starts=0)
         ses_list = [fit]
         start_arg_ses = True
     except (ImportError, KeyError, TypeError, AttributeError) as e:
@@ -166,19 +166,18 @@ elif arguments != 0 and sys.argv[1] == '-rvbank' and os.path.exists(sys.argv[2])
         ses_list = [fit]
         start_arg_ses = False
 
-else:    
+else:
     fit=rv.signal_fit(name='session')
     ses_list = [fit]
     start_arg_ses = False
-    
-    
-colors      = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
-colors_gls  = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
-         
+
+
+colors      = ['#0066ff','#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+colors_gls  = ['#0066ff','#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+
 symbols = ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
 colors_delta_om = colors
 colors_theta = colors
-
 
 QtGui.QApplication.processEvents()
 
@@ -187,8 +186,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_labels(self):
         global fit
-        
-        
 
         self.value_stellar_mass.setText("%.4f"%(fit.params.stellar_mass))
         self.value_epoch.setText(str(fit.epoch))
@@ -196,29 +193,17 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.value_wrms.setText("%.4f"%(fit.wrms()))
         
         self.value_chi2.setText("%.4f"%(fit.fit_results.chi2)) 
-        self.value_reduced_chi2.setText("%.4f"%(fit.fit_results.reduced_chi2))        
+        self.value_reduced_chi2.setText("%.4f"%(fit.fit_results.reduced_chi2))
         #self.value_loglik.setText("%.4f"%(fit.fit_results.loglik)) 
         self.value_loglik.setText("%.4f"%(fit.loglik)) 
         self.value_BIC.setText("%.2f"%(fit.BIC()))
         self.value_AIC.setText("%.2f"%(fit.AIC()))
        
         self.value_Ndata.setText("%s"%(len(fit.fit_results.jd))) 
-        self.value_DOF.setText("%s"%(len(fit.fit_results.jd) - fit.fit_results.mfit))      
-        
-        #hill = rv.get_Hill_satb(fit)
-        
-        #if fit.npl >1 and hill == True:
-        #    Hill_LED = './lib/UI/green_led.png'
-        #elif fit.npl >1 and hill == False:
-        #    Hill_LED = './lib/UI/red_led.png'    
-        #else:
-        #    Hill_LED = './lib/UI/grey_led.png'
-           
-        #self.Hill_led.setPixmap(QtGui.QPixmap(Hill_LED))
-        
-        
+        self.value_DOF.setText("%s"%(len(fit.fit_results.jd) - fit.fit_results.mfit))
+
         amd = rv.get_AMD_stab(fit)
-        
+
         if fit.npl >1 and amd == True:
             AMD_LED = './lib/UI/green_led.png'
         elif fit.npl >1 and amd == False:
@@ -232,18 +217,18 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.radioButton_Dynamical.setChecked(True)
         else:
             self.radioButton_Keplerian.setChecked(True)
-            
+
         if fit.type_fit["RV"] == True and fit.type_fit["Transit"] == False:
             self.radioButton_RV.setChecked(True)        
         elif fit.type_fit["RV"] == False and fit.type_fit["Transit"] == True:
-            self.radioButton_transit.setChecked(True)                    
+            self.radioButton_transit.setChecked(True)
         elif fit.type_fit["RV"] == True and fit.type_fit["Transit"] == True:
             self.radioButton_transit_RV.setChecked(True)    
 
         if fit.hkl == True:
-            self.radioButton_hkl.setChecked(True)    
+            self.radioButton_hkl.setChecked(True)
         else:
-            self.radioButton_ewm.setChecked(True)    
+            self.radioButton_ewm.setChecked(True)
 
 
 
@@ -276,36 +261,18 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10): 
             self.tra_data_gui[i].setValue(fit.tra_off[i]) 
             self.tra_data_jitter_gui[i].setValue(fit.tra_jitt[i])
-            
-        gp_rot_params = [self.GP_rot_kernel_Amp,
-                     self.GP_rot_kernel_time_sc,
-                     self.GP_rot_kernel_Per,
-                     self.GP_rot_kernel_fact]
-        
-        for i in range(len(gp_rot_params)):
-            gp_rot_params[i].setValue(fit.GP_rot_params[i])
  
-        gp_sho_params = [self.GP_sho_kernel_S,
-                     self.GP_sho_kernel_Q,
-                     self.GP_sho_kernel_omega]
+        for i in range(len(self.gp_rot_params)):
+            self.gp_rot_params[i].setValue(fit.GP_rot_params[i])
 
-        for i in range(len(gp_sho_params)):
-            gp_sho_params[i].setValue(fit.GP_sho_params[i])
+        for i in range(len(self.gp_sho_params)):
+            self.gp_sho_params[i].setValue(fit.GP_sho_params[i])
 
-        tra_gp_rot_params = [self.tra_GP_rot_kernel_Amp,
-                     self.tra_GP_rot_kernel_time_sc,
-                     self.tra_GP_rot_kernel_Per,
-                     self.tra_GP_rot_kernel_fact]
+        for i in range(len(self.tra_gp_rot_params)):
+            self.tra_gp_rot_params[i].setValue(fit.tra_GP_rot_params[i])
 
-        for i in range(len(tra_gp_rot_params)):
-            tra_gp_rot_params[i].setValue(fit.tra_GP_rot_params[i])
- 
-        tra_gp_sho_params = [self.tra_GP_sho_kernel_S,
-                     self.tra_GP_sho_kernel_Q,
-                     self.tra_GP_sho_kernel_omega]
-
-        for i in range(len(tra_gp_sho_params)):
-            tra_gp_sho_params[i].setValue(fit.tra_GP_sho_params[i])
+        for i in range(len(self.tra_gp_sho_params)):
+            self.tra_gp_sho_params[i].setValue(fit.tra_GP_sho_params[i])
 
         self.St_mass_input.setValue(fit.params.stellar_mass)  
         self.St_radius_input.setValue(fit.stellar_radius)  
@@ -316,23 +283,13 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.Epoch.setValue(fit.epoch)
 
 
-
-#    def sort_planets(self):
-#        global fit
-        
-        
-
     def update_params(self):
         global fit
-        
-        
-        
 
-        #print([i for i, button in enumerate(self.buttonGroup_use_planets.buttons()) if button.isChecked()])
         zz = 0
         for i in range(9):
             if not self.buttonGroup_use_planets.buttons()[i].isChecked():
-                continue           
+                continue
             j = 7*i
             for k in range(7):
                 fit.params.planet_params[7*zz+k] = self.param_gui[j+k].value()
@@ -348,10 +305,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.t0[i]     = self.param_gui_tr[i*3].value()
             fit.pl_rad[i] = self.param_gui_tr[i*3+1].value()
             fit.pl_a[i]   = self.param_gui_tr[i*3+2].value()
-
-
-#        self.sort_planets()
-
 
         for i in range(10):
             fit.params.offsets[i] = self.rvs_data_gui[i].value()
@@ -373,47 +326,27 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.checkBox_first_RV_epoch.isChecked() and len(fit.fit_results.rv_model.jd) != 0:
             fit.epoch = min(fit.fit_results.rv_model.jd)
         else:
-            fit.epoch =  self.Epoch.value()
+            fit.epoch = self.Epoch.value()
 
 
     def read_tra_GP(self):
         global fit  
 
-        tra_gp_rot_params = [self.tra_GP_rot_kernel_Amp,
-                     self.tra_GP_rot_kernel_time_sc,
-                     self.tra_GP_rot_kernel_Per,
-                     self.tra_GP_rot_kernel_fact]
-        
-        for i in range(len(tra_gp_rot_params)):
-            fit.tra_GP_rot_params[i] = tra_gp_rot_params[i].value()
-            
-            
-        tra_gp_sho_params = [self.tra_GP_sho_kernel_S,
-                     self.tra_GP_sho_kernel_Q,
-                     self.tra_GP_sho_kernel_omega]
+        for i in range(len(self.tra_gp_rot_params)):
+            fit.tra_GP_rot_params[i] = self.tra_gp_rot_params[i].value()
 
-        for i in range(len(tra_gp_sho_params)):
-            fit.tra_GP_sho_params[i] = tra_gp_sho_params[i].value()
+        for i in range(len(self.tra_gp_sho_params)):
+            fit.tra_GP_sho_params[i] = self.tra_gp_sho_params[i].value()
 
 
     def read_RV_GP(self):
-        global fit  
+        global fit
 
-        gp_rot_params = [self.GP_rot_kernel_Amp,
-                     self.GP_rot_kernel_time_sc,
-                     self.GP_rot_kernel_Per,
-                     self.GP_rot_kernel_fact]
-        
-        for i in range(len(gp_rot_params)):
-            fit.GP_rot_params[i] = gp_rot_params[i].value()
-            
-            
-        gp_sho_params = [self.GP_sho_kernel_S,
-                     self.GP_sho_kernel_Q,
-                     self.GP_sho_kernel_omega]
-        
-        for i in range(len(gp_sho_params)):
-            fit.GP_sho_params[i] = gp_sho_params[i].value()
+        for i in range(len(self.gp_rot_params)):
+            fit.GP_rot_params[i] = self.gp_rot_params[i].value()
+
+        for i in range(len(self.gp_sho_params)):
+            fit.GP_sho_params[i] = self.gp_sho_params[i].value()
 
     def set_hkl(self):
         global fit  
@@ -447,12 +380,12 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 #                fit.params.update_e(i,fit.e[i]) # update e for a given planet
 #                fit.params.update_w(i,fit.w[i]) # update w for a given planet
 #                fit.params.update_M0(i,fit.M0[i]) # update w for a given planet
-           
-         
+
+
         elif self.radioButton_hkl.isChecked():
-            
+
             fit.hkl = True
-           
+
             self.label_ecc.setText("<html><head/><body><p>h=esin(&omega;)</p></body></html>")
             self.label_omega.setText("<html><head/><body><p>k=ecos(&omega;)</p></body></html>")
             self.label_Ma.setText("<html><head/><body><p>&lambda; [deg]</p></body></html>")      
@@ -463,7 +396,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.label_omega3.setText("<html><head/><body><p>k=ecos(&omega;)</p></body></html>")
             self.label_Ma3.setText("<html><head/><body><p>&lambda; [deg]</p></body></html>")    
 
-  
             for i in range(9):
                 self.param_gui[i*7 +2].setRange(-1.0,1.0)
                # param_gui[i*3].singleStep(0.01)
@@ -475,18 +407,17 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.update_params()
         self.update_gui_params() 
-    
-    
-    
+
+
     def set_tra_ld(self):
         global fit   
 
 
         uni_ld_models = [self.use_uniform_ld_1,self.use_uniform_ld_2,self.use_uniform_ld_3,self.use_uniform_ld_4,self.use_uniform_ld_5,
                          self.use_uniform_ld_6,self.use_uniform_ld_7,self.use_uniform_ld_8,self.use_uniform_ld_9,self.use_uniform_ld_10]
-        
+
         lin_ld_models = [self.use_linear_ld_1,self.use_linear_ld_2,self.use_linear_ld_3,self.use_linear_ld_4,self.use_linear_ld_5,
-                         self.use_linear_ld_6,self.use_linear_ld_7,self.use_linear_ld_8,self.use_linear_ld_9,self.use_linear_ld_10]        
+                         self.use_linear_ld_6,self.use_linear_ld_7,self.use_linear_ld_8,self.use_linear_ld_9,self.use_linear_ld_10]
 
         quad_ld_models = [self.use_quadratic_ld_1,self.use_quadratic_ld_2,self.use_quadratic_ld_3,self.use_quadratic_ld_4,self.use_quadratic_ld_5,
                           self.use_quadratic_ld_6,self.use_quadratic_ld_7,self.use_quadratic_ld_8,self.use_quadratic_ld_9,self.use_quadratic_ld_10] 
@@ -533,7 +464,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def update_errors(self):
         global fit
 
-     
         zz = 0
         for i in range(9):
             if not self.buttonGroup_use_planets.buttons()[i].isChecked():
@@ -550,66 +480,33 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.param_errors_gui_wd[i].setText("+/- %.3f"%max(np.abs(fit.omega_dot_err[i])))            
             
 
-        data_errors_gui        = [self.err_Data1,self.err_Data2,self.err_Data3,self.err_Data4,self.err_Data5,
-                                  self.err_Data6,self.err_Data7,self.err_Data8,self.err_Data9,self.err_Data10]
-        data_errors_jitter_gui = [self.err_jitter_Data1,self.err_jitter_Data2,self.err_jitter_Data3,self.err_jitter_Data4,
-                                  self.err_jitter_Data5,self.err_jitter_Data6,self.err_jitter_Data7,self.err_jitter_Data8,
-                                  self.err_jitter_Data9,self.err_jitter_Data10]
-        
+        for i in range(10):
+            self.data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.offset_errors[i])))
+            self.data_errors_jitter_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.jitter_errors[i])))
 
         for i in range(10):
-            data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.offset_errors[i])))
-            data_errors_jitter_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.jitter_errors[i])))
-            
-        tra_data_errors_gui        = [self.err_trans_Data1,self.err_trans_Data2,self.err_trans_Data3,self.err_trans_Data4,self.err_trans_Data5,
-                                      self.err_trans_Data6,self.err_trans_Data7,self.err_trans_Data8,self.err_trans_Data9,self.err_trans_Data10]
-        tra_data_errors_jitter_gui = [self.err_jitter_trans_Data1,self.err_jitter_trans_Data2,self.err_jitter_trans_Data3,self.err_jitter_trans_Data4,
-                                      self.err_jitter_trans_Data5,self.err_jitter_trans_Data6,self.err_jitter_trans_Data7,self.err_jitter_trans_Data8,
-                                      self.err_jitter_trans_Data9,self.err_jitter_trans_Data10]
-
-        for i in range(10):
-            tra_data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_off_err[i])))
-            tra_data_errors_jitter_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_jitt_err[i])))            
-                      
+            self.tra_data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_off_err[i])))
+            self.tra_data_errors_jitter_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_jitt_err[i])))
 
         self.err_RV_lin_trend.setText("+/- %.8f"%(max(fit.param_errors.linear_trend_error)))
         self.err_RV_quad_trend.setText("+/- %.8f"%(max(fit.rv_quadtr_err)))
 
 
-        
-        gp_rot_errors_gui = [self.err_rot_kernel_Amp,
-                     self.err_rot_kernel_time_sc,
-                     self.err_rot_kernel_Per,
-                     self.err_rot_kernel_fact]
-        
-        for i in range(len(gp_rot_errors_gui)):
-            gp_rot_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))  
-            
-        gp_sho_errors_gui = [self.err_sho_kernel_S,
-                     self.err_sho_kernel_Q,
-                     self.err_sho_kernel_omega]
-        
-        for i in range(len(gp_sho_errors_gui)):
-            gp_sho_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))  
+        for i in range(len(self.gp_rot_errors_gui)):
+            self.gp_rot_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))  
+
+        for i in range(len(self.gp_sho_errors_gui)):
+            self.gp_sho_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))  
 
     def update_a_mass(self):
         global fit
 
-        param_a_gui = [self.label_a1, self.label_a2, self.label_a3, self.label_a4, self.label_a5, 
-                       self.label_a6, self.label_a7, self.label_a8, self.label_a9]
-        param_mass_gui = [self.label_mass1, self.label_mass2, self.label_mass3, self.label_mass4, self.label_mass5, 
-                       self.label_mass6, self.label_mass7, self.label_mass8, self.label_mass9]
-        param_t_peri_gui = [self.label_t_peri1, self.label_t_peri2, self.label_t_peri3, self.label_t_peri4, self.label_t_peri5, 
-                       self.label_t_peri6, self.label_t_peri7, self.label_t_peri8, self.label_t_peri9]
-
         if self.radioButton_RV.isChecked():
             for i in range(fit.npl):
-                param_a_gui[i].setText("%.3f"%(fit.fit_results.a[i])) 
-                param_mass_gui[i].setText("%.3f"%(fit.fit_results.mass[i])) 
+                self.param_a_gui[i].setText("%.3f"%(fit.fit_results.a[i])) 
+                self.param_mass_gui[i].setText("%.3f"%(fit.fit_results.mass[i])) 
                 #param_t_peri_gui[i].setText("%.3f"%( (float(fit.epoch) - (np.radians(fit.params.planet_params[7*i + 4])/(2*np.pi))*fit.params.planet_params[7*i + 1] ))) # epoch  - ((ma/TWOPI)*a[1])
-                param_t_peri_gui[i].setText("%.3f"%(fit.t_peri[i]))
-
-
+                self.param_t_peri_gui[i].setText("%.3f"%(fit.t_peri[i]))
 
 
     def update_use_from_input_file(self):
@@ -618,75 +515,40 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         
         for i in range(fit.npl*7):
             self.use_param_gui[i].setChecked(bool(fit.use.use_planet_params[i]))
-            
-            
 
 
         for i in range(fit.npl):
             self.use_param_gui_wd[i].setChecked(bool(fit.omega_dot_use[i]))           
  
-            
-
-         
         for i in range(fit.npl):         
             self.use_param_gui_tr[i*3].setChecked(bool(fit.t0_use[i]) )        
             self.use_param_gui_tr[i*3+1].setChecked(bool(fit.pl_rad_use[i]) )
             self.use_param_gui_tr[i*3+2].setChecked(bool(fit.pl_a_use [i]) )
  
 
-        use_data_offset_gui = [self.use_offset_Data1,self.use_offset_Data2,self.use_offset_Data3,self.use_offset_Data4,
-                               self.use_offset_Data5,self.use_offset_Data6,self.use_offset_Data7,self.use_offset_Data8,
-                               self.use_offset_Data9,self.use_offset_Data10]
-        use_data_jitter_gui = [self.use_jitter_Data1,self.use_jitter_Data2,self.use_jitter_Data3,self.use_jitter_Data4,self.use_jitter_Data5,
-                               self.use_jitter_Data6,self.use_jitter_Data7,self.use_jitter_Data8,self.use_jitter_Data9,self.use_jitter_Data10]
-
         for i in range(10): 
             #use_data_gui[i].setChecked(bool(fit.use.use_offsets[i])) # attention, TBF
-            use_data_jitter_gui[i].setChecked(bool(fit.use.use_jitters[i]))
-            use_data_offset_gui[i].setChecked(bool(fit.use.use_offsets[i])) 
-            
-            
-        use_tra_data_offset_gui = [self.use_offset_trans_Data1,self.use_offset_trans_Data2,self.use_offset_trans_Data3,self.use_offset_trans_Data4,
-                                   self.use_offset_trans_Data5,self.use_offset_trans_Data6,self.use_offset_trans_Data7,self.use_offset_trans_Data8,
-                                   self.use_offset_trans_Data9,self.use_offset_trans_Data10]
-        use_tra_data_jitter_gui = [self.use_jitter_trans_Data1,self.use_jitter_trans_Data2,self.use_jitter_trans_Data3,self.use_jitter_trans_Data4,self.use_jitter_trans_Data5,
-                                   self.use_jitter_trans_Data6,self.use_jitter_trans_Data7,self.use_jitter_trans_Data8,self.use_jitter_trans_Data9,self.use_jitter_trans_Data10]
+            self.use_data_jitter_gui[i].setChecked(bool(fit.use.use_jitters[i]))
+            self.use_data_offset_gui[i].setChecked(bool(fit.use.use_offsets[i])) 
 
         for i in range(10): 
-            #use_data_gui[i].setChecked(bool(fit.use.use_offsets[i])) # attention, TBF
-            use_tra_data_jitter_gui[i].setChecked(bool(fit.tra_jitt_use[i]))
-            use_tra_data_offset_gui[i].setChecked(bool(fit.tra_off_use[i]))             
-            
+            self.use_tra_data_jitter_gui[i].setChecked(bool(fit.tra_jitt_use[i]))
+            self.use_tra_data_offset_gui[i].setChecked(bool(fit.tra_off_use[i]))             
 
-        planet_checked_gui = [self.use_Planet1,self.use_Planet2,self.use_Planet3,self.use_Planet4,self.use_Planet5,
-                              self.use_Planet6,self.use_Planet7,self.use_Planet8,self.use_Planet9]
         for i in range(9):  
             if i < fit.npl:
-                planet_checked_gui[i].setChecked(True)  
+                self.planet_checked_gui[i].setChecked(True)  
             else:
-                planet_checked_gui[i].setChecked(False)  
+                self.planet_checked_gui[i].setChecked(False)  
             
         self.use_RV_lin_trend.setChecked(bool(fit.use.use_linear_trend)) 
         self.use_RV_quad_trend.setChecked(bool(fit.rv_quadtr_use)) 
-        
 
-        use_gp_rot_params = [self.use_GP_rot_kernel_Amp,
-                         self.use_GP_rot_kernel_time_sc,
-                         self.use_GP_rot_kernel_Per,
-                         self.use_GP_rot_kernel_fact]
-                    
-        
-        for i in range(len(use_gp_rot_params)):
-            use_gp_rot_params[i].setChecked(bool(fit.GP_rot_use[i]))
+        for i in range(len(self.use_gp_rot_params)):
+            self.use_gp_rot_params[i].setChecked(bool(fit.GP_rot_use[i]))
  
-    
-        use_gp_sho_params = [self.use_GP_sho_kernel_S,
-                         self.use_GP_sho_kernel_Q,
-                         self.use_GP_sho_kernel_omega]
-                    
-        
-        for i in range(len(use_gp_sho_params)):
-            use_gp_sho_params[i].setChecked(bool(fit.GP_sho_use[i]))
+        for i in range(len(self.use_gp_sho_params)):
+            self.use_gp_sho_params[i].setChecked(bool(fit.GP_sho_use[i]))
 
 
     def update_mixed_fitting(self):
@@ -711,15 +573,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         if npl_old < checked:
             fit.add_planet()
         elif npl_old >= checked:
-            fit.npl = checked     
-            
-        #for i in range(len(use_planet_gui)):
-        #    if use_planet_gui[i].isChecked() == False:
-       #         fit.remove_planet(i)  
-       #     else:
-       #         fit.add_planet(i)  
-       #         
-
+            fit.npl = checked
 
         for i in range(9*7):
             fit.use.use_planet_params[i] = int(self.use_param_gui[i].isChecked())         
@@ -733,49 +587,23 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.t0_use[i] = self.use_param_gui_tr[i*3].isChecked()  
             fit.pl_rad_use[i] = self.use_param_gui_tr[i*3+1].isChecked()  
             fit.pl_a_use[i] = self.use_param_gui_tr[i*3+2].isChecked()  
-       
-
-        use_data_offset_gui = [self.use_offset_Data1,self.use_offset_Data2,self.use_offset_Data3,self.use_offset_Data4,
-                               self.use_offset_Data5,self.use_offset_Data6,self.use_offset_Data7,self.use_offset_Data8,
-                               self.use_offset_Data9,self.use_offset_Data10]
-        use_data_jitter_gui = [self.use_jitter_Data1,self.use_jitter_Data2,self.use_jitter_Data3,self.use_jitter_Data4,self.use_jitter_Data5,
-                               self.use_jitter_Data6,self.use_jitter_Data7,self.use_jitter_Data8,self.use_jitter_Data9,self.use_jitter_Data10]
 
         for i in range(10): 
-            fit.use.use_jitters[i] = int(use_data_jitter_gui[i].isChecked())
-            fit.use.use_offsets[i] = int(use_data_offset_gui[i].isChecked())   
-
-
-        use_tra_data_offset_gui = [self.use_offset_trans_Data1,self.use_offset_trans_Data2,self.use_offset_trans_Data3,self.use_offset_trans_Data4,
-                                   self.use_offset_trans_Data5,self.use_offset_trans_Data6,self.use_offset_trans_Data7,self.use_offset_trans_Data8,
-                                   self.use_offset_trans_Data9,self.use_offset_trans_Data10]
-        use_tra_data_jitter_gui = [self.use_jitter_trans_Data1,self.use_jitter_trans_Data2,self.use_jitter_trans_Data3,self.use_jitter_trans_Data4,self.use_jitter_trans_Data5,
-                                   self.use_jitter_trans_Data6,self.use_jitter_trans_Data7,self.use_jitter_trans_Data8,self.use_jitter_trans_Data9,self.use_jitter_trans_Data10]
+            fit.use.use_jitters[i] = int(self.use_data_jitter_gui[i].isChecked())
+            fit.use.use_offsets[i] = int(self.use_data_offset_gui[i].isChecked())   
 
         for i in range(10): 
-            fit.tra_jitt_use[i] = int(use_tra_data_jitter_gui[i].isChecked())
-            fit.tra_off_use[i]  = int(use_tra_data_offset_gui[i].isChecked())
+            fit.tra_jitt_use[i] = int(self.use_tra_data_jitter_gui[i].isChecked())
+            fit.tra_off_use[i]  = int(self.use_tra_data_offset_gui[i].isChecked())
 
         fit.use.use_linear_trend = int(self.use_RV_lin_trend.isChecked()) 
         fit.rv_quadtr_use = int(self.use_RV_quad_trend.isChecked())
 
+        for i in range(len(self.use_gp_rot_params)):
+            fit.GP_rot_use[i] = int(self.use_gp_rot_params[i].isChecked())
 
-        use_gp_rot_params = [self.use_GP_rot_kernel_Amp,
-                         self.use_GP_rot_kernel_time_sc,
-                         self.use_GP_rot_kernel_Per,
-                         self.use_GP_rot_kernel_fact]
-                    
-        
-        for i in range(len(use_gp_rot_params)):
-            fit.GP_rot_use[i] = int(use_gp_rot_params[i].isChecked())
-            
-        use_gp_sho_params = [self.use_GP_sho_kernel_S,
-                         self.use_GP_sho_kernel_Q,
-                         self.use_GP_sho_kernel_omega]
-                    
-        
-        for i in range(len(use_gp_sho_params)):
-            fit.GP_sho_use[i] = int(use_gp_sho_params[i].isChecked())  
+        for i in range(len(self.use_gp_sho_params)):
+            fit.GP_sho_use[i] = int(self.use_gp_sho_params[i].isChecked())  
             
         self.update_tra_GP_use()
         
@@ -783,23 +611,12 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_tra_GP_use(self):
         global fit
-            
-        use_tra_gp_rot_params = [self.use_tra_GP_rot_kernel_Amp,
-                         self.use_tra_GP_rot_kernel_time_sc,
-                         self.use_tra_GP_rot_kernel_Per,
-                         self.use_tra_GP_rot_kernel_fact]
-                    
-        
-        for i in range(len(use_tra_gp_rot_params)):
-            fit.tra_GP_rot_use[i] = int(use_tra_gp_rot_params[i].isChecked())
-            
-        use_tra_gp_sho_params = [self.use_tra_GP_sho_kernel_S,
-                         self.use_tra_GP_sho_kernel_Q,
-                         self.use_tra_GP_sho_kernel_omega]
-                    
-        
-        for i in range(len(use_tra_gp_sho_params)):
-            fit.tra_GP_sho_use[i] = int(use_tra_gp_sho_params[i].isChecked())              
+
+        for i in range(len(self.use_tra_gp_rot_params)):
+            fit.tra_GP_rot_use[i] = int(self.use_tra_gp_rot_params[i].isChecked())
+
+        for i in range(len(self.use_tra_gp_sho_params)):
+            fit.tra_GP_sho_use[i] = int(self.use_tra_gp_sho_params[i].isChecked())              
             
 
 
@@ -2410,7 +2227,8 @@ Polyfit coefficients:
             self.update_use()
             self.update_params()
             self.update_RV_file_buttons()
-            
+
+        self.plot_tabs.setCurrentWidget(self.tab_timeseries_RV)
 
 
     def remove_RV_file(self):
@@ -2485,7 +2303,7 @@ Polyfit coefficients:
             self.update_tra_file_buttons()
             self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(input_files[0]))
             
-            self.tab_timeseries_RV.setCurrentWidget(self.Phot_timeseries_plot)
+            self.plot_tabs.setCurrentWidget(self.tab_timeseries_tra)
 
             
     def remove_tra_file(self):
@@ -3880,15 +3698,12 @@ Transit duration: %s d
     def update_RV_jitter_flag(self):
         global fit
 
-        use_data_jitter_gui = [self.use_jitter_Data1,self.use_jitter_Data2,self.use_jitter_Data3,self.use_jitter_Data4,self.use_jitter_Data5,
-                               self.use_jitter_Data6,self.use_jitter_Data7,self.use_jitter_Data8,self.use_jitter_Data9,self.use_jitter_Data10]
-
         if self.amoeba_radio_button.isChecked():
             for i in range(10):     
-                use_data_jitter_gui[i].setEnabled(True)
+                self.use_data_jitter_gui[i].setEnabled(True)
         else:
             for i in range(10):     
-                use_data_jitter_gui[i].setEnabled(False)
+                self.use_data_jitter_gui[i].setEnabled(False)
                 
   
     def update_dyn_kep_flag(self):
@@ -5945,10 +5760,43 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.use_param_gui_tr  = gui_groups.use_param_gui_tr(self)
 
         self.rvs_data_gui      = gui_groups.rvs_data_gui(self)
-        self.rvs_data_jitter_gui      = gui_groups.rvs_data_jitter_gui(self)     
+        self.rvs_data_jitter_gui      = gui_groups.rvs_data_jitter_gui(self)
+        self.use_data_offset_gui = gui_groups.use_data_offset_gui(self)
+        self.use_data_jitter_gui = gui_groups.use_data_jitter_gui(self)
+        
+        self.data_errors_gui            = gui_groups.data_errors_gui(self)
+        self.data_errors_jitter_gui     = gui_groups.data_errors_jitter_gui(self)
+        
         self.tra_data_gui             = gui_groups.tra_data_gui(self)
         self.tra_data_jitter_gui      = gui_groups.tra_data_jitter_gui(self)
+        
+        self.use_tra_data_offset_gui  = gui_groups.use_tra_data_offset_gui(self)
+        self.use_tra_data_jitter_gui  = gui_groups.use_tra_data_jitter_gui(self)
+ 
+        
+        self.tra_data_errors_gui        = gui_groups.tra_data_errors_gui(self)
+        self.tra_data_errors_jitter_gui = gui_groups.tra_data_errors_jitter_gui(self)
 
+        self.gp_rot_params     = gui_groups.gp_rot_params(self)
+        self.use_gp_rot_params = gui_groups.use_gp_rot_params(self)
+        self.gp_rot_errors_gui = gui_groups.gp_rot_errors_gui(self)
+        
+        self.gp_sho_params = gui_groups.gp_sho_params(self)
+        self.use_gp_sho_params = gui_groups.use_gp_sho_params(self)
+        self.gp_sho_errors_gui = gui_groups.gp_sho_errors_gui(self)
+
+        self.tra_gp_rot_params = gui_groups.tra_gp_rot_params(self)
+        self.use_tra_gp_rot_params = gui_groups.use_tra_gp_rot_params(self)
+
+        self.tra_gp_sho_params     = gui_groups.tra_gp_sho_params(self)
+        self.use_tra_gp_sho_params = gui_groups.use_tra_gp_sho_params(self)
+        
+
+        self.param_a_gui = gui_groups.param_a_gui(self)
+        self.param_mass_gui = gui_groups.param_mass_gui(self)
+        self.param_t_peri_gui = gui_groups.param_t_peri_gui(self)
+        
+        self.planet_checked_gui = gui_groups.planet_checked_gui(self)
 
         self.initialize_buttons()
         self.initialize_plots()   
@@ -6249,7 +6097,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.theta_y_label.clicked.connect(self.theta_plot_y_labels)
 
     
-        self.tab_timeseries_RV.currentChanged.connect(self.tab_selected)
+        #self.tab_timeseries_RV.currentChanged.connect(self.tab_selected)
 
 
         self.radioButton_RV_o_c_GLS_period.toggled.connect(self.update_RV_o_c_GLS_plots)

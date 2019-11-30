@@ -120,35 +120,119 @@ def use_param_gui_tr(self):
 
 
 def rvs_data_gui(self):
-        rvs_data_gui = [
-                self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
-                self.Data6,self.Data7,self.Data8,self.Data9,self.Data10
-                ]
-        return rvs_data_gui
-
-def rvs_data_jitter_gui(self):        
-        rvs_data_jitter_gui = [
-                self.jitter_Data1,self.jitter_Data2,self.jitter_Data3,self.jitter_Data4,self.jitter_Data5,
-                self.jitter_Data6,self.jitter_Data7,self.jitter_Data8,self.jitter_Data9,self.jitter_Data10
-                ]
-        return rvs_data_jitter_gui
+    rvs_data_gui = [
+            self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
+            self.Data6,self.Data7,self.Data8,self.Data9,self.Data10
+            ]
+    return rvs_data_gui
 
 
-def tra_data_gui(self):        
-        tra_data_gui = [
-                self.trans_Data1,self.trans_Data2,self.trans_Data3,self.trans_Data4,self.trans_Data5,
-                self.trans_Data6,self.trans_Data7,self.trans_Data8,self.trans_Data9,self.trans_Data10
-                ]
-        return tra_data_gui
-               
-def tra_data_jitter_gui(self):        
-        tra_data_jitter_gui = [
-                self.jitter_trans_Data1,self.jitter_trans_Data2,self.jitter_trans_Data3,self.jitter_trans_Data4,self.jitter_trans_Data5,
-                self.jitter_trans_Data6,self.jitter_trans_Data7,self.jitter_trans_Data8,self.jitter_trans_Data9,self.jitter_trans_Data10
-                ]
-        return tra_data_jitter_gui
-        
-            
+
+def rvs_data_jitter_gui(self):
+    rvs_data_jitter_gui = [
+            self.jitter_Data1,self.jitter_Data2,self.jitter_Data3,self.jitter_Data4,self.jitter_Data5,
+            self.jitter_Data6,self.jitter_Data7,self.jitter_Data8,self.jitter_Data9,self.jitter_Data10
+            ]
+    return rvs_data_jitter_gui
+
+
+def use_data_offset_gui(self):
+
+    use_data_offset_gui = [self.use_offset_Data1,self.use_offset_Data2,self.use_offset_Data3,self.use_offset_Data4,
+                           self.use_offset_Data5,self.use_offset_Data6,self.use_offset_Data7,self.use_offset_Data8,
+                           self.use_offset_Data9,self.use_offset_Data10]
+    
+    return use_data_offset_gui
+
+
+def use_data_jitter_gui(self):
+
+    use_data_jitter_gui = [self.use_jitter_Data1,self.use_jitter_Data2,self.use_jitter_Data3,self.use_jitter_Data4,self.use_jitter_Data5,
+                           self.use_jitter_Data6,self.use_jitter_Data7,self.use_jitter_Data8,self.use_jitter_Data9,self.use_jitter_Data10]
+    
+    return use_data_jitter_gui
+
+
+def data_errors_gui(self):
+
+    data_errors_gui = [
+            self.err_Data1,self.err_Data2,self.err_Data3,self.err_Data4,self.err_Data5,
+            self.err_Data6,self.err_Data7,self.err_Data8,self.err_Data9,self.err_Data10
+            ]
+    
+    return data_errors_gui
+
+
+def data_errors_jitter_gui(self):
+
+    data_errors_jitter_gui = [
+            self.err_jitter_Data1,self.err_jitter_Data2,self.err_jitter_Data3,self.err_jitter_Data4,self.err_jitter_Data5,
+            self.err_jitter_Data6,self.err_jitter_Data7,self.err_jitter_Data8,self.err_jitter_Data9,self.err_jitter_Data10
+            ]
+
+    return data_errors_jitter_gui
+
+
+def tra_data_gui(self):
+
+    tra_data_gui = [
+            self.trans_Data1,self.trans_Data2,self.trans_Data3,self.trans_Data4,self.trans_Data5,
+            self.trans_Data6,self.trans_Data7,self.trans_Data8,self.trans_Data9,self.trans_Data10
+            ]
+    return tra_data_gui
+           
+def tra_data_jitter_gui(self):
+
+    tra_data_jitter_gui = [
+            self.jitter_trans_Data1,self.jitter_trans_Data2,self.jitter_trans_Data3,self.jitter_trans_Data4,self.jitter_trans_Data5,
+            self.jitter_trans_Data6,self.jitter_trans_Data7,self.jitter_trans_Data8,self.jitter_trans_Data9,self.jitter_trans_Data10
+            ]
+    return tra_data_jitter_gui
+
+
+def use_tra_data_offset_gui(self):
+
+    use_tra_data_offset_gui = [
+            self.use_offset_trans_Data1,self.use_offset_trans_Data2,self.use_offset_trans_Data3,self.use_offset_trans_Data4,
+            self.use_offset_trans_Data5,self.use_offset_trans_Data6,self.use_offset_trans_Data7,self.use_offset_trans_Data8,
+            self.use_offset_trans_Data9,self.use_offset_trans_Data10
+            ]
+
+    return use_tra_data_offset_gui
+
+
+def use_tra_data_jitter_gui(self):
+    
+    use_tra_data_jitter_gui = [
+            self.use_jitter_trans_Data1,self.use_jitter_trans_Data2,self.use_jitter_trans_Data3,self.use_jitter_trans_Data4,
+            self.use_jitter_trans_Data5,self.use_jitter_trans_Data6,self.use_jitter_trans_Data7,self.use_jitter_trans_Data8,
+            self.use_jitter_trans_Data9,self.use_jitter_trans_Data10
+            ]
+    
+    return use_tra_data_jitter_gui
+
+
+def tra_data_errors_gui(self):
+
+    tra_data_errors_gui = [
+            self.err_trans_Data1,self.err_trans_Data2,self.err_trans_Data3,self.err_trans_Data4,self.err_trans_Data5,
+            self.err_trans_Data6,self.err_trans_Data7,self.err_trans_Data8,self.err_trans_Data9,self.err_trans_Data10
+            ]
+    
+    return tra_data_errors_gui
+
+def tra_data_errors_jitter_gui(self):
+
+    tra_data_errors_jitter_gui = [
+            self.err_jitter_trans_Data1,self.err_jitter_trans_Data2,self.err_jitter_trans_Data3,self.err_jitter_trans_Data4,
+            self.err_jitter_trans_Data5,self.err_jitter_trans_Data6,self.err_jitter_trans_Data7,self.err_jitter_trans_Data8,
+            self.err_jitter_trans_Data9,self.err_jitter_trans_Data10
+            ]
+    
+    return tra_data_errors_jitter_gui
+
+
+
 
 
 
@@ -178,7 +262,7 @@ def offset_bounds_gui(self):
     [self.Data6_min,self.Data6_max], [self.Data7_min,self.Data7_max], [self.Data8_min,self.Data8_max], [self.Data9_min,self.Data9_max], [self.Data10_min,self.Data10_max]
     ]
     
-    return offset_bounds_gui        
+    return offset_bounds_gui
         
 
 
@@ -189,22 +273,163 @@ def jitter_bounds_gui(self):
     [self.jitter6_min,self.jitter6_max], [self.jitter7_min,self.jitter7_max], [self.jitter8_min,self.jitter8_max], [self.jitter9_min,self.jitter9_max], [self.jitter10_min,self.Data10_max]   
     ]  
     
-    return jitter_bounds_gui    
+    return jitter_bounds_gui
 
 
 
+################### GP ########################
+
+def gp_rot_params(self):
+
+    gp_rot_params = [
+            self.GP_rot_kernel_Amp,
+            self.GP_rot_kernel_time_sc,
+            self.GP_rot_kernel_Per,
+            self.GP_rot_kernel_fact
+            ]
+
+    return gp_rot_params
+
+def gp_rot_errors_gui(self):
+
+    gp_rot_errors_gui = [
+            self.err_rot_kernel_Amp,
+            self.err_rot_kernel_time_sc,
+            self.err_rot_kernel_Per,
+            self.err_rot_kernel_fact
+            ]
+        
+    return gp_rot_errors_gui
+
+def use_gp_rot_params(self):
+    use_gp_rot_params = [
+            self.use_GP_rot_kernel_Amp,
+            self.use_GP_rot_kernel_time_sc,
+            self.use_GP_rot_kernel_Per,
+            self.use_GP_rot_kernel_fact
+            ]
+    return use_gp_rot_params
 
 
+def gp_sho_params(self):
+
+    gp_sho_params = [
+            self.GP_sho_kernel_S,
+            self.GP_sho_kernel_Q,
+            self.GP_sho_kernel_omega
+            ]
+
+    return gp_sho_params
+
+def use_gp_sho_params(self):
+
+    use_gp_sho_params = [
+            self.use_GP_sho_kernel_S,
+            self.use_GP_sho_kernel_Q,
+            self.use_GP_sho_kernel_omega
+            ]
+    return use_gp_sho_params
 
 
+def gp_sho_errors_gui(self):
 
-
-
-
-
-
-
-
-
+    gp_sho_errors_gui = [
+            self.err_sho_kernel_S,
+            self.err_sho_kernel_Q,
+            self.err_sho_kernel_omega
+            ]
     
+    return gp_sho_errors_gui
+
+
+
+def tra_gp_rot_params(self):
+
+    tra_gp_rot_params = [
+            self.tra_GP_rot_kernel_Amp,
+            self.tra_GP_rot_kernel_time_sc,
+            self.tra_GP_rot_kernel_Per,
+            self.tra_GP_rot_kernel_fact]
+
+    return tra_gp_rot_params
+
+
+def use_tra_gp_rot_params(self):
+
+    use_tra_gp_rot_params = [
+            self.use_tra_GP_rot_kernel_Amp,
+            self.use_tra_GP_rot_kernel_time_sc,
+            self.use_tra_GP_rot_kernel_Per,
+            self.use_tra_GP_rot_kernel_fact
+            ]
+
+    return use_tra_gp_rot_params
+
+
+
+def tra_gp_sho_params(self):
+
+    tra_gp_sho_params = [
+            self.tra_GP_sho_kernel_S,
+            self.tra_GP_sho_kernel_Q,
+            self.tra_GP_sho_kernel_omega]
+
+    return tra_gp_sho_params
+
+def use_tra_gp_sho_params(self):
+
+    use_tra_gp_sho_params = [
+            self.use_tra_GP_sho_kernel_S,
+            self.use_tra_GP_sho_kernel_Q,
+            self.use_tra_GP_sho_kernel_omega]
+
+    return use_tra_gp_sho_params
+
+
+################ labels ##########################
+
+def param_a_gui(self): 
+
+    param_a_gui = [
+            self.label_a1, self.label_a2, self.label_a3, 
+            self.label_a4, self.label_a5, self.label_a6, 
+            self.label_a7, self.label_a8, self.label_a9
+            ]
+
+    return param_a_gui
+
+def param_mass_gui(self):
+
+    param_mass_gui = [
+            self.label_mass1, self.label_mass2, self.label_mass3, 
+            self.label_mass4, self.label_mass5, self.label_mass6, 
+            self.label_mass7, self.label_mass8, self.label_mass9
+            ]
+
+    return param_mass_gui
+
+
+def param_t_peri_gui(self): 
+
+    param_t_peri_gui = [
+            self.label_t_peri1, self.label_t_peri2, self.label_t_peri3, 
+            self.label_t_peri4, self.label_t_peri5, self.label_t_peri6, 
+            self.label_t_peri7, self.label_t_peri8, self.label_t_peri9
+            ]
+
+    return param_t_peri_gui
+
+
+def planet_checked_gui(self): 
+
+    planet_checked_gui = [
+            self.use_Planet1,self.use_Planet2,self.use_Planet3,
+            self.use_Planet4,self.use_Planet5,self.use_Planet6,
+            self.use_Planet7,self.use_Planet8,self.use_Planet9
+            ]
+
+    return planet_checked_gui
+
+
+
         
