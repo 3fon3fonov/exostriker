@@ -1673,7 +1673,8 @@ class signal_fit(object):
        
         self.gls = []
         self.gls_o_c =[]
-       
+
+        #self.mlp = []
         
         self.init_dynfit_settings()    
         

@@ -21,6 +21,7 @@ import pyqtgraph.console as pg_console
 import word_processor_es as text_editor_es
 import calculator as calc
 import gls as gls
+import mlp as mlp
 from worker import Worker #, WorkerSignals
 import gui_groups
 
@@ -1280,7 +1281,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def initialize_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp
 
         p1  = self.graphicsView_timeseries_RV
         p2  = self.graphicsView_timeseries_RV_o_c
@@ -1313,13 +1314,14 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         pdi = self.load_data_plot
 
         pcor = self.graphicsView_corner
+        p_mlp = self.graphicsView_peridogram_RV_mlp
 
-        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x','x']
-        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y']       
-        xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','']
-        yunit = ['' ,'' , '','','','','','','','','','','','','','','','','','','','','']
+        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x','x','period [d]']
+        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y','power']       
+        xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','','']
+        yunit = ['' ,'' , '','','','','','','','','','','','','','','','','','','','','','']
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp]
  
         for i in range(len(zzz)):
  
@@ -1730,7 +1732,7 @@ Polyfit coefficients:
   
    
             
-    def label_peaks(self, plot_wg2, pos_peaks, GLS = True, o_c = False, activity = False):
+    def label_peaks(self, plot_wg2, pos_peaks, GLS = True, o_c = False, activity = False, MLP = False):
     
         if GLS == True and self.avoid_GLS_RV_alias.isChecked():
             x_peaks = pos_peaks[0][pos_peaks[0]>1.2]
@@ -1746,6 +1748,8 @@ Polyfit coefficients:
                 log = self.radioButton_RV_o_c_GLS_period.isChecked()
             elif activity == True:
                 log = self.radioButton_act_GLS_period.isChecked()             
+            elif MLP == True:
+                log = self.radioButton_RV_MLP_period.isChecked()             
             else:
                 log = self.radioButton_RV_GLS_period.isChecked()
                 
@@ -2034,6 +2038,8 @@ Polyfit coefficients:
                 err1a.setZValue(-10)
                 p1.addItem(err1a)
 
+        if self.RV_plot_autorange.isChecked():
+            p1.autoRange() #padding=0
 
         if self.RV_plot_cross_hair.isChecked():
             self.cross_hair(p1,log=False)  
@@ -2087,7 +2093,6 @@ Polyfit coefficients:
             self.cross_hair(p2,log=False)       
             
         if self.RV_plot_autorange.isChecked():
-            p1.autoRange()
             p2.autoRange()
 
 
@@ -2626,6 +2631,135 @@ Polyfit coefficients:
         if self.extra_plot_cross_hair.isChecked():
             self.cross_hair(pe,log=self.radioButton_RV_o_c_GLS_period.isChecked())   
 
+
+
+
+
+
+
+
+
+############ MLP ##############################      
+       
+    def worker_mlp_complete(self, resid = False):
+        global fit  
+ 
+        #start_time = time.time()   
+        
+        if resid == False:     
+            self.update_RV_MLP_plots() 
+        else:    
+            self.update_mlp_o_c_plots() 
+                 
+        self.statusBar().showMessage('')   
+ 
+        self.jupiter_push_vars()   
+        self.calc_MLP.setEnabled(True)         
+       # self.calc_MLP_o_c.setEnabled(True)  
+       # print("--- %s seconds ---" % (time.time() - start_time))     
+ 
+    def worker_mlp(self, resid = False):
+        global fit  
+
+        self.calc_MLP.setEnabled(False)
+        #self.calc_MLP_o_c.setEnabled(False)
+ 
+        
+        #if z <= 0:
+        #    choice = QtGui.QMessageBox.information(self, 'Warning!',
+        #    "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
+        #    self.calc_TLS.setEnabled(True)         
+        #    return   
+
+        self.statusBar().showMessage('Running MLP .... ')                 
+        worker_mlp_ = Worker(lambda:  self.mlp_search(resid = resid) )# Any other args, kwargs are passed to the run  
+ 
+        worker_mlp_.signals.finished.connect(lambda:  self.worker_mlp_complete(resid = resid))
+        
+        #self.tabWidget_helper.setCurrentWidget(self.tab_info)
+
+        # worker.signals.result.connect(self.print_output)
+        #worker.signals.finished.connect(self.thread_complete)
+       # worker.signals.progress.connect(self.progress_fn)
+        self.threadpool.start(worker_mlp_)       
+     
+
+    def mlp_search(self, resid = False):
+        global fit
+        
+        #if resid == True:
+        #    lc_data = fit.tra_data_sets[0][3]
+        #else:
+        #    lc_data = fit.tra_data_sets[0][1]
+            
+        
+        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
+        ind_norm = self.gls_norm_combo.currentIndex()
+        
+        xx = fit.fit_results.rv_model.jd.tolist()
+        yy = fit.fit_results.rv_model.rvs.tolist()
+        ye = fit.fit_results.rv_model.rv_err.tolist()
+        
+        if len(fit.fit_results.rv_model.jd) > 5:      
+            RV_per = mlp.Gls([(xx,yy,ye)], fast=True,  verbose=False,
+            ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[0], norm='dlnL')
+
+        else:
+            return
+ 
+        
+        if resid == True:
+            fit.mlp = RV_per  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
+        else:
+            fit.mlp = RV_per  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
+
+
+
+    def update_RV_MLP_plots(self): 
+        global fit, p_mlp 
+ 
+        p_mlp.plot(clear=True,)   
+        
+        self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])               
+                          
+        power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
+        gls_model_width = float(self.gls_model_width.value())
+    
+        if len(fit.fit_results.rv_model.jd) > 5:
+
+            ######################## GLS ##############################
+            if self.radioButton_RV_MLP_period.isChecked():
+                p_mlp.setLogMode(True,False)        
+                p_mlp.plot(1/fit.mlp.freq, fit.mlp.power,pen={'color': fit.gls_colors[0], 'width': gls_model_width},symbol=None ) 
+
+                p_mlp.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
+                
+            else:
+                p_mlp.setLogMode(False,False)        
+                p_mlp.plot(fit.mlp.freq, fit.mlp.power,pen={'color': fit.gls_colors[0], 'width': self.gls_model_width.value()},symbol=None )                
+                p_mlp.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
+                
+                
+            #if fit.gls.norm == 'ZK':
+            #    [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.mlp.powerLevel(np.array(power_levels)))]
+ 
+            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels, sig_level = fit.mlp.powerLevel(np.array(power_levels)) )   
+
+            self.label_peaks(p_mlp, pos_peaks, GLS = True, MLP = True)
+
+            self.mlp_print_info.clicked.connect(lambda: self.print_info_for_object(
+            fit.mlp.info(stdout=False) + text_peaks))
+
+        if self.mlp_cross_hair.isChecked():
+            self.cross_hair(p_mlp,log=self.radioButton_RV_MLP_period.isChecked())    
+  
+    
+    
+    
+    
+    
+    
+    
 
 
 ############ TLS ##############################      
@@ -6073,6 +6207,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.tls_cross_hair.stateChanged.connect(self.update_tls_plots)
         self.tls_o_c_cross_hair.stateChanged.connect(self.update_tls_o_c_plots)
         self.gls_act_cross_hair.stateChanged.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
+        self.mlp_cross_hair.stateChanged.connect(self.update_RV_MLP_plots)
 
 
         self.extra_plot_cross_hair.stateChanged.connect(self.update_extra_plots)
@@ -6103,6 +6238,9 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.radioButton_RV_o_c_GLS_period.toggled.connect(self.update_RV_o_c_GLS_plots)
         self.radioButton_RV_GLS_period.toggled.connect(self.update_RV_GLS_plots)
         
+        self.radioButton_RV_MLP_period.toggled.connect(self.update_RV_MLP_plots)
+
+        
         self.mute_boxes()
         self.radioButton_transit_RV.toggled.connect(self.mute_boxes)
         self.radioButton_transit.toggled.connect(self.mute_boxes)
@@ -6118,6 +6256,9 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
 
         self.calc_TLS.clicked.connect(self.worker_tls)
         self.calc_TLS_o_c.clicked.connect(lambda: self.worker_tls(resid =True))
+
+
+        self.calc_MLP.clicked.connect(self.worker_mlp)
 
 
         self.quit_button.clicked.connect(self.quit)
