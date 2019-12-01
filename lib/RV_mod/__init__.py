@@ -630,7 +630,16 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     
     flags = obj.f_for_mcmc 
-    par = np.array(obj.parameters)  
+    par = np.array(obj.parameters) 
+    
+    obj.bound_error = False
+    obj.bound_error_msg = ""
+
+    for l in range(len(pp)): 
+        if not bb[l,0] <= pp[l] <= bb[l,1]:
+            obj.bound_error = True
+            obj.bound_error_msg = "Parameter %s is initially out of bounds. Please set the initial parametrs within the parameter limits!"%ee[l]
+            return obj
  
     priors = [pr_nr,jeff_nr]
     
@@ -1035,7 +1044,7 @@ def run_nestsamp(obj, **kwargs):
     for l in range(len(pp)):
         if not bb[l,0] <= pp[l] <= bb[l,1]:
             obj.bound_error = True
-            obj.bound_error_msg = "Parameter %s is initially out of bounds. This is unlikely to work out! Please set the initial parametrs withing the parameter limits!"%ee[l]
+            obj.bound_error_msg = "Parameter %s is initially out of bounds. Please set the initial parametrs within the parameter limits!"%ee[l]
             return obj
  
 
@@ -1330,8 +1339,7 @@ def run_mcmc(obj, **kwargs):
     npl = obj.npl
     epoch = obj.epoch     
     stmass = obj.params.stellar_mass    
- 
- 
+
     mix_fit = obj.mixed_fit    
     
     if (obj.mod_dynamical):
@@ -1367,12 +1375,13 @@ def run_mcmc(obj, **kwargs):
     for l in range(len(pp)): 
         if not bb[l,0] <= pp[l] <= bb[l,1]:
             obj.bound_error = True
-            obj.bound_error_msg = "Parameter %s is initially out of bounds. This is unlikely to work out! Please set the initial parametrs withing the parameter limits!"%ee[l]
+            obj.bound_error_msg = "Parameter %s is initially out of bounds. Please set the initial parametrs within the parameter limits!"%ee[l]
             return obj
 
- 
-    #print(mix_fit)
-    
+    #for k in range(len(pp)):
+    #    print(ee[k],pp[k],bb[k],pr_nr[k],jeff_nr[k])
+
+
     priors = [pr_nr,jeff_nr]
     level = (100.0- obj.percentile_level)/2.0
  
@@ -1380,15 +1389,7 @@ def run_mcmc(obj, **kwargs):
     
     opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,
            "when_to_kill":when_to_kill,"copl_incl":obj.copl_incl,"hkl":obj.hkl,"cwd":obj.cwd, "gr_flag":obj.gr_flag}    
-#    print(par)
-#    print(flags)
-#    print(bb)
-#    print(pp)
-   # dt = opt["dt"] 
-   # eps = opt["eps"]   
-   # when_to_kill = opt["master_timeout"] 
-    
- 
+
     gps = []
     if (rtg[1]):
         initiategps(obj)     
