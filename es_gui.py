@@ -666,20 +666,11 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             for z in range(2):    
                 fit.rvoff_bounds[i][z] = self.offset_bounds_gui[i][z].value()
                 fit.jitt_bounds[i][z]  = self.jitter_bounds_gui[i][z].value()
-            
-        om_dot_bounds_gui = [
-        [self.omega_dot_min_1.value(),self.omega_dot_max_1.value()], [self.omega_dot_min_2.value(),self.omega_dot_max_2.value()], 
-        [self.omega_dot_min_3.value(),self.omega_dot_max_3.value()], [self.omega_dot_min_4.value(),self.omega_dot_max_4.value()], 
-        [self.omega_dot_min_5.value(),self.omega_dot_max_5.value()], [self.omega_dot_min_6.value(),self.omega_dot_max_6.value()], 
-        [self.omega_dot_min_7.value(),self.omega_dot_max_7.value()], [self.omega_dot_min_8.value(),self.omega_dot_max_8.value()], 
-        [self.omega_dot_min_9.value(),self.omega_dot_max_9.value()] 
-        ]  
-    
-    
+     
         for i in range(9): 
-            fit.omega_dot_bounds[i] = om_dot_bounds_gui[i]
-             
- 
+            for z in range(2):    
+                fit.omega_dot_bounds[i][z] = self.om_dot_bounds_gui[i][z].value() 
+
         fit.rv_lintr_bounds[0]  = [self.lin_trend_min.value(),self.lin_trend_max.value()]
 
         offset_bounds_gui_tra = [
@@ -2047,29 +2038,27 @@ Polyfit coefficients:
             symbolPen={'color': fit.colors[i], 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.colors[i]
-            )        
+            )
             err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
                                    y=fit.fit_results.rv_model.o_c[fit.filelist.idset==i],symbol='o', 
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.filelist.idset==i],
             bottom=error_list[fit.filelist.idset==i],
             beam=0.0, pen=fit.colors[i])  
-            
-            p2.addItem(err2)  
-            
-            
+
+            p2.addItem(err2)
+
             if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
-            
+
                 err2a = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
-                                       y=fit.fit_results.rv_model.o_c[fit.filelist.idset==i],symbol='o', 
+                                       y=fit.fit_results.rv_model.o_c[fit.filelist.idset==i],symbol='o',
                 #height=error_list[fit.filelist.idset==i],
                 top=error_list2[fit.filelist.idset==i],
-                bottom=error_list2[fit.filelist.idset==i],           
-                beam=0.0, pen='#000000')  
+                bottom=error_list2[fit.filelist.idset==i],
+                beam=0.0, pen='#000000')
                 err2a.setZValue(-10)
-                p2.addItem(err2a)            
-                           
- 
+                p2.addItem(err2a)
+
         if self.RV_o_c_plot_cross_hair.isChecked():
             self.cross_hair(p2,log=False)       
             
@@ -2090,8 +2079,8 @@ Polyfit coefficients:
 
 
     def rv_plot_phase_change(self):
-        global fit        
-        
+        global fit
+
         #RVphase = self.RV_phase_slider.value()
         #print(RVphase)
         #self.phase_plots(1, offset = RVphase)
@@ -2099,8 +2088,7 @@ Polyfit coefficients:
         if ind+1 <= fit.npl:
             self.phase_plots(ind+1)
         else:
-            return    
-    
+            return
 
     def rv_GP_set_use(self):
 
@@ -2108,47 +2096,47 @@ Polyfit coefficients:
             fit.doGP = True
         else:
             fit.doGP = False
-            
+
     def tra_GP_set_use(self):
 
         if self.do_tra_GP.isChecked():
             fit.tra_doGP = True
         else:
-            fit.tra_doGP = False            
-            
+            fit.tra_doGP = False
+
     def set_RV_GP(self):
         global fit
-        
+
         if self.use_GP_sho_kernel.isChecked():
             fit.gp_kernel = 'SHOKernel'
         elif self.use_GP_rot_kernel.isChecked():
             fit.gp_kernel = 'RotKernel'
-            
-            
+
+
     def set_tra_GP(self):
         global fit
-        
+
         if self.use_tra_GP_sho_kernel.isChecked():
             fit.tra_gp_kernel = 'SHOKernel'
         elif self.use_tra_GP_rot_kernel.isChecked():
             fit.tra_gp_kernel = 'RotKernel'
-            
-            
+
+
     def set_use_GP(self):
         global fit
-            
+
         if  self.do_RV_GP.isChecked():
             fit.doGP = True
         else:
             fit.doGP = False
-            
+
         if  self.do_tra_GP.isChecked():
             fit.tra_doGP = True
         else:
             fit.tra_doGP = False
 
 ################################ RV files #######################################################
-        
+
     def showDialog_fortran_input_file(self):
         global fit, ses_list
  
@@ -2156,13 +2144,13 @@ Polyfit coefficients:
         
         if str(input_files[0]) != '':
             fit_new=rv.signal_fit(str(input_files[0]), 'RVmod session',readinputfile=True)
-            
+
             if len(ses_list) == 1:
                 ses_list[0] = fit_new
                 fit = fit_new
             else:
                 ses_list.append(fit_new)
-                
+
             self.session_list()
             self.update_use_from_input_file()
             self.init_fit()
@@ -2208,8 +2196,8 @@ Polyfit coefficients:
             #### new stuf ####
             fit.add_rv_dataset('test', str(input_files[0]),rv_idset =but_ind-1)
             ##################
-            self.init_fit()            
-            self.update_use_from_input_file()            
+            self.init_fit()
+            self.update_use_from_input_file()
             self.update_use()
             self.update_params()
             self.update_RV_file_buttons()
@@ -2220,35 +2208,35 @@ Polyfit coefficients:
     def remove_RV_file(self):
         global fit
 
-        but_ind = self.buttonGroup_remove_RV_data.checkedId()   
-        
+        but_ind = self.buttonGroup_remove_RV_data.checkedId()
+
        # try:
        #     dirname, basename = os.path.split(fit.filelist.files[but_ind-1].path)
        #     os.system('rm -r %s'%dirname)
        # except:
        #     return
-        
+
         fit.remove_dataset(but_ind -1)
-        
+
         #### new stuf ####
         fit.remove_rv_dataset(but_ind -1)
         #### new stuf ####
-           
-        self.init_fit()         
-        self.update_use_from_input_file()   
+
+        self.init_fit()
+        self.update_use_from_input_file()
         self.update_use()
         self.update_gui_params()
         self.update_params()
         self.update_RV_file_buttons()
 
     def update_RV_file_buttons(self):
-        global fit, colors    
-        
+        global fit, colors
+
         font = QtGui.QFont()
         font.setPointSize(10)
         font.setBold(False)
         #font.setWeight(75)
-        
+
         for i in range(10):
             if i < fit.filelist.ndset:
                 self.buttonGroup_add_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
@@ -2275,23 +2263,20 @@ Polyfit coefficients:
         input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'All (*.*);;Data (*.tran)')
 
         if str(input_files[0]) != '':
- 
+
             fit.add_transit_dataset('test', str(input_files[0]),tra_idset =but_ind-1)
-              
-            self.update_use_from_input_file()            
+
+            self.update_use_from_input_file()
             self.update_use()
             self.update_gui_params()
-          
-            self.init_fit()            
+            self.init_fit()
 
-            
             self.update_params()
             self.update_tra_file_buttons()
             self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(input_files[0]))
-            
             self.plot_tabs.setCurrentWidget(self.tab_timeseries_tra)
 
-            
+
     def remove_tra_file(self):
         global fit
 
@@ -2415,8 +2400,7 @@ Polyfit coefficients:
 
 
 ################ Extra Plots (work in progress) ######################
-         
-    
+
     def update_extra_plots(self):
         global fit
 
@@ -2425,16 +2409,16 @@ Polyfit coefficients:
         if fit.npl != 0:
             for i in range(fit.npl):
                 self.comboBox_extra_plot.addItem('phase pl %s'%(i+1),i+1)
-            
+
             self.comboBox_extra_plot.addItem('RV GLS',fit.npl+1)
             self.comboBox_extra_plot.addItem('RV GLS o-c',fit.npl+2)
 
             self.phase_plots(1)  
-            
+
         elif fit.filelist.ndset != 0:
             self.comboBox_extra_plot.addItem('RV GLS',fit.npl+1)
             self.comboBox_extra_plot.addItem('RV GLS o-c',fit.npl+2)     
-            
+
             self.extra_RV_GLS_plots()
 
         self.comboBox_extra_plot.activated.connect(self.handleActivated)        
@@ -2443,10 +2427,9 @@ Polyfit coefficients:
  
     def handleActivated(self, index):
         global fit, pe
-        
+
         ind = self.comboBox_extra_plot.itemData(index) 
 
- 
         if ind <= fit.npl:
             self.phase_plots(ind)
         elif ind == fit.npl+1: 
@@ -2464,19 +2447,18 @@ Polyfit coefficients:
             return
 
     def phase_plots(self, ind, offset = 0):
-        global fit, colors   
-        
-        pe.plot(clear=True,)    
-        pe.setLogMode(False,False)        
-        
+        global fit, colors
+
+        pe.plot(clear=True,)
+        pe.setLogMode(False,False)
+
         ######## TBF #############
         if self.radioButton_transit.isChecked():
             return
         ########################
-    
+
         ph_data = fit.ph_data[ind-1]
         ph_model = fit.ph_model[ind-1]
-
 
         offset = (self.RV_phase_slider.value()/100.0)* fit.params.planet_params[7*(ind-1)+1] 
 
@@ -2503,59 +2485,55 @@ Polyfit coefficients:
         rv_data = ph_data[1]
 
         model_time_phase = np.array((ph_model[0]-offset)%fit.params.planet_params[7*(ind-1)+1] )
-                             
-        sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])                        
+
+        sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])
         model_time_phase  = model_time_phase[sort] 
         ph_model =  ph_model[1][sort] 
-         
-        pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))  
-                        
+
+        pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
+
         model_curve = pe.plot(model_time_phase,ph_model, pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()+1},
         enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'})   
  
-        model_curve.setZValue(self.RV_model_z.value())        
-        
-        
+        model_curve.setZValue(self.RV_model_z.value())
+
         for i in range(max(ph_data[3])+1):
-        
-            pe.plot((ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1],rv_data[ph_data[3]==i],             
+
+            pe.plot((ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1],rv_data[ph_data[3]==i],
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
             symbolPen={'color': fit.colors[i], 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.colors[i]
-            )  
+            )
 
             err_ = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=rv_data[ph_data[3]==i],
             symbol=fit.pyqt_symbols_rvs[i], 
             top=error_list[ph_data[3]==i],
             bottom=error_list[ph_data[3]==i],
             beam=0.0, pen=fit.colors[i]) 
-            
+
             pe.addItem(err_)
-            
+
             if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
  
                 err_2 = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=rv_data[ph_data[3]==i],
                 symbol=fit.pyqt_symbols_rvs[i], 
                 top=error_list2[ph_data[3]==i],
-                bottom=error_list2[ph_data[3]==i],           
+                bottom=error_list2[ph_data[3]==i],
                 beam=0.0, pen='#000000')  
                 err_2.setZValue(-10)
                 pe.addItem(err_2) 
         pe.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)
-        
         pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
         pe.setLabel('left',   'RV [m/s]', units='',  **{'font-size':'9pt'})  
 
- 
         if self.extra_plot_cross_hair.isChecked():
             self.cross_hair(pe,log=False)   
 
 
-
     ############### VERY VERY VERY Ugly fix !!!! 
-    
+
     def extra_RV_GLS_plots(self):
         global fit,  pe 
  
@@ -2585,10 +2563,10 @@ Polyfit coefficients:
     def extra_RV_GLS_o_c_plots(self):
         global fit,  pe 
  
-        pe.plot(clear=True,)           
+        pe.plot(clear=True,)
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
-        
-        
+
+
         ######################## GLS o-c ##############################
         if self.radioButton_RV_o_c_GLS_period.isChecked():
             pe.setLogMode(True,False)        
@@ -2613,27 +2591,24 @@ Polyfit coefficients:
 
 
 
-
-
-
 ############ MLP ##############################      
        
     def worker_mlp_complete(self, resid = False):
         global fit  
- 
+
         #start_time = time.time()   
-        
+
         if resid == False:     
             self.update_RV_MLP_plots() 
-        else:    
+        else:
             self.update_mlp_o_c_plots() 
-                 
-        self.statusBar().showMessage('')   
+
+        self.statusBar().showMessage('')
  
-        self.jupiter_push_vars()   
-        self.calc_MLP.setEnabled(True)         
-       # self.calc_MLP_o_c.setEnabled(True)  
-       # print("--- %s seconds ---" % (time.time() - start_time))     
+        self.jupiter_push_vars()
+        self.calc_MLP.setEnabled(True)
+       # self.calc_MLP_o_c.setEnabled(True)
+       # print("--- %s seconds ---" % (time.time() - start_time))
  
     def worker_mlp(self, resid = False):
         global fit  
@@ -2652,7 +2627,7 @@ Polyfit coefficients:
         worker_mlp_ = Worker(lambda:  self.mlp_search(resid = resid) )# Any other args, kwargs are passed to the run  
  
         worker_mlp_.signals.finished.connect(lambda:  self.worker_mlp_complete(resid = resid))
-        
+
         #self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
         # worker.signals.result.connect(self.print_output)
@@ -2663,16 +2638,15 @@ Polyfit coefficients:
 
     def mlp_search(self, resid = False):
         global fit
-        
+
         #if resid == True:
         #    lc_data = fit.tra_data_sets[0][3]
         #else:
         #    lc_data = fit.tra_data_sets[0][1]
-            
-        
+
         omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
         ind_norm = self.gls_norm_combo.currentIndex()
-        
+
         xx = fit.fit_results.rv_model.jd.tolist()
         yy = fit.fit_results.rv_model.rvs.tolist()
         ye = fit.fit_results.rv_model.rv_err.tolist()
@@ -2684,7 +2658,6 @@ Polyfit coefficients:
         else:
             return
  
-        
         if resid == True:
             fit.mlp = RV_per  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
         else:
@@ -2696,27 +2669,24 @@ Polyfit coefficients:
         global fit, p_mlp 
  
         p_mlp.plot(clear=True,)   
-        
+
         self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])
 
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
         gls_model_width = float(self.gls_model_width.value())
-    
+
         if len(fit.fit_results.rv_model.jd) > 5:
 
             ######################## GLS ##############################
             if self.radioButton_RV_MLP_period.isChecked():
                 p_mlp.setLogMode(True,False)        
                 p_mlp.plot(1/fit.mlp.freq, fit.mlp.power,pen={'color': fit.gls_colors[0], 'width': gls_model_width},symbol=None ) 
-
                 p_mlp.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
-                
             else:
                 p_mlp.setLogMode(False,False)        
                 p_mlp.plot(fit.mlp.freq, fit.mlp.power,pen={'color': fit.gls_colors[0], 'width': self.gls_model_width.value()},symbol=None )                
                 p_mlp.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
-                
-                
+
             #if fit.gls.norm == 'ZK':
             #    [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.mlp.powerLevel(np.array(power_levels)))]
  
@@ -2731,7 +2701,6 @@ Polyfit coefficients:
             self.cross_hair(p_mlp,log=self.radioButton_RV_MLP_period.isChecked())    
 
 
-
 ############ TLS ##############################      
        
     def worker_tls_complete(self, resid = False):
@@ -2739,9 +2708,9 @@ Polyfit coefficients:
  
         #start_time = time.time()   
         
-        if resid == False:     
+        if resid == False:
             self.update_tls_plots() 
-        else:    
+        else:
             self.update_tls_o_c_plots() 
                  
         self.statusBar().showMessage('')   
@@ -2758,29 +2727,28 @@ Polyfit coefficients:
             print("TLS Not found, try to install with 'pip install transitleastsquares'") 
             return
 
-
         self.calc_TLS.setEnabled(False)         
         self.calc_TLS_o_c.setEnabled(False)  
-        
+
         z=0
         for i in range(10):
             if len(fit.tra_data_sets[i]) != 0:
                 z=z+1
-        
+
         if z <= 0:
             choice = QtGui.QMessageBox.information(self, 'Warning!',
-            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
-            self.calc_TLS.setEnabled(True)         
+            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)
+            self.calc_TLS.setEnabled(True)
             return   
 
-        self.statusBar().showMessage('Looking for Transit events (TLS).... ')                 
+        self.statusBar().showMessage('Looking for Transit events (TLS).... ')
         worker_tls_ = Worker(lambda:  self.tls_search(resid = resid) )# Any other args, kwargs are passed to the run  
  
         worker_tls_.signals.finished.connect(lambda:  self.worker_tls_complete(resid = resid))
         
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
-        
+
         # worker.signals.result.connect(self.print_output)
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
@@ -2803,7 +2771,6 @@ Polyfit coefficients:
             fit.tls_o_c = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
         else:
             fit.tls = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
-
 
 
     def update_tls_plots(self): 
@@ -2839,27 +2806,25 @@ Transit duration: %s d
             text_peaks, pos_peaks = self.identify_power_peaks(fit.tls.periods,fit.tls.power,  sig_level = np.array([5.7,7.0,8.3] )   )
 
             self.label_peaks(p9, pos_peaks, GLS = False)
- 
+
             self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(text + text_peaks))   
-            
+
             return
 
-        else:    
+        else:
             text_err = pg.TextItem('Nothing to plot',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
             p9.addItem(text_err, ignoreBounds=True)   
             self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(""))            
             return
-     
-        
+
     def update_tls_o_c_plots(self): 
         global fit, p10, colors
-    
+
         if len(fit.tls_o_c) == 0:
             return
-    
+
         p10.plot(clear=True,) 
 
-            
         if self.tls_o_c_cross_hair.isChecked():
             self.cross_hair(p10,log=False) 
             
@@ -2885,29 +2850,27 @@ Transit duration: %s d
 #0.9999   9.1
             [p10.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
    
-            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls_o_c.periods,fit.tls_o_c.power,  sig_level = np.array([5.7,7.0,8.3] )   )
+            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls_o_c.periods,fit.tls_o_c.power,  sig_level = np.array([5.7,7.0,8.3] ) )
  
             self.label_peaks(p10, pos_peaks, GLS = False)
             
-            self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(text + text_peaks))          
+            self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(text + text_peaks))
             
             return
 
-        else:    
+        else:
             text_err = pg.TextItem('Nothing to plot',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
-            p10.addItem(text_err, ignoreBounds=True)   
-            self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(""))            
+            p10.addItem(text_err, ignoreBounds=True)
+            self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(""))
             return
 
 
-        
- ############ transit fitting (Work in progress here) ##############################      
-       
+############ transit fitting (Work in progress here) ##############################      
+
     def worker_transit_fitting_complete(self):
         global fit  
- 
-   
-       
+
+
         self.update_labels()
         self.update_gui_params()
         self.update_errors() 
@@ -5856,6 +5819,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.param_gui_wd      = gui_groups.param_gui_wd(self)
         self.use_param_gui_wd  = gui_groups.use_param_gui_wd(self)
         self.param_errors_gui_wd = gui_groups.param_errors_gui_wd(self)
+        self.om_dot_bounds_gui = gui_groups.om_dot_bounds_gui(self)
+
         
         self.param_gui_tr      = gui_groups.param_gui_tr(self)
         self.use_param_gui_tr  = gui_groups.use_param_gui_tr(self)
@@ -5901,10 +5866,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         
         self.arb_param_gui     = gui_groups.arb_param_gui(self)
         self.arb_param_gui_use = gui_groups.arb_param_gui_use(self)
- 
-    
-    
-    
+
         self.initialize_buttons()
         self.initialize_plots()   
  
@@ -6309,7 +6271,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.08). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.09). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)

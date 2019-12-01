@@ -278,16 +278,16 @@ def jitter_bounds_gui(self):
 
 ################### OmDot ########################
 
-#def om_dot_bounds_gui(self):
+def om_dot_bounds_gui(self):
 
-#    om_dot_bounds_gui = [
-#    [self.omega_dot_min_1.value(),self.omega_dot_max_1.value()], [self.omega_dot_min_2.value(),self.omega_dot_max_2.value()], 
-#    [self.omega_dot_min_3.value(),self.omega_dot_max_3.value()], [self.omega_dot_min_4.value(),self.omega_dot_max_4.value()], 
-#    [self.omega_dot_min_5.value(),self.omega_dot_max_5.value()], [self.omega_dot_min_6.value(),self.omega_dot_max_6.value()], 
-#    [self.omega_dot_min_7.value(),self.omega_dot_max_7.value()], [self.omega_dot_min_8.value(),self.omega_dot_max_8.value()], 
-#    [self.omega_dot_min_9.value(),self.omega_dot_max_9.value()] 
-#    ]  
-#    return om_dot_bounds_gui
+    om_dot_bounds_gui = [
+    [self.omega_dot_min_1,self.omega_dot_max_1], [self.omega_dot_min_2,self.omega_dot_max_2], 
+    [self.omega_dot_min_3,self.omega_dot_max_3], [self.omega_dot_min_4,self.omega_dot_max_4], 
+    [self.omega_dot_min_5,self.omega_dot_max_5], [self.omega_dot_min_6,self.omega_dot_max_6], 
+    [self.omega_dot_min_7,self.omega_dot_max_7], [self.omega_dot_min_8,self.omega_dot_max_8], 
+    [self.omega_dot_min_9,self.omega_dot_max_9] 
+    ]  
+    return om_dot_bounds_gui
 
 
 

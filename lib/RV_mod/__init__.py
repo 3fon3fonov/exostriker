@@ -3237,7 +3237,12 @@ class signal_fit(object):
         dt  = dt  * 86400.0        
         
         check_temp_RV_file(self)
-        
+
+        # bug fix. TBF
+        self.bound_error = False
+        self.bound_error_msg = ""
+        #########################
+
         if(minimize_loglik):
             minimized_value='loglik'
         else:
