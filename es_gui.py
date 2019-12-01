@@ -1073,48 +1073,31 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
         fit.arb_st_mass = self.arb_st_mass.value()
-        
-        arb_param_gui_use = [self.use_arb_Planet_1,self.use_arb_Planet_2,self.use_arb_Planet_3,
-                             self.use_arb_Planet_4,self.use_arb_Planet_5,self.use_arb_Planet_6,
-                             self.use_arb_Planet_7,self.use_arb_Planet_8,self.use_arb_Planet_9]
- 
-        
-        arb_param_gui = [
-                     self.arb_K_1, self.arb_P_1, self.arb_e_1, self.arb_om_1, self.arb_ma_1, self.arb_incl_1, self.arb_Om_1,
-                     self.arb_K_2, self.arb_P_2, self.arb_e_2, self.arb_om_2, self.arb_ma_2, self.arb_incl_2, self.arb_Om_2,
-                     self.arb_K_3, self.arb_P_3, self.arb_e_3, self.arb_om_3, self.arb_ma_3, self.arb_incl_3, self.arb_Om_3,
-                     self.arb_K_4, self.arb_P_4, self.arb_e_4, self.arb_om_4, self.arb_ma_4, self.arb_incl_4, self.arb_Om_4, 
-                     self.arb_K_5, self.arb_P_5, self.arb_e_5, self.arb_om_5, self.arb_ma_5, self.arb_incl_5, self.arb_Om_5,
-                     self.arb_K_6, self.arb_P_6, self.arb_e_6, self.arb_om_6, self.arb_ma_6, self.arb_incl_6, self.arb_Om_6,
-                     self.arb_K_7, self.arb_P_7, self.arb_e_7, self.arb_om_7, self.arb_ma_7, self.arb_incl_7, self.arb_Om_7, 
-                     self.arb_K_8, self.arb_P_8, self.arb_e_8, self.arb_om_8, self.arb_ma_8, self.arb_incl_8, self.arb_Om_8,
-                     self.arb_K_9, self.arb_P_9, self.arb_e_9, self.arb_om_9, self.arb_ma_9, self.arb_incl_9, self.arb_Om_9,
-                     ]
-        
+
         j = 0
         for i in range(9):
-            fit.pl_arb_use[i] = arb_param_gui_use[i].isChecked()
+            fit.pl_arb_use[i] = self.arb_param_gui_use[i].isChecked()
             
             if fit.pl_arb_use[i] == True:
                 j += 1
             
-            fit.e_arb[i]    = arb_param_gui[7*i + 2].value()    
-            fit.w_arb[i]    = arb_param_gui[7*i + 3].value()    
-            fit.M0_arb[i]   = arb_param_gui[7*i + 4].value()    
-            fit.i_arb[i]    = arb_param_gui[7*i + 5].value()    
-            fit.Node_arb[i] = arb_param_gui[7*i + 6].value()    
+            fit.e_arb[i]    = self.arb_param_gui[7*i + 2].value()    
+            fit.w_arb[i]    = self.arb_param_gui[7*i + 3].value()    
+            fit.M0_arb[i]   = self.arb_param_gui[7*i + 4].value()    
+            fit.i_arb[i]    = self.arb_param_gui[7*i + 5].value()    
+            fit.Node_arb[i] = self.arb_param_gui[7*i + 6].value()    
  
             if self.radioButton_KP.isChecked():
-                fit.K_arb[i]    = arb_param_gui[7*i + 0].value()    
-                fit.P_arb[i]    = arb_param_gui[7*i + 1].value()                 
+                fit.K_arb[i]    = self.arb_param_gui[7*i + 0].value()    
+                fit.P_arb[i]    = self.arb_param_gui[7*i + 1].value()                 
                # mass_,a_ = rv.mass_a_from_Kepler_fit([fit.K_arb[i],  fit.P_arb[i], fit.e_arb[i],  fit.w_arb[i], fit.M0_arb[i]],1,fit.arb_st_mass)
                 mass_,a_ = rv.mass_a_from_Kepler_fit([fit.K_arb[i]/np.sin(np.radians(fit.i_arb[i])),  fit.P_arb[i], fit.e_arb[i],  fit.w_arb[i], fit.M0_arb[i]],1,fit.arb_st_mass)
 
                 fit.mass_arb[i] = float(mass_[0])
                 fit.a_arb[i] = float(a_[0])
             else:                
-                fit.mass_arb[i] = arb_param_gui[7*i + 0].value()  
-                fit.a_arb[i]    = arb_param_gui[7*i + 1].value()  
+                fit.mass_arb[i] = self.arb_param_gui[7*i + 0].value()  
+                fit.a_arb[i]    = self.arb_param_gui[7*i + 1].value()  
             
         fit.npl_arb = j# np.count_nonzero(fit.pl_arb_use.values())
  
@@ -1272,13 +1255,11 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
        # self.buttonGroup_use_planets.setId(self.use_Planet7,7)
        # self.buttonGroup_use_planets.setId(self.use_Planet8,8)
        # self.buttonGroup_use_planets.setId(self.use_Planet9,9)
-        
-        
+
         self.colors_gls.setFont(self.font) 
         self.colors_gls_o_c.setFont(self.font) 
 
-      
-        
+
     def initialize_plots(self):
 
         global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp
@@ -1291,9 +1272,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         p6  = self.graphicsView_timeseries_correlations
                 
         p7  = self.graphicsView_peridogram_RV 
-        p8  = self.graphicsView_periodogram_RV_o_c  
+        p8  = self.graphicsView_periodogram_RV_o_c
         p9  = self.graphicsView_peridogram_phot
-        p10 = self.graphicsView_peridogram_phot_o_c        
+        p10 = self.graphicsView_peridogram_phot_o_c
         p11 = self.graphicsView_periodogram_activity
         p12 = self.graphicsView_periodogram_window  
         
@@ -1317,7 +1298,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         p_mlp = self.graphicsView_peridogram_RV_mlp
 
         xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x','x','period [d]']
-        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y','power']       
+        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y','power']
         xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','','']
         yunit = ['' ,'' , '','','','','','','','','','','','','','','','','','','','','','']
 
@@ -2544,11 +2525,11 @@ Polyfit coefficients:
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.colors[i]
             )  
-               
+
             err_ = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=rv_data[ph_data[3]==i],
             symbol=fit.pyqt_symbols_rvs[i], 
             top=error_list[ph_data[3]==i],
-            bottom=error_list[ph_data[3]==i],           
+            bottom=error_list[ph_data[3]==i],
             beam=0.0, pen=fit.colors[i]) 
             
             pe.addItem(err_)
@@ -2562,9 +2543,7 @@ Polyfit coefficients:
                 beam=0.0, pen='#000000')  
                 err_2.setZValue(-10)
                 pe.addItem(err_2) 
-                
-            
-        pe.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)                
+        pe.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)
         
         pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
         pe.setLabel('left',   'RV [m/s]', units='',  **{'font-size':'9pt'})  
@@ -2590,10 +2569,9 @@ Polyfit coefficients:
             pe.plot(1/fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
             pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
             pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
-           
         else:
-            pe.setLogMode(False,False)        
-            pe.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None )                    
+            pe.setLogMode(False,False)
+            pe.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
             pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
             pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
 
@@ -2617,7 +2595,6 @@ Polyfit coefficients:
             pe.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None ) 
             pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
             pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
-           
         else:
             pe.setLogMode(False,False)        
             pe.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None )                    
@@ -2720,8 +2697,8 @@ Polyfit coefficients:
  
         p_mlp.plot(clear=True,)   
         
-        self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])               
-                          
+        self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])
+
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
         gls_model_width = float(self.gls_model_width.value())
     
@@ -2752,14 +2729,7 @@ Polyfit coefficients:
 
         if self.mlp_cross_hair.isChecked():
             self.cross_hair(p_mlp,log=self.radioButton_RV_MLP_period.isChecked())    
-  
-    
-    
-    
-    
-    
-    
-    
+
 
 
 ############ TLS ##############################      
@@ -2948,8 +2918,12 @@ Transit duration: %s d
         self.statusBar().showMessage('')  
         
         self.button_fit.setEnabled(True)         
-        self.update_transit_plots()  
-     
+        
+        if fit.bound_error == True:
+            self.get_error_msg(fit.bound_error_msg)
+            return
+
+        self.update_transit_plots()
         if fit.type_fit["RV"] == True:
             for i in range(fit.npl):
                 rv.phase_RV_planet_signal(fit,i+1) 
@@ -3767,8 +3741,11 @@ Transit duration: %s d
                  
         self.statusBar().showMessage('')   
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
-  
         self.button_fit.setEnabled(True)  
+        if fit.bound_error == True:
+            self.get_error_msg(fit.bound_error_msg)
+            return
+        
         self.run_gls()
         self.run_gls_o_c()     
 
@@ -3960,13 +3937,11 @@ Transit duration: %s d
 
         text = "p-value   \t" + "\t".join(["%1.5f"%(1-ci) for ci in conf_int])        
         self.dialog_chi_table.text.append(text)        
- 
-    
+
         for d in dof:
             chi_squared = [stat.chi2.ppf( ci, d) for ci in conf_int ]
             text = "chi2(k=%d)\t"%d + "\t".join(["%1.2f" % c for c in chi_squared])     
             self.dialog_chi_table.text.append(text)  
-
 
         self.dialog_chi_table.text.setReadOnly(True)       
    
@@ -3998,28 +3973,26 @@ Transit duration: %s d
         self.dialog_credits.text.append(text) 
         
         text = "* " + "<a href='https://github.com/dfm/celerite'>celerite</a>" 
-        self.dialog_credits.text.append(text)  
+        self.dialog_credits.text.append(text)
                                 
         text = "* " + "<a href='https://github.com/lkreidberg/batman'>batman-package</a>" 
         self.dialog_credits.text.append(text)
         
         text = "* " + "<a href='https://github.com/hippke/tls'>Transit Least Squares</a>" 
-        self.dialog_credits.text.append(text)             
+        self.dialog_credits.text.append(text)
 
         text = "* " + "<a href='https://www.boulder.swri.edu/~hal/swift.html'>swift</a>" 
-        self.dialog_credits.text.append(text)        
+        self.dialog_credits.text.append(text)
                         
         text = "* " + "<a href='https://github.com/jupyter/qtconsole'>qtconsole</a>"
-        self.dialog_credits.text.append(text)        
+        self.dialog_credits.text.append(text)
 
         text = "* " + "<a href='https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor'>megasolid idiom</a>" 
         self.dialog_credits.text.append(text)  
         
         text = "* " + "<a href='https://dynesty.readthedocs.io/en/latest/'>dynesty</a>" 
-        self.dialog_credits.text.append(text)          
-       
-        
-        
+        self.dialog_credits.text.append(text)
+
         text = "(A few more to be added) \n" 
         self.dialog_credits.text.append(text)   
 
@@ -4037,17 +4010,11 @@ problems, too.
 Feedback and help in further developing will be 
 highly appreciated!
 """
-        self.dialog_credits.text.append(text)   
-  
-        self.dialog_credits.text.setReadOnly(True)       
-        
+        self.dialog_credits.text.append(text)
+        self.dialog_credits.text.setReadOnly(True)
         self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(./lib/UI/33_striker.png) 0 0 0 0 stretch stretch;} ")
-
         #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
-        
         self.dialog_credits.show()
-        
-  
 
     def run_nest_samp(self):
         global fit
@@ -5931,7 +5898,13 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.param_t_peri_gui = gui_groups.param_t_peri_gui(self)
         
         self.planet_checked_gui = gui_groups.planet_checked_gui(self)
-
+        
+        self.arb_param_gui     = gui_groups.arb_param_gui(self)
+        self.arb_param_gui_use = gui_groups.arb_param_gui_use(self)
+ 
+    
+    
+    
         self.initialize_buttons()
         self.initialize_plots()   
  

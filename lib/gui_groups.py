@@ -276,6 +276,20 @@ def jitter_bounds_gui(self):
     return jitter_bounds_gui
 
 
+################### OmDot ########################
+
+#def om_dot_bounds_gui(self):
+
+#    om_dot_bounds_gui = [
+#    [self.omega_dot_min_1.value(),self.omega_dot_max_1.value()], [self.omega_dot_min_2.value(),self.omega_dot_max_2.value()], 
+#    [self.omega_dot_min_3.value(),self.omega_dot_max_3.value()], [self.omega_dot_min_4.value(),self.omega_dot_max_4.value()], 
+#    [self.omega_dot_min_5.value(),self.omega_dot_max_5.value()], [self.omega_dot_min_6.value(),self.omega_dot_max_6.value()], 
+#    [self.omega_dot_min_7.value(),self.omega_dot_max_7.value()], [self.omega_dot_min_8.value(),self.omega_dot_max_8.value()], 
+#    [self.omega_dot_min_9.value(),self.omega_dot_max_9.value()] 
+#    ]  
+#    return om_dot_bounds_gui
+
+
 
 ################### GP ########################
 
@@ -433,3 +447,46 @@ def planet_checked_gui(self):
 
 
         
+
+
+
+
+
+
+
+
+######################### Arb N-body #################################
+    
+def arb_param_gui(self): 
+
+    arb_param_gui = [
+                 self.arb_K_1, self.arb_P_1, self.arb_e_1, self.arb_om_1, self.arb_ma_1, self.arb_incl_1, self.arb_Om_1,
+                 self.arb_K_2, self.arb_P_2, self.arb_e_2, self.arb_om_2, self.arb_ma_2, self.arb_incl_2, self.arb_Om_2,
+                 self.arb_K_3, self.arb_P_3, self.arb_e_3, self.arb_om_3, self.arb_ma_3, self.arb_incl_3, self.arb_Om_3,
+                 self.arb_K_4, self.arb_P_4, self.arb_e_4, self.arb_om_4, self.arb_ma_4, self.arb_incl_4, self.arb_Om_4, 
+                 self.arb_K_5, self.arb_P_5, self.arb_e_5, self.arb_om_5, self.arb_ma_5, self.arb_incl_5, self.arb_Om_5,
+                 self.arb_K_6, self.arb_P_6, self.arb_e_6, self.arb_om_6, self.arb_ma_6, self.arb_incl_6, self.arb_Om_6,
+                 self.arb_K_7, self.arb_P_7, self.arb_e_7, self.arb_om_7, self.arb_ma_7, self.arb_incl_7, self.arb_Om_7, 
+                 self.arb_K_8, self.arb_P_8, self.arb_e_8, self.arb_om_8, self.arb_ma_8, self.arb_incl_8, self.arb_Om_8,
+                 self.arb_K_9, self.arb_P_9, self.arb_e_9, self.arb_om_9, self.arb_ma_9, self.arb_incl_9, self.arb_Om_9,
+                 ]
+    return arb_param_gui
+
+
+def arb_param_gui_use(self): 
+    arb_param_gui_use = [
+            self.use_arb_Planet_1,self.use_arb_Planet_2,self.use_arb_Planet_3,
+            self.use_arb_Planet_4,self.use_arb_Planet_5,self.use_arb_Planet_6,
+            self.use_arb_Planet_7,self.use_arb_Planet_8,self.use_arb_Planet_9
+            ]
+ 
+    return arb_param_gui_use
+
+
+
+
+
+
+
+
+
