@@ -34,8 +34,8 @@ from __future__ import print_function, division
 import numpy as np
 from numpy import sum, pi, cos, sin, arctan2, exp, log, sqrt,\
                   dot, argmax, arange
-from pause import *
-from gplot import *
+#from pause import *
+#from gplot import *
 from scipy import optimize as op
 
 __version__ = '2017-11-08'
@@ -479,7 +479,7 @@ class Gls:
            print("Offset %d:             %f +/- %f" % (j, off, self.hpstat["offset_err"]))
         #for j,jit in enumerate(self.hpstat["jitter"]:
         #   print("Jitter %d:             %f +/- %f" % (j, jit, self.hpstat["offset_err"]))
-        pause()
+        #pause()
         print("-----------------------------------")
 
     def plot(self, block=False, period=False):
@@ -567,7 +567,7 @@ class Gls:
            plt.ion()
         plt.show()
         # plt.show(block=block) # unexpected keyword argument 'block' in older matplotlib
-        pause()
+        #pause()
         return plt
 
     def prob(self, Pn):
