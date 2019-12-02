@@ -38,6 +38,14 @@ from numpy import sum, pi, cos, sin, arctan2, exp, log, sqrt,\
 #from gplot import *
 from scipy import optimize as op
 
+
+# for python3: emulate the nice python2 behaviour of map and zip 
+xmap = map 
+map = lambda *x: list(xmap(*x)) 
+xzip = zip 
+zip = lambda *x: list(xzip(*x)) 
+
+
 __version__ = '2017-11-08'
 __author__ = 'Mathias Zechmeister, Stefan Czesla'
 
