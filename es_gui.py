@@ -2540,21 +2540,21 @@ Polyfit coefficients:
         pe.plot(clear=True,)   
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
 
- 
-        ######################## GLS ##############################
-        if self.radioButton_RV_GLS_period.isChecked():
-            pe.setLogMode(True,False)        
-            pe.plot(1/fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-            pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
-            pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
-        else:
-            pe.setLogMode(False,False)
-            pe.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-            pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
-            pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
-
-        if fit.gls.norm == 'ZK':
-            [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
+        if len(fit.fit_results.rv_model.jd) > 5:
+            ######################## GLS ##############################
+            if self.radioButton_RV_GLS_period.isChecked():
+                pe.setLogMode(True,False)        
+                pe.plot(1/fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
+                pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
+                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
+            else:
+                pe.setLogMode(False,False)
+                pe.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
+                pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
+                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
+    
+            if fit.gls.norm == 'ZK':
+                [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
 
 
         if self.extra_plot_cross_hair.isChecked():
@@ -2566,22 +2566,22 @@ Polyfit coefficients:
         pe.plot(clear=True,)
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
 
-
+        if len(fit.fit_results.rv_model.jd) > 5:
         ######################## GLS o-c ##############################
-        if self.radioButton_RV_o_c_GLS_period.isChecked():
-            pe.setLogMode(True,False)        
-            pe.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None ) 
-            pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
-            pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
-        else:
-            pe.setLogMode(False,False)        
-            pe.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None )                    
-            pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
-            pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
-
-
-        if fit.gls.norm == 'ZK':
-            [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]
+            if self.radioButton_RV_o_c_GLS_period.isChecked():
+                pe.setLogMode(True,False)        
+                pe.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None ) 
+                pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
+                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
+            else:
+                pe.setLogMode(False,False)        
+                pe.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None )                    
+                pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
+                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
+    
+    
+            if fit.gls.norm == 'ZK':
+                [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]
 
         if self.extra_plot_cross_hair.isChecked():
             self.cross_hair(pe,log=self.radioButton_RV_o_c_GLS_period.isChecked())   

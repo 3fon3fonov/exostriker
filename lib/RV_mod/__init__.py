@@ -3721,6 +3721,12 @@ class signal_fit(object):
         # self.par_for_mcmc = np.array(self.par_for_mcmc )
       #  self.f_for_mcmc = np.array(self.f_for_mcmc )
        # print(self.b_for_mcmc)
+        self.par_for_mcmc = np.array(self.par_for_mcmc)
+        self.f_for_mcmc = np.array(self.f_for_mcmc)
+        self.e_for_mcmc = np.array(self.e_for_mcmc)
+        self.b_for_mcmc = np.array(self.b_for_mcmc)
+        self.nr_pr_for_mcmc = np.array(self.nr_pr_for_mcmc)
+        self.jeff_pr_for_mcmc = np.array(self.jeff_pr_for_mcmc)
  
         preparingwarnings.print_warning_log()
         return                  
