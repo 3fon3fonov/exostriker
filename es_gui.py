@@ -1289,7 +1289,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         p_mlp = self.graphicsView_peridogram_RV_mlp
 
         xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x','x','period [d]']
-        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y','power']
+        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y','dlnL']
         xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','','']
         yunit = ['' ,'' , '','','','','','','','','','','','','','','','','','','','','','']
 
@@ -1721,7 +1721,9 @@ Polyfit coefficients:
             elif activity == True:
                 log = self.radioButton_act_GLS_period.isChecked()             
             elif MLP == True:
-                log = self.radioButton_RV_MLP_period.isChecked()             
+                log = self.radioButton_RV_MLP_period.isChecked()
+                N_peaks = int(self.N_MLP_peak_to_point.value())
+
             else:
                 log = self.radioButton_RV_GLS_period.isChecked()
                 
@@ -2623,7 +2625,7 @@ Polyfit coefficients:
         #    self.calc_TLS.setEnabled(True)         
         #    return   
 
-        self.statusBar().showMessage('Running MLP .... ')                 
+        self.statusBar().showMessage('Running MLP .... This might take some time!')                 
         worker_mlp_ = Worker(lambda:  self.mlp_search(resid = resid) )# Any other args, kwargs are passed to the run  
  
         worker_mlp_.signals.finished.connect(lambda:  self.worker_mlp_complete(resid = resid))
@@ -2644,16 +2646,16 @@ Polyfit coefficients:
         #else:
         #    lc_data = fit.tra_data_sets[0][1]
 
-        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
+        omega = 1/ np.logspace(np.log10(self.mlp_min_period.value()), np.log10(self.mlp_max_period.value()), num=int(self.mlp_n_omega.value()))
         ind_norm = self.gls_norm_combo.currentIndex()
 
-        xx = fit.fit_results.rv_model.jd.tolist()
-        yy = fit.fit_results.rv_model.rvs.tolist()
-        ye = fit.fit_results.rv_model.rv_err.tolist()
+        xx = fit.fit_results.rv_model.jd #.tolist()
+        yy = fit.fit_results.rv_model.rvs #.tolist()
+        ye = fit.fit_results.rv_model.rv_err #.tolist()
         
         if len(fit.fit_results.rv_model.jd) > 5:      
             RV_per = mlp.Gls([(xx,yy,ye)], fast=True,  verbose=False,
-            ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[0], norm='dlnL')
+            ofac=self.mlp_ofac.value(), fbeg=omega[-1], fend=omega[0], norm='dlnL')
 
         else:
             return
@@ -2672,7 +2674,9 @@ Polyfit coefficients:
 
         self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])
 
-        power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
+        #power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
+        power_levels = np.array([5,10,15])
+
         gls_model_width = float(self.gls_model_width.value())
 
         if len(fit.fit_results.rv_model.jd) > 5:
@@ -2690,7 +2694,8 @@ Polyfit coefficients:
             #if fit.gls.norm == 'ZK':
             #    [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.mlp.powerLevel(np.array(power_levels)))]
  
-            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels, sig_level = fit.mlp.powerLevel(np.array(power_levels)) )   
+#            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels, sig_level = fit.mlp.powerLevel(np.array(power_levels)) )   
+            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels, sig_level =np.array(power_levels) )   
 
             self.label_peaks(p_mlp, pos_peaks, GLS = True, MLP = True)
 
@@ -3922,11 +3927,14 @@ Transit duration: %s d
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.01) \n developed by 3fon3fonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.10) \n developed by 3fon3fonov"
         
         self.dialog_credits.text.append(text)
 
         text = "\n"*15 +"CREDITS:"+"\n"*2 + "This tool uses the publically \n available packages: \n" 
+        self.dialog_credits.text.append(text)
+        
+        text = "* " + "<a href='https://github.com/mzechmeister/python'>GLS and MLP periogograms</a>"
         self.dialog_credits.text.append(text)
         
         text = "* " + "<a href='https://github.com/pyqtgraph/pyqtgraph'>pyqtgraph</a>"
@@ -5750,30 +5758,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
 
     #def update_inspector(self):
    #     self.tree_view_tab.listview.clicked.connect(self.plot_data_inspect)
-   
 
-    def run_mlp(self):
-        global fit
-                
-        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
-        ind_norm = self.gls_norm_combo.currentIndex()
-
-        if len(fit.fit_results.rv_model.jd) > 5:  
-            
-            gls_ts = [(fit.fit_results.rv_model.jd, fit.fit_results.rv_model.rvs, fit.fit_results.rv_model.rv_err)]
-            import mlp as mlp
-            RV_per = mlp.Gls(gls_ts, 
-            fast=True,  verbose=False, norm='dlnL',ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[0],)
-            
-            fit.gls = RV_per
-        else:
-            return
-        
-        self.update_RV_GLS_plots()     
-
-   
- 
- 
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.ToolTip:  # Catch the TouchBegin event.
            # helpEvent = event
@@ -6009,8 +5994,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.actionGet_RV_data.triggered.connect(self.get_RV_data)     
         
         self.actionGet_Orb_evol.triggered.connect(self.get_orb_evol)   
-        
-        
+
+
         ############ Sessions #################
         
         self.actionNew_session.triggered.connect(self.new_session)
@@ -6028,7 +6013,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.copy_ses.clicked.connect(self.cop_ses)
         self.remove_ses.clicked.connect(self.rem_ses)
   
-        self.actionvisit_TRIFON_on_GitHub.triggered.connect(lambda: webbrowser.open('https://github.com/3fon3fonov/trifon'))    
+        self.actionvisit_TRIFON_on_GitHub.triggered.connect(lambda: webbrowser.open('https://github.com/3fon3fonov/exostriker'))    
         self.actionCredits.triggered.connect(lambda: self.print_info_credits())
         self.actionConfidence_Intervals_Table.triggered.connect(lambda: self.print_chi_table())
 
@@ -6049,8 +6034,6 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.radioButton_lz.clicked.connect(self.plot_energy)
 
 
-
-        
         self.MMR_combo()
         self.comboBox_MMR_pl_1.activated.connect(self.theta_combo)
         self.comboBox_MMR_pl_1.activated.connect(self.plot_theta)
@@ -6060,7 +6043,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         #self.comboBox_MMR_which_pl_1.activated.connect(self.theta_combo)
         self.comboBox_MMR_which_pl_1.activated.connect(self.plot_theta)
         #self.comboBox_MMR_which_pl_2.activated.connect(self.theta_combo)
-        self.comboBox_MMR_which_pl_2.activated.connect(self.plot_theta)        
+        self.comboBox_MMR_which_pl_2.activated.connect(self.plot_theta)
         
         
       #  self.insp_data_size.valueChanged.connect(self.update_inspector)
@@ -6090,6 +6073,10 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.N_GLS_peak_to_point.valueChanged.connect(self.update_RV_o_c_GLS_plots)
         self.avoid_GLS_RV_alias.stateChanged.connect(self.update_RV_GLS_plots)
         self.avoid_GLS_RV_alias.stateChanged.connect(self.update_RV_o_c_GLS_plots)
+        
+        self.N_MLP_peak_to_point.valueChanged.connect(self.update_RV_MLP_plots)
+        self.avoid_MLP_RV_alias.stateChanged.connect(self.update_RV_MLP_plots)
+
         
         self.N_TLS_peak_to_point.valueChanged.connect(self.update_tls_plots)
         self.N_TLS_peak_to_point.valueChanged.connect(self.update_tls_o_c_plots)        
@@ -6271,7 +6258,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.09). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.10). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)

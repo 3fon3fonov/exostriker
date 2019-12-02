@@ -17,15 +17,17 @@ Also, please keep in mind that this software is developed mostly for my needs an
 
 What works:
 
-* Period search: GLS periodograms (RVs, act. data) & TLS (transit data).
+* RV period search: via GLS periodogram & maximum lnL periodogram (MLP).
+* Activity index period search via GLS periodogram.
+* Transit period search via TLS.
 * Keplerian and Dynamical RV modeling. 
 * Transit photometry modeling.
 * GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
 * Joint RVs + Transit + GPs best-fit optimization.
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty").
 * RV auto-fit (RV automated planet-finder algorithm).
-* Fit for orbital precession, or apply GR precession. 
-* Instant AMD/Hill stability check for multiple planetary systems.
+* Fit for apsidal orbital precession, or apply GR precession. 
+* Instant AMD stability check for multiple planetary systems.
 * Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.
 * Various of minimization methods (via "SciPyOp").
 * Fully interactive, super-fast, high-quality, exportable plots.
