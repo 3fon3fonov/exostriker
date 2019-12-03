@@ -292,7 +292,7 @@ class Gls:
         nll = lambda *args: -self.lnL(*args)
         #a0 = [0.]*self.Nj + [3.]*self.Nj # start guess for first frequency
         a0 = map(np.mean, self.y) + map(np.std, self.y) 
-        print(a0)
+        #print(a0)
 
         # The model with only offset c
         a0 = op.fmin_powell(nll, a0, args=(self.th, self.y, self.e_y, mod_c), disp=False)
@@ -302,7 +302,7 @@ class Gls:
 
         self.chisqr = chisqr
         self.wtrms = wtrms
-        print(sum(L), L, a0)
+        #print(sum(L), L, a0)
         a = [0., 0.] + list(a0) # start guess for first frequency
         a = [np.median(a0[len(a0)//2:])]*2 + list(a0) # start guess for first frequency
         for k, omega in enumerate(2.*pi*self.freq):
@@ -321,7 +321,7 @@ class Gls:
           self._chisqr[k] = chisqr
           self.lnML[k] = sum(L)
           self._wtrms[k] = wtrms
-          print(k, self.nf, L)
+         # print(k, self.nf, L)
           #pause()
         self.p = self.lnML
         #pause()
