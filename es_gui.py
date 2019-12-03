@@ -2626,16 +2626,16 @@ Polyfit coefficients:
         #    return   
 
         self.statusBar().showMessage('Running MLP .... This might take some time!')                 
-        worker_mlp_ = Worker(lambda:  self.mlp_search(resid = resid) )# Any other args, kwargs are passed to the run  
+        worker_mlp_wk = Worker(lambda:  self.mlp_search(resid = resid) )# Any other args, kwargs are passed to the run  
  
-        worker_mlp_.signals.finished.connect(lambda:  self.worker_mlp_complete(resid = resid))
+        worker_mlp_wk.signals.finished.connect(lambda:  self.worker_mlp_complete(resid = resid))
 
-        #self.tabWidget_helper.setCurrentWidget(self.tab_info)
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
         # worker.signals.result.connect(self.print_output)
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker_mlp_)       
+        self.threadpool.start(worker_mlp_wk)       
      
 
     def mlp_search(self, resid = False):
