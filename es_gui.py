@@ -1131,7 +1131,18 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data8,8)
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data9,9)
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data10,10)
-             
+        
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_1,1)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_2,2)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_3,3)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_4,4)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_5,5)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_6,6)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_7,7)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_8,8)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_9,9)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_10,10)
+ 
         self.buttonGroup_transit_data.setId(self.Button_transit_data_1,1)
         self.buttonGroup_transit_data.setId(self.Button_transit_data_2,2)
         self.buttonGroup_transit_data.setId(self.Button_transit_data_3,3)
@@ -2185,6 +2196,17 @@ Polyfit coefficients:
             self.update_act_file_buttons()
             #self.update_activity_gls_plots(0)
             #self.buttonGroup_activity_data.button(but_ind).setText(self.file_from_path(input_files[0]))          
+
+    def apply_rv_data_options(self):
+        global fit
+        but_ind = self.buttonGroup_apply_rv_data_options.checkedId()
+
+        if self.add_rv_error[but_ind-1][1].isChecked():
+            rv.modify_temp_RV_file(fit, file_n = but_ind-1, add_error = self.add_rv_error[but_ind-1][0].value())
+        else:
+            return
+        self.update_veiw()
+
 
     def showDialog_RV_input_file(self):
         global fit
@@ -5743,15 +5765,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             
             self.label_K_mass_arb.setText("mass [Mj]")
             self.label_P_a_arb.setText("a [au]")
-     
- 
-   # def layout_widgets(layout):
-    #   return (layout.itemAt(i) for i in range(layout.count()))
 
 
-        
-
-      
     def set_force_copl_incl(self):
         global fit   
         fit.copl_incl = self.force_copl_incl.isChecked()
@@ -5851,6 +5866,9 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         
         self.arb_param_gui     = gui_groups.arb_param_gui(self)
         self.arb_param_gui_use = gui_groups.arb_param_gui_use(self)
+        
+        self.add_rv_error= gui_groups.add_rv_error(self)
+         
 
         self.initialize_buttons()
         self.initialize_plots()   
@@ -5922,7 +5940,9 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
     
         self.dialog = print_info(self)
         self.dialog_credits = print_info(self)
-        self.dialog_chi_table = print_info(self)      
+        self.dialog_chi_table = print_info(self)
+        
+        self.buttonGroup_apply_rv_data_options.buttonClicked.connect(self.apply_rv_data_options)
 
         self.buttonGroup_add_RV_data.buttonClicked.connect(self.showDialog_RV_input_file)
         self.buttonGroup_remove_RV_data.buttonClicked.connect(self.remove_RV_file)

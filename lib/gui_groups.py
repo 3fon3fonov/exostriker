@@ -448,10 +448,16 @@ def planet_checked_gui(self):
 
         
 
-
-
-
-
+def add_rv_error(self): 
+    add_rv_error = [
+            [self.inflate_RV_sigma_1,self.use_inflate_RV_sigma_1],[self.inflate_RV_sigma_2,self.use_inflate_RV_sigma_2],
+            [self.inflate_RV_sigma_3,self.use_inflate_RV_sigma_3],[self.inflate_RV_sigma_4,self.use_inflate_RV_sigma_4],
+            [self.inflate_RV_sigma_5,self.use_inflate_RV_sigma_5],[self.inflate_RV_sigma_6,self.use_inflate_RV_sigma_6],
+            [self.inflate_RV_sigma_7,self.use_inflate_RV_sigma_7],[self.inflate_RV_sigma_8,self.use_inflate_RV_sigma_8],
+            [self.inflate_RV_sigma_9,self.use_inflate_RV_sigma_9],[self.inflate_RV_sigma_10,self.use_inflate_RV_sigma_10]
+            ]
+ 
+    return add_rv_error
 
 
 
