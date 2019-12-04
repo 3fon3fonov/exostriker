@@ -558,32 +558,53 @@ def export_orbital_evol(obj, file="orb_evol.txt", planet = 1, width = 10, precis
     return 
 
 def check_temp_RV_file(obj):
-#        global fit,ses_list
-    
-    #print(fit_new.filelist.ndset)
- 
+
     for i in range(obj.filelist.ndset):
-       #print(obj.rv_data_sets[i][0][j])
+
         if os.path.exists(obj.filelist.files[i].path):
             continue
         else:
             dirname, basename = os.path.split(obj.filelist.files[i].path)
-            #print(dirname)
             os.makedirs(dirname)
             f  = open(obj.filelist.files[i].path, 'wb') # open the file  
-        
             for j in range(len(obj.rv_data_sets[i+1][0])):
-                #print(j)
                 if str(obj.rv_data_sets[i+1][0][j]).startswith("#"):
-                    continue                                   
+                    continue
                 text = b"%s  %s  %s \n"%(bytes(str(obj.rv_data_sets[i+1][0][j]).encode()),bytes(str(obj.rv_data_sets[i+1][1][j]).encode()),bytes(str(obj.rv_data_sets[i+1][2][j]).encode()) )
-                #text = "{0:13.5f} {1:8.3f} {2:6.3f} \n".format(obj.rv_data_sets[i+1][0][j],obj.rv_data_sets[i+1][1][j],obj.rv_data_sets[i+1][2][j])
-               # print(text)
-                
                 f.write(text)
-                
             f.close()
-            
+
+
+
+def modify_temp_RV_file(obj, file_n = 0, add_error = 0):
+
+    if obj.filelist.ndset < file_n +1:
+        print("No RV file # %s"%(file_n+1))
+        return
+    elif not os.path.exists(obj.filelist.files[file_n].path):
+        return
+    else:
+        if add_error < 0:
+            sign = -1
+        else:
+            sign = 1
+        new_error = []
+        for j in range(len(obj.rv_data_sets[file_n+1][0])):
+            k = obj.rv_data_sets[file_n+1][2][j]**2 + add_error**2 *sign
+            if k < 0:
+                print("You seem to subtract %s from the error budget. As a result, the RV uncertainty of one or more elements would be negative. Errors cannot be negative. Please subtract another value"%add_error)
+                return
+            new_error.append(k)
+        f  = open(obj.filelist.files[file_n].path, 'wb') # open the file  
+        for j in range(len(obj.rv_data_sets[file_n+1][0])):
+            obj.rv_data_sets[file_n+1][2][j] = np.sqrt(new_error[j])
+            if str(obj.rv_data_sets[file_n+1][0][j]).startswith("#"):
+                continue
+            text = b"%s  %s  %s \n"%(bytes(str(obj.rv_data_sets[file_n+1][0][j]).encode()),bytes(str(obj.rv_data_sets[file_n+1][1][j]).encode()),bytes(str(obj.rv_data_sets[file_n+1][2][j]).encode()) )
+            f.write(text)
+        f.close()
+
+
 
 ### some experimets! ###
 def gen_RV_curve(obj,x=None):
