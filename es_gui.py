@@ -1187,6 +1187,30 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_remove_activity_data.setId(self.remove_activity_data9,9)
         self.buttonGroup_remove_activity_data.setId(self.remove_activity_data10,10)       
         
+
+        self.buttonGroup_ttv_data.setId(self.Button_ttv_data_1,1)
+        self.buttonGroup_ttv_data.setId(self.Button_ttv_data_2,2)
+        self.buttonGroup_ttv_data.setId(self.Button_ttv_data_3,3)
+        self.buttonGroup_ttv_data.setId(self.Button_ttv_data_4,4)
+        self.buttonGroup_ttv_data.setId(self.Button_ttv_data_5,5)
+        self.buttonGroup_ttv_data.setId(self.Button_ttv_data_6,6)
+        self.buttonGroup_ttv_data.setId(self.Button_ttv_data_7,7)
+        self.buttonGroup_ttv_data.setId(self.Button_ttv_data_8,8)
+        self.buttonGroup_ttv_data.setId(self.Button_ttv_data_9,9)
+        self.buttonGroup_ttv_data.setId(self.Button_ttv_data_10,10)
+        
+
+        self.buttonGroup_remove_ttv_data.setId(self.remove_ttv_data_1,1)
+        self.buttonGroup_remove_ttv_data.setId(self.remove_ttv_data_2,2)
+        self.buttonGroup_remove_ttv_data.setId(self.remove_ttv_data_3,3)
+        self.buttonGroup_remove_ttv_data.setId(self.remove_ttv_data_4,4)
+        self.buttonGroup_remove_ttv_data.setId(self.remove_ttv_data_5,5)
+        self.buttonGroup_remove_ttv_data.setId(self.remove_ttv_data_6,6)
+        self.buttonGroup_remove_ttv_data.setId(self.remove_ttv_data_7,7)
+        self.buttonGroup_remove_ttv_data.setId(self.remove_ttv_data_8,8)
+        self.buttonGroup_remove_ttv_data.setId(self.remove_ttv_data_9,9)
+        self.buttonGroup_remove_ttv_data.setId(self.remove_ttv_data_10,10)
+        
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_1,1)
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_2,2)
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_3,3)
@@ -1264,7 +1288,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def initialize_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc
 
         p1  = self.graphicsView_timeseries_RV
         p2  = self.graphicsView_timeseries_RV_o_c
@@ -1298,13 +1322,16 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         pcor = self.graphicsView_corner
         p_mlp = self.graphicsView_peridogram_RV_mlp
+        
+        p_ttv = self.graphicsView_timeseries_ttv
+        p_ttv_oc = self.graphicsView_timeseries_ttv_o_c
 
-        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x','x','period [d]']
-        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y','dlnL']
-        xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','','']
-        yunit = ['' ,'' , '','','','','','','','','','','','','','','','','','','','','','']
+        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x','x','period [d]','N transit','N transit']
+        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]']
+        xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','','','','']
+        yunit = ['' ,'' , '','','','','','','','','','','','','','','','','','','','','','','','']
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc]
  
         for i in range(len(zzz)):
  
@@ -2088,7 +2115,7 @@ Polyfit coefficients:
         self.update_orb_plot()
         #self.change_extra_plot()
         self.update_transit_plots()    
- 
+        self.update_ttv_plots()
 
 
     def rv_plot_phase_change(self):
@@ -2377,6 +2404,57 @@ Polyfit coefficients:
 
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
         self.init_correlations_combo()
+
+
+
+
+################################ TTV files #######################################################
+        
+    def showDialog_ttv_input_file(self):
+        global fit
+
+        but_ind = self.buttonGroup_ttv_data.checkedId()   
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open TTV data', '', 'All (*.*);;Data (*.ttv)')
+
+        if str(input_files[0]) != '':
+ 
+            fit.add_ttv_dataset('test', str(input_files[0]),ttv_idset =but_ind-1)
+            self.init_fit()            
+            #self.update_use_from_input_file()            
+            #self.update_use()
+            #self.update_params()
+            self.update_ttv_file_buttons()
+#            self.update_activity_gls_plots(but_ind-1)
+            self.buttonGroup_ttv_data.button(but_ind).setText(self.file_from_path(input_files[0]))
+
+            #self.handleActivated_act_gls(but_ind-1)
+            
+    def remove_ttv_file(self):
+        global fit
+
+        but_ind = self.buttonGroup_remove_ttv_data.checkedId()   
+        fit.remove_ttv_dataset(but_ind -1)
+       # self.init_fit()         
+      #  self.update_use_from_input_file()   
+      #  self.update_use()
+      #  self.update_gui_params()
+     #   self.update_params()
+        self.update_ttv_file_buttons()
+
+    def update_ttv_file_buttons(self):
+        global fit, colors          
+
+        for i in range(10):
+            if len(fit.ttv_data_sets[i]) != 0:
+                self.buttonGroup_ttv_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_remove_ttv_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+            else:
+                self.buttonGroup_ttv_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_remove_ttv_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_ttv_data.button(i+1).setText("data %s"%(i+1))
+
+                #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
+        #self.init_correlations_combo()
 
 
 ##################################### Various ################################# 
@@ -2892,7 +2970,7 @@ Transit duration: %s d
             return
 
 
-############ transit fitting (Work in progress here) ##############################      
+############ transit fitting ##############################      
 
     def worker_transit_fitting_complete(self):
         global fit  
@@ -3208,6 +3286,89 @@ Transit duration: %s d
         #    p3.plot(t, flux_model,pen='k',symbol=None )     
   
 
+
+#### TTV plots ################ 
+    def update_ttv_plots(self): 
+        global fit, p_ttv, p_ttv_oc, colors
+    
+        p_ttv.plot(clear=True,) 
+        p_ttv_oc.plot(clear=True,)         
+           
+        #self.check_tra_symbol_sizes()
+
+        ttv_files = []
+        
+        for i in range(10):
+            if len(fit.ttv_data_sets[i]) != 0:
+                ttv_files.append(fit.ttv_data_sets[i])
+        
+        for j in range(len(ttv_files)):        
+        
+        #if len(fit.tra_data_sets[0]) != 0:
+            t = np.array(ttv_files[j][0])
+            flux = np.array(ttv_files[j][1])
+            flux_err = np.array(ttv_files[j][2])
+ 
+            
+            p_ttv.plot(t, flux,        
+            pen=None,  
+            symbol=fit.pyqt_symbols_tra[i],
+            symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
+            symbolSize=fit.pyqt_symbols_size_tra[i],enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.tra_colors[j] ) 
+            
+            err_ = pg.ErrorBarItem(x=t, y=flux, symbol='o',
+                                  # height=flux_err, 
+                                   top=flux_err, 
+                                   bottom=flux_err,                                    
+                                   beam=0.0, pen=fit.tra_colors[j])   
+     
+            p_ttv.addItem(err_)            
+            
+           # m = batman.TransitModel(fit.tr_params, t)    #initializes model
+ 
+            #flux_model = m.light_curve(fit.tr_params)          #calculates light curve           
+            #p3.plot(t, flux_model,pen=fit.tra_colors[-],symbol=None )   
+            
+ 
+            #model_curve = p3.plot(t,y_model,  pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
+            #enableAutoRange=True,viewRect=True ) 
+            
+            #model_curve.setZValue(self.tra_model_z.value())            
+            
+           # if self.trans_plot_cross_hair.isChecked():
+           #     self.cross_hair(p3,log=False)     
+            
+            
+            p_ttv_oc.plot(t, flux,        
+            pen=None,  
+            symbol=fit.pyqt_symbols_tra[i],
+            symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
+            symbolSize=fit.pyqt_symbols_size_tra[i],enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.tra_colors[j] )             
+
+            err_ = pg.ErrorBarItem(x=t, y=flux, symbol='o', 
+           # height=flux_err,
+            top=flux_err,
+            bottom=flux_err,            
+            beam=0.0, pen=fit.tra_colors[j])
+            
+            p_ttv_oc.addItem(err_)   
+            
+            #model_curve_o_c = p4.plot(t,y_model_o_c,  pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1}, enableAutoRange=True,viewRect=True ) 
+            
+            #model_curve_o_c.setZValue(self.tra_model_z.value())                
+            
+  
+           # if self.trans_o_c_plot_cross_hair.isChecked():
+           #     self.cross_hair(p4,log=False)  
+
+
+        #if self.tra_plot_autorange.isChecked():
+        #    p3.autoRange()           
+        #    p4.autoRange()  
+
+ 
  
         
 ############################# N-Body ########################################     
@@ -5920,28 +6081,25 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.gridLayout_file_tree.setRowStretch(1, 4)
         self.gridLayout_file_tree.addWidget(self.tree_view_tab)
 
-        
         self.tree_view_tab.listview.clicked.connect(self.plot_data_inspect)
         self.data_insp_load_data.clicked.connect(self.load_data_inspect)  
-        
-    
-        
+
         #################### stdout pipe ########################
-       
+
         #if sys.version_info[0] == 3:
         if debug == False:
             self.pipe_text = MyDialog()
         else:
             self.pipe_text = DebugDialog()
-           
-        self.gridLayout_stdout.addWidget(self.pipe_text)  
-   
+
+        self.gridLayout_stdout.addWidget(self.pipe_text)
+
         #################### credits  ########################
-    
+        
         self.dialog = print_info(self)
         self.dialog_credits = print_info(self)
         self.dialog_chi_table = print_info(self)
-        
+
         self.buttonGroup_apply_rv_data_options.buttonClicked.connect(self.apply_rv_data_options)
 
         self.buttonGroup_add_RV_data.buttonClicked.connect(self.showDialog_RV_input_file)
@@ -5949,13 +6107,16 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
  
         self.buttonGroup_activity_data.buttonClicked.connect(self.showDialog_act_input_file)
         self.buttonGroup_remove_activity_data.buttonClicked.connect(self.remove_act_file)     
-        
+
+        self.buttonGroup_ttv_data.buttonClicked.connect(self.showDialog_ttv_input_file)
+        self.buttonGroup_remove_ttv_data.buttonClicked.connect(self.remove_ttv_file)     
+
         self.buttonGroup_transit_data.buttonClicked.connect(self.showDialog_tra_input_file)
         self.buttonGroup_remove_transit_data.buttonClicked.connect(self.remove_tra_file)         
-        
+
         self.buttonGroup_use.buttonClicked.connect(self.update_use)
         self.buttonGroup_mixed_fitting.buttonClicked.connect(self.update_mixed_fitting)
-        
+
         self.button_orb_evol.clicked.connect(self.worker_Nbody) 
         self.button_MCMC.clicked.connect(self.worker_mcmc)
        # self.button_nest_samp.clicked.connect(lambda: self.run_nest_samp())
