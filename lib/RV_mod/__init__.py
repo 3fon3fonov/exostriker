@@ -1687,7 +1687,8 @@ class signal_fit(object):
         self.ph_model_tra = {k: [] for k in range(9)}
         
         self.parameters = []
- 
+
+        self.ttv_data_sets = {k: [] for k in range(10)}
         self.act_data_sets = {k: [] for k in range(10)}
         self.tra_data_sets = {k: [] for k in range(10)}
         self.rv_data_sets  = {k: [] for k in range(10)}
@@ -2321,7 +2322,7 @@ class signal_fit(object):
    
     
         
-############################ activity datasets ##########################################      
+############################ RV datasets ##########################################      
     def add_rv_dataset(self, name, path, rv_idset = 0):
  
         rv_JD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
@@ -2345,7 +2346,6 @@ class signal_fit(object):
         self.rv_data_sets[rv_idset] = []
  
         return   
-############################ activity datasets END ##########################################              
 
 ############################ activity datasets ##########################################      
     def add_act_dataset(self, name, path, act_idset = 0):
@@ -2365,8 +2365,26 @@ class signal_fit(object):
         self.act_data_sets[act_idset] = []
  
         return   
-############################ activity datasets END ##########################################      
+    
+############################ TTV datasets ##########################################      
+    def add_ttv_dataset(self, name, path, ttv_idset = 0):
+ 
+        ttv_N        = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+        ttv_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+        ttv_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+        ttv_data_set = np.array([ttv_N,ttv_data,ttv_data_sig]) 
+ 
+        self.ttv_data_sets[ttv_idset] = ttv_data_set
+ 
+        return   
 
+
+    def remove_ttv_dataset(self, ttv_idset):
+ 
+        self.ttv_data_sets[ttv_idset] = []
+ 
+        return
+    
 ############################ transit datasets ##########################################      
     def add_transit_dataset(self, name, path, tra_idset = 0):
  
@@ -2389,7 +2407,6 @@ class signal_fit(object):
         self.tra_data_sets[tra_idset] = []
  
         return   
-############################ transit datasets END ##########################################      
 
 
 ################ Legacy Code!!! TB removed/updated/replaced ######################
@@ -2407,6 +2424,7 @@ class signal_fit(object):
 
 
     def add_dataset(self,name,path,offset,jitter,useoffset=True,usejitter=True):
+        
         
         path =  copy_file_to_datafiles(path)
         
