@@ -1637,7 +1637,7 @@ class signal_fit(object):
         
        
 
-        self.type_fit = {"RV": True,"Transit": False}
+        self.type_fit = {"RV": True,"Transit": False,"TTV":False}
  
         self.gr_flag = False
         self.hkl = False

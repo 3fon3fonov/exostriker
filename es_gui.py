@@ -49,6 +49,13 @@ import scipy.stats as stat
 #import batman as batman
 
 try:
+    import ttvfast as ttvfast
+    ttvfast_not_found = False 
+except (ImportError, KeyError) as e:
+    ttvfast_not_found = True
+    pass
+
+try:
     from transitleastsquares import transitleastsquares
     tls_not_found = False 
 except (ImportError, KeyError) as e:
@@ -3314,7 +3321,7 @@ Transit duration: %s d
             pen=None,  
             symbol=fit.pyqt_symbols_tra[i],
             symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_tra[i],enableAutoRange=True,viewRect=True,
+            symbolSize=self.ttv_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=fit.tra_colors[j] ) 
             
             err_ = pg.ErrorBarItem(x=t, y=flux, symbol='o',
@@ -3336,15 +3343,15 @@ Transit duration: %s d
             
             #model_curve.setZValue(self.tra_model_z.value())            
             
-           # if self.trans_plot_cross_hair.isChecked():
-           #     self.cross_hair(p3,log=False)     
+            if self.ttv_plot_cross_hair.isChecked():
+                self.cross_hair(p_ttv,log=False)     
             
             
             p_ttv_oc.plot(t, flux,        
             pen=None,  
             symbol=fit.pyqt_symbols_tra[i],
             symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_tra[i],enableAutoRange=True,viewRect=True,
+            symbolSize=self.ttv_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=fit.tra_colors[j] )             
 
             err_ = pg.ErrorBarItem(x=t, y=flux, symbol='o', 
@@ -3360,17 +3367,18 @@ Transit duration: %s d
             #model_curve_o_c.setZValue(self.tra_model_z.value())                
             
   
-           # if self.trans_o_c_plot_cross_hair.isChecked():
-           #     self.cross_hair(p4,log=False)  
+            if self.ttv_o_c_plot_cross_hair.isChecked():
+                self.cross_hair(p_ttv_oc,log=False)  
 
 
-        #if self.tra_plot_autorange.isChecked():
-        #    p3.autoRange()           
-        #    p4.autoRange()  
+        if self.ttv_plot_autorange.isChecked():
+            p_ttv.autoRange()           
+            p_ttv_oc.autoRange()  
 
- 
- 
-        
+
+
+
+
 ############################# N-Body ########################################     
 
 
@@ -4110,7 +4118,7 @@ Transit duration: %s d
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.10) \n developed by 3fon3fonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.11) \n developed by 3fon3fonov"
         
         self.dialog_credits.text.append(text)
 
@@ -4132,7 +4140,10 @@ Transit duration: %s d
         text = "* " + "<a href='https://github.com/lkreidberg/batman'>batman-package</a>" 
         self.dialog_credits.text.append(text)
         
-        text = "* " + "<a href='https://github.com/hippke/tls'>Transit Least Squares</a>" 
+        text = "* " + "<a href='https://github.com/hippke/tls'>transitleastsquares</a>" 
+        self.dialog_credits.text.append(text)
+        
+        text = "* " + "<a href='https://github.com/mindriot101/ttvfast-python'>ttvfast-python</a>" 
         self.dialog_credits.text.append(text)
 
         text = "* " + "<a href='https://www.boulder.swri.edu/~hal/swift.html'>swift</a>" 
@@ -4620,6 +4631,18 @@ highly appreciated!
             fit.rtg = [False, self.do_RV_GP.isChecked(), True, self.do_tra_GP.isChecked()]
         elif self.radioButton_transit_RV.isChecked():
             fit.rtg = [True,self.do_RV_GP.isChecked(), True, self.do_tra_GP.isChecked()]
+            
+        elif self.radioButton_ttv.isChecked():
+            fit.rtg = [False, False, False, False]
+        elif self.radioButton_ttv_RV.isChecked():
+            fit.rtg = [False, False, False, False] 
+        
+        if self.radioButton_ttv.isChecked() or self.radioButton_ttv_RV.isChecked():
+            self.get_ttv_error_msg()
+            
+            self.button_nest_samp.setEnabled(True)  
+            self.statusBar().showMessage('') 
+            return
         
         self.button_nest_samp.setEnabled(False)
         self.statusBar().showMessage('Nested Sampling in progress....')        
@@ -4778,7 +4801,19 @@ highly appreciated!
             fit.rtg = [False, self.do_RV_GP.isChecked(), True, self.do_tra_GP.isChecked()]
         elif self.radioButton_transit_RV.isChecked():
             fit.rtg = [True,self.do_RV_GP.isChecked(), True, self.do_tra_GP.isChecked()]
-        
+            
+        elif self.radioButton_ttv.isChecked():
+            fit.rtg = [False, False, False, False]
+        elif self.radioButton_ttv_RV.isChecked():
+            fit.rtg = [False, False, False, False] 
+            
+        if self.radioButton_ttv.isChecked() or self.radioButton_ttv_RV.isChecked():
+            self.get_ttv_error_msg()
+
+            self.button_MCMC.setEnabled(True)  
+            self.statusBar().showMessage('') 
+            return
+
         self.button_MCMC.setEnabled(False)
         self.statusBar().showMessage('MCMC in progress....')        
         # check if RV data is present
@@ -5153,12 +5188,32 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
                 self.worker_transit_fitting(ff=0 )  
             else:
                 self.worker_transit_fitting()
+                
+        elif self.radioButton_ttv.isChecked():
+            
+            #fit.rtg=[True,self.do_RV_GP.isChecked(),True, self.do_tra_GP.isChecked()]
+            #if(init):
+            #    self.worker_transit_fitting(ff=0 )  
+            #else:
+            #    self.worker_transit_fitting()
+            self.get_ttv_error_msg()
 
- 
-    
- 
+            return   
+
+        elif self.radioButton_ttv_RV.isChecked():
+            
+           # fit.rtg=[True,self.do_RV_GP.isChecked(),True, self.do_tra_GP.isChecked()]
+           # if(init):
+           #     self.worker_transit_fitting(ff=0 )  
+           # else:
+           #     self.worker_transit_fitting()
+            self.get_ttv_error_msg()
+
+            return   
 ###########################  GUI events #############################            
- 
+
+
+
     def mute_boxes(self):
         
         if batman_not_found == True:
@@ -5171,6 +5226,18 @@ Please install via ' pip install batman-package' not 'pip install batman' and tr
 For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> Credits' 
 """)
             self.tabWidget_helper.setCurrentWidget(self.tab_info)
+
+        if ttvfast_not_found == True:
+            self.radioButton_ttv.setEnabled(False)          
+            self.radioButton_ttv_RV.setEnabled(False)       
+            print("""
+You dont have TTVfast installed! Therefore, you cannot apply TTV modelling. 
+Please install via 'pip install ttvfast'. But you can also ignore this warning,
+since in this ver. 0.11 of the Exo-Striker, the TTV modeling is still experimental.
+""")
+            self.tabWidget_helper.setCurrentWidget(self.tab_info)
+
+
 
         ######### TESTS!!!!!!!!!!!###########
         
@@ -5205,8 +5272,61 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             a_sol_flag = False                        
             fit.type_fit["RV"] = True           
             fit.type_fit["Transit"] = False 
-
             
+        elif self.radioButton_ttv.isChecked() or self. radioButton_ttv_RV.isChecked():            
+            
+            ma_flag = True
+            t0_flag = False
+            K_flag = True
+            pl_rad_flag = False
+            a_sol_flag = False
+            if self.radioButton_ttv.isChecked():
+                fit.type_fit["RV"] = False
+            elif self. radioButton_ttv_RV.isChecked():
+                fit.type_fit["RV"] = True
+            fit.type_fit["Transit"] = False 
+            fit.type_fit["TTV"] = True 
+
+            incl_flag = True
+            Dom_flag = True 
+            self.incl1.setEnabled(incl_flag)  
+            self.use_incl1.setEnabled(incl_flag)  
+            self.incl2.setEnabled(incl_flag)  
+            self.use_incl2.setEnabled(incl_flag) 
+            self.incl3.setEnabled(incl_flag)  
+            self.use_incl3.setEnabled(incl_flag)  
+            self.incl4.setEnabled(incl_flag)  
+            self.use_incl4.setEnabled(incl_flag)  
+            self.incl5.setEnabled(incl_flag)  
+            self.use_incl5.setEnabled(incl_flag)  
+            self.incl6.setEnabled(incl_flag)  
+            self.use_incl6.setEnabled(incl_flag)  
+            self.incl7.setEnabled(incl_flag)  
+            self.use_incl7.setEnabled(incl_flag)  
+            self.incl8.setEnabled(incl_flag)  
+            self.use_incl8.setEnabled(incl_flag)  
+            self.incl9.setEnabled(incl_flag)  
+            self.use_incl9.setEnabled(incl_flag)    
+            
+            self.Omega1.setEnabled(Dom_flag)  
+            self.use_Omega1.setEnabled(Dom_flag)  
+            self.Omega2.setEnabled(Dom_flag)  
+            self.use_Omega2.setEnabled(Dom_flag)             
+            self.Omega3.setEnabled(Dom_flag)  
+            self.use_Omega3.setEnabled(Dom_flag)  
+            self.Omega4.setEnabled(Dom_flag)  
+            self.use_Omega4.setEnabled(Dom_flag)
+            self.Omega5.setEnabled(Dom_flag)  
+            self.use_Omega5.setEnabled(Dom_flag)  
+            self.Omega6.setEnabled(Dom_flag)  
+            self.use_Omega6.setEnabled(Dom_flag)             
+            self.Omega7.setEnabled(Dom_flag)  
+            self.use_Omega7.setEnabled(Dom_flag)  
+            self.Omega8.setEnabled(Dom_flag)  
+            self.use_Omega8.setEnabled(Dom_flag) 
+            self.Omega9.setEnabled(Dom_flag)  
+            self.use_Omega9.setEnabled(Dom_flag)             
+
         self.ma1.setEnabled(ma_flag)
         self.use_ma1.setEnabled(ma_flag)
         self.ma2.setEnabled(ma_flag)
@@ -5850,6 +5970,11 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.worker_transit_fitting(ff=0 ) 
         
 #############################  TEST ZONE ################################  
+        
+    def get_ttv_error_msg(self):
+            choice = QtGui.QMessageBox.information(self, 'Warning!',
+            "TTV modelling is still work in progress. 'git pull' regulary and you will have it soon, Okay?", QtGui.QMessageBox.Ok)
+
     def get_error_msg(self, msg):
         global fit  
  
@@ -6236,15 +6361,16 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.tra_model_z.valueChanged.connect(self.update_transit_plots)
 #        self.tra_model_z.valueChanged.connect(self.update_transit_plots)    
 
-        ############### RV GLS plotting controll ####################      
-        self.rv_model_width.valueChanged.connect(self.update_RV_plots)
-        self.rv_model_width.valueChanged.connect(self.update_extra_plots) 
 
         ############### RV plotting controll ####################      
         self.rv_model_width.valueChanged.connect(self.update_RV_plots)
         self.rv_model_width.valueChanged.connect(self.update_extra_plots)    
         self.RV_model_z.valueChanged.connect(self.update_RV_plots)
         self.RV_model_z.valueChanged.connect(self.update_extra_plots)    
+        
+        ############### TTV plotting controll ####################      
+        self.ttv_data_size.valueChanged.connect(self.update_ttv_plots)
+
   
         ############### RV GLS plotting controll ####################      
         self.gls_model_width.valueChanged.connect(self.update_RV_GLS_plots)
@@ -6311,7 +6437,8 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
         self.tls_o_c_cross_hair.stateChanged.connect(self.update_tls_o_c_plots)
         self.gls_act_cross_hair.stateChanged.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
         self.mlp_cross_hair.stateChanged.connect(self.update_RV_MLP_plots)
-
+        self.ttv_plot_cross_hair.stateChanged.connect(self.update_ttv_plots)
+        self.ttv_o_c_plot_cross_hair.stateChanged.connect(self.update_ttv_plots)
 
         self.extra_plot_cross_hair.stateChanged.connect(self.update_extra_plots)
         self.inpector_plot_cross_hair.stateChanged.connect(lambda: self.plot_data_inspect(0,no_sender=True))
@@ -6439,7 +6566,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.10). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.11). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
