@@ -76,7 +76,7 @@ done
 
 
 #python system install 
-arr=( "numpy" "scipy" "matplotlib" "qtconsole" "jupyter" "pathos" "dill" "emcee" "corner" "celerite" "dynesty")
+arr=( "numpy" "scipy" "matplotlib" "qtconsole" "jupyter" "pathos" "dill" "emcee" "corner" "celerite" "dynesty" "ttvfast")
 
 for i in "${arr[@]}";
 do
