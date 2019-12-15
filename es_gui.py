@@ -226,13 +226,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.radioButton_Keplerian.setChecked(True)
 
-        if fit.type_fit["RV"] == True and fit.type_fit["Transit"] == False:
-            self.radioButton_RV.setChecked(True)        
-        elif fit.type_fit["RV"] == False and fit.type_fit["Transit"] == True:
-            self.radioButton_transit.setChecked(True)
-        elif fit.type_fit["RV"] == True and fit.type_fit["Transit"] == True:
-            self.radioButton_transit_RV.setChecked(True)    
-
         if fit.hkl == True:
             self.radioButton_hkl.setChecked(True)
         else:
@@ -509,7 +502,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def update_a_mass(self):
         global fit
 
-        if self.radioButton_RV.isChecked():
+        if fit.type_fit["RV"] == True:
             for i in range(fit.npl):
                 self.param_a_gui[i].setText("%.3f"%(fit.fit_results.a[i])) 
                 self.param_mass_gui[i].setText("%.3f"%(fit.fit_results.mass[i])) 
@@ -1217,6 +1210,17 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_remove_ttv_data.setId(self.remove_ttv_data_8,8)
         self.buttonGroup_remove_ttv_data.setId(self.remove_ttv_data_9,9)
         self.buttonGroup_remove_ttv_data.setId(self.remove_ttv_data_10,10)
+        
+        self.buttonGroup_use_ttv_data_to_planet.setId(self.use_ttv_data_1,1)
+        self.buttonGroup_use_ttv_data_to_planet.setId(self.use_ttv_data_2,2)
+        self.buttonGroup_use_ttv_data_to_planet.setId(self.use_ttv_data_3,3)
+        self.buttonGroup_use_ttv_data_to_planet.setId(self.use_ttv_data_4,4)
+        self.buttonGroup_use_ttv_data_to_planet.setId(self.use_ttv_data_5,5)
+        self.buttonGroup_use_ttv_data_to_planet.setId(self.use_ttv_data_6,6)
+        self.buttonGroup_use_ttv_data_to_planet.setId(self.use_ttv_data_7,7)
+        self.buttonGroup_use_ttv_data_to_planet.setId(self.use_ttv_data_8,8)
+        self.buttonGroup_use_ttv_data_to_planet.setId(self.use_ttv_data_9,9)
+        self.buttonGroup_use_ttv_data_to_planet.setId(self.use_ttv_data_10,10)
         
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_1,1)
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_2,2)
@@ -2422,17 +2426,22 @@ Polyfit coefficients:
 
         but_ind = self.buttonGroup_ttv_data.checkedId()   
         input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open TTV data', '', 'All (*.*);;Data (*.ttv)')
+        
+        
+        planet_N     = self.ttv_data_to_planet[but_ind-1].value()
+        use_planet_N = self.use_ttv_data_to_planet[but_ind-1].isChecked()
 
         if str(input_files[0]) != '':
  
-            fit.add_ttv_dataset('test', str(input_files[0]),ttv_idset =but_ind-1)
-            self.init_fit()            
-            #self.update_use_from_input_file()            
+            fit.add_ttv_dataset('test', str(input_files[0]), ttv_idset =but_ind-1, planet =planet_N, use = use_planet_N )
+            self.init_fit()
+            #self.update_use_from_input_file()
             #self.update_use()
             #self.update_params()
             self.update_ttv_file_buttons()
 #            self.update_activity_gls_plots(but_ind-1)
             self.buttonGroup_ttv_data.button(but_ind).setText(self.file_from_path(input_files[0]))
+            self.plot_tabs.setCurrentWidget(self.tab_timeseries_ttv)
 
             #self.handleActivated_act_gls(but_ind-1)
             
@@ -3182,48 +3191,44 @@ Transit duration: %s d
                 fit.tr_params.t0  = par[fit.filelist.ndset*2  +7*fit.npl +2+rv_gp_npar + 3*i]                
                 fit.tr_params.a   = par[fit.filelist.ndset*2  +7*fit.npl +2+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
                 fit.tr_params.rp  = par[fit.filelist.ndset*2  +7*fit.npl +2+rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
-        
+
                 m[i] = batman.TransitModel(fit.tr_params, t)    #initializes model
-     
+
                 flux_model = flux_model * m[i].light_curve(fit.tr_params)     
-                
+
                 ############### Phase signal TBD this should not be here! ####################################
-                
+
                 if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True:
-                    data_time_phase = np.array( (t  - t[0]- fit.tr_params.per/2.0)% fit.tr_params.per  )  
-                 
-                    sort = np.array(sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])    )                    
-                     
+                    data_time_phase = np.array( (t  - t[0]- fit.tr_params.per/2.0)% fit.tr_params.per  )
+
+                    sort = np.array(sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])    )
+
                     t      = data_time_phase[sort] 
                     flux          = flux[sort] 
                     flux_err      = flux_err[sort]  
                     flux_model    = flux_model[sort] 
-                                       
+
                     fit.ph_data_tra[i] = [data_time_phase[sort] ,flux[sort], flux_err[sort]]
                     fit.ph_model_tra[i] = [data_time_phase[sort] ,flux_model[sort]]
-                
+
                     p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
                 else:
                     p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'9pt'})
-                    
-               
-                
+
             tr_o_c = flux -flux_model     
             ######## TBD this should not be here!
             fit.tra_data_sets[j][3] = tr_o_c + 1
             fit.tra_data_sets[j][4] = tr_o_c 
 
-                
             if fit.tra_doGP == True:
                 y_model = flux_model + fit.tra_gp_model_curve[0]
                 y_model_o_c = fit.tra_gp_model_curve[0]
             else:
                 y_model = flux_model 
                 y_model_o_c = np.zeros(len(flux_model))
-                
 
-            
-            p3.plot(t, flux,        
+
+            p3.plot(t, flux,
             pen=None,  
             symbol=fit.pyqt_symbols_tra[i],
             symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
@@ -3233,28 +3238,27 @@ Transit duration: %s d
             err_ = pg.ErrorBarItem(x=t, y=flux, symbol='o',
                                   # height=flux_err, 
                                    top=flux_err, 
-                                   bottom=flux_err,                                    
-                                   beam=0.0, pen=fit.tra_colors[j])   
-     
-            p3.addItem(err_)            
-            
+                                   bottom=flux_err,
+                                   beam=0.0, pen=fit.tra_colors[j])
+
+            p3.addItem(err_)
+
            # m = batman.TransitModel(fit.tr_params, t)    #initializes model
  
-            #flux_model = m.light_curve(fit.tr_params)          #calculates light curve           
+            #flux_model = m.light_curve(fit.tr_params)          #calculates light curve
             #p3.plot(t, flux_model,pen=fit.tra_colors[-],symbol=None )   
-            
+
  
             model_curve = p3.plot(t,y_model,  pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
             enableAutoRange=True,viewRect=True ) 
             
-            model_curve.setZValue(self.tra_model_z.value())            
+            model_curve.setZValue(self.tra_model_z.value())
             
             if self.trans_plot_cross_hair.isChecked():
-                self.cross_hair(p3,log=False)     
-            
-            
-            p4.plot(t, tr_o_c,        
-            pen=None,  
+                self.cross_hair(p3,log=False)
+
+            p4.plot(t, tr_o_c,
+            pen=None,
             symbol=fit.pyqt_symbols_tra[i],
             symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_tra[i],enableAutoRange=True,viewRect=True,
@@ -3263,18 +3267,16 @@ Transit duration: %s d
             err_ = pg.ErrorBarItem(x=t, y=flux-flux_model, symbol='o', 
            # height=flux_err,
             top=flux_err,
-            bottom=flux_err,            
-            beam=0.0, pen=fit.tra_colors[j])               
+            bottom=flux_err,
+            beam=0.0, pen=fit.tra_colors[j])
             p4.addItem(err_)   
             
             #model_curve_o_c = p4.plot(t,y_model_o_c,  pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1}, enableAutoRange=True,viewRect=True ) 
             
             #model_curve_o_c.setZValue(self.tra_model_z.value())                
-            
-  
+
             if self.trans_o_c_plot_cross_hair.isChecked():
                 self.cross_hair(p4,log=False)  
-
 
         if self.tra_plot_autorange.isChecked():
             p3.autoRange()           
@@ -3292,15 +3294,106 @@ Transit duration: %s d
  
         #    p3.plot(t, flux_model,pen='k',symbol=None )     
   
+############ TTV fitting ##############################      
 
+    def worker_ttv_fitting_complete(self):
+        global fit  
+
+        self.update_labels()
+        self.update_gui_params()
+        self.update_errors() 
+        self.update_a_mass()                 
+        
+        #print(fit.fit_results.mass)
+
+        fit=rv.get_xyz(fit)
+                         
+        self.statusBar().showMessage('')  
+        
+        self.button_fit.setEnabled(True)         
+        
+        if fit.bound_error == True:
+            self.get_error_msg(fit.bound_error_msg)
+            return
+
+        self.update_transit_plots()
+        if fit.type_fit["RV"] == True:
+            for i in range(fit.npl):
+                rv.phase_RV_planet_signal(fit,i+1) 
+            self.run_gls()
+            self.run_gls_o_c()                
+        self.update_plots()  
+        self.jupiter_push_vars() 
+
+
+ 
+    def worker_ttv_fitting(self, ff=1, auto_fit = False ):
+        global fit  
+        
+        self.button_fit.setEnabled(False)         
+        self.update_params() 
+        self.update_use()   
+        
+        # check if transit data is present
+        z=0
+        for i in range(10):
+            if len(fit.ttv_data_sets[i]) != 0:
+                z=z+1
+        
+        if z <= 0:
+            choice = QtGui.QMessageBox.information(self, 'Warning!',
+            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
+            self.button_fit.setEnabled(True)         
+            return 
+        
+        if fit.type_fit["RV"] == True:
+             if fit.filelist.ndset <= 0:
+                 choice = QtGui.QMessageBox.information(self, 'Warning!',
+                 "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
+                 self.button_fit.setEnabled(True)
+                 return   
+
+        if fit.type_fit["RV"] == True :
+            self.statusBar().showMessage('Minimizing TTV + RV parameters.... SciPy in action, please be patient.  ')       
+        else:
+            self.statusBar().showMessage('Minimizing TTV parameters.... SciPy in action, please be patient. ')       
+           
+
+        self.set_tra_ld()            
+        self.check_bounds()
+        self.check_priors_nr()   
+        self.check_priors_jeff()   
+        self.check_scipy_min()
+
+        worker_ttv = Worker(lambda:  self.ttv_fit(ff=ff ) )# Any other args, kwargs are passed to the run  
+ 
+        worker_ttv.signals.finished.connect(self.worker_ttv_fitting_complete)
+        
+        # worker.signals.result.connect(self.print_output)
+        #worker.signals.finished.connect(self.thread_complete)
+       # worker.signals.progress.connect(self.progress_fn)
+        self.threadpool.start(worker_ttv)
+        
+ 
+    def ttv_fit(self, ff=0 ):
+        global fit
+        
+        if ff ==0:        
+            fit.init_fit = True
+        else:
+            fit.init_fit = False
+
+ 
+        rv.run_SciPyOp(fit)
+        
 
 #### TTV plots ################ 
     def update_ttv_plots(self): 
         global fit, p_ttv, p_ttv_oc, colors
     
         p_ttv.plot(clear=True,) 
-        p_ttv_oc.plot(clear=True,)         
-           
+        p_ttv_oc.plot(clear=True,)
+
         #self.check_tra_symbol_sizes()
 
         ttv_files = []
@@ -3308,17 +3401,49 @@ Transit duration: %s d
         for i in range(10):
             if len(fit.ttv_data_sets[i]) != 0:
                 ttv_files.append(fit.ttv_data_sets[i])
+
+        fit.prepare_for_mcmc()
+        times = [float(fit.epoch),fit.time_step_model,float(fit.epoch)+400.0]
+        vel_files = []
+        for i in range(fit.filelist.ndset):
+            vel_files.append(fit.filelist.files[i].path)
         
-        for j in range(len(ttv_files)):        
         
-        #if len(fit.tra_data_sets[0]) != 0:
+        for j in range(len(ttv_files)):
+
             t = np.array(ttv_files[j][0])
             flux = np.array(ttv_files[j][1])
             flux_err = np.array(ttv_files[j][2])
- 
             
-            p_ttv.plot(t, flux,        
-            pen=None,  
+                #ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,times,fit_results, return_model = False)
+            if fit.npl > 0:
+                
+                if fit.rtg[0] == False:
+                    ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit_results = False, return_model = True)
+                else:
+                    ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit_results =fit.fit_results, return_model = True)
+                    
+                #print(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times)
+                #print(ttv_loglik)
+                fit.ttv_results = ttv_loglik
+
+                ttv_model = ttv_loglik[2][1] - ttv_loglik[2][1][0]
+                
+                ttv_model_transits = []
+                model_N_transits = ttv_loglik[2][0]
+    
+                for k in range(len(ttv_loglik[2][1])):
+                    ttv_model[k] = ttv_model[k] - fit.P[0]*(ttv_loglik[2][0][k]-1)
+                for k in range(len(ttv_loglik[1][1])):
+                    flux[k] = flux[k] - (fit.P[0]*(ttv_loglik[1][0][k]-1) + ttv_files[j][1][0])
+                    ttv_model_transits.append(ttv_model[ttv_loglik[1][0][k]-1])
+            else:
+                ttv_model = np.zeros(len(flux))+ np.mean(flux)
+                ttv_model_transits = np.zeros(len(flux))+ np.mean(flux)
+                model_N_transits = t
+                    
+            p_ttv.plot(t, flux,
+            pen=None,
             symbol=fit.pyqt_symbols_tra[i],
             symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
             symbolSize=self.ttv_data_size.value(),enableAutoRange=True,viewRect=True,
@@ -3327,48 +3452,41 @@ Transit duration: %s d
             err_ = pg.ErrorBarItem(x=t, y=flux, symbol='o',
                                   # height=flux_err, 
                                    top=flux_err, 
-                                   bottom=flux_err,                                    
-                                   beam=0.0, pen=fit.tra_colors[j])   
-     
-            p_ttv.addItem(err_)            
-            
-           # m = batman.TransitModel(fit.tr_params, t)    #initializes model
- 
-            #flux_model = m.light_curve(fit.tr_params)          #calculates light curve           
-            #p3.plot(t, flux_model,pen=fit.tra_colors[-],symbol=None )   
-            
- 
-            #model_curve = p3.plot(t,y_model,  pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
-            #enableAutoRange=True,viewRect=True ) 
-            
-            #model_curve.setZValue(self.tra_model_z.value())            
+                                   bottom=flux_err,
+                                   beam=0.0, pen=fit.tra_colors[j])
+
+            p_ttv.addItem(err_)
+
+            model_curve = p_ttv.plot(model_N_transits,ttv_model,  pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1}, enableAutoRange=True,viewRect=True )
+
+            model_curve.setZValue(self.tra_model_z.value())
             
             if self.ttv_plot_cross_hair.isChecked():
-                self.cross_hair(p_ttv,log=False)     
-            
-            
-            p_ttv_oc.plot(t, flux,        
+                self.cross_hair(p_ttv,log=False)
+
+
+            p_ttv_oc.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
+
+            p_ttv_oc.plot(t, flux-ttv_model_transits,
             pen=None,  
             symbol=fit.pyqt_symbols_tra[i],
             symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
             symbolSize=self.ttv_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.tra_colors[j] )             
+            symbolBrush=fit.tra_colors[j] )
 
-            err_ = pg.ErrorBarItem(x=t, y=flux, symbol='o', 
+            err_ = pg.ErrorBarItem(x=t, y=flux-ttv_model_transits, symbol='o', 
            # height=flux_err,
             top=flux_err,
-            bottom=flux_err,            
+            bottom=flux_err,
             beam=0.0, pen=fit.tra_colors[j])
-            
+
             p_ttv_oc.addItem(err_)   
-            
-            #model_curve_o_c = p4.plot(t,y_model_o_c,  pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1}, enableAutoRange=True,viewRect=True ) 
-            
-            #model_curve_o_c.setZValue(self.tra_model_z.value())                
-            
-  
+
+
             if self.ttv_o_c_plot_cross_hair.isChecked():
                 self.cross_hair(p_ttv_oc,log=False)  
+                
+
 
 
         if self.ttv_plot_autorange.isChecked():
@@ -3387,10 +3505,15 @@ Transit duration: %s d
         
         p16.plot(clear=True,)    
 
+
+        if len(fit.fit_results.a) ==0:
+            return
+        
         if fit.pl_arb_test == True:
             npl = fit.npl_arb
         else:
             npl = fit.npl     
+        
         
         for i in range(npl):
             orb_xyz, pl_xyz, peri_xyz, apo_xyz = rv.planet_orbit_xyz(fit,i)        
@@ -4635,14 +4758,14 @@ highly appreciated!
         elif self.radioButton_ttv.isChecked():
             fit.rtg = [False, False, False, False]
         elif self.radioButton_ttv_RV.isChecked():
-            fit.rtg = [False, False, False, False] 
+            fit.rtg = [True,self.do_RV_GP.isChecked(), False, False] 
         
-        if self.radioButton_ttv.isChecked() or self.radioButton_ttv_RV.isChecked():
-            self.get_ttv_error_msg()
+        #if self.radioButton_ttv.isChecked() or self.radioButton_ttv_RV.isChecked():
+       #     self.get_ttv_error_msg()
             
-            self.button_nest_samp.setEnabled(True)  
-            self.statusBar().showMessage('') 
-            return
+      #      self.button_nest_samp.setEnabled(True)  
+       #     self.statusBar().showMessage('') 
+      #      return
         
         self.button_nest_samp.setEnabled(False)
         self.statusBar().showMessage('Nested Sampling in progress....')        
@@ -4805,14 +4928,14 @@ highly appreciated!
         elif self.radioButton_ttv.isChecked():
             fit.rtg = [False, False, False, False]
         elif self.radioButton_ttv_RV.isChecked():
-            fit.rtg = [False, False, False, False] 
+            fit.rtg = [True,self.do_RV_GP.isChecked(), False, False] 
             
-        if self.radioButton_ttv.isChecked() or self.radioButton_ttv_RV.isChecked():
-            self.get_ttv_error_msg()
+       # if self.radioButton_ttv.isChecked() or self.radioButton_ttv_RV.isChecked():
+       #     self.get_ttv_error_msg()
 
-            self.button_MCMC.setEnabled(True)  
-            self.statusBar().showMessage('') 
-            return
+       #     self.button_MCMC.setEnabled(True)  
+       #     self.statusBar().showMessage('') 
+       #     return
 
         self.button_MCMC.setEnabled(False)
         self.statusBar().showMessage('MCMC in progress....')        
@@ -5191,25 +5314,25 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
                 
         elif self.radioButton_ttv.isChecked():
             
-            #fit.rtg=[True,self.do_RV_GP.isChecked(),True, self.do_tra_GP.isChecked()]
-            #if(init):
-            #    self.worker_transit_fitting(ff=0 )  
-            #else:
-            #    self.worker_transit_fitting()
-            self.get_ttv_error_msg()
+            fit.rtg=[False,False,False,False]
+            if(init):
+                self.worker_ttv_fitting(ff=0 )  
+            else:
+                self.worker_ttv_fitting()
+            #self.get_ttv_error_msg()
 
-            return   
+           # return   
 
         elif self.radioButton_ttv_RV.isChecked():
             
-           # fit.rtg=[True,self.do_RV_GP.isChecked(),True, self.do_tra_GP.isChecked()]
-           # if(init):
-           #     self.worker_transit_fitting(ff=0 )  
-           # else:
-           #     self.worker_transit_fitting()
-            self.get_ttv_error_msg()
+            fit.rtg = [True,self.do_RV_GP.isChecked(),False, False]            
+            if(init):
+                self.worker_ttv_fitting(ff=0 )  
+            else:
+                self.worker_ttv_fitting()
+            #self.get_ttv_error_msg()
 
-            return   
+            #return   
 ###########################  GUI events #############################            
 
 
@@ -5970,6 +6093,37 @@ since in this ver. 0.11 of the Exo-Striker, the TTV modeling is still experiment
         self.worker_transit_fitting(ff=0 ) 
         
 #############################  TEST ZONE ################################  
+
+
+    def ttv_dataset_to_planet(self):
+        
+        for i in range(10):
+            if len(fit.ttv_data_sets[i]) ==0:
+                continue
+            else:
+                print(self.ttv_data_to_planet[i].value(),self.use_ttv_data_to_planet[i].isChecked())
+                fit.ttv_data_sets[i][3] = self.ttv_data_to_planet[i].value()
+                fit.ttv_data_sets[i][4] = self.use_ttv_data_to_planet[i].isChecked()
+
+               
+    def check_type_fit(self):
+        global fit  
+
+
+        if fit.type_fit["RV"] == True and fit.type_fit["Transit"] == False and fit.type_fit["TTV"]  == False :
+            self.radioButton_RV.setChecked(True)        
+        elif fit.type_fit["RV"] == False and fit.type_fit["Transit"] == False and fit.type_fit["TTV"]  == True :
+            self.radioButton_ttv.setChecked(True)        
+        elif fit.type_fit["RV"] == False and fit.type_fit["Transit"] == True:
+            self.radioButton_transit.setChecked(True)
+        elif fit.type_fit["RV"] == True and fit.type_fit["Transit"] == True:
+            self.radioButton_transit_RV.setChecked(True)    
+        elif fit.type_fit["RV"] == True and fit.type_fit["Transit"] == True :
+            self.radioButton_ttv_RV.setChecked(True)    
+
+
+
+
         
     def get_ttv_error_msg(self):
             choice = QtGui.QMessageBox.information(self, 'Warning!',
@@ -6153,8 +6307,13 @@ since in this ver. 0.11 of the Exo-Striker, the TTV modeling is still experiment
         self.arb_param_gui     = gui_groups.arb_param_gui(self)
         self.arb_param_gui_use = gui_groups.arb_param_gui_use(self)
         
-        self.add_rv_error= gui_groups.add_rv_error(self)
-         
+        self.add_rv_error = gui_groups.add_rv_error(self)
+
+        self.ttv_data_to_planet     = gui_groups.ttv_data_to_planet(self)
+        self.use_ttv_data_to_planet = gui_groups.use_ttv_data_to_planet(self)
+
+
+
 
         self.initialize_buttons()
         self.initialize_plots()   
@@ -6164,6 +6323,8 @@ since in this ver. 0.11 of the Exo-Striker, the TTV modeling is still experiment
         #self.Hill_led.setPixmap(QtGui.QPixmap(Hill_LED))
         AMD_LED = './lib/UI/grey_led.png'
         self.AMD_led.setPixmap(QtGui.QPixmap(AMD_LED))
+        
+        self.check_type_fit()
         
         ###################### Console #############################
         self.console_widget = ConsoleWidget_embed(font_size = 9)
@@ -6234,14 +6395,29 @@ since in this ver. 0.11 of the Exo-Striker, the TTV modeling is still experiment
         self.buttonGroup_remove_activity_data.buttonClicked.connect(self.remove_act_file)     
 
         self.buttonGroup_ttv_data.buttonClicked.connect(self.showDialog_ttv_input_file)
-        self.buttonGroup_remove_ttv_data.buttonClicked.connect(self.remove_ttv_file)     
+        self.buttonGroup_remove_ttv_data.buttonClicked.connect(self.remove_ttv_file)
+        self.buttonGroup_use_ttv_data_to_planet.buttonClicked.connect(self.ttv_dataset_to_planet)
+        
+        self.ttv_data_planet_1.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_2.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_3.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_4.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_5.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_6.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_7.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_8.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_9.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_10.valueChanged.connect(self.ttv_dataset_to_planet)
+
+
 
         self.buttonGroup_transit_data.buttonClicked.connect(self.showDialog_tra_input_file)
         self.buttonGroup_remove_transit_data.buttonClicked.connect(self.remove_tra_file)         
 
         self.buttonGroup_use.buttonClicked.connect(self.update_use)
         self.buttonGroup_mixed_fitting.buttonClicked.connect(self.update_mixed_fitting)
-
+        
+ 
         self.button_orb_evol.clicked.connect(self.worker_Nbody) 
         self.button_MCMC.clicked.connect(self.worker_mcmc)
        # self.button_nest_samp.clicked.connect(lambda: self.run_nest_samp())
@@ -6475,6 +6651,10 @@ since in this ver. 0.11 of the Exo-Striker, the TTV modeling is still experiment
         self.radioButton_transit_RV.toggled.connect(self.mute_boxes)
         self.radioButton_transit.toggled.connect(self.mute_boxes)
         self.radioButton_RV.toggled.connect(self.mute_boxes)
+        self.radioButton_ttv.toggled.connect(self.mute_boxes)
+        self.radioButton_ttv_RV.toggled.connect(self.mute_boxes)
+
+        
         
         self.radioButton_ewm.toggled.connect(self.set_hkl)
 #        self.radioButton_hkl.toggled.connect(self.set_hkl)
