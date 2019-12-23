@@ -28,6 +28,7 @@ and will ask you to install packages if needed. Particularly you will need:
 * celerite
 * qtconsole
 * dynesty
+* ttvfast
 + the swift N-body library, which is in the ./source directory and is automatically
 installed with the bash installer.
 

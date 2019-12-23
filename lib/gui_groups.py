@@ -290,7 +290,161 @@ def om_dot_bounds_gui(self):
     return om_dot_bounds_gui
 
 
+################### LD  ########################
 
+def use_uni_ld_models(self):
+
+    use_uni_ld_models = [
+            self.use_uniform_ld_1,self.use_uniform_ld_2,self.use_uniform_ld_3,self.use_uniform_ld_4,self.use_uniform_ld_5,
+            self.use_uniform_ld_6,self.use_uniform_ld_7,self.use_uniform_ld_8,self.use_uniform_ld_9,self.use_uniform_ld_10
+            ]
+    return use_uni_ld_models
+
+
+def use_lin_ld_models(self):
+
+    use_lin_ld_models = [
+            self.use_linear_ld_1,self.use_linear_ld_2,self.use_linear_ld_3,self.use_linear_ld_4,self.use_linear_ld_5,
+            self.use_linear_ld_6,self.use_linear_ld_7,self.use_linear_ld_8,self.use_linear_ld_9,self.use_linear_ld_10
+            ]
+    return use_lin_ld_models
+
+
+def use_quad_ld_models(self):
+    
+    use_quad_ld_models =[
+            self.use_quadratic_ld_1,self.use_quadratic_ld_2,self.use_quadratic_ld_3,self.use_quadratic_ld_4,self.use_quadratic_ld_5,
+            self.use_quadratic_ld_6,self.use_quadratic_ld_7,self.use_quadratic_ld_8,self.use_quadratic_ld_9,self.use_quadratic_ld_10
+            ] 
+    return use_quad_ld_models
+
+
+def use_nonlin_ld_models(self):
+    
+    use_nonlin_ld_models = [
+            self.use_nonlinear_ld_1,self.use_nonlinear_ld_2,self.use_nonlinear_ld_3,self.use_nonlinear_ld_4,self.use_nonlinear_ld_5,
+            self.use_nonlinear_ld_6,self.use_nonlinear_ld_7,self.use_nonlinear_ld_8,self.use_nonlinear_ld_9,self.use_nonlinear_ld_10
+            ] 
+    return use_nonlin_ld_models
+
+
+def lin_u(self):
+
+    lin_u = [self.u1_linear_1,self.u1_linear_2,self.u1_linear_3,self.u1_linear_4,self.u1_linear_5,
+             self.u1_linear_6,self.u1_linear_7,self.u1_linear_8,self.u1_linear_9,self.u1_linear_10
+             ]
+    return lin_u
+
+def use_lin_u(self):
+
+    use_lin_u = [
+            self.use_u1_linear_1,self.use_u1_linear_2,self.use_u1_linear_3,self.use_u1_linear_4,self.use_u1_linear_5,
+            self.use_u1_linear_6,self.use_u1_linear_7,self.use_u1_linear_8,self.use_u1_linear_9,self.use_u1_linear_10
+            ]
+    return use_lin_u
+
+
+def quad_u1(self):
+
+    quad_u1 = [
+            self.u1_quadratic_1,self.u1_quadratic_2,self.u1_quadratic_3,self.u1_quadratic_4,self.u1_quadratic_5,
+            self.u1_quadratic_6,self.u1_quadratic_7,self.u1_quadratic_8,self.u1_quadratic_9,self.u1_quadratic_10
+             ]
+    return quad_u1
+
+def use_quad_u1(self):
+
+    use_quad_u1 =  [
+            self.use_u1_quadratic_1,self.use_u1_quadratic_2,self.use_u1_quadratic_3,self.use_u1_quadratic_4,self.use_u1_quadratic_5,
+            self.use_u1_quadratic_6,self.use_u1_quadratic_7,self.use_u1_quadratic_8,self.use_u1_quadratic_9,self.use_u1_quadratic_10
+             ]
+    return use_quad_u1
+
+def quad_u2(self):
+
+    quad_u2 = [
+            self.u2_quadratic_1,self.u2_quadratic_2,self.u2_quadratic_3,self.u2_quadratic_4,self.u2_quadratic_5,
+            self.u2_quadratic_6,self.u2_quadratic_7,self.u2_quadratic_8,self.u2_quadratic_9,self.u2_quadratic_10
+             ]
+    return quad_u2
+
+def use_quad_u2(self):
+
+    use_quad_u2 =  [
+            self.use_u2_quadratic_1,self.use_u2_quadratic_2,self.use_u2_quadratic_3,self.use_u2_quadratic_4,self.use_u2_quadratic_5,
+            self.use_u2_quadratic_6,self.use_u2_quadratic_7,self.use_u2_quadratic_8,self.use_u2_quadratic_9,self.use_u2_quadratic_10
+             ]
+    return use_quad_u2
+    
+
+
+def nonlin_u1(self):
+
+    nonlin_u1 = [
+            self.u1_nonlin_1,self.u1_nonlin_2,self.u1_nonlin_3,self.u1_nonlin_4,self.u1_nonlin_5,
+            self.u1_nonlin_6,self.u1_nonlin_7,self.u1_nonlin_8,self.u1_nonlin_9,self.u1_nonlin_10
+             ]
+    return nonlin_u1
+
+def use_nonlin_u1(self):
+
+    use_nonlin_u1 =  [
+            self.use_u1_nonlin_1,self.use_u1_nonlin_2,self.use_u1_nonlin_3,self.use_u1_nonlin_4,self.use_u1_nonlin_5,
+            self.use_u1_nonlin_6,self.use_u1_nonlin_7,self.use_u1_nonlin_8,self.use_u1_nonlin_9,self.use_u1_nonlin_10
+             ]
+    return use_nonlin_u1
+
+
+def nonlin_u2(self):
+
+    nonlin_u2 = [
+            self.u2_nonlin_1,self.u2_nonlin_2,self.u2_nonlin_3,self.u2_nonlin_4,self.u2_nonlin_5,
+            self.u2_nonlin_6,self.u2_nonlin_7,self.u2_nonlin_8,self.u2_nonlin_9,self.u2_nonlin_10
+             ]
+    return nonlin_u2
+
+def use_nonlin_u2(self):
+
+    use_nonlin_u2 =  [
+            self.use_u2_nonlin_1,self.use_u2_nonlin_2,self.use_u2_nonlin_3,self.use_u2_nonlin_4,self.use_u2_nonlin_5,
+            self.use_u2_nonlin_6,self.use_u2_nonlin_7,self.use_u2_nonlin_8,self.use_u2_nonlin_9,self.use_u2_nonlin_10
+             ]
+    return use_nonlin_u2
+
+
+def nonlin_u3(self):
+
+    nonlin_u3 = [
+            self.u3_nonlin_1,self.u3_nonlin_2,self.u3_nonlin_3,self.u3_nonlin_4,self.u3_nonlin_5,
+            self.u3_nonlin_6,self.u3_nonlin_7,self.u3_nonlin_8,self.u3_nonlin_9,self.u3_nonlin_10
+             ]
+    return nonlin_u3
+
+def use_nonlin_u3(self):
+
+    use_nonlin_u3 =  [
+            self.use_u3_nonlin_1,self.use_u3_nonlin_2,self.use_u3_nonlin_3,self.use_u3_nonlin_4,self.use_u3_nonlin_5,
+            self.use_u3_nonlin_6,self.use_u3_nonlin_7,self.use_u3_nonlin_8,self.use_u3_nonlin_9,self.use_u3_nonlin_10
+             ]
+    return use_nonlin_u3
+
+def nonlin_u4(self):
+
+    nonlin_u4 = [
+            self.u4_nonlin_1,self.u4_nonlin_2,self.u4_nonlin_3,self.u4_nonlin_4,self.u4_nonlin_5,
+            self.u4_nonlin_6,self.u4_nonlin_7,self.u4_nonlin_8,self.u4_nonlin_9,self.u4_nonlin_10
+             ]
+    return nonlin_u4
+
+def use_nonlin_u4(self):
+
+    use_nonlin_u4 =  [
+            self.use_u4_nonlin_1,self.use_u4_nonlin_2,self.use_u4_nonlin_3,self.use_u4_nonlin_4,self.use_u4_nonlin_5,
+            self.use_u4_nonlin_6,self.use_u4_nonlin_7,self.use_u4_nonlin_8,self.use_u4_nonlin_9,self.use_u4_nonlin_10
+             ]
+    return use_nonlin_u4
+
+ 
 ################### GP ########################
 
 def gp_rot_params(self):
