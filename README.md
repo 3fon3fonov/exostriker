@@ -46,7 +46,7 @@ What works:
 What is to be implemented:
 
 * More GP kernels (work in progress). 
-* Larger arsenal of N-body/dynamical simulation/analysis tools (+ REBOUNDx is planned to be included). 
+* Larger arsenal of N-body/dynamical simulation/analysis tools (+ REBOUND is planned to be included). 
 * A pip installer, and a ready-to-use pre-installed binary of the tool (work in progress). 
 * Binary/Triple star modeling mode.
 * Combined modeling with Astrometry.
