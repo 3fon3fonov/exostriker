@@ -411,56 +411,24 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
     def set_tra_ld(self):
-        global fit   
+        global fit
 
-
-        uni_ld_models = [self.use_uniform_ld_1,self.use_uniform_ld_2,self.use_uniform_ld_3,self.use_uniform_ld_4,self.use_uniform_ld_5,
-                         self.use_uniform_ld_6,self.use_uniform_ld_7,self.use_uniform_ld_8,self.use_uniform_ld_9,self.use_uniform_ld_10]
-
-        lin_ld_models = [self.use_linear_ld_1,self.use_linear_ld_2,self.use_linear_ld_3,self.use_linear_ld_4,self.use_linear_ld_5,
-                         self.use_linear_ld_6,self.use_linear_ld_7,self.use_linear_ld_8,self.use_linear_ld_9,self.use_linear_ld_10]
-
-        quad_ld_models = [self.use_quadratic_ld_1,self.use_quadratic_ld_2,self.use_quadratic_ld_3,self.use_quadratic_ld_4,self.use_quadratic_ld_5,
-                          self.use_quadratic_ld_6,self.use_quadratic_ld_7,self.use_quadratic_ld_8,self.use_quadratic_ld_9,self.use_quadratic_ld_10] 
-      
-        nonlin_ld_models = [self.use_nonlinear_ld_1,self.use_nonlinear_ld_2,self.use_nonlinear_ld_3,self.use_nonlinear_ld_4,self.use_nonlinear_ld_5,
-                          self.use_nonlinear_ld_6,self.use_nonlinear_ld_7,self.use_nonlinear_ld_8,self.use_nonlinear_ld_9,self.use_nonlinear_ld_10] 
-
-        lin_u1 = [self.u1_linear_1, self.u1_linear_2, self.u1_linear_3, self.u1_linear_4, self.u1_linear_5,
-                  self.u1_linear_6, self.u1_linear_7, self.u1_linear_8, self.u1_linear_9, self.u1_linear_10]
-
-        quad_u1 = [self.u1_quadratic_1, self.u1_quadratic_2, self.u1_quadratic_3, self.u1_quadratic_4, self.u1_quadratic_5,
-                   self.u1_quadratic_6, self.u1_quadratic_7, self.u1_quadratic_8, self.u1_quadratic_9, self.u1_quadratic_10]
-        quad_u2 = [self.u2_quadratic_1, self.u2_quadratic_2, self.u2_quadratic_3, self.u2_quadratic_4, self.u2_quadratic_5,
-                   self.u2_quadratic_6, self.u2_quadratic_7, self.u2_quadratic_8, self.u2_quadratic_9, self.u2_quadratic_10]
-        
-        nonlin_u1 = [self.u1_nonlin_1, self.u1_nonlin_2, self.u1_nonlin_3, self.u1_nonlin_4, self.u1_nonlin_5,
-                     self.u1_nonlin_6, self.u1_nonlin_7, self.u1_nonlin_8, self.u1_nonlin_9, self.u1_nonlin_10]
-        nonlin_u2 = [self.u2_nonlin_1, self.u2_nonlin_2, self.u2_nonlin_3, self.u2_nonlin_4, self.u2_nonlin_5,
-                     self.u2_nonlin_6, self.u2_nonlin_7, self.u2_nonlin_8, self.u2_nonlin_9, self.u2_nonlin_10]   
-        nonlin_u3 = [self.u3_nonlin_1, self.u3_nonlin_2, self.u3_nonlin_3, self.u3_nonlin_4, self.u3_nonlin_5,
-                     self.u3_nonlin_6, self.u3_nonlin_7, self.u3_nonlin_8, self.u3_nonlin_9, self.u3_nonlin_10]
-        nonlin_u4 = [self.u4_nonlin_1, self.u4_nonlin_2, self.u4_nonlin_3, self.u4_nonlin_4, self.u4_nonlin_5,
-                     self.u4_nonlin_6, self.u4_nonlin_7, self.u4_nonlin_8, self.u4_nonlin_9, self.u4_nonlin_10]
-        
-        
         for i in range(10):
-            if uni_ld_models[i].isChecked():
+            if self.use_uni_ld_models[i].isChecked():
                 fit.ld_m[i] = "uniform"
-                fit.ld_u[i] = []               
-            elif lin_ld_models[i].isChecked():
-                fit.ld_m[i] = "linear" 
-                fit.ld_u[i] = [lin_u1[i].value()]                              
-            elif quad_ld_models[i].isChecked():
-                fit.ld_m[i] = "quadratic"        
-                fit.ld_u[i] = [quad_u1[i].value(),quad_u2[i].value()]                                              
-            elif nonlin_ld_models[i].isChecked():
-                fit.ld_m[i] = "nonlinear"        
-                fit.ld_u[i] = [nonlin_u1[i].value(),nonlin_u2[i].value(),nonlin_u3[i].value(),nonlin_u4[i].value()]                  
+                fit.ld_u[i] = []
+            elif self.use_lin_ld_models[i].isChecked():
+                fit.ld_m[i] = "linear"
+                fit.ld_u[i] = [self.lin_u[i].value()]
+            elif self.use_quad_ld_models[i].isChecked():
+                fit.ld_m[i] = "quadratic"
+                fit.ld_u[i] = [self.quad_u1[i].value(),self.quad_u2[i].value()]
+            elif self.use_nonlin_ld_models[i].isChecked():
+                fit.ld_m[i] = "nonlinear"
+                fit.ld_u[i] = [self.nonlin_u1[i].value(),self.nonlin_u2[i].value(),self.nonlin_u3[i].value(),self.nonlin_u4[i].value()]
             else:
-                fit.ld_m[i] = "quadratic"              
-                fit.ld_u[i] = [quad_u1[i].value(),quad_u2[i].value()]                                              
-     
+                fit.ld_m[i] = "quadratic"
+                fit.ld_u[i] = [self.quad_u1[i].value(),self.quad_u2[i].value()]
 
     def update_errors(self):
         global fit
@@ -6312,7 +6280,24 @@ since in this ver. 0.11 of the Exo-Striker, the TTV modeling is still experiment
         self.ttv_data_to_planet     = gui_groups.ttv_data_to_planet(self)
         self.use_ttv_data_to_planet = gui_groups.use_ttv_data_to_planet(self)
 
-
+        self.use_uni_ld_models    = gui_groups.use_uni_ld_models(self)
+        self.use_lin_ld_models    = gui_groups.use_lin_ld_models(self)
+        self.use_quad_ld_models   = gui_groups.use_quad_ld_models(self)
+        self.use_nonlin_ld_models = gui_groups.use_nonlin_ld_models(self)
+        self.lin_u                = gui_groups.lin_u(self)
+        self.use_lin_u            = gui_groups.use_lin_u(self)
+        self.quad_u1              = gui_groups.quad_u1(self)
+        self.use_quad_u1          = gui_groups.use_quad_u1(self)
+        self.quad_u2              = gui_groups.quad_u2(self)
+        self.use_quad_u2          = gui_groups.use_quad_u2(self)
+        self.nonlin_u1            = gui_groups.nonlin_u1(self)
+        self.use_nonlin_u1        = gui_groups.use_nonlin_u1(self)
+        self.nonlin_u2            = gui_groups.nonlin_u2(self)
+        self.use_nonlin_u2        = gui_groups.use_nonlin_u2(self)
+        self.nonlin_u3            = gui_groups.nonlin_u3(self)
+        self.use_nonlin_u3        = gui_groups.use_nonlin_u3(self)
+        self.nonlin_u4            = gui_groups.nonlin_u4(self)
+        self.use_nonlin_u4        = gui_groups.use_nonlin_u4(self)
 
 
         self.initialize_buttons()

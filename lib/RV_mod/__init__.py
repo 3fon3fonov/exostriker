@@ -999,13 +999,13 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             continue
         else:
             obj.tra_off[i] =      par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + j]
-            print(obj.tra_off[i],obj.tra_jitt[i])
+            #print(obj.tra_off[i],obj.tra_jitt[i])
             j = j +1
     j =0 
     for i in range(10):        
         if len(obj.tra_data_sets[i]) != 0:
             obj.tra_jitt[i] = abs(par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + len(tr_files) + j])
-            print(obj.tra_off[i],obj.tra_jitt[i])
+            #print(obj.tra_off[i],obj.tra_jitt[i])
             j = j +1            
             
 

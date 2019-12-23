@@ -25,6 +25,7 @@ What works:
 * GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
 * Joint RVs + Transit + GPs best-fit optimization.
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty").
+* TTVs and joint TTVs + RVs analysis (not well tested)
 * RV auto-fit (RV automated planet-finder algorithm).
 * Fit for apsidal orbital precession, or apply GR precession. 
 * Instant AMD stability check for multiple planetary systems.
@@ -45,16 +46,11 @@ What works:
 What is to be implemented:
 
 * More GP kernels (work in progress). 
-* TTVs modeling (work in progress).
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ REBOUNDx is planned to be included). 
 * A pip installer, and a ready-to-use pre-installed binary of the tool (work in progress). 
 * Binary/Triple star modeling mode.
 * Combined modeling with Astrometry.
 * Documentation, Instructions, and Video tutorials.
-
-For more "TBD" list see: "focus_matrix_TBFixed.doc".
-
-
 
 
 **Installation:**
