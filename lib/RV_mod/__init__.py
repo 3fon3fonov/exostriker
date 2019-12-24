@@ -363,10 +363,8 @@ def get_transit_gps_model(obj,  kernel_id=-1):
 
 
 def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = False , return_model = False):
- 
-    
-        
-    
+
+
     planets = []
     for i in range(npl):
         if fit_results == False:
@@ -377,7 +375,6 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = Fa
                                             par[len(vel_files)*2 +7*i+4]],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
         else:
             pl_mass = float(fit_results.mass[i])
-       # pl_params = [float(pl_mass)/1047.70266835, par[len(vel_files)*2 +7*i+1],
         pl_params = [pl_mass/1047.70266835, 
                                             par[len(vel_files)*2 +7*i+1],
                                             par[len(vel_files)*2 +7*i+2],
@@ -387,55 +384,33 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = Fa
                                             (par[len(vel_files)*2 +7*i+4]+180.0)]
         planet = ttvfast.models.Planet(*pl_params)
         planets.append(planet)
-#        print(float(fit_results.mass[i])/1047.70266835)
-        
-    #pl_params = [ 1.52872840e-03,  1.19188572e+01,  9.46933007e-04,  8.99900012e+01,
-  #3.21558494e-04,  4.12244260e+01, 4.86958319e+01,  5.57585711e-04,
-  #2.47107644e+01,  1.18472008e-03,  9.00099896e+01, -4.95189947e-05,
-  #1.16081575e+02,  1.87972230e+02]
-
-        #print(par[len(vel_files)*2 + 7*i])
-        #print(pl_params)
-
-    #planets = []
-    #for i in range(npl):
-        
-    #    planet1 = ttvfast.models.Planet(*pl_params[0 +(i)*7:7+(i)*7])
-    #    planets.append(planet1)
-    
+ 
     results = ttvfast.ttvfast(planets, stellar_mass, times[0],times[1],times[2],input_flag=0)
 
     result_rows = list(zip(*results['positions']))
 
     n1   = [item[0] for item in result_rows]
-    #n2   = [item[1] for i, item in enumerate(result_rows) if n1[i] == 0]
-    #transits_calc   = [item[2] for i, item in enumerate(result_rows) if n1[i] == 0]
 
-    n2   = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == 0])
-    transits_calc   = np.array([item[2] for i, item in enumerate(result_rows) if n1[i] == 0])
- 
+    #n2   = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == 0])
+    #transits_calc   = np.array([item[2] for i, item in enumerate(result_rows) if n1[i] == 0])
+    n2   = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[0][3])-1])# if ttv_files[0][4] == True])
+    transits_calc   = np.array([item[2] for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[0][3])-1])# if ttv_files[0][4] == True])
 
     loglik_ttv = 0
     calc_n     = []
     calk_tran  = []
-    
+
     for i in range(len(ttv_files[0][1])):
-        
+
         calc_n.append(n2[int(ttv_files[0][0][i] -1)])
         calk_tran.append(transits_calc[int(ttv_files[0][0][i])-1])     
         
         sig2i_ttv = 1.0 / (ttv_files[0][2][i])**2
         loglik_ttv += -0.5*(np.sum(((ttv_files[0][1][i] - calk_tran[i])**2 * sig2i_ttv - np.log(sig2i_ttv / 2./ np.pi)))) 
-        #print(sig2i_ttv,ttv_files[0][1][i], float(transits_calc[int(ttv_files[0][0][i])-1]))
-        #print(ttv_files[0][1][i], calk_tran[i],ttv_files[0][1][i] - calk_tran[i],sig2i_ttv)
-#        print(ttv_files[0][0][i],n2[int(ttv_files[0][0][i] -1)])
-#        print(ttv_files[0][1][i],transits_calc[int(ttv_files[0][0][i])-1])
 
     n2  = n2[np.where(transits_calc > 0)]
     transits_calc  = transits_calc[np.where(transits_calc > 0)]
- 
-    #print(loglik_ttv, par,times,stellar_mass,fit_results.mass)
-    #print(transits_calc[0:10])
+
 
     if return_model == True:
         return [loglik_ttv, [calc_n,calk_tran],[n2,transits_calc]]
@@ -536,6 +511,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     cwd = opt["cwd"]
     gr_flag = opt["gr_flag"]
     ttv_files = opt["TTV_files"]
+    ttv_times = opt["TTV_times"]
 
     if np.isnan(p).any():
         return -np.inf
@@ -661,12 +637,12 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
     if(opt["TTV"]): 
         
-        times = [epoch,dt/86400.0,epoch+400.0]
- 
+        #times = [epoch,dt/86400.0,epoch+400.0]
+        print(ttv_times)
         if(rtg[0])==False:
-            ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,times,fit_results=False, return_model = False)
+            ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,fit_results=False, return_model = False)
         else: 
-            ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,times,fit_results=fit_results, return_model = False)
+            ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,fit_results=fit_results, return_model = False)
         #print(par)
         #print(ttv_loglik)
 
@@ -758,7 +734,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     
     opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,
            "when_to_kill":when_to_kill,"copl_incl":obj.copl_incl,"hkl":obj.hkl,
-           "cwd":obj.cwd, "gr_flag":obj.gr_flag,"TTV":obj.type_fit["TTV"],"TTV_files":ttv_files} 
+           "cwd":obj.cwd, "gr_flag":obj.gr_flag,"TTV":obj.type_fit["TTV"],
+           "TTV_files":ttv_files, "TTV_times":obj.ttv_times} 
     
     if obj.init_fit == True: 
         flags = []
@@ -1184,7 +1161,7 @@ def run_nestsamp(obj, **kwargs):
     opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,
            "when_to_kill":when_to_kill,"copl_incl":obj.copl_incl,"hkl":obj.hkl,
            "cwd":obj.cwd, "gr_flag":obj.gr_flag,"ns_samp_method":obj.ns_samp_method,
-           "TTV":obj.type_fit["TTV"],"TTV_files":ttv_files}
+           "TTV":obj.type_fit["TTV"],"TTV_files":ttv_files,"TTV_times":obj.ttv_times}
     #print(par) 
     #print(flags)
    # print(bb)
@@ -1523,7 +1500,7 @@ def run_mcmc(obj, **kwargs):
     
     opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,
            "when_to_kill":when_to_kill,"copl_incl":obj.copl_incl,"hkl":obj.hkl,"cwd":obj.cwd, 
-           "gr_flag":obj.gr_flag,"TTV":obj.type_fit["TTV"],"TTV_files":ttv_files}    
+           "gr_flag":obj.gr_flag,"TTV":obj.type_fit["TTV"],"TTV_files":ttv_files,"TTV_times":obj.ttv_times}
  
     gps = []
     if (rtg[1]):
@@ -1769,7 +1746,7 @@ class signal_fit(object):
         self.init_pl_arb()
         self.init_orb_evol_arb()
         
-        
+        self.init_ttv()
        
 
         self.type_fit = {"RV": True,"Transit": False,"TTV":False}
@@ -2071,7 +2048,13 @@ class signal_fit(object):
         
         
 
-
+    def init_ttv(self):
+        
+        self.epoch_ttv = 2458000
+        self.epoch_ttv_end = 2459000
+        self.ttv_dt = 0.02
+        
+        self.ttv_times = [self.epoch_ttv,self.ttv_dt,self.epoch_ttv_end]
 
 
     def init_omega_dot(self) :       
@@ -3537,6 +3520,8 @@ class signal_fit(object):
         self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return       
                     
+    
+    
 #### prep. #########
     def prepare_for_mcmc(self, rtg=[True,False,False,False], customdatasetlabels=[]):
         '''Prepare bounds and par array needed for the MCMC''' 
