@@ -25,7 +25,7 @@ What works:
 * GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
 * Joint RVs + Transit + GPs best-fit optimization.
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty").
-* TTVs and joint TTVs + RVs analysis (not well tested)
+* TTVs and joint TTVs + RVs analysis (still experimental)
 * RV auto-fit (RV automated planet-finder algorithm).
 * Fit for apsidal orbital precession, or apply GR precession. 
 * Instant AMD stability check for multiple planetary systems.
@@ -95,6 +95,7 @@ transitleastsquares - yes!
 dynesty - yes!  
 rxvt - yes!  
 batman - yes!   
+ttvfast - yes!
 
 *Installing the swift N-body lib, OK?  (you must, if you haven't done it already!)*
   

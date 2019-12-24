@@ -282,6 +282,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.RV_quad_trend.setValue(fit.rv_quadtr)   
 
         self.Epoch.setValue(fit.epoch)
+        self.Epoch_ttv.setValue(fit.epoch_ttv)
 
 
     def update_params(self):
@@ -328,6 +329,25 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.epoch = min(fit.fit_results.rv_model.jd)
         else:
             fit.epoch = self.Epoch.value()
+
+        #### TESTS #####
+        if self.checkBox_first_TTV_epoch.isChecked() and len(fit.ttv_data_sets[0]) != 0 and  self.radioButton_ttv.isChecked() ==True:
+            fit.epoch_ttv = min(fit.ttv_data_sets[0][1])
+            self.Epoch_ttv.setValue(fit.epoch_ttv)
+            #self.checkBox_first_TTV_epoch.setEnabled(True)
+        elif self.radioButton_ttv.isChecked() == False:
+            fit.epoch_ttv = float(fit.epoch)
+            self.Epoch_ttv.setValue(float(fit.epoch))
+            #self.checkBox_first_TTV_epoch.setEnabled(False)
+        else:
+            fit.epoch_ttv = self.Epoch_ttv.value()
+           # self.checkBox_first_TTV_epoch.setEnabled(True)
+
+        if self.Epoch_ttv_end_plus_1000.isChecked():
+            fit.epoch_ttv_end = float(fit.epoch_ttv) + 1000.0
+            self.Epoch_ttv_end.setValue(fit.epoch_ttv + 1000.0)
+#        else:
+#            fit.epoch_ttv_end = self.Epoch_ttv_end.value()
 
 
     def read_tra_GP(self):
@@ -774,12 +794,10 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         [self.omega_dot_mean_7.value(),self.omega_dot_sigma_7.value(),self.use_omega_dot_norm_pr_7.isChecked()], [self.omega_dot_mean_8.value(),self.omega_dot_sigma_8.value(),self.use_omega_dot_norm_pr_8.isChecked()], 
         [self.omega_dot_mean_9.value(),self.omega_dot_sigma_9.value(),self.use_omega_dot_norm_pr_9.isChecked()]   
         ]  
-    
-    
+
         for i in range(9): 
-            fit.omega_dot_norm_pr[i] = om_nr_priors_gui[i]            
-    
- 
+            fit.omega_dot_norm_pr[i] = om_nr_priors_gui[i]
+
         fit.rv_lintr_norm_pr[0]  = [self.lin_trend_mean.value(),self.lin_trend_sigma.value(),self.use_lin_tr_nr_pr.isChecked()]
 
         offset_nr_priors_gui_tra = [
@@ -1691,19 +1709,18 @@ Polyfit coefficients:
         viewrange = vb.viewRange()
 
         def mouseMoved(evt):
-                            
-            
+
             pos = evt[0]  ## using signal proxy turns original arguments into a tuple
-            if plot_wg.sceneBoundingRect().contains(pos):             
+            if plot_wg.sceneBoundingRect().contains(pos):
 
                 mousePoint = vb.mapSceneToView(pos)
-                    
+
                 if log == True:
                     label.setText("x=%0.3f,  y=%0.3f"%(10**mousePoint.x(), mousePoint.y()))
                 else:
                     label.setText("x=%0.3f,  y=%0.3f"%(mousePoint.x(), mousePoint.y()))
                     #label.rotateAxis=(1, 0)
-                    
+
                 vLine.setPos(mousePoint.x())
                 hLine.setPos(mousePoint.y())
  
@@ -1713,22 +1730,22 @@ Polyfit coefficients:
                     label.setAnchor((1,1))
                 label.setPos(mousePoint.x(), mousePoint.y())
                 #fit.label = label
-                
+
         plot_wg.getViewBox().setAutoVisible(y=True)
 
-        proxy = pg.SignalProxy(plot_wg.scene().sigMouseMoved, rateLimit=60, slot=mouseMoved)    
+        proxy = pg.SignalProxy(plot_wg.scene().sigMouseMoved, rateLimit=60, slot=mouseMoved)
         plot_wg.proxy = proxy
-  
-   
-            
+
+
+
     def label_peaks(self, plot_wg2, pos_peaks, GLS = True, o_c = False, activity = False, MLP = False):
     
         if GLS == True and self.avoid_GLS_RV_alias.isChecked():
             x_peaks = pos_peaks[0][pos_peaks[0]>1.2]
             y_peaks = pos_peaks[1][pos_peaks[0]>1.2]
         else:            
-            x_peaks = pos_peaks[0] 
-            y_peaks = pos_peaks[1]          
+            x_peaks = pos_peaks[0]
+            y_peaks = pos_peaks[1]
             
             
         if GLS == True:
@@ -1736,7 +1753,7 @@ Polyfit coefficients:
             if o_c == True:
                 log = self.radioButton_RV_o_c_GLS_period.isChecked()
             elif activity == True:
-                log = self.radioButton_act_GLS_period.isChecked()             
+                log = self.radioButton_act_GLS_period.isChecked()
             elif MLP == True:
                 log = self.radioButton_RV_MLP_period.isChecked()
                 N_peaks = int(self.N_MLP_peak_to_point.value())
@@ -1751,7 +1768,7 @@ Polyfit coefficients:
             type_per = "TLS"
 
         if len(x_peaks) <  N_peaks:
-            N_peaks = len(x_peaks)              
+            N_peaks = len(x_peaks)
             print("You have reached the maximum number of %s peaks."%type_per)
 
         for i in range(N_peaks):
@@ -1765,23 +1782,20 @@ Polyfit coefficients:
                 
             elif log == False and GLS == True:   
                 arrow = pg.ArrowItem(pos=(1/x_peaks[i], y_peaks[i]), angle=270)
-                text_arrow.setText('%0.2f d' % (x_peaks[i]))               
-                text_arrow.setPos(1/x_peaks[i],y_peaks[i])     
+                text_arrow.setText('%0.2f d' % (x_peaks[i]))
+                text_arrow.setPos(1/x_peaks[i],y_peaks[i])
                 
             elif log == False and GLS == False: 
                 arrow = pg.ArrowItem(pos=(x_peaks[i], y_peaks[i]), angle=270)
-                text_arrow.setText('%0.2f d' % (x_peaks[i]))               
-                text_arrow.setPos(x_peaks[i],y_peaks[i])                    
+                text_arrow.setText('%0.2f d' % (x_peaks[i]))
+                text_arrow.setPos(x_peaks[i],y_peaks[i])
   
             plot_wg2.addItem(arrow) 
-            plot_wg2.addItem(text_arrow)        
-        
-        
-        
-######################## RV plots ######################################        
-      
-             
-         
+            plot_wg2.addItem(text_arrow)
+
+
+######################## RV plots ######################################
+
     def run_gls(self):
         global fit
                 
@@ -3289,45 +3303,44 @@ Transit duration: %s d
             for i in range(fit.npl):
                 rv.phase_RV_planet_signal(fit,i+1) 
             self.run_gls()
-            self.run_gls_o_c()                
-        self.update_plots()  
-        self.jupiter_push_vars() 
+            self.run_gls_o_c()
+        self.update_plots()
+        self.jupiter_push_vars()
 
 
- 
     def worker_ttv_fitting(self, ff=1, auto_fit = False ):
         global fit  
-        
-        self.button_fit.setEnabled(False)         
+
+        self.button_fit.setEnabled(False)
         self.update_params() 
         self.update_use()   
-        
+
         # check if transit data is present
         z=0
         for i in range(10):
             if len(fit.ttv_data_sets[i]) != 0:
                 z=z+1
-        
+
         if z <= 0:
             choice = QtGui.QMessageBox.information(self, 'Warning!',
-            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
-            self.button_fit.setEnabled(True)         
+            "Not possible to model planets if there are no TTV data loaded. Please add your TTV data first. Okay?", QtGui.QMessageBox.Ok)      
+            self.button_fit.setEnabled(True)
             return 
-        
+
         if fit.type_fit["RV"] == True:
              if fit.filelist.ndset <= 0:
                  choice = QtGui.QMessageBox.information(self, 'Warning!',
-                 "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
+                 "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)
                  self.button_fit.setEnabled(True)
-                 return   
+                 return
 
         if fit.type_fit["RV"] == True :
-            self.statusBar().showMessage('Minimizing TTV + RV parameters.... SciPy in action, please be patient.  ')       
+            self.statusBar().showMessage('Minimizing TTV + RV parameters.... SciPy in action, please be patient.  ')
         else:
-            self.statusBar().showMessage('Minimizing TTV parameters.... SciPy in action, please be patient. ')       
-           
+            self.statusBar().showMessage('Minimizing TTV parameters.... SciPy in action, please be patient. ')
 
-        self.set_tra_ld()            
+        self.check_ttv_params()
+        self.set_tra_ld()
         self.check_bounds()
         self.check_priors_nr()   
         self.check_priors_jeff()   
@@ -3341,19 +3354,27 @@ Transit duration: %s d
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
         self.threadpool.start(worker_ttv)
-        
- 
+
+
     def ttv_fit(self, ff=0 ):
         global fit
-        
-        if ff ==0:        
+
+        if ff ==0:
             fit.init_fit = True
         else:
             fit.init_fit = False
 
- 
         rv.run_SciPyOp(fit)
+
+
+    def check_ttv_params(self):
+        global fit
+
+        fit.epoch_ttv = self.Epoch_ttv.value()
+        fit.ttv_dt = self.time_step_model_ttv.value() 
+        fit.epoch_ttv_end = self.Epoch_ttv_end.value()
         
+        fit.ttv_times = [fit.epoch_ttv,fit.ttv_dt,fit.epoch_ttv_end]
 
 #### TTV plots ################ 
     def update_ttv_plots(self): 
@@ -4016,7 +4037,9 @@ Transit duration: %s d
        # self.set_tra_ld()   
 
         self.check_model_params()
-         
+
+        #self.check_ttv_params()
+
         self.check_bounds()
         self.check_priors_nr()   
         self.check_priors_jeff()   
@@ -4193,9 +4216,71 @@ Transit duration: %s d
             text = "chi2(k=%d)\t"%d + "\t".join(["%1.2f" % c for c in chi_squared])     
             self.dialog_chi_table.text.append(text)  
 
-        self.dialog_chi_table.text.setReadOnly(True)       
+        self.dialog_chi_table.text.setReadOnly(True)
    
         self.dialog_chi_table.show()
+
+
+
+    def print_TTV_info(self, image=False):
+        #self.dialog.statusBar().showMessage('Ready')
+        self.dialog_ttv_help.setFixedSize(800, 800)
+        self.dialog_ttv_help.setWindowTitle('TTV modeling help')  
+        #self.dialog.setGeometry(300, 300, 800, 800)
+        #self.dialog_credits.acceptRichText(True)
+        
+        text = ''
+        self.dialog_ttv_help.text.setText(text) 
+        
+        text = """
+This module is experimental and under construction. TTVs and TTVs+RV modeling was 
+successfully tested on several exoplanet systems, but you must consider the notes below:
+
+
+
+* Currently, the TTV (+RV) modeling works well only with one TTV dataset. 
+        
+* The TTV file format should be as follows (e.g.):
+    
+#   N transit             t0 [BJD]             sigma t0 [d]
+          1                    2458000.5                0.022
+          2                    2458020.5                0.023
+          4                    2458060.5                0.021
+.......................................................................
+          8                    2458140.5                0.026
+    
+    Anything else than the format above will likely not work and is even possible to crash the GUI!
+
+
+* The selected epoch MUST be always the time of the first observed transit, BUT to be on the safe side, 
+please chose it slightly earlier. Using the example above, the epoch should be either 2458000.5, or e.g., 
+2458000.0. Otherwise, the TTV model is likely to skip the first transit and start from the next!
+
+
+* When RV+TTVs are modeled the epoch is ALWAYS chosen to be the epoch of the RV model.
+
+    To change the RV epoch go to:
+    
+    Models param. --> Models --> RV Model
+    
+    Then, uncheck "first RV" and add whatever epoch you like, as long as it is slightly before the time 
+    of the first transit in your TTV input file. 
+    
+    
+* Make sure that the time baseline of "End of Model" - "Epoch" >  last t0 - first t0 in your TTV 
+input file.
+    
+
+* Chose wisely the "time step in dynamical model" !
+
+If something is still unclear, or you are experiencing problems you are welcome to open an "issue" 
+in https://github.com/3fon3fonov/exostriker
+
+"""
+        self.dialog_ttv_help.text.append(text)
+        self.dialog_ttv_help.text.setReadOnly(True)
+        #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
+        self.dialog_ttv_help.show()
 
 
 
@@ -4209,7 +4294,7 @@ Transit duration: %s d
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.11) \n developed by 3fon3fonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.12) \n developed by 3fon3fonov"
         
         self.dialog_credits.text.append(text)
 
@@ -5324,7 +5409,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             print("""
 You dont have TTVfast installed! Therefore, you cannot apply TTV modelling. 
 Please install via 'pip install ttvfast'. But you can also ignore this warning,
-since in this ver. 0.11 of the Exo-Striker, the TTV modeling is still experimental.
+since in this ver. 0.12 of the Exo-Striker, the TTV modeling is still experimental.
 """)
             self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
@@ -5540,7 +5625,10 @@ since in this ver. 0.11 of the Exo-Striker, the TTV modeling is still experiment
 
             om_flag = False
             incl_flag = True
-            Dom_flag = False
+            if self.radioButton_ttv.isChecked()==True or self.radioButton_ttv_RV.isChecked()==True:
+                Dom_flag = True
+            else:
+                Dom_flag = False
                                     
         elif self.radioButton_Dynamical.isChecked():
             
@@ -6058,10 +6146,22 @@ since in this ver. 0.11 of the Exo-Striker, the TTV modeling is still experiment
         self.update_gui_params()                  
         self.radioButton_transit.setChecked(True)                    
 
-        self.worker_transit_fitting(ff=0 ) 
+        self.worker_transit_fitting(ff=0 )
         
+        
+ 
 #############################  TEST ZONE ################################  
 
+
+    def set_type_fit_options(self):
+        global fit 
+        
+        if self.radioButton_ttv.isChecked() == False:
+            self.checkBox_first_TTV_epoch.setEnabled(False)
+        else:
+            self.checkBox_first_TTV_epoch.setEnabled(True)
+        
+        self.mute_boxes()
 
     def ttv_dataset_to_planet(self):
         
@@ -6298,7 +6398,11 @@ since in this ver. 0.11 of the Exo-Striker, the TTV modeling is still experiment
         self.use_nonlin_u3        = gui_groups.use_nonlin_u3(self)
         self.nonlin_u4            = gui_groups.nonlin_u4(self)
         self.use_nonlin_u4        = gui_groups.use_nonlin_u4(self)
+        
+        ########### TEMP ##############
+        self.TTV_readme_info.clicked.connect(lambda: self.print_TTV_info()) 
 
+        #self.param_nr_priors_gui = gui_groups.param_nr_priors_gui(self)
 
         self.initialize_buttons()
         self.initialize_plots()   
@@ -6364,12 +6468,16 @@ since in this ver. 0.11 of the Exo-Striker, the TTV modeling is still experiment
             self.pipe_text = DebugDialog()
 
         self.gridLayout_stdout.addWidget(self.pipe_text)
+        
+        
+        self.buttonGroup_type_fit.buttonClicked.connect(self.set_type_fit_options)
 
         #################### credits  ########################
         
         self.dialog = print_info(self)
         self.dialog_credits = print_info(self)
         self.dialog_chi_table = print_info(self)
+        self.dialog_ttv_help = print_info(self)
 
         self.buttonGroup_apply_rv_data_options.buttonClicked.connect(self.apply_rv_data_options)
 
@@ -6633,11 +6741,11 @@ since in this ver. 0.11 of the Exo-Striker, the TTV modeling is still experiment
 
         
         self.mute_boxes()
-        self.radioButton_transit_RV.toggled.connect(self.mute_boxes)
-        self.radioButton_transit.toggled.connect(self.mute_boxes)
-        self.radioButton_RV.toggled.connect(self.mute_boxes)
-        self.radioButton_ttv.toggled.connect(self.mute_boxes)
-        self.radioButton_ttv_RV.toggled.connect(self.mute_boxes)
+#        self.radioButton_transit_RV.toggled.connect(self.mute_boxes)
+#        self.radioButton_transit.toggled.connect(self.mute_boxes)
+#        self.radioButton_RV.toggled.connect(self.mute_boxes)
+#        self.radioButton_ttv.toggled.connect(self.mute_boxes)
+#        self.radioButton_ttv_RV.toggled.connect(self.mute_boxes)
 
         
         
@@ -6731,7 +6839,7 @@ since in this ver. 0.11 of the Exo-Striker, the TTV modeling is still experiment
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.11). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.12). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
