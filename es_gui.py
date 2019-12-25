@@ -5427,7 +5427,8 @@ since in this ver. 0.12 of the Exo-Striker, the TTV modeling is still experiment
             pl_rad_flag = True
             a_sol_flag = True
             fit.type_fit["RV"] = True           
-            fit.type_fit["Transit"] = True 
+            fit.type_fit["Transit"] = True
+            fit.type_fit["TTV"] = False
             
         elif self.radioButton_transit.isChecked():            
             
@@ -5438,6 +5439,7 @@ since in this ver. 0.12 of the Exo-Striker, the TTV modeling is still experiment
             a_sol_flag = True
             fit.type_fit["RV"] = False           
             fit.type_fit["Transit"] = True 
+            fit.type_fit["TTV"] = False
             
         elif self.radioButton_RV.isChecked():            
             
@@ -5447,7 +5449,8 @@ since in this ver. 0.12 of the Exo-Striker, the TTV modeling is still experiment
             pl_rad_flag = False
             a_sol_flag = False                        
             fit.type_fit["RV"] = True           
-            fit.type_fit["Transit"] = False 
+            fit.type_fit["Transit"] = False
+            fit.type_fit["TTV"] = False
             
         elif self.radioButton_ttv.isChecked() or self. radioButton_ttv_RV.isChecked():            
             
@@ -5465,10 +5468,10 @@ since in this ver. 0.12 of the Exo-Striker, the TTV modeling is still experiment
 
             incl_flag = True
             Dom_flag = True 
-            self.incl1.setEnabled(incl_flag)  
-            self.use_incl1.setEnabled(incl_flag)  
-            self.incl2.setEnabled(incl_flag)  
-            self.use_incl2.setEnabled(incl_flag) 
+            self.incl1.setEnabled(incl_flag)
+            self.use_incl1.setEnabled(incl_flag)
+            self.incl2.setEnabled(incl_flag)
+            self.use_incl2.setEnabled(incl_flag)
             self.incl3.setEnabled(incl_flag)  
             self.use_incl3.setEnabled(incl_flag)  
             self.incl4.setEnabled(incl_flag)  
@@ -5487,7 +5490,7 @@ since in this ver. 0.12 of the Exo-Striker, the TTV modeling is still experiment
             self.Omega1.setEnabled(Dom_flag)  
             self.use_Omega1.setEnabled(Dom_flag)  
             self.Omega2.setEnabled(Dom_flag)  
-            self.use_Omega2.setEnabled(Dom_flag)             
+            self.use_Omega2.setEnabled(Dom_flag)
             self.Omega3.setEnabled(Dom_flag)  
             self.use_Omega3.setEnabled(Dom_flag)  
             self.Omega4.setEnabled(Dom_flag)  
@@ -5495,45 +5498,45 @@ since in this ver. 0.12 of the Exo-Striker, the TTV modeling is still experiment
             self.Omega5.setEnabled(Dom_flag)  
             self.use_Omega5.setEnabled(Dom_flag)  
             self.Omega6.setEnabled(Dom_flag)  
-            self.use_Omega6.setEnabled(Dom_flag)             
+            self.use_Omega6.setEnabled(Dom_flag)
             self.Omega7.setEnabled(Dom_flag)  
             self.use_Omega7.setEnabled(Dom_flag)  
             self.Omega8.setEnabled(Dom_flag)  
             self.use_Omega8.setEnabled(Dom_flag) 
             self.Omega9.setEnabled(Dom_flag)  
-            self.use_Omega9.setEnabled(Dom_flag)             
+            self.use_Omega9.setEnabled(Dom_flag)
 
         self.ma1.setEnabled(ma_flag)
         self.use_ma1.setEnabled(ma_flag)
         self.ma2.setEnabled(ma_flag)
-        self.use_ma2.setEnabled(ma_flag)           
+        self.use_ma2.setEnabled(ma_flag)
         self.ma3.setEnabled(ma_flag)
         self.use_ma3.setEnabled(ma_flag)  
         self.ma4.setEnabled(ma_flag)
         self.use_ma4.setEnabled(ma_flag)
         self.ma5.setEnabled(ma_flag)
-        self.use_ma5.setEnabled(ma_flag)           
+        self.use_ma5.setEnabled(ma_flag)
         self.ma6.setEnabled(ma_flag)
         self.use_ma6.setEnabled(ma_flag)  
         self.ma7.setEnabled(ma_flag)
         self.use_ma7.setEnabled(ma_flag)
         self.ma8.setEnabled(ma_flag)
-        self.use_ma8.setEnabled(ma_flag)           
+        self.use_ma8.setEnabled(ma_flag)
         self.ma9.setEnabled(ma_flag)
         self.use_ma9.setEnabled(ma_flag)  
         
         self.t0_1.setEnabled(t0_flag)
         self.use_t0_1.setEnabled(t0_flag)
         self.t0_2.setEnabled(t0_flag)
-        self.use_t0_2.setEnabled(t0_flag)           
+        self.use_t0_2.setEnabled(t0_flag)
         self.t0_3.setEnabled(t0_flag)
         self.use_t0_3.setEnabled(t0_flag)  
         self.t0_4.setEnabled(t0_flag)
         self.use_t0_4.setEnabled(t0_flag)
         self.t0_5.setEnabled(t0_flag)
-        self.use_t0_5.setEnabled(t0_flag)           
+        self.use_t0_5.setEnabled(t0_flag)
         self.t0_6.setEnabled(t0_flag)
-        self.use_t0_6.setEnabled(t0_flag)              
+        self.use_t0_6.setEnabled(t0_flag)
         self.t0_7.setEnabled(t0_flag)
         self.use_t0_7.setEnabled(t0_flag)
         self.t0_8.setEnabled(t0_flag)
@@ -5544,15 +5547,15 @@ since in this ver. 0.12 of the Exo-Striker, the TTV modeling is still experiment
         self.K1.setEnabled(K_flag)
         self.use_K1.setEnabled(K_flag)
         self.K2.setEnabled(K_flag)
-        self.use_K2.setEnabled(K_flag)           
+        self.use_K2.setEnabled(K_flag)
         self.K3.setEnabled(K_flag)
-        self.use_K3.setEnabled(K_flag)        
+        self.use_K3.setEnabled(K_flag)
         self.K4.setEnabled(K_flag)
         self.use_K4.setEnabled(K_flag)
         self.K5.setEnabled(K_flag)
-        self.use_K5.setEnabled(K_flag)           
+        self.use_K5.setEnabled(K_flag)
         self.K6.setEnabled(K_flag)
-        self.use_K6.setEnabled(K_flag)                    
+        self.use_K6.setEnabled(K_flag)
         self.K7.setEnabled(K_flag)
         self.use_K7.setEnabled(K_flag)
         self.K8.setEnabled(K_flag)
