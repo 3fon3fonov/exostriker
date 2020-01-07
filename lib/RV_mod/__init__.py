@@ -638,7 +638,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     if(opt["TTV"]): 
         
         #times = [epoch,dt/86400.0,epoch+400.0]
-        print(ttv_times)
+        #print(ttv_times)
         if(rtg[0])==False:
             ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,fit_results=False, return_model = False)
         else: 
