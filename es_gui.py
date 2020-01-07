@@ -1241,7 +1241,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_7,7)
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_8,8)
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_9,9)
-        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_10,10)        
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_10,10)
         
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_1,1)
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_2,2)
@@ -1252,10 +1252,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_7,7)
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_8,8)
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_9,9)
-        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_10,10)      
-        
-        
-        
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_10,10)
+
         self.buttonGroup_use_planets = QtWidgets.QButtonGroup()
         self.buttonGroup_use_planets.setExclusive(False)
         
@@ -1480,12 +1478,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 else:
                     pos_neg = "positive"
                     
-                if abs(pears[0]) < 0.3:                      
+                if abs(pears[0]) < 0.3:
                     strong_mod_weak = "very weak"
                 elif 0.3 <= abs(pears[0]) <= 0.5: 
                      strong_mod_weak = "weak"
                 elif 0.5 <= abs(pears[0]) <= 0.7: 
-                     strong_mod_weak = "moderate"                       
+                     strong_mod_weak = "moderate"
                 elif 0.7 <= abs(pears[0]) <= 1: 
                      strong_mod_weak = "strong"  
                 else:
@@ -1567,9 +1565,8 @@ Polyfit coefficients:
             return
     
         self.update_correlations_data_plots()
-              
-        
-        
+
+
 ######################## Activity plots ######################################  
                 
     def init_activity_combo(self):
@@ -1811,9 +1808,9 @@ Polyfit coefficients:
             return
         
         self.update_RV_GLS_plots()
-        
-        
-        
+
+
+
     def run_gls_o_c(self):
         global fit
                         
@@ -4812,14 +4809,8 @@ highly appreciated!
             fit.rtg = [False, False, False, False]
         elif self.radioButton_ttv_RV.isChecked():
             fit.rtg = [True,self.do_RV_GP.isChecked(), False, False] 
-        
-        #if self.radioButton_ttv.isChecked() or self.radioButton_ttv_RV.isChecked():
-       #     self.get_ttv_error_msg()
-            
-      #      self.button_nest_samp.setEnabled(True)  
-       #     self.statusBar().showMessage('') 
-      #      return
-        
+
+
         self.button_nest_samp.setEnabled(False)
         self.statusBar().showMessage('Nested Sampling in progress....')        
         # check if RV data is present
@@ -4828,9 +4819,8 @@ highly appreciated!
              "Not possible to run MCMC if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
              self.button_nest_samp.setEnabled(True)  
              self.statusBar().showMessage('') 
+             return
 
-             return   
-        
         ntran_data = 0
         for i in range(0,10,1):         
             ntran_data += len(fit.tra_data_sets[i]) 
@@ -4848,27 +4838,24 @@ highly appreciated!
         choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
                                             QtGui.QMessageBox.Cancel | QtGui.QMessageBox.Ok)       
- 
-         
+
         if choice == QtGui.QMessageBox.Cancel:
             self.statusBar().showMessage('') 
             self.button_nest_samp.setEnabled(True)
-            return        
-        
+            return
+
         self.set_tra_ld()
         self.check_bounds()
         self.check_priors_nr() 
         fit.model_npoints = self.points_to_draw_model.value()
         
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
-        
-        
+
         if self.use_nest_percentile_level.isChecked():
             fit.nest_percentile_level = self.nest_percentile_level.value()
         else:
             fit.nest_percentile_level = 68.3
-           
-        
+
         # Pass the function to execute
         worker_n = Worker(self.run_nest) # Any other args, kwargs are passed to the run  
         # Execute
@@ -4941,17 +4928,15 @@ highly appreciated!
 
     def worker_mcmc_complete(self):
         global fit  
-        #fit.print_info(short_errors=False)
-        
+
         self.update_labels()
         self.update_gui_params()
         self.update_errors() 
         self.update_a_mass() 
-        
+
         self.init_plot_corr()
-        
+
         self.statusBar().showMessage('') 
-        #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
 
         if fit.bound_error == True:
             self.get_error_msg(fit.bound_error_msg)
@@ -4959,9 +4944,6 @@ highly appreciated!
         
         if self.adopt_mcmc_means_as_par.isChecked() or self.adopt_best_lnL_as_pars.isChecked() or self.adopt_mcmc_mode_as_par.isChecked():
             self.init_fit()
- 
-       # if sys.version_info[0] == 3:
-       #     self.print_py3_warning()
 
     def worker_mcmc(self):
         global fit  
@@ -5097,8 +5079,7 @@ highly appreciated!
     def force_mcmc_check_box(self):
         if self.make_corner_plot.isChecked():
             self.save_samples.setChecked(True)
- 
-                       
+
 ################################## Cornerplot #######################################
 
     def worker_cornerplot_complete(self):
@@ -5129,10 +5110,10 @@ highly appreciated!
              "%s file not found. Generate one and try again?"%type_samp, QtGui.QMessageBox.Ok)      
              self.button_make_mcmc_cornerplot.setEnabled(True)
              self.button_make_nest_cornerplot.setEnabled(True)
-             
-             return  
- 
- 
+
+             return
+
+
         # Pass the function to execute
         worker_cor = Worker(lambda: self.make_cornerplot(type_plot = type_plot)) # Any other args, kwargs are passed to the run  
         # Execute
@@ -5142,14 +5123,13 @@ highly appreciated!
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
         self.threadpool.start(worker_cor)
- 
-            
+
+
     def make_cornerplot(self,type_plot = 'mcmc'):
         global fit
         rv.cornerplot(fit, fileinput=True, type_plot = type_plot )
-            
-            
-      
+
+
     def change_corner_plot_file_name(self, type_plot = "mcmc"):
         global fit
         
@@ -5161,12 +5141,11 @@ highly appreciated!
             elif type_plot == "nest":
                 fit.nest_corner_plot_file = output_file[0] 
                 self.nest_corner_plot_change_name.setText(output_file[0])               
-            
-       
+
+
 ################################# data inspector ###################################  
-        
-        
-        
+
+
     def load_data_inspect(self): 
         global fit
          
@@ -5174,26 +5153,25 @@ highly appreciated!
         path = self.inspector_file
         if path == '':
             return 
-        
+
         filename, file_extension = os.path.splitext(path)  
-            
+
         if file_extension == '.vels':
             fit.add_dataset(self.file_from_path(path), str(path),0.0,1.0)
-            self.init_fit()            
-            self.update_use_from_input_file()            
+            self.init_fit()
+            self.update_use_from_input_file()
             self.update_use()
             self.update_params()
-            self.update_RV_file_buttons()        
+            self.update_RV_file_buttons()
  
         elif file_extension == '.act':
-            
+
             for i in range(10):
-                if len(fit.act_data_sets[i]) == 0:    
+                if len(fit.act_data_sets[i]) == 0:
                     but_ind = i +1
-            
+
                     fit.add_act_dataset('test', str(path),act_idset =but_ind-1)
-         
-        
+
                     self.update_act_file_buttons()
                     self.update_activity_gls_plots(but_ind-1)
                     self.buttonGroup_activity_data.button(but_ind).setText(self.file_from_path(path))
@@ -5201,22 +5179,22 @@ highly appreciated!
             
         elif  file_extension == '.tran':
             for i in range(10):
-                if len(fit.tra_data_sets[i]) == 0:                 
+                if len(fit.tra_data_sets[i]) == 0:
                     but_ind = i +1
  
                     fit.add_transit_dataset('test', str(path),tra_idset =but_ind-1)
-                    self.update_use_from_input_file()            
+                    self.update_use_from_input_file()
                     self.update_use()
-                    self.update_gui_params()           
+                    self.update_gui_params()
                     self.update_params()
                     self.update_tra_file_buttons()
                     self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(path))
                     return
-           
+
         else: 
             return
-        
-    def cross_data_inspect(self):        
+
+    def cross_data_inspect(self):
         if self.inpector_plot_cross_hair.isChecked():
             self.cross_hair(pdi,log=False)   
             
@@ -5230,11 +5208,10 @@ highly appreciated!
             path = self.tree_view_tab.listview.model().filePath(self.tree_view_tab.listview.currentIndex()) 
         else:
             path = self.sender().model().filePath(index)
- 
-   
-        pdi.plot(clear=True,)  
-        
-        try:    
+
+        pdi.plot(clear=True,)
+
+        try:
             x     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
             y     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
             y_err = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2]) 
@@ -5252,7 +5229,7 @@ highly appreciated!
             symbolsize = self.insp_data_size.value() 
 
     
-        pdi.plot(x,y,             
+        pdi.plot(x,y,
         pen=None, #{'color': colors[i], 'width': 1.1},
         symbol='o',
         symbolPen={'color': fit.colors[0], 'width': 1.1},
@@ -5266,10 +5243,8 @@ highly appreciated!
         beam=0.0, pen=fit.colors[0])   
      
         pdi.addItem(err_)
-        
         pdi.autoRange()
- 
-        
+
         filename, file_extension = os.path.splitext(path)  
             
         if file_extension == '.vels':
@@ -5297,11 +5272,10 @@ highly appreciated!
         self.cross_data_inspect()
 
 
-        
-        
+
     def stat_info(self,x,y,y_err,path):
- 
- 
+
+
         ################## text generator #################
         text_info = """ 
 """
@@ -5328,15 +5302,11 @@ mean error      :  %.4f
 median error    :  %.4f
 
 """%(len(x), x[0], x[-1], x[-1]-x[0], np.min(y), np.max(y), np.max(y)-np.min(y), np.mean(y),  np.median(y), np.sqrt(np.mean(np.square(y))),
-np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))       
-      
-     
+np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
+
         return text_info  
-              
-        
-             
-            
-       
+
+
 ############################# Dispatcher #####################################  
 
     def fit_dispatcher(self, init=False):
@@ -5468,140 +5438,27 @@ since in this ver. 0.12 of the Exo-Striker, the TTV modeling is still experiment
 
             incl_flag = True
             Dom_flag = True 
-            self.incl1.setEnabled(incl_flag)
-            self.use_incl1.setEnabled(incl_flag)
-            self.incl2.setEnabled(incl_flag)
-            self.use_incl2.setEnabled(incl_flag)
-            self.incl3.setEnabled(incl_flag)  
-            self.use_incl3.setEnabled(incl_flag)  
-            self.incl4.setEnabled(incl_flag)  
-            self.use_incl4.setEnabled(incl_flag)  
-            self.incl5.setEnabled(incl_flag)  
-            self.use_incl5.setEnabled(incl_flag)  
-            self.incl6.setEnabled(incl_flag)  
-            self.use_incl6.setEnabled(incl_flag)  
-            self.incl7.setEnabled(incl_flag)  
-            self.use_incl7.setEnabled(incl_flag)  
-            self.incl8.setEnabled(incl_flag)  
-            self.use_incl8.setEnabled(incl_flag)  
-            self.incl9.setEnabled(incl_flag)  
-            self.use_incl9.setEnabled(incl_flag)    
             
-            self.Omega1.setEnabled(Dom_flag)  
-            self.use_Omega1.setEnabled(Dom_flag)  
-            self.Omega2.setEnabled(Dom_flag)  
-            self.use_Omega2.setEnabled(Dom_flag)
-            self.Omega3.setEnabled(Dom_flag)  
-            self.use_Omega3.setEnabled(Dom_flag)  
-            self.Omega4.setEnabled(Dom_flag)  
-            self.use_Omega4.setEnabled(Dom_flag)
-            self.Omega5.setEnabled(Dom_flag)  
-            self.use_Omega5.setEnabled(Dom_flag)  
-            self.Omega6.setEnabled(Dom_flag)  
-            self.use_Omega6.setEnabled(Dom_flag)
-            self.Omega7.setEnabled(Dom_flag)  
-            self.use_Omega7.setEnabled(Dom_flag)  
-            self.Omega8.setEnabled(Dom_flag)  
-            self.use_Omega8.setEnabled(Dom_flag) 
-            self.Omega9.setEnabled(Dom_flag)  
-            self.use_Omega9.setEnabled(Dom_flag)
-
-        self.ma1.setEnabled(ma_flag)
-        self.use_ma1.setEnabled(ma_flag)
-        self.ma2.setEnabled(ma_flag)
-        self.use_ma2.setEnabled(ma_flag)
-        self.ma3.setEnabled(ma_flag)
-        self.use_ma3.setEnabled(ma_flag)  
-        self.ma4.setEnabled(ma_flag)
-        self.use_ma4.setEnabled(ma_flag)
-        self.ma5.setEnabled(ma_flag)
-        self.use_ma5.setEnabled(ma_flag)
-        self.ma6.setEnabled(ma_flag)
-        self.use_ma6.setEnabled(ma_flag)  
-        self.ma7.setEnabled(ma_flag)
-        self.use_ma7.setEnabled(ma_flag)
-        self.ma8.setEnabled(ma_flag)
-        self.use_ma8.setEnabled(ma_flag)
-        self.ma9.setEnabled(ma_flag)
-        self.use_ma9.setEnabled(ma_flag)  
-        
-        self.t0_1.setEnabled(t0_flag)
-        self.use_t0_1.setEnabled(t0_flag)
-        self.t0_2.setEnabled(t0_flag)
-        self.use_t0_2.setEnabled(t0_flag)
-        self.t0_3.setEnabled(t0_flag)
-        self.use_t0_3.setEnabled(t0_flag)  
-        self.t0_4.setEnabled(t0_flag)
-        self.use_t0_4.setEnabled(t0_flag)
-        self.t0_5.setEnabled(t0_flag)
-        self.use_t0_5.setEnabled(t0_flag)
-        self.t0_6.setEnabled(t0_flag)
-        self.use_t0_6.setEnabled(t0_flag)
-        self.t0_7.setEnabled(t0_flag)
-        self.use_t0_7.setEnabled(t0_flag)
-        self.t0_8.setEnabled(t0_flag)
-        self.use_t0_8.setEnabled(t0_flag)           
-        self.t0_9.setEnabled(t0_flag)
-        self.use_t0_9.setEnabled(t0_flag)              
-        
-        self.K1.setEnabled(K_flag)
-        self.use_K1.setEnabled(K_flag)
-        self.K2.setEnabled(K_flag)
-        self.use_K2.setEnabled(K_flag)
-        self.K3.setEnabled(K_flag)
-        self.use_K3.setEnabled(K_flag)
-        self.K4.setEnabled(K_flag)
-        self.use_K4.setEnabled(K_flag)
-        self.K5.setEnabled(K_flag)
-        self.use_K5.setEnabled(K_flag)
-        self.K6.setEnabled(K_flag)
-        self.use_K6.setEnabled(K_flag)
-        self.K7.setEnabled(K_flag)
-        self.use_K7.setEnabled(K_flag)
-        self.K8.setEnabled(K_flag)
-        self.use_K8.setEnabled(K_flag)           
-        self.K9.setEnabled(K_flag)
-        self.use_K9.setEnabled(K_flag)                    
-
-        self.pl_rad_1.setEnabled(pl_rad_flag)
-        self.use_pl_rad_1.setEnabled(pl_rad_flag)
-        self.pl_rad_2.setEnabled(pl_rad_flag)
-        self.use_pl_rad_2.setEnabled(pl_rad_flag)           
-        self.pl_rad_3.setEnabled(pl_rad_flag)
-        self.use_pl_rad_3.setEnabled(pl_rad_flag) 
-        self.pl_rad_4.setEnabled(pl_rad_flag)
-        self.use_pl_rad_4.setEnabled(pl_rad_flag)
-        self.pl_rad_5.setEnabled(pl_rad_flag)
-        self.use_pl_rad_5.setEnabled(pl_rad_flag)           
-        self.pl_rad_6.setEnabled(pl_rad_flag)
-        self.use_pl_rad_6.setEnabled(pl_rad_flag)             
-        self.pl_rad_7.setEnabled(pl_rad_flag)
-        self.use_pl_rad_7.setEnabled(pl_rad_flag)
-        self.pl_rad_8.setEnabled(pl_rad_flag)
-        self.use_pl_rad_8.setEnabled(pl_rad_flag)           
-        self.pl_rad_9.setEnabled(pl_rad_flag)
-        self.use_pl_rad_9.setEnabled(pl_rad_flag)                   
-  
-        self.a_sol_1.setEnabled(a_sol_flag)
-        self.use_a_sol_1.setEnabled(a_sol_flag)
-        self.a_sol_2.setEnabled(a_sol_flag)
-        self.use_a_sol_2.setEnabled(a_sol_flag)           
-        self.a_sol_3.setEnabled(a_sol_flag)
-        self.use_a_sol_3.setEnabled(a_sol_flag)                        
-        self.a_sol_4.setEnabled(a_sol_flag)
-        self.use_a_sol_4.setEnabled(a_sol_flag)
-        self.a_sol_5.setEnabled(a_sol_flag)
-        self.use_a_sol_5.setEnabled(a_sol_flag)           
-        self.a_sol_6.setEnabled(a_sol_flag)
-        self.use_a_sol_6.setEnabled(a_sol_flag)                 
-        self.a_sol_7.setEnabled(a_sol_flag)
-        self.use_a_sol_7.setEnabled(a_sol_flag)
-        self.a_sol_8.setEnabled(a_sol_flag)
-        self.use_a_sol_8.setEnabled(a_sol_flag)           
-        self.a_sol_9.setEnabled(a_sol_flag)
-        self.use_a_sol_9.setEnabled(a_sol_flag)                
+            for i in range(9):
+                self.param_gui[7*i + 5].setEnabled(incl_flag)
+                self.use_param_gui[7*i + 5].setEnabled(incl_flag)
+                self.param_gui[7*i + 6].setEnabled(Dom_flag)
+                self.use_param_gui[7*i + 6].setEnabled(Dom_flag)
  
-    
+
+        for i in range(9):
+            self.param_gui[7*i].setEnabled(K_flag)
+            self.use_param_gui[7*i].setEnabled(K_flag)
+            self.param_gui[7*i + 4].setEnabled(ma_flag)
+            self.use_param_gui[7*i + 4].setEnabled(ma_flag)
+            self.param_gui_tr[3*i].setEnabled(t0_flag)
+            self.use_param_gui_tr[3*i].setEnabled(t0_flag)
+            self.param_gui_tr[3*i + 1].setEnabled(pl_rad_flag)
+            self.use_param_gui_tr[3*i + 1].setEnabled(pl_rad_flag)
+            self.param_gui_tr[3*i + 2].setEnabled(a_sol_flag)
+            self.use_param_gui_tr[3*i + 2].setEnabled(a_sol_flag)
+
+
     def set_gr_flag(self):
         global fit
         
@@ -5639,63 +5496,14 @@ since in this ver. 0.12 of the Exo-Striker, the TTV modeling is still experiment
             incl_flag = True
             Dom_flag = True 
             
-        self.om_dot_1.setEnabled(om_flag)
-        self.use_om_dot_1.setEnabled(om_flag)
-        self.om_dot_2.setEnabled(om_flag)
-        self.use_om_dot_2.setEnabled(om_flag)           
-        self.om_dot_3.setEnabled(om_flag)
-        self.use_om_dot_3.setEnabled(om_flag) 
-        self.om_dot_4.setEnabled(om_flag)
-        self.use_om_dot_4.setEnabled(om_flag)
-        self.om_dot_5.setEnabled(om_flag)
-        self.use_om_dot_5.setEnabled(om_flag)           
-        self.om_dot_6.setEnabled(om_flag)
-        self.use_om_dot_6.setEnabled(om_flag)             
-        self.om_dot_7.setEnabled(om_flag)
-        self.use_om_dot_7.setEnabled(om_flag)
-        self.om_dot_8.setEnabled(om_flag)
-        self.use_om_dot_8.setEnabled(om_flag)           
-        self.om_dot_9.setEnabled(om_flag)
-        self.use_om_dot_9.setEnabled(om_flag)             
-                                
-        self.incl1.setEnabled(incl_flag)  
-        self.use_incl1.setEnabled(incl_flag)  
-        self.incl2.setEnabled(incl_flag)  
-        self.use_incl2.setEnabled(incl_flag)              
-        self.incl3.setEnabled(incl_flag)  
-        self.use_incl3.setEnabled(incl_flag)  
-        self.incl4.setEnabled(incl_flag)  
-        self.use_incl4.setEnabled(incl_flag)  
-        self.incl5.setEnabled(incl_flag)  
-        self.use_incl5.setEnabled(incl_flag)  
-        self.incl6.setEnabled(incl_flag)  
-        self.use_incl6.setEnabled(incl_flag)  
-        self.incl7.setEnabled(incl_flag)  
-        self.use_incl7.setEnabled(incl_flag)  
-        self.incl8.setEnabled(incl_flag)  
-        self.use_incl8.setEnabled(incl_flag)  
-        self.incl9.setEnabled(incl_flag)  
-        self.use_incl9.setEnabled(incl_flag)    
-        
-        self.Omega1.setEnabled(Dom_flag)  
-        self.use_Omega1.setEnabled(Dom_flag)  
-        self.Omega2.setEnabled(Dom_flag)  
-        self.use_Omega2.setEnabled(Dom_flag)             
-        self.Omega3.setEnabled(Dom_flag)  
-        self.use_Omega3.setEnabled(Dom_flag)  
-        self.Omega4.setEnabled(Dom_flag)  
-        self.use_Omega4.setEnabled(Dom_flag)
-        self.Omega5.setEnabled(Dom_flag)  
-        self.use_Omega5.setEnabled(Dom_flag)  
-        self.Omega6.setEnabled(Dom_flag)  
-        self.use_Omega6.setEnabled(Dom_flag)             
-        self.Omega7.setEnabled(Dom_flag)  
-        self.use_Omega7.setEnabled(Dom_flag)  
-        self.Omega8.setEnabled(Dom_flag)  
-        self.use_Omega8.setEnabled(Dom_flag) 
-        self.Omega9.setEnabled(Dom_flag)  
-        self.use_Omega9.setEnabled(Dom_flag)             
-            
+        for i in range(9):
+            self.param_gui[7*i + 5].setEnabled(incl_flag)
+            self.use_param_gui[7*i + 5].setEnabled(incl_flag)
+            self.param_gui[7*i + 6].setEnabled(Dom_flag)
+            self.use_param_gui[7*i + 6].setEnabled(Dom_flag)
+            self.param_gui_wd[i].setEnabled(om_flag)
+            self.use_param_gui_wd[i].setEnabled(om_flag)
+ 
        
     def keyPressEvent(self, event):
         global fit

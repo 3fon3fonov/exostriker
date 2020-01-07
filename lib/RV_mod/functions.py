@@ -58,7 +58,8 @@ def ma_from_t0(per, ecc, om, t_transit, epoch):
 
     return ma   
 
-        
+def find_close_elements(a, b, precision = 0.01): 
+    return [[x for x in a for i in b if abs(x - i) < precision], [x for x in b for i in a if abs(x - i) < precision]] 
 
 def custom_param_file_for_stability(max_time,time_step):
 
