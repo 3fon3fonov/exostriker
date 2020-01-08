@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Exo-Striker documentation build configuration file, created by
-# sphinx-quickstart on Wed Jan  8 12:44:57 2020.
+# exostriker documentation build configuration file, created by
+# sphinx-quickstart on Wed Jan  8 12:56:38 2020.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -30,7 +30,14 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = []
+extensions = ['sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.githubpages']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -45,7 +52,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Exo-Striker'
+project = u'exostriker'
 copyright = u'2020, Trifon Trifonov'
 author = u'Trifon Trifonov'
 
@@ -74,7 +81,7 @@ exclude_patterns = []
 pygments_style = 'sphinx'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = False
+todo_include_todos = True
 
 
 # -- Options for HTML output ----------------------------------------------
@@ -111,7 +118,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Exo-Strikerdoc'
+htmlhelp_basename = 'exostrikerdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -138,7 +145,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Exo-Striker.tex', u'Exo-Striker Documentation',
+    (master_doc, 'exostriker.tex', u'exostriker Documentation',
      u'Trifon Trifonov', 'manual'),
 ]
 
@@ -148,7 +155,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'exo-striker', u'Exo-Striker Documentation',
+    (master_doc, 'exostriker', u'exostriker Documentation',
      [author], 1)
 ]
 
@@ -159,10 +166,34 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Exo-Striker', u'Exo-Striker Documentation',
-     author, 'Exo-Striker', 'One line description of project.',
+    (master_doc, 'exostriker', u'exostriker Documentation',
+     author, 'exostriker', 'One line description of project.',
      'Miscellaneous'),
 ]
 
 
 
+# -- Options for Epub output ----------------------------------------------
+
+# Bibliographic Dublin Core info.
+epub_title = project
+epub_author = author
+epub_publisher = author
+epub_copyright = copyright
+
+# The unique identifier of the text. This can be a ISBN number
+# or the project homepage.
+#
+# epub_identifier = ''
+
+# A unique identification for the text.
+#
+# epub_uid = ''
+
+# A list of files that should not be packed into the epub file.
+epub_exclude_files = ['search.html']
+
+
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {'https://docs.python.org/': None}
