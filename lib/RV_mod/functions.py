@@ -169,7 +169,7 @@ def cornerplot(obj, fileinput=False, level=(100.0-68.3)/2.0,type_plot = 'mcmc', 
 def planet_orbit_xyz(obj, planet):
 
     u1 = obj.params.stellar_mass * (4*np.pi*np.pi)/(365.25*365.25)
-    mean_orb = np.linspace(0,2.0*np.pi, 360.0)
+    mean_orb = np.linspace(0,2.0*np.pi, 360)
     
     x = np.zeros(len(mean_orb))
     y = np.zeros(len(mean_orb))
