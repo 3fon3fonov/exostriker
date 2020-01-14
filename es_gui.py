@@ -301,8 +301,11 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(9):
             fit.omega_dot[i] = self.param_gui_wd[i].value()
 
+        fit.sort_by_period(reverse=False)
         fit.hack_around_rv_params()
 
+
+######## TBX for bug in re-ordering ###########
         for i in range(fit.npl):
             fit.t0[i]     = self.param_gui_tr[i*3].value()
             fit.pl_rad[i] = self.param_gui_tr[i*3+1].value()
@@ -4234,39 +4237,40 @@ This module is experimental and under construction. TTVs and TTVs+RV modeling wa
 successfully tested on several exoplanet systems, but you must consider the notes below:
 
 
-
 * Currently, the TTV (+RV) modeling works well only with one TTV dataset. 
-        
+
+
 * The TTV file format should be as follows (e.g.):
-    
+
+
 #   N transit             t0 [BJD]             sigma t0 [d]
           1                    2458000.5                0.022
           2                    2458020.5                0.023
           4                    2458060.5                0.021
 .......................................................................
           8                    2458140.5                0.026
-    
+
     Anything else than the format above will likely not work and is even possible to crash the GUI!
 
 
-* The selected epoch MUST be always the time of the first observed transit, BUT to be on the safe side, 
-please chose it slightly earlier. Using the example above, the epoch should be either 2458000.5, or e.g., 
-2458000.0. Otherwise, the TTV model is likely to skip the first transit and start from the next!
+* The selected epoch MUST be always slightly before the time of the first observed transit,
+Using the example above, the epoch should be earlier than 2458000.5, e.g., 2458000.0. 
+Otherwise, the TTV model is likely to skip the first transit and start from the next!
 
 
 * When RV+TTVs are modeled the epoch is ALWAYS chosen to be the epoch of the RV model.
 
     To change the RV epoch go to:
-    
+
     Models param. --> Models --> RV Model
-    
+
     Then, uncheck "first RV" and add whatever epoch you like, as long as it is slightly before the time 
     of the first transit in your TTV input file. 
-    
-    
+
+
 * Make sure that the time baseline of "End of Model" - "Epoch" >  last t0 - first t0 in your TTV 
 input file.
-    
+
 
 * Chose wisely the "time step in dynamical model" !
 
@@ -4291,7 +4295,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.12) \n developed by 3fon3fonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.13) \n developed by 3fon3fonov"
         
         self.dialog_credits.text.append(text)
 
@@ -4398,7 +4402,9 @@ highly appreciated!
                         fit.use.update_use_planet_params_one_planet(j,True,True,True,True,True,False,False)     
             
                     self.update_use_from_input_file()   
-                    self.update_use()                     
+                    self.update_use()
+
+                    fit.sort_by_period(reverse=False)
                     self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True) 
                     self.button_auto_fit.setEnabled(True)     
                     return
@@ -4410,7 +4416,9 @@ highly appreciated!
                     fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False)  
 
                     self.update_use_from_input_file()   
-                    self.update_use()                     
+                    self.update_use()
+
+                    fit.sort_by_period(reverse=False)
                     self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)  
                     
                 #else:
@@ -4419,12 +4427,15 @@ highly appreciated!
             for j in range(fit.npl):
                 fit.use.update_use_planet_params_one_planet(j,True,True,True,True,True,False,False)     
     
+
             self.update_use_from_input_file()   
             self.update_use()                     
+            fit.sort_by_period(reverse=False)
+
             self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)           
  
         self.button_auto_fit.setEnabled(True)   
- 
+
 
     def run_auto_fit(self):
         global fit 
@@ -5379,7 +5390,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             print("""
 You dont have TTVfast installed! Therefore, you cannot apply TTV modelling. 
 Please install via 'pip install ttvfast'. But you can also ignore this warning,
-since in this ver. 0.12 of the Exo-Striker, the TTV modeling is still experimental.
+since in this ver. 0.13 of the Exo-Striker, the TTV modeling is still experimental.
 """)
             self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
@@ -6650,7 +6661,7 @@ since in this ver. 0.12 of the Exo-Striker, the TTV modeling is still experiment
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.12). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.13). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)

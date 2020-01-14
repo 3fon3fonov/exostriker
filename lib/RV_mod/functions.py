@@ -788,7 +788,7 @@ def find_planets_restricted(obj,fend=1.5):
          return        
 
     # the first one on the data GLS
-    if obj.gls.power.max() <= obj.gls.powerLevel(obj.auto_fit_FAP_level):                                                       
+    if obj.gls.power.max() <= obj.gls.powerLevel(obj.auto_fit_FAP_level):
          return obj
     
     else:
@@ -837,7 +837,6 @@ def find_planets_restricted(obj,fend=1.5):
         for j in range(obj.npl):
             obj.use.update_use_planet_params_one_planet(j,True,True,obj.auto_fit_allow_ecc,obj.auto_fit_allow_ecc,True,False,False)     
 
-                  
         obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
         run_gls_o_c(obj,fend=fend)
     return obj

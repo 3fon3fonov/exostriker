@@ -186,10 +186,12 @@ Some comments:
 
 * A pip installer must be made.
 
-* Don't ever run MCMC runs (or Nest. Samp.) directly in the embedded Jupyter shell! This will freeze the GUI until is the MCMC done! 
+* Don't ever run MCMC runs (or Nest. Samp.) directly in the embedded Jupyter shell! This will freeze the GUI until is the MCMC done!
 This is not a bug, simply the jupyter shell needs its own thread and this is not done, yet. Hopefully, this will be fixed soon.
+Please use the GUI navigation. 
 
-* Bugs may occur! 
+* Other bugs may occur! Please see: https://github.com/3fon3fonov/exostriker/issues
+for work in progress issues.
 
 
 

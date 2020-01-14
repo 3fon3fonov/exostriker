@@ -2408,33 +2408,33 @@ class signal_fit(object):
             self.e[i]   = np.sqrt(self.e_sinw[i]**2 + self.e_cosw[i]**2)
             self.w[i]   = np.degrees(np.arctan2(np.radians(self.e_sinw[i]),np.radians(self.e_cosw[i])))
             self.M0[i]  = (self.lamb[i] - self.w[i])%360.0  
-            
+ 
+
     def hack_around_rv_params(self):
 
-        
          for i in range(9):        
-             self.K[i]    = self.params.planet_params[i*7+0]            
-             self.P[i]    = self.params.planet_params[i*7+1]                     
-             self.i[i]    = self.params.planet_params[i*7+5]           
-             self.Node[i] = self.params.planet_params[i*7+6]   
+             self.K[i]    = self.params.planet_params[i*7+0]
+             self.P[i]    = self.params.planet_params[i*7+1]
+             self.i[i]    = self.params.planet_params[i*7+5]
+             self.Node[i] = self.params.planet_params[i*7+6]
              
             # print( self.params.planet_params[i*7+2] , self.params.planet_params[i*7+3] )
              if self.hkl ==False:
-                 self.e[i]    = self.params.planet_params[i*7+2]            
-                 self.w[i]    = self.params.planet_params[i*7+3]            
+                 self.e[i]    = self.params.planet_params[i*7+2]
+                 self.w[i]    = self.params.planet_params[i*7+3]
                  self.M0[i]   = self.params.planet_params[i*7+4] 
-                 self.e_sinw[i]    = self.e[i]*np.sin(np.radians(self.w[i]))           
-                 self.e_cosw[i]    = self.e[i]*np.cos(np.radians(self.w[i]))            
+                 self.e_sinw[i]    = self.e[i]*np.sin(np.radians(self.w[i]))
+                 self.e_cosw[i]    = self.e[i]*np.cos(np.radians(self.w[i]))
                  self.lamb[i]      = (self.w[i]  + self.M0[i])%360.0 
  
              if self.hkl ==True:
                  
-                 self.e_sinw[i]    = self.params.planet_params[i*7+2]            
-                 self.e_cosw[i]    = self.params.planet_params[i*7+3]            
+                 self.e_sinw[i]    = self.params.planet_params[i*7+2]
+                 self.e_cosw[i]    = self.params.planet_params[i*7+3]
                  self.lamb[i]   = self.params.planet_params[i*7+4] 
                  self.e[i]   = np.sqrt(self.e_sinw[i]**2 + self.e_cosw[i]**2)
-                 self.w[i]   = np.degrees(np.arctan2(self.e_sinw[i],self.e_cosw[i]))%360
-                 self.M0[i]  = (self.lamb[i] - self.w[i])%360.0     
+                 self.w[i]   = np.degrees(np.arctan2(self.e_sinw[i],self.e_cosw[i]))%360.0
+                 self.M0[i]  = (self.lamb[i] - self.w[i])%360.0
 #                
 
    
