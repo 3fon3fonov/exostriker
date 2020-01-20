@@ -1319,7 +1319,8 @@ def run_nestsamp(obj, **kwargs):
     samp_maxlnl, maxlnl = get_best_lnl_of_samples(sampler.results.samples,ln, len(pp))
     obj.nest_stat["best"] = samp_maxlnl
     obj.nest_stat["mode"] = get_mode_of_samples(sampler.results.samples,len(pp))
- 
+    obj.nest_stat["MAD"]  = get_MAD_of_samples(sampler.results.samples,len(pp))
+
     
     if (obj.ns_save_means):
         obj.par_for_mcmc = obj.nest_stat["mean"] 
@@ -1336,8 +1337,13 @@ def run_nestsamp(obj, **kwargs):
    #     pp = obj.par_for_mcmc
  
     sampler.samples = sampler.results.samples
-       
-    new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.results.samples[:,i], [level])), float(np.percentile(sampler.results.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
+
+
+    if obj.nest_mad == False:
+        new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.results.samples[:,i], [level])), float(np.percentile(sampler.results.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))]
+    else:
+        new_par_errors = [[float(obj.nest_stat["MAD"][i]),float(obj.nest_stat["MAD"][i])] for i in range(len(obj.par_for_mcmc))] 
+
 
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
    
@@ -1581,6 +1587,7 @@ def run_mcmc(obj, **kwargs):
     obj.mcmc_stat["mean"] = sampler.means
     obj.mcmc_stat["best"] = sampler.minlnL
     obj.mcmc_stat["mode"] = get_mode_of_samples(sampler.samples,len(pp))
+    obj.mcmc_stat["MAD"]  = get_MAD_of_samples(sampler.samples,len(pp))
 
 
     # Now we will save new parameters and their errors (different + and - errors in this case). Flag save_means determines if we want to take means as new best fit parameters or stick to old ones and calculate errors with respect to that           
@@ -1598,8 +1605,10 @@ def run_mcmc(obj, **kwargs):
     # else:
    #     pp = obj.par_for_mcmc
         
-  
-    new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
+    if obj.mcmc_mad == False:
+        new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))] 
+    else:
+        new_par_errors = [[float(obj.mcmc_stat["MAD"][i]),float(obj.mcmc_stat["MAD"][i])] for i in range(len(obj.par_for_mcmc))] 
     
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)        
     #print(newparams.GP_params)
@@ -2346,10 +2355,12 @@ class signal_fit(object):
         self.mcmc_save_mode=False 
         self.mcmc_save_maxlnL=False 
         self.mcmc_save_sampler=True        
-                                   
+
+        self.mcmc_mad = False
+
         self.mcmc_sample_file = 'mcmc_samples'
         self.mcmc_corner_plot_file = 'cornerplot.pdf'
-        self.mcmc_stat = {"mean": [],"mode": [],"best": []}
+        self.mcmc_stat = {"mean": [],"mode": [],"best": [],"MAD":[]}
         
         
         
@@ -2371,9 +2382,11 @@ class signal_fit(object):
         self.ns_save_maxlnL=False 
         self.ns_save_sampler=True    
         
+        self.nest_mad = False
+        
         self.nest_sample_file = 'nest_samp_samples'
         self.nest_corner_plot_file = 'nest_samp_cornerplot.pdf'        
-        self.nest_stat = {"mean": [],"mode": [],"best": []}
+        self.nest_stat = {"mean": [],"mode": [],"best": [],"MAD":[]}
            
     
     

@@ -2356,7 +2356,7 @@ Polyfit coefficients:
         global fit
 
         but_ind = self.buttonGroup_activity_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'Data (*.act);;All (*.*)')
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'All (*.*);;Data (*.act)')
 
         if str(input_files[0]) != '':
  
@@ -4821,6 +4821,8 @@ highly appreciated!
         elif self.radioButton_ttv_RV.isChecked():
             fit.rtg = [True,self.do_RV_GP.isChecked(), False, False] 
 
+        fit.nest_mad = self.use_nest_MAD_level.isChecked()
+
 
         self.button_nest_samp.setEnabled(False)
         self.statusBar().showMessage('Nested Sampling in progress....')        
@@ -4975,7 +4977,9 @@ highly appreciated!
             fit.rtg = [False, False, False, False]
         elif self.radioButton_ttv_RV.isChecked():
             fit.rtg = [True,self.do_RV_GP.isChecked(), False, False] 
-            
+ 
+        fit.mcmc_mad = self.use_mcmc_MAD_level.isChecked()
+ 
        # if self.radioButton_ttv.isChecked() or self.radioButton_ttv_RV.isChecked():
        #     self.get_ttv_error_msg()
 
