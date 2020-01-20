@@ -109,7 +109,17 @@ def get_mean_of_samples(samples, nsamp):
     
     for i in range(nsamp):
         mean_samp.append(np.mean(samples[:,i]))
-    return mean_samp #,err1_samp,err2_samp
+    return mean_samp 
+
+def get_MAD_of_samples(samples, nsamp): 
+
+    mad_samp = []
+    
+    for i in range(nsamp):
+        mad_samp.append(np.mean(np.absolute(samples[:,i] - np.mean(samples[:,i]))))
+    return mad_samp 
+
+ 
 
 def get_best_lnl_of_samples(samples,lnl, nsamp): 
 
