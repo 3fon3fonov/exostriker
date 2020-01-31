@@ -4800,7 +4800,8 @@ highly appreciated!
         
         if self.adopt_nest_means_as_par.isChecked() or self.adopt_nest_best_lnL_as_pars.isChecked() or self.adopt_nest_mode_as_par.isChecked():
             self.init_fit()
- 
+        else:
+            self.jupiter_push_vars()
  
 
     def worker_nest(self):
@@ -4957,6 +4958,10 @@ highly appreciated!
         
         if self.adopt_mcmc_means_as_par.isChecked() or self.adopt_best_lnL_as_pars.isChecked() or self.adopt_mcmc_mode_as_par.isChecked():
             self.init_fit()
+        #print(fit.param_errors.offset_errors)
+        else:
+            self.jupiter_push_vars()
+
 
     def worker_mcmc(self):
         global fit  

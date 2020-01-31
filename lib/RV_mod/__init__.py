@@ -909,26 +909,22 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
 
 def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, pr_nr, gps, tra_gps, rtg, mix_fit, errors):
-                
-                
+
+
     for j in range(len(flags)):
         par[flags[j]] = pp[j] 
-        
-#    print(par)
-#    print(pp)
-  #  print(flags)
-       
-    
+
+
     if (rtg[1]):
         if obj.gp_kernel == 'RotKernel':
             for j in range(len(gps.get_parameter_vector())):
                 obj.GP_rot_params[j] = par[len(vel_files)*2  +7*npl +2 +j]
                 #print(obj.doGP,obj.gp_kernel)
-            
+
         if obj.gp_kernel == 'SHOKernel':
             for j in range(len(gps.get_parameter_vector())):
-                obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +2 +j]          
-        
+                obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +2 +j]
+
     if rtg[1]:
         rv_gp_npar = len(gps.get_parameter_vector())
         get_gps_model(obj)  
@@ -939,19 +935,18 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         tra_gp_npar = len(tra_gps.get_parameter_vector())
         get_transit_gps_model(obj)  
     else:
-        tra_gp_npar = 0         
+        tra_gp_npar = 0
         
     if (rtg[3]) and len(tr_files) != 0:
         if obj.tra_gp_kernel == 'RotKernel':
             for j in range(len(tra_gps.get_parameter_vector())):
                 obj.tra_GP_rot_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + rv_gp_npar + 2 +j]
-            
+
         if obj.tra_gp_kernel == 'SHOKernel':
             for j in range(len(tra_gps.get_parameter_vector())):
                 obj.tra_GP_sho_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + rv_gp_npar + 2 +j]          
-            
-        
-        
+
+
     for i in range(npl):   
 #        if obj.hkl == True:
            # ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
@@ -962,10 +957,9 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4]) 
             obj.M0[i] = float(par[len(vel_files)*2 +7*i+4])
         
-        obj.t0[i]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i] #0.0  #time of inferior conjunction
-        
-        obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-        obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)   
+        obj.t0[i]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+        obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
+        obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
         
         obj.omega_dot[i] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + len(tr_files)*2 + tra_gp_npar + 2 + i ]
        # print(obj.t0[i],par[len(vel_files)*2 +7*i+4])
@@ -991,20 +985,17 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         print("Best fit par.:")  
      
         for j in range(len(pp)):
-            #print(ee[j] + "  =  %s"%pp[j])
-            #print("{0:{width}s} = {1:{width}.{precision}f}".format(ee[j], pp[j] , width = 10, precision = 4))
-            #print("{0:{width}s} = {1:{width}.{precision}f} + {2:{width}.{precision}f} - {3:{width}.{precision}f}".format(ee[j], pp[j],errors[j][0],errors[j][1], width = 10, precision = 4))
             print("{0:{width2}s} = {1:{width}.{precision}f}  -{2:{width}.{precision}f} +{3:{width}.{precision}f}".format(ee[j], pp[j],errors[j][0],errors[j][1], width2 = 16, width = 10, precision = 9))
   
     obj.gps = []
-    obj.tra_gps = []    
-    
+    obj.tra_gps = []
+
     return obj
- 
- 
+
+
 
 def lnprior(p,b,priors): 
-    
+
     loglik_lnpr = 0
     for j in range(len(p)): 
         if p[j] <= b[j,0] or p[j] >= b[j,1]:
@@ -1013,16 +1004,16 @@ def lnprior(p,b,priors):
             loglik_lnpr = loglik_lnpr + normalprior(p[j],priors[0][j])
         if priors[1][j,2] == True:
             loglik_lnpr = loglik_lnpr + jeffereys_prior(p[j],priors[1][j])  
-    return loglik_lnpr    
+    return loglik_lnpr
 
 
 
 def jeffereys_prior(p,b):
     
-    loglik =   np.log( 1.0/  ( p*(np.log(b[1]) - np.log(b[0]) )) )     
+    loglik =   np.log( 1.0/  ( p*(np.log(b[1]) - np.log(b[0]) )) )
     return loglik
 
-def normalprior(p,b):  
+def normalprior(p,b):
     
     loglik = np.log(1.0/(np.sqrt(2.0*np.pi)*b[1])*np.exp(-(p-b[0])**2.0/(2.0*b[1]**2.0)))
     return loglik
@@ -1032,7 +1023,7 @@ def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_pa
     lp = lnprior(p,b,priors)
     if not np.isfinite(lp):
         return -np.inf
-    return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, tra_gps, rtg, mix_fit, opt)   
+    return lp + model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, tra_gps, rtg, mix_fit, opt)
 
 
 
@@ -1041,36 +1032,35 @@ def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_pa
     
 def run_nestsamp_bg(obj):
     start_time = time.time()  
-     
+
     target_name = 'ns_run'
-    
+
     print("Nested Sampling is running behind the GUI. For status, see the main terminal.")
     file_ses = open(r"%s.ses"%target_name, 'wb')
     dill.dump(obj, file_ses)
-    file_ses.close()    
- 
+    file_ses.close()
+
     if sys.version_info[0] == 2:
-        os.system("python2 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))  
+        os.system("python2 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
     elif sys.version_info[0] == 3:
-        os.system("python3 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))            
-          
+        os.system("python3 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
+
 
     file_ses2 = open(r"%s_out.ses"%target_name, 'rb')
     obj = dill.load(file_ses2)
     file_ses2.close()
-     
+
     print("--- %s seconds ---" % (time.time() - start_time))  
     os.system("rm %s.ses"%target_name)
     os.system("rm %s_out.ses"%target_name)
-    
+
     return obj
 
  
 
 def run_nestsamp(obj, **kwargs):
-    
+
     '''Performs nested sampling and saves results'''
-    
 
     #from contextlib import closing
     #from CustomNestedSampler import CustomNestedSampler
@@ -1078,8 +1068,8 @@ def run_nestsamp(obj, **kwargs):
    # print("from %s CPS you are using %s CPUs"%(multiprocessing.cpu_count(),threads))
    # if obj.ns_threads == 'max':
    #     threads = multiprocessing.cpu_count()    
-      
-    
+
+
     start_time = time.time()   
     
     rtg = obj.rtg
@@ -1087,7 +1077,7 @@ def run_nestsamp(obj, **kwargs):
     check_temp_RV_file(obj)
 
     #nll = lambda *args: -lnprob_new(*args)
-    
+
     vel_files = []
     for i in range(obj.filelist.ndset): 
         # path for each dataset      
@@ -1096,7 +1086,7 @@ def run_nestsamp(obj, **kwargs):
     tr_files = []
     tr_mo = []
     tr_ld = []
-    
+
     for i in range(10):
         if len(obj.tra_data_sets[i]) != 0:
             tr_files.append(obj.tra_data_sets[i])
@@ -1615,7 +1605,9 @@ def run_mcmc(obj, **kwargs):
     #current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
    # print(current_GP_params)
 
-   
+    #print(new_par_errors)
+    #print(newparams)
+
     obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things 
 
     obj.update_with_mcmc_errors(new_par_errors)
@@ -4007,10 +3999,9 @@ class signal_fit(object):
                 self.param_errors.update_stellar_mass_error(p[i])            
         return                           
 
-  
 
-     
-        
+
+
     def run_stability_one_sample(self,sample_num,fileinput=False, filename='samples_kep', fileinputgetinit=False, filenamegetinit='geninit_j_input', warnings=None, timeout_sec=1000.0,timemax=3000.0, timestep=10):
 
         '''Runs stability analysis on one sample. Optionally samples can be read from a file.'''
