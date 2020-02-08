@@ -3392,7 +3392,9 @@ Transit duration: %s d
                 ttv_files.append(fit.ttv_data_sets[i])
 
         fit.prepare_for_mcmc()
-        times = [float(fit.epoch),fit.time_step_model,float(fit.epoch)+400.0]
+        #times = [float(fit.epoch),fit.time_step_model,float(fit.epoch)+400.0]
+        times = fit.ttv_times
+
         vel_files = []
         for i in range(fit.filelist.ndset):
             vel_files.append(fit.filelist.files[i].path)
