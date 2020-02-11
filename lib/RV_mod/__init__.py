@@ -1924,7 +1924,7 @@ class signal_fit(object):
 
         #### RV #####
         self.K    = {k: 50.0 for k in range(9)}
-        self.P    = {k: 100.0 + 50*k for k in range(9)}
+        self.P    = {k: 100.0 + 50.0*k for k in range(9)}
         self.e    = {k: 0.0  for k in range(9)}
         self.w    = {k: 0.0 for k in range(9)}
         self.M0   = {k: 0.0 for k in range(9)}
@@ -1935,14 +1935,14 @@ class signal_fit(object):
 
 
 
-        self.K_err    = {k: np.array([0,0]) for k in range(9)}
-        self.P_err    = {k: np.array([0,0]) for k in range(9)}
-        self.e_err    = {k: np.array([0,0]) for k in range(9)}
-        self.w_err    = {k: np.array([0,0]) for k in range(9)}
-        self.M0_err   = {k: np.array([0,0]) for k in range(9)}
-        self.i_err    = {k: np.array([0,0]) for k in range(9)}
-        self.Node_err = {k: np.array([0,0]) for k in range(9)}
-        self.w_dot_err= {k: np.array([0,0]) for k in range(9)}
+        self.K_err    = {k: np.array([0.0,0.0]) for k in range(9)}
+        self.P_err    = {k: np.array([0.0,0.0]) for k in range(9)}
+        self.e_err    = {k: np.array([0.0,0.0]) for k in range(9)}
+        self.w_err    = {k: np.array([0.0,0.0]) for k in range(9)}
+        self.M0_err   = {k: np.array([0.0,0.0]) for k in range(9)}
+        self.i_err    = {k: np.array([0.0,0.0]) for k in range(9)}
+        self.Node_err = {k: np.array([0.0,0.0]) for k in range(9)}
+        self.w_dot_err= {k: np.array([0.0,0.0]) for k in range(9)}
 
 
         self.K_use    = {k: False for k in range(9)}
@@ -1955,9 +1955,9 @@ class signal_fit(object):
         self.w_dot_use= {k: False for k in range(9)}
 
 
-        self.K_bound    = {k: np.array([0,10000]) for k in range(9)}
-        self.P_bound    = {k: np.array([0,100000]) for k in range(9)}
-        self.e_bound    = {k: np.array([0,0.999]) for k in range(9)}
+        self.K_bound    = {k: np.array([0.0,10000.0]) for k in range(9)}
+        self.P_bound    = {k: np.array([0.0,100000.0]) for k in range(9)}
+        self.e_bound    = {k: np.array([0.0,0.999]) for k in range(9)}
         self.w_bound    = {k: np.array([0.0, 360.0]) for k in range(9)}
         self.M0_bound   = {k: np.array([0.0, 360.0]) for k in range(9)}
         self.i_bound    = {k: np.array([0.0, 180.0]) for k in range(9)}
@@ -1965,24 +1965,24 @@ class signal_fit(object):
         self.w_dot_bound= {k: np.array([0.0, 360.0]) for k in range(9)}
 
 
-        self.K_norm_pr    = {k: np.array([50,100, False]) for k in range(9)}
-        self.P_norm_pr    = {k: np.array([150,30, False]) for k in range(9)}
+        self.K_norm_pr    = {k: np.array([50.0,100.0, False]) for k in range(9)}
+        self.P_norm_pr    = {k: np.array([150.0,30.0, False]) for k in range(9)}
         self.e_norm_pr    = {k: np.array([0.0,0.1, False]) for k in range(9)}
-        self.w_norm_pr    = {k: np.array([0, 90, False]) for k in range(9)}
-        self.M0_norm_pr   = {k: np.array([0, 90, False]) for k in range(9)}
-        self.i_norm_pr    = {k: np.array([90, 90, False]) for k in range(9)}
-        self.Node_norm_pr = {k: np.array([0, 360.0, False]) for k in range(9)}
-        self.w_dot_norm_pr= {k: np.array([0, 360.0, False]) for k in range(9)}
+        self.w_norm_pr    = {k: np.array([0.0, 90.0, False]) for k in range(9)}
+        self.M0_norm_pr   = {k: np.array([0.0, 90.0, False]) for k in range(9)}
+        self.i_norm_pr    = {k: np.array([90.0, 90.0, False]) for k in range(9)}
+        self.Node_norm_pr = {k: np.array([0.0, 360.0, False]) for k in range(9)}
+        self.w_dot_norm_pr= {k: np.array([0.0, 360.0, False]) for k in range(9)}
 
 
-        self.K_jeff_pr    = {k: np.array([50,100, False]) for k in range(9)}
-        self.P_jeff_pr    = {k: np.array([150,30, False]) for k in range(9)}
+        self.K_jeff_pr    = {k: np.array([50.0,100.0, False]) for k in range(9)}
+        self.P_jeff_pr    = {k: np.array([150.0,30.0, False]) for k in range(9)}
         self.e_jeff_pr    = {k: np.array([0.0,0.1, False]) for k in range(9)}
-        self.w_jeff_pr    = {k: np.array([0, 90, False]) for k in range(9)}
-        self.M0_jeff_pr   = {k: np.array([0, 90, False]) for k in range(9)}
-        self.i_jeff_pr    = {k: np.array([90, 90, False]) for k in range(9)}
-        self.Node_jeff_pr = {k: np.array([0, 360.0, False]) for k in range(9)}
-        self.w_dot_jeff_pr= {k: np.array([0, 360.0, False]) for k in range(9)}
+        self.w_jeff_pr    = {k: np.array([0.0, 90.0, False]) for k in range(9)}
+        self.M0_jeff_pr   = {k: np.array([0.0, 90.0, False]) for k in range(9)}
+        self.i_jeff_pr    = {k: np.array([90.0, 90.0, False]) for k in range(9)}
+        self.Node_jeff_pr = {k: np.array([0.0, 360.0, False]) for k in range(9)}
+        self.w_dot_jeff_pr= {k: np.array([0.0, 360.0, False]) for k in range(9)}
 
 
 
@@ -2006,20 +2006,20 @@ class signal_fit(object):
         self.pl_a_use    = {k: False for k in range(9)}
         self.pl_rad_use  = {k: False for k in range(9)}
 
-        self.t0_err      = {k: np.array([0,0])  for k in range(9)}
-        self.pl_a_err    = {k: np.array([0,0])  for k in range(9)}
-        self.pl_rad_err  = {k: np.array([0,0])  for k in range(9)}
+        self.t0_err      = {k: np.array([0.0,0.0])  for k in range(9)}
+        self.pl_a_err    = {k: np.array([0.0,0.0])  for k in range(9)}
+        self.pl_rad_err  = {k: np.array([0.0,0.0])  for k in range(9)}
 
-        self.t0_bound      = {k: np.array([-10000,10000]) for k in range(9)}
-        self.pl_a_bound    = {k: np.array([0,100]) for k in range(9)}
-        self.pl_rad_bound  = {k: np.array([0,10000]) for k in range(9)}
+        self.t0_bound      = {k: np.array([-10000.0,10000.0]) for k in range(9)}
+        self.pl_a_bound    = {k: np.array([0.0,100.0]) for k in range(9)}
+        self.pl_rad_bound  = {k: np.array([0.0,10000.0]) for k in range(9)}
 
-        self.t0_norm_pr      = {k: np.array([0,1, False]) for k in range(9)}
-        self.pl_a_norm_pr     = {k: np.array([10,10, False]) for k in range(9)}
+        self.t0_norm_pr      = {k: np.array([0.0,1.0, False]) for k in range(9)}
+        self.pl_a_norm_pr     = {k: np.array([10.0,10.0, False]) for k in range(9)}
         self.pl_rad_norm_pr   = {k: np.array([0.1,0.05, False]) for k in range(9)}
 
-        self.t0_jeff_pr      = {k: np.array([0,1, False]) for k in range(9)}
-        self.pl_a_jeff_pr     = {k: np.array([10,10, False]) for k in range(9)}
+        self.t0_jeff_pr      = {k: np.array([0.0,1.0, False]) for k in range(9)}
+        self.pl_a_jeff_pr     = {k: np.array([10.0,10.0, False]) for k in range(9)}
         self.pl_rad_jeff_pr   = {k: np.array([0.1,0.05, False]) for k in range(9)}
 
 
@@ -2052,8 +2052,8 @@ class signal_fit(object):
         self.e_cosw_norm_pr = {k: np.array([0.0,0.1, False]) for k in range(9)}
         self.lamb_norm_pr = {k: np.array([0.0,30.0, False]) for k in range(9)}
 
-        self.e_sinw_jeff_pr = {k: np.array([-1,1, False]) for k in range(9)}
-        self.e_cosw_jeff_pr = {k: np.array([-1,1, False]) for k in range(9)}
+        self.e_sinw_jeff_pr = {k: np.array([-1.0,1.0, False]) for k in range(9)}
+        self.e_cosw_jeff_pr = {k: np.array([-1.0,1.0, False]) for k in range(9)}
         self.lamb_jeff_pr = {k: np.array([0.0,360.0, False]) for k in range(9)}
 
 
@@ -2069,8 +2069,8 @@ class signal_fit(object):
 
     def init_ttv(self):
 
-        self.epoch_ttv = 2458000
-        self.epoch_ttv_end = 2459000
+        self.epoch_ttv = 2458000.0
+        self.epoch_ttv_end = 2459000.0
         self.ttv_dt = 0.02
 
         self.ttv_times = [self.epoch_ttv,self.ttv_dt,self.epoch_ttv_end]
@@ -2090,7 +2090,7 @@ class signal_fit(object):
     def init_RV_jitter(self) :
 
         self.jitt      = {k: 0 for k in range(10)}
-        self.jitt_err  = {k: np.array([0,0]) for k in range(10)}
+        self.jitt_err  = {k: np.array([0.0,0.0]) for k in range(10)}
         self.jitt_use  = {k: True for k in range(10)}
         self.jitt_str  = {k: r'RV jitt$_%s$'%k for k in range(10)}
         self.jitt_bounds  = {k: np.array([0.0,10000.0] )for k in range(10)}
@@ -2100,39 +2100,39 @@ class signal_fit(object):
     def init_RV_offset(self) :
 
         self.rvoff      = {k: 0 for k in range(10)}
-        self.rvoff_err  = {k: np.array([0,0])  for k in range(10)}
+        self.rvoff_err  = {k: np.array([0.0,0.0])  for k in range(10)}
         self.rvoff_use  = {k: True for k in range(10)}
         self.rvoff_str  = {k: r'RV off$_%s$'%k for k in range(10)}
         self.rvoff_bounds  = {k: np.array([-1000000.0,1000000.0] )for k in range(10)}
-        self.rvoff_norm_pr = {k: np.array([0,100.0, False] )for k in range(10)}
-        self.rvoff_jeff_pr = {k: np.array([0,100.0, False] )for k in range(10)}
+        self.rvoff_norm_pr = {k: np.array([0.0,100.0, False] )for k in range(10)}
+        self.rvoff_jeff_pr = {k: np.array([0.0,100.0, False] )for k in range(10)}
 
 
     def init_tra_jitter(self) :
 
-        self.tra_jitt      = {k: 0 for k in range(10)}
-        self.tra_jitt_err  = {k: np.array([0,0]) for k in range(10)}
+        self.tra_jitt      = {k: 0.0 for k in range(10)}
+        self.tra_jitt_err  = {k: np.array([0.0,0.0]) for k in range(10)}
         self.tra_jitt_use  = {k: False for k in range(10)}
         self.tra_jitt_str  = {k: r'transit jitt$_%s$'%k for k in range(10)}
         self.tra_jitt_bounds  = {k: np.array([-0.2,0.2] )for k in range(10)}
-        self.tra_jitt_norm_pr = {k: np.array([0.00,0.1, False] )for k in range(10)}
-        self.tra_jitt_jeff_pr = {k: np.array([0.00,0.1, False] )for k in range(10)}
+        self.tra_jitt_norm_pr = {k: np.array([0.0,0.1, False] )for k in range(10)}
+        self.tra_jitt_jeff_pr = {k: np.array([0.0,0.1, False] )for k in range(10)}
 
     def init_tra_offset(self) :
 
-        self.tra_off      = {k: 0 for k in range(10)}
-        self.tra_off_err  = {k: np.array([0,0])  for k in range(10)}
+        self.tra_off      = {k: 0.0 for k in range(10)}
+        self.tra_off_err  = {k: np.array([0.0,0.0])  for k in range(10)}
         self.tra_off_use  = {k: False for k in range(10)}
         self.tra_off_str  = {k: r'transit off$_%s$'%k for k in range(10)}
-        self.tra_off_bounds  = {k: np.array([-1,2] )for k in range(10)}
-        self.tra_off_norm_pr = {k: np.array([1,0.1, False] )for k in range(10)}
-        self.tra_off_jeff_pr = {k: np.array([1,0.1, False] )for k in range(10)}
+        self.tra_off_bounds  = {k: np.array([-1.0,2.0] )for k in range(10)}
+        self.tra_off_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(10)}
+        self.tra_off_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(10)}
 
 
     def init_RV_lintr(self) :
 
-        self.rv_lintr      = {k: 0 for k in range(1)}
-        self.rv_lintr_err  = {k: np.array([0,0]) for k in range(1)}
+        self.rv_lintr      = {k: 0.0 for k in range(1)}
+        self.rv_lintr_err  = {k: np.array([0.0,0.0]) for k in range(1)}
         self.rv_lintr_use  = {k: False for k in range(1)}
         self.rv_lintr_str  = {k: r'RV lin.tr' for k in range(1)}
         self.rv_lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(1)}
@@ -2141,8 +2141,8 @@ class signal_fit(object):
 
     def init_RV_quadtr(self) :
 
-        self.rv_quadtr      = 0
-        self.rv_quadtr_err  = [0,0]
+        self.rv_quadtr      = 0.0
+        self.rv_quadtr_err  = [0.0,0.0]
         self.rv_quadtr_use  = False
         self.rv_quadtr_str  = {k: r'RV quad.tr' for k in range(1)}
         self.rv_quadtr_bounds  = {k: np.array([-1.0,1.0]) for k in range(1)}
@@ -2153,12 +2153,12 @@ class signal_fit(object):
     def init_st_mass(self) :
 
         self.st_mass      = {k: 1 for k in range(1)}
-        self.st_mass_err  = {k: np.array([0,0]) for k in range(1)}
+        self.st_mass_err  = {k: np.array([0.0,0.0]) for k in range(1)}
         self.st_mass_use  = {k: False for k in range(1)}
         self.st_mass_str  = {k: r'St mass' for k in range(1)}
-        self.st_mass_bounds  = {k: np.array([0.01,100]) for k in range(1)}
-        self.st_mass_norm_pr = {k: np.array([1,0.2, False]) for k in range(1)}
-        self.st_mass_jeff_pr = {k: np.array([1,0.2, False]) for k in range(1)}
+        self.st_mass_bounds  = {k: np.array([0.01,100.0]) for k in range(1)}
+        self.st_mass_norm_pr = {k: np.array([1.0,0.2, False]) for k in range(1)}
+        self.st_mass_jeff_pr = {k: np.array([1.0,0.2, False]) for k in range(1)}
 
 
     def init_St_params(self):
@@ -2187,8 +2187,8 @@ class signal_fit(object):
         self.doGP = False
         self.gps=[]
 
-        self.GP_rot_params = [1,10,15,1]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
-        self.GP_rot_err = [0,0,0,0]
+        self.GP_rot_params = [1.0,10.0,15.0,1.0]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_rot_err = [0.0,0.0,0.0,0.0]
         self.GP_rot_use = [False,False,False,False]
         self.GP_rot_str = [r'Amp', r't', r'per', r'fact']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_rot_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_rot_params))}
@@ -2196,8 +2196,8 @@ class signal_fit(object):
         self.GP_rot_jeff_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_rot_params))}
 
 
-        self.GP_sho_params     = [100,1,0.05]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
-        self.GP_sho_err = [0,0,0]
+        self.GP_sho_params     = [100.0,1.0,0.05]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_sho_err = [0.0,0.0,0.0]
         self.GP_sho_use = [False,False,False]
         self.GP_sho_str = [r'S', r'Q', r'omega']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_sho_bounds     = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_sho_params))}
@@ -2205,8 +2205,8 @@ class signal_fit(object):
         self.GP_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_sho_params))}
 
 
-        self.gp_model_curve = {k: 0 for k in range(10)}
-        self.gp_model_data  = {k: 0 for k in range(10)}
+        self.gp_model_curve = {k: 0.0 for k in range(10)}
+        self.gp_model_data  = {k: 0.0 for k in range(10)}
 
         self.gp_kernels = ['SHOKernel','RotKernel']
         self.gp_kernel = self.gp_kernels[0]
@@ -2217,8 +2217,8 @@ class signal_fit(object):
         self.tra_doGP = False
         self.tra_gps=[]
 
-        self.tra_GP_rot_params = [1,10,15,1]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
-        self.tra_GP_rot_err = [0,0,0,0]
+        self.tra_GP_rot_params = [1.0,10.0,15.0,1.0]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.tra_GP_rot_err = [0.0,0.0,0.0,0.0]
         self.tra_GP_rot_use = [False,False,False,False]
         self.tra_GP_rot_str = [r'Amp', r't', r'per', r'fact']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.tra_GP_rot_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.tra_GP_rot_params))}
@@ -2226,8 +2226,8 @@ class signal_fit(object):
         self.tra_GP_rot_jeff_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_rot_params))}
 
 
-        self.tra_GP_sho_params     = [100,1,0.05]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
-        self.tra_GP_sho_err = [0,0,0]
+        self.tra_GP_sho_params     = [100.0,1.0,0.05]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.tra_GP_sho_err = [0.0,0.0,0.0]
         self.tra_GP_sho_use = [False,False,False]
         self.tra_GP_sho_str = [r'S', r'Q', r'omega']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.tra_GP_sho_bounds     = {k: np.array([0.0,100000.0]) for k in range(len(self.tra_GP_sho_params))}
@@ -2235,8 +2235,8 @@ class signal_fit(object):
         self.tra_GP_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_sho_params))}
 
 
-        self.tra_gp_model_curve = {k: 0 for k in range(10)}
-        self.tra_gp_model_data  = {k: 0 for k in range(10)}
+        self.tra_gp_model_curve = {k: 0.0 for k in range(10)}
+        self.tra_gp_model_data  = {k: 0.0 for k in range(10)}
 
         self.tra_gp_kernels = ['SHOKernel','RotKernel']
         self.tra_gp_kernel = self.gp_kernels[0]
