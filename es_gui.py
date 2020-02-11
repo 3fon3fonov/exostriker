@@ -641,6 +641,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(fit.npl):
             for z in range(2):
+                
                 fit.K_bound[i][z] = self.param_bounds_gui[10*i + 0][z].value()    
                 fit.P_bound[i][z] = self.param_bounds_gui[10*i + 1][z].value()    
                 fit.e_bound[i][z] = self.param_bounds_gui[10*i + 2][z].value()     
@@ -651,7 +652,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 fit.t0_bound[i][z]  =  self.param_bounds_gui[10*i + 7][z].value() 
                 fit.pl_rad_bound[i][z]  =   self.param_bounds_gui[10*i + 8][z].value() 
                 fit.pl_a_bound[i][z]   =   self.param_bounds_gui[10*i + 9][z].value() 
-     
+                fit.K_bound[i][z] = self.param_bounds_gui[10*i + 0][z].value()
     
         for i in range(10): 
             for z in range(2):    
