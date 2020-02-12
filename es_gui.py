@@ -83,7 +83,7 @@ import webbrowser
 #except ModuleNotFoundError:
 #    import pickle
 import dill
-
+dill._dill._reverse_typemap['ObjectType'] = object
 #os.system("taskset -p %s" %os.getpid())
 os.environ["OPENBLAS_MAIN_FREE"] = "1"
 
@@ -1739,9 +1739,9 @@ Polyfit coefficients:
 
 
 
-    def label_peaks(self, plot_wg2, pos_peaks, GLS = True, o_c = False, activity = False, MLP = False):
+    def label_peaks(self, plot_wg2, pos_peaks, GLS = True, o_c = False, activity = False, MLP = False, DFT=False):
     
-        if GLS == True and self.avoid_GLS_RV_alias.isChecked():
+        if GLS == True and DFT == False and self.avoid_GLS_RV_alias.isChecked():
             x_peaks = pos_peaks[0][pos_peaks[0]>1.2]
             y_peaks = pos_peaks[1][pos_peaks[0]>1.2]
         else:            
@@ -1758,7 +1758,10 @@ Polyfit coefficients:
             elif MLP == True:
                 log = self.radioButton_RV_MLP_period.isChecked()
                 N_peaks = int(self.N_MLP_peak_to_point.value())
-
+            elif DFT == True:
+                log = self.radioButton_RV_WF_period.isChecked()
+                N_peaks = int(self.N_window_peak_to_point.value())
+                
             else:
                 log = self.radioButton_RV_GLS_period.isChecked()
                 
@@ -1962,6 +1965,8 @@ Polyfit coefficients:
                 p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'})      
 
             text_peaks, pos_peaks = self.identify_power_peaks(1/np.array(omega), WF_power)
+
+            self.label_peaks(p12, pos_peaks, GLS = True, DFT = True)
 
                         
             self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(text_peaks))        
@@ -2739,31 +2744,30 @@ Polyfit coefficients:
 
     def mlp_search(self, resid = False):
         global fit
-
-        #if resid == True:
-        #    lc_data = fit.tra_data_sets[0][3]
-        #else:
-        #    lc_data = fit.tra_data_sets[0][1]
-
+ 
         omega = 1/ np.logspace(np.log10(self.mlp_min_period.value()), np.log10(self.mlp_max_period.value()), num=int(self.mlp_n_omega.value()))
         ind_norm = self.gls_norm_combo.currentIndex()
-
-        xx = fit.fit_results.rv_model.jd #.tolist()
-        yy = fit.fit_results.rv_model.rvs #.tolist()
-        ye = fit.fit_results.rv_model.rv_err #.tolist()
-        
-        if len(fit.fit_results.rv_model.jd) > 5:      
-            RV_per = mlp.Gls([(xx,yy,ye)], fast=True,  verbose=False,
+ 
+        if len(fit.fit_results.rv_model.jd) > 5:  
+            
+            rv_files_for_mlp = []
+            for i in range(fit.filelist.ndset):
+                
+                typ = (fit.fit_results.rv_model.jd[fit.filelist.idset==i],
+                       fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
+                       fit.fit_results.rv_model.rv_err[fit.filelist.idset==i])
+                rv_files_for_mlp.append(typ)
+            
+            RV_per = mlp.Gls(rv_files_for_mlp, fast=True,  verbose=False,
             ofac=self.mlp_ofac.value(), fbeg=omega[-1], fend=omega[0], norm='dlnL')
 
         else:
             return
  
         if resid == True:
-            fit.mlp = RV_per  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
+            fit.mlp = RV_per  # TB Fixed  
         else:
-            fit.mlp = RV_per  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
-
+            fit.mlp = RV_per  # TB Fixed  
 
 
     def update_RV_MLP_plots(self): 
@@ -2773,8 +2777,8 @@ Polyfit coefficients:
 
         self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])
 
-        #power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
-        power_levels = np.array([5,10,15])
+        power_levels = np.array([self.mlp_fap1.value(),self.mlp_fap2.value(),self.mlp_fap3.value()])
+        #power_levels = np.array([5,10,15])
 
         gls_model_width = float(self.gls_model_width.value())
 
@@ -2790,8 +2794,8 @@ Polyfit coefficients:
                 p_mlp.plot(fit.mlp.freq, fit.mlp.power,pen={'color': fit.gls_colors[0], 'width': self.gls_model_width.value()},symbol=None )                
                 p_mlp.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
 
-            #if fit.gls.norm == 'ZK':
-            #    [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.mlp.powerLevel(np.array(power_levels)))]
+            if fit.mlp.norm == 'dlnL':
+                [p_mlp.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for fap in np.array(power_levels)]
  
 #            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels, sig_level = fit.mlp.powerLevel(np.array(power_levels)) )   
             text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels, sig_level =np.array(power_levels) )   
@@ -3425,9 +3429,9 @@ Transit duration: %s d
                 model_N_transits = ttv_loglik[2][0]
     
                 for k in range(len(ttv_loglik[2][1])):
-                    ttv_model[k] = ttv_model[k] - fit.P[0]*(ttv_loglik[2][0][k]-1)
+                    ttv_model[k] = ttv_model[k] - fit.P[int(ttv_files[j][3]-1)]*(ttv_loglik[2][0][k]-1)
                 for k in range(len(ttv_loglik[1][1])):
-                    flux[k] = flux[k] - (fit.P[0]*(ttv_loglik[1][0][k]-1) + ttv_files[j][1][0])
+                    flux[k] = flux[k] - (fit.P[int(ttv_files[j][3]-1)]*(ttv_loglik[1][0][k]-1) + ttv_files[j][1][0])
                     ttv_model_transits.append(ttv_model[ttv_loglik[1][0][k]-1])
             else:
                 ttv_model = np.zeros(len(flux))+ np.mean(flux)
@@ -4656,11 +4660,13 @@ highly appreciated!
         global fit,ses_list
         
         input_file = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.ses)')
+        
+        #dill._dill._reverse_typemap['ObjectType'] = object
 
         if str(input_file[0]) != '':
 
             file_pi = open(input_file[0], 'rb')
-            fit_new = dill.load(file_pi)
+            fit_new = dill.load(file_pi) #, encoding='latin1'
             file_pi.close()     
             
             ses_list.append(fit_new)
@@ -4680,7 +4686,7 @@ highly appreciated!
         
         if str(output_file[0]) != '':
             file_pi = open(output_file[0], 'wb')
-            dill.dump(fit, file_pi)
+            dill.dump(fit, file_pi) #,protocol=2
             file_pi.close()
 
 
@@ -6483,6 +6489,8 @@ since in this ver. 0.13 of the Exo-Striker, the TTV modeling is still experiment
         self.N_GLS_peak_to_point.valueChanged.connect(self.update_RV_o_c_GLS_plots)
         self.avoid_GLS_RV_alias.stateChanged.connect(self.update_RV_GLS_plots)
         self.avoid_GLS_RV_alias.stateChanged.connect(self.update_RV_o_c_GLS_plots)
+        
+        self.N_window_peak_to_point.valueChanged.connect(self.update_WF_plots)
         
         self.N_MLP_peak_to_point.valueChanged.connect(self.update_RV_MLP_plots)
         self.avoid_MLP_RV_alias.stateChanged.connect(self.update_RV_MLP_plots)

@@ -442,18 +442,18 @@ class Gls:
             print("Failed to calcuate best-fit sine curve.")
             raise(e)
 
-    def info(self):
+    def info(self, stdout=True):
         """
         Prints some basic statistical output screen.
         """
-        print("Generalized LS - statistical output")
-        print("-----------------------------------")
-        print("Number of input points:     %6d" % self.N)
-        print("Weighted mean of dataset:   %f"  % self.rms[0])
-        print("Weighted rms of dataset:    %f"  % self.rms[0])
-        print("Time base:                  %f"  % self.tbase)
-        print("Number of frequency points: %6d" % self.nf)
-        print()
+        lines = ("Generalized LS - statistical output",
+        "-----------------------------------",
+        "Number of input points:     %6d" % self.N,
+        "Weighted mean of dataset:   %f"  % self.rms[0],
+        "Weighted rms of dataset:    %f"  % self.rms[0],
+        "Time base:                  %f"  % self.tbase,
+        "Number of frequency points: %6d" % self.nf,
+        "")
         k = argmax(self.p)
         Yfit = self.sinmod([t for t,y,e in self.data])
         W = [1/(e_y**2+jit**2) for e_y,jit in zip(self.e_y, self.hpstat["jitter"])]
@@ -464,7 +464,7 @@ class Gls:
         if self.e_y is not None:
            header += " %10s" % "internal error"
            fmt += " %10.3f"
-        print(header)
+        lines += (header,)
 
         col = list(self.lnML0j), list(self._lnMLj[k]-self.lnML0j)
         col += wrmsj, self.hpstat["jitter"]
@@ -472,23 +472,31 @@ class Gls:
            col += [np.mean(1./e_y**2)**-0.5 for e_y in self.e_y],
 
         for j,line in enumerate(zip(*col)):
-           print(fmt % ((j,)+line))
+            lines += (str(fmt % ((j,)+line)),)
 
         wrmsall = np.sqrt(np.sum([np.sum(w*(yfit-y)**2) for y,w,yfit in zip(self.y, W, Yfit)])/sum(map(sum,W)))
-        print("-"*60)
-        print("all: %10.3f %10.3f  %10.3f\n" % (self.lnML0, self.lnML.max()-self.lnML0, wrmsall))
-
-        print("Best sine frequency:  %f +/- %f" % (self.hpstat["fbest"], self.hpstat["f_err"]))
-        print("Best sine period:     %f +/- %f" % (1./self.hpstat["fbest"], self.hpstat["Psin_err"]))
-        print("Amplitude:            %f +/- %f" % (self.hpstat["amp"], self.hpstat["amp_err"]))
-        print("Phase (ph):           %f +/- %f" % (self.hpstat["ph"], self.hpstat["ph_err"]))
-        print("Phase (T0):           %f +/- %f" % (self.hpstat["T0"], self.hpstat["T0_err"]))
+        lines += (
+        "-"*60,
+        "all: %10.3f %10.3f  %10.3f\n" % (self.lnML0, self.lnML.max()-self.lnML0, wrmsall),
+        "Best sine frequency:  %f +/- %f" % (self.hpstat["fbest"], self.hpstat["f_err"]),
+        "Best sine period:     %f +/- %f" % (1./self.hpstat["fbest"], self.hpstat["Psin_err"]),
+        "Amplitude:            %f +/- %f" % (self.hpstat["amp"], self.hpstat["amp_err"]),
+        "Phase (ph):           %f +/- %f" % (self.hpstat["ph"], self.hpstat["ph_err"]),
+        "Phase (T0):           %f +/- %f" % (self.hpstat["T0"], self.hpstat["T0_err"]))
+        
         for j,off in enumerate(self.hpstat["offset"]):
-           print("Offset %d:             %f +/- %f" % (j, off, self.hpstat["offset_err"]))
+            lines += ( "Offset %d:             %f +/- %f" % (j, off, self.hpstat["offset_err"]),)
         #for j,jit in enumerate(self.hpstat["jitter"]:
         #   print("Jitter %d:             %f +/- %f" % (j, jit, self.hpstat["offset_err"]))
         #pause()
-        print("-----------------------------------")
+        lines += ("-----------------------------------",)
+        
+        text = "\n".join(lines) #.format(**self.best)
+        if stdout:
+           print(text)
+        else:
+           return text        
+        
 
     def plot(self, block=False, period=False):
         """
