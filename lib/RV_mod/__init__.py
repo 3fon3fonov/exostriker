@@ -393,8 +393,8 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = Fa
                                             par[len(vel_files)*2 +7*i+2],
                                             par[len(vel_files)*2 +7*i+5],
                                             par[len(vel_files)*2 +7*i+6],
-                                            (par[len(vel_files)*2 +7*i+3]-180.0),
-                                            (par[len(vel_files)*2 +7*i+4]+180.0)]
+                                            (par[len(vel_files)*2 +7*i+3]-180.0)%360.0,
+                                            (par[len(vel_files)*2 +7*i+4]+180.0)%360.0]
         planet = ttvfast.models.Planet(*pl_params)
         planets.append(planet)
 
@@ -909,9 +909,9 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         times = obj.ttv_times
         ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,times,obj.fit_results, return_model = False)
         obj.loglik     =  ttv_loglik
-        #print(par)
-#    obj.loglik = -result["fun"]
-
+        
+    print(obj.type_fit["RV"], obj.type_fit["Transit"], obj.type_fit["TTV"])    
+ 
     errors = [[0.0,0.0] for i in range(len(pp))]
 
     obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, errors)
