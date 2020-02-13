@@ -6,7 +6,7 @@ __author__ = 'Trifon Trifonov, Jakub Morawski'
 import sys 
 #sys.path.insert(0, '../lib')
 import numpy as np
-from Warning_log import Warning_log
+from .Warning_log import Warning_log
 #import GP_kernels
 
 

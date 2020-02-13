@@ -2704,10 +2704,12 @@ Polyfit coefficients:
 
         #start_time = time.time()   
 
-        if resid == False:     
-            self.update_RV_MLP_plots() 
-        else:
-            self.update_mlp_o_c_plots() 
+        #if resid == False:     
+        #    self.update_RV_MLP_plots() 
+        #else:
+        #    self.update_mlp_o_c_plots() 
+
+        self.update_RV_MLP_plots()
 
         self.statusBar().showMessage('')
  
@@ -2721,7 +2723,12 @@ Polyfit coefficients:
 
         self.calc_MLP.setEnabled(False)
         #self.calc_MLP_o_c.setEnabled(False)
- 
+
+
+        if self.calp_MLP_o_c.isChecked():
+            resid = True
+        else:
+            resid = False
         
         #if z <= 0:
         #    choice = QtGui.QMessageBox.information(self, 'Warning!',
@@ -2740,11 +2747,12 @@ Polyfit coefficients:
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
         self.threadpool.start(worker_mlp_wk)       
-     
+
+
 
     def mlp_search(self, resid = False):
         global fit
- 
+
         omega = 1/ np.logspace(np.log10(self.mlp_min_period.value()), np.log10(self.mlp_max_period.value()), num=int(self.mlp_n_omega.value()))
         ind_norm = self.gls_norm_combo.currentIndex()
  
@@ -2753,12 +2761,18 @@ Polyfit coefficients:
             rv_files_for_mlp = []
             for i in range(fit.filelist.ndset):
                 
-                typ = (fit.fit_results.rv_model.jd[fit.filelist.idset==i],
+                if resid == True:
+                    typ = (fit.fit_results.rv_model.jd[fit.filelist.idset==i],
+                       fit.fit_results.rv_model.o_c[fit.filelist.idset==i], 
+                       fit.fit_results.rv_model.rv_err[fit.filelist.idset==i])
+                else:
+                    typ = (fit.fit_results.rv_model.jd[fit.filelist.idset==i],
                        fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
                        fit.fit_results.rv_model.rv_err[fit.filelist.idset==i])
+                    
                 rv_files_for_mlp.append(typ)
             
-            RV_per = mlp.Gls(rv_files_for_mlp, fast=True,  verbose=False,
+            RV_per = mlp.Gls(rv_files_for_mlp, fast=True,  verbose=False, nojit=True,
             ofac=self.mlp_ofac.value(), fbeg=omega[-1], fend=omega[0], norm='dlnL')
 
         else:
@@ -4302,7 +4316,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.13) \n developed by 3fon3fonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.14) \n developed by 3fon3fonov"
         
         self.dialog_credits.text.append(text)
 
@@ -5408,7 +5422,7 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             print("""
 You dont have TTVfast installed! Therefore, you cannot apply TTV modelling. 
 Please install via 'pip install ttvfast'. But you can also ignore this warning,
-since in this ver. 0.13 of the Exo-Striker, the TTV modeling is still experimental.
+since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experimental.
 """)
             self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
@@ -6681,7 +6695,7 @@ since in this ver. 0.13 of the Exo-Striker, the TTV modeling is still experiment
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.13). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.14). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)

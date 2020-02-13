@@ -15,7 +15,7 @@ import signal
 import platform
 import tempfile, shutil
 from threading import Thread
-from Warning_log import Warning_log
+from .Warning_log import Warning_log
 import scipy.stats as pdf
 import dill
 from scipy.signal import argrelextrema

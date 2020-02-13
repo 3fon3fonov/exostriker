@@ -61,14 +61,14 @@ except (ImportError, KeyError) as e:
     pass
 
 
-from CustomSampler import CustomSampler
-from Warning_log import Warning_log
-from parameters import parameters, GP_parameters, parameter_errors, parameter_bounds, use_flags
-from fortran_output import fortran_output
-from functions import *
-from errors import Error, InputError, FittingError
-from kernel import kernel, rvmodel, summary
-from rv_files import rvfile, rvfile_list
+from .CustomSampler import CustomSampler
+from .Warning_log import Warning_log
+from .parameters import parameters, GP_parameters, parameter_errors, parameter_bounds, use_flags
+from .fortran_output import fortran_output
+from .functions import *
+from .errors import Error, InputError, FittingError
+from .kernel import kernel, rvmodel, summary
+from .rv_files import rvfile, rvfile_list
 
 TAU= 2.0*np.pi
 DEFAULT_STELLAR_MASS=1.0
@@ -77,7 +77,7 @@ NPLMAX=20
 DEFAULT_PATH='./datafiles/'
 
 
-import GP_kernels
+from . import GP_kernels
 
 
 
