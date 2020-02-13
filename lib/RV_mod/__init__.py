@@ -407,12 +407,19 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = Fa
     #n2   = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == 0])
     #transits_calc   = np.array([item[2] for i, item in enumerate(result_rows) if n1[i] == 0])
     n2   = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[0][3])-1])# if ttv_files[0][4] == True])
+#    n3   = np.array([item[0] for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[0][3])-1])# if ttv_files[0][4] == True])
     transits_calc   = np.array([item[2] for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[0][3])-1])# if ttv_files[0][4] == True])
     #print(times)
 
     loglik_ttv = 0
     calc_n     = []
     calk_tran  = []
+    
+   # print(len(n2),len(ttv_files[0][1]),n3)
+    
+    # A bug fix???
+    if len(n2) == 0 or max(n2) <= max(ttv_files[0][0]):
+        return -np.inf
 
     for i in range(len(ttv_files[0][1])):
 
