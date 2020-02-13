@@ -240,6 +240,8 @@ http://dfm.io/emcee/current/
 
 https://dynesty.readthedocs.io/en/latest/
 
+* TTV models are adopted from TTVfast-python
 
+https://github.com/mindriot101/ttvfast-python
 
 
