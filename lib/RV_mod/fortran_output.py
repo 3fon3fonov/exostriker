@@ -6,10 +6,10 @@ __author__ = 'Trifon Trifonov, Jakub Morawski'
 import sys 
 #sys.path.insert(0, '../lib')
 import numpy as np
-from Warning_log import Warning_log
-from parameters import parameters,  parameter_errors
-from functions import *
-from kernel import kernel, summary
+from .Warning_log import Warning_log
+from .parameters import parameters,  parameter_errors
+from .functions import *
+from .kernel import kernel, summary
 
 
 

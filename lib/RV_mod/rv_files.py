@@ -8,9 +8,9 @@ __author__ = 'Trifon Trifonov, Jakub Morawski'
 #sys.path.insert(0, '../lib')
 import numpy as np
 
-from functions import *  
-from errors import Error, InputError, FittingError
-from Warning_log import Warning_log
+from .functions import *  
+from .errors import Error, InputError, FittingError
+from .Warning_log import Warning_log
      
 # classes for processing RV files
 NDSETMAX=20
