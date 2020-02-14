@@ -1844,7 +1844,7 @@ class signal_fit(object):
         self.rvs_colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 
         self.gls_colors = ['#ff0000',  '#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#000000']
-
+        self.ttv_colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
 
         self.init_sciPy_minimizer()
         self.init_ld_model()

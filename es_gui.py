@@ -183,6 +183,7 @@ else:
 colors      = ['#0066ff','#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 colors_gls  = ['#0066ff','#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 
+               
 symbols = ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
 colors_delta_om = colors
 colors_theta = colors
@@ -1283,6 +1284,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.colors_gls.setFont(self.font) 
         self.colors_gls_o_c.setFont(self.font) 
+
+        self.colors_ttv.setFont(self.font) 
 
 
     def initialize_plots(self):
@@ -3402,6 +3405,8 @@ Transit duration: %s d
         p_ttv.plot(clear=True,) 
         p_ttv_oc.plot(clear=True,)
 
+        self.colors_ttv.setStyleSheet("color: %s;"%fit.ttv_colors[0])               
+
         #self.check_tra_symbol_sizes()
 
         ttv_files = []
@@ -3441,11 +3446,20 @@ Transit duration: %s d
                 
                 ttv_model_transits = []
                 model_N_transits = ttv_loglik[2][0]
+                
+
+                #print(mean_P)
+                
+                if self.ttv_apply_mean_period.isChecked():
+                    periods_t0 = [ttv_model[k+1] - ttv_model[k] for k in range(len(ttv_model)-1)]
+                    mean_P = np.mean(periods_t0)                    
+                else:
+                    mean_P = fit.P[int(ttv_files[j][3]-1)]
     
                 for k in range(len(ttv_loglik[2][1])):
-                    ttv_model[k] = ttv_model[k] - fit.P[int(ttv_files[j][3]-1)]*(ttv_loglik[2][0][k]-1)
+                    ttv_model[k] = ttv_model[k] - mean_P*(ttv_loglik[2][0][k]-1)
                 for k in range(len(ttv_loglik[1][1])):
-                    flux[k] = flux[k] - (fit.P[int(ttv_files[j][3]-1)]*(ttv_loglik[1][0][k]-1) + ttv_files[j][1][0])
+                    flux[k] = flux[k] - (mean_P*(ttv_loglik[1][0][k]-1) + ttv_files[j][1][0])
                     ttv_model_transits.append(ttv_model[ttv_loglik[1][0][k]-1])
             else:
                 ttv_model = np.zeros(len(flux))+ np.mean(flux)
@@ -3454,10 +3468,10 @@ Transit duration: %s d
                     
             p_ttv.plot(t, flux,
             pen=None,
-            symbol=fit.pyqt_symbols_tra[i],
-            symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
+            symbol=fit.pyqt_symbols_tra[j],
+            symbolPen={'color': fit.ttv_colors[0], 'width': 1.1},
             symbolSize=self.ttv_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.tra_colors[j] ) 
+            symbolBrush=fit.ttv_colors[0] ) 
             
             err_ = pg.ErrorBarItem(x=t, y=flux, symbol='o',
                                   # height=flux_err, 
@@ -3467,7 +3481,7 @@ Transit duration: %s d
 
             p_ttv.addItem(err_)
 
-            model_curve = p_ttv.plot(model_N_transits,ttv_model,  pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1}, enableAutoRange=True,viewRect=True )
+            model_curve = p_ttv.plot(model_N_transits,ttv_model,  pen={'color':  fit.ttv_colors[-1], 'width': self.tra_model_width.value()+1}, enableAutoRange=True,viewRect=True )
 
             model_curve.setZValue(self.tra_model_z.value())
             
@@ -3479,10 +3493,10 @@ Transit duration: %s d
 
             p_ttv_oc.plot(t, flux-ttv_model_transits,
             pen=None,  
-            symbol=fit.pyqt_symbols_tra[i],
-            symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
+            symbol=fit.pyqt_symbols_tra[j],
+            symbolPen={'color': fit.ttv_colors[0], 'width': 1.1},
             symbolSize=self.ttv_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.tra_colors[j] )
+            symbolBrush=fit.ttv_colors[0] )
 
             err_ = pg.ErrorBarItem(x=t, y=flux-ttv_model_transits, symbol='o', 
            # height=flux_err,
@@ -3504,7 +3518,13 @@ Transit duration: %s d
             p_ttv_oc.autoRange()  
 
 
-
+    def get_ttv_plot_color(self):
+        global fit
+        
+        colorz = self.colorDialog.getColor()
+        fit.ttv_colors[0]=colorz.name()   
+        
+        self.update_ttv_plots() 
 
 
 ############################# N-Body ########################################     
@@ -6516,7 +6536,10 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
         
         self.jitter_to_plots.stateChanged.connect(self.update_plots)
         self.split_jitter.stateChanged.connect(self.update_plots)
-                
+
+        self.ttv_apply_mean_period.stateChanged.connect(self.update_ttv_plots)
+        self.ttv_plot_autorange.stateChanged.connect(self.update_ttv_plots)
+             
         self.buttonGroup_use_planets.buttonClicked.connect(self.update_veiw)               
 #        self.use_Planet1.stateChanged.connect(self.update_veiw)        
         
@@ -6576,6 +6599,8 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
         
         self.colors_gls.clicked.connect(self.get_RV_GLS_plot_color)
         self.colors_gls_o_c.clicked.connect(self.get_RV_o_c_GLS_plot_color)
+
+        self.colors_ttv.clicked.connect(self.get_ttv_plot_color)
 
 
         self.color_delta_om.clicked.connect(self.get_delta_omega_color)
