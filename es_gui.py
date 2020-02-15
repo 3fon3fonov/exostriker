@@ -3468,7 +3468,7 @@ Transit duration: %s d
                     
             p_ttv.plot(t, flux,
             pen=None,
-            symbol=fit.pyqt_symbols_tra[j],
+            symbol=fit.pyqt_symbols_ttv[0],
             symbolPen={'color': fit.ttv_colors[0], 'width': 1.1},
             symbolSize=self.ttv_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=fit.ttv_colors[0] ) 
@@ -3477,13 +3477,13 @@ Transit duration: %s d
                                   # height=flux_err, 
                                    top=flux_err, 
                                    bottom=flux_err,
-                                   beam=0.0, pen=fit.tra_colors[j])
+                                   beam=0.0, pen=fit.ttv_colors[0])
 
             p_ttv.addItem(err_)
 
-            model_curve = p_ttv.plot(model_N_transits,ttv_model,  pen={'color':  fit.ttv_colors[-1], 'width': self.tra_model_width.value()+1}, enableAutoRange=True,viewRect=True )
+            model_curve = p_ttv.plot(model_N_transits,ttv_model,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True,viewRect=True )
 
-            model_curve.setZValue(self.tra_model_z.value())
+            model_curve.setZValue(self.ttv_model_z.value())
             
             if self.ttv_plot_cross_hair.isChecked():
                 self.cross_hair(p_ttv,log=False)
@@ -3523,6 +3523,14 @@ Transit duration: %s d
         
         colorz = self.colorDialog.getColor()
         fit.ttv_colors[0]=colorz.name()   
+        
+        self.update_ttv_plots() 
+        
+    def get_ttv_model_color(self):
+        global fit
+        
+        colorz = self.colorDialog.getColor()
+        fit.ttv_colors[-1]=colorz.name()   
         
         self.update_ttv_plots() 
 
@@ -6513,6 +6521,8 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
         
         ############### TTV plotting controll ####################      
         self.ttv_data_size.valueChanged.connect(self.update_ttv_plots)
+        self.ttv_model_width.valueChanged.connect(self.update_ttv_plots)
+        self.ttv_model_z.valueChanged.connect(self.update_ttv_plots)
 
   
         ############### RV GLS plotting controll ####################      
@@ -6601,6 +6611,7 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
         self.colors_gls_o_c.clicked.connect(self.get_RV_o_c_GLS_plot_color)
 
         self.colors_ttv.clicked.connect(self.get_ttv_plot_color)
+        self.ttv_model_color.clicked.connect(self.get_ttv_model_color)
 
 
         self.color_delta_om.clicked.connect(self.get_delta_omega_color)

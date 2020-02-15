@@ -1834,10 +1834,15 @@ class signal_fit(object):
         self.pyqt_symbols_rvs = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
         self.pyqt_symbols_act = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
         self.pyqt_symbols_tra = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
+        self.pyqt_symbols_ttv = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
+
 
         self.pyqt_symbols_size_rvs = {k: 6 for k in range(10)} #[6,6,6,6,6,6,6,6,6,6] #
         self.pyqt_symbols_size_act = {k: 4 for k in range(10)} #[4,4,4,4,4,4,4,4,4,4] #
         self.pyqt_symbols_size_tra = {k: 2 for k in range(10)} #[2,2,2,2,2,2,2,2,2,2] #
+        self.pyqt_symbols_size_ttv = {k: 4 for k in range(10)} #[2,2,2,2,2,2,2,2,2,2] #
+
+        
 
         self.act_colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
         self.tra_colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
