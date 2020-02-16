@@ -4696,30 +4696,28 @@ highly appreciated!
 
         ses_list.append(fit_new)
         self.session_list()
-              
-            
+
+
     def open_session(self):
         global fit,ses_list
-        
+
         input_file = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.ses)')
-        
-        #dill._dill._reverse_typemap['ObjectType'] = object
 
         if str(input_file[0]) != '':
 
             file_pi = open(input_file[0], 'rb')
             fit_new = dill.load(file_pi) #, encoding='latin1'
             file_pi.close()     
-            
+
+            self.check_for_missing_instances(fit_new)
+
             ses_list.append(fit_new)
-            
+
             #self.check_settings()
-            rv.check_temp_RV_file(fit_new)         
+            rv.check_temp_RV_file(fit_new)
             self.session_list()
             self.select_session(-1)
-            
- 
-        
+
 
     def save_session(self):
         global fit
@@ -4734,15 +4732,19 @@ highly appreciated!
 
     def open_sessions(self):
         global fit, ses_list
-        
+
         input_file = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.mses)')
 
         if str(input_file[0]) != '':
 
             file_pi = open(input_file[0], 'rb')
             fit2 = dill.load(file_pi)
-            file_pi.close()           
-        
+            file_pi.close()
+
+            for jj in fit2:
+                self.check_for_missing_instances(jj)
+
+
             choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "Do you want to overwrite the current sessions? If you choose 'No' will add the session, 'Cancel' will exit",
                                             QtGui.QMessageBox.Cancel | QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
@@ -6034,6 +6036,15 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
  
 #############################  TEST ZONE ################################  
 
+
+
+    def check_for_missing_instances(self,fit_new):
+        global fit
+
+        for iii in fit.__dict__:
+            if iii not in fit_new.__dict__: fit_new.__dict__[iii] = dill.copy(fit.__dict__[iii])
+
+        return
 
     def set_type_fit_options(self):
         global fit 
