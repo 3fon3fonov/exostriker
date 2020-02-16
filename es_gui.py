@@ -2399,6 +2399,8 @@ Polyfit coefficients:
             if len(fit.act_data_sets[i]) != 0:
                 self.buttonGroup_activity_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
                 self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_activity_data.button(i+1).setText(fit.act_data_sets[i][3])
+
             else:
                 self.buttonGroup_activity_data.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("")
@@ -5247,7 +5249,6 @@ highly appreciated!
 
                     self.update_act_file_buttons()
                     self.update_activity_gls_plots(but_ind-1)
-                    self.buttonGroup_activity_data.button(but_ind).setText(self.file_from_path(path))
                     return
             
         elif  file_extension == '.tran':
@@ -6042,7 +6043,10 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
         global fit
 
         for iii in fit.__dict__:
-            if iii not in fit_new.__dict__: fit_new.__dict__[iii] = dill.copy(fit.__dict__[iii])
+            if iii not in fit_new.__dict__: 
+                fit_new.__dict__[iii] = dill.copy(fit.__dict__[iii])
+                #print(fit.__dict__[iii],fit_new.__dict__[iii])
+            
 
         return
 
