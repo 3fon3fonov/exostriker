@@ -2506,7 +2506,10 @@ class signal_fit(object):
         act_JD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
         act_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
         act_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-        act_data_set = np.array([act_JD,act_data,act_data_sig])
+        
+        act_file_name = file_from_path(path)
+        
+        act_data_set = np.array([act_JD,act_data,act_data_sig,act_file_name])
 
         self.act_data_sets[act_idset] = act_data_set
 
@@ -2671,6 +2674,8 @@ class signal_fit(object):
                self.add_dataset(name2,path2,offset,jitter,useoffset=True,usejitter=True)
        else:
            self.add_dataset(name,path,offset,jitter,useoffset=True,usejitter=True)
+       
+       data_set_name = ['CRX','dLW','H alpha','NaD I','NaD II','BIS','Contrast','FWHM']
 
 
        for i in range(5):
@@ -2680,7 +2685,8 @@ class signal_fit(object):
            act_data = act_data - np.mean(act_data)
 
            act_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [act_ind+1])
-           act_data_set = np.array([BJD,act_data,act_data_sig])
+           act_data_set = np.array([BJD,act_data,act_data_sig,data_set_name[i]])
+           
 
            self.act_data_sets[i] = act_data_set
            #print(act_data[0])
@@ -2695,9 +2701,10 @@ class signal_fit(object):
                act_data = act_data * 1000.0
               # print(act_data[0:10])
 
-           act_data_sig = act_data*0.05
-           act_data_set = np.array([BJD,act_data,act_data_sig])
+           act_data_sig = act_data*0.01
            i = i +1
+           act_data_set = np.array([BJD,act_data,act_data_sig,data_set_name[i]])
+
           # print(act_data[0])
 
            self.act_data_sets[i] = act_data_set
