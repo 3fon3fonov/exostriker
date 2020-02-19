@@ -11600,6 +11600,11 @@
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>use bounds</string>
                       </property>
@@ -13079,6 +13084,11 @@
                      <widget class="QCheckBox" name="use_norm_prior_pl_1">
                       <property name="enabled">
                        <bool>false</bool>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
                       </property>
                       <property name="text">
                        <string>norm. pr.</string>
