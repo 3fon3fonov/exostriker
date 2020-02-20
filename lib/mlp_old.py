@@ -38,14 +38,16 @@ from numpy import sum, pi, cos, sin, arctan2, exp, log, sqrt,\
 #from gplot import *
 from scipy import optimize as op
 
-# for python3: emulate the nice python2 behaviour of map and zip
-xmap = map
-map = lambda *x: list(xmap(*x))
-xzip = zip
-zip = lambda *x: list(xzip(*x))
 
-__version__ = '2020-02-13'
-__author__ = 'Mathias Zechmeister'
+# for python3: emulate the nice python2 behaviour of map and zip 
+xmap = map 
+map = lambda *x: list(xmap(*x)) 
+xzip = zip 
+zip = lambda *x: list(xzip(*x)) 
+
+
+__version__ = '2017-11-08'
+__author__ = 'Mathias Zechmeister, Stefan Czesla'
 
 def mod_abc(x, a):
    ''' sine model with multiple data set and offsets
@@ -257,12 +259,12 @@ class Gls:
         self.M = (self.fend-self.fbeg) * self.tbase
 
     def lnL(self, theta, X, Y, e_Y, func):
-       # the log-likelihood
+        # the log-likelihood
        global L, chisqr, wtrms # a blob
-       L = []   # log-likelihood for each instrument
+       L = []
        Ymod = func(X, theta)
        chisqr = []
-       wtrms = []   # weighted rms for each instrument
+       wtrms = [] #weighted rms
        N = len(X)
        for y,e_y,ymod,lnf in zip(Y,e_Y,Ymod,theta[-N:]):
           # loop over data sets
@@ -286,10 +288,10 @@ class Gls:
         self._wrms = np.zeros(self.nf)
         self._wtrms = np.zeros((self.nf, self.Nj))
 
-        global L, chisqr, wtrms
+        global L, chisqr, wtrms 
         nll = lambda *args: -self.lnL(*args)
         #a0 = [0.]*self.Nj + [3.]*self.Nj # start guess for first frequency
-        a0 = map(np.mean, self.y) + map(np.std, self.y)
+        a0 = map(np.mean, self.y) + map(np.std, self.y) 
         #print(a0)
 
         # The model with only offset c
@@ -297,14 +299,12 @@ class Gls:
         self.lnML0 = sum(L)
         self.lnML0j = L
         self.a0 = a0
-        W0 = [np.sum(e_y**2+jit**2) for e_y,jit in zip(self.e_y, a0[-self.Nj:])]
-        self.wrms0 = np.sqrt(np.sum(chisqr)/np.sum(W0)*self.N)   # hand-wavy definition
 
         self.chisqr = chisqr
         self.wtrms = wtrms
         #print(sum(L), L, a0)
-        a = [0., 0.] + list(a0)   # start guess for first frequency
-        a = [np.median(a0[len(a0)//2:])]*2 + list(a0)   # start guess for first frequency
+        a = [0., 0.] + list(a0) # start guess for first frequency
+        a = [np.median(a0[len(a0)//2:])]*2 + list(a0) # start guess for first frequency
         for k, omega in enumerate(2.*pi*self.freq):
           # Circular frequencies
           X = [omega*th for th in self.th]
@@ -321,11 +321,10 @@ class Gls:
           self._chisqr[k] = chisqr
           self.lnML[k] = sum(L)
           self._wtrms[k] = wtrms
-          W = [np.sum(1/(e_y**2+jit**2)) for e_y,jit in zip(self.e_y, a[-self.Nj:])]
-          self._wrms[k] = np.sqrt(np.sum(chisqr)/np.sum(W))   # a bit handwavy defined
-          #print(k, self.nf, L)
+         # print(k, self.nf, L)
+          #pause()
         self.p = self.lnML
-        #print()
+        #pause()
 
     def _normcheck(self, norm):
         """
@@ -387,13 +386,13 @@ class Gls:
         k = argmax(self.p)
         # Maximum power
         self.pmax = pmax = self.p[k]
-        self.rms = rms = self._wrms[k]
+        self.rms = self._wrmsj[k]
+        rms = self.rms[0]
         # Statistics of highest peak
         self.hpstat = p = {}
 
         # Best parameters
         p["fbest"] = fbest = self.freq[k]
-        p["P"] = 1/fbest
         p["amp"] = amp = sqrt(self._a[k]**2 + self._b[k]**2)
         p["ph"] = ph = arctan2(self._a[k], self._b[k]) / (2.*pi)
         p["T0"]  = self.tmin - ph/fbest
@@ -448,14 +447,13 @@ class Gls:
         Prints some basic statistical output screen.
         """
         lines = ("MLP - statistical output",
-           "-----------------------------------",
-           "Number of input points:     %6d" % self.N,
-           "Weighted rms of dataset:    %f"  % self.wrms0,
-           "Time base:                  %f"  % self.tbase,
-           "Number of frequency points: %6d" % self.nf,
-           "Weighted rms of residuals:  %f" % self.rms,
-           "")
-
+        "-----------------------------------",
+        "Number of input points:     %6d" % self.N,
+        "Weighted mean of dataset:   %f"  % self.rms[0],
+        "Weighted rms of dataset:    %f"  % self.rms[0],
+        "Time base:                  %f"  % self.tbase,
+        "Number of frequency points: %6d" % self.nf,
+        "")
         k = argmax(self.p)
         Yfit = self.sinmod([t for t,y,e in self.data])
         W = [1/(e_y**2+jit**2) for e_y,jit in zip(self.e_y, self.hpstat["jitter"])]
@@ -474,28 +472,31 @@ class Gls:
            col += [np.mean(1./e_y**2)**-0.5 for e_y in self.e_y],
 
         for j,line in enumerate(zip(*col)):
-           lines += fmt % ((j,)+line),
+            lines += (str(fmt % ((j,)+line)),)
 
         wrmsall = np.sqrt(np.sum([np.sum(w*(yfit-y)**2) for y,w,yfit in zip(self.y, W, Yfit)])/sum(map(sum,W)))
-        lines += "-"*60,
-        lines += "all: %10.3f %10.3f  %10.3f\n" % (self.lnML0, self.lnML.max()-self.lnML0, wrmsall),
-
-        self.best = self.hpstat
-        lines += ("Best sine frequency:  {fbest:f} +/- {f_err:f}",
-             "Best sine period:     {P:f} +/- {Psin_err:f}",
-             "Amplitude:            {amp:f} +/- {amp_err:f}")
-             #"Phase (ph):           %f +/- %f" % (self.best["ph"], self.best["ph_err"]),
-             #"Phase (T0):           %f +/- %f" % (self.best["T0"], self.best["T0_err"]))
-        for j,off in enumerate(self.best["offset"]):
-           lines += "Offset %d:             %f +/- %f" % (j, off, self.best["offset_err"]),
-        #for j,jit in enumerate(self.best["jitter"]:
-        #   print("Jitter %d:             %f +/- %f" % (j, jit, self.best["offset_err"]))
-        lines += "-----------------------------------",
-        text = "\n".join(lines).format(**self.best)
+        lines += (
+        "-"*60,
+        "all: %10.3f %10.3f  %10.3f\n" % (self.lnML0, self.lnML.max()-self.lnML0, wrmsall),
+        "Best sine frequency:  %f +/- %f" % (self.hpstat["fbest"], self.hpstat["f_err"]),
+        "Best sine period:     %f +/- %f" % (1./self.hpstat["fbest"], self.hpstat["Psin_err"]),
+        "Amplitude:            %f +/- %f" % (self.hpstat["amp"], self.hpstat["amp_err"]),
+        "Phase (ph):           %f +/- %f" % (self.hpstat["ph"], self.hpstat["ph_err"]),
+        "Phase (T0):           %f +/- %f" % (self.hpstat["T0"], self.hpstat["T0_err"]))
+        
+        for j,off in enumerate(self.hpstat["offset"]):
+            lines += ( "Offset %d:             %f +/- %f" % (j, off, self.hpstat["offset_err"]),)
+        #for j,jit in enumerate(self.hpstat["jitter"]:
+        #   print("Jitter %d:             %f +/- %f" % (j, jit, self.hpstat["offset_err"]))
+        #pause()
+        lines += ("-----------------------------------",)
+        
+        text = "\n".join(lines) #.format(**self.best)
         if stdout:
            print(text)
         else:
-           return text
+           return text        
+        
 
     def plot(self, block=False, period=False):
         """
@@ -503,6 +504,8 @@ class Gls:
         """
         try:
             import matplotlib
+            if (matplotlib.get_backend() != "TkAgg"):
+                matplotlib.use("TkAgg")
             import matplotlib.pyplot as plt
             from matplotlib.ticker import FormatStrFormatter
         except ImportError:
@@ -580,6 +583,7 @@ class Gls:
            plt.ion()
         plt.show()
         # plt.show(block=block) # unexpected keyword argument 'block' in older matplotlib
+        #pause()
         return plt
 
     def prob(self, Pn):
