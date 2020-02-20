@@ -2472,6 +2472,7 @@ Polyfit coefficients:
     def init_fit(self): 
         global fit
         
+        
         # A hack when .ses are imported from the Example directory... TBFixed
         fit.cwd = os.getcwd()
 
@@ -4044,8 +4045,7 @@ Transit duration: %s d
         print("--- %s seconds ---" % (time.time() - start_time))          
 
 
-         
-       
+
 ############################# Fortran fitting ###############################        
         
     def worker_RV_fitting_complete(self):
@@ -4053,15 +4053,15 @@ Transit duration: %s d
         
 #        start_time =time.time()   
         fit=rv.get_xyz(fit)
-        
+
         self.update_labels()
         self.update_gui_params()
-        self.update_errors() 
-        self.update_a_mass()    
-        self.update_plots()          
-        self.jupiter_push_vars()                      
-                 
-        self.statusBar().showMessage('')   
+        self.update_errors()
+        self.update_a_mass()
+        self.update_plots()
+        self.jupiter_push_vars() 
+
+        self.statusBar().showMessage('')
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
         self.button_fit.setEnabled(True)  
         if fit.bound_error == True:
@@ -4069,7 +4069,7 @@ Transit duration: %s d
             return
         
         self.run_gls()
-        self.run_gls_o_c()     
+        self.run_gls_o_c()
 
 #        print("--- %s seconds ---" % (time.time() - start_time))     
 
@@ -5436,6 +5436,9 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
     def mute_boxes(self):
         
+
+#        self.get_jupyter_vars()
+        
         if batman_not_found == True:
             self.radioButton_transit.setEnabled(False)          
             self.radioButton_transit_RV.setEnabled(False)       
@@ -5460,7 +5463,7 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
 
 
         ######### TESTS!!!!!!!!!!!###########
-        
+
         self.mute_boxes_dyn()
         
         if self.radioButton_transit_RV.isChecked():
@@ -6037,7 +6040,12 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
  
 #############################  TEST ZONE ################################  
 
-
+    # Get variables pushed from the jupyter shell
+    def get_jupyter_vars(self):
+        global fit  
+        fit = dill.copy(self.console_widget.kernel_manager.kernel.shell.user_ns.get('fit'))
+       
+        #print(fit.loglik)
 
     def check_for_missing_instances(self,fit_new):
         global fit

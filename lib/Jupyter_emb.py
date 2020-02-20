@@ -52,6 +52,12 @@ class ConsoleWidget_embed(RichJupyterWidget,ConsoleWidget):
 
         # self.kernel_manager
 
+#    @staticmethod
+#    def get_fit(parent = None):
+#        fit2 = self.kernel_manager.kernel.shell.user_ns.get('fit')
+#        return (fit2)
+
+
     def print_text(self, text, before_prompt=True):
         """
         Prints some plain text to the console
