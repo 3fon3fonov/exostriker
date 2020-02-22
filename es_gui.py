@@ -237,7 +237,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def update_gui_params(self):
         global fit
 
-
         zz = 0
         for i in range(9):
             if not self.buttonGroup_use_planets.buttons()[i].isChecked():
@@ -1093,7 +1092,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.colorDialog = QtGui.QColorDialog()
         self.colorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel, True)
         self.colorDialog.setOption(QtGui.QColorDialog.DontUseNativeDialog, True)
-
+        #elf.colorDialog.setOptions(QtWidgets.QColorDialog.DontUseNativeDialog |QtWidgets.QColorDialog.NoButtons |QtWidgets.QColorDialog.ShowAlphaChannel)
 
     def initialize_buttons(self):
 
@@ -1541,7 +1540,7 @@ Polyfit coefficients:
     def get_corr_color(self):
         global fit
         
-        colorz = self.colorDialog.getColor()
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
         colors[0]=colorz.name()
 
         self.update_correlations_data_plots()
@@ -1849,7 +1848,7 @@ Polyfit coefficients:
     def get_RV_GLS_plot_color(self):
         global fit
         
-        colorz = self.colorDialog.getColor()
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
         fit.gls_colors[0]=colorz.name()   
 
         self.update_RV_GLS_plots() 
@@ -1857,7 +1856,7 @@ Polyfit coefficients:
     def get_RV_o_c_GLS_plot_color(self):
         global fit
         
-        colorz = self.colorDialog.getColor()
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
         fit.gls_colors[1]=colorz.name()   
          
         self.update_RV_o_c_GLS_plots()  
@@ -2182,7 +2181,7 @@ Polyfit coefficients:
     def showDialog_fortran_input_file(self):
         global fit, ses_list
  
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.init)')
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.init)', options=QtGui.QFileDialog.DontUseNativeDialog)
         
         if str(input_files[0]) != '':
             fit_new=rv.signal_fit(str(input_files[0]), 'RVmod session',readinputfile=True)
@@ -2202,7 +2201,7 @@ Polyfit coefficients:
     def showDialog_RVbank_input_file(self):
         global fit, ses_list
  
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RVBank data', '', 'All (*.*);;Data (*.csv)')
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RVBank data', '', 'All (*.*);;Data (*.csv)', options=QtGui.QFileDialog.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
  
@@ -2241,7 +2240,7 @@ Polyfit coefficients:
         global fit
 
         but_ind = self.buttonGroup_add_RV_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RV data', '', 'All (*.*);;Data (*.vels)')
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RV data', '', 'All (*.*);;Data (*.vels)', options=QtGui.QFileDialog.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
  
@@ -2313,7 +2312,7 @@ Polyfit coefficients:
         global fit
 
         but_ind = self.buttonGroup_transit_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'All (*.*);;Data (*.tran)')
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'All (*.*);;Data (*.tran)', options=QtGui.QFileDialog.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
 
@@ -2365,7 +2364,7 @@ Polyfit coefficients:
         global fit
 
         but_ind = self.buttonGroup_activity_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'All (*.*);;Data (*.act)')
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'All (*.*);;Data (*.act)', options=QtGui.QFileDialog.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
  
@@ -2418,7 +2417,7 @@ Polyfit coefficients:
         global fit
 
         but_ind = self.buttonGroup_ttv_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open TTV data', '', 'All (*.*);;Data (*.ttv)')
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open TTV data', '', 'All (*.*);;Data (*.ttv)', options=QtGui.QFileDialog.DontUseNativeDialog)
         
         
         planet_N     = self.ttv_data_to_planet[but_ind-1].value()
@@ -3505,7 +3504,7 @@ Transit duration: %s d
            # height=flux_err,
             top=flux_err,
             bottom=flux_err,
-            beam=0.0, pen=fit.tra_colors[j])
+            beam=0.0, pen=fit.ttv_colors[0])
 
             p_ttv_oc.addItem(err_)   
 
@@ -3524,7 +3523,7 @@ Transit duration: %s d
     def get_ttv_plot_color(self):
         global fit
         
-        colorz = self.colorDialog.getColor()
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
         fit.ttv_colors[0]=colorz.name()   
         
         self.update_ttv_plots() 
@@ -3532,7 +3531,7 @@ Transit duration: %s d
     def get_ttv_model_color(self):
         global fit
         
-        colorz = self.colorDialog.getColor()
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
         fit.ttv_colors[-1]=colorz.name()   
         
         self.update_ttv_plots() 
@@ -3621,7 +3620,7 @@ Transit duration: %s d
         global fit, colors_delta_om
         
         #colorz = QtGui.QColorDialog.getColor()
-        colorz = self.colorDialog.getColor()
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
         colors_delta_om[0]=colorz.name()   
  
         self.plot_delta_omega()
@@ -3754,7 +3753,7 @@ Transit duration: %s d
     def get_theta_color(self):
         global fit, colors_delta_om
         
-        colorz = self.colorDialog.getColor()
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
         colors_theta[0]=colorz.name()   
  
         self.plot_theta()
@@ -4346,7 +4345,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.14) \n developed by 3fon3fonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.15) \n developed by 3fon3fonov"
         
         self.dialog_credits.text.append(text)
 
@@ -4703,7 +4702,7 @@ highly appreciated!
     def open_session(self):
         global fit,ses_list
 
-        input_file = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.ses)')
+        input_file = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.ses)', options=QtGui.QFileDialog.DontUseNativeDialog)
 
         if str(input_file[0]) != '':
 
@@ -4724,7 +4723,7 @@ highly appreciated!
     def save_session(self):
         global fit
         
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save session', '%s.ses'%fit.name, 'Data (*.ses)')
+        output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save session', '%s.ses'%fit.name, 'Data (*.ses)', options=QtGui.QFileDialog.DontUseNativeDialog)
         
         if str(output_file[0]) != '':
             file_pi = open(output_file[0], 'wb')
@@ -4735,7 +4734,7 @@ highly appreciated!
     def open_sessions(self):
         global fit, ses_list
 
-        input_file = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.mses)')
+        input_file = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.mses)', options=QtGui.QFileDialog.DontUseNativeDialog)
 
         if str(input_file[0]) != '':
 
@@ -4767,7 +4766,7 @@ highly appreciated!
     def save_sessions(self):
         global fit, ses_list
       
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save multi-session', 'my_sessions.mses', 'Data (*.mses)')
+        output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save multi-session', 'my_sessions.mses', 'Data (*.mses)', options=QtGui.QFileDialog.DontUseNativeDialog)
 
         if str(output_file[0]) != '':
             file_pi = open(output_file[0], 'wb')
@@ -4951,7 +4950,7 @@ highly appreciated!
     def change_nest_samples_file_name(self):
         global fit
         
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the nested samples', '', '')
+        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the nested samples', '', '', options=QtGui.QFileDialog.DontUseNativeDialog)
         
         if output_file[0] != '':
             fit.nest_sample_file = output_file[0] 
@@ -5123,7 +5122,7 @@ highly appreciated!
     def change_mcmc_samples_file_name(self):
         global fit
         
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the mcmc samples', '', '')
+        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the mcmc samples', '', '', options=QtGui.QFileDialog.DontUseNativeDialog)
         
         if output_file[0] != '':
             fit.mcmc_sample_file = output_file[0] 
@@ -5208,14 +5207,14 @@ highly appreciated!
     def change_corner_plot_file_name(self, type_plot = "mcmc"):
         global fit
         
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the corener plot', '', 'Data (*.png)')
+        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the corener plot', '', 'Data (*.png)', options=QtGui.QFileDialog.DontUseNativeDialog)
         if output_file[0] != '':
             if type_plot == "mcmc":
                 fit.mcmc_corner_plot_file = output_file[0] 
-                self.mcmc_corner_plot_change_name.setText(output_file[0])   
+                self.mcmc_corner_plot_change_name.setText(output_file[0])
             elif type_plot == "nest":
                 fit.nest_corner_plot_file = output_file[0] 
-                self.nest_corner_plot_change_name.setText(output_file[0])               
+                self.nest_corner_plot_change_name.setText(output_file[0])
 
 
 ################################# data inspector ###################################  
@@ -5223,13 +5222,13 @@ highly appreciated!
 
     def load_data_inspect(self): 
         global fit
-         
+
         #path = self.tree_view_tab.listview.model().filePath(index)
         path = self.inspector_file
         if path == '':
             return 
 
-        filename, file_extension = os.path.splitext(path)  
+        filename, file_extension = os.path.splitext(path)
 
         if file_extension == '.vels':
             fit.add_dataset(self.file_from_path(path), str(path),0.0,1.0)
@@ -5244,13 +5243,12 @@ highly appreciated!
             for i in range(10):
                 if len(fit.act_data_sets[i]) == 0:
                     but_ind = i +1
-
                     fit.add_act_dataset('test', str(path),act_idset =but_ind-1)
 
                     self.update_act_file_buttons()
                     self.update_activity_gls_plots(but_ind-1)
                     return
-            
+
         elif  file_extension == '.tran':
             for i in range(10):
                 if len(fit.tra_data_sets[i]) == 0:
@@ -5288,29 +5286,27 @@ highly appreciated!
         try:
             x     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
             y     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-            y_err = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2]) 
+            y_err = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
         except:
-            #pdi.addLine(x=[0,1], y=0, pen=pg.mkPen('#ff9933', width=0.8)) 
             pdi.setLabel('bottom', 'x', units='',  **{'font-size':'9pt'})
             pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
             return
- 
-        pdi.addLine(x=None, y=np.mean(y), pen=pg.mkPen('#ff9933', width=0.8))   
- 
+
+        pdi.addLine(x=None, y=np.mean(y), pen=pg.mkPen('#ff9933', width=0.8))
+
         if self.insp_data_size.value() > 2:
             symbolsize = self.insp_data_size.value() -2
         else:
             symbolsize = self.insp_data_size.value() 
 
-    
         pdi.plot(x,y,
         pen=None, #{'color': colors[i], 'width': 1.1},
         symbol='o',
         symbolPen={'color': fit.colors[0], 'width': 1.1},
         symbolSize=symbolsize,enableAutoRange=True,viewRect=True,
         symbolBrush=fit.colors[0]
-        )  
-               
+        )
+
         err_ = pg.ErrorBarItem(x=x, y=y, symbol='o', 
         top = y_err, bottom = y_err,
         #height=y_err, 
@@ -5323,26 +5319,24 @@ highly appreciated!
             
         if file_extension == '.vels':
             pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'9pt'})
-            pdi.setLabel('left',   'RV', units='m/s',  **{'font-size':'9pt'})         
+            pdi.setLabel('left',   'RV', units='m/s',  **{'font-size':'9pt'})
  
         elif file_extension == '.act':
             pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'9pt'})
-            pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})    
+            pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
             
         elif file_extension == '.tran':      
             pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'9pt'})
             pdi.setLabel('left',   'flux', units='',  **{'font-size':'9pt'})
 
-        else:      
+        else:
             pdi.setLabel('bottom', 'x', units='',  **{'font-size':'9pt'})
             pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
-        
- 
-        self.inspector_file = path     
-        self.data_insp_print_info.clicked.connect(lambda: self.print_info_for_object(self.stat_info(x,y,y_err,path)))   
 
+        self.inspector_file = path
+        self.data_insp_print_info.clicked.connect(lambda: self.print_info_for_object(self.stat_info(x,y,y_err,path)))   
         #self.data_insp_load_data.clicked.connect(lambda: self.load_data_inspect(path))
- 
+
         self.cross_data_inspect()
 
 
@@ -5378,42 +5372,42 @@ median error    :  %.4f
 """%(len(x), x[0], x[-1], x[-1]-x[0], np.min(y), np.max(y), np.max(y)-np.min(y), np.mean(y),  np.median(y), np.sqrt(np.mean(np.square(y))),
 np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
-        return text_info  
+        return text_info
 
 
 ############################# Dispatcher #####################################  
 
     def fit_dispatcher(self, init=False):
         global fit
-   
+
         if self.radioButton_RV.isChecked():
-            fit.rtg = [True,self.do_RV_GP.isChecked(),False, self.do_tra_GP.isChecked()]            
+            fit.rtg = [True,self.do_RV_GP.isChecked(),False, self.do_tra_GP.isChecked()]
             if(init):
-                self.worker_RV_fitting(ff=0,m_ln=True, init = init )  
-                #print('test')
+                self.worker_RV_fitting(ff=0,m_ln=True, init = init )
+
             else:
-                self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked())  
-                               
-        elif self.radioButton_transit.isChecked(): 
+                self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked())
+
+        elif self.radioButton_transit.isChecked():
             fit.rtg = [False,False,True, self.do_tra_GP.isChecked()]
-            if(init):             
-                self.worker_transit_fitting(ff=0)  
+            if(init):
+                self.worker_transit_fitting(ff=0)
             else:
                 self.worker_transit_fitting()
-                                               
+
         elif self.radioButton_transit_RV.isChecked():
             
             fit.rtg=[True,self.do_RV_GP.isChecked(),True, self.do_tra_GP.isChecked()]
             if(init):
-                self.worker_transit_fitting(ff=0 )  
+                self.worker_transit_fitting(ff=0 )
             else:
                 self.worker_transit_fitting()
-                
+
         elif self.radioButton_ttv.isChecked():
-            
+
             fit.rtg=[False,False,False,False]
             if(init):
-                self.worker_ttv_fitting(ff=0 )  
+                self.worker_ttv_fitting(ff=0 )
             else:
                 self.worker_ttv_fitting()
             #self.get_ttv_error_msg()
@@ -5422,7 +5416,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
         elif self.radioButton_ttv_RV.isChecked():
             
-            fit.rtg = [True,self.do_RV_GP.isChecked(),False, False]            
+            fit.rtg = [True,self.do_RV_GP.isChecked(),False, False]
             if(init):
                 self.worker_ttv_fitting(ff=0 )  
             else:
@@ -5430,18 +5424,17 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             #self.get_ttv_error_msg()
 
             #return   
-###########################  GUI events #############################            
+###########################  GUI events #############################
 
 
 
     def mute_boxes(self):
-        
 
 #        self.get_jupyter_vars()
         
         if batman_not_found == True:
-            self.radioButton_transit.setEnabled(False)          
-            self.radioButton_transit_RV.setEnabled(False)       
+            self.radioButton_transit.setEnabled(False)
+            self.radioButton_transit_RV.setEnabled(False)
             print("""
 You dont have batman installed or you have the wrong 'batman'! 
 Therefore, you cannnot use the transit modelling. 
@@ -5451,12 +5444,11 @@ For more info on the used 'batman' in the 'Exo-Striker', please check 'Help --> 
             self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
         if ttvfast_not_found == True:
-            self.radioButton_ttv.setEnabled(False)          
-            self.radioButton_ttv_RV.setEnabled(False)       
+            self.radioButton_ttv.setEnabled(False)
+            self.radioButton_ttv_RV.setEnabled(False)
             print("""
 You dont have TTVfast installed! Therefore, you cannot apply TTV modelling. 
-Please install via 'pip install ttvfast'. But you can also ignore this warning,
-since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experimental.
+Please install via 'pip install ttvfast'.
 """)
             self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
@@ -5465,42 +5457,42 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
         ######### TESTS!!!!!!!!!!!###########
 
         self.mute_boxes_dyn()
-        
+
         if self.radioButton_transit_RV.isChecked():
-            
+
             ma_flag = False
             t0_flag = True
             K_flag = True
             pl_rad_flag = True
             a_sol_flag = True
-            fit.type_fit["RV"] = True           
+            fit.type_fit["RV"] = True
             fit.type_fit["Transit"] = True
             fit.type_fit["TTV"] = False
-            
-        elif self.radioButton_transit.isChecked():            
-            
+
+        elif self.radioButton_transit.isChecked():
+
             ma_flag = False
             t0_flag = True
             K_flag = False
             pl_rad_flag = True
             a_sol_flag = True
-            fit.type_fit["RV"] = False           
+            fit.type_fit["RV"] = False
             fit.type_fit["Transit"] = True 
             fit.type_fit["TTV"] = False
-            
-        elif self.radioButton_RV.isChecked():            
-            
+
+        elif self.radioButton_RV.isChecked():
+
             ma_flag = True
             t0_flag = False
             K_flag = True
             pl_rad_flag = False
-            a_sol_flag = False                        
-            fit.type_fit["RV"] = True           
+            a_sol_flag = False
+            fit.type_fit["RV"] = True
             fit.type_fit["Transit"] = False
             fit.type_fit["TTV"] = False
-            
-        elif self.radioButton_ttv.isChecked() or self. radioButton_ttv_RV.isChecked():            
-            
+
+        elif self.radioButton_ttv.isChecked() or self. radioButton_ttv_RV.isChecked():
+
             ma_flag = True
             t0_flag = False
             K_flag = True
@@ -5515,13 +5507,12 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
 
             incl_flag = True
             Dom_flag = True 
-            
+
             for i in range(9):
                 self.param_gui[7*i + 5].setEnabled(incl_flag)
                 self.use_param_gui[7*i + 5].setEnabled(incl_flag)
                 self.param_gui[7*i + 6].setEnabled(Dom_flag)
                 self.use_param_gui[7*i + 6].setEnabled(Dom_flag)
- 
 
         for i in range(9):
             self.param_gui[7*i].setEnabled(K_flag)
@@ -5556,7 +5547,7 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
             if self.deattach_omega_dot.isChecked():
                 self.set_gr_flag()
                 if not self.radioButton_omega_dot_GR.isChecked(): 
-                    om_flag = True                                
+                    om_flag = True
 
         elif self.radioButton_Keplerian.isChecked() and self.radioButton_RV.isChecked()==False:
 
@@ -5566,13 +5557,13 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
                 Dom_flag = True
             else:
                 Dom_flag = False
-                                    
+
         elif self.radioButton_Dynamical.isChecked():
-            
+
             om_flag = False
             incl_flag = True
             Dom_flag = True 
-            
+
         for i in range(9):
             self.param_gui[7*i + 5].setEnabled(incl_flag)
             self.use_param_gui[7*i + 5].setEnabled(incl_flag)
@@ -5580,8 +5571,7 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
             self.use_param_gui[7*i + 6].setEnabled(Dom_flag)
             self.param_gui_wd[i].setEnabled(om_flag)
             self.use_param_gui_wd[i].setEnabled(om_flag)
- 
-       
+
     def keyPressEvent(self, event):
         global fit
         if event.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
@@ -5602,58 +5592,54 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
         return
 
 
-############################# Tab selector (not ready) ################################  
+############################# Tab selector (not ready) ################################
 
     def tab_selected(self,ind):
 
         if ind == 4:
-            self.update_activity_data_plots(self.comboBox_act_data.currentIndex())        
+            self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
         if ind == 5:
             self.update_correlations_data_plots()
- 
-    
-  
- 
+
+
 #############################  Color control ################################  
     def update_color_picker_tra(self):
         global fit
-        
+
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(False)
         #font.setWeight(75)
-        
- 
+
         for i in range(11):
             self.buttonGroup_color_picker_tra.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
-            self.buttonGroup_color_picker_tra.button(i+1).setFont(font)              
-        for i in range(10):    
-            self.buttonGroup_symbol_picker_tra.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])  
-            self.buttonGroup_symbol_picker_tra.button(i+1).setText(fit.pyqt_symbols_tra[i]) 
-            self.buttonGroup_symbol_picker_tra.button(i+1).setFont(font)         
+            self.buttonGroup_color_picker_tra.button(i+1).setFont(font)
+        for i in range(10):
+            self.buttonGroup_symbol_picker_tra.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
+            self.buttonGroup_symbol_picker_tra.button(i+1).setText(fit.pyqt_symbols_tra[i])
+            self.buttonGroup_symbol_picker_tra.button(i+1).setFont(font)
 
-          
     def get_color_tra(self):
         global fit
-        
-        but_ind = self.buttonGroup_color_picker_tra.checkedId()       
-        colorz = self.colorDialog.getColor()       
-        
+
+        but_ind = self.buttonGroup_color_picker_tra.checkedId()
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+
         #QtGui.QColorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel,True)
         #colorz = QtGui.QColorDialog.getColor()
         #print(but_ind-1)
         #print(fit.colors[but_ind-1])       
         if colorz.isValid():
-            fit.tra_colors[but_ind-1]=colorz.name()   
+            fit.tra_colors[but_ind-1]=colorz.name()
             self.update_color_picker_tra()
-            self.update_act_file_buttons()      
-            self.update_RV_file_buttons() 
-            self.update_tra_file_buttons() 
-            self.update_RV_plots() 
-            self.update_extra_plots()            
-            self.update_transit_plots() 
-            #self.update_activity_data_plots() 
-            #self.update_activity_gls_plots()     
+            self.update_act_file_buttons()
+            self.update_RV_file_buttons()
+            self.update_tra_file_buttons()
+            self.update_RV_plots()
+            self.update_extra_plots()
+            self.update_transit_plots()
+            #self.update_activity_data_plots()
+            #self.update_activity_gls_plots()
         else:
             return
 
@@ -5661,48 +5647,50 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
 
     def update_color_picker(self):
         global fit
-        
+
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(False)
         #font.setWeight(75)
-        
- 
+
         for i in range(11):
             self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-            self.buttonGroup_color_picker.button(i+1).setFont(font)              
+            self.buttonGroup_color_picker.button(i+1).setFont(font)
         for i in range(10):    
             self.buttonGroup_symbol_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])  
             self.buttonGroup_symbol_picker.button(i+1).setText(fit.pyqt_symbols_rvs[i]) 
-            self.buttonGroup_symbol_picker.button(i+1).setFont(font)              
+            self.buttonGroup_symbol_picker.button(i+1).setFont(font)
             
           
     def get_color(self):
         global fit
-        
-        but_ind = self.buttonGroup_color_picker.checkedId()       
-        colorz = self.colorDialog.getColor()       
-        
+
+        but_ind = self.buttonGroup_color_picker.checkedId()
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog|QtGui.QColorDialog.ShowAlphaChannel,)
+
+#        print(dir(colorz))
+#        print(colorz.name())
+#        print(colorz.alpha())
+#        print(colorz.rgba())
+        #print(colorz.getRgb())
+
         #QtGui.QColorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel,True)
         #colorz = QtGui.QColorDialog.getColor()
-        print(but_ind-1)
-        print(fit.colors[but_ind-1])       
+        #print(but_ind-1)
+        #print(fit.colors[but_ind-1])       
         if colorz.isValid():
-            fit.colors[but_ind-1]=colorz.name()   
+            fit.colors[but_ind-1]=colorz.name()   #[0]+"B3"+colorz.name()[1:]
             self.update_color_picker()
-            self.update_act_file_buttons()      
+            self.update_act_file_buttons()
             self.update_RV_file_buttons() 
             self.update_tra_file_buttons() 
             self.update_RV_plots() 
-            self.update_extra_plots()            
+            self.update_extra_plots()
             self.update_transit_plots() 
             #self.update_activity_data_plots() 
-            #self.update_activity_gls_plots()     
+            #self.update_activity_gls_plots()
         else:
             return
-        
-        
-
 
 
 ############################# Symbol controls ################################  
@@ -5800,11 +5788,11 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
         #p.save(filename[0], 'jpg')        
         #label.setPixmap(p)        # just for fun :)
         img, _ = QtGui.QFileDialog.getSaveFileName(self,"Save image",
-                                            filter="PNG(*.png);; JPEG(*.jpg)")
+                                            filter="PNG(*.png);; JPEG(*.jpg)", options=QtGui.QFileDialog.DontUseNativeDialog)
         if img[-3:] == "png":
             p.save(img, "png")
         elif img[-3:] == "jpg":
-            p.save(img, "jpg")       
+            p.save(img, "jpg")
             
             
             
@@ -6044,8 +6032,16 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
     def get_jupyter_vars(self):
         global fit  
         fit = dill.copy(self.console_widget.kernel_manager.kernel.shell.user_ns.get('fit'))
-       
-        #print(fit.loglik)
+        print(fit.K)
+        #self.update_use_from_input_file()   
+        self.update_use()
+        self.update_gui_params()
+        #self.update_params()
+        #self.update_RV_file_buttons() 
+        #self.update_act_file_buttons()       
+        #self.update_color_picker()
+        
+        #self.init_fit()
 
     def check_for_missing_instances(self,fit_new):
         global fit
@@ -6475,6 +6471,11 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
         
         self.actionGet_Orb_evol.triggered.connect(self.get_orb_evol)   
 
+        ############ Jupyter  #################
+
+        self.actionpush_Jupyter_to_GUI.triggered.connect(self.get_jupyter_vars) 
+
+
 
         ############ Sessions #################
         
@@ -6754,7 +6755,7 @@ since in this ver. 0.14 of the Exo-Striker, the TTV modeling is still experiment
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.14). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.15). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
