@@ -2327,7 +2327,7 @@ Polyfit coefficients:
             self.update_tra_file_buttons()
             self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(input_files[0]))
             self.plot_tabs.setCurrentWidget(self.tab_timeseries_tra)
-
+ 
 
     def remove_tra_file(self):
         global fit
@@ -2349,6 +2349,8 @@ Polyfit coefficients:
             if len(fit.tra_data_sets[i]) != 0:
                 self.buttonGroup_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
                 self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_transit_data.button(i+1).setText(fit.tra_data_sets[i][-1])
+
             else:
                 self.buttonGroup_transit_data.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("")
@@ -3133,7 +3135,6 @@ Transit duration: %s d
                 fit.tra_off_use[i] = dill.copy(old_tra_off_use[i])
                 fit.tra_jitt_use[i] = dill.copy(old_tra_jitt_use[i])   
 
-                
         else:
 
             rv.run_SciPyOp(fit)
@@ -3263,7 +3264,7 @@ Transit duration: %s d
 
 
             p3.plot(t, flux,
-            pen=None,  
+            pen=None,
             symbol=fit.pyqt_symbols_tra[j],
             symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
@@ -3277,33 +3278,20 @@ Transit duration: %s d
 
             p3.addItem(err_)
 
-           # m = batman.TransitModel(fit.tr_params, t)    #initializes model
- 
-            #flux_model = m.light_curve(fit.tr_params)          #calculates light curve
-            #p3.plot(t, flux_model,pen=fit.tra_colors[-],symbol=None )   
-
-            #print(len(t_model),len(y_model))
- 
-
-
-
             p4.plot(t, tr_o_c,
             pen=None,
             symbol=fit.pyqt_symbols_tra[j],
             symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.tra_colors[j] )             
+            symbolBrush=fit.tra_colors[j] )
 
-            err_ = pg.ErrorBarItem(x=t, y=flux-flux_model, symbol='o', 
+            err_ = pg.ErrorBarItem(x=t, y=flux-flux_model, symbol='o',
            # height=flux_err,
             top=flux_err,
             bottom=flux_err,
             beam=0.0, pen=fit.tra_colors[j])
-            p4.addItem(err_)   
-            
-            #model_curve_o_c = p4.plot(t,y_model_o_c,  pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1}, enableAutoRange=True,viewRect=True ) 
-            
-            #model_curve_o_c.setZValue(self.tra_model_z.value())
+            p4.addItem(err_)
+
 
         if len(t_model) != 0:
             model_curve = p3.plot(t_model,y_model, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
@@ -3321,182 +3309,7 @@ Transit duration: %s d
             p3.autoRange()
             p4.autoRange()
 
-            #model_curve = p4.plot(t, flux_model, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
-            #enableAutoRange=True,viewRect=True )               
- 
-           # model_curve.setZValue(self.tra_model_z.value())   
 
-        #else:    
-        #    t = np.linspace(-0.25, 0.25, 1000)  #times at which to calculate light curve   
-        #    m = batman.TransitModel(fit.tr_params, t)    #initializes model
-        #    flux_model = m.light_curve(fit.tr_params)          #calculates light curve
- 
-        #    p3.plot(t, flux_model,pen='k',symbol=None )     
-
-
-#### Transit plots old (TB removed) ################ 
-    def update_transit_plots_(self): 
-        global fit, p3, colors
-    
-        p3.plot(clear=True,) 
-        p4.plot(clear=True,)         
-           
-        self.check_tra_symbol_sizes()
-
-        tr_files = []
-        
-        for i in range(10):
-            if len(fit.tra_data_sets[i]) != 0:
-                tr_files.append(fit.tra_data_sets[i])
-        
-        for j in range(len(tr_files)):        
-        
-        #if len(fit.tra_data_sets[0]) != 0:
-            t = np.array(tr_files[j][0])
-            flux = np.array(tr_files[j][1] + fit.tra_off[j])
-            flux_err = np.sqrt(tr_files[j][2]**2 + fit.tra_jitt[j]**2)
-            
-            
-            
-            fit.prepare_for_mcmc(rtg = fit.rtg)    
-            par = np.array(fit.parameters)  
-
-            flux_model = np.ones(len(flux))
-            m =  {k: [] for k in range(9)}
-             
-            
-            #### a quick fix, TBD! ########
-            if fit.rtg[1]:
-                if fit.gp_kernel == 'RotKernel':
-                    rv_gp_npar = 4
-                if fit.gp_kernel == 'SHOKernel':
-                    rv_gp_npar = 3
-                #fit.gps = []
-            else:
-                rv_gp_npar = 0   
-                
-            fit.tr_params.limb_dark = str(fit.ld_m[j])      #limb darkening model       
-            fit.tr_params.u = fit.ld_u[j]
-            
-            for i in range(fit.npl):
-
-
-                if fit.hkl == True:
-                    fit.tr_params.ecc = np.sqrt(par[fit.filelist.ndset*2 +7*i+2]**2 + par[fit.filelist.ndset*2 +7*i+3]**2)
-                    fit.tr_params.w  = np.degrees(np.arctan2(par[fit.filelist.ndset*2 +7*i+2],par[fit.filelist.ndset*2 +7*i+3]))%360
-                else:
-                    fit.tr_params.ecc = par[fit.filelist.ndset*2 +7*i+2] #0.0  
-                    fit.tr_params.w   = par[fit.filelist.ndset*2 +7*i+3] #90
-                
-                fit.tr_params.per = par[fit.filelist.ndset*2 +7*i+1] #1.0    #orbital period
-                fit.tr_params.inc = par[fit.filelist.ndset*2 +7*i+5]#90. #orbital inclination (in degrees)
-                    
-                fit.tr_params.t0  = par[fit.filelist.ndset*2  +7*fit.npl +2+rv_gp_npar + 3*i]                
-                fit.tr_params.a   = par[fit.filelist.ndset*2  +7*fit.npl +2+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-                fit.tr_params.rp  = par[fit.filelist.ndset*2  +7*fit.npl +2+rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
-
-                m[i] = batman.TransitModel(fit.tr_params, t)    #initializes model
-
-                flux_model = flux_model * m[i].light_curve(fit.tr_params)     
-
-                ############### Phase signal TBD this should not be here! ####################################
-
-                if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True:
-                    data_time_phase = np.array( (t  - fit.tr_params.per/2.0)% fit.tr_params.per  )
-
-                    sort = np.array(sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])    )
-
-                    t      = data_time_phase[sort] 
-                    flux          = flux[sort] 
-                    flux_err      = flux_err[sort]  
-                    flux_model    = flux_model[sort] 
-
-                    fit.ph_data_tra[i] = [data_time_phase[sort] ,flux[sort], flux_err[sort]]
-                    fit.ph_model_tra[i] = [data_time_phase[sort] ,flux_model[sort]]
-
-                    p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
-                else:
-                    p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'9pt'})
-
-            tr_o_c = flux -flux_model     
-            ######## TBD this should not be here!
-            fit.tra_data_sets[j][3] = tr_o_c + 1
-            fit.tra_data_sets[j][4] = tr_o_c 
-
-            if fit.tra_doGP == True:
-                y_model = flux_model + fit.tra_gp_model_curve[0]
-                y_model_o_c = fit.tra_gp_model_curve[0]
-            else:
-                y_model = flux_model 
-                y_model_o_c = np.zeros(len(flux_model))
-
-
-            p3.plot(t, flux,
-            pen=None,  
-            symbol=fit.pyqt_symbols_tra[i],
-            symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.tra_colors[j] ) 
-            
-            err_ = pg.ErrorBarItem(x=t, y=flux, symbol='o',
-                                  # height=flux_err, 
-                                   top=flux_err, 
-                                   bottom=flux_err,
-                                   beam=0.0, pen=fit.tra_colors[j])
-
-            p3.addItem(err_)
-
-           # m = batman.TransitModel(fit.tr_params, t)    #initializes model
- 
-            #flux_model = m.light_curve(fit.tr_params)          #calculates light curve
-            #p3.plot(t, flux_model,pen=fit.tra_colors[-],symbol=None )   
-
- 
-            model_curve = p3.plot(t,y_model,  pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
-            enableAutoRange=True,viewRect=True ) 
-            
-            model_curve.setZValue(self.tra_model_z.value())
-            
-            if self.trans_plot_cross_hair.isChecked():
-                self.cross_hair(p3,log=False)
-
-            p4.plot(t, tr_o_c,
-            pen=None,
-            symbol=fit.pyqt_symbols_tra[i],
-            symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.tra_colors[j] )             
-
-            err_ = pg.ErrorBarItem(x=t, y=flux-flux_model, symbol='o', 
-           # height=flux_err,
-            top=flux_err,
-            bottom=flux_err,
-            beam=0.0, pen=fit.tra_colors[j])
-            p4.addItem(err_)   
-            
-            #model_curve_o_c = p4.plot(t,y_model_o_c,  pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1}, enableAutoRange=True,viewRect=True ) 
-            
-            #model_curve_o_c.setZValue(self.tra_model_z.value())
-
-            if self.trans_o_c_plot_cross_hair.isChecked():
-                self.cross_hair(p4,log=False)  
-
-        if self.tra_plot_autorange.isChecked():
-            p3.autoRange()           
-            p4.autoRange()  
-
-            #model_curve = p4.plot(t, flux_model, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
-            #enableAutoRange=True,viewRect=True )               
- 
-           # model_curve.setZValue(self.tra_model_z.value())   
-
-        #else:    
-        #    t = np.linspace(-0.25, 0.25, 1000)  #times at which to calculate light curve   
-        #    m = batman.TransitModel(fit.tr_params, t)    #initializes model
-        #    flux_model = m.light_curve(fit.tr_params)          #calculates light curve
- 
-        #    p3.plot(t, flux_model,pen='k',symbol=None )     
-  
 ############ TTV fitting ##############################      
 
     def worker_ttv_fitting_complete(self):
@@ -5010,6 +4823,8 @@ highly appreciated!
         self.update_gui_params()
         self.update_params()
         self.update_RV_file_buttons() 
+        self.update_tra_file_buttons()
+
         self.update_act_file_buttons()       
         self.update_color_picker()
         
