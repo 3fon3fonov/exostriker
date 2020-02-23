@@ -443,11 +443,13 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = Fa
 def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl, rtg,tra_gps  ):
 
     gp_tr_loglik = 0
-
+    tr_loglik = 0
+    
     for j in range(len(tr_files)):
 
         t = tr_files[j][0]
-        flux = tr_files[j][1] + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + len(tr_files)*j]
+        flux = tr_files[j][1] + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + j]
+        #print(par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + j])
         #flux_err = np.sqrt(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl +5 + 3*npl + len(tr_files)*j +1]**2)
         flux_err =  tr_files[j][2]
 
@@ -490,10 +492,12 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
 
 
         if rtg[3] == False:
-            sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*npl + len(tr_files)*j+1]**2 )
+            sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*npl + len(tr_files) + j]**2 )
+            #print(par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*npl + len(tr_files) + j])
             #sig2i = sig2i/len(flux_err)
-            tr_loglik = -0.5*(np.sum((flux -flux_model)**2 * sig2i - np.log(sig2i / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
+            tr_loglik = tr_loglik -0.5*(np.sum((flux -flux_model)**2 * sig2i - np.log(sig2i / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
             #tr_loglik = -0.5*(np.sum((flux -flux_model)**2 * sig2i - np.log(sig2i))) # - np.log(sig2i / 2./ np.pi)
+            #print(flux_err,  par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*npl + len(tr_files) + j], tr_loglik)
         else:
 
             param_vect = []
@@ -505,12 +509,12 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
             tra_gp_pred = tra_gps.predict(flux -flux_model, t, return_cov=False)
             o_c_tra = (flux -flux_model) - tra_gp_pred
 
-            sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + len(tr_files)*j+1]**2 )
+            sig2i = 1.0 / (flux_err**2 + par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + len(tr_files)+ j]**2 )
             gp_tr_loglik = -0.5*(np.sum((o_c_tra)**2 * sig2i - np.log(sig2i / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
-
+         
 
             tr_loglik =  gp_tr_loglik
-   # print(tr_loglik)
+    #print(tr_loglik)
     return tr_loglik
 
 
