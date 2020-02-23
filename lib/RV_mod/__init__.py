@@ -2553,9 +2553,10 @@ class signal_fit(object):
         tra_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
 
         tra_data_o_c = tra_data
+        tra_file_name = file_from_path(path)
 
 
-        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_data_o_c,tra_data_o_c])
+        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_data_o_c,tra_data_o_c,tra_file_name])
 
         self.tra_data_sets[tra_idset] = tra_data_set
 
