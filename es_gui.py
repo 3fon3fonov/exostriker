@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 __author__ = 'Trifon Trifonov'
 
 from pathos.multiprocessing import freeze_support
@@ -2321,11 +2321,15 @@ Polyfit coefficients:
             self.update_use_from_input_file()
             self.update_use()
             self.update_gui_params()
-            self.init_fit()
 
+            #self.radioButton_transit.setChecked(True)
+            #self.worker_transit_fitting(ff=0)
+
+            #self.init_fit()
+            
             self.update_params()
             self.update_tra_file_buttons()
-            self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(input_files[0]))
+            #self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(input_files[0]))
             self.plot_tabs.setCurrentWidget(self.tab_timeseries_tra)
  
 
@@ -2339,6 +2343,7 @@ Polyfit coefficients:
       #  self.update_use()
       #  self.update_gui_params()
      #   self.update_params()
+
         self.update_tra_file_buttons()
 
 
@@ -2357,7 +2362,17 @@ Polyfit coefficients:
                 self.buttonGroup_transit_data.button(i+1).setText("data %s"%(i+1))
 
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
-        self.update_transit_plots()
+
+        fit.type_fit["RV"] = False
+        fit.type_fit["Transit"] = True
+        self.check_type_fit()
+        self.mute_boxes()
+
+        if len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0]) == 0:
+            self.update_transit_plots()
+        else:
+            self.worker_transit_fitting(ff=0)
+#        self.update_transit_plots()
  
 
 ################################ activity files #######################################################
@@ -2888,11 +2903,12 @@ Polyfit coefficients:
         global fit
         
         if resid == True:
-            lc_data = np.concatenate([fit.tra_data_sets[x][3] for x in range(10) if len(fit.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][3]
+            #lc_data = np.concatenate([fit.tra_data_sets[x][3] for x in range(10) if len(fit.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][3]
+            lc_data = np.concatenate([fit.transit_results[1][4][x] +1.0 for x in range(10) if len(fit.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][3]
         else:
-            lc_data = np.concatenate([fit.tra_data_sets[x][1] for x in range(10) if len(fit.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][1]
+            lc_data = np.concatenate([fit.transit_results[1][1][x] for x in range(10) if len(fit.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][1]
             
-        lc_time = np.concatenate([fit.tra_data_sets[x][0] for x in range(10) if len(fit.tra_data_sets[x]) != 0])
+        lc_time = np.concatenate([fit.transit_results[1][0][x] for x in range(10) if len(fit.tra_data_sets[x]) != 0])
         
         tls_model = transitleastsquares(lc_time, lc_data)
         tls_results = tls_model.power(oversampling_factor=int(self.tls_ofac.value()), duration_grid_step=self.tls_grid_step.value())
@@ -3004,7 +3020,9 @@ Transit duration: %s d
         self.update_labels()
         self.update_gui_params()
         self.update_errors() 
-        self.update_a_mass()                 
+        self.update_a_mass()
+        self.update_transit_combo_phase_pl()
+
 
         fit=rv.get_xyz(fit)
                          
@@ -3017,6 +3035,7 @@ Transit duration: %s d
             return
 
         self.update_transit_plots()
+        
         if fit.type_fit["RV"] == True:
             for i in range(fit.npl):
                 rv.phase_RV_planet_signal(fit,i+1) 
@@ -3026,7 +3045,12 @@ Transit duration: %s d
         self.jupiter_push_vars() 
 
 
- 
+    def check_model_fact(self):
+        global fit  
+        fit.tra_model_fact = int(self.tra_model_ndata_fact.value())
+        
+        
+
     def worker_transit_fitting(self, ff=1, auto_fit = False ):
         global fit  
         
@@ -3043,7 +3067,9 @@ Transit duration: %s d
         if z <= 0:
             choice = QtGui.QMessageBox.information(self, 'Warning!',
             "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
-            self.button_fit.setEnabled(True)         
+            self.button_fit.setEnabled(True)
+            self.update_transit_plots()
+
             return 
         
         if fit.type_fit["RV"] == True:
@@ -3059,10 +3085,11 @@ Transit duration: %s d
             self.statusBar().showMessage('Minimizing Transit parameters.... SciPy in action, please be patient. ')       
            
 
-        self.set_tra_ld()            
+        self.set_tra_ld()
         self.check_bounds()
-        self.check_priors_nr()   
-        self.check_priors_jeff()   
+        self.check_priors_nr()
+        self.check_priors_jeff()
+        self.check_model_fact()
 
         self.check_scipy_min()
         fit.model_npoints = self.points_to_draw_model.value()
@@ -3142,127 +3169,91 @@ Transit duration: %s d
 
 
 
+    def update_transit_combo_phase_pl(self):
+        global fit
+        self.comboBox_phase_pl_tran.clear()
+        
+        for i in range(fit.npl):
+            self.comboBox_phase_pl_tran.addItem('pl. %s'%str(i+1),i+1) 
+
+
+        #self.comboBox_phase_pl_tran.setCurrentIndex(0)
+
+
 #### Transit plots ################ 
     def update_transit_plots(self): 
-        global fit, p3, colors
-    
-        p3.plot(clear=True,) 
-        p4.plot(clear=True,)         
-           
+        global fit, p3, p4, colors
+
+        p3.plot(clear=True,)
+        p4.plot(clear=True,)
+
         self.check_tra_symbol_sizes()
 
-        tr_files = []
-        min_t = []
-        max_t = []
-        
-        #for i in range(10):
-        #    if len(fit.tra_data_sets[i]) != 0:
-        #        tr_files.append(fit.tra_data_sets[i])
-        
-       # for j in range(len(tr_files)):        
-       
+        if len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0]) == 0:
+            return
+
+        transit_results_sep = fit.transit_results[1]
+        transit_results_all = fit.transit_results[2]
+
+        if self.use_rich_tra_model.isChecked():
+            transit_model_rich  = fit.transit_results[3]
+            t_model             = transit_model_rich[0]
+            flux_model_ex       = transit_model_rich[1]
+        else:
+            t_model = np.concatenate([transit_results_sep[0][x] for x in range(10) if len(transit_results_sep[0][x]) != 0])
+            flux_model_ex  = np.concatenate([transit_results_sep[3][x] for x in range(10) if len(transit_results_sep[3][x]) != 0])
+
+       #print(transit_results_alll[0],transit_results_alll[3])
+        #t_model = transit_results_all[0]
+        #flux_model_ex = transit_results_all[3]
+
+
+        for j in range(10):
             
-        for j in range(10):        
-            
-            if len(fit.tra_data_sets[j]) == 0:
+            if len(transit_results_sep[0][j]) == 0:
                 continue
-            else:
-                tr_files.append(fit.tra_data_sets[j])
-                min_t.append(min(fit.tra_data_sets[j][0]))
-                max_t.append(max(fit.tra_data_sets[j][0]))
 
-        #if len(fit.tra_data_sets[0]) != 0:
-            t = np.array(fit.tra_data_sets[j][0])
-            flux = np.array(fit.tra_data_sets[j][1] + fit.tra_off[j])
-            flux_err = np.sqrt(fit.tra_data_sets[j][2]**2 + fit.tra_jitt[j]**2)
-
-            t_model = np.linspace(min(min_t),max(max_t),len(t)*int(self.tra_model_ndata_fact.value()))
-
-            fit.prepare_for_mcmc(rtg = fit.rtg)    
-            par = np.array(fit.parameters)  
-
-            flux_model = np.ones(len(t))
-            m  =  {k: [] for k in range(9)}
-
-            flux_model_ex = np.ones(len(t_model))
-            m2 =  {k: [] for k in range(9)}
-
-            #### a quick fix, TBD! ########
-            if fit.rtg[1]:
-                if fit.gp_kernel == 'RotKernel':
-                    rv_gp_npar = 4
-                if fit.gp_kernel == 'SHOKernel':
-                    rv_gp_npar = 3
-                #fit.gps = []
-            else:
-                rv_gp_npar = 0
-
-            fit.tr_params.limb_dark = str(fit.ld_m[j])      #limb darkening model       
-            fit.tr_params.u = fit.ld_u[j]
-
-            for i in range(fit.npl):
-
-                if fit.hkl == True:
-                    fit.tr_params.ecc = np.sqrt(par[fit.filelist.ndset*2 +7*i+2]**2 + par[fit.filelist.ndset*2 +7*i+3]**2)
-                    fit.tr_params.w  = np.degrees(np.arctan2(par[fit.filelist.ndset*2 +7*i+2],par[fit.filelist.ndset*2 +7*i+3]))%360
-                else:
-                    fit.tr_params.ecc = par[fit.filelist.ndset*2 +7*i+2] #0.0  
-                    fit.tr_params.w   = par[fit.filelist.ndset*2 +7*i+3] #90
-
-                fit.tr_params.per = par[fit.filelist.ndset*2 +7*i+1] #1.0    #orbital period
-                fit.tr_params.inc = par[fit.filelist.ndset*2 +7*i+5]#90. #orbital inclination (in degrees)
-                
-                fit.tr_params.t0  = par[fit.filelist.ndset*2  +7*fit.npl +2+rv_gp_npar + 3*i]                
-                fit.tr_params.a   = par[fit.filelist.ndset*2  +7*fit.npl +2+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-                fit.tr_params.rp  = par[fit.filelist.ndset*2  +7*fit.npl +2+rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
-
-                m[i] = batman.TransitModel(fit.tr_params,t)    #initializes model
-                flux_model = flux_model * m[i].light_curve(fit.tr_params)
-
-                m2[i] = batman.TransitModel(fit.tr_params,t_model)    #initializes model
-                flux_model_ex = flux_model_ex * m2[i].light_curve(fit.tr_params)
-
-                ############### Phase signal TBD this should not be here! ####################################
-
-                if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True:
-                    data_time_phase = np.array( (t  - fit.tr_params.per/2.0)% fit.tr_params.per  )
-
-                    sort = np.array(sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])    )
-
-                    t      = data_time_phase[sort] 
-                    flux          = flux[sort] 
-                    flux_err      = flux_err[sort]
-                    flux_model    = flux_model[sort] 
-
-                    fit.ph_data_tra[i] = [data_time_phase[sort] ,flux[sort], flux_err[sort]]
-
-
-                    model_time_phase = np.array( (t_model - fit.tr_params.per/2.0)% fit.tr_params.per  )
-                    sort2 = np.array(sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])    )
-
-                    t_model = model_time_phase[sort2] 
-                    flux_model_ex    = flux_model_ex[sort2] 
-                    fit.ph_model_tra[i] = [model_time_phase[sort2] ,flux_model_ex[sort2]]
-
-                    p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
-                else:
-                    p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'9pt'})
-
-
-
-            tr_o_c = flux -flux_model
-            ######## TBD this should not be here!
-            fit.tra_data_sets[j][3] = tr_o_c + 1
-            fit.tra_data_sets[j][4] = tr_o_c 
-
+            t            = np.array(transit_results_sep[0][j])
+            flux         = np.array(transit_results_sep[1][j])
+            flux_err     = np.array(transit_results_sep[2][j])
+            flux_model   = np.array(transit_results_sep[3][j])
+            
             if fit.tra_doGP == True:
-                y_model = flux_model_ex + fit.tra_gp_model_curve[0]
-                y_model_o_c = fit.tra_gp_model_curve[0]
+                tr_o_c       = np.array(transit_results_sep[5][j])
             else:
-                y_model = flux_model_ex 
-                y_model_o_c = np.zeros(len(flux_model_ex))
+                tr_o_c       = np.array(transit_results_sep[4][j])
+ 
+            ############### Phase signal TBD this should not be here! ####################################
+
+            if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True:
+                
+                ph_pl_ind = self.comboBox_phase_pl_tran.currentIndex()
+                data_time_phase = np.array( (t  - fit.P[ph_pl_ind]/2.0)%fit.P[ph_pl_ind] )
+
+                sort = np.array(sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])    )
+
+                t      = data_time_phase[sort] 
+                flux          = flux[sort] 
+                flux_err      = flux_err[sort]
+                flux_model    = flux_model[sort] 
+
+                #fit.ph_data_tra[i] = [data_time_phase[sort] ,flux[sort], flux_err[sort]]
 
 
+                #model_time_phase = np.array( (t_model - fit.P[ph_pl_ind]/2.0)%fit.P[ph_pl_ind]  )
+               # sort2 = np.array(sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])    )
+
+                #t_model = model_time_phase[sort2] 
+               # flux_model_ex    = flux_model_ex[sort2] 
+                #fit.ph_model_tra[i] = [model_time_phase[sort2] ,flux_model_ex[sort2]]
+
+                p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
+            else:
+                p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'9pt'})
+
+                
+                
+                
             p3.plot(t, flux,
             pen=None,
             symbol=fit.pyqt_symbols_tra[j],
@@ -3292,12 +3283,29 @@ Transit duration: %s d
             beam=0.0, pen=fit.tra_colors[j])
             p4.addItem(err_)
 
+        if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True:
+ 
+            model_time_phase = np.array( (t_model - fit.P[ph_pl_ind]/2.0)%fit.P[ph_pl_ind]  )
+            sort2 = np.array(sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])    )
+
+            t_model = model_time_phase[sort2] 
+            flux_model_ex    = flux_model_ex[sort2] 
+
+        if fit.tra_doGP == True:
+            y_model = flux_model_ex + fit.tra_gp_model_curve[0]
+            y_model_o_c = fit.tra_gp_model_curve[0]
+        else:
+            y_model = flux_model_ex 
+            y_model_o_c = np.zeros(len(flux_model_ex))
 
         if len(t_model) != 0:
             model_curve = p3.plot(t_model,y_model, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
             enableAutoRange=True,viewRect=True ) 
+            model_curve_o_c = p4.plot(t_model,y_model_o_c, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
+            enableAutoRange=True,viewRect=True ) 
 
             model_curve.setZValue(self.tra_model_z.value())
+            model_curve_o_c.setZValue(self.tra_model_z.value())
 
         if self.trans_plot_cross_hair.isChecked():
             self.cross_hair(p3,log=False)
@@ -3309,6 +3317,9 @@ Transit duration: %s d
             p3.autoRange()
             p4.autoRange()
 
+
+
+ 
 
 ############ TTV fitting ##############################      
 
@@ -6031,8 +6042,8 @@ Please install via 'pip install ttvfast'.
         self.update_use_from_input_file()   
         self.update_use() 
        # self.update_params()  
-        self.update_gui_params()                  
-        self.radioButton_transit.setChecked(True)                    
+        self.update_gui_params()
+        self.radioButton_transit.setChecked(True)
 
         self.worker_transit_fitting(ff=0 )
         
@@ -6444,6 +6455,8 @@ Please install via 'pip install ttvfast'.
         self.comboBox_samp_corr_1.activated.connect(self.update_plot_corr)
         self.comboBox_samp_corr_2.activated.connect(self.update_plot_corr)        
         
+        self.comboBox_phase_pl_tran.activated.connect(self.update_transit_plots)
+
         
         ########## RV fitting ########################
         
