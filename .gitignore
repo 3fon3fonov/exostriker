@@ -3,7 +3,7 @@ lib/fr/log*
 stability/mvs/*
 stability/mvs_gr/*
 stability/symba/*
-datafiles/*
+#datafiles/*
 *.pyc
 lib/libswift.a
 source/swift_j/libswift.a

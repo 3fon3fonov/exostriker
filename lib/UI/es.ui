@@ -47903,10 +47903,10 @@
                  </widget>
                 </item>
                 <item row="1" column="0">
-                 <widget class="QLabel" name="label_289">
+                 <widget class="QCheckBox" name="use_rich_tra_model">
                   <property name="font">
                    <font>
-                    <pointsize>9</pointsize>
+                    <pointsize>8</pointsize>
                    </font>
                   </property>
                   <property name="text">
@@ -54386,7 +54386,7 @@
                  </font>
                 </property>
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>2</number>
                 </property>
                 <widget class="QWidget" name="tab_102">
                  <attribute name="title">
@@ -54553,84 +54553,105 @@
                     <item row="3" column="0">
                      <widget class="QCheckBox" name="use_uniform_ld_3">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <attribute name="buttonGroup">
-                       <string notr="true">buttonGroup_use_ld_2</string>
+                       <string notr="true">buttonGroup_use_ld_3</string>
                       </attribute>
                      </widget>
                     </item>
                     <item row="4" column="0">
                      <widget class="QCheckBox" name="use_uniform_ld_4">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_4</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="5" column="0">
                      <widget class="QCheckBox" name="use_uniform_ld_5">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_5</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="6" column="0">
                      <widget class="QCheckBox" name="use_uniform_ld_6">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_6</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="7" column="0">
                      <widget class="QCheckBox" name="use_uniform_ld_7">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_7</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="8" column="0">
                      <widget class="QCheckBox" name="use_uniform_ld_8">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_8</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="9" column="0">
                      <widget class="QCheckBox" name="use_uniform_ld_9">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_9</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="10" column="0">
                      <widget class="QCheckBox" name="use_uniform_ld_10">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_10</string>
+                      </attribute>
                      </widget>
                     </item>
                    </layout>
@@ -54885,31 +54906,40 @@
                     <item row="6" column="0">
                      <widget class="QCheckBox" name="use_linear_ld_6">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_6</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="8" column="0">
                      <widget class="QCheckBox" name="use_linear_ld_8">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_8</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="9" column="0">
                      <widget class="QCheckBox" name="use_linear_ld_9">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_9</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="3" column="3">
@@ -54931,11 +54961,14 @@
                     <item row="4" column="0">
                      <widget class="QCheckBox" name="use_linear_ld_4">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_4</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="4" column="3">
@@ -55045,11 +55078,14 @@
                     <item row="3" column="0">
                      <widget class="QCheckBox" name="use_linear_ld_3">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_3</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="3" column="2">
@@ -55118,11 +55154,14 @@
                     <item row="10" column="0">
                      <widget class="QCheckBox" name="use_linear_ld_10">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_10</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="8" column="1">
@@ -55148,21 +55187,27 @@
                     <item row="5" column="0">
                      <widget class="QCheckBox" name="use_linear_ld_5">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_5</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="7" column="0">
                      <widget class="QCheckBox" name="use_linear_ld_7">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_7</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="3" column="4">
@@ -55341,14 +55386,17 @@
                     <item row="9" column="0">
                      <widget class="QCheckBox" name="use_quadratic_ld_9">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_9</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="1" column="3">
@@ -55507,14 +55555,17 @@
                     <item row="10" column="0">
                      <widget class="QCheckBox" name="use_quadratic_ld_10">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_10</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="6" column="2">
@@ -55689,14 +55740,17 @@
                     <item row="7" column="0">
                      <widget class="QCheckBox" name="use_quadratic_ld_7">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_7</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="0" column="3">
@@ -55728,14 +55782,17 @@
                     <item row="6" column="0">
                      <widget class="QCheckBox" name="use_quadratic_ld_6">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_6</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="7" column="2">
@@ -55831,27 +55888,33 @@
                     <item row="3" column="0">
                      <widget class="QCheckBox" name="use_quadratic_ld_3">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_3</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="5" column="0">
                      <widget class="QCheckBox" name="use_quadratic_ld_5">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_5</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="8" column="1">
@@ -55872,14 +55935,17 @@
                     <item row="8" column="0">
                      <widget class="QCheckBox" name="use_quadratic_ld_8">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_8</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="1" column="1">
@@ -56013,14 +56079,17 @@
                     <item row="4" column="0">
                      <widget class="QCheckBox" name="use_quadratic_ld_4">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_4</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="1" column="5">
@@ -56621,11 +56690,14 @@
                     <item row="10" column="0">
                      <widget class="QCheckBox" name="use_nonlinear_ld_10">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_10</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="8" column="4">
@@ -56649,11 +56721,14 @@
                     <item row="4" column="0">
                      <widget class="QCheckBox" name="use_nonlinear_ld_4">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_4</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="3" column="2">
@@ -56669,13 +56744,13 @@
                     <item row="3" column="0">
                      <widget class="QCheckBox" name="use_nonlinear_ld_3">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <attribute name="buttonGroup">
-                       <string notr="true">buttonGroup_use_ld_1</string>
+                       <string notr="true">buttonGroup_use_ld_3</string>
                       </attribute>
                      </widget>
                     </item>
@@ -57159,11 +57234,14 @@
                     <item row="6" column="0">
                      <widget class="QCheckBox" name="use_nonlinear_ld_6">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_6</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="6" column="1">
@@ -57184,11 +57262,14 @@
                     <item row="8" column="0">
                      <widget class="QCheckBox" name="use_nonlinear_ld_8">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_8</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="2" column="13">
@@ -57518,11 +57599,14 @@
                     <item row="9" column="0">
                      <widget class="QCheckBox" name="use_nonlinear_ld_9">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_9</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="8" column="13">
@@ -57764,11 +57848,14 @@
                     <item row="5" column="0">
                      <widget class="QCheckBox" name="use_nonlinear_ld_5">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_5</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="5" column="1">
@@ -58510,11 +58597,14 @@
                     <item row="7" column="0">
                      <widget class="QCheckBox" name="use_nonlinear_ld_7">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use_ld_7</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="5" column="2">
@@ -73756,68 +73846,76 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_apply_rv_data_options"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_nest_stat_dyn"/>
-  <buttongroup name="buttonGroup_color_picker"/>
-  <buttongroup name="buttonGroup_dom_fold"/>
-  <buttongroup name="buttonGroup_use_planets">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
-  <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_Omega_fold"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_use_RV_GP_kernel">
-   <property name="exclusive">
-    <bool>true</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_use_ld_1"/>
-  <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
   <buttongroup name="buttonGroup_use_ttv_data_to_planet">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_GR_prec"/>
-  <buttongroup name="buttonGroup_add_RV_data"/>
-  <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_symbol_picker"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
   <buttongroup name="buttonGroup_activity_data"/>
-  <buttongroup name="buttonGroup_transit_data"/>
-  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_apply_rv_data_options"/>
+  <buttongroup name="buttonGroup_dom_fold"/>
   <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_remove_activity_data"/>
+  <buttongroup name="buttonGroup_use_RV_GP_kernel">
+   <property name="exclusive">
+    <bool>true</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_transit_data"/>
   <buttongroup name="buttonGroup_use_GP">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_use">
+  <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_use_planets">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_GR_prec"/>
+  <buttongroup name="buttonGroup_f77_or_scipy"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_remove_RV_data"/>
   <buttongroup name="buttonGroup_mixed_fitting">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_use">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_theta_fold"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
+  <buttongroup name="buttonGroup_type_fit"/>
+  <buttongroup name="buttonGroup_Omega_fold"/>
+  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_use_ld_10"/>
  </buttongroups>
 </ui>
