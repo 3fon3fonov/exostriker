@@ -3208,6 +3208,8 @@ Transit duration: %s d
         #flux_model_ex = transit_results_all[3]
 
 
+
+
         for j in range(10):
             
             if len(transit_results_sep[0][j]) == 0:
@@ -3227,8 +3229,11 @@ Transit duration: %s d
 
             if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True:
                 
+                self.trans_phase_slider.setEnabled(True) 
+             
                 ph_pl_ind = self.comboBox_phase_pl_tran.currentIndex()
-                data_time_phase = np.array( (t  - fit.P[ph_pl_ind]/2.0)%fit.P[ph_pl_ind] )
+                offset = (self.trans_phase_slider.value()/100.0)*fit.P[ph_pl_ind]
+                data_time_phase = np.array( (t  - offset)%fit.P[ph_pl_ind] )
 
                 sort = np.array(sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])    )
 
@@ -3250,6 +3255,7 @@ Transit duration: %s d
                 p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
             else:
                 p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'9pt'})
+                self.trans_phase_slider.setEnabled(False) 
 
                 
                 
@@ -3285,7 +3291,7 @@ Transit duration: %s d
 
         if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True:
  
-            model_time_phase = np.array( (t_model - fit.P[ph_pl_ind]/2.0)%fit.P[ph_pl_ind]  )
+            model_time_phase = np.array( (t_model - offset)%fit.P[ph_pl_ind]  )
             sort2 = np.array(sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])    )
 
             t_model = model_time_phase[sort2] 
@@ -4104,18 +4110,13 @@ Transit duration: %s d
              "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
              self.button_fit.setEnabled(True)         
              return   
-         
-       # self.set_tra_ld()   
 
         self.check_model_params()
-
-        #self.check_ttv_params()
 
         self.check_bounds()
         self.check_priors_nr()   
         self.check_priors_jeff()   
-   
-        
+     
         fit.model_npoints = self.points_to_draw_model.value()
         #self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
@@ -6557,10 +6558,13 @@ Please install via 'pip install ttvfast'.
         ############### transit plotting controll ####################      
         self.plot_phase_pholded_tran.stateChanged.connect(self.update_transit_plots)
         self.tra_model_width.valueChanged.connect(self.update_transit_plots)
-#        self.tra_model_width.valueChanged.connect(self.update_transit_plots)    
         self.tra_model_z.valueChanged.connect(self.update_transit_plots)
-#        self.tra_model_z.valueChanged.connect(self.update_transit_plots)    
-
+        self.use_rich_tra_model.stateChanged.connect(self.update_transit_plots)
+        self.tra_model_ndata_fact.valueChanged.connect(self.update_transit_plots)
+        
+        self.trans_phase_slider.valueChanged.connect(self.update_transit_plots)       
+        
+        
 
         ############### RV plotting controll ####################      
         self.rv_model_width.valueChanged.connect(self.update_RV_plots)
@@ -6651,6 +6655,11 @@ Please install via 'pip install ttvfast'.
         self.inpector_plot_cross_hair.stateChanged.connect(lambda: self.plot_data_inspect(0,no_sender=True))
         #self.inpector_plot_cross_hair.stateChanged.connect(lambda: self.tree_view_tab.listview.connect(self.plot_data_inspect))
 
+
+
+
+
+
                 
         self.color_corr.clicked.connect(self.get_corr_color)
         self.corr_x_label.clicked.connect(self.corr_plot_x_labels)
@@ -6735,8 +6744,16 @@ Please install via 'pip install ttvfast'.
  
         self.buttonGroup_use_ld_1.buttonClicked.connect(self.set_tra_ld)   
         self.buttonGroup_use_ld_2.buttonClicked.connect(self.set_tra_ld)   
- 
-
+        self.buttonGroup_use_ld_3.buttonClicked.connect(self.set_tra_ld)   
+        self.buttonGroup_use_ld_4.buttonClicked.connect(self.set_tra_ld)    
+        self.buttonGroup_use_ld_5.buttonClicked.connect(self.set_tra_ld)   
+        self.buttonGroup_use_ld_6.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_7.buttonClicked.connect(self.set_tra_ld)   
+        self.buttonGroup_use_ld_8.buttonClicked.connect(self.set_tra_ld)           
+        self.buttonGroup_use_ld_9.buttonClicked.connect(self.set_tra_ld)           
+        self.buttonGroup_use_ld_10.buttonClicked.connect(self.set_tra_ld)           
+        
+        
        # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_change)       
         self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_change)       
         
