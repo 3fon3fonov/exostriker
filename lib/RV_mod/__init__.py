@@ -569,11 +569,11 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
         flux_o_c.append(flux_o_c_)
 
 
-    flux_model_all  = np.concatenate(flux_model)
-    flux_all        = np.concatenate(flux)
-    flux_err_all    = np.concatenate(flux_err)
-    t_all           = np.concatenate(t)
-    sig2i_all       = np.concatenate(sig2i)
+    flux_model_all  = np.concatenate(flux_model)#[flux_model_ < 1]
+    flux_all        = np.concatenate(flux)#[flux_model_ < 1]
+    flux_err_all    = np.concatenate(flux_err)#[flux_model_ < 1]
+    t_all           = np.concatenate(t)#[flux_model_ < 1]
+    sig2i_all       = np.concatenate(sig2i)#[flux_model_ < 1]
 
     flux_o_c_all   = flux_all -flux_model_all
  
@@ -1058,7 +1058,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,times,obj.fit_results, return_model = False)
         obj.loglik     =  ttv_loglik
         
-    print(obj.type_fit["RV"], obj.type_fit["Transit"], obj.type_fit["TTV"])    
+    #print(obj.type_fit["RV"], obj.type_fit["Transit"], obj.type_fit["TTV"])    
  
     errors = [[0.0,0.0] for i in range(len(pp))]
 
@@ -2772,7 +2772,7 @@ class signal_fit(object):
             for i in range(planet,self.npl-1):
                 self.params.update_planet_params_one_planet(i,self.params.planet_params[7*i+7],self.params.planet_params[7*i+8],self.params.planet_params[7*i+9],self.params.planet_params[7*i+10],self.params.planet_params[7*i+11],self.params.planet_params[7*i+12],self.params.planet_params[7*i+13]) #move planets one index down - not the fastest way, but it ensures we don't change the order of the planets, which is important for user's convenience
                 self.use.update_use_planet_params_one_planet(i,self.use.use_planet_params[7*i+7],self.use.use_planet_params[7*i+8],self.use.use_planet_params[7*i+9],self.use.use_planet_params[7*i+10],self.use.use_planet_params[7*i+11],self.use.use_planet_params[7*i+12],self.use.use_planet_params[7*i+13]) #move planets one index down - not the fastest way, but it ensures we don't change the order of the planets, which is important for user's convenience
-            self.params.update_planet_params_one_planet(self.npl,0.0,0.0,0.0,0.0,0.0,0.0,0.0) # erasing an unnecessary planet slot - not really necessary, but better to be tidy
+            #self.params.update_planet_params_one_planet(self.npl,0.0,0.0,0.0,0.0,0.0,0.0,0.0) # erasing an unnecessary planet slot - not really necessary, but better to be tidy
             self.use.update_use_planet_params_one_planet(self.npl,False,False,False,False,False,False,False)
             self.npl=self.npl-1
         return

@@ -2215,6 +2215,11 @@ Polyfit coefficients:
                 fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = True)
             else:
                 return
+            
+            fit.type_fit["RV"] = True
+            fit.type_fit["Transit"] = False
+            self.check_type_fit()
+            self.mute_boxes()
 
             self.init_fit()
             self.update_use_from_input_file()
@@ -2248,6 +2253,12 @@ Polyfit coefficients:
             #### new stuf ####
             fit.add_rv_dataset('test', str(input_files[0]),rv_idset =but_ind-1)
             ##################
+            
+            fit.type_fit["RV"] = True
+            fit.type_fit["Transit"] = False
+            self.check_type_fit()
+            self.mute_boxes()
+            
             self.init_fit()
             self.update_use_from_input_file()
             self.update_use()
@@ -2273,6 +2284,11 @@ Polyfit coefficients:
         #### new stuf ####
         fit.remove_rv_dataset(but_ind -1)
         #### new stuf ####
+
+        fit.type_fit["RV"] = True
+        fit.type_fit["Transit"] = False
+        self.check_type_fit()
+        self.mute_boxes()
 
         self.init_fit()
         self.update_use_from_input_file()
@@ -2327,6 +2343,11 @@ Polyfit coefficients:
 
             #self.init_fit()
             
+            fit.type_fit["RV"] = False
+            fit.type_fit["Transit"] = True
+            self.check_type_fit()
+            self.mute_boxes()
+            
             self.update_params()
             self.update_tra_file_buttons()
             #self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(input_files[0]))
@@ -2343,7 +2364,10 @@ Polyfit coefficients:
       #  self.update_use()
       #  self.update_gui_params()
      #   self.update_params()
-
+        fit.type_fit["RV"] = False
+        fit.type_fit["Transit"] = True
+        self.check_type_fit()
+        self.mute_boxes()
         self.update_tra_file_buttons()
 
 
@@ -2362,12 +2386,7 @@ Polyfit coefficients:
                 self.buttonGroup_transit_data.button(i+1).setText("data %s"%(i+1))
 
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
-
-        fit.type_fit["RV"] = False
-        fit.type_fit["Transit"] = True
-        self.check_type_fit()
-        self.mute_boxes()
-
+ 
         if len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0]) == 0:
             self.update_transit_plots()
         else:
@@ -2514,15 +2533,12 @@ Polyfit coefficients:
 
         self.jupiter_push_vars() 
 
-        
- 
+
     def add_jitter(self, errors, ind):
         global fit
-        
+
         errors_with_jitt = np.array([np.sqrt(errors[i]**2 + fit.params.jitters[ii]**2)  for i,ii in enumerate(ind)])
         return errors_with_jitt
-
-
 
 
 
@@ -4798,7 +4814,7 @@ highly appreciated!
         
     def session_list(self):
         global fit, ses_list
-              
+
         if len(ses_list) == 0:
             self.comboBox_select_ses.clear()
             self.comboBox_select_ses.addItem('1 %s'%fit.name) 
@@ -4824,7 +4840,9 @@ highly appreciated!
         else:
             fit = ses_list[ind]
 
-        
+
+
+        self.check_type_fit()
         self.check_settings()
         self.update_bounds()
 
@@ -6056,7 +6074,11 @@ Please install via 'pip install ttvfast'.
     def get_jupyter_vars(self):
         global fit  
         fit = dill.copy(self.console_widget.kernel_manager.kernel.shell.user_ns.get('fit'))
-        print(fit.K)
+ 
+        for i in range(9):
+            fit.params.update_planet_params_one_planet(i,fit.K[i],fit.P[i],fit.e[i],fit.w[i],fit.M0[i],fit.i[i],fit.Node[i]) 
+#            fit.use.update_use_planet_params_one_planet(i,self.use.use_planet_params[7*i+7],self.use.use_planet_params[7*i 
+        
         #self.update_use_from_input_file()   
         self.update_use()
         self.update_gui_params()
@@ -6113,6 +6135,7 @@ Please install via 'pip install ttvfast'.
             self.radioButton_transit_RV.setChecked(True)    
         elif fit.type_fit["RV"] == True and fit.type_fit["Transit"] == True :
             self.radioButton_ttv_RV.setChecked(True)    
+ 
 
 
 
