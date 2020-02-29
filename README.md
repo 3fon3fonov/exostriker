@@ -5,15 +5,14 @@
   <img width="400" src="https://github.com/3fon3fonov/trifon/blob/master/lib/UI/33_striker.png">
 </p>
  
-The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and models the RV stellar reflex motion caused by dynamically interacting planets in multi-planetary systems. It offers a broad range of tools for detailed analysis of transit and Doppler data, including power spectrum analysis for Doppler and transit data; Keplerian and dynamical modeling of multi-planet systems; MCMC and nested sampling; Gaussian Processes modeling; and a long-term stability check of multi-planet systems. The Exo-Striker can also perform Mean Motion Resonance (MMR) analysis, create fast fully interactive plots, and export ready-to-use LaTeX tables with best-fit parameters, errors, and statistics. It combines Fortran efficiency and Python flexibility and is cross-platform compatible (MAC OS, Linux, Windows). The tool relies on a number of open-source packages, including the RVmod engine (Trifonov et al. in prep.), emcee (ascl:1303.002), batman (ascl:1510.002), celerite (ascl:1709.008), and dynesty (ascl:1809.013).
+The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and models the RV stellar reflex motion caused by dynamically interacting planets in multi-planetary systems. It offers a broad range of tools for detailed analysis of transit and Doppler data, including power spectrum analysis for Doppler and transit data; Keplerian and dynamical modeling of multi-planet systems; MCMC and nested sampling; Gaussian Processes modeling; and a long-term stability check of multi-planet systems. The Exo-Striker can also perform Mean Motion Resonance (MMR) analysis, create fast fully interactive plots, and export ready-to-use LaTeX tables with best-fit parameters, errors, and statistics. It combines Fortran efficiency and Python flexibility and is cross-platform compatible (MAC OS, Linux, Windows). 
 
 ![new_es](/lib/png/Exo_striker_demo_image.png)
 
 
 **WARNING!** This tool is under active development, and its functionality is enhanced on a daily basis! Use it at your own risk!
 
-Also, please keep in mind that this software is developed mostly for my needs and fun. I hope, however, that you may find it capable of solving your scientific problems, too. If you made the use of The Exo-Striker for your paper, please cite the tool with its ASCL ID ascl:1906.004 (see https://ascl.net/1906.004).
- 
+Also, please keep in mind that this software is developed mostly for my needs and fun. I hope, however, that you may find it capable of solving your scientific problems, too. 
 
 What works:
 
@@ -25,7 +24,7 @@ What works:
 * GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
 * Joint RVs + Transit + GPs best-fit optimization.
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty").
-* TTVs and joint TTVs + RVs analysis (still experimental)
+* TTVs and joint TTVs + RVs analysis.
 * RV auto-fit (RV automated planet-finder algorithm).
 * Fit for apsidal orbital precession, or apply GR precession. 
 * Instant AMD stability check for multiple planetary systems.
@@ -47,6 +46,8 @@ What is to be implemented:
 
 * More GP kernels (work in progress). 
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ REBOUND is planned to be included). 
+* A photo-dynamical transit model.
+* Internal TTV modeling (i.e. the external "TTVFast" will become a secondary option).
 * A pip installer, and a ready-to-use pre-installed binary of the tool (work in progress). 
 * Combined modeling with Astrometry.
 * Documentation, Instructions, and Video tutorials (work in progress here: https://exostriker.readthedocs.io)
@@ -141,3 +142,55 @@ Then, copy the output error and please open a 'github' issue. Otherwise, all pos
 
 A wish-list with your favorite tools and methods to be implemented is also welcome!
 Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.
+
+
+
+**Credit**
+
+If you made the use of The Exo-Striker for your paper, I would appreciate if you give credit to it.
+As it is unlikely that I will find time to write a refereed paper on the Exo-Striker soon, please cite the tool with its ASCL ID ascl:1906.004 (see https://ascl.net/1906.004).
+ 
+The Exo-Striker relies on a number of open-source packages, which would be great if you 
+acknowledge too. (if you had made the use of them):  
+
+
+* The interactive plotting is done with (a heavily modified version of) the "pyqtgraph": 
+
+http://www.pyqtgraph.org/
+
+* The transit modeling is done with "batman":
+ 
+https://www.cfa.harvard.edu/~lkreidberg/batman/quickstart.html
+
+* "GLS" and "MLP" periodogram is taken from Mathias's Zechmeisters repo: 
+
+https://github.com/mzechmeister/python
+
+* "TLS" is taken from: 
+
+https://github.com/hippke/tls
+
+* MCMC sampling is done with "emcee": 
+
+http://dfm.io/emcee/current/
+
+* Nested Sampling sampling is done with "dynesty": 
+
+https://dynesty.readthedocs.io/en/latest/
+
+* TTV models are adopted from "TTVfast-python":
+
+https://github.com/mindriot101/ttvfast-python
+
+* The "Text editor" used in the tool is a hack between "Megasolid Idiom" 
+and "PyEdit2":
+
+https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor
+
+https://github.com/Axel-Erfurt/PyEdit2
+
+* Additionally, the Exo-Striker uses many "standard" Python libraries like 
+"matplotlib", "numpy", "scipy", "dill", and more.
+
+
+

@@ -1172,7 +1172,7 @@
             </property>
             <widget class="QWidget" name="tab_13">
              <attribute name="title">
-              <string>Orb. evol.</string>
+              <string>Orb. elem.</string>
              </attribute>
              <layout class="QGridLayout" name="gridLayout_30">
               <item row="0" column="1">
@@ -1498,6 +1498,127 @@
                 <property name="currentIndex">
                  <number>0</number>
                 </property>
+                <widget class="QWidget" name="tab_94">
+                 <attribute name="title">
+                  <string>Period evol.</string>
+                 </attribute>
+                 <layout class="QGridLayout" name="gridLayout_237">
+                  <item row="0" column="0">
+                   <layout class="QGridLayout" name="gridLayout_235">
+                    <item row="0" column="0">
+                     <widget class="PlotWidget" name="graphicsView_orb_evol_periods"/>
+                    </item>
+                   </layout>
+                  </item>
+                  <item row="0" column="1" rowspan="2">
+                   <layout class="QVBoxLayout" name="verticalLayout_6">
+                    <property name="spacing">
+                     <number>3</number>
+                    </property>
+                    <item>
+                     <widget class="QPushButton" name="per_evol_x_label">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>x-label</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="per_evol_y_label">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>y-label</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="color_per_evol">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>color</string>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="verticalSpacer_109">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>40</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
+                  </item>
+                  <item row="1" column="0">
+                   <layout class="QGridLayout" name="gridLayout_236">
+                    <item row="0" column="1">
+                     <widget class="QComboBox" name="per_evol_comboBox_pl_1"/>
+                    </item>
+                    <item row="0" column="6">
+                     <spacer name="horizontalSpacer_140">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item row="0" column="2">
+                     <widget class="QLabel" name="label_289">
+                      <property name="text">
+                       <string>--</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="3">
+                     <widget class="QComboBox" name="per_evol_comboBox_pl_2"/>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
                 <widget class="QWidget" name="tab_29">
                  <attribute name="title">
                   <string>Delta omega</string>
@@ -1512,8 +1633,17 @@
                   </item>
                   <item row="0" column="1" rowspan="2">
                    <layout class="QVBoxLayout" name="verticalLayout_2">
+                    <property name="spacing">
+                     <number>3</number>
+                    </property>
                     <item>
                      <widget class="QPushButton" name="delta_om_x_label">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -1526,6 +1656,12 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="delta_om_y_label">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -1538,6 +1674,12 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="color_delta_om">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -1553,6 +1695,12 @@
                     </item>
                     <item>
                      <widget class="QRadioButton" name="radioButton_dom_180_fold">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="font">
                        <font>
                         <pointsize>8</pointsize>
@@ -1571,6 +1719,12 @@
                     </item>
                     <item>
                      <widget class="QRadioButton" name="radioButton_dom_no_fold">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="font">
                        <font>
                         <pointsize>8</pointsize>
@@ -1645,8 +1799,17 @@
                   </item>
                   <item row="0" column="1">
                    <layout class="QVBoxLayout" name="verticalLayout_3">
+                    <property name="spacing">
+                     <number>3</number>
+                    </property>
                     <item>
                      <widget class="QPushButton" name="theta_x_label">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -1659,6 +1822,12 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="theta_y_label">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -1671,6 +1840,12 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="color_theta">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -1686,6 +1861,12 @@
                     </item>
                     <item>
                      <widget class="QRadioButton" name="radioButton_theta_180_fold">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="font">
                        <font>
                         <pointsize>8</pointsize>
@@ -1704,6 +1885,12 @@
                     </item>
                     <item>
                      <widget class="QRadioButton" name="radioButton_theta_no_fold">
+                      <property name="maximumSize">
+                       <size>
+                        <width>70</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="font">
                        <font>
                         <pointsize>8</pointsize>
@@ -4994,7 +5181,7 @@
                      <double>0.001000000000000</double>
                     </property>
                     <property name="value">
-                     <double>1.000000000000000</double>
+                     <double>2458357.390000000130385</double>
                     </property>
                    </widget>
                   </item>
@@ -49193,6 +49380,82 @@
                    <attribute name="title">
                     <string>Energy</string>
                    </attribute>
+                  </widget>
+                  <widget class="QWidget" name="tab_125">
+                   <attribute name="title">
+                    <string>Page</string>
+                   </attribute>
+                   <layout class="QGridLayout" name="gridLayout_238">
+                    <item row="0" column="0">
+                     <layout class="QGridLayout" name="gridLayout_329">
+                      <item row="1" column="0">
+                       <widget class="QCheckBox" name="hold_old_plot_per_evol">
+                        <property name="font">
+                         <font>
+                          <pointsize>9</pointsize>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>hold old plot</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="0">
+                       <widget class="QLabel" name="label_398">
+                        <property name="font">
+                         <font>
+                          <pointsize>9</pointsize>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>(work in progress)</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="0">
+                       <widget class="QCheckBox" name="orb_evol_auto_range_per_evol">
+                        <property name="font">
+                         <font>
+                          <pointsize>9</pointsize>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Auto range</string>
+                        </property>
+                        <property name="checked">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="0" column="1">
+                     <spacer name="horizontalSpacer_43">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>535</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item row="1" column="0">
+                     <spacer name="verticalSpacer_110">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>127</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
                   </widget>
                  </widget>
                 </item>

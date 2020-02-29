@@ -180,13 +180,17 @@ else:
     start_arg_ses = False
 
 
-colors      = ['#0066ff','#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
-colors_gls  = ['#0066ff','#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+colors          = ['#0066ff','#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+colors_gls      = ['#0066ff','#ff0000']
+colors_delta_om = ['#0066ff','#666699']
+colors_theta    = ['#0066ff','#666699']
+colors_per_rat  = ['#0066ff','#666699']
+
 
                
 symbols = ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
-colors_delta_om = colors
-colors_theta = colors
+
+
 
 QtGui.QApplication.processEvents()
 
@@ -608,7 +612,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.tra_GP_rot_use[i] = int(self.use_tra_gp_rot_params[i].isChecked())
 
         for i in range(len(self.use_tra_gp_sho_params)):
-            fit.tra_GP_sho_use[i] = int(self.use_tra_gp_sho_params[i].isChecked())              
+            fit.tra_GP_sho_use[i] = int(self.use_tra_gp_sho_params[i].isChecked())
             
 
 
@@ -622,12 +626,12 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.param_bounds_gui[10*i + 1][z].setValue(fit.P_bound[i][z])
                 self.param_bounds_gui[10*i + 2][z].setValue(fit.e_bound[i][z])
                 self.param_bounds_gui[10*i + 3][z].setValue(fit.w_bound[i][z])
-                self.param_bounds_gui[10*i + 4][z].setValue(fit.M0_bound[i][z])              
-                self.param_bounds_gui[10*i + 5][z].setValue(fit.i_bound[i][z])  
-                self.param_bounds_gui[10*i + 6][z].setValue(fit.Node_bound[i][z])              
-                self.param_bounds_gui[10*i + 7][z].setValue(fit.t0_bound[i][z])              
-                self.param_bounds_gui[10*i + 8][z].setValue(fit.pl_rad_bound[i][z])              
-                self.param_bounds_gui[10*i + 9][z].setValue(fit.pl_a_bound[i][z])              
+                self.param_bounds_gui[10*i + 4][z].setValue(fit.M0_bound[i][z])
+                self.param_bounds_gui[10*i + 5][z].setValue(fit.i_bound[i][z])
+                self.param_bounds_gui[10*i + 6][z].setValue(fit.Node_bound[i][z])
+                self.param_bounds_gui[10*i + 7][z].setValue(fit.t0_bound[i][z])
+                self.param_bounds_gui[10*i + 8][z].setValue(fit.pl_rad_bound[i][z])
+                self.param_bounds_gui[10*i + 9][z].setValue(fit.pl_a_bound[i][z])
     
         for i in range(10): 
             for z in range(2):
@@ -642,26 +646,26 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(fit.npl):
             for z in range(2):
                 
-                fit.K_bound[i][z] = self.param_bounds_gui[10*i + 0][z].value()    
-                fit.P_bound[i][z] = self.param_bounds_gui[10*i + 1][z].value()    
-                fit.e_bound[i][z] = self.param_bounds_gui[10*i + 2][z].value()     
-                fit.w_bound[i][z] = self.param_bounds_gui[10*i + 3][z].value()     
-                fit.M0_bound[i][z] = self.param_bounds_gui[10*i + 4][z].value()     
-                fit.i_bound[i][z] = self.param_bounds_gui[10*i + 5][z].value()     
-                fit.Node_bound[i][z] =self.param_bounds_gui[10*i + 6][z].value()     
-                fit.t0_bound[i][z]  =  self.param_bounds_gui[10*i + 7][z].value() 
-                fit.pl_rad_bound[i][z]  =   self.param_bounds_gui[10*i + 8][z].value() 
-                fit.pl_a_bound[i][z]   =   self.param_bounds_gui[10*i + 9][z].value() 
+                fit.K_bound[i][z] = self.param_bounds_gui[10*i + 0][z].value()
+                fit.P_bound[i][z] = self.param_bounds_gui[10*i + 1][z].value()
+                fit.e_bound[i][z] = self.param_bounds_gui[10*i + 2][z].value()
+                fit.w_bound[i][z] = self.param_bounds_gui[10*i + 3][z].value()
+                fit.M0_bound[i][z] = self.param_bounds_gui[10*i + 4][z].value()
+                fit.i_bound[i][z] = self.param_bounds_gui[10*i + 5][z].value()
+                fit.Node_bound[i][z] =self.param_bounds_gui[10*i + 6][z].value()
+                fit.t0_bound[i][z]  =  self.param_bounds_gui[10*i + 7][z].value()
+                fit.pl_rad_bound[i][z]  =   self.param_bounds_gui[10*i + 8][z].value()
+                fit.pl_a_bound[i][z]   =   self.param_bounds_gui[10*i + 9][z].value()
                 fit.K_bound[i][z] = self.param_bounds_gui[10*i + 0][z].value()
     
         for i in range(10): 
-            for z in range(2):    
+            for z in range(2):
                 fit.rvoff_bounds[i][z] = self.offset_bounds_gui[i][z].value()
                 fit.jitt_bounds[i][z]  = self.jitter_bounds_gui[i][z].value()
      
         for i in range(9): 
             for z in range(2):    
-                fit.omega_dot_bounds[i][z] = self.om_dot_bounds_gui[i][z].value() 
+                fit.omega_dot_bounds[i][z] = self.om_dot_bounds_gui[i][z].value()
 
         fit.rv_lintr_bounds[0]  = [self.lin_trend_min.value(),self.lin_trend_max.value()]
 
@@ -681,7 +685,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.tra_jitt_bounds[i]  = jitter_bounds_gui_tra[i] 
             
 
-        self.check_RV_GP_bounds()            
+        self.check_RV_GP_bounds()
         self.check_tra_GP_bounds()
         
         
@@ -729,7 +733,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         ]
  
         for i in range(3): 
-            fit.tra_GP_sho_bounds[i] = tra_GP_sho_bounds_gui[i]                  
+            fit.tra_GP_sho_bounds[i] = tra_GP_sho_bounds_gui[i]
             
             
     def check_priors_nr(self):
@@ -877,7 +881,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         ]
  
         for i in range(4): 
-            fit.tra_GP_rot_norm_pr[i] = tra_GP_rot_nr_priors_gui[i]            
+            fit.tra_GP_rot_norm_pr[i] = tra_GP_rot_nr_priors_gui[i]
     
 
         tra_GP_sho_nr_priors_gui = [
@@ -887,7 +891,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         ]
  
         for i in range(3): 
-            fit.tra_GP_sho_norm_pr[i] = tra_GP_sho_nr_priors_gui[i]               
+            fit.tra_GP_sho_norm_pr[i] = tra_GP_sho_nr_priors_gui[i]
             
 
             
@@ -1289,7 +1293,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def initialize_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev
 
         p1  = self.graphicsView_timeseries_RV
         p2  = self.graphicsView_timeseries_RV_o_c
@@ -1303,11 +1307,11 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         p9  = self.graphicsView_peridogram_phot
         p10 = self.graphicsView_peridogram_phot_o_c
         p11 = self.graphicsView_periodogram_activity
-        p12 = self.graphicsView_periodogram_window  
+        p12 = self.graphicsView_periodogram_window
         
         p13 = self.graphicsView_orb_evol_elements_a
-        p14 = self.graphicsView_orb_evol_elements_e   
-        p15 = self.graphicsView_orb_evol_elements_om   
+        p14 = self.graphicsView_orb_evol_elements_e
+        p15 = self.graphicsView_orb_evol_elements_om
        
         p16 = self.graphicsView_orbital_view
         
@@ -1326,16 +1330,16 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         
         p_ttv = self.graphicsView_timeseries_ttv
         p_ttv_oc = self.graphicsView_timeseries_ttv_o_c
+        p_per_ev = self.graphicsView_orb_evol_periods
 
-        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x','x','period [d]','N transit','N transit']
-        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]']
-        xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','','','','']
-        yunit = ['' ,'' , '','','','','','','','','','','','','','','','','','','','','','','','']
+        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x','x','period [d]','N transit','N transit','t [yr]']
+        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.']
+        xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','','','','','']
+        yunit = ['' ,'' , '','','','','','','','','','','','','','','','','','','','','','','','','']
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc]
- 
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev]
+
         for i in range(len(zzz)):
- 
 
                 zzz[i].getAxis("bottom").tickFont = self.font
                 zzz[i].getAxis("bottom").setStyle(tickTextOffset = 12)
@@ -1358,10 +1362,10 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         p16.getViewBox().setAspectLocked(True)
 
-        return   
-        
+        return
 
-        
+
+
     def identify_power_peaks(self,x,y,sig_level=np.array([]), power_level=np.array([]) ):
  
         per_ind = argrelextrema(y, np.greater)
@@ -3608,8 +3612,106 @@ Transit duration: %s d
         p16.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
 
 
+#### Period evolution plot ##################
+
         
+    def per_rat_combo(self):
+        global fit
+
+        if fit.pl_arb_test == True:
+            npl = fit.npl_arb
+        else:
+            npl = fit.npl
+ 
+        self.per_evol_comboBox_pl_1.clear()
+        self.per_evol_comboBox_pl_2.clear()
+        
+        for i in range(npl):
+            self.per_evol_comboBox_pl_1.addItem('Planet %s'%str(i+1),i+1) 
+            self.per_evol_comboBox_pl_2.addItem('Planet %s'%str(i+1),i+1) 
+            
+        self.per_evol_comboBox_pl_1.setCurrentIndex(1)
+        self.per_evol_comboBox_pl_2.setCurrentIndex(0)
+
+
+    def plot_per_rat(self):
+        global fit, colors_per_rat, p_per_ev 
+        
+
+        if not self.hold_old_plot_per_evol.isChecked():    
+            p_per_ev.plot(clear=True,)
+        else:
+            p_per_ev.plot(clear=False,)
+
+        self.color_per_evol.setStyleSheet("color: %s;"%colors_per_rat[0]) 
+
+
+        pl1_ind = self.per_evol_comboBox_pl_1.currentIndex()
+        pl2_ind = self.per_evol_comboBox_pl_2.currentIndex()
+ 
+        if pl1_ind ==-1 or pl2_ind ==-1 or len(fit.evol_Per[pl1_ind]) ==0 or len(fit.evol_Per[pl2_ind]) ==0:
+            return
+        else:
+            last_stable = min(len(fit.evol_Per[pl1_ind]),len(fit.evol_Per[pl2_ind]))
+        
+        Prat = fit.evol_Per[pl1_ind][0:last_stable] / fit.evol_Per[pl2_ind][0:last_stable]
+
+
+        p_per_ev.plot(fit.evol_T[0][0:last_stable], Prat ,pen=None, #{'color': colors[i], 'width': 1.1},
+        symbol='o',
+        symbolPen={'color': colors_per_rat[0], 'width': 1.1},
+        symbolSize=1,enableAutoRange=True,viewRect=True,
+        symbolBrush=fit.colors[0]
+        )  
+
+        if self.orb_evol_auto_range_per_evol.isChecked():
+            p_per_ev.autoRange()   
+
+
+
+    def get_per_rat_color(self):
+        global fit, colors_per_rat
+        
+        #colorz = QtGui.QColorDialog.getColor()
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        colors_per_rat[0]=colorz.name()   
+ 
+        self.plot_per_rat()
+
+    def per_rat_plot_x_labels(self):
+        global fit, p_per_ev
+        
+        text, okPressed = QtGui.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
+        
+        if okPressed and text != '':
+            p_per_ev.setLabel('bottom', '%s'%text, units='',  **{'font-size':'9pt'})
+ 
+        else:
+            return
+    
+        self.plot_per_rat()
+ 
+
+    def per_rat_plot_y_labels(self):
+        global fit, p_per_ev
+        
+        text, okPressed = QtGui.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
+        
+        if okPressed and text != '':
+            p_per_ev.setLabel('left', '%s'%text, units='',  **{'font-size':'9pt'})
+ 
+        else:
+            return
+    
+        self.plot_per_rat()
+
+
+
+
+    ################### Delta \omega plots ################
+
     def delta_omega_combo(self):
+        global fit
 
         if fit.pl_arb_test == True:
             npl = fit.npl_arb
@@ -3808,27 +3910,27 @@ Transit duration: %s d
         
         if okPressed and text != '':
             p18.setLabel('bottom', '%s'%text, units='',  **{'font-size':'9pt'})
- 
+
         else:
             return
-    
+
         self.plot_theta()
- 
+
 
     def theta_plot_y_labels(self):
         global fit, p18
-        
+
         text, okPressed = QtGui.QInputDialog.getText(self, "y-axis label","", QtGui.QLineEdit.Normal, "")
-        
+
         if okPressed and text != '':
             p18.setLabel('left', '%s'%text, units='',  **{'font-size':'9pt'})
- 
+
         else:
             return
-    
-        self.plot_theta()             
-        
- 
+
+        self.plot_theta()
+
+
     def plot_i_Om(self):
         global fit, colors, p19
 
@@ -3958,24 +4060,29 @@ Transit duration: %s d
         )    
             
         if self.orb_evol_auto_range_p.isChecked():
-            p15.autoRange()        
-            
-            
+            p15.autoRange()
+
+
+
     def plot_evol_all(self):
-        global fit        
-        
+        global fit
+
         self.plot_evol_a()
         self.plot_evol_e()
         self.plot_evol_p()
-        
 
+        self.per_rat_combo()
         self.delta_omega_combo()
         self.theta_which_pl_combo()
+        
+        self.plot_per_rat()
         self.plot_delta_omega()
         self.plot_theta()
-        self.plot_i_Om()    
-        self.plot_energy()              
-        
+        self.plot_i_Om()
+        self.plot_energy()
+
+
+
     def worker_Nbody_complete(self):
         global fit, colors, p13, p14, p15  
           
@@ -6551,7 +6658,10 @@ Please install via 'pip install ttvfast'.
         self.comboBox_pl_1.activated.connect(self.plot_delta_omega)
         self.comboBox_pl_2.activated.connect(self.plot_delta_omega)
         self.radioButton_dom_180_fold.toggled.connect(self.plot_delta_omega)
-        self.radioButton_theta_180_fold.toggled.connect(self.plot_theta)        
+        self.radioButton_theta_180_fold.toggled.connect(self.plot_theta)
+        
+        self.per_evol_comboBox_pl_1.activated.connect(self.plot_per_rat)
+        self.per_evol_comboBox_pl_2.activated.connect(self.plot_per_rat)
         
         self.plot_i.toggled.connect(self.plot_i_Om)
         self.plot_Om.toggled.connect(self.plot_i_Om)
@@ -6698,6 +6808,10 @@ Please install via 'pip install ttvfast'.
         self.color_delta_om.clicked.connect(self.get_delta_omega_color)
         self.delta_om_x_label.clicked.connect(self.delta_omega_plot_x_labels)
         self.delta_om_y_label.clicked.connect(self.delta_omega_plot_y_labels)
+        
+        self.color_per_evol.clicked.connect(self.get_per_rat_color)
+        self.per_evol_x_label.clicked.connect(self.per_rat_plot_x_labels)
+        self.per_evol_y_label.clicked.connect(self.per_rat_plot_y_labels)
 
         self.color_theta.clicked.connect(self.get_theta_color)
         self.theta_x_label.clicked.connect(self.theta_plot_x_labels)

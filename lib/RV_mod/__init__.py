@@ -2502,6 +2502,8 @@ class signal_fit(object):
         self.evol_p_arb = {k: [] for k in range(9)}
         self.evol_M_arb = {k: [] for k in range(9)}
 
+        self.evol_Per_arb = {k: [] for k in range(9)}
+
         self.evol_T_energy_arb   = 0
         self.evol_energy_arb   = 0
         #self.evol_momentum_arb = 0
@@ -2516,6 +2518,9 @@ class signal_fit(object):
         self.evol_M  = {k: [] for k in range(9)}
         self.evol_i  = {k: [] for k in range(9)}
         self.evol_Om = {k: [] for k in range(9)}
+
+        self.evol_Per = {k: [] for k in range(9)}
+
 
         self.evol_T_energy   = 0
         self.evol_energy   = 0
