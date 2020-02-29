@@ -1704,6 +1704,9 @@ pl.in
         obj.evol_i[k]  = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [4])
         obj.evol_Om[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [5])
 
+        obj.evol_Per[k] = a_to_P(obj.evol_a[k],obj.params.stellar_mass)
+
+
     try:
         os.system('rm *.out *.dat *.in')
         #os.system('mv *.out *.dat *.in last_run')
@@ -1823,6 +1826,8 @@ pl.in
 
         obj.evol_i[k]  = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [4])
         obj.evol_Om[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [5])
+
+        obj.evol_Per[k] = a_to_P(obj.evol_a[k],obj.params.stellar_mass)
 
 
     try:
