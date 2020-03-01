@@ -320,13 +320,17 @@ class MainWindow(QMainWindow):
                 text = f.read()
 
         except Exception as e:
-            self.dialog_critical(str(e))
-
+            #self.dialog_critical(str(e))
+            return
         else:
             self.path = path
             # Qt will automatically try and guess the format as txt/html
             self.editor.setText(text)
             self.update_title()
+
+            #self.statusBar().showMessage(path)        
+            self.setStatusBar(self.status(path))
+
 
     def file_save(self):
         if self.path is None:
