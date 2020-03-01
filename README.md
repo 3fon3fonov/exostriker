@@ -154,7 +154,7 @@ The Exo-Striker relies on a number of open-source packages, which would be great
 acknowledge too. (if you had made the use of them):  
 
 
-* The interactive plotting is done with (a heavily modified version of) the "pyqtgraph": 
+* The interactive plotting is done with a custom version of the "pyqtgraph": 
 
 http://www.pyqtgraph.org/
 
@@ -162,7 +162,7 @@ http://www.pyqtgraph.org/
  
 https://www.cfa.harvard.edu/~lkreidberg/batman/quickstart.html
 
-* "GLS" and "MLP" periodogram is taken from Mathias's Zechmeisters repo: 
+* "GLS" and "MLP" periodograma are taken from Mathias Zechmeister's repo: 
 
 https://github.com/mzechmeister/python
 
@@ -174,7 +174,7 @@ https://github.com/hippke/tls
 
 http://dfm.io/emcee/current/
 
-* Nested Sampling sampling is done with "dynesty": 
+* Nested Sampling is done with "dynesty": 
 
 https://dynesty.readthedocs.io/en/latest/
 
@@ -187,7 +187,12 @@ and "PyEdit2":
 
 https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor
 
-https://github.com/Axel-Erfurt/PyEdit2
+https://github.com/Axel-Erfurt/PyEdit2'
+
+* N-body tests are performed using a custom version of the "Swift" N-body library,
+modified by Man Hoi Lee (HKU) and Trifon Trifonov (MPIA).
+
+https://www.boulder.swri.edu/~hal/swift.html
 
 * Additionally, the Exo-Striker uses many "standard" Python libraries like 
 "matplotlib", "numpy", "scipy", "dill", and more.
