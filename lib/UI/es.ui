@@ -2426,10 +2426,10 @@
        <enum>QLayout::SetMinimumSize</enum>
       </property>
       <property name="horizontalSpacing">
-       <number>6</number>
+       <number>1</number>
       </property>
       <property name="verticalSpacing">
-       <number>5</number>
+       <number>3</number>
       </property>
       <item row="14" column="1">
        <widget class="QRadioButton" name="lm_radio_button">
@@ -55016,6 +55016,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="8" column="3">
@@ -55091,6 +55094,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="5" column="3">
@@ -55156,6 +55162,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="7" column="1">
@@ -55189,6 +55198,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="6" column="0">
@@ -55338,6 +55350,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="0" column="1">
@@ -55384,6 +55399,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="2" column="1">
@@ -55414,6 +55432,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="7" column="4">
@@ -55437,6 +55458,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="10" column="0">
@@ -55470,6 +55494,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="5" column="0">
@@ -55519,6 +55546,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="5" column="1">
@@ -55790,6 +55820,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="2" column="3">
@@ -55864,6 +55897,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="10" column="2">
@@ -55874,6 +55910,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="5" column="3">
@@ -55916,6 +55955,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="4" column="3">
@@ -55942,6 +55984,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="4" column="1">
@@ -55967,6 +56012,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="2" column="2">
@@ -55977,6 +56025,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="7" column="1">
@@ -56023,6 +56074,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="7" column="0">
@@ -56091,6 +56145,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="0" column="1">
@@ -56108,6 +56165,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="10" column="3">
@@ -56394,6 +56454,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="2" column="5">
@@ -56404,6 +56467,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="3" column="5">
@@ -56414,6 +56480,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="4" column="5">
@@ -56424,6 +56493,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="5" column="5">
@@ -56434,6 +56506,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="6" column="5">
@@ -56444,6 +56519,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="7" column="5">
@@ -56454,6 +56532,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="8" column="5">
@@ -56464,6 +56545,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="9" column="5">
@@ -56474,6 +56558,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="10" column="5">
@@ -56484,6 +56571,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="1" column="4">
@@ -56753,6 +56843,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="7" column="2">
@@ -56763,6 +56856,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="3" column="10">
@@ -56837,6 +56933,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="1" column="4">
@@ -56929,6 +57028,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="1" column="10">
@@ -56963,6 +57065,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="7" column="11">
@@ -56973,6 +57078,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="10" column="0">
@@ -57027,6 +57135,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="3" column="0">
@@ -57065,6 +57176,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="9" column="11">
@@ -57075,6 +57189,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="4" column="12">
@@ -57130,6 +57247,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="0" column="1">
@@ -57299,6 +57419,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="9" column="9">
@@ -57463,6 +57586,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="6" column="3">
@@ -57598,6 +57724,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="8" column="1">
@@ -57701,6 +57830,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="7" column="13">
@@ -57774,6 +57906,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="2" column="11">
@@ -57784,6 +57919,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="5" column="5">
@@ -57794,6 +57932,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="1" column="5">
@@ -57810,6 +57951,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="8" column="9">
@@ -57862,6 +58006,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="6" column="11">
@@ -57872,6 +58019,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="5" column="11">
@@ -57882,6 +58032,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="9" column="0">
@@ -58121,6 +58274,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="10" column="2">
@@ -58131,6 +58287,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="5" column="0">
@@ -58211,6 +58370,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="7" column="3">
@@ -58248,6 +58410,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="0" column="12">
@@ -58542,6 +58707,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="5" column="9">
@@ -58588,6 +58756,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="9" column="8">
@@ -58598,6 +58769,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="6" column="5">
@@ -58608,6 +58782,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="6" column="8">
@@ -58618,6 +58795,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="10" column="5">
@@ -58628,6 +58808,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="4" column="6">
@@ -58713,6 +58896,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="9" column="3">
@@ -58750,6 +58936,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="3" column="11">
@@ -58760,6 +58949,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="2" column="10">
@@ -58810,6 +59002,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="6" column="7">
@@ -58862,6 +59057,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="7" column="4">
@@ -58903,6 +59101,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="10" column="8">
@@ -58913,6 +59114,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="3" column="12">
@@ -58950,6 +59154,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="3" column="5">
@@ -58960,6 +59167,9 @@
                       <property name="text">
                        <string/>
                       </property>
+                      <attribute name="buttonGroup">
+                       <string notr="true">buttonGroup_use</string>
+                      </attribute>
                      </widget>
                     </item>
                     <item row="6" column="4">
@@ -61386,19 +61596,6 @@
             </property>
            </spacer>
           </item>
-          <item row="1" column="0">
-           <spacer name="verticalSpacer_44">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
          </layout>
         </widget>
         <widget class="QWidget" name="tab_52">
@@ -61415,7 +61612,7 @@
              </sizepolicy>
             </property>
             <property name="currentIndex">
-             <number>3</number>
+             <number>0</number>
             </property>
             <property name="movable">
              <bool>true</bool>
@@ -70668,7 +70865,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>u2 max</string>
+                       <string>u1 max</string>
                       </property>
                      </widget>
                     </item>
@@ -72696,7 +72893,7 @@
                      </widget>
                     </item>
                     <item row="2" column="10">
-                     <widget class="DoubleSpinBox" name="u3_max_3">
+                     <widget class="DoubleSpinBox" name="u3_max_2">
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -72729,7 +72926,7 @@
                      </widget>
                     </item>
                     <item row="3" column="10">
-                     <widget class="DoubleSpinBox" name="u3_max_4">
+                     <widget class="DoubleSpinBox" name="u3_max_3">
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -72762,7 +72959,7 @@
                      </widget>
                     </item>
                     <item row="4" column="10">
-                     <widget class="DoubleSpinBox" name="u3_max_5">
+                     <widget class="DoubleSpinBox" name="u3_max_4">
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -72795,7 +72992,7 @@
                      </widget>
                     </item>
                     <item row="5" column="10">
-                     <widget class="DoubleSpinBox" name="u3_max_6">
+                     <widget class="DoubleSpinBox" name="u3_max_5">
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -72828,7 +73025,7 @@
                      </widget>
                     </item>
                     <item row="6" column="10">
-                     <widget class="DoubleSpinBox" name="u3_max_7">
+                     <widget class="DoubleSpinBox" name="u3_max_6">
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -72861,7 +73058,7 @@
                      </widget>
                     </item>
                     <item row="7" column="10">
-                     <widget class="DoubleSpinBox" name="u3_max_8">
+                     <widget class="DoubleSpinBox" name="u3_max_7">
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -72894,7 +73091,7 @@
                      </widget>
                     </item>
                     <item row="8" column="10">
-                     <widget class="DoubleSpinBox" name="u3_max_9">
+                     <widget class="DoubleSpinBox" name="u3_max_8">
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -72927,7 +73124,7 @@
                      </widget>
                     </item>
                     <item row="9" column="10">
-                     <widget class="DoubleSpinBox" name="u3_max_10">
+                     <widget class="DoubleSpinBox" name="u3_max_9">
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -72960,7 +73157,7 @@
                      </widget>
                     </item>
                     <item row="10" column="10">
-                     <widget class="DoubleSpinBox" name="u3_max_11">
+                     <widget class="DoubleSpinBox" name="u3_max_10">
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -73943,7 +74140,7 @@
      <x>0</x>
      <y>0</y>
      <width>1267</width>
-     <height>20</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuRVmod">
@@ -74134,76 +74331,76 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
-  <buttongroup name="buttonGroup_activity_data"/>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_apply_rv_data_options"/>
-  <buttongroup name="buttonGroup_dom_fold"/>
-  <buttongroup name="buttonGroup_use_ld_2"/>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
-  <buttongroup name="buttonGroup_use_ld_1"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_use_RV_GP_kernel">
-   <property name="exclusive">
-    <bool>true</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_transit_data"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
-  <buttongroup name="buttonGroup_use_ld_5"/>
-  <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_use_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_add_RV_data"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_use_ld_3"/>
-  <buttongroup name="buttonGroup_remove_ttv_data"/>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_use_ld_6"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
-  <buttongroup name="buttonGroup_use_planets">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
   <buttongroup name="buttonGroup_GR_prec"/>
-  <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
   <buttongroup name="buttonGroup_mixed_fitting">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
-  <buttongroup name="buttonGroup_nest_stat_dyn"/>
   <buttongroup name="buttonGroup_symbol_picker"/>
-  <buttongroup name="buttonGroup_theta_fold"/>
+  <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_Omega_fold"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
+  <buttongroup name="buttonGroup_use_planets">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
   <buttongroup name="buttonGroup_use">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
+  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_apply_rv_data_options"/>
+  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
+  <buttongroup name="buttonGroup_theta_fold"/>
   <buttongroup name="buttonGroup_ttv_data"/>
   <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
   <buttongroup name="buttonGroup_color_picker"/>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_Omega_fold"/>
+  <buttongroup name="buttonGroup_use_ld_10"/>
+  <buttongroup name="buttonGroup_use_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_use_RV_GP_kernel">
+   <property name="exclusive">
+    <bool>true</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_remove_activity_data"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_f77_or_scipy"/>
  </buttongroups>
 </ui>
