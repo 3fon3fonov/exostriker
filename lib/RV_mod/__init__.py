@@ -2035,31 +2035,31 @@ class signal_fit(object):
         self.ld_models = ["uniform", "linear", "quadratic", "nonlinear"]
         self.ld_m = ["quadratic", "quadratic",  "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic"]    #limb darkening model
 
-        self.ld_u = {k: [0.1, 0.3 ] for k in range(10)}
+        self.ld_u = {k: [0.12, 0.35 ] for k in range(10)}
 
-        self.ld_u_quad = {k: [0.1, 0.3 ] for k in range(10)}
-        self.ld_u_nonlin = {k: [0.5,0.1, 0.3,-0.1] for k in range(10)}
-        self.ld_u_lin    = {k: [0.3] for k in range(10)}
+        self.ld_u_quad = {k: [0.12, 0.35 ] for k in range(10)}
+        self.ld_u_nonlin = {k: [0.55,0.12, 0.35,-0.11] for k in range(10)}
+        self.ld_u_lin    = {k: [0.35] for k in range(10)}
 
 
         self.ld_u_quad_use   = {k: [False, False] for k in range(10)}
         self.ld_u_nonlin_use = {k: [False, False,False, False] for k in range(10)}
         self.ld_u_lin_use    = {k: [False] for k in range(10)}
 
-        self.ld_u_quad_err   = {k: [[0,0], [0,0]] for k in range(10)}
-        self.ld_u_nonlin_err = {k: [[0,0], [0,0],[0,0], [0,0]] for k in range(10)}
-        self.ld_u_lin_err    = {k: [0,0] for k in range(10)}
+        self.ld_u_quad_err   = {k: [[0.0,0.0], [0.0,0.0]] for k in range(10)}
+        self.ld_u_nonlin_err = {k: [[0.0,0.0], [0.0,0.0],[0.0,0.0], [0.0,0.0]] for k in range(10)}
+        self.ld_u_lin_err    = {k: [0.0,0.0] for k in range(10)}
 
-        self.ld_u_quad_bound      = {k: np.array([[-1,1],[-1,1]]) for k in range(10)}
-        self.ld_u_nonlin_bound    = {k: np.array([[-1,1],[-1,1],[-1,1],[-1,1]]) for k in range(10)}
-        self.ld_u_lin_bound       = {k: np.array([-1,1]) for k in range(10)}
+        self.ld_u_quad_bound      = {k: np.array([[-1.0,1.0],[-1.0,1.0]]) for k in range(10)}
+        self.ld_u_nonlin_bound    = {k: np.array([[-1.0,1.0],[-1.0,1.0],[-1.0,1.0],[-1.0,1.0]]) for k in range(10)}
+        self.ld_u_lin_bound       = {k: np.array([-1.0,1.0]) for k in range(10)}
 
-        self.ld_u_quad_norm_pr    = {k: np.array([[0,1, False],[0,1, False]]) for k in range(10)}
-        self.ld_u_nonlin_norm_pr  = {k: np.array([[0,1, False],[0,1, False],[0,1, False],[0,1, False]]) for k in range(10)}
+        self.ld_u_quad_norm_pr    = {k: np.array([[0.0,1.0, False],[0.0,1.0, False]]) for k in range(10)}
+        self.ld_u_nonlin_norm_pr  = {k: np.array([[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False]]) for k in range(10)}
         self.ld_u_lin_norm_pr     = {k: np.array([0.1,0.05, False]) for k in range(10)}
 
-        self.ld_u_quad_jeff_pr    = {k: np.array([[0,1, False],[0,1, False]]) for k in range(10)}
-        self.ld_u_nonlin_jeff_pr  = {k: np.array([[0,1, False],[0,1, False],[0,1, False],[0,1, False]]) for k in range(10)}
+        self.ld_u_quad_jeff_pr    = {k: np.array([[0.0,1.0, False],[0.0,1.0, False]]) for k in range(10)}
+        self.ld_u_nonlin_jeff_pr  = {k: np.array([[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False]]) for k in range(10)}
         self.ld_u_lin_jeff_pr     = {k: np.array([0.1,0.05, False]) for k in range(10)}
 
         self.ld_u_quad_str        = {k: [[r'ld-quad-1$_%s$'%str(k+1)],[r'ld-quad-2$_%s$'%str(k+1)]] for k in range(10)}
@@ -2170,9 +2170,9 @@ class signal_fit(object):
 
 
         #### transit #####
-        self.t0      = {k: 0 for k in range(9)}
-        self.pl_a    = {k: 15 for k in range(9)}
-        self.pl_rad  = {k: 0.10 for k in range(9)}
+        self.t0      = {k: 2458357.39 for k in range(9)}
+        self.pl_a    = {k: 11.0 for k in range(9)}
+        self.pl_rad  = {k: 0.145 for k in range(9)}
 
         self.t0_use      = {k: False for k in range(9)}
         self.pl_a_use    = {k: False for k in range(9)}
@@ -2204,9 +2204,9 @@ class signal_fit(object):
     def init_hkl(self) :
 
         #### h,k,l #####
-        self.e_sinw        = {k: 0 for k in range(9)}
-        self.e_cosw        = {k: 0 for k in range(9)}
-        self.lamb          = {k: 0 for k in range(9)}
+        self.e_sinw        = {k: 0.0 for k in range(9)}
+        self.e_cosw        = {k: 0.0 for k in range(9)}
+        self.lamb          = {k: 0.0 for k in range(9)}
 
         self.e_sinw_use    = {k: False for k in range(9)}
         self.e_cosw_use    = {k: False for k in range(9)}
@@ -2250,8 +2250,8 @@ class signal_fit(object):
 
     def init_omega_dot(self) :
 
-        self.omega_dot       = {k: 0 for k in range(9)}
-        self.omega_dot_err   = {k: np.array([0,0]) for k in range(9)}
+        self.omega_dot       = {k: 0.0 for k in range(9)}
+        self.omega_dot_err   = {k: np.array([0.0,0.0]) for k in range(9)}
         self.omega_dot_use   = {k: False for k in range(9)}
         self.omega_dot_str   = {k: r'$\omega_%s dot$'%k for k in range(9)}
         self.omega_dot_bounds  = {k: np.array([0.0,10000.0] )for k in range(9)}
@@ -2261,7 +2261,7 @@ class signal_fit(object):
 
     def init_RV_jitter(self) :
 
-        self.jitt      = {k: 0 for k in range(10)}
+        self.jitt      = {k: 0.0 for k in range(10)}
         self.jitt_err  = {k: np.array([0.0,0.0]) for k in range(10)}
         self.jitt_use  = {k: True for k in range(10)}
         self.jitt_str  = {k: r'RV jitt$_%s$'%k for k in range(10)}
@@ -2271,7 +2271,7 @@ class signal_fit(object):
 
     def init_RV_offset(self) :
 
-        self.rvoff      = {k: 0 for k in range(10)}
+        self.rvoff      = {k: 0.0 for k in range(10)}
         self.rvoff_err  = {k: np.array([0.0,0.0])  for k in range(10)}
         self.rvoff_use  = {k: True for k in range(10)}
         self.rvoff_str  = {k: r'RV off$_%s$'%k for k in range(10)}
@@ -2324,7 +2324,7 @@ class signal_fit(object):
 
     def init_st_mass(self) :
 
-        self.st_mass      = {k: 1 for k in range(1)}
+        self.st_mass      = {k: 1.0 for k in range(1)}
         self.st_mass_err  = {k: np.array([0.0,0.0]) for k in range(1)}
         self.st_mass_use  = {k: False for k in range(1)}
         self.st_mass_str  = {k: r'St mass' for k in range(1)}

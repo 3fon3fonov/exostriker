@@ -254,7 +254,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(9):
             self.param_gui_wd[i].setValue(fit.omega_dot[i])
 
-        for i in range(fit.npl):
+#        for i in range(fit.npl):
             self.param_gui_tr[i*3].setValue(fit.t0[i])
             self.param_gui_tr[i*3+1].setValue(fit.pl_rad[i])
             self.param_gui_tr[i*3+2].setValue(fit.pl_a[i])
@@ -279,6 +279,18 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(len(self.tra_gp_sho_params)):
             self.tra_gp_sho_params[i].setValue(fit.tra_GP_sho_params[i])
 
+
+        for i in range(10):
+            self.lin_u[i].setValue(fit.ld_u_lin[i][0])
+            self.quad_u1[i].setValue(fit.ld_u_quad[i][0])
+            self.quad_u2[i].setValue(fit.ld_u_quad[i][1])
+            self.nonlin_u1[i].setValue(fit.ld_u_nonlin[i][0])
+            self.nonlin_u2[i].setValue(fit.ld_u_nonlin[i][1])
+            self.nonlin_u3[i].setValue(fit.ld_u_nonlin[i][2])
+            self.nonlin_u4[i].setValue(fit.ld_u_nonlin[i][3])
+            
+ 
+
         self.St_mass_input.setValue(fit.params.stellar_mass)  
         self.St_radius_input.setValue(fit.stellar_radius)  
 
@@ -301,19 +313,18 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 fit.params.planet_params[7*zz+k] = self.param_gui[j+k].value()
             zz = zz +1
 
-
+######## TBX for bug in re-ordering ###########
+            
         for i in range(9):
             fit.omega_dot[i] = self.param_gui_wd[i].value()
+
+            fit.t0[i]     = self.param_gui_tr[i*3].value()
+            fit.pl_rad[i] = self.param_gui_tr[i*3+1].value()
+            fit.pl_a[i]   = self.param_gui_tr[i*3+2].value()
 
         fit.sort_by_period(reverse=False)
         fit.hack_around_rv_params()
 
-
-######## TBX for bug in re-ordering ###########
-        for i in range(fit.npl):
-            fit.t0[i]     = self.param_gui_tr[i*3].value()
-            fit.pl_rad[i] = self.param_gui_tr[i*3+1].value()
-            fit.pl_a[i]   = self.param_gui_tr[i*3+2].value()
 
         for i in range(10):
             fit.params.offsets[i] = self.rvs_data_gui[i].value()
@@ -325,6 +336,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.read_RV_GP()
         self.read_tra_GP()
+        self.read_ld()
 
         fit.params.stellar_mass = self.St_mass_input.value()
         fit.params.linear_trend = self.RV_lin_trend.value()
@@ -355,6 +367,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.Epoch_ttv_end.setValue(fit.epoch_ttv + 1000.0)
 #        else:
 #            fit.epoch_ttv_end = self.Epoch_ttv_end.value()
+ 
+
 
 
     def read_tra_GP(self):
@@ -375,6 +389,17 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(len(self.gp_sho_params)):
             fit.GP_sho_params[i] = self.gp_sho_params[i].value()
+            
+    def read_ld(self):
+        global fit
+
+        for i in range(10):
+            fit.ld_u_lin[i]    = [self.lin_u[i].value()]
+            fit.ld_u_quad[i]   = [self.quad_u1[i].value(),self.quad_u2[i].value()]
+            fit.ld_u_nonlin[i] = [self.nonlin_u1[i].value(),self.nonlin_u2[i].value(),
+                                      self.nonlin_u3[i].value(),self.nonlin_u4[i].value()]            
+
+            
 
     def set_hkl(self):
         global fit  
@@ -440,7 +465,15 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def set_tra_ld(self):
         global fit
 
+       # for i in range(10):
+            
+       #     fit.ld_u_lin[i]    = [self.lin_u[i].value()]
+       #     fit.ld_u_quad[i]   = [self.quad_u1[i].value(),self.quad_u2[i].value()]
+       #     fit.ld_u_nonlin[i] = [self.nonlin_u1[i].value(),self.nonlin_u2[i].value(),self.nonlin_u3[i].value(),self.nonlin_u4[i].value()]
+            
+
         for i in range(10):
+            
             if self.use_uni_ld_models[i].isChecked():
                 fit.ld_m[i] = "uniform"
                 fit.ld_u[i] = []
@@ -456,6 +489,12 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             else:
                 fit.ld_m[i] = "quadratic"
                 fit.ld_u[i] = [self.quad_u1[i].value(),self.quad_u2[i].value()]
+                
+        # self.use_uni_ld_models    = gui_groups.use_uni_ld_models(self)
+       # self.use_lin_ld_models    = gui_groups.use_lin_ld_models(self)
+       # self.use_quad_ld_models   = gui_groups.use_quad_ld_models(self)
+       # self.use_nonlin_ld_models = gui_groups.use_nonlin_ld_models(self)
+                
 
     def update_errors(self):
         global fit
@@ -579,7 +618,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
         for i in range(9):        
-
             fit.t0_use[i] = self.use_param_gui_tr[i*3].isChecked()  
             fit.pl_rad_use[i] = self.use_param_gui_tr[i*3+1].isChecked()  
             fit.pl_a_use[i] = self.use_param_gui_tr[i*3+2].isChecked()  
@@ -603,7 +641,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             
         self.update_tra_GP_use()
         
-        
+        self.update_ld_use()
 
     def update_tra_GP_use(self):
         global fit
@@ -613,14 +651,23 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(len(self.use_tra_gp_sho_params)):
             fit.tra_GP_sho_use[i] = int(self.use_tra_gp_sho_params[i].isChecked())
-            
+    
+        
+    def update_ld_use(self):
+        global fit
+
+        for i in range(10):
+            fit.ld_u_lin_use[i]    = [self.use_lin_u[i].isChecked()]
+            fit.ld_u_quad_use[i]   = [self.use_quad_u1[i].isChecked(),self.use_quad_u2[i].isChecked()]
+            fit.ld_u_nonlin_use[i] = [self.use_nonlin_u1[i].isChecked(),self.use_nonlin_u2[i].isChecked(),
+                                      self.use_nonlin_u3[i].isChecked(),self.use_nonlin_u4[i].isChecked()]            
 
 
     def update_bounds(self):
         global fit
       
  
-        for i in range(fit.npl):
+        for i in range(9):
             for z in range(2):
                 self.param_bounds_gui[10*i + 0][z].setValue(fit.K_bound[i][z])
                 self.param_bounds_gui[10*i + 1][z].setValue(fit.P_bound[i][z])
@@ -643,7 +690,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def check_bounds(self):
         global fit
 
-        for i in range(fit.npl):
+        for i in range(9):
             for z in range(2):
                 
                 fit.K_bound[i][z] = self.param_bounds_gui[10*i + 0][z].value()
@@ -684,10 +731,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.tra_off_bounds[i] = offset_bounds_gui_tra[i]
             fit.tra_jitt_bounds[i]  = jitter_bounds_gui_tra[i] 
             
-
         self.check_RV_GP_bounds()
         self.check_tra_GP_bounds()
-        
+        self.check_ld_bounds()    
         
         
         
@@ -735,33 +781,56 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(3): 
             fit.tra_GP_sho_bounds[i] = tra_GP_sho_bounds_gui[i]
             
+  
+
+    def check_ld_bounds(self):
+        global fit
+
+        for i in range(10): 
+            for z in range(2):    
+                fit.ld_u_lin_bound[i][z] = self.ld_u1_bounds_gui[i][z].value()
+
+                fit.ld_u_quad_bound[i][0][z] = self.ld_u1_bounds_gui[i][z].value()
+                fit.ld_u_quad_bound[i][1][z] = self.ld_u2_bounds_gui[i][z].value()
+                
+                fit.ld_u_nonlin_bound[i][0][z] = self.ld_u1_bounds_gui[i][z].value()
+                fit.ld_u_nonlin_bound[i][1][z] = self.ld_u2_bounds_gui[i][z].value()
+                fit.ld_u_nonlin_bound[i][2][z] = self.ld_u3_bounds_gui[i][z].value()
+                fit.ld_u_nonlin_bound[i][3][z] = self.ld_u4_bounds_gui[i][z].value()
+ 
+          
+            
             
     def check_priors_nr(self):
         global fit
-
-        param_nr_priors_gui = [
-        [self.K_mean_1.value(),self.K_sigma_1.value(),self.use_K_norm_pr_1.isChecked()],[self.P_mean_1.value(),self.P_sigma_1.value(),self.use_P_norm_pr_1.isChecked()], [self.e_mean_1.value(),self.e_sigma_1.value(),self.use_e_norm_pr_1.isChecked()],[self.om_mean_1.value(),self.om_sigma_1.value(),self.use_om_norm_pr_1.isChecked()], [self.ma_mean_1.value(),self.ma_sigma_1.value(),self.use_ma_norm_pr_1.isChecked()],[self.incl_mean_1.value(),self.incl_sigma_1.value(),self.use_incl_norm_pr_1.isChecked()], [self.Omega_mean_1.value(),self.Omega_sigma_1.value(), self.use_Omega_norm_pr_1.isChecked()],[self.t0_mean_1.value(),self.t0_sigma_1.value(), self.use_t0_norm_pr_1.isChecked()],[self.pl_rad_mean_1.value(),self.pl_rad_sigma_1.value(),self.use_pl_rad_norm_pr_1.isChecked()],[self.a_sol_mean_1.value(),self.a_sol_sigma_1.value(),self.use_a_sol_norm_pr_1.isChecked()],
-        [self.K_mean_2.value(),self.K_sigma_2.value(),self.use_K_norm_pr_2.isChecked()],[self.P_mean_2.value(),self.P_sigma_2.value(),self.use_P_norm_pr_2.isChecked()], [self.e_mean_2.value(),self.e_sigma_2.value(),self.use_e_norm_pr_2.isChecked()],[self.om_mean_2.value(),self.om_sigma_2.value(),self.use_om_norm_pr_2.isChecked()], [self.ma_mean_2.value(),self.ma_sigma_2.value(),self.use_ma_norm_pr_2.isChecked()],[self.incl_mean_2.value(),self.incl_sigma_2.value(),self.use_incl_norm_pr_2.isChecked()], [self.Omega_mean_2.value(),self.Omega_sigma_2.value(), self.use_Omega_norm_pr_2.isChecked()],[self.t0_mean_2.value(),self.t0_sigma_2.value(), self.use_t0_norm_pr_2.isChecked()],[self.pl_rad_mean_2.value(),self.pl_rad_sigma_2.value(),self.use_pl_rad_norm_pr_2.isChecked()],[self.a_sol_mean_2.value(),self.a_sol_sigma_2.value(),self.use_a_sol_norm_pr_2.isChecked()],
-        [self.K_mean_3.value(),self.K_sigma_3.value(),self.use_K_norm_pr_3.isChecked()],[self.P_mean_3.value(),self.P_sigma_3.value(),self.use_P_norm_pr_3.isChecked()], [self.e_mean_3.value(),self.e_sigma_3.value(),self.use_e_norm_pr_3.isChecked()],[self.om_mean_3.value(),self.om_sigma_3.value(),self.use_om_norm_pr_3.isChecked()], [self.ma_mean_3.value(),self.ma_sigma_3.value(),self.use_ma_norm_pr_3.isChecked()],[self.incl_mean_3.value(),self.incl_sigma_3.value(),self.use_incl_norm_pr_3.isChecked()], [self.Omega_mean_3.value(),self.Omega_sigma_3.value(), self.use_Omega_norm_pr_3.isChecked()],[self.t0_mean_3.value(),self.t0_sigma_3.value(), self.use_t0_norm_pr_3.isChecked()],[self.pl_rad_mean_3.value(),self.pl_rad_sigma_3.value(),self.use_pl_rad_norm_pr_3.isChecked()],[self.a_sol_mean_3.value(),self.a_sol_sigma_3.value(),self.use_a_sol_norm_pr_3.isChecked()],
-        [self.K_mean_4.value(),self.K_sigma_4.value(),self.use_K_norm_pr_4.isChecked()],[self.P_mean_4.value(),self.P_sigma_4.value(),self.use_P_norm_pr_4.isChecked()], [self.e_mean_4.value(),self.e_sigma_4.value(),self.use_e_norm_pr_4.isChecked()],[self.om_mean_4.value(),self.om_sigma_4.value(),self.use_om_norm_pr_4.isChecked()], [self.ma_mean_4.value(),self.ma_sigma_4.value(),self.use_ma_norm_pr_4.isChecked()],[self.incl_mean_4.value(),self.incl_sigma_4.value(),self.use_incl_norm_pr_4.isChecked()], [self.Omega_mean_4.value(),self.Omega_sigma_4.value(), self.use_Omega_norm_pr_4.isChecked()],[self.t0_mean_4.value(),self.t0_sigma_4.value(), self.use_t0_norm_pr_4.isChecked()],[self.pl_rad_mean_4.value(),self.pl_rad_sigma_4.value(),self.use_pl_rad_norm_pr_4.isChecked()],[self.a_sol_mean_4.value(),self.a_sol_sigma_4.value(),self.use_a_sol_norm_pr_4.isChecked()],
-        [self.K_mean_5.value(),self.K_sigma_5.value(),self.use_K_norm_pr_5.isChecked()],[self.P_mean_5.value(),self.P_sigma_5.value(),self.use_P_norm_pr_5.isChecked()], [self.e_mean_5.value(),self.e_sigma_5.value(),self.use_e_norm_pr_5.isChecked()],[self.om_mean_5.value(),self.om_sigma_5.value(),self.use_om_norm_pr_5.isChecked()], [self.ma_mean_5.value(),self.ma_sigma_5.value(),self.use_ma_norm_pr_5.isChecked()],[self.incl_mean_5.value(),self.incl_sigma_5.value(),self.use_incl_norm_pr_5.isChecked()], [self.Omega_mean_5.value(),self.Omega_sigma_5.value(), self.use_Omega_norm_pr_5.isChecked()],[self.t0_mean_5.value(),self.t0_sigma_5.value(), self.use_t0_norm_pr_5.isChecked()],[self.pl_rad_mean_5.value(),self.pl_rad_sigma_5.value(),self.use_pl_rad_norm_pr_5.isChecked()],[self.a_sol_mean_5.value(),self.a_sol_sigma_5.value(),self.use_a_sol_norm_pr_5.isChecked()],
-        [self.K_mean_6.value(),self.K_sigma_6.value(),self.use_K_norm_pr_6.isChecked()],[self.P_mean_6.value(),self.P_sigma_6.value(),self.use_P_norm_pr_6.isChecked()], [self.e_mean_6.value(),self.e_sigma_6.value(),self.use_e_norm_pr_6.isChecked()],[self.om_mean_6.value(),self.om_sigma_6.value(),self.use_om_norm_pr_6.isChecked()], [self.ma_mean_6.value(),self.ma_sigma_6.value(),self.use_ma_norm_pr_6.isChecked()],[self.incl_mean_6.value(),self.incl_sigma_6.value(),self.use_incl_norm_pr_6.isChecked()], [self.Omega_mean_6.value(),self.Omega_sigma_6.value(), self.use_Omega_norm_pr_6.isChecked()],[self.t0_mean_6.value(),self.t0_sigma_6.value(), self.use_t0_norm_pr_6.isChecked()],[self.pl_rad_mean_6.value(),self.pl_rad_sigma_6.value(),self.use_pl_rad_norm_pr_6.isChecked()],[self.a_sol_mean_6.value(),self.a_sol_sigma_6.value(),self.use_a_sol_norm_pr_6.isChecked()],
-        [self.K_mean_7.value(),self.K_sigma_7.value(),self.use_K_norm_pr_7.isChecked()],[self.P_mean_7.value(),self.P_sigma_7.value(),self.use_P_norm_pr_7.isChecked()], [self.e_mean_7.value(),self.e_sigma_7.value(),self.use_e_norm_pr_7.isChecked()],[self.om_mean_7.value(),self.om_sigma_7.value(),self.use_om_norm_pr_7.isChecked()], [self.ma_mean_7.value(),self.ma_sigma_7.value(),self.use_ma_norm_pr_7.isChecked()],[self.incl_mean_7.value(),self.incl_sigma_7.value(),self.use_incl_norm_pr_7.isChecked()], [self.Omega_mean_7.value(),self.Omega_sigma_7.value(), self.use_Omega_norm_pr_7.isChecked()],[self.t0_mean_7.value(),self.t0_sigma_7.value(), self.use_t0_norm_pr_7.isChecked()],[self.pl_rad_mean_7.value(),self.pl_rad_sigma_7.value(),self.use_pl_rad_norm_pr_7.isChecked()],[self.a_sol_mean_7.value(),self.a_sol_sigma_7.value(),self.use_a_sol_norm_pr_7.isChecked()],
-        [self.K_mean_8.value(),self.K_sigma_8.value(),self.use_K_norm_pr_8.isChecked()],[self.P_mean_8.value(),self.P_sigma_8.value(),self.use_P_norm_pr_8.isChecked()], [self.e_mean_8.value(),self.e_sigma_8.value(),self.use_e_norm_pr_8.isChecked()],[self.om_mean_8.value(),self.om_sigma_8.value(),self.use_om_norm_pr_8.isChecked()], [self.ma_mean_8.value(),self.ma_sigma_8.value(),self.use_ma_norm_pr_8.isChecked()],[self.incl_mean_8.value(),self.incl_sigma_8.value(),self.use_incl_norm_pr_8.isChecked()], [self.Omega_mean_8.value(),self.Omega_sigma_8.value(), self.use_Omega_norm_pr_8.isChecked()],[self.t0_mean_8.value(),self.t0_sigma_8.value(), self.use_t0_norm_pr_8.isChecked()],[self.pl_rad_mean_8.value(),self.pl_rad_sigma_8.value(),self.use_pl_rad_norm_pr_8.isChecked()],[self.a_sol_mean_8.value(),self.a_sol_sigma_8.value(),self.use_a_sol_norm_pr_8.isChecked()],
-        [self.K_mean_9.value(),self.K_sigma_9.value(),self.use_K_norm_pr_9.isChecked()],[self.P_mean_9.value(),self.P_sigma_9.value(),self.use_P_norm_pr_9.isChecked()], [self.e_mean_9.value(),self.e_sigma_9.value(),self.use_e_norm_pr_9.isChecked()],[self.om_mean_9.value(),self.om_sigma_9.value(),self.use_om_norm_pr_9.isChecked()], [self.ma_mean_9.value(),self.ma_sigma_9.value(),self.use_ma_norm_pr_9.isChecked()],[self.incl_mean_9.value(),self.incl_sigma_9.value(),self.use_incl_norm_pr_9.isChecked()], [self.Omega_mean_9.value(),self.Omega_sigma_9.value(), self.use_Omega_norm_pr_9.isChecked()],[self.t0_mean_9.value(),self.t0_sigma_9.value(), self.use_t0_norm_pr_9.isChecked()],[self.pl_rad_mean_9.value(),self.pl_rad_sigma_9.value(),self.use_pl_rad_norm_pr_9.isChecked()],[self.a_sol_mean_9.value(),self.a_sol_sigma_9.value(),self.use_a_sol_norm_pr_9.isChecked()],
-        ]
  
-        for i in range(fit.npl):
-            fit.K_norm_pr[i]  = param_nr_priors_gui[10*i + 0]    
-            fit.P_norm_pr[i]  = param_nr_priors_gui[10*i + 1]    
-            fit.e_norm_pr[i]  = param_nr_priors_gui[10*i + 2]    
-            fit.w_norm_pr[i]  = param_nr_priors_gui[10*i + 3]    
-            fit.M0_norm_pr[i] = param_nr_priors_gui[10*i + 4]    
-            fit.i_norm_pr[i]  = param_nr_priors_gui[10*i + 5]    
-            fit.Node_norm_pr[i] = param_nr_priors_gui[10*i + 6]    
-            fit.t0_norm_pr[i]   = param_nr_priors_gui[10*i + 7]
-            fit.pl_rad_norm_pr[i]  = param_nr_priors_gui[10*i + 8]
-            fit.pl_a_norm_pr[i]    = param_nr_priors_gui[10*i + 9]
+        for i in range(9):
+            for z in range(2):
+                
+                fit.K_norm_pr[i][z] = self.param_nr_priors_gui[10*i + 0][z].value()
+                fit.P_norm_pr[i][z] = self.param_nr_priors_gui[10*i + 1][z].value()
+                fit.e_norm_pr[i][z] = self.param_nr_priors_gui[10*i + 2][z].value()
+                fit.w_norm_pr[i][z] = self.param_nr_priors_gui[10*i + 3][z].value()
+                fit.M0_norm_pr[i][z] = self.param_nr_priors_gui[10*i + 4][z].value()
+                fit.i_norm_pr[i][z] = self.param_nr_priors_gui[10*i + 5][z].value()
+                fit.Node_norm_pr[i][z] =self.param_nr_priors_gui[10*i + 6][z].value()
+                fit.t0_norm_pr[i][z]  =  self.param_nr_priors_gui[10*i + 7][z].value()
+                fit.pl_rad_norm_pr[i][z]  =   self.param_nr_priors_gui[10*i + 8][z].value()
+                fit.pl_a_norm_pr[i][z]   =   self.param_nr_priors_gui[10*i + 9][z].value()
+            
+
+            fit.K_norm_pr[i][2] = self.param_nr_priors_gui[10*i + 0][2].isChecked()
+            fit.P_norm_pr[i][2] = self.param_nr_priors_gui[10*i + 1][2].isChecked()
+            fit.e_norm_pr[i][2] = self.param_nr_priors_gui[10*i + 2][2].isChecked()
+            fit.w_norm_pr[i][2] = self.param_nr_priors_gui[10*i + 3][2].isChecked()
+            fit.M0_norm_pr[i][2] = self.param_nr_priors_gui[10*i + 4][2].isChecked()
+            fit.i_norm_pr[i][2] = self.param_nr_priors_gui[10*i + 5][2].isChecked()
+            fit.Node_norm_pr[i][2] =self.param_nr_priors_gui[10*i + 6][2].isChecked()
+            fit.t0_norm_pr[i][2]  =  self.param_nr_priors_gui[10*i + 7][2].isChecked()
+            fit.pl_rad_norm_pr[i][2]  =   self.param_nr_priors_gui[10*i + 8][2].isChecked()
+            fit.pl_a_norm_pr[i][2]   =   self.param_nr_priors_gui[10*i + 9][2].isChecked()
+ 
+
 
         offset_nr_priors_gui = [
         [self.RV_Data_mean_1.value(),self.RV_Data_sigma_1.value(),self.use_rvoff_nr_1.isChecked()], 
@@ -898,29 +967,32 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def check_priors_jeff(self):
         global fit
 
-        param_jeff_priors_gui = [
-        [self.K_jeff_alpha_1.value(),self.K_jeff_beta_1.value(),self.use_K_jeff_pr_1.isChecked()],[self.P_jeff_alpha_1.value(),self.P_jeff_beta_1.value(),self.use_P_jeff_pr_1.isChecked()], [self.e_jeff_alpha_1.value(),self.e_jeff_beta_1.value(),self.use_e_jeff_pr_1.isChecked()],[self.om_jeff_alpha_1.value(),self.om_jeff_beta_1.value(),self.use_om_jeff_pr_1.isChecked()], [self.ma_jeff_alpha_1.value(),self.ma_jeff_beta_1.value(),self.use_ma_jeff_pr_1.isChecked()],[self.incl_jeff_alpha_1.value(),self.incl_jeff_beta_1.value(),self.use_incl_jeff_pr_1.isChecked()], [self.Omega_jeff_alpha_1.value(),self.Omega_jeff_beta_1.value(), self.use_Omega_jeff_pr_1.isChecked()],[self.t0_jeff_alpha_1.value(),self.t0_jeff_beta_1.value(), self.use_t0_jeff_pr_1.isChecked()],[self.pl_rad_jeff_alpha_1.value(),self.pl_rad_jeff_beta_1.value(),self.use_pl_rad_jeff_pr_1.isChecked()],[self.a_sol_jeff_alpha_1.value(),self.a_sol_jeff_beta_1.value(),self.use_a_sol_jeff_pr_1.isChecked()],
-        [self.K_jeff_alpha_2.value(),self.K_jeff_beta_2.value(),self.use_K_jeff_pr_2.isChecked()],[self.P_jeff_alpha_2.value(),self.P_jeff_beta_2.value(),self.use_P_jeff_pr_2.isChecked()], [self.e_jeff_alpha_2.value(),self.e_jeff_beta_2.value(),self.use_e_jeff_pr_2.isChecked()],[self.om_jeff_alpha_2.value(),self.om_jeff_beta_2.value(),self.use_om_jeff_pr_2.isChecked()], [self.ma_jeff_alpha_2.value(),self.ma_jeff_beta_2.value(),self.use_ma_jeff_pr_2.isChecked()],[self.incl_jeff_alpha_2.value(),self.incl_jeff_beta_2.value(),self.use_incl_jeff_pr_2.isChecked()], [self.Omega_jeff_alpha_2.value(),self.Omega_jeff_beta_2.value(), self.use_Omega_jeff_pr_2.isChecked()],[self.t0_jeff_alpha_2.value(),self.t0_jeff_beta_2.value(), self.use_t0_jeff_pr_2.isChecked()],[self.pl_rad_jeff_alpha_2.value(),self.pl_rad_jeff_beta_2.value(),self.use_pl_rad_jeff_pr_2.isChecked()],[self.a_sol_jeff_alpha_2.value(),self.a_sol_jeff_beta_2.value(),self.use_a_sol_jeff_pr_2.isChecked()],
-        [self.K_jeff_alpha_3.value(),self.K_jeff_beta_3.value(),self.use_K_jeff_pr_3.isChecked()],[self.P_jeff_alpha_3.value(),self.P_jeff_beta_3.value(),self.use_P_jeff_pr_3.isChecked()], [self.e_jeff_alpha_3.value(),self.e_jeff_beta_3.value(),self.use_e_jeff_pr_3.isChecked()],[self.om_jeff_alpha_3.value(),self.om_jeff_beta_3.value(),self.use_om_jeff_pr_3.isChecked()], [self.ma_jeff_alpha_3.value(),self.ma_jeff_beta_3.value(),self.use_ma_jeff_pr_3.isChecked()],[self.incl_jeff_alpha_3.value(),self.incl_jeff_beta_3.value(),self.use_incl_jeff_pr_3.isChecked()], [self.Omega_jeff_alpha_3.value(),self.Omega_jeff_beta_3.value(), self.use_Omega_jeff_pr_3.isChecked()],[self.t0_jeff_alpha_3.value(),self.t0_jeff_beta_3.value(), self.use_t0_jeff_pr_3.isChecked()],[self.pl_rad_jeff_alpha_3.value(),self.pl_rad_jeff_beta_3.value(),self.use_pl_rad_jeff_pr_3.isChecked()],[self.a_sol_jeff_alpha_3.value(),self.a_sol_jeff_beta_3.value(),self.use_a_sol_jeff_pr_3.isChecked()],
-        [self.K_jeff_alpha_4.value(),self.K_jeff_beta_4.value(),self.use_K_jeff_pr_4.isChecked()],[self.P_jeff_alpha_4.value(),self.P_jeff_beta_4.value(),self.use_P_jeff_pr_4.isChecked()], [self.e_jeff_alpha_4.value(),self.e_jeff_beta_4.value(),self.use_e_jeff_pr_4.isChecked()],[self.om_jeff_alpha_4.value(),self.om_jeff_beta_4.value(),self.use_om_jeff_pr_4.isChecked()], [self.ma_jeff_alpha_4.value(),self.ma_jeff_beta_4.value(),self.use_ma_jeff_pr_4.isChecked()],[self.incl_jeff_alpha_4.value(),self.incl_jeff_beta_4.value(),self.use_incl_jeff_pr_4.isChecked()], [self.Omega_jeff_alpha_4.value(),self.Omega_jeff_beta_4.value(), self.use_Omega_jeff_pr_4.isChecked()],[self.t0_jeff_alpha_4.value(),self.t0_jeff_beta_4.value(), self.use_t0_jeff_pr_4.isChecked()],[self.pl_rad_jeff_alpha_4.value(),self.pl_rad_jeff_beta_4.value(),self.use_pl_rad_jeff_pr_4.isChecked()],[self.a_sol_jeff_alpha_4.value(),self.a_sol_jeff_beta_4.value(),self.use_a_sol_jeff_pr_4.isChecked()],
-        [self.K_jeff_alpha_5.value(),self.K_jeff_beta_5.value(),self.use_K_jeff_pr_5.isChecked()],[self.P_jeff_alpha_5.value(),self.P_jeff_beta_5.value(),self.use_P_jeff_pr_5.isChecked()], [self.e_jeff_alpha_5.value(),self.e_jeff_beta_5.value(),self.use_e_jeff_pr_5.isChecked()],[self.om_jeff_alpha_5.value(),self.om_jeff_beta_5.value(),self.use_om_jeff_pr_5.isChecked()], [self.ma_jeff_alpha_5.value(),self.ma_jeff_beta_5.value(),self.use_ma_jeff_pr_5.isChecked()],[self.incl_jeff_alpha_5.value(),self.incl_jeff_beta_5.value(),self.use_incl_jeff_pr_5.isChecked()], [self.Omega_jeff_alpha_5.value(),self.Omega_jeff_beta_5.value(), self.use_Omega_jeff_pr_5.isChecked()],[self.t0_jeff_alpha_5.value(),self.t0_jeff_beta_5.value(), self.use_t0_jeff_pr_5.isChecked()],[self.pl_rad_jeff_alpha_5.value(),self.pl_rad_jeff_beta_5.value(),self.use_pl_rad_jeff_pr_5.isChecked()],[self.a_sol_jeff_alpha_5.value(),self.a_sol_jeff_beta_5.value(),self.use_a_sol_jeff_pr_5.isChecked()],
-        [self.K_jeff_alpha_6.value(),self.K_jeff_beta_6.value(),self.use_K_jeff_pr_6.isChecked()],[self.P_jeff_alpha_6.value(),self.P_jeff_beta_6.value(),self.use_P_jeff_pr_6.isChecked()], [self.e_jeff_alpha_6.value(),self.e_jeff_beta_6.value(),self.use_e_jeff_pr_6.isChecked()],[self.om_jeff_alpha_6.value(),self.om_jeff_beta_6.value(),self.use_om_jeff_pr_6.isChecked()], [self.ma_jeff_alpha_6.value(),self.ma_jeff_beta_6.value(),self.use_ma_jeff_pr_6.isChecked()],[self.incl_jeff_alpha_6.value(),self.incl_jeff_beta_6.value(),self.use_incl_jeff_pr_6.isChecked()], [self.Omega_jeff_alpha_6.value(),self.Omega_jeff_beta_6.value(), self.use_Omega_jeff_pr_6.isChecked()],[self.t0_jeff_alpha_6.value(),self.t0_jeff_beta_6.value(), self.use_t0_jeff_pr_6.isChecked()],[self.pl_rad_jeff_alpha_6.value(),self.pl_rad_jeff_beta_6.value(),self.use_pl_rad_jeff_pr_6.isChecked()],[self.a_sol_jeff_alpha_6.value(),self.a_sol_jeff_beta_6.value(),self.use_a_sol_jeff_pr_6.isChecked()],
-        [self.K_jeff_alpha_7.value(),self.K_jeff_beta_7.value(),self.use_K_jeff_pr_7.isChecked()],[self.P_jeff_alpha_7.value(),self.P_jeff_beta_7.value(),self.use_P_jeff_pr_7.isChecked()], [self.e_jeff_alpha_7.value(),self.e_jeff_beta_7.value(),self.use_e_jeff_pr_7.isChecked()],[self.om_jeff_alpha_7.value(),self.om_jeff_beta_7.value(),self.use_om_jeff_pr_7.isChecked()], [self.ma_jeff_alpha_7.value(),self.ma_jeff_beta_7.value(),self.use_ma_jeff_pr_7.isChecked()],[self.incl_jeff_alpha_7.value(),self.incl_jeff_beta_7.value(),self.use_incl_jeff_pr_7.isChecked()], [self.Omega_jeff_alpha_7.value(),self.Omega_jeff_beta_7.value(), self.use_Omega_jeff_pr_7.isChecked()],[self.t0_jeff_alpha_7.value(),self.t0_jeff_beta_7.value(), self.use_t0_jeff_pr_7.isChecked()],[self.pl_rad_jeff_alpha_7.value(),self.pl_rad_jeff_beta_7.value(),self.use_pl_rad_jeff_pr_7.isChecked()],[self.a_sol_jeff_alpha_7.value(),self.a_sol_jeff_beta_7.value(),self.use_a_sol_jeff_pr_7.isChecked()],
-        [self.K_jeff_alpha_8.value(),self.K_jeff_beta_8.value(),self.use_K_jeff_pr_8.isChecked()],[self.P_jeff_alpha_8.value(),self.P_jeff_beta_8.value(),self.use_P_jeff_pr_8.isChecked()], [self.e_jeff_alpha_8.value(),self.e_jeff_beta_8.value(),self.use_e_jeff_pr_8.isChecked()],[self.om_jeff_alpha_8.value(),self.om_jeff_beta_8.value(),self.use_om_jeff_pr_8.isChecked()], [self.ma_jeff_alpha_8.value(),self.ma_jeff_beta_8.value(),self.use_ma_jeff_pr_8.isChecked()],[self.incl_jeff_alpha_8.value(),self.incl_jeff_beta_8.value(),self.use_incl_jeff_pr_8.isChecked()], [self.Omega_jeff_alpha_8.value(),self.Omega_jeff_beta_8.value(), self.use_Omega_jeff_pr_8.isChecked()],[self.t0_jeff_alpha_8.value(),self.t0_jeff_beta_8.value(), self.use_t0_jeff_pr_8.isChecked()],[self.pl_rad_jeff_alpha_8.value(),self.pl_rad_jeff_beta_8.value(),self.use_pl_rad_jeff_pr_8.isChecked()],[self.a_sol_jeff_alpha_8.value(),self.a_sol_jeff_beta_8.value(),self.use_a_sol_jeff_pr_8.isChecked()],
-        [self.K_jeff_alpha_9.value(),self.K_jeff_beta_9.value(),self.use_K_jeff_pr_9.isChecked()],[self.P_jeff_alpha_9.value(),self.P_jeff_beta_9.value(),self.use_P_jeff_pr_9.isChecked()], [self.e_jeff_alpha_9.value(),self.e_jeff_beta_9.value(),self.use_e_jeff_pr_9.isChecked()],[self.om_jeff_alpha_9.value(),self.om_jeff_beta_9.value(),self.use_om_jeff_pr_9.isChecked()], [self.ma_jeff_alpha_9.value(),self.ma_jeff_beta_9.value(),self.use_ma_jeff_pr_9.isChecked()],[self.incl_jeff_alpha_9.value(),self.incl_jeff_beta_9.value(),self.use_incl_jeff_pr_9.isChecked()], [self.Omega_jeff_alpha_9.value(),self.Omega_jeff_beta_9.value(), self.use_Omega_jeff_pr_9.isChecked()],[self.t0_jeff_alpha_9.value(),self.t0_jeff_beta_9.value(), self.use_t0_jeff_pr_9.isChecked()],[self.pl_rad_jeff_alpha_9.value(),self.pl_rad_jeff_beta_9.value(),self.use_pl_rad_jeff_pr_9.isChecked()],[self.a_sol_jeff_alpha_9.value(),self.a_sol_jeff_beta_9.value(),self.use_a_sol_jeff_pr_9.isChecked()],
-        ]
- 
-        for i in range(fit.npl):
-            fit.K_jeff_pr[i]  = param_jeff_priors_gui[10*i + 0]    
-            fit.P_jeff_pr[i]  = param_jeff_priors_gui[10*i + 1]    
-            fit.e_jeff_pr[i]  = param_jeff_priors_gui[10*i + 2]    
-            fit.w_jeff_pr[i]  = param_jeff_priors_gui[10*i + 3]    
-            fit.M0_jeff_pr[i] = param_jeff_priors_gui[10*i + 4]    
-            fit.i_jeff_pr[i]  = param_jeff_priors_gui[10*i + 5]    
-            fit.Node_jeff_pr[i] = param_jeff_priors_gui[10*i + 6]    
-            fit.t0_jeff_pr[i]   = param_jeff_priors_gui[10*i + 7]
-            fit.pl_rad_jeff_pr[i]  = param_jeff_priors_gui[10*i + 8]
-            fit.pl_a_jeff_pr[i]    = param_jeff_priors_gui[10*i + 9]
+        for i in range(9):
+            for z in range(2):
+                
+                fit.K_jeff_pr[i][z] = self.param_jeff_priors_gui[10*i + 0][z].value()
+                fit.P_jeff_pr[i][z] = self.param_jeff_priors_gui[10*i + 1][z].value()
+                fit.e_jeff_pr[i][z] = self.param_jeff_priors_gui[10*i + 2][z].value()
+                fit.w_jeff_pr[i][z] = self.param_jeff_priors_gui[10*i + 3][z].value()
+                fit.M0_jeff_pr[i][z] = self.param_jeff_priors_gui[10*i + 4][z].value()
+                fit.i_jeff_pr[i][z] = self.param_jeff_priors_gui[10*i + 5][z].value()
+                fit.Node_jeff_pr[i][z] =self.param_jeff_priors_gui[10*i + 6][z].value()
+                fit.t0_jeff_pr[i][z]  =  self.param_jeff_priors_gui[10*i + 7][z].value()
+                fit.pl_rad_jeff_pr[i][z]  =   self.param_jeff_priors_gui[10*i + 8][z].value()
+                fit.pl_a_jeff_pr[i][z]   =   self.param_jeff_priors_gui[10*i + 9][z].value()
+            
+
+            fit.K_jeff_pr[i][2] = self.param_jeff_priors_gui[10*i + 0][2].isChecked()
+            fit.P_jeff_pr[i][2] = self.param_jeff_priors_gui[10*i + 1][2].isChecked()
+            fit.e_jeff_pr[i][2] = self.param_jeff_priors_gui[10*i + 2][2].isChecked()
+            fit.w_jeff_pr[i][2] = self.param_jeff_priors_gui[10*i + 3][2].isChecked()
+            fit.M0_jeff_pr[i][2] = self.param_jeff_priors_gui[10*i + 4][2].isChecked()
+            fit.i_jeff_pr[i][2] = self.param_jeff_priors_gui[10*i + 5][2].isChecked()
+            fit.Node_jeff_pr[i][2] =self.param_jeff_priors_gui[10*i + 6][2].isChecked()
+            fit.t0_jeff_pr[i][2]  =  self.param_jeff_priors_gui[10*i + 7][2].isChecked()
+            fit.pl_rad_jeff_pr[i][2]  =   self.param_jeff_priors_gui[10*i + 8][2].isChecked()
+            fit.pl_a_jeff_pr[i][2]   =   self.param_jeff_priors_gui[10*i + 9][2].isChecked()
+
 
         offset_jeff_priors_gui = [
         [self.RV_Data_jeff_alpha_1.value(),self.RV_Data_jeff_beta_1.value(),self.use_rvoff_jeff_1.isChecked()], 
@@ -2297,6 +2369,7 @@ Polyfit coefficients:
         self.init_fit()
         self.update_use_from_input_file()
         self.update_use()
+        
         self.update_gui_params()
         self.update_params()
         self.update_RV_file_buttons()
@@ -2524,6 +2597,8 @@ Polyfit coefficients:
                  rv.phase_RV_planet_signal(fit,i+1)       
                  
         self.update_labels()
+#        self.update_params()
+
         self.update_gui_params()
         self.update_errors() 
         self.update_a_mass() 
@@ -3261,7 +3336,7 @@ Transit duration: %s d
                 flux          = flux[sort] 
                 flux_err      = flux_err[sort]
                 flux_model    = flux_model[sort] 
-
+                tr_o_c        = tr_o_c[sort]
                 #fit.ph_data_tra[i] = [data_time_phase[sort] ,flux[sort], flux_err[sort]]
 
 
@@ -4490,7 +4565,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.15) \n developed by 3fon3fonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.16) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -4791,7 +4866,11 @@ highly appreciated!
             ses_list.append(fit_new)
  
             self.session_list()
-            
+#            self.select_session(self.comboBox_select_ses.count()-1)
+#            self.select_session(0)        
+            #print(self.comboBox_select_ses.count() )
+            #self.change_session_label()
+           
     def rem_ses(self):
         global fit, ses_list  
         
@@ -4942,14 +5021,15 @@ highly appreciated!
         else:
             ind = self.comboBox_select_ses.itemData(index) 
 
+#        print(index,ind)
         if ind == None:
             return
         else:
             fit = ses_list[ind]
 
-
-
         self.check_type_fit()
+        self.mute_boxes()
+        
         self.check_settings()
         self.update_bounds()
 
@@ -4972,6 +5052,7 @@ highly appreciated!
         global fit, ses_list 
         
         ind = self.comboBox_select_ses.currentIndex()
+        
         if ind == None:
             return
         elif ind >= 0:
@@ -5189,7 +5270,6 @@ highly appreciated!
         fit.mcmc_mad = self.use_mcmc_MAD_level.isChecked()
  
        # if self.radioButton_ttv.isChecked() or self.radioButton_ttv_RV.isChecked():
-       #     self.get_ttv_error_msg()
 
        #     self.button_MCMC.setEnabled(True)  
        #     self.statusBar().showMessage('') 
@@ -5559,7 +5639,6 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
                 self.worker_ttv_fitting(ff=0 )
             else:
                 self.worker_ttv_fitting()
-            #self.get_ttv_error_msg()
 
            # return   
 
@@ -5570,7 +5649,6 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
                 self.worker_ttv_fitting(ff=0 )  
             else:
                 self.worker_ttv_fitting()
-            #self.get_ttv_error_msg()
 
             #return   
 ###########################  GUI events #############################
@@ -6202,10 +6280,9 @@ Please install via 'pip install ttvfast'.
         for iii in fit.__dict__:
             if iii not in fit_new.__dict__: 
                 fit_new.__dict__[iii] = dill.copy(fit.__dict__[iii])
-                #print(fit.__dict__[iii],fit_new.__dict__[iii])
-            
-
         return
+
+
 
     def set_type_fit_options(self):
         global fit 
@@ -6231,30 +6308,20 @@ Please install via 'pip install ttvfast'.
     def check_type_fit(self):
         global fit  
 
-
         if fit.type_fit["RV"] == True and fit.type_fit["Transit"] == False and fit.type_fit["TTV"]  == False :
-            self.radioButton_RV.setChecked(True)        
+            self.radioButton_RV.setChecked(True)       
+        elif fit.type_fit["RV"] == True and fit.type_fit["Transit"] == False and fit.type_fit["TTV"]  == True :
+            self.radioButton_ttv_RV.setChecked(True)         
+        elif fit.type_fit["RV"] == True and fit.type_fit["Transit"] == True and fit.type_fit["TTV"]  == False :
+            self.radioButton_transit_RV.setChecked(True)                                 
         elif fit.type_fit["RV"] == False and fit.type_fit["Transit"] == False and fit.type_fit["TTV"]  == True :
             self.radioButton_ttv.setChecked(True)        
-        elif fit.type_fit["RV"] == False and fit.type_fit["Transit"] == True:
+        elif fit.type_fit["RV"] == False and fit.type_fit["Transit"] == True and fit.type_fit["TTV"]  == False :
             self.radioButton_transit.setChecked(True)
-        elif fit.type_fit["RV"] == True and fit.type_fit["Transit"] == True:
-            self.radioButton_transit_RV.setChecked(True)    
-        elif fit.type_fit["RV"] == True and fit.type_fit["Transit"] == True :
-            self.radioButton_ttv_RV.setChecked(True)    
- 
-
-
-
-
-        
-    def get_ttv_error_msg(self):
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
-            "TTV modelling is still work in progress. 'git pull' regulary and you will have it soon, Okay?", QtGui.QMessageBox.Ok)
+            
 
     def get_error_msg(self, msg):
         global fit  
- 
         choice = QtGui.QMessageBox.information(self, 'Warning!', "%s"%str(msg), QtGui.QMessageBox.Ok)      
         #return 
         
@@ -6453,11 +6520,18 @@ Please install via 'pip install ttvfast'.
         self.use_nonlin_u3        = gui_groups.use_nonlin_u3(self)
         self.nonlin_u4            = gui_groups.nonlin_u4(self)
         self.use_nonlin_u4        = gui_groups.use_nonlin_u4(self)
-        
+   
+        self.ld_u1_bounds_gui     = gui_groups.ld_u1_bounds_gui(self)
+        self.ld_u2_bounds_gui     = gui_groups.ld_u2_bounds_gui(self)
+        self.ld_u3_bounds_gui     = gui_groups.ld_u3_bounds_gui(self)
+        self.ld_u4_bounds_gui     = gui_groups.ld_u4_bounds_gui(self)
+    
         ########### TEMP ##############
         self.TTV_readme_info.clicked.connect(lambda: self.print_TTV_info()) 
 
-        #self.param_nr_priors_gui = gui_groups.param_nr_priors_gui(self)
+        self.param_nr_priors_gui = gui_groups.param_nr_priors_gui(self)
+        
+        self.param_jeff_priors_gui = gui_groups.param_jeff_priors_gui(self)
 
         self.initialize_buttons()
         self.initialize_plots()   
@@ -6929,12 +7003,13 @@ Please install via 'pip install ttvfast'.
             self.update_gui_params()
             self.update_params()
             self.update_RV_file_buttons()
+            self.update_tra_file_buttons()            
             self.update_act_file_buttons()
             self.fit_dispatcher(init=True)  
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.15). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.16). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
