@@ -502,18 +502,18 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         zz = 0
         for i in range(9):
             if not self.buttonGroup_use_planets.buttons()[i].isChecked():
-                continue           
+                continue
             j = 7*i
             for k in range(7):
                # fit.params.planet_params[7*zz+k] = param_gui[j+k].value() 
                 self.param_errors_gui[j+k].setText("+/- %.3f"%max(np.abs(fit.param_errors.planet_params_errors[7*zz+k])))
 
-            zz = zz +1            
- 
-        
+            zz = zz +1
+
+
         for i in range(9):
-            self.param_errors_gui_wd[i].setText("+/- %.3f"%max(np.abs(fit.omega_dot_err[i])))            
-            
+            self.param_errors_gui_wd[i].setText("+/- %.3f"%max(np.abs(fit.omega_dot_err[i])))
+
 
         for i in range(10):
             self.data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.offset_errors[i])))

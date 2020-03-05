@@ -777,9 +777,8 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
             gp_rv_loglik += -0.5*(np.sum((o_c_kep[fit_results.idset==i])**2 * sig2i_gp - np.log(sig2i_gp / 2./ np.pi)))
 
-
         rv_loglik =  gp_rv_loglik
-        #print(rv_loglik)
+
     if(rtg[2]):
 
         if len(tr_files[0]) == 0:
@@ -790,14 +789,11 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
     if(opt["TTV"]):
 
-        #times = [epoch,dt/86400.0,epoch+400.0]
-        #print(ttv_times)
         if(rtg[0])==False:
             ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,fit_results=False, return_model = False)
         else:
             ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,fit_results=fit_results, return_model = False)
-        #print(par)
-        #print(ttv_loglik)
+ 
 
     if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
         return -np.inf
@@ -843,7 +839,6 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         if len(obj.ttv_data_sets[i]) != 0:
             ttv_files.append(obj.ttv_data_sets[i])
 
-    #print(obj.ttv_data_sets[0])
 
     npl = obj.npl
     epoch = obj.epoch
@@ -876,8 +871,6 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     flags = obj.f_for_mcmc
     par = np.array(obj.parameters)
 
-
-
     #print(pp)
     #print(par)
     #print(flags)
@@ -901,9 +894,6 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     if obj.init_fit == True:
         flags = []
 
-
-   # print(flags)
-    #print(rtg)
 
     gps = []
     if (rtg[1]):
@@ -1026,7 +1016,11 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
        # print("Best fit par.:", result["x"])
 
-    #print(pp)
+
+    #print(obj.type_fit["RV"], obj.type_fit["Transit"], obj.type_fit["TTV"])    
+ 
+    errors = [[0.0,0.0] for i in range(len(pp))]
+
     obj.par_for_mcmc = pp
  #   print(obj.par_for_mcmc)
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)
@@ -1034,33 +1028,6 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     obj.correct_elements()
     obj.hack_around_rv_params()
-
-    #print(obj.parameters)
-
-
-    if obj.type_fit["RV"] == True and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == False:
-        obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1])
-    elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == True:
-        obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,return_model = True, tra_model_fact=obj.tra_model_fact)
-        obj.loglik = obj.transit_results[0]
-    elif obj.type_fit["RV"] == True and obj.type_fit["Transit"] == True:
-        obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
-        obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, return_model = True, tra_model_fact=obj.tra_model_fact)
-        obj.loglik     =   obj.loglik +  obj.transit_results[0]
-    elif obj.type_fit["RV"] == True and obj.type_fit["TTV"] == True:
-        obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
-        #times = [obj.epoch,obj.time_step_model,obj.epoch+400.0]
-        times = obj.ttv_times
-        ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,times,obj.fit_results, return_model = False)
-        obj.loglik     =   obj.loglik +  ttv_loglik
-    elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == True:
-        times = obj.ttv_times
-        ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,times,obj.fit_results, return_model = False)
-        obj.loglik     =  ttv_loglik
-        
-    #print(obj.type_fit["RV"], obj.type_fit["Transit"], obj.type_fit["TTV"])    
- 
-    errors = [[0.0,0.0] for i in range(len(pp))]
 
     obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, errors)
 
@@ -1079,7 +1046,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0]) #fit.tra_data_sets[0][3]
 
-    
+
+
     for j in range(len(flags)):
         par[flags[j]] = pp[j]
 
@@ -1088,7 +1056,6 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         if obj.gp_kernel == 'RotKernel':
             for j in range(len(gps.get_parameter_vector())):
                 obj.GP_rot_params[j] = par[len(vel_files)*2  +7*npl +2 +j]
-                #print(obj.doGP,obj.gp_kernel)
 
         if obj.gp_kernel == 'SHOKernel':
             for j in range(len(gps.get_parameter_vector())):
@@ -1116,6 +1083,27 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                 obj.tra_GP_sho_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + rv_gp_npar + 2 +j]
 
 
+    if obj.type_fit["RV"] == True and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == False:
+        obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1])
+    elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == True:
+        obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,return_model = True, tra_model_fact=obj.tra_model_fact)
+        obj.loglik = obj.transit_results[0]
+    elif obj.type_fit["RV"] == True and obj.type_fit["Transit"] == True:
+        obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
+        obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, return_model = True, tra_model_fact=obj.tra_model_fact)
+        obj.loglik     =   obj.loglik +  obj.transit_results[0]
+    elif obj.type_fit["RV"] == True and obj.type_fit["TTV"] == True:
+        obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
+        #times = [obj.epoch,obj.time_step_model,obj.epoch+400.0]
+        times = obj.ttv_times
+        ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,times,obj.fit_results, return_model = False)
+        obj.loglik     =   obj.loglik +  ttv_loglik
+    elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == True:
+        times = obj.ttv_times
+        ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,times,obj.fit_results, return_model = False)
+        obj.loglik     =  ttv_loglik
+
+
     for i in range(npl):
 #        if obj.hkl == True:
            # ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
@@ -1131,21 +1119,19 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
 
         obj.omega_dot[i] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + tra_gp_npar + 2 + i ]
-       # print(obj.t0[i],par[len(vel_files)*2 +7*i+4])
 
     j =0
     for i in range(10):
         if len(obj.tra_data_sets[i]) == 0:
             continue
         else:
-            obj.tra_off[i] =      par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + j]
-            #print(obj.tra_off[i],obj.tra_jitt[i])
+            obj.tra_off[i] = par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + j]
             j = j +1
+
     j =0
     for i in range(10):
         if len(obj.tra_data_sets[i]) != 0:
             obj.tra_jitt[i] = abs(par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + N_transit_files + j])
-            #print(obj.tra_off[i],obj.tra_jitt[i])
             j = j +1
 
 
@@ -1214,7 +1200,6 @@ def run_nestsamp_bg(obj):
     elif sys.version_info[0] == 3:
         os.system("python3 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
 
-
     file_ses2 = open(r"%s_out.ses"%target_name, 'rb')
     obj = dill.load(file_ses2)
     file_ses2.close()
@@ -1252,18 +1237,8 @@ def run_nestsamp(obj, **kwargs):
         # path for each dataset
         vel_files.append(obj.filelist.files[i].path)
 
-    tr_files = []
-    tr_mo = []
-    tr_ld = []
 
-#    for i in range(10):
-#        if len(obj.tra_data_sets[i]) != 0:
-#            tr_files.append(obj.tra_data_sets[i])
-#            tr_mo.append(obj.ld_m[i])
-#            tr_ld.append(obj.ld_u[i])
-
-
-    N_transit_files = len([x for x in range(10) if len(obj.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][3]
+    N_transit_files = len([x for x in range(10) if len(obj.tra_data_sets[x]) != 0])
 
     tr_files = obj.tra_data_sets
     tr_mo    = obj.ld_m
@@ -1300,8 +1275,8 @@ def run_nestsamp(obj, **kwargs):
 
 
     obj.prepare_for_mcmc(rtg = rtg)
-    pp = obj.par_for_mcmc #.tolist()
-    ee = obj.e_for_mcmc #.tolist()
+    pp = obj.par_for_mcmc
+    ee = obj.e_for_mcmc
     bb = np.array(obj.b_for_mcmc)
     pr_nr = np.array(obj.nr_pr_for_mcmc)
     jeff_nr = np.array(obj.jeff_pr_for_mcmc)
@@ -1317,8 +1292,6 @@ def run_nestsamp(obj, **kwargs):
             obj.bound_error = True
             obj.bound_error_msg = "Parameter %s is initially out of bounds. Please set the initial parametrs within the parameter limits!"%ee[l]
             return obj
-
-
 
 
     priors = [pr_nr,jeff_nr]
@@ -1516,6 +1489,8 @@ def run_nestsamp(obj, **kwargs):
 
     obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
 
+    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, new_par_errors)
+
     obj.update_with_mcmc_errors(new_par_errors)
 
     obj.overwrite_params(newparams)
@@ -1528,10 +1503,6 @@ def run_nestsamp(obj, **kwargs):
 
     elif (obj.ns_save_maxlnL):
         obj.loglik = maxlnl
-
-
-    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, new_par_errors)
-
 
     if(obj.ns_save_sampler):
         obj.sampler=sampler
@@ -1600,16 +1571,6 @@ def run_mcmc(obj, **kwargs):
     for i in range(obj.filelist.ndset):
         # path for each dataset
         vel_files.append(obj.filelist.files[i].path)
-
-#    tr_files = []
-#    tr_mo = []
-#    tr_ld = []
-
-#    for i in range(10):
-#        if len(obj.tra_data_sets[i]) != 0:
-#            tr_files.append(obj.tra_data_sets[i])
-#            tr_mo.append(obj.ld_m[i])
-#            tr_ld.append(obj.ld_u[i])
 
 
     N_transit_files = len([x for x in range(10) if len(obj.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][3]
@@ -1687,12 +1648,14 @@ def run_mcmc(obj, **kwargs):
     if (rtg[1]):
         initiategps(obj)
         gps = obj.gps
-
+#        rv_gp_npar = len(gps.get_parameter_vector())
+#    else:
+#        rv_gp_npar = 0
+        
     tra_gps = []
     if (rtg[3]) and N_transit_files != 0:
         initiate_tansit_gps(obj)
         tra_gps = obj.tra_gps
-
 
     #from pathos.multiprocessing import ProcessingPool as Pool
     from pathos.pools import ProcessPool as Pool
@@ -1719,7 +1682,6 @@ def run_mcmc(obj, **kwargs):
 
     sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit,opt), pool=pool)
 
-
     #sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit,opt), threads = threads)
 
 
@@ -1737,9 +1699,6 @@ def run_mcmc(obj, **kwargs):
     pool.clear()
 
  #  print("--- %s seconds ---" % (time.time() - start_time))
-
-    #print(type(sampler.samples), len(sampler.samples))
-    #print(type(sampler.samples[:,0]), len(sampler.samples[:,0]))
 
 
     fileoutput = obj.mcmc_fileoutput
@@ -1786,17 +1745,12 @@ def run_mcmc(obj, **kwargs):
         new_par_errors = [[float(obj.mcmc_stat["MAD"][i]),float(obj.mcmc_stat["MAD"][i])] for i in range(len(obj.par_for_mcmc))]
 
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)
-    #print(newparams.GP_params)
-    #current_GP_params=newparams.GP_params.gp_par # because calling fitting will overwrite them
-   # print(current_GP_params)
-
-    #print(new_par_errors)
-    #print(newparams)
 
     obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
 
-    obj.update_with_mcmc_errors(new_par_errors)
+    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps,tra_gps, rtg, mix_fit, new_par_errors)
 
+    obj.update_with_mcmc_errors(new_par_errors)
     obj.overwrite_params(newparams)
    # print(new_par_errors)
 
@@ -1811,7 +1765,6 @@ def run_mcmc(obj, **kwargs):
         obj.loglik = sampler.lnL_min
 
 
-    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps,tra_gps, rtg, mix_fit, new_par_errors)
 
     if(obj.mcmc_save_sampler):
         obj.sampler=sampler
@@ -1846,6 +1799,7 @@ class FunctionWrapper(object):
     """
     This is a hack to make the likelihood function pickleable when ``args``
     or ``kwargs`` are also included.
+    (from emcee?)
     """
     def __init__(self, f, args, kwargs=None):
         self.f = f
@@ -4026,6 +3980,11 @@ class signal_fit(object):
             prior_nr.append(self.omega_dot_norm_pr[i])
             prior_jeff.append(self.omega_dot_jeff_pr[i])
 
+#        for j in range(10):
+#            if len(self.tra_data_sets[i]) == 0:
+#                continue
+#            else:
+#                print(self.ld_m[i],self.ld_u[i])
 
 
         par.append(self.params.stellar_mass)
