@@ -22,22 +22,22 @@ and will ask you to install packages if needed. Particularly you will need:
 * matplotlib
 * PyQt5
 * jupyter
-* pathos (which comes with dill)
-* emcee 
-* corner 
+* pathos
+* emcee  
 * celerite
 * qtconsole
 * dynesty
-* ttvfast
 + the swift N-body library, which is in the ./source directory and is automatically
 installed with the bash installer.
 
 
 For a full functionality (on the transit analysis side) you will also need:
 
+* corner
 * batman
 * transitleastsquares (comes with ``batman``)
 * ttvfast-python (an additional, internal TTV solver will be provided by the RVmod in the near future). 
+* rxvt (optional bash shell)
 
 
 (WARNING! there is another "batman" on pip.
@@ -48,8 +48,6 @@ $ pip install batman-package <-- correct
 to be on the save side just do
 $ pip install transitleastsquares, or run the bash installer! )
 
-
-* rxvt (optional bash shell)
 
 
 
@@ -72,7 +70,7 @@ $ sudo apt-get install python3-tk
 
 -------------------------------------------
 
-if "linux_debian_install.sh" was executed with no problems, then
+if "$ bash installers/linux_debian_install.sh" was executed with no problems, then
 you are ready to go! Just type:
 
 
@@ -83,16 +81,23 @@ $ python es_gui.py
 Similar instructions as above are for MAC OS. These are tested and worked 
 straight away on a "clean" Mac OS X installation (Sierra 10.13). Just run:
 
-$ bash MAC_OS_install.sh
+$ bash installers/MAC_OS_install.sh
 
 
 Before that you will need to install "homebrew", which requires ``sudo'' privileges 
-To install "homebrew", open terminal and type:
+According to 
 
-$ /usr/bin/ruby -e "(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+https://brew.sh/
+
+To install "homebrew", it should be as simple as this:
 
 
-I had problems with "pip install" of batman/transitleastsquares, in particular with the local
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+
+try it out in bash shell terminal.
+
+
+In the past I had problems with "pip install" of batman/transitleastsquares, in particular with the local
 numpy installation. With a "pip" install it seems that the numpy headers are here:
 
 /Users/YOUR_USER/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy
@@ -106,7 +111,7 @@ $ cp -r /Users/YOUR_USER/Library/Python/2.7/lib/python/site-packages/numpy/core/
 
 If you had experienced the same problem as above, than after the "cp -r..." run again:
 
-$ bash MAC_OS_install.sh
+$ bash installers/MAC_OS_install.sh
 
 and all should be Ok now! (you may skip the swift installation if you have
 installed the lib the first time.)
@@ -157,14 +162,17 @@ also on the official Windows python installation)
 ################################################################################
  
  
-See "focus_matrix_TBFixed.doc" in the root directory.
+ See issues:
  
-
+ https://github.com/3fon3fonov/exostriker/issues
+ 
 ################################## Finally #####################################
 
 To load the GUI  + RVmod 
 
 $ python es_gui.py 
+ 
+ 
  
 If you want to use RVmod on the Python shell
 
@@ -181,8 +189,6 @@ Some comments:
 * All Fortran and python codes in this version need serious clean-up from junk.
 
 * All Fortran codes are planned to be translated with f2py into python-importable libraries.
-
-* The transit fitting + RV + GP is still not well tested.
 
 * A pip installer must be made.
 
@@ -211,37 +217,45 @@ are initially written by Man Hoi Lee.
 as my intern student in the summer of 2018. His numerous contributions 
 during the early stages of this project are highly appreciated.
 
-
-* The interactive plotting is done with (a modified version of) the "pyqtgraph": 
+* The interactive plotting is done with a custom version of the "pyqtgraph":
 
 http://www.pyqtgraph.org/
 
-* The "Text editor" used in the tool is the "Megasolid Idiom":
-
-https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor
-
 * The transit modeling is done with "batman":
- 
+
 https://www.cfa.harvard.edu/~lkreidberg/batman/quickstart.html
 
-* "GLS" periodogram is taken from: 
+* "GLS" and "MLP" periodograma are taken from Mathias Zechmeister's repo:
 
-https://github.com/mzechmeister/GLS
+https://github.com/mzechmeister/python
 
-* "TLS" is taken from: 
+* "TLS" is taken from:
 
 https://github.com/hippke/tls
 
-* the MCMC sampling is done with "emcee": 
+* MCMC sampling is done with "emcee":
 
 http://dfm.io/emcee/current/
 
-* the Nested Sampling sampling is done with "dynesty": 
+* Nested Sampling is done with "dynesty":
 
 https://dynesty.readthedocs.io/en/latest/
 
-* TTV models are adopted from TTVfast-python
+* TTV models are adopted from "TTVfast-python":
 
 https://github.com/mindriot101/ttvfast-python
+
+* The "Text editor" used in the tool is a hack between "Megasolid Idiom" and "PyEdit2":
+
+https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor
+
+https://github.com/Axel-Erfurt/PyEdit2'
+
+* N-body tests are performed using a custom version of the "Swift" N-body library, modified by Man Hoi Lee (HKU) and Trifon Trifonov (MPIA).
+
+https://www.boulder.swri.edu/~hal/swift.html
+
+* Additionally, the Exo-Striker uses many "standard" Python libraries like "matplotlib", "numpy", "scipy", "dill", and more.
+
 
 

@@ -788,7 +788,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(10): 
             for z in range(2):    
-                fit.ld_u_lin_bound[i][z] = self.ld_u1_bounds_gui[i][z].value()
+                fit.ld_u_lin_bound[i][0][z] = self.ld_u1_bounds_gui[i][z].value()
 
                 fit.ld_u_quad_bound[i][0][z] = self.ld_u1_bounds_gui[i][z].value()
                 fit.ld_u_quad_bound[i][1][z] = self.ld_u2_bounds_gui[i][z].value()
