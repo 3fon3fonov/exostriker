@@ -71297,7 +71297,7 @@
                        </font>
                       </property>
                       <property name="minimum">
-                       <double>0.000000000000000</double>
+                       <double>-1.000000000000000</double>
                       </property>
                       <property name="maximum">
                        <double>1.000000000000000</double>
@@ -71306,7 +71306,7 @@
                        <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>0.000000000000000</double>
+                       <double>-0.200000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73380,7 +73380,7 @@
                        </font>
                       </property>
                       <property name="minimum">
-                       <double>0.000000000000000</double>
+                       <double>-1.000000000000000</double>
                       </property>
                       <property name="maximum">
                        <double>1.000000000000000</double>
@@ -73389,7 +73389,7 @@
                        <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>0.000000000000000</double>
+                       <double>-0.200000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73413,7 +73413,7 @@
                        </font>
                       </property>
                       <property name="minimum">
-                       <double>0.000000000000000</double>
+                       <double>-1.000000000000000</double>
                       </property>
                       <property name="maximum">
                        <double>1.000000000000000</double>
@@ -73422,7 +73422,7 @@
                        <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>0.000000000000000</double>
+                       <double>-0.200000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73446,7 +73446,7 @@
                        </font>
                       </property>
                       <property name="minimum">
-                       <double>0.000000000000000</double>
+                       <double>-1.000000000000000</double>
                       </property>
                       <property name="maximum">
                        <double>1.000000000000000</double>
@@ -73455,7 +73455,7 @@
                        <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>0.000000000000000</double>
+                       <double>-0.200000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73479,7 +73479,7 @@
                        </font>
                       </property>
                       <property name="minimum">
-                       <double>0.000000000000000</double>
+                       <double>-1.000000000000000</double>
                       </property>
                       <property name="maximum">
                        <double>1.000000000000000</double>
@@ -73488,7 +73488,7 @@
                        <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>0.000000000000000</double>
+                       <double>-0.200000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73512,7 +73512,7 @@
                        </font>
                       </property>
                       <property name="minimum">
-                       <double>0.000000000000000</double>
+                       <double>-1.000000000000000</double>
                       </property>
                       <property name="maximum">
                        <double>1.000000000000000</double>
@@ -73521,7 +73521,7 @@
                        <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>0.000000000000000</double>
+                       <double>-0.200000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73545,7 +73545,7 @@
                        </font>
                       </property>
                       <property name="minimum">
-                       <double>0.000000000000000</double>
+                       <double>-1.000000000000000</double>
                       </property>
                       <property name="maximum">
                        <double>1.000000000000000</double>
@@ -73554,7 +73554,7 @@
                        <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>0.000000000000000</double>
+                       <double>-0.200000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73578,7 +73578,7 @@
                        </font>
                       </property>
                       <property name="minimum">
-                       <double>0.000000000000000</double>
+                       <double>-1.000000000000000</double>
                       </property>
                       <property name="maximum">
                        <double>1.000000000000000</double>
@@ -73587,7 +73587,7 @@
                        <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>0.000000000000000</double>
+                       <double>-0.200000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73611,7 +73611,7 @@
                        </font>
                       </property>
                       <property name="minimum">
-                       <double>0.000000000000000</double>
+                       <double>-1.000000000000000</double>
                       </property>
                       <property name="maximum">
                        <double>1.000000000000000</double>
@@ -73620,7 +73620,7 @@
                        <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>0.000000000000000</double>
+                       <double>-0.200000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73644,7 +73644,7 @@
                        </font>
                       </property>
                       <property name="minimum">
-                       <double>0.000000000000000</double>
+                       <double>-1.000000000000000</double>
                       </property>
                       <property name="maximum">
                        <double>1.000000000000000</double>
@@ -73653,7 +73653,7 @@
                        <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>0.000000000000000</double>
+                       <double>-0.200000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -74140,7 +74140,7 @@
      <x>0</x>
      <y>0</y>
      <width>1267</width>
-     <height>23</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuRVmod">
@@ -74331,76 +74331,76 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_GR_prec"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
-  <buttongroup name="buttonGroup_mixed_fitting">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_symbol_picker"/>
-  <buttongroup name="buttonGroup_add_RV_data"/>
-  <buttongroup name="buttonGroup_Omega_fold"/>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_transit_data"/>
-  <buttongroup name="buttonGroup_dom_fold"/>
   <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_use_planets">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_1"/>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_use_ld_2"/>
-  <buttongroup name="buttonGroup_use_ld_3"/>
-  <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_use_ld_5"/>
   <buttongroup name="buttonGroup_use_ttv_data_to_planet">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
   <buttongroup name="buttonGroup_activity_data"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_use_ld_6"/>
-  <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
-  <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
   <buttongroup name="buttonGroup_apply_rv_data_options"/>
-  <buttongroup name="buttonGroup_nest_stat_dyn"/>
-  <buttongroup name="buttonGroup_remove_RV_data"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_color_picker"/>
-  <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_use_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_use_ld_2"/>
   <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_transit_data"/>
   <buttongroup name="buttonGroup_use_RV_GP_kernel">
    <property name="exclusive">
     <bool>true</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
   <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_use_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
+  <buttongroup name="buttonGroup_use_ld_10"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
   <buttongroup name="buttonGroup_remove_ttv_data"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_use_planets">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_GR_prec"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
   <buttongroup name="buttonGroup_f77_or_scipy"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_mixed_fitting">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_use">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_theta_fold"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
+  <buttongroup name="buttonGroup_type_fit"/>
+  <buttongroup name="buttonGroup_Omega_fold"/>
+  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
  </buttongroups>
 </ui>

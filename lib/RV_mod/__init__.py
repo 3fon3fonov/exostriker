@@ -350,21 +350,13 @@ def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
     #gp_model_data  = []
 
     ############ DATA ####################
-    #for i in range(obj.filelist.ndset):
-        #gp.set_parameter_vector(
 
     y = np.concatenate([obj.tra_data_sets[j][4] for j in range(10) if len(obj.tra_data_sets[j]) != 0]) #fit.tra_data_sets[0][3]
     x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0]) #fit.tra_data_sets[0][3]
 
-#    y = obj.tra_data_sets[0][4] #obj.fit_results.rv_model.o_c
-#    x = obj.tra_data_sets[0][0]
-
     if len(x_model) == 0 or len(y_model) == 0:
         x_model = dill.copy(x)
         y_model = dill.copy(y)
-        
-#    print(len(x_model),len(y_model))    
-#    print(len(x),len(y))    
 
     GP_var = False
     if GP_var == True:
@@ -377,7 +369,6 @@ def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
 
         mu, var = obj.tra_gps.predict(y, x, return_var=True)
         std = np.sqrt(var)
-
         obj.tra_gp_model_curve = [mu,var,std]
 
     else:
@@ -421,7 +412,6 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = Fa
         planets.append(planet)
 
     results = ttvfast.ttvfast(planets, stellar_mass, times[0],times[1],times[2],input_flag=0)
-
     result_rows = list(zip(*results['positions']))
 
     n1   = [item[0] for item in result_rows]
@@ -431,14 +421,12 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = Fa
     n2   = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[0][3])-1])# if ttv_files[0][4] == True])
 #    n3   = np.array([item[0] for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[0][3])-1])# if ttv_files[0][4] == True])
     transits_calc   = np.array([item[2] for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[0][3])-1])# if ttv_files[0][4] == True])
-    #print(times)
+
 
     loglik_ttv = 0
     calc_n     = []
     calk_tran  = []
-    
-   # print(len(n2),len(ttv_files[0][1]),n3)
-    
+
     # A bug fix???
     if len(n2) == 0 or max(n2) <= max(ttv_files[0][0]):
         return -np.inf
@@ -464,7 +452,7 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = Fa
 
 
 
-def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl, rtg,tra_gps, return_model = False, tra_model_fact = 10):
+def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl, rtg,tra_gps, return_model = False, tra_model_fact = 10):
 
 
     tr_loglik     = 0
@@ -477,12 +465,14 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
     flux_o_c      = []
     flux_o_c_gp   = []
     tra_gp_model  = []
-    
+
     t_rich  = []
     flux_model_rich  = []
 
-    N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0]) #fit.tra_data_sets[0][3]
+    N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0])
 
+    l = 0
+    k = 0
     for j in range(10):
         
         if len(tr_files[j]) == 0:
@@ -497,25 +487,36 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
             continue
 
         t_        = tr_files[j][0]
-        flux_     = tr_files[j][1]    + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + j]
-        sig2i_    = 1./(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + j]**2)
-        flux_err_ = np.sqrt(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + j]**2)
+        flux_     = tr_files[j][1]    + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l]
+
+        sig2i_    = 1./(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
+        flux_err_ = np.sqrt(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
 
         flux_model_ =np.ones(len(flux_))
+        
+ 
 
-        m  =  {k: [] for k in range(9)}
-#        m2 =  {k: [] for k in range(9)}
-        tr_params.limb_dark = str(tr_model[0][j])      #limb darkening model
-        tr_params.u = tr_model[1][j]
+        m  =  {z: [] for z in range(9)}
+        tr_params.limb_dark = str(tr_model[0][j])
 
-      #  if str(tr_model[0][j]) == "uniform":
-      #      tr_params.u = tr_model[1][j]
-       # elif  str(tr_model[j]) == "linear":
-      #      tr_params.u = [0.1]
-       # elif  str(tr_model[j]) == "quadratic":
-      #      tr_params.u = [0.1,0.3]
-      #  elif  str(tr_model[j]) == "nonlinear":
-      #      tr_params.u = [0.5,0.1,0.1,-0.1]
+        
+        if tr_model[0][j] == "linear":
+            tr_params.u = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k +  npl]]
+            k += 1
+        elif tr_model[0][j] == "quadratic":
+            tr_params.u = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + npl], 
+                           par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 1+ npl]]
+            k += 2
+        elif tr_model[0][j] == "nonlinear":
+            tr_params.u = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + npl], 
+                           par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 1+ npl],
+                           par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 2+ npl], 
+                           par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 3+ npl]]
+            k += 4
+        else:
+            tr_params.u = []
+
+        l +=1
 
         for i in range(npl):
 
@@ -523,17 +524,17 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
                 tr_params.ecc = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
                 tr_params.w  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
             else:
-                tr_params.ecc = par[len(vel_files)*2 +7*i+2] #0.0
-                tr_params.w   = par[len(vel_files)*2 +7*i+3] #90.0   #longitude of periastron (in degrees)
+                tr_params.ecc = par[len(vel_files)*2 +7*i+2]
+                tr_params.w   = par[len(vel_files)*2 +7*i+3]
 
-            tr_params.per = par[len(vel_files)*2 +7*i+1] #1.0    #orbital period
-            tr_params.inc = par[len(vel_files)*2 +7*i+5]#90. #orbital inclination (in degrees)
+            tr_params.per = par[len(vel_files)*2 +7*i+1]
+            tr_params.inc = par[len(vel_files)*2 +7*i+5]
 
             tr_params.t0  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
-            tr_params.a   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-            tr_params.rp  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
+            tr_params.a   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
+            tr_params.rp  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
 
-            m[i] = batman.TransitModel(tr_params, t_)    #initializes model
+            m[i] = batman.TransitModel(tr_params, t_)
             flux_model_ = flux_model_ * m[i].light_curve(tr_params)
 
         flux_o_c_ = np.array(flux_) - np.array(flux_model_)
@@ -542,24 +543,6 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
           
         tra_gp_model.append(flux_model_)
         flux_o_c_gp.append(flux_o_c_)
-#        if rtg[3] == False:
-#            tr_loglik = tr_loglik -0.5*(np.sum((flux_  -flux_model_)**2 * sig2i_  - np.log(sig2i_  / 2./ np.pi)))
-#            if return_model == True:
-#                tra_gp_model.append(flux_model_)
-#                flux_o_c_gp.append(np.array(flux_  -flux_model_))
-#        else:
-    
-#            param_vect = []
-#            for k in range(len(tra_gps.get_parameter_vector())):
-#                param_vect.append(np.log(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + k]))
-#            tra_gps.set_parameter_vector(np.array(param_vect))
-#    
-#            tra_gp_model_ = tra_gps.predict(flux_o_c_ , t_ , return_cov=False)
-#            flux_o_c_gp_ = flux_o_c_  - tra_gp_model_
-#            tr_loglik = -0.5*(np.sum((flux_o_c_gp_)**2 * sig2i_  - np.log(sig2i_  / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
-
-#            tra_gp_model.append(tra_gp_model_)
-#            flux_o_c_gp.append(flux_o_c_gp_)
 
         flux_model.append(flux_model_)
         flux.append(flux_)
@@ -593,28 +576,17 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
         tra_gp_model_all = tra_gps.predict(flux_o_c_all , t_all , return_cov=False)
         flux_o_c_gp_all = flux_o_c_all  - tra_gp_model_all
         tr_loglik = -0.5*(np.sum((flux_o_c_gp_all)**2 * sig2i_all  - np.log(sig2i_all  / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
-        #tra_gp_model_all = flux_model_all
-        #flux_o_c_gp_all = flux_o_c_all 
-    #print(tr_loglik)
+
     if return_model == True:
 
-        t_all = np.concatenate([tr_files[x][0] for x in range(10) if len(tr_files[x]) != 0]) #fit.tra_data_sets[0][3]
+        t_all = np.concatenate([tr_files[x][0] for x in range(10) if len(tr_files[x]) != 0])
         t_rich =np.linspace(min(t_all),max(t_all),len(t_all)*tra_model_fact)
         flux_model_rich = np.ones(len(t_rich))
 
-
         m  =  {k: [] for k in range(9)}
-        tr_params.limb_dark = str(tr_model[0][j])      #limb darkening model
+        tr_params.limb_dark = str(tr_model[0][j])
         tr_params.u = tr_model[1][j]
 
-      #  if str(tr_model[0][j]) == "uniform":
-      #      tr_params.u = tr_model[1][j]
-       # elif  str(tr_model[j]) == "linear":
-      #      tr_params.u = [0.1]
-       # elif  str(tr_model[j]) == "quadratic":
-      #      tr_params.u = [0.1,0.3]
-      #  elif  str(tr_model[j]) == "nonlinear":
-      #      tr_params.u = [0.5,0.1,0.1,-0.1]
 
         for i in range(npl):
 
@@ -622,17 +594,17 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
                 tr_params.ecc = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
                 tr_params.w  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
             else:
-                tr_params.ecc = par[len(vel_files)*2 +7*i+2] #0.0
-                tr_params.w   = par[len(vel_files)*2 +7*i+3] #90.0   #longitude of periastron (in degrees)
+                tr_params.ecc = par[len(vel_files)*2 +7*i+2]
+                tr_params.w   = par[len(vel_files)*2 +7*i+3]
 
-            tr_params.per = par[len(vel_files)*2 +7*i+1] #1.0    #orbital period
-            tr_params.inc = par[len(vel_files)*2 +7*i+5]#90. #orbital inclination (in degrees)
+            tr_params.per = par[len(vel_files)*2 +7*i+1]
+            tr_params.inc = par[len(vel_files)*2 +7*i+5]
 
             tr_params.t0  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
-            tr_params.a   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
-            tr_params.rp  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
+            tr_params.a   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
+            tr_params.rp  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
 
-            m[i] = batman.TransitModel(tr_params, t_rich)    #initializes model
+            m[i] = batman.TransitModel(tr_params, t_rich)
             flux_model_rich = flux_model_rich * m[i].light_curve(tr_params)
             
             
@@ -645,7 +617,7 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,
         return tr_loglik
 
 
-def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, tra_gps, rtg, mix_fit, opt, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=3000, npoints=50, model_max = 100, model_min =0): # generate input string for the fortran code, optionally as a file
+def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, tra_gps, rtg, mix_fit, opt, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=3000, npoints=50, model_max = 100, model_min =0):
 
     rv_loglik = 0
     gp_rv_loglik = 0
@@ -784,7 +756,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         if len(tr_files[0]) == 0:
             tr_loglik = 0
         else:
-            tr_loglik = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,npl,hkl,rtg,tra_gps )
+            tr_loglik = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps )
 
 
     if(opt["TTV"]):
@@ -1086,21 +1058,18 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
     if obj.type_fit["RV"] == True and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == False:
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1])
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == True:
-        obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,return_model = True, tra_model_fact=obj.tra_model_fact)
+        obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,return_model = True, tra_model_fact=obj.tra_model_fact)
         obj.loglik = obj.transit_results[0]
     elif obj.type_fit["RV"] == True and obj.type_fit["Transit"] == True:
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
-        obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, return_model = True, tra_model_fact=obj.tra_model_fact)
+        obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, return_model = True, tra_model_fact=obj.tra_model_fact)
         obj.loglik     =   obj.loglik +  obj.transit_results[0]
     elif obj.type_fit["RV"] == True and obj.type_fit["TTV"] == True:
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
-        #times = [obj.epoch,obj.time_step_model,obj.epoch+400.0]
-        times = obj.ttv_times
-        ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,times,obj.fit_results, return_model = False)
+        ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass, obj.ttv_times,obj.fit_results, return_model = False)
         obj.loglik     =   obj.loglik +  ttv_loglik
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == True:
-        times = obj.ttv_times
-        ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,times,obj.fit_results, return_model = False)
+        ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,obj.ttv_times,obj.fit_results, return_model = False)
         obj.loglik     =  ttv_loglik
 
 
@@ -1120,19 +1089,33 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
         obj.omega_dot[i] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + tra_gp_npar + 2 + i ]
 
-    j =0
+    j = 0
+    k = 0
     for i in range(10):
         if len(obj.tra_data_sets[i]) == 0:
             continue
         else:
-            obj.tra_off[i] = par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + j]
-            j = j +1
-
-    j =0
-    for i in range(10):
-        if len(obj.tra_data_sets[i]) != 0:
+            obj.tra_off[i] =      par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + j]
             obj.tra_jitt[i] = abs(par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + N_transit_files + j])
             j = j +1
+
+        
+        if tr_model[0][i] == "linear":
+            obj.ld_u_lin[i] = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k +  npl]]
+            k += 1
+        elif tr_model[0][i] == "quadratic":
+            obj.ld_u_quad[i] = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + npl], 
+                                par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 1+ npl]]
+            k += 2
+        elif tr_model[0][j] == "nonlinear":
+            obj.ld_u_nonlin[i] = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + npl], 
+                                  par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 1+ npl],
+                                  par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 2+ npl], 
+                                  par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 3+ npl]]
+            k += 4
+#        else:
+#            tr_params.u = []
+
 
 
     if len(flags) != 0:
@@ -1183,7 +1166,7 @@ def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_pa
 
 
 
-########## Dynesty Work in progress!!! #######
+    ########## Dynesty Work in progress!!! #######
 
 def run_nestsamp_bg(obj):
     start_time = time.time()
@@ -1991,34 +1974,33 @@ class signal_fit(object):
 
         self.ld_u = {k: [0.12, 0.35 ] for k in range(10)}
 
+        self.ld_u_lin    = {k: [0.35] for k in range(10)}
         self.ld_u_quad = {k: [0.12, 0.35 ] for k in range(10)}
         self.ld_u_nonlin = {k: [0.55,0.12, 0.35,-0.11] for k in range(10)}
-        self.ld_u_lin    = {k: [0.35] for k in range(10)}
 
-
+        self.ld_u_lin_use    = {k: [False] for k in range(10)}
         self.ld_u_quad_use   = {k: [False, False] for k in range(10)}
         self.ld_u_nonlin_use = {k: [False, False,False, False] for k in range(10)}
-        self.ld_u_lin_use    = {k: [False] for k in range(10)}
 
+        self.ld_u_lin_err    = {k: [[0.0,0.0]] for k in range(10)}
         self.ld_u_quad_err   = {k: [[0.0,0.0], [0.0,0.0]] for k in range(10)}
         self.ld_u_nonlin_err = {k: [[0.0,0.0], [0.0,0.0],[0.0,0.0], [0.0,0.0]] for k in range(10)}
-        self.ld_u_lin_err    = {k: [0.0,0.0] for k in range(10)}
 
+        self.ld_u_lin_bound       = {k: np.array([[-1.0,1.0]]) for k in range(10)}
         self.ld_u_quad_bound      = {k: np.array([[-1.0,1.0],[-1.0,1.0]]) for k in range(10)}
         self.ld_u_nonlin_bound    = {k: np.array([[-1.0,1.0],[-1.0,1.0],[-1.0,1.0],[-1.0,1.0]]) for k in range(10)}
-        self.ld_u_lin_bound       = {k: np.array([-1.0,1.0]) for k in range(10)}
 
+        self.ld_u_lin_norm_pr     = {k: np.array([[0.1,0.05, False]]) for k in range(10)}
         self.ld_u_quad_norm_pr    = {k: np.array([[0.0,1.0, False],[0.0,1.0, False]]) for k in range(10)}
         self.ld_u_nonlin_norm_pr  = {k: np.array([[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False]]) for k in range(10)}
-        self.ld_u_lin_norm_pr     = {k: np.array([0.1,0.05, False]) for k in range(10)}
 
+        self.ld_u_lin_jeff_pr     = {k: np.array([[0.1,0.05, False]]) for k in range(10)}
         self.ld_u_quad_jeff_pr    = {k: np.array([[0.0,1.0, False],[0.0,1.0, False]]) for k in range(10)}
         self.ld_u_nonlin_jeff_pr  = {k: np.array([[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False]]) for k in range(10)}
-        self.ld_u_lin_jeff_pr     = {k: np.array([0.1,0.05, False]) for k in range(10)}
 
-        self.ld_u_quad_str        = {k: [[r'ld-quad-1$_%s$'%str(k+1)],[r'ld-quad-2$_%s$'%str(k+1)]] for k in range(10)}
-        self.ld_u_nonlin_str      = {k: [[r'ld-quad-1$_%s$'%str(k+1)],[r'ld-quad-2$_%s$'%str(k+1)],[r'ld-quad-3$_%s$'%str(k+1)],[r'ld-quad-4$_%s$'%str(k+1)]] for k in range(10)}
         self.ld_u_lin_str         = {k: [r'ld-quad-1$_%s$'%str(k+1)] for k in range(10)}
+        self.ld_u_quad_str        = {k: [r'ld-quad-1$_%s$'%str(k+1),r'ld-quad-2$_%s$'%str(k+1)] for k in range(10)}
+        self.ld_u_nonlin_str      = {k: [r'ld-quad-1$_%s$'%str(k+1),r'ld-quad-2$_%s$'%str(k+1),r'ld-quad-3$_%s$'%str(k+1),r'ld-quad-4$_%s$'%str(k+1)] for k in range(10)}
 
 
         ############################################
@@ -3980,11 +3962,35 @@ class signal_fit(object):
             prior_nr.append(self.omega_dot_norm_pr[i])
             prior_jeff.append(self.omega_dot_jeff_pr[i])
 
-#        for j in range(10):
-#            if len(self.tra_data_sets[i]) == 0:
-#                continue
-#            else:
-#                print(self.ld_m[i],self.ld_u[i])
+
+        for i in range(10):
+            if len(self.tra_data_sets[i]) == 0:
+                continue
+            else:
+                if self.ld_m[i] == "linear":
+                    par.append(self.ld_u_lin[i][0])
+                    flag.append(self.ld_u_lin_use[i][0])
+                    par_str.append(self.ld_u_lin_str[i][0])
+                    bounds.append(self.ld_u_lin_bound[i][0])
+                    prior_nr.append(self.ld_u_lin_norm_pr[i][0])
+                    prior_jeff.append(self.ld_u_lin_jeff_pr[i][0])
+                elif self.ld_m[i] ==  "quadratic":
+                    for x in range(2):
+                        par.append(self.ld_u_quad[i][x])
+                        flag.append(self.ld_u_quad_use[i][x])
+                        par_str.append(self.ld_u_quad_str[i][x])
+                        bounds.append(self.ld_u_quad_bound[i][x])
+                        prior_nr.append(self.ld_u_quad_norm_pr[i][x])
+                        prior_jeff.append(self.ld_u_quad_jeff_pr[i][x])
+                elif self.ld_m[i] ==  "nonlinear":
+                    for x in range(4):
+                        par.append(self.ld_u_nonlin[i][x])
+                        flag.append(self.ld_u_nonlin_use[i][x])
+                        par_str.append(self.ld_u_nonlin_str[i][x])
+                        bounds.append(self.ld_u_nonlin_bound[i][x])
+                        prior_nr.append(self.ld_u_nonlin_norm_pr[i][x])
+                        prior_jeff.append(self.ld_u_nonlin_jeff_pr[i][x])
+
 
 
         par.append(self.params.stellar_mass)
@@ -3994,10 +4000,10 @@ class signal_fit(object):
         prior_nr.append(self.st_mass_norm_pr[0])
         prior_jeff.append(self.st_mass_jeff_pr[0])
 
-        #print(par)
+#        print(par)
 #        print(flag)
-       # print(par_str)
-       # print(bounds)
+#        print(par_str)
+#        print(bounds)
 
 
         self.f_for_mcmc = [idx for idx in range(len(flag)) if flag[idx] ==1 ] # indices for fitted parameters
