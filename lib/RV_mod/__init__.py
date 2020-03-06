@@ -1019,10 +1019,10 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
     N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0]) #fit.tra_data_sets[0][3]
 
 
-
+    e_par = [[0.0,0.0]]*len(par)
     for j in range(len(flags)):
-        par[flags[j]] = pp[j]
-
+        par[flags[j]]   = pp[j]
+        e_par[flags[j]] = [errors[j][0],errors[j][1]]
 
     if (rtg[1]):
         if obj.gp_kernel == 'RotKernel':
@@ -1082,10 +1082,15 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         if obj.hkl == False:
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
             obj.M0[i] = float(par[len(vel_files)*2 +7*i+4])
+            obj.M0_err[i] = e_par[len(vel_files)*2 +7*i+4]
 
         obj.t0[i]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
         obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
         obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
+        
+        obj.t0_err[i]     = e_par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+        obj.pl_a_err[i]   = e_par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
+        obj.pl_rad_err[i] = e_par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
 
         obj.omega_dot[i] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + tra_gp_npar + 2 + i ]
 
@@ -1097,21 +1102,33 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         else:
             obj.tra_off[i] =      par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + j]
             obj.tra_jitt[i] = abs(par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + N_transit_files + j])
+            
+            obj.tra_off_err[i] =      e_par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + j]
+            obj.tra_jitt_err[i] =     e_par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + N_transit_files + j]
+
             j = j +1
 
-        
+
         if tr_model[0][i] == "linear":
             obj.ld_u_lin[i] = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k +  npl]]
+            obj.ld_u_lin_err[i] = [e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k +  npl]]
             k += 1
         elif tr_model[0][i] == "quadratic":
             obj.ld_u_quad[i] = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + npl], 
                                 par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 1+ npl]]
+            
+            obj.ld_u_quad_err[i] = [e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + npl], 
+                                    e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 1+ npl]]
             k += 2
         elif tr_model[0][j] == "nonlinear":
             obj.ld_u_nonlin[i] = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + npl], 
                                   par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 1+ npl],
                                   par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 2+ npl], 
                                   par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 3+ npl]]
+            obj.ld_u_nonlin_err[i] = [e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + npl], 
+                                  e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 1+ npl],
+                                  e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 2+ npl], 
+                                  e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + k + 3+ npl]]
             k += 4
 #        else:
 #            tr_params.u = []

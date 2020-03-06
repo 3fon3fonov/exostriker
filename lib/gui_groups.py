@@ -116,6 +116,35 @@ def use_param_gui_tr(self):
 
     return use_param_gui_tr
 
+
+def err_t0(self):
+
+    err_t0 = [self.err_t0_1,self.err_t0_2,self.err_t0_3,
+              self.err_t0_4,self.err_t0_5,self.err_t0_6,
+              self.err_t0_7,self.err_t0_8,self.err_t0_9,
+            ]
+    return err_t0
+
+
+def err_pl_rad(self):
+
+    err_pl_rad = [self.err_pl_rad_1,self.err_pl_rad_2,self.err_pl_rad_3,
+                  self.err_pl_rad_4,self.err_pl_rad_5,self.err_pl_rad_6,
+                  self.err_pl_rad_7,self.err_pl_rad_8,self.err_pl_rad_9,
+            ]
+    return err_pl_rad
+
+
+def err_a_sol(self):
+
+    err_a_sol = [self.err_a_sol_1,self.err_a_sol_2,self.err_a_sol_3,
+                 self.err_a_sol_4,self.err_a_sol_5,self.err_a_sol_6,
+                 self.err_a_sol_7,self.err_a_sol_8,self.err_a_sol_9,
+            ]
+    return err_a_sol
+
+
+
 ###########################################################################
 
 
@@ -343,6 +372,13 @@ def use_lin_u(self):
             ]
     return use_lin_u
 
+def err_lin_u(self):
+
+    err_lin_u = [self.err_u1_linear_1,self.err_u1_linear_2,self.err_u1_linear_3,self.err_u1_linear_4,self.err_u1_linear_5,
+                 self.err_u1_linear_6,self.err_u1_linear_7,self.err_u1_linear_8,self.err_u1_linear_9,self.err_u1_linear_10
+             ]
+    return err_lin_u
+
 
 def quad_u1(self):
 
@@ -360,6 +396,15 @@ def use_quad_u1(self):
              ]
     return use_quad_u1
 
+def err_quad_u1(self):
+
+    err_quad_u1 =  [
+            self.err_u1_quadratic_1,self.err_u1_quadratic_2,self.err_u1_quadratic_3,self.err_u1_quadratic_4,self.err_u1_quadratic_5,
+            self.err_u1_quadratic_6,self.err_u1_quadratic_7,self.err_u1_quadratic_8,self.err_u1_quadratic_9,self.err_u1_quadratic_10
+             ]
+    return err_quad_u1
+
+
 def quad_u2(self):
 
     quad_u2 = [
@@ -375,6 +420,14 @@ def use_quad_u2(self):
             self.use_u2_quadratic_6,self.use_u2_quadratic_7,self.use_u2_quadratic_8,self.use_u2_quadratic_9,self.use_u2_quadratic_10
              ]
     return use_quad_u2
+
+def err_quad_u2(self):
+
+    err_quad_u2 =  [
+            self.err_u2_quadratic_1,self.err_u2_quadratic_2,self.err_u2_quadratic_3,self.err_u2_quadratic_4,self.err_u2_quadratic_5,
+            self.err_u2_quadratic_6,self.err_u2_quadratic_7,self.err_u2_quadratic_8,self.err_u2_quadratic_9,self.err_u2_quadratic_10
+             ]
+    return err_quad_u2
     
 
 
@@ -394,6 +447,13 @@ def use_nonlin_u1(self):
              ]
     return use_nonlin_u1
 
+def err_nonlin_u1(self):
+
+    err_nonlin_u1 =  [
+            self.err_u1_nonlin_1,self.err_u1_nonlin_2,self.err_u1_nonlin_3,self.err_u1_nonlin_4,self.err_u1_nonlin_5,
+            self.err_u1_nonlin_6,self.err_u1_nonlin_7,self.err_u1_nonlin_8,self.err_u1_nonlin_9,self.err_u1_nonlin_10
+             ]
+    return err_nonlin_u1
 
 def nonlin_u2(self):
 
@@ -411,6 +471,13 @@ def use_nonlin_u2(self):
              ]
     return use_nonlin_u2
 
+def err_nonlin_u2(self):
+
+    err_nonlin_u2 =  [
+            self.err_u2_nonlin_1,self.err_u2_nonlin_2,self.err_u2_nonlin_3,self.err_u2_nonlin_4,self.err_u2_nonlin_5,
+            self.err_u2_nonlin_6,self.err_u2_nonlin_7,self.err_u2_nonlin_8,self.err_u2_nonlin_9,self.err_u2_nonlin_10
+             ]
+    return err_nonlin_u2
 
 def nonlin_u3(self):
 
@@ -428,6 +495,14 @@ def use_nonlin_u3(self):
              ]
     return use_nonlin_u3
 
+def err_nonlin_u3(self):
+
+    err_nonlin_u3 =  [
+            self.err_u3_nonlin_1,self.err_u3_nonlin_2,self.err_u3_nonlin_3,self.err_u3_nonlin_4,self.err_u3_nonlin_5,
+            self.err_u3_nonlin_6,self.err_u3_nonlin_7,self.err_u3_nonlin_8,self.err_u3_nonlin_9,self.err_u3_nonlin_10
+             ]
+    return err_nonlin_u3
+
 def nonlin_u4(self):
 
     nonlin_u4 = [
@@ -444,7 +519,13 @@ def use_nonlin_u4(self):
              ]
     return use_nonlin_u4
 
+def err_nonlin_u4(self):
 
+    err_nonlin_u4 =  [
+            self.err_u4_nonlin_1,self.err_u4_nonlin_2,self.err_u4_nonlin_3,self.err_u4_nonlin_4,self.err_u4_nonlin_5,
+            self.err_u4_nonlin_6,self.err_u4_nonlin_7,self.err_u4_nonlin_8,self.err_u4_nonlin_9,self.err_u4_nonlin_10
+             ]
+    return err_nonlin_u4
 
 def ld_u1_bounds_gui(self):
     
