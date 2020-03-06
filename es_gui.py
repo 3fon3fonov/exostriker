@@ -514,6 +514,12 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(9):
             self.param_errors_gui_wd[i].setText("+/- %.3f"%max(np.abs(fit.omega_dot_err[i])))
 
+            self.err_t0[i].setText("+/- %.3f"%max(np.abs(fit.t0_err[i])))
+            self.err_pl_rad[i].setText("+/- %.3f"%max(np.abs(fit.pl_a_err[i])))
+            self.err_a_sol[i].setText("+/- %.3f"%max(np.abs(fit.pl_rad_err[i])))
+ 
+ 
+
 
         for i in range(10):
             self.data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.offset_errors[i])))
@@ -526,12 +532,21 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.err_RV_lin_trend.setText("+/- %.8f"%(max(fit.param_errors.linear_trend_error)))
         self.err_RV_quad_trend.setText("+/- %.8f"%(max(fit.rv_quadtr_err)))
 
-
         for i in range(len(self.gp_rot_errors_gui)):
-            self.gp_rot_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))  
+            self.gp_rot_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))
 
         for i in range(len(self.gp_sho_errors_gui)):
-            self.gp_sho_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))  
+            self.gp_sho_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))
+            
+            
+        for i in range(10):
+            self.err_lin_u[i].setText("+/- %.3f"%max(np.abs(fit.ld_u_lin_err[i][0])))
+            self.err_quad_u1[i].setText("+/- %.3f"%max(np.abs(fit.ld_u_quad_err[i][0])))
+            self.err_quad_u2[i].setText("+/- %.3f"%max(np.abs(fit.ld_u_quad_err[i][1])))
+            self.err_nonlin_u1[i].setText("+/- %.3f"%max(np.abs(fit.ld_u_nonlin_err[i][0])))
+            self.err_nonlin_u2[i].setText("+/- %.3f"%max(np.abs(fit.ld_u_nonlin_err[i][1])))
+            self.err_nonlin_u3[i].setText("+/- %.3f"%max(np.abs(fit.ld_u_nonlin_err[i][2])))
+            self.err_nonlin_u4[i].setText("+/- %.3f"%max(np.abs(fit.ld_u_nonlin_err[i][3])))
 
     def update_a_mass(self):
         global fit
@@ -6455,6 +6470,10 @@ Please install via 'pip install ttvfast'.
         self.param_gui_tr      = gui_groups.param_gui_tr(self)
         self.use_param_gui_tr  = gui_groups.use_param_gui_tr(self)
 
+        self.err_t0          = gui_groups.err_t0(self)
+        self.err_pl_rad      = gui_groups.err_pl_rad(self)
+        self.err_a_sol       = gui_groups.err_a_sol(self)
+
         self.rvs_data_gui      = gui_groups.rvs_data_gui(self)
         self.rvs_data_jitter_gui      = gui_groups.rvs_data_jitter_gui(self)
         self.use_data_offset_gui = gui_groups.use_data_offset_gui(self)
@@ -6506,26 +6525,36 @@ Please install via 'pip install ttvfast'.
         self.use_lin_ld_models    = gui_groups.use_lin_ld_models(self)
         self.use_quad_ld_models   = gui_groups.use_quad_ld_models(self)
         self.use_nonlin_ld_models = gui_groups.use_nonlin_ld_models(self)
+
         self.lin_u                = gui_groups.lin_u(self)
-        self.use_lin_u            = gui_groups.use_lin_u(self)
         self.quad_u1              = gui_groups.quad_u1(self)
-        self.use_quad_u1          = gui_groups.use_quad_u1(self)
         self.quad_u2              = gui_groups.quad_u2(self)
-        self.use_quad_u2          = gui_groups.use_quad_u2(self)
         self.nonlin_u1            = gui_groups.nonlin_u1(self)
-        self.use_nonlin_u1        = gui_groups.use_nonlin_u1(self)
         self.nonlin_u2            = gui_groups.nonlin_u2(self)
-        self.use_nonlin_u2        = gui_groups.use_nonlin_u2(self)
         self.nonlin_u3            = gui_groups.nonlin_u3(self)
-        self.use_nonlin_u3        = gui_groups.use_nonlin_u3(self)
         self.nonlin_u4            = gui_groups.nonlin_u4(self)
+
+        self.use_lin_u            = gui_groups.use_lin_u(self)
+        self.use_quad_u1          = gui_groups.use_quad_u1(self)
+        self.use_quad_u2          = gui_groups.use_quad_u2(self)
+        self.use_nonlin_u1        = gui_groups.use_nonlin_u1(self)
+        self.use_nonlin_u2        = gui_groups.use_nonlin_u2(self)
+        self.use_nonlin_u3        = gui_groups.use_nonlin_u3(self)
         self.use_nonlin_u4        = gui_groups.use_nonlin_u4(self)
-   
+
+        self.err_lin_u            = gui_groups.err_lin_u(self)
+        self.err_quad_u1          = gui_groups.err_quad_u1(self)
+        self.err_quad_u2          = gui_groups.err_quad_u2(self)
+        self.err_nonlin_u1        = gui_groups.err_nonlin_u1(self)
+        self.err_nonlin_u2        = gui_groups.err_nonlin_u2(self)
+        self.err_nonlin_u3        = gui_groups.err_nonlin_u3(self)
+        self.err_nonlin_u4        = gui_groups.err_nonlin_u4(self)
+
         self.ld_u1_bounds_gui     = gui_groups.ld_u1_bounds_gui(self)
         self.ld_u2_bounds_gui     = gui_groups.ld_u2_bounds_gui(self)
         self.ld_u3_bounds_gui     = gui_groups.ld_u3_bounds_gui(self)
         self.ld_u4_bounds_gui     = gui_groups.ld_u4_bounds_gui(self)
-    
+
         ########### TEMP ##############
         self.TTV_readme_info.clicked.connect(lambda: self.print_TTV_info()) 
 

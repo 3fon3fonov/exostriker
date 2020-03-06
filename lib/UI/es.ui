@@ -46964,7 +46964,7 @@
                    <string>Auto range</string>
                   </property>
                   <property name="checked">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
@@ -47926,7 +47926,7 @@
                    <string>Auto range</string>
                   </property>
                   <property name="checked">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
@@ -48900,7 +48900,7 @@
                    <string>Auto range</string>
                   </property>
                   <property name="checked">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
@@ -49383,7 +49383,7 @@
                   </widget>
                   <widget class="QWidget" name="tab_125">
                    <attribute name="title">
-                    <string>Page</string>
+                    <string>Per. rat.</string>
                    </attribute>
                    <layout class="QGridLayout" name="gridLayout_238">
                     <item row="0" column="0">
@@ -52623,7 +52623,7 @@
            <widget class="QTabWidget" name="tabWidget_29">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>9</pointsize>
              </font>
             </property>
             <property name="currentIndex">
@@ -54674,7 +54674,7 @@
                  </font>
                 </property>
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>2</number>
                 </property>
                 <widget class="QWidget" name="tab_102">
                  <attribute name="title">
@@ -59368,7 +59368,7 @@
                      </widget>
                     </item>
                     <item row="8" column="7">
-                     <widget class="QLabel" name="err_u2_nonlin_15">
+                     <widget class="QLabel" name="err_u2_nonlin_8">
                       <property name="font">
                        <font>
                         <pointsize>7</pointsize>
@@ -59380,7 +59380,7 @@
                      </widget>
                     </item>
                     <item row="10" column="4">
-                     <widget class="QLabel" name="err_u1_nonlin_19">
+                     <widget class="QLabel" name="err_u1_nonlin_10">
                       <property name="font">
                        <font>
                         <pointsize>7</pointsize>
@@ -59392,7 +59392,7 @@
                      </widget>
                     </item>
                     <item row="9" column="7">
-                     <widget class="QLabel" name="err_u2_nonlin_16">
+                     <widget class="QLabel" name="err_u2_nonlin_9">
                       <property name="font">
                        <font>
                         <pointsize>7</pointsize>
@@ -59404,7 +59404,7 @@
                      </widget>
                     </item>
                     <item row="10" column="7">
-                     <widget class="QLabel" name="err_u2_nonlin_17">
+                     <widget class="QLabel" name="err_u2_nonlin_10">
                       <property name="font">
                        <font>
                         <pointsize>7</pointsize>
@@ -59440,7 +59440,7 @@
                      </widget>
                     </item>
                     <item row="9" column="13">
-                     <widget class="QLabel" name="label_365">
+                     <widget class="QLabel" name="err_u4_nonlin_9">
                       <property name="font">
                        <font>
                         <pointsize>7</pointsize>
@@ -59452,7 +59452,7 @@
                      </widget>
                     </item>
                     <item row="10" column="13">
-                     <widget class="QLabel" name="label_366">
+                     <widget class="QLabel" name="err_u4_nonlin_10">
                       <property name="font">
                        <font>
                         <pointsize>7</pointsize>
