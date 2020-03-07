@@ -329,7 +329,7 @@ class MainWindow(QMainWindow):
             self.update_title()
 
             #self.statusBar().showMessage(path)        
-            self.setStatusBar(self.status(path))
+#            self.setStatusBar(self.status(path))
 
 
     def file_save(self):
