@@ -248,16 +248,17 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             j = 7*i
             for k in range(7):
                  self.param_gui[j+k].setValue(fit.params.planet_params[7*zz+k])
-            zz=zz+1
 
-
-        for i in range(9):
-            self.param_gui_wd[i].setValue(fit.omega_dot[i])
+#        for i in range(9):
+            self.param_gui_wd[i].setValue(fit.omega_dot[zz])
 
 #        for i in range(fit.npl):
-            self.param_gui_tr[i*3].setValue(fit.t0[i])
-            self.param_gui_tr[i*3+1].setValue(fit.pl_rad[i])
-            self.param_gui_tr[i*3+2].setValue(fit.pl_a[i])
+            self.param_gui_tr[i*3].setValue(fit.t0[zz])
+            self.param_gui_tr[i*3+1].setValue(fit.pl_rad[zz])
+            self.param_gui_tr[i*3+2].setValue(fit.pl_a[zz])
+
+            zz=zz+1
+
 
         for i in range(10): 
             self.rvs_data_gui[i].setValue(fit.params.offsets[i]) 
@@ -311,16 +312,18 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             j = 7*i
             for k in range(7):
                 fit.params.planet_params[7*zz+k] = self.param_gui[j+k].value()
-            zz = zz +1
 
 ######## TBX for bug in re-ordering ###########
-            
-        for i in range(9):
-            fit.omega_dot[i] = self.param_gui_wd[i].value()
 
-            fit.t0[i]     = self.param_gui_tr[i*3].value()
-            fit.pl_rad[i] = self.param_gui_tr[i*3+1].value()
-            fit.pl_a[i]   = self.param_gui_tr[i*3+2].value()
+#        for i in range(9):
+            fit.omega_dot[zz] = self.param_gui_wd[i].value()
+
+            fit.t0[zz]     = self.param_gui_tr[i*3].value()
+            fit.pl_rad[zz] = self.param_gui_tr[i*3+1].value()
+            fit.pl_a[zz]   = self.param_gui_tr[i*3+2].value()
+
+            zz = zz +1
+
 
         fit.sort_by_period(reverse=False)
         fit.hack_around_rv_params()
@@ -508,17 +511,14 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                # fit.params.planet_params[7*zz+k] = param_gui[j+k].value() 
                 self.param_errors_gui[j+k].setText("+/- %.3f"%max(np.abs(fit.param_errors.planet_params_errors[7*zz+k])))
 
+#        for i in range(9):
+            self.param_errors_gui_wd[i].setText("+/- %.3f"%max(np.abs(fit.omega_dot_err[zz])))
+
+            self.err_t0[i].setText("+/- %.3f"%max(np.abs(fit.t0_err[zz])))
+            self.err_pl_rad[i].setText("+/- %.3f"%max(np.abs(fit.pl_a_err[zz])))
+            self.err_a_sol[i].setText("+/- %.3f"%max(np.abs(fit.pl_rad_err[zz])))
+
             zz = zz +1
-
-
-        for i in range(9):
-            self.param_errors_gui_wd[i].setText("+/- %.3f"%max(np.abs(fit.omega_dot_err[i])))
-
-            self.err_t0[i].setText("+/- %.3f"%max(np.abs(fit.t0_err[i])))
-            self.err_pl_rad[i].setText("+/- %.3f"%max(np.abs(fit.pl_a_err[i])))
-            self.err_a_sol[i].setText("+/- %.3f"%max(np.abs(fit.pl_rad_err[i])))
- 
- 
 
 
         for i in range(10):
