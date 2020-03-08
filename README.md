@@ -10,14 +10,13 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 ![new_es](/lib/png/Exo_striker_demo_image.png)
 
 
-**WARNING!** This tool is under active development, and its functionality is enhanced on a daily basis! Use it at your own risk!
+**WARNING!** This tool is under active development, and its functionality is enhanced on a daily basis!
 
-Also, please keep in mind that this software is developed mostly for my needs and fun. I hope, however, that you may find it capable of solving your scientific problems, too. 
 
 What works:
 
-* RV period search: via GLS periodogram & maximum lnL periodogram (MLP).
-* Activity index period search via GLS periodogram.
+* RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
+* Activity index signal search via GLS periodogram.
 * Transit period search via TLS.
 * Keplerian and Dynamical RV modeling. 
 * Transit photometry modeling.
