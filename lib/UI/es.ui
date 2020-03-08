@@ -97,6 +97,11 @@
       </property>
       <item row="0" column="0">
        <widget class="QTabWidget" name="plot_tabs">
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
         <property name="currentIndex">
          <number>0</number>
         </property>
@@ -2135,6 +2140,7 @@
         </property>
         <property name="font">
          <font>
+          <pointsize>9</pointsize>
           <stylestrategy>PreferDefault</stylestrategy>
          </font>
         </property>
@@ -2142,7 +2148,7 @@
          <enum>QTabWidget::North</enum>
         </property>
         <property name="currentIndex">
-         <number>5</number>
+         <number>0</number>
         </property>
         <property name="movable">
          <bool>true</bool>
@@ -48218,21 +48224,12 @@
              <attribute name="title">
               <string>GLS/MLP/TLS</string>
              </attribute>
-             <layout class="QGridLayout" name="gridLayout_325">
-              <item row="0" column="0" rowspan="3">
+             <layout class="QGridLayout" name="gridLayout_239">
+              <item row="0" column="0" rowspan="5">
                <layout class="QGridLayout" name="gridLayout_284">
-                <item row="4" column="0">
-                 <widget class="QLabel" name="label_312">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>RV GLS o-c</string>
-                  </property>
-                 </widget>
-                </item>
+                <property name="spacing">
+                 <number>3</number>
+                </property>
                 <item row="1" column="2">
                  <widget class="QDoubleSpinBox" name="N_GLS_peak_to_point">
                   <property name="font">
@@ -48248,6 +48245,18 @@
                   </property>
                   <property name="value">
                    <double>4.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="2">
+                 <widget class="QLabel" name="label_273">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>N of peaks to point</string>
                   </property>
                  </widget>
                 </item>
@@ -48281,8 +48290,32 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="label_271">
+                <item row="4" column="0">
+                 <widget class="QLabel" name="label_312">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>RV GLS o-c</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0" colspan="3">
+                 <widget class="QCheckBox" name="show_alias_GLS">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>show aliases in Cross hair</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" colspan="3">
+                 <widget class="QLabel" name="label_322">
                   <property name="font">
                    <font>
                     <pointsize>9</pointsize>
@@ -48320,8 +48353,8 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0" colspan="3">
-                 <widget class="QLabel" name="label_322">
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_271">
                   <property name="font">
                    <font>
                     <pointsize>9</pointsize>
@@ -48375,21 +48408,57 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0" colspan="2">
-                 <widget class="QLabel" name="label_273">
+                <item row="6" column="1">
+                 <widget class="QDoubleSpinBox" name="alias_days_gls">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>10000.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="2">
+                 <widget class="QPushButton" name="colors_alias_gls">
                   <property name="font">
                    <font>
                     <pointsize>9</pointsize>
                    </font>
                   </property>
                   <property name="text">
-                   <string>N of peaks to point</string>
+                   <string>color</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0">
+                 <widget class="QLabel" name="label_365">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Alias [d]</string>
                   </property>
                  </widget>
                 </item>
                </layout>
               </item>
-              <item row="0" column="1" rowspan="4">
+              <item row="0" column="2" rowspan="6" colspan="2">
                <widget class="Line" name="line_5">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -48402,17 +48471,38 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="2" rowspan="3">
+              <item row="0" column="4" rowspan="5">
                <layout class="QGridLayout" name="gridLayout_286">
-                <item row="4" column="0">
-                 <widget class="QLabel" name="label_379">
+                <property name="spacing">
+                 <number>3</number>
+                </property>
+                <item row="5" column="0" colspan="3">
+                 <widget class="QCheckBox" name="show_alias_MLP">
                   <property name="font">
                    <font>
                     <pointsize>9</pointsize>
                    </font>
                   </property>
                   <property name="text">
-                   <string>RV MLP o-c</string>
+                   <string>show aliases in Cross hair</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="2">
+                 <widget class="QPushButton" name="colors_gls_o_c_2">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>color</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -48434,11 +48524,20 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="2">
-                 <widget class="QPushButton" name="colors_gls_o_c_2">
-                  <property name="enabled">
-                   <bool>false</bool>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_381">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
                   </property>
+                  <property name="text">
+                   <string>RV MLP</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="2">
+                 <widget class="QPushButton" name="colors_alias_mlp">
                   <property name="font">
                    <font>
                     <pointsize>9</pointsize>
@@ -48466,72 +48565,6 @@
                    <string>color</string>
                   </property>
                   <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="label_381">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>RV MLP</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QDoubleSpinBox" name="gls_model_width_2">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>0.010000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>1.000000000000000</double>
-                  </property>
-                  <property name="singleStep">
-                   <double>0.100000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>0.900000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0" colspan="3">
-                 <widget class="QLabel" name="label_382">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>RV MLP</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0" colspan="3">
-                 <widget class="QCheckBox" name="avoid_MLP_RV_alias">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Avoid possible 1d aliases (P &lt; 1.2 d)</string>
-                  </property>
-                  <property name="checked">
                    <bool>true</bool>
                   </property>
                  </widget>
@@ -48576,9 +48609,108 @@
                   </property>
                  </widget>
                 </item>
+                <item row="2" column="0" colspan="3">
+                 <widget class="QCheckBox" name="avoid_MLP_RV_alias">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Avoid possible 1d aliases (P &lt; 1.2 d)</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QLabel" name="label_379">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>RV MLP o-c</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QDoubleSpinBox" name="gls_model_width_2">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.900000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" colspan="3">
+                 <widget class="QLabel" name="label_382">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>RV MLP</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0">
+                 <widget class="QLabel" name="label_366">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Alias [d]</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="1">
+                 <widget class="QDoubleSpinBox" name="alias_days_mlp">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>10000.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </item>
-              <item row="0" column="3" rowspan="4">
+              <item row="0" column="5" rowspan="6" colspan="2">
                <widget class="Line" name="line_10">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -48591,7 +48723,7 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="4">
+              <item row="0" column="7" colspan="2">
                <layout class="QGridLayout" name="gridLayout_285">
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_323">
@@ -48640,33 +48772,53 @@
                 </item>
                </layout>
               </item>
-              <item row="3" column="0">
-               <spacer name="verticalSpacer_23">
+              <item row="1" column="1" rowspan="2">
+               <spacer name="horizontalSpacer_153">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>2</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="1" column="8">
+               <spacer name="verticalSpacer_89">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
                   <width>20</width>
-                  <height>198</height>
+                  <height>40</height>
                  </size>
                 </property>
                </spacer>
               </item>
-              <item row="3" column="2">
-               <spacer name="verticalSpacer_102">
+              <item row="2" column="3">
+               <spacer name="horizontalSpacer_94">
                 <property name="orientation">
-                 <enum>Qt::Vertical</enum>
+                 <enum>Qt::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
-                  <width>20</width>
-                  <height>113</height>
+                  <width>2</width>
+                  <height>20</height>
                  </size>
                 </property>
                </spacer>
               </item>
-              <item row="3" column="4">
+              <item row="3" column="6" rowspan="2" colspan="3">
+               <widget class="Line" name="line_13">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="7" rowspan="2" colspan="2">
                <layout class="QGridLayout" name="gridLayout_321">
                 <item row="2" column="0">
                  <widget class="QLabel" name="label_397">
@@ -48738,18 +48890,6 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0" colspan="2">
-                 <widget class="QLabel" name="label_400">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>N of peaks to point</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="1" column="2">
                  <widget class="QDoubleSpinBox" name="N_window_peak_to_point">
                   <property name="font">
@@ -48768,24 +48908,42 @@
                   </property>
                  </widget>
                 </item>
+                <item row="1" column="0" colspan="2">
+                 <widget class="QLabel" name="label_400">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>N of peaks to point</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </item>
-              <item row="2" column="4">
-               <widget class="Line" name="line_13">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="4">
-               <spacer name="verticalSpacer_89">
+              <item row="5" column="0">
+               <spacer name="verticalSpacer_23">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
                   <width>20</width>
-                  <height>40</height>
+                  <height>198</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="5" column="4">
+               <spacer name="verticalSpacer_102">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>113</height>
                  </size>
                 </property>
                </spacer>
@@ -48795,6 +48953,8 @@
              <zorder>line_10</zorder>
              <zorder>line_13</zorder>
              <zorder>verticalSpacer_89</zorder>
+             <zorder>horizontalSpacer_94</zorder>
+             <zorder>horizontalSpacer_153</zorder>
             </widget>
             <widget class="QWidget" name="tab_158">
              <attribute name="title">
@@ -49559,6 +49719,7 @@
         </property>
         <property name="font">
          <font>
+          <pointsize>9</pointsize>
           <stylestrategy>PreferDefault</stylestrategy>
          </font>
         </property>
@@ -51694,6 +51855,11 @@
                 </property>
                 <item row="6" column="4" colspan="2">
                  <widget class="QDoubleSpinBox" name="inflate_RV_sigma_6">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="decimals">
                    <number>3</number>
                   </property>
@@ -51707,6 +51873,11 @@
                 </item>
                 <item row="2" column="0">
                  <widget class="QLabel" name="label_383">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>data 2</string>
                   </property>
@@ -51765,6 +51936,11 @@
                 </item>
                 <item row="4" column="0">
                  <widget class="QLabel" name="label_385">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>data 4</string>
                   </property>
@@ -51772,6 +51948,11 @@
                 </item>
                 <item row="3" column="0">
                  <widget class="QLabel" name="label_384">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>data 3</string>
                   </property>
@@ -51865,6 +52046,11 @@
                 </item>
                 <item row="10" column="4" colspan="2">
                  <widget class="QDoubleSpinBox" name="inflate_RV_sigma_10">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="decimals">
                    <number>3</number>
                   </property>
@@ -51878,6 +52064,11 @@
                 </item>
                 <item row="8" column="4" colspan="2">
                  <widget class="QDoubleSpinBox" name="inflate_RV_sigma_8">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="decimals">
                    <number>3</number>
                   </property>
@@ -51891,6 +52082,11 @@
                 </item>
                 <item row="0" column="1" colspan="5">
                  <widget class="QLabel" name="label_393">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Quad. add to &amp;sigma; [m/s]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
@@ -51936,6 +52132,11 @@
                 </item>
                 <item row="5" column="0">
                  <widget class="QLabel" name="label_386">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>data 5</string>
                   </property>
@@ -52026,6 +52227,11 @@
                 </item>
                 <item row="10" column="0">
                  <widget class="QLabel" name="label_391">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>data 10</string>
                   </property>
@@ -52062,6 +52268,11 @@
                 </item>
                 <item row="3" column="4" colspan="2">
                  <widget class="QDoubleSpinBox" name="inflate_RV_sigma_3">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="decimals">
                    <number>3</number>
                   </property>
@@ -52091,6 +52302,11 @@
                 </item>
                 <item row="9" column="4" colspan="2">
                  <widget class="QDoubleSpinBox" name="inflate_RV_sigma_9">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="decimals">
                    <number>3</number>
                   </property>
@@ -52104,6 +52320,11 @@
                 </item>
                 <item row="7" column="0">
                  <widget class="QLabel" name="label_388">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>data 7</string>
                   </property>
@@ -52111,6 +52332,11 @@
                 </item>
                 <item row="9" column="0">
                  <widget class="QLabel" name="label_390">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>data 9</string>
                   </property>
@@ -52137,6 +52363,11 @@
                 </item>
                 <item row="8" column="0">
                  <widget class="QLabel" name="label_389">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>data 8</string>
                   </property>
@@ -52240,6 +52471,11 @@
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="decimals">
                    <number>3</number>
                   </property>
@@ -52288,6 +52524,11 @@
                 </item>
                 <item row="7" column="4" colspan="2">
                  <widget class="QDoubleSpinBox" name="inflate_RV_sigma_7">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="decimals">
                    <number>3</number>
                   </property>
@@ -52301,6 +52542,11 @@
                 </item>
                 <item row="2" column="4" colspan="2">
                  <widget class="QDoubleSpinBox" name="inflate_RV_sigma_2">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="decimals">
                    <number>3</number>
                   </property>
@@ -52340,6 +52586,11 @@
                 </item>
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_356">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>data 1</string>
                   </property>
@@ -52354,6 +52605,11 @@
                 </item>
                 <item row="4" column="4" colspan="2">
                  <widget class="QDoubleSpinBox" name="inflate_RV_sigma_4">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="decimals">
                    <number>3</number>
                   </property>
@@ -52412,6 +52668,11 @@
                 </item>
                 <item row="5" column="4" colspan="2">
                  <widget class="QDoubleSpinBox" name="inflate_RV_sigma_5">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="decimals">
                    <number>3</number>
                   </property>
@@ -52425,6 +52686,11 @@
                 </item>
                 <item row="6" column="0">
                  <widget class="QLabel" name="label_387">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>data 6</string>
                   </property>
@@ -52458,6 +52724,11 @@
                 </item>
                 <item row="0" column="7" colspan="3">
                  <widget class="QLabel" name="label_439">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;outlier &amp;sigma; clip. [&amp;sigma;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
@@ -52465,6 +52736,11 @@
                 </item>
                 <item row="1" column="10">
                  <widget class="QPushButton" name="Button_apply_rv_options_1">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Apply</string>
                   </property>
@@ -52478,6 +52754,11 @@
                 </item>
                 <item row="2" column="10">
                  <widget class="QPushButton" name="Button_apply_rv_options_2">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Apply</string>
                   </property>
@@ -52491,6 +52772,11 @@
                 </item>
                 <item row="3" column="10">
                  <widget class="QPushButton" name="Button_apply_rv_options_3">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Apply</string>
                   </property>
@@ -52504,6 +52790,11 @@
                 </item>
                 <item row="4" column="10">
                  <widget class="QPushButton" name="Button_apply_rv_options_4">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Apply</string>
                   </property>
@@ -52517,6 +52808,11 @@
                 </item>
                 <item row="5" column="10">
                  <widget class="QPushButton" name="Button_apply_rv_options_5">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Apply</string>
                   </property>
@@ -52530,6 +52826,11 @@
                 </item>
                 <item row="6" column="10">
                  <widget class="QPushButton" name="Button_apply_rv_options_6">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Apply</string>
                   </property>
@@ -52543,6 +52844,11 @@
                 </item>
                 <item row="7" column="10">
                  <widget class="QPushButton" name="Button_apply_rv_options_7">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Apply</string>
                   </property>
@@ -52556,6 +52862,11 @@
                 </item>
                 <item row="8" column="10">
                  <widget class="QPushButton" name="Button_apply_rv_options_8">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Apply</string>
                   </property>
@@ -52569,6 +52880,11 @@
                 </item>
                 <item row="9" column="10">
                  <widget class="QPushButton" name="Button_apply_rv_options_9">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Apply</string>
                   </property>
@@ -52582,6 +52898,11 @@
                 </item>
                 <item row="10" column="10">
                  <widget class="QPushButton" name="Button_apply_rv_options_10">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Apply</string>
                   </property>
@@ -54707,6 +55028,11 @@
                     </property>
                     <item row="9" column="1">
                      <widget class="QLabel" name="label_176">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data9</string>
                       </property>
@@ -54717,6 +55043,11 @@
                     </item>
                     <item row="7" column="1">
                      <widget class="QLabel" name="label_175">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data7</string>
                       </property>
@@ -54727,6 +55058,11 @@
                     </item>
                     <item row="10" column="1">
                      <widget class="QLabel" name="label_145">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data10</string>
                       </property>
@@ -54737,6 +55073,11 @@
                     </item>
                     <item row="2" column="1">
                      <widget class="QLabel" name="label_179">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data2</string>
                       </property>
@@ -54747,6 +55088,11 @@
                     </item>
                     <item row="4" column="1">
                      <widget class="QLabel" name="label_178">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data4</string>
                       </property>
@@ -54757,6 +55103,11 @@
                     </item>
                     <item row="1" column="1">
                      <widget class="QLabel" name="label_177">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data1</string>
                       </property>
@@ -54767,6 +55118,11 @@
                     </item>
                     <item row="6" column="1">
                      <widget class="QLabel" name="label_180">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data6</string>
                       </property>
@@ -54777,6 +55133,11 @@
                     </item>
                     <item row="5" column="1">
                      <widget class="QLabel" name="label_174">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data5</string>
                       </property>
@@ -54787,6 +55148,11 @@
                     </item>
                     <item row="8" column="1">
                      <widget class="QLabel" name="label_182">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data8</string>
                       </property>
@@ -54797,6 +55163,11 @@
                     </item>
                     <item row="3" column="1">
                      <widget class="QLabel" name="label_181">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data3</string>
                       </property>
@@ -54812,6 +55183,11 @@
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
                       </property>
                       <property name="text">
                        <string>Use Uniform</string>
@@ -54967,6 +55343,11 @@
                     </property>
                     <item row="1" column="3">
                      <widget class="QDoubleSpinBox" name="u1_linear_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -54983,6 +55364,11 @@
                     </item>
                     <item row="0" column="3">
                      <widget class="QLabel" name="label_194">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>u1</string>
                       </property>
@@ -54990,6 +55376,11 @@
                     </item>
                     <item row="3" column="1">
                      <widget class="QLabel" name="label_192">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data3</string>
                       </property>
@@ -55000,6 +55391,11 @@
                     </item>
                     <item row="6" column="1">
                      <widget class="QLabel" name="label_189">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data6</string>
                       </property>
@@ -55023,6 +55419,11 @@
                     </item>
                     <item row="8" column="3">
                      <widget class="QDoubleSpinBox" name="u1_linear_8">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55039,6 +55440,11 @@
                     </item>
                     <item row="1" column="4">
                      <widget class="QLabel" name="err_u1_linear_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -55052,6 +55458,11 @@
                     </item>
                     <item row="2" column="3">
                      <widget class="QDoubleSpinBox" name="u1_linear_2">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55078,6 +55489,11 @@
                     </item>
                     <item row="1" column="1">
                      <widget class="QLabel" name="label_188">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data1</string>
                       </property>
@@ -55101,6 +55517,11 @@
                     </item>
                     <item row="5" column="3">
                      <widget class="QDoubleSpinBox" name="u1_linear_5">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55117,6 +55538,11 @@
                     </item>
                     <item row="8" column="4">
                      <widget class="QLabel" name="err_u1_linear_8">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -55130,6 +55556,11 @@
                     </item>
                     <item row="10" column="1">
                      <widget class="QLabel" name="label_185">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data10</string>
                       </property>
@@ -55140,6 +55571,11 @@
                     </item>
                     <item row="6" column="3">
                      <widget class="QDoubleSpinBox" name="u1_linear_6">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55169,6 +55605,11 @@
                     </item>
                     <item row="7" column="1">
                      <widget class="QLabel" name="label_184">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data7</string>
                       </property>
@@ -55179,6 +55620,11 @@
                     </item>
                     <item row="6" column="4">
                      <widget class="QLabel" name="err_u1_linear_6">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -55244,6 +55690,11 @@
                     </item>
                     <item row="3" column="3">
                      <widget class="QDoubleSpinBox" name="u1_linear_3">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55273,6 +55724,11 @@
                     </item>
                     <item row="4" column="3">
                      <widget class="QDoubleSpinBox" name="u1_linear_4">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55289,6 +55745,11 @@
                     </item>
                     <item row="9" column="3">
                      <widget class="QDoubleSpinBox" name="u1_linear_9">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55315,6 +55776,11 @@
                     </item>
                     <item row="10" column="3">
                      <widget class="QDoubleSpinBox" name="u1_linear_10">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55331,6 +55797,11 @@
                     </item>
                     <item row="2" column="4">
                      <widget class="QLabel" name="err_u1_linear_2">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -55357,6 +55828,11 @@
                     </item>
                     <item row="0" column="1">
                      <widget class="QLabel" name="label_193">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>Use linear</string>
                       </property>
@@ -55364,6 +55840,11 @@
                     </item>
                     <item row="7" column="3">
                      <widget class="QDoubleSpinBox" name="u1_linear_7">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55406,6 +55887,11 @@
                     </item>
                     <item row="2" column="1">
                      <widget class="QLabel" name="label_186">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data2</string>
                       </property>
@@ -55416,6 +55902,11 @@
                     </item>
                     <item row="4" column="1">
                      <widget class="QLabel" name="label_187">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data4</string>
                       </property>
@@ -55439,6 +55930,11 @@
                     </item>
                     <item row="7" column="4">
                      <widget class="QLabel" name="err_u1_linear_7">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -55478,6 +55974,11 @@
                     </item>
                     <item row="8" column="1">
                      <widget class="QLabel" name="label_191">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data8</string>
                       </property>
@@ -55527,6 +56028,11 @@
                     </item>
                     <item row="3" column="4">
                      <widget class="QLabel" name="err_u1_linear_3">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -55553,6 +56059,11 @@
                     </item>
                     <item row="5" column="1">
                      <widget class="QLabel" name="label_190">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data5</string>
                       </property>
@@ -55563,6 +56074,11 @@
                     </item>
                     <item row="9" column="1">
                      <widget class="QLabel" name="label_183">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>data9</string>
                       </property>
@@ -55573,6 +56089,11 @@
                     </item>
                     <item row="5" column="4">
                      <widget class="QLabel" name="err_u1_linear_5">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -55586,6 +56107,11 @@
                     </item>
                     <item row="4" column="4">
                      <widget class="QLabel" name="err_u1_linear_4">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -55599,6 +56125,11 @@
                     </item>
                     <item row="9" column="4">
                      <widget class="QLabel" name="err_u1_linear_9">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -55612,6 +56143,11 @@
                     </item>
                     <item row="10" column="4">
                      <widget class="QLabel" name="err_u1_linear_10">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/-0.000</string>
                       </property>
@@ -55655,6 +56191,11 @@
                     </property>
                     <item row="9" column="3">
                      <widget class="QDoubleSpinBox" name="u1_quadratic_9">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55671,6 +56212,11 @@
                     </item>
                     <item row="9" column="6">
                      <widget class="QDoubleSpinBox" name="u2_quadratic_9">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55687,6 +56233,11 @@
                     </item>
                     <item row="3" column="3">
                      <widget class="QDoubleSpinBox" name="u1_quadratic_3">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55719,6 +56270,11 @@
                     </item>
                     <item row="1" column="3">
                      <widget class="QDoubleSpinBox" name="u1_quadratic_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55737,7 +56293,7 @@
                      <widget class="QLabel" name="label_196">
                       <property name="font">
                        <font>
-                        <pointsize>9</pointsize>
+                        <pointsize>8</pointsize>
                        </font>
                       </property>
                       <property name="text">
@@ -55750,6 +56306,11 @@
                     </item>
                     <item row="4" column="6">
                      <widget class="QDoubleSpinBox" name="u2_quadratic_4">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55766,6 +56327,11 @@
                     </item>
                     <item row="6" column="3">
                      <widget class="QDoubleSpinBox" name="u1_quadratic_6">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55782,6 +56348,11 @@
                     </item>
                     <item row="1" column="6">
                      <widget class="QDoubleSpinBox" name="u2_quadratic_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55798,6 +56369,11 @@
                     </item>
                     <item row="8" column="3">
                      <widget class="QDoubleSpinBox" name="u1_quadratic_8">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55827,6 +56403,11 @@
                     </item>
                     <item row="2" column="3">
                      <widget class="QDoubleSpinBox" name="u1_quadratic_2">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55843,6 +56424,11 @@
                     </item>
                     <item row="10" column="6">
                      <widget class="QDoubleSpinBox" name="u2_quadratic_10">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55859,6 +56445,11 @@
                     </item>
                     <item row="3" column="6">
                      <widget class="QDoubleSpinBox" name="u2_quadratic_3">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55917,6 +56508,11 @@
                     </item>
                     <item row="5" column="3">
                      <widget class="QDoubleSpinBox" name="u1_quadratic_5">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55933,6 +56529,11 @@
                     </item>
                     <item row="8" column="6">
                      <widget class="QDoubleSpinBox" name="u2_quadratic_8">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -55962,6 +56563,11 @@
                     </item>
                     <item row="4" column="3">
                      <widget class="QDoubleSpinBox" name="u1_quadratic_4">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -56097,6 +56703,11 @@
                     </item>
                     <item row="0" column="3">
                      <widget class="QLabel" name="label_206">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>u1</string>
                       </property>
@@ -56152,6 +56763,11 @@
                     </item>
                     <item row="0" column="1">
                      <widget class="QLabel" name="label_198">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>Use Quadratic</string>
                       </property>
@@ -56172,6 +56788,11 @@
                     </item>
                     <item row="10" column="3">
                      <widget class="QDoubleSpinBox" name="u1_quadratic_10">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -56188,6 +56809,11 @@
                     </item>
                     <item row="2" column="6">
                      <widget class="QDoubleSpinBox" name="u2_quadratic_2">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -56204,6 +56830,11 @@
                     </item>
                     <item row="5" column="6">
                      <widget class="QDoubleSpinBox" name="u2_quadratic_5">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -56313,6 +56944,11 @@
                     </item>
                     <item row="7" column="6">
                      <widget class="QDoubleSpinBox" name="u2_quadratic_7">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -56372,6 +57008,11 @@
                     </item>
                     <item row="6" column="6">
                      <widget class="QDoubleSpinBox" name="u2_quadratic_6">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -56388,6 +57029,11 @@
                     </item>
                     <item row="7" column="3">
                      <widget class="QDoubleSpinBox" name="u1_quadratic_7">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="decimals">
                        <number>5</number>
                       </property>
@@ -56419,6 +57065,11 @@
                     </item>
                     <item row="0" column="6">
                      <widget class="QLabel" name="label_207">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>u2</string>
                       </property>
@@ -56578,6 +57229,11 @@
                     </item>
                     <item row="1" column="4">
                      <widget class="QLabel" name="err_u1_quadratic_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56591,6 +57247,11 @@
                     </item>
                     <item row="1" column="7">
                      <widget class="QLabel" name="err_u2_quadratic_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56604,6 +57265,11 @@
                     </item>
                     <item row="2" column="4">
                      <widget class="QLabel" name="err_u1_quadratic_2">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56617,6 +57283,11 @@
                     </item>
                     <item row="2" column="7">
                      <widget class="QLabel" name="err_u2_quadratic_2">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56630,6 +57301,11 @@
                     </item>
                     <item row="3" column="7">
                      <widget class="QLabel" name="err_u2_quadratic_3">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56643,6 +57319,11 @@
                     </item>
                     <item row="4" column="7">
                      <widget class="QLabel" name="err_u2_quadratic_4">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56656,6 +57337,11 @@
                     </item>
                     <item row="5" column="7">
                      <widget class="QLabel" name="err_u2_quadratic_5">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56669,6 +57355,11 @@
                     </item>
                     <item row="6" column="7">
                      <widget class="QLabel" name="err_u2_quadratic_6">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56682,6 +57373,11 @@
                     </item>
                     <item row="7" column="7">
                      <widget class="QLabel" name="err_u2_quadratic_7">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56695,6 +57391,11 @@
                     </item>
                     <item row="8" column="7">
                      <widget class="QLabel" name="err_u2_quadratic_8">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56708,6 +57409,11 @@
                     </item>
                     <item row="3" column="4">
                      <widget class="QLabel" name="err_u1_quadratic_3">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56721,6 +57427,11 @@
                     </item>
                     <item row="9" column="7">
                      <widget class="QLabel" name="err_u2_quadratic_9">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56734,6 +57445,11 @@
                     </item>
                     <item row="4" column="4">
                      <widget class="QLabel" name="err_u1_quadratic_4">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56747,6 +57463,11 @@
                     </item>
                     <item row="5" column="4">
                      <widget class="QLabel" name="err_u1_quadratic_5">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56760,6 +57481,11 @@
                     </item>
                     <item row="6" column="4">
                      <widget class="QLabel" name="err_u1_quadratic_6">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56773,6 +57499,11 @@
                     </item>
                     <item row="7" column="4">
                      <widget class="QLabel" name="err_u1_quadratic_7">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56786,6 +57517,11 @@
                     </item>
                     <item row="8" column="4">
                      <widget class="QLabel" name="err_u1_quadratic_8">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56793,13 +57529,23 @@
                     </item>
                     <item row="9" column="4">
                      <widget class="QLabel" name="err_u1_quadratic_9">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
-                       <string>+/-0.000</string>
+                       <string>+/- 0.000</string>
                       </property>
                      </widget>
                     </item>
                     <item row="10" column="4">
                      <widget class="QLabel" name="err_u1_quadratic_10">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56807,6 +57553,11 @@
                     </item>
                     <item row="10" column="7">
                      <widget class="QLabel" name="err_u2_quadratic_10">
+                      <property name="font">
+                       <font>
+                        <pointsize>8</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>+/- 0.000</string>
                       </property>
@@ -56985,6 +57736,11 @@
                     </item>
                     <item row="0" column="6">
                      <widget class="QLabel" name="label_233">
+                      <property name="font">
+                       <font>
+                        <pointsize>7</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>u2</string>
                       </property>
@@ -57501,6 +58257,11 @@
                     </item>
                     <item row="0" column="9">
                      <widget class="QLabel" name="label_247">
+                      <property name="font">
+                       <font>
+                        <pointsize>7</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>u3</string>
                       </property>
@@ -58417,6 +59178,11 @@
                     </item>
                     <item row="0" column="12">
                      <widget class="QLabel" name="label_248">
+                      <property name="font">
+                       <font>
+                        <pointsize>7</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>u4</string>
                       </property>
@@ -58442,6 +59208,11 @@
                     </item>
                     <item row="0" column="3">
                      <widget class="QLabel" name="label_225">
+                      <property name="font">
+                       <font>
+                        <pointsize>7</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>u1</string>
                       </property>
@@ -59478,6 +60249,11 @@
              <layout class="QGridLayout" name="gridLayout_312">
               <item row="0" column="0">
                <widget class="QLabel" name="label_357">
+                <property name="font">
+                 <font>
+                  <pointsize>11</pointsize>
+                 </font>
+                </property>
                 <property name="text">
                  <string>work in progress</string>
                 </property>
@@ -59499,11 +60275,8 @@
             <property name="bottomMargin">
              <number>0</number>
             </property>
-            <property name="horizontalSpacing">
+            <property name="spacing">
              <number>4</number>
-            </property>
-            <property name="verticalSpacing">
-             <number>0</number>
             </property>
             <item row="0" column="1">
              <spacer name="verticalSpacer_27">
@@ -60277,6 +61050,11 @@
             </item>
             <item row="0" column="2">
              <spacer name="horizontalSpacer_55">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -60305,6 +61083,11 @@
             </item>
             <item row="1" column="4">
              <widget class="QSpinBox" name="ttv_data_planet_1">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -60337,6 +61120,11 @@
             </item>
             <item row="2" column="4">
              <widget class="QSpinBox" name="ttv_data_planet_2">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -60350,6 +61138,11 @@
             </item>
             <item row="3" column="4">
              <widget class="QSpinBox" name="ttv_data_planet_3">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -60363,6 +61156,11 @@
             </item>
             <item row="4" column="4">
              <widget class="QSpinBox" name="ttv_data_planet_4">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -60376,6 +61174,11 @@
             </item>
             <item row="5" column="4">
              <widget class="QSpinBox" name="ttv_data_planet_5">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -60389,6 +61192,11 @@
             </item>
             <item row="6" column="4">
              <widget class="QSpinBox" name="ttv_data_planet_6">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -60402,6 +61210,11 @@
             </item>
             <item row="7" column="4">
              <widget class="QSpinBox" name="ttv_data_planet_7">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -60415,6 +61228,11 @@
             </item>
             <item row="8" column="4">
              <widget class="QSpinBox" name="ttv_data_planet_8">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -60428,6 +61246,11 @@
             </item>
             <item row="9" column="4">
              <widget class="QSpinBox" name="ttv_data_planet_9">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -60441,6 +61264,11 @@
             </item>
             <item row="10" column="4">
              <widget class="QSpinBox" name="ttv_data_planet_10">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -60814,19 +61642,6 @@
              <size>
               <width>20</width>
               <height>38</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="4" column="0">
-           <spacer name="verticalSpacer_43">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
              </size>
             </property>
            </spacer>
@@ -62153,6 +62968,11 @@
                      <widget class="QCheckBox" name="use_bounds_pl_10">
                       <property name="enabled">
                        <bool>false</bool>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
                       </property>
                       <property name="text">
                        <string>bounds</string>
@@ -63780,6 +64600,11 @@
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>norm. pr.</string>
                       </property>
@@ -65235,6 +66060,11 @@
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>jeff. pr.</string>
                       </property>
@@ -65663,6 +66493,11 @@
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>bounds</string>
                       </property>
@@ -65673,6 +66508,11 @@
                     </item>
                     <item row="0" column="2">
                      <widget class="QLabel" name="label_170">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>Min.</string>
                       </property>
@@ -65680,6 +66520,11 @@
                     </item>
                     <item row="0" column="3">
                      <widget class="QLabel" name="label_171">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>Max.</string>
                       </property>
@@ -65875,6 +66720,11 @@
                      <widget class="QCheckBox" name="use_bounds_pl_13">
                       <property name="enabled">
                        <bool>false</bool>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
                       </property>
                       <property name="text">
                        <string>nr. prior</string>
@@ -66102,6 +66952,11 @@
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>jeff. prior</string>
                       </property>
@@ -66251,6 +67106,11 @@
              <layout class="QGridLayout" name="gridLayout_140">
               <item row="0" column="0">
                <widget class="QTabWidget" name="tabWidget_26">
+                <property name="font">
+                 <font>
+                  <pointsize>9</pointsize>
+                 </font>
+                </property>
                 <property name="currentIndex">
                  <number>0</number>
                 </property>
@@ -66270,57 +67130,6 @@
                     <property name="verticalSpacing">
                      <number>0</number>
                     </property>
-                    <item row="10" column="1">
-                     <widget class="QLabel" name="label_31">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>data10</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="3">
-                     <widget class="QLabel" name="Planet3_12">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Off. rel.flux min</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="6">
-                     <widget class="DoubleSpinBox" name="tra_jitter_min_1">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="minimum">
-                       <double>-0.010000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>99.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>0.010000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>-0.010000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="8" column="7">
                      <widget class="DoubleSpinBox" name="tra_jitter_max_8">
                       <property name="font">
@@ -66339,26 +67148,41 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="10" column="7">
-                     <widget class="DoubleSpinBox" name="tra_jitter_max_10">
+                    <item row="9" column="3">
+                     <widget class="DoubleSpinBox" name="tra_Data_min_9">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
                        </font>
                       </property>
-                      <property name="decimals">
-                       <number>3</number>
+                      <property name="minimum">
+                       <double>-100000.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100.000000000000000</double>
+                       <double>100000.000000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100.000000000000000</double>
+                       <double>-100000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="7">
-                     <widget class="DoubleSpinBox" name="tra_jitter_max_2">
+                    <item row="9" column="1">
+                     <widget class="QLabel" name="label_106">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>data9</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="7">
+                     <widget class="DoubleSpinBox" name="tra_jitter_max_1">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -66378,105 +67202,31 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="5" column="1">
-                     <widget class="QLabel" name="label_33">
+                    <item row="0" column="2">
+                     <spacer name="horizontalSpacer_120">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeType">
+                       <enum>QSizePolicy::Fixed</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>13</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item row="0" column="3">
+                     <widget class="QLabel" name="Planet3_12">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
                        </font>
                       </property>
                       <property name="text">
-                       <string>data5</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="10" column="3">
-                     <widget class="DoubleSpinBox" name="tra_Data_min_10">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="minimum">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="5" column="3">
-                     <widget class="DoubleSpinBox" name="tra_Data_min_5">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="minimum">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="7" column="7">
-                     <widget class="DoubleSpinBox" name="tra_jitter_max_7">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="7" column="1">
-                     <widget class="QLabel" name="label_34">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>data7</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="6" column="3">
-                     <widget class="DoubleSpinBox" name="tra_Data_min_6">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="minimum">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>-100000.000000000000000</double>
+                       <string>Off. rel.flux min</string>
                       </property>
                      </widget>
                     </item>
@@ -66519,8 +67269,8 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="9" column="3">
-                     <widget class="DoubleSpinBox" name="tra_Data_min_9">
+                    <item row="8" column="3">
+                     <widget class="DoubleSpinBox" name="tra_Data_min_8">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -66537,39 +67287,26 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="9" column="1">
-                     <widget class="QLabel" name="label_106">
+                    <item row="10" column="7">
+                     <widget class="DoubleSpinBox" name="tra_jitter_max_10">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
                        </font>
                       </property>
-                      <property name="text">
-                       <string>data9</string>
+                      <property name="decimals">
+                       <number>3</number>
                       </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      <property name="maximum">
+                       <double>100.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100.000000000000000</double>
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="2">
-                     <spacer name="horizontalSpacer_120">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeType">
-                       <enum>QSizePolicy::Fixed</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>13</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item row="7" column="3">
-                     <widget class="DoubleSpinBox" name="tra_Data_min_7">
+                    <item row="5" column="3">
+                     <widget class="DoubleSpinBox" name="tra_Data_min_5">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -66586,33 +67323,132 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="1">
-                     <widget class="QLabel" name="label_107">
+                    <item row="3" column="1">
+                     <widget class="QLabel" name="label_116">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
                        </font>
                       </property>
                       <property name="text">
-                       <string>data1</string>
+                       <string>data3</string>
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="1">
-                     <widget class="QLabel" name="label_110">
+                    <item row="2" column="7">
+                     <widget class="DoubleSpinBox" name="tra_jitter_max_2">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>100.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="1">
+                     <widget class="QLabel" name="label_34">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
                        </font>
                       </property>
                       <property name="text">
-                       <string>data4</string>
+                       <string>data7</string>
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="6" column="3">
+                     <widget class="DoubleSpinBox" name="tra_Data_min_6">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="minimum">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="7">
+                     <widget class="DoubleSpinBox" name="tra_jitter_max_7">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>100.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="3">
+                     <widget class="DoubleSpinBox" name="tra_Data_min_10">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="minimum">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="6">
+                     <widget class="DoubleSpinBox" name="tra_jitter_min_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-0.010000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>99.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-0.010000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -66652,26 +67488,8 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="8" column="3">
-                     <widget class="DoubleSpinBox" name="tra_Data_min_8">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="minimum">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="7">
-                     <widget class="DoubleSpinBox" name="tra_jitter_max_1">
+                    <item row="9" column="7">
+                     <widget class="DoubleSpinBox" name="tra_jitter_max_9">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -66682,9 +67500,6 @@
                       </property>
                       <property name="maximum">
                        <double>100.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>1.000000000000000</double>
                       </property>
                       <property name="value">
                        <double>100.000000000000000</double>
@@ -66712,44 +67527,8 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="9" column="7">
-                     <widget class="DoubleSpinBox" name="tra_jitter_max_9">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="3" column="7">
                      <widget class="DoubleSpinBox" name="tra_jitter_max_3">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="7">
-                     <widget class="DoubleSpinBox" name="tra_jitter_max_4">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -66778,6 +67557,57 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="7" column="3">
+                     <widget class="DoubleSpinBox" name="tra_Data_min_7">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="minimum">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QLabel" name="label_107">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>data1</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="7">
+                     <widget class="DoubleSpinBox" name="tra_jitter_max_4">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>100.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="6" column="1">
                      <widget class="QLabel" name="label_115">
                       <property name="font">
@@ -66793,234 +67623,23 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="1">
-                     <widget class="QLabel" name="label_116">
+                    <item row="10" column="1">
+                     <widget class="QLabel" name="label_31">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
                        </font>
                       </property>
                       <property name="text">
-                       <string>data3</string>
+                       <string>data10</string>
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
-                    <item row="6" column="7">
-                     <widget class="DoubleSpinBox" name="tra_jitter_max_6">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="8" column="1">
-                     <widget class="QLabel" name="label_117">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>data8</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="3">
-                     <widget class="DoubleSpinBox" name="tra_Data_min_3">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="minimum">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="3">
-                     <widget class="DoubleSpinBox" name="tra_Data_min_2">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="minimum">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>1.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="5">
-                     <spacer name="horizontalSpacer_121">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeType">
-                       <enum>QSizePolicy::Fixed</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>13</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item row="5" column="7">
-                     <widget class="DoubleSpinBox" name="tra_jitter_max_5">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="4">
-                     <widget class="DoubleSpinBox" name="tra_Data_max_3">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="minimum">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>1.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="4">
-                     <widget class="DoubleSpinBox" name="tra_Data_max_4">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="minimum">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>1.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="5" column="4">
-                     <widget class="DoubleSpinBox" name="tra_Data_max_5">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="minimum">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>1.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="6" column="4">
-                     <widget class="DoubleSpinBox" name="tra_Data_max_6">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="minimum">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>1.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="7" column="4">
-                     <widget class="DoubleSpinBox" name="tra_Data_max_7">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="minimum">
-                       <double>-100000.000000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>1.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="8" column="4">
-                     <widget class="DoubleSpinBox" name="tra_Data_max_8">
+                    <item row="10" column="4">
+                     <widget class="DoubleSpinBox" name="tra_Data_max_10">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -67061,8 +67680,8 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="10" column="4">
-                     <widget class="DoubleSpinBox" name="tra_Data_max_10">
+                    <item row="8" column="4">
+                     <widget class="DoubleSpinBox" name="tra_Data_max_8">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -67079,6 +67698,75 @@
                       </property>
                       <property name="value">
                        <double>100000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="4">
+                     <widget class="DoubleSpinBox" name="tra_Data_max_7">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="minimum">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="6">
+                     <widget class="DoubleSpinBox" name="tra_jitter_min_5">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-0.010000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>99.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-0.010000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="6">
+                     <widget class="DoubleSpinBox" name="tra_jitter_min_4">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-0.010000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>99.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-0.010000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -67130,8 +67818,167 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="6">
-                     <widget class="DoubleSpinBox" name="tra_jitter_min_4">
+                    <item row="5" column="4">
+                     <widget class="DoubleSpinBox" name="tra_Data_max_5">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="minimum">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="4">
+                     <widget class="DoubleSpinBox" name="tra_Data_max_4">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="minimum">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="4">
+                     <widget class="DoubleSpinBox" name="tra_Data_max_3">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="minimum">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="7">
+                     <widget class="DoubleSpinBox" name="tra_jitter_max_5">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>100.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="6" column="4">
+                     <widget class="DoubleSpinBox" name="tra_Data_max_6">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="minimum">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QCheckBox" name="use_bounds_pl_11">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string>bounds</string>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="3">
+                     <widget class="DoubleSpinBox" name="tra_Data_min_3">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="minimum">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="5">
+                     <widget class="QCheckBox" name="use_trajitt_bound_9">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="5">
+                     <widget class="QCheckBox" name="use_trajitt_bound_10">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="6">
+                     <widget class="DoubleSpinBox" name="tra_jitter_min_10">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -67154,32 +68001,121 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="5" column="6">
-                     <widget class="DoubleSpinBox" name="tra_jitter_min_5">
+                    <item row="0" column="6">
+                     <widget class="QLabel" name="label_118">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
                        </font>
                       </property>
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="minimum">
-                       <double>-0.010000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>99.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>0.010000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>-0.010000000000000</double>
+                      <property name="text">
+                       <string>Noise min</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="6" column="6">
-                     <widget class="DoubleSpinBox" name="tra_jitter_min_6">
+                    <item row="2" column="3">
+                     <widget class="DoubleSpinBox" name="tra_Data_min_2">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="minimum">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="5">
+                     <spacer name="horizontalSpacer_121">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeType">
+                       <enum>QSizePolicy::Fixed</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>13</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="QCheckBox" name="use_traoff_bound_4">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="2">
+                     <widget class="QCheckBox" name="use_traoff_bound_1">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="2">
+                     <widget class="QCheckBox" name="use_traoff_bound_2">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="2">
+                     <widget class="QCheckBox" name="use_traoff_bound_3">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="7">
+                     <widget class="QLabel" name="label_119">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Noise max</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="6">
+                     <widget class="DoubleSpinBox" name="tra_jitter_min_9">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
@@ -67250,80 +68186,8 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="9" column="6">
-                     <widget class="DoubleSpinBox" name="tra_jitter_min_9">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="minimum">
-                       <double>-0.010000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>99.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>0.010000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>-0.010000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="10" column="6">
-                     <widget class="DoubleSpinBox" name="tra_jitter_min_10">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="minimum">
-                       <double>-0.010000000000000</double>
-                      </property>
-                      <property name="maximum">
-                       <double>99.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>0.010000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>-0.010000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="6">
-                     <widget class="QLabel" name="label_118">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Noise min</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="7">
-                     <widget class="QLabel" name="label_119">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Noise max</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="2">
-                     <widget class="QCheckBox" name="use_traoff_bound_1">
+                    <item row="9" column="2">
+                     <widget class="QCheckBox" name="use_traoff_bound_9">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
@@ -67335,8 +68199,8 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="2">
-                     <widget class="QCheckBox" name="use_traoff_bound_2">
+                    <item row="10" column="2">
+                     <widget class="QCheckBox" name="use_traoff_bound_10">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
@@ -67348,21 +68212,8 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="2">
-                     <widget class="QCheckBox" name="use_traoff_bound_3">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="2">
-                     <widget class="QCheckBox" name="use_traoff_bound_4">
+                    <item row="8" column="2">
+                     <widget class="QCheckBox" name="use_traoff_bound_8">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
@@ -67413,99 +68264,47 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="8" column="2">
-                     <widget class="QCheckBox" name="use_traoff_bound_8">
-                      <property name="enabled">
-                       <bool>false</bool>
+                    <item row="8" column="1">
+                     <widget class="QLabel" name="label_117">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
                       </property>
                       <property name="text">
-                       <string/>
+                       <string>data8</string>
                       </property>
-                      <property name="checked">
-                       <bool>true</bool>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
-                    <item row="9" column="2">
-                     <widget class="QCheckBox" name="use_traoff_bound_9">
-                      <property name="enabled">
-                       <bool>false</bool>
+                    <item row="6" column="6">
+                     <widget class="DoubleSpinBox" name="tra_jitter_min_6">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
                       </property>
-                      <property name="text">
-                       <string/>
+                      <property name="decimals">
+                       <number>3</number>
                       </property>
-                      <property name="checked">
-                       <bool>true</bool>
+                      <property name="minimum">
+                       <double>-0.010000000000000</double>
                       </property>
-                     </widget>
-                    </item>
-                    <item row="10" column="2">
-                     <widget class="QCheckBox" name="use_traoff_bound_10">
-                      <property name="enabled">
-                       <bool>false</bool>
+                      <property name="maximum">
+                       <double>99.000000000000000</double>
                       </property>
-                      <property name="text">
-                       <string/>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
                       </property>
-                      <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="5">
-                     <widget class="QCheckBox" name="use_trajitt_bound_1">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="5">
-                     <widget class="QCheckBox" name="use_trajitt_bound_2">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="5">
-                     <widget class="QCheckBox" name="use_trajitt_bound_3">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
+                      <property name="value">
+                       <double>-0.010000000000000</double>
                       </property>
                      </widget>
                     </item>
                     <item row="4" column="5">
                      <widget class="QCheckBox" name="use_trajitt_bound_4">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="5" column="5">
-                     <widget class="QCheckBox" name="use_trajitt_bound_5">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
@@ -67543,6 +68342,58 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="5" column="5">
+                     <widget class="QCheckBox" name="use_trajitt_bound_5">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="5">
+                     <widget class="QCheckBox" name="use_trajitt_bound_2">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="5">
+                     <widget class="QCheckBox" name="use_trajitt_bound_3">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="5">
+                     <widget class="QCheckBox" name="use_trajitt_bound_1">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="8" column="5">
                      <widget class="QCheckBox" name="use_trajitt_bound_8">
                       <property name="enabled">
@@ -67556,42 +68407,51 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="9" column="5">
-                     <widget class="QCheckBox" name="use_trajitt_bound_9">
-                      <property name="enabled">
-                       <bool>false</bool>
+                    <item row="6" column="7">
+                     <widget class="DoubleSpinBox" name="tra_jitter_max_6">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
                       </property>
-                      <property name="text">
-                       <string/>
+                      <property name="decimals">
+                       <number>3</number>
                       </property>
-                      <property name="checked">
-                       <bool>true</bool>
+                      <property name="maximum">
+                       <double>100.000000000000000</double>
                       </property>
-                     </widget>
-                    </item>
-                    <item row="10" column="5">
-                     <widget class="QCheckBox" name="use_trajitt_bound_10">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
+                      <property name="value">
+                       <double>100.000000000000000</double>
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="1">
-                     <widget class="QCheckBox" name="use_bounds_pl_11">
-                      <property name="enabled">
-                       <bool>false</bool>
+                    <item row="4" column="1">
+                     <widget class="QLabel" name="label_110">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
                       </property>
                       <property name="text">
-                       <string>bounds</string>
+                       <string>data4</string>
                       </property>
-                      <property name="checked">
-                       <bool>true</bool>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="1">
+                     <widget class="QLabel" name="label_33">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>data5</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>

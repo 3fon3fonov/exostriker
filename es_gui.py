@@ -185,8 +185,8 @@ colors_gls      = ['#0066ff','#ff0000']
 colors_delta_om = ['#0066ff','#666699']
 colors_theta    = ['#0066ff','#666699']
 colors_per_rat  = ['#0066ff','#666699']
-
-
+colors_GLS_alias = ['#666699']
+colors_MLP_alias = ['#666699']
                
 symbols = ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
 
@@ -1788,7 +1788,7 @@ Polyfit coefficients:
         fit.SLSQP_opt      = {'disp': True, 'maxiter': int(self.slsqp_maxiter.value()),  'eps': 1.4901161193847656e-08, 'ftol': self.slsqp_ftol.value(), 'iprint': 1}
       
         
-    def cross_hair(self, plot_wg, log=False ):
+    def cross_hair(self, plot_wg, log=False, alias = [False, 365.250,'#666699']):
         global fit 
 
         vLine = pg.InfiniteLine(angle=90, movable=False)#, pos=0)
@@ -1801,6 +1801,14 @@ Polyfit coefficients:
          
         vb = plot_wg.getViewBox()   
         viewrange = vb.viewRange()
+        
+        if alias[0] == True:
+            v2aLine = pg.InfiniteLine(angle=90, movable=False, pen=alias[2])#, pos=0)
+            v2bLine = pg.InfiniteLine(angle=90, movable=False, pen=alias[2])#, pos=0)
+
+            plot_wg.addItem(v2aLine, ignoreBounds=True)
+            plot_wg.addItem(v2bLine, ignoreBounds=True)
+
 
         def mouseMoved(evt):
 
@@ -1817,7 +1825,17 @@ Polyfit coefficients:
 
                 vLine.setPos(mousePoint.x())
                 hLine.setPos(mousePoint.y())
- 
+                
+                if alias[0] == True:
+                    if log == True:
+                        v2aLine.setPos(np.log10((1.0 / ( (1.0/(10**mousePoint.x()) ) + 1.0/alias[1] )) ))
+                        v2bLine.setPos(np.log10((1.0 / ( (1.0/(10**mousePoint.x()) ) - 1.0/alias[1] )) ))
+                    else:
+                        v2aLine.setPos(  (mousePoint.x()  + 1.0/alias[1]) )  
+                        v2bLine.setPos(  (mousePoint.x()  - 1.0/alias[1]) )  
+
+                    #print(mousePoint.x(), (mousePoint.x()  + 1.0) )
+
                 if mousePoint.x() < (viewrange[0][1]+viewrange[0][0])/2.0:
                     label.setAnchor((0,1))
                 else:
@@ -1943,7 +1961,8 @@ Polyfit coefficients:
         fit.gls_colors[0]=colorz.name()   
 
         self.update_RV_GLS_plots() 
-        
+
+
     def get_RV_o_c_GLS_plot_color(self):
         global fit
         
@@ -1952,13 +1971,32 @@ Polyfit coefficients:
          
         self.update_RV_o_c_GLS_plots()  
         
+    def get_RV_GLS_alias_color(self):
+        global fit
+        
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        colors_GLS_alias[0]=colorz.name()   
+
+        self.update_RV_GLS_plots() 
+        self.update_RV_o_c_GLS_plots() 
+        
+    def get_RV_MLP_alias_color(self):
+        global fit
+        
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        colors_MLP_alias[0]=colorz.name()   
+
+        self.update_RV_MLP_plots() 
+ 
 
     def update_RV_GLS_plots(self):
         global fit, p7 
  
-        p7.plot(clear=True,)   
-        
-        self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])               
+        p7.plot(clear=True,)
+
+        self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])
+        self.colors_alias_gls.setStyleSheet("color: %s;"%colors_GLS_alias[0])
+
                           
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
         gls_model_width = float(self.gls_model_width.value())
@@ -1989,7 +2027,7 @@ Polyfit coefficients:
             fit.gls.info(stdout=False) + text_peaks   ))   
 
         if self.gls_cross_hair.isChecked():
-            self.cross_hair(p7,log=self.radioButton_RV_GLS_period.isChecked())    
+            self.cross_hair(p7,log=self.radioButton_RV_GLS_period.isChecked(), alias=[self.show_alias_GLS.isChecked(), self.alias_days_gls.value(), colors_GLS_alias[0]])    
  
  
     def update_RV_o_c_GLS_plots(self):
@@ -2026,7 +2064,7 @@ Polyfit coefficients:
             self.RV_res_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(fit.gls_o_c.info(stdout=False)+ text_peaks  )  )      
  
         if self.gls_o_c_cross_hair.isChecked():
-            self.cross_hair(p8,log=self.radioButton_RV_o_c_GLS_period.isChecked())    
+            self.cross_hair(p8,log=self.radioButton_RV_o_c_GLS_period.isChecked(), alias=[self.show_alias_GLS.isChecked(), self.alias_days_gls.value(), colors_GLS_alias[0]])    
     
     def update_WF_plots(self):
         global fit, p12  
@@ -2916,12 +2954,14 @@ Polyfit coefficients:
             fit.mlp = RV_per  # TB Fixed  
 
 
-    def update_RV_MLP_plots(self): 
+    def update_RV_MLP_plots(self):
         global fit, p_mlp 
  
-        p_mlp.plot(clear=True,)   
+        p_mlp.plot(clear=True,)
 
         self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])
+        self.colors_alias_mlp.setStyleSheet("color: %s;"%colors_MLP_alias[0])
+
 
         power_levels = np.array([self.mlp_fap1.value(),self.mlp_fap2.value(),self.mlp_fap3.value()])
         #power_levels = np.array([5,10,15])
@@ -2952,7 +2992,7 @@ Polyfit coefficients:
             fit.mlp.info(stdout=False) + text_peaks))
 
         if self.mlp_cross_hair.isChecked():
-            self.cross_hair(p_mlp,log=self.radioButton_RV_MLP_period.isChecked())    
+            self.cross_hair(p_mlp,log=self.radioButton_RV_MLP_period.isChecked(), alias=[self.show_alias_MLP.isChecked(), self.alias_days_mlp.value(), colors_MLP_alias[0]])    
 
 
 ############ TLS ##############################      
@@ -6822,17 +6862,24 @@ Please install via 'pip install ttvfast'.
         self.N_GLS_peak_to_point.valueChanged.connect(self.update_RV_o_c_GLS_plots)
         self.avoid_GLS_RV_alias.stateChanged.connect(self.update_RV_GLS_plots)
         self.avoid_GLS_RV_alias.stateChanged.connect(self.update_RV_o_c_GLS_plots)
+
+        self.alias_days_gls.valueChanged.connect(self.update_RV_GLS_plots)
+        self.alias_days_gls.valueChanged.connect(self.update_RV_o_c_GLS_plots)
+        self.show_alias_GLS.stateChanged.connect(self.update_RV_GLS_plots)
+        self.show_alias_GLS.stateChanged.connect(self.update_RV_o_c_GLS_plots)
+        
         
         self.N_window_peak_to_point.valueChanged.connect(self.update_WF_plots)
         
         self.N_MLP_peak_to_point.valueChanged.connect(self.update_RV_MLP_plots)
         self.avoid_MLP_RV_alias.stateChanged.connect(self.update_RV_MLP_plots)
+        self.alias_days_mlp.valueChanged.connect(self.update_RV_MLP_plots)
+        self.show_alias_MLP.stateChanged.connect(self.update_RV_MLP_plots)
 
-        
+
         self.N_TLS_peak_to_point.valueChanged.connect(self.update_tls_plots)
-        self.N_TLS_peak_to_point.valueChanged.connect(self.update_tls_o_c_plots)        
-        
-        
+        self.N_TLS_peak_to_point.valueChanged.connect(self.update_tls_o_c_plots)
+
         self.jitter_to_plots.stateChanged.connect(self.update_plots)
         self.split_jitter.stateChanged.connect(self.update_plots)
 
@@ -6903,6 +6950,8 @@ Please install via 'pip install ttvfast'.
         
         self.colors_gls.clicked.connect(self.get_RV_GLS_plot_color)
         self.colors_gls_o_c.clicked.connect(self.get_RV_o_c_GLS_plot_color)
+        self.colors_alias_gls.clicked.connect(self.get_RV_GLS_alias_color)
+        self.colors_alias_mlp.clicked.connect(self.get_RV_MLP_alias_color)
 
         self.colors_ttv.clicked.connect(self.get_ttv_plot_color)
         self.ttv_model_color.clicked.connect(self.get_ttv_model_color)
