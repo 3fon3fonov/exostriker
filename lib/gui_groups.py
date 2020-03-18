@@ -777,6 +777,19 @@ def add_rv_error(self):
     return add_rv_error
 
 
+def rv_sigma_clip(self): 
+    rv_sigma_clip = [
+            [self.RV_sigma_clip_1,self.use_RV_sigma_clip_1],[self.RV_sigma_clip_2,self.use_RV_sigma_clip_2],
+            [self.RV_sigma_clip_3,self.use_RV_sigma_clip_3],[self.RV_sigma_clip_4,self.use_RV_sigma_clip_4],
+            [self.RV_sigma_clip_5,self.use_RV_sigma_clip_5],[self.RV_sigma_clip_6,self.use_RV_sigma_clip_6],
+            [self.RV_sigma_clip_7,self.use_RV_sigma_clip_7],[self.RV_sigma_clip_8,self.use_RV_sigma_clip_8],
+            [self.RV_sigma_clip_9,self.use_RV_sigma_clip_9],[self.RV_sigma_clip_10,self.use_RV_sigma_clip_10]
+            ]
+ 
+    return rv_sigma_clip
+
+
+
 
 ######################### Arb N-body #################################
     

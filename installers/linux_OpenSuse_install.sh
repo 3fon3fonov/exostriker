@@ -290,7 +290,7 @@ select yn in "Yes" "No"; do
              gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn ./lib/libswift.a; # lnL dynamical               
              gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a; # lnL dynamical/keplerian mixed                
              break;;
-       No ) echo "skiped..."; break;;
+       No ) echo "skipped..."; break;;
    esac
 done
 

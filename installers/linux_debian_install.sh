@@ -5,7 +5,7 @@
 echo "For which Python version we want to check/install packages?"
 select py in "Python2" "Python3"; do
    case $py in
-       Python2 ) python="python2"; pip="pip2"; break;;
+       Python2 ) python="python"; pip="pip2"; break;;
        Python3 ) python="python3"; pip="pip3"; break;;
    esac
 done  
@@ -184,7 +184,7 @@ select yn in "Yes" "No"; do
              cp libswift.a ../../lib/;
              cd ../../;         
              break;;
-       No ) echo "skiped..."; break;;
+       No ) echo "skipped..."; break;;
    esac
 done
 
@@ -203,7 +203,7 @@ select yn in "Yes" "No"; do
              gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn ./lib/libswift.a; # lnL dynamical               
              gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a; # lnL dynamical/keplerian mixed                 
              break;;
-       No ) echo "skiped..."; break;;
+       No ) echo "skipped..."; break;;
    esac
 done
 
@@ -226,7 +226,7 @@ select yn in "Yes" "No"; do
              gfortran -O3 ./source/latest_f/mvs_f/geninit_j3_in_days.f -o ./stability/mvs/geninit_j3_in_days ./lib/libswift.a;              
              gfortran -O3 ./source/latest_f/mvs_f/geninit_j3_in_days.f -o ./stability/mvs_gr/geninit_j3_in_days ./lib/libswift.a;   
              break;;
-       No ) echo "skiped..."; break;;
+       No ) echo "skipped..."; break;;
    esac
 done
 
