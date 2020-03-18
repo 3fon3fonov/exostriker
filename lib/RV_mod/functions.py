@@ -640,18 +640,18 @@ def modify_temp_RV_file(obj, file_n = 0, add_error = 0, data_to_keep = None):
         else:
             sign = 1
         new_error = []
-        for j in range(len(obj.rv_data_sets[file_n+1][0])):
-            k = obj.rv_data_sets[file_n+1][2][j]**2 + add_error**2 *sign
+        for j in range(len(obj.rv_data_sets[file_n][0])):
+            k = obj.rv_data_sets[file_n][2][j]**2 + add_error**2 *sign
             if k < 0:
                 print("You seem to subtract %s from the error budget. As a result, the RV uncertainty of one or more elements would be negative. Errors cannot be negative. Please subtract another value"%add_error)
                 return
             new_error.append(k)
         f  = open(obj.filelist.files[file_n].path, 'wb') # open the file
-        for j in range(len(obj.rv_data_sets[file_n+1][0])):
+        for j in range(len(obj.rv_data_sets[file_n][0])):
             #obj.rv_data_sets[file_n+1][2][j] = np.sqrt(new_error[j])
-            if str(obj.rv_data_sets[file_n+1][0][j]).startswith("#") or  data_to_keep != None and  j not in data_to_keep:
+            if str(obj.rv_data_sets[file_n][0][j]).startswith("#") or  data_to_keep != None and  j not in data_to_keep:
                 continue
-            text = b"%s  %s  %s \n"%(bytes(str(obj.rv_data_sets[file_n+1][0][j]).encode()),bytes(str(obj.rv_data_sets[file_n+1][1][j]).encode()),bytes(str(np.sqrt(new_error[j])).encode()) )
+            text = b"%s  %s  %s \n"%(bytes(str(obj.rv_data_sets[file_n][0][j]).encode()),bytes(str(obj.rv_data_sets[file_n][1][j]).encode()),bytes(str(np.sqrt(new_error[j])).encode()) )
             f.write(text)
         f.close()
         

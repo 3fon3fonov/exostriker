@@ -1,5 +1,5 @@
 
-**T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations : **The Exo-Striker** 
+**T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations: **The Exo-Striker** 
 
 <p align="center">
   <img width="400" src="https://github.com/3fon3fonov/trifon/blob/master/lib/UI/33_striker.png">
@@ -96,7 +96,7 @@ rxvt - yes!
 batman - yes!   
 ttvfast - yes!
 
-*Installing the swift N-body lib, OK?  (you must, if you haven't done it already!)*
+*Installing the swift N-body lib, OK?  (you must if you haven't done it already!)*
   
 1) Yes  
 2) No   
@@ -106,19 +106,19 @@ ttvfast - yes!
 DONE
  
 
-*Compiling the fortran fitting routines, OK? (you must, if you haven't done it already!)*
+*Compiling the Fortran fitting routines, OK? (you must if you haven't done it already!)*
  
 1) Yes  
 2) No   
 *#? 1*  
  
-*Compiling Symba/mvs and other N-body routines, OK? (you must, if you haven't done it already!)*
+*Compiling Symba/mvs and other N-body routines, OK? (you must if you haven't done it already!)*
  
 1) Yes  
 2) No   
 *#? 1*   
 
-**Thats it! Then simply:**
+**That's it! Then simply:**
 
 $ python es_gui.py
 
@@ -136,7 +136,7 @@ If you still cannot boot the tool after a 'successful' installation, please try:
 
 $ python es_gui.py -debug 
 
-Then, copy the output error and please open a 'github' issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
+Then, copy the output error and please open a 'GitHub' issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
 'stdout/stderr' tab of the tool. If you use this tool and you find a bug or a problem, please report it!
 
 A wish-list with your favorite tools and methods to be implemented is also welcome!
@@ -149,8 +149,7 @@ Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.
 If you made the use of The Exo-Striker for your paper, I would appreciate if you give credit to it.
 As it is unlikely that I will find time to write a refereed paper on the Exo-Striker soon, please cite the tool with its ASCL ID ascl:1906.004 (see https://ascl.net/1906.004).
  
-The Exo-Striker relies on a number of open-source packages, which would be great if you 
-acknowledge too. (if you had made the use of them):  
+The Exo-Striker relies on many open-source packages, which would be great if you acknowledge too. (if you had made the use of them):  
 
 
 * The interactive plotting is done with a custom version of the "pyqtgraph": 
@@ -161,7 +160,7 @@ http://www.pyqtgraph.org/
  
 https://www.cfa.harvard.edu/~lkreidberg/batman/quickstart.html
 
-* "GLS" and "MLP" periodograma are taken from Mathias Zechmeister's repo: 
+* "GLS" and "MLP" periodograms are taken from Mathias Zechmeister's repo: 
 
 https://github.com/mzechmeister/python
 
