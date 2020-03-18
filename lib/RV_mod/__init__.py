@@ -1896,6 +1896,12 @@ class signal_fit(object):
         self.copl_incl = False
         self.rtg = [True,False,False,False]
 
+        self.ttv_data_sets = {k: [] for k in range(10)}
+        self.act_data_sets = {k: [] for k in range(10)}
+        self.tra_data_sets = {k: [] for k in range(10)}
+        self.rv_data_sets  = {k: [] for k in range(10)}
+#        self.rv_data_sets_input  = {k: [] for k in range(10)}
+
 
         if (readinputfile):
             self.read_input_file() # after running this a file should be processed and initial values saved in the object properties, unless there was some error
@@ -1939,14 +1945,6 @@ class signal_fit(object):
         self.ph_model_tra = {k: [] for k in range(9)}
 
         self.parameters = []
-
-        self.ttv_data_sets = {k: [] for k in range(10)}
-        self.act_data_sets = {k: [] for k in range(10)}
-        self.tra_data_sets = {k: [] for k in range(10)}
-        self.rv_data_sets  = {k: [] for k in range(10)}
-
-        self.rv_data_sets_input  = {k: [] for k in range(10)}
-
 
         self.pyqt_symbols_rvs = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
         self.pyqt_symbols_act = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
@@ -2593,7 +2591,6 @@ class signal_fit(object):
                  self.e[i]   = np.sqrt(self.e_sinw[i]**2 + self.e_cosw[i]**2)
                  self.w[i]   = np.degrees(np.arctan2(self.e_sinw[i],self.e_cosw[i]))%360.0
                  self.M0[i]  = (self.lamb[i] - self.w[i])%360.0
-#
 
 
 
@@ -2606,15 +2603,11 @@ class signal_fit(object):
         rv_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
 
         rv_data_set = np.array([rv_JD,rv_data,rv_data_sig,[rv_idset]*len(rv_JD)])
-
-        #ind = 0
-        #for i in range(10):
-       #     if len(self.filelist.idset==i) != 0:
-        #        ind += 1
+ 
         ####### for now ###########
-        self.rv_data_sets[max(self.filelist.idset)+1] =  rv_data_set
+        self.rv_data_sets[max(self.filelist.idset)] =  rv_data_set
 
-        self.rv_data_sets_input[max(self.filelist.idset)+1] =  rv_data_set
+        #self.rv_data_sets_input[max(self.filelist.idset)] =  rv_data_set
 
         return
 
@@ -2622,7 +2615,7 @@ class signal_fit(object):
     def remove_rv_dataset(self, rv_idset):
 
         self.rv_data_sets[rv_idset] = []
-        self.rv_data_sets_input[rv_idset] = []
+        #self.rv_data_sets_input[rv_idset] = []
 
         return
 
@@ -2710,6 +2703,8 @@ class signal_fit(object):
 
 
         path =  copy_file_to_datafiles(path)
+        
+
 
         if(self.filelist.ndset==20):
             self.params.offsets=np.concatenate((np.atleast_1d(self.params.offsets),np.atleast_1d(0.0))) # to allocate more places in offsets array
@@ -2726,6 +2721,10 @@ class signal_fit(object):
             self.filelist.read_rvfiles(self.params.offsets,justthenewone=True)
             if self.epoch < 1:
                 self.update_epoch(self.filelist.first_observation())
+                
+        #### new stuff, TB fixed!         
+        self.add_rv_dataset(name, path, rv_idset = int(max(self.filelist.idset)))
+        
         return
 
     def remove_planet(self,planet):
@@ -2753,7 +2752,13 @@ class signal_fit(object):
             self.params.update_jitter(self.filelist.ndset+1,0.0)
             self.use.update_use_offset(self.filelist.ndset+1,False)
             self.use.update_use_jitter(self.filelist.ndset+1,False)
+
+        #### new stuff, TB fixed!             
+        self.remove_rv_dataset(number)
+        for i in range(number,9):
+            self.rv_data_sets[i] = self.rv_data_sets[i+1]        
         return
+    
 
     def update_mod_dynamical(self, mod_dynamical):
         self.mod_dynamical=mod_dynamical

@@ -2405,7 +2405,7 @@ Polyfit coefficients:
  
             fit.add_dataset(self.file_from_path(input_files[0]), str(input_files[0]),0.0,1.0)
             #### new stuf ####
-            fit.add_rv_dataset('test', str(input_files[0]),rv_idset =but_ind-1)
+            #fit.add_rv_dataset('test', str(input_files[0]),rv_idset =but_ind-1)
             ##################
             
             fit.type_fit["RV"] = True
@@ -2436,7 +2436,7 @@ Polyfit coefficients:
         fit.remove_dataset(but_ind -1)
 
         #### new stuf ####
-        fit.remove_rv_dataset(but_ind -1)
+        #fit.remove_rv_dataset(but_ind -1)
         #### new stuf ####
 
         fit.type_fit["RV"] = True

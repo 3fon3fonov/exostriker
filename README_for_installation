@@ -34,33 +34,22 @@ installed with the bash installer.
 For a full functionality (on the transit analysis side) you will also need:
 
 * corner
-* batman
-* transitleastsquares (comes with ``batman``)
-* ttvfast-python (an additional, internal TTV solver will be provided by the RVmod in the near future). 
+* batman-package
+* transitleastsquares (with comes with ``batman-package``)
+* ttvfast-python (an additional, internal TTV solver will be provided soon). 
 * rxvt (optional bash shell)
-
-
-(WARNING! there is another "batman" on pip.
-
-$ pip install batman <-- wrong!
-$ pip install batman-package <-- correct
-
-to be on the save side just do
-$ pip install transitleastsquares, or run the bash installer! )
-
-
-
-
+ 
+ 
 -------------------------------------------
-Important for linux Mint users!!!
+Important for Linux Mint users!!!
 
 It looks like a fresh Mint OS installation is more compact w.r.t
 Ubuntu and some packages are missing. One must run these before the script:
 
 
-$ sudo apt-get install python-dev
+$ sudo apt-get install python-dev  # or as of 2020 python2-dev ?
 $ sudo apt-get install g++
-$ sudo apt-get install python-tk
+$ sudo apt-get install python-tk   # or as of 2020 python2-tk  ?
 
 for Python3 (recommended)
 
@@ -84,7 +73,7 @@ straight away on a "clean" Mac OS X installation (Sierra 10.13). Just run:
 $ bash installers/MAC_OS_install.sh
 
 
-Before that you will need to install "homebrew", which requires ``sudo'' privileges 
+Before that, you will need to install "homebrew", which requires ``sudo'' privileges 
 According to 
 
 https://brew.sh/
@@ -97,7 +86,7 @@ To install "homebrew", it should be as simple as this:
 try it out in bash shell terminal.
 
 
-In the past I had problems with "pip install" of batman/transitleastsquares, in particular with the local
+In the past, I had problems with "pip install" of batman/transitleastsquares, in particular with the local
 numpy installation. With a "pip" install it seems that the numpy headers are here:
 
 /Users/YOUR_USER/Library/Python/2.7/lib/python/site-packages/numpy/core/include/numpy
@@ -109,7 +98,7 @@ $ cp -r /Users/YOUR_USER/Library/Python/2.7/lib/python/site-packages/numpy/core/
 (perhaps the same story for Python 3)
 
 
-If you had experienced the same problem as above, than after the "cp -r..." run again:
+If you had experienced the same problem as above, then after the "cp -r..." run again:
 
 $ bash installers/MAC_OS_install.sh
 
@@ -123,15 +112,15 @@ installed the lib the first time.)
 ################################  WINDOWS 10  ######################################
 
 
-Installation on Windows 10 works trough the "Windows Subsystem for Linux".
+Installation on Windows 10 works troughs the "Windows Subsystem for Linux".
 Please follow this guide:
 
 https://docs.microsoft.com/en-us/windows/wsl/install-win10
 
-Thus way you will be able to run all linux native programs on your WINDOWS 10 
+This way you will be able to run all Linux native programs on your WINDOWS 10 
 bash shell, which is very useful in general!
 
-To make TRIFON:The Exo-Striker work, however, you also will need an XServer installed.
+To make The Exo-Striker work, however, you also will need an XServer installed.
 Follow these instructions:
 
 https://seanthegeek.net/234/graphical-linux-applications-bash-ubuntu-windows/
@@ -140,13 +129,12 @@ https://seanthegeek.net/234/graphical-linux-applications-bash-ubuntu-windows/
 These two tutorials worked for me, but there might be other options too. 
 
 
-Running the tool via the official Windows 10 python 2/3 installation, should generally 
-work too. For example, if one has an Anaconda installation the "anaconda_installer.sh"
-could be an option. However, one must recompile all the fortran/C++ 
-routines like "Swift" and "batman" manually. This may be a bit complicated, time consuming,
-and with an unknown outcome, but it should be definitely doable. 
+Running the tool via the official Windows 10 python 2/3 installation should generally work too. For example, if one has an Anaconda installation the "anaconda_installer.sh"
+could be an option. However, one must recompile all the Fortran/C++ 
+routines like "Swift" and "batman" manually. This may be a bit complicated, time-consuming,
+and with an unknown outcome, but it should be doable. 
 If you want to experiment, and you successfully install the tool under the official
-Windows python path, I would appreciate if you share your experience and some instructions.
+Windows python path, I would appreciate it if you share your experience and some instructions.
 
 
 For now, the recommended Win10 installation option of the Striker is via the "Windows 
@@ -168,18 +156,17 @@ also on the official Windows python installation)
  
 ################################## Finally #####################################
 
-To load the GUI  + RVmod 
+To load the GUI 
 
 $ python es_gui.py 
  
  
  
-If you want to use RVmod on the Python shell
+If you want to use the library on the Python shell
 
 ``import RV_mod as rv''
  
-(but the RVmod directory must be in your path! However, one must be familiar with 
-the functions of the RVmod... A manual on RVmod is planned, but not available at the moment.)
+(but the RVmod directory must be in your path! However, one must be familiar with the functions of the RVmod... A manual on RVmod is planned, but not available at the moment.)
 
 
 
@@ -190,13 +177,13 @@ Some comments:
 
 * All Fortran codes are planned to be translated with f2py into python-importable libraries.
 
-* A pip installer must be made.
+* setup.py/pip installers must be made.
 
 * Don't ever run MCMC runs (or Nest. Samp.) directly in the embedded Jupyter shell! This will freeze the GUI until is the MCMC done!
-This is not a bug, simply the jupyter shell needs its own thread and this is not done, yet. Hopefully, this will be fixed soon.
+This is not a bug, simply the jupyter shell needs its thread and this is not done, yet. Hopefully, this will be fixed soon.
 Please use the GUI navigation. 
 
-* Other bugs may occur! Please see: https://github.com/3fon3fonov/exostriker/issues
+* AT this point other bugs may occur! Please see: https://github.com/3fon3fonov/exostriker/issues
 for work in progress issues.
 
 
@@ -207,14 +194,12 @@ for work in progress issues.
 Some credits (more need to be added)
 
 * Some of the dynamical RV fitting routines are done by 
-Xianyu Tan (University of Hong Kong now in Oxford) during
+Xianyu Tan (the University of Hong Kong, now in Oxford) during
 his Master studies with Man Hoi Lee (HKU). 
 
-* Some of the Keplerian RV fitting routines and other N-body codes 
-are initially written by Man Hoi Lee. 
+* Some of the Keplerian RV fitting routines and other N-body codes are initially written by Man Hoi Lee. 
 
-* Jakub Morawski (Warsaw University) worked on the "RVmod" library 
-as my intern student in the summer of 2018. His numerous contributions 
+* Jakub Morawski (Warsaw University) worked on the "RVmod" library as my intern student in the summer of 2018. His numerous contributions 
 during the early stages of this project are highly appreciated.
 
 * The interactive plotting is done with a custom version of the "pyqtgraph":
@@ -225,7 +210,7 @@ http://www.pyqtgraph.org/
 
 https://www.cfa.harvard.edu/~lkreidberg/batman/quickstart.html
 
-* "GLS" and "MLP" periodograma are taken from Mathias Zechmeister's repo:
+* "GLS" and "MLP" periodogram are taken from Mathias Zechmeister's repo:
 
 https://github.com/mzechmeister/python
 
