@@ -1945,6 +1945,9 @@ class signal_fit(object):
         self.tra_data_sets = {k: [] for k in range(10)}
         self.rv_data_sets  = {k: [] for k in range(10)}
 
+        self.rv_data_sets_input  = {k: [] for k in range(10)}
+
+
         self.pyqt_symbols_rvs = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
         self.pyqt_symbols_act = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
         self.pyqt_symbols_tra = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
@@ -2602,7 +2605,7 @@ class signal_fit(object):
         rv_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
         rv_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
 
-        rv_data_set = np.array([rv_JD,rv_data,rv_data_sig])
+        rv_data_set = np.array([rv_JD,rv_data,rv_data_sig,[rv_idset]*len(rv_JD)])
 
         #ind = 0
         #for i in range(10):
@@ -2611,12 +2614,15 @@ class signal_fit(object):
         ####### for now ###########
         self.rv_data_sets[max(self.filelist.idset)+1] =  rv_data_set
 
+        self.rv_data_sets_input[max(self.filelist.idset)+1] =  rv_data_set
+
         return
 
 
     def remove_rv_dataset(self, rv_idset):
 
         self.rv_data_sets[rv_idset] = []
+        self.rv_data_sets_input[rv_idset] = []
 
         return
 

@@ -74,6 +74,13 @@ def ma_from_t0(per, ecc, om, t_transit, epoch):
 
     return ma
 
+def ma_for_epoch(per, t_peri, epoch):
+    '''
+    '''
+    ma =  np.degrees(2.0*np.pi*( (epoch-fit.t_peri)/per % 1.))
+
+    return ma
+
 def find_close_elements(a, b, precision = 0.01):
     """Finds close elements in two arrays with diffrent sizes.
 
@@ -620,7 +627,7 @@ def check_temp_RV_file(obj):
 
 
 
-def modify_temp_RV_file(obj, file_n = 0, add_error = 0):
+def modify_temp_RV_file(obj, file_n = 0, add_error = 0, data_to_keep = None):
 
     if obj.filelist.ndset < file_n +1:
         print("No RV file # %s"%(file_n+1))
@@ -641,14 +648,45 @@ def modify_temp_RV_file(obj, file_n = 0, add_error = 0):
             new_error.append(k)
         f  = open(obj.filelist.files[file_n].path, 'wb') # open the file
         for j in range(len(obj.rv_data_sets[file_n+1][0])):
-            obj.rv_data_sets[file_n+1][2][j] = np.sqrt(new_error[j])
-            if str(obj.rv_data_sets[file_n+1][0][j]).startswith("#"):
+            #obj.rv_data_sets[file_n+1][2][j] = np.sqrt(new_error[j])
+            if str(obj.rv_data_sets[file_n+1][0][j]).startswith("#") or  data_to_keep != None and  j not in data_to_keep:
                 continue
-            text = b"%s  %s  %s \n"%(bytes(str(obj.rv_data_sets[file_n+1][0][j]).encode()),bytes(str(obj.rv_data_sets[file_n+1][1][j]).encode()),bytes(str(obj.rv_data_sets[file_n+1][2][j]).encode()) )
+            text = b"%s  %s  %s \n"%(bytes(str(obj.rv_data_sets[file_n+1][0][j]).encode()),bytes(str(obj.rv_data_sets[file_n+1][1][j]).encode()),bytes(str(np.sqrt(new_error[j])).encode()) )
             f.write(text)
         f.close()
+        
+        
+        obj.filelist.read_rvfiles(obj.params.offsets)
+        
+        return obj
 
+### some experimets! ###
+def sigma_clip(obj, type = 'RV', sigma_clip = 10, file_n = 0, add_error = 0):
+    
+    if sigma_clip == None:
+        modify_temp_RV_file(obj, file_n = file_n, add_error = add_error, data_to_keep = None)
+        return
 
+    else:
+
+        obj2 = dill.copy(obj)
+        modify_temp_RV_file(obj2, file_n = file_n, add_error = add_error, data_to_keep = None)
+        #obj2.epoch = obj.epoch
+        obj2.fitting(outputfiles=[1,1,0], minimize_fortran=True, minimize_loglik=True,amoeba_starts=0)
+ 
+        if type == 'RV':
+    
+            o_c_data     = obj2.fit_results.rv_model.o_c[obj2.filelist.idset==file_n] 
+            data_ind = obj2.filelist.idset 
+        
+            c, low, upp = pdf.sigmaclip(o_c_data, sigma_clip, sigma_clip)
+            remaining_idx    = [x for x, z in enumerate(o_c_data) if z in c]
+    
+            modify_temp_RV_file(obj, file_n = file_n, add_error = add_error, data_to_keep = remaining_idx)
+    
+        del obj2
+    
+        return obj
 
 ### some experimets! ###
 def gen_RV_curve(obj,x=None):

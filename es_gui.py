@@ -1,17 +1,19 @@
 #!/usr/bin/python3
 __author__ = 'Trifon Trifonov'
 
+import time 
 from pathos.multiprocessing import freeze_support
 freeze_support()
 
 import numpy as np
 #import matplotlib as mpl
 #mpl.use('Qt5Agg')
+
 import sys, os, traceback 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
-
 sys.path.insert(0, './lib')
+
 
 import RV_mod as rv
 
@@ -23,10 +25,11 @@ import calculator as calc
 import gls as gls
 import mlp as mlp
 from worker import Worker #, WorkerSignals
+#start_time = time.time()
 import gui_groups
+#
 
 from multiprocessing import cpu_count
-import time
 
 #import BKR as bkr
 from doublespinbox import DoubleSpinBox
@@ -41,6 +44,7 @@ import terminal
 from tree_view import Widget_tree
 
 import ntpath
+
 
 from scipy.signal import argrelextrema
 from scipy.stats.stats import pearsonr   
@@ -76,6 +80,8 @@ except (ImportError, KeyError) as e:
     batman_not_found = True
     pass
 
+
+
 import webbrowser
 
 #try:
@@ -96,13 +102,21 @@ os.environ["OPENBLAS_MAIN_FREE"] = "1"
 if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps,True)
 
+
+
+#start_time = time.time()
+
 qtCreatorFile = "./lib/UI/es.ui" 
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
+
+#print("--- %s seconds ---" % (time.time() - start_time))
+
 
 pg.setConfigOption('background', '#ffffff')
 pg.setConfigOption('foreground', 'k')
 pg.setConfigOptions(antialias=True)
 #pg.setConfigOptions(useOpenGL=True) 
+
 
 
 
@@ -2105,7 +2119,10 @@ Polyfit coefficients:
 
     def update_RV_plots(self):
         global fit, p1,p2
- 
+
+        #if len(fit.fit_results.rv_model.rv_err) != len(fit.filelist.idset):
+       #     return
+
         p1.plot(clear=True,)
         p2.plot(clear=True,)
  
@@ -2148,6 +2165,7 @@ Polyfit coefficients:
             error_list2 = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)            
         else:
             error_list = fit.fit_results.rv_model.rv_err
+            
             
             
         for i in range(max(fit.filelist.idset)+1):
@@ -2363,8 +2381,15 @@ Polyfit coefficients:
         global fit
         but_ind = self.buttonGroup_apply_rv_data_options.checkedId()
 
-        if self.add_rv_error[but_ind-1][1].isChecked():
+        if   self.rv_sigma_clip[but_ind-1][1].isChecked() == True  and self.add_rv_error[but_ind-1][1].isChecked() == False:
+            rv.sigma_clip(fit, type = 'RV', sigma_clip = self.rv_sigma_clip[but_ind-1][0].value(), file_n = but_ind-1)
+        elif self.rv_sigma_clip[but_ind-1][1].isChecked() == True  and self.add_rv_error[but_ind-1][1].isChecked() == True:
+            #rv.modify_temp_RV_file(fit, file_n = but_ind-1, add_error = self.add_rv_error[but_ind-1][0].value())
+            rv.sigma_clip(fit, type = 'RV', sigma_clip = self.rv_sigma_clip[but_ind-1][0].value(), file_n = but_ind-1, add_error = self.add_rv_error[but_ind-1][0].value())
+        elif self.rv_sigma_clip[but_ind-1][1].isChecked() == False and self.add_rv_error[but_ind-1][1].isChecked() == True:
             rv.modify_temp_RV_file(fit, file_n = but_ind-1, add_error = self.add_rv_error[but_ind-1][0].value())
+        elif self.rv_sigma_clip[but_ind-1][1].isChecked() == False and self.add_rv_error[but_ind-1][1].isChecked() == False:
+            rv.modify_temp_RV_file(fit, file_n = but_ind-1, add_error = 0)
         else:
             return
         self.update_veiw()
@@ -2886,7 +2911,7 @@ Polyfit coefficients:
         self.jupiter_push_vars()
         self.calc_MLP.setEnabled(True)
        # self.calc_MLP_o_c.setEnabled(True)
-       # print("--- %s seconds ---" % (time.time() - start_time))
+
  
     def worker_mlp(self, resid = False):
         global fit  
@@ -4514,9 +4539,9 @@ Transit duration: %s d
         # (You can ofcourse simplify here for only 1,2 and 3 sigma)
         sigma = [1.0,  np.sqrt(stat.chi2.ppf(0.8,1)),
             np.sqrt(stat.chi2.ppf(0.9,1)),
-            np.sqrt(stat.chi2.ppf(0.95,1)),          2.0,
-            np.sqrt(stat.chi2.ppf(0.99,1)),        3.0,
-            np.sqrt(stat.chi2.ppf(0.999,1)),       4.0,5.0  ]
+            np.sqrt(stat.chi2.ppf(0.95,1)),2.0,
+            np.sqrt(stat.chi2.ppf(0.99,1)),3.0,
+            np.sqrt(stat.chi2.ppf(0.999,1)),4.0,5.0  ]
         
         #confidence intervals these sigmas represent:
         conf_int = [ stat.chi2.cdf( s**2,1) for s in sigma ]
@@ -4682,10 +4707,6 @@ highly appreciated!
         self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(./lib/UI/33_striker.png) 0 0 0 0 stretch stretch;} ")
         #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
         self.dialog_credits.show()
-
-    def run_nest_samp(self):
-        global fit
-        choice = QtGui.QMessageBox.information(self, 'Warning!', "Not available yet. Okay?", QtGui.QMessageBox.Ok) 
 
 
     def find_planets(self):
@@ -6557,6 +6578,7 @@ Please install via 'pip install ttvfast'.
         self.arb_param_gui_use = gui_groups.arb_param_gui_use(self)
         
         self.add_rv_error = gui_groups.add_rv_error(self)
+        self.rv_sigma_clip = gui_groups.rv_sigma_clip(self)
 
         self.ttv_data_to_planet     = gui_groups.ttv_data_to_planet(self)
         self.use_ttv_data_to_planet = gui_groups.use_ttv_data_to_planet(self)
