@@ -788,6 +788,26 @@ def rv_sigma_clip(self):
  
     return rv_sigma_clip
 
+def act_sigma_clip(self): 
+    act_sigma_clip = [
+            [self.act_sigma_clip_1,self.use_act_sigma_clip_1],[self.act_sigma_clip_2,self.use_act_sigma_clip_2],
+            [self.act_sigma_clip_3,self.use_act_sigma_clip_3],[self.act_sigma_clip_4,self.use_act_sigma_clip_4],
+            [self.act_sigma_clip_5,self.use_act_sigma_clip_5],[self.act_sigma_clip_6,self.use_act_sigma_clip_6],
+            [self.act_sigma_clip_7,self.use_act_sigma_clip_7],[self.act_sigma_clip_8,self.use_act_sigma_clip_8],
+            [self.act_sigma_clip_9,self.use_act_sigma_clip_9],[self.act_sigma_clip_10,self.use_act_sigma_clip_10]
+            ]
+ 
+    return act_sigma_clip
+
+def act_remove_mean(self): 
+    act_remove_mean = [
+             self.act_remove_mean_1,self.act_remove_mean_2,self.act_remove_mean_3,
+             self.act_remove_mean_4,self.act_remove_mean_5,self.act_remove_mean_6,
+             self.act_remove_mean_7,self.act_remove_mean_8,self.act_remove_mean_9,
+             self.act_remove_mean_10
+            ]
+ 
+    return act_remove_mean
 
 
 

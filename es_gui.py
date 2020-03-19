@@ -1237,7 +1237,18 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_8,8)
         self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_9,9)
         self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_10,10)
- 
+
+        self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_1,1)
+        self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_2,2)
+        self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_3,3)
+        self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_4,4)
+        self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_5,5)
+        self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_6,6)
+        self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_7,7)
+        self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_8,8)
+        self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_9,9)
+        self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_10,10)
+
         self.buttonGroup_transit_data.setId(self.Button_transit_data_1,1)
         self.buttonGroup_transit_data.setId(self.Button_transit_data_2,2)
         self.buttonGroup_transit_data.setId(self.Button_transit_data_3,3)
@@ -2392,7 +2403,35 @@ Polyfit coefficients:
             rv.modify_temp_RV_file(fit, file_n = but_ind-1, add_error = 0)
         else:
             return
+        
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
         self.update_veiw()
+        
+        
+        
+    def apply_act_data_options(self):
+        global fit
+        but_ind = self.buttonGroup_apply_act_data_options.checkedId()
+
+        if   self.act_sigma_clip[but_ind-1][1].isChecked() == True  and self.act_remove_mean[but_ind-1].isChecked() == False:
+            rv.sigma_clip(fit, type = 'act', sigma_clip = self.act_sigma_clip[but_ind-1][0].value(), 
+                          remove_mean = False, file_n = but_ind-1)
+        elif self.act_sigma_clip[but_ind-1][1].isChecked() == True  and self.act_remove_mean[but_ind-1].isChecked() == True:
+            rv.sigma_clip(fit, type = 'act', sigma_clip = self.act_sigma_clip[but_ind-1][0].value(), 
+                          remove_mean =  True, file_n = but_ind-1)
+        elif self.act_sigma_clip[but_ind-1][1].isChecked() == False and self.act_remove_mean[but_ind-1].isChecked()  == True:
+            rv.sigma_clip(fit, type = 'act', sigma_clip = None, 
+                          remove_mean =  True, file_n = but_ind-1)            
+        elif self.act_sigma_clip[but_ind-1][1].isChecked() == False and self.act_remove_mean[but_ind-1].isChecked() == False:
+            rv.sigma_clip(fit, type = 'act', sigma_clip = None, 
+                          remove_mean =  False, file_n = but_ind-1)            
+        else:
+            return
+
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+        self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
+        self.update_activity_gls_plots(but_ind-1)
+     #   self.update_activity_data_plots(but_ind-1)
 
 
     def showDialog_RV_input_file(self):
@@ -2558,18 +2597,20 @@ Polyfit coefficients:
         input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'All (*.*);;Data (*.act)', options=QtGui.QFileDialog.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
- 
+
             fit.add_act_dataset('test', str(input_files[0]),act_idset =but_ind-1)
-            #self.init_fit()            
-            #self.update_use_from_input_file()            
-            #self.update_use()
-            #self.update_params()
+
             self.update_act_file_buttons()
-            self.update_activity_gls_plots(but_ind-1)
             self.buttonGroup_activity_data.button(but_ind).setText(self.file_from_path(input_files[0]))
 
-            #self.handleActivated_act_gls(but_ind-1)
-            
+            self.plot_tabs.setCurrentWidget(self.tab_timeseries_act)
+            self.comboBox_act_data.setCurrentIndex(but_ind-1)
+            self.comboBox_act_data_gls.setCurrentIndex(but_ind-1)
+
+            self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
+            self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex())
+
+
     def remove_act_file(self):
         global fit
 
@@ -6536,7 +6577,7 @@ Please install via 'pip install ttvfast'.
         self.err_a_sol       = gui_groups.err_a_sol(self)
 
         self.rvs_data_gui      = gui_groups.rvs_data_gui(self)
-        self.rvs_data_jitter_gui      = gui_groups.rvs_data_jitter_gui(self)
+        self.rvs_data_jitter_gui = gui_groups.rvs_data_jitter_gui(self)
         self.use_data_offset_gui = gui_groups.use_data_offset_gui(self)
         self.use_data_jitter_gui = gui_groups.use_data_jitter_gui(self)
         
@@ -6557,7 +6598,7 @@ Please install via 'pip install ttvfast'.
         self.use_gp_rot_params = gui_groups.use_gp_rot_params(self)
         self.gp_rot_errors_gui = gui_groups.gp_rot_errors_gui(self)
         
-        self.gp_sho_params = gui_groups.gp_sho_params(self)
+        self.gp_sho_params     = gui_groups.gp_sho_params(self)
         self.use_gp_sho_params = gui_groups.use_gp_sho_params(self)
         self.gp_sho_errors_gui = gui_groups.gp_sho_errors_gui(self)
 
@@ -6568,8 +6609,8 @@ Please install via 'pip install ttvfast'.
         self.use_tra_gp_sho_params = gui_groups.use_tra_gp_sho_params(self)
         
 
-        self.param_a_gui = gui_groups.param_a_gui(self)
-        self.param_mass_gui = gui_groups.param_mass_gui(self)
+        self.param_a_gui      = gui_groups.param_a_gui(self)
+        self.param_mass_gui   = gui_groups.param_mass_gui(self)
         self.param_t_peri_gui = gui_groups.param_t_peri_gui(self)
         
         self.planet_checked_gui = gui_groups.planet_checked_gui(self)
@@ -6577,8 +6618,12 @@ Please install via 'pip install ttvfast'.
         self.arb_param_gui     = gui_groups.arb_param_gui(self)
         self.arb_param_gui_use = gui_groups.arb_param_gui_use(self)
         
-        self.add_rv_error = gui_groups.add_rv_error(self)
-        self.rv_sigma_clip = gui_groups.rv_sigma_clip(self)
+        self.add_rv_error   = gui_groups.add_rv_error(self)
+        self.rv_sigma_clip  = gui_groups.rv_sigma_clip(self)
+        
+        self.act_sigma_clip  = gui_groups.act_sigma_clip(self)
+        self.act_remove_mean = gui_groups.act_remove_mean(self)
+
 
         self.ttv_data_to_planet     = gui_groups.ttv_data_to_planet(self)
         self.use_ttv_data_to_planet = gui_groups.use_ttv_data_to_planet(self)
@@ -6700,6 +6745,8 @@ Please install via 'pip install ttvfast'.
         self.dialog_ttv_help = print_info(self)
 
         self.buttonGroup_apply_rv_data_options.buttonClicked.connect(self.apply_rv_data_options)
+        self.buttonGroup_apply_act_data_options.buttonClicked.connect(self.apply_act_data_options)
+
 
         self.buttonGroup_add_RV_data.buttonClicked.connect(self.showDialog_RV_input_file)
         self.buttonGroup_remove_RV_data.buttonClicked.connect(self.remove_RV_file)

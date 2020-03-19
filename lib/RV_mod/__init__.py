@@ -1900,6 +1900,8 @@ class signal_fit(object):
         self.act_data_sets = {k: [] for k in range(10)}
         self.tra_data_sets = {k: [] for k in range(10)}
         self.rv_data_sets  = {k: [] for k in range(10)}
+        
+        self.act_data_sets_init = {k: [] for k in range(10)}
 #        self.rv_data_sets_input  = {k: [] for k in range(10)}
 
 
@@ -2630,7 +2632,9 @@ class signal_fit(object):
         
         act_data_set = np.array([act_JD,act_data,act_data_sig,act_file_name])
 
-        self.act_data_sets[act_idset] = act_data_set
+        self.act_data_sets[act_idset]      = act_data_set
+        self.act_data_sets_init[act_idset] = dill.copy(self.act_data_sets[act_idset])
+
 
         return
 
@@ -2638,6 +2642,7 @@ class signal_fit(object):
     def remove_act_dataset(self, act_idset):
 
         self.act_data_sets[act_idset] = []
+        self.act_data_sets_init[act_idset] = []
 
         return
 
@@ -2701,10 +2706,7 @@ class signal_fit(object):
 
     def add_dataset(self,name,path,offset,jitter,useoffset=True,usejitter=True):
 
-
         path =  copy_file_to_datafiles(path)
-        
-
 
         if(self.filelist.ndset==20):
             self.params.offsets=np.concatenate((np.atleast_1d(self.params.offsets),np.atleast_1d(0.0))) # to allocate more places in offsets array
@@ -2821,6 +2823,8 @@ class signal_fit(object):
            
 
            self.act_data_sets[i] = act_data_set
+           self.act_data_sets_init[i] = act_data_set
+
            #print(act_data[0])
 
        #z = 0
@@ -2840,6 +2844,7 @@ class signal_fit(object):
           # print(act_data[0])
 
            self.act_data_sets[i] = act_data_set
+           self.act_data_sets_init[i] = act_data_set
 
     def BIC(self):
         if len(self.fit_results.jd) != 0:

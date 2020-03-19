@@ -661,32 +661,88 @@ def modify_temp_RV_file(obj, file_n = 0, add_error = 0, data_to_keep = None):
         return obj
 
 ### some experimets! ###
-def sigma_clip(obj, type = 'RV', sigma_clip = 10, file_n = 0, add_error = 0):
-    
-    if sigma_clip == None:
-        modify_temp_RV_file(obj, file_n = file_n, add_error = add_error, data_to_keep = None)
-        return
+def sigma_clip(obj, type = 'RV', sigma_clip = 10, file_n = 0, add_error = 0, remove_mean = False, verbose = True):
 
-    else:
+    if type == 'RV':
 
-        obj2 = dill.copy(obj)
-        modify_temp_RV_file(obj2, file_n = file_n, add_error = add_error, data_to_keep = None)
-        #obj2.epoch = obj.epoch
-        obj2.fitting(outputfiles=[1,1,0], minimize_fortran=True, minimize_loglik=True,amoeba_starts=0)
+        if sigma_clip == None:
+            modify_temp_RV_file(obj, file_n = file_n, add_error = add_error, data_to_keep = None)
+            return
  
-        if type == 'RV':
-    
-            o_c_data     = obj2.fit_results.rv_model.o_c[obj2.filelist.idset==file_n] 
+        else:
+            obj2 = dill.copy(obj)
+            modify_temp_RV_file(obj2, file_n = file_n, add_error = add_error, data_to_keep = None)
+            #obj2.epoch = obj.epoch
+            obj2.fitting(outputfiles=[1,1,0], minimize_fortran=True, minimize_loglik=True,amoeba_starts=0)
+
+            JD_data  = obj2.fit_results.rv_model.jd[obj2.filelist.idset==file_n] 
+            o_c_data = obj2.fit_results.rv_model.o_c[obj2.filelist.idset==file_n] 
             data_ind = obj2.filelist.idset 
         
             c, low, upp = pdf.sigmaclip(o_c_data, sigma_clip, sigma_clip)
             remaining_idx    = [x for x, z in enumerate(o_c_data) if z in c]
-    
+            removed_idx    = [x for x, z in enumerate(o_c_data) if z not in c]
+
             modify_temp_RV_file(obj, file_n = file_n, add_error = add_error, data_to_keep = remaining_idx)
     
-        del obj2
+            del obj2
+            
+            if verbose: 
+                print("\n %s clipped epochs:"%type)
+                for z in JD_data[removed_idx]:
+                    print(z) 
     
+            return obj
+        
+        
+    if type == 'act':
+        if len(obj.act_data_sets[file_n]) == 0:
+            print("No act. file # %s"%(file_n))
+            return
+
+        #obj.act_data_sets[file_n] = dill.copy(obj.act_data_sets_init[file_n])
+
+        org_epoch     = obj.act_data_sets_init[file_n][0]
+        org_data      = obj.act_data_sets_init[file_n][1]
+        org_data_sig  = obj.act_data_sets_init[file_n][1]
+
+        org_data_mean = org_data - np.mean(org_data)
+
+        if sigma_clip != None:
+
+            c, low, upp = pdf.sigmaclip(org_data_mean, sigma_clip, sigma_clip)
+            remaining_idx    = [x for x, z in enumerate(org_data_mean) if z in c]
+            removed_idx      = [x for x, z in enumerate(org_data_mean) if z not in c]
+
+            obj.act_data_sets[file_n][1] = np.take(obj.act_data_sets_init[file_n][1], remaining_idx)
+            obj.act_data_sets[file_n][0] = np.take(obj.act_data_sets_init[file_n][0], remaining_idx)
+            obj.act_data_sets[file_n][2] = np.take(obj.act_data_sets_init[file_n][2], remaining_idx)
+            
+            new_org_data      = obj.act_data_sets[file_n][1]
+            new_org_data_mean = new_org_data - np.mean(new_org_data)
+            
+            if verbose: 
+                print("\n %s clipped epochs:"%type)
+                for z in org_epoch[removed_idx]:
+                    print(z) 
+
+            if remove_mean == True:
+                obj.act_data_sets[file_n][1] = new_org_data_mean
+
+        else:
+            if remove_mean == True:
+                obj.act_data_sets[file_n][0] = org_epoch
+                obj.act_data_sets[file_n][1] = org_data_mean
+                obj.act_data_sets[file_n][2] = org_data_sig
+                
+            else:
+                obj.act_data_sets[file_n][0] = org_epoch
+                obj.act_data_sets[file_n][1] = org_data
+                obj.act_data_sets[file_n][2] = org_data_sig
+                
         return obj
+
+
 
 ### some experimets! ###
 def gen_RV_curve(obj,x=None):
