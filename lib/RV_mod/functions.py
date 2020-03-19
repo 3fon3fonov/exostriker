@@ -618,10 +618,10 @@ def check_temp_RV_file(obj):
             dirname, basename = os.path.split(obj.filelist.files[i].path)
             os.makedirs(dirname)
             f  = open(obj.filelist.files[i].path, 'wb') # open the file
-            for j in range(len(obj.rv_data_sets[i+1][0])):
-                if str(obj.rv_data_sets[i+1][0][j]).startswith("#"):
+            for j in range(len(obj.rv_data_sets[i][0])):
+                if str(obj.rv_data_sets[i][0][j]).startswith("#"):
                     continue
-                text = b"%s  %s  %s \n"%(bytes(str(obj.rv_data_sets[i+1][0][j]).encode()),bytes(str(obj.rv_data_sets[i+1][1][j]).encode()),bytes(str(obj.rv_data_sets[i+1][2][j]).encode()) )
+                text = b"%s  %s  %s \n"%(bytes(str(obj.rv_data_sets[i][0][j]).encode()),bytes(str(obj.rv_data_sets[i][1][j]).encode()),bytes(str(obj.rv_data_sets[i][2][j]).encode()) )
                 f.write(text)
             f.close()
 
@@ -704,7 +704,7 @@ def sigma_clip(obj, type = 'RV', sigma_clip = 10, file_n = 0, add_error = 0, rem
 
         org_epoch     = obj.act_data_sets_init[file_n][0]
         org_data      = obj.act_data_sets_init[file_n][1]
-        org_data_sig  = obj.act_data_sets_init[file_n][1]
+        org_data_sig  = obj.act_data_sets_init[file_n][2]
 
         org_data_mean = org_data - np.mean(org_data)
 
@@ -740,6 +740,59 @@ def sigma_clip(obj, type = 'RV', sigma_clip = 10, file_n = 0, add_error = 0, rem
                 obj.act_data_sets[file_n][1] = org_data
                 obj.act_data_sets[file_n][2] = org_data_sig
                 
+        return obj
+
+
+    if type == 'tra':
+        if len(obj.tra_data_sets[file_n]) == 0:
+            print("No transit file # %s"%(file_n))
+            return
+
+        #obj.act_data_sets[file_n] = dill.copy(obj.act_data_sets_init[file_n])
+
+        org_epoch     = obj.tra_data_sets_init[file_n][0]
+        org_data      = obj.tra_data_sets_init[file_n][1]
+        org_data_sig  = obj.tra_data_sets_init[file_n][2]
+        org_data_o_c  = obj.tra_data_sets_init[file_n][3]
+        #org_data      = obj.tra_data_sets_init[file_n][1]
+
+        org_data_mean = org_data_o_c - np.mean(org_data_o_c)
+
+        if sigma_clip != None:
+
+            c, low, upp = pdf.sigmaclip(org_data_mean, sigma_clip, sigma_clip)
+            remaining_idx    = [x for x, z in enumerate(org_data_mean) if z in c]
+            removed_idx      = [x for x, z in enumerate(org_data_mean) if z not in c]
+
+            obj.tra_data_sets[file_n][3] = np.take(obj.tra_data_sets_init[file_n][3], remaining_idx)
+            obj.tra_data_sets[file_n][0] = np.take(obj.tra_data_sets_init[file_n][0], remaining_idx)
+            obj.tra_data_sets[file_n][2] = np.take(obj.tra_data_sets_init[file_n][2], remaining_idx)
+            obj.tra_data_sets[file_n][1] = np.take(obj.tra_data_sets_init[file_n][1], remaining_idx)
+            obj.tra_data_sets[file_n][4] = np.take(obj.tra_data_sets_init[file_n][4], remaining_idx)
+            
+            new_org_data      = obj.tra_data_sets[file_n][1]
+            new_org_data_mean = new_org_data - np.mean(new_org_data)
+            
+            if verbose: 
+                print("\n %s clipped epochs:"%type)
+                for z in org_epoch[removed_idx]:
+                    print(z) 
+
+            #if remove_mean == True:
+           #     obj.tra_data_sets[file_n][1] = new_org_data_mean
+
+        else:
+           # if remove_mean == True:
+          #      obj.tra_data_sets[file_n][0] = org_epoch
+           #     obj.tra_data_sets[file_n][1] = org_data_mean
+          #      obj.tra_data_sets[file_n][2] = org_data_sig
+          #      
+          #  else:
+            obj.tra_data_sets[file_n][0] = org_epoch
+            obj.tra_data_sets[file_n][1] = org_data
+            obj.tra_data_sets[file_n][2] = org_data_sig
+            obj.tra_data_sets[file_n][3] = org_data_o_c
+            obj.tra_data_sets[file_n][4] = org_data_o_c
         return obj
 
 
