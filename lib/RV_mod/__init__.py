@@ -1902,6 +1902,8 @@ class signal_fit(object):
         self.rv_data_sets  = {k: [] for k in range(10)}
         
         self.act_data_sets_init = {k: [] for k in range(10)}
+        self.tra_data_sets_init = {k: [] for k in range(10)}
+
 #        self.rv_data_sets_input  = {k: [] for k in range(10)}
 
 
@@ -2679,6 +2681,7 @@ class signal_fit(object):
         tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_data_o_c,tra_data_o_c,tra_file_name])
 
         self.tra_data_sets[tra_idset] = tra_data_set
+        self.tra_data_sets_init[tra_idset] = dill.copy(self.tra_data_sets[tra_idset])
 
         return
 
@@ -2686,6 +2689,7 @@ class signal_fit(object):
     def remove_transit_dataset(self, tra_idset):
 
         self.tra_data_sets[tra_idset] = []
+        self.tra_data_sets_init[tra_idset] = []
 
         return
 

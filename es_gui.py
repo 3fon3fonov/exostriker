@@ -1249,6 +1249,17 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_9,9)
         self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_10,10)
 
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_1,1)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_2,2)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_3,3)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_4,4)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_5,5)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_6,6)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_7,7)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_8,8)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_9,9)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_10,10)
+
         self.buttonGroup_transit_data.setId(self.Button_transit_data_1,1)
         self.buttonGroup_transit_data.setId(self.Button_transit_data_2,2)
         self.buttonGroup_transit_data.setId(self.Button_transit_data_3,3)
@@ -2355,14 +2366,14 @@ Polyfit coefficients:
             self.init_fit()
             self.update_RV_file_buttons()
 
-            
+
     def showDialog_RVbank_input_file(self):
         global fit, ses_list
- 
+
         input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RVBank data', '', 'All (*.*);;Data (*.csv)', options=QtGui.QFileDialog.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
- 
+
             choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "Do you want to split the RV data to pre- and post- (if applicable)?",
                                             QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
@@ -2373,7 +2384,7 @@ Polyfit coefficients:
                 fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = True)
             else:
                 return
-            
+
             fit.type_fit["RV"] = True
             fit.type_fit["Transit"] = False
             self.check_type_fit()
@@ -2385,8 +2396,7 @@ Polyfit coefficients:
             self.update_params()
             self.update_RV_file_buttons()
             self.update_act_file_buttons()
-            #self.update_activity_gls_plots(0)
-            #self.buttonGroup_activity_data.button(but_ind).setText(self.file_from_path(input_files[0]))          
+
 
     def apply_rv_data_options(self):
         global fit
@@ -2395,7 +2405,6 @@ Polyfit coefficients:
         if   self.rv_sigma_clip[but_ind-1][1].isChecked() == True  and self.add_rv_error[but_ind-1][1].isChecked() == False:
             rv.sigma_clip(fit, type = 'RV', sigma_clip = self.rv_sigma_clip[but_ind-1][0].value(), file_n = but_ind-1)
         elif self.rv_sigma_clip[but_ind-1][1].isChecked() == True  and self.add_rv_error[but_ind-1][1].isChecked() == True:
-            #rv.modify_temp_RV_file(fit, file_n = but_ind-1, add_error = self.add_rv_error[but_ind-1][0].value())
             rv.sigma_clip(fit, type = 'RV', sigma_clip = self.rv_sigma_clip[but_ind-1][0].value(), file_n = but_ind-1, add_error = self.add_rv_error[but_ind-1][0].value())
         elif self.rv_sigma_clip[but_ind-1][1].isChecked() == False and self.add_rv_error[but_ind-1][1].isChecked() == True:
             rv.modify_temp_RV_file(fit, file_n = but_ind-1, add_error = self.add_rv_error[but_ind-1][0].value())
@@ -2403,12 +2412,11 @@ Polyfit coefficients:
             rv.modify_temp_RV_file(fit, file_n = but_ind-1, add_error = 0)
         else:
             return
-        
+
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
         self.update_veiw()
-        
-        
-        
+
+
     def apply_act_data_options(self):
         global fit
         but_ind = self.buttonGroup_apply_act_data_options.checkedId()
@@ -2421,10 +2429,10 @@ Polyfit coefficients:
                           remove_mean =  True, file_n = but_ind-1)
         elif self.act_sigma_clip[but_ind-1][1].isChecked() == False and self.act_remove_mean[but_ind-1].isChecked()  == True:
             rv.sigma_clip(fit, type = 'act', sigma_clip = None, 
-                          remove_mean =  True, file_n = but_ind-1)            
+                          remove_mean =  True, file_n = but_ind-1)
         elif self.act_sigma_clip[but_ind-1][1].isChecked() == False and self.act_remove_mean[but_ind-1].isChecked() == False:
             rv.sigma_clip(fit, type = 'act', sigma_clip = None, 
-                          remove_mean =  False, file_n = but_ind-1)            
+                          remove_mean =  False, file_n = but_ind-1)
         else:
             return
 
@@ -2432,6 +2440,24 @@ Polyfit coefficients:
         self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
         self.update_activity_gls_plots(but_ind-1)
      #   self.update_activity_data_plots(but_ind-1)
+
+    def apply_tra_data_options(self):
+        global fit
+        but_ind = self.buttonGroup_apply_tra_data_options.checkedId()
+
+        if   self.tra_sigma_clip[but_ind-1][1].isChecked() == True:
+            rv.sigma_clip(fit, type = 'tra', sigma_clip = self.tra_sigma_clip[but_ind-1][0].value(), 
+                          remove_mean = False, file_n = but_ind-1)
+        elif self.tra_sigma_clip[but_ind-1][1].isChecked() == False:
+            rv.sigma_clip(fit, type = 'tra', sigma_clip = self.tra_sigma_clip[but_ind-1][0].value(), 
+                          remove_mean = False, file_n = but_ind-1)
+
+        else:
+            return
+
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+        self.update_veiw()
+
 
 
     def showDialog_RV_input_file(self):
@@ -6624,6 +6650,8 @@ Please install via 'pip install ttvfast'.
         self.act_sigma_clip  = gui_groups.act_sigma_clip(self)
         self.act_remove_mean = gui_groups.act_remove_mean(self)
 
+        self.tra_sigma_clip  = gui_groups.tra_sigma_clip(self)
+
 
         self.ttv_data_to_planet     = gui_groups.ttv_data_to_planet(self)
         self.use_ttv_data_to_planet = gui_groups.use_ttv_data_to_planet(self)
@@ -6746,6 +6774,7 @@ Please install via 'pip install ttvfast'.
 
         self.buttonGroup_apply_rv_data_options.buttonClicked.connect(self.apply_rv_data_options)
         self.buttonGroup_apply_act_data_options.buttonClicked.connect(self.apply_act_data_options)
+        self.buttonGroup_apply_tra_data_options.buttonClicked.connect(self.apply_tra_data_options)
 
 
         self.buttonGroup_add_RV_data.buttonClicked.connect(self.showDialog_RV_input_file)
