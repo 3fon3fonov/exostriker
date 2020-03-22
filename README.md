@@ -156,10 +156,6 @@ The Exo-Striker relies on many open-source packages, which would be great if you
 
 http://www.pyqtgraph.org/
 
-* The transit modeling is done with "batman":
- 
-https://www.cfa.harvard.edu/~lkreidberg/batman/quickstart.html
-
 * "GLS" and "MLP" periodograms are taken from Mathias Zechmeister's repo: 
 
 https://github.com/mzechmeister/python
@@ -167,6 +163,10 @@ https://github.com/mzechmeister/python
 * "TLS" is taken from: 
 
 https://github.com/hippke/tls
+
+* The transit modeling is done with "batman":
+ 
+https://www.cfa.harvard.edu/~lkreidberg/batman/quickstart.html
 
 * MCMC sampling is done with "emcee": 
 
@@ -193,7 +193,8 @@ modified by Man Hoi Lee (HKU) and Trifon Trifonov (MPIA).
 https://www.boulder.swri.edu/~hal/swift.html
 
 * Additionally, the Exo-Striker uses many "standard" Python libraries like 
-"matplotlib", "numpy", "scipy", "dill", and more.
+"PyQt5", "matplotlib", "numpy", "scipy", "dill", "Jupyter", "qtconsole",
+and more.
 
 
 
