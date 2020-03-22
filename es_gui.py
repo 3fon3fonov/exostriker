@@ -2445,15 +2445,17 @@ Polyfit coefficients:
         global fit
         but_ind = self.buttonGroup_apply_tra_data_options.checkedId()
 
-        if   self.tra_sigma_clip[but_ind-1][1].isChecked() == True:
-            rv.sigma_clip(fit, type = 'tra', sigma_clip = self.tra_sigma_clip[but_ind-1][0].value(), 
-                          remove_mean = False, file_n = but_ind-1)
-        elif self.tra_sigma_clip[but_ind-1][1].isChecked() == False:
-            rv.sigma_clip(fit, type = 'tra', sigma_clip = self.tra_sigma_clip[but_ind-1][0].value(), 
-                          remove_mean = False, file_n = but_ind-1)
+#        if   self.tra_sigma_clip[but_ind-1][1].isChecked() == True:
+#            rv.sigma_clip(fit, type = 'tra', sigma_clip = self.tra_sigma_clip[but_ind-1][0].value(), 
+#                          remove_mean = False, file_n = but_ind-1)
+#        elif self.tra_sigma_clip[but_ind-1][1].isChecked() == False:
+#            rv.sigma_clip(fit, type = 'tra', sigma_clip = self.tra_sigma_clip[but_ind-1][0].value(), 
+#                          remove_mean = False, file_n = but_ind-1)
 
+        if self.tra_norm[but_ind-1].isChecked() == True:
+            rv.transit_data_norm(fit,  file_n = but_ind-1, norm = True)
         else:
-            return
+            rv.transit_data_norm(fit,  file_n = but_ind-1, norm = False)
 
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
         self.update_veiw()
@@ -6651,6 +6653,7 @@ Please install via 'pip install ttvfast'.
         self.act_remove_mean = gui_groups.act_remove_mean(self)
 
         self.tra_sigma_clip  = gui_groups.tra_sigma_clip(self)
+        self.tra_norm        = gui_groups.tra_norm(self)
 
 
         self.ttv_data_to_planet     = gui_groups.ttv_data_to_planet(self)

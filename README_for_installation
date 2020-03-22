@@ -202,27 +202,31 @@ his Master studies with Man Hoi Lee (HKU).
 * Jakub Morawski (Warsaw University) worked on the "RVmod" library as my intern student in the summer of 2018. His numerous contributions 
 during the early stages of this project are highly appreciated.
 
-* The interactive plotting is done with a custom version of the "pyqtgraph":
+* The AMD stability check function was donated by Stefan Dreizler (IAG, Germany). 
+
+
+
+* The interactive plotting is done with a custom version of the "pyqtgraph": 
 
 http://www.pyqtgraph.org/
 
-* The transit modeling is done with "batman":
-
-https://www.cfa.harvard.edu/~lkreidberg/batman/quickstart.html
-
-* "GLS" and "MLP" periodogram are taken from Mathias Zechmeister's repo:
+* "GLS" and "MLP" periodograms are taken from Mathias Zechmeister's repo: 
 
 https://github.com/mzechmeister/python
 
-* "TLS" is taken from:
+* "TLS" is taken from: 
 
 https://github.com/hippke/tls
 
-* MCMC sampling is done with "emcee":
+* The transit modeling is done with "batman":
+ 
+https://www.cfa.harvard.edu/~lkreidberg/batman/quickstart.html
+
+* MCMC sampling is done with "emcee": 
 
 http://dfm.io/emcee/current/
 
-* Nested Sampling is done with "dynesty":
+* Nested Sampling is done with "dynesty": 
 
 https://dynesty.readthedocs.io/en/latest/
 
@@ -230,17 +234,21 @@ https://dynesty.readthedocs.io/en/latest/
 
 https://github.com/mindriot101/ttvfast-python
 
-* The "Text editor" used in the tool is a hack between "Megasolid Idiom" and "PyEdit2":
+* The "Text editor" used in the tool is a hack between "Megasolid Idiom" 
+and "PyEdit2":
 
 https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor
 
 https://github.com/Axel-Erfurt/PyEdit2'
 
-* N-body tests are performed using a custom version of the "Swift" N-body library, modified by Man Hoi Lee (HKU) and Trifon Trifonov (MPIA).
+* N-body tests are performed using a custom version of the "Swift" N-body library,
+modified by Man Hoi Lee (HKU) and Trifon Trifonov (MPIA).
 
 https://www.boulder.swri.edu/~hal/swift.html
 
-* Additionally, the Exo-Striker uses many "standard" Python libraries like "matplotlib", "numpy", "scipy", "dill", and more.
+* Additionally, the Exo-Striker uses many "standard" Python libraries like 
+"PyQt5", "matplotlib", "numpy", "scipy", "dill", "Jupyter", "qtconsole",
+and more.
 
 
 

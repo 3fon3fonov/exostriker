@@ -797,6 +797,24 @@ def sigma_clip(obj, type = 'RV', sigma_clip = 10, file_n = 0, add_error = 0, rem
 
 
 
+def transit_data_norm(obj,  file_n = 0, norm = False, verbose = True):
+
+
+    if len(obj.tra_data_sets[file_n]) == 0:
+        print("No transit file # %s"%(file_n))
+        return
+ 
+    if norm == True:
+        obj.tra_data_sets[file_n][1] = obj.tra_data_sets_init[file_n][1]/np.mean(obj.tra_data_sets_init[file_n][1])
+        obj.tra_data_sets[file_n][2] = obj.tra_data_sets_init[file_n][2]/np.mean(obj.tra_data_sets_init[file_n][1])
+    else:
+        obj.tra_data_sets[file_n][1] = obj.tra_data_sets_init[file_n][1] 
+        obj.tra_data_sets[file_n][2] = obj.tra_data_sets_init[file_n][2] 
+
+    return obj
+
+
+
 ### some experimets! ###
 def gen_RV_curve(obj,x=None):
     obj2 = dill.copy(obj)

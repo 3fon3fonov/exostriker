@@ -821,6 +821,13 @@ def tra_sigma_clip(self):
  
     return tra_sigma_clip
 
+def tra_norm(self): 
+    tra_norm = [
+             self.tra_norm_1,self.tra_norm_2,self.tra_norm_3,self.tra_norm_4,self.tra_norm_5,
+             self.tra_norm_6,self.tra_norm_7,self.tra_norm_8,self.tra_norm_9,self.tra_norm_10
+            ]
+ 
+    return tra_norm
 
 ######################### Arb N-body #################################
     
