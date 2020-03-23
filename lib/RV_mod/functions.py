@@ -345,10 +345,30 @@ def get_AMD_stab(obj):
             AMD = gamma*np.sqrt(alpha)*(1.-np.sqrt(1.-sorted_pl_ecc[i]**2)) + 1.-np.sqrt(1.-sorted_pl_ecc[i+1]**2)
 
             AMD_Hill = gamma*np.sqrt(alpha) + 1. - (1.+gamma)**1.5 * np.sqrt(alpha/(gamma+alpha) * (1.+(3.**(4./3.)*epsilon**(2./3.)*gamma)/((1.+gamma)**2)))
+            #print( AMD,AMD_Hill)
+
             if AMD >= AMD_Hill:
                 return False
 
     return AMD_stable
+
+def loglik_AMD_penalty(pl_a,pl_ecc,pl_mass,st_mass):
+
+    for i in range(len(pl_a) - 1):
+
+        alpha    = pl_a[i]/pl_a[i+1]
+        gamma    = pl_mass[i]/pl_mass[i+1]
+        epsilon  = (pl_mass[i]+pl_mass[i+1])/st_mass
+
+        AMD = gamma*np.sqrt(alpha)*(1.-np.sqrt(1.- pl_ecc[i]**2)) + 1.-np.sqrt(1.- pl_ecc[i+1]**2)
+
+        AMD_Hill = gamma*np.sqrt(alpha) + 1. - (1.+gamma)**1.5 * np.sqrt(alpha/(gamma+alpha) * (1.+(3.**(4./3.)*epsilon**(2./3.)*gamma)/((1.+gamma)**2)))
+        if AMD >= AMD_Hill:
+            return -np.inf
+
+    return 0
+
+
 
 def randomString(stringLength=5):
     """

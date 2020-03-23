@@ -1799,20 +1799,31 @@ Polyfit coefficients:
            
         self.comboBox_scipy_minimizer_1.setCurrentIndex(6)
         self.comboBox_scipy_minimizer_2.setCurrentIndex(0)
-            
-    def check_scipy_min(self):    
-        global fit             
-            
+
+
+    def set_AMD_consttraints(self):
+        global fit
+        
+        if self.use_optim_stab_constraints.isChecked():
+            fit.optim_AMD_stab   = self.optim_AMD.isChecked()
+            fit.optim_Nbody_stab = self.optim_Nbody.isChecked()
+        else:
+            fit.optim_AMD_stab   = False
+            fit.optim_Nbody_stab = False
+
+    def check_scipy_min(self):
+        global fit
+
         ind_min_1 = self.comboBox_scipy_minimizer_1.currentIndex()
         ind_min_2 = self.comboBox_scipy_minimizer_2.currentIndex()
-       
 
         fit.SciPy_min_use_1 = fit.SciPy_min[ind_min_1]
         fit.SciPy_min_use_2 = fit.SciPy_min[ind_min_2]
         fit.SciPy_min_N_use_1 = int(self.scipy_N_consecutive_iter_1.value())
         fit.SciPy_min_N_use_2 = int(self.scipy_N_consecutive_iter_2.value())
-        
-        
+
+        self.set_AMD_consttraints()
+
         fit.Simplex_opt    = {'disp': True, 'maxiter': int(self.simplex_maxiter.value()), 'return_all': False, 'maxfev': int(self.simplex_maxfev.value()), 'xtol':self.simplex_xtol.value() , 'ftol': self.simplex_ftol.value() ,'adaptive':True }
         fit.Powell_opt     = {'disp': True, 'return_all': False, 'maxiter': int(self.powell_maxiter.value()), 'direc': None, 'func': None, 'maxfev': int(self.powell_maxfev.value()), 'xtol': self.powell_xtol.value(), 'ftol': self.powell_ftol.value()}
         fit.CG_opt         = {'disp': True, 'gtol': self.cg_gtol.value(), 'eps': 1.4901161193847656e-08, 'return_all': False, 'maxiter': int(self.cg_maxiter.value()), 'norm': np.inf}
@@ -1822,8 +1833,12 @@ Polyfit coefficients:
         fit.TNC_opt        = {'disp': True, 'eps': self.TNC_eps.value(), 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': int(self.TNC_maxcgit.value()), 'maxiter': int(self.TNC_maxiter.value()), 'eta': self.TNC_eta.value(), 'stepmx':self.TNC_stepmx.value(), 'accuracy': self.TNC_accuracy.value(), 'minfev': self.TNC_minfev.value(), 'ftol': self.TNC_ftol.value(), 'xtol':self.TNC_ftol.value(), 'gtol': self.TNC_gtol.value(), 'rescale': -1 }  
        # fit.COBYLA_opt     = {'disp': True, 'rhobeg': self.cobyla_rhobeg.value(), 'maxiter':  int(self.cobyla_maxiter.value()), 'catol': self.cobyla_catol.value() }
         fit.SLSQP_opt      = {'disp': True, 'maxiter': int(self.slsqp_maxiter.value()),  'eps': 1.4901161193847656e-08, 'ftol': self.slsqp_ftol.value(), 'iprint': 1}
-      
-        
+
+
+
+######################## Cross hair and label picks ######################################
+
+
     def cross_hair(self, plot_wg, log=False, alias = [False, 365.250,'#666699']):
         global fit 
 
@@ -5253,6 +5268,13 @@ highly appreciated!
 
         fit.nest_mad = self.use_nest_MAD_level.isChecked()
 
+        if self.use_NS_stab_constraints.isChecked():
+            fit.NS_AMD_stab   = self.NS_AMD.isChecked()
+            fit.NS_Nbody_stab = self.NS_Nbody.isChecked()
+        else:
+            fit.NS_AMD_stab   = False
+            fit.NS_Nbody_stab = False
+
 
         self.button_nest_samp.setEnabled(False)
         self.statusBar().showMessage('Nested Sampling in progress....')        
@@ -5413,7 +5435,14 @@ highly appreciated!
             fit.rtg = [True,self.do_RV_GP.isChecked(), False, False] 
  
         fit.mcmc_mad = self.use_mcmc_MAD_level.isChecked()
- 
+        
+        if self.use_mcmc_stab_constraints.isChecked():
+            fit.mcmc_AMD_stab   = self.mcmc_AMD.isChecked()
+            fit.mcmc_Nbody_stab = self.mcmc_Nbody.isChecked()
+        else:
+            fit.mcmc_AMD_stab   = False
+            fit.mcmc_Nbody_stab = False
+
        # if self.radioButton_ttv.isChecked() or self.radioButton_ttv_RV.isChecked():
 
        #     self.button_MCMC.setEnabled(True)  

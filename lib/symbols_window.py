@@ -40,9 +40,8 @@ class show_symbols(QtWidgets.QDialog):
         self.button9  = QtWidgets.QRadioButton('symbol "star"', self)
         self.button10 = QtWidgets.QRadioButton('symbol "+"', self)
         self.button11 = QtWidgets.QRadioButton('symbol "d"', self)
-         
-  
-        
+
+
         self.radio_group.addButton(self.button1)
         self.radio_group.addButton(self.button2)
         self.radio_group.addButton(self.button3)
@@ -54,7 +53,7 @@ class show_symbols(QtWidgets.QDialog):
         self.radio_group.addButton(self.button9)
         self.radio_group.addButton(self.button10)
         self.radio_group.addButton(self.button11)
- 
+
         self.radio_group.setId(self.button1,1)
         self.radio_group.setId(self.button2,2)
         self.radio_group.setId(self.button3,3)
@@ -66,11 +65,7 @@ class show_symbols(QtWidgets.QDialog):
         self.radio_group.setId(self.button9,9)
         self.radio_group.setId(self.button10,10)
         self.radio_group.setId(self.button11,11)
-        
- 
-        #self.radio_group.buttonClicked.connect(self.do_test) 
-        
-        
+
         self.layout.addWidget(self.button1)
         self.layout.addWidget(self.button2)
         self.layout.addWidget(self.button3)
@@ -82,10 +77,10 @@ class show_symbols(QtWidgets.QDialog):
         self.layout.addWidget(self.button9)
         self.layout.addWidget(self.button10)
         self.layout.addWidget(self.button11)
-        
-        
+
+
         #self.setCentralWidget(self.widget)
-        
+
         #self.Ok_button = QtGui.QPushButton('OK', self)
         #self.layout.addWidget(self.Ok_button)        
         
@@ -94,15 +89,12 @@ class show_symbols(QtWidgets.QDialog):
 
         self.cancel_button.clicked.connect(self.close)
         #self.Ok_button.clicked.connect(self.get_radio)
-        
- 
+
 
 
     def return_but_N(self):
         #   Return list of values. It need map with str (self.lineedit.text() will return QString)
         return self.radio_group.checkedId() 
-    
- 
 
     # static method to create the dialog and return (date, time, accepted)
     @staticmethod
@@ -111,10 +103,9 @@ class show_symbols(QtWidgets.QDialog):
         result = dialog.exec_()
         rad_but = dialog.return_but_N()
         return (rad_but)
- 
-        
-     
-        
+
+
+
 if __name__ == '__main__':
    # app = QtWidgets.QApplication(sys.argv)
     #w = show_symbols()
