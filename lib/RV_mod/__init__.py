@@ -634,7 +634,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     gr_flag = opt["gr_flag"]
     ttv_files = opt["TTV_files"]
     ttv_times = opt["TTV_times"]
-    
+
     N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0]) #fit.tra_data_sets[0][3]
 
 
@@ -766,6 +766,34 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         else:
             ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,fit_results=fit_results, return_model = False)
  
+    if opt["AMD_stab"] == True and npl >=2:
+       
+        for i in range(npl - 1):
+
+            pl_mass_in,ap_in = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*i],
+                                par[len(vel_files)*2 +7*i+1],
+                                par[len(vel_files)*2 +7*i+2],
+                                par[len(vel_files)*2 +7*i+3],
+                                par[len(vel_files)*2 +7*i+4]],1,stmass) ##################TB FIXED! these are not
+
+            pl_mass_out,ap_out = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*(i+1)],
+                                par[len(vel_files)*2 +7*(i+1)+1],
+                                par[len(vel_files)*2 +7*(i+1)+2],
+                                par[len(vel_files)*2 +7*(i+1)+3],
+                                par[len(vel_files)*2 +7*(i+1)+4]],1,stmass) ##################TB FIXED! these are not
+
+            alpha    = ap_in/ap_out
+            gamma    = pl_mass_in/pl_mass_out
+            epsilon  = (pl_mass_in + pl_mass_out)/(stmass* 1047.70266835)
+
+            AMD = gamma*np.sqrt(alpha)*(1.-np.sqrt(1.- par[len(vel_files)*2 +7*i+2]**2)) + 1.- np.sqrt(1.- par[len(vel_files)*2 + 7*(i+1) +2]**2)
+
+            AMD_Hill = gamma*np.sqrt(alpha) + 1. - (1.+gamma)**1.5 * np.sqrt(alpha/(gamma+alpha) * (1.+(3.**(4./3.)*epsilon**(2./3.)*gamma)/((1.+gamma)**2)))
+ 
+
+            if AMD >= AMD_Hill:
+                return (rv_loglik + tr_loglik + ttv_loglik)* 2.0*np.exp(1.0 - AMD_Hill/AMD)
+ 
 
     if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
         return -np.inf
@@ -784,26 +812,14 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     for i in range(obj.filelist.ndset):
          vel_files.append(obj.filelist.files[i].path)
 
-    #tr_files = []
-    #tr_mo = []
-    #tr_ld = []
-
-    #for i in range(10):
-    #    if len(obj.tra_data_sets[i]) != 0:
-    #        tr_files.append(obj.tra_data_sets[i])
-    #        tr_mo.append(obj.ld_m[i])
-    #        tr_ld.append(obj.ld_u[i])
-
     N_transit_files = len([x for x in range(10) if len(obj.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][3]
 
     tr_files = obj.tra_data_sets
     tr_mo    = obj.ld_m
     tr_ld    = obj.ld_u
-    
+
     tr_model = np.array([tr_mo,tr_ld], dtype=object)
     tr_params = obj.tr_params
-    
-    
 
     ttv_files = []
 
@@ -857,11 +873,20 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
             return obj
 
     priors = [pr_nr,jeff_nr]
+ 
+    opt = {"eps":obj.dyn_model_accuracy*1e-13,
+           "dt":obj.time_step_model*86400.0,
+           "when_to_kill":when_to_kill,
+           "copl_incl":obj.copl_incl,
+           "hkl":obj.hkl,
+           "cwd":obj.cwd, 
+           "gr_flag":obj.gr_flag,
+           "TTV":obj.type_fit["TTV"],
+           "TTV_files":ttv_files, 
+           "TTV_times":obj.ttv_times,
+           "AMD_stab":obj.optim_AMD_stab, 
+           "Nbody_stab":obj.optim_Nbody_stab}
 
-    opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,
-           "when_to_kill":when_to_kill,"copl_incl":obj.copl_incl,"hkl":obj.hkl,
-           "cwd":obj.cwd, "gr_flag":obj.gr_flag,"TTV":obj.type_fit["TTV"],
-           "TTV_files":ttv_files, "TTV_times":obj.ttv_times}
 
     if obj.init_fit == True:
         flags = []
@@ -962,7 +987,6 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         n2 = obj.SciPy_min_N_use_2
    # print(obj.SciPy_min_use_1,obj.SciPy_min_use_2)
 
-    #print(pp)
 
     ########################### Primary minimizer #########################
     for k in range(n1): # run at least 3 times the minimizer
@@ -972,7 +996,6 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
                              method=method1,bounds=fit_bounds, options=options1)
                             #  bounds=bb, tol=None, callback=None, options={'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxiter': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1, 'disp': True})
         pp = result["x"]
-        #print(par)
         print(method1,' Done!')
        # print("Best fit par.:", result["x"])
 
@@ -986,11 +1009,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         pp = result["x"]
         print(method2,' Done!')
 
-       # print("Best fit par.:", result["x"])
 
-
-    #print(obj.type_fit["RV"], obj.type_fit["Transit"], obj.type_fit["TTV"])    
- 
     errors = [[0.0,0.0] for i in range(len(pp))]
 
     obj.par_for_mcmc = pp
@@ -1017,7 +1036,6 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
 
     N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0]) #fit.tra_data_sets[0][3]
-
 
     e_par = [[0.0,0.0]]*len(par)
     for j in range(len(flags)):
@@ -1132,8 +1150,6 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             k += 4
 #        else:
 #            tr_params.u = []
-
-
 
     if len(flags) != 0:
         print("Best lnL: %s"%obj.loglik)
@@ -1264,7 +1280,6 @@ def run_nestsamp(obj, **kwargs):
         if mix_fit[0] == True:
             mod='%s/lib/fr/loglik_dyn+'%obj.cwd
             when_to_kill =  obj.dyn_model_to_kill
-            #print(mix_fit[0],mod)
         else:
             mod='%s/lib/fr/loglik_dyn'%obj.cwd
             when_to_kill =  obj.dyn_model_to_kill
@@ -1298,10 +1313,20 @@ def run_nestsamp(obj, **kwargs):
 
     level = (100.0- obj.nest_percentile_level)/2.0
 
-    opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,
-           "when_to_kill":when_to_kill,"copl_incl":obj.copl_incl,"hkl":obj.hkl,
-           "cwd":obj.cwd, "gr_flag":obj.gr_flag,"ns_samp_method":obj.ns_samp_method,
-           "TTV":obj.type_fit["TTV"],"TTV_files":ttv_files,"TTV_times":obj.ttv_times}
+    opt = {"eps":obj.dyn_model_accuracy*1e-13,
+           "dt":obj.time_step_model*86400.0,
+           "when_to_kill":when_to_kill,
+           "copl_incl":obj.copl_incl,
+           "hkl":obj.hkl,
+           "cwd":obj.cwd, 
+           "gr_flag":obj.gr_flag,
+           "ns_samp_method":obj.ns_samp_method,
+           "TTV":obj.type_fit["TTV"],
+           "TTV_files":ttv_files,
+           "TTV_times":obj.ttv_times,
+           "AMD_stab":obj.mcmc_AMD_stab, 
+           "Nbody_stab":obj.mcmc_Nbody_stab}
+
     #print(par)
     #print(flags)
    # print(bb)
@@ -1640,9 +1665,19 @@ def run_mcmc(obj, **kwargs):
 
 
 
-    opt = {"eps":obj.dyn_model_accuracy*1e-13,"dt":obj.time_step_model*86400.0,
-           "when_to_kill":when_to_kill,"copl_incl":obj.copl_incl,"hkl":obj.hkl,"cwd":obj.cwd,
-           "gr_flag":obj.gr_flag,"TTV":obj.type_fit["TTV"],"TTV_files":ttv_files,"TTV_times":obj.ttv_times}
+    opt = {"eps":obj.dyn_model_accuracy*1e-13,
+           "dt":obj.time_step_model*86400.0,
+           "when_to_kill":when_to_kill,
+           "copl_incl":obj.copl_incl,
+           "hkl":obj.hkl,
+           "cwd":obj.cwd,
+           "gr_flag":obj.gr_flag,
+           "TTV":obj.type_fit["TTV"],
+           "TTV_files":ttv_files,
+           "TTV_times":obj.ttv_times,
+           "AMD_stab":obj.mcmc_AMD_stab, 
+           "Nbody_stab":obj.mcmc_Nbody_stab}
+
 
     gps = []
     if (rtg[1]):
@@ -1937,8 +1972,10 @@ class signal_fit(object):
         self.gls = []
         self.gls_o_c =[]
 
-        #self.mlp = []
+        self.mlp = []
 
+        self.optim_AMD_stab   = False
+        self.optim_Nbody_stab = False
         self.init_dynfit_settings()
 
 
@@ -2504,6 +2541,8 @@ class signal_fit(object):
         self.mcmc_save_sampler=True
 
         self.mcmc_mad = False
+        self.mcmc_AMD_stab   = False
+        self.mcmc_Nbody_stab = False
 
         self.mcmc_sample_file = 'mcmc_samples'
         self.mcmc_corner_plot_file = 'cornerplot.pdf'
@@ -2530,6 +2569,8 @@ class signal_fit(object):
         self.ns_save_sampler=True
 
         self.nest_mad = False
+        self.nest_AMD_stab   = False
+        self.nest_Nbody_stab = False
 
         self.nest_sample_file = 'nest_samp_samples'
         self.nest_corner_plot_file = 'nest_samp_cornerplot.pdf'
