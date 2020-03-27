@@ -327,9 +327,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             for k in range(7):
                 fit.params.planet_params[7*zz+k] = self.param_gui[j+k].value()
 
-######## TBX for bug in re-ordering ###########
-
-#        for i in range(9):
             fit.omega_dot[zz] = self.param_gui_wd[i].value()
 
             fit.t0[zz]     = self.param_gui_tr[i*3].value()
@@ -338,10 +335,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
             zz = zz +1
 
-
         fit.sort_by_period(reverse=False)
         fit.hack_around_rv_params()
-
 
         for i in range(10):
             fit.params.offsets[i] = self.rvs_data_gui[i].value()
@@ -414,9 +409,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.ld_u_lin[i]    = [self.lin_u[i].value()]
             fit.ld_u_quad[i]   = [self.quad_u1[i].value(),self.quad_u2[i].value()]
             fit.ld_u_nonlin[i] = [self.nonlin_u1[i].value(),self.nonlin_u2[i].value(),
-                                      self.nonlin_u3[i].value(),self.nonlin_u4[i].value()]            
+                                      self.nonlin_u3[i].value(),self.nonlin_u4[i].value()]
 
-            
 
     def set_hkl(self):
         global fit  
@@ -633,7 +627,12 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         #for i in range(len(use_planet_gui)):  
         npl_old = fit.npl
         checked = int(np.sum( [use_planet_gui[i].isChecked() for i in range(len(use_planet_gui))] ))
- 
+
+
+        #self.ttv_data_planet_1.
+        
+        self.ttv_pl_combo()
+
         if npl_old < checked:
             fit.add_planet()
         elif npl_old >= checked:
@@ -1362,6 +1361,19 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_9,9)
         self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_10,10)
         self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_11,11)
+        
+        self.buttonGroup_color_picker_ttv.setId(self.ttv_color_1,1)
+        self.buttonGroup_color_picker_ttv.setId(self.ttv_color_2,2)
+        self.buttonGroup_color_picker_ttv.setId(self.ttv_color_3,3)
+        self.buttonGroup_color_picker_ttv.setId(self.ttv_color_4,4)
+        self.buttonGroup_color_picker_ttv.setId(self.ttv_color_5,5)
+        self.buttonGroup_color_picker_ttv.setId(self.ttv_color_6,6)
+        self.buttonGroup_color_picker_ttv.setId(self.ttv_color_7,7)
+        self.buttonGroup_color_picker_ttv.setId(self.ttv_color_8,8)
+        self.buttonGroup_color_picker_ttv.setId(self.ttv_color_9,9)
+        self.buttonGroup_color_picker_ttv.setId(self.ttv_color_10,10)
+        self.buttonGroup_color_picker_ttv.setId(self.ttv_model_color,11)
+        
      
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_1,1)
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_2,2)
@@ -1384,6 +1396,17 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_8,8)
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_9,9)
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_10,10)
+
+        self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_1,1)
+        self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_2,2)
+        self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_3,3)
+        self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_4,4)
+        self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_5,5)
+        self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_6,6)
+        self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_7,7)
+        self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_8,8)
+        self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_9,9)
+        self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_10,10)
 
         self.buttonGroup_use_planets = QtWidgets.QButtonGroup()
         self.buttonGroup_use_planets.setExclusive(False)
@@ -1411,7 +1434,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.colors_gls.setFont(self.font) 
         self.colors_gls_o_c.setFont(self.font) 
 
-        self.colors_ttv.setFont(self.font) 
+        #self.colors_ttv.setFont(self.font) 
 
 
     def initialize_plots(self):
@@ -1493,15 +1516,15 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
  
         per_ind = argrelextrema(y, np.greater)
         per_x   = x[per_ind]
-        per_y   = y[per_ind]     
+        per_y   = y[per_ind]
 
         peaks_sort = sorted(range(len(per_y)), key=lambda k: per_y[k], reverse=True)
 
         per_x   = per_x[peaks_sort]   
-        per_y   = per_y[peaks_sort]  
-        
+        per_y   = per_y[peaks_sort]
+
         peaks_pos = [per_x,per_y]
-        
+
         ################## text generator #################
         text_peaks = """ 
 """
@@ -1518,8 +1541,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 ----------------------------------------------
 The 10 strongest peaks
 ----------------------------------------------
-"""         
- 
+"""
+
         if len(per_x)  < 10:
             max_peaks = len(per_x) 
         else:
@@ -1530,267 +1553,15 @@ The 10 strongest peaks
 period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])  
             if sig_level.size != 0 and per_y[j] > sig_level[-1]:
                 text_peaks = text_peaks +"""  significant"""
-                
-        ################################################        
-    
+
         return text_peaks , peaks_pos 
-        
-  
-        
-######################## Correlation plots ###################################### 
-        
-    def init_correlations_combo(self):
-        global fit
-        self.comboBox_corr_1.clear()
-        self.comboBox_corr_2.clear()
-        
-        self.initialize_corr_y = {k: [] for k in range(20)}
-        z = 0 
-
-        if fit.filelist.ndset != 0:
-
-            for i in range(max(fit.filelist.idset)+1):
-                self.comboBox_corr_1.addItem('RV %s'%(i+1),i+1) 
-                self.comboBox_corr_2.addItem('RV %s'%(i+1),i+1) 
-                
-                #print(fit.filelist.idset,fit.fit_results.rv_model.jd)
-            
-                self.initialize_corr_y[z] = np.array([fit.fit_results.rv_model.jd[fit.filelist.idset==i],
-                                                      fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
-                                                      fit.fit_results.rv_model.rv_err[fit.filelist.idset==i]])  
-                z +=1
-                
-            for i in range(max(fit.filelist.idset)+1):
-                self.comboBox_corr_1.addItem('RV o-c %s'%(i+1),i+1)         
-                self.comboBox_corr_2.addItem('RV o-c %s'%(i+1),i+1)  
-    
-                self.initialize_corr_y[z] = np.array([fit.fit_results.rv_model.jd[fit.filelist.idset==i],
-                                                      fit.fit_results.rv_model.o_c[fit.filelist.idset==i], 
-                                                      fit.fit_results.rv_model.rv_err[fit.filelist.idset==i]]) 
-                z +=1                          
-         
-
-        for i in range(0,10,1):         
-            if len(fit.act_data_sets[i]) != 0: 
-                self.comboBox_corr_1.addItem('act. data %s'%(i+1),i+1)       
-                self.comboBox_corr_2.addItem('act. data %s'%(i+1),i+1) 
-                
-                self.initialize_corr_y[z] = fit.act_data_sets[i] 
-                z +=1                                         
-                
-        #return                
-                
-                
-    def update_correlations_data_plots(self):
-        global fit, colors,  p6 
-        
-        ind1 = self.comboBox_corr_1.currentIndex()
-        ind2 = self.comboBox_corr_2.currentIndex()
- 
-        p6.plot(clear=True,)  
-        
-        self.color_corr.setStyleSheet("color: %s;"%colors[0]) 
-
-        #p6.autoRange()     
-        
-        if not ind1 == None and not ind2 == None:
-
-            
-            if len(self.initialize_corr_y[ind1][0]) == len(self.initialize_corr_y[ind2][0]):
-                p6.plot(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1], pen=None,symbol='o',
-                #symbolPen=,
-                symbolSize=self.act_data_size.value(),enableAutoRange=True,viewRect=True,
-                symbolBrush=colors[0]
-                )    
-                
-                
-                pears = pearsonr(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1] )
-                
-                if pears[0] < 0:
-                    pos_neg = "negative"
-                else:
-                    pos_neg = "positive"
-                    
-                if abs(pears[0]) < 0.3:
-                    strong_mod_weak = "very weak"
-                elif 0.3 <= abs(pears[0]) <= 0.5: 
-                     strong_mod_weak = "weak"
-                elif 0.5 <= abs(pears[0]) <= 0.7: 
-                     strong_mod_weak = "moderate"
-                elif 0.7 <= abs(pears[0]) <= 1: 
-                     strong_mod_weak = "strong"  
-                else:
-                     strong_mod_weak = "n/a"  
-                     
-                m, c = np.polyfit(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1], 1,
-                                  w=1/np.sqrt(self.initialize_corr_y[ind1][2]**2 + self.initialize_corr_y[ind2][2]**2),
-                                  full=False,cov=True)  
-                
-                e = np.sqrt(np.diag(c))
-                
-                text = '''Pearson's correlation coefficient 2-tailed p-value: 
-%s, %s
-(A %s %s correlation)
-
-Polyfit coefficients: 
-%s +/- %s, 
-%s +/- %s   
-
-'''%(pears[0],pears[1], pos_neg, strong_mod_weak, m[0],e[0], m[1],e[1])
-
-                self.corr_print_info.clicked.connect(lambda: self.print_info_for_object(text))
-
-                
-                if self.plot_corr_err.isChecked():
-                    err1 = pg.ErrorBarItem(x=self.initialize_corr_y[ind1][1], y=self.initialize_corr_y[ind2][1],symbol='o', 
-                    top=self.initialize_corr_y[ind2][2],bottom=self.initialize_corr_y[ind2][2],
-                    left=self.initialize_corr_y[ind1][2],right=self.initialize_corr_y[ind1][2],
-                    beam=0.0, pen=colors[0])  
-
-                    p6.addItem(err1)   
-                    
-                if self.plot_corr_coef.isChecked():
-
-                    p6.plot(self.initialize_corr_y[ind1][1], self.initialize_corr_y[ind1][1]*m[0] +m[1] , pen='k')
-
-                p6.autoRange()
-
-                return   
-
-            else:
-                text_err = pg.TextItem('Not the same time series!',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
-                p6.addItem(text_err, ignoreBounds=True)   
-        else:   
-             
-                return
-
-    def get_corr_color(self):
-        global fit
-        
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
-        colors[0]=colorz.name()
-
-        self.update_correlations_data_plots()
-
-    def corr_plot_x_labels(self):
-        global fit
-        
-        text, okPressed = QtGui.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
-        
-        if okPressed and text != '':
-            p6.setLabel('bottom', '%s'%text, units='',  **{'font-size':'9pt'})
- 
-        else:
-            return
-    
-        self.update_correlations_data_plots()
- 
-
-    def corr_plot_y_labels(self):
-        global fit
-        
-        text, okPressed = QtGui.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
-        
-        if okPressed and text != '':
-            p6.setLabel('left', '%s'%text, units='',  **{'font-size':'9pt'})
- 
-        else:
-            return
-    
-        self.update_correlations_data_plots()
-
-
-######################## Activity plots ######################################  
-                
-    def init_activity_combo(self):
-        global fit
-        
-        for i in range(10):
-            self.comboBox_act_data_gls.addItem('act. data %s'%(i+1),i+1)       
-            self.comboBox_act_data.addItem('act. data %s'%(i+1),i+1)       
-                
-        
- 
-    def update_activity_gls_plots(self,ind):
-        global fit, colors,  p11 
-
-        p11.plot(clear=True,) 
-
-        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
-        power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
-   
-    
-        if len(fit.act_data_sets[ind]) != 0 and len(fit.act_data_sets[ind][0]) > 5:
-
- 
-            act_per = gls.Gls((fit.act_data_sets[ind][0], fit.act_data_sets[ind][1],fit.act_data_sets[ind][2]), 
-            fast=True,  verbose=False, norm= "ZK",ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)
-            
-            ######################## GLS ##############################
-            if self.radioButton_act_GLS_period.isChecked():
-                p11.setLogMode(True,False)        
-                p11.plot(1/act_per.freq, act_per.power,pen=fit.colors[ind],symbol=None ) 
-                p11.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'}) 
-
-            else:
-                p11.setLogMode(False,False)        
-                p11.plot(act_per.freq, act_per.power,pen=fit.colors[ind],symbol=None )                    
-                p11.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
-
-                                               
-            [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
-  
-            text_peaks, pos_peaks = self.identify_power_peaks(1/act_per.freq, act_per.power, power_level = power_levels, sig_level = act_per.powerLevel(np.array(power_levels)) )    
-
-            self.label_peaks(p11, pos_peaks, GLS = True, activity = True)
-    
-            self.act_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(act_per.info(stdout=False) + text_peaks ))   
-   
-#            return
-      #  else:   
-      #      p11.plot(clear=True,)        
-
-      #      return
-
-        if self.gls_act_cross_hair.isChecked():
-            self.cross_hair(p11,log=self.radioButton_act_GLS_period.isChecked()) 
-
-
-    def update_activity_data_plots(self,ind):
-        global fit, colors,  p5 
-
-        if len(fit.act_data_sets[ind]) != 0:
-
-            p5.plot(clear=True,)  
-
-            err1 = pg.ErrorBarItem(x=fit.act_data_sets[ind][0], y=fit.act_data_sets[ind][1],symbol='o', 
-           # height=fit.act_data_sets[ind][2], beam=0.0, pen=fit.colors[ind])  
-            top=fit.act_data_sets[ind][2],
-            bottom=fit.act_data_sets[ind][2],           
-            beam=0.0, pen=fit.colors[ind])
-
-
-            p5.addItem(err1)      
-            p5.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
-
-            p5.plot(fit.act_data_sets[ind][0],fit.act_data_sets[ind][1], pen=None,symbol='o',
-            symbolSize=self.act_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[ind]            
-            )      
-
-            p5.setLabel('left', 'y', units='',  **{'font-size':'9pt'})     
-
-            return
-        else:   
-            p5.plot(clear=True,)        
-
-            return  
 
 
 
-######################## SciPy setup ######################################        
 
-    def init_scipy_combo(self):    
+######################## SciPy setup ######################################
+
+    def init_scipy_combo(self):
         global fit 
 
         for i in range(len(fit.SciPy_min)):
@@ -2125,12 +1896,12 @@ Polyfit coefficients:
                         
         omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()),  num=int(self.gls_n_omega.value()))
         #power_levels = np.array([0.1,0.01,0.001])
-        
+
         if len(fit.fit_results.rv_model.jd) > 5:
             ######################## DFT (Window) ##############################
             WF_power = []
             for omi in 2*np.pi*omega: 
-                phase = (fit.fit_results.rv_model.jd-fit.fit_results.rv_model.jd[0]) * omi                 
+                phase = (fit.fit_results.rv_model.jd-fit.fit_results.rv_model.jd[0]) * omi
                 WC = np.sum(np.cos(phase))
                 WS = np.sum(np.sin(phase))
                 WF_power.append((WC**2 + WS**2)/len(fit.fit_results.rv_model.jd)**2) 
@@ -2144,26 +1915,21 @@ Polyfit coefficients:
             else:
                 p12.setLogMode(False,False)        
                 p12.plot(np.array(omega), WF_power,pen='k',symbol=None )   
-                p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'})      
+                p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'})
 
             text_peaks, pos_peaks = self.identify_power_peaks(1/np.array(omega), WF_power)
 
             self.label_peaks(p12, pos_peaks, GLS = True, DFT = True)
 
-                        
-            self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(text_peaks))        
-            
+            self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(text_peaks))
+
 
     def update_RV_plots(self):
         global fit, p1,p2
 
-        #if len(fit.fit_results.rv_model.rv_err) != len(fit.filelist.idset):
-       #     return
-
         p1.plot(clear=True,)
         p2.plot(clear=True,)
- 
-    
+
         self.check_RV_symbol_sizes()
 
         if len(fit.filelist.idset)==0:
@@ -2193,18 +1959,15 @@ Polyfit coefficients:
                                        brush = pg.mkColor(244,140,66,128))
             p1.addItem(pfill)  
 
-
-
         if self.jitter_to_plots.isChecked() and not self.split_jitter.isChecked():
             error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)
         elif self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
             error_list = fit.fit_results.rv_model.rv_err
-            error_list2 = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)            
+            error_list2 = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)
         else:
             error_list = fit.fit_results.rv_model.rv_err
-            
-            
-            
+
+
         for i in range(max(fit.filelist.idset)+1):
             p1.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
@@ -2212,25 +1975,24 @@ Polyfit coefficients:
             symbolPen={'color': fit.colors[i], 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.colors[i]
-            )    
-              
+            )
+
             err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
                                    y=fit.fit_results.rv_model.rvs[fit.filelist.idset==i],symbol='o', 
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.filelist.idset==i],
-            bottom=error_list[fit.filelist.idset==i],           
+            bottom=error_list[fit.filelist.idset==i],
             beam=0.0, pen=fit.colors[i])  
- 
+
             p1.addItem(err1)
-            
-            
+
             if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
-            
+
                 err1a = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
                                        y=fit.fit_results.rv_model.rvs[fit.filelist.idset==i],symbol='o', 
                 #height=error_list[fit.filelist.idset==i],
                 top=error_list2[fit.filelist.idset==i],
-                bottom=error_list2[fit.filelist.idset==i],           
+                bottom=error_list2[fit.filelist.idset==i],
                 beam=0.0, pen='#000000')  
                 err1a.setZValue(-10)
                 p1.addItem(err1a)
@@ -2240,9 +2002,7 @@ Polyfit coefficients:
 
         if self.RV_plot_cross_hair.isChecked():
             self.cross_hair(p1,log=False)  
-            
-            
-            
+
         p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
 
         p2.plot(fit.fit_results.model_jd,y_model_o_c, 
@@ -2253,9 +2013,8 @@ Polyfit coefficients:
             pfill_o_c = pg.FillBetweenItem(p2.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]+fit.gp_model_curve[2]), 
                                            p2.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]-fit.gp_model_curve[2]), 
                                            brush = pg.mkColor(244,140,66,128))
-            p2.addItem(pfill_o_c)  
-        
-        
+            p2.addItem(pfill_o_c)
+
         for i in range(max(fit.filelist.idset)+1):
             p2.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],fit.fit_results.rv_model.o_c[fit.filelist.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
@@ -2291,1154 +2050,6 @@ Polyfit coefficients:
             p2.autoRange()
 
 
-    def update_plots(self):
-        self.update_RV_GLS_plots()
-        self.update_RV_o_c_GLS_plots()
-        self.update_WF_plots()
-        self.update_RV_plots()
-        self.update_extra_plots()
-        self.update_orb_plot()
-        #self.change_extra_plot()
-        self.update_transit_plots()    
-        self.update_ttv_plots()
-
-
-    def rv_plot_phase_change(self):
-        global fit
-
-        #RVphase = self.RV_phase_slider.value()
-        #print(RVphase)
-        #self.phase_plots(1, offset = RVphase)
-        ind = self.comboBox_extra_plot.currentIndex()
-        if ind+1 <= fit.npl:
-            self.phase_plots(ind+1)
-        else:
-            return
-
-    def rv_GP_set_use(self):
-
-        if self.do_RV_GP.isChecked():
-            fit.doGP = True
-        else:
-            fit.doGP = False
-
-    def tra_GP_set_use(self):
-
-        if self.do_tra_GP.isChecked():
-            fit.tra_doGP = True
-        else:
-            fit.tra_doGP = False
-
-    def set_RV_GP(self):
-        global fit
-
-        if self.use_GP_sho_kernel.isChecked():
-            fit.gp_kernel = 'SHOKernel'
-        elif self.use_GP_rot_kernel.isChecked():
-            fit.gp_kernel = 'RotKernel'
-
-
-    def set_tra_GP(self):
-        global fit
-
-        if self.use_tra_GP_sho_kernel.isChecked():
-            fit.tra_gp_kernel = 'SHOKernel'
-        elif self.use_tra_GP_rot_kernel.isChecked():
-            fit.tra_gp_kernel = 'RotKernel'
-
-
-    def set_use_GP(self):
-        global fit
-
-        if  self.do_RV_GP.isChecked():
-            fit.doGP = True
-        else:
-            fit.doGP = False
-
-        if  self.do_tra_GP.isChecked():
-            fit.tra_doGP = True
-        else:
-            fit.tra_doGP = False
-
-################################ RV files #######################################################
-
-    def showDialog_fortran_input_file(self):
-        global fit, ses_list
- 
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.init)', options=QtGui.QFileDialog.DontUseNativeDialog)
-        
-        if str(input_files[0]) != '':
-            fit_new=rv.signal_fit(str(input_files[0]), 'RVmod session',readinputfile=True)
-
-            if len(ses_list) == 1:
-                ses_list[0] = fit_new
-                fit = fit_new
-            else:
-                ses_list.append(fit_new)
-
-            self.session_list()
-            self.update_use_from_input_file()
-            self.init_fit()
-            self.update_RV_file_buttons()
-
-
-    def showDialog_RVbank_input_file(self):
-        global fit, ses_list
-
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RVBank data', '', 'All (*.*);;Data (*.csv)', options=QtGui.QFileDialog.DontUseNativeDialog)
-
-        if str(input_files[0]) != '':
-
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
-                                            "Do you want to split the RV data to pre- and post- (if applicable)?",
-                                            QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
-
-            if choice == QtGui.QMessageBox.No:
-                fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = False)
-            elif choice == QtGui.QMessageBox.Yes:            
-                fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = True)
-            else:
-                return
-
-            fit.type_fit["RV"] = True
-            fit.type_fit["Transit"] = False
-            self.check_type_fit()
-            self.mute_boxes()
-
-            self.init_fit()
-            self.update_use_from_input_file()
-            self.update_use()
-            self.update_params()
-            self.update_RV_file_buttons()
-            self.update_act_file_buttons()
-
-
-    def apply_rv_data_options(self):
-        global fit
-        but_ind = self.buttonGroup_apply_rv_data_options.checkedId()
-
-        if   self.rv_sigma_clip[but_ind-1][1].isChecked() == True  and self.add_rv_error[but_ind-1][1].isChecked() == False:
-            rv.sigma_clip(fit, type = 'RV', sigma_clip = self.rv_sigma_clip[but_ind-1][0].value(), file_n = but_ind-1)
-        elif self.rv_sigma_clip[but_ind-1][1].isChecked() == True  and self.add_rv_error[but_ind-1][1].isChecked() == True:
-            rv.sigma_clip(fit, type = 'RV', sigma_clip = self.rv_sigma_clip[but_ind-1][0].value(), file_n = but_ind-1, add_error = self.add_rv_error[but_ind-1][0].value())
-        elif self.rv_sigma_clip[but_ind-1][1].isChecked() == False and self.add_rv_error[but_ind-1][1].isChecked() == True:
-            rv.modify_temp_RV_file(fit, file_n = but_ind-1, add_error = self.add_rv_error[but_ind-1][0].value())
-        elif self.rv_sigma_clip[but_ind-1][1].isChecked() == False and self.add_rv_error[but_ind-1][1].isChecked() == False:
-            rv.modify_temp_RV_file(fit, file_n = but_ind-1, add_error = 0)
-        else:
-            return
-
-        self.tabWidget_helper.setCurrentWidget(self.tab_info)
-        self.update_veiw()
-
-
-    def apply_act_data_options(self):
-        global fit
-        but_ind = self.buttonGroup_apply_act_data_options.checkedId()
-
-        if   self.act_sigma_clip[but_ind-1][1].isChecked() == True  and self.act_remove_mean[but_ind-1].isChecked() == False:
-            rv.sigma_clip(fit, type = 'act', sigma_clip = self.act_sigma_clip[but_ind-1][0].value(), 
-                          remove_mean = False, file_n = but_ind-1)
-        elif self.act_sigma_clip[but_ind-1][1].isChecked() == True  and self.act_remove_mean[but_ind-1].isChecked() == True:
-            rv.sigma_clip(fit, type = 'act', sigma_clip = self.act_sigma_clip[but_ind-1][0].value(), 
-                          remove_mean =  True, file_n = but_ind-1)
-        elif self.act_sigma_clip[but_ind-1][1].isChecked() == False and self.act_remove_mean[but_ind-1].isChecked()  == True:
-            rv.sigma_clip(fit, type = 'act', sigma_clip = None, 
-                          remove_mean =  True, file_n = but_ind-1)
-        elif self.act_sigma_clip[but_ind-1][1].isChecked() == False and self.act_remove_mean[but_ind-1].isChecked() == False:
-            rv.sigma_clip(fit, type = 'act', sigma_clip = None, 
-                          remove_mean =  False, file_n = but_ind-1)
-        else:
-            return
-
-        self.tabWidget_helper.setCurrentWidget(self.tab_info)
-        self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
-        self.update_activity_gls_plots(but_ind-1)
-     #   self.update_activity_data_plots(but_ind-1)
-
-    def apply_tra_data_options(self):
-        global fit
-        but_ind = self.buttonGroup_apply_tra_data_options.checkedId()
-
-#        if   self.tra_sigma_clip[but_ind-1][1].isChecked() == True:
-#            rv.sigma_clip(fit, type = 'tra', sigma_clip = self.tra_sigma_clip[but_ind-1][0].value(), 
-#                          remove_mean = False, file_n = but_ind-1)
-#        elif self.tra_sigma_clip[but_ind-1][1].isChecked() == False:
-#            rv.sigma_clip(fit, type = 'tra', sigma_clip = self.tra_sigma_clip[but_ind-1][0].value(), 
-#                          remove_mean = False, file_n = but_ind-1)
-
-        if self.tra_norm[but_ind-1].isChecked() == True:
-            rv.transit_data_norm(fit,  file_n = but_ind-1, norm = True)
-        else:
-            rv.transit_data_norm(fit,  file_n = but_ind-1, norm = False)
-
-        self.tabWidget_helper.setCurrentWidget(self.tab_info)
-        self.update_veiw()
-
-
-
-    def showDialog_RV_input_file(self):
-        global fit
-
-        but_ind = self.buttonGroup_add_RV_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RV data', '', 'All (*.*);;Data (*.vels)', options=QtGui.QFileDialog.DontUseNativeDialog)
-
-        if str(input_files[0]) != '':
- 
-            fit.add_dataset(self.file_from_path(input_files[0]), str(input_files[0]),0.0,1.0)
-            #### new stuf ####
-            #fit.add_rv_dataset('test', str(input_files[0]),rv_idset =but_ind-1)
-            ##################
-            
-            fit.type_fit["RV"] = True
-            fit.type_fit["Transit"] = False
-            self.check_type_fit()
-            self.mute_boxes()
-            
-            self.init_fit()
-            self.update_use_from_input_file()
-            self.update_use()
-            self.update_params()
-            self.update_RV_file_buttons()
-
-        self.plot_tabs.setCurrentWidget(self.tab_timeseries_RV)
-
-
-    def remove_RV_file(self):
-        global fit
-
-        but_ind = self.buttonGroup_remove_RV_data.checkedId()
-
-       # try:
-       #     dirname, basename = os.path.split(fit.filelist.files[but_ind-1].path)
-       #     os.system('rm -r %s'%dirname)
-       # except:
-       #     return
-
-        fit.remove_dataset(but_ind -1)
-
-        #### new stuf ####
-        #fit.remove_rv_dataset(but_ind -1)
-        #### new stuf ####
-
-        fit.type_fit["RV"] = True
-        fit.type_fit["Transit"] = False
-        self.check_type_fit()
-        self.mute_boxes()
-
-        self.init_fit()
-        self.update_use_from_input_file()
-        self.update_use()
-        
-        self.update_gui_params()
-        self.update_params()
-        self.update_RV_file_buttons()
-
-    def update_RV_file_buttons(self):
-        global fit, colors
-
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(False)
-        #font.setWeight(75)
-
-        for i in range(10):
-            if i < fit.filelist.ndset:
-                self.buttonGroup_add_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-                self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-                font.setPointSize(9)
-                self.buttonGroup_add_RV_data.button(i+1).setText(fit.filelist.files[i].name) 
-                self.buttonGroup_add_RV_data.button(i+1).setFont(font)
-
-            else:
-                self.buttonGroup_add_RV_data.button(i+1).setStyleSheet("")
-                self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("")
-                self.buttonGroup_add_RV_data.button(i+1).setText("data %s"%(i+1))
-
-                #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
-        self.init_correlations_combo()
-
-
-################################ transit files #######################################################      
-
-    def showDialog_tra_input_file(self):
-        global fit
-
-        but_ind = self.buttonGroup_transit_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'All (*.*);;Data (*.tran)', options=QtGui.QFileDialog.DontUseNativeDialog)
-
-        if str(input_files[0]) != '':
-
-            fit.add_transit_dataset('test', str(input_files[0]),tra_idset =but_ind-1)
-
-            self.update_use_from_input_file()
-            self.update_use()
-            self.update_gui_params()
-
-            #self.radioButton_transit.setChecked(True)
-            #self.worker_transit_fitting(ff=0)
-
-            #self.init_fit()
-            
-            fit.type_fit["RV"] = False
-            fit.type_fit["Transit"] = True
-            self.check_type_fit()
-            self.mute_boxes()
-            
-            self.update_params()
-            self.update_tra_file_buttons()
-            #self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(input_files[0]))
-            self.plot_tabs.setCurrentWidget(self.tab_timeseries_tra)
- 
-
-    def remove_tra_file(self):
-        global fit
-
-        but_ind = self.buttonGroup_remove_transit_data.checkedId()   
-        fit.remove_transit_dataset(but_ind -1)
-       # self.init_fit()         
-      #  self.update_use_from_input_file()   
-      #  self.update_use()
-      #  self.update_gui_params()
-     #   self.update_params()
-        fit.type_fit["RV"] = False
-        fit.type_fit["Transit"] = True
-        self.check_type_fit()
-        self.mute_boxes()
-        self.update_tra_file_buttons()
-
-
-    def update_tra_file_buttons(self):
-        global fit, colors          
-
-        for i in range(10):
-            if len(fit.tra_data_sets[i]) != 0:
-                self.buttonGroup_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-                self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-                self.buttonGroup_transit_data.button(i+1).setText(fit.tra_data_sets[i][-1])
-
-            else:
-                self.buttonGroup_transit_data.button(i+1).setStyleSheet("")
-                self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("")
-                self.buttonGroup_transit_data.button(i+1).setText("data %s"%(i+1))
-
-                #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
- 
-        if len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0]) == 0:
-            self.update_transit_plots()
-        else:
-            self.worker_transit_fitting(ff=0)
-#        self.update_transit_plots()
- 
-
-################################ activity files #######################################################
-        
-    def showDialog_act_input_file(self):
-        global fit
-
-        but_ind = self.buttonGroup_activity_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'All (*.*);;Data (*.act)', options=QtGui.QFileDialog.DontUseNativeDialog)
-
-        if str(input_files[0]) != '':
-
-            fit.add_act_dataset('test', str(input_files[0]),act_idset =but_ind-1)
-
-            self.update_act_file_buttons()
-            self.buttonGroup_activity_data.button(but_ind).setText(self.file_from_path(input_files[0]))
-
-            self.plot_tabs.setCurrentWidget(self.tab_timeseries_act)
-            self.comboBox_act_data.setCurrentIndex(but_ind-1)
-            self.comboBox_act_data_gls.setCurrentIndex(but_ind-1)
-
-            self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
-            self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex())
-
-
-    def remove_act_file(self):
-        global fit
-
-        but_ind = self.buttonGroup_remove_activity_data.checkedId()   
-        fit.remove_act_dataset(but_ind -1)
-       # self.init_fit()         
-      #  self.update_use_from_input_file()   
-      #  self.update_use()
-      #  self.update_gui_params()
-     #   self.update_params()
-        self.update_act_file_buttons()
-
-    def update_act_file_buttons(self):
-        global fit, colors          
-
-        for i in range(10):
-            if len(fit.act_data_sets[i]) != 0:
-                self.buttonGroup_activity_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-                self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-                self.buttonGroup_activity_data.button(i+1).setText(fit.act_data_sets[i][3])
-
-            else:
-                self.buttonGroup_activity_data.button(i+1).setStyleSheet("")
-                self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("")
-                self.buttonGroup_activity_data.button(i+1).setText("data %s"%(i+1))
-
-                #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
-        self.init_correlations_combo()
-
-
-
-
-################################ TTV files #######################################################
-        
-    def showDialog_ttv_input_file(self):
-        global fit
-
-        but_ind = self.buttonGroup_ttv_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open TTV data', '', 'All (*.*);;Data (*.ttv)', options=QtGui.QFileDialog.DontUseNativeDialog)
-        
-        
-        planet_N     = self.ttv_data_to_planet[but_ind-1].value()
-        use_planet_N = self.use_ttv_data_to_planet[but_ind-1].isChecked()
-
-        if str(input_files[0]) != '':
- 
-            fit.add_ttv_dataset('test', str(input_files[0]), ttv_idset =but_ind-1, planet =planet_N, use = use_planet_N )
-            self.init_fit()
-            #self.update_use_from_input_file()
-            #self.update_use()
-            #self.update_params()
-            self.update_ttv_file_buttons()
-#            self.update_activity_gls_plots(but_ind-1)
-            self.buttonGroup_ttv_data.button(but_ind).setText(self.file_from_path(input_files[0]))
-            self.plot_tabs.setCurrentWidget(self.tab_timeseries_ttv)
-
-            #self.handleActivated_act_gls(but_ind-1)
-            
-    def remove_ttv_file(self):
-        global fit
-
-        but_ind = self.buttonGroup_remove_ttv_data.checkedId()   
-        fit.remove_ttv_dataset(but_ind -1)
-       # self.init_fit()         
-      #  self.update_use_from_input_file()   
-      #  self.update_use()
-      #  self.update_gui_params()
-     #   self.update_params()
-        self.update_ttv_file_buttons()
-
-    def update_ttv_file_buttons(self):
-        global fit, colors          
-
-        for i in range(10):
-            if len(fit.ttv_data_sets[i]) != 0:
-                self.buttonGroup_ttv_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-                self.buttonGroup_remove_ttv_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-            else:
-                self.buttonGroup_ttv_data.button(i+1).setStyleSheet("")
-                self.buttonGroup_remove_ttv_data.button(i+1).setStyleSheet("")
-                self.buttonGroup_ttv_data.button(i+1).setText("data %s"%(i+1))
-
-                #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
-        #self.init_correlations_combo()
-
-
-##################################### Various ################################# 
-
-
-    def init_fit(self): 
-        global fit
-        
-        
-        # A hack when .ses are imported from the Example directory... TBFixed
-        fit.cwd = os.getcwd()
-
-        minimize_fortran=True
-        if fit.model_saved == False or len(fit.fit_results.rv_model.jd) != len(fit.filelist.idset):
-            fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
-            #self.worker_RV_fitting(, ff=0, m_ln=True, auto_fit = False , init = True ):
-            #self.fit_dispatcher(init=False)
-            for i in range(fit.npl):
-                 rv.phase_RV_planet_signal(fit,i+1)       
-                 
-        self.update_labels()
-#        self.update_params()
-
-        self.update_gui_params()
-        self.update_errors() 
-        self.update_a_mass() 
-        
-        self.run_gls()
-        self.run_gls_o_c()
-        
-        self.update_plots() 
-        self.update_transit_plots() 
-        self.plot_evol_all()
-
-        self.jupiter_push_vars() 
-
-
-    def add_jitter(self, errors, ind):
-        global fit
-
-        errors_with_jitt = np.array([np.sqrt(errors[i]**2 + fit.params.jitters[ii]**2)  for i,ii in enumerate(ind)])
-        return errors_with_jitt
-
-
-
-
-################ Extra Plots (work in progress) ######################
-
-    def update_extra_plots(self):
-        global fit
-
-        self.comboBox_extra_plot.clear()
-
-        if fit.npl != 0:
-            for i in range(fit.npl):
-                self.comboBox_extra_plot.addItem('phase pl %s'%(i+1),i+1)
-
-            self.comboBox_extra_plot.addItem('RV GLS',fit.npl+1)
-            self.comboBox_extra_plot.addItem('RV GLS o-c',fit.npl+2)
-
-            self.phase_plots(1)  
-
-        elif fit.filelist.ndset != 0:
-            self.comboBox_extra_plot.addItem('RV GLS',fit.npl+1)
-            self.comboBox_extra_plot.addItem('RV GLS o-c',fit.npl+2)     
-
-            self.extra_RV_GLS_plots()
-
-        self.comboBox_extra_plot.activated.connect(self.handleActivated)        
-
-
- 
-    def handleActivated(self, index):
-        global fit, pe
-
-        ind = self.comboBox_extra_plot.itemData(index) 
-
-        if ind <= fit.npl:
-            self.phase_plots(ind)
-        elif ind == fit.npl+1: 
-            self.extra_RV_GLS_plots()
-        elif ind == fit.npl+2: 
-            self.extra_RV_GLS_o_c_plots()            
-            #pe.setYLink(p2)
-           # pe.setXLink(p2)
-            #fit.p2 = p2
-            #gg = p2.getPlotItem().getViewBox()
-         #   hh = gg.getViewBox()
-         #   pe.scene().addItem(gg)   
-         #   pe.scene().addItem(gg)
-        else:
-            return
-
-    def phase_plots(self, ind, offset = 0):
-        global fit, colors
-
-        pe.plot(clear=True,)
-        pe.setLogMode(False,False)
-
-        ######## TBF #############
-        if self.radioButton_transit.isChecked():
-            return
-        ########################
-
-        ph_data = fit.ph_data[ind-1]
-        ph_model = fit.ph_model[ind-1]
-
-        offset = (self.RV_phase_slider.value()/100.0)* fit.params.planet_params[7*(ind-1)+1] 
-
-        if len(ph_data) == 1:
-            return
-
-        if self.jitter_to_plots.isChecked() and len(ph_data) != 0 and not self.split_jitter.isChecked() :
-            error_list = self.add_jitter(ph_data[2], ph_data[3])
-        elif self.jitter_to_plots.isChecked() and len(ph_data) != 0 and self.split_jitter.isChecked() :
-            error_list = ph_data[2]
-            error_list2 = self.add_jitter(ph_data[2], ph_data[3])
-        else:
-            if len(ph_data) != 0:
-                error_list = ph_data[2]
-            else:
-                return
- 
-            
-        #rv_data = ph_data[0]   
-       # if fit.doGP == True:
-        #    rv_data = fit.gp_model_data[0]
-        #else:
-        #    rv_data = ph_data[1]
-        rv_data = ph_data[1]
-
-        model_time_phase = np.array((ph_model[0]-offset)%fit.params.planet_params[7*(ind-1)+1] )
-
-        sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])
-        model_time_phase  = model_time_phase[sort] 
-        ph_model =  ph_model[1][sort] 
-
-        pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
-
-        model_curve = pe.plot(model_time_phase,ph_model, pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()+1},
-        enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'})   
- 
-        model_curve.setZValue(self.RV_model_z.value())
-
-        for i in range(max(ph_data[3])+1):
-
-            pe.plot((ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1],rv_data[ph_data[3]==i],
-            pen=None, #{'color': colors[i], 'width': 1.1},
-            symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.colors[i], 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]
-            )
-
-            err_ = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=rv_data[ph_data[3]==i],
-            symbol=fit.pyqt_symbols_rvs[i], 
-            top=error_list[ph_data[3]==i],
-            bottom=error_list[ph_data[3]==i],
-            beam=0.0, pen=fit.colors[i]) 
-
-            pe.addItem(err_)
-
-            if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
- 
-                err_2 = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=rv_data[ph_data[3]==i],
-                symbol=fit.pyqt_symbols_rvs[i], 
-                top=error_list2[ph_data[3]==i],
-                bottom=error_list2[ph_data[3]==i],
-                beam=0.0, pen='#000000')  
-                err_2.setZValue(-10)
-                pe.addItem(err_2) 
-        pe.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)
-        pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
-        pe.setLabel('left',   'RV [m/s]', units='',  **{'font-size':'9pt'})  
-
-        if self.extra_plot_cross_hair.isChecked():
-            self.cross_hair(pe,log=False)   
-
-
-    ############### VERY VERY VERY Ugly fix !!!! 
-
-    def extra_RV_GLS_plots(self):
-        global fit,  pe 
- 
-        pe.plot(clear=True,)   
-        power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
-
-        if len(fit.fit_results.rv_model.jd) > 5:
-            ######################## GLS ##############################
-            if self.radioButton_RV_GLS_period.isChecked():
-                pe.setLogMode(True,False)        
-                pe.plot(1/fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-                pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
-                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
-            else:
-                pe.setLogMode(False,False)
-                pe.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-                pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
-                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
-    
-            if fit.gls.norm == 'ZK':
-                [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
-
-
-        if self.extra_plot_cross_hair.isChecked():
-            self.cross_hair(pe,log=self.radioButton_RV_GLS_period.isChecked())   
-
-    def extra_RV_GLS_o_c_plots(self):
-        global fit,  pe 
- 
-        pe.plot(clear=True,)
-        power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
-
-        if len(fit.fit_results.rv_model.jd) > 5:
-        ######################## GLS o-c ##############################
-            if self.radioButton_RV_o_c_GLS_period.isChecked():
-                pe.setLogMode(True,False)        
-                pe.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None ) 
-                pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
-                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
-            else:
-                pe.setLogMode(False,False)        
-                pe.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None )                    
-                pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
-                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
-    
-    
-            if fit.gls.norm == 'ZK':
-                [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]
-
-        if self.extra_plot_cross_hair.isChecked():
-            self.cross_hair(pe,log=self.radioButton_RV_o_c_GLS_period.isChecked())   
-
-
-
-
-
-
-############ MLP ##############################      
-       
-    def worker_mlp_complete(self, resid = False):
-        global fit  
-
-        #start_time = time.time()   
-
-        #if resid == False:     
-        #    self.update_RV_MLP_plots() 
-        #else:
-        #    self.update_mlp_o_c_plots() 
-
-        self.update_RV_MLP_plots()
-
-        self.statusBar().showMessage('')
- 
-        self.jupiter_push_vars()
-        self.calc_MLP.setEnabled(True)
-       # self.calc_MLP_o_c.setEnabled(True)
-
- 
-    def worker_mlp(self, resid = False):
-        global fit  
-
-        self.calc_MLP.setEnabled(False)
-        #self.calc_MLP_o_c.setEnabled(False)
-
-
-        if self.calp_MLP_o_c.isChecked():
-            resid = True
-        else:
-            resid = False
-        
-        #if z <= 0:
-        #    choice = QtGui.QMessageBox.information(self, 'Warning!',
-        #    "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
-        #    self.calc_TLS.setEnabled(True)         
-        #    return   
-
-        self.statusBar().showMessage('Running MLP .... This might take some time!')                 
-        worker_mlp_wk = Worker(lambda:  self.mlp_search(resid = resid) )# Any other args, kwargs are passed to the run  
- 
-        worker_mlp_wk.signals.finished.connect(lambda:  self.worker_mlp_complete(resid = resid))
-
-        self.tabWidget_helper.setCurrentWidget(self.tab_info)
-
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker_mlp_wk)       
-
-
-
-    def mlp_search(self, resid = False):
-        global fit
-
-        omega = 1/ np.logspace(np.log10(self.mlp_min_period.value()), np.log10(self.mlp_max_period.value()), num=int(self.mlp_n_omega.value()))
-        ind_norm = self.gls_norm_combo.currentIndex()
- 
-        if len(fit.fit_results.rv_model.jd) > 5:  
-            
-            rv_files_for_mlp = []
-            for i in range(fit.filelist.ndset):
-                
-                if resid == True:
-                    typ = (fit.fit_results.rv_model.jd[fit.filelist.idset==i],
-                       fit.fit_results.rv_model.o_c[fit.filelist.idset==i], 
-                       fit.fit_results.rv_model.rv_err[fit.filelist.idset==i])
-                else:
-                    typ = (fit.fit_results.rv_model.jd[fit.filelist.idset==i],
-                       fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
-                       fit.fit_results.rv_model.rv_err[fit.filelist.idset==i])
-                    
-                rv_files_for_mlp.append(typ)
-            
-            RV_per = mlp.Gls(rv_files_for_mlp, fast=True,  verbose=False, nojit=True,
-            ofac=self.mlp_ofac.value(), fbeg=omega[-1], fend=omega[0], norm='dlnL')
-
-        else:
-            return
- 
-        if resid == True:
-            fit.mlp = RV_per  # TB Fixed  
-        else:
-            fit.mlp = RV_per  # TB Fixed  
-
-
-    def update_RV_MLP_plots(self):
-        global fit, p_mlp 
- 
-        p_mlp.plot(clear=True,)
-
-        self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])
-        self.colors_alias_mlp.setStyleSheet("color: %s;"%colors_MLP_alias[0])
-
-
-        power_levels = np.array([self.mlp_fap1.value(),self.mlp_fap2.value(),self.mlp_fap3.value()])
-        #power_levels = np.array([5,10,15])
-
-        gls_model_width = float(self.gls_model_width.value())
-
-        if len(fit.fit_results.rv_model.jd) > 5:
-
-            ######################## GLS ##############################
-            if self.radioButton_RV_MLP_period.isChecked():
-                p_mlp.setLogMode(True,False)        
-                p_mlp.plot(1/fit.mlp.freq, fit.mlp.power,pen={'color': fit.gls_colors[0], 'width': gls_model_width},symbol=None ) 
-                p_mlp.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
-            else:
-                p_mlp.setLogMode(False,False)        
-                p_mlp.plot(fit.mlp.freq, fit.mlp.power,pen={'color': fit.gls_colors[0], 'width': self.gls_model_width.value()},symbol=None )                
-                p_mlp.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
-
-            if fit.mlp.norm == 'dlnL':
-                [p_mlp.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for fap in np.array(power_levels)]
- 
-#            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels, sig_level = fit.mlp.powerLevel(np.array(power_levels)) )   
-            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels, sig_level =np.array(power_levels) )   
-
-            self.label_peaks(p_mlp, pos_peaks, GLS = True, MLP = True)
-
-            self.mlp_print_info.clicked.connect(lambda: self.print_info_for_object(
-            fit.mlp.info(stdout=False) + text_peaks))
-
-        if self.mlp_cross_hair.isChecked():
-            self.cross_hair(p_mlp,log=self.radioButton_RV_MLP_period.isChecked(), alias=[self.show_alias_MLP.isChecked(), self.alias_days_mlp.value(), colors_MLP_alias[0]])    
-
-
-############ TLS ##############################      
-       
-    def worker_tls_complete(self, resid = False):
-        global fit  
- 
-        #start_time = time.time()   
-        
-        if resid == False:
-            self.update_tls_plots() 
-        else:
-            self.update_tls_o_c_plots() 
-                 
-        self.statusBar().showMessage('')   
- 
-        self.jupiter_push_vars()   
-        self.calc_TLS.setEnabled(True)         
-        self.calc_TLS_o_c.setEnabled(True)  
-       # print("--- %s seconds ---" % (time.time() - start_time))     
- 
-    def worker_tls(self, resid = False):
-        global fit  
-        
-        if tls_not_found==True:
-            print("TLS Not found, try to install with 'pip install transitleastsquares'") 
-            return
-
-        self.calc_TLS.setEnabled(False)         
-        self.calc_TLS_o_c.setEnabled(False)  
-
-        z=0
-        for i in range(10):
-            if len(fit.tra_data_sets[i]) != 0:
-                z=z+1
-
-        if z <= 0:
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
-            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)
-            self.calc_TLS.setEnabled(True)
-            return   
-
-        self.statusBar().showMessage('Looking for Transit events (TLS).... ')
-        worker_tls_ = Worker(lambda:  self.tls_search(resid = resid) )# Any other args, kwargs are passed to the run  
- 
-        worker_tls_.signals.finished.connect(lambda:  self.worker_tls_complete(resid = resid))
-        
-        self.tabWidget_helper.setCurrentWidget(self.tab_info)
-
-
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker_tls_)       
-     
-
-    def tls_search(self, resid = False):
-        global fit
-        
-        if resid == True:
-            #lc_data = np.concatenate([fit.tra_data_sets[x][3] for x in range(10) if len(fit.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][3]
-            lc_data = np.concatenate([fit.transit_results[1][4][x] +1.0 for x in range(10) if len(fit.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][3]
-        else:
-            lc_data = np.concatenate([fit.transit_results[1][1][x] for x in range(10) if len(fit.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][1]
-            
-        lc_time = np.concatenate([fit.transit_results[1][0][x] for x in range(10) if len(fit.tra_data_sets[x]) != 0])
-        
-        tls_model = transitleastsquares(lc_time, lc_data)
-        tls_results = tls_model.power(oversampling_factor=int(self.tls_ofac.value()), duration_grid_step=self.tls_grid_step.value())
-    
-        if resid == True:
-            fit.tls_o_c = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
-        else:
-            fit.tls = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
-
-
-    def update_tls_plots(self): 
-        global fit, p9, colors
-
-        if len(fit.tls) == 0:
-            return
-    
-        p9.plot(clear=True,) 
-        
-        if self.tls_cross_hair.isChecked():
-            self.cross_hair(p9,log=False)      
-            
-        if len(fit.tra_data_sets[0]) != 0:
-
-            text = '''
-Best results from TLS:
- 
-Period: %s d   
-Transit depth: %s 
-Transit duration: %s d
-'''%(fit.tls.period,fit.tls.depth,fit.tls.duration)
-           
-            p9.plot(fit.tls.periods, fit.tls.power,        
-            pen='r',  enableAutoRange=True,viewRect=True)
-#0.9      5.7
-#0.95     6.1
-#0.99     7.0
-#0.999    8.3
-#0.9999   9.1
-            [p9.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
-
-            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls.periods,fit.tls.power,  sig_level = np.array([5.7,7.0,8.3] )   )
-
-            self.label_peaks(p9, pos_peaks, GLS = False)
-
-            self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(text + text_peaks))   
-
-            return
-
-        else:
-            text_err = pg.TextItem('Nothing to plot',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
-            p9.addItem(text_err, ignoreBounds=True)   
-            self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(""))            
-            return
-
-    def update_tls_o_c_plots(self): 
-        global fit, p10, colors
-
-        if len(fit.tls_o_c) == 0:
-            return
-
-        p10.plot(clear=True,) 
-
-        if self.tls_o_c_cross_hair.isChecked():
-            self.cross_hair(p10,log=False) 
-            
-        if len(fit.tra_data_sets[0]) != 0:
-            #t = fit.tra_data_sets[0][0]
-            #flux = fit.tra_data_sets[0][1]
-           # flux_err = fit.tra_data_sets[0][2]
-           
-            text = '''
-Best results from TLS:
-          
-Period: %s d   
-Transit depth: %s 
-Transit duration: %s d
-'''%(fit.tls_o_c.period,fit.tls_o_c.depth,fit.tls_o_c.duration)
-           
-            p10.plot(fit.tls_o_c.periods, fit.tls_o_c.power,        
-            pen='r',  enableAutoRange=True,viewRect=True)
-#0.9      5.7
-#0.95     6.1
-#0.99     7.0
-#0.999    8.3
-#0.9999   9.1
-            [p10.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
-   
-            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls_o_c.periods,fit.tls_o_c.power,  sig_level = np.array([5.7,7.0,8.3] ) )
- 
-            self.label_peaks(p10, pos_peaks, GLS = False)
-            
-            self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(text + text_peaks))
-            
-            return
-
-        else:
-            text_err = pg.TextItem('Nothing to plot',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
-            p10.addItem(text_err, ignoreBounds=True)
-            self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(""))
-            return
-
-
-############ transit fitting ##############################      
-
-    def worker_transit_fitting_complete(self):
-        global fit  
-
-
-        self.update_labels()
-        self.update_gui_params()
-        self.update_errors() 
-        self.update_a_mass()
-        self.update_transit_combo_phase_pl()
-
-
-        fit=rv.get_xyz(fit)
-                         
-        self.statusBar().showMessage('')  
-        
-        self.button_fit.setEnabled(True)         
-        
-        if fit.bound_error == True:
-            self.get_error_msg(fit.bound_error_msg)
-            return
-
-        self.update_transit_plots()
-        
-        if fit.type_fit["RV"] == True:
-            for i in range(fit.npl):
-                rv.phase_RV_planet_signal(fit,i+1) 
-            self.run_gls()
-            self.run_gls_o_c()                
-            self.update_plots()  
-        self.jupiter_push_vars() 
-
-
-    def check_model_fact(self):
-        global fit  
-        fit.tra_model_fact = int(self.tra_model_ndata_fact.value())
-        
-        
-
-    def worker_transit_fitting(self, ff=1, auto_fit = False ):
-        global fit  
-        
-        self.button_fit.setEnabled(False)         
-        self.update_params() 
-        self.update_use()   
-        
-        # check if transit data is present
-        z=0
-        for i in range(10):
-            if len(fit.tra_data_sets[i]) != 0:
-                z=z+1
-        
-        if z <= 0:
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
-            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
-            self.button_fit.setEnabled(True)
-            self.update_transit_plots()
-
-            return 
-        
-        if fit.type_fit["RV"] == True:
-             if fit.filelist.ndset <= 0:
-                 choice = QtGui.QMessageBox.information(self, 'Warning!',
-                 "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
-                 self.button_fit.setEnabled(True)         
-                 return   
-
-        if fit.type_fit["RV"] == True :        
-            self.statusBar().showMessage('Minimizing Transit + RV parameters.... SciPy in action, please be patient.  ')       
-        else:
-            self.statusBar().showMessage('Minimizing Transit parameters.... SciPy in action, please be patient. ')       
-           
-
-        self.set_tra_ld()
-        self.check_bounds()
-        self.check_priors_nr()
-        self.check_priors_jeff()
-        self.check_model_fact()
-
-        self.check_scipy_min()
-        fit.model_npoints = self.points_to_draw_model.value()
-
-          
-        worker4 = Worker(lambda:  self.transit_fit(ff=ff ) )# Any other args, kwargs are passed to the run  
- 
-        worker4.signals.finished.connect(self.worker_transit_fitting_complete)
-        
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker4)
-        
- 
-    def transit_fit(self, ff=0 ):
-        global fit
-        
-        if ff ==0:        
-            fit.init_fit = True
-        else:
-            fit.init_fit = False
-
-        # this is only a simple hack.. This junk will be removed later on
-        if ff ==3034:
-            old_t0_use = dill.copy(fit.t0_use)
-            old_pl_a_use = dill.copy(fit.pl_a_use)
-            old_pl_rad_use = dill.copy(fit.pl_rad_use)
-            old_rv_use = dill.copy(fit.use.use_planet_params)
-            old_rvoff_use = dill.copy(fit.use.use_offsets)
-            old_rvjitt_use = dill.copy(fit.use.use_jitters)
-            old_tra_off_use = dill.copy(fit.tra_off)
-            old_tra_jitt_use = dill.copy(fit.tra_jitt)
-            
-            for i in range(fit.npl):
-                fit.t0_use[i] = False
-                fit.pl_a_use[i] = False
-                fit.pl_rad_use[i] = False 
-                fit.use.use_planet_params[i*7] = False 
-                fit.use.use_planet_params[i*7+1] = False 
-                fit.use.use_planet_params[i*7+2] = False 
-                fit.use.use_planet_params[i*7+3] = False 
-                fit.use.use_planet_params[i*7+4] = False 
-                fit.use.use_planet_params[i*7+5] = False 
-                fit.use.use_planet_params[i*7+6] = False 
-            for i in range(10): 
-                fit.use.use_jitters[i] = False
-                fit.use.use_offsets[i] = False   
-                fit.tra_off_use[i] = False
-                fit.tra_jitt_use[i] = False
-            #old_tra_use = fit.tr_params_use 
-            #fit.tr_params_use = [False, False,False,False,False,False,False]
-            #rv.run_SciPyOp_transit(fit)
-            rv.run_SciPyOp(fit)
-            
-            for i in range(fit.npl):
-                fit.t0_use[i] = old_t0_use[i]
-                fit.pl_a_use[i] = old_pl_a_use[i]
-                fit.pl_rad_use[i] = old_pl_rad_use[i]             
-                fit.use.use_planet_params[i*7] = dill.copy(old_rv_use[i*7])  
-                fit.use.use_planet_params[i*7+1] = dill.copy(old_rv_use[i*7+1])  
-                fit.use.use_planet_params[i*7+2] = dill.copy(old_rv_use[i*7+2]) 
-                fit.use.use_planet_params[i*7+3] = dill.copy(old_rv_use[i*7+3]) 
-                fit.use.use_planet_params[i*7+4] = dill.copy(old_rv_use[i*7+4])  
-                fit.use.use_planet_params[i*7+5] = dill.copy(old_rv_use[i*7+5])  
-                fit.use.use_planet_params[i*7+6] = dill.copy(old_rv_use[i*7+6]) 
-            for i in range(10): 
-                fit.use.use_jitters[i] =  dill.copy(old_rvjitt_use[i]) 
-                fit.use.use_offsets[i] =  dill.copy(old_rvoff_use[i])  
-                fit.tra_off_use[i] = dill.copy(old_tra_off_use[i])
-                fit.tra_jitt_use[i] = dill.copy(old_tra_jitt_use[i])   
-
-        else:
-
-            rv.run_SciPyOp(fit)
-
-
-
-
-    def update_transit_combo_phase_pl(self):
-        global fit
-        self.comboBox_phase_pl_tran.clear()
-        
-        for i in range(fit.npl):
-            self.comboBox_phase_pl_tran.addItem('pl. %s'%str(i+1),i+1) 
-
-
-        #self.comboBox_phase_pl_tran.setCurrentIndex(0)
-
-
 #### Transit plots ################ 
     def update_transit_plots(self): 
         global fit, p3, p4, colors
@@ -3462,15 +2073,9 @@ Transit duration: %s d
             t_model = np.concatenate([transit_results_sep[0][x] for x in range(10) if len(transit_results_sep[0][x]) != 0])
             flux_model_ex  = np.concatenate([transit_results_sep[3][x] for x in range(10) if len(transit_results_sep[3][x]) != 0])
 
-       #print(transit_results_alll[0],transit_results_alll[3])
-        #t_model = transit_results_all[0]
-        #flux_model_ex = transit_results_all[3]
-
-
-
 
         for j in range(10):
-            
+
             if len(transit_results_sep[0][j]) == 0:
                 continue
 
@@ -3516,9 +2121,7 @@ Transit duration: %s d
                 p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'9pt'})
                 self.trans_phase_slider.setEnabled(False) 
 
-                
-                
-                
+
             p3.plot(t, flux,
             pen=None,
             symbol=fit.pyqt_symbols_tra[j],
@@ -3526,7 +2129,7 @@ Transit duration: %s d
             symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.tra_colors[j] ) 
             
-            err_ = pg.ErrorBarItem(x=t, y=flux, symbol='o',
+            err_ = pg.ErrorBarItem(x=t, y=flux, symbol = fit.pyqt_symbols_tra[j],
                                   # height=flux_err, 
                                    top=flux_err, 
                                    bottom=flux_err,
@@ -3541,7 +2144,7 @@ Transit duration: %s d
             symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.tra_colors[j] )
 
-            err_ = pg.ErrorBarItem(x=t, y=flux-flux_model, symbol='o',
+            err_ = pg.ErrorBarItem(x=t, y=flux-flux_model, symbol=fit.pyqt_symbols_tra[j],
            # height=flux_err,
             top=flux_err,
             bottom=flux_err,
@@ -3584,124 +2187,260 @@ Transit duration: %s d
 
 
 
+######################## Correlation plots ###################################### 
+
+    def init_correlations_combo(self):
+        global fit
+        self.comboBox_corr_1.clear()
+        self.comboBox_corr_2.clear()
+        
+        self.initialize_corr_y = {k: [] for k in range(20)}
+        z = 0 
+
+        if fit.filelist.ndset != 0:
+
+            for i in range(max(fit.filelist.idset)+1):
+                self.comboBox_corr_1.addItem('RV %s'%(i+1),i+1) 
+                self.comboBox_corr_2.addItem('RV %s'%(i+1),i+1) 
+
+                self.initialize_corr_y[z] = np.array([fit.fit_results.rv_model.jd[fit.filelist.idset==i],
+                                                      fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
+                                                      fit.fit_results.rv_model.rv_err[fit.filelist.idset==i]])  
+                z +=1
+
+            for i in range(max(fit.filelist.idset)+1):
+                self.comboBox_corr_1.addItem('RV o-c %s'%(i+1),i+1)         
+                self.comboBox_corr_2.addItem('RV o-c %s'%(i+1),i+1)  
+    
+                self.initialize_corr_y[z] = np.array([fit.fit_results.rv_model.jd[fit.filelist.idset==i],
+                                                      fit.fit_results.rv_model.o_c[fit.filelist.idset==i], 
+                                                      fit.fit_results.rv_model.rv_err[fit.filelist.idset==i]]) 
+                z +=1                          
+
+
+        for i in range(0,10,1):         
+            if len(fit.act_data_sets[i]) != 0: 
+                self.comboBox_corr_1.addItem('act. data %s'%(i+1),i+1)
+                self.comboBox_corr_2.addItem('act. data %s'%(i+1),i+1)
+                
+                self.initialize_corr_y[z] = fit.act_data_sets[i] 
+                z +=1
+
+
+
+    def update_correlations_data_plots(self):
+        global fit, colors,  p6 
+        
+        ind1 = self.comboBox_corr_1.currentIndex()
+        ind2 = self.comboBox_corr_2.currentIndex()
+ 
+        p6.plot(clear=True,)  
+        
+        self.color_corr.setStyleSheet("color: %s;"%colors[0]) 
+
+        #p6.autoRange()     
+        
+        if not ind1 == None and not ind2 == None:
+
+            
+            if len(self.initialize_corr_y[ind1][0]) == len(self.initialize_corr_y[ind2][0]):
+                p6.plot(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1], pen=None,symbol='o',
+                #symbolPen=,
+                symbolSize=self.act_data_size.value(),enableAutoRange=True,viewRect=True,
+                symbolBrush=colors[0]
+                )
+
+                pears = pearsonr(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1] )
+                
+                if pears[0] < 0:
+                    pos_neg = "negative"
+                else:
+                    pos_neg = "positive"
+                    
+                if abs(pears[0]) < 0.3:
+                    strong_mod_weak = "very weak"
+                elif 0.3 <= abs(pears[0]) <= 0.5: 
+                     strong_mod_weak = "weak"
+                elif 0.5 <= abs(pears[0]) <= 0.7: 
+                     strong_mod_weak = "moderate"
+                elif 0.7 <= abs(pears[0]) <= 1: 
+                     strong_mod_weak = "strong"  
+                else:
+                     strong_mod_weak = "n/a"  
+                     
+                m, c = np.polyfit(self.initialize_corr_y[ind1][1],self.initialize_corr_y[ind2][1], 1,
+                                  w=1/np.sqrt(self.initialize_corr_y[ind1][2]**2 + self.initialize_corr_y[ind2][2]**2),
+                                  full=False,cov=True)  
+                
+                e = np.sqrt(np.diag(c))
+                
+                text = '''Pearson's correlation coefficient 2-tailed p-value: 
+%s, %s
+(A %s %s correlation)
+
+Polyfit coefficients: 
+%s +/- %s, 
+%s +/- %s   
+
+'''%(pears[0],pears[1], pos_neg, strong_mod_weak, m[0],e[0], m[1],e[1])
+
+                self.corr_print_info.clicked.connect(lambda: self.print_info_for_object(text))
+
+                
+                if self.plot_corr_err.isChecked():
+                    err1 = pg.ErrorBarItem(x=self.initialize_corr_y[ind1][1], y=self.initialize_corr_y[ind2][1], symbol='o', 
+                    top=self.initialize_corr_y[ind2][2],bottom=self.initialize_corr_y[ind2][2],
+                    left=self.initialize_corr_y[ind1][2],right=self.initialize_corr_y[ind1][2],
+                    beam=0.0, pen=colors[0])  
+
+                    p6.addItem(err1)   
+                    
+                if self.plot_corr_coef.isChecked():
+
+                    p6.plot(self.initialize_corr_y[ind1][1], self.initialize_corr_y[ind1][1]*m[0] +m[1] , pen='k')
+
+                p6.autoRange()
+
+                return
+
+            else:
+                text_err = pg.TextItem('Not the same time series!',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
+                p6.addItem(text_err, ignoreBounds=True)   
+        else:
+
+                return
+
+    def get_corr_color(self):
+        global fit
+        
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        colors[0]=colorz.name()
+
+        self.update_correlations_data_plots()
+
+    def corr_plot_x_labels(self):
+        global fit
+        
+        text, okPressed = QtGui.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
+        
+        if okPressed and text != '':
+            p6.setLabel('bottom', '%s'%text, units='',  **{'font-size':'9pt'})
+ 
+        else:
+            return
+    
+        self.update_correlations_data_plots()
  
 
-############ TTV fitting ##############################      
-
-    def worker_ttv_fitting_complete(self):
-        global fit  
-
-        self.update_labels()
-        self.update_gui_params()
-        self.update_errors() 
-        self.update_a_mass()                 
+    def corr_plot_y_labels(self):
+        global fit
         
-        #print(fit.fit_results.mass)
+        text, okPressed = QtGui.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
+        
+        if okPressed and text != '':
+            p6.setLabel('left', '%s'%text, units='',  **{'font-size':'9pt'})
 
-        fit=rv.get_xyz(fit)
-                         
-        self.statusBar().showMessage('')  
-        
-        self.button_fit.setEnabled(True)         
-        
-        if fit.bound_error == True:
-            self.get_error_msg(fit.bound_error_msg)
+        else:
             return
 
-        self.update_transit_plots()
-        if fit.type_fit["RV"] == True:
-            for i in range(fit.npl):
-                rv.phase_RV_planet_signal(fit,i+1) 
-            self.run_gls()
-            self.run_gls_o_c()
-        self.update_plots()
-        self.jupiter_push_vars()
+        self.update_correlations_data_plots()
 
 
-    def worker_ttv_fitting(self, ff=1, auto_fit = False ):
-        global fit  
+######################## Activity plots ######################################  
 
-        self.button_fit.setEnabled(False)
-        self.update_params() 
-        self.update_use()   
+    def init_activity_combo(self):
+        global fit
 
-        # check if transit data is present
-        z=0
         for i in range(10):
-            if len(fit.ttv_data_sets[i]) != 0:
-                z=z+1
-
-        if z <= 0:
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
-            "Not possible to model planets if there are no TTV data loaded. Please add your TTV data first. Okay?", QtGui.QMessageBox.Ok)      
-            self.button_fit.setEnabled(True)
-            return 
-
-        if fit.type_fit["RV"] == True:
-             if fit.filelist.ndset <= 0:
-                 choice = QtGui.QMessageBox.information(self, 'Warning!',
-                 "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)
-                 self.button_fit.setEnabled(True)
-                 return
-
-        if fit.type_fit["RV"] == True :
-            self.statusBar().showMessage('Minimizing TTV + RV parameters.... SciPy in action, please be patient.  ')
-        else:
-            self.statusBar().showMessage('Minimizing TTV parameters.... SciPy in action, please be patient. ')
-
-        self.check_ttv_params()
-        self.set_tra_ld()
-        self.check_bounds()
-        self.check_priors_nr()   
-        self.check_priors_jeff()   
-        self.check_scipy_min()
-
-        worker_ttv = Worker(lambda:  self.ttv_fit(ff=ff ) )# Any other args, kwargs are passed to the run  
+            self.comboBox_act_data_gls.addItem('act. data %s'%(i+1),i+1)       
+            self.comboBox_act_data.addItem('act. data %s'%(i+1),i+1)       
+                
+        
  
-        worker_ttv.signals.finished.connect(self.worker_ttv_fitting_complete)
-        
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker_ttv)
+    def update_activity_gls_plots(self,ind):
+        global fit, colors,  p11 
+
+        p11.plot(clear=True,) 
+
+        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
+        power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
+
+        if len(fit.act_data_sets[ind]) != 0 and len(fit.act_data_sets[ind][0]) > 5:
+
+            act_per = gls.Gls((fit.act_data_sets[ind][0], fit.act_data_sets[ind][1],fit.act_data_sets[ind][2]), 
+            fast=True,  verbose=False, norm= "ZK",ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)
+
+            ######################## GLS ##############################
+            if self.radioButton_act_GLS_period.isChecked():
+                p11.setLogMode(True,False)        
+                p11.plot(1/act_per.freq, act_per.power,pen=fit.colors[ind],symbol=None ) 
+                p11.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'}) 
+
+            else:
+                p11.setLogMode(False,False)        
+                p11.plot(act_per.freq, act_per.power,pen=fit.colors[ind],symbol=None )
+                p11.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
+
+            [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
+  
+            text_peaks, pos_peaks = self.identify_power_peaks(1/act_per.freq, act_per.power, power_level = power_levels, sig_level = act_per.powerLevel(np.array(power_levels)) )    
+
+            self.label_peaks(p11, pos_peaks, GLS = True, activity = True)
+            self.act_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(act_per.info(stdout=False) + text_peaks ))   
+
+        if self.gls_act_cross_hair.isChecked():
+            self.cross_hair(p11,log=self.radioButton_act_GLS_period.isChecked()) 
 
 
-    def ttv_fit(self, ff=0 ):
-        global fit
+    def update_activity_data_plots(self,ind):
+        global fit, colors,  p5 
 
-        if ff ==0:
-            fit.init_fit = True
+        if len(fit.act_data_sets[ind]) != 0:
+
+            p5.plot(clear=True,)  
+
+            err1 = pg.ErrorBarItem(x=fit.act_data_sets[ind][0], y=fit.act_data_sets[ind][1],symbol='o', 
+           # height=fit.act_data_sets[ind][2], beam=0.0, pen=fit.colors[ind])  
+            top=fit.act_data_sets[ind][2],
+            bottom=fit.act_data_sets[ind][2],
+            beam=0.0, pen=fit.colors[ind])
+
+
+            p5.addItem(err1)      
+            p5.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
+
+            p5.plot(fit.act_data_sets[ind][0],fit.act_data_sets[ind][1], pen=None,symbol='o',
+            symbolSize=self.act_data_size.value(),enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.colors[ind]
+            )
+
+            p5.setLabel('left', 'y', units='',  **{'font-size':'9pt'})
+
+            return
         else:
-            fit.init_fit = False
+            p5.plot(clear=True,)
 
-        rv.run_SciPyOp(fit)
+            return
 
 
-    def check_ttv_params(self):
-        global fit
 
-        fit.epoch_ttv = self.Epoch_ttv.value()
-        fit.ttv_dt = self.time_step_model_ttv.value() 
-        fit.epoch_ttv_end = self.Epoch_ttv_end.value()
-        
-        fit.ttv_times = [fit.epoch_ttv,fit.ttv_dt,fit.epoch_ttv_end]
+#### TTV plots ################
 
-#### TTV plots ################ 
     def update_ttv_plots(self): 
         global fit, p_ttv, p_ttv_oc, colors
-    
+        
+        self.check_ttv_symbol_sizes()
+
+        pl_ind     = self.ttv_comboBox_pl.currentIndex()
+        pl_ind_o_c = self.ttv_o_c_comboBox_pl.currentIndex()
+
+
         p_ttv.plot(clear=True,) 
         p_ttv_oc.plot(clear=True,)
 
-        self.colors_ttv.setStyleSheet("color: %s;"%fit.ttv_colors[0])               
-
-        #self.check_tra_symbol_sizes()
-
-        ttv_files = []
-        
-        for i in range(10):
-            if len(fit.ttv_data_sets[i]) != 0:
-                ttv_files.append(fit.ttv_data_sets[i])
+        #self.colors_ttv.setStyleSheet("color: %s;"%fit.ttv_colors[0])
+ 
+        ttv_files = fit.ttv_data_sets
 
         fit.prepare_for_mcmc()
         #times = [float(fit.epoch),fit.time_step_model,float(fit.epoch)+400.0]
@@ -3713,6 +2452,13 @@ Transit duration: %s d
         
         
         for j in range(len(ttv_files)):
+            
+            if len(ttv_files[j]) == 0 or ttv_files[j][4] == False or ttv_files[j][3] != pl_ind+1:
+                continue
+            
+            first_transit = min([min(ttv_files[x][1]) for x in range(10) if len(ttv_files[x]) != 0 and ttv_files[x][3] == pl_ind+1])
+            
+            #print(first_transit)
 
             t = np.array(ttv_files[j][0])
             flux = np.array(ttv_files[j][1])
@@ -3725,30 +2471,34 @@ Transit duration: %s d
                     ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit_results = False, return_model = True)
                 else:
                     ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit_results =fit.fit_results, return_model = True)
-                    
-                #print(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times)
-                #print(ttv_loglik)
+
                 fit.ttv_results = ttv_loglik
 
-                ttv_model = ttv_loglik[2][1] - ttv_loglik[2][1][0]
+                if ttv_loglik == None:
+                    print("""
+Failed to plot! Perhaps the number of computed transits is smaler than the number of the observed transits.
+There is no good fix for that at the moment.... Maybe adjust the epoch and try again.
+                          """)
+                    continue
+
+                ttv_model = ttv_loglik[4][j][1] - ttv_loglik[4][j][1][0]
                 
                 ttv_model_transits = []
-                model_N_transits = ttv_loglik[2][0]
-                
+                model_N_transits = ttv_loglik[4][j][0]
 
                 #print(mean_P)
-                
+
                 if self.ttv_apply_mean_period.isChecked():
                     periods_t0 = [ttv_model[k+1] - ttv_model[k] for k in range(len(ttv_model)-1)]
                     mean_P = np.mean(periods_t0)                    
                 else:
                     mean_P = fit.P[int(ttv_files[j][3]-1)]
     
-                for k in range(len(ttv_loglik[2][1])):
-                    ttv_model[k] = ttv_model[k] - mean_P*(ttv_loglik[2][0][k]-1)
-                for k in range(len(ttv_loglik[1][1])):
-                    flux[k] = flux[k] - (mean_P*(ttv_loglik[1][0][k]-1) + ttv_files[j][1][0])
-                    ttv_model_transits.append(ttv_model[ttv_loglik[1][0][k]-1])
+                for k in range(len(ttv_loglik[4][j][1])):
+                    ttv_model[k] = ttv_model[k] - mean_P*(ttv_loglik[4][j][0][k]-1)
+                for k in range(len(ttv_loglik[3][j][1])):
+                    flux[k] = flux[k] - (mean_P*(ttv_loglik[3][j][0][k]-1) + first_transit) #ttv_files[j][1][0])
+                    ttv_model_transits.append(ttv_model[ttv_loglik[3][j][0][k]-1])
             else:
                 ttv_model = np.zeros(len(flux))+ np.mean(flux)
                 ttv_model_transits = np.zeros(len(flux))+ np.mean(flux)
@@ -3756,23 +2506,23 @@ Transit duration: %s d
                     
             p_ttv.plot(t, flux,
             pen=None,
-            symbol=fit.pyqt_symbols_ttv[0],
-            symbolPen={'color': fit.ttv_colors[0], 'width': 1.1},
-            symbolSize=self.ttv_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.ttv_colors[0] ) 
+            symbol=fit.pyqt_symbols_ttv[j],
+            symbolPen={'color': fit.ttv_colors[j], 'width': 1.1},
+            symbolSize=fit.pyqt_symbols_size_ttv[j],enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.ttv_colors[j] ) 
             
-            err_ = pg.ErrorBarItem(x=t, y=flux, symbol='o',
+            err_ = pg.ErrorBarItem(x=t, y=flux, symbol=fit.pyqt_symbols_ttv[j],
                                   # height=flux_err, 
                                    top=flux_err, 
                                    bottom=flux_err,
-                                   beam=0.0, pen=fit.ttv_colors[0])
+                                   beam=0.0, pen=fit.ttv_colors[j])
 
             p_ttv.addItem(err_)
 
-            model_curve = p_ttv.plot(model_N_transits,ttv_model,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True,viewRect=True )
+            model_curve = p_ttv.plot(model_N_transits,ttv_model,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True, viewRect=True )
 
             model_curve.setZValue(self.ttv_model_z.value())
-            
+
             if self.ttv_plot_cross_hair.isChecked():
                 self.cross_hair(p_ttv,log=False)
 
@@ -3781,18 +2531,18 @@ Transit duration: %s d
 
             p_ttv_oc.plot(t, flux-ttv_model_transits,
             pen=None,  
-            symbol=fit.pyqt_symbols_tra[j],
-            symbolPen={'color': fit.ttv_colors[0], 'width': 1.1},
-            symbolSize=self.ttv_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.ttv_colors[0] )
+            symbol=fit.pyqt_symbols_ttv[j],
+            symbolPen={'color': fit.ttv_colors[j], 'width': 1.1},
+            symbolSize=fit.pyqt_symbols_size_ttv[j],enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.ttv_colors[j] )
 
-            err_ = pg.ErrorBarItem(x=t, y=flux-ttv_model_transits, symbol='o', 
+            err_ = pg.ErrorBarItem(x=t, y=flux-ttv_model_transits, symbol=fit.pyqt_symbols_ttv[j],
            # height=flux_err,
             top=flux_err,
             bottom=flux_err,
-            beam=0.0, pen=fit.ttv_colors[0])
+            beam=0.0, pen=fit.ttv_colors[j])
 
-            p_ttv_oc.addItem(err_)   
+            p_ttv_oc.addItem(err_)
 
 
             if self.ttv_o_c_plot_cross_hair.isChecked():
@@ -3806,24 +2556,38 @@ Transit duration: %s d
             p_ttv_oc.autoRange()  
 
 
-    def get_ttv_plot_color(self):
-        global fit
+#    def get_ttv_plot_color(self):
+#        global fit
         
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
-        fit.ttv_colors[0]=colorz.name()   
+#        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+#        fit.ttv_colors[0]=colorz.name()   
         
-        self.update_ttv_plots() 
+#        self.update_ttv_plots() 
         
-    def get_ttv_model_color(self):
-        global fit
+#    def get_ttv_model_color(self):
+#        global fit
         
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
-        fit.ttv_colors[-1]=colorz.name()   
+#        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+#        fit.ttv_colors[-1]=colorz.name()   
         
-        self.update_ttv_plots() 
+#        self.update_ttv_plots() 
 
 
-############################# N-Body ########################################     
+    def ttv_pl_combo(self):
+        global fit
+
+        self.ttv_comboBox_pl.clear()
+        self.ttv_o_c_comboBox_pl.clear()
+        
+        for i in range(fit.npl):
+            self.ttv_comboBox_pl.addItem('Planet %s'%str(i+1),i+1) 
+            self.ttv_o_c_comboBox_pl.addItem('Planet %s'%str(i+1),i+1) 
+            
+        self.ttv_comboBox_pl.setCurrentIndex(0)
+        self.ttv_o_c_comboBox_pl.setCurrentIndex(0)
+
+
+############################# N-Body plots ########################################     
 
 
     def update_orb_plot(self):
@@ -3851,7 +2615,7 @@ Transit duration: %s d
         p16.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
 
 
-#### Period evolution plot ##################
+    #### Period evolution plot ##################
 
         
     def per_rat_combo(self):
@@ -4322,6 +3086,1278 @@ Transit duration: %s d
 
 
 
+
+################ Extra Plots (work in progress) ######################
+
+    def update_extra_plots(self):
+        global fit
+
+        self.comboBox_extra_plot.clear()
+
+        if fit.npl != 0:
+            for i in range(fit.npl):
+                self.comboBox_extra_plot.addItem('phase pl %s'%(i+1),i+1)
+
+            self.comboBox_extra_plot.addItem('RV GLS',fit.npl+1)
+            self.comboBox_extra_plot.addItem('RV GLS o-c',fit.npl+2)
+
+            self.phase_plots(1)  
+
+        elif fit.filelist.ndset != 0:
+            self.comboBox_extra_plot.addItem('RV GLS',fit.npl+1)
+            self.comboBox_extra_plot.addItem('RV GLS o-c',fit.npl+2)     
+
+            self.extra_RV_GLS_plots()
+
+        self.comboBox_extra_plot.activated.connect(self.handleActivated)        
+
+
+ 
+    def handleActivated(self, index):
+        global fit, pe
+
+        ind = self.comboBox_extra_plot.itemData(index) 
+
+        if ind <= fit.npl:
+            self.phase_plots(ind)
+        elif ind == fit.npl+1: 
+            self.extra_RV_GLS_plots()
+        elif ind == fit.npl+2: 
+            self.extra_RV_GLS_o_c_plots()            
+            #pe.setYLink(p2)
+           # pe.setXLink(p2)
+            #fit.p2 = p2
+            #gg = p2.getPlotItem().getViewBox()
+         #   hh = gg.getViewBox()
+         #   pe.scene().addItem(gg)   
+         #   pe.scene().addItem(gg)
+        else:
+            return
+
+    def phase_plots(self, ind, offset = 0):
+        global fit, colors
+
+        pe.plot(clear=True,)
+        pe.setLogMode(False,False)
+
+        ######## TBF #############
+        if self.radioButton_transit.isChecked():
+            return
+        ########################
+
+        ph_data = fit.ph_data[ind-1]
+        ph_model = fit.ph_model[ind-1]
+
+        offset = (self.RV_phase_slider.value()/100.0)* fit.params.planet_params[7*(ind-1)+1] 
+
+        if len(ph_data) == 1:
+            return
+
+        if self.jitter_to_plots.isChecked() and len(ph_data) != 0 and not self.split_jitter.isChecked() :
+            error_list = self.add_jitter(ph_data[2], ph_data[3])
+        elif self.jitter_to_plots.isChecked() and len(ph_data) != 0 and self.split_jitter.isChecked() :
+            error_list = ph_data[2]
+            error_list2 = self.add_jitter(ph_data[2], ph_data[3])
+        else:
+            if len(ph_data) != 0:
+                error_list = ph_data[2]
+            else:
+                return
+ 
+            
+        #rv_data = ph_data[0]   
+       # if fit.doGP == True:
+        #    rv_data = fit.gp_model_data[0]
+        #else:
+        #    rv_data = ph_data[1]
+        rv_data = ph_data[1]
+
+        model_time_phase = np.array((ph_model[0]-offset)%fit.params.planet_params[7*(ind-1)+1] )
+
+        sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])
+        model_time_phase  = model_time_phase[sort] 
+        ph_model =  ph_model[1][sort] 
+
+        pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
+
+        model_curve = pe.plot(model_time_phase,ph_model, pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()+1},
+        enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'})   
+ 
+        model_curve.setZValue(self.RV_model_z.value())
+
+        for i in range(max(ph_data[3])+1):
+
+            pe.plot((ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1],rv_data[ph_data[3]==i],
+            pen=None, #{'color': colors[i], 'width': 1.1},
+            symbol=fit.pyqt_symbols_rvs[i],
+            symbolPen={'color': fit.colors[i], 'width': 1.1},
+            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.colors[i]
+            )
+
+            err_ = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=rv_data[ph_data[3]==i],
+            symbol=fit.pyqt_symbols_rvs[i], 
+            top=error_list[ph_data[3]==i],
+            bottom=error_list[ph_data[3]==i],
+            beam=0.0, pen=fit.colors[i]) 
+
+            pe.addItem(err_)
+
+            if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
+ 
+                err_2 = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=rv_data[ph_data[3]==i],
+                symbol=fit.pyqt_symbols_rvs[i], 
+                top=error_list2[ph_data[3]==i],
+                bottom=error_list2[ph_data[3]==i],
+                beam=0.0, pen='#000000')  
+                err_2.setZValue(-10)
+                pe.addItem(err_2) 
+        pe.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)
+        pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
+        pe.setLabel('left',   'RV [m/s]', units='',  **{'font-size':'9pt'})  
+
+        if self.extra_plot_cross_hair.isChecked():
+            self.cross_hair(pe,log=False)   
+
+
+    ############### VERY VERY VERY Ugly fix !!!! 
+
+    def extra_RV_GLS_plots(self):
+        global fit,  pe 
+ 
+        pe.plot(clear=True,)   
+        power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
+
+        if len(fit.fit_results.rv_model.jd) > 5:
+            ######################## GLS ##############################
+            if self.radioButton_RV_GLS_period.isChecked():
+                pe.setLogMode(True,False)        
+                pe.plot(1/fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
+                pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
+                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
+            else:
+                pe.setLogMode(False,False)
+                pe.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
+                pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
+                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
+    
+            if fit.gls.norm == 'ZK':
+                [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
+
+
+        if self.extra_plot_cross_hair.isChecked():
+            self.cross_hair(pe,log=self.radioButton_RV_GLS_period.isChecked())   
+
+    def extra_RV_GLS_o_c_plots(self):
+        global fit,  pe 
+ 
+        pe.plot(clear=True,)
+        power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
+
+        if len(fit.fit_results.rv_model.jd) > 5:
+        ######################## GLS o-c ##############################
+            if self.radioButton_RV_o_c_GLS_period.isChecked():
+                pe.setLogMode(True,False)        
+                pe.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None ) 
+                pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
+                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
+            else:
+                pe.setLogMode(False,False)        
+                pe.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None )                    
+                pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
+                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
+    
+    
+            if fit.gls.norm == 'ZK':
+                [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]
+
+        if self.extra_plot_cross_hair.isChecked():
+            self.cross_hair(pe,log=self.radioButton_RV_o_c_GLS_period.isChecked())   
+
+
+
+
+    def update_plots(self):
+        self.update_RV_GLS_plots()
+        self.update_RV_o_c_GLS_plots()
+        self.update_WF_plots()
+        self.update_RV_plots()
+        self.update_extra_plots()
+        self.update_orb_plot()
+        #self.change_extra_plot()
+        self.update_transit_plots()    
+        self.update_ttv_plots()
+
+
+    def rv_plot_phase_change(self):
+        global fit
+
+        ind = self.comboBox_extra_plot.currentIndex()
+        if ind+1 <= fit.npl:
+            self.phase_plots(ind+1)
+        else:
+            return
+
+    def rv_GP_set_use(self):
+
+        if self.do_RV_GP.isChecked():
+            fit.doGP = True
+        else:
+            fit.doGP = False
+
+    def tra_GP_set_use(self):
+
+        if self.do_tra_GP.isChecked():
+            fit.tra_doGP = True
+        else:
+            fit.tra_doGP = False
+
+    def set_RV_GP(self):
+        global fit
+
+        if self.use_GP_sho_kernel.isChecked():
+            fit.gp_kernel = 'SHOKernel'
+        elif self.use_GP_rot_kernel.isChecked():
+            fit.gp_kernel = 'RotKernel'
+
+
+    def set_tra_GP(self):
+        global fit
+
+        if self.use_tra_GP_sho_kernel.isChecked():
+            fit.tra_gp_kernel = 'SHOKernel'
+        elif self.use_tra_GP_rot_kernel.isChecked():
+            fit.tra_gp_kernel = 'RotKernel'
+
+
+    def set_use_GP(self):
+        global fit
+
+        if  self.do_RV_GP.isChecked():
+            fit.doGP = True
+        else:
+            fit.doGP = False
+
+        if  self.do_tra_GP.isChecked():
+            fit.tra_doGP = True
+        else:
+            fit.tra_doGP = False
+            
+            
+            
+            
+            
+            
+
+################################ RV files #######################################################
+
+    def showDialog_fortran_input_file(self):
+        global fit, ses_list
+ 
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.init)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        
+        if str(input_files[0]) != '':
+            fit_new=rv.signal_fit(str(input_files[0]), 'RVmod session',readinputfile=True)
+
+            if len(ses_list) == 1:
+                ses_list[0] = fit_new
+                fit = fit_new
+            else:
+                ses_list.append(fit_new)
+
+            self.session_list()
+            self.update_use_from_input_file()
+            self.init_fit()
+            self.update_RV_file_buttons()
+
+
+    def showDialog_RVbank_input_file(self):
+        global fit, ses_list
+
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RVBank data', '', 'All (*.*);;Data (*.csv)', options=QtGui.QFileDialog.DontUseNativeDialog)
+
+        if str(input_files[0]) != '':
+
+            choice = QtGui.QMessageBox.information(self, 'Warning!',
+                                            "Do you want to split the RV data to pre- and post- (if applicable)?",
+                                            QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
+
+            if choice == QtGui.QMessageBox.No:
+                fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = False)
+            elif choice == QtGui.QMessageBox.Yes:            
+                fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = True)
+            else:
+                return
+
+            fit.type_fit["RV"] = True
+            fit.type_fit["Transit"] = False
+            self.check_type_fit()
+            self.mute_boxes()
+
+            self.init_fit()
+            self.update_use_from_input_file()
+            self.update_use()
+            self.update_params()
+            self.update_RV_file_buttons()
+            self.update_act_file_buttons()
+
+
+    def apply_rv_data_options(self):
+        global fit
+        but_ind = self.buttonGroup_apply_rv_data_options.checkedId()
+
+        if   self.rv_sigma_clip[but_ind-1][1].isChecked() == True  and self.add_rv_error[but_ind-1][1].isChecked() == False:
+            rv.sigma_clip(fit, type = 'RV', sigma_clip = self.rv_sigma_clip[but_ind-1][0].value(), file_n = but_ind-1)
+        elif self.rv_sigma_clip[but_ind-1][1].isChecked() == True  and self.add_rv_error[but_ind-1][1].isChecked() == True:
+            rv.sigma_clip(fit, type = 'RV', sigma_clip = self.rv_sigma_clip[but_ind-1][0].value(), file_n = but_ind-1, add_error = self.add_rv_error[but_ind-1][0].value())
+        elif self.rv_sigma_clip[but_ind-1][1].isChecked() == False and self.add_rv_error[but_ind-1][1].isChecked() == True:
+            rv.modify_temp_RV_file(fit, file_n = but_ind-1, add_error = self.add_rv_error[but_ind-1][0].value())
+        elif self.rv_sigma_clip[but_ind-1][1].isChecked() == False and self.add_rv_error[but_ind-1][1].isChecked() == False:
+            rv.modify_temp_RV_file(fit, file_n = but_ind-1, add_error = 0)
+        else:
+            return
+
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+        self.update_veiw()
+
+
+    def apply_act_data_options(self):
+        global fit
+        but_ind = self.buttonGroup_apply_act_data_options.checkedId()
+
+        if   self.act_sigma_clip[but_ind-1][1].isChecked() == True  and self.act_remove_mean[but_ind-1].isChecked() == False:
+            rv.sigma_clip(fit, type = 'act', sigma_clip = self.act_sigma_clip[but_ind-1][0].value(), 
+                          remove_mean = False, file_n = but_ind-1)
+        elif self.act_sigma_clip[but_ind-1][1].isChecked() == True  and self.act_remove_mean[but_ind-1].isChecked() == True:
+            rv.sigma_clip(fit, type = 'act', sigma_clip = self.act_sigma_clip[but_ind-1][0].value(), 
+                          remove_mean =  True, file_n = but_ind-1)
+        elif self.act_sigma_clip[but_ind-1][1].isChecked() == False and self.act_remove_mean[but_ind-1].isChecked()  == True:
+            rv.sigma_clip(fit, type = 'act', sigma_clip = None, 
+                          remove_mean =  True, file_n = but_ind-1)
+        elif self.act_sigma_clip[but_ind-1][1].isChecked() == False and self.act_remove_mean[but_ind-1].isChecked() == False:
+            rv.sigma_clip(fit, type = 'act', sigma_clip = None, 
+                          remove_mean =  False, file_n = but_ind-1)
+        else:
+            return
+
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+        self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
+        self.update_activity_gls_plots(but_ind-1)
+     #   self.update_activity_data_plots(but_ind-1)
+
+    def apply_tra_data_options(self):
+        global fit
+        but_ind = self.buttonGroup_apply_tra_data_options.checkedId()
+
+#        if   self.tra_sigma_clip[but_ind-1][1].isChecked() == True:
+#            rv.sigma_clip(fit, type = 'tra', sigma_clip = self.tra_sigma_clip[but_ind-1][0].value(), 
+#                          remove_mean = False, file_n = but_ind-1)
+#        elif self.tra_sigma_clip[but_ind-1][1].isChecked() == False:
+#            rv.sigma_clip(fit, type = 'tra', sigma_clip = self.tra_sigma_clip[but_ind-1][0].value(), 
+#                          remove_mean = False, file_n = but_ind-1)
+
+        if self.tra_norm[but_ind-1].isChecked() == True:
+            rv.transit_data_norm(fit,  file_n = but_ind-1, norm = True)
+        else:
+            rv.transit_data_norm(fit,  file_n = but_ind-1, norm = False)
+
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+        self.update_veiw()
+
+
+
+    def showDialog_RV_input_file(self):
+        global fit
+
+        but_ind = self.buttonGroup_add_RV_data.checkedId()   
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RV data', '', 'All (*.*);;Data (*.vels)', options=QtGui.QFileDialog.DontUseNativeDialog)
+
+        if str(input_files[0]) != '':
+ 
+            fit.add_dataset(self.file_from_path(input_files[0]), str(input_files[0]),0.0,1.0)
+            #### new stuf ####
+            #fit.add_rv_dataset('test', str(input_files[0]),rv_idset =but_ind-1)
+            ##################
+            
+            fit.type_fit["RV"] = True
+            fit.type_fit["Transit"] = False
+            self.check_type_fit()
+            self.mute_boxes()
+            
+            self.init_fit()
+            self.update_use_from_input_file()
+            self.update_use()
+            self.update_params()
+            self.update_RV_file_buttons()
+
+        self.plot_tabs.setCurrentWidget(self.tab_timeseries_RV)
+
+
+    def remove_RV_file(self):
+        global fit
+
+        but_ind = self.buttonGroup_remove_RV_data.checkedId()
+
+       # try:
+       #     dirname, basename = os.path.split(fit.filelist.files[but_ind-1].path)
+       #     os.system('rm -r %s'%dirname)
+       # except:
+       #     return
+
+        fit.remove_dataset(but_ind -1)
+
+        #### new stuf ####
+        #fit.remove_rv_dataset(but_ind -1)
+        #### new stuf ####
+
+        fit.type_fit["RV"] = True
+        fit.type_fit["Transit"] = False
+        self.check_type_fit()
+        self.mute_boxes()
+
+        self.init_fit()
+        self.update_use_from_input_file()
+        self.update_use()
+        
+        self.update_gui_params()
+        self.update_params()
+        self.update_RV_file_buttons()
+
+    def update_RV_file_buttons(self):
+        global fit, colors
+
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(False)
+        #font.setWeight(75)
+
+        for i in range(10):
+            if i < fit.filelist.ndset:
+                self.buttonGroup_add_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                font.setPointSize(9)
+                self.buttonGroup_add_RV_data.button(i+1).setText(fit.filelist.files[i].name) 
+                self.buttonGroup_add_RV_data.button(i+1).setFont(font)
+
+            else:
+                self.buttonGroup_add_RV_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_add_RV_data.button(i+1).setText("data %s"%(i+1))
+
+                #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
+        self.init_correlations_combo()
+
+
+################################ transit files #######################################################      
+
+    def showDialog_tra_input_file(self):
+        global fit
+
+        but_ind = self.buttonGroup_transit_data.checkedId()   
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'All (*.*);;Data (*.tran)', options=QtGui.QFileDialog.DontUseNativeDialog)
+
+        if str(input_files[0]) != '':
+
+            fit.add_transit_dataset('test', str(input_files[0]),tra_idset =but_ind-1)
+
+            self.update_use_from_input_file()
+            self.update_use()
+            self.update_gui_params()
+
+            #self.radioButton_transit.setChecked(True)
+            #self.worker_transit_fitting(ff=0)
+
+            #self.init_fit()
+            
+            fit.type_fit["RV"] = False
+            fit.type_fit["Transit"] = True
+            self.check_type_fit()
+            self.mute_boxes()
+            
+            self.update_params()
+            self.update_tra_file_buttons()
+            #self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(input_files[0]))
+            self.plot_tabs.setCurrentWidget(self.tab_timeseries_tra)
+ 
+
+    def remove_tra_file(self):
+        global fit
+
+        but_ind = self.buttonGroup_remove_transit_data.checkedId()   
+        fit.remove_transit_dataset(but_ind -1)
+       # self.init_fit()         
+      #  self.update_use_from_input_file()   
+      #  self.update_use()
+      #  self.update_gui_params()
+     #   self.update_params()
+        fit.type_fit["RV"] = False
+        fit.type_fit["Transit"] = True
+        self.check_type_fit()
+        self.mute_boxes()
+        self.update_tra_file_buttons()
+
+
+    def update_tra_file_buttons(self):
+        global fit, colors          
+
+        for i in range(10):
+            if len(fit.tra_data_sets[i]) != 0:
+                self.buttonGroup_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_transit_data.button(i+1).setText(fit.tra_data_sets[i][-1])
+
+            else:
+                self.buttonGroup_transit_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_transit_data.button(i+1).setText("data %s"%(i+1))
+
+                #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
+ 
+        if len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0]) == 0:
+            self.update_transit_plots()
+        else:
+            self.worker_transit_fitting(ff=0)
+#        self.update_transit_plots()
+ 
+
+################################ activity files #######################################################
+        
+    def showDialog_act_input_file(self):
+        global fit
+
+        but_ind = self.buttonGroup_activity_data.checkedId()   
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'All (*.*);;Data (*.act)', options=QtGui.QFileDialog.DontUseNativeDialog)
+
+        if str(input_files[0]) != '':
+
+            fit.add_act_dataset('test', str(input_files[0]),act_idset =but_ind-1)
+
+            self.update_act_file_buttons()
+            self.buttonGroup_activity_data.button(but_ind).setText(self.file_from_path(input_files[0]))
+
+            self.plot_tabs.setCurrentWidget(self.tab_timeseries_act)
+            self.comboBox_act_data.setCurrentIndex(but_ind-1)
+            self.comboBox_act_data_gls.setCurrentIndex(but_ind-1)
+
+            self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
+            self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex())
+
+
+    def remove_act_file(self):
+        global fit
+
+        but_ind = self.buttonGroup_remove_activity_data.checkedId()   
+        fit.remove_act_dataset(but_ind -1)
+       # self.init_fit()         
+      #  self.update_use_from_input_file()   
+      #  self.update_use()
+      #  self.update_gui_params()
+     #   self.update_params()
+        self.update_act_file_buttons()
+
+    def update_act_file_buttons(self):
+        global fit, colors          
+
+        for i in range(10):
+            if len(fit.act_data_sets[i]) != 0:
+                self.buttonGroup_activity_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_activity_data.button(i+1).setText(fit.act_data_sets[i][3])
+
+            else:
+                self.buttonGroup_activity_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_activity_data.button(i+1).setText("data %s"%(i+1))
+
+                #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
+        self.init_correlations_combo()
+
+
+
+
+################################ TTV files #######################################################
+        
+    def showDialog_ttv_input_file(self):
+        global fit
+
+        but_ind = self.buttonGroup_ttv_data.checkedId()   
+        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open TTV data', '', 'All (*.*);;Data (*.ttv)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        
+        
+        planet_N     = self.ttv_data_to_planet[but_ind-1].value()
+        use_planet_N = self.use_ttv_data_to_planet[but_ind-1].isChecked()
+
+        if str(input_files[0]) != '':
+ 
+            fit.add_ttv_dataset('test', str(input_files[0]), ttv_idset =but_ind-1, planet =planet_N, use = use_planet_N )
+            self.init_fit()
+            #self.update_use_from_input_file()
+            #self.update_use()
+            #self.update_params()
+            
+            
+            fit.type_fit["RV"] = False
+            fit.type_fit["Transit"] = False
+            fit.type_fit["TTV"] = True
+            self.check_type_fit()
+            self.mute_boxes()
+            
+            self.update_params()
+            self.update_ttv_file_buttons()
+ 
+            self.plot_tabs.setCurrentWidget(self.tab_timeseries_ttv)
+
+
+    def remove_ttv_file(self):
+        global fit
+
+        but_ind = self.buttonGroup_remove_ttv_data.checkedId()   
+        fit.remove_ttv_dataset(but_ind -1)
+       # self.init_fit()
+
+        fit.type_fit["RV"] = False
+        fit.type_fit["Transit"] = False
+        fit.type_fit["TTV"] = True
+        self.check_type_fit()
+        self.mute_boxes()
+        self.update_ttv_file_buttons()
+ 
+
+    def update_ttv_file_buttons(self):
+        global fit, colors          
+
+        for i in range(10):
+            if len(fit.ttv_data_sets[i]) != 0:
+                self.buttonGroup_ttv_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_remove_ttv_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_ttv_data.button(i+1).setText(fit.ttv_data_sets[i][5])
+
+            else:
+                self.buttonGroup_ttv_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_remove_ttv_data.button(i+1).setStyleSheet("")
+                self.buttonGroup_ttv_data.button(i+1).setText("data %s"%(i+1))
+
+                #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
+        #self.init_correlations_combo()
+
+
+##################################### Various ################################# 
+
+
+    def init_fit(self): 
+        global fit
+        
+        
+        # A hack when .ses are imported from the Example directory... TBFixed
+        fit.cwd = os.getcwd()
+
+        minimize_fortran=True
+        if fit.model_saved == False or len(fit.fit_results.rv_model.jd) != len(fit.filelist.idset):
+            fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
+            #self.worker_RV_fitting(, ff=0, m_ln=True, auto_fit = False , init = True ):
+            #self.fit_dispatcher(init=False)
+            for i in range(fit.npl):
+                 rv.phase_RV_planet_signal(fit,i+1)       
+                 
+        self.update_labels()
+#        self.update_params()
+
+        self.update_gui_params()
+        self.update_errors() 
+        self.update_a_mass() 
+        
+        self.run_gls()
+        self.run_gls_o_c()
+        
+        self.update_plots() 
+        self.update_transit_plots() 
+        self.plot_evol_all()
+
+        self.jupiter_push_vars() 
+
+
+    def add_jitter(self, errors, ind):
+        global fit
+
+        errors_with_jitt = np.array([np.sqrt(errors[i]**2 + fit.params.jitters[ii]**2)  for i,ii in enumerate(ind)])
+        return errors_with_jitt
+
+
+
+
+
+
+############ MLP ##############################      
+       
+    def worker_mlp_complete(self, resid = False):
+        global fit  
+
+        #start_time = time.time()   
+
+        #if resid == False:     
+        #    self.update_RV_MLP_plots() 
+        #else:
+        #    self.update_mlp_o_c_plots() 
+
+        self.update_RV_MLP_plots()
+
+        self.statusBar().showMessage('')
+ 
+        self.jupiter_push_vars()
+        self.calc_MLP.setEnabled(True)
+       # self.calc_MLP_o_c.setEnabled(True)
+
+ 
+    def worker_mlp(self, resid = False):
+        global fit  
+
+        self.calc_MLP.setEnabled(False)
+        #self.calc_MLP_o_c.setEnabled(False)
+
+
+        if self.calp_MLP_o_c.isChecked():
+            resid = True
+        else:
+            resid = False
+        
+        #if z <= 0:
+        #    choice = QtGui.QMessageBox.information(self, 'Warning!',
+        #    "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
+        #    self.calc_TLS.setEnabled(True)         
+        #    return   
+
+        self.statusBar().showMessage('Running MLP .... This might take some time!')                 
+        worker_mlp_wk = Worker(lambda:  self.mlp_search(resid = resid) )# Any other args, kwargs are passed to the run  
+ 
+        worker_mlp_wk.signals.finished.connect(lambda:  self.worker_mlp_complete(resid = resid))
+
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+
+        # worker.signals.result.connect(self.print_output)
+        #worker.signals.finished.connect(self.thread_complete)
+       # worker.signals.progress.connect(self.progress_fn)
+        self.threadpool.start(worker_mlp_wk)       
+
+
+
+    def mlp_search(self, resid = False):
+        global fit
+
+        omega = 1/ np.logspace(np.log10(self.mlp_min_period.value()), np.log10(self.mlp_max_period.value()), num=int(self.mlp_n_omega.value()))
+        ind_norm = self.gls_norm_combo.currentIndex()
+ 
+        if len(fit.fit_results.rv_model.jd) > 5:  
+            
+            rv_files_for_mlp = []
+            for i in range(fit.filelist.ndset):
+                
+                if resid == True:
+                    typ = (fit.fit_results.rv_model.jd[fit.filelist.idset==i],
+                       fit.fit_results.rv_model.o_c[fit.filelist.idset==i], 
+                       fit.fit_results.rv_model.rv_err[fit.filelist.idset==i])
+                else:
+                    typ = (fit.fit_results.rv_model.jd[fit.filelist.idset==i],
+                       fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
+                       fit.fit_results.rv_model.rv_err[fit.filelist.idset==i])
+                    
+                rv_files_for_mlp.append(typ)
+            
+            RV_per = mlp.Gls(rv_files_for_mlp, fast=True,  verbose=False, nojit=True,
+            ofac=self.mlp_ofac.value(), fbeg=omega[-1], fend=omega[0], norm='dlnL')
+
+        else:
+            return
+ 
+        if resid == True:
+            fit.mlp = RV_per  # TB Fixed  
+        else:
+            fit.mlp = RV_per  # TB Fixed  
+
+
+    def update_RV_MLP_plots(self):
+        global fit, p_mlp 
+ 
+        p_mlp.plot(clear=True,)
+
+        self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])
+        self.colors_alias_mlp.setStyleSheet("color: %s;"%colors_MLP_alias[0])
+
+
+        power_levels = np.array([self.mlp_fap1.value(),self.mlp_fap2.value(),self.mlp_fap3.value()])
+        #power_levels = np.array([5,10,15])
+
+        gls_model_width = float(self.gls_model_width.value())
+
+        if len(fit.fit_results.rv_model.jd) > 5:
+
+            ######################## GLS ##############################
+            if self.radioButton_RV_MLP_period.isChecked():
+                p_mlp.setLogMode(True,False)        
+                p_mlp.plot(1/fit.mlp.freq, fit.mlp.power,pen={'color': fit.gls_colors[0], 'width': gls_model_width},symbol=None ) 
+                p_mlp.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
+            else:
+                p_mlp.setLogMode(False,False)        
+                p_mlp.plot(fit.mlp.freq, fit.mlp.power,pen={'color': fit.gls_colors[0], 'width': self.gls_model_width.value()},symbol=None )                
+                p_mlp.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
+
+            if fit.mlp.norm == 'dlnL':
+                [p_mlp.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for fap in np.array(power_levels)]
+ 
+#            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels, sig_level = fit.mlp.powerLevel(np.array(power_levels)) )   
+            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels, sig_level =np.array(power_levels) )   
+
+            self.label_peaks(p_mlp, pos_peaks, GLS = True, MLP = True)
+
+            self.mlp_print_info.clicked.connect(lambda: self.print_info_for_object(
+            fit.mlp.info(stdout=False) + text_peaks))
+
+        if self.mlp_cross_hair.isChecked():
+            self.cross_hair(p_mlp,log=self.radioButton_RV_MLP_period.isChecked(), alias=[self.show_alias_MLP.isChecked(), self.alias_days_mlp.value(), colors_MLP_alias[0]])    
+
+
+############ TLS ##############################      
+       
+    def worker_tls_complete(self, resid = False):
+        global fit  
+ 
+        #start_time = time.time()   
+        
+        if resid == False:
+            self.update_tls_plots() 
+        else:
+            self.update_tls_o_c_plots() 
+                 
+        self.statusBar().showMessage('')   
+ 
+        self.jupiter_push_vars()   
+        self.calc_TLS.setEnabled(True)         
+        self.calc_TLS_o_c.setEnabled(True)  
+       # print("--- %s seconds ---" % (time.time() - start_time))     
+ 
+    def worker_tls(self, resid = False):
+        global fit  
+        
+        if tls_not_found==True:
+            print("TLS Not found, try to install with 'pip install transitleastsquares'") 
+            return
+
+        self.calc_TLS.setEnabled(False)         
+        self.calc_TLS_o_c.setEnabled(False)  
+
+        z=0
+        for i in range(10):
+            if len(fit.tra_data_sets[i]) != 0:
+                z=z+1
+
+        if z <= 0:
+            choice = QtGui.QMessageBox.information(self, 'Warning!',
+            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)
+            self.calc_TLS.setEnabled(True)
+            return   
+
+        self.statusBar().showMessage('Looking for Transit events (TLS).... ')
+        worker_tls_ = Worker(lambda:  self.tls_search(resid = resid) )# Any other args, kwargs are passed to the run  
+ 
+        worker_tls_.signals.finished.connect(lambda:  self.worker_tls_complete(resid = resid))
+        
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+
+
+        # worker.signals.result.connect(self.print_output)
+        #worker.signals.finished.connect(self.thread_complete)
+       # worker.signals.progress.connect(self.progress_fn)
+        self.threadpool.start(worker_tls_)       
+     
+
+    def tls_search(self, resid = False):
+        global fit
+        
+        if resid == True:
+            #lc_data = np.concatenate([fit.tra_data_sets[x][3] for x in range(10) if len(fit.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][3]
+            lc_data = np.concatenate([fit.transit_results[1][4][x] +1.0 for x in range(10) if len(fit.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][3]
+        else:
+            lc_data = np.concatenate([fit.transit_results[1][1][x] for x in range(10) if len(fit.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][1]
+            
+        lc_time = np.concatenate([fit.transit_results[1][0][x] for x in range(10) if len(fit.tra_data_sets[x]) != 0])
+        
+        tls_model = transitleastsquares(lc_time, lc_data)
+        tls_results = tls_model.power(oversampling_factor=int(self.tls_ofac.value()), duration_grid_step=self.tls_grid_step.value())
+    
+        if resid == True:
+            fit.tls_o_c = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
+        else:
+            fit.tls = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
+
+
+    def update_tls_plots(self): 
+        global fit, p9, colors
+
+        if len(fit.tls) == 0:
+            return
+    
+        p9.plot(clear=True,) 
+        
+        if self.tls_cross_hair.isChecked():
+            self.cross_hair(p9,log=False)      
+            
+        if len(fit.tra_data_sets[0]) != 0:
+
+            text = '''
+Best results from TLS:
+ 
+Period: %s d   
+Transit depth: %s 
+Transit duration: %s d
+'''%(fit.tls.period,fit.tls.depth,fit.tls.duration)
+           
+            p9.plot(fit.tls.periods, fit.tls.power,        
+            pen='r',  enableAutoRange=True,viewRect=True)
+#0.9      5.7
+#0.95     6.1
+#0.99     7.0
+#0.999    8.3
+#0.9999   9.1
+            [p9.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
+
+            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls.periods,fit.tls.power,  sig_level = np.array([5.7,7.0,8.3] )   )
+
+            self.label_peaks(p9, pos_peaks, GLS = False)
+
+            self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(text + text_peaks))   
+
+            return
+
+        else:
+            text_err = pg.TextItem('Nothing to plot',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
+            p9.addItem(text_err, ignoreBounds=True)   
+            self.tls_print_info.clicked.connect(lambda: self.print_info_for_object(""))            
+            return
+
+    def update_tls_o_c_plots(self): 
+        global fit, p10, colors
+
+        if len(fit.tls_o_c) == 0:
+            return
+
+        p10.plot(clear=True,) 
+
+        if self.tls_o_c_cross_hair.isChecked():
+            self.cross_hair(p10,log=False) 
+            
+        if len(fit.tra_data_sets[0]) != 0:
+            #t = fit.tra_data_sets[0][0]
+            #flux = fit.tra_data_sets[0][1]
+           # flux_err = fit.tra_data_sets[0][2]
+           
+            text = '''
+Best results from TLS:
+          
+Period: %s d   
+Transit depth: %s 
+Transit duration: %s d
+'''%(fit.tls_o_c.period,fit.tls_o_c.depth,fit.tls_o_c.duration)
+           
+            p10.plot(fit.tls_o_c.periods, fit.tls_o_c.power,        
+            pen='r',  enableAutoRange=True,viewRect=True)
+#0.9      5.7
+#0.95     6.1
+#0.99     7.0
+#0.999    8.3
+#0.9999   9.1
+            [p10.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
+   
+            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls_o_c.periods,fit.tls_o_c.power,  sig_level = np.array([5.7,7.0,8.3] ) )
+ 
+            self.label_peaks(p10, pos_peaks, GLS = False)
+            
+            self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(text + text_peaks))
+            
+            return
+
+        else:
+            text_err = pg.TextItem('Nothing to plot',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
+            p10.addItem(text_err, ignoreBounds=True)
+            self.tls_o_c_print_info.clicked.connect(lambda: self.print_info_for_object(""))
+            return
+
+
+############ transit fitting ##############################      
+
+    def worker_transit_fitting_complete(self):
+        global fit  
+
+
+        self.update_labels()
+        self.update_gui_params()
+        self.update_errors() 
+        self.update_a_mass()
+        self.update_transit_combo_phase_pl()
+
+
+        fit=rv.get_xyz(fit)
+                         
+        self.statusBar().showMessage('')  
+        
+        self.button_fit.setEnabled(True)         
+        
+        if fit.bound_error == True:
+            self.get_error_msg(fit.bound_error_msg)
+            return
+
+        self.update_transit_plots()
+        
+        if fit.type_fit["RV"] == True:
+            for i in range(fit.npl):
+                rv.phase_RV_planet_signal(fit,i+1) 
+            self.run_gls()
+            self.run_gls_o_c()                
+            self.update_plots()  
+        self.jupiter_push_vars() 
+
+
+    def check_model_fact(self):
+        global fit  
+        fit.tra_model_fact = int(self.tra_model_ndata_fact.value())
+        
+        
+
+    def worker_transit_fitting(self, ff=1, auto_fit = False ):
+        global fit  
+        
+        self.button_fit.setEnabled(False)         
+        self.update_params() 
+        self.update_use()   
+        
+        # check if transit data is present
+        z=0
+        for i in range(10):
+            if len(fit.tra_data_sets[i]) != 0:
+                z=z+1
+        
+        if z <= 0:
+            choice = QtGui.QMessageBox.information(self, 'Warning!',
+            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
+            self.button_fit.setEnabled(True)
+            self.update_transit_plots()
+
+            return 
+        
+        if fit.type_fit["RV"] == True:
+             if fit.filelist.ndset <= 0:
+                 choice = QtGui.QMessageBox.information(self, 'Warning!',
+                 "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
+                 self.button_fit.setEnabled(True)         
+                 return   
+
+        if fit.type_fit["RV"] == True :        
+            self.statusBar().showMessage('Minimizing Transit + RV parameters.... SciPy in action, please be patient.  ')       
+        else:
+            self.statusBar().showMessage('Minimizing Transit parameters.... SciPy in action, please be patient. ')       
+           
+
+        self.set_tra_ld()
+        self.check_bounds()
+        self.check_priors_nr()
+        self.check_priors_jeff()
+        self.check_model_fact()
+
+        self.check_scipy_min()
+        fit.model_npoints = self.points_to_draw_model.value()
+
+          
+        worker4 = Worker(lambda:  self.transit_fit(ff=ff ) )# Any other args, kwargs are passed to the run  
+ 
+        worker4.signals.finished.connect(self.worker_transit_fitting_complete)
+        
+        # worker.signals.result.connect(self.print_output)
+        #worker.signals.finished.connect(self.thread_complete)
+       # worker.signals.progress.connect(self.progress_fn)
+        self.threadpool.start(worker4)
+        
+ 
+    def transit_fit(self, ff=0 ):
+        global fit
+        
+        if ff ==0:        
+            fit.init_fit = True
+        else:
+            fit.init_fit = False
+
+        # this is only a simple hack.. This junk will be removed later on
+        if ff ==3034:
+            old_t0_use = dill.copy(fit.t0_use)
+            old_pl_a_use = dill.copy(fit.pl_a_use)
+            old_pl_rad_use = dill.copy(fit.pl_rad_use)
+            old_rv_use = dill.copy(fit.use.use_planet_params)
+            old_rvoff_use = dill.copy(fit.use.use_offsets)
+            old_rvjitt_use = dill.copy(fit.use.use_jitters)
+            old_tra_off_use = dill.copy(fit.tra_off)
+            old_tra_jitt_use = dill.copy(fit.tra_jitt)
+            
+            for i in range(fit.npl):
+                fit.t0_use[i] = False
+                fit.pl_a_use[i] = False
+                fit.pl_rad_use[i] = False 
+                fit.use.use_planet_params[i*7] = False 
+                fit.use.use_planet_params[i*7+1] = False 
+                fit.use.use_planet_params[i*7+2] = False 
+                fit.use.use_planet_params[i*7+3] = False 
+                fit.use.use_planet_params[i*7+4] = False 
+                fit.use.use_planet_params[i*7+5] = False 
+                fit.use.use_planet_params[i*7+6] = False 
+            for i in range(10): 
+                fit.use.use_jitters[i] = False
+                fit.use.use_offsets[i] = False   
+                fit.tra_off_use[i] = False
+                fit.tra_jitt_use[i] = False
+            #old_tra_use = fit.tr_params_use 
+            #fit.tr_params_use = [False, False,False,False,False,False,False]
+            #rv.run_SciPyOp_transit(fit)
+            rv.run_SciPyOp(fit)
+            
+            for i in range(fit.npl):
+                fit.t0_use[i] = old_t0_use[i]
+                fit.pl_a_use[i] = old_pl_a_use[i]
+                fit.pl_rad_use[i] = old_pl_rad_use[i]             
+                fit.use.use_planet_params[i*7] = dill.copy(old_rv_use[i*7])  
+                fit.use.use_planet_params[i*7+1] = dill.copy(old_rv_use[i*7+1])  
+                fit.use.use_planet_params[i*7+2] = dill.copy(old_rv_use[i*7+2]) 
+                fit.use.use_planet_params[i*7+3] = dill.copy(old_rv_use[i*7+3]) 
+                fit.use.use_planet_params[i*7+4] = dill.copy(old_rv_use[i*7+4])  
+                fit.use.use_planet_params[i*7+5] = dill.copy(old_rv_use[i*7+5])  
+                fit.use.use_planet_params[i*7+6] = dill.copy(old_rv_use[i*7+6]) 
+            for i in range(10): 
+                fit.use.use_jitters[i] =  dill.copy(old_rvjitt_use[i]) 
+                fit.use.use_offsets[i] =  dill.copy(old_rvoff_use[i])  
+                fit.tra_off_use[i] = dill.copy(old_tra_off_use[i])
+                fit.tra_jitt_use[i] = dill.copy(old_tra_jitt_use[i])   
+
+        else:
+
+            rv.run_SciPyOp(fit)
+
+
+
+
+    def update_transit_combo_phase_pl(self):
+        global fit
+        self.comboBox_phase_pl_tran.clear()
+        
+        for i in range(fit.npl):
+            self.comboBox_phase_pl_tran.addItem('pl. %s'%str(i+1),i+1) 
+
+
+        #self.comboBox_phase_pl_tran.setCurrentIndex(0)
+
+
+ 
+############ TTV fitting ##############################      
+
+    def worker_ttv_fitting_complete(self):
+        global fit  
+
+        self.update_labels()
+        self.update_gui_params()
+        self.update_errors() 
+        self.update_a_mass()                 
+        
+        #print(fit.fit_results.mass)
+
+        fit=rv.get_xyz(fit)
+                         
+        self.statusBar().showMessage('')  
+        
+        self.button_fit.setEnabled(True)         
+        
+        if fit.bound_error == True:
+            self.get_error_msg(fit.bound_error_msg)
+            return
+
+        self.update_transit_plots()
+        if fit.type_fit["RV"] == True:
+            for i in range(fit.npl):
+                rv.phase_RV_planet_signal(fit,i+1) 
+            self.run_gls()
+            self.run_gls_o_c()
+        self.update_plots()
+        self.jupiter_push_vars()
+
+
+    def worker_ttv_fitting(self, ff=1, auto_fit = False ):
+        global fit  
+
+        self.button_fit.setEnabled(False)
+        self.update_params() 
+        self.update_use()   
+
+        # check if transit data is present
+        z=0
+        for i in range(10):
+            if len(fit.ttv_data_sets[i]) == 0:
+                continue
+            else:
+                z=z+1
+                if fit.ttv_data_sets[i][3] > fit.npl and fit.ttv_data_sets[i][4] == True:
+                    choice = QtGui.QMessageBox.information(self, 'Warning!',"TTV dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ttv_data_sets[i][3]), QtGui.QMessageBox.Ok)      
+                    self.button_fit.setEnabled(True)
+                    return 
+
+        if z <= 0:
+            choice = QtGui.QMessageBox.information(self, 'Warning!',
+            "Not possible to model planets if there are no TTV data loaded. Please add your TTV data first. Okay?", QtGui.QMessageBox.Ok)      
+            self.button_fit.setEnabled(True)
+            return 
+
+        if fit.type_fit["RV"] == True:
+             if fit.filelist.ndset <= 0:
+                 choice = QtGui.QMessageBox.information(self, 'Warning!',
+                 "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)
+                 self.button_fit.setEnabled(True)
+                 return
+
+        if fit.type_fit["RV"] == True :
+            self.statusBar().showMessage('Minimizing TTV + RV parameters.... SciPy in action, please be patient.  ')
+        else:
+            self.statusBar().showMessage('Minimizing TTV parameters.... SciPy in action, please be patient. ')
+
+        self.check_ttv_params()
+        self.set_tra_ld()
+        self.check_bounds()
+        self.check_priors_nr()   
+        self.check_priors_jeff()   
+        self.check_scipy_min()
+
+        worker_ttv = Worker(lambda:  self.ttv_fit(ff=ff ) )# Any other args, kwargs are passed to the run  
+ 
+        worker_ttv.signals.finished.connect(self.worker_ttv_fitting_complete)
+        
+        # worker.signals.result.connect(self.print_output)
+        #worker.signals.finished.connect(self.thread_complete)
+       # worker.signals.progress.connect(self.progress_fn)
+        self.threadpool.start(worker_ttv)
+
+
+    def ttv_fit(self, ff=0 ):
+        global fit
+
+        if ff ==0:
+            fit.init_fit = True
+        else:
+            fit.init_fit = False
+
+        rv.run_SciPyOp(fit)
+
+
+    def check_ttv_params(self):
+        global fit
+
+        fit.epoch_ttv = self.Epoch_ttv.value()
+        fit.ttv_dt = self.time_step_model_ttv.value() 
+        fit.epoch_ttv_end = self.Epoch_ttv_end.value()
+        
+        fit.ttv_times = [fit.epoch_ttv,fit.ttv_dt,fit.epoch_ttv_end]
+
+
     def worker_Nbody_complete(self):
         global fit, colors, p13, p14, p15  
           
@@ -4552,8 +4588,6 @@ Transit duration: %s d
         
         if minimize_fortran==False:
             ff = 0 
-            
-      #  print(ff)   
 
         if m_ln == True and doGP == False:
            # if ff > 0:        
@@ -4670,10 +4704,6 @@ Transit duration: %s d
 This module is experimental and under construction. TTVs and TTVs+RV modeling was 
 successfully tested on several exoplanet systems, but you must consider the notes below:
 
-
-* Currently, the TTV (+RV) modeling works well only with one TTV dataset. 
-
-
 * The TTV file format should be as follows (e.g.):
 
 
@@ -4729,29 +4759,32 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.16) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.17) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
         text = "\n"*15 +"CREDITS:"+"\n"*2 + "This tool uses the publically \n available packages: \n" 
         self.dialog_credits.text.append(text)
         
+        text = "* " + "<a href='https://github.com/pyqtgraph/pyqtgraph'>pyqtgraph</a>"
+        self.dialog_credits.text.append(text)
+        
         text = "* " + "<a href='https://github.com/mzechmeister/python'>GLS and MLP periogograms</a>"
         self.dialog_credits.text.append(text)
         
-        text = "* " + "<a href='https://github.com/pyqtgraph/pyqtgraph'>pyqtgraph</a>"
+        text = "* " + "<a href='https://github.com/lkreidberg/batman'>batman-package</a>" 
+        self.dialog_credits.text.append(text)
+        
+        text = "* " + "<a href='https://github.com/hippke/tls'>transitleastsquares</a>" 
         self.dialog_credits.text.append(text)
 
         text = "* " + "<a href='https://github.com/dfm/emcee'>emcee</a>" 
         self.dialog_credits.text.append(text) 
         
-        text = "* " + "<a href='https://github.com/dfm/celerite'>celerite</a>" 
-        self.dialog_credits.text.append(text)
-                                
-        text = "* " + "<a href='https://github.com/lkreidberg/batman'>batman-package</a>" 
+        text = "* " + "<a href='https://dynesty.readthedocs.io/en/latest/'>dynesty</a>" 
         self.dialog_credits.text.append(text)
         
-        text = "* " + "<a href='https://github.com/hippke/tls'>transitleastsquares</a>" 
+        text = "* " + "<a href='https://github.com/dfm/celerite'>celerite</a>" 
         self.dialog_credits.text.append(text)
         
         text = "* " + "<a href='https://github.com/mindriot101/ttvfast-python'>ttvfast-python</a>" 
@@ -4759,17 +4792,11 @@ in https://github.com/3fon3fonov/exostriker
 
         text = "* " + "<a href='https://www.boulder.swri.edu/~hal/swift.html'>swift</a>" 
         self.dialog_credits.text.append(text)
-                        
-        text = "* " + "<a href='https://github.com/jupyter/qtconsole'>qtconsole</a>"
-        self.dialog_credits.text.append(text)
 
         text = "* " + "<a href='https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor'>megasolid idiom</a>" 
         self.dialog_credits.text.append(text)  
-        
-        text = "* " + "<a href='https://dynesty.readthedocs.io/en/latest/'>dynesty</a>" 
-        self.dialog_credits.text.append(text)
 
-        text = "(A few more to be added) \n" 
+        text = "(And many 'standard' Python libraries like \n PyQt5, matplotlib, numpy, scipy, pathos, \n jupyter, qtconsole) \n" 
         self.dialog_credits.text.append(text)   
 
 
@@ -5181,7 +5208,6 @@ highly appreciated!
         else:
             ind = self.comboBox_select_ses.itemData(index) 
 
-#        print(index,ind)
         if ind == None:
             return
         else:
@@ -5201,6 +5227,8 @@ highly appreciated!
         self.update_params()
         self.update_RV_file_buttons() 
         self.update_tra_file_buttons()
+        self.update_ttv_file_buttons()
+
 
         self.update_act_file_buttons()       
         self.update_color_picker()
@@ -5368,7 +5396,6 @@ highly appreciated!
         fit.ns_save_mode=self.adopt_nest_mode_as_par.isChecked() 
         fit.ns_save_maxlnL=self.adopt_nest_best_lnL_as_pars.isChecked() 
         fit.ns_save_sampler=self.save_samples_nested_in_memory.isChecked()
-       # print(fit.ns_save_sampler,self.save_samples_nested_in_memory.isChecked())        
 
 
     def force_nest_check_box(self):
@@ -5409,7 +5436,6 @@ highly appreciated!
         
         if self.adopt_mcmc_means_as_par.isChecked() or self.adopt_best_lnL_as_pars.isChecked() or self.adopt_mcmc_mode_as_par.isChecked():
             self.init_fit()
-        #print(fit.param_errors.offset_errors)
         else:
             self.jupiter_push_vars()
 
@@ -6004,47 +6030,8 @@ Please install via 'pip install ttvfast'.
 
 
 #############################  Color control ################################  
-    def update_color_picker_tra(self):
-        global fit
 
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(False)
-        #font.setWeight(75)
-
-        for i in range(11):
-            self.buttonGroup_color_picker_tra.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
-            self.buttonGroup_color_picker_tra.button(i+1).setFont(font)
-        for i in range(10):
-            self.buttonGroup_symbol_picker_tra.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
-            self.buttonGroup_symbol_picker_tra.button(i+1).setText(fit.pyqt_symbols_tra[i])
-            self.buttonGroup_symbol_picker_tra.button(i+1).setFont(font)
-
-    def get_color_tra(self):
-        global fit
-
-        but_ind = self.buttonGroup_color_picker_tra.checkedId()
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
-
-        #QtGui.QColorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel,True)
-        #colorz = QtGui.QColorDialog.getColor()
-        #print(but_ind-1)
-        #print(fit.colors[but_ind-1])       
-        if colorz.isValid():
-            fit.tra_colors[but_ind-1]=colorz.name()
-            self.update_color_picker_tra()
-            self.update_act_file_buttons()
-            self.update_RV_file_buttons()
-            self.update_tra_file_buttons()
-            self.update_RV_plots()
-            self.update_extra_plots()
-            self.update_transit_plots()
-            #self.update_activity_data_plots()
-            #self.update_activity_gls_plots()
-        else:
-            return
-
-
+    ### RV ####
 
     def update_color_picker(self):
         global fit
@@ -6077,14 +6064,15 @@ Please install via 'pip install ttvfast'.
 
         #QtGui.QColorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel,True)
         #colorz = QtGui.QColorDialog.getColor()
-        #print(but_ind-1)
-        #print(fit.colors[but_ind-1])       
+
         if colorz.isValid():
             fit.colors[but_ind-1]=colorz.name()   #[0]+"B3"+colorz.name()[1:]
             self.update_color_picker()
             self.update_act_file_buttons()
             self.update_RV_file_buttons() 
             self.update_tra_file_buttons() 
+            self.update_ttv_file_buttons()
+
             self.update_RV_plots() 
             self.update_extra_plots()
             self.update_transit_plots() 
@@ -6093,47 +6081,101 @@ Please install via 'pip install ttvfast'.
         else:
             return
 
+    ### transit ####
+
+    def update_color_picker_tra(self):
+        global fit
+
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(False)
+        #font.setWeight(75)
+
+        for i in range(11):
+            self.buttonGroup_color_picker_tra.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
+            self.buttonGroup_color_picker_tra.button(i+1).setFont(font)
+        for i in range(10):
+            self.buttonGroup_symbol_picker_tra.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
+            self.buttonGroup_symbol_picker_tra.button(i+1).setText(fit.pyqt_symbols_tra[i])
+            self.buttonGroup_symbol_picker_tra.button(i+1).setFont(font)
+
+    def get_color_tra(self):
+        global fit
+
+        but_ind = self.buttonGroup_color_picker_tra.checkedId()
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+
+        #QtGui.QColorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel,True)
+        #colorz = QtGui.QColorDialog.getColor()
+
+        if colorz.isValid():
+            fit.tra_colors[but_ind-1]=colorz.name()
+            self.update_color_picker_tra()
+            self.update_act_file_buttons()
+            self.update_RV_file_buttons()
+            self.update_tra_file_buttons()
+            self.update_ttv_file_buttons()
+
+            self.update_RV_plots()
+            self.update_extra_plots()
+            self.update_transit_plots()
+            #self.update_activity_data_plots()
+            #self.update_activity_gls_plots()
+        else:
+            return
+
+    ### TTV ####
+
+    def update_color_picker_ttv(self):
+        global fit
+
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(False)
+        #font.setWeight(75)
+
+        for i in range(11):
+            self.buttonGroup_color_picker_ttv.button(i+1).setStyleSheet("color: %s;"%fit.ttv_colors[i])
+            self.buttonGroup_color_picker_ttv.button(i+1).setFont(font)
+        for i in range(10):
+            self.buttonGroup_symbol_picker_ttv.button(i+1).setStyleSheet("color: %s;"%fit.ttv_colors[i])
+            self.buttonGroup_symbol_picker_ttv.button(i+1).setText(fit.pyqt_symbols_ttv[i])
+            self.buttonGroup_symbol_picker_ttv.button(i+1).setFont(font)
+
+    def get_color_ttv(self):
+        global fit
+
+        but_ind = self.buttonGroup_color_picker_ttv.checkedId()
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+
+        #QtGui.QColorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel,True)
+        #colorz = QtGui.QColorDialog.getColor()
+
+        if colorz.isValid():
+            fit.ttv_colors[but_ind-1]=colorz.name()
+            self.update_color_picker_ttv()
+            self.update_act_file_buttons()
+            self.update_RV_file_buttons()
+            self.update_tra_file_buttons()
+            self.update_ttv_file_buttons()
+
+            self.update_RV_plots()
+            self.update_extra_plots()
+            self.update_transit_plots()
+            self.update_ttv_plots()
+
+            #self.update_activity_data_plots()
+            #self.update_activity_gls_plots()
+        else:
+            return
+
+
+
 
 ############################# Symbol controls ################################  
 
-
-    def get_symbol_tra(self):
-        global fit
- 
-        but_ind = self.buttonGroup_symbol_picker_tra.checkedId()   
-        but_n = self.dialog_symbols.get_radio()
-            
-        if but_n != None:
-            fit.pyqt_symbols_tra[but_ind-1] = symbols[but_n-1]
-            self.update_color_picker_tra()
-            self.update_act_file_buttons()      
-            self.update_RV_file_buttons() 
-            self.update_tra_file_buttons() 
-            self.update_RV_plots() 
-            self.update_extra_plots()
-            self.update_transit_plots()     
-        else:
-            return    
-        
-    def check_tra_symbol_sizes(self):
-        global fit
-       
-       # for i in range(10):
-        fit.pyqt_symbols_size_tra[0] = self.trans_data_size_1.value()
-        fit.pyqt_symbols_size_tra[1] = self.trans_data_size_2.value()
-        fit.pyqt_symbols_size_tra[2] = self.trans_data_size_3.value()
-        fit.pyqt_symbols_size_tra[3] = self.trans_data_size_4.value()
-        fit.pyqt_symbols_size_tra[4] = self.trans_data_size_5.value()
-        fit.pyqt_symbols_size_tra[5] = self.trans_data_size_6.value()
-        fit.pyqt_symbols_size_tra[6] = self.trans_data_size_7.value()
-        fit.pyqt_symbols_size_tra[7] = self.trans_data_size_8.value()
-        fit.pyqt_symbols_size_tra[8] = self.trans_data_size_9.value()
-        fit.pyqt_symbols_size_tra[9] = self.trans_data_size_10.value()
-
-
-
-
-            
+    ### RV ####
+  
     def get_symbol(self):
         global fit
  
@@ -6169,6 +6211,83 @@ Please install via 'pip install ttvfast'.
         fit.pyqt_symbols_size_rvs[7] = self.rv_data_size_8.value()
         fit.pyqt_symbols_size_rvs[8] = self.rv_data_size_9.value()
         fit.pyqt_symbols_size_rvs[9] = self.rv_data_size_10.value()
+
+
+
+    ### Transit ###
+
+    def get_symbol_tra(self):
+        global fit
+ 
+        but_ind = self.buttonGroup_symbol_picker_tra.checkedId()   
+        but_n = self.dialog_symbols.get_radio()
+            
+        if but_n != None:
+            fit.pyqt_symbols_tra[but_ind-1] = symbols[but_n-1]
+            self.update_color_picker_tra()
+            self.update_act_file_buttons()      
+            self.update_RV_file_buttons() 
+            self.update_tra_file_buttons() 
+            self.update_RV_plots() 
+            self.update_extra_plots()
+            self.update_transit_plots()     
+        else:
+            return    
+        
+    def check_tra_symbol_sizes(self):
+        global fit
+       
+       # for i in range(10):
+        fit.pyqt_symbols_size_tra[0] = self.trans_data_size_1.value()
+        fit.pyqt_symbols_size_tra[1] = self.trans_data_size_2.value()
+        fit.pyqt_symbols_size_tra[2] = self.trans_data_size_3.value()
+        fit.pyqt_symbols_size_tra[3] = self.trans_data_size_4.value()
+        fit.pyqt_symbols_size_tra[4] = self.trans_data_size_5.value()
+        fit.pyqt_symbols_size_tra[5] = self.trans_data_size_6.value()
+        fit.pyqt_symbols_size_tra[6] = self.trans_data_size_7.value()
+        fit.pyqt_symbols_size_tra[7] = self.trans_data_size_8.value()
+        fit.pyqt_symbols_size_tra[8] = self.trans_data_size_9.value()
+        fit.pyqt_symbols_size_tra[9] = self.trans_data_size_10.value()
+
+
+    ### TTV ####
+
+    def get_symbol_ttv(self):
+        global fit
+ 
+        but_ind = self.buttonGroup_symbol_picker_ttv.checkedId()   
+        but_n = self.dialog_symbols.get_radio()
+            
+        if but_n != None:
+            fit.pyqt_symbols_ttv[but_ind-1] = symbols[but_n-1]
+            self.update_color_picker_ttv()
+            self.update_act_file_buttons()      
+            self.update_RV_file_buttons() 
+            self.update_tra_file_buttons()
+            self.update_ttv_file_buttons() 
+
+            self.update_RV_plots() 
+            self.update_extra_plots()
+            self.update_transit_plots()
+            self.update_ttv_plots()
+
+        else:
+            return    
+        
+    def check_ttv_symbol_sizes(self):
+        global fit
+       
+       # for i in range(10):
+        fit.pyqt_symbols_size_ttv[0] = self.ttv_data_size_1.value()
+        fit.pyqt_symbols_size_ttv[1] = self.ttv_data_size_2.value()
+        fit.pyqt_symbols_size_ttv[2] = self.ttv_data_size_3.value()
+        fit.pyqt_symbols_size_ttv[3] = self.ttv_data_size_4.value()
+        fit.pyqt_symbols_size_ttv[4] = self.ttv_data_size_5.value()
+        fit.pyqt_symbols_size_ttv[5] = self.ttv_data_size_6.value()
+        fit.pyqt_symbols_size_ttv[6] = self.ttv_data_size_7.value()
+        fit.pyqt_symbols_size_ttv[7] = self.ttv_data_size_8.value()
+        fit.pyqt_symbols_size_ttv[8] = self.ttv_data_size_9.value()
+        fit.pyqt_symbols_size_ttv[9] = self.ttv_data_size_10.value()
 
 
 ################################## View Actions #######################################
@@ -6241,37 +6360,40 @@ Please install via 'pip install ttvfast'.
     def check_fortran_routines(self):
         
         version_kep_loglik= "0.03"        
-        result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)              
+        result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
         if flag1 == -1 or str(result1[0][0]) != version_kep_loglik:
             print("New source code available: Updating Keplerian Simplex")
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep ./lib/libswift.a', 3,output=True)             
-                       
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep', 3,output=True)             
+            result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
+
         version_kep_LM= "0.04"         
         result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)              
         if flag2 == -1 or str(result2[0][0]) != version_kep_LM:
             print("New source code available: Updating Keplerian L-M") 
-            result2, flag2 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep ./lib/libswift.a', 3,output=True)             
-                        
+            result2, flag2 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep', 3,output=True)             
+            result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)              
+
         version_dyn_loglik= "0.05"        
         result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)              
         if flag3 == -1 or str(result3[0][0]) != version_dyn_loglik:
             print("New source code available: Updating N-body Simplex")   
-            result3, flag3 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn ./lib/libswift.a', 3,output=True)             
-            
+            result3, flag3 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn', 3,output=True)             
+            result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)              
+
         version_dyn_LM= "0.05"         
-        result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)              
+        result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)
         if flag4 == -1 or str(result4[0][0]) != version_dyn_LM:
             print("New source code available: Updating N-body L-M")    
-            result4, flag4 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn ./lib/libswift.a', 3,output=True)             
-            
-        version_dyn_loglik_= "0.05"        
-        result5, flag5 = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)              
-        if flag5 == -1 or str(result5[0][0]) != version_dyn_loglik_:
-            result5, flag5 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+ ./lib/libswift.a', 3,output=True)             
-            print("New source code available: Updating Mixed Simplex")               
+            result4, flag4 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn', 3,output=True)             
+            result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)
 
-  
-    
+        version_dyn_loglik_= "0.05"        
+        result5, flag5 = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)
+        if flag5 == -1 or str(result5[0][0]) != version_dyn_loglik_:
+            print("New source code available: Updating Mixed Simplex")               
+            result5, flag5 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+', 3,output=True)             
+            result5, flag5 = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)
+
         try:
             r1 = float(result1[0][0])
             r2 = float(result2[0][0])
@@ -6290,6 +6412,9 @@ Please install via 'pip install ttvfast'.
                 
             (see README_for_installation)
             
+            If this does not help, please open a GitHub issue here:
+                
+                https://github.com/3fon3fonov/exostriker/issues
             """
             )               
 
@@ -6429,6 +6554,7 @@ Please install via 'pip install ttvfast'.
  
 #############################  TEST ZONE ################################  
 
+
     # Get variables pushed from the jupyter shell
     def get_jupyter_vars(self):
         global fit  
@@ -6474,7 +6600,7 @@ Please install via 'pip install ttvfast'.
             if len(fit.ttv_data_sets[i]) ==0:
                 continue
             else:
-                print(self.ttv_data_to_planet[i].value(),self.use_ttv_data_to_planet[i].isChecked())
+                #print(self.ttv_data_to_planet[i].value(),self.use_ttv_data_to_planet[i].isChecked())
                 fit.ttv_data_sets[i][3] = self.ttv_data_to_planet[i].value()
                 fit.ttv_data_sets[i][4] = self.use_ttv_data_to_planet[i].isChecked()
 
@@ -6815,6 +6941,8 @@ Please install via 'pip install ttvfast'.
         self.buttonGroup_activity_data.buttonClicked.connect(self.showDialog_act_input_file)
         self.buttonGroup_remove_activity_data.buttonClicked.connect(self.remove_act_file)     
 
+        ######## TTVs ########
+
         self.buttonGroup_ttv_data.buttonClicked.connect(self.showDialog_ttv_input_file)
         self.buttonGroup_remove_ttv_data.buttonClicked.connect(self.remove_ttv_file)
         self.buttonGroup_use_ttv_data_to_planet.buttonClicked.connect(self.ttv_dataset_to_planet)
@@ -6830,6 +6958,9 @@ Please install via 'pip install ttvfast'.
         self.ttv_data_planet_9.valueChanged.connect(self.ttv_dataset_to_planet)
         self.ttv_data_planet_10.valueChanged.connect(self.ttv_dataset_to_planet)
 
+        self.ttv_pl_combo()
+        self.ttv_comboBox_pl.activated.connect(self.update_ttv_plots)
+        self.ttv_o_c_comboBox_pl.activated.connect(self.update_ttv_plots)
 
 
         self.buttonGroup_transit_data.buttonClicked.connect(self.showDialog_tra_input_file)
@@ -6936,6 +7067,7 @@ Please install via 'pip install ttvfast'.
         self.per_evol_comboBox_pl_1.activated.connect(self.plot_per_rat)
         self.per_evol_comboBox_pl_2.activated.connect(self.plot_per_rat)
         
+ 
         self.plot_i.toggled.connect(self.plot_i_Om)
         self.plot_Om.toggled.connect(self.plot_i_Om)
         #self.radioButton_Omega_no_fold.toggled.connect(self.plot_i_Om)
@@ -6979,7 +7111,7 @@ Please install via 'pip install ttvfast'.
         self.RV_model_z.valueChanged.connect(self.update_extra_plots)    
         
         ############### TTV plotting controll ####################      
-        self.ttv_data_size.valueChanged.connect(self.update_ttv_plots)
+        #self.ttv_data_size.valueChanged.connect(self.update_ttv_plots)
         self.ttv_model_width.valueChanged.connect(self.update_ttv_plots)
         self.ttv_model_z.valueChanged.connect(self.update_ttv_plots)
 
@@ -7083,8 +7215,8 @@ Please install via 'pip install ttvfast'.
         self.colors_alias_gls.clicked.connect(self.get_RV_GLS_alias_color)
         self.colors_alias_mlp.clicked.connect(self.get_RV_MLP_alias_color)
 
-        self.colors_ttv.clicked.connect(self.get_ttv_plot_color)
-        self.ttv_model_color.clicked.connect(self.get_ttv_model_color)
+        #self.colors_ttv.clicked.connect(self.get_ttv_plot_color)
+        #self.ttv_model_color.clicked.connect(self.get_ttv_model_color)
 
 
         self.color_delta_om.clicked.connect(self.get_delta_omega_color)
@@ -7144,14 +7276,15 @@ Please install via 'pip install ttvfast'.
         
         self.update_color_picker()
         self.buttonGroup_color_picker.buttonClicked.connect(self.get_color)
-        self.update_color_picker_tra()        
-        self.buttonGroup_color_picker_tra.buttonClicked.connect(self.get_color_tra)    
-       
+        self.update_color_picker_tra()
+        self.buttonGroup_color_picker_tra.buttonClicked.connect(self.get_color_tra)
+        self.update_color_picker_ttv()
+        self.buttonGroup_color_picker_ttv.buttonClicked.connect(self.get_color_ttv)
   
         self.dialog_symbols = show_symbols(self)
         self.buttonGroup_symbol_picker.buttonClicked.connect(self.get_symbol) 
         self.buttonGroup_symbol_picker_tra.buttonClicked.connect(self.get_symbol_tra) 
-        
+        self.buttonGroup_symbol_picker_ttv.buttonClicked.connect(self.get_symbol_ttv) 
         
         self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)   
         self.buttonGroup_use_tra_GP_kernel.buttonClicked.connect(self.set_tra_GP)
@@ -7204,20 +7337,22 @@ Please install via 'pip install ttvfast'.
         self.check_fortran_routines()
 
         if start_arg_ses == True:
-            self.update_bounds()            
-            self.init_fit()                
-            self.update_use_from_input_file()   
+            self.update_bounds()
+            self.init_fit()
+            self.update_use_from_input_file()
             self.update_use()
             self.update_gui_params()
             self.update_params()
             self.update_RV_file_buttons()
-            self.update_tra_file_buttons()            
+            self.update_tra_file_buttons()
             self.update_act_file_buttons()
+            self.update_ttv_file_buttons()
+
             self.fit_dispatcher(init=True)  
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.16). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.17). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)

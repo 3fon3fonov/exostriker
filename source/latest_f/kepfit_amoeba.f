@@ -1006,3 +1006,341 @@ c*******expectively.
 
 
 
+***********************************************************************
+c                    ORBEL_EHYBRID.F
+***********************************************************************
+*     PURPOSE:  Solves Kepler's eqn.   e is ecc.   m is mean anomaly.
+*
+*             Input:
+*                           e ==> eccentricity anomaly. (real scalar)
+*                           m ==> mean anomaly. (real scalar)
+*             Returns:
+*              orbel_ehybrid ==>  eccentric anomaly. (real scalar)
+*
+*     ALGORITHM: For e < 0.18 uses fast routine ESOLMD 
+*	         For larger e but less than 0.8, uses EGET
+*	         For e > 0.8 uses EHIE
+*     REMARKS: Only EHIE brings M and E into range (0,TWOPI)
+*     AUTHOR: M. Duncan 
+*     DATE WRITTEN: May 25,1992.
+*     REVISIONS: 2/26/93 hfl
+***********************************************************************
+
+	real*8 function orbel_ehybrid(e,m)
+
+    include 'swift_loglik_Jakub.inc'
+
+
+c...  Inputs Only: 
+	real*8 e,m
+
+c...  Internals:
+	real*8 orbel_esolmd,orbel_eget,orbel_ehie
+
+c----
+c...  Executable code 
+
+	if(e .lt. 0.18d0) then
+	  orbel_ehybrid = orbel_esolmd(e,m)
+	else 
+	  if( e .le. 0.8d0) then
+	     orbel_ehybrid = orbel_eget(e,m)
+	  else
+	     orbel_ehybrid = orbel_ehie(e,m)
+	  endif
+	endif   
+
+	return
+	end     ! orbel_ehybrid
+
+c--------------------------------------------------------------------
+
+
+
+***********************************************************************
+c                    ORBEL_EHIE.F
+***********************************************************************
+*     PURPOSE:  Solves Kepler's eqn.   e is ecc.   m is mean anomaly.
+*
+*             Input:
+*                           e ==> eccentricity anomaly. (real scalar)
+*                           m ==> mean anomaly. (real scalar)
+*             Returns:
+*              orbel_ehybrid ==>  eccentric anomaly. (real scalar)
+*
+*     ALGORITHM: Use Danby's quartic for 3 iterations. 
+*                Eqn. is f(x) = x - e*sin(x+M). Note  that
+*	         E = x + M. First guess is very good for e near 1.
+*	         Need to first get M between 0. and PI and use
+*		 symmetry to return right answer if M between PI and 2PI
+*     REMARKS: Modifies M so that both E and M are in range (0,TWOPI)
+*     AUTHOR: M. Duncan 
+*     DATE WRITTEN: May 25,1992.
+*     REVISIONS: 
+***********************************************************************
+
+      real*8 function orbel_ehie(e,m)
+
+    include 'swift_loglik_Jakub.inc'
+
+
+c...  Inputs Only: 
+	real*8 e,m
+
+c...  Internals:
+      integer iflag,nper,niter,NMAX
+      real*8 dx,x,sa,ca,esa,eca,f,fp
+
+      parameter (NMAX = 3)
+
+c----
+c...  Executable code 
+
+c In this section, bring M into the range (0,TWOPI) and if
+c the result is greater than PI, solve for (TWOPI - M).
+	iflag = 0
+	nper = m/TWOPI
+	m = m - nper*TWOPI
+	if (m .lt. 0.d0) m = m + TWOPI
+
+	if (m.gt.PI) then
+	   m = TWOPI - m
+	   iflag = 1
+	endif
+
+c Make a first guess that works well for e near 1.
+	x = (6.d0*m)**(1.d0/3.d0) - m
+	niter =0
+
+c Iteration loop
+	do niter =1,NMAX
+	    call orbel_scget(x + m,sa,ca)
+	    esa = e*sa
+	    eca = e*ca
+	    f = x - esa
+	    fp = 1.d0 -eca
+	    dx = -f/fp
+	    dx = -f/(fp + 0.5d0*dx*esa)
+	    dx = -f/(fp + 0.5d0*dx*(esa+0.3333333333333333d0*eca*dx))
+	    x = x + dx
+	enddo
+
+	orbel_ehie = m + x
+
+	if (iflag.eq.1) then
+	  orbel_ehie = TWOPI - orbel_ehie
+	  m = TWOPI - m
+	endif
+
+	return
+	end         !orbel_ehie
+c------------------------------------------------------------------
+
+
+***********************************************************************
+c	                  ORBEL_SCGET.F
+***********************************************************************
+*     PURPOSE:  Given an angle, efficiently compute sin and cos.
+*
+*        Input:
+*             angle ==> angle in radians (real scalar)
+*        
+*        Output:
+*             sx    ==>  sin(angle)  (real scalar)
+*             cx    ==>  cos(angle)  (real scalar)
+*
+*     ALGORITHM: Obvious from the code 
+*     REMARKS: The HP 700 series won't return correct answers for sin
+*       and cos if the angle is bigger than 3e7. We first reduce it
+*       to the range [0,2pi) and use the sqrt rather than cos (it's faster)
+*       BE SURE THE ANGLE IS IN RADIANS - NOT DEGREES!
+*     AUTHOR:  M. Duncan.
+*     DATE WRITTEN:  May 6, 1992.
+*     REVISIONS: 
+***********************************************************************
+
+	subroutine orbel_scget(angle,sx,cx)
+
+    include 'swift_loglik_Jakub.inc'
+
+
+c...  Inputs Only: 
+        real*8 angle
+
+c...  Output:
+	real*8 sx,cx
+
+c... Internals:
+	integer nper
+	real*8 x
+	real*8 PI3BY2
+	parameter(PI3BY2 = 1.5d0*PI)
+
+c----
+c...  Executable code 
+
+        nper = angle/TWOPI
+	x = angle - nper*TWOPI
+	if(x.lt.0.d0) then
+           x = x + TWOPI
+        endif
+	sx = sin(x)
+	cx= sqrt(1.d0 - sx*sx)
+	if( (x .gt. PIBY2) .and. (x .lt.PI3BY2)) then
+           cx = -cx
+        endif
+
+	return
+	end   ! orbel_scget
+c-------------------------------------------------------------------
+
+
+
+
+***********************************************************************
+c                    ORBEL_EGET.F
+***********************************************************************
+*     PURPOSE:  Solves Kepler's eqn.   e is ecc.   m is mean anomaly.
+*
+*             Input:
+*                           e ==> eccentricity anomaly. (real scalar)
+*                           m ==> mean anomaly. (real scalar)
+*             Returns:
+*                  orbel_eget ==>  eccentric anomaly. (real scalar)
+*
+*     ALGORITHM: Quartic convergence from Danby
+*     REMARKS: For results very near roundoff, give it M between
+*           0 and 2*pi. One can condition M before calling EGET
+*           by calling my double precision function MOD2PI(M). 
+*           This is not done within the routine to speed it up
+*           and because it works fine even for large M.
+*     AUTHOR: M. Duncan 
+*     DATE WRITTEN: May 7, 1992.
+*     REVISIONS: May 21, 1992.  Now have it go through EXACTLY two iterations
+*                with the premise that it will only be called if
+*	         we have an ellipse with e between 0.15 and 0.8
+***********************************************************************
+
+	real*8 function orbel_eget(e,m)
+
+    include 'swift_loglik_Jakub.inc'
+
+
+c...  Inputs Only: 
+	real*8 e,m
+
+c...  Internals:
+	real*8 x,sm,cm,sx,cx
+	real*8 es,ec,f,fp,fpp,fppp,dx
+
+c----
+c...  Executable code 
+
+c Function to solve Kepler's eqn for E (here called
+c x) for given e and M. returns value of x.
+c MAY 21 : FOR e < 0.18 use ESOLMD for speed and sufficient accuracy
+c MAY 21 : FOR e > 0.8 use EHIE - this one may not converge fast enough.
+
+	  call orbel_scget(m,sm,cm)
+
+c  begin with a guess accurate to order ecc**3	
+	  x = m + e*sm*( 1.d0 + e*( cm + e*( 1.d0 -1.5d0*sm*sm)))
+
+c  Go through one iteration for improved estimate
+	  call orbel_scget(x,sx,cx)
+	  es = e*sx
+	  ec = e*cx
+	  f = x - es  - m
+	  fp = 1.d0 - ec 
+	  fpp = es 
+	  fppp = ec 
+	  dx = -f/fp
+	  dx = -f/(fp + dx*fpp/2.d0)
+	  dx = -f/(fp + dx*fpp/2.d0 + dx*dx*fppp/6.d0)
+	  orbel_eget = x + dx
+
+c Do another iteration.
+c For m between 0 and 2*pi this seems to be enough to
+c get near roundoff error for eccentricities between 0 and 0.8
+
+	  x = orbel_eget
+	  call orbel_scget(x,sx,cx)
+	  es = e*sx
+	  ec = e*cx
+	  f = x - es  - m
+	  fp = 1.d0 - ec 
+	  fpp = es 
+	  fppp = ec 
+	  dx = -f/fp
+	  dx = -f/(fp + dx*fpp/2.d0)
+	  dx = -f/(fp + dx*fpp/2.d0 + dx*dx*fppp/6.d0)
+
+	  orbel_eget = x + dx
+
+	return
+	end  ! orbel_eget
+c---------------------------------------------------------------------
+
+
+
+***********************************************************************
+c                    ORBEL_ESOLMD.F
+***********************************************************************
+*     PURPOSE:  Solves Kepler's eqn.   e is ecc.   m is mean anomaly.
+*
+*             Input:
+*                           e ==> eccentricity anomaly. (real scalar)
+*                           m ==> mean anomaly. (real scalar)
+*             Returns:
+*                orbel_esolmd ==>  eccentric anomaly. (real scalar)
+*
+*     ALGORITHM: Some sort of quartic convergence from Wisdom. 
+*     REMARKS: ONLY GOOD FOR SMALL ECCENTRICITY SINCE IT ONLY
+*         ITERATES ONCE. (GOOD FOR PLANET CALCS.)
+*      	  ALSO DOES NOT PUT M OR E BETWEEN 0. AND 2*PI 
+*     INCLUDES: needs SCGET.F
+*     AUTHOR: M. Duncan 
+*     DATE WRITTEN: May 7, 1992.
+*     REVISIONS: 2/26/93 hfl
+***********************************************************************
+
+	real*8 function orbel_esolmd(e,m)
+
+    include 'swift_loglik_Jakub.inc'
+
+
+c...  Inputs Only: 
+      real*8 e,m
+
+c...  Internals:
+	real*8 x,sm,cm,sx,cx
+	real*8 es,ec,f,fp,fpp,fppp,dx
+
+c----
+c...  Executable code 
+
+c...    Function to solve Kepler's eqn for E (here called
+c...    x) for given e and M. returns value of x.
+
+	  call orbel_scget(m,sm,cm)
+	  x = m + e*sm*( 1.d0 + e*( cm + e*( 1.d0 -1.5d0*sm*sm)))
+
+	  call orbel_scget(x,sx,cx)
+	  es = e*sx
+	  ec = e*cx
+	  f = x - es  - m
+	  fp = 1.d0 - ec 
+	  fpp = es 
+	  fppp = ec 
+	  dx = -f/fp
+	  dx = -f/(fp + dx*fpp/2.d0)
+	  dx = -f/(fp + dx*fpp/2.d0 + dx*dx*fppp/6.d0)
+
+	  orbel_esolmd = x + dx
+
+	return   ! orbel_esolmd
+	end
+c--------------------------------------------------------------------
+
+
+
