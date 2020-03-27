@@ -753,11 +753,58 @@
              <attribute name="title">
               <string>TTVs</string>
              </attribute>
-             <layout class="QGridLayout" name="gridLayout_335">
+             <layout class="QGridLayout" name="gridLayout_263">
               <item row="0" column="0">
                <layout class="QGridLayout" name="gridLayout_336">
                 <item row="0" column="0">
                  <widget class="PlotWidget" name="graphicsView_timeseries_ttv"/>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="0">
+               <layout class="QGridLayout" name="gridLayout_248">
+                <item row="0" column="3">
+                 <spacer name="horizontalSpacer_154">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QComboBox" name="ttv_comboBox_pl"/>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QPushButton" name="ttv_print_info">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>print info</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QCheckBox" name="ttv_plot_cross_hair">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>cross hair</string>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -767,11 +814,58 @@
              <attribute name="title">
               <string>TTVs o-c</string>
              </attribute>
-             <layout class="QGridLayout" name="gridLayout_342">
+             <layout class="QGridLayout" name="gridLayout_312">
               <item row="0" column="0">
                <layout class="QGridLayout" name="gridLayout_341">
                 <item row="0" column="0">
                  <widget class="PlotWidget" name="graphicsView_timeseries_ttv_o_c"/>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="0">
+               <layout class="QGridLayout" name="gridLayout_283">
+                <item row="0" column="0">
+                 <widget class="QPushButton" name="ttv_o_c_print_info">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>print info</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QComboBox" name="ttv_o_c_comboBox_pl"/>
+                </item>
+                <item row="0" column="3">
+                 <spacer name="horizontalSpacer_155">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QCheckBox" name="ttv_o_c_plot_cross_hair">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string> cross hair</string>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -40286,7 +40380,7 @@
                          <string>first RV</string>
                         </property>
                         <property name="checked">
-                         <bool>true</bool>
+                         <bool>false</bool>
                         </property>
                        </widget>
                       </item>
@@ -46500,6 +46594,9 @@
                 <property name="rightMargin">
                  <number>6</number>
                 </property>
+                <property name="horizontalSpacing">
+                 <number>4</number>
+                </property>
                 <property name="verticalSpacing">
                  <number>1</number>
                 </property>
@@ -47005,7 +47102,7 @@
                  <widget class="QLabel" name="label_103">
                   <property name="font">
                    <font>
-                    <pointsize>9</pointsize>
+                    <pointsize>8</pointsize>
                    </font>
                   </property>
                   <property name="text">
@@ -47017,11 +47114,11 @@
                  <widget class="QLabel" name="label_104">
                   <property name="font">
                    <font>
-                    <pointsize>9</pointsize>
+                    <pointsize>8</pointsize>
                    </font>
                   </property>
                   <property name="text">
-                   <string>Data Symbol </string>
+                   <string>Data symbol </string>
                   </property>
                  </widget>
                 </item>
@@ -47029,11 +47126,11 @@
                  <widget class="QLabel" name="label_105">
                   <property name="font">
                    <font>
-                    <pointsize>9</pointsize>
+                    <pointsize>8</pointsize>
                    </font>
                   </property>
                   <property name="text">
-                   <string>Data Color</string>
+                   <string>Data color</string>
                   </property>
                  </widget>
                 </item>
@@ -47456,6 +47553,9 @@
                 <property name="rightMargin">
                  <number>6</number>
                 </property>
+                <property name="horizontalSpacing">
+                 <number>4</number>
+                </property>
                 <property name="verticalSpacing">
                  <number>1</number>
                 </property>
@@ -47829,11 +47929,11 @@
                  <widget class="QLabel" name="label_285">
                   <property name="font">
                    <font>
-                    <pointsize>9</pointsize>
+                    <pointsize>8</pointsize>
                    </font>
                   </property>
                   <property name="text">
-                   <string>Tran. data symbol size</string>
+                   <string>Tran. symb.size</string>
                   </property>
                  </widget>
                 </item>
@@ -47841,11 +47941,11 @@
                  <widget class="QLabel" name="label_286">
                   <property name="font">
                    <font>
-                    <pointsize>9</pointsize>
+                    <pointsize>8</pointsize>
                    </font>
                   </property>
                   <property name="text">
-                   <string>data Symbol </string>
+                   <string>Data symbol </string>
                   </property>
                  </widget>
                 </item>
@@ -47853,11 +47953,11 @@
                  <widget class="QLabel" name="label_287">
                   <property name="font">
                    <font>
-                    <pointsize>9</pointsize>
+                    <pointsize>8</pointsize>
                    </font>
                   </property>
                   <property name="text">
-                   <string>data Color</string>
+                   <string>Data color</string>
                   </property>
                  </widget>
                 </item>
@@ -48341,6 +48441,805 @@
               </item>
               <item row="1" column="0">
                <layout class="QGridLayout" name="gridLayout_147"/>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tab_158">
+             <attribute name="title">
+              <string>TTVs</string>
+             </attribute>
+             <layout class="QGridLayout" name="gridLayout_242">
+              <item row="2" column="2">
+               <spacer name="verticalSpacer_106">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>152</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="2">
+               <layout class="QGridLayout" name="gridLayout_364" rowstretch="0,0,0,0,0,0">
+                <item row="2" column="0" rowspan="2">
+                 <widget class="QLabel" name="label_438">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Model color</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_437">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Model width</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_441">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Model z (plot order)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1" rowspan="2" colspan="2">
+                 <widget class="QPushButton" name="ttv_model_color">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>color</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_color_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="1" column="1" colspan="2">
+                 <widget class="QDoubleSpinBox" name="ttv_model_z">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>0</number>
+                  </property>
+                  <property name="minimum">
+                   <double>-100.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>100.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1" colspan="2">
+                 <widget class="QDoubleSpinBox" name="ttv_model_width">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QCheckBox" name="ttv_plot_autorange">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Auto range</string>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QCheckBox" name="ttv_apply_mean_period">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Adopt mean transit period</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="2" column="1">
+               <spacer name="verticalSpacer_105">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>158</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="0" rowspan="3">
+               <layout class="QGridLayout" name="gridLayout_307">
+                <property name="verticalSpacing">
+                 <number>3</number>
+                </property>
+                <item row="3" column="1">
+                 <widget class="QPushButton" name="ttv_symbol_3">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>symbol 3</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_symbol_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="8" column="0">
+                 <widget class="QDoubleSpinBox" name="ttv_data_size_8">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <double>4.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="0">
+                 <widget class="QDoubleSpinBox" name="ttv_data_size_10">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <double>4.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="0">
+                 <widget class="QDoubleSpinBox" name="ttv_data_size_7">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <double>4.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QPushButton" name="ttv_color_1">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>color 1</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_color_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QDoubleSpinBox" name="ttv_data_size_1">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <double>4.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QPushButton" name="ttv_symbol_1">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>symbol 1</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_symbol_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QPushButton" name="ttv_symbol_4">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>symbol 4</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_symbol_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="10" column="1">
+                 <widget class="QPushButton" name="ttv_symbol_10">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>symbol 10</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_symbol_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="6" column="1">
+                 <widget class="QPushButton" name="ttv_symbol_6">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>symbol 6</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_symbol_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="7" column="1">
+                 <widget class="QPushButton" name="ttv_symbol_7">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>symbol 7</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_symbol_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QDoubleSpinBox" name="ttv_data_size_4">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <double>4.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="0">
+                 <widget class="QDoubleSpinBox" name="ttv_data_size_9">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <double>4.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1">
+                 <widget class="QPushButton" name="ttv_symbol_5">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>symbol 5</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_symbol_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QDoubleSpinBox" name="ttv_data_size_2">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <double>4.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QDoubleSpinBox" name="ttv_data_size_3">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <double>4.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0">
+                 <widget class="QDoubleSpinBox" name="ttv_data_size_6">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <double>4.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QDoubleSpinBox" name="ttv_data_size_5">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <double>4.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="1">
+                 <widget class="QPushButton" name="ttv_symbol_9">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>symbol 9</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_symbol_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QPushButton" name="ttv_symbol_2">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>symbol 2</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_symbol_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="8" column="1">
+                 <widget class="QPushButton" name="ttv_symbol_8">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>symbol 8</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_symbol_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_394">
+                  <property name="font">
+                   <font>
+                    <pointsize>8</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>TTV data data </string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="label_414">
+                  <property name="font">
+                   <font>
+                    <pointsize>8</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Data symbol </string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QLabel" name="label_422">
+                  <property name="font">
+                   <font>
+                    <pointsize>8</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Data color</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QPushButton" name="ttv_color_2">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>color 2</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_color_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="3" column="2">
+                 <widget class="QPushButton" name="ttv_color_3">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>color 3</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_color_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="4" column="2">
+                 <widget class="QPushButton" name="ttv_color_4">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>color 4</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_color_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="5" column="2">
+                 <widget class="QPushButton" name="ttv_color_5">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>color 5</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_color_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="6" column="2">
+                 <widget class="QPushButton" name="ttv_color_6">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>color 6</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_color_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="7" column="2">
+                 <widget class="QPushButton" name="ttv_color_7">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>color 7</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_color_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="8" column="2">
+                 <widget class="QPushButton" name="ttv_color_8">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>color 8</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_color_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="9" column="2">
+                 <widget class="QPushButton" name="ttv_color_9">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>color 9</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_color_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="10" column="2">
+                 <widget class="QPushButton" name="ttv_color_10">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>color 10</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_color_picker_ttv</string>
+                  </attribute>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="0" column="1">
+               <layout class="QGridLayout" name="gridLayout_315" rowstretch="0,0,0,0">
+                <property name="sizeConstraint">
+                 <enum>QLayout::SetDefaultConstraint</enum>
+                </property>
+                <property name="horizontalSpacing">
+                 <number>6</number>
+                </property>
+                <property name="verticalSpacing">
+                 <number>1</number>
+                </property>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tab_21">
+             <attribute name="title">
+              <string>Activity</string>
+             </attribute>
+             <layout class="QGridLayout" name="gridLayout_137">
+              <item row="0" column="0">
+               <layout class="QGridLayout" name="gridLayout_136">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_109">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Activity data symbol size global</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QDoubleSpinBox" name="act_data_size">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <double>4.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="0" column="1">
+               <spacer name="horizontalSpacer_42">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>419</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="1" column="0">
+               <spacer name="verticalSpacer_21">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>266</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </widget>
@@ -49079,336 +49978,6 @@
              <zorder>verticalSpacer_89</zorder>
              <zorder>horizontalSpacer_94</zorder>
              <zorder>horizontalSpacer_153</zorder>
-            </widget>
-            <widget class="QWidget" name="tab_158">
-             <attribute name="title">
-              <string>TTVs</string>
-             </attribute>
-             <layout class="QGridLayout" name="gridLayout_317">
-              <item row="0" column="0">
-               <layout class="QGridLayout" name="gridLayout_307">
-                <item row="1" column="2">
-                 <widget class="QPushButton" name="colors_ttv">
-                  <property name="text">
-                   <string>color</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QDoubleSpinBox" name="ttv_data_size">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="decimals">
-                   <number>1</number>
-                  </property>
-                  <property name="value">
-                   <double>4.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QPushButton" name="ttv_symbol_1">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>symbol</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0" colspan="3">
-                 <widget class="QLabel" name="label_394">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>TTV data symbol size/color (global)</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="0" column="1" rowspan="2">
-               <layout class="QGridLayout" name="gridLayout_315">
-                <property name="sizeConstraint">
-                 <enum>QLayout::SetDefaultConstraint</enum>
-                </property>
-                <property name="verticalSpacing">
-                 <number>1</number>
-                </property>
-                <item row="1" column="0">
-                 <widget class="QCheckBox" name="ttv_plot_cross_hair">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>TTV plot cross hair</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0">
-                 <widget class="QCheckBox" name="ttv_apply_mean_period">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Adopt mean transit period</string>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QCheckBox" name="ttv_plot_autorange">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Auto range</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QCheckBox" name="ttv_o_c_plot_cross_hair">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>TTV o-c plot cross hair</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="0" column="2" rowspan="3">
-               <layout class="QGridLayout" name="gridLayout_364" rowstretch="0,0,0,0">
-                <item row="2" column="0" rowspan="2">
-                 <widget class="QLabel" name="label_438">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Model color</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_437">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Model width</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_441">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Model z (plot order)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1" rowspan="2" colspan="2">
-                 <widget class="QPushButton" name="ttv_model_color">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>color</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1" colspan="2">
-                 <widget class="QDoubleSpinBox" name="ttv_model_z">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-100.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1" colspan="2">
-                 <widget class="QDoubleSpinBox" name="ttv_model_width">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="decimals">
-                   <number>1</number>
-                  </property>
-                  <property name="singleStep">
-                   <double>0.100000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>1.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="1" column="0" rowspan="3">
-               <spacer name="verticalSpacer_103">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>200</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="2" column="1" rowspan="2">
-               <spacer name="verticalSpacer_105">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>158</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="3" column="2">
-               <spacer name="verticalSpacer_106">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>152</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="tab_21">
-             <attribute name="title">
-              <string>Activity</string>
-             </attribute>
-             <layout class="QGridLayout" name="gridLayout_137">
-              <item row="0" column="0">
-               <layout class="QGridLayout" name="gridLayout_136">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_109">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Activity data symbol size global</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QDoubleSpinBox" name="act_data_size">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="decimals">
-                   <number>1</number>
-                  </property>
-                  <property name="value">
-                   <double>4.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="0" column="1">
-               <spacer name="horizontalSpacer_42">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>419</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="1" column="0">
-               <spacer name="verticalSpacer_21">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>266</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
             </widget>
             <widget class="QWidget" name="tab_149">
              <attribute name="title">
@@ -61308,7 +61877,7 @@
             <item row="5" column="2">
              <widget class="QPushButton" name="Button_ttv_data_5">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="minimumSize">
                <size>
@@ -61345,7 +61914,7 @@
             <item row="3" column="1">
              <widget class="QPushButton" name="remove_ttv_data_3">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -61384,7 +61953,7 @@
             <item row="9" column="1">
              <widget class="QPushButton" name="remove_ttv_data_9">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -61459,7 +62028,7 @@
             <item row="4" column="1">
              <widget class="QPushButton" name="remove_ttv_data_4">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -61498,7 +62067,7 @@
             <item row="2" column="1">
              <widget class="QPushButton" name="remove_ttv_data_2">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -61571,7 +62140,7 @@
             <item row="6" column="2">
              <widget class="QPushButton" name="Button_ttv_data_6">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="minimumSize">
                <size>
@@ -61608,7 +62177,7 @@
             <item row="9" column="2">
              <widget class="QPushButton" name="Button_ttv_data_9">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="minimumSize">
                <size>
@@ -61645,7 +62214,7 @@
             <item row="8" column="2">
              <widget class="QPushButton" name="Button_ttv_data_8">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="minimumSize">
                <size>
@@ -61682,7 +62251,7 @@
             <item row="4" column="2">
              <widget class="QPushButton" name="Button_ttv_data_4">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="minimumSize">
                <size>
@@ -61719,7 +62288,7 @@
             <item row="7" column="1">
              <widget class="QPushButton" name="remove_ttv_data_7">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -61758,7 +62327,7 @@
             <item row="2" column="2">
              <widget class="QPushButton" name="Button_ttv_data_2">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="minimumSize">
                <size>
@@ -61795,7 +62364,7 @@
             <item row="8" column="1">
              <widget class="QPushButton" name="remove_ttv_data_8">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -61834,7 +62403,7 @@
             <item row="3" column="2">
              <widget class="QPushButton" name="Button_ttv_data_3">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="minimumSize">
                <size>
@@ -61871,7 +62440,7 @@
             <item row="7" column="2">
              <widget class="QPushButton" name="Button_ttv_data_7">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="minimumSize">
                <size>
@@ -61908,7 +62477,7 @@
             <item row="10" column="1">
              <widget class="QPushButton" name="remove_ttv_data_10">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -61947,7 +62516,7 @@
             <item row="6" column="1">
              <widget class="QPushButton" name="remove_ttv_data_6">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -61986,7 +62555,7 @@
             <item row="5" column="1">
              <widget class="QPushButton" name="remove_ttv_data_5">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -62025,7 +62594,7 @@
             <item row="10" column="2">
              <widget class="QPushButton" name="Button_ttv_data_10">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="minimumSize">
                <size>
@@ -62303,7 +62872,7 @@
                <string/>
               </property>
               <property name="checked">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">buttonGroup_use_ttv_data_to_planet</string>
@@ -62322,7 +62891,7 @@
                <string/>
               </property>
               <property name="checked">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">buttonGroup_use_ttv_data_to_planet</string>
@@ -62341,7 +62910,7 @@
                <string/>
               </property>
               <property name="checked">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">buttonGroup_use_ttv_data_to_planet</string>
@@ -62360,7 +62929,7 @@
                <string/>
               </property>
               <property name="checked">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">buttonGroup_use_ttv_data_to_planet</string>
@@ -62379,7 +62948,7 @@
                <string/>
               </property>
               <property name="checked">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">buttonGroup_use_ttv_data_to_planet</string>
@@ -62398,7 +62967,7 @@
                <string/>
               </property>
               <property name="checked">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">buttonGroup_use_ttv_data_to_planet</string>
@@ -62417,7 +62986,7 @@
                <string/>
               </property>
               <property name="checked">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">buttonGroup_use_ttv_data_to_planet</string>
@@ -62436,7 +63005,7 @@
                <string/>
               </property>
               <property name="checked">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">buttonGroup_use_ttv_data_to_planet</string>
@@ -62455,7 +63024,7 @@
                <string/>
               </property>
               <property name="checked">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">buttonGroup_use_ttv_data_to_planet</string>
@@ -76922,79 +77491,81 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
-  <buttongroup name="buttonGroup_Omega_fold"/>
-  <buttongroup name="buttonGroup_AMD_satb_NS"/>
-  <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_use_ld_3"/>
-  <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_transit_data"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_apply_tra_data_options"/>
-  <buttongroup name="buttonGroup_use_ld_1"/>
   <buttongroup name="buttonGroup_nest_stat_dyn"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_color_picker"/>
-  <buttongroup name="buttonGroup_mixed_fitting">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
   <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
-  <buttongroup name="buttonGroup_apply_rv_data_options"/>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
-  <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_use_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_5"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
+  <buttongroup name="buttonGroup_apply_act_data_options"/>
   <buttongroup name="buttonGroup_remove_RV_data"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
-  <buttongroup name="buttonGroup_theta_fold"/>
   <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_remove_activity_data"/>
+  <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_apply_tra_data_options"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_apply_rv_data_options"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_theta_fold"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_use_ld_10"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
   <buttongroup name="buttonGroup_use_RV_GP_kernel">
    <property name="exclusive">
     <bool>true</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_use_ld_2"/>
-  <buttongroup name="buttonGroup_remove_ttv_data"/>
-  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_Omega_fold"/>
+  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
   <buttongroup name="buttonGroup_add_RV_data"/>
-  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
   <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
+  <buttongroup name="buttonGroup_color_picker"/>
   <buttongroup name="buttonGroup_use_planets">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use">
+  <buttongroup name="buttonGroup_type_fit"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_use_GP">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
   <buttongroup name="buttonGroup_activity_data"/>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_symbol_picker"/>
-  <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_use">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_mixed_fitting">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_AMD_satb_NS"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_f77_or_scipy"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
+  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
  </buttongroups>
 </ui>

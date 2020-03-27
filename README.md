@@ -17,7 +17,7 @@ What works:
 
 * RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
 * Activity index signal search via GLS periodogram.
-* Transit period search via TLS.
+* Transit signal search via TLS.
 * Keplerian and Dynamical RV modeling. 
 * Transit photometry modeling.
 * GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
@@ -25,8 +25,8 @@ What works:
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty").
 * TTVs and joint TTVs + RVs analysis.
 * RV auto-fit (RV automated planet-finder algorithm).
-* Fit for apsidal orbital precession, or apply GR precession. 
-* Instant AMD stability check for multiple planetary systems.
+* Fit for apsidal orbital precession, or apply General Relativity (GR) precession. 
+* Instant AMD stability check for multiple planetary systems (including during optimization or MCMC/Nested Sampling).
 * Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.
 * Various of minimization methods (via "SciPyOp").
 * Fully interactive, super-fast, high-quality, exportable plots.
@@ -34,12 +34,12 @@ What works:
 * Import/Export of work sessions and multi-sessions. 
 * Export plots to a matplotlib window for further customization.
 * Export ready to use LaTeX tables with best-fit parameters, errors, and statistics. 
-* Handy text editor and calculator tools.
+* Handy text-editor and calculator tools.
 * Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
 * Integrated Bash-shell (Linux only).
 * Integrated Jupyter shell.
-* Importable as a standard python library (i.e., ideal for scripting and notebooks, see "Examples").
-* Print the GUI screen into a .jpeg image (useful for sharing quick results, just like the image above).
+* Importable as a standard python library (i.e., ideal for scripting and notebooks, see "Notebook_and_script_examples").
+* Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
 
 What is to be implemented:
 
@@ -58,7 +58,6 @@ What is to be implemented:
 **for a first download, just do:**
 
 $ git clone https://github.com/3fon3fonov/exostriker  
-
 
 **then, e.g. for an Ubuntu (Debian) installation:**
 

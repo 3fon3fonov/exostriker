@@ -81,6 +81,40 @@ def ma_for_epoch(per, t_peri, epoch):
 
     return ma
 
+def mass_to_K(P,ecc,incl, pl_mass,Stellar_mass):
+
+    '''Returns the RV semi-amplitude K in m/s
+    
+    Parameters
+    ----------
+    P : float
+        Period of the planet in [d]
+    ecc : float
+        eccentricity
+    incl: float
+        inclination in [deg]
+    pl_mass: float
+        planet mass in [Msol]
+    Stellar_mass: float
+        Primary mass in [Msol]
+    
+    Returns 
+        float
+    K in [m/s]
+    -------
+    '''
+    THIRD = 1.0/3.0
+    GMSUN = 1.32712497e20
+    AU=1.49597892e11
+
+    T = P*86400.0  
+
+    K = ((2.0*np.pi*GMSUN)/T)**THIRD * (pl_mass*np.sin(np.radians(incl)) / 
+        (Stellar_mass+pl_mass)**(2.0/3.0)) * 1.0/np.sqrt(1.0-ecc**2.0)
+    
+    return K
+
+
 def find_close_elements(a, b, precision = 0.01):
     """Finds close elements in two arrays with diffrent sizes.
 

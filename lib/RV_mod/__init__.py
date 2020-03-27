@@ -388,7 +388,7 @@ def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
     return 
 
 
-def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = False , return_model = False):
+def ttvs_loglik_old(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = False , return_model = False):
 
 
     planets = []
@@ -449,6 +449,82 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = Fa
         return loglik_ttv
 
 
+
+def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = False , return_model = False):
+
+
+    planets = []
+    for i in range(npl):
+        if fit_results == False:
+            pl_mass,ap = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*i],
+                                            par[len(vel_files)*2 +7*i+1],
+                                            par[len(vel_files)*2 +7*i+2],
+                                            par[len(vel_files)*2 +7*i+3],
+                                            par[len(vel_files)*2 +7*i+4]],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
+        else:
+            pl_mass = float(fit_results.mass[i])
+        pl_params = [pl_mass/1047.70266835,
+                                            par[len(vel_files)*2 +7*i+1],
+                                            par[len(vel_files)*2 +7*i+2],
+                                            par[len(vel_files)*2 +7*i+5],
+                                            par[len(vel_files)*2 +7*i+6],
+                                            (par[len(vel_files)*2 +7*i+3]-180.0)%360.0,
+                                            (par[len(vel_files)*2 +7*i+4]+180.0)%360.0]
+        planet = ttvfast.models.Planet(*pl_params)
+        planets.append(planet)
+
+    results = ttvfast.ttvfast(planets, stellar_mass, times[0],times[1],times[2],input_flag=0)
+    result_rows = list(zip(*results['positions']))
+
+    n1   = [item[0] for item in result_rows]
+
+    loglik_ttv = 0
+
+
+    calc_data   = {kx: [] for kx in range(10)}
+    calc_model  = {kx: [] for kx in range(10)}
+
+    for x in range(10):
+        if len(ttv_files[x]) == 0 or ttv_files[x][4] == False:
+            continue
+        else:
+        
+            calc_n     = []
+            calk_tran  = []
+        
+            #n2   = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == 0])
+            #transits_calc   = np.array([item[2] for i, item in enumerate(result_rows) if n1[i] == 0])
+            n2   = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[x][3])-1])# if ttv_files[0][4] == True])
+        #    n3   = np.array([item[0] for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[0][3])-1])# if ttv_files[0][4] == True])
+            transits_calc   = np.array([item[2] for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[x][3])-1])# if ttv_files[0][4] == True])
+         
+            # A bug fix???
+            if len(n2) == 0 or max(n2) < max(ttv_files[x][0]):
+                if return_model == True:
+                    print("Number of calc. transits:",len(n2))
+                    print("Number of obs.  transits:",max(ttv_files[x][0]) )
+                    return None
+                else:
+                    return -np.inf
+                
+            for i in range(len(ttv_files[x][1])):
+        
+                calc_n.append(n2[int(ttv_files[x][0][i] -1)])
+                calk_tran.append(transits_calc[int(ttv_files[x][0][i])-1])
+        
+                sig2i_ttv = 1.0 / (ttv_files[x][2][i])**2
+                loglik_ttv += -0.5*(np.sum(((ttv_files[x][1][i] - calk_tran[i])**2 * sig2i_ttv - np.log(sig2i_ttv / 2./ np.pi))))
+        
+            n2  = n2[np.where(transits_calc > 0)]
+            transits_calc  = transits_calc[np.where(transits_calc > 0)]
+          
+        calc_data[x] = [calc_n,calk_tran,ttv_files[x][2]]
+        calc_model[x] = [n2,transits_calc]
+
+    if return_model == True:
+        return [loglik_ttv, [calc_n,calk_tran],[n2,transits_calc],calc_data,calc_model]
+    else:
+        return loglik_ttv
 
 
 
@@ -821,11 +897,13 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     tr_model = np.array([tr_mo,tr_ld], dtype=object)
     tr_params = obj.tr_params
 
-    ttv_files = []
+    #ttv_files = []
 
-    for i in range(10):
-        if len(obj.ttv_data_sets[i]) != 0:
-            ttv_files.append(obj.ttv_data_sets[i])
+   # for i in range(10):
+   #     if len(obj.ttv_data_sets[i]) != 0:
+   #         ttv_files.append(obj.ttv_data_sets[i])
+
+    ttv_files = obj.ttv_data_sets
 
 
     npl = obj.npl
@@ -1084,10 +1162,10 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.loglik     =   obj.loglik +  obj.transit_results[0]
     elif obj.type_fit["RV"] == True and obj.type_fit["TTV"] == True:
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
-        ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass, obj.ttv_times,obj.fit_results, return_model = False)
+        ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass, obj.ttv_times,obj.fit_results, return_model = False)
         obj.loglik     =   obj.loglik +  ttv_loglik
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == True:
-        ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,obj.ttv_times,obj.fit_results, return_model = False)
+        ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass,obj.ttv_times,obj.fit_results, return_model = False)
         obj.loglik     =  ttv_loglik
 
 
@@ -2695,7 +2773,10 @@ class signal_fit(object):
         ttv_N        = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
         ttv_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
         ttv_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-        ttv_data_set = np.array([ttv_N,ttv_data,ttv_data_sig,planet,use])
+        
+        ttv_file_name = file_from_path(path)
+
+        ttv_data_set = np.array([ttv_N,ttv_data,ttv_data_sig,planet,use,ttv_file_name])
 
         self.ttv_data_sets[ttv_idset] = ttv_data_set
 
