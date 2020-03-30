@@ -557,8 +557,8 @@ C**************************************************************************
      &       ,vzj(NPLMAX)
       real*8 rpl(NPLMAX),rhill(NPLMAX),deltat,epsil,t_p,t_tr
       real*8 swift_mass(NPLMAX),s_mass(NPLMAX),j_mass(NPLMAX)
-      real*4 model_max,model_min
-      real*8 wdot(NPLMAX),u_wdot(NPLMAX),best_w,best_we
+      real*4 model_max,model_min,best_w,best_we
+      real*8 wdot(NPLMAX),u_wdot(NPLMAX)      
       
       parameter (AU=1.49597892d11, day = 86400.d0)
 
@@ -674,7 +674,7 @@ c             a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
 
 
         write (*,*) 'Best-fit K [m/s], P [days], e, w [deg], 
-     & M0 [deg], i[deg], cap0m[deg], w dot [deg/yr], and their errors'
+     &                M0 [deg], i[deg], cap0m[deg] and their errors'
           do j = 1,npl
               i = 7*(j-1)
       
@@ -684,8 +684,8 @@ c             a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
               else    
                   best_w = a(i+4) 
                   best_we = dsqrt(covar(i+4,i+4)) 
-              endif
-              
+              endif    
+
 c             a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
 c              a(i+2) = a(i+2)/8.64d4
 
@@ -712,18 +712,18 @@ c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
               write (*,*) dsqrt(covar(i,i))
           enddo   
       
-          write (*,*) 'Jitters for each data set:'
+          write (*,*) 'Jitters for each dataset:'
           do j = 1,ndset
               write (*,*) a(7*npl+ndset+j)
               write (*,*) '0'
           enddo 
        
-          write (*,*) 'linear trend [m/s per day]:'
+          write (*,*) 'linear trend  [m/s per day]:'
           write (*,*) a(7*npl + 2*ndset + 1)
           write (*,*) dsqrt(covar(7*npl + 2*ndset + 1,
      &                7*npl + 2*ndset + 1))
      
-          write (*,*) 'quad. trend [m/s per day]:'
+          write (*,*) 'quad. trend  [m/s per day]:'
           write (*,*) a(7*npl + 2*ndset + 2)
           write (*,*) dsqrt(covar(7*npl + 2*ndset + 2,
      &                7*npl + 2*ndset + 2))     

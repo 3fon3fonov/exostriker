@@ -30,7 +30,7 @@ ccc   The final version will be available in the Python RVMod lib.
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
 
-      version = "0.05"
+      version = "0.06"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -55,16 +55,27 @@ c      write(*,*) 'Stellar mass: '
       call io_read_data (ndata,t,ts,ys,sigs,jitter,
      & 	           epoch,t0,t_max,a,ia,ma,mfit,hkl,wdot,u_wdot)
 
- 
-       
+
+cccccc Hack to make it compatible with the loglik code
+c      if (amoebastarts.eq.0) then 
+c          alamda = 1.d0
+c          mfit = 0
+c          do j = 1,ma
+c              ia(j) = 1
+c              mfit = mfit + 1
+c          enddo
+c         call MRQMIN (t,ts,ys,sigs,ndata,a,ia,ma,covar,alpha,MMAX,
+c     & chisq,rvkep_ewcop_fin,alamda,loglik,jitter,epsil,deltat)
+c          goto 333
+c      endif
+
+
 c*****set alamda to be negtive for initializing******
       alamda = -1.d0
-   
       call MRQMIN (t,ts,ys,sigs,ndata,a,ia,ma,covar,alpha,MMAX,
      & chisq,rvkep_ewcop_fin,alamda,loglik,jitter,epsil,deltat)
       
 c     write(*,*) ' alamda,chi_nu^2: ',alamda,chisq/dble(ndata-mfit)
-
  
       i = 0
  500  continue
@@ -75,6 +86,8 @@ c     write(*,*) ' alamda,chi_nu^2: ',alamda,chisq/dble(ndata-mfit)
  
  
           dchisq = chisq - ochisq
+          
+c          write(*,*) chisq
 
           if ((i.eq.200).or.(alamda.ge.1d6)) then
               i = 0
@@ -114,7 +127,7 @@ c          if (alamda.gt.1d12) alamda = -1.d0
 
 
 c*******final output******************
- 333  alamda = 0.d0
+333   alamda = 0.d0
 
       call MRQMIN (t,ts,ys,sigs,ndata,a,ia,ma,covar,alpha,MMAX,
      & chisq,rvkep_ewcop_fin,alamda,loglik,jitter,epsil,deltat)
@@ -364,14 +377,12 @@ c          rms = rms + (ys(i) - ymod(i))**2
 
 
       if(writeflag_best_par.gt.0) then
+          write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
+          write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
 
-
-                write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
-                write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
-
-                write (*,*) 'Best-fit K [m/s], P [days], e, w [deg], 
-     &          M0 [deg], i[deg], cap0m[deg] and their errors'
-              do j = 1,npl
+          write (*,*) 'Best-fit K [m/s], P [days], e, w [deg], 
+     & M0 [deg], i[deg], cap0m[deg], w dot [deg/yr], and their errors'
+          do j = 1,npl
               i = 7*(j-1)
 
 
@@ -407,7 +418,7 @@ c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
        
           write (*,*) 'linear trend  [m/s per day]:'
           write (*,*) a(7*npl + ndset + 1)
-          write (*,*) dsqrt(covar(7*npl + ndset + 1,7*npl + ndset + 1))          
+          write (*,*) dsqrt(covar(7*npl + ndset + 1,7*npl + ndset + 1))
 
           write (*,*) 'quad. trend  [m/s per day]:'
           write (*,*) a(7*npl + ndset + 2)
@@ -430,13 +441,15 @@ c     &          ((4.d0*PI*PI)/(365.25*365.25))
            enddo
       
 
-           write(*,*) 'Jupiter mass'     
+           write(*,*) 'Jupiter mass'
 c           write(*,*) (j_mass(i),i=1,npl+1)
            write(*,*) (j_mass(i+1),i=1,npl) 
                     
            write (*,*) 'semi-major axes in Jacobi'
            write (*,*)  (ap(i)/1.49597892d11,i=1,npl)
-      
+      else
+           write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
+           write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
       endif
  
 
@@ -1195,17 +1208,7 @@ c        rhill(i) = ap(i-1)*(mass(i)/(3.d0*mass(1)))**0.3333333333d0
         rhill(i) = ap(i-1)*(1-a(j+3))*(mass(i)/(3.d0*mass(1)))**0.3333333333d0        
 
 
-c        if (a(j+6).lt.0.d0) a(j+6) = dmod(a(j+6)+ PI,  PI )  
-c        if (a(j+7).lt.0.d0) a(j+7) = dmod(a(j+7)+2.d0*PI,  2.d0*PI ) 
-c        if (a(j+6).gt.PI) a(j+6) = dmod(a(j+6),  PI )  
-c        if (a(j+7).gt.2.d0*PI) a(j+7) = dmod(a(j+7),  2.d0*PI ) 
 
-
-c        if (a(j+6).lt.0.d0) a(j+6) = dmod(a(j+6) + PI,  PI )  
-c        if (a(j+7).lt.0.d0) a(j+7) = dmod(a(j+7) + 2.d0*PI,  2.d0*PI ) 
-         
-c        if (a(j+6).gt.PI) a(j+6) = PI - dmod(a(j+6),  PI )  
-c        if (a(j+7).gt.2.d0*PI) a(j+7) = dmod(a(j+7),2.d0*PI)   
         
         if (a(j+3).lt.0.d0) a(j+3) = 0.000001d0 
         

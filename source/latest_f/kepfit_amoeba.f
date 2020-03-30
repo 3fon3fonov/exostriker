@@ -33,7 +33,7 @@ ccc   Trifonov et al. (in prep).
       common /DSBLK/ npl,ndset,idsmax,idset,gr_flag
 
 
-      version = "0.03"
+      version = "0.06"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -244,7 +244,7 @@ c     &           /(365.25*365.25))
               write (*,*) dsqrt(covar(i+1,i+1)),dsqrt(covar(i+2,i+2)),
      &                 dsqrt(covar(i+3,i+3)), 
      &                 best_we,
-     &                 dsqrt(covar(i+5,i+5))*180.d0/PI, 0.0, 0.0,
+     &                 dsqrt(covar(i+5,i+5))*180.d0/PI,0.d0, 0.d0,
      &                 dsqrt(covar(i+6,i+6))*180.d0/PI
 
           enddo

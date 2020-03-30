@@ -29,7 +29,7 @@ ccc   The final version will be available in the Python RVMod lib.
       common /DSBLK/ npl,ndset,idsmax,idset,gr_flag
 
 
-      version = "0.04"
+      version = "0.06"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -56,11 +56,30 @@ c      read (*,*) jitter
       call io_read_data (ndata,x,ts,y,sig,jitt,epoch,
      &               x0,t_max,a,ia,ma,incl,cap0m,hkl)
       
+
+c Initilize 
+c      write(*,*) loglik, hkl
       mfit = 0
       do j = 1,ma
           if (ia(j).ne.0) mfit = mfit + 1
       enddo
-  
+ 
+cccccc Hack to make it compatible with the loglik code
+      if (amoebastarts.eq.0) then 
+          alamda = 1.d0
+          mfit = 0
+          do j = 1,ma
+              ia(j) = 1
+              mfit = mfit + 1
+          enddo
+          call MRQMIN (x,y,sig,ndata,a,ia,ma,ts,covar,alpha,MMAX,
+     & 	           chisq,rvkep,alamda,loglik,jitt,hkl)
+          goto 333
+      endif
+
+
+
+
       alamda = -1.d0
       call MRQMIN (x,y,sig,ndata,a,ia,ma,ts,covar,alpha,MMAX,
      & 	           chisq,rvkep,alamda,loglik,jitt,hkl)
@@ -84,13 +103,14 @@ CC              pause
           if (t_stop.ge.when_to_kill) then
             write(*,*) 'Max. time=',when_to_kill, 'sec ', 
      &                 'exceeded t_stop =', t_stop, 'sec ' 
-            goto 502
+            goto 333
            endif
           
           
       if ((chisq.ge.ochisq).or.(dchisq.lt.-1.d-2)) goto 500
 
-502   alamda = 0.d0
+
+333   alamda = 0.d0
       call MRQMIN (x,y,sig,ndata,a,ia,ma,ts,covar,alpha,MMAX,
      &                 chisq,rvkep,alamda,loglik,jitt,hkl)
 
@@ -151,7 +171,7 @@ c     &           /(365.25*365.25))
          enddo
 
           write (*,*) 'Best-fit K [m/s], P [days], e, w [deg], 
-     & M0 [deg], i[deg], cap0m[deg] and their errors'
+     & M0 [deg], i[deg], cap0m[deg], w dot [deg/yr], and their errors'
           do j = 1,npl
               i = 6*(j-1)
               
@@ -168,7 +188,7 @@ c     &           /(365.25*365.25))
               write (*,*) dsqrt(covar(i+1,i+1)),dsqrt(covar(i+2,i+2)),
      &                 dsqrt(covar(i+3,i+3)), 
      &                 best_we,
-     &                 dsqrt(covar(i+5,i+5))*180.d0/PI, 0.0, 0.0,
+     &                 dsqrt(covar(i+5,i+5))*180.d0/PI, 0.d0, 0.d0,
      &                 dsqrt(covar(i+6,i+6))*180.d0/PI
           enddo
           write (*,*) 'Best-fit V0 [m/s] and their error bars:'

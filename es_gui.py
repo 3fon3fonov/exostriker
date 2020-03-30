@@ -6359,28 +6359,28 @@ Please install via 'pip install ttvfast'.
     
     def check_fortran_routines(self):
         
-        version_kep_loglik= "0.03"        
+        version_kep_loglik= "0.06"        
         result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
         if flag1 == -1 or str(result1[0][0]) != version_kep_loglik:
             print("New source code available: Updating Keplerian Simplex")
             result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep', 3,output=True)             
             result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
 
-        version_kep_LM= "0.04"         
+        version_kep_LM= "0.06"         
         result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)              
         if flag2 == -1 or str(result2[0][0]) != version_kep_LM:
             print("New source code available: Updating Keplerian L-M") 
             result2, flag2 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep', 3,output=True)             
             result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)              
 
-        version_dyn_loglik= "0.05"        
+        version_dyn_loglik= "0.06"        
         result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)              
         if flag3 == -1 or str(result3[0][0]) != version_dyn_loglik:
             print("New source code available: Updating N-body Simplex")   
             result3, flag3 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn', 3,output=True)             
             result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)              
 
-        version_dyn_LM= "0.05"         
+        version_dyn_LM= "0.06"         
         result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)
         if flag4 == -1 or str(result4[0][0]) != version_dyn_LM:
             print("New source code available: Updating N-body L-M")    
