@@ -30,7 +30,7 @@ ccc   The final version will be available in the Python RVMod lib.
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
 
-      version = "0.06"
+      version = "0.07"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -73,7 +73,7 @@ c      endif
 c*****set alamda to be negtive for initializing******
       alamda = -1.d0
       call MRQMIN (t,ts,ys,sigs,ndata,a,ia,ma,covar,alpha,MMAX,
-     & chisq,rvkep_ewcop_fin,alamda,loglik,jitter,epsil,deltat)
+     & chisq,rvkep_ewcop_fin,alamda,loglik,jitter,epsil,deltat,hkl)
       
 c     write(*,*) ' alamda,chi_nu^2: ',alamda,chisq/dble(ndata-mfit)
  
@@ -82,7 +82,7 @@ c     write(*,*) ' alamda,chi_nu^2: ',alamda,chisq/dble(ndata-mfit)
           i = i + 1
           ochisq = chisq
           call MRQMIN (t,ts,ys,sigs,ndata,a,ia,ma,covar,alpha,MMAX,
-     &  chisq,rvkep_ewcop_fin,alamda,loglik,jitter,epsil,deltat)
+     &  chisq,rvkep_ewcop_fin,alamda,loglik,jitter,epsil,deltat,hkl)
  
  
           dchisq = chisq - ochisq
@@ -110,7 +110,7 @@ c          write(*,*) chisq
           i = i + 1
           ochisq = chisq
           call MRQMIN (t,ts,ys,sigs,ndata,a,ia,ma,covar,alpha,MMAX,
-     &  chisq,rvkep_ewcop_fin,alamda,loglik,jitter,epsil,deltat)
+     &  chisq,rvkep_ewcop_fin,alamda,loglik,jitter,epsil,deltat,hkl)
 
  
 c          if (alamda.gt.1d12) alamda = -1.d0
@@ -130,7 +130,7 @@ c*******final output******************
 333   alamda = 0.d0
 
       call MRQMIN (t,ts,ys,sigs,ndata,a,ia,ma,covar,alpha,MMAX,
-     & chisq,rvkep_ewcop_fin,alamda,loglik,jitter,epsil,deltat)
+     & chisq,rvkep_ewcop_fin,alamda,loglik,jitter,epsil,deltat,hkl)
 
      
       call io_write_bestfitpa_ewcop_fin (a,covar,t,ys,ndata,ts,
@@ -323,7 +323,7 @@ C**************************************************************************
       real*8 swift_mass(NPLMAX),s_mass(NPLMAX),j_mass(NPLMAX)
       real*4 model_max,model_min
       parameter (AU=1.49597892d11, day = 86400.d0)
-      real*8 wdot(NPLMAX),u_wdot(NPLMAX)      
+      real*8 wdot(NPLMAX),u_wdot(NPLMAX),best_w,best_we
 
 
       common /DSBLK/ npl,ndset,idsmax,idset
@@ -335,8 +335,72 @@ C**************************************************************************
       chisq = 0
 ccccccccccccccccccc t[JD], obs., cal., O-C   ccccccccccccc   
 
-      call RVKEP_ewcop_fin (t,a,ymod,dyda,ma,ndata,ia,epsil,deltat)
-      call MA_J_cop_fin (a,ma,npl,mstar,sini,mass,ap)
+      call RVKEP_ewcop_fin (t,a,ymod,dyda,ma,ndata,ia,epsil,deltat,hkl)
+      call MA_J_cop_fin (a,ma,npl,mstar,sini,mass,ap,hkl)
+
+
+
+
+
+      do i = 1,npl
+         j = 7*(i-1)
+         
+   
+          if (hkl.eq.0) then
+              
+c             a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
+             
+             if (a(j+2).lt.0.d0) then  ! if P<0, set P>0 
+                a(j+2) = abs(a(j+2))
+             endif         
+             
+             if (a(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
+                a(j+4) = a(j+4) + PI
+                a(j+1) = abs(a(j+1))
+                if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
+             endif
+             if (a(j+3).lt.0.d0) then  ! if e<0, set e>0 and w=w+PI, M0=M0-PI
+                a(j+3) = abs(a(j+3))
+                a(j+4) = a(j+4) +  PI
+                if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
+                a(j+5) = a(j+5) - PI
+                if (a(j+5).lt.0.d0) a(j+5) = a(j+5)+2.d0*PI
+             endif  
+             if(a(j+3).ge.1.d0) then ! if e>=1 set it to 0.99 to prevent errors
+                 a(j+3)=0.99d0
+             endif
+             if (a(j+4).lt.0.d0) a(j+4)=dmod(a(j+4)+2.d0*PI,2.d0*PI)  
+             if (a(j+5).lt.0.d0) a(j+5)=dmod(a(j+5)+2.d0*PI,2.d0*PI) 
+             if (a(j+4).gt.2.d0*PI) a(j+4)=dmod(a(j+4),2.d0*PI )  
+             if (a(j+5).gt.2.d0*PI) a(j+5)=dmod(a(j+5),2.d0*PI )         
+             if (a(j+6).lt.0.d0) a(j+6)=dmod(a(j+6)+2.d0*PI,2.d0*PI)  
+             if (a(j+7).lt.0.d0) a(j+7)=dmod(a(j+7)+2.d0*PI,2.d0*PI) 
+             if (a(j+6).gt.2.d0*PI) a(j+6)=dmod(a(j+6),2.d0*PI)  
+             if (a(j+7).gt.2.d0*PI) a(j+7)=dmod(a(j+7),2.d0*PI)
+     
+          else
+     
+             if (a(j+2).lt.0.d0) then  ! if P<0, set P>0 
+                a(j+2) = abs(a(j+2))
+             endif                   
+             
+             if (a(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
+                a(j+4) = -1.d0*a(j+4)       !     which is h = -h, k = -k
+                a(j+3) = -1.d0*a(j+3)
+                a(j+1) = abs(a(j+1))    
+             endif
+
+             if (a(j+5).lt.0.d0) a(j+5)=dmod(a(j+5)+2.d0*PI,2.d0*PI) 
+             if (a(j+6).lt.0.d0) a(j+6)=dmod(a(j+6)+2.d0*PI,2.d0*PI)  
+             if (a(j+7).lt.0.d0) a(j+7)=dmod(a(j+7)+2.d0*PI,2.d0*PI) 
+             if (a(j+5).gt.2.d0*PI) a(j+5)=dmod(a(j+5),2.d0*PI)
+             if (a(j+6).gt.2.d0*PI) a(j+6)=dmod(a(j+6),2.d0*PI)  
+             if (a(j+7).gt.2.d0*PI) a(j+7)=dmod(a(j+7),2.d0*PI)    
+     
+          endif
+      enddo
+
+
 
       do i = 1,ndata
           idset = ts(i)
@@ -385,16 +449,23 @@ c          rms = rms + (ys(i) - ymod(i))**2
           do j = 1,npl
               i = 7*(j-1)
 
+              if (hkl.eq.0) then
+                  best_w = a(i+4)*180.d0/PI
+                  best_we = dsqrt(covar(i+4,i+4))*180.d0/PI
+              else    
+                  best_w = a(i+4) 
+                  best_we = dsqrt(covar(i+4,i+4)) 
+              endif
+
 
               write(*,*) a(i+1),a(i+2)/8.64d4,a(i+3),
-     &                a(i+4)*180.d0/PI,a(i+5)*180.d0/PI,
+     &                best_w,a(i+5)*180.d0/PI,
      &                dmod(a(i+6)*180.d0/PI,180.d0),
      &                dmod(a(i+7)*180.d0/PI,360.d0),wdot(i)
               write(*,*) dsqrt(covar(i+1,i+1)),
      &                dsqrt(covar(i+2,i+2))/8.64d4,
 c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
-     &                dsqrt(covar(i+3,i+3)),
-     &                dsqrt(covar(i+4,i+4))*180.d0/PI,
+     &                dsqrt(covar(i+3,i+3)),best_we,
      &                dsqrt(covar(i+5,i+5))*180.d0/PI,
      &                dmod(dsqrt(covar(i+6,i+6))*180.d0/PI,180.d0),
      &                dmod(dsqrt(covar(i+7,i+7))*180.d0/PI,360.d0),
@@ -413,14 +484,14 @@ c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
           write (*,*) 'Jitters (not fitted in chi^2 method):'
           do j = 1,ndset
               write (*,*) jitter(j)
-              write (*,*) '0'
+              write (*,*) '0.0'
           enddo 
        
-          write (*,*) 'linear trend  [m/s per day]:'
+          write (*,*) 'linear trend [m/s per day]:'
           write (*,*) a(7*npl + ndset + 1)
           write (*,*) dsqrt(covar(7*npl + ndset + 1,7*npl + ndset + 1))
 
-          write (*,*) 'quad. trend  [m/s per day]:'
+          write (*,*) 'quad. trend [m/s per day]:'
           write (*,*) a(7*npl + ndset + 2)
           write (*,*) dsqrt(covar(7*npl + ndset + 2,7*npl + ndset + 2))  
          
@@ -459,7 +530,7 @@ c           write(*,*) (j_mass(i),i=1,npl+1)
           do i = 1,nt
              x(i) = (i-1)*dt*8.64d4
           enddo
-          call RVKEP_ewcop_fin (x,a,ymod,dyda,ma,nt,ia,epsil,deltat)
+          call RVKEP_ewcop_fin (x,a,ymod,dyda,ma,nt,ia,epsil,deltat,hkl)
           do i = 1,nt
              write(*,*) t0 + x(i)/8.64d4,
      &       ymod(i) + a(7*npl +ndset + 1)*(x(i)/86400.d0)
@@ -480,12 +551,12 @@ c
 c From Numerical Recipes.
 
 	subroutine MRQMIN (x,ts,y,sig,ndata,a,ia,ma,covar,alpha,nca,
-     & 	                   chisq,funcs,alamda,loglik,jitt,epsil,deltat)
+     & 	         chisq,funcs,alamda,loglik,jitt,epsil,deltat,hkl)
 
 	implicit none
 	integer ma,nca,ndata,ia(ma),MMAX,NDSMAX,ts(ndata)
 	parameter (MMAX=200,NDSMAX=20)
-        integer npl,ndset,idset,idsmax(NDSMAX)
+        integer npl,ndset,idset,idsmax(NDSMAX),hkl
 	real*8 alamda,chisq,a(ma),alpha(nca,nca),covar(nca,nca),
      &	       sig(ndata),x(ndata),y(ndata),loglik,jitt(NDSMAX)
 	external funcs
@@ -506,7 +577,7 @@ c Initialization.
 cc	  alamda = 0.00001d0
 CC	  alamda = 20000.d0
       call MRQCOF (x,ts,y,sig,ndata,a,ia,ma,alpha,beta,
-     &                 nca,chisq,funcs,loglik,jitt,epsil,deltat)
+     &       nca,chisq,funcs,loglik,jitt,epsil,deltat,hkl)
    
 	  ochisq = chisq
  
@@ -552,7 +623,7 @@ c Evaluate covariance matrix once converged.
 	
        
 	call MRQCOF (x,ts,y,sig,ndata,atry,ia,ma,covar,da,
-     &               nca,chisq,funcs,loglik,jitt,epsil,deltat)
+     &               nca,chisq,funcs,loglik,jitt,epsil,deltat,hkl)
 	
 	if (chisq.lt.ochisq) then
 c	  Accept new solution.
@@ -587,12 +658,12 @@ c
 c From Numerical Recipes.
 
 	subroutine MRQCOF (x,ts,y,sig,ndata,a,ia,ma,alpha,beta,nalp,
-     &	                   chisq,funcs,loglik,jitt,epsil,deltat)
+     &	             chisq,funcs,loglik,jitt,epsil,deltat,hkl)
 
 	implicit none
 	integer npl,ndset,idset,ma,nalp,ndata,ia(ma),NDSMAX,MMAX
 	parameter (NDSMAX=20, MMAX=200)
-        integer idsmax(NDSMAX),ts(ndata)
+        integer idsmax(NDSMAX),ts(ndata),hkl
 	real*8 chisq,a(ma),alpha(nalp,nalp),beta(ma),sig(ndata),
      &	       x(ndata),y(ndata),loglik,TWOPI,epsil,deltat
         parameter (TWOPI=2.d0*3.14159265358979d0)
@@ -619,7 +690,7 @@ c Initialize (symmetric) alpha and beta.
 
 c Loop over all data.
 
-        call FUNCS (x,a,ymod,dyda,ma,ndata,ia,epsil,deltat)
+        call FUNCS (x,a,ymod,dyda,ma,ndata,ia,epsil,deltat,hkl)
         
 	do i = 1,ndata
           idset = ts(i)
@@ -857,7 +928,7 @@ c From Numerical Recipes.
  
 
       subroutine RVKEP_ewcop_fin (t,a,ymod,dyda,ma,ndata,ia,epsil,
-     & deltat)
+     & deltat,hkl)
       implicit none
       real*8 PI,TWOPI,eps,epsil,deltat
       parameter (PI=3.14159265358979d0,eps=1.d-6)
@@ -873,7 +944,7 @@ c From Numerical Recipes.
       real*8 rpl(NPLMAX),rhill(NPLMAX)
       real*8 ah(ma),ahh(ma),ymodhb(ndata),ymodha(ndata)
       real*8 sini,sinih,sinihh,dydsini(ndata),factor
-      integer ts(ndata),correct, idsmax(NDSMAX)
+      integer ts(ndata),correct, idsmax(NDSMAX),hkl
 
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
@@ -882,51 +953,80 @@ c From Numerical Recipes.
       na = 7*npl
 
 
-      correct = 1
-      if(correct.gt.0) then      
-      do i = 1,npl
-         j = 7*(i-1)
-         
-         if (a(j+2).lt.0.d0) then  ! if P<0, set P>0 
-            a(j+2) = abs(a(j+2))
-         endif         
-         
-         if (a(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
-            a(j+4) = a(j+4) + PI
-            a(j+1) = abs(a(j+1))
-            if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
-         endif
-         if (a(j+3).lt.0.d0) then  ! if e<0, set e>0 and w=w+PI, M0=M0-PI
-            a(j+3) = abs(a(j+3))
-            a(j+4) = a(j+4) +  PI
-            if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
-            a(j+5) = a(j+5) - PI
-            if (a(j+5).lt.0.d0) a(j+5) = a(j+5)+2.d0*PI
-         endif  
-         if(a(j+3).ge.1.d0) then ! if e>=1 set it to 0.99 to prevent errors
-             a(j+3)=0.99d0
-         endif
-         if (a(j+4).lt.0.d0) a(j+4) = dmod(a(j+4)+2.d0*PI,  2.d0*PI )  
-         if (a(j+5).lt.0.d0) a(j+5) = dmod(a(j+5)+2.d0*PI,  2.d0*PI ) 
-         if (a(j+4).gt.2.d0*PI) a(j+4) = dmod(a(j+4),  2.d0*PI )  
-         if (a(j+5).gt.2.d0*PI) a(j+5) = dmod(a(j+5),  2.d0*PI )  
-                
-c         if (a(j+6).lt.0.0d0) a(j+6) = dmod(a(j+6) + PI,  PI )  
-         if (a(j+7).lt.0.0d0) a(j+7) = dmod(a(j+7) + 2.d0*PI,  2.d0*PI ) 
-         
-c         if (a(j+6).ge.PI) a(j+6) = dmod(a(j+6)+ 0.001d0,  PI )  
-         if (a(j+7).gt.2.d0*PI) a(j+7) = dmod(a(j+7),2.d0*PI)                         
-      enddo  
+
+      if (hkl.eq.0) then
+
+          do i = 1,npl
+             j = 7*(i-1)
+
+c             a2(j+2) = 2.d0*PI/(a2(j+2)*8.64d4)
+
+             if (a(j+2).lt.0.d0) then  ! if P<0, set P>0 
+                a(j+2) = abs(a(j+2))
+             endif
+             
+             if (a(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
+                a(j+4) = a(j+4) + PI
+                a(j+1) = abs(a(j+1))
+                if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
+             endif
+             if (a(j+3).lt.0.d0) then  ! if e<0, set e>0 and w=w+PI, M0=M0-PI
+                a(j+3) = abs(a(j+3))
+                a(j+4) = a(j+4) +  PI
+                if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
+                a(j+5) = a(j+5) - PI
+                if (a(j+5).lt.0.d0) a(j+5) = a(j+5)+2.d0*PI
+             endif
+
+             if(a(j+3).ge.1.d0) then ! if e>=1 set it to 0.99 to prevent errors
+                 a(j+3)=0.99d0
+             endif
+             if (a(j+4).lt.0.d0) a(j+4)=dmod(a(j+4)+2.d0*PI,2.d0*PI)
+             if (a(j+5).lt.0.d0) a(j+5)=dmod(a(j+5)+2.d0*PI,2.d0*PI)
+             if (a(j+4).gt.2.d0*PI) a(j+4)=dmod(a(j+4),2.d0*PI)
+             if (a(j+5).gt.2.d0*PI) a(j+5)=dmod(a(j+5),2.d0*PI)
+             if (a(j+6).lt.0.d0) a(j+6)=dmod(a(j+6)+2.d0*PI,2.d0*PI)
+             if (a(j+7).lt.0.d0) a(j+7)=dmod(a(j+7)+2.d0*PI,2.d0*PI)
+             if (a(j+6).gt.2.d0*PI) a(j+6)=dmod(a(j+6),2.d0*PI)
+             if (a(j+7).gt.2.d0*PI) a(j+7)=dmod(a(j+7),2.d0*PI)
+          enddo
+
+
+      else
+
+          do i = 1,npl
+             j = 7*(i-1)
+
+c             a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
+
+             if (a(j+2).lt.0.d0) then  ! if P<0, set P>0 
+                a(j+2) = abs(a(j+2))
+             endif
+             
+             if (a(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
+                a(j+4) = -1.d0*a(j+4)       !     which is h = -h, k = -k
+                a(j+3) = -1.d0*a(j+3)
+                a(j+1) = abs(a(j+1))
+             endif
+
+             if (a(j+5).lt.0.d0) a(j+5)=dmod(a(j+5)+2.d0*PI,2.d0*PI)
+             if (a(j+6).lt.0.d0) a(j+6)=dmod(a(j+6)+2.d0*PI,2.d0*PI)
+             if (a(j+7).lt.0.d0) a(j+7)=dmod(a(j+7)+2.d0*PI,2.d0*PI)
+             if (a(j+5).gt.2.d0*PI) a(j+5)=dmod(a(j+5),2.d0*PI)
+             if (a(j+6).gt.2.d0*PI) a(j+6)=dmod(a(j+6),2.d0*PI)
+             if (a(j+7).gt.2.d0*PI) a(j+7)=dmod(a(j+7),2.d0*PI)
+          enddo
+
       endif
  
 c-----get ymod first
 
 
-      call MA_J_cop_fin (a,ma,npl,mstar,sini,mass,ap)
+      call MA_J_cop_fin (a,ma,npl,mstar,sini,mass,ap,hkl)
            
       
       call GENINIT_J3_ewcop (nbod,ap,a,
-     &                          mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill)
+     &                 mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill,hkl)
       
       call coord_j2h(nbod,mass,xj,yj,zj,vxj,vyj,vzj,
      &                 xh,yh,zh,vxh,vyh,vzh)
@@ -937,7 +1037,7 @@ c-----get ymod first
 
        
       call integrate_cop_fin(ymod,t,nbod,na,ndata,mass,a,
-     &  xh,yh,zh,vxh,vyh,vzh,epsil,deltat)
+     &  xh,yh,zh,vxh,vyh,vzh,epsil,deltat,hkl)
 
      
       do i = 1,ma
@@ -997,33 +1097,33 @@ c           endif
            
            ah(i) = a(i) - ahh(i)
 
-           call MA_J_cop_fin (ah,ma,npl,mstar,sini,mass,ap)
+           call MA_J_cop_fin (ah,ma,npl,mstar,sini,mass,ap,hkl)
 
 
            call GENINIT_J3_ewcop (nbod,ap,ah,
-     &                          mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill)
+     &                 mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill,hkl)
 
            call coord_j2h(nbod,mass,xj,yj,zj,vxj,vyj,vzj,
      &                 xh,yh,zh,vxh,vyh,vzh)
      
            call integrate_cop_fin(ymodhb,t,nbod,na,ndata,mass,ah,
-     &                  xh,yh,zh,vxh,vyh,vzh,epsil,deltat)
+     &                  xh,yh,zh,vxh,vyh,vzh,epsil,deltat,hkl)
     
              
 c        get ah of ahead
     
            ah(i) = a(i) + ahh(i)
        
-           call MA_J_cop_fin (ah,ma,npl,mstar,sini,mass,ap)
+           call MA_J_cop_fin (ah,ma,npl,mstar,sini,mass,ap,hkl)
            
            call GENINIT_J3_ewcop (nbod,ap,ah,
-     &                         mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill)
+     &                 mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill,hkl)
 
            call coord_j2h(nbod,mass,xj,yj,zj,vxj,vyj,vzj,
      &                 xh,yh,zh,vxh,vyh,vzh)
 
            call integrate_cop_fin(ymodha,t,nbod,na,ndata,mass,ah,
-     &                  xh,yh,zh,vxh,vyh,vzh,epsil,deltat)
+     &                  xh,yh,zh,vxh,vyh,vzh,epsil,deltat,hkl)
          
          
 c        calculate the ith dyda 
@@ -1045,16 +1145,16 @@ c           if (ah(j+6).ge.PI)   ah(j+6) = dmod(ah(j+6) +0.00001,  PI)
 
                        
          
-           call MA_J_cop_fin (ah,ma,npl,mstar,sini,mass,ap)
+           call MA_J_cop_fin (ah,ma,npl,mstar,sini,mass,ap,hkl)
 
            call GENINIT_J3_ewcop (nbod,ap,ah,
-     &                          mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill)
+     &                 mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill,hkl)
      
            call coord_j2h(nbod,mass,xj,yj,zj,vxj,vyj,vzj,
      &                 xh,yh,zh,vxh,vyh,vzh)
 
            call integrate_cop_fin(ymodhb,t,nbod,na,ndata,mass,ah,
-     &                  xh,yh,zh,vxh,vyh,vzh,epsil,deltat)
+     &                  xh,yh,zh,vxh,vyh,vzh,epsil,deltat,hkl)
              
 c        get ah of ahead
     
@@ -1062,16 +1162,16 @@ c        get ah of ahead
 c           ah(i) = dmod(a(i) + ahh(i),  PI ) 
 
 
-           call MA_J_cop_fin (ah,ma,npl,mstar,sini,mass,ap)
+           call MA_J_cop_fin (ah,ma,npl,mstar,sini,mass,ap,hkl)
            
            call GENINIT_J3_ewcop (nbod,ap,ah,
-     &                         mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill)
+     &                 mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill,hkl)
 
            call coord_j2h(nbod,mass,xj,yj,zj,vxj,vyj,vzj,
      &                 xh,yh,zh,vxh,vyh,vzh)
 
            call integrate_cop_fin(ymodha,t,nbod,na,ndata,mass,ah,
-     &                  xh,yh,zh,vxh,vyh,vzh,epsil,deltat)
+     &                  xh,yh,zh,vxh,vyh,vzh,epsil,deltat,hkl)
          
  
 c        calculate the ith dyda 
@@ -1093,11 +1193,11 @@ c MA_J calculates the actual masses and Jacobi semimajor axes of a two-planet
 c system for assumed sin(i) using the parameters P, K and e from a
 c two-Kepler fit.
 
-	subroutine MA_J_cop_fin (a,ma,npl,m0,sini,mass,ap)
+	subroutine MA_J_cop_fin (a,ma,npl,m0,sini,mass,ap,hkl)
         
 	implicit none
-	real*8 m0,sini,PI,TWOPI,THIRD,GMSUN,dm,MSUN
-        integer npl,ma,i,j,NPLMAX
+	real*8 m0,sini,PI,TWOPI,THIRD,GMSUN,dm,MSUN,ecc
+        integer npl,ma,i,j,NPLMAX,hkl
         parameter (NPLMAX=20)
         real*8 a(ma),mass(NPLMAX),ap(NPLMAX),mpold(NPLMAX),mtotal
 	parameter (THIRD=1.d0/3.d0)
@@ -1109,14 +1209,20 @@ c*******expectively.
                                           
  
         do i = 0,npl-1
+        
+           if (hkl.eq.0) then
+               ecc = a(7*i+3)
+           else
+               ecc = dsqrt(a(7*i+3)**2+a(7*i+4)**2)    !! only for h, k
+           endif
 
            mass(1) = m0
-	   mpold(i+1) = 0.d0
+           mpold(i+1) = 0.d0
  101       continue
            if (i.eq.0) then
            mtotal = m0
-	   mass(i+2) = abs(a(7*i+1))*(a(7*i+2)*(m0 + mpold(i+1))**2/
-     &               (TWOPI*GMSUN))**THIRD*dsqrt(1.d0-a(7*i+3)**2)
+           mass(i+2) = abs(a(7*i+1))*(a(7*i+2)*(m0 + mpold(i+1))**2/
+     &               (TWOPI*GMSUN))**THIRD*dsqrt(1.d0-ecc**2)
      &               /dabs(dsin(a(7*i+6)))
            else
               mtotal = m0
@@ -1125,14 +1231,14 @@ c*******expectively.
               enddo
               mass(i+2) = abs(a(7*i+1))*(a(7*i+2)*(mtotal
      &                  +mpold(i+1))**2/(TWOPI*GMSUN))**THIRD
-     &                  *dsqrt(1.d0-a(7*i+3)**2)/dabs(dsin(a(7*i+6)))
+     &                  *dsqrt(1.d0-ecc**2)/dabs(dsin(a(7*i+6)))
            endif
            
-	   dm = dabs(mass(i+2)-mpold(i+1))/mass(i+2)
-	   mpold(i+1) = mass(i+2)
+           dm = dabs(mass(i+2)-mpold(i+1))/mass(i+2)
+           mpold(i+1) = mass(i+2)
            if (dm.gt.0) goto 101
 
-	   ap(i+1) = (GMSUN*(mtotal + mass(i+2))*(a(7*i+2)/TWOPI)
+           ap(i+1) = (GMSUN*(mtotal + mass(i+2))*(a(7*i+2)/TWOPI)
      &               **2)**THIRD
            
         enddo
@@ -1147,7 +1253,6 @@ c*******expectively.
 	end
 
  
-
 c GENINIT_J3 reads Jacobi orbital elements of nbod planets and generates
 c initial position and velocity in Jacobi coords.
 c This version outputs rpl and rhill.
@@ -1155,30 +1260,26 @@ c This version outputs rpl and rhill.
 c Last modified by Man Hoi Lee, Aug 16, 2003.
 
       subroutine GENINIT_J3_ewcop (nbod,ap,a,
-     &                       mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill)
+     &                       mass,xj,yj,zj,vxj,vyj,vzj,rpl,rhill,hkl)
 
 c      include 'swift.inc'
 
-      real*8 SMASSYR,MSUN,PI,eps
+      real*8 SMASSYR,MSUN,PI,eps,THIRD
       parameter (PI=3.14159265358979d0,eps=1.d-7)
       parameter (SMASSYR=4.d0*PI*PI)
       parameter (MSUN=1.32712497d20)
+      parameter (THIRD=1.d0/3.d0)
 
-      integer nbod,NPLMAX,i,j
+      integer nbod,NPLMAX,i,j,hkl
       parameter (NPLMAX=20)
-      real*8 mass(NPLMAX)
+      real*8 mass(NPLMAX),ecc
       real*8 xj(NPLMAX),yj(NPLMAX),zj(NPLMAX)
       real*8 vxj(NPLMAX),vyj(NPLMAX),vzj(NPLMAX)
       real*8 rpl(NPLMAX),rhill(NPLMAX)
-
       real*8 mstar0,m1,m2,frho3,ap(NPLMAX),a(NPLMAX)
-
       real*8 gm,inc,capom,a1,e1,omega,capm
 
-
       integer ialpha
-
- 
 
 c SET F/RHO^(1/3) FOR RADIUS (RHO IN G/CM^3) TO 1.D0 FOR NOW.
       frho3 = 1.d0
@@ -1194,43 +1295,40 @@ c SET F/RHO^(1/3) FOR RADIUS (RHO IN G/CM^3) TO 1.D0 FOR NOW.
       inc = 0.d0
       capom = 0.d0
       gm = mass(1)
-      
 
-c      pause 
-      
       do i = 2,nbod
          j = 7*(i-2)
 
+         if (hkl.eq.0) then  
+             ecc = a(j+3)
+             omega = a(j+4)
+             capm = a(j+5)
+         else
+             ecc = dsqrt(a(j+3)**2 + a(j+4)**2)
+             omega = datan2(a(j+3),a(j+4))
+             capm = a(j+5) - omega
+         endif
+         
+        if (ecc.lt.0.d0) ecc = 0.000001d0 
 
-        gm = gm + mass(i)
-        rpl(i) = frho3*(1.5d0*mass(i)/2.d0*PI)**0.3333333333d0
-c        rhill(i) = ap(i-1)*(mass(i)/(3.d0*mass(1)))**0.3333333333d0
-        rhill(i) = ap(i-1)*(1-a(j+3))*(mass(i)/(3.d0*mass(1)))**0.3333333333d0        
+         gm = gm + mass(i)
+         rpl(i) = frho3*(1.5d0*mass(i)/2.d0*PI)**THIRD
+         rhill(i) = ap(i-1)*(mass(i)/(3.d0*mass(1)))**THIRD
+          
+         call ORBEL_EL2XV (gm,ialpha,ap(i-1),ecc,a(j+6),a(j+7),
+     &       omega,capm,xj(i),yj(i),zj(i),vxj(i),vyj(i),vzj(i))
 
-
-
-        
-        if (a(j+3).lt.0.d0) a(j+3) = 0.000001d0 
-        
-               
-        call ORBEL_EL2XV (gm,ialpha,ap(i-1),a(j+3),a(j+6),a(j+7)     
-     &          ,a(j+4),a(j+5),xj(i),yj(i),zj(i),vxj(i),vyj(i),vzj(i))
-     
-     
-c       pause 
-
-
- 
       enddo
-c      pause
       return
       end
 
 
 
 
+
+
       subroutine integrate_cop_fin(ymod,t,nbod,ma,ndata,mass,a,
-     &                     xh,yh,zh,vxh,vyh,vzh,epsil,deltat)
+     &                     xh,yh,zh,vxh,vyh,vzh,epsil,deltat,hkl)
 
       include 'swift_Jakub.inc'
       
@@ -1247,7 +1345,7 @@ c      pause
 
 	integer istat(NTPMAX,NSTAT),i1st
 	integer nbod,ntp,nleft
-	integer iflgchk,iub,iuj,iud,iue
+	integer iflgchk,iub,iuj,iud,iue,hkl
         real*8 rstat(NTPMAX,NSTATR)
 
 	real*8 t0,tstop,deltat,dtout,dtdump

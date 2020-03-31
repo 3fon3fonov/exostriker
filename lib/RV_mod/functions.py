@@ -968,9 +968,8 @@ def run_command_with_timeout_old(args, secs, output=False, pipe=False): # set ou
 def phase_RV_planet_signal(obj,planet):
 
     if obj.npl ==0 or len(obj.fit_results.rv_model.jd) ==0:
-        return #[-1], [-1] #[[0],[0]], [[0],[0],[0],[0]]
+        return
     else:
-        #copied_obj = copy.deepcopy(obj)
 
         copied_obj = dill.copy(obj)
 
@@ -979,15 +978,14 @@ def phase_RV_planet_signal(obj,planet):
 
         index = planet - 1
         ############################################
-        ######### and here is the trick!  ##########
+        ############# here is the trick!  ##########
         ############################################
         pp0 =  copied_obj.params.planet_params[7*index+0]  # we define a variable to be the planet amplitude Kj
-        #print(pp0)
-        copied_obj.params.planet_params[7*index+0] = 0 # then we set Kj to be 0, i.e. remove the j-th planet signal
-        copied_obj.fitting(fileinput=False, filename='Kep_input', minimize_loglik=True, amoeba_starts=0,
+
+        copied_obj.params.planet_params[7*index+0] = 0.0000001 # then we set Kj to be 0, i.e. remove the j-th planet signal
+        copied_obj.fitting(minimize_loglik=True, amoeba_starts=0,
                            outputfiles=[0,1,1],return_flag=False, npoints=int(len(obj.fit_results.model)),
                            model_max=int(max(obj.fit_results.model_jd)-max(copied_obj.fit_results.rv_model.jd)),
-                           #model_min=int(min(copied_obj.fit_results.rv_model.jd)-min(obj.fit_results.model_jd)))
                            model_min=int(copied_obj.epoch -min(obj.fit_results.model_jd)))
 
         # and we create the static Nplanet model for the data and the model curve
@@ -1000,7 +998,8 @@ def phase_RV_planet_signal(obj,planet):
 
         #print(copied_obj.params.planet_params[7*index+1])
         #print((copied_obj.epoch- copied_obj.fit_results.rv_model.jd[0])% copied_obj.params.planet_params[7*index+1] )
-        ############ phase fold fix for sparse model ######use_flags
+
+        ############ phase fold fix for sparse model ######
         model_time_phase = np.array( (copied_obj.fit_results.model_jd -copied_obj.fit_results.model_jd[0] + (copied_obj.fit_results.model_jd[0] - copied_obj.epoch) )%copied_obj.params.planet_params[7*index+1] )
 
         model_shift = copied_obj.params.planet_params[7*index+1] - (copied_obj.fit_results.rv_model.jd[0] - copied_obj.epoch )%copied_obj.params.planet_params[7*index+1]
@@ -1031,6 +1030,7 @@ def phase_RV_planet_signal(obj,planet):
         data  = [data_time_phase,  phased_data, phased_data_err, phased_data_idset]
 
 
+        #del copied_obj
 
         #####################
         obj.ph_data[planet-1] = data
