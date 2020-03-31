@@ -27,7 +27,7 @@ c*************************************************************************
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar, sini
 
-      version = "0.06"
+      version = "0.07"
 
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -585,16 +585,16 @@ ccccccccccccccccccc t[JD], obs., cal., O-C   ccccccccccccc
 c             a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
              
              if (a(j+2).lt.0.d0) then  ! if P<0, set P>0 
-                a(j+2) = abs(a(j+2))
+                a(j+2) = dabs(a(j+2))
              endif         
              
              if (a(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
                 a(j+4) = a(j+4) + PI
-                a(j+1) = abs(a(j+1))
+                a(j+1) = dabs(a(j+1))
                 if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
              endif
              if (a(j+3).lt.0.d0) then  ! if e<0, set e>0 and w=w+PI, M0=M0-PI
-                a(j+3) = abs(a(j+3))
+                a(j+3) = dabs(a(j+3))
                 a(j+4) = a(j+4) +  PI
                 if (a(j+4).gt.2.d0*PI) a(j+4) = a(j+4)-2.d0*PI
                 a(j+5) = a(j+5) - PI
@@ -615,13 +615,13 @@ c             a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
           else
      
              if (a(j+2).lt.0.d0) then  ! if P<0, set P>0 
-                a(j+2) = abs(a(j+2))
+                a(j+2) = dabs(a(j+2))
              endif                   
              
              if (a(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
                 a(j+4) = -1.d0*a(j+4)       !     which is h = -h, k = -k
                 a(j+3) = -1.d0*a(j+3)
-                a(j+1) = abs(a(j+1))    
+                a(j+1) = dabs(a(j+1))    
              endif
 
              if (a(j+5).lt.0.d0) a(j+5)=dmod(a(j+5)+2.d0*PI,2.d0*PI) 

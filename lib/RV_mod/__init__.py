@@ -3555,7 +3555,7 @@ class signal_fit(object):
 
         ### ppp will be the input string. Depending on fileinput parameter we either save it in a file or save it directly
 
-       # print(program, self.mixed_fit[1])
+#        print(program, self.mixed_fit[1])
 
         if not (fileinput): # if we want to save input in a file we don't want this line in the input string
             ppp = '%s << EOF\n'%program
@@ -3577,11 +3577,38 @@ class signal_fit(object):
 
         for i in range(self.npl): # K,P,e,w,M,i,cap0m for each planet, and information which ones we use
             if self.hkl:
-                ppp+='%f %.8f %.8f %f %f %f %f %f\n'%(self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.e_sinw[i],self.e_cosw[i],self.lamb[i],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6],self.omega_dot[i])
-                ppp+='%d %d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),int(self.use.use_planet_params[7*i+1]),int(self.use.use_planet_params[7*i+2]),int(self.use.use_planet_params[7*i+3]),int(self.use.use_planet_params[7*i+4]),int(self.use.use_planet_params[7*i+5]),int(self.use.use_planet_params[7*i+6]),int(self.omega_dot_use[i]))
+                ppp+='%f %.8f %.8f %f %f %f %f %f\n'%(self.params.planet_params[7*i],
+                                                      self.params.planet_params[7*i+1],
+                                                      self.e_sinw[i],
+                                                      self.e_cosw[i],
+                                                      self.lamb[i],
+                                                      self.params.planet_params[7*i+5],
+                                                      self.params.planet_params[7*i+6],self.omega_dot[i])
+                ppp+='%d %d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),
+                                                  int(self.use.use_planet_params[7*i+1]),
+                                                  int(self.use.use_planet_params[7*i+2]),
+                                                  int(self.use.use_planet_params[7*i+3]),
+                                                  int(self.use.use_planet_params[7*i+4]),
+                                                  int(self.use.use_planet_params[7*i+5]),
+                                                  int(self.use.use_planet_params[7*i+6]),
+                                                  int(self.omega_dot_use[i]))
             else:
-                ppp+='%f %.8f %.8f %f %f %f %f %f\n'%(self.params.planet_params[7*i],self.params.planet_params[7*i+1],self.params.planet_params[7*i+2],self.params.planet_params[7*i+3],self.params.planet_params[7*i+4],self.params.planet_params[7*i+5],self.params.planet_params[7*i+6],self.omega_dot[i])
-                ppp+='%d %d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),int(self.use.use_planet_params[7*i+1]),int(self.use.use_planet_params[7*i+2]),int(self.use.use_planet_params[7*i+3]),int(self.use.use_planet_params[7*i+4]),int(self.use.use_planet_params[7*i+5]),int(self.use.use_planet_params[7*i+6]),int(self.omega_dot_use[i]))
+                ppp+='%f %.8f %.8f %f %f %f %f %f\n'%(self.params.planet_params[7*i],
+                                                      self.params.planet_params[7*i+1],
+                                                      self.params.planet_params[7*i+2],
+                                                      self.params.planet_params[7*i+3],
+                                                      self.params.planet_params[7*i+4],
+                                                      self.params.planet_params[7*i+5],
+                                                      self.params.planet_params[7*i+6],
+                                                      self.omega_dot[i])
+                ppp+='%d %d %d %d %d %d %d %d\n'%(int(self.use.use_planet_params[7*i]),
+                                                  int(self.use.use_planet_params[7*i+1]),
+                                                  int(self.use.use_planet_params[7*i+2]),
+                                                  int(self.use.use_planet_params[7*i+3]),
+                                                  int(self.use.use_planet_params[7*i+4]),
+                                                  int(self.use.use_planet_params[7*i+5]),
+                                                  int(self.use.use_planet_params[7*i+6]),
+                                                  int(self.omega_dot_use[i]))
 
         ppp+='%.15f\n%d\n'%(self.params.linear_trend,int(self.use.use_linear_trend)) # information about linear trend
         ppp+='%.15f\n%d\n'%(self.rv_quadtr,int(bool(self.rv_quadtr_use))) # information about linear trend
@@ -3715,9 +3742,7 @@ class signal_fit(object):
             self.fit_results=fortranoutput.modfit(print_stat=print_stat)
 
             #print(self.fit_results.omega_dot)
-
-
-
+ 
             self.stat_saved=self.fit_results.stat_array_saved
             if (self.stat_saved):
                 self.never_saved=False
@@ -3726,17 +3751,17 @@ class signal_fit(object):
             if(self.fit_results.stat_array_saved):
                 self.fitting_method=program
             self.update_with_fit_results()
-            self.correct_elements() #because amoeba might make things wrong here
+#            self.correct_elements() #because amoeba might make things wrong here
 
 #        if self.rtg[1]:
 #            get_gps_model(self)
 
+        self.hack_around_rv_params()
+
         ##################### New stuff to be added here ######################
         for i in range(self.npl):
-            self.t_peri[i] = (float(self.epoch) - (np.radians(self.params.planet_params[7*i + 4])/(2*np.pi))*self.params.planet_params[7*i + 1] ) # epoch  - ((ma/TWOPI)*a[1])
-
+            self.t_peri[i] = (float(self.epoch) - (np.radians(self.M0[i])/(2*np.pi))*self.P[i] ) # epoch  - ((ma/TWOPI)*a[1])
         #####################
-        self.hack_around_rv_params()
 
 
         if (return_flag):

@@ -33,7 +33,7 @@ ccc   Trifonov et al. (in prep).
       common /DSBLK/ npl,ndset,idsmax,idset,gr_flag
 
 
-      version = "0.06"
+      version = "0.07"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -77,9 +77,6 @@ c     & compute_abs_loglik,ndata,x,y,ymod,dyda,ts,sig)
  
          i = i + 1
          ologlikk = loglikk
-         
-       
-         
 
          call prepare_for_amoeba(p,MMAX+1,MMAX,yamoeba,a,ia,ma,mfit,
      & compute_abs_loglik,ndata,x,y,ymod,dyda,ts,sig, i,hkl)
@@ -161,15 +158,14 @@ c             if (a(j+6).gt.2.d0*PI) a(j+6) = dmod(a(j+6), 2.d0*PI )
              if (a(j+5).lt.0.d0) a(j+5) = dmod(a(j+5)+2.d0*PI, 2.d0*PI) 
              if (a(j+5).gt.2.d0*PI) a(j+5) = dmod(a(j+5), 2.d0*PI )   
              if (a(j+6).lt.0.d0) a(j+6) = dmod(a(j+6)+2.d0*PI, 2.d0*PI) 
-             if (a(j+6).gt.2.d0*PI) a(j+6) = dmod(a(j+6), 2.d0*PI )                 
+             if (a(j+6).gt.2.d0*PI) a(j+6) = dmod(a(j+6), 2.d0*PI )
              
 c             write(*,*) a(j+4),a(j+4),ecc(i) ,omega(i) ,capmm(i) 
           enddo        
          
       endif     
       
-
-
+      
       do i = 1,ndata
 
           idset = ts(i)
@@ -311,13 +307,14 @@ c      stop
      & sig,loglik, num,a,ia,hkl)
       implicit none
       
-      integer MMAX,NDSMAX,npl,ndset,idset,num, mfit,gr_flag    
+      integer MMAX,NDSMAX,npl,ndset,idset,num, mfit,gr_flag
       parameter (MMAX=200, NDSMAX=20)
-      real*8 twopi, loglik
-      parameter (twopi=6.28318530717958d0)
+      real*8 loglik, PI, TWOPI
+      parameter (PI=3.14159265358979d0)
+      parameter (TWOPI=2.0*PI)  
       integer ndata, i, j, ma, ts(20000), ia(MMAX), idsmax(NDSMAX),hkl
       real*8 dy, sig(20000), dyda(MMAX), x(20000), y(20000)
-      real*8 ymod(20000), a(MMAX), a2(mfit), a3(MMAX),sig2i, y_in(20000)
+      real*8 ymod(20000),a(MMAX),a2(mfit),a3(MMAX),sig2i,y_in(20000)
      & , y2(20000)
       
    
@@ -351,10 +348,10 @@ c      stop
 	      sig2i = 1.d0/(sig(i)**2 + a3(6*npl+ndset+idset)**2)
 
 	      loglik =  loglik + 0.5*dy*dy*sig2i +
-     &               dlog(dsqrt(twopi*(sig(i)**2 + 
+     &               dlog(dsqrt(TWOPI*(sig(i)**2 + 
      &               a3(6*npl+ndset+idset)**2))) 
-     &               - dlog(dsqrt(twopi)) 
-     
+     &               - dlog(dsqrt(TWOPI)) 
+c        write(*,*) loglik
         enddo
        
       return
@@ -525,16 +522,16 @@ c      write(*,*) 'for epoch :'
              j = 6*(i-1)
              
              if (a2(j+2).lt.0.d0) then  ! if P<0, set P>0 
-                a2(j+2) = abs(a2(j+2))
+                a2(j+2) = dabs(a2(j+2))
              endif         
              
              if (a2(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
                 a2(j+4) = a2(j+4) + PI
-                a2(j+1) = abs(a2(j+1))
+                a2(j+1) = dabs(a2(j+1))
                 if (a2(j+4).gt.2.d0*PI) a2(j+4) = a2(j+4)-2.d0*PI
              endif
              if (a2(j+3).lt.0.d0) then  ! if e<0, set e>0 and w=w+PI, M0=M0-PI
-                a2(j+3) = abs(a2(j+3))
+                a2(j+3) = dabs(a2(j+3))
                 a2(j+4) = a2(j+4) +  PI
                 if (a2(j+4).gt.2.d0*PI) a2(j+4) = a2(j+4)-2.d0*PI
                 a2(j+5) = a2(j+5) - PI
@@ -570,21 +567,21 @@ c             write(*,*) ecc(i) ,omega(i) ,capmm(i),omegad(i)
              if (a2(j+1).lt.0.d0) then  ! if K<0, set K>0 and w = w+PI 
                 a2(j+4) = -1.d0*a2(j+4)       !     which is h = -h, k = -k
                 a2(j+3) = -1.d0*a2(j+3)
-                a2(j+1) = abs(a2(j+1))    
+                a2(j+1) = dabs(a2(j+1))
              endif
           
              ecc(i) = dsqrt(a2(j+3)**2 + a2(j+4)**2)
-             omega(i) = atan2(a2(j+3),a2(j+4)) 
+             omega(i) = datan2(a2(j+3),a2(j+4)) 
           
-             if(omega(i).lt.0.d0)omega(i)=dmod(omega(i)+2.d0*PI,2.d0*PI)  
-             if(omega(i).gt.0.d0)omega(i)=dmod(omega(i),        2.d0*PI)              
-             if (a2(j+5).lt.0.d0) a2(j+5)=dmod(a2(j+5)+2.d0*PI, 2.d0*PI) 
-             if (a2(j+5).gt.2.d0*PI) a2(j+5) = dmod(a2(j+5), 2.d0*PI)   
+             if(omega(i).lt.0.d0)omega(i)=dmod(omega(i)+2.d0*PI,2.d0*PI)
+             if(omega(i).gt.0.d0)omega(i)=dmod(omega(i),        2.d0*PI)
+             if (a2(j+5).lt.0.d0) a2(j+5)=dmod(a2(j+5)+2.d0*PI, 2.d0*PI)
+             if (a2(j+5).gt.2.d0*PI) a2(j+5) = dmod(a2(j+5), 2.d0*PI)
               
-             capmm(i) = a2(j+5) - omega(i)        
+             capmm(i) = a2(j+5) - omega(i)
                 
-             if(capmm(i).lt.0.d0)capmm(i)=dmod(capmm(i)+2.d0*PI,2.d0*PI)  
-             if(capmm(i).gt.0.d0)capmm(i)=dmod(capmm(i),        2.d0*PI)                 
+             if(capmm(i).lt.0.d0)capmm(i)=dmod(capmm(i)+2.d0*PI,2.d0*PI)
+             if(capmm(i).gt.0.d0)capmm(i)=dmod(capmm(i),        2.d0*PI)
              
 c             write(*,*) a2(j+4),a2(j+4),ecc(i) ,omega(i) ,capmm(i) 
           enddo        

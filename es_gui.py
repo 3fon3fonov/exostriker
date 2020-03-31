@@ -3757,7 +3757,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             #self.worker_RV_fitting(, ff=0, m_ln=True, auto_fit = False , init = True ):
             #self.fit_dispatcher(init=False)
             for i in range(fit.npl):
-                 rv.phase_RV_planet_signal(fit,i+1)       
+                 rv.phase_RV_planet_signal(fit,i+1)
                  
         self.update_labels()
 #        self.update_params()
@@ -4599,14 +4599,16 @@ Transit duration: %s d
             now run the amoeba code modeling the jitters
             """
 #            fit.fitting(fileinput=False,outputfiles=[1,0,0], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
+#            print("test 1",fit.hkl,fit.loglik,fit.params.planet_params[0:13])
+
             fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
 
         elif m_ln == True and doGP == True:       
             fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff,  print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
-        
-        elif m_ln == False and   minimize_fortran==False:      
+
+        elif m_ln == False and  minimize_fortran==False:
             fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=0, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
-        
+
         else:      
             fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
 
@@ -4614,25 +4616,24 @@ Transit duration: %s d
             rv.get_gps_model(fit)
 
         for i in range(fit.npl):
-             rv.phase_RV_planet_signal(fit,i+1)  
+#             print("test",fit.hkl,fit.loglik,fit.params.planet_params[0:13])
+             rv.phase_RV_planet_signal(fit,i+1)
 
         if auto_fit:
-                                          
             self.update_labels()
             self.update_gui_params()
             self.update_errors() 
             self.update_a_mass() 
 
             #self.run_gls()
-            self.run_gls_o_c()                   
-            self.update_plots()                   
-            self.statusBar().showMessage('')           
+            self.run_gls_o_c()
+            self.update_plots()
+            self.statusBar().showMessage('')
             self.jupiter_push_vars()
 
 
 
 
-       
     def print_info_for_object(self,text):
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog.setGeometry(300, 300, 450, 250)
@@ -6359,38 +6360,38 @@ Please install via 'pip install ttvfast'.
     
     def check_fortran_routines(self):
         
-        version_kep_loglik= "0.06"        
+        version_kep_loglik= "0.07"
         result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
         if flag1 == -1 or str(result1[0][0]) != version_kep_loglik:
             print("New source code available: Updating Keplerian Simplex")
             result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep', 3,output=True)             
             result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
 
-        version_kep_LM= "0.06"         
-        result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)              
+        version_kep_LM= "0.07"
+        result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)
         if flag2 == -1 or str(result2[0][0]) != version_kep_LM:
             print("New source code available: Updating Keplerian L-M") 
             result2, flag2 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep', 3,output=True)             
-            result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)              
+            result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)
 
-        version_dyn_loglik= "0.06"        
-        result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)              
+        version_dyn_loglik= "0.07"
+        result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)
         if flag3 == -1 or str(result3[0][0]) != version_dyn_loglik:
             print("New source code available: Updating N-body Simplex")   
             result3, flag3 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn', 3,output=True)             
-            result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)              
+            result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)
 
-        version_dyn_LM= "0.06"         
+        version_dyn_LM= "0.07"
         result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)
         if flag4 == -1 or str(result4[0][0]) != version_dyn_LM:
-            print("New source code available: Updating N-body L-M")    
+            print("New source code available: Updating N-body L-M")
             result4, flag4 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn', 3,output=True)             
             result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)
 
-        version_dyn_loglik_= "0.05"        
+        version_dyn_loglik_= "0.05"
         result5, flag5 = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)
         if flag5 == -1 or str(result5[0][0]) != version_dyn_loglik_:
-            print("New source code available: Updating Mixed Simplex")               
+            print("New source code available: Updating Mixed Simplex")
             result5, flag5 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+', 3,output=True)             
             result5, flag5 = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)
 
@@ -6400,23 +6401,21 @@ Please install via 'pip install ttvfast'.
             r3 = float(result3[0][0])
             r4 = float(result4[0][0])
             r5 = float(result5[0][0])
-        except (ImportError, KeyError, AttributeError,ValueError, IndexError) as e:     
-     
-       # if isinstance(r1, float)==False or isinstance(r2, float)==False or isinstance(r3, float)==False or isinstance(r4, float)==False or isinstance(r5, float)==False:             
+        except (ImportError, KeyError, AttributeError,ValueError, IndexError) as e:
+
             print("""
-                  
-            Something went wrong!!! Most likely the swift library was updated and now you 
-            need to recompile it. E.g. use: 
-                
-               $ bash installers/XXXXX_install.sh 
-                
-            (see README_for_installation)
-            
-            If this does not help, please open a GitHub issue here:
-                
-                https://github.com/3fon3fonov/exostriker/issues
+Something went wrong!!! Most likely the swift library was updated and now you 
+need to recompile it. E.g. use: 
+    
+   $ bash installers/XXXXX_install.sh 
+    
+(see README_for_installation)
+
+If this does not help, please open a GitHub issue here:
+    
+    https://github.com/3fon3fonov/exostriker/issues
             """
-            )               
+            )
 
 
 ################################## Stellar params #######################################
@@ -6426,19 +6425,19 @@ Please install via 'pip install ttvfast'.
         global fit  
 
         fit.stellar_mass     = self.St_mass_input.value()
-        fit.stellar_mass_err = self.err_St_mass_input.value()         
+        fit.stellar_mass_err = self.err_St_mass_input.value()
         
         fit.stellar_radius     = self.St_radius_input.value()
-        fit.stellar_radius_err = self.err_St_radius_input.value()    
+        fit.stellar_radius_err = self.err_St_radius_input.value()
         
         fit.stellar_luminosity     = self.St_lumin_input.value()
-        fit.stellar_luminosity_err = self.err_St_lumin_input .value()           
+        fit.stellar_luminosity_err = self.err_St_lumin_input .value()
         
         fit.stellar_Teff       = self.St_teff_input.value()
-        fit.stellar_Teff_err   = self.err_St_teff_input.value()             
+        fit.stellar_Teff_err   = self.err_St_teff_input.value()
  
         fit.stellar_vsini       = self.St_vsini_input.value()
-        fit.stellar_vsini_err   = self.err_St_vsini_input.value()       
+        fit.stellar_vsini_err   = self.err_St_vsini_input.value()
         
         st_rot = rv.get_stellar_rotation(fit)
         kb1995 = rv.get_rv_scatter(fit)
@@ -6453,16 +6452,16 @@ Please install via 'pip install ttvfast'.
        # fit.stellar_rotation_err = 0.0    
        
    
-    def initialize_font(self):    
-            
+    def initialize_font(self):
+
         self.font = QtGui.QFont()
         self.font.setPointSize(9)
-        self.font.setBold(False)       
+        self.font.setBold(False)
               
 ################################## System #######################################
             
     def quit(self):
-        global fit            
+        global fit
         #os.system("rm temp*.vels")
         choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "Do you want to save the session before you Quit?",
@@ -6483,10 +6482,10 @@ Please install via 'pip install ttvfast'.
             if sys.platform[0:5] == "linux":
                 self.term_emb.close()    
             #QtGui.QApplication.instance().removeEventFilter(self) 
-            self.removeEventFilter(self)                    
-            self.close()            
+            self.removeEventFilter(self)
+            self.close()
         elif choice == QtGui.QMessageBox.Cancel:
-            return      
+            return
         
     def file_from_path(self, path):
         head, tail = ntpath.split(path)
@@ -6523,8 +6522,8 @@ Please install via 'pip install ttvfast'.
         self.update_use_from_input_file()   
         self.update_use() 
         #self.update_params()  
-       # self.update_gui_params()                  
-        self.optimize_fit(0,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)          
+       # self.update_gui_params()
+        self.optimize_fit(0,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
     
  
     def adopt_trans_TLS_param(self):
@@ -6536,12 +6535,11 @@ Please install via 'pip install ttvfast'.
         fit.t0[fit.npl]     = fit.tls_o_c.transit_times[0]
         fit.pl_rad[fit.npl] = fit.stellar_radius*np.sqrt(1.0 - fit.tls_o_c.depth_mean[0])  # alternativly fit.tls_o_c.rp_rs ?
         fit.pl_a[fit.npl]   = 11.44
- 
+
         fit.add_planet(10.0,fit.tls_o_c.period,0.0,0.0,mean_anomaly_from_tls,90.0,0.0)
         fit.use.update_use_planet_params_one_planet(fit.npl+1,True,True,True,True,True,False,False)   
-       
- 
-            
+
+
         self.update_use_from_input_file()   
         self.update_use() 
        # self.update_params()  
@@ -6549,8 +6547,8 @@ Please install via 'pip install ttvfast'.
         self.radioButton_transit.setChecked(True)
 
         self.worker_transit_fitting(ff=0 )
-        
-        
+
+
  
 #############################  TEST ZONE ################################  
 
@@ -6600,11 +6598,9 @@ Please install via 'pip install ttvfast'.
             if len(fit.ttv_data_sets[i]) ==0:
                 continue
             else:
-                #print(self.ttv_data_to_planet[i].value(),self.use_ttv_data_to_planet[i].isChecked())
                 fit.ttv_data_sets[i][3] = self.ttv_data_to_planet[i].value()
                 fit.ttv_data_sets[i][4] = self.use_ttv_data_to_planet[i].isChecked()
 
-               
     def check_type_fit(self):
         global fit  
 
@@ -6622,7 +6618,7 @@ Please install via 'pip install ttvfast'.
 
     def get_error_msg(self, msg):
         global fit  
-        choice = QtGui.QMessageBox.information(self, 'Warning!', "%s"%str(msg), QtGui.QMessageBox.Ok)      
+        choice = QtGui.QMessageBox.information(self, 'Warning!', "%s"%str(msg), QtGui.QMessageBox.Ok)
         #return 
         
     def init_plot_corr(self):
@@ -6988,7 +6984,7 @@ Please install via 'pip install ttvfast'.
         self.nest_samples_change_name.clicked.connect(self.change_nest_samples_file_name)
         
         self.comboBox_samp_corr_1.activated.connect(self.update_plot_corr)
-        self.comboBox_samp_corr_2.activated.connect(self.update_plot_corr)        
+        self.comboBox_samp_corr_2.activated.connect(self.update_plot_corr)
         
         self.comboBox_phase_pl_tran.activated.connect(self.update_transit_plots)
 

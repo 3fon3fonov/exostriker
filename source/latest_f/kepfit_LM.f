@@ -29,7 +29,7 @@ ccc   The final version will be available in the Python RVMod lib.
       common /DSBLK/ npl,ndset,idsmax,idset,gr_flag
 
 
-      version = "0.06"
+      version = "0.07"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
