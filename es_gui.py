@@ -33,17 +33,16 @@ from multiprocessing import cpu_count
 
 #import BKR as bkr
 from doublespinbox import DoubleSpinBox
-#from Jupyter_emb import ConsoleWidget_embed
 from Jupyter_emb import ConsoleWidget_embed
 
 from stdout_pipe import MyDialog, DebugDialog
 from print_info_window import print_info
 from symbols_window import show_symbols
 from datafiles_window import datafiles_window
+from RVBank_window import RVBank_window
 
 import terminal
-#from tree_view import Widget_tree
-
+import webbrowser
 import ntpath
 
 
@@ -82,9 +81,6 @@ except (ImportError, KeyError) as e:
     pass
 
 
-
-import webbrowser
-
 #try:
 #    import cPickle as pickle
 #except ModuleNotFoundError:
@@ -109,7 +105,7 @@ if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
 
 qtCreatorFile = "./lib/UI/es.ui" 
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
-
+#from es import Ui_MainWindow
 #print("--- %s seconds ---" % (time.time() - start_time))
 
 
@@ -6904,7 +6900,7 @@ If this does not help, please open a GitHub issue here:
         #################### data inspector ########################
 
         self.datafiles_window = datafiles_window()
-
+        self.RVBank_window = RVBank_window() 
         #self.tree_view_tab = Widget_tree()        
        # self.gridLayout_file_tree.setRowStretch(0, 6)
         #self.gridLayout_file_tree.setRowStretch(1, 4)
@@ -6916,6 +6912,7 @@ If this does not help, please open a GitHub issue here:
         self.dataInspector_thisComputer.clicked.connect(self.datafiles_window.show)
         self.dataInspector_HARPS_RVBank.clicked.connect(lambda: self.get_error_msg("Still work in progress! <br><br>However, you can inspect the online version of the <a href='http://www.mpia.de/homes/trifonov/HARPS_RVBank.html'>HARPS RVBank</a> and download HARPS data products. Then in the Exo-Striker use:<br><br>File --> Open RVBank file --> <br>(and then load the downoladed .dat file) <br><br>This will load you target's HARPS NZP corrected RVs and all the activity index data. <br><br>If you made use of the HARPS RVBank, please do not forget to cite <a href='https://ui.adsabs.harvard.edu/abs/2020arXiv200105942T/abstract'>Trifonov et al. (2020)</a>"))
 
+        #self.dataInspector_HARPS_RVBank.clicked.connect(self.RVBank_window.show)
 
 
 
