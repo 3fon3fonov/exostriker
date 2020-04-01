@@ -2242,7 +2242,7 @@
          <enum>QTabWidget::North</enum>
         </property>
         <property name="currentIndex">
-         <number>5</number>
+         <number>0</number>
         </property>
         <property name="movable">
          <bool>true</bool>
@@ -2366,46 +2366,34 @@
             </item>
            </layout>
           </item>
-          <item row="0" column="1" rowspan="2">
-           <layout class="QGridLayout" name="gridLayout_file_tree">
-            <property name="sizeConstraint">
-             <enum>QLayout::SetDefaultConstraint</enum>
-            </property>
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <item row="0" column="0">
-             <widget class="QWidget" name="widget_tree" native="true">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>150</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>200</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>4</pointsize>
-               </font>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
           <item row="1" column="0">
            <layout class="QGridLayout" name="gridLayout_117">
             <item row="0" column="3">
+             <spacer name="horizontalSpacer_156">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="9">
+             <widget class="QPushButton" name="data_insp_print_info">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>print stat.</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="7">
              <widget class="QCheckBox" name="inpector_plot_cross_hair">
               <property name="enabled">
                <bool>true</bool>
@@ -2424,6 +2412,43 @@
              </widget>
             </item>
             <item row="0" column="1">
+             <widget class="QPushButton" name="dataInspector_thisComputer">
+              <property name="text">
+               <string>This computer</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="10">
+             <widget class="QLabel" name="label_423">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QPushButton" name="dataInspector_HARPS_RVBank">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="text">
+               <string>HARPS RVBank</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_424">
+              <property name="text">
+               <string>inspect:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="8">
              <widget class="QPushButton" name="data_insp_load_data">
               <property name="font">
                <font>
@@ -2434,31 +2459,6 @@
                <string>load</string>
               </property>
              </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QPushButton" name="data_insp_print_info">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>print stat.</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="4">
-             <spacer name="horizontalSpacer_119">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </item>
@@ -49165,7 +49165,7 @@
                </layout>
               </item>
               <item row="0" column="1">
-               <layout class="QGridLayout" name="gridLayout_315" rowstretch="0,0,0,0">
+               <layout class="QGridLayout" name="gridLayout_315" rowstretch="0">
                 <property name="sizeConstraint">
                  <enum>QLayout::SetDefaultConstraint</enum>
                 </property>
@@ -77491,81 +77491,81 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_nest_stat_dyn"/>
-  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
-  <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_apply_act_data_options"/>
-  <buttongroup name="buttonGroup_remove_RV_data"/>
-  <buttongroup name="buttonGroup_dom_fold"/>
-  <buttongroup name="buttonGroup_use_ld_2"/>
-  <buttongroup name="buttonGroup_transit_data"/>
-  <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_symbol_picker"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_apply_tra_data_options"/>
-  <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_apply_rv_data_options"/>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
-  <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_use_ld_6"/>
-  <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_use_ld_1"/>
   <buttongroup name="buttonGroup_use_ld_5"/>
-  <buttongroup name="buttonGroup_remove_ttv_data"/>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
+  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_use_ld_10"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
   <buttongroup name="buttonGroup_use_RV_GP_kernel">
    <property name="exclusive">
     <bool>true</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_Omega_fold"/>
-  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
-  <buttongroup name="buttonGroup_add_RV_data"/>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_remove_activity_data"/>
   <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_color_picker"/>
-  <buttongroup name="buttonGroup_use_planets">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
-  <buttongroup name="buttonGroup_use_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
+  <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_energy"/>
   <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_apply_tra_data_options"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_AMD_satb_NS"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
+  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_Omega_fold"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_apply_rv_data_options"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
   <buttongroup name="buttonGroup_use">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_use_planets">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
   <buttongroup name="buttonGroup_mixed_fitting">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_AMD_satb_NS"/>
-  <buttongroup name="buttonGroup_use_ld_3"/>
-  <buttongroup name="buttonGroup_f77_or_scipy"/>
   <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_remove_RV_data"/>
   <buttongroup name="buttonGroup_symbol_picker_ttv"/>
+  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_use_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_ld_7"/>
+  <buttongroup name="buttonGroup_f77_or_scipy"/>
+  <buttongroup name="buttonGroup_theta_fold"/>
+  <buttongroup name="buttonGroup_type_fit"/>
+  <buttongroup name="buttonGroup_symbol_picker"/>
  </buttongroups>
 </ui>

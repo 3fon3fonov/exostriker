@@ -96,7 +96,7 @@ class show_symbols(QtWidgets.QDialog):
         #   Return list of values. It need map with str (self.lineedit.text() will return QString)
         return self.radio_group.checkedId() 
 
-    # static method to create the dialog and return (date, time, accepted)
+    # static method to create the dialog and return button pressed
     @staticmethod
     def get_radio(parent = None):
         dialog = show_symbols(parent)

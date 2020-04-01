@@ -12,11 +12,21 @@ font.setBold(False)
  
 
 class Widget_tree(QWidget):
-    def __init__(self, *args, **kwargs):
-        QWidget.__init__(self, *args, **kwargs)
+    
+    def __init__(self, parent=None, *args, **kwargs):
+        
+        super(Widget_tree, self).__init__(parent)
+    #def __init__(self, *args, **kwargs):
+    
+        self.title = 'Text Editor'
+        self.setFixedSize(550, 800)        
+        self.widget =  QWidget(self)
+    
+       # QWidget.__init__(self, *args, **kwargs)
         hlay = QVBoxLayout(self)
         
         self.setMaximumWidth(250)
+
 
         self.treeview = QTreeView() 
         self.listview = QListView()
@@ -57,16 +67,20 @@ class Widget_tree(QWidget):
         self.listview.setRootIndex(self.fileModel.index(path))
 
         self.treeview.clicked.connect(self.on_clicked)
- 
+
+
+        self.widget.setLayout(hlay)
+        self.widget.layout().addWidget(self.widget)
+        self.setCentralWidget(self.widget)
 
     def on_clicked(self, index):
         path = self.dirModel.fileInfo(index).absoluteFilePath()
         self.listview.setRootIndex(self.fileModel.setRootPath(path))
 
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = QApplication(sys.argv)
-    w = Widget_tree()
-    w.show()
-    sys.exit(app.exec_())
+    main = Widget_tree()
+    main.show()
+    sys.exit(app.exec_())        
+
+ 
