@@ -615,7 +615,7 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_n
 
         flux_o_c_ = np.array(flux_) - np.array(flux_model_)
 
-          ###### TBD, GP for each transit dataset #####         
+        ###### TBD, GP for each transit dataset #####         
           
         tra_gp_model.append(flux_model_)
         flux_o_c_gp.append(flux_o_c_)
@@ -2974,14 +2974,14 @@ class signal_fit(object):
 
     def BIC(self):
         if len(self.fit_results.jd) != 0:
-            BIC = 2*self.loglik + self.fit_results.mfit*np.log(len(self.fit_results.jd))
+            BIC = self.fit_results.mfit*np.log(len(self.fit_results.jd)) -2*self.loglik
         else:
             BIC = 0
         return BIC
 
     def AIC(self):
         if len(self.fit_results.jd) != 0:
-            AIC = 2*self.loglik - 2*self.fit_results.mfit
+            AIC = -2*self.loglik - 2*self.fit_results.mfit
         else:
             AIC = 0
         return AIC
