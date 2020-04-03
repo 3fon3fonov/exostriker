@@ -3977,8 +3977,21 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             
         lc_time = np.concatenate([fit.transit_results[1][0][x] for x in range(10) if len(fit.tra_data_sets[x]) != 0])
         
+        if self.tls_period_min_use.isChecked():
+            tls_period_min = self.tls_min_period.value()
+        else:
+            tls_period_min = 0
+
+        if self.tls_period_max_use.isChecked():
+            tls_period_max = self.tls_max_period.value()
+        else:
+            tls_period_max = np.inf
+ 
+        
         tls_model = transitleastsquares(lc_time, lc_data)
-        tls_results = tls_model.power(oversampling_factor=int(self.tls_ofac.value()), duration_grid_step=self.tls_grid_step.value())
+        tls_results = tls_model.power(period_min = tls_period_min, period_max=tls_period_max, 
+                                      oversampling_factor=int(self.tls_ofac.value()),
+                                      duration_grid_step=self.tls_grid_step.value())
     
         if resid == True:
             fit.tls_o_c = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)

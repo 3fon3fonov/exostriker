@@ -43255,6 +43255,13 @@
                 </item>
                 <item row="0" column="4">
                  <layout class="QGridLayout" name="gridLayout_114">
+                  <item row="3" column="0">
+                   <widget class="QCheckBox" name="tls_period_min_use">
+                    <property name="text">
+                     <string>period min.</string>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="1" column="1">
                    <widget class="QDoubleSpinBox" name="tls_grid_step">
                     <property name="font">
@@ -43324,6 +43331,45 @@
                     </property>
                     <property name="text">
                      <string>TLS</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QDoubleSpinBox" name="tls_min_period">
+                    <property name="decimals">
+                     <number>3</number>
+                    </property>
+                    <property name="maximum">
+                     <double>1000.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.100000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QCheckBox" name="tls_period_max_use">
+                    <property name="text">
+                     <string>period max.</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QDoubleSpinBox" name="tls_max_period">
+                    <property name="decimals">
+                     <number>3</number>
+                    </property>
+                    <property name="maximum">
+                     <double>3000.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.100000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>100.000000000000000</double>
                     </property>
                    </widget>
                   </item>
@@ -77512,8 +77558,8 @@
   <buttongroup name="buttonGroup_apply_tra_data_options"/>
   <buttongroup name="buttonGroup_use_ld_6"/>
   <buttongroup name="buttonGroup_AMD_satb_NS"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
   <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
   <buttongroup name="buttonGroup_use_ld_9"/>
   <buttongroup name="buttonGroup_color_picker"/>
   <buttongroup name="buttonGroup_ewm_hkl"/>
@@ -77523,13 +77569,13 @@
   <buttongroup name="buttonGroup_adopt_nest_as_par"/>
   <buttongroup name="buttonGroup_remove_ttv_data"/>
   <buttongroup name="buttonGroup_use_ld_8"/>
-  <buttongroup name="buttonGroup_apply_rv_data_options"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
   <buttongroup name="buttonGroup_use">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="buttonGroup_apply_rv_data_options"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
   <buttongroup name="buttonGroup_use_ld_1"/>
   <buttongroup name="buttonGroup_dom_fold"/>
   <buttongroup name="buttonGroup_use_planets">
