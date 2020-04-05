@@ -17,6 +17,9 @@ class RVBank_window(QtWidgets.QDialog):
         super(RVBank_window, self).__init__(parent=parent)
         vLayout = QtWidgets.QVBoxLayout(self)
         hLayout = QtWidgets.QHBoxLayout()
+        
+        
+        
 
 
         url = "http://www.mpia.de/homes/trifonov/%s_RVs/%s_harps_all-data_v1.dat"%(targets[0],targets[0])
@@ -120,15 +123,12 @@ class RVBank_window(QtWidgets.QDialog):
             self.y_data = np.genfromtxt(io.BytesIO(resp),usecols=[self.data_index])* 1000.0
             self.e_y_data = np.array([1.0]*len(self.y_data))
         else:
-            self.y_data = np.genfromtxt(io.BytesIO(resp),usecols=[self.data_index]) 
+            self.y_data = np.genfromtxt(io.BytesIO(resp),usecols=[self.data_index])
             self.e_y_data = np.array([np.mean(self.y_data)*0.01]*len(self.y_data))
-            
 
         self.path = url
         self.target_name = targets[row]
 
-        #print("id = %s" %self.model.record(row).field(0).value().toString())
-        #print(self.list.selectedItems())
 
 data_files = ["RVs SERVAL + NZP correction",
               "RVs DRS + NZP correction",
