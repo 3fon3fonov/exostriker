@@ -1653,8 +1653,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                         v2aLine.setPos(  (mousePoint.x()  + 1.0/alias[1]) )  
                         v2bLine.setPos(  (mousePoint.x()  - 1.0/alias[1]) )  
 
-                    #print(mousePoint.x(), (mousePoint.x()  + 1.0) )
-
                 if mousePoint.x() < (viewrange[0][1]+viewrange[0][0])/2.0:
                     label.setAnchor((0,1))
                 else:
@@ -1667,18 +1665,28 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         proxy = pg.SignalProxy(plot_wg.scene().sigMouseMoved, rateLimit=60, slot=mouseMoved)
         plot_wg.proxy = proxy
 
+    def cross_hair_remove(self, plot_wg):
+        global fit 
+ 
+        for kk in plot_wg.items():
+            if kk.__class__.__name__ == "InfiniteLine":
+                if kk._name != "zero":
+                    plot_wg.removeItem(kk)
+            elif kk.__class__.__name__ == "TextItem":
+                plot_wg.removeItem(kk)
+                
 
 
     def label_peaks(self, plot_wg2, pos_peaks, GLS = True, o_c = False, activity = False, MLP = False, DFT=False):
-    
+
         if GLS == True and DFT == False and self.avoid_GLS_RV_alias.isChecked():
             x_peaks = pos_peaks[0][pos_peaks[0]>1.2]
             y_peaks = pos_peaks[1][pos_peaks[0]>1.2]
-        else:            
+        else:
             x_peaks = pos_peaks[0]
             y_peaks = pos_peaks[1]
-            
-            
+
+
         if GLS == True:
             N_peaks = int(self.N_GLS_peak_to_point.value())
             if o_c == True:
@@ -1691,10 +1699,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             elif DFT == True:
                 log = self.radioButton_RV_WF_period.isChecked()
                 N_peaks = int(self.N_window_peak_to_point.value())
-                
+
             else:
                 log = self.radioButton_RV_GLS_period.isChecked()
-                
+
             type_per = "GLS"
         else:
             N_peaks = int(self.N_TLS_peak_to_point.value())
@@ -1708,10 +1716,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         for i in range(N_peaks):
 
             text_arrow = pg.TextItem("test", anchor=(0.5,1.9))
-            
+
             if log == True:
                 arrow = pg.ArrowItem(pos=(np.log10(x_peaks[i]), y_peaks[i]), angle=270)
-                text_arrow.setText('%0.2f d' % (x_peaks[i]))               
+                text_arrow.setText('%0.2f d' % (x_peaks[i]))
                 text_arrow.setPos(np.log10(x_peaks[i]),y_peaks[i])
                 
             elif log == False and GLS == True:   
@@ -1723,27 +1731,29 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 arrow = pg.ArrowItem(pos=(x_peaks[i], y_peaks[i]), angle=270)
                 text_arrow.setText('%0.2f d' % (x_peaks[i]))
                 text_arrow.setPos(x_peaks[i],y_peaks[i])
-  
+
             plot_wg2.addItem(arrow) 
             plot_wg2.addItem(text_arrow)
+
+
 
 
 ######################## RV plots ######################################
 
     def run_gls(self):
         global fit
-                
+
         omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
         ind_norm = self.gls_norm_combo.currentIndex()
 
         if len(fit.fit_results.rv_model.jd) > 5:      
             RV_per = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.rvs, fit.fit_results.rv_model.rv_err), 
             fast=True,  verbose=False, norm=self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[0],)
-            
+
             fit.gls = RV_per
         else:
             return
-        
+
         self.update_RV_GLS_plots()
 
 
@@ -1757,25 +1767,25 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         if len(fit.fit_results.rv_model.jd) > 5:
             RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.o_c, fit.fit_results.rv_model.rv_err), 
             fast=True,  verbose=False, norm= self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)            
-    
-            fit.gls_o_c = RV_per_res        
+
+            fit.gls_o_c = RV_per_res
         else:
             return
-        
+
         self.update_RV_o_c_GLS_plots()  
-        
+
 
     def init_gls_norm_combo(self):    
         global fit
-        
+
         self.norms = ['ZK',  'HorneBaliunas', 'Cumming', 'wrms', 'chisq', 'lnL', 'dlnL']
         #'Scargle',
         for i in range(len(self.norms)):
-            self.gls_norm_combo.addItem('%s'%(self.norms[i]),i+1)           
+            self.gls_norm_combo.addItem('%s'%(self.norms[i]),i+1)
 
     def get_RV_GLS_plot_color(self):
         global fit
-        
+
         colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
         fit.gls_colors[0]=colorz.name()   
 
@@ -1792,16 +1802,16 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
     def get_RV_GLS_alias_color(self):
         global fit
-        
+
         colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
         colors_GLS_alias[0]=colorz.name()   
 
         self.update_RV_GLS_plots() 
         self.update_RV_o_c_GLS_plots() 
-        
+
     def get_RV_MLP_alias_color(self):
         global fit
-        
+
         colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
         colors_MLP_alias[0]=colorz.name()   
 
@@ -5660,81 +5670,166 @@ highly appreciated!
 ################################# data inspector ###################################  
 
 
+
     def load_data_inspect(self): 
         global fit
-
-        #path = self.tree_view_tab.listview.model().filePath(index)
-        path = self.inspector_file
-        if path == '':
-            return 
-
-        filename, file_extension = os.path.splitext(path)
-
-        if file_extension == '.vels':
-            fit.add_dataset(self.file_from_path(path), str(path),0.0,1.0)
-            self.init_fit()
-            self.update_use_from_input_file()
-            self.update_use()
-            self.update_params()
-            self.update_RV_file_buttons()
  
-        elif file_extension == '.act':
+        if self.RVBank == False:
+            #path = self.tree_view_tab.listview.model().filePath(index)
+            path = self.inspector_file
+            if path == '':
+                return 
+    
+            filename, file_extension = os.path.splitext(path)
+    
+            if file_extension == '.vels':
+                fit.add_dataset(self.file_from_path(path), str(path),0.0,1.0)
+                self.init_fit()
+                self.update_use_from_input_file()
+                self.update_use()
+                self.update_params()
+                self.update_RV_file_buttons()
+     
+            elif file_extension == '.act':
+    
+                for i in range(10):
+                    if len(fit.act_data_sets[i]) == 0:
+                        but_ind = i +1
+                        fit.add_act_dataset('test', str(path),act_idset =but_ind-1)
+    
+                        self.update_act_file_buttons()
+                        self.update_activity_gls_plots(but_ind-1)
+                        return
+    
+            elif  file_extension == '.tran':
+                for i in range(10):
+                    if len(fit.tra_data_sets[i]) == 0:
+                        but_ind = i +1
+     
+                        fit.add_transit_dataset('test', str(path),tra_idset =but_ind-1)
+                        self.update_use_from_input_file()
+                        self.update_use()
+                        self.update_gui_params()
+                        self.update_params()
+                        self.update_tra_file_buttons()
+                        self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(path))
+                        return
+            else: 
+                return
+        else:
 
-            for i in range(10):
-                if len(fit.act_data_sets[i]) == 0:
-                    but_ind = i +1
-                    fit.add_act_dataset('test', str(path),act_idset =but_ind-1)
 
-                    self.update_act_file_buttons()
-                    self.update_activity_gls_plots(but_ind-1)
-                    return
 
-        elif  file_extension == '.tran':
-            for i in range(10):
-                if len(fit.tra_data_sets[i]) == 0:
-                    but_ind = i +1
+            if self.RVBank_window.data_index < 11:
+                BJD       = self.RVBank_window.x_data 
+                rv_data     = self.RVBank_window.y_data
+                rv_data_sig = self.RVBank_window.e_y_data
  
-                    fit.add_transit_dataset('test', str(path),tra_idset =but_ind-1)
-                    self.update_use_from_input_file()
-                    self.update_use()
-                    self.update_gui_params()
-                    self.update_params()
-                    self.update_tra_file_buttons()
-                    self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(path))
-                    return
+    
+                name1 = '%s_pre.dat'%self.RVBank_window.target_name
+                name2 = '%s_post.dat'%self.RVBank_window.target_name
+                path1 = 'datafiles/%s'%name1
+                path2 = 'datafiles/%s'%name2
+        
+                out1 = open('%s'%path1, 'w')
+                out2 = open('%s'%path2, 'w')
+        
+        
+                for i in range(len(BJD)):
+     
+                    if float(BJD[0]) <= 2457161.5:
+                        out1.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  \n'.format(float(BJD[i]), float(rv_data[i]), float(rv_data_sig[i]),  width = 10, precision = 5 )   )
+                    elif float(BJD[0]) > 2457161.5:
+                        out2.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  \n'.format(float(BJD[i]), float(rv_data[i]), float(rv_data_sig[i]),  width = 10, precision = 5 )   )
+        
+                out1.close()
+                out2.close()
+         
+                if len(BJD[BJD <= 2457161.5]) !=0:
+                    fit.add_dataset(name1,path1,0.0,1.0,useoffset=True,usejitter=True)
+                if len(BJD[BJD > 2457161.5]) !=0:
+                    fit.add_dataset(name2,path2,0.0,1.0,useoffset=True,usejitter=True)
+ 
+               # rv.check_temp_RV_file(fit)
+                self.init_fit()
 
-        else: 
-            return
+                self.update_use_from_input_file()
+                self.update_use()
+                self.update_params()
+                self.update_RV_file_buttons()
+                
+            else:
+                
+                act_JD       = self.RVBank_window.x_data
+                
+                act_data     = np.concatenate((
+                self.RVBank_window.y_data[act_JD <= 2457161.5]- np.mean(self.RVBank_window.y_data[act_JD <= 2457161.5]),  
+                self.RVBank_window.y_data[act_JD > 2457161.5] - np.mean(self.RVBank_window.y_data[act_JD  > 2457161.5])))
 
+                act_data_sig = self.RVBank_window.e_y_data
+
+                act_file_name = self.RVBank_window.data_name
+                
+                act_data_set = np.array([act_JD,act_data,act_data_sig,act_file_name])
+        
+        
+                for i in range(10):
+                    if len(fit.act_data_sets[i]) == 0:
+                        fit.act_data_sets[i]      = act_data_set
+                        fit.act_data_sets_init[i] = dill.copy(fit.act_data_sets[i])
+                        break
+                        
+                self.update_act_file_buttons()
+                
+                
     def cross_data_inspect(self):
         if self.inpector_plot_cross_hair.isChecked():
             self.cross_hair(pdi,log=False)   
+        else:
+            self.cross_hair_remove(pdi)
+
             
             
-    def plot_data_inspect(self, index, no_sender=False):
+    def plot_data_inspect(self, index, no_sender=False, RVBank = False):
         global fit, colors, pdi 
-        # self.sender() == self.treeView
-        # self.sender().model() == self.fileSystemModel
- 
+
+        self.RVBank = RVBank
+        
         if no_sender==True:
-            #path = self.tree_view_tab.listview.model().filePath(self.tree_view_tab.listview.currentIndex()) 
+            self.cross_data_inspect()
+            return
+        else:
+            pdi.plot(clear=True,)
+
+        if RVBank == False:
+
             path = self.datafiles_window.listview.model().filePath(self.datafiles_window.listview.currentIndex()) 
 
+            try:
+                x     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+                y     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+                y_err = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+            except:
+                pdi.setLabel('bottom', 'x', units='',  **{'font-size':'9pt'})
+                pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
+                return
+            
         else:
-            path = self.sender().model().filePath(index)
+            path = self.RVBank_window.path
 
-        pdi.plot(clear=True,)
+            try:
+                x     = self.RVBank_window.x_data
+                y     = self.RVBank_window.y_data  
+                y_err = self.RVBank_window.e_y_data 
+            except:
+                pdi.setLabel('bottom', 'x', units='',  **{'font-size':'9pt'})
+                pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
+                return
+             
+        
+        
 
-        try:
-            x     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-            y     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-            y_err = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-        except:
-            pdi.setLabel('bottom', 'x', units='',  **{'font-size':'9pt'})
-            pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
-            return
-
-        pdi.addLine(x=None, y=np.mean(y), pen=pg.mkPen('#ff9933', width=0.8))
+        pdi.addLine(x=None, y=np.mean(y), pen=pg.mkPen('#ff9933', width=0.8),name="zero")
 
         if self.insp_data_size.value() > 2:
             symbolsize = self.insp_data_size.value() -2
@@ -5756,6 +5851,7 @@ highly appreciated!
      
         pdi.addItem(err_)
         pdi.autoRange()
+
 
         filename, file_extension = os.path.splitext(path)  
             
@@ -6911,7 +7007,7 @@ If this does not help, please open a GitHub issue here:
         self.gridLayout_calculator.addWidget(calc.Calculator())  
         
         #################### data inspector ########################
-
+        self.RVBank = False
         self.datafiles_window = datafiles_window()
         self.RVBank_window = RVBank_window() 
         #self.tree_view_tab = Widget_tree()        
@@ -6924,6 +7020,9 @@ If this does not help, please open a GitHub issue here:
 
         self.dataInspector_thisComputer.clicked.connect(self.datafiles_window.show)
         #self.dataInspector_HARPS_RVBank.clicked.connect(lambda: self.get_error_msg("Still work in progress! <br><br>However, you can inspect the online version of the <a href='http://www.mpia.de/homes/trifonov/HARPS_RVBank.html'>HARPS RVBank</a> and download HARPS data products. Then in the Exo-Striker use:<br><br>File --> Open RVBank file --> <br>(and then load the downoladed .dat file) <br><br>This will load you target's HARPS NZP corrected RVs and all the activity index data. <br><br>If you made use of the HARPS RVBank, please do not forget to cite <a href='https://ui.adsabs.harvard.edu/abs/2020arXiv200105942T/abstract'>Trifonov et al. (2020)</a>"))
+
+        self.RVBank_window.list.clicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
+        self.RVBank_window.list_opt.clicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
 
         self.dataInspector_HARPS_RVBank.clicked.connect(self.RVBank_window.show)
 
