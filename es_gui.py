@@ -4780,7 +4780,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.17) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.18) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -5508,7 +5508,7 @@ highly appreciated!
              return   
         
         ntran_data = 0
-        for i in range(0,10,1):         
+        for i in range(0,10,1):
             ntran_data += len(fit.tra_data_sets[i]) 
             
         if fit.type_fit["Transit"] == True  and ntran_data == 0:
@@ -7473,7 +7473,7 @@ If this does not help, please open a GitHub issue here:
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.17). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.18). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
