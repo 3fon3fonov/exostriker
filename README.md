@@ -17,8 +17,10 @@ What works:
 
 * RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
 * Activity index signal search via GLS periodogram.
-* Transit signal search via TLS.
 * Keplerian and Dynamical RV modeling. 
+* Instant online access to the HARPS RVBank (over 212 000 RVs and activity indices of about 3000 stars!!!)
+* Transit signal search via TLS.
+* Transit photometry detrending (via "wotan").
 * Transit photometry modeling.
 * GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
 * Joint RVs + Transit + GPs best-fit optimization.
@@ -93,7 +95,8 @@ transitleastsquares - yes!
 dynesty - yes!  
 rxvt - yes!  
 batman - yes!   
-ttvfast - yes!
+ttvfast - yes!   
+wotan - yes!   
 
 *Installing the swift N-body lib, OK?  (you must if you haven't done it already!)*
   
@@ -148,7 +151,8 @@ Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.
 If you made the use of The Exo-Striker for your paper, I would appreciate if you give credit to it.
 As it is unlikely that I will find time to write a refereed paper on the Exo-Striker soon, please cite the tool with its ASCL ID ascl:1906.004 (see https://ascl.net/1906.004).
  
-The Exo-Striker relies on many open-source packages, which would be great if you acknowledge too. (if you had made the use of them):  
+The Exo-Striker relies on many open-source packages, which if you had made the use of them while working with the tool, 
+you should acknowledge too. (It is your responsibility to find the correct references in the literature):    
 
 
 * The interactive plotting is done with a custom version of the "pyqtgraph": 
@@ -159,9 +163,11 @@ http://www.pyqtgraph.org/
 
 https://github.com/mzechmeister/python
 
-* "TLS" is taken from: 
+* "TLS" and "wotan" are taken from: 
 
 https://github.com/hippke/tls
+
+https://github.com/hippke/wotan
 
 * The transit modeling is done with "batman":
  
