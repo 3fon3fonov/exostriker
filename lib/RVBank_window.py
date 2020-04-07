@@ -1,9 +1,13 @@
 import sys
 from PyQt5 import QtWidgets,QtGui,QtCore
 import io
-import urllib.request 
 import numpy as np
 
+
+if sys.version_info[0] == 3:
+    from urllib.request import urlopen
+elif sys.version_info[0] == 2:
+    from urllib2 import urlopen
 
 #font = QtGui.QFont()
 #font.setPointSize(8)
@@ -23,7 +27,7 @@ class RVBank_window(QtWidgets.QDialog):
 
 
         url = "http://www.mpia.de/homes/trifonov/%s_RVs/%s_harps_all-data_v1.dat"%(targets[0],targets[0])
-        resp = urllib.request.urlopen(url).read() 
+        resp = urlopen(url).read() 
         self.x_data = np.genfromtxt(io.BytesIO(resp),usecols=[0])
         self.y_data = np.genfromtxt(io.BytesIO(resp),usecols=[1])
         self.e_y_data = np.genfromtxt(io.BytesIO(resp),usecols=[2])
@@ -64,7 +68,7 @@ class RVBank_window(QtWidgets.QDialog):
         vLayout.addWidget(self.list_opt)
         self.model_opt = QtGui.QStandardItemModel(self.list_opt)
 
-        self.setGeometry(1,1, 495, 325) 
+        self.setGeometry(1,2, 495, 425) 
 
         for code in targets:
             item = QtGui.QStandardItem(code)
@@ -114,7 +118,7 @@ class RVBank_window(QtWidgets.QDialog):
         self.data_name = data_files[row_opt]
         
         url = "http://www.mpia.de/homes/trifonov/%s_RVs/%s_harps_all-data_v1.dat"%(targets[row],targets[row])
-        resp = urllib.request.urlopen(url).read() 
+        resp = urlopen(url).read() 
         self.x_data = np.genfromtxt(io.BytesIO(resp),usecols=[0])
         if self.data_index <22:
             self.y_data = np.genfromtxt(io.BytesIO(resp),usecols=[self.data_index])

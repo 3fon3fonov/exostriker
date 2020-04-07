@@ -108,7 +108,7 @@ done
 
 
 #python pip install
-arr=( "qtconsole" "jupyter" "pathos" "dill" "emcee" "corner" "celerite" "transitleastsquares" "dynesty" "ttvfast")
+arr=( "qtconsole" "jupyter" "pathos" "dill" "emcee" "corner" "celerite" "transitleastsquares" "dynesty" "ttvfast" "wotan")
 
 for i in "${arr[@]}";
 do

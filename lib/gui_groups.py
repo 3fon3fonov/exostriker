@@ -810,16 +810,16 @@ def act_remove_mean(self):
     return act_remove_mean
 
 
-def tra_sigma_clip(self): 
-    tra_sigma_clip = [
-            [self.tra_sigma_clip_1,self.use_tra_sigma_clip_1],[self.tra_sigma_clip_2,self.use_tra_sigma_clip_2],
-            [self.tra_sigma_clip_3,self.use_tra_sigma_clip_3],[self.tra_sigma_clip_4,self.use_tra_sigma_clip_4],
-            [self.tra_sigma_clip_5,self.use_tra_sigma_clip_5],[self.tra_sigma_clip_6,self.use_tra_sigma_clip_6],
-            [self.tra_sigma_clip_7,self.use_tra_sigma_clip_7],[self.tra_sigma_clip_8,self.use_tra_sigma_clip_8],
-            [self.tra_sigma_clip_9,self.use_tra_sigma_clip_9],[self.tra_sigma_clip_10,self.use_tra_sigma_clip_10]
-            ]
+#def tra_sigma_clip(self): 
+#    tra_sigma_clip = [
+#            [self.tra_sigma_clip_1,self.use_tra_sigma_clip_1],[self.tra_sigma_clip_2,self.use_tra_sigma_clip_2],
+#            [self.tra_sigma_clip_3,self.use_tra_sigma_clip_3],[self.tra_sigma_clip_4,self.use_tra_sigma_clip_4],
+#            [self.tra_sigma_clip_5,self.use_tra_sigma_clip_5],[self.tra_sigma_clip_6,self.use_tra_sigma_clip_6],
+#            [self.tra_sigma_clip_7,self.use_tra_sigma_clip_7],[self.tra_sigma_clip_8,self.use_tra_sigma_clip_8],
+#            [self.tra_sigma_clip_9,self.use_tra_sigma_clip_9],[self.tra_sigma_clip_10,self.use_tra_sigma_clip_10]
+#            ]
  
-    return tra_sigma_clip
+#    return tra_sigma_clip
 
 def tra_norm(self): 
     tra_norm = [

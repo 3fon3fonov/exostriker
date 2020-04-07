@@ -41,6 +41,10 @@ from symbols_window import show_symbols
 from datafiles_window import datafiles_window
 from RVBank_window import RVBank_window
 
+from detrend_window import DetrendWindow
+#from RVBank_window import RVBank_window as DetrendWindow
+
+
 import terminal
 import webbrowser
 import ntpath
@@ -613,9 +617,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         fit.mixed_fit[1] = [int(self.mix_pl_1.isChecked()),int(self.mix_pl_2.isChecked()),int(self.mix_pl_3.isChecked()),
                             int(self.mix_pl_4.isChecked()),int(self.mix_pl_5.isChecked()),int(self.mix_pl_6.isChecked()),
                             int(self.mix_pl_7.isChecked()),int(self.mix_pl_8.isChecked()),int(self.mix_pl_9.isChecked()),
-                            ]       
-        
- 
+                            ]
+
+
     def update_use(self):
         global fit
         
@@ -625,9 +629,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         npl_old = fit.npl
         checked = int(np.sum( [use_planet_gui[i].isChecked() for i in range(len(use_planet_gui))] ))
 
-
-        #self.ttv_data_planet_1.
-        
         self.ttv_pl_combo()
 
         if npl_old < checked:
@@ -640,7 +641,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
  
         for i in range(9):
             fit.omega_dot_use[i] = int(self.use_param_gui_wd[i].isChecked())
-
 
         for i in range(9):        
             fit.t0_use[i] = self.use_param_gui_tr[i*3].isChecked()  
@@ -665,7 +665,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.GP_sho_use[i] = int(self.use_gp_sho_params[i].isChecked())  
             
         self.update_tra_GP_use()
-        
         self.update_ld_use()
 
     def update_tra_GP_use(self):
@@ -676,8 +675,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(len(self.use_tra_gp_sho_params)):
             fit.tra_GP_sho_use[i] = int(self.use_tra_gp_sho_params[i].isChecked())
-    
-        
+
+
     def update_ld_use(self):
         global fit
 
@@ -685,13 +684,12 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.ld_u_lin_use[i]    = [self.use_lin_u[i].isChecked()]
             fit.ld_u_quad_use[i]   = [self.use_quad_u1[i].isChecked(),self.use_quad_u2[i].isChecked()]
             fit.ld_u_nonlin_use[i] = [self.use_nonlin_u1[i].isChecked(),self.use_nonlin_u2[i].isChecked(),
-                                      self.use_nonlin_u3[i].isChecked(),self.use_nonlin_u4[i].isChecked()]            
+                                      self.use_nonlin_u3[i].isChecked(),self.use_nonlin_u4[i].isChecked()]
 
 
     def update_bounds(self):
         global fit
-      
- 
+
         for i in range(9):
             for z in range(2):
                 self.param_bounds_gui[10*i + 0][z].setValue(fit.K_bound[i][z])
@@ -704,7 +702,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.param_bounds_gui[10*i + 7][z].setValue(fit.t0_bound[i][z])
                 self.param_bounds_gui[10*i + 8][z].setValue(fit.pl_rad_bound[i][z])
                 self.param_bounds_gui[10*i + 9][z].setValue(fit.pl_a_bound[i][z])
-    
+
         for i in range(10): 
             for z in range(2):
                 self.offset_bounds_gui[i][z].setValue(fit.rvoff_bounds[i][z])
@@ -717,7 +715,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(9):
             for z in range(2):
-                
+
                 fit.K_bound[i][z] = self.param_bounds_gui[10*i + 0][z].value()
                 fit.P_bound[i][z] = self.param_bounds_gui[10*i + 1][z].value()
                 fit.e_bound[i][z] = self.param_bounds_gui[10*i + 2][z].value()
@@ -729,17 +727,17 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 fit.pl_rad_bound[i][z]  =   self.param_bounds_gui[10*i + 8][z].value()
                 fit.pl_a_bound[i][z]   =   self.param_bounds_gui[10*i + 9][z].value()
                 fit.K_bound[i][z] = self.param_bounds_gui[10*i + 0][z].value()
-    
+
         for i in range(10): 
             for z in range(2):
                 fit.rvoff_bounds[i][z] = self.offset_bounds_gui[i][z].value()
                 fit.jitt_bounds[i][z]  = self.jitter_bounds_gui[i][z].value()
-     
+
         for i in range(9): 
-            for z in range(2):    
+            for z in range(2):
                 fit.omega_dot_bounds[i][z] = self.om_dot_bounds_gui[i][z].value()
 
-        fit.rv_lintr_bounds[0]  = [self.lin_trend_min.value(),self.lin_trend_max.value()]
+        fit.rv_lintr_bounds[0] = [self.lin_trend_min.value(),self.lin_trend_max.value()]
 
         offset_bounds_gui_tra = [
         [self.tra_Data_min_1.value(),self.tra_Data_max_1.value()], [self.tra_Data_min_2.value(),self.tra_Data_max_2.value()], [self.tra_Data_min_3.value(),self.tra_Data_max_3.value()], [self.tra_Data_min_4.value(),self.tra_Data_max_4.value()], [self.tra_Data_min_5.value(),self.tra_Data_max_5.value()],   
@@ -1404,6 +1402,18 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_8,8)
         self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_9,9)
         self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_10,10)
+
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_1,1)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_2,2)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_3,3)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_4,4)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_5,5)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_6,6)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_7,7)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_8,8)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_9,9)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_10,10)
+
 
         self.buttonGroup_use_planets = QtWidgets.QButtonGroup()
         self.buttonGroup_use_planets.setExclusive(False)
@@ -3464,7 +3474,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 #                          remove_mean = False, file_n = but_ind-1)
 
         if self.tra_norm[but_ind-1].isChecked() == True:
-            rv.transit_data_norm(fit,  file_n = but_ind-1, norm = True)
+            #rv.transit_data_norm(fit,  file_n = but_ind-1, norm = True)
+            if len(self.DetrendWindow.flux_o_c) != 0:
+                fit.tra_data_sets[but_ind-1][1] = dill.copy(self.DetrendWindow.flux_o_c)
+                fit.tra_data_sets[but_ind-1][2] = dill.copy(self.DetrendWindow.flux_err_o_c)
+
+            else:
+                rv.transit_data_norm(fit,  file_n = but_ind-1, norm = False)
         else:
             rv.transit_data_norm(fit,  file_n = but_ind-1, norm = False)
 
@@ -4780,7 +4796,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.18) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.19) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -6663,6 +6679,19 @@ If this does not help, please open a GitHub issue here:
 #############################  TEST ZONE ################################  
 
 
+    def transit_data_detrend(self):
+        global fit 
+ 
+        but_ind = self.buttonGroup_detrend_tra.checkedId()   
+        
+        if len(fit.tra_data_sets[but_ind-1]) != 0:
+            self.tra_data = dill.copy(fit.tra_data_sets_init[but_ind-1])
+#           self.DetrendWindow.show()
+            self.DetrendWindow.plot()
+        else:
+            
+            print("No data ",but_ind)
+
     # Get variables pushed from the jupyter shell
     def get_jupyter_vars(self):
         global fit  
@@ -6913,7 +6942,7 @@ If this does not help, please open a GitHub issue here:
         self.act_sigma_clip  = gui_groups.act_sigma_clip(self)
         self.act_remove_mean = gui_groups.act_remove_mean(self)
 
-        self.tra_sigma_clip  = gui_groups.tra_sigma_clip(self)
+#        self.tra_sigma_clip  = gui_groups.tra_sigma_clip(self)
         self.tra_norm        = gui_groups.tra_norm(self)
 
 
@@ -7412,29 +7441,35 @@ If this does not help, please open a GitHub issue here:
         
         self.buttonGroup_use_GP.buttonClicked.connect(self.set_use_GP)
         
+
+        #### Transit detrend   ####
         
+        self.buttonGroup_detrend_tra.buttonClicked.connect(self.transit_data_detrend)
+
+        self.DetrendWindow = DetrendWindow(self)
+
         ####### LD models #############
  
-        self.buttonGroup_use_ld_1.buttonClicked.connect(self.set_tra_ld)   
-        self.buttonGroup_use_ld_2.buttonClicked.connect(self.set_tra_ld)   
-        self.buttonGroup_use_ld_3.buttonClicked.connect(self.set_tra_ld)   
-        self.buttonGroup_use_ld_4.buttonClicked.connect(self.set_tra_ld)    
-        self.buttonGroup_use_ld_5.buttonClicked.connect(self.set_tra_ld)   
+        self.buttonGroup_use_ld_1.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_2.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_3.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_4.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_5.buttonClicked.connect(self.set_tra_ld)
         self.buttonGroup_use_ld_6.buttonClicked.connect(self.set_tra_ld)
-        self.buttonGroup_use_ld_7.buttonClicked.connect(self.set_tra_ld)   
-        self.buttonGroup_use_ld_8.buttonClicked.connect(self.set_tra_ld)           
-        self.buttonGroup_use_ld_9.buttonClicked.connect(self.set_tra_ld)           
-        self.buttonGroup_use_ld_10.buttonClicked.connect(self.set_tra_ld)           
+        self.buttonGroup_use_ld_7.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_8.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_9.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_10.buttonClicked.connect(self.set_tra_ld)
         
         
-       # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_change)       
-        self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_change)       
+       # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_change)
+        self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_change)
         
-        self.check_settings()       
+        self.check_settings()
         self.mute_boxes_dyn()
         self.update_RV_jitter_flag()
         
-        self.force_copl_incl.stateChanged.connect(self.set_force_copl_incl)       
+        self.force_copl_incl.stateChanged.connect(self.set_force_copl_incl)
 
         self.threadpool = QtCore.QThreadPool()
         self.threadpool.setMaxThreadCount(cpu_count())    
@@ -7473,7 +7508,7 @@ If this does not help, please open a GitHub issue here:
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.18). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.19). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
