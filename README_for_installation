@@ -219,15 +219,15 @@ https://github.com/hippke/tls
 
 * The transit modeling is done with "batman":
  
-https://www.cfa.harvard.edu/~lkreidberg/batman/quickstart.html
+https://github.com/lkreidberg/batman
 
 * MCMC sampling is done with "emcee": 
 
-http://dfm.io/emcee/current/
+https://github.com/dfm/emcee
 
 * Nested Sampling is done with "dynesty": 
 
-https://dynesty.readthedocs.io/en/latest/
+https://github.com/joshspeagle/dynesty
 
 * TTV models are adopted from "TTVfast-python":
 
