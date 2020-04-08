@@ -4815,6 +4815,9 @@ in https://github.com/3fon3fonov/exostriker
         text = "* " + "<a href='https://github.com/hippke/tls'>transitleastsquares</a>" 
         self.dialog_credits.text.append(text)
 
+        text = "* " + "<a href='https://github.com/hippke/wotan'>wotan</a>" 
+        self.dialog_credits.text.append(text)        
+
         text = "* " + "<a href='https://github.com/dfm/emcee'>emcee</a>" 
         self.dialog_credits.text.append(text) 
         

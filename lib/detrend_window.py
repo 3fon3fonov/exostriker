@@ -1,26 +1,18 @@
 # -*- coding: utf-8 -*-
 import pyqtgraph as pg
-#from pyqtgraph.Qt import QtCore, QtGui
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 import numpy as np
 import os
+from print_info_window import print_info
 
 from wotan import flatten
-
-#pg.mkQApp()
-
-## Define main window class from template
-#path = os.path.dirname(os.path.abspath(__file__))
-#uiFile = os.path.join(path, './UI/tdt.ui')
-#WindowTemplate, TemplateBaseClass = pg.Qt.loadUiType(uiFile)
 
 qtCreatorFile = "./lib/UI/tdt.ui" 
 Ui_DetrendWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 
-
-class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):  
+class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
     def __init__(self,parent):
         super(DetrendWindow, self).__init__()
 
@@ -35,15 +27,23 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         # Create the main window
         self.ui = Ui_DetrendWindow()
         self.ui.setupUi(self)
+        self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
+
         self.initialize_plots()
 
         self.init_comboBox_regres()
         self.init_comboBox_sliders()
         self.init_comboBox_poly()
         self.init_comboBox_splines()
+        self.init_comboBox_GP()
 
         self.ui.try_button.clicked.connect(self.plot)
+        self.ui.readme_button.clicked.connect(self.info)
 
+        self.info_dialog = print_info(self)
+
+
+        self.ui.buttonGroup_trendOptions.buttonClicked.connect(self.update_labels)
 
 
 
@@ -101,6 +101,18 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
                 return_trend=True,    # Return trend and flattened light curve
                 )
             
+        elif self.ui.radio_GPs.isChecked():
+            
+
+            flatten_lc1, trend_lc1 = flatten(
+                self.t,                 # Array of time values
+                self.flux ,                 # Array of flux values
+                method='gp',
+                kernel = str(self.ui.comboBox_GP.currentText()),
+                kernel_size=self.ui.kernel_size.value(),
+                break_tolerance=self.ui.regres_bt.value(),  # Split into segments at breaks longer than that
+                return_trend=True,    # Return trend and flattened light curve
+                )
             
             
         else:
@@ -150,16 +162,42 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
                                    beam=0.0, pen='#0066ff')
                                    
         self.ui.plot_2.addItem(err_)
-
         self.show()
 
 
+    def info(self):
+        
+        self.info_dialog.setGeometry(300, 300, 150, 150)
+        self.info_dialog.setWindowTitle('Detrending options info')  
+ 
+    
+        text = ''
+        self.info_dialog.text.setText(text) 
+        
+        text = "For more info on the detrending algorithms see <a href='https://github.com/hippke/wotan'>wotan</a>" 
+        self.info_dialog.text.append(text)
 
-    def init_comboBox_regres(self):
 
-        regres = ["lowess","supersmoother","ridge","lasso"]
-        for i in range(len(regres)):
-            self.ui.comboBox_regs.addItem(regres[i],i) 
+        text = "\n"*3 + """If you made the use of the detrending options for your paper, please also cite Hippke et al. (2019, AJ, 158, 143)
+"""
+        self.info_dialog.text.append(text)
+
+    
+        self.info_dialog.text.setReadOnly(True)
+        #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))
+        self.info_dialog.show()
+
+
+    def update_labels(self):
+        
+        if self.ui.radio_GPs.isChecked():
+            self.ui.label_method.setText("kernel")
+            self.ui.label_wl.setText("kernel size")
+        else:
+            self.ui.label_method.setText("method")
+            self.ui.label_wl.setText("window length")
+
+
 
     def init_comboBox_sliders(self):
 
@@ -180,8 +218,17 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         for i in range(len(splines)):
             self.ui.comboBox_splines.addItem(splines[i],i) 
 
+    def init_comboBox_regres(self):
 
+        regres = ["lowess","supersmoother","ridge","lasso"]
+        for i in range(len(regres)):
+            self.ui.comboBox_regs.addItem(regres[i],i) 
 
+    def init_comboBox_GP(self):
+
+        gps = ["squared_exp","matern","periodic","periodic_auto"]
+        for i in range(len(gps)):
+            self.ui.comboBox_GP.addItem(gps[i],i) 
 
 
     def initialize_plots(self):
@@ -214,7 +261,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
                 zzz[i].showAxis('right') 
                 zzz[i].getAxis('bottom').enableAutoSIPrefix(enable=False)
 
-        #p16.getViewBox().setAspectLocked(True)
+        #zzz[i].getViewBox().setAspectLocked(True)
 
         return
 

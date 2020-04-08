@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>Detrend</class>
+ <widget class="QWidget" name="Detrend">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -10,8 +10,17 @@
     <height>773</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>9</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Detrend</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>33_striker.png</normaloff>33_striker.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
@@ -22,12 +31,78 @@
      <property name="verticalSpacing">
       <number>2</number>
      </property>
+     <item row="2" column="5">
+      <widget class="QPushButton" name="try_button">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Try!</string>
+       </property>
+      </widget>
+     </item>
      <item row="5" column="1">
       <widget class="QComboBox" name="comboBox_splines">
        <property name="font">
         <font>
          <pointsize>9</pointsize>
         </font>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="2">
+      <widget class="QDoubleSpinBox" name="kernel_size">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="decimals">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <double>100.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>5.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="3">
+      <widget class="QDoubleSpinBox" name="spline_bt">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.500000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="label_method">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>method</string>
        </property>
       </widget>
      </item>
@@ -46,8 +121,23 @@
        </attribute>
       </widget>
      </item>
+     <item row="7" column="3">
+      <widget class="QDoubleSpinBox" name="regres_bt">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.500000000000000</double>
+       </property>
+      </widget>
+     </item>
      <item row="2" column="2">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="label_wl">
        <property name="font">
         <font>
          <pointsize>9</pointsize>
@@ -55,6 +145,30 @@
        </property>
        <property name="text">
         <string>window length</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="3">
+      <widget class="QDoubleSpinBox" name="poly_bt">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.500000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QComboBox" name="comboBox_regs">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
        </property>
       </widget>
      </item>
@@ -88,6 +202,18 @@
        </attribute>
       </widget>
      </item>
+     <item row="8" column="5">
+      <widget class="QPushButton" name="readme_button">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>READ ME</string>
+       </property>
+      </widget>
+     </item>
      <item row="3" column="0">
       <widget class="QRadioButton" name="radio_remove_mean">
        <property name="font">
@@ -105,6 +231,19 @@
         <string notr="true">buttonGroup_trendOptions</string>
        </attribute>
       </widget>
+     </item>
+     <item row="2" column="4">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>10</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item row="6" column="0">
       <widget class="QRadioButton" name="radio_Polynomials">
@@ -136,31 +275,51 @@
        </attribute>
       </widget>
      </item>
-     <item row="1" column="0" colspan="5">
+     <item row="1" column="0" colspan="6">
       <widget class="PlotWidget" name="plot_2">
        <property name="mouseTracking">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
-      <widget class="QComboBox" name="comboBox_poly">
+     <item row="4" column="2">
+      <widget class="QDoubleSpinBox" name="sliders_wl">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="font">
         <font>
          <pointsize>9</pointsize>
         </font>
        </property>
-      </widget>
-     </item>
-     <item row="0" column="0" colspan="5">
-      <widget class="PlotWidget" name="plot">
-       <property name="mouseTracking">
-        <bool>true</bool>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.500000000000000</double>
        </property>
       </widget>
      </item>
-     <item row="5" column="2">
-      <widget class="QDoubleSpinBox" name="spline_wl">
+     <item row="6" column="2">
+      <widget class="QDoubleSpinBox" name="poly_wl">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.500000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
+      <widget class="QDoubleSpinBox" name="regres_wl">
        <property name="font">
         <font>
          <pointsize>9</pointsize>
@@ -186,72 +345,12 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="2">
-      <widget class="QDoubleSpinBox" name="poly_wl">
+     <item row="6" column="1">
+      <widget class="QComboBox" name="comboBox_poly">
        <property name="font">
         <font>
          <pointsize>9</pointsize>
         </font>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.500000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="3">
-      <widget class="QDoubleSpinBox" name="spline_bt">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.500000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="3">
-      <widget class="QDoubleSpinBox" name="poly_bt">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.500000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="4">
-      <widget class="QPushButton" name="try_button">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Try!</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLabel" name="label_3">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Method</string>
        </property>
       </widget>
      </item>
@@ -264,8 +363,15 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="2">
-      <widget class="QDoubleSpinBox" name="sliders_wl">
+     <item row="0" column="0" colspan="6">
+      <widget class="PlotWidget" name="plot">
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QDoubleSpinBox" name="spline_wl">
        <property name="font">
         <font>
          <pointsize>9</pointsize>
@@ -279,42 +385,12 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
-      <widget class="QComboBox" name="comboBox_regs">
+     <item row="8" column="1">
+      <widget class="QComboBox" name="comboBox_GP">
        <property name="font">
         <font>
          <pointsize>9</pointsize>
         </font>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="2">
-      <widget class="QDoubleSpinBox" name="regres_wl">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.500000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="3">
-      <widget class="QDoubleSpinBox" name="regres_bt">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.500000000000000</double>
        </property>
       </widget>
      </item>
