@@ -4796,7 +4796,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.19) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.20) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -5739,7 +5739,7 @@ highly appreciated!
 
 
 
-            if self.RVBank_window.data_index < 11:
+            if self.RVBank_window.data_index < 11 and self.RVBank_window.type_data == "HARPS":
                 BJD       = self.RVBank_window.x_data 
                 rv_data     = self.RVBank_window.y_data
                 rv_data_sig = self.RVBank_window.e_y_data
@@ -5777,7 +5777,7 @@ highly appreciated!
                 self.update_params()
                 self.update_RV_file_buttons()
                 
-            else:
+            elif self.RVBank_window.data_index >= 11 and self.RVBank_window.type_data == "HARPS":
                 
                 act_JD       = self.RVBank_window.x_data
                 
@@ -5799,6 +5799,57 @@ highly appreciated!
                         break
                         
                 self.update_act_file_buttons()
+                
+
+
+            elif self.RVBank_window.data_index < 5 and self.RVBank_window.type_data == "HIRES":
+                
+                BJD       = self.RVBank_window.x_data 
+                rv_data     = self.RVBank_window.y_data
+                rv_data_sig = self.RVBank_window.e_y_data
+ 
+    
+                name1 = '%s.dat'%self.RVBank_window.target_name
+                path1 = 'datafiles/%s'%name1
+                out1 = open('%s'%path1, 'w')
+
+                for i in range(len(BJD)):
+     
+                    out1.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  \n'.format(float(BJD[i]), float(rv_data[i]), float(rv_data_sig[i]),  width = 10, precision = 5 )   )
+
+                out1.close()
+                fit.add_dataset(name1,path1,0.0,1.0,useoffset=True,usejitter=True)
+
+
+                self.init_fit()
+
+                self.update_use_from_input_file()
+                self.update_use()
+                self.update_params()
+                self.update_RV_file_buttons()
+                
+
+                
+            elif self.RVBank_window.data_index >= 5 and self.RVBank_window.type_data == "HIRES":
+                
+                act_JD       = self.RVBank_window.x_data
+                act_data     = self.RVBank_window.y_data
+                act_data_sig = self.RVBank_window.e_y_data
+
+                act_file_name = self.RVBank_window.data_name
+                
+                act_data_set = np.array([act_JD,act_data,act_data_sig,act_file_name])
+        
+        
+                for i in range(10):
+                    if len(fit.act_data_sets[i]) == 0:
+                        fit.act_data_sets[i]      = act_data_set
+                        fit.act_data_sets_init[i] = dill.copy(fit.act_data_sets[i])
+                        break
+                        
+                self.update_act_file_buttons()
+                
+                
                 
                 
     def cross_data_inspect(self):
@@ -7511,7 +7562,7 @@ If this does not help, please open a GitHub issue here:
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.19). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.20). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)

@@ -168,7 +168,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
     def info(self):
         
         self.info_dialog.setGeometry(300, 300, 150, 150)
-        self.info_dialog.setWindowTitle('Detrending options info')  
+        self.info_dialog.setWindowTitle('Detrending options info')
  
     
         text = ''
@@ -214,7 +214,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
     def init_comboBox_splines(self):
 
-        splines = ["rspline","hspline"]#,"pspline"]
+        splines = ["rspline","hspline","pspline"]
         for i in range(len(splines)):
             self.ui.comboBox_splines.addItem(splines[i],i) 
 
