@@ -31,18 +31,6 @@
      <property name="verticalSpacing">
       <number>2</number>
      </property>
-     <item row="2" column="5">
-      <widget class="QPushButton" name="try_button">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Try!</string>
-       </property>
-      </widget>
-     </item>
      <item row="5" column="1">
       <widget class="QComboBox" name="comboBox_splines">
        <property name="font">
@@ -391,6 +379,33 @@
         <font>
          <pointsize>9</pointsize>
         </font>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="5">
+      <widget class="QPushButton" name="try_button">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Try!</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="5">
+      <widget class="QLabel" name="label_working">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
        </property>
       </widget>
      </item>
