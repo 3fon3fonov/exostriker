@@ -6741,7 +6741,9 @@ If this does not help, please open a GitHub issue here:
         if len(fit.tra_data_sets[but_ind-1]) != 0:
             self.tra_data = dill.copy(fit.tra_data_sets_init[but_ind-1])
 #           self.DetrendWindow.show()
-            self.DetrendWindow.plot()
+            self.DetrendWindow.worker_detrend()
+
+#            self.DetrendWindow.plot()
         else:
             
             print("No data ",but_ind)

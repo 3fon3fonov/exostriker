@@ -169,16 +169,18 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
 
     def worker_detrend_complete(self):
-
-        self.ui.label_working.setText("")
-        self.ui.try_button.setEnabled(True)
         self.plot()
+#        self.statusBar().showMessage('')
+ 
+        #self.jupiter_push_vars()
+        #self.calc_MLP.setEnabled(True)
         return
         
     def worker_detrend(self):
 
-        self.ui.try_button.setEnabled(False)
-        self.ui.label_working.setText("Working!!!")
+        #self.calc_MLP.setEnabled(False)
+
+ 
         worker_detrend_wk = Worker(self.calculate)# Any other args, kwargs are passed to the run  
         worker_detrend_wk.signals.finished.connect(self.worker_detrend_complete)
 

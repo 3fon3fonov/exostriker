@@ -5,8 +5,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets, uic
 import numpy as np
 import os
 from print_info_window import print_info
-from worker import Worker
-from multiprocessing import cpu_count
 
 from wotan import flatten
 
@@ -24,8 +22,6 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.font = QtGui.QFont()
         self.font.setPointSize(9)
         self.font.setBold(False)
-        self.threadpool_DT = QtCore.QThreadPool()
-        self.threadpool_DT.setMaxThreadCount(cpu_count())    
         
         self.parent=parent
         # Create the main window
@@ -73,7 +69,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.init_comboBox_splines()
         self.init_comboBox_GP()
 
-        self.ui.try_button.clicked.connect(self.worker_detrend)
+        self.ui.try_button.clicked.connect(self.plot)
         self.ui.readme_button.clicked.connect(self.info)
 
         self.info_dialog = print_info(self)
@@ -165,37 +161,13 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.flux_err_o_c = self.flux_err/trend_lc1
         
         
-
-
-
-    def worker_detrend_complete(self):
-
-        self.ui.label_working.setText("")
-        self.ui.try_button.setEnabled(True)
-        self.plot()
-        return
         
-    def worker_detrend(self):
-
-        self.ui.try_button.setEnabled(False)
-        self.ui.label_working.setText("Working!!!")
-        worker_detrend_wk = Worker(self.calculate)# Any other args, kwargs are passed to the run  
-        worker_detrend_wk.signals.finished.connect(self.worker_detrend_complete)
-
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool_DT.start(worker_detrend_wk)
-
-
-
-
 
 
  
     def plot(self):
 
-        #self.worker_detrend()
+        self.calculate()
         #self.ui.label_working.setText("")
         ######## Top plot ############
 

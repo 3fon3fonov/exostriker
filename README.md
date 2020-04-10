@@ -18,7 +18,7 @@ What works:
 * RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
 * Activity index signal search via GLS periodogram.
 * Keplerian and Dynamical RV modeling. 
-* Instant online access to the HARPS RVBank (over 212 000 RVs and activity indices of about 3000 stars!!!)
+* Instant online access to the HARPS RVBank (over 212 000 RVs and activity indices of about 3000 stars!!!).
 * Transit signal search via TLS.
 * Transit photometry detrending (via "wotan").
 * Transit photometry modeling.
@@ -190,7 +190,7 @@ and "PyEdit2":
 
 https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor
 
-https://github.com/Axel-Erfurt/PyEdit2'
+https://github.com/Axel-Erfurt/PyEdit2
 
 * N-body tests are performed using a custom version of the "Swift" N-body library,
 modified by Man Hoi Lee (HKU) and Trifon Trifonov (MPIA).
