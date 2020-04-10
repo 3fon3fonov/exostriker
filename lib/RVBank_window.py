@@ -199,7 +199,9 @@ class RVBank_window(QtWidgets.QDialog):
 
     def info(self):
         
-        self.info_dialog.setGeometry(300, 300, 150, 150)
+       # self.info_dialog.setGeometry(300, 300, 150, 150)
+        self.info_dialog.setFixedSize(550, 700)
+
         self.info_dialog.setWindowTitle('RVBank info')
  
     
@@ -207,8 +209,7 @@ class RVBank_window(QtWidgets.QDialog):
         self.info_dialog.text.setText(text) 
         
         text = """
-<br>
- A few things you need to know about the RVBank data:
+<br>A few things you need to know about the RVBank data:
 <br>
 <br>
 <br>The data are retrieved via an internet connection from the RVBank web pages: 
@@ -238,11 +239,11 @@ together with  <a href='https://ui.adsabs.harvard.edu/abs/2017AJ....153..208B/ab
 <br>
 <br> Remember! 
 <br> 
-<br> * HARPS-DRS activity data such as FWHM, Contrast, and Bisector-span, originally do not have error bars! Thus, the Exo-Striker adopts adopts "sigma=1 m/s" for CCF and FWHM data, and "sigma=0.01" for the Contrast data. 
+<br> * HARPS-DRS activity data such as FWHM, Contrast, and Bisector-span, originally do not have error bars! Thus, the Exo-Striker adopts "sigma=1 m/s" for CCF and FWHM data, and "sigma=0.01" for the Contrast data. 
 <br> 
-<br> * HIRES s- and h-index originally do not have error bars! Thus, the Exo-Striker adopts "sigma"=0.001.
+<br> * HIRES s- and h-index data originally do not have error bars! Thus, the Exo-Striker adopts "sigma"=0.001.
 <br> 
-<br> * Some HIRES h-index data appear as -1.0. This means h-index data was not computed.
+<br> * Some HIRES h-index data appear as -1.0. This means that for the given epoch the h-index data was not possible to be computed.
 """
 
  

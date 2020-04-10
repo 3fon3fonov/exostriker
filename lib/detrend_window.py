@@ -29,6 +29,38 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.ui.setupUi(self)
         self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
 
+        self.sklearn_found = True
+        self.statsmodels_found = True
+        self.pygam_found = True
+        self.supersmoother = True
+
+        try:
+            import sklearn
+        except (ImportError, KeyError) as e:
+            self.ui.radio_GPs.setEnabled(False)
+            self.ui.comboBox_GP.setEnabled(False)
+            self.ui.kernel_size.setEnabled(False)
+            self.sklearn_found = False
+            pass
+        
+        try:
+            import statsmodels
+        except (ImportError, KeyError) as e:
+            self.statsmodels_found = False
+            pass
+        
+        try:
+            import pygam
+        except (ImportError, KeyError) as e:
+            self.pygam_found = False
+            pass
+        
+        try:
+            import supersmoother
+        except (ImportError, KeyError) as e:
+            self.supersmoother = False
+            pass
+
         self.initialize_plots()
 
         self.init_comboBox_regres()
@@ -49,6 +81,9 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
     def calculate(self):
 
+        
+        #self.ui.label_working.setText("Working!")
+        
         self.t      = self.parent.tra_data[0]
         self.flux   = self.parent.tra_data[4]
         self.flux_err = self.parent.tra_data[2]
@@ -124,13 +159,16 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.flux_o_c = flatten_lc1
         self.trend = trend_lc1
         self.flux_err_o_c = self.flux_err/trend_lc1
+        
+        
+        
 
 
  
     def plot(self):
 
         self.calculate()
-
+        #self.ui.label_working.setText("")
         ######## Top plot ############
 
         self.ui.plot.plot(self.t,self.flux, clear=True, pen=None,
@@ -167,7 +205,8 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
     def info(self):
         
-        self.info_dialog.setGeometry(300, 300, 150, 150)
+        #self.info_dialog.setGeometry(300, 200, 150, 150)
+        self.info_dialog.setFixedSize(550, 600)
         self.info_dialog.setWindowTitle('Detrending options info')
  
     
@@ -177,10 +216,30 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         text = "For more info on the detrending algorithms see <a href='https://github.com/hippke/wotan'>wotan</a>" 
         self.info_dialog.text.append(text)
 
-
-        text = "\n"*3 + """If you made the use of the detrending options for your paper, please also cite Hippke et al. (2019, AJ, 158, 143)
+        text = """
+<br>
+<br>
+As explained in <a href='https://github.com/hippke/wotan'>wotan</a>, some algorithms request
+additional dependencies, which are not included in "wotan", and thus, not included in the Exo-Striker 
+dependencies list. For example:
+<br> 
+<br> "huber", "ramsay", and "hampel" depend on "statsmodels"
+<br> "hspline" and "gp" depend on "sklearn"
+<br> "pspline" depends on "pygam"
+<br> "supersmoother" depends on "supersmoother"
+<br> 
+<br> To install all additional dependencies, try to install these python packages:
+<br> 
+<br> * pip install statsmodels 
+<br> * pip install sklearn  
+<br> * pip install supersmoother
+<br> * pip install pygam
+<br>  
+<br> If you made the use of the detrending options for your paper, please also cite: 
+<br> * <a href='https://ui.adsabs.harvard.edu/abs/2019AJ....158..143H/abstract'> Hippke et al. (2019)</a>
 """
         self.info_dialog.text.append(text)
+
 
     
         self.info_dialog.text.setReadOnly(True)
@@ -201,10 +260,13 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
     def init_comboBox_sliders(self):
 
-        sliders = ["biweight","huber","huber_psi","hampel","andrewsinewave","welsch","ramsay","tau","hodges","median",
+        sliders     = ["biweight","huber","huber_psi","hampel","andrewsinewave","welsch","ramsay","tau","hodges","median",
 "medfilt","mean","trim_mean","winsorize","hampelfilt"] 
+        sliders_use = [True, self.statsmodels_found, True, self.statsmodels_found,True, True, self.statsmodels_found,True,True,True,True,True,True,True,True] 
+        
         for i in range(len(sliders)):
-            self.ui.comboBox_sliders.addItem(sliders[i],i) 
+            if sliders_use[i] == True:
+                self.ui.comboBox_sliders.addItem(sliders[i],i) 
 
     def init_comboBox_poly(self):
 
@@ -214,15 +276,21 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
     def init_comboBox_splines(self):
 
-        splines = ["rspline","hspline","pspline"]
+        splines     = ["rspline","hspline","pspline"]
+        splines_use = [True,self.sklearn_found,self.pygam_found]
+
         for i in range(len(splines)):
-            self.ui.comboBox_splines.addItem(splines[i],i) 
+            if splines_use[i] == True:
+                self.ui.comboBox_splines.addItem(splines[i],i) 
 
     def init_comboBox_regres(self):
 
         regres = ["lowess","supersmoother","ridge","lasso"]
+        regres_use = [True,self.supersmoother,True,True]
+        
         for i in range(len(regres)):
-            self.ui.comboBox_regs.addItem(regres[i],i) 
+            if regres_use[i] == True:
+                self.ui.comboBox_regs.addItem(regres[i],i) 
 
     def init_comboBox_GP(self):
 
