@@ -6639,33 +6639,32 @@ If this does not help, please open a GitHub issue here:
         self.font.setBold(False)
               
 ################################## System #######################################
-            
-    def quit(self):
-        global fit
-        #os.system("rm temp*.vels")
+
+
+    def closeEvent(self, event):
         choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "Do you want to save the session before you Quit?",
-                                            QtGui.QMessageBox.Cancel | QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
-         
+                                            QtGui.QMessageBox.Cancel | QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)
+
         if choice == QtGui.QMessageBox.No:
-            
-            # to remove the /tmp created files. Unfortunatly this leads to problems later (TBF)
-           # for i in range(fit.filelist.ndset): 
-           #     dirname, basename = os.path.split(fit.filelist.files[i].path)
-           #     os.system('rm -r %s'%dirname) 
+
             if sys.platform[0:5] == "linux":
-                self.term_emb.close()  
-            self.removeEventFilter(self)    
-            self.close()
+                self.term_emb.close()
+            self.removeEventFilter(self)
+            event.accept()
+
         elif choice == QtGui.QMessageBox.Yes:
             self.save_session()
             if sys.platform[0:5] == "linux":
-                self.term_emb.close()    
+                self.term_emb.close()
             #QtGui.QApplication.instance().removeEventFilter(self) 
             self.removeEventFilter(self)
-            self.close()
+            event.accept()
+
         elif choice == QtGui.QMessageBox.Cancel:
-            return
+            event.ignore()
+
+ 
         
     def file_from_path(self, path):
         head, tail = ntpath.split(path)
@@ -6734,9 +6733,9 @@ If this does not help, please open a GitHub issue here:
 
 
     def transit_data_detrend(self):
-        global fit 
+        global fit
  
-        but_ind = self.buttonGroup_detrend_tra.checkedId()   
+        but_ind = self.buttonGroup_detrend_tra.checkedId()
         
         if len(fit.tra_data_sets[but_ind-1]) != 0:
             self.tra_data = dill.copy(fit.tra_data_sets_init[but_ind-1])
@@ -7468,8 +7467,8 @@ If this does not help, please open a GitHub issue here:
         self.calc_MLP.clicked.connect(self.worker_mlp)
 
 
-        self.quit_button.clicked.connect(self.quit)
-        self.actionQuit.triggered.connect(self.quit) 
+        self.quit_button.clicked.connect(self.close)
+        self.actionQuit.triggered.connect(self.close) 
 
         self.actionopen_RVmod_init_file.triggered.connect(self.showDialog_fortran_input_file)
         self.actionOpen_RVbank_file.triggered.connect(self.showDialog_RVbank_input_file)
