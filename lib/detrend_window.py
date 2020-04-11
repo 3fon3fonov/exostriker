@@ -74,12 +74,44 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.init_comboBox_GP()
 
         self.ui.try_button.clicked.connect(self.worker_detrend)
+        self.ui.saveProduct.clicked.connect(self.save_data_product)
         self.ui.readme_button.clicked.connect(self.info)
 
         self.info_dialog = print_info(self)
 
 
         self.ui.buttonGroup_trendOptions.buttonClicked.connect(self.update_labels)
+
+#        self.ui.aboutToQuit.connect(self.ui.radio_remove_mean.setChecked(True))
+
+
+
+
+    def closeEvent(self, event):
+        ret = QtGui.QMessageBox.question(None, 'Close request', 'Are you sure you want to quit?',
+                                         QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
+                                         QtGui.QMessageBox.Yes)
+        if ret == QtGui.QMessageBox.Yes:
+            self.ui.radio_remove_mean.setChecked(True)
+            QtGui.QMainWindow.closeEvent(self, event)
+        else:
+            event.ignore()
+
+
+    def save_data_product(self):
+
+        output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save detrended data file', 'detrended_%s'%self.data_file_name, 'All (*.*);;Data (*.tran)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        
+        
+        if str(output_file[0]) != '':
+ 
+            f = open(output_file[0], 'w')
+
+            for i in range(len(self.t)):
+                f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  \n'.format(float(self.t[i]), float(self.flux_o_c[i]), float(self.flux_err_o_c[i]),  width = 10, precision = 7 )   )
+                
+            f.close()
+
 
 
 
@@ -91,6 +123,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.t      = self.parent.tra_data[0]
         self.flux   = self.parent.tra_data[4]
         self.flux_err = self.parent.tra_data[2]
+        self.data_file_name = self.parent.tra_data[5]
 
 
         if self.ui.radio_remove_mean.isChecked():

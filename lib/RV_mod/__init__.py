@@ -388,67 +388,6 @@ def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
     return 
 
 
-def ttvs_loglik_old(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = False , return_model = False):
-
-
-    planets = []
-    for i in range(npl):
-        if fit_results == False:
-            pl_mass,ap = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*i],
-                                            par[len(vel_files)*2 +7*i+1],
-                                            par[len(vel_files)*2 +7*i+2],
-                                            par[len(vel_files)*2 +7*i+3],
-                                            par[len(vel_files)*2 +7*i+4]],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
-        else:
-            pl_mass = float(fit_results.mass[i])
-        pl_params = [pl_mass/1047.70266835,
-                                            par[len(vel_files)*2 +7*i+1],
-                                            par[len(vel_files)*2 +7*i+2],
-                                            par[len(vel_files)*2 +7*i+5],
-                                            par[len(vel_files)*2 +7*i+6],
-                                            (par[len(vel_files)*2 +7*i+3]-180.0)%360.0,
-                                            (par[len(vel_files)*2 +7*i+4]+180.0)%360.0]
-        planet = ttvfast.models.Planet(*pl_params)
-        planets.append(planet)
-
-    results = ttvfast.ttvfast(planets, stellar_mass, times[0],times[1],times[2],input_flag=0)
-    result_rows = list(zip(*results['positions']))
-
-    n1   = [item[0] for item in result_rows]
-
-    #n2   = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == 0])
-    #transits_calc   = np.array([item[2] for i, item in enumerate(result_rows) if n1[i] == 0])
-    n2   = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[0][3])-1])# if ttv_files[0][4] == True])
-#    n3   = np.array([item[0] for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[0][3])-1])# if ttv_files[0][4] == True])
-    transits_calc   = np.array([item[2] for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[0][3])-1])# if ttv_files[0][4] == True])
-
-
-    loglik_ttv = 0
-    calc_n     = []
-    calk_tran  = []
-
-    # A bug fix???
-    if len(n2) == 0 or max(n2) <= max(ttv_files[0][0]):
-        return -np.inf
-
-    for i in range(len(ttv_files[0][1])):
-
-        calc_n.append(n2[int(ttv_files[0][0][i] -1)])
-        calk_tran.append(transits_calc[int(ttv_files[0][0][i])-1])
-
-        sig2i_ttv = 1.0 / (ttv_files[0][2][i])**2
-        loglik_ttv += -0.5*(np.sum(((ttv_files[0][1][i] - calk_tran[i])**2 * sig2i_ttv - np.log(sig2i_ttv / 2./ np.pi))))
-
-    n2  = n2[np.where(transits_calc > 0)]
-    transits_calc  = transits_calc[np.where(transits_calc > 0)]
-
-
-    if return_model == True:
-        return [loglik_ttv, [calc_n,calk_tran],[n2,transits_calc]]
-    else:
-        return loglik_ttv
-
-
 
 def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = False , return_model = False):
 
@@ -1266,6 +1205,8 @@ def normalprior(p,b):
 
     loglik = np.log(1.0/(np.sqrt(2.0*np.pi)*b[1])*np.exp(-(p-b[0])**2.0/(2.0*b[1]**2.0)))
     return loglik
+
+
 
 def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, b, priors , gps, tra_gps, rtg, mix_fit, opt):
 
