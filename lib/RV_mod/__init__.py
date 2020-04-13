@@ -1283,11 +1283,13 @@ def run_nestsamp(obj, **kwargs):
     tr_model = np.array([tr_mo,tr_ld], dtype=object)
     tr_params = obj.tr_params
 
-    ttv_files = []
+#    ttv_files = []
 
-    for i in range(10):
-        if len(obj.ttv_data_sets[i]) != 0:
-            ttv_files.append(obj.ttv_data_sets[i])
+#    for i in range(10):
+#        if len(obj.ttv_data_sets[i]) != 0:
+#            ttv_files.append(obj.ttv_data_sets[i])
+
+    ttv_files = obj.ttv_data_sets
 
     npl = obj.npl
     epoch = obj.epoch
@@ -1627,11 +1629,14 @@ def run_mcmc(obj, **kwargs):
     tr_params = obj.tr_params
  
 
-    ttv_files = []
+#    ttv_files = []
 
-    for i in range(10):
-        if len(obj.ttv_data_sets[i]) != 0:
-            ttv_files.append(obj.ttv_data_sets[i])
+#    for i in range(10):
+#        if len(obj.ttv_data_sets[i]) != 0:
+#            ttv_files.append(obj.ttv_data_sets[i])
+
+    ttv_files = obj.ttv_data_sets
+
 
     npl = obj.npl
     epoch = obj.epoch
