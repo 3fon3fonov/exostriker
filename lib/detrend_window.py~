@@ -303,7 +303,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
         else:
             p_2.setLogMode(False,False)        
-            p_2.plot(self.trend_per.freq, self.trend_per.power,pen='r',symbol=None )
+            p_2.plot(self.trend_per.freq, self.trend_per.power,pen=f'r',symbol=None )
             p_2.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
 
         [p_2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(self.trend_per.powerLevel(np.array(power_levels)))]
