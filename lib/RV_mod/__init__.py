@@ -782,7 +782,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,fit_results=fit_results, return_model = False)
  
     if opt["AMD_stab"] == True and npl >=2:
-       
+               
         for i in range(npl - 1):
 
             pl_mass_in,ap_in = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*i],
@@ -805,7 +805,6 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
             AMD_Hill = gamma*np.sqrt(alpha) + 1. - (1.+gamma)**1.5 * np.sqrt(alpha/(gamma+alpha) * (1.+(3.**(4./3.)*epsilon**(2./3.)*gamma)/((1.+gamma)**2)))
  
-
             if AMD >= AMD_Hill:
                 return (rv_loglik + tr_loglik + ttv_loglik)* 2.0*np.exp(1.0 - AMD_Hill/AMD)
  

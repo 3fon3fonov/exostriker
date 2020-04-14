@@ -109,9 +109,13 @@ def mass_to_K(P,ecc,incl, pl_mass,Stellar_mass):
 
     T = P*86400.0  
 
+    #K = ((2.0*np.pi*GMSUN)/T)**THIRD * (pl_mass*np.sin(np.radians(incl)) / 
+    #    (Stellar_mass+pl_mass)**(2.0/3.0)) * 1.0/np.sqrt(1.0-ecc**2.0)
+
     K = ((2.0*np.pi*GMSUN)/T)**THIRD * (pl_mass*np.sin(np.radians(incl)) / 
-        (Stellar_mass+pl_mass)**(2.0/3.0)) * 1.0/np.sqrt(1.0-ecc**2.0)
-    
+        (Stellar_mass+pl_mass)**(2.0/3.0)) 
+
+
     return K
 
 

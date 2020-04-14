@@ -655,13 +655,6 @@
               <string>TLS o-c</string>
              </attribute>
              <layout class="QGridLayout" name="gridLayout_101">
-              <item row="0" column="0">
-               <layout class="QGridLayout" name="gridLayout_21">
-                <item row="0" column="0">
-                 <widget class="PlotWidget" name="graphicsView_peridogram_phot_o_c"/>
-                </item>
-               </layout>
-              </item>
               <item row="1" column="0">
                <layout class="QGridLayout" name="gridLayout_95">
                 <item row="0" column="0">
@@ -727,6 +720,13 @@
                    <string>Cross hair</string>
                   </property>
                  </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="0" column="0">
+               <layout class="QGridLayout" name="gridLayout_21">
+                <item row="0" column="0">
+                 <widget class="PlotWidget" name="graphicsView_peridogram_phot_o_c"/>
                 </item>
                </layout>
               </item>
@@ -40163,8 +40163,11 @@
                          <string>Free</string>
                         </property>
                         <property name="checked">
-                         <bool>false</bool>
+                         <bool>true</bool>
                         </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">buttonGroup_omega_dot_opt</string>
+                        </attribute>
                        </widget>
                       </item>
                       <item row="1" column="1">
@@ -40186,6 +40189,9 @@
                         <property name="checked">
                          <bool>true</bool>
                         </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">buttonGroup_AMD_stab_opt</string>
+                        </attribute>
                        </widget>
                       </item>
                       <item row="2" column="0">
@@ -40246,6 +40252,9 @@
                         <property name="checked">
                          <bool>false</bool>
                         </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">buttonGroup_AMD_stab_opt</string>
+                        </attribute>
                        </widget>
                       </item>
                       <item row="0" column="0" colspan="3">
@@ -40285,6 +40294,9 @@
                         <property name="text">
                          <string>GR (fixed term)</string>
                         </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">buttonGroup_omega_dot_opt</string>
+                        </attribute>
                        </widget>
                       </item>
                      </layout>
@@ -52724,7 +52736,7 @@
              <attribute name="title">
               <string>Data options</string>
              </attribute>
-             <layout class="QGridLayout" name="gridLayout_334">
+             <layout class="QGridLayout" name="gridLayout_317">
               <item row="0" column="0">
                <layout class="QGridLayout" name="gridLayout_322">
                 <property name="horizontalSpacing">
@@ -52733,6 +52745,70 @@
                 <property name="verticalSpacing">
                  <number>2</number>
                 </property>
+                <item row="9" column="11">
+                 <widget class="QCheckBox" name="use_RV_bin_data_9">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="11">
+                 <widget class="QCheckBox" name="use_RV_bin_data_6">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="11">
+                 <widget class="QCheckBox" name="use_RV_bin_data_1">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="11">
+                 <widget class="QCheckBox" name="use_RV_bin_data_5">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
                 <item row="6" column="4" colspan="2">
                  <widget class="QDoubleSpinBox" name="inflate_RV_sigma_6">
                   <property name="font">
@@ -53640,11 +53716,11 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;outlier &amp;sigma; clip. [&amp;sigma;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Outlier σ clip. [σ]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="10">
+                <item row="1" column="14">
                  <widget class="QPushButton" name="Button_apply_rv_options_1">
                   <property name="font">
                    <font>
@@ -53662,7 +53738,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="2" column="10">
+                <item row="2" column="14">
                  <widget class="QPushButton" name="Button_apply_rv_options_2">
                   <property name="font">
                    <font>
@@ -53680,7 +53756,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="3" column="10">
+                <item row="3" column="14">
                  <widget class="QPushButton" name="Button_apply_rv_options_3">
                   <property name="font">
                    <font>
@@ -53698,7 +53774,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="4" column="10">
+                <item row="4" column="14">
                  <widget class="QPushButton" name="Button_apply_rv_options_4">
                   <property name="font">
                    <font>
@@ -53716,7 +53792,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="5" column="10">
+                <item row="5" column="14">
                  <widget class="QPushButton" name="Button_apply_rv_options_5">
                   <property name="font">
                    <font>
@@ -53734,7 +53810,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="6" column="10">
+                <item row="6" column="14">
                  <widget class="QPushButton" name="Button_apply_rv_options_6">
                   <property name="font">
                    <font>
@@ -53752,7 +53828,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="7" column="10">
+                <item row="7" column="14">
                  <widget class="QPushButton" name="Button_apply_rv_options_7">
                   <property name="font">
                    <font>
@@ -53770,7 +53846,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="8" column="10">
+                <item row="8" column="14">
                  <widget class="QPushButton" name="Button_apply_rv_options_8">
                   <property name="font">
                    <font>
@@ -53788,7 +53864,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="9" column="10">
+                <item row="9" column="14">
                  <widget class="QPushButton" name="Button_apply_rv_options_9">
                   <property name="font">
                    <font>
@@ -53806,7 +53882,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="10" column="10">
+                <item row="10" column="14">
                  <widget class="QPushButton" name="Button_apply_rv_options_10">
                   <property name="font">
                    <font>
@@ -53824,20 +53900,362 @@
                   </attribute>
                  </widget>
                 </item>
+                <item row="1" column="10">
+                 <spacer name="horizontalSpacer_184">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>5</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="4" column="11">
+                 <widget class="QCheckBox" name="use_RV_bin_data_4">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="11">
+                 <widget class="QCheckBox" name="use_RV_bin_data_7">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="11" colspan="3">
+                 <widget class="QLabel" name="label_426">
+                  <property name="text">
+                   <string>Bin data [days]</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="11">
+                 <widget class="QCheckBox" name="use_RV_bin_data_10">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="11">
+                 <widget class="QCheckBox" name="use_RV_bin_data_3">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="13">
+                 <widget class="QDoubleSpinBox" name="RV_bin_data_1">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.050000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>30.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="11">
+                 <widget class="QCheckBox" name="use_RV_bin_data_2">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="11">
+                 <widget class="QCheckBox" name="use_RV_bin_data_8">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="12">
+                 <spacer name="horizontalSpacer_185">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>5</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="2" column="13">
+                 <widget class="QDoubleSpinBox" name="RV_bin_data_2">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.050000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>30.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="13">
+                 <widget class="QDoubleSpinBox" name="RV_bin_data_3">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.050000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>30.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="13">
+                 <widget class="QDoubleSpinBox" name="RV_bin_data_4">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.050000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>30.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="13">
+                 <widget class="QDoubleSpinBox" name="RV_bin_data_5">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.050000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>30.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="13">
+                 <widget class="QDoubleSpinBox" name="RV_bin_data_6">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.050000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>30.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="13">
+                 <widget class="QDoubleSpinBox" name="RV_bin_data_7">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.050000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>30.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="13">
+                 <widget class="QDoubleSpinBox" name="RV_bin_data_8">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.050000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>30.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="13">
+                 <widget class="QDoubleSpinBox" name="RV_bin_data_9">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.050000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>30.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="13">
+                 <widget class="QDoubleSpinBox" name="RV_bin_data_10">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.050000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>30.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
                </layout>
-              </item>
-              <item row="0" column="1">
-               <spacer name="horizontalSpacer_183">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>139</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
               </item>
              </layout>
             </widget>
@@ -77539,5 +77957,7 @@
   <buttongroup name="buttonGroup_symbol_picker"/>
   <buttongroup name="buttonGroup_use_ld_2"/>
   <buttongroup name="buttonGroup_ewm_hkl"/>
+  <buttongroup name="buttonGroup_AMD_stab_opt"/>
+  <buttongroup name="buttonGroup_omega_dot_opt"/>
  </buttongroups>
 </ui>
