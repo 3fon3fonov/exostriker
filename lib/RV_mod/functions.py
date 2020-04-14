@@ -180,15 +180,20 @@ def get_mode_of_samples(samples, nsamp):
 def get_mean_of_samples(samples, nsamp):
 
     mean_samp = []
-
     for i in range(nsamp):
         mean_samp.append(np.mean(samples[:,i]))
     return mean_samp
 
+def get_median_of_samples(samples, nsamp):
+
+    median_samp = []
+    for i in range(nsamp):
+        median_samp.append(np.median(samples[:,i]))
+    return median_samp
+
 def get_MAD_of_samples(samples, nsamp):
 
     mad_samp = []
-
     for i in range(nsamp):
         mad_samp.append(np.mean(np.absolute(samples[:,i] - np.mean(samples[:,i]))))
     return mad_samp

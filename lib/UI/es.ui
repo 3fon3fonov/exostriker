@@ -43460,7 +43460,7 @@
                 <string>MCMC param.</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_115">
-                <item row="0" column="0" rowspan="3">
+                <item row="0" column="0" rowspan="2">
                  <layout class="QGridLayout" name="gridLayout_50">
                   <property name="verticalSpacing">
                    <number>2</number>
@@ -43800,7 +43800,7 @@
                   </item>
                  </layout>
                 </item>
-                <item row="0" column="1" rowspan="2">
+                <item row="0" column="1">
                  <spacer name="horizontalSpacer_114">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -43853,14 +43853,14 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>Posterior means</string>
+                     <string>Posterior mean</string>
                     </property>
                     <attribute name="buttonGroup">
                      <string notr="true">buttonGroup_adopt_mcmc_as_par</string>
                     </attribute>
                    </widget>
                   </item>
-                  <item row="3" column="0">
+                  <item row="4" column="0">
                    <widget class="QRadioButton" name="adopt_mcmc_mode_as_par">
                     <property name="enabled">
                      <bool>true</bool>
@@ -43878,7 +43878,7 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="4" column="0">
+                  <item row="5" column="0">
                    <widget class="QRadioButton" name="adopt_best_lnL_as_pars">
                     <property name="font">
                      <font>
@@ -43907,7 +43907,7 @@
                      <string>Use the start param.</string>
                     </property>
                     <property name="checked">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
                     <attribute name="buttonGroup">
                      <string notr="true">buttonGroup_adopt_mcmc_as_par</string>
@@ -43971,29 +43971,34 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="0" column="1" rowspan="5">
+                  <item row="0" column="1" rowspan="6">
                    <widget class="Line" name="line_11">
                     <property name="orientation">
                      <enum>Qt::Vertical</enum>
                     </property>
                    </widget>
                   </item>
+                  <item row="3" column="0">
+                   <widget class="QRadioButton" name="adopt_mcmc_median_as_par">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Posterior median</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_adopt_mcmc_as_par</string>
+                    </attribute>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
-                <item row="1" column="3" rowspan="2">
-                 <spacer name="verticalSpacer_33">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>100</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="2" column="1" colspan="2">
+                <item row="1" column="1" colspan="2">
                  <spacer name="horizontalSpacer_27">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -44002,6 +44007,19 @@
                    <size>
                     <width>49</width>
                     <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="1" column="3">
+                 <spacer name="verticalSpacer_33">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>100</height>
                    </size>
                   </property>
                  </spacer>
@@ -44018,19 +44036,46 @@
                   <property name="verticalSpacing">
                    <number>2</number>
                   </property>
-                  <item row="0" column="1" colspan="2">
-                   <widget class="QRadioButton" name="radioButton_dyn_nest_samp">
+                  <item row="8" column="0" colspan="3">
+                   <widget class="QCheckBox" name="save_samples_nested_in_memory">
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
                      </font>
                     </property>
                     <property name="text">
-                     <string>Dynamic</string>
+                     <string>Save samples in memory</string>
                     </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_nest_stat_dyn</string>
-                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="3" column="1" colspan="2">
+                   <widget class="QDoubleSpinBox" name="stop_crit">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string extracomment="multithreading with emcee at the moment does not work because of the object oriented coding of RVmod. TBD."/>
+                    </property>
+                    <property name="decimals">
+                     <number>7</number>
+                    </property>
+                    <property name="minimum">
+                     <double>0.000001000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>10.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.001000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>0.010000000000000</double>
+                    </property>
                    </widget>
                   </item>
                   <item row="6" column="1" colspan="2">
@@ -44042,6 +44087,45 @@
                     </property>
                     <property name="text">
                      <string>(better for heavy tasks)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="9" column="1" colspan="2">
+                   <widget class="QPushButton" name="nest_samples_change_name">
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>./nested_samples</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1" colspan="2">
+                   <widget class="QDoubleSpinBox" name="nest_N_threads">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string extracomment="multithreading with emcee at the moment does not work because of the object oriented coding of RVmod. TBD."/>
+                    </property>
+                    <property name="decimals">
+                     <number>0</number>
+                    </property>
+                    <property name="minimum">
+                     <double>1.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>10000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>1.000000000000000</double>
                     </property>
                    </widget>
                   </item>
@@ -44090,45 +44174,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="0">
-                   <widget class="QLabel" name="label_344">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Live points [N dim. * fact.]</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1" colspan="2">
-                   <widget class="QDoubleSpinBox" name="nest_N_threads">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string extracomment="multithreading with emcee at the moment does not work because of the object oriented coding of RVmod. TBD."/>
-                    </property>
-                    <property name="decimals">
-                     <number>0</number>
-                    </property>
-                    <property name="minimum">
-                     <double>1.000000000000000</double>
-                    </property>
-                    <property name="maximum">
-                     <double>10000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>1.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="1" column="0">
                    <widget class="QLabel" name="label_351">
                     <property name="font">
@@ -44171,58 +44216,55 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="9" column="1" colspan="2">
-                   <widget class="QPushButton" name="nest_samples_change_name">
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>./nested_samples</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="8" column="0" colspan="3">
-                   <widget class="QCheckBox" name="save_samples_nested_in_memory">
+                  <item row="9" column="0">
+                   <widget class="QCheckBox" name="save_samples_nested">
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
                      </font>
                     </property>
                     <property name="text">
-                     <string>Save samples in memory</string>
+                     <string>Save samples in ascii table</string>
                     </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1" colspan="2">
-                   <widget class="QDoubleSpinBox" name="stop_crit">
-                    <property name="enabled">
+                    <property name="checked">
                      <bool>true</bool>
                     </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="0">
+                   <widget class="QCheckBox" name="use_NS_stab_constraints">
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
                      </font>
                     </property>
-                    <property name="toolTip">
-                     <string extracomment="multithreading with emcee at the moment does not work because of the object oriented coding of RVmod. TBD."/>
+                    <property name="text">
+                     <string>Stability constraints</string>
                     </property>
-                    <property name="decimals">
-                     <number>7</number>
+                   </widget>
+                  </item>
+                  <item row="1" column="1" colspan="2">
+                   <widget class="QComboBox" name="comboBox_ns_samp_opt">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
                     </property>
-                    <property name="minimum">
-                     <double>0.000001000000000</double>
+                   </widget>
+                  </item>
+                  <item row="0" column="1" colspan="2">
+                   <widget class="QRadioButton" name="radioButton_dyn_nest_samp">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
                     </property>
-                    <property name="maximum">
-                     <double>10.000000000000000</double>
+                    <property name="text">
+                     <string>Dynamic</string>
                     </property>
-                    <property name="singleStep">
-                     <double>0.001000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>0.010000000000000</double>
-                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_nest_stat_dyn</string>
+                    </attribute>
                    </widget>
                   </item>
                   <item row="7" column="2">
@@ -44246,39 +44288,30 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="9" column="0">
-                   <widget class="QCheckBox" name="save_samples_nested">
+                  <item row="10" column="1" colspan="2">
+                   <widget class="QPushButton" name="nest_corner_plot_change_name">
                     <property name="font">
                      <font>
-                      <pointsize>9</pointsize>
+                      <pointsize>8</pointsize>
                      </font>
                     </property>
                     <property name="text">
-                     <string>Save samples in ascii table</string>
+                     <string>./nest_cornerplot.pdf</string>
                     </property>
-                    <property name="checked">
+                   </widget>
+                  </item>
+                  <item row="10" column="0">
+                   <widget class="QPushButton" name="button_make_nest_cornerplot">
+                    <property name="enabled">
                      <bool>true</bool>
                     </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1" colspan="2">
-                   <widget class="QComboBox" name="comboBox_ns_samp_opt">
                     <property name="font">
                      <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="7" column="0">
-                   <widget class="QCheckBox" name="use_NS_stab_constraints">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
+                      <pointsize>8</pointsize>
                      </font>
                     </property>
                     <property name="text">
-                     <string>Stability constraints</string>
+                     <string>make Cornerplot</string>
                     </property>
                    </widget>
                   </item>
@@ -44306,30 +44339,15 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="10" column="0">
-                   <widget class="QPushButton" name="nest_corner_plot_change_name">
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="label_344">
                     <property name="font">
                      <font>
-                      <pointsize>8</pointsize>
+                      <pointsize>9</pointsize>
                      </font>
                     </property>
                     <property name="text">
-                     <string>./nest_cornerplot.pdf</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="10" column="1" colspan="2">
-                   <widget class="QPushButton" name="button_make_nest_cornerplot">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>make Cornerplot</string>
+                     <string>Live points [N dim. * fact.]</string>
                     </property>
                    </widget>
                   </item>
@@ -44342,7 +44360,7 @@
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
-                    <width>49</width>
+                    <width>10</width>
                     <height>20</height>
                    </size>
                   </property>
@@ -44356,7 +44374,7 @@
                   <item row="2" column="0">
                    <widget class="QRadioButton" name="adopt_nest_means_as_par">
                     <property name="enabled">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="font">
                      <font>
@@ -44364,14 +44382,17 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>Posterior means</string>
+                     <string>Posterior mean</string>
                     </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_adopt_nest_as_par</string>
+                    </attribute>
                    </widget>
                   </item>
-                  <item row="3" column="0">
+                  <item row="4" column="0">
                    <widget class="QRadioButton" name="adopt_nest_mode_as_par">
                     <property name="enabled">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="font">
                      <font>
@@ -44381,9 +44402,12 @@
                     <property name="text">
                      <string>Posterior mod</string>
                     </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_adopt_nest_as_par</string>
+                    </attribute>
                    </widget>
                   </item>
-                  <item row="4" column="0">
+                  <item row="5" column="0">
                    <widget class="QRadioButton" name="adopt_nest_best_lnL_as_pars">
                     <property name="enabled">
                      <bool>true</bool>
@@ -44415,7 +44439,7 @@
                      <string>Use the start param.</string>
                     </property>
                     <property name="checked">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
                     <attribute name="buttonGroup">
                      <string notr="true">buttonGroup_adopt_nest_as_par</string>
@@ -44458,7 +44482,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="1" rowspan="5">
+                  <item row="0" column="1" rowspan="6">
                    <widget class="Line" name="line_12">
                     <property name="orientation">
                      <enum>Qt::Vertical</enum>
@@ -44508,6 +44532,27 @@
                     <property name="text">
                      <string>Adopt mcmc error as:</string>
                     </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QRadioButton" name="adopt_nest_median_as_par">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Posterior median</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_adopt_nest_as_par</string>
+                    </attribute>
                    </widget>
                   </item>
                  </layout>
@@ -77417,82 +77462,82 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_color_picker"/>
-  <buttongroup name="buttonGroup_use_ld_3"/>
-  <buttongroup name="buttonGroup_apply_rv_data_options"/>
-  <buttongroup name="buttonGroup_add_RV_data"/>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_color_picker_ttv"/>
-  <buttongroup name="buttonGroup_remove_activity_data"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
   <buttongroup name="buttonGroup_transit_data"/>
-  <buttongroup name="buttonGroup_apply_act_data_options"/>
-  <buttongroup name="buttonGroup_use_planets">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_apply_tra_data_options"/>
-  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
-  <buttongroup name="buttonGroup_activity_data"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
+  <buttongroup name="buttonGroup_remove_activity_data"/>
+  <buttongroup name="buttonGroup_type_fit"/>
   <buttongroup name="buttonGroup_use_ttv_data_to_planet">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_2"/>
-  <buttongroup name="buttonGroup_Omega_fold"/>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_use_ld_6"/>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
   <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_use_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_color_picker"/>
   <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
   <buttongroup name="buttonGroup_adopt_nest_as_err"/>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_remove_RV_data"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_Omega_fold"/>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_apply_tra_data_options"/>
+  <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
   <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_apply_rv_data_options"/>
   <buttongroup name="buttonGroup_AMD_satb_NS"/>
-  <buttongroup name="buttonGroup_symbol_picker"/>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_use_RV_GP_kernel">
-   <property name="exclusive">
-    <bool>true</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_1"/>
   <buttongroup name="buttonGroup_mixed_fitting">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_7"/>
   <buttongroup name="buttonGroup_use">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_5"/>
   <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_use_RV_GP_kernel">
+   <property name="exclusive">
+    <bool>true</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
   <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_f77_or_scipy"/>
   <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_dom_fold"/>
   <buttongroup name="buttonGroup_detrend_tra"/>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_f77_or_scipy"/>
+  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
+  <buttongroup name="buttonGroup_use_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_use_planets">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
  </buttongroups>
 </ui>

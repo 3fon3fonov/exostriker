@@ -5310,7 +5310,7 @@ highly appreciated!
             return
 
         
-        if self.adopt_nest_means_as_par.isChecked() or self.adopt_nest_best_lnL_as_pars.isChecked() or self.adopt_nest_mode_as_par.isChecked():
+        if self.adopt_nest_means_as_par.isChecked() or self.adopt_nest_median_as_par.isChecked() or  self.adopt_nest_best_lnL_as_pars.isChecked() or self.adopt_nest_mode_as_par.isChecked():
             self.init_fit()
         else:
             self.jupiter_push_vars()
@@ -5433,6 +5433,7 @@ highly appreciated!
         fit.stop_crit = self.stop_crit.value()
         fit.ns_fileoutput=self.save_samples.isChecked()
         fit.ns_save_means=self.adopt_nest_means_as_par.isChecked() 
+        fit.ns_save_median=self.adopt_nest_median_as_par.isChecked() 
         fit.ns_save_mode=self.adopt_nest_mode_as_par.isChecked() 
         fit.ns_save_maxlnL=self.adopt_nest_best_lnL_as_pars.isChecked() 
         fit.ns_save_sampler=self.save_samples_nested_in_memory.isChecked()
@@ -5474,7 +5475,7 @@ highly appreciated!
             self.get_error_msg(fit.bound_error_msg)
             return
         
-        if self.adopt_mcmc_means_as_par.isChecked() or self.adopt_best_lnL_as_pars.isChecked() or self.adopt_mcmc_mode_as_par.isChecked():
+        if self.adopt_mcmc_means_as_par.isChecked() or self.adopt_mcmc_median_as_par.isChecked() or self.adopt_best_lnL_as_pars.isChecked() or self.adopt_mcmc_mode_as_par.isChecked():
             self.init_fit()
         else:
             self.jupiter_push_vars()
@@ -5608,6 +5609,8 @@ highly appreciated!
         fit.mcmc_threads=int(self.N_threads.value())
         fit.mcmc_fileoutput=self.save_samples.isChecked()
         fit.mcmc_save_means=self.adopt_mcmc_means_as_par.isChecked() 
+        fit.mcmc_save_median=self.adopt_mcmc_median_as_par.isChecked() 
+
         fit.mcmc_save_mode=self.adopt_mcmc_mode_as_par.isChecked() 
         fit.mcmc_save_maxlnL=self.adopt_best_lnL_as_pars.isChecked() 
         fit.mcmc_save_sampler=self.save_samples_mcmc_in_memory.isChecked()     
