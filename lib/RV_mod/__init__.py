@@ -1345,8 +1345,8 @@ def run_nestsamp(obj, **kwargs):
            "TTV":obj.type_fit["TTV"],
            "TTV_files":ttv_files,
            "TTV_times":obj.ttv_times,
-           "AMD_stab":obj.mcmc_AMD_stab, 
-           "Nbody_stab":obj.mcmc_Nbody_stab}
+           "AMD_stab":obj.NS_AMD_stab, 
+           "Nbody_stab":obj.NS_Nbody_stab}
 
     #print(par)
     #print(flags)
@@ -1502,6 +1502,7 @@ def run_nestsamp(obj, **kwargs):
 
 
     obj.nest_stat["mean"] = get_mean_of_samples(sampler.results.samples,len(pp))
+    obj.nest_stat["median"] = get_median_of_samples(sampler.results.samples,len(pp))
     samp_maxlnl, maxlnl = get_best_lnl_of_samples(sampler.results.samples,ln, len(pp))
     obj.nest_stat["best"] = samp_maxlnl
     obj.nest_stat["mode"] = get_mode_of_samples(sampler.results.samples,len(pp))
@@ -1511,6 +1512,10 @@ def run_nestsamp(obj, **kwargs):
     if (obj.ns_save_means):
         obj.par_for_mcmc = obj.nest_stat["mean"]
         pp = obj.nest_stat["mean"]
+
+    elif (obj.ns_save_median):
+        obj.par_for_mcmc = obj.nest_stat["median"]
+        pp =  obj.nest_stat["median"]
 
     elif (obj.ns_save_maxlnL):
         obj.par_for_mcmc = obj.nest_stat["best"]
@@ -1778,6 +1783,7 @@ def run_mcmc(obj, **kwargs):
    # start_time = time.time()
 
     obj.mcmc_stat["mean"] = sampler.means
+    obj.mcmc_stat["median"] = sampler.median
     obj.mcmc_stat["best"] = sampler.minlnL
     obj.mcmc_stat["mode"] = get_mode_of_samples(sampler.samples,len(pp))
     obj.mcmc_stat["MAD"]  = get_MAD_of_samples(sampler.samples,len(pp))
@@ -1787,6 +1793,10 @@ def run_mcmc(obj, **kwargs):
     if (obj.mcmc_save_means):
         obj.par_for_mcmc = obj.mcmc_stat["mean"] # we will not need to keep the old parameters in this attribbute, so let's store the means now
         pp = obj.mcmc_stat["mean"]
+        
+    elif (obj.mcmc_save_median):
+        obj.par_for_mcmc = obj.mcmc_stat["median"] #
+        pp =  obj.mcmc_stat["median"]
 
     elif (obj.mcmc_save_maxlnL):
         obj.par_for_mcmc = obj.mcmc_stat["best"] # we will not need to keep the old parameters in this attribbute, so let's store the means now
@@ -2560,6 +2570,7 @@ class signal_fit(object):
         self.mcmc_threads= 1
         self.mcmc_fileoutput=True
         self.mcmc_save_means=False
+        self.mcmc_save_median=False
         self.mcmc_save_mode=False
         self.mcmc_save_maxlnL=False
         self.mcmc_save_sampler=True
@@ -2570,7 +2581,7 @@ class signal_fit(object):
 
         self.mcmc_sample_file = 'mcmc_samples'
         self.mcmc_corner_plot_file = 'cornerplot.pdf'
-        self.mcmc_stat = {"mean": [],"mode": [],"best": [],"MAD":[]}
+        self.mcmc_stat = {"mean": [],"median": [],"mode": [],"best": [],"MAD":[]}
 
 
 
@@ -2588,6 +2599,7 @@ class signal_fit(object):
         self.stop_crit = 0.001
         self.ns_fileoutput=True
         self.ns_save_means=False
+        self.ns_save_median=False
         self.ns_save_mode=False
         self.ns_save_maxlnL=False
         self.ns_save_sampler=True
@@ -2598,7 +2610,7 @@ class signal_fit(object):
 
         self.nest_sample_file = 'nest_samp_samples'
         self.nest_corner_plot_file = 'nest_samp_cornerplot.pdf'
-        self.nest_stat = {"mean": [],"mode": [],"best": [],"MAD":[]}
+        self.nest_stat = {"mean": [],"median": [],"mode": [],"best": [],"MAD":[]}
 
 
 
