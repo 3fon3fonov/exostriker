@@ -37,7 +37,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.sklearn_found = True
         self.statsmodels_found = True
         self.pygam_found = True
-        self.supersmoother = True
+        self.supersmoother_found = True
 
         try:
             import sklearn
@@ -63,7 +63,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         try:
             import supersmoother
         except (ImportError, KeyError) as e:
-            self.supersmoother = False
+            self.supersmoother_found = False
             pass
 
         self.initialize_plots()
@@ -350,12 +350,12 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         text = """
 <br>
 <br>
-As explained in <a href='https://github.com/hippke/wotan'>wotan</a>, some algorithms request
+As explained in "wotan", some algorithms request
 additional dependencies, which are not included in "wotan", and thus, not included in the Exo-Striker 
 dependencies list. For example:
 <br> 
 <br> "huber", "ramsay", and "hampel" depend on "statsmodels"
-<br> "hspline" and "gp" depend on "sklearn"
+<br> "Gaussian processes", "hspline", "ridge", and "lasso"  depend on "sklearn"
 <br> "pspline" depends on "pygam"
 <br> "supersmoother" depends on "supersmoother"
 <br> 
@@ -366,8 +366,10 @@ dependencies list. For example:
 <br> * pip install supersmoother
 <br> * pip install pygam
 <br>  
-<br> If you made the use of the detrending options for your paper, please also cite: 
-<br> * <a href='https://ui.adsabs.harvard.edu/abs/2019AJ....158..143H/abstract'> Hippke et al. (2019)</a>
+<br>  Also, "wotan" depends on "numba" and "llvmlite" so it might be a good idea to update those two if you already have older versions.
+<br>  
+<br>
+<br> If you made the use of the detrending options for your paper, please also cite: <a href='https://ui.adsabs.harvard.edu/abs/2019AJ....158..143H/abstract'> Hippke et al. (2019)</a>
 """
         self.info_dialog.text.append(text)
 
@@ -417,7 +419,7 @@ dependencies list. For example:
     def init_comboBox_regres(self):
 
         regres = ["lowess","supersmoother","ridge","lasso"]
-        regres_use = [True,self.supersmoother,True,True]
+        regres_use = [True,self.supersmoother_found,self.sklearn_found,self.sklearn_found]
         
         for i in range(len(regres)):
             if regres_use[i] == True:
