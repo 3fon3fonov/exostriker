@@ -763,7 +763,18 @@ def planet_checked_gui(self):
 
 
 
-        
+def bin_rv_data(self): 
+    bin_rv_data = [
+            [self.RV_bin_data_1,self.use_RV_bin_data_1],[self.RV_bin_data_2,self.use_RV_bin_data_2],
+            [self.RV_bin_data_3,self.use_RV_bin_data_3],[self.RV_bin_data_4,self.use_RV_bin_data_4],
+            [self.RV_bin_data_5,self.use_RV_bin_data_5],[self.RV_bin_data_6,self.use_RV_bin_data_6],
+            [self.RV_bin_data_7,self.use_RV_bin_data_7],[self.RV_bin_data_8,self.use_RV_bin_data_8],
+            [self.RV_bin_data_9,self.use_RV_bin_data_9],[self.RV_bin_data_10,self.use_RV_bin_data_10]
+            ]
+ 
+    return bin_rv_data
+
+
 
 def add_rv_error(self): 
     add_rv_error = [

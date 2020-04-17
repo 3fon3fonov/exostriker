@@ -1968,6 +1968,7 @@ class signal_fit(object):
         
         self.act_data_sets_init = {k: [] for k in range(10)}
         self.tra_data_sets_init = {k: [] for k in range(10)}
+        self.rv_data_sets_init  = {k: [] for k in range(10)}
 
 #        self.rv_data_sets_input  = {k: [] for k in range(10)}
 
@@ -2698,6 +2699,7 @@ class signal_fit(object):
  
         ####### for now ###########
         self.rv_data_sets[max(self.filelist.idset)] =  rv_data_set
+        self.rv_data_sets_init[max(self.filelist.idset)] = dill.copy(self.rv_data_sets[max(self.filelist.idset)])
 
         #self.rv_data_sets_input[max(self.filelist.idset)] =  rv_data_set
 
@@ -2706,8 +2708,8 @@ class signal_fit(object):
 
     def remove_rv_dataset(self, rv_idset):
 
-        self.rv_data_sets[rv_idset] = []
-        #self.rv_data_sets_input[rv_idset] = []
+        self.rv_data_sets[rv_idset]      = []
+        self.rv_data_sets_init[rv_idset] = []
 
         return
 
