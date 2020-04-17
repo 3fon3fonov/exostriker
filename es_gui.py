@@ -3422,6 +3422,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def apply_rv_data_options(self):
         global fit
         but_ind = self.buttonGroup_apply_rv_data_options.checkedId()
+        
+        rv.bin_rv_data(fit, file_n = but_ind-1, bin_size = self.bin_rv_data[but_ind-1][0].value(), bin_tf = self.bin_rv_data[but_ind-1][1].isChecked())
+
 
         if   self.rv_sigma_clip[but_ind-1][1].isChecked() == True  and self.add_rv_error[but_ind-1][1].isChecked() == False:
             rv.sigma_clip(fit, type = 'RV', sigma_clip = self.rv_sigma_clip[but_ind-1][0].value(), file_n = but_ind-1)
@@ -7003,6 +7006,7 @@ If this does not help, please open a GitHub issue here:
         
         self.add_rv_error   = gui_groups.add_rv_error(self)
         self.rv_sigma_clip  = gui_groups.rv_sigma_clip(self)
+        self.bin_rv_data    = gui_groups.bin_rv_data(self)
         
         self.act_sigma_clip  = gui_groups.act_sigma_clip(self)
         self.act_remove_mean = gui_groups.act_remove_mean(self)

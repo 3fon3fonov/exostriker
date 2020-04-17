@@ -710,6 +710,108 @@ def check_temp_RV_file(obj):
 
 
 
+def modify_temp_RV_file_old(obj, file_n = 0, add_error = 0, data_to_keep = None):
+
+    if obj.filelist.ndset < file_n +1:
+        print("No RV file # %s"%(file_n+1))
+        return
+    elif not os.path.exists(obj.filelist.files[file_n].path):
+        return
+    else:
+        if add_error < 0:
+            sign = -1
+        else:
+            sign = 1
+        new_error = []
+        for j in range(len(obj.rv_data_sets[file_n][0])):
+            k = obj.rv_data_sets[file_n][2][j]**2 + add_error**2 *sign
+            if k < 0:
+                print("You seem to subtract %s from the error budget. As a result, the RV uncertainty of one or more elements would be negative. Errors cannot be negative. Please subtract another value"%add_error)
+                return
+            new_error.append(k)
+        f  = open(obj.filelist.files[file_n].path, 'wb') # open the file
+        
+        for j in range(len(obj.rv_data_sets[file_n][0])):
+            #obj.rv_data_sets[file_n+1][2][j] = np.sqrt(new_error[j])
+            if str(obj.rv_data_sets[file_n][0][j]).startswith("#") or  data_to_keep != None and  j not in data_to_keep:
+                continue
+            text = b"%s  %s  %s \n"%(bytes(str(obj.rv_data_sets[file_n][0][j]).encode()),bytes(str(obj.rv_data_sets[file_n][1][j]).encode()),bytes(str(np.sqrt(new_error[j])).encode()) )
+            f.write(text)
+        f.close()
+        
+        
+        obj.filelist.read_rvfiles(obj.params.offsets)
+        
+        return obj
+
+def bin_rv_data(obj, file_n = 0, bin_size = 1.0, bin_tf = False):
+    
+    if bin_tf == False:
+        obj.rv_data_sets[file_n] = dill.copy(obj.rv_data_sets_init[file_n])
+        return
+
+    else:
+
+        JD    = np.array(obj.rv_data_sets[file_n][0])
+        rv    = np.array(obj.rv_data_sets[file_n][1])
+        sigma = np.array(obj.rv_data_sets[file_n][2])
+        idset = np.array(obj.rv_data_sets[file_n][2])
+
+
+        mask = np.zeros(len(JD))
+        mj_all = []
+        mr_all = []
+        ms_all = []
+        mi_all = []
+
+
+        for x in range(len(JD)):
+
+            JD_int = JD.astype(int) 
+
+            mask = (JD_int != JD_int[x]).astype(int) 
+
+            mj = np.ma.masked_array(JD, mask=mask).compressed() 
+            mr = np.ma.masked_array(rv, mask=mask).compressed()
+            ms = np.ma.masked_array(sigma, mask=mask).compressed()
+            mi = np.ma.masked_array(idset, mask=mask).compressed()
+
+
+            mj_all.append(np.mean(mj))
+            mr_all.append(np.average(mr, weights=1./ms))
+            #ms_all.append(np.average(ms/np.sqrt(len(ms)), weights=1./ms) )
+            ms_all.append(np.average(ms) )
+            mi_all.append(np.mean(mi))
+
+            #ms_all.append( np.sqrt( (np.average(ms/np.sqrt(len(ms)), weights=1./ms)**2.0) + (abs(max(mr)-min(mr))**2.0) ) )
+            #ms_all.append( np.sqrt( (np.average(ms/np.sqrt(len(ms)), weights=1./ms)**2.0) + np.std(mr)**2.0) ) )
+            #print np.median(mr), np.std(mr)
+
+        JD, indices = np.unique(np.asarray(mj_all), return_index=True)
+
+        ind    = np.array(indices)
+        mr_all = np.array(mr_all)
+        mj_all = np.array(mj_all) 
+        ms_all = np.array(ms_all)
+        mi_all = np.array(mi_all)
+
+        mr_all = mr_all[ind]
+        mj_all = mj_all[ind] 
+        ms_all = ms_all[ind]
+        mi_all = mi_all[ind]
+
+
+        obj.rv_data_sets[file_n] = np.array([mj_all,mr_all,ms_all,mi_all])
+ 
+        #obj.rv_data_sets[file_n][0] = dill.copy(mj_all)
+        #obj.rv_data_sets[file_n][1] = dill.copy(mr_all)
+        #obj.rv_data_sets[file_n][2] = dill.copy(ms_all)
+        #obj.rv_data_sets[file_n][3] = dill.copy(mi_all)
+
+        return obj
+
+
+
 def modify_temp_RV_file(obj, file_n = 0, add_error = 0, data_to_keep = None):
 
     if obj.filelist.ndset < file_n +1:
@@ -730,11 +832,14 @@ def modify_temp_RV_file(obj, file_n = 0, add_error = 0, data_to_keep = None):
                 return
             new_error.append(k)
         f  = open(obj.filelist.files[file_n].path, 'wb') # open the file
-        for j in range(len(obj.rv_data_sets[file_n][0])):
+        
+        org_data_file = obj.rv_data_sets[file_n]
+ 
+        for j in range(len(org_data_file[0])):
             #obj.rv_data_sets[file_n+1][2][j] = np.sqrt(new_error[j])
-            if str(obj.rv_data_sets[file_n][0][j]).startswith("#") or  data_to_keep != None and  j not in data_to_keep:
+            if str(org_data_file[0][j]).startswith("#") or  data_to_keep != None and  j not in data_to_keep:
                 continue
-            text = b"%s  %s  %s \n"%(bytes(str(obj.rv_data_sets[file_n][0][j]).encode()),bytes(str(obj.rv_data_sets[file_n][1][j]).encode()),bytes(str(np.sqrt(new_error[j])).encode()) )
+            text = b"%s  %s  %s \n"%(bytes(str(org_data_file[0][j]).encode()),bytes(str(org_data_file[1][j]).encode()),bytes(str(np.sqrt(new_error[j])).encode()) )
             f.write(text)
         f.close()
         
@@ -742,6 +847,9 @@ def modify_temp_RV_file(obj, file_n = 0, add_error = 0, data_to_keep = None):
         obj.filelist.read_rvfiles(obj.params.offsets)
         
         return obj
+
+
+
 
 ### some experimets! ###
 def sigma_clip(obj, type = 'RV', sigma_clip = 10, file_n = 0, add_error = 0, remove_mean = False, verbose = True):
