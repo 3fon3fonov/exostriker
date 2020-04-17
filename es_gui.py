@@ -4796,7 +4796,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.20) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.21) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -5157,9 +5157,16 @@ highly appreciated!
 
         if str(input_file[0]) != '':
 
-            file_pi = open(input_file[0], 'rb')
-            fit_new = dill.load(file_pi) #, encoding='latin1'
-            file_pi.close()     
+            try:
+                file_pi = open(input_file[0], 'rb')
+                fit_new = dill.load(file_pi) #, encoding='latin1'
+                file_pi.close()     
+            except (UnicodeDecodeError, ImportError, KeyError) as e:
+                py3_ses = rv.convert_Session_to_Py3(input_file[0])
+                
+                file_pi = open(py3_ses, 'rb')
+                fit_new = dill.load(file_pi) #, encoding='latin1'
+                file_pi.close()     
 
             self.check_for_missing_instances(fit_new)
 
@@ -7566,7 +7573,7 @@ If this does not help, please open a GitHub issue here:
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.20). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.21). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
