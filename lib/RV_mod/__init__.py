@@ -652,7 +652,6 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
     N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0]) #fit.tra_data_sets[0][3]
 
-
     if np.isnan(p).any():
         return -np.inf
 
@@ -751,9 +750,9 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         gp_rv_loglik = 0
 
         param_vect = []
-        for j in range(1,len(gps.get_parameter_vector())+1):
-            param_vect.append(np.log(par[len(vel_files)*2  +7*npl +j]))
-
+        for j in range(len(gps.get_parameter_vector())):
+            param_vect.append(np.log(par[len(vel_files)*2  +7*npl +2 +j]))
+            #print(par[len(vel_files)*2  +7*npl +2 +j])
         gps.set_parameter_vector(np.array(param_vect))
 
         gp_pred = gps.predict(fit_results.o_c, fit_results.jd, return_cov=False)
@@ -761,9 +760,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
         for i in range(len(vel_files)):
             sig2i_gp = 1.0 / (fit_results.rv_err[fit_results.idset==i]**2 + par[i + len(vel_files)]**2 )
-
             gp_rv_loglik += -0.5*(np.sum((o_c_kep[fit_results.idset==i])**2 * sig2i_gp - np.log(sig2i_gp / 2./ np.pi)))
-
         rv_loglik =  gp_rv_loglik
 
     if(rtg[2]):
@@ -2056,7 +2053,22 @@ class signal_fit(object):
             self.tr_params = []
 
 
+#######################################
 
+
+
+#    def __getstate__(self):
+#        state = self.__dict__.copy()
+#        # Don't pickle baz
+#        del state["gps"]
+#        return state
+
+#    def __setstate__(self, state):
+#        self.__dict__.update(state)
+#        # Add baz back since it doesn't exist in the pickle
+#        self.gps = 0
+
+#######################################
 
     def init_ld_model(self):
 

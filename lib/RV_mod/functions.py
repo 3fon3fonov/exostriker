@@ -119,6 +119,26 @@ def mass_to_K(P,ecc,incl, pl_mass,Stellar_mass):
     return K
 
 
+def convert_Session_to_Py3(old_ses):
+    """
+    Convert a Python 2 sesion to Python 3
+    """
+    # Make a name for the new pickle
+    new_ses = os.path.splitext(os.path.basename(old_ses))[0]+"_p3.ses"
+
+    # Convert Python 2 "ObjectType" to Python 3 object
+    dill._dill._reverse_typemap["ObjectType"] = object
+
+    # Open the pickle using latin1 encoding
+    with open(old_ses, "rb") as f:
+        loaded = dill.load(f, encoding="latin1")
+
+    # Re-save as Python 3 pickle
+    with open(new_ses, "wb") as outfile:
+        dill.dump(loaded, outfile)
+        
+    return new_ses
+
 def find_close_elements(a, b, precision = 0.01):
     """Finds close elements in two arrays with diffrent sizes.
 
