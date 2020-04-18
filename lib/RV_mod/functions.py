@@ -1897,6 +1897,41 @@ def P_to_a(P,m0):
 
 
 
+def plot_transit_gp(obj, curve=False):
+
+    import matplotlib.pyplot as plt
+
+    color="#ff7f0e"
+    colors = ['b','g','r']
+
+    x     = obj.tra_data_sets[0][0]
+    y     = obj.tra_data_sets[0][1]
+    y_err = obj.tra_data_sets[0][2]
+    #idset = obj.filelist.idset
+
+
+    if curve==True:
+        x_model = np.linspace(min(x), max(x), 5000) #obj.fit_results.model_jd
+        mu,var,std = obj.tra_gp_model_curve
+
+    else:
+        x_model = x
+        mu,var,std = obj.tra_gp_model_data
+
+    #print(mu[0:10])
+    #print(y[0:10])
+
+    #for i in range(obj.filelist.ndset):
+        #plt.errorbar(x[idset==i],y[idset==i], yerr=y_err[idset==i], fmt=".",color=colors[i],  capsize=0);
+    plt.errorbar(x,y, yerr=y_err, fmt=".",color=colors[0],  capsize=0);
+
+    plt.plot(x_model, mu, color = '0.5' );
+    plt.fill_between(x_model ,mu+std,  mu-std, color=color, alpha=0.3, edgecolor="none")
+
+
+
+
+
 ####################### mass_semimajor ###########################################
 def mass_a_from_Kepler_fit(a,npl,m0):
     '''Calculates the actual masses and Jacobi semimajor axes of a
