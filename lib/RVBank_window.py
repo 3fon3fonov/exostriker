@@ -211,7 +211,8 @@ class RVBank_window(QtWidgets.QDialog):
             #resp = urlopen(url).read() 
             
             self.try_connection(url)
-
+            if self.url_success == False:
+                return
             
             self.x_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[0])
             if self.data_index <5:

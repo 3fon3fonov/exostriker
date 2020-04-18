@@ -479,13 +479,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def set_tra_ld(self):
         global fit
 
-       # for i in range(10):
-            
-       #     fit.ld_u_lin[i]    = [self.lin_u[i].value()]
-       #     fit.ld_u_quad[i]   = [self.quad_u1[i].value(),self.quad_u2[i].value()]
-       #     fit.ld_u_nonlin[i] = [self.nonlin_u1[i].value(),self.nonlin_u2[i].value(),self.nonlin_u3[i].value(),self.nonlin_u4[i].value()]
-            
-
         for i in range(10):
             
             if self.use_uni_ld_models[i].isChecked():
@@ -503,12 +496,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             else:
                 fit.ld_m[i] = "quadratic"
                 fit.ld_u[i] = [self.quad_u1[i].value(),self.quad_u2[i].value()]
-                
-        # self.use_uni_ld_models    = gui_groups.use_uni_ld_models(self)
-       # self.use_lin_ld_models    = gui_groups.use_lin_ld_models(self)
-       # self.use_quad_ld_models   = gui_groups.use_quad_ld_models(self)
-       # self.use_nonlin_ld_models = gui_groups.use_nonlin_ld_models(self)
-                
+
 
     def update_errors(self):
         global fit
@@ -543,11 +531,14 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.err_RV_lin_trend.setText("+/- %.8f"%(max(fit.param_errors.linear_trend_error)))
         self.err_RV_quad_trend.setText("+/- %.8f"%(max(fit.rv_quadtr_err)))
 
-        for i in range(len(self.gp_rot_errors_gui)):
-            self.gp_rot_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))
 
-        for i in range(len(self.gp_sho_errors_gui)):
-            self.gp_sho_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))
+        if fit.gp_kernel == 'RotKernel':
+            for i in range(len(self.gp_rot_errors_gui)):
+                self.gp_rot_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))
+
+        elif fit.gp_kernel == 'SHOKernel':
+            for i in range(len(self.gp_sho_errors_gui)):
+                self.gp_sho_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))
             
             
         for i in range(10):
@@ -2636,7 +2627,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         p16.plot(clear=True,)    
 
 
-        if len(fit.fit_results.a) ==0:
+        if fit.fit_results.a ==0 or len(fit.fit_results.a) ==0:
             return
         
         if fit.pl_arb_test == True:
@@ -4833,7 +4824,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.21) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.22) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -5244,23 +5235,22 @@ highly appreciated!
             choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "Do you want to overwrite the current sessions? If you choose 'No' will add the session, 'Cancel' will exit",
                                             QtGui.QMessageBox.Cancel | QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
-         
+
             if choice == QtGui.QMessageBox.No:
                 ses_list = ses_list + fit2
             elif choice == QtGui.QMessageBox.Yes:
                 ses_list = fit2
-            elif choice == QtGui.QMessageBox.Cancel:        
-                return         
+            elif choice == QtGui.QMessageBox.Cancel:
+                return
 
-            #fit_new.check_temp_RV_file()
-    
+
             self.check_settings()  
             self.session_list()
             self.select_session(-1)
 
     def save_sessions(self):
         global fit, ses_list
-      
+
         output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save multi-session', 'my_sessions.mses', 'Data (*.mses)', options=QtGui.QFileDialog.DontUseNativeDialog)
 
         if str(output_file[0]) != '':
@@ -5268,7 +5258,7 @@ highly appreciated!
             dill.dump(ses_list, file_pi)
             file_pi.close()
 
-        
+
     def session_list(self):
         global fit, ses_list
 
@@ -5285,7 +5275,7 @@ highly appreciated!
 
     def select_session(self, index):
         global fit, ses_list
-        
+
         if index == -1:
             ind = -1
             self.comboBox_select_ses.setCurrentIndex(len(ses_list)-1)
@@ -5305,7 +5295,7 @@ highly appreciated!
 
         self.init_fit()
 
-        self.update_use_from_input_file()   
+        self.update_use_from_input_file()
         self.update_use()
         self.update_gui_params()
         self.update_params()
@@ -5314,31 +5304,29 @@ highly appreciated!
         self.update_ttv_file_buttons()
 
 
-        self.update_act_file_buttons()       
+        self.update_act_file_buttons()
         self.update_color_picker()
         
-        if not ind == None:    
+        if not ind == None:
             ses_list[ind] = fit 
  
     def change_session_label(self):
         global fit, ses_list 
-        
+
         ind = self.comboBox_select_ses.currentIndex()
-        
+
         if ind == None:
             return
         elif ind >= 0:
             ses_list[ind].name = self.comboBox_select_ses.currentText() 
             self.comboBox_select_ses.setItemText(ind, '%s'%(ses_list[ind].name))
-            
 
-            
+
 ################################## Nest Samp. #######################################
 
     def worker_nest_complete(self):
-        global fit  
-        #fit.print_info(short_errors=False)
-        
+        global fit
+
         self.update_labels()
         self.update_gui_params()
         self.update_errors() 
@@ -5347,13 +5335,11 @@ highly appreciated!
         self.init_plot_corr()
 
         self.statusBar().showMessage('') 
-        #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
 
         if fit.bound_error == True:
             self.get_error_msg(fit.bound_error_msg)
             return
 
-        
         if self.adopt_nest_means_as_par.isChecked() or self.adopt_nest_median_as_par.isChecked() or  self.adopt_nest_best_lnL_as_pars.isChecked() or self.adopt_nest_mode_as_par.isChecked():
             self.init_fit()
         else:
@@ -5362,17 +5348,17 @@ highly appreciated!
 
     def worker_nest(self):
         global fit  
-        
+
         self.update_params()
         self.update_use()
-        
+
         if self.radioButton_RV.isChecked():
             fit.rtg = [True,self.do_RV_GP.isChecked(), False, self.do_tra_GP.isChecked()]
         elif self.radioButton_transit.isChecked():
-            fit.rtg = [False, self.do_RV_GP.isChecked(), True, self.do_tra_GP.isChecked()]
+            fit.rtg = [False, False, True, self.do_tra_GP.isChecked()]
         elif self.radioButton_transit_RV.isChecked():
             fit.rtg = [True,self.do_RV_GP.isChecked(), True, self.do_tra_GP.isChecked()]
-            
+
         elif self.radioButton_ttv.isChecked():
             fit.rtg = [False, False, False, False]
         elif self.radioButton_ttv_RV.isChecked():
@@ -5389,7 +5375,7 @@ highly appreciated!
 
 
         self.button_nest_samp.setEnabled(False)
-        self.statusBar().showMessage('Nested Sampling in progress....')        
+        self.statusBar().showMessage('Nested Sampling in progress....')
         # check if RV data is present
         if fit.type_fit["RV"] == True and fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
@@ -5399,18 +5385,17 @@ highly appreciated!
              return
 
         ntran_data = 0
-        for i in range(0,10,1):         
+        for i in range(0,10,1):
             ntran_data += len(fit.tra_data_sets[i]) 
-            
+
         if fit.type_fit["Transit"] == True  and ntran_data == 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "Not possible to run MCMC if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
+             "Not possible to run MCMC if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)
              self.button_nest_samp.setEnabled(True)  
              self.statusBar().showMessage('') 
 
-             return             
-            
-            
+             return
+
 
         choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
@@ -5425,7 +5410,7 @@ highly appreciated!
         self.check_bounds()
         self.check_priors_nr() 
         fit.model_npoints = self.points_to_draw_model.value()
-        
+
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
         if self.use_nest_percentile_level.isChecked():
@@ -5437,30 +5422,30 @@ highly appreciated!
         worker_n = Worker(self.run_nest) # Any other args, kwargs are passed to the run  
         # Execute
         worker_n.signals.finished.connect(self.worker_nest_complete)
-        
+
         # worker.signals.result.connect(self.print_output)
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
         self.threadpool.start(worker_n)
-        
+
     def run_nest(self):
         global fit
-        
+
         self.check_model_params() 
         self.check_nested_params()
 
         if self.run_ns_in_bg.isChecked():
             fit = rv.run_nestsamp_bg(fit)
-        else:      
+        else:
             fit = rv.run_nestsamp(fit)
-     
-        self.button_nest_samp.setEnabled(True)            
- 
+
+        self.button_nest_samp.setEnabled(True)
+
     def change_nest_samples_file_name(self):
         global fit
         
         output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the nested samples', '', '', options=QtGui.QFileDialog.DontUseNativeDialog)
-        
+
         if output_file[0] != '':
             fit.nest_sample_file = output_file[0] 
             self.nest_samples_change_name.setText(output_file[0])
@@ -5487,18 +5472,17 @@ highly appreciated!
         if self.button_make_cornerplot_nested.isChecked():
             self.save_samples_nested.setChecked(True)
  
-    def init_ns_samp_opt_combo(self):    
+    def init_ns_samp_opt_combo(self):
         global fit
-        
+
         for i in range(len(fit.ns_samp_method_opt)):
-            self.comboBox_ns_samp_opt.addItem('%s'%(fit.ns_samp_method_opt[i]),i+1)   
-      
-    def check_ns_samp_opt_combo(self):    
-        global fit             
-            
-        ind_ns_opt = self.comboBox_ns_samp_opt.currentIndex()       
-        fit.ns_samp_method = fit.ns_samp_method_opt[ind_ns_opt]  
-        
+            self.comboBox_ns_samp_opt.addItem('%s'%(fit.ns_samp_method_opt[i]),i+1)
+
+    def check_ns_samp_opt_combo(self):
+        global fit
+
+        ind_ns_opt = self.comboBox_ns_samp_opt.currentIndex()
+        fit.ns_samp_method = fit.ns_samp_method_opt[ind_ns_opt]
 
 
 ################################## MCMC #######################################
@@ -5527,16 +5511,14 @@ highly appreciated!
 
     def worker_mcmc(self):
         global fit  
-        
-        
+
         self.update_params()
         self.update_use()
 
-        
         if self.radioButton_RV.isChecked():
             fit.rtg = [True,self.do_RV_GP.isChecked(), False, self.do_tra_GP.isChecked()]
         elif self.radioButton_transit.isChecked():
-            fit.rtg = [False, self.do_RV_GP.isChecked(), True, self.do_tra_GP.isChecked()]
+            fit.rtg = [False, False, True, self.do_tra_GP.isChecked()]
         elif self.radioButton_transit_RV.isChecked():
             fit.rtg = [True,self.do_RV_GP.isChecked(), True, self.do_tra_GP.isChecked()]
             
@@ -5554,14 +5536,9 @@ highly appreciated!
             fit.mcmc_AMD_stab   = False
             fit.mcmc_Nbody_stab = False
 
-       # if self.radioButton_ttv.isChecked() or self.radioButton_ttv_RV.isChecked():
-
-       #     self.button_MCMC.setEnabled(True)  
-       #     self.statusBar().showMessage('') 
-       #     return
 
         self.button_MCMC.setEnabled(False)
-        self.statusBar().showMessage('MCMC in progress....')        
+        self.statusBar().showMessage('MCMC in progress....')
         # check if RV data is present
         if fit.type_fit["RV"] == True and fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
@@ -5569,49 +5546,48 @@ highly appreciated!
              self.button_MCMC.setEnabled(True)  
              self.statusBar().showMessage('') 
 
-             return   
-        
+             return
+
         ntran_data = 0
         for i in range(0,10,1):
             ntran_data += len(fit.tra_data_sets[i]) 
-            
+
         if fit.type_fit["Transit"] == True  and ntran_data == 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to run MCMC if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
              self.button_MCMC.setEnabled(True)  
              self.statusBar().showMessage('') 
 
-             return             
-    
+             return
+
 
         choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
                                             QtGui.QMessageBox.Cancel | QtGui.QMessageBox.Ok)       
-         
+
         if choice == QtGui.QMessageBox.Cancel:
             self.statusBar().showMessage('') 
             self.button_MCMC.setEnabled(True)
-            return        
+            return
 
-        self.set_tra_ld()        
+        self.set_tra_ld()
         self.check_bounds()
         self.check_priors_nr() 
         fit.model_npoints = self.points_to_draw_model.value()
-        
+
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
-        
-        
+
+
         if self.use_percentile_level.isChecked():
             fit.percentile_level = self.percentile_level.value()
         else:
             fit.percentile_level = 68.3
-           
-        
+
         # Pass the function to execute
         worker = Worker(lambda: self.run_mcmc()) # Any other args, kwargs are passed to the run  
         # Execute
         worker.signals.finished.connect(self.worker_mcmc_complete)
-        
+
         # worker.signals.result.connect(self.print_output)
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
@@ -5619,17 +5595,15 @@ highly appreciated!
         
     def run_mcmc(self):
         global fit
-        
 
         self.check_model_params()
         self.check_mcmc_params()
-    
-      
+
         if self.run_mcmc_in_bg.isChecked():
             fit = rv.run_mcmc_bg(fit)
         else:
             fit = rv.run_mcmc(fit)
-    
+
         self.button_MCMC.setEnabled(True)   
 
 
@@ -5677,27 +5651,26 @@ highly appreciated!
         self.statusBar().showMessage('') 
         self.button_make_mcmc_cornerplot.setEnabled(True)
         self.button_make_nest_cornerplot.setEnabled(True)
-       
 
 
     def worker_cornerplot(self, type_plot = "mcmc"):
         global fit  
-        
+
         self.button_make_mcmc_cornerplot.setEnabled(False)
         self.button_make_nest_cornerplot.setEnabled(False)
-       
-        self.statusBar().showMessage('Cornerplot in progress....')        
+
+        self.statusBar().showMessage('Cornerplot in progress....')
         # check if RV data is present
         if type_plot == "mcmc":
             samp_file = fit.mcmc_sample_file
             type_samp = "MCMC"
         elif type_plot == "nest":
             samp_file = fit.nest_sample_file
-            type_samp = "Nest. Samp."            
-        
+            type_samp = "Nest. Samp."
+
         if not os.path.exists(samp_file):
              choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "%s file not found. Generate one and try again?"%type_samp, QtGui.QMessageBox.Ok)      
+             "%s file not found. Generate one and try again?"%type_samp, QtGui.QMessageBox.Ok)
              self.button_make_mcmc_cornerplot.setEnabled(True)
              self.button_make_nest_cornerplot.setEnabled(True)
 
@@ -5739,15 +5712,14 @@ highly appreciated!
 
     def load_data_inspect(self): 
         global fit
- 
+
         if self.RVBank == False:
-            #path = self.tree_view_tab.listview.model().filePath(index)
             path = self.inspector_file
             if path == '':
                 return 
-    
+
             filename, file_extension = os.path.splitext(path)
-    
+
             if file_extension == '.vels':
                 fit.add_dataset(self.file_from_path(path), str(path),0.0,1.0)
                 self.init_fit()
@@ -5755,23 +5727,23 @@ highly appreciated!
                 self.update_use()
                 self.update_params()
                 self.update_RV_file_buttons()
-     
+
             elif file_extension == '.act':
-    
+
                 for i in range(10):
                     if len(fit.act_data_sets[i]) == 0:
                         but_ind = i +1
                         fit.add_act_dataset('test', str(path),act_idset =but_ind-1)
-    
+
                         self.update_act_file_buttons()
                         self.update_activity_gls_plots(but_ind-1)
                         return
-    
+
             elif  file_extension == '.tran':
                 for i in range(10):
                     if len(fit.tra_data_sets[i]) == 0:
                         but_ind = i +1
-     
+
                         fit.add_transit_dataset('test', str(path),tra_idset =but_ind-1)
                         self.update_use_from_input_file()
                         self.update_use()
@@ -5790,7 +5762,6 @@ highly appreciated!
                 rv_data     = self.RVBank_window.y_data
                 rv_data_sig = self.RVBank_window.e_y_data
  
-    
                 name1 = '%s_pre.dat'%self.RVBank_window.target_name
                 name2 = '%s_post.dat'%self.RVBank_window.target_name
                 path1 = 'datafiles/%s'%name1
@@ -5798,18 +5769,17 @@ highly appreciated!
         
                 out1 = open('%s'%path1, 'w')
                 out2 = open('%s'%path2, 'w')
-        
-        
+
                 for i in range(len(BJD)):
-     
+
                     if float(BJD[0]) <= 2457161.5:
                         out1.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  \n'.format(float(BJD[i]), float(rv_data[i]), float(rv_data_sig[i]),  width = 10, precision = 5 )   )
                     elif float(BJD[0]) > 2457161.5:
                         out2.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  \n'.format(float(BJD[i]), float(rv_data[i]), float(rv_data_sig[i]),  width = 10, precision = 5 )   )
-        
+
                 out1.close()
                 out2.close()
-         
+
                 if len(BJD[BJD <= 2457161.5]) !=0:
                     fit.add_dataset(name1,path1,0.0,1.0,useoffset=True,usejitter=True)
                 if len(BJD[BJD > 2457161.5]) !=0:
@@ -5826,7 +5796,7 @@ highly appreciated!
             elif self.RVBank_window.data_index >= 11 and self.RVBank_window.type_data == "HARPS":
                 
                 act_JD       = self.RVBank_window.x_data
-                
+
                 act_data     = np.concatenate((
                 self.RVBank_window.y_data[act_JD <= 2457161.5]- np.mean(self.RVBank_window.y_data[act_JD <= 2457161.5]),  
                 self.RVBank_window.y_data[act_JD > 2457161.5] - np.mean(self.RVBank_window.y_data[act_JD  > 2457161.5])))
@@ -5834,18 +5804,16 @@ highly appreciated!
                 act_data_sig = self.RVBank_window.e_y_data
 
                 act_file_name = self.RVBank_window.data_name
-                
                 act_data_set = np.array([act_JD,act_data,act_data_sig,act_file_name])
-        
-        
+ 
                 for i in range(10):
                     if len(fit.act_data_sets[i]) == 0:
                         fit.act_data_sets[i]      = act_data_set
                         fit.act_data_sets_init[i] = dill.copy(fit.act_data_sets[i])
                         break
-                        
+
                 self.update_act_file_buttons()
-                
+
 
 
             elif self.RVBank_window.data_index < 5 and self.RVBank_window.type_data == "HIRES":
@@ -5883,29 +5851,28 @@ highly appreciated!
                 act_data_sig = self.RVBank_window.e_y_data
 
                 act_file_name = self.RVBank_window.data_name
-                
+
                 act_data_set = np.array([act_JD,act_data,act_data_sig,act_file_name])
-        
-        
+
                 for i in range(10):
                     if len(fit.act_data_sets[i]) == 0:
                         fit.act_data_sets[i]      = act_data_set
                         fit.act_data_sets_init[i] = dill.copy(fit.act_data_sets[i])
                         break
-                        
+
                 self.update_act_file_buttons()
-                
-                
-                
-                
+
+
+
     def cross_data_inspect(self):
         if self.inpector_plot_cross_hair.isChecked():
             self.cross_hair(pdi,log=False)   
         else:
             self.cross_hair_remove(pdi)
 
-            
-            
+
+
+
     def plot_data_inspect(self, index, no_sender=False, RVBank = False):
         global fit, colors, pdi 
 
@@ -7137,9 +7104,12 @@ If this does not help, please open a GitHub issue here:
         
         
         #self.gridLayout_116.addWidget(terminal.EmbTerminal())
+        
+        self.text_editor = text_editor_es.MainWindow()
+        self.calculator = calc.Calculator()
  
-        self.gridLayout_text_editor.addWidget(text_editor_es.MainWindow())       
-        self.gridLayout_calculator.addWidget(calc.Calculator())  
+        self.gridLayout_text_editor.addWidget(self.text_editor)
+        self.gridLayout_calculator.addWidget(self.calculator)
         
         #################### data inspector ########################
         self.RVBank = False
@@ -7619,7 +7589,7 @@ If this does not help, please open a GitHub issue here:
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.21). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.22). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
