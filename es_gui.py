@@ -6789,6 +6789,10 @@ If this does not help, please open a GitHub issue here:
         for iii in fit.__dict__:
             if iii not in fit_new.__dict__: 
                 fit_new.__dict__[iii] = dill.copy(fit.__dict__[iii])
+
+        for iii in fit.fit_results.__dict__:
+            if iii not in fit_new.fit_results.__dict__: 
+                fit_new.fit_results.__dict__[iii] = dill.copy(fit.fit_results.__dict__[iii])
         return
 
 
