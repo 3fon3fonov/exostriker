@@ -202,6 +202,10 @@ class RVBank_window(QtWidgets.QDialog):
         elif self.button2.isChecked():
 
             self.type_data = "HIRES"
+            
+            if row_opt > 3:
+                row_opt = 0
+            
             self.data_index = data_files_ind_HIRES[row_opt]
             self.data_name = data_files_HIRES[row_opt]
             
