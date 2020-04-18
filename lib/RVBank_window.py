@@ -24,16 +24,6 @@ class RVBank_window(QtWidgets.QDialog):
         hLayout = QtWidgets.QHBoxLayout()
 
 
-        url = "http://www.mpia.de/homes/trifonov/%s_RVs/%s_harps_all-data_v1.dat"%(targets_HARPS[0],targets_HARPS[0])
-        resp = urlopen(url).read() 
-        self.x_data = np.genfromtxt(io.BytesIO(resp),usecols=[0])
-        self.y_data = np.genfromtxt(io.BytesIO(resp),usecols=[1])
-        self.e_y_data = np.genfromtxt(io.BytesIO(resp),usecols=[2])
-        self.path = url
-        self.data_index  = 1
-        self.row_opt = 0
-        self.row = 0
-        self.type_data = "HARPS"
         self.info_dialog = print_info(self)
 
 
@@ -84,8 +74,38 @@ class RVBank_window(QtWidgets.QDialog):
         
         self.list.clicked.connect(self.on_clicked)
         self.list_opt.clicked.connect(self.on_clicked_opt)
+
+
+
+        url = "http://www.mpia.de/homes/trifonov/%s_RVs/%s_harps_all-data_v1.dat"%(targets_HARPS[0],targets_HARPS[0])
+        self.path = url
+        self.data_index  = 1
+        self.row_opt = 0
+        self.row = 0
+        self.type_data = "HARPS"
         
+        self.try_connection(url)
+        if self.url_success == False:
+            return
+
+        self.x_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[0])
+        self.y_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[1])
+        self.e_y_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[2])
+
+
+
         self.init_model()
+
+
+    def try_connection(self,url):
+
+        try:
+            self.resp = urlopen(url).read() 
+            self.url_success = True
+            return
+        except:
+            print("No internet connection, or no connection to the HARPS RVBank!!!")
+            self.url_success = False
 
  
     def init_model(self):
@@ -158,16 +178,21 @@ class RVBank_window(QtWidgets.QDialog):
             self.data_name = data_files_HARPS[row_opt]
             
             url = "http://www.mpia.de/homes/trifonov/%s_RVs/%s_harps_all-data_v1.dat"%(targets_HARPS[row],targets_HARPS[row])
-            resp = urlopen(url).read() 
-            self.x_data = np.genfromtxt(io.BytesIO(resp),usecols=[0])
+           # resp = urlopen(url).read() 
+            
+            self.try_connection(url)
+            if self.url_success == False:
+                return
+            
+            self.x_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[0])
             if self.data_index <22:
-                self.y_data = np.genfromtxt(io.BytesIO(resp),usecols=[self.data_index])
-                self.e_y_data = np.genfromtxt(io.BytesIO(resp),usecols=[self.data_index+1])
+                self.y_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[self.data_index])
+                self.e_y_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[self.data_index+1])
             elif self.data_index == 22 or self.data_index == 24:
-                self.y_data = np.genfromtxt(io.BytesIO(resp),usecols=[self.data_index])* 1000.0
+                self.y_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[self.data_index])* 1000.0
                 self.e_y_data = np.array([1.0]*len(self.y_data))
             else:
-                self.y_data = np.genfromtxt(io.BytesIO(resp),usecols=[self.data_index])
+                self.y_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[self.data_index])
                 self.e_y_data = np.array([np.mean(self.y_data)*0.01]*len(self.y_data))
 
             self.path = url
@@ -183,13 +208,17 @@ class RVBank_window(QtWidgets.QDialog):
             #print(self.data_index,self.data_name)
 
             url = "http://www.mpia.de/homes/trifonov/HIRES/%s_RVs/%s.dat"%(targets_HIRES[row],targets_HIRES[row])
-            resp = urlopen(url).read() 
-            self.x_data = np.genfromtxt(io.BytesIO(resp),usecols=[0])
+            #resp = urlopen(url).read() 
+            
+            self.try_connection(url)
+
+            
+            self.x_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[0])
             if self.data_index <5:
-                self.y_data = np.genfromtxt(io.BytesIO(resp),usecols=[self.data_index])
-                self.e_y_data = np.genfromtxt(io.BytesIO(resp),usecols=[self.data_index+1])
+                self.y_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[self.data_index])
+                self.e_y_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[self.data_index+1])
             elif self.data_index >= 5:
-                self.y_data = np.genfromtxt(io.BytesIO(resp),usecols=[self.data_index])
+                self.y_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[self.data_index])
                 self.e_y_data = np.array([0.001]*len(self.y_data))
 
             self.path = url
