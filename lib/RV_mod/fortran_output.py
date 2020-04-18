@@ -247,8 +247,12 @@ class fortran_output(object):
         self.save_stat_array()
         self.dismantle_keplerian_fit()
         self.dismantle_RV_kep()
+        
+        self.wrms = np.sqrt(np.average(self.o_c**2, weights=1/self.rv_error))
+
+        
         results = kernel(self.generate_summary(), self.jd, self.rv_obs, self.rv_error,self.o_c, self.model, 
                          self.JD_model, self.npl,self.semiM,self.masses,self.data_set,self.stat_array_saved,
-                         self.reduced_chi2,self.chi2,self.rms,self.loglik, self.mfit,self.omega_dot,
+                         self.reduced_chi2,self.chi2,self.rms,self.wrms,self.loglik, self.mfit,self.omega_dot,
                          self.omega_dot_err,self.rv_quadtr,self.rv_quadtr_err) 
         return results

@@ -218,7 +218,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.value_stellar_mass.setText("%.4f"%(fit.params.stellar_mass))
         self.value_epoch.setText(str(fit.epoch))
         self.value_rms.setText("%.4f"%(fit.fit_results.rms))
-        self.value_wrms.setText("%.4f"%(fit.wrms()))
+        self.value_wrms.setText("%.4f"%(fit.fit_results.wrms))
+
+        #self.value_wrms.setText("%.4f"%(fit.wrms()))
         
         self.value_chi2.setText("%.4f"%(fit.fit_results.chi2)) 
         self.value_reduced_chi2.setText("%.4f"%(fit.fit_results.reduced_chi2))
@@ -228,7 +230,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.value_AIC.setText("%.2f"%(fit.AIC()))
        
         self.value_Ndata.setText("%s"%(len(fit.fit_results.jd))) 
-        self.value_DOF.setText("%s"%(len(fit.fit_results.jd) - fit.fit_results.mfit))
+        self.value_DOF.setText("%s"%(int(fit.fit_results.stat.dof)))
 
         amd = rv.get_AMD_stab(fit)
 
@@ -663,7 +665,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(len(self.use_gp_sho_params)):
             fit.GP_sho_use[i] = int(self.use_gp_sho_params[i].isChecked())  
-            
+        
+        
         self.update_tra_GP_use()
         self.update_ld_use()
 
@@ -1957,10 +1960,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         if fit.doGP == True:
             #rv.get_gps_model(self) 
             y_model = fit.fit_results.model + fit.gp_model_curve[0]
-            y_model_o_c = fit.gp_model_curve[0]
         else:
             y_model = fit.fit_results.model 
-            y_model_o_c = np.zeros(len(y_model))
             
             
         model_curve = p1.plot(fit.fit_results.model_jd,y_model, 
@@ -1970,7 +1971,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         model_curve.setZValue(self.RV_model_z.value()) 
         
         
-        if  fit.doGP == True:
+        if fit.doGP == True:
             pfill = pg.FillBetweenItem(p1.plot(fit.fit_results.model_jd, fit.fit_results.model + fit.gp_model_curve[0]+fit.gp_model_curve[2]), 
                                        p1.plot(fit.fit_results.model_jd, fit.fit_results.model + fit.gp_model_curve[0]-fit.gp_model_curve[2]), 
                                        brush = pg.mkColor(244,140,66,128))
@@ -2019,21 +2020,43 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         if self.RV_plot_cross_hair.isChecked():
             self.cross_hair(p1,log=False)  
-
+            
+            
+            
+        #if fit.doGP == True:
+        #    y_model_o_c = fit.gp_model_curve[0]
+       # else:
+       #     y_model_o_c = np.zeros(len(y_model))
         p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
 
-        p2.plot(fit.fit_results.model_jd,y_model_o_c, 
-        pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
-        viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
-        
-        if fit.doGP == True:
+            
+        if fit.doGP == True and self.plot_RV_GP_model.isChecked() == True:
             pfill_o_c = pg.FillBetweenItem(p2.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]+fit.gp_model_curve[2]), 
                                            p2.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]-fit.gp_model_curve[2]), 
                                            brush = pg.mkColor(244,140,66,128))
             p2.addItem(pfill_o_c)
+            y_model_o_c = fit.gp_model_curve[0]
+            data_o_c = fit.fit_results.rv_model.o_c 
+        elif fit.doGP == True and self.plot_RV_GP_model.isChecked() ==  False:
+            data_o_c = fit.fit_results.rv_model.o_c - fit.gp_model_data[0]
+            y_model_o_c = np.zeros(len(y_model))
+        else:
+            data_o_c = fit.fit_results.rv_model.o_c
+            y_model_o_c = np.zeros(len(y_model))
 
+
+
+        model_curve_o_c = p2.plot(fit.fit_results.model_jd,y_model_o_c, 
+        pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
+        
+        
+        model_curve_o_c.setZValue(self.RV_model_z.value()) 
+
+ 
+            
         for i in range(max(fit.filelist.idset)+1):
-            p2.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],fit.fit_results.rv_model.o_c[fit.filelist.idset==i], 
+            p2.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],data_o_c[fit.filelist.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
             symbolPen={'color': fit.colors[i], 'width': 1.1},
@@ -2041,7 +2064,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             symbolBrush=fit.colors[i]
             )
             err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
-                                   y=fit.fit_results.rv_model.o_c[fit.filelist.idset==i],symbol='o', 
+                                   y=data_o_c[fit.filelist.idset==i],symbol='o', 
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.filelist.idset==i],
             bottom=error_list[fit.filelist.idset==i],
@@ -2052,7 +2075,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
 
                 err2a = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
-                                       y=fit.fit_results.rv_model.o_c[fit.filelist.idset==i],symbol='o',
+                                       y=data_o_c[fit.filelist.idset==i],symbol='o',
                 #height=error_list[fit.filelist.idset==i],
                 top=error_list2[fit.filelist.idset==i],
                 bottom=error_list2[fit.filelist.idset==i],
@@ -3361,7 +3384,18 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             fit.tra_doGP = False
             
             
-            
+    def set_gui_use_GP(self):
+        global fit
+
+        if  fit.doGP:
+            self.do_RV_GP.setChecked(True)
+        else:
+            self.do_RV_GP.setChecked(False)
+
+        if  fit.tra_doGP == True:
+            self.do_tra_GP.setChecked(True)
+        else:
+            self.do_tra_GP.setChecked(False)
             
             
             
@@ -4539,13 +4573,13 @@ Transit duration: %s d
     def worker_RV_fitting(self, ff=20, m_ln=True, auto_fit = False , init = False ):
         global fit  
         
-        self.button_fit.setEnabled(False)         
+        self.button_fit.setEnabled(False)
         
         # check if RV data is present
         if fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
-             self.button_fit.setEnabled(True)         
+             self.button_fit.setEnabled(True)
              return   
 
         self.check_model_params()
@@ -4562,20 +4596,20 @@ Transit duration: %s d
             ff = 0
             doGP=False
         else:
-            doGP=self.do_RV_GP.isChecked()            
+            doGP=self.do_RV_GP.isChecked()
             fit.init_fit= False  
        
         
-        if self.radioButton_fortran77.isChecked() and not self.do_RV_GP.isChecked() or init == True:
+        if self.radioButton_fortran77.isChecked() and not self.do_RV_GP.isChecked():
             self.statusBar().showMessage('Minimizing parameters....')    
              # Pass the function to execute
-            worker2 = Worker(lambda:  self.optimize_fit(ff=ff, doGP=doGP, minimize_fortran=True, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
+            worker2 = Worker(lambda:  self.optimize_fit(ff=ff,  minimize_fortran=True, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
  
         else:    
               
             self.check_scipy_min()
 
-            self.statusBar().showMessage('Minimizing parameters using SciPyOp (might be slow)....')                 
+            self.statusBar().showMessage('Minimizing parameters using SciPyOp (might be slow)....')
             worker2 = Worker(lambda:  self.optimize_fit(ff=0, doGP=self.do_RV_GP.isChecked(),  gp_kernel_id=-1, minimize_fortran=False, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
             self.tabWidget_helper.setCurrentWidget(self.tab_info)
             
@@ -4652,7 +4686,7 @@ Transit duration: %s d
             fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
 
         if fit.doGP == True:
-            rv.get_gps_model(fit)
+            rv.get_gps_model(fit,get_lnl=fit.get_GP_lnl)
 
         for i in range(fit.npl):
 #             print("test",fit.hkl,fit.loglik,fit.params.planet_params[0:13])
@@ -5751,7 +5785,6 @@ highly appreciated!
         else:
 
 
-
             if self.RVBank_window.data_index < 11 and self.RVBank_window.type_data == "HARPS":
                 BJD       = self.RVBank_window.x_data 
                 rv_data     = self.RVBank_window.y_data
@@ -5898,6 +5931,10 @@ highly appreciated!
                 return
             
         else:
+            
+            if self.RVBank_window.url_success == False:
+                return
+            
             path = self.RVBank_window.path
 
             try:
@@ -7503,18 +7540,21 @@ If this does not help, please open a GitHub issue here:
         self.buttonGroup_symbol_picker.buttonClicked.connect(self.get_symbol) 
         self.buttonGroup_symbol_picker_tra.buttonClicked.connect(self.get_symbol_tra) 
         self.buttonGroup_symbol_picker_ttv.buttonClicked.connect(self.get_symbol_ttv) 
-        
-        
-        self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)   
+
+
+        ###########  GP control ##########
+        self.set_RV_GP()
+        self.set_tra_GP()
+
+        self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)
         self.buttonGroup_use_tra_GP_kernel.buttonClicked.connect(self.set_tra_GP)
         
         self.buttonGroup_use_GP.buttonClicked.connect(self.set_use_GP)
-        
+
 
         #### Transit detrend   ####
         
         self.buttonGroup_detrend_tra.buttonClicked.connect(self.transit_data_detrend)
-
         self.DetrendWindow = DetrendWindow(self)
 
         ####### LD models #############
@@ -7563,6 +7603,8 @@ If this does not help, please open a GitHub issue here:
 
         if start_arg_ses == True:
             self.update_bounds()
+            
+            self.set_gui_use_GP()
             self.init_fit()
             self.update_use_from_input_file()
             self.update_use()

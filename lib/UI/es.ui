@@ -47689,14 +47689,31 @@
              </attribute>
              <layout class="QGridLayout" name="gridLayout_146">
               <item row="0" column="0">
-               <widget class="QLabel" name="label_121">
-                <property name="text">
-                 <string>Work in progress here!</string>
-                </property>
-               </widget>
+               <layout class="QGridLayout" name="gridLayout_145">
+                <item row="0" column="0">
+                 <widget class="QCheckBox" name="plot_RV_GP_model">
+                  <property name="text">
+                   <string>subtract GP model from RV o-c</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
               <item row="1" column="0">
-               <layout class="QGridLayout" name="gridLayout_145"/>
+               <spacer name="verticalSpacer_14">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>224</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </widget>
