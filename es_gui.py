@@ -3567,6 +3567,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.mute_boxes()
 
         self.init_fit()
+        #self.update_view()
         self.update_use_from_input_file()
         self.update_use()
         
@@ -6523,22 +6524,29 @@ Please install via 'pip install ttvfast'.
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
     def get_latex_table(self):
-        global fit       
+        global fit
 
-        self.console_widget.print_text("rv.latex_pl_param_table(fit, width = 10, precision = 2, asymmetric = False, file_name='test.tex',path='./')", before_prompt=False)  
+        self.console_widget.print_text("rv.latex_pl_param_table(fit, width = 10, precision = 2, asymmetric = False, file_name='best_fit_param_table.tex',path='./')", before_prompt=False)
 #        self.console_widget.execute_command("rv.latex_pl_param_table(fit, width = 10, precision = 2, asymmetric = False, file_name='test.tex',path='./')")  
         self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
         self.terminal_embeded.setCurrentWidget(self.console_widget)
-        
+
+    def get_latex_prior_table(self):
+        global fit
+
+        self.console_widget.print_text("rv.latex_prior_table(fit, width = 10, precision = 2,  file_name='prior_table.tex',path='./')", before_prompt=False)  
+        self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
+        self.terminal_embeded.setCurrentWidget(self.console_widget)
+
     def get_RV_model(self):
-        global fit       
+        global fit
 
         self.console_widget.print_text("rv.export_RV_model(fit, file='RV_model.txt', width = 10, precision = 4)", before_prompt=False)  
         self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
-        self.terminal_embeded.setCurrentWidget(self.console_widget)        
+        self.terminal_embeded.setCurrentWidget(self.console_widget)
         
     def get_RV_data(self):
-        global fit       
+        global fit
 
         self.console_widget.print_text("rv.export_RV_data(fit, [0], file='RV_data.txt',  jitter=False, o_c=False, print_data=False, width = 10, precision = 3)", before_prompt=False)  
         self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
@@ -7253,6 +7261,7 @@ If this does not help, please open a GitHub issue here:
         self.actiongrab_screen.triggered.connect(self.grab_screen) 
         self.actionprint_f_test_FAP.triggered.connect(self.print_f_test_stat)
         self.actionGet_LaTeX_table_with_parameters.triggered.connect(self.get_latex_table)
+        self.actionGet_LaTex_table_with_priors.triggered.connect(self.get_latex_prior_table)
         self.actionGet_RV_model.triggered.connect(self.get_RV_model)
         self.actionGet_RV_data.triggered.connect(self.get_RV_data)     
         

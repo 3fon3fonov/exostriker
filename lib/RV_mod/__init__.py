@@ -126,37 +126,6 @@ def initiategps(obj,  kernel_id=-1):
     return
 
 
-def plot_gp(obj, curve=False):
-
-    import matplotlib.pyplot as plt
-
-    color="#ff7f0e"
-    colors = ['b','g','r']
-
-    x     = obj.fit_results.rv_model.jd
-    y     = obj.fit_results.rv_model.o_c
-    y_err = obj.fit_results.rv_model.rv_err
-    idset = obj.filelist.idset
-
-
-    if curve==True:
-        x_model = np.linspace(min(x), max(x), 5000) #obj.fit_results.model_jd
-        mu,var,std = obj.gp_model_curve
-
-    else:
-        x_model = x
-        mu,var,std = obj.gp_model_data
-
-    #print(mu[0:10])
-    #print(y[0:10])
-
-    for i in range(obj.filelist.ndset):
-        plt.errorbar(x[idset==i],y[idset==i], yerr=y_err[idset==i], fmt=".",color=colors[i],  capsize=0);
-
-    plt.plot(x_model, mu, color = '0.5' );
-    plt.fill_between(x_model ,mu+std,  mu-std, color=color, alpha=0.3, edgecolor="none")
-
-
 def get_gps_model(obj,  kernel_id=-1, get_lnl=False):
  
     
@@ -378,6 +347,7 @@ def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
        # std = np.sqrt(var)
 
         obj.tra_gp_model_curve= [mu,np.zeros(len(mu)),np.zeros(len(mu))]
+
 
     return 
 
@@ -621,7 +591,26 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_n
         rich_model = np.array([t_rich,flux_model_rich])
         sep_data = np.array([t, flux,flux_err,flux_model, flux_o_c, flux_o_c_gp,tra_gp_model])
         all_data = np.array([t_all, flux_all,flux_err_all,flux_model_all, flux_o_c_all, flux_o_c_gp_all,tra_gp_model_all])
-        return np.array([tr_loglik, sep_data, all_data,rich_model])
+        
+ 
+        tr_chi     = np.sum((flux_o_c_gp_all)**2 * sig2i_all ) # - np.log(sig2i / 2./ np.pi)
+        tr_chi_red = tr_chi/len(flux_o_c_gp_all)
+ 
+        tr_rms = np.sqrt(np.average(flux_o_c_gp_all**2))
+        tr_wrms =  np.sqrt(np.average(flux_o_c_gp_all**2, weights=1/flux_err_all))
+        
+        tr_stat = [tr_chi,tr_chi_red,tr_rms,tr_wrms]
+
+        #if obj.gp_kernel == 'RotKernel':
+       #     N_gp_pars_used = len([i for i in range(4) if obj.GP_rot_use[i] == True])
+       # elif obj.gp_kernel == 'SHOKernel':
+      #      N_gp_pars_used = len([i for i in range(3) if obj.GP_sho_use[i] == True])
+
+      #  obj.fit_results.stat.dof = obj.fit_results.stat.dof - N_gp_pars_used
+       # obj.loglik = gp_rv_loglik
+        
+        
+        return np.array([tr_loglik, sep_data, all_data,rich_model,tr_stat])
     else:
         return tr_loglik
 
@@ -1102,6 +1091,13 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == True:
         obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,return_model = True, tra_model_fact=obj.tra_model_fact)
         obj.loglik = obj.transit_results[0]
+        
+
+        obj.fit_results.chi2 = obj.transit_results[4][0]
+        obj.fit_results.reduced_chi2 = obj.transit_results[4][1]
+        obj.fit_results.rms = obj.transit_results[4][2]
+        obj.fit_results.wrms = obj.transit_results[4][3]
+        
     elif obj.type_fit["RV"] == True and obj.type_fit["Transit"] == True:
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
         obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, return_model = True, tra_model_fact=obj.tra_model_fact)
