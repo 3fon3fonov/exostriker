@@ -77752,6 +77752,7 @@
     <addaction name="actiongrab_screen"/>
     <addaction name="actionprint_f_test_FAP"/>
     <addaction name="actionGet_LaTeX_table_with_parameters"/>
+    <addaction name="actionGet_LaTex_table_with_priors"/>
     <addaction name="actionGet_RV_model"/>
     <addaction name="actionGet_RV_data"/>
     <addaction name="actionGet_Orb_evol"/>
@@ -77881,6 +77882,11 @@
     <string>&amp;push Jupyter var. to GUI</string>
    </property>
   </action>
+  <action name="actionGet_LaTex_table_with_priors">
+   <property name="text">
+    <string>Get LaTex table with priors</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -77897,9 +77903,9 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_use_ld_5"/>
   <buttongroup name="buttonGroup_use_ld_7"/>
   <buttongroup name="buttonGroup_omega_dot_opt"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
   <buttongroup name="buttonGroup_use_GP">
    <property name="exclusive">
     <bool>false</bool>
@@ -77923,8 +77929,8 @@
   <buttongroup name="buttonGroup_apply_act_data_options"/>
   <buttongroup name="buttonGroup_nest_stat_dyn"/>
   <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
   <buttongroup name="buttonGroup_detrend_tra"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
   <buttongroup name="buttonGroup_AMD_stab_opt"/>
   <buttongroup name="buttonGroup_AMD_satb_NS"/>
   <buttongroup name="buttonGroup_apply_tra_data_options"/>

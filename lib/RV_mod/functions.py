@@ -1814,6 +1814,214 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
 
 
 
+def latex_prior_table(obj, width = 10, precision = 2,  file_name='prior_table.tex', path='./'):
+
+ 
+    text = '''
+\\begin{table}[ht]
+% \\begin{adjustwidth}{-4.0cm}{}
+% \\resizebox{0.69\\textheight}{!}
+% {\\begin{minipage}{1.1\\textwidth}
+
+\centering
+\caption{{}}
+\label{table:}
+
+\\begin{tabular}{lrrrrrrrr}     % 2 columns
+
+\hline\hline  \\noalign{\\vskip 0.7mm}
+'''
+
+
+    text = text + '''Parameter \hspace{0.0 mm}'''
+    for i in range(obj.npl):
+        text = text + '''& Planet %s '''%chr(98+i)
+    text = text + '''\\\\
+\hline \\noalign{\\vskip 0.7mm}
+
+    '''
+    if obj.type_fit["RV"] == True:
+        text = text + '''{0:{width}s}'''.format("$K$ [m\,s$^{-1}$]", width = 30)
+        for i in range(obj.npl):
+            if obj.K_norm_pr[i][2]==True:
+                sign,f_arg,s_arg,pow_arg = "$\mathcal{N}$",obj.K_norm_pr[i][0],obj.K_norm_pr[i][1],"$^2$"
+            elif obj.K_jeff_pr[i][2]==True:
+                sign,f_arg,s_arg,pow_arg = "$\mathcal{J}$",obj.K_jeff_pr[i][0],obj.K_jeff_pr[i][1],""
+            else:
+                sign,f_arg,s_arg,pow_arg = "$\mathcal{U}$",obj.K_bound[i][0],obj.K_bound[i][1],""
+            
+            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
+        text = text + '''\\\\
+        '''
+
+    text = text + '''{0:{width}s}'''.format("$P$ [day]", width = 30)
+    for i in range(obj.npl):
+        if obj.P_norm_pr[i][2]==True:
+            sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.P_norm_pr[i][0],obj.P_norm_pr[i][1],"$^2$"
+        elif obj.P_jeff_pr[i][2]==True:
+            sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.P_jeff_pr[i][0],obj.P_jeff_pr[i][1],""
+        else:
+            sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.P_bound[i][0],obj.P_bound[i][1],""
+        
+        text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
+    text = text + '''\\\\
+        '''
+    text = text + '''{0:{width}s}'''.format("$e$  ", width = 30)
+    for i in range(obj.npl):
+        if obj.e_norm_pr[i][2]==True:
+            sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.e_norm_pr[i][0],obj.e_norm_pr[i][1],"$^2$"
+        elif obj.e_jeff_pr[i][2]==True:
+            sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.e_jeff_pr[i][0],obj.e_jeff_pr[i][1],""
+        else:
+            sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.e_bound[i][0],obj.e_bound[i][1],""
+        
+        text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
+    text = text + '''\\\\
+        '''
+        
+    text = text + '''{0:{width}s}'''.format("$\omega$ [deg]", width = 30)
+    for i in range(obj.npl):
+        if obj.w_norm_pr[i][2]==True:
+            sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.w_norm_pr[i][0],obj.w_norm_pr[i][1],"$^2$"
+        elif obj.w_jeff_pr[i][2]==True:
+            sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.w_jeff_pr[i][0],obj.w_jeff_pr[i][1],""
+        else:
+            sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.w_bound[i][0],obj.w_bound[i][1],""
+        
+        text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
+    text = text + '''\\\\
+        '''
+        
+    text = text + '''{0:{width}s}'''.format("$M_{\\rm 0}$ [deg]", width = 30)
+    for i in range(obj.npl):
+        if obj.M0_norm_pr[i][2]==True:
+            sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.M0_norm_pr[i][0],obj.M0_norm_pr[i][1],"$^2$"
+        elif obj.M0_jeff_pr[i][2]==True:
+            sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.M0_jeff_pr[i][0],obj.M0_jeff_pr[i][1],""
+        else:
+            sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.M0_bound[i][0],obj.M0_bound[i][1],""
+        
+        text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
+    text = text + '''\\\\
+        '''
+
+    if obj.mod_dynamical == True:
+        text = text + '''{0:{width}s}'''.format("$i$ [deg]", width = 30)
+        for i in range(obj.npl):
+            if obj.i_norm_pr[i][2]==True:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.i_norm_pr[i][0],obj.i_norm_pr[i][1],"$^2$"
+            elif obj.i_jeff_pr[i][2]==True:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.i_jeff_pr[i][0],obj.i_jeff_pr[i][1],""
+            else:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.i_bound[i][0],obj.i_bound[i][1],""
+            
+            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
+        text = text + '''\\\\
+        '''
+        
+        text = text + '''{0:{width}s}'''.format("$\Omega$ [deg]", width = 30)
+        for i in range(obj.npl):
+            if obj.Node_norm_pr[i][2]==True:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.Node_norm_pr[i][0],obj.Node_norm_pr[i][1],"$^2$"
+            elif obj.Node_jeff_pr[i][2]==True:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.Node_jeff_pr[i][0],obj.Node_jeff_pr[i][1],""
+            else:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.Node_bound[i][0],obj.Node_bound[i][1],""
+            
+            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
+        text = text + '''\\\\
+        '''
+
+    if obj.type_fit["Transit"] == True:
+        text = text + '''{0:{width}s}'''.format("$t_{\\rm 0}$ [day]", width = 30)
+        for i in range(obj.npl):
+            if obj.i_norm_pr[i][2]==True:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.t0_norm_pr[i][0],obj.t0_norm_pr[i][1],"$^2$"
+            elif obj.t0_jeff_pr[i][2]==True:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.t0_jeff_pr[i][0],obj.t0_jeff_pr[i][1],""
+            else:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.t0_bound[i][0],obj.t0_bound[i][1],""
+            
+            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
+        text = text + '''\\\\
+        '''
+        
+        text = text + '''{0:{width}s}'''.format("Rad. [$R_\oplus$]", width = 30)
+        for i in range(obj.npl):
+            if obj.pl_rad_norm_pr[i][2]==True:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.pl_rad_norm_pr[i][0],obj.pl_rad_norm_pr[i][1],"$^2$"
+            elif obj.pl_rad_jeff_pr[i][2]==True:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.pl_rad_jeff_pr[i][0],obj.pl_rad_jeff_pr[i][1],""
+            else:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.pl_rad_bound[i][0],obj.pl_rad_bound[i][1],""
+            
+            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
+        text = text + '''\\\\
+        '''
+        
+        
+        text = text + '''{0:{width}s}'''.format("$a$  [$R_\odot$]", width = 30)
+        for i in range(obj.npl):
+            if obj.pl_a_norm_pr[i][2]==True:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.pl_a_norm_pr[i][0],obj.pl_a_norm_pr[i][1],"$^2$"
+            elif obj.pl_a_jeff_pr[i][2]==True:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.pl_a_jeff_pr[i][0],obj.pl_a_jeff_pr[i][1],""
+            else:
+                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.pl_a_bound[i][0],obj.pl_a_bound[i][1],""
+            
+            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
+        text = text + '''\\\\
+        '''
+  
+#    text = text + '''{0:{width}s}'''.format("RV lin. trend", width = 30)
+#    text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.params.linear_trend),float(max(np.abs(obj.param_errors.linear_trend_error))) , width = 30, precision = 6)
+#    text = text + '''\\\\
+#    '''
+
+#    text = text + '''{0:{width}s}'''.format("RV quad. trend", width = 30)
+#    text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.rv_quadtr),float(max(np.abs(obj.rv_quadtr_err))) , width = 30, precision = 6)
+#    text = text + '''\\\\
+#    '''
+
+#    for i in range(obj.filelist.ndset):
+#        text = text + '''{0:{width}s}'''.format("RV$_{\\rm off}$ %s"%(i+1), width = 30)
+#        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.params.offsets[i]), float(max(np.abs(obj.param_errors.offset_errors[i]))), width = width, precision = precision)
+#        text = text + '''\\\\
+#    '''
+#    for i in range(obj.filelist.ndset):
+#        text = text + '''{0:{width}s}'''.format("RV$_{\\rm jit}$ %s"%(i+1), width = 30)
+#        text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.params.jitters[i]), float(max(np.abs(obj.param_errors.jitter_errors[i]))), width = width, precision = precision)
+#        text = text + '''\\\\
+#    '''
+
+    text = text + '''\\\\
+\hline \\noalign{\\vskip 0.7mm}
+
+    '''
+
+    text = text + '''
+\end{tabular}
+
+% \end{minipage}}
+% \end{adjustwidth}
+
+%\\tablefoot{\small }
+
+\end{table}
+'''
+
+    table_file = open(file_name, 'w')
+
+    table_file.write(text)
+
+    table_file.close()
+ #   print(text)
+
+    return "Done"
+
+
+
+
 
 def f_test(obj, obj2 = None, alpha = 0.01):
 
@@ -1894,6 +2102,37 @@ def P_to_a(P,m0):
     a = ((P**2.0 * (GMSUN*(m0)))/(4.0*(np.pi)**2.0))**(1.0/3.0)
 
     return a/AU
+
+
+def plot_gp(obj, curve=False):
+
+    import matplotlib.pyplot as plt
+
+    color="#ff7f0e"
+    colors = ['b','g','r']
+
+    x     = obj.fit_results.rv_model.jd
+    y     = obj.fit_results.rv_model.o_c
+    y_err = obj.fit_results.rv_model.rv_err
+    idset = obj.filelist.idset
+
+
+    if curve==True:
+        x_model = np.linspace(min(x), max(x), 5000) #obj.fit_results.model_jd
+        mu,var,std = obj.gp_model_curve
+
+    else:
+        x_model = x
+        mu,var,std = obj.gp_model_data
+
+    #print(mu[0:10])
+    #print(y[0:10])
+
+    for i in range(obj.filelist.ndset):
+        plt.errorbar(x[idset==i],y[idset==i], yerr=y_err[idset==i], fmt=".",color=colors[i],  capsize=0);
+
+    plt.plot(x_model, mu, color = '0.5' );
+    plt.fill_between(x_model ,mu+std,  mu-std, color=color, alpha=0.3, edgecolor="none")
 
 
 
