@@ -3086,7 +3086,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Auto fit</string>
+         <string>RV Auto fit</string>
         </property>
        </widget>
       </item>
@@ -77731,6 +77731,7 @@
      <string>E&amp;dit</string>
     </property>
     <addaction name="actionpush_Jupyter_to_GUI"/>
+    <addaction name="actionRV_Auto_fit"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -77885,6 +77886,11 @@
   <action name="actionGet_LaTex_table_with_priors">
    <property name="text">
     <string>Get LaTex table with priors</string>
+   </property>
+  </action>
+  <action name="actionRV_Auto_fit">
+   <property name="text">
+    <string>RV Auto fit</string>
    </property>
   </action>
  </widget>
