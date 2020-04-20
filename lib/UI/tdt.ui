@@ -110,19 +110,6 @@
        </attribute>
       </widget>
      </item>
-     <item row="2" column="4">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>10</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
      <item row="1" column="0" colspan="7">
       <widget class="PlotWidget" name="plot_2">
        <property name="mouseTracking">
@@ -473,6 +460,26 @@
        </property>
        <property name="text">
         <string>READ ME</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="4">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>10</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="2" column="4">
+      <widget class="QCheckBox" name="click_to_reject">
+       <property name="text">
+        <string>click to reject</string>
        </property>
       </widget>
      </item>
