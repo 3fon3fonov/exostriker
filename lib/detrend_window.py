@@ -8,6 +8,7 @@ from print_info_window import print_info
 from worker import Worker
 from multiprocessing import cpu_count
 import gls as gls
+import dill
 
 from wotan import flatten
 
@@ -66,6 +67,8 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
             self.supersmoother_found = False
             pass
 
+
+        self.t = []
         self.initialize_plots()
 
         self.init_comboBox_regres()
@@ -85,7 +88,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
         self.ui.buttonGroup_trendOptions.buttonClicked.connect(self.update_labels)
 
-
+        self.ui.click_to_reject.clicked.connect(self.top_plot)
 
     def replot(self):
         
@@ -101,16 +104,19 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         elif self.ui.flatten_data.isChecked():
             self.bottom_plot_lc()
 
- 
-    def calculate(self):
 
-        
-        #self.ui.label_working.setText("Working!")
-        
+    def init_data(self):
+
         self.t      = self.parent.tra_data[0]
         self.flux   = self.parent.tra_data[4]
         self.flux_err = self.parent.tra_data[2]
         self.data_file_name = self.parent.tra_data[5]
+        
+        return
+
+
+ 
+    def calculate(self):
 
 
         if self.ui.radio_remove_mean.isChecked():
@@ -197,6 +203,9 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         return
         
     def worker_detrend(self):
+        
+        if len(self.t) == 0:
+            self.init_data()
 
         self.ui.try_button.setEnabled(False)
         #self.ui.label_working.setText("Working!!!")
@@ -220,13 +229,18 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
     def top_plot(self):
         global p_1
         
+        if self.ui.click_to_reject.isChecked():
+            symbolSize=6
+        else:
+            symbolSize=2
+
         p_1.plot(clear=True,)
 
         ######## Top plot ############
 
         p_1.plot(self.t,self.flux, pen=None,
             symbol='o', symbolPen={'color': '#0066ff', 'width': 1.1},
-            symbolSize=2,enableAutoRange=True,viewRect=True,
+            symbolSize=symbolSize,enableAutoRange=True,viewRect=True,
             symbolBrush='#0066ff')
             
         err_ = pg.ErrorBarItem(x=self.t, y=self.flux, symbol = 'o',
@@ -240,6 +254,30 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         model_curve.setZValue(1)
 
 
+
+        p_1.plotItem.items[1].sigPointsClicked.connect(self.plotClicked)
+
+
+    def plotClicked(self,curve,datas):
+
+        if self.ui.click_to_reject.isChecked() == False:
+            return
+        
+        rem_x,rem_y = datas[0].pos()
+        print(rem_x,rem_y)
+        
+        old_t = dill.copy(self.t)
+        
+        self.t        = self.t[old_t != rem_x]
+        self.flux     = self.flux[old_t != rem_x]
+        self.flux_err = self.flux_err[old_t != rem_x]
+        self.trend    = self.trend[old_t != rem_x]
+        #self.t      = self.parent.tra_data[0]
+        #self.flux   = self.parent.tra_data[4]
+        #self.flux_err = self.parent.tra_data[2]
+        
+
+        self.top_plot()
 
     def bottom_plot_lc(self):
         global p_2

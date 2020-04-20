@@ -3504,6 +3504,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         if self.tra_norm[but_ind-1].isChecked() == True and len(fit.tra_data_sets[but_ind-1]) != 0:
             #rv.transit_data_norm(fit,  file_n = but_ind-1, norm = True)
             if len(self.DetrendWindow.flux_o_c) != 0:
+                fit.tra_data_sets[but_ind-1][0] = dill.copy(self.DetrendWindow.t)
                 fit.tra_data_sets[but_ind-1][1] = dill.copy(self.DetrendWindow.flux_o_c)
                 fit.tra_data_sets[but_ind-1][2] = dill.copy(self.DetrendWindow.flux_err_o_c)
 
@@ -4825,7 +4826,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.23) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.24) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -6777,7 +6778,7 @@ If this does not help, please open a GitHub issue here:
             self.tra_data = dill.copy(fit.tra_data_sets_init[but_ind-1])
 #           self.DetrendWindow.show()
             self.DetrendWindow.worker_detrend()
-
+            #fit.ppp = self.DetrendWindow
 #            self.DetrendWindow.plot()
         else:
             
@@ -7619,7 +7620,7 @@ If this does not help, please open a GitHub issue here:
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.23). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.24). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)

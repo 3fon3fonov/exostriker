@@ -60,6 +60,15 @@ except (ImportError, KeyError) as e:
     ttvfast_not_found = True
     pass
 
+try:
+    import astropy.io.fits as pyfits
+    
+    pyfits_not_found = False
+except (ImportError, KeyError) as e:
+    pyfits_not_found = True
+    pass
+
+
 
 from .CustomSampler import CustomSampler
 from .Warning_log import Warning_log
@@ -2753,7 +2762,7 @@ class signal_fit(object):
         ttv_N        = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
         ttv_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
         ttv_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-        
+
         ttv_file_name = file_from_path(path)
 
         ttv_data_set = np.array([ttv_N,ttv_data,ttv_data_sig,planet,use,ttv_file_name])
@@ -2772,9 +2781,36 @@ class signal_fit(object):
 ############################ transit datasets ##########################################
     def add_transit_dataset(self, name, path, tra_idset = 0):
 
-        tra_JD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-        tra_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-        tra_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+
+        if path.endswith("lc.fits"):
+
+            if pyfits_not_found == True:
+                print("""
+
+'astropy.io.fits' not found! Please install 'astropy', and try again with a new start of the 'Exo-Striker'.
+
+""")
+                return
+            try:
+                sc = pyfits.open(path) 
+                dd =  sc[1].data
+
+                tra_JD        = dd['TIME'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
+                tra_data      = dd['SAP_FLUX'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
+                tra_data_sig  = dd['SAP_FLUX_ERR'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
+
+            except:
+                print("Unknown type of .fits file! Please provide a TESS *lc.fits file")
+                return
+
+        else:
+            try:
+                tra_JD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+                tra_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+                tra_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+            except:
+                print("Unknown type of file! Please provide a valid transit file")
+                return
 
         tra_data_o_c = tra_data
         tra_file_name = file_from_path(path)
