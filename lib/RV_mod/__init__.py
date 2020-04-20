@@ -2412,7 +2412,7 @@ class signal_fit(object):
         self.GP_rot_params = [1.0,10.0,15.0,1.0]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_rot_err = [0.0,0.0,0.0,0.0]
         self.GP_rot_use = [False,False,False,False]
-        self.GP_rot_str = [r'Amp', r't', r'per', r'fact']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_rot_str = [r'GP Rot. Amp.', r'GP Rot. timescale', r'GP Rot. Period', r'GP Rot. fact.']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_rot_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_rot_params))}
         self.GP_rot_norm_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_rot_params))}
         self.GP_rot_jeff_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_rot_params))}
@@ -2421,7 +2421,7 @@ class signal_fit(object):
         self.GP_sho_params     = [100.0,1.0,0.05]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_sho_err = [0.0,0.0,0.0]
         self.GP_sho_use = [False,False,False]
-        self.GP_sho_str = [r'S', r'Q', r'omega']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_sho_str = [r'GP SHO $S$', r'GP SHO $Q$', r'GP SHO $\omega$']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_sho_bounds     = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_sho_params))}
         self.GP_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_sho_params))}
         self.GP_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_sho_params))}
@@ -2442,7 +2442,7 @@ class signal_fit(object):
         self.tra_GP_rot_params = [1.0,10.0,15.0,1.0]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.tra_GP_rot_err = [0.0,0.0,0.0,0.0]
         self.tra_GP_rot_use = [False,False,False,False]
-        self.tra_GP_rot_str = [r'Amp', r't', r'per', r'fact']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.tra_GP_rot_str = [r'GP Rot. Amp.', r'GP Rot. timescale', r'GP Rot. Period', r'GP Rot. fact.']#we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.tra_GP_rot_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.tra_GP_rot_params))}
         self.tra_GP_rot_norm_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_rot_params))}
         self.tra_GP_rot_jeff_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_rot_params))}
@@ -2451,7 +2451,7 @@ class signal_fit(object):
         self.tra_GP_sho_params     = [100.0,1.0,0.05]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.tra_GP_sho_err = [0.0,0.0,0.0]
         self.tra_GP_sho_use = [False,False,False]
-        self.tra_GP_sho_str = [r'S', r'Q', r'omega']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.tra_GP_sho_str = [r'GP SHO $S$', r'GP SHO $Q$', r'GP SHO $\omega$']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.tra_GP_sho_bounds     = {k: np.array([0.0,100000.0]) for k in range(len(self.tra_GP_sho_params))}
         self.tra_GP_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_sho_params))}
         self.tra_GP_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_sho_params))}

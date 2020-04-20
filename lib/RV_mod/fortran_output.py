@@ -224,10 +224,10 @@ class fortran_output(object):
         self.params=parameters(offsets,jitters,planet_params,linear_trend,self.stellar_mass)
         self.param_errors=parameter_errors(offset_errors,jitter_errors,planet_params_errors,linear_trend_error,0.0)
    
-        self.rv_quadtr = quad_trend   
-        self.rv_quadtr_err= quad_trend_error      
+        self.rv_quadtr = quad_trend
+        self.rv_quadtr_err= quad_trend_error
         self.omega_dot = omega_dot
-        self.omega_dot_err = omega_dot_err 
+        self.omega_dot_err = omega_dot_err
         
         fortran_stat_warnings.print_warning_log()
         return
@@ -248,8 +248,10 @@ class fortran_output(object):
         self.dismantle_keplerian_fit()
         self.dismantle_RV_kep()
         
-        self.wrms = np.sqrt(np.average(self.o_c**2, weights=1/self.rv_error))
-
+        if len(self.o_c) != 0:
+            self.wrms = np.sqrt(np.average(self.o_c**2, weights=1/self.rv_error))
+        else:
+            self.wrms = 0
         
         results = kernel(self.generate_summary(), self.jd, self.rv_obs, self.rv_error,self.o_c, self.model, 
                          self.JD_model, self.npl,self.semiM,self.masses,self.data_set,self.stat_array_saved,

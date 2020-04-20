@@ -4825,7 +4825,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.22) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.23) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -4918,15 +4918,15 @@ highly appreciated!
             self.update_use_from_input_file()   
             self.update_use()                     
             self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
-            
+
             #now inspect the residuals
-            
+
             for i in range(1,int(self.auto_fit_N_planets.value())):
                 
                 if fit.gls_o_c.power.max() <= fit.gls_o_c.powerLevel(self.auto_fit_FAP_level.value()):
                     for j in range(fit.npl):
                         fit.use.update_use_planet_params_one_planet(j,True,True,True,True,True,False,False)     
-            
+
                     self.update_use_from_input_file()   
                     self.update_use()
 
@@ -4946,42 +4946,54 @@ highly appreciated!
 
                     fit.sort_by_period(reverse=False)
                     self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)  
-                    
+
                 #else:
                  #   continue
-                                       
-            for j in range(fit.npl):
-                fit.use.update_use_planet_params_one_planet(j,True,True,True,True,True,False,False)     
-    
 
-            self.update_use_from_input_file()   
-            self.update_use()                     
+            for j in range(fit.npl):
+                fit.use.update_use_planet_params_one_planet(j,True,True,True,True,True,False,False)
+
+
+            self.update_use_from_input_file()
+            self.update_use()
             fit.sort_by_period(reverse=False)
 
-            self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)           
+            self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
  
         self.button_auto_fit.setEnabled(True)   
 
 
     def run_auto_fit(self):
         global fit 
-        
+
+ 
         self.radioButton_Keplerian.setChecked(True) # this is to be fixed! Only with keplerian fitting th autofit works fine so far.
-        self.button_auto_fit.setEnabled(False)         
+        self.button_auto_fit.setEnabled(False)
         
         if fit.npl != 0:        
             choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "Planets already exist. Do you want to overwrite the analysis?",
                                             QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
-         
+
             if choice == QtGui.QMessageBox.No:
-                self.button_auto_fit.setEnabled(True)         
+                self.button_auto_fit.setEnabled(True)
                 return
             elif choice == QtGui.QMessageBox.Yes:
+                for j in range(fit.npl):
+                    fit.remove_planet(fit.npl-(j+1))
+                
                 self.find_planets()
         else:
             self.find_planets()
-                
+
+        fit.type_fit["RV"] = True
+        fit.type_fit["Transit"] = False
+        fit.type_fit["TTV"] = False
+        self.check_type_fit()
+        self.mute_boxes()
+        self.plot_tabs.setCurrentWidget(self.tab_timeseries_RV)
+
+
 
     def minimize_1param(self):
         global fit
@@ -4989,7 +5001,6 @@ highly appreciated!
         This function must be completely refurbished!!! How to check 
         which QDoubleSpinBox is trigerred? Does everytime one needs to call 
         self.init_fit() ? ? ?
-        
         """
 
         self.K1.minimize_signal.connect(lambda: fit.minimize_one_param_K(0)) #TBD!
@@ -5091,9 +5102,9 @@ highly appreciated!
         self.ma9.minimize_signal.connect(lambda: fit.minimize_one_param_M0(8)) #TBD!
         self.ma9.minimize_signal.connect(self.init_fit) #TBD!   
 
-        
+
     def jupiter_push_vars(self):
-        global fit        
+        global fit
         self.console_widget.push_vars({'fit':fit})
         
         #self.console_widget.push_vars({'pg':pg})    
@@ -7232,7 +7243,7 @@ If this does not help, please open a GitHub issue here:
         
         self.button_init_fit.clicked.connect(lambda: self.fit_dispatcher(init=True))
         self.button_fit.clicked.connect(lambda: self.fit_dispatcher())        
-        self.button_auto_fit.clicked.connect(lambda: self.run_auto_fit())
+        self.button_auto_fit.clicked.connect(self.run_auto_fit)
         self.minimize_1param()
 
         self.radioButton_Dynamical.toggled.connect(self.update_dyn_kep_flag)
@@ -7255,6 +7266,12 @@ If this does not help, please open a GitHub issue here:
         self.adopt_best_RV__o_c_GLS_per.clicked.connect(self.adopt_RV_GLS_param)
         
         self.adopt_tls_o_c_param.clicked.connect(self.adopt_trans_TLS_param)
+
+
+        ############ Edit #################
+
+
+        self.actionRV_Auto_fit.triggered.connect(self.run_auto_fit)
 
         ############ View #################
 
@@ -7602,7 +7619,7 @@ If this does not help, please open a GitHub issue here:
             self.init_plot_corr()
             self.update_plot_corr()    
     
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.22). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.23). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
