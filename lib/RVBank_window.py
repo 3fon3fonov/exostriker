@@ -77,7 +77,7 @@ class RVBank_window(QtWidgets.QDialog):
 
 
 
-        url = "http://www.mpia.de/homes/trifonov/%s_RVs/%s_harps_all-data_v1.dat"%(targets_HARPS[0],targets_HARPS[0])
+        url = "http://www2.mpia.de/homes/trifonov/%s_RVs/%s_harps_all-data_v1.dat"%(targets_HARPS[0],targets_HARPS[0])
         self.path = url
         self.data_index  = 1
         self.row_opt = 0
@@ -177,7 +177,7 @@ class RVBank_window(QtWidgets.QDialog):
             self.data_index = data_files_ind_HARPS[row_opt]
             self.data_name = data_files_HARPS[row_opt]
             
-            url = "http://www.mpia.de/homes/trifonov/%s_RVs/%s_harps_all-data_v1.dat"%(targets_HARPS[row],targets_HARPS[row])
+            url = "http://www2.mpia.de/homes/trifonov/%s_RVs/%s_harps_all-data_v1.dat"%(targets_HARPS[row],targets_HARPS[row])
            # resp = urlopen(url).read() 
             
             self.try_connection(url)
@@ -211,7 +211,7 @@ class RVBank_window(QtWidgets.QDialog):
             
             #print(self.data_index,self.data_name)
 
-            url = "http://www.mpia.de/homes/trifonov/HIRES/%s_RVs/%s.dat"%(targets_HIRES[row],targets_HIRES[row])
+            url = "http://www2.mpia.de/homes/trifonov/HIRES/%s_RVs/%s.dat"%(targets_HIRES[row],targets_HIRES[row])
             #resp = urlopen(url).read() 
             
             self.try_connection(url)
