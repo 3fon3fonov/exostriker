@@ -664,7 +664,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
 
     if rtg[2] == True:
-        for i in range(npl): # (per, ecc, om, t_transit, epoch):
+        for i in range(npl): 
 
             if hkl == True:
                 ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
@@ -672,13 +672,11 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             else:
                 ecc_, om_, = par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]
 
-
             par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
                                                       ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
-            print(par[len(vel_files)*2 +7*i+4],ecc_,om_,par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
 
     else:
-        for i in range(npl): # (per, ecc, om, ma, epoch):
+        for i in range(npl):
             if hkl == True:
                 ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
                 om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
@@ -717,10 +715,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                                                par[len(vel_files)*2 +7*i+4],
                                                par[len(vel_files)*2 +7*i+5],
                                                par[len(vel_files)*2 +7*i+6],
-                                               #0
-                                               #)
                                                par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + tra_gp_npar + 2 + i ])
-            #print(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + rv_gp_npar + 1 + i ]  )
             ppp+='%d %d %d %d %d %d %d %d\n'%(0,0,0,0,0,0,0,0)
         ppp+='%f\n%d\n'%(par[len(vel_files)*2 +7*npl],0) # information about linear trend
         ppp+='%f\n%d\n'%(par[len(vel_files)*2 +7*npl + 1],0) # information about linear trend
@@ -734,7 +729,6 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         fortranoutput=fortran_output(text,npl,len(vel_files),stmass)
         fit_results=fortranoutput.modfit(print_stat=False)
         rv_loglik = float(fit_results.loglik)
-        #rv_loglik = float(text[1][0])
     else:
         rv_loglik = 0
 
@@ -745,7 +739,6 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         param_vect = []
         for j in range(len(gps.get_parameter_vector())):
             param_vect.append(np.log(par[len(vel_files)*2  +7*npl +2 +j]))
-            #print(par[len(vel_files)*2  +7*npl +2 +j])
         gps.set_parameter_vector(np.array(param_vect))
 
         gp_pred = gps.predict(fit_results.o_c, fit_results.jd, return_cov=False)
@@ -779,13 +772,13 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                                 par[len(vel_files)*2 +7*i+1],
                                 par[len(vel_files)*2 +7*i+2],
                                 par[len(vel_files)*2 +7*i+3],
-                                par[len(vel_files)*2 +7*i+4]],1,stmass) ##################TB FIXED! these are not
+                                par[len(vel_files)*2 +7*i+4]],1,stmass) ##################TB FIXED! 
 
             pl_mass_out,ap_out = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*(i+1)],
                                 par[len(vel_files)*2 +7*(i+1)+1],
                                 par[len(vel_files)*2 +7*(i+1)+2],
                                 par[len(vel_files)*2 +7*(i+1)+3],
-                                par[len(vel_files)*2 +7*(i+1)+4]],1,stmass) ##################TB FIXED! these are not
+                                par[len(vel_files)*2 +7*(i+1)+4]],1,stmass) ##################TB FIXED! 
 
             alpha    = ap_in/ap_out
             gamma    = pl_mass_in/pl_mass_out
@@ -825,14 +818,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     tr_model = np.array([tr_mo,tr_ld], dtype=object)
     tr_params = obj.tr_params
 
-    #ttv_files = []
-
-   # for i in range(10):
-   #     if len(obj.ttv_data_sets[i]) != 0:
-   #         ttv_files.append(obj.ttv_data_sets[i])
-
     ttv_files = obj.ttv_data_sets
-
 
     npl = obj.npl
     epoch = obj.epoch
@@ -855,12 +841,11 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     nll = lambda *args: -lnprob_new(*args)
 
     obj.prepare_for_mcmc(rtg = rtg)
-    pp = obj.par_for_mcmc #.tolist()
-    ee = obj.e_for_mcmc #.tolist()
+    pp = obj.par_for_mcmc
+    ee = obj.e_for_mcmc 
     bb = np.array(obj.b_for_mcmc)
     pr_nr = np.array(obj.nr_pr_for_mcmc)
     jeff_nr = np.array(obj.jeff_pr_for_mcmc)
-
 
     flags = obj.f_for_mcmc
     par = np.array(obj.parameters)
@@ -893,10 +878,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "AMD_stab":obj.optim_AMD_stab, 
            "Nbody_stab":obj.optim_Nbody_stab}
 
-
     if obj.init_fit == True:
         flags = []
-
 
     gps = []
     if (rtg[1]):
@@ -984,14 +967,11 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         method1 = 'TNC'
         n1 = 0
         n2 = 0
-
-
     else:
         method1 = obj.SciPy_min_use_1
         method2 = obj.SciPy_min_use_2
         n1 = obj.SciPy_min_N_use_1
         n2 = obj.SciPy_min_N_use_2
-   # print(obj.SciPy_min_use_1,obj.SciPy_min_use_2)
 
 
     ########################### Primary minimizer #########################
@@ -1019,7 +999,6 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     errors = [[0.0,0.0] for i in range(len(pp))]
 
     obj.par_for_mcmc = pp
- #   print(obj.par_for_mcmc)
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)
     obj.overwrite_params(newparams)
 
@@ -1029,7 +1008,6 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, errors)
 
     obj.init_fit = False
-   # print(obj.loglik)
     print("--- %s seconds ---" % (time.time() - start_time))
 
     return obj
@@ -1041,8 +1019,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, pr_nr, gps, tra_gps, rtg, mix_fit, errors):
 
 
-    N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0]) #fit.tra_data_sets[0][3]
-
+    N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0]) 
+    
     e_par = [[0.0,0.0]]*len(par)
     for j in range(len(flags)):
         par[flags[j]]   = pp[j]
@@ -1085,23 +1063,10 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     if obj.type_fit["RV"] == True and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == False:
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1])
-        
-       # if rtg[1]:
-       #     gp_pred = gps.predict(obj.fit_results.o_c,obj.fit_results.jd, return_cov=False)
-       #     o_c_kep = obj.fit_results.o_c - gp_pred
-       #     gp_rv_loglik = 0
-       #     for i in range(len(vel_files)):
-       #         sig2i_gp = 1.0 / (obj.fit_results.rv_err[obj.fit_results.idset==i]**2 + par[i + len(vel_files)]**2 )
-       #         gp_rv_loglik += -0.5*(np.sum((o_c_kep[obj.fit_results.idset==i])**2 * sig2i_gp - np.log(sig2i_gp / 2./ np.pi)))
-       #     obj.loglik = gp_rv_loglik
-            
-       #     print(obj.loglik)
-        
-        
+
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == True:
         obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,return_model = True, tra_model_fact=obj.tra_model_fact)
         obj.loglik = obj.transit_results[0]
-        
 
         obj.fit_results.chi2 = obj.transit_results[4][0]
         obj.fit_results.reduced_chi2 = obj.transit_results[4][1]
@@ -1110,7 +1075,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         
     elif obj.type_fit["RV"] == True and obj.type_fit["Transit"] == True:
 
-        for i in range(npl): # (per, ecc, om, t_transit, epoch):
+        for i in range(npl): 
 
             if obj.hkl == True:
                 ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
@@ -1127,9 +1092,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
         obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, return_model = True, tra_model_fact=obj.tra_model_fact)
         obj.loglik     =   obj.loglik +  obj.transit_results[0]
-        
-        
-        
+
     elif obj.type_fit["RV"] == True and obj.type_fit["TTV"] == True:
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
         ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass, obj.ttv_times,obj.fit_results, return_model = False)
@@ -1282,21 +1245,10 @@ def run_nestsamp(obj, **kwargs):
 
     '''Performs nested sampling and saves results'''
 
-    #from contextlib import closing
-    #from CustomNestedSampler import CustomNestedSampler
-
-   # print("from %s CPS you are using %s CPUs"%(multiprocessing.cpu_count(),threads))
-   # if obj.ns_threads == 'max':
-   #     threads = multiprocessing.cpu_count()
-
-
     start_time = time.time()
-
     rtg = obj.rtg
-
     check_temp_RV_file(obj)
 
-    #nll = lambda *args: -lnprob_new(*args)
 
     vel_files = []
     for i in range(obj.filelist.ndset):
@@ -1310,15 +1262,8 @@ def run_nestsamp(obj, **kwargs):
     tr_mo    = obj.ld_m
     tr_ld    = obj.ld_u
 
-    
     tr_model = np.array([tr_mo,tr_ld], dtype=object)
     tr_params = obj.tr_params
-
-#    ttv_files = []
-
-#    for i in range(10):
-#        if len(obj.ttv_data_sets[i]) != 0:
-#            ttv_files.append(obj.ttv_data_sets[i])
 
     ttv_files = obj.ttv_data_sets
 
@@ -1379,10 +1324,6 @@ def run_nestsamp(obj, **kwargs):
            "AMD_stab":obj.NS_AMD_stab, 
            "Nbody_stab":obj.NS_Nbody_stab}
 
-    #print(par)
-    #print(flags)
-   # print(bb)
-   # print(pp)
 
     gps = []
     if (rtg[1]):
@@ -1639,23 +1580,16 @@ def run_mcmc(obj, **kwargs):
 
     '''Performs MCMC and saves results'''
 
-    #if threads == 'max':
-    #    threads = multiprocessing.cpu_count()
-
     start_time = time.time()
 
     rtg = obj.rtg
     check_temp_RV_file(obj)
 
-    #nll = lambda *args: -lnprob_new(*args)
-
     vel_files = []
     for i in range(obj.filelist.ndset):
-        # path for each dataset
         vel_files.append(obj.filelist.files[i].path)
 
-
-    N_transit_files = len([x for x in range(10) if len(obj.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][3]
+    N_transit_files = len([x for x in range(10) if len(obj.tra_data_sets[x]) != 0])
 
     tr_files = obj.tra_data_sets
     tr_mo    = obj.ld_m
@@ -1663,16 +1597,8 @@ def run_mcmc(obj, **kwargs):
     
     tr_model = np.array([tr_mo,tr_ld], dtype=object)
     tr_params = obj.tr_params
- 
-
-#    ttv_files = []
-
-#    for i in range(10):
-#        if len(obj.ttv_data_sets[i]) != 0:
-#            ttv_files.append(obj.ttv_data_sets[i])
 
     ttv_files = obj.ttv_data_sets
-
 
     npl = obj.npl
     epoch = obj.epoch
@@ -1684,7 +1610,6 @@ def run_mcmc(obj, **kwargs):
         if mix_fit[0] == True:
             mod='%s/lib/fr/loglik_dyn+'%obj.cwd
             when_to_kill =  obj.dyn_model_to_kill
-            #print(mix_fit[0],mod)
         else:
             mod='%s/lib/fr/loglik_dyn'%obj.cwd
             when_to_kill =  obj.dyn_model_to_kill
@@ -1693,12 +1618,9 @@ def run_mcmc(obj, **kwargs):
         mod='%s/lib/fr/loglik_kep'%obj.cwd
         when_to_kill =  obj.kep_model_to_kill
 
-   # print(mod)
-    #program='./lib/fr/%s_%s'%(minimized_value,mod)
-
     obj.prepare_for_mcmc(rtg = rtg)
-    pp = obj.par_for_mcmc #.tolist()
-    ee = obj.e_for_mcmc #.tolist()
+    pp = obj.par_for_mcmc 
+    ee = obj.e_for_mcmc 
     bb = np.array(obj.b_for_mcmc)
 
     pr_nr = np.array(obj.nr_pr_for_mcmc)
@@ -1715,9 +1637,6 @@ def run_mcmc(obj, **kwargs):
             obj.bound_error = True
             obj.bound_error_msg = "Parameter %s is initially out of bounds. Please set the initial parametrs within the parameter limits!"%ee[l]
             return obj
-
-    #for k in range(len(pp)):
-    #    print(ee[k],pp[k],bb[k],pr_nr[k],jeff_nr[k])
 
 
     priors = [pr_nr,jeff_nr]
@@ -1886,7 +1805,6 @@ def run_mcmc(obj, **kwargs):
        tra_gps = []
 
 
-
     print("--- %s seconds ---" % (time.time() - start_time))
 
     return obj
@@ -2004,8 +1922,6 @@ class signal_fit(object):
         self.act_data_sets_init = {k: [] for k in range(10)}
         self.tra_data_sets_init = {k: [] for k in range(10)}
         self.rv_data_sets_init  = {k: [] for k in range(10)}
-
-#        self.rv_data_sets_input  = {k: [] for k in range(10)}
 
 
         if (readinputfile):
@@ -2172,11 +2088,6 @@ class signal_fit(object):
         self.rpl    = {k: [] for k in range(10)}
         self.rhill  = {k: [] for k in range(10)}
 
-#        self.hack_around_rv_params()
-#        self.calc_hkl()
-#        self.calc_ewm()
-
-
 
     def init_pl_params(self):
 
@@ -2190,9 +2101,6 @@ class signal_fit(object):
         self.Node = {k: 0.0 for k in range(9)}
         self.w_dot= {k: 0.0 for k in range(9)}
 
-
-
-
         self.K_err    = {k: np.array([0.0,0.0]) for k in range(9)}
         self.P_err    = {k: np.array([0.0,0.0]) for k in range(9)}
         self.e_err    = {k: np.array([0.0,0.0]) for k in range(9)}
@@ -2201,7 +2109,6 @@ class signal_fit(object):
         self.i_err    = {k: np.array([0.0,0.0]) for k in range(9)}
         self.Node_err = {k: np.array([0.0,0.0]) for k in range(9)}
         self.w_dot_err= {k: np.array([0.0,0.0]) for k in range(9)}
-
 
         self.K_use    = {k: False for k in range(9)}
         self.P_use    = {k: False for k in range(9)}
@@ -2212,7 +2119,6 @@ class signal_fit(object):
         self.Node_use = {k: False for k in range(9)}
         self.w_dot_use= {k: False for k in range(9)}
 
-
         self.K_bound    = {k: np.array([0.0,10000.0]) for k in range(9)}
         self.P_bound    = {k: np.array([0.0,100000.0]) for k in range(9)}
         self.e_bound    = {k: np.array([0.0,0.999]) for k in range(9)}
@@ -2221,7 +2127,6 @@ class signal_fit(object):
         self.i_bound    = {k: np.array([0.0, 180.0]) for k in range(9)}
         self.Node_bound = {k: np.array([0.0, 360.0]) for k in range(9)}
         self.w_dot_bound= {k: np.array([0.0, 360.0]) for k in range(9)}
-
 
         self.K_norm_pr    = {k: np.array([50.0,100.0, False]) for k in range(9)}
         self.P_norm_pr    = {k: np.array([150.0,30.0, False]) for k in range(9)}
@@ -2232,7 +2137,6 @@ class signal_fit(object):
         self.Node_norm_pr = {k: np.array([0.0, 360.0, False]) for k in range(9)}
         self.w_dot_norm_pr= {k: np.array([0.0, 360.0, False]) for k in range(9)}
 
-
         self.K_jeff_pr    = {k: np.array([50.0,100.0, False]) for k in range(9)}
         self.P_jeff_pr    = {k: np.array([150.0,30.0, False]) for k in range(9)}
         self.e_jeff_pr    = {k: np.array([0.0,0.1, False]) for k in range(9)}
@@ -2242,8 +2146,6 @@ class signal_fit(object):
         self.Node_jeff_pr = {k: np.array([0.0, 360.0, False]) for k in range(9)}
         self.w_dot_jeff_pr= {k: np.array([0.0, 360.0, False]) for k in range(9)}
 
-
-
         self.K_str    = {k: r'K$_%s$'%chr(98+k)  for k in range(9)}
         self.P_str    = {k: r'P$_%s$'%chr(98+k)  for k in range(9)}
         self.e_str    = {k: r'e$_%s$'%chr(98+k)  for k in range(9)}
@@ -2252,7 +2154,6 @@ class signal_fit(object):
         self.i_str    = {k: r'i$_%s$'%chr(98+k)  for k in range(9)}
         self.Node_str = {k: r'$\Omega_%s$'%chr(98+k)  for k in range(9)}
         self.w_dot_str= {k: r'$\dot{\omega_%s}$'%chr(98+k)  for k in range(9)}
-
 
 
         #### transit #####
@@ -2279,7 +2180,6 @@ class signal_fit(object):
         self.t0_jeff_pr      = {k: np.array([0.0,1.0, False]) for k in range(9)}
         self.pl_a_jeff_pr     = {k: np.array([10.0,10.0, False]) for k in range(9)}
         self.pl_rad_jeff_pr   = {k: np.array([0.1,0.05, False]) for k in range(9)}
-
 
         self.t0_str      = {k: r't0$_%s$'%chr(98+k) for k in range(9)}
         self.pl_a_str    = {k: r'pl_a$_%s$'%chr(98+k) for k in range(9)}
@@ -2314,11 +2214,9 @@ class signal_fit(object):
         self.e_cosw_jeff_pr = {k: np.array([-1.0,1.0, False]) for k in range(9)}
         self.lamb_jeff_pr = {k: np.array([0.0,360.0, False]) for k in range(9)}
 
-
         self.e_sinw_str     = {k: r'$e sin(\omega_%s)$'%chr(98+k) for k in range(9)}
         self.e_cosw_str     = {k: r'$e cos(\omega_%s)$'%chr(98+k) for k in range(9)}
         self.lamb_str     = {k: r'$\lambda_%s$'%chr(98+k) for k in range(9)}
-
 
         ######## derived #####################
         self.t_peri = {k: 0.0 for k in range(9)}
@@ -2330,7 +2228,6 @@ class signal_fit(object):
         self.epoch_ttv = 2458000.0
         self.epoch_ttv_end = 2459000.0
         self.ttv_dt = 0.02
-
         self.ttv_times = [self.epoch_ttv,self.ttv_dt,self.epoch_ttv_end]
 
 
@@ -2355,6 +2252,7 @@ class signal_fit(object):
         self.jitt_norm_pr = {k: np.array([1.0,5.0, False] )for k in range(10)}
         self.jitt_jeff_pr = {k: np.array([1.0,5.0, False] )for k in range(10)}
 
+
     def init_RV_offset(self) :
 
         self.rvoff      = {k: 0.0 for k in range(10)}
@@ -2376,6 +2274,7 @@ class signal_fit(object):
         self.tra_jitt_norm_pr = {k: np.array([0.0,0.1, False] )for k in range(10)}
         self.tra_jitt_jeff_pr = {k: np.array([0.0,0.1, False] )for k in range(10)}
 
+
     def init_tra_offset(self) :
 
         self.tra_off      = {k: 0.0 for k in range(10)}
@@ -2396,6 +2295,7 @@ class signal_fit(object):
         self.rv_lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(1)}
         self.rv_lintr_norm_pr = {k: np.array([0,0.001, False]) for k in range(1)}
         self.rv_lintr_jeff_pr = {k: np.array([0,0.001, False]) for k in range(1)}
+
 
     def init_RV_quadtr(self) :
 
@@ -2444,7 +2344,6 @@ class signal_fit(object):
 
         self.doGP = False
         self.get_GP_lnl = True
-
         self.gps=[]
 
         self.GP_rot_params = [1.0,10.0,15.0,1.0]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
@@ -2455,7 +2354,6 @@ class signal_fit(object):
         self.GP_rot_norm_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_rot_params))}
         self.GP_rot_jeff_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_rot_params))}
 
-
         self.GP_sho_params     = [100.0,1.0,0.05]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_sho_err = [0.0,0.0,0.0]
         self.GP_sho_use = [False,False,False]
@@ -2463,7 +2361,6 @@ class signal_fit(object):
         self.GP_sho_bounds     = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_sho_params))}
         self.GP_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_sho_params))}
         self.GP_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_sho_params))}
-
 
         self.gp_model_curve = {k: 0.0 for k in range(10)}
         self.gp_model_data  = {k: 0.0 for k in range(10)}
@@ -2476,7 +2373,6 @@ class signal_fit(object):
 
         self.tra_doGP = False
         self.tra_gps=[]
-
         self.tra_GP_rot_params = [1.0,10.0,15.0,1.0]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.tra_GP_rot_err = [0.0,0.0,0.0,0.0]
         self.tra_GP_rot_use = [False,False,False,False]
@@ -2485,7 +2381,6 @@ class signal_fit(object):
         self.tra_GP_rot_norm_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_rot_params))}
         self.tra_GP_rot_jeff_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_rot_params))}
 
-
         self.tra_GP_sho_params     = [100.0,1.0,0.05]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.tra_GP_sho_err = [0.0,0.0,0.0]
         self.tra_GP_sho_use = [False,False,False]
@@ -2493,7 +2388,6 @@ class signal_fit(object):
         self.tra_GP_sho_bounds     = {k: np.array([0.0,100000.0]) for k in range(len(self.tra_GP_sho_params))}
         self.tra_GP_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_sho_params))}
         self.tra_GP_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_sho_params))}
-
 
         self.tra_gp_model_curve = {k: 0.0 for k in range(10)}
         self.tra_gp_model_data  = {k: 0.0 for k in range(10)}
@@ -2573,13 +2467,10 @@ class signal_fit(object):
         self.M0_arb   = {k: 0.0 for k in range(9)}
         self.i_arb    = {k: 90.0 for k in range(9)}
         self.Node_arb = {k: 0.0 for k in range(9)}
-
         self.mass_arb    = {k: 50.0 for k in range(9)}
         self.a_arb    = {k: 300.0 + 50*k for k in range(9)}
-
         self.pl_arb_use    = {k: False for k in range(9)}
         self.pl_arb_test = False
-
 
 
     def init_orb_evol_arb(self):
@@ -2589,9 +2480,7 @@ class signal_fit(object):
         self.evol_e_arb = {k: [] for k in range(9)}
         self.evol_p_arb = {k: [] for k in range(9)}
         self.evol_M_arb = {k: [] for k in range(9)}
-
         self.evol_Per_arb = {k: [] for k in range(9)}
-
         self.evol_T_energy_arb   = 0
         self.evol_energy_arb   = 0
         #self.evol_momentum_arb = 0
@@ -2606,15 +2495,11 @@ class signal_fit(object):
         self.evol_M  = {k: [] for k in range(9)}
         self.evol_i  = {k: [] for k in range(9)}
         self.evol_Om = {k: [] for k in range(9)}
-
         self.evol_Per = {k: [] for k in range(9)}
-
-
         self.evol_T_energy   = 0
         self.evol_energy   = 0
         #self.evol_momentum = 0
         self.evol_momentum = {'lx': [], 'ly': [], 'lz': []}
-
         self.GR_step = 1000
 
 
@@ -2641,7 +2526,6 @@ class signal_fit(object):
         self.mcmc_sample_file = 'mcmc_samples'
         self.mcmc_corner_plot_file = 'cornerplot.pdf'
         self.mcmc_stat = {"mean": [],"median": [],"mode": [],"best": [],"MAD":[]}
-
 
 
     def init_nest_par(self):
@@ -2672,8 +2556,6 @@ class signal_fit(object):
         self.nest_stat = {"mean": [],"median": [],"mode": [],"best": [],"MAD":[]}
 
 
-
-
     def init_dynfit_settings(self):
         self.mixed_fit = {0: [False], 1:[1,1,1,1,1,1,1,1,1]}
         self.fitting_method = 'None'
@@ -2682,13 +2564,12 @@ class signal_fit(object):
         self.dyn_model_to_kill = 86400.0
         self.kep_model_to_kill = 60.0
         self.master_timeout = 86400.0
-
         self.model_npoints = 2000
+
 
     def update_epoch(self,epoch):
         self.epoch=epoch
         return
-
 
 
     def calc_hkl(self):
@@ -2697,6 +2578,7 @@ class signal_fit(object):
             self.e_sinw[i] = self.e[i]*np.sin(np.radians(self.w[i]))
             self.e_cosw[i] = self.e[i]*np.cos(np.radians(self.w[i]))
             self.lamb[i]   = (self.w[i] + self.M0[i])%360.0
+
 
     def calc_ewm(self):
 
@@ -2724,15 +2606,12 @@ class signal_fit(object):
                  self.lamb[i]      = (self.w[i]  + self.M0[i])%360.0
 
              if self.hkl ==True:
-
                  self.e_sinw[i]    = self.params.planet_params[i*7+2]
                  self.e_cosw[i]    = self.params.planet_params[i*7+3]
                  self.lamb[i]   = self.params.planet_params[i*7+4]
                  self.e[i]   = np.sqrt(self.e_sinw[i]**2 + self.e_cosw[i]**2)
                  self.w[i]   = np.degrees(np.arctan2(self.e_sinw[i],self.e_cosw[i]))%360.0
                  self.M0[i]  = (self.lamb[i] - self.w[i])%360.0
-
-
 
 
 ############################ RV datasets ##########################################
@@ -2766,9 +2645,9 @@ class signal_fit(object):
         act_JD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
         act_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
         act_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-        
+
         act_file_name = file_from_path(path)
-        
+
         act_data_set = np.array([act_JD,act_data,act_data_sig,act_file_name])
 
         self.act_data_sets[act_idset]      = act_data_set
@@ -2895,7 +2774,7 @@ class signal_fit(object):
             if self.epoch < 1:
                 self.update_epoch(self.filelist.first_observation())
                 
-        #### new stuff, TB fixed!         
+        #### new stuff, TB fixed!
         self.add_rv_dataset(name, path, rv_idset = int(max(self.filelist.idset)))
         
         return
