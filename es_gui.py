@@ -553,7 +553,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def update_a_mass(self):
         global fit
 
-        if fit.type_fit["RV"] == True:
+        if fit.type_fit["RV"] == True and len(fit.fit_results.a) != 0:
             for i in range(fit.npl):
                 self.param_a_gui[i].setText("%.3f"%(fit.fit_results.a[i])) 
                 self.param_mass_gui[i].setText("%.3f"%(fit.fit_results.mass[i])) 
@@ -2152,6 +2152,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'9pt'})
                 self.trans_phase_slider.setEnabled(False) 
 
+            #print(len(t),len(flux),len(flux_err))
+
 
             p3.plot(t, flux,
             pen=None,
@@ -3309,8 +3311,12 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
     def update_plots(self):
-        self.update_RV_GLS_plots()
-        self.update_RV_o_c_GLS_plots()
+        global fit
+
+        #self.update_RV_GLS_plots()
+        #self.update_RV_o_c_GLS_plots()
+        self.run_gls()
+        self.run_gls_o_c()
         self.update_WF_plots()
         self.update_RV_plots()
         self.update_extra_plots()
@@ -3806,12 +3812,17 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         minimize_fortran=True
         if fit.model_saved == False or len(fit.fit_results.rv_model.jd) != len(fit.filelist.idset):
-            fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
-            #self.worker_RV_fitting(, ff=0, m_ln=True, auto_fit = False , init = True ):
-            #self.fit_dispatcher(init=False)
+            fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran, doGP=fit.doGP,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value(),return_flag=True)
+
+
+            #fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=fit.doGP, minimize_fortran=minimize_fortran,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
+
+
             for i in range(fit.npl):
                  rv.phase_RV_planet_signal(fit,i+1)
-                 
+        
+        
+        #print(fit.fit_results.rv_model.rv_err)
         self.update_labels()
 #        self.update_params()
 
@@ -5771,6 +5782,7 @@ highly appreciated!
 
 
             if self.RVBank_window.data_index < 11 and self.RVBank_window.type_data == "HARPS":
+                
                 BJD       = self.RVBank_window.x_data 
                 rv_data     = self.RVBank_window.y_data
                 rv_data_sig = self.RVBank_window.e_y_data
@@ -5785,9 +5797,9 @@ highly appreciated!
 
                 for i in range(len(BJD)):
 
-                    if float(BJD[0]) <= 2457161.5:
+                    if float(BJD[i]) <= 2457161.5:
                         out1.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  \n'.format(float(BJD[i]), float(rv_data[i]), float(rv_data_sig[i]),  width = 10, precision = 5 )   )
-                    elif float(BJD[0]) > 2457161.5:
+                    elif float(BJD[i]) > 2457161.5:
                         out2.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  \n'.format(float(BJD[i]), float(rv_data[i]), float(rv_data_sig[i]),  width = 10, precision = 5 )   )
 
                 out1.close()
@@ -5798,9 +5810,15 @@ highly appreciated!
                 if len(BJD[BJD > 2457161.5]) !=0:
                     fit.add_dataset(name2,path2,0.0,1.0,useoffset=True,usejitter=True)
  
-               # rv.check_temp_RV_file(fit)
+    
+                fit.type_fit["RV"] = True
+                fit.type_fit["Transit"] = False
+                self.check_type_fit()
+                self.mute_boxes()
+    
                 self.init_fit()
-
+               # rv.check_temp_RV_file(fit)
+                #self.update_veiw()
                 self.update_use_from_input_file()
                 self.update_use()
                 self.update_params()
@@ -5972,6 +5990,7 @@ highly appreciated!
             pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
 
         self.inspector_file = path
+        
         self.data_insp_print_info.clicked.connect(lambda: self.print_info_for_object(self.stat_info(x,y,y_err,path)))   
         #self.data_insp_load_data.clicked.connect(lambda: self.load_data_inspect(path))
 
@@ -7136,6 +7155,7 @@ If this does not help, please open a GitHub issue here:
         self.gridLayout_calculator.addWidget(self.calculator)
         
         #################### data inspector ########################
+        self.inspector_file = ""
         self.RVBank = False
         self.datafiles_window = datafiles_window()
         self.RVBank_window = RVBank_window() 

@@ -30,8 +30,8 @@ class fortran_output(object):
     rms_str=''
     chi_str=''
     epoch_str=''
-    masses=[0]*10
-    semiM=[0]*10
+    masses=[0]*9
+    semiM=[0]*9
     JD_model=[]
     model=[]    
     jd=[]
@@ -183,7 +183,7 @@ class fortran_output(object):
                     planet_params  = np.concatenate((planet_params,np.array(list(map(float,self.best_par[i+1+(k*2)][:7])))))
                     planet_params_errors  = np.concatenate((planet_params_errors,np.array(list(map(float,self.best_par[i+2+(k*2)][:7])))))
                     omega_dot[k] = float(self.best_par[i+1+(k*2)][7])    
-                    omega_dot_err[k] = [float(self.best_par[i+2+(k*2)][7]),float(self.best_par[i+2+(k*2)][7])]             
+                    omega_dot_err[k] = [float(self.best_par[i+2+(k*2)][7]),float(self.best_par[i+2+(k*2)][7])]
                     #self.omega_dot[k] = float(self.best_par[i+1+(k*2)][7])
                     #self.omega_dot_err[k] = float(self.best_par[i+2+(k*2)][7])
                     
@@ -252,6 +252,7 @@ class fortran_output(object):
             self.wrms = np.sqrt(np.average(self.o_c**2, weights=1/self.rv_error))
         else:
             self.wrms = 0
+        
         
         results = kernel(self.generate_summary(), self.jd, self.rv_obs, self.rv_error,self.o_c, self.model, 
                          self.JD_model, self.npl,self.semiM,self.masses,self.data_set,self.stat_array_saved,
