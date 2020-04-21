@@ -256,11 +256,11 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         else:
             symbolSize=2
 
-        p_1.plot(clear=True,)
+        self.ui.plot.plot(clear=True,)
 
         ######## Top plot ############
 
-        p_1.plot(self.t,self.flux, pen=None,
+        self.ui.plot.plot(self.t,self.flux, pen=None,
             symbol='o', symbolPen={'color': '#0066ff', 'width': 1.1},
             symbolSize=symbolSize,enableAutoRange=True,viewRect=True,
             symbolBrush='#0066ff')
@@ -270,27 +270,27 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
                                    bottom=self.flux_err,
                                    beam=0.0, pen='#0066ff')
 
-        p_1.addItem(err_)
+        self.ui.plot.addItem(err_)
 
-        model_curve = p_1.plot(self.t, self.trend , pen={'color': '#000000', 'width': 3}, enableAutoRange=True,viewRect=True ) 
+        model_curve = self.ui.plot.plot(self.t, self.trend , pen={'color': '#000000', 'width': 3}, enableAutoRange=True,viewRect=True ) 
         model_curve.setZValue(1)
 
-        p_1.plotItem.items[1].sigPointsClicked.connect(self.plotClicked)
+        self.ui.plot.plotItem.items[1].sigPointsClicked.connect(self.plotClicked)
 
 
     def bottom_plot_lc(self):
-        global p_2
+        #global p_2
         
-        p_2.plot(clear=True,)
+        self.ui.plot_2.plot(clear=True,)
         ######## Bottom plot ############
-        p_2.setLogMode(False,False)
+        self.ui.plot_2.setLogMode(False,False)
 
-        p_2.plot(self.t,self.flux_o_c, pen=None,
+        self.ui.plot_2.plot(self.t,self.flux_o_c, pen=None,
             symbol='o', symbolPen={'color': '#0066ff', 'width': 1.1},
             symbolSize=2,enableAutoRange=True,viewRect=True,
             symbolBrush='#0066ff')
             
-        p_2.setLabel('left', 'Flux', units='',  **{'font-size':'9pt'})
+        self.ui.plot_2.setLabel('left', 'Flux', units='',  **{'font-size':'9pt'})
 
 
         err_ = pg.ErrorBarItem(x=self.t, y=self.flux_o_c, symbol = 'o',
@@ -298,7 +298,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
                                    bottom=self.flux_err_o_c,
                                    beam=0.0, pen='#0066ff')
                                    
-        p_2.addItem(err_)
+        self.ui.plot_2.addItem(err_)
         
         
         
@@ -309,19 +309,28 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
             return
 
         rem_x,rem_y = datas[0].pos()
-        print(rem_x,rem_y)
+        print("Removed x,y: ",rem_x,rem_y)
 
         self.old_t = dill.copy(self.t)
 
-        self.t            = self.t[self.old_t != rem_x]
-        self.flux         = self.flux[self.old_t != rem_x]
-        self.flux_err     = self.flux_err[self.old_t != rem_x]
-        self.flux_o_c     = self.flux_o_c[self.old_t != rem_x]
-        self.flux_err_o_c = self.flux_err_o_c[self.old_t != rem_x]
-        self.trend        = self.trend[self.old_t != rem_x]
+        self.t            = dill.copy(self.t[self.old_t != rem_x])
+        self.flux         = dill.copy(self.flux[self.old_t != rem_x])
+        self.flux_err     = dill.copy(self.flux_err[self.old_t != rem_x])
+        self.flux_o_c     = dill.copy(self.flux_o_c[self.old_t != rem_x])
+        self.flux_err_o_c = dill.copy(self.flux_err_o_c[self.old_t != rem_x])
+        self.trend        = dill.copy(self.trend[self.old_t != rem_x])
 
-        #self.top_plot()
-        self.plot()
+
+        self.ui.plot.plotItem.items[1].setData(x=self.t,y=self.flux)
+        self.ui.plot.plotItem.items[2].setData(x=self.t, y=self.flux,  
+                                   top=self.flux_err_o_c, 
+                                   bottom=self.flux_err_o_c)
+
+        self.ui.plot_2.plotItem.items[1].setData(x=self.t,y=self.flux_o_c)
+        self.ui.plot_2.plotItem.items[2].setData(x=self.t, y=self.flux_o_c,  
+                                   top=self.flux_err_o_c, 
+                                   bottom=self.flux_err_o_c)
+        #self.plot()
 
 
 
@@ -347,25 +356,25 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
 
     def plot_GLS(self):
-        global p_2
+        #global p_2
 
-        p_2.plot(clear=True,)
+        self.ui.plot_2.plot(clear=True,)
 
         power_levels = np.array([self.parent.gls_fap1.value(),self.parent.gls_fap2.value(),self.parent.gls_fap3.value()])
 
         ######################## GLS ##############################
         if self.parent.radioButton_act_GLS_period.isChecked():
-            p_2.setLogMode(True,False)
-            p_2.plot(1.0/self.trend_per.freq, self.trend_per.power,pen='r',symbol=None ) 
-            p_2.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'}) 
-            p_2.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})
+            self.ui.plot_2.setLogMode(True,False)
+            self.ui.plot_2.plot(1.0/self.trend_per.freq, self.trend_per.power,pen='r',symbol=None ) 
+            self.ui.plot_2.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'}) 
+            self.ui.plot_2.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})
 
         else:
-            p_2.setLogMode(False,False)        
-            p_2.plot(self.trend_per.freq, self.trend_per.power,pen='r',symbol=None )
-            p_2.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
+            self.ui.plot_2.setLogMode(False,False)        
+            self.ui.plot_2.plot(self.trend_per.freq, self.trend_per.power,pen='r',symbol=None )
+            self.ui.plot_2.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
 
-        [p_2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(self.trend_per.powerLevel(np.array(power_levels)))]
+        [self.ui.plot_2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(self.trend_per.powerLevel(np.array(power_levels)))]
 
 
 
@@ -504,17 +513,17 @@ dependencies list. For example:
 
     def initialize_plots(self):
 
-        global p_1,p_2
+        #global p_1,p_2
         
         xaxis = ['BJD [days]','BJD [days]']
         yaxis = ['Flux','Flux']
         xunit = ['' ,'']
         yunit = ['' ,'' ]
 
-        p_1 = self.ui.plot
-        p_2 = self.ui.plot_2
+        #p_1 = self.ui.plot
+        #p_2 = self.ui.plot_2
 
-        zzz = [p_1,p_2]
+        zzz = [self.ui.plot,self.ui.plot_2]
 
 
         for i in range(len(zzz)):
