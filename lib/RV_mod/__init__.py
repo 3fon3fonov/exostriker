@@ -675,6 +675,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
             par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
                                                       ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
+            print(par[len(vel_files)*2 +7*i+4],ecc_,om_,par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
 
     else:
         for i in range(npl): # (per, ecc, om, ma, epoch):
@@ -1108,9 +1109,27 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.fit_results.wrms = obj.transit_results[4][3]
         
     elif obj.type_fit["RV"] == True and obj.type_fit["Transit"] == True:
+
+        for i in range(npl): # (per, ecc, om, t_transit, epoch):
+
+            if obj.hkl == True:
+                ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
+                om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
+            else:
+                ecc_, om_, = par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]
+    
+    
+            par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
+                                                      ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
+            obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
+        
+        
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
         obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, return_model = True, tra_model_fact=obj.tra_model_fact)
         obj.loglik     =   obj.loglik +  obj.transit_results[0]
+        
+        
+        
     elif obj.type_fit["RV"] == True and obj.type_fit["TTV"] == True:
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
         ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass, obj.ttv_times,obj.fit_results, return_model = False)
