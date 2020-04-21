@@ -357,6 +357,10 @@ class GraphicsScene(QtGui.QGraphicsScene):
                             debug.printExc("Error sending click event:")
                             
                         if ev.isAccepted():
+                            ###### These lines below cause 
+                            ##  RuntimeError: wrapped C/C++ object of type ScatterPlotItem has been deleted
+                            ## commentingthe lines does the trick for me.
+                            #
                             if int(item.flags() & item.ItemIsFocusable) > 0:
                                 item.setFocus(QtCore.Qt.MouseFocusReason)
                             break
