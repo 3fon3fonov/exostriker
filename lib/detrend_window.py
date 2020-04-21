@@ -69,6 +69,8 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
 
         self.t = []
+        self.old_t = []
+        self.flux_o_c = []
         self.initialize_plots()
 
         self.init_comboBox_regres()
@@ -89,6 +91,9 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.ui.buttonGroup_trendOptions.buttonClicked.connect(self.update_labels)
 
         self.ui.click_to_reject.clicked.connect(self.top_plot)
+        self.ui.reset_data.clicked.connect(self.reset_data)
+        self.ui.add_epoch.clicked.connect(self.add_bjd)
+
 
     def replot(self):
         
@@ -107,15 +112,30 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
     def init_data(self):
 
+        
         self.t      = self.parent.tra_data[0]
         self.flux   = self.parent.tra_data[4]
         self.flux_err = self.parent.tra_data[2]
         self.data_file_name = self.parent.tra_data[5]
-        
+        self.old_t = dill.copy(self.t)
         return
 
 
+    def add_bjd(self):
  
+        self.t      = self.t + self.ui.extra_BJD.value()
+        self.plot()
+ 
+        return
+
+
+    def reset_data(self):
+ 
+        self.ui.radio_remove_mean.setChecked(True)
+        self.t = []
+        self.worker_detrend()
+
+
     def calculate(self):
 
 
@@ -196,6 +216,8 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.ui.try_button.setText("Try !")
         self.ui.try_button.setEnabled(True)
         self.ui.flatten_data.setChecked(True)
+        self.old_t = dill.copy(self.t)
+
 
         self.plot()
         self.show()
@@ -253,31 +275,8 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         model_curve = p_1.plot(self.t, self.trend , pen={'color': '#000000', 'width': 3}, enableAutoRange=True,viewRect=True ) 
         model_curve.setZValue(1)
 
-
-
         p_1.plotItem.items[1].sigPointsClicked.connect(self.plotClicked)
 
-
-    def plotClicked(self,curve,datas):
-
-        if self.ui.click_to_reject.isChecked() == False:
-            return
-        
-        rem_x,rem_y = datas[0].pos()
-        print(rem_x,rem_y)
-        
-        old_t = dill.copy(self.t)
-        
-        self.t        = self.t[old_t != rem_x]
-        self.flux     = self.flux[old_t != rem_x]
-        self.flux_err = self.flux_err[old_t != rem_x]
-        self.trend    = self.trend[old_t != rem_x]
-        #self.t      = self.parent.tra_data[0]
-        #self.flux   = self.parent.tra_data[4]
-        #self.flux_err = self.parent.tra_data[2]
-        
-
-        self.top_plot()
 
     def bottom_plot_lc(self):
         global p_2
@@ -303,6 +302,28 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         
         
         
+
+    def plotClicked(self,curve,datas):
+
+        if self.ui.click_to_reject.isChecked() == False:
+            return
+
+        rem_x,rem_y = datas[0].pos()
+        print(rem_x,rem_y)
+
+        self.old_t = dill.copy(self.t)
+
+        self.t            = self.t[self.old_t != rem_x]
+        self.flux         = self.flux[self.old_t != rem_x]
+        self.flux_err     = self.flux_err[self.old_t != rem_x]
+        self.flux_o_c     = self.flux_o_c[self.old_t != rem_x]
+        self.flux_err_o_c = self.flux_err_o_c[self.old_t != rem_x]
+        self.trend        = self.trend[self.old_t != rem_x]
+
+        #self.top_plot()
+        self.plot()
+
+
 
     def make_GLS(self, model=False, o_c=False):
 
@@ -350,14 +371,25 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
 
     def closeEvent(self, event):
-        ret = QtGui.QMessageBox.question(None, 'Close request', 'Are you sure you want to quit?',
-                                         QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
-                                         QtGui.QMessageBox.Yes)
-        if ret == QtGui.QMessageBox.Yes:
-            self.ui.radio_remove_mean.setChecked(True)
-            QtGui.QMainWindow.closeEvent(self, event)
-        else:
+        
+        if len(self.old_t)  != len(self.t):
+            choice = QtGui.QMessageBox.information(self, 'Warning!',
+            "It seems that you removed data, but you did not refit! This is not allowed. Please press the 'Try!' button and then close", QtGui.QMessageBox.Ok)
             event.ignore()
+
+ 
+        else:
+            ret = QtGui.QMessageBox.question(None, 'Close request', 'Are you sure you want to quit?',
+                                             QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
+                                             QtGui.QMessageBox.Yes)
+            if ret == QtGui.QMessageBox.Yes:
+                
+    
+                
+                self.ui.radio_remove_mean.setChecked(True)
+                QtGui.QMainWindow.closeEvent(self, event)
+            else:
+                event.ignore()
 
 
     def save_data_product(self):

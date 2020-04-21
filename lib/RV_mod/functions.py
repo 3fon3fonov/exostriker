@@ -331,7 +331,7 @@ def get_xyz(obj):
     Au = 1.49597892e13
 
     ##### this is a hack avoiding transit init crash!!!! TB fixed/removed
-    if obj.fit_results.mass == 0 or len(np.atleast_1d(obj.fit_results.mass)) == 0:
+    if obj.fit_results.mass == 0 or len(np.atleast_1d(obj.fit_results.mass)) == 0 or np.sum(obj.fit_results.a) == 0:
         return obj
     #####################################################################
 
@@ -996,11 +996,13 @@ def transit_data_norm(obj,  file_n = 0, norm = False, verbose = True):
         return
  
     if norm == True:
+        obj.tra_data_sets[file_n][0] = obj.tra_data_sets_init[file_n][0]
         obj.tra_data_sets[file_n][1] = obj.tra_data_sets_init[file_n][1]/np.mean(obj.tra_data_sets_init[file_n][1])
         obj.tra_data_sets[file_n][2] = obj.tra_data_sets_init[file_n][2]/np.mean(obj.tra_data_sets_init[file_n][1])
     else:
-        obj.tra_data_sets[file_n][1] = obj.tra_data_sets_init[file_n][1] 
-        obj.tra_data_sets[file_n][2] = obj.tra_data_sets_init[file_n][2] 
+        obj.tra_data_sets[file_n][0] = dill.copy(obj.tra_data_sets_init[file_n][0])
+        obj.tra_data_sets[file_n][1] = dill.copy(obj.tra_data_sets_init[file_n][1])
+        obj.tra_data_sets[file_n][2] = dill.copy(obj.tra_data_sets_init[file_n][2])
 
     return obj
 

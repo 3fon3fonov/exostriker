@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>706</width>
+    <width>710</width>
     <height>763</height>
    </rect>
   </property>
@@ -31,131 +31,6 @@
      <property name="verticalSpacing">
       <number>2</number>
      </property>
-     <item row="2" column="2">
-      <widget class="QLabel" name="label_wl">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Window length</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0" colspan="7">
-      <widget class="PlotWidget" name="plot">
-       <property name="mouseTracking">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QComboBox" name="comboBox_sliders">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="2">
-      <widget class="QDoubleSpinBox" name="sliders_wl">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.500000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="2">
-      <widget class="QDoubleSpinBox" name="spline_wl">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.500000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QRadioButton" name="radio_Splines">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Splines</string>
-       </property>
-       <attribute name="buttonGroup">
-        <string notr="true">buttonGroup_trendOptions</string>
-       </attribute>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="7">
-      <widget class="PlotWidget" name="plot_2">
-       <property name="mouseTracking">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QRadioButton" name="radio_remove_mean">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Normalize by mean</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-       <attribute name="buttonGroup">
-        <string notr="true">buttonGroup_trendOptions</string>
-       </attribute>
-      </widget>
-     </item>
-     <item row="5" column="3">
-      <widget class="QDoubleSpinBox" name="spline_bt">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.500000000000000</double>
-       </property>
-      </widget>
-     </item>
      <item row="4" column="0">
       <widget class="QRadioButton" name="radio_timeW">
        <property name="font">
@@ -171,44 +46,33 @@
        </attribute>
       </widget>
      </item>
-     <item row="2" column="3">
-      <widget class="QLabel" name="label_2">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Break tolerance</string>
+     <item row="1" column="0" colspan="9">
+      <widget class="PlotWidget" name="plot_2">
+       <property name="mouseTracking">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QLabel" name="label_method">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Method</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QComboBox" name="comboBox_splines">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="5" rowspan="8">
+     <item row="2" column="7" rowspan="8">
       <widget class="Line" name="line">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
+      </widget>
+     </item>
+     <item row="5" column="8">
+      <widget class="QRadioButton" name="GLS_of_detr_data">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>GLS of detr. data</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup_plot2</string>
+       </attribute>
       </widget>
      </item>
      <item row="6" column="0">
@@ -226,47 +90,14 @@
        </attribute>
       </widget>
      </item>
-     <item row="6" column="1">
-      <widget class="QComboBox" name="comboBox_poly">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
+     <item row="4" column="2">
+      <widget class="QDoubleSpinBox" name="sliders_wl">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
        </property>
-      </widget>
-     </item>
-     <item row="6" column="2">
-      <widget class="QDoubleSpinBox" name="poly_wl">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.500000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="3">
-      <widget class="QDoubleSpinBox" name="poly_bt">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.500000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="3">
-      <widget class="QDoubleSpinBox" name="regres_bt">
        <property name="font">
         <font>
          <pointsize>9</pointsize>
@@ -295,12 +126,169 @@
        </property>
       </widget>
      </item>
+     <item row="6" column="1">
+      <widget class="QComboBox" name="comboBox_poly">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+      </widget>
+     </item>
      <item row="7" column="1">
       <widget class="QComboBox" name="comboBox_regs">
        <property name="font">
         <font>
          <pointsize>9</pointsize>
         </font>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QComboBox" name="comboBox_sliders">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QDoubleSpinBox" name="poly_wl">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.500000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="8">
+      <widget class="QPushButton" name="saveProduct">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Save detr. data</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="2">
+      <widget class="QDoubleSpinBox" name="kernel_size">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="decimals">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <double>100.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>5.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="8">
+      <widget class="QPushButton" name="readme_button">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>READ ME</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QComboBox" name="comboBox_splines">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="8">
+      <widget class="QRadioButton" name="GLS_of_model">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>GLS of model</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup_plot2</string>
+       </attribute>
+      </widget>
+     </item>
+     <item row="7" column="3">
+      <widget class="QDoubleSpinBox" name="regres_bt">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.500000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QRadioButton" name="radio_remove_mean">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Normalize by mean</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup_trendOptions</string>
+       </attribute>
+      </widget>
+     </item>
+     <item row="2" column="6">
+      <widget class="QPushButton" name="reset_data">
+       <property name="text">
+        <string>Reset</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="3">
+      <widget class="QDoubleSpinBox" name="poly_bt">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.500000000000000</double>
        </property>
       </widget>
      </item>
@@ -334,37 +322,37 @@
        </attribute>
       </widget>
      </item>
-     <item row="8" column="1">
-      <widget class="QComboBox" name="comboBox_GP">
+     <item row="4" column="8">
+      <widget class="QRadioButton" name="GLS_of_data">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>GLS of input data</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup_plot2</string>
+       </attribute>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QRadioButton" name="radio_Splines">
        <property name="font">
         <font>
          <pointsize>9</pointsize>
         </font>
        </property>
+       <property name="text">
+        <string>Splines</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup_trendOptions</string>
+       </attribute>
       </widget>
      </item>
-     <item row="8" column="2">
-      <widget class="QDoubleSpinBox" name="kernel_size">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="decimals">
-        <number>1</number>
-       </property>
-       <property name="maximum">
-        <double>100.000000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>5.000000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="6">
+     <item row="2" column="8">
       <widget class="QPushButton" name="try_button">
        <property name="font">
         <font>
@@ -376,7 +364,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="6">
+     <item row="3" column="8">
       <widget class="QRadioButton" name="flatten_data">
        <property name="font">
         <font>
@@ -394,94 +382,140 @@
        </attribute>
       </widget>
      </item>
-     <item row="4" column="6">
-      <widget class="QRadioButton" name="GLS_of_data">
+     <item row="5" column="2">
+      <widget class="QDoubleSpinBox" name="spline_wl">
        <property name="font">
         <font>
-         <pointsize>8</pointsize>
+         <pointsize>9</pointsize>
         </font>
        </property>
-       <property name="text">
-        <string>GLS of input data</string>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
        </property>
-       <attribute name="buttonGroup">
-        <string notr="true">buttonGroup_plot2</string>
-       </attribute>
+       <property name="value">
+        <double>0.500000000000000</double>
+       </property>
       </widget>
      </item>
-     <item row="5" column="6">
-      <widget class="QRadioButton" name="GLS_of_detr_data">
+     <item row="8" column="1">
+      <widget class="QComboBox" name="comboBox_GP">
        <property name="font">
         <font>
-         <pointsize>8</pointsize>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="3">
+      <widget class="QDoubleSpinBox" name="spline_bt">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.500000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" colspan="9">
+      <widget class="PlotWidget" name="plot">
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="label_method">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
         </font>
        </property>
        <property name="text">
-        <string>GLS of detr. data</string>
+        <string>Method</string>
        </property>
-       <attribute name="buttonGroup">
-        <string notr="true">buttonGroup_plot2</string>
-       </attribute>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="label_wl">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Window length</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="5" rowspan="7">
+      <widget class="Line" name="line_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QLabel" name="label_2">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Break tolerance</string>
+       </property>
       </widget>
      </item>
      <item row="6" column="6">
-      <widget class="QRadioButton" name="GLS_of_model">
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
+      <widget class="QDoubleSpinBox" name="extra_BJD">
+       <property name="decimals">
+        <number>3</number>
        </property>
-       <property name="text">
-        <string>GLS of model</string>
+       <property name="maximum">
+        <double>9999999999999.000000000000000</double>
        </property>
-       <attribute name="buttonGroup">
-        <string notr="true">buttonGroup_plot2</string>
-       </attribute>
-      </widget>
-     </item>
-     <item row="7" column="6">
-      <widget class="QPushButton" name="saveProduct">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Save detr. data</string>
+       <property name="value">
+        <double>2457000.000000000000000</double>
        </property>
       </widget>
      </item>
-     <item row="8" column="6">
-      <widget class="QPushButton" name="readme_button">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
+     <item row="3" column="6">
+      <widget class="QCheckBox" name="click_to_reject">
        <property name="text">
-        <string>READ ME</string>
+        <string>remove outliers</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="4">
+     <item row="5" column="6">
+      <widget class="QPushButton" name="add_epoch">
+       <property name="text">
+        <string>Add BJD</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="4">
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>10</width>
+         <width>13</width>
          <height>20</height>
         </size>
        </property>
       </spacer>
-     </item>
-     <item row="2" column="4">
-      <widget class="QCheckBox" name="click_to_reject">
-       <property name="text">
-        <string>click to reject</string>
-       </property>
-      </widget>
      </item>
     </layout>
    </item>
