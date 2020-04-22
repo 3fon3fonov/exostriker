@@ -112,7 +112,6 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
     def init_data(self):
 
-        
         self.t      = self.parent.tra_data[0]
         self.flux   = self.parent.tra_data[4]
         self.flux_err = self.parent.tra_data[2]
@@ -122,7 +121,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
 
     def add_bjd(self):
- 
+
         self.t      = self.t + self.ui.extra_BJD.value()
         self.plot()
  
@@ -195,7 +194,9 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
                 kernel = str(self.ui.comboBox_GP.currentText()),
                 kernel_size=self.ui.kernel_size.value(),
                 break_tolerance=self.ui.regres_bt.value(),  # Split into segments at breaks longer than that
-                return_trend=True,    # Return trend and flattened light curve
+                kernel_period = self.ui.GP_period.value(),
+                robust = self.ui.checkBox_GP_robust.isChecked(),
+                return_trend=True    # Return trend and flattened light curve
                 )
 
         else:
@@ -407,8 +408,16 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         
         if str(output_file[0]) != '':
             f = open(output_file[0], 'w')
+            f.write("# BJD     Detrended data    Detrended data errors,   Original data   Original data errors    Model applied \n")
             for i in range(len(self.t)):
-                f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  \n'.format(float(self.t[i]), float(self.flux_o_c[i]), float(self.flux_err_o_c[i]),  width = 10, precision = 7 )   )
+                f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f} {3:{width}.{precision}f} {4:{width}.{precision}f} {5:{width}.{precision}f}\n'.format(
+                        float(self.t[i]), 
+                        float(self.flux_o_c[i]), 
+                        float(self.flux_err_o_c[i]), 
+                        float(self.flux[i]), 
+                        float(self.flux_err[i]), 
+                        float(self.trend[i]), 
+                        width = 14, precision = 7 ))
             f.close()
 
 
@@ -462,11 +471,13 @@ dependencies list. For example:
     def update_labels(self):
         
         if self.ui.radio_GPs.isChecked():
-            self.ui.label_method.setText("kernel")
-            self.ui.label_wl.setText("kernel size")
+            self.ui.label_method.setText("Kernel")
+            self.ui.label_wl.setText("Kernel size")
+            self.ui.label_tolerance.setText("Kernel period")
         else:
-            self.ui.label_method.setText("method")
-            self.ui.label_wl.setText("window length")
+            self.ui.label_method.setText("Method")
+            self.ui.label_wl.setText("Window length")
+            self.ui.label_tolerance.setText("break tolerance")
 
 
 
