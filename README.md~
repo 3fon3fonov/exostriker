@@ -13,7 +13,6 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 
 * Trifon Trifonov, MPIA Heidelberg.
 
-* with contributions by Mathias Zechmeister, Jakub Morawski,Man Hoi Lee, and Stefan Dreizler 
 
 
 **What works**:
@@ -21,14 +20,14 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
 * Activity index signal search via GLS periodogram.
 * Keplerian and Dynamical RV modeling. 
-* Instant online access to the "RVBank" database (over 212 000 RVs and activity indices of about HARPS 3000 stars & over 64 000 RVs and activity indices of about HIRES 1699 stats !!!).
+* Instant online access to the HARPS RVBank (over 212 000 RVs and activity indices of about 3000 stars!!!).
 * Transit signal search via TLS.
-* Interactive transit photometry detrending (via "wotan"), and interactive outlier removal.
+* Transit photometry detrending (via "wotan").
 * Transit photometry modeling.
 * GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
 * Joint RVs + Transit + GPs best-fit optimization.
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty").
-* TTVs and/or joint TTVs + RVs analysis.
+* TTVs and joint TTVs + RVs analysis.
 * RV auto-fit (RV automated planet-finder algorithm).
 * Fit for apsidal orbital precession, or apply General Relativity (GR) precession. 
 * Instant AMD stability check for multiple planetary systems (including during optimization or MCMC/Nested Sampling).
@@ -46,7 +45,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Importable as a standard python library (i.e., ideal for scripting and notebooks, see "Notebook_and_script_examples").
 * Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
 
-**What is to be implemented**:
+What is to be implemented:
 
 * More GP kernels (work in progress). 
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ REBOUND is planned to be included). 
@@ -55,9 +54,6 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * A pip installer, and a ready-to-use pre-installed binary of the tool (work in progress). 
 * Combined modeling with Astrometry.
 * Documentation, Instructions, and Video tutorials (work in progress here: https://exostriker.readthedocs.io)
-
-
-
 
 
 **Installation:**

@@ -224,8 +224,8 @@ def initiate_tansit_gps(obj,  kernel_id=-1):
 
     tra_gps = celerite.GP(tra_kernel, mean=1.0)
 
-    y = np.concatenate([obj.tra_data_sets[j][2] for j in range(10) if len(obj.tra_data_sets[j]) != 0]) #fit.tra_data_sets[0][3]
-    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0]) #fit.tra_data_sets[0][3]
+    y = np.concatenate([obj.tra_data_sets[j][2] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
+    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
 
     tra_gps.compute(x, y)
 
@@ -245,7 +245,6 @@ def get_transit_ts(obj,  kernel_id=-1):
 
     for j in range(10):
 
-    #if len(fit.tra_data_sets[0]) != 0:
         if len(obj.tra_data_sets[j]) == 0:
             continue
         else:
@@ -323,8 +322,8 @@ def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
 
     ############ DATA ####################
 
-    y = np.concatenate([obj.tra_data_sets[j][4] for j in range(10) if len(obj.tra_data_sets[j]) != 0]) #fit.tra_data_sets[0][3]
-    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0]) #fit.tra_data_sets[0][3]
+    y = np.concatenate([obj.tra_data_sets[j][4] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
+    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
 
     if len(x_model) == 0 or len(y_model) == 0:
         x_model = dill.copy(x)
@@ -642,7 +641,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     ttv_files = opt["TTV_files"]
     ttv_times = opt["TTV_times"]
 
-    N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0]) #fit.tra_data_sets[0][3]
+    N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0])
 
     if np.isnan(p).any():
         return -np.inf
@@ -810,7 +809,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     for i in range(obj.filelist.ndset):
          vel_files.append(obj.filelist.files[i].path)
 
-    N_transit_files = len([x for x in range(10) if len(obj.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][3]
+    N_transit_files = len([x for x in range(10) if len(obj.tra_data_sets[x]) != 0])
 
     tr_files = obj.tra_data_sets
     tr_mo    = obj.ld_m
