@@ -4042,15 +4042,17 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
     def tls_search(self, resid = False):
         global fit
-        
+
+        N_transit_files = len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0])
+
+
         if resid == True:
-            #lc_data = np.concatenate([fit.tra_data_sets[x][3] for x in range(10) if len(fit.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][3]
-            lc_data = np.concatenate([fit.transit_results[1][4][x] +1.0 for x in range(10) if len(fit.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][3]
+            lc_data = np.concatenate([fit.transit_results[1][4][x] +1.0 for x in range(10) if len(fit.tra_data_sets[x]) != 0])
         else:
-            lc_data = np.concatenate([fit.transit_results[1][1][x] for x in range(10) if len(fit.tra_data_sets[x]) != 0]) #fit.tra_data_sets[0][1]
-            
+            lc_data = np.concatenate([fit.transit_results[1][1][x] for x in range(10) if len(fit.tra_data_sets[x]) != 0]) 
+
         lc_time = np.concatenate([fit.transit_results[1][0][x] for x in range(10) if len(fit.tra_data_sets[x]) != 0])
-        
+
         if self.tls_period_min_use.isChecked():
             tls_period_min = self.tls_min_period.value()
         else:
@@ -4078,13 +4080,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         if len(fit.tls) == 0:
             return
-    
+
         p9.plot(clear=True,) 
         
         if self.tls_cross_hair.isChecked():
             self.cross_hair(p9,log=False)      
             
-        if len(fit.tra_data_sets[0]) != 0:
+        if N_transit_files != 0:
 
             text = '''
 Best results from TLS:
@@ -4123,16 +4125,17 @@ Transit duration: %s d
         if len(fit.tls_o_c) == 0:
             return
 
+        N_transit_files = len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0])
+
+
         p10.plot(clear=True,) 
 
         if self.tls_o_c_cross_hair.isChecked():
             self.cross_hair(p10,log=False) 
             
-        if len(fit.tra_data_sets[0]) != 0:
-            #t = fit.tra_data_sets[0][0]
-            #flux = fit.tra_data_sets[0][1]
-           # flux_err = fit.tra_data_sets[0][2]
-           
+        if N_transit_files != 0:
+
+
             text = '''
 Best results from TLS:
           
