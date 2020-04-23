@@ -751,7 +751,8 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
     if(rtg[2]):
 
-        if len(tr_files[0]) == 0:
+ 
+        if N_transit_files == 0:
             tr_loglik = 0
         else:
             tr_loglik = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps )
@@ -2724,7 +2725,10 @@ class signal_fit(object):
         tra_file_name = file_from_path(path)
 
 
-        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_data_o_c,tra_data_o_c,tra_file_name])
+        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_data_o_c,tra_data_o_c,tra_data,tra_data_sig,tra_data_o_c, tra_file_name])
+        
+        #self.tra_data_set2 = {1:tra_JD,2: tra_data,3:tra_data_sig,4: tra_data_o_c,5:tra_data_o_c,6:tra_file_name }
+
 
         self.tra_data_sets[tra_idset] = tra_data_set
         self.tra_data_sets_init[tra_idset] = dill.copy(self.tra_data_sets[tra_idset])

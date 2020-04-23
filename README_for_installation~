@@ -1,14 +1,16 @@
 A Set of bash installers are available in the ./installers directory.
 
-
-##############################  LINUX  #########################################
-
-Please run these from the ES root directory, e.g. for Open Suse linux:
+please run these from the ES root directory, e.g.:
 
 $ bash installers/linux_OpenSuse_install.sh
 
+##############################  LINUX  #########################################
 
-The script will automatically check if your system is ready for Exo-Striker
+For Debian based OS the only thing you have to do is to run:
+ 
+$ bash linux_debian_install.sh
+
+the script will automatically check if your system is ready for Exo-Striker
 and will ask you to install packages if needed. Particularly you will need:
 
 * csh
@@ -24,8 +26,6 @@ and will ask you to install packages if needed. Particularly you will need:
 * celerite
 * qtconsole
 * dynesty
-* wotan 
-
 + the swift N-body library, which is in the ./source directory and is automatically
 installed with the bash installer.
 
@@ -56,6 +56,7 @@ $ sudo apt-get install python3-dev
 $ sudo apt-get install g++
 $ sudo apt-get install python3-tk
 
+-------------------------------------------
 
 if "$ bash installers/linux_debian_install.sh" was executed with no problems, then
 you are ready to go! Just type:

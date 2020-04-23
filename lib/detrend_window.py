@@ -324,8 +324,8 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
         self.ui.plot.plotItem.items[1].setData(x=self.t,y=self.flux)
         self.ui.plot.plotItem.items[2].setData(x=self.t, y=self.flux,  
-                                   top=self.flux_err_o_c, 
-                                   bottom=self.flux_err_o_c)
+                                   top=self.flux_err, 
+                                   bottom=self.flux_err)
 
         self.ui.plot_2.plotItem.items[1].setData(x=self.t,y=self.flux_o_c)
         self.ui.plot_2.plotItem.items[2].setData(x=self.t, y=self.flux_o_c,  

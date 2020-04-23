@@ -3513,6 +3513,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 fit.tra_data_sets[but_ind-1][0] = dill.copy(self.DetrendWindow.t)
                 fit.tra_data_sets[but_ind-1][1] = dill.copy(self.DetrendWindow.flux_o_c)
                 fit.tra_data_sets[but_ind-1][2] = dill.copy(self.DetrendWindow.flux_err_o_c)
+                fit.tra_data_sets[but_ind-1][3] = dill.copy(self.DetrendWindow.flux_o_c)
+                fit.tra_data_sets[but_ind-1][4] = dill.copy(self.DetrendWindow.flux_o_c)
+
+                fit.tra_data_sets[but_ind-1][5] = dill.copy(self.DetrendWindow.flux)
+                fit.tra_data_sets[but_ind-1][6] = dill.copy(self.DetrendWindow.flux_err)
+                fit.tra_data_sets[but_ind-1][7] = dill.copy(self.DetrendWindow.trend)
+
 
             else:
                 rv.transit_data_norm(fit,  file_n = but_ind-1, norm = False)
