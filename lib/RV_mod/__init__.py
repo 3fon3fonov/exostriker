@@ -474,7 +474,7 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_n
             continue
 
         t_        = tr_files[j][0]
-        flux_     = tr_files[j][1]    + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l]
+        flux_     = tr_files[j][1]  + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l]
 
         sig2i_    = 1./(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
         flux_err_ = np.sqrt(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
@@ -503,7 +503,7 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_n
         else:
             tr_params.u = []
 
-        l +=1
+
 
         for i in range(npl):
 
@@ -522,7 +522,13 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_n
             tr_params.rp  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
 
             m[i] = batman.TransitModel(tr_params, t_)
-            flux_model_ = flux_model_ * m[i].light_curve(tr_params)
+            flux_model_ = flux_model_ * m[i].light_curve(tr_params) 
+ 
+    
+        flux_model_ =  flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8])
+        #flux_model_ = flux_model_ + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l]
+
+        l +=1
 
         flux_o_c_ = np.array(flux_) - np.array(flux_model_)
 
@@ -2738,7 +2744,7 @@ class signal_fit(object):
         tra_file_name = file_from_path(path)
 
 
-        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_data_o_c,tra_data_o_c,tra_data,tra_data_sig,tra_data_o_c, tra_file_name])
+        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_data_o_c,tra_data_o_c,tra_data,tra_data_sig,tra_data_o_c, 1.0, tra_file_name])
         
         #self.tra_data_set2 = {1:tra_JD,2: tra_data,3:tra_data_sig,4: tra_data_o_c,5:tra_data_o_c,6:tra_file_name }
 

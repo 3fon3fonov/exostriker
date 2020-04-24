@@ -50686,7 +50686,7 @@
          <enum>Qt::NoFocus</enum>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <property name="movable">
          <bool>true</bool>
@@ -54349,7 +54349,7 @@
              </font>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>2</number>
             </property>
             <property name="movable">
              <bool>true</bool>
@@ -56396,7 +56396,7 @@
                  </font>
                 </property>
                 <property name="currentIndex">
-                 <number>2</number>
+                 <number>3</number>
                 </property>
                 <widget class="QWidget" name="tab_102">
                  <attribute name="title">
@@ -61656,44 +61656,15 @@
                 <property name="verticalSpacing">
                  <number>2</number>
                 </property>
-                <item row="6" column="3">
-                 <widget class="QPushButton" name="tra_detrend_6">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
+                <item row="9" column="5">
+                 <widget class="QCheckBox" name="tra_norm_9">
                   <property name="text">
-                   <string>detrend</string>
+                   <string/>
                   </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_detrend_tra</string>
-                  </attribute>
                  </widget>
                 </item>
-                <item row="5" column="3">
-                 <widget class="QPushButton" name="tra_detrend_5">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>detrend</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_detrend_tra</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="9" column="4">
-                 <widget class="QPushButton" name="Button_apply_tra_options_9">
+                <item row="8" column="7">
+                 <widget class="QPushButton" name="Button_apply_tra_options_8">
                   <property name="enabled">
                    <bool>true</bool>
                   </property>
@@ -61713,6 +61684,296 @@
                   </attribute>
                  </widget>
                 </item>
+                <item row="7" column="7">
+                 <widget class="QPushButton" name="Button_apply_tra_options_7">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Apply</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_apply_tra_data_options</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="7" column="6">
+                 <widget class="QPushButton" name="tra_detrend_7">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>detrend</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_detrend_tra</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="9" column="2">
+                 <widget class="QCheckBox" name="use_tra_dilution_9">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="0">
+                 <widget class="QLabel" name="label_416">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>data 10</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0">
+                 <widget class="QLabel" name="label_421">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>data 6</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="3">
+                 <widget class="QDoubleSpinBox" name="tra_dilution_8">
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_413">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>data 3</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="3">
+                 <widget class="QDoubleSpinBox" name="tra_dilution_10">
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="2">
+                 <widget class="QCheckBox" name="use_tra_dilution_4">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="3">
+                 <widget class="QDoubleSpinBox" name="tra_dilution_2">
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="6">
+                 <widget class="QPushButton" name="tra_detrend_9">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>detrend</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_detrend_tra</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="1" column="6">
+                 <widget class="QPushButton" name="tra_detrend_1">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>detrend</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <property name="autoRepeat">
+                   <bool>false</bool>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
+                  <property name="default">
+                   <bool>false</bool>
+                  </property>
+                  <property name="flat">
+                   <bool>false</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_detrend_tra</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="4" column="6">
+                 <widget class="QPushButton" name="tra_detrend_4">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>detrend</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_detrend_tra</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="QLabel" name="label_427">
+                  <property name="text">
+                   <string>Dilution</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="0">
+                 <widget class="QLabel" name="label_417">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>data 7</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="2">
+                 <widget class="QCheckBox" name="use_tra_dilution_6">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="0">
+                 <widget class="QLabel" name="label_418">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>data 9</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="5">
+                 <widget class="QCheckBox" name="tra_norm_10">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="6">
+                 <widget class="QPushButton" name="tra_detrend_10">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>detrend</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_detrend_tra</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QLabel" name="label_415">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>data 5</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="0">
+                 <widget class="QLabel" name="label_419">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>data 8</string>
+                  </property>
+                 </widget>
+                </item>
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_420">
                   <property name="text">
@@ -61720,7 +61981,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="4">
+                <item row="2" column="7">
                  <widget class="QPushButton" name="Button_apply_tra_options_2">
                   <property name="enabled">
                    <bool>true</bool>
@@ -61741,44 +62002,22 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="9" column="0">
-                 <widget class="QLabel" name="label_418">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
+                <item row="2" column="5">
+                 <widget class="QCheckBox" name="tra_norm_2">
                   <property name="text">
-                   <string>data 9</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0">
-                 <widget class="QLabel" name="label_412">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
+                <item row="3" column="5">
+                 <widget class="QCheckBox" name="tra_norm_3">
                   <property name="text">
-                   <string>data 4</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_357">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>data 1</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="10" column="4">
-                 <widget class="QPushButton" name="Button_apply_tra_options_10">
+                <item row="9" column="7">
+                 <widget class="QPushButton" name="Button_apply_tra_options_9">
                   <property name="enabled">
                    <bool>true</bool>
                   </property>
@@ -61798,52 +62037,14 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="label_413">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
+                <item row="5" column="2">
+                 <widget class="QCheckBox" name="use_tra_dilution_5">
                   <property name="text">
-                   <string>data 3</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="4">
-                 <widget class="QPushButton" name="Button_apply_tra_options_5">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Apply</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_apply_tra_data_options</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="label_411">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>data 2</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="4">
+                <item row="6" column="7">
                  <widget class="QPushButton" name="Button_apply_tra_options_6">
                   <property name="enabled">
                    <bool>true</bool>
@@ -61864,7 +62065,147 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="4" column="4">
+                <item row="3" column="6">
+                 <widget class="QPushButton" name="tra_detrend_3">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>detrend</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_detrend_tra</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="6">
+                 <widget class="QPushButton" name="tra_detrend_2">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>detrend</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_detrend_tra</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="6" column="6">
+                 <widget class="QPushButton" name="tra_detrend_6">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>detrend</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_detrend_tra</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="5" column="6">
+                 <widget class="QPushButton" name="tra_detrend_5">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>detrend</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_detrend_tra</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="1" column="7">
+                 <widget class="QPushButton" name="Button_apply_tra_options_1">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Apply</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_apply_tra_data_options</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="7" column="2">
+                 <widget class="QCheckBox" name="use_tra_dilution_7">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QLabel" name="label_412">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>data 4</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="5">
+                 <widget class="QCheckBox" name="tra_norm_6">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="5">
+                 <widget class="QCheckBox" name="tra_norm_7">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="5">
+                 <widget class="QCheckBox" name="tra_norm_8">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
+                 <widget class="QCheckBox" name="use_tra_dilution_3">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="7">
                  <widget class="QPushButton" name="Button_apply_tra_options_4">
                   <property name="enabled">
                    <bool>true</bool>
@@ -61901,8 +62242,20 @@
                   </property>
                  </spacer>
                 </item>
-                <item row="8" column="4">
-                 <widget class="QPushButton" name="Button_apply_tra_options_8">
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_357">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>data 1</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="7">
+                 <widget class="QPushButton" name="Button_apply_tra_options_10">
                   <property name="enabled">
                    <bool>true</bool>
                   </property>
@@ -61922,85 +62275,88 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="7" column="4">
-                 <widget class="QPushButton" name="Button_apply_tra_options_7">
-                  <property name="enabled">
-                   <bool>true</bool>
+                <item row="4" column="3">
+                 <widget class="QDoubleSpinBox" name="tra_dilution_4">
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
                   </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="5">
+                 <widget class="QCheckBox" name="tra_norm_4">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="5">
+                 <widget class="QCheckBox" name="tra_norm_5">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="6">
+                 <widget class="QLabel" name="label_425">
                   <property name="font">
                    <font>
                     <pointsize>9</pointsize>
                    </font>
                   </property>
                   <property name="text">
-                   <string>Apply</string>
+                   <string>Detrend options</string>
                   </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_apply_tra_data_options</string>
-                  </attribute>
                  </widget>
                 </item>
-                <item row="1" column="4">
-                 <widget class="QPushButton" name="Button_apply_tra_options_1">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
+                <item row="1" column="2">
+                 <widget class="QCheckBox" name="use_tra_dilution_1">
                   <property name="text">
-                   <string>Apply</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_apply_tra_data_options</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="7" column="0">
-                 <widget class="QLabel" name="label_417">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>data 7</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="0">
-                 <widget class="QLabel" name="label_415">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
+                <item row="9" column="3">
+                 <widget class="QDoubleSpinBox" name="tra_dilution_9">
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
                   </property>
-                  <property name="text">
-                   <string>data 5</string>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
                   </property>
-                 </widget>
-                </item>
-                <item row="8" column="0">
-                 <widget class="QLabel" name="label_419">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
-                  <property name="text">
-                   <string>data 8</string>
+                  <property name="value">
+                   <double>1.000000000000000</double>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="4">
+                <item row="5" column="3">
+                 <widget class="QDoubleSpinBox" name="tra_dilution_5">
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="7">
                  <widget class="QPushButton" name="Button_apply_tra_options_3">
                   <property name="enabled">
                    <bool>true</bool>
@@ -62021,119 +62377,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="10" column="0">
-                 <widget class="QLabel" name="label_416">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>data 10</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="0">
-                 <widget class="QLabel" name="label_421">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>data 6</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="2">
-                 <widget class="QCheckBox" name="tra_norm_1">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="2">
-                 <widget class="QCheckBox" name="tra_norm_2">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="2">
-                 <widget class="QCheckBox" name="tra_norm_3">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="2">
-                 <widget class="QCheckBox" name="tra_norm_4">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="2">
-                 <widget class="QCheckBox" name="tra_norm_5">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="2">
-                 <widget class="QCheckBox" name="tra_norm_6">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="2">
-                 <widget class="QCheckBox" name="tra_norm_7">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="2">
-                 <widget class="QCheckBox" name="tra_norm_8">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="9" column="2">
-                 <widget class="QCheckBox" name="tra_norm_9">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="10" column="2">
-                 <widget class="QCheckBox" name="tra_norm_10">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="10" column="3">
-                 <widget class="QPushButton" name="tra_detrend_10">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>detrend</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_detrend_tra</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="8" column="3">
+                <item row="8" column="6">
                  <widget class="QPushButton" name="tra_detrend_8">
                   <property name="font">
                    <font>
@@ -62151,137 +62395,143 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="9" column="3">
-                 <widget class="QPushButton" name="tra_detrend_9">
+                <item row="5" column="7">
+                 <widget class="QPushButton" name="Button_apply_tra_options_5">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
                   <property name="font">
                    <font>
                     <pointsize>9</pointsize>
                    </font>
                   </property>
                   <property name="text">
-                   <string>detrend</string>
+                   <string>Apply</string>
                   </property>
                   <property name="checkable">
                    <bool>true</bool>
                   </property>
                   <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_detrend_tra</string>
+                   <string notr="true">buttonGroup_apply_tra_data_options</string>
                   </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_411">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>data 2</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="5">
+                 <widget class="QCheckBox" name="tra_norm_1">
+                  <property name="text">
+                   <string/>
+                  </property>
                  </widget>
                 </item>
                 <item row="1" column="3">
-                 <widget class="QPushButton" name="tra_detrend_1">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
+                 <widget class="QDoubleSpinBox" name="tra_dilution_1">
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
                   </property>
-                  <property name="text">
-                   <string>detrend</string>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
                   </property>
-                  <property name="checkable">
-                   <bool>true</bool>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
-                  <property name="autoRepeat">
-                   <bool>false</bool>
+                  <property name="value">
+                   <double>1.000000000000000</double>
                   </property>
-                  <property name="autoDefault">
-                   <bool>false</bool>
-                  </property>
-                  <property name="default">
-                   <bool>false</bool>
-                  </property>
-                  <property name="flat">
-                   <bool>false</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_detrend_tra</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="7" column="3">
-                 <widget class="QPushButton" name="tra_detrend_7">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>detrend</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_detrend_tra</string>
-                  </attribute>
                  </widget>
                 </item>
                 <item row="3" column="3">
-                 <widget class="QPushButton" name="tra_detrend_3">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
+                 <widget class="QDoubleSpinBox" name="tra_dilution_3">
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
                   </property>
-                  <property name="text">
-                   <string>detrend</string>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
                   </property>
-                  <property name="checkable">
-                   <bool>true</bool>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_detrend_tra</string>
-                  </attribute>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
                  </widget>
                 </item>
-                <item row="2" column="3">
-                 <widget class="QPushButton" name="tra_detrend_2">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
+                <item row="10" column="2">
+                 <widget class="QCheckBox" name="use_tra_dilution_10">
                   <property name="text">
-                   <string>detrend</string>
+                   <string/>
                   </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_detrend_tra</string>
-                  </attribute>
                  </widget>
                 </item>
-                <item row="4" column="3">
-                 <widget class="QPushButton" name="tra_detrend_4">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
+                <item row="2" column="2">
+                 <widget class="QCheckBox" name="use_tra_dilution_2">
                   <property name="text">
-                   <string>detrend</string>
+                   <string/>
                   </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_detrend_tra</string>
-                  </attribute>
                  </widget>
                 </item>
-                <item row="0" column="3">
-                 <widget class="QLabel" name="label_425">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
+                <item row="8" column="2">
+                 <widget class="QCheckBox" name="use_tra_dilution_8">
                   <property name="text">
-                   <string>Detrend options</string>
+                   <string/>
                   </property>
                  </widget>
+                </item>
+                <item row="6" column="3">
+                 <widget class="QDoubleSpinBox" name="tra_dilution_6">
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="3">
+                 <widget class="QDoubleSpinBox" name="tra_dilution_7">
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="4">
+                 <spacer name="horizontalSpacer_146">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </item>
@@ -77990,8 +78240,8 @@
   <buttongroup name="buttonGroup_omega_dot_opt"/>
   <buttongroup name="buttonGroup_symbol_picker"/>
   <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_apply_rv_data_options"/>
   <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_apply_rv_data_options"/>
   <buttongroup name="buttonGroup_dom_fold"/>
   <buttongroup name="buttonGroup_adopt_nest_as_par"/>
   <buttongroup name="buttonGroup_use_planets">
@@ -77999,8 +78249,8 @@
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_1"/>
   <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
   <buttongroup name="buttonGroup_use_ld_9"/>
   <buttongroup name="buttonGroup_kep_or_dyn"/>
   <buttongroup name="buttonGroup_symbol_picker_tra"/>
@@ -78010,8 +78260,8 @@
   <buttongroup name="buttonGroup_nest_stat_dyn"/>
   <buttongroup name="buttonGroup_ewm_hkl"/>
   <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
   <buttongroup name="buttonGroup_symbol_picker_ttv"/>
+  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
   <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
   <buttongroup name="buttonGroup_use_RV_GP_kernel">
    <property name="exclusive">

@@ -3507,18 +3507,25 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 #            rv.sigma_clip(fit, type = 'tra', sigma_clip = self.tra_sigma_clip[but_ind-1][0].value(), 
 #                          remove_mean = False, file_n = but_ind-1)
 
+        if self.tra_dilution[but_ind-1][1].isChecked() == True  and len(fit.tra_data_sets[but_ind-1]) != 0:
+            fit.tra_data_sets[but_ind-1][8] = self.tra_dilution[but_ind-1][0].value()
+            
+        elif self.tra_dilution[but_ind-1][1].isChecked() == False  and len(fit.tra_data_sets[but_ind-1]) != 0:
+            fit.tra_data_sets[but_ind-1][8] = 1.0
+            
+
         if self.tra_norm[but_ind-1].isChecked() == True and len(fit.tra_data_sets[but_ind-1]) != 0:
             #rv.transit_data_norm(fit,  file_n = but_ind-1, norm = True)
             if len(self.DetrendWindow.flux_o_c) != 0:
-                fit.tra_data_sets[but_ind-1][0] = dill.copy(self.DetrendWindow.t)
-                fit.tra_data_sets[but_ind-1][1] = dill.copy(self.DetrendWindow.flux_o_c)
-                fit.tra_data_sets[but_ind-1][2] = dill.copy(self.DetrendWindow.flux_err_o_c)
-                fit.tra_data_sets[but_ind-1][3] = dill.copy(self.DetrendWindow.flux_o_c)
-                fit.tra_data_sets[but_ind-1][4] = dill.copy(self.DetrendWindow.flux_o_c)
+                fit.tra_data_sets[but_ind-1][0] = dill.copy(self.DetrendWindow.t_store[but_ind-1])
+                fit.tra_data_sets[but_ind-1][1] = dill.copy(self.DetrendWindow.flux_o_c_store[but_ind-1])
+                fit.tra_data_sets[but_ind-1][2] = dill.copy(self.DetrendWindow.flux_err_o_c_store[but_ind-1])
+                fit.tra_data_sets[but_ind-1][3] = dill.copy(self.DetrendWindow.flux_o_c_store[but_ind-1])
+                fit.tra_data_sets[but_ind-1][4] = dill.copy(self.DetrendWindow.flux_o_c_store[but_ind-1])
 
-                fit.tra_data_sets[but_ind-1][5] = dill.copy(self.DetrendWindow.flux)
-                fit.tra_data_sets[but_ind-1][6] = dill.copy(self.DetrendWindow.flux_err)
-                fit.tra_data_sets[but_ind-1][7] = dill.copy(self.DetrendWindow.trend)
+                fit.tra_data_sets[but_ind-1][5] = dill.copy(self.DetrendWindow.flux_store[but_ind-1])
+                fit.tra_data_sets[but_ind-1][6] = dill.copy(self.DetrendWindow.flux_err_store[but_ind-1])
+                fit.tra_data_sets[but_ind-1][7] = dill.copy(self.DetrendWindow.trend_store[but_ind-1])
 
 
             else:
@@ -6805,6 +6812,7 @@ If this does not help, please open a GitHub issue here:
         
         if len(fit.tra_data_sets[but_ind-1]) != 0:
             self.tra_data = dill.copy(fit.tra_data_sets_init[but_ind-1])
+            self.tra_data_index = but_ind-1
 #           self.DetrendWindow.show()
             #self.DetrendWindow.worker_detrend()
             self.DetrendWindow.reset_data()
@@ -7070,6 +7078,7 @@ If this does not help, please open a GitHub issue here:
 
 #        self.tra_sigma_clip  = gui_groups.tra_sigma_clip(self)
         self.tra_norm        = gui_groups.tra_norm(self)
+        self.tra_dilution    = gui_groups.tra_dilution(self)
 
 
         self.ttv_data_to_planet     = gui_groups.ttv_data_to_planet(self)

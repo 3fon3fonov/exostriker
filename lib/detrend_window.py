@@ -67,6 +67,12 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
             self.supersmoother_found = False
             pass
 
+        self.t_store             = {k: [] for k in range(10)}
+        self.flux_store          = {k: [] for k in range(10)}
+        self.flux_err_store      = {k: [] for k in range(10)}
+        self.flux_o_c_store      = {k: [] for k in range(10)}
+        self.flux_err_o_c_store  = {k: [] for k in range(10)}
+        self.trend_store         = {k: [] for k in range(10)}
 
         self.t = []
         self.old_t = []
@@ -394,7 +400,12 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
                                              QtGui.QMessageBox.Yes)
             if ret == QtGui.QMessageBox.Yes:
                 
-    
+                self.t_store[self.parent.tra_data_index]             = self.t
+                self.flux_store[self.parent.tra_data_index]          = self.flux
+                self.flux_err_store[self.parent.tra_data_index]      = self.flux_err
+                self.flux_o_c_store[self.parent.tra_data_index]      = self.flux_o_c
+                self.flux_err_o_c_store[self.parent.tra_data_index]  = self.flux_err_o_c
+                self.trend_store[self.parent.tra_data_index]         = self.trend
                 
                 self.ui.radio_remove_mean.setChecked(True)
                 QtGui.QMainWindow.closeEvent(self, event)
