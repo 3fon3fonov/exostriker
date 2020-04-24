@@ -3,10 +3,8 @@
 ##
 ######## this is the file where all experiments are happening!
 ## the code below is still work in progress.
-
-
 from __future__ import print_function
-__author__ = 'Trifon Trifonov, Jakub Morawski'
+
 
 import sys, os
 #sys.path.insert(0, '../lib')
@@ -203,8 +201,6 @@ def get_gps_model(obj,  kernel_id=-1, get_lnl=False):
     return
 
 
-
-######### Transit GP work in progress ###########
 
 def initiate_tansit_gps(obj,  kernel_id=-1):
 
@@ -443,7 +439,6 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_n
 
 
     tr_loglik     = 0
-    tr_loglik_all = 0
     flux_model    = []
     flux          = []
     t             = []
@@ -461,7 +456,7 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_n
     l = 0
     k = 0
     for j in range(10):
-        
+
         if len(tr_files[j]) == 0:
             flux_model.append([])
             flux.append([])
@@ -474,7 +469,7 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_n
             continue
 
         t_        = tr_files[j][0]
-        flux_     = tr_files[j][1]  + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l]
+        flux_     = tr_files[j][1] + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l]
 
         sig2i_    = 1./(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
         flux_err_ = np.sqrt(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
@@ -524,9 +519,12 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_n
 
             m[i] = batman.TransitModel(tr_params, t_)
             flux_model_ = flux_model_ * m[i].light_curve(tr_params) 
- 
-    
-        flux_model_ =  flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8])
+
+
+
+        flux_model_ = flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8])
+        
+        #flux_model_ =  (flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8]))/  (1+ tr_files[j][8]*par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l])
         #flux_model_ = flux_model_ + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l]
 
         l +=1
@@ -2190,7 +2188,7 @@ class signal_fit(object):
         self.pl_a_err    = {k: np.array([0.0,0.0])  for k in range(9)}
         self.pl_rad_err  = {k: np.array([0.0,0.0])  for k in range(9)}
 
-        self.t0_bound      = {k: np.array([-10000.0,10000.0]) for k in range(9)}
+        self.t0_bound      = {k: np.array([-10000.0,2600000.0]) for k in range(9)}
         self.pl_a_bound    = {k: np.array([0.0,100.0]) for k in range(9)}
         self.pl_rad_bound  = {k: np.array([0.0,10000.0]) for k in range(9)}
 
