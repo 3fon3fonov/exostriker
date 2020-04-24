@@ -840,6 +840,18 @@ def tra_norm(self):
  
     return tra_norm
 
+
+def tra_dilution(self): 
+    tra_dilution = [
+             [self.tra_dilution_1,self.use_tra_dilution_1], [self.tra_dilution_2,self.use_tra_dilution_2],
+             [self.tra_dilution_3,self.use_tra_dilution_3], [self.tra_dilution_4,self.use_tra_dilution_4],
+             [self.tra_dilution_5,self.use_tra_dilution_5], [self.tra_dilution_6,self.use_tra_dilution_6], 
+             [self.tra_dilution_7,self.use_tra_dilution_7], [self.tra_dilution_8,self.use_tra_dilution_8], 
+             [self.tra_dilution_9,self.use_tra_dilution_9], [self.tra_dilution_10,self.use_tra_dilution_10]
+            ]
+ 
+    return tra_dilution
+
 ######################### Arb N-body #################################
     
 def arb_param_gui(self): 
