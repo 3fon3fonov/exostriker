@@ -3507,6 +3507,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 #            rv.sigma_clip(fit, type = 'tra', sigma_clip = self.tra_sigma_clip[but_ind-1][0].value(), 
 #                          remove_mean = False, file_n = but_ind-1)
 
+
         if self.tra_dilution[but_ind-1][1].isChecked() == True  and len(fit.tra_data_sets[but_ind-1]) != 0:
             fit.tra_data_sets[but_ind-1][8] = self.tra_dilution[but_ind-1][0].value()
             

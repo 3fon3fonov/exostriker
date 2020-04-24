@@ -841,6 +841,7 @@ def tra_norm(self):
     return tra_norm
 
 
+
 def tra_dilution(self): 
     tra_dilution = [
              [self.tra_dilution_1,self.use_tra_dilution_1], [self.tra_dilution_2,self.use_tra_dilution_2],

@@ -505,6 +505,7 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_n
 
 
 
+
         for i in range(npl):
 
             if hkl == True:
