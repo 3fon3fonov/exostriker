@@ -13,7 +13,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 
 * Trifon Trifonov, MPIA Heidelberg.
 
-* with contributions by Mathias Zechmeister, Jakub Morawski,Man Hoi Lee, and Stefan Dreizler 
+* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, and Stefan Dreizler.
 
 
 **What works**:
