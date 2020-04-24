@@ -394,6 +394,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
             event.ignore()
 
  
+    
         else:
             ret = QtGui.QMessageBox.question(None, 'Close request', 'Are you sure you want to quit?',
                                              QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
