@@ -99,6 +99,8 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.ui.click_to_reject.clicked.connect(self.top_plot)
         self.ui.reset_data.clicked.connect(self.reset_data)
         self.ui.add_epoch.clicked.connect(self.add_bjd)
+        
+        self.ui.apply_dilution.clicked.connect(self.add_dilution)
 
 
     def replot(self):
@@ -123,6 +125,19 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.flux_err = self.parent.tra_data[2]
         self.data_file_name = self.parent.tra_data[5]
         self.old_t = dill.copy(self.t)
+        return
+
+
+    def add_dilution(self):
+
+        D_flux = self.parent.tra_data[4]/(self.ui.Dilution_fact.value())
+        self.flux      = D_flux - np.mean(D_flux) * (1.0 - self.ui.Dilution_fact.value())
+
+        D_flux_err = self.parent.tra_data[2]/(self.ui.Dilution_fact.value())
+        self.flux_err      = D_flux_err
+
+        self.plot()
+ 
         return
 
 

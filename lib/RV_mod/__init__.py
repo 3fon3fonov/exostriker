@@ -194,6 +194,8 @@ def get_gps_model(obj,  kernel_id=-1, get_lnl=False):
 
         obj.fit_results.stat.dof = obj.fit_results.stat.dof - N_gp_pars_used
         obj.loglik = gp_rv_loglik
+        
+        print("TEST")
  
 
 #    print(obj2.loglik)
@@ -604,15 +606,16 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_n
         rich_model = np.array([t_rich,flux_model_rich])
         sep_data = np.array([t, flux,flux_err,flux_model, flux_o_c, flux_o_c_gp,tra_gp_model])
         all_data = np.array([t_all, flux_all,flux_err_all,flux_model_all, flux_o_c_all, flux_o_c_gp_all,tra_gp_model_all])
-        
+         
  
         tr_chi     = np.sum((flux_o_c_gp_all)**2 * sig2i_all ) # - np.log(sig2i / 2./ np.pi)
         tr_chi_red = tr_chi/len(flux_o_c_gp_all)
  
         tr_rms = np.sqrt(np.average(flux_o_c_gp_all**2))
         tr_wrms =  np.sqrt(np.average(flux_o_c_gp_all**2, weights=1/flux_err_all))
+        tr_Ndata = len(flux_o_c_gp_all)
         
-        tr_stat = [tr_chi,tr_chi_red,tr_rms,tr_wrms]
+        tr_stat = [tr_chi,tr_chi_red,tr_rms,tr_wrms, tr_Ndata]
 
         #if obj.gp_kernel == 'RotKernel':
        #     N_gp_pars_used = len([i for i in range(4) if obj.GP_rot_use[i] == True])
@@ -1070,7 +1073,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1])
 
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == True:
-        
+
         for i in range(npl): 
 
             if obj.hkl == True:
@@ -1078,12 +1081,11 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                 om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
             else:
                 ecc_, om_, = par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]
-    
-    
+
             par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
                                                       ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
-        
+
         obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,return_model = True, tra_model_fact=obj.tra_model_fact)
         obj.loglik = obj.transit_results[0]
 
@@ -1091,7 +1093,10 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.fit_results.reduced_chi2 = obj.transit_results[4][1]
         obj.fit_results.rms = obj.transit_results[4][2]
         obj.fit_results.wrms = obj.transit_results[4][3]
-        
+
+        obj.fit_results.Ndata    = obj.transit_results[4][4]
+        obj.fit_results.stat.dof = obj.transit_results[4][4] - len(pp)
+
     elif obj.type_fit["RV"] == True and obj.type_fit["Transit"] == True:
 
         for i in range(npl): 
@@ -1101,13 +1106,11 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                 om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
             else:
                 ecc_, om_, = par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]
-    
-    
+
             par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
                                                       ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
-        
-        
+
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
         obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, return_model = True, tra_model_fact=obj.tra_model_fact)
         obj.loglik     =   obj.loglik +  obj.transit_results[0]
@@ -1916,7 +1919,8 @@ class signal_fit(object):
 
         self.init_tra_jitter()
         self.init_tra_offset()
-
+        self.init_tra_dilution()
+        
         self.init_st_mass()
         self.cwd = os.getcwd()
 
@@ -2304,6 +2308,15 @@ class signal_fit(object):
         self.tra_off_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(10)}
         self.tra_off_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(10)}
 
+    def init_tra_dilution(self) :
+
+        self.tra_dil     = {k: 1.0 for k in range(10)}
+        self.tra_dil_err  = {k: np.array([0.0,0.0])  for k in range(10)}
+        self.tra_dil_use  = {k: False for k in range(10)}
+        self.tra_dil_str  = {k: r'transit off$_%s$'%k for k in range(10)}
+        self.tra_dil_bounds  = {k: np.array([0.0,1.0] )for k in range(10)}
+        self.tra_dil_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(10)}
+        self.tra_dil_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(10)}
 
     def init_RV_lintr(self) :
 
