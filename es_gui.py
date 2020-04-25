@@ -4741,10 +4741,10 @@ Transit duration: %s d
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog.setGeometry(300, 300, 450, 250)
         self.dialog.setWindowTitle('Detailed Info')  
- 
+
         self.dialog.text.setPlainText(text)
-        self.dialog.text.setReadOnly(True)       
-        #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
+        self.dialog.text.setReadOnly(True)
+        #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))
         self.dialog.show()
 
 
@@ -4769,7 +4769,7 @@ Transit duration: %s d
         conf_int = [ stat.chi2.cdf( s**2,1) for s in sigma ]
         
         #degrees of freedom to calculate instead of 10 you can put k = 20, 30 or even 100
-        dof = range(1,12)        
+        dof = range(1,12)
         
         text = ''
         self.dialog_chi_table.text.setText(text) 
