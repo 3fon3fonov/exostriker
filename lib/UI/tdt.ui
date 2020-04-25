@@ -22,6 +22,9 @@
    <iconset>
     <normaloff>33_striker.png</normaloff>33_striker.png</iconset>
   </property>
+  <property name="locale">
+   <locale language="English" country="UnitedKingdom"/>
+  </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
@@ -102,6 +105,9 @@
         <font>
          <pointsize>9</pointsize>
         </font>
+       </property>
+       <property name="locale">
+        <locale language="English" country="UnitedKingdom"/>
        </property>
        <property name="minimum">
         <double>0.100000000000000</double>
@@ -560,6 +566,32 @@
        </property>
       </widget>
      </item>
+     <item row="7" column="6">
+      <widget class="QPushButton" name="apply_dilution">
+       <property name="text">
+        <string>Apply Dilution fact.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="6">
+      <widget class="QDoubleSpinBox" name="Dilution_fact">
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="minimum">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="value">
+        <double>1.000000000000000</double>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>
@@ -574,7 +606,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_trendOptions"/>
   <buttongroup name="buttonGroup_plot2"/>
+  <buttongroup name="buttonGroup_trendOptions"/>
  </buttongroups>
 </ui>

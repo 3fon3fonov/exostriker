@@ -228,8 +228,10 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.value_loglik.setText("%.4f"%(fit.loglik)) 
         self.value_BIC.setText("%.2f"%(fit.BIC()))
         self.value_AIC.setText("%.2f"%(fit.AIC()))
-       
-        self.value_Ndata.setText("%s"%(len(fit.fit_results.jd))) 
+        
+        #self.value_Ndata.setText("%s"%(len(fit.fit_results.jd))) 
+        self.value_Ndata.setText("%s"%(fit.fit_results.Ndata)) 
+        
         self.value_DOF.setText("%s"%(int(fit.fit_results.stat.dof)))
 
         amd = rv.get_AMD_stab(fit)
@@ -284,6 +286,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10): 
             self.tra_data_gui[i].setValue(fit.tra_off[i]) 
             self.tra_data_jitter_gui[i].setValue(fit.tra_jitt[i])
+            self.tra_dilution[i][0].setValue(fit.tra_dil[i])
  
         for i in range(len(self.gp_rot_params)):
             self.gp_rot_params[i].setValue(fit.GP_rot_params[i])
@@ -306,8 +309,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.nonlin_u2[i].setValue(fit.ld_u_nonlin[i][1])
             self.nonlin_u3[i].setValue(fit.ld_u_nonlin[i][2])
             self.nonlin_u4[i].setValue(fit.ld_u_nonlin[i][3])
-            
- 
+
 
         self.St_mass_input.setValue(fit.params.stellar_mass)  
         self.St_radius_input.setValue(fit.stellar_radius)  
@@ -348,6 +350,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10):
             fit.tra_off[i]  = self.tra_data_gui[i].value()
             fit.tra_jitt[i] = self.tra_data_jitter_gui[i].value()
+            fit.tra_dil[i]  = self.tra_dilution[i][0].value()
 
         self.read_RV_GP()
         self.read_tra_GP()
@@ -585,8 +588,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(10): 
             self.use_tra_data_jitter_gui[i].setChecked(bool(fit.tra_jitt_use[i]))
-            self.use_tra_data_offset_gui[i].setChecked(bool(fit.tra_off_use[i]))             
-
+            self.use_tra_data_offset_gui[i].setChecked(bool(fit.tra_off_use[i]))
+            self.tra_dilution[i][1].setChecked(bool(fit.tra_dil_use[i]))
+ 
         for i in range(9):  
             if i < fit.npl:
                 self.planet_checked_gui[i].setChecked(True)  
@@ -647,6 +651,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(10): 
             fit.tra_jitt_use[i] = int(self.use_tra_data_jitter_gui[i].isChecked())
             fit.tra_off_use[i]  = int(self.use_tra_data_offset_gui[i].isChecked())
+            fit.tra_dil_use[i] =  int(self.tra_dilution[i][1].isChecked())
 
         fit.use.use_linear_trend = int(self.use_RV_lin_trend.isChecked()) 
         fit.rv_quadtr_use = int(self.use_RV_quad_trend.isChecked())
@@ -3509,10 +3514,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
         if self.tra_dilution[but_ind-1][1].isChecked() == True  and len(fit.tra_data_sets[but_ind-1]) != 0:
-            fit.tra_data_sets[but_ind-1][8] = self.tra_dilution[but_ind-1][0].value()
+            fit.tra_dil[but_ind-1] = self.tra_dilution[but_ind-1][0].value()
+            fit.tra_data_sets[but_ind-1][8] = fit.tra_dil[but_ind-1]
+            
             
         elif self.tra_dilution[but_ind-1][1].isChecked() == False  and len(fit.tra_data_sets[but_ind-1]) != 0:
-            fit.tra_data_sets[but_ind-1][8] = 1.0
+            fit.tra_dil[but_ind-1] = 1.0
+            fit.tra_data_sets[but_ind-1][8] = fit.tra_dil[but_ind-1]
             
 
         if self.tra_norm[but_ind-1].isChecked() == True and len(fit.tra_data_sets[but_ind-1]) != 0:
