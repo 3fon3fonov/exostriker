@@ -88,8 +88,10 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.ui.try_button.clicked.connect(self.worker_detrend)
         self.ui.saveProduct.clicked.connect(self.save_data_product)
         self.ui.readme_button.clicked.connect(self.info)
+        self.ui.print_stat.clicked.connect(self.print_stat_window)
 
         self.info_dialog = print_info(self)
+        self.stat_dialog = print_info(self)
 
 
         self.ui.buttonGroup_plot2.buttonClicked.connect(self.replot)
@@ -100,8 +102,8 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.ui.reset_data.clicked.connect(self.reset_data)
         self.ui.add_epoch.clicked.connect(self.add_bjd)
         
+        
         self.ui.apply_dilution.clicked.connect(self.add_dilution)
-
 
     def replot(self):
         
@@ -130,13 +132,16 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
     def add_dilution(self):
 
-        D_flux = self.parent.tra_data[4]/(self.ui.Dilution_fact.value())
-        self.flux      = D_flux - np.mean(D_flux) * (1.0 - self.ui.Dilution_fact.value())
+        D_flux = self.flux/(self.ui.Dilution_fact.value())
+        self.flux      = D_flux - np.median(D_flux) * (1.0 - self.ui.Dilution_fact.value())
 
-        D_flux_err = self.parent.tra_data[2]/(self.ui.Dilution_fact.value())
+        D_flux_err = self.flux_err/(self.ui.Dilution_fact.value())
         self.flux_err      = D_flux_err
 
-        self.plot()
+        self.ui.radio_remove_median.setChecked(True)
+        #self.plot()
+        self.worker_detrend()
+
  
         return
 
@@ -144,22 +149,29 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
     def add_bjd(self):
 
         self.t      = self.t + self.ui.extra_BJD.value()
-        self.plot()
+        self.ui.radio_remove_median.setChecked(True)
+        #self.plot()
+        self.worker_detrend()
  
         return
 
 
     def reset_data(self):
  
-        self.ui.radio_remove_mean.setChecked(True)
+        self.ui.radio_remove_median.setChecked(True)
         self.t = []
         self.worker_detrend()
 
 
     def calculate(self):
 
+        
+        if self.ui.radio_remove_median.isChecked():
 
-        if self.ui.radio_remove_mean.isChecked():
+            flatten_lc1 = self.flux/np.median(self.flux)
+            trend_lc1 = np.ones(len(self.flux))*np.median(self.flux)
+
+        elif self.ui.radio_remove_mean.isChecked():
 
             flatten_lc1 = self.flux/np.mean(self.flux)
             trend_lc1 = np.ones(len(self.flux))*np.mean(self.flux)
@@ -222,7 +234,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
         else:
             flatten_lc1 = self.flux 
-            trend_lc1 = np.ones(len(self.flux))*np.mean(self.flux)
+            trend_lc1 = np.ones(len(self.flux))*np.median(self.flux)
 
 
         self.flux_o_c = flatten_lc1
@@ -423,7 +435,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
                 self.flux_err_o_c_store[self.parent.tra_data_index]  = self.flux_err_o_c
                 self.trend_store[self.parent.tra_data_index]         = self.trend
                 
-                self.ui.radio_remove_mean.setChecked(True)
+                self.ui.radio_remove_median.setChecked(True)
                 QtGui.QMainWindow.closeEvent(self, event)
             else:
                 event.ignore()
@@ -446,6 +458,60 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
                         float(self.trend[i]), 
                         width = 14, precision = 7 ))
             f.close()
+
+    def print_stat_window(self):
+
+        self.stat_dialog.setFixedSize(550, 600)
+        self.stat_dialog.setWindowTitle('Detrending stat. info')
+ 
+
+        text_info = """ 
+"""
+        self.stat_dialog.text.setText(text_info) 
+
+        ################## text generator #################
+        text_info = """ 
+-----------------------------------  
+
+N data          :  %s
+
+first epoch     :  %.3f
+last epoch      :  %.3f
+time span       :  %.3f
+
+min. value      :  %.4f
+max. value      :  %.4f
+end-to-end      :  %.4f
+mean            :  %.4f
+median          :  %.4f
+rms             :  %.4f
+
+min error       :  %.4f
+max error       :  %.4f
+mean error      :  %.4f
+median error    :  %.4f
+
+"""%(len(self.t), 
+self.t[0], 
+self.t[-1], 
+self.t[-1]-self.t[0], 
+np.min(self.flux_o_c), 
+np.max(self.flux_o_c), 
+np.max(self.flux_o_c)-np.min(self.flux_o_c), 
+np.mean(self.flux_o_c), 
+np.median(self.flux_o_c), 
+np.sqrt(np.mean(np.square(self.flux_o_c))),
+np.min(self.flux_err_o_c), 
+np.max(self.flux_err_o_c),   
+np.mean(self.flux_err_o_c),  
+np.median(self.flux_err_o_c))
+
+
+        self.stat_dialog.text.append(text_info)
+
+        self.stat_dialog.text.setReadOnly(True)
+        #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))
+        self.stat_dialog.show()
 
 
 
