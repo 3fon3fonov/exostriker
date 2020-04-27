@@ -2216,325 +2216,6 @@
       </item>
      </layout>
     </item>
-    <item row="0" column="2" rowspan="2">
-     <layout class="QGridLayout" name="gridLayout_4" rowstretch="0">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetFixedSize</enum>
-      </property>
-      <property name="horizontalSpacing">
-       <number>6</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="QTabWidget" name="tabWidget_helper">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>9</pointsize>
-          <stylestrategy>PreferDefault</stylestrategy>
-         </font>
-        </property>
-        <property name="tabPosition">
-         <enum>QTabWidget::North</enum>
-        </property>
-        <property name="currentIndex">
-         <number>5</number>
-        </property>
-        <property name="movable">
-         <bool>true</bool>
-        </property>
-        <property name="tabBarAutoHide">
-         <bool>false</bool>
-        </property>
-        <widget class="QWidget" name="tab_shells">
-         <attribute name="title">
-          <string>Shells</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_8">
-          <item row="0" column="0">
-           <layout class="QGridLayout" name="gridLayout_89">
-            <item row="0" column="0">
-             <widget class="QTabWidget" name="terminal_embeded">
-              <property name="currentIndex">
-               <number>-1</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="tab_26">
-         <attribute name="title">
-          <string>Extra Plots</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_74">
-          <item row="0" column="0">
-           <layout class="QGridLayout" name="gridLayout_73">
-            <item row="0" column="0">
-             <widget class="PlotWidget" name="graphicsView_extra_plot"/>
-            </item>
-           </layout>
-          </item>
-          <item row="1" column="0">
-           <layout class="QGridLayout" name="gridLayout_35" columnstretch="1,0,0">
-            <item row="0" column="0">
-             <widget class="QComboBox" name="comboBox_extra_plot">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>200</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="editable">
-               <bool>false</bool>
-              </property>
-              <property name="currentText">
-               <string/>
-              </property>
-              <property name="maxVisibleItems">
-               <number>20</number>
-              </property>
-              <property name="insertPolicy">
-               <enum>QComboBox::InsertAtBottom</enum>
-              </property>
-              <property name="modelColumn">
-               <number>0</number>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QCheckBox" name="extra_plot_cross_hair">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Cross hair</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <spacer name="horizontalSpacer_30">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>250</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="tab_39">
-         <attribute name="title">
-          <string>Data inspector</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_87">
-          <item row="0" column="0">
-           <layout class="QGridLayout" name="gridLayout_116">
-            <item row="0" column="3">
-             <widget class="PlotWidget" name="load_data_plot">
-              <property name="minimumSize">
-               <size>
-                <width>360</width>
-                <height>260</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="1" column="0">
-           <layout class="QGridLayout" name="gridLayout_117">
-            <item row="0" column="3">
-             <spacer name="horizontalSpacer_156">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="0" column="9">
-             <widget class="QPushButton" name="data_insp_print_info">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>print stat.</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="7">
-             <widget class="QCheckBox" name="inpector_plot_cross_hair">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>cross hair</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QPushButton" name="dataInspector_thisComputer">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>This computer</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="10">
-             <widget class="QLabel" name="label_423">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QPushButton" name="dataInspector_HARPS_RVBank">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>RVBank</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_424">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>inspect:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="8">
-             <widget class="QPushButton" name="data_insp_load_data">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>load</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="tab_22">
-         <attribute name="title">
-          <string>Text Editor</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_90">
-          <item row="0" column="0">
-           <layout class="QGridLayout" name="gridLayout_text_editor">
-            <item row="0" column="0">
-             <widget class="QWidget" name="widget_text_editor" native="true"/>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="tab_31">
-         <attribute name="title">
-          <string>Calculator</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_91">
-          <item row="0" column="0">
-           <layout class="QGridLayout" name="gridLayout_calculator">
-            <item row="0" column="0">
-             <widget class="QWidget" name="widget_calculator" native="true">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="tab_info">
-         <attribute name="title">
-          <string>Stdout/Stderr</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_112">
-          <item row="0" column="0">
-           <layout class="QGridLayout" name="gridLayout_stdout">
-            <item row="0" column="0">
-             <widget class="QWidget" name="widget_stdout" native="true"/>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-     </layout>
-    </item>
     <item row="1" column="1">
      <layout class="QGridLayout" name="gridLayout_36">
       <property name="sizeConstraint">
@@ -61656,14 +61337,119 @@
                 <property name="verticalSpacing">
                  <number>2</number>
                 </property>
-                <item row="9" column="5">
+                <item row="8" column="4">
+                 <widget class="QPushButton" name="Button_apply_dilution_8">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Apply</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_apply_tra_dilution</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="5" column="4">
+                 <widget class="QPushButton" name="Button_apply_dilution_5">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Apply</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_apply_tra_dilution</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="4" column="4">
+                 <widget class="QPushButton" name="Button_apply_dilution_4">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Apply</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_apply_tra_dilution</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="3" column="4">
+                 <widget class="QPushButton" name="Button_apply_dilution_3">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Apply</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_apply_tra_dilution</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="10" column="4">
+                 <widget class="QPushButton" name="Button_apply_dilution_10">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Apply</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_apply_tra_dilution</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="9" column="8">
                  <widget class="QCheckBox" name="tra_norm_9">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="7">
+                <item row="8" column="10">
                  <widget class="QPushButton" name="Button_apply_tra_options_8">
                   <property name="enabled">
                    <bool>true</bool>
@@ -61684,7 +61470,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="7" column="7">
+                <item row="7" column="10">
                  <widget class="QPushButton" name="Button_apply_tra_options_7">
                   <property name="enabled">
                    <bool>true</bool>
@@ -61705,7 +61491,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="7" column="6">
+                <item row="7" column="9">
                  <widget class="QPushButton" name="tra_detrend_7">
                   <property name="font">
                    <font>
@@ -61756,6 +61542,11 @@
                 </item>
                 <item row="8" column="3">
                  <widget class="QDoubleSpinBox" name="tra_dilution_8">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="minimum">
                    <double>0.010000000000000</double>
                   </property>
@@ -61784,6 +61575,11 @@
                 </item>
                 <item row="10" column="3">
                  <widget class="QDoubleSpinBox" name="tra_dilution_10">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="minimum">
                    <double>0.010000000000000</double>
                   </property>
@@ -61807,6 +61603,11 @@
                 </item>
                 <item row="2" column="3">
                  <widget class="QDoubleSpinBox" name="tra_dilution_2">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="minimum">
                    <double>0.010000000000000</double>
                   </property>
@@ -61821,7 +61622,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="6">
+                <item row="9" column="9">
                  <widget class="QPushButton" name="tra_detrend_9">
                   <property name="font">
                    <font>
@@ -61839,7 +61640,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="1" column="6">
+                <item row="1" column="9">
                  <widget class="QPushButton" name="tra_detrend_1">
                   <property name="font">
                    <font>
@@ -61869,7 +61670,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="4" column="6">
+                <item row="4" column="9">
                  <widget class="QPushButton" name="tra_detrend_4">
                   <property name="font">
                    <font>
@@ -61889,6 +61690,11 @@
                 </item>
                 <item row="0" column="3">
                  <widget class="QLabel" name="label_427">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Dilution</string>
                   </property>
@@ -61925,14 +61731,14 @@
                   </property>
                  </widget>
                 </item>
-                <item row="10" column="5">
+                <item row="10" column="8">
                  <widget class="QCheckBox" name="tra_norm_10">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
                 </item>
-                <item row="10" column="6">
+                <item row="10" column="9">
                  <widget class="QPushButton" name="tra_detrend_10">
                   <property name="font">
                    <font>
@@ -61981,7 +61787,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="7">
+                <item row="2" column="10">
                  <widget class="QPushButton" name="Button_apply_tra_options_2">
                   <property name="enabled">
                    <bool>true</bool>
@@ -62002,21 +61808,21 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="2" column="5">
+                <item row="2" column="8">
                  <widget class="QCheckBox" name="tra_norm_2">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="5">
+                <item row="3" column="8">
                  <widget class="QCheckBox" name="tra_norm_3">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="7">
+                <item row="9" column="10">
                  <widget class="QPushButton" name="Button_apply_tra_options_9">
                   <property name="enabled">
                    <bool>true</bool>
@@ -62044,7 +61850,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="7">
+                <item row="6" column="10">
                  <widget class="QPushButton" name="Button_apply_tra_options_6">
                   <property name="enabled">
                    <bool>true</bool>
@@ -62065,7 +61871,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="3" column="6">
+                <item row="3" column="9">
                  <widget class="QPushButton" name="tra_detrend_3">
                   <property name="font">
                    <font>
@@ -62083,7 +61889,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="2" column="6">
+                <item row="2" column="9">
                  <widget class="QPushButton" name="tra_detrend_2">
                   <property name="font">
                    <font>
@@ -62101,7 +61907,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="6" column="6">
+                <item row="6" column="9">
                  <widget class="QPushButton" name="tra_detrend_6">
                   <property name="font">
                    <font>
@@ -62119,7 +61925,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="5" column="6">
+                <item row="5" column="9">
                  <widget class="QPushButton" name="tra_detrend_5">
                   <property name="font">
                    <font>
@@ -62137,7 +61943,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="1" column="7">
+                <item row="1" column="10">
                  <widget class="QPushButton" name="Button_apply_tra_options_1">
                   <property name="enabled">
                    <bool>true</bool>
@@ -62177,21 +61983,21 @@
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="5">
+                <item row="6" column="8">
                  <widget class="QCheckBox" name="tra_norm_6">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="5">
+                <item row="7" column="8">
                  <widget class="QCheckBox" name="tra_norm_7">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="5">
+                <item row="8" column="8">
                  <widget class="QCheckBox" name="tra_norm_8">
                   <property name="text">
                    <string/>
@@ -62205,7 +62011,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="7">
+                <item row="4" column="10">
                  <widget class="QPushButton" name="Button_apply_tra_options_4">
                   <property name="enabled">
                    <bool>true</bool>
@@ -62254,7 +62060,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="10" column="7">
+                <item row="10" column="10">
                  <widget class="QPushButton" name="Button_apply_tra_options_10">
                   <property name="enabled">
                    <bool>true</bool>
@@ -62277,6 +62083,11 @@
                 </item>
                 <item row="4" column="3">
                  <widget class="QDoubleSpinBox" name="tra_dilution_4">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="minimum">
                    <double>0.010000000000000</double>
                   </property>
@@ -62291,21 +62102,21 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="5">
+                <item row="4" column="8">
                  <widget class="QCheckBox" name="tra_norm_4">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="5">
+                <item row="5" column="8">
                  <widget class="QCheckBox" name="tra_norm_5">
                   <property name="text">
                    <string/>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="6">
+                <item row="0" column="9">
                  <widget class="QLabel" name="label_425">
                   <property name="font">
                    <font>
@@ -62326,6 +62137,11 @@
                 </item>
                 <item row="9" column="3">
                  <widget class="QDoubleSpinBox" name="tra_dilution_9">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="minimum">
                    <double>0.010000000000000</double>
                   </property>
@@ -62342,6 +62158,11 @@
                 </item>
                 <item row="5" column="3">
                  <widget class="QDoubleSpinBox" name="tra_dilution_5">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="minimum">
                    <double>0.010000000000000</double>
                   </property>
@@ -62356,7 +62177,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="7">
+                <item row="3" column="10">
                  <widget class="QPushButton" name="Button_apply_tra_options_3">
                   <property name="enabled">
                    <bool>true</bool>
@@ -62377,7 +62198,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="8" column="6">
+                <item row="8" column="9">
                  <widget class="QPushButton" name="tra_detrend_8">
                   <property name="font">
                    <font>
@@ -62395,7 +62216,7 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="5" column="7">
+                <item row="5" column="10">
                  <widget class="QPushButton" name="Button_apply_tra_options_5">
                   <property name="enabled">
                    <bool>true</bool>
@@ -62428,7 +62249,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="5">
+                <item row="1" column="8">
                  <widget class="QCheckBox" name="tra_norm_1">
                   <property name="text">
                    <string/>
@@ -62437,6 +62258,11 @@
                 </item>
                 <item row="1" column="3">
                  <widget class="QDoubleSpinBox" name="tra_dilution_1">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="minimum">
                    <double>0.010000000000000</double>
                   </property>
@@ -62453,6 +62279,11 @@
                 </item>
                 <item row="3" column="3">
                  <widget class="QDoubleSpinBox" name="tra_dilution_3">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="minimum">
                    <double>0.010000000000000</double>
                   </property>
@@ -62490,6 +62321,11 @@
                 </item>
                 <item row="6" column="3">
                  <widget class="QDoubleSpinBox" name="tra_dilution_6">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="minimum">
                    <double>0.010000000000000</double>
                   </property>
@@ -62506,6 +62342,11 @@
                 </item>
                 <item row="7" column="3">
                  <widget class="QDoubleSpinBox" name="tra_dilution_7">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="minimum">
                    <double>0.010000000000000</double>
                   </property>
@@ -62520,7 +62361,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="4">
+                <item row="1" column="6">
                  <spacer name="horizontalSpacer_146">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -62532,6 +62373,118 @@
                    </size>
                   </property>
                  </spacer>
+                </item>
+                <item row="6" column="4">
+                 <widget class="QPushButton" name="Button_apply_dilution_6">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Apply</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_apply_tra_dilution</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="4">
+                 <widget class="QPushButton" name="Button_apply_dilution_2">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Apply</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_apply_tra_dilution</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="7" column="4">
+                 <widget class="QPushButton" name="Button_apply_dilution_7">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Apply</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_apply_tra_dilution</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="9" column="4">
+                 <widget class="QPushButton" name="Button_apply_dilution_9">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Apply</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_apply_tra_dilution</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="1" column="4">
+                 <widget class="QPushButton" name="Button_apply_dilution_1">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Apply</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_apply_tra_dilution</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="1" column="5" rowspan="10">
+                 <widget class="Line" name="line_18">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -63747,7 +63700,7 @@
           </item>
           <item row="0" column="2">
            <layout class="QGridLayout" name="gridLayout_83">
-            <item row="1" column="0">
+            <item row="0" column="0">
              <widget class="QPushButton" name="TTV_readme_info">
               <property name="font">
                <font>
@@ -63755,22 +63708,7 @@
                </font>
               </property>
               <property name="text">
-               <string>READ ME</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_16">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>work in progress here!</string>
+               <string>READ ME !!!</string>
               </property>
              </widget>
             </item>
@@ -77878,50 +77816,6 @@
       </item>
      </layout>
     </item>
-    <item row="3" column="2">
-     <layout class="QGridLayout" name="gridLayout_41">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetFixedSize</enum>
-      </property>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="quit_button">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Quit</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </item>
     <item row="2" column="1" rowspan="2">
      <layout class="QGridLayout" name="gridLayout_102">
       <item row="0" column="3">
@@ -78003,6 +77897,325 @@
       </item>
      </layout>
     </item>
+    <item row="0" column="2" rowspan="4">
+     <layout class="QGridLayout" name="gridLayout_4" rowstretch="0">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetFixedSize</enum>
+      </property>
+      <property name="horizontalSpacing">
+       <number>6</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QTabWidget" name="tabWidget_helper">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+          <stylestrategy>PreferDefault</stylestrategy>
+         </font>
+        </property>
+        <property name="tabPosition">
+         <enum>QTabWidget::North</enum>
+        </property>
+        <property name="currentIndex">
+         <number>5</number>
+        </property>
+        <property name="movable">
+         <bool>true</bool>
+        </property>
+        <property name="tabBarAutoHide">
+         <bool>false</bool>
+        </property>
+        <widget class="QWidget" name="tab_shells">
+         <attribute name="title">
+          <string>Shells</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_8">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_89">
+            <item row="0" column="0">
+             <widget class="QTabWidget" name="terminal_embeded">
+              <property name="currentIndex">
+               <number>-1</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab_26">
+         <attribute name="title">
+          <string>Extra Plots</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_74">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_73">
+            <item row="0" column="0">
+             <widget class="PlotWidget" name="graphicsView_extra_plot"/>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <layout class="QGridLayout" name="gridLayout_35" columnstretch="1,0,0">
+            <item row="0" column="0">
+             <widget class="QComboBox" name="comboBox_extra_plot">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="editable">
+               <bool>false</bool>
+              </property>
+              <property name="currentText">
+               <string/>
+              </property>
+              <property name="maxVisibleItems">
+               <number>20</number>
+              </property>
+              <property name="insertPolicy">
+               <enum>QComboBox::InsertAtBottom</enum>
+              </property>
+              <property name="modelColumn">
+               <number>0</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QCheckBox" name="extra_plot_cross_hair">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Cross hair</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <spacer name="horizontalSpacer_30">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>250</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab_39">
+         <attribute name="title">
+          <string>Data inspector</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_87">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_116">
+            <item row="0" column="3">
+             <widget class="PlotWidget" name="load_data_plot">
+              <property name="minimumSize">
+               <size>
+                <width>360</width>
+                <height>260</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <layout class="QGridLayout" name="gridLayout_117">
+            <item row="0" column="3">
+             <spacer name="horizontalSpacer_156">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="9">
+             <widget class="QPushButton" name="data_insp_print_info">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>print stat.</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="7">
+             <widget class="QCheckBox" name="inpector_plot_cross_hair">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>cross hair</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QPushButton" name="dataInspector_thisComputer">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>This computer</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="10">
+             <widget class="QLabel" name="label_423">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QPushButton" name="dataInspector_HARPS_RVBank">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>RVBank</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_424">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>inspect:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="8">
+             <widget class="QPushButton" name="data_insp_load_data">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>load</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab_22">
+         <attribute name="title">
+          <string>Text Editor</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_90">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_text_editor">
+            <item row="0" column="0">
+             <widget class="QWidget" name="widget_text_editor" native="true"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab_31">
+         <attribute name="title">
+          <string>Calculator</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_91">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_calculator">
+            <item row="0" column="0">
+             <widget class="QWidget" name="widget_calculator" native="true">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab_info">
+         <attribute name="title">
+          <string>Stdout/Stderr</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_112">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_stdout">
+            <item row="0" column="0">
+             <widget class="QWidget" name="widget_stdout" native="true"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
    </layout>
    <zorder></zorder>
   </widget>
@@ -78043,7 +78256,16 @@
     <property name="title">
      <string>Setti&amp;ngs</string>
     </property>
+    <widget class="QMenu" name="menuSet_Widget_Style">
+     <property name="title">
+      <string>Set Widget Style</string>
+     </property>
+     <addaction name="actionLinux_Fusion"/>
+     <addaction name="actionWindows"/>
+     <addaction name="actionMacintosh"/>
+    </widget>
     <addaction name="actionWork_in_progress"/>
+    <addaction name="menuSet_Widget_Style"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -78075,6 +78297,11 @@
   <action name="actionNew_session">
    <property name="text">
     <string>&amp;new session</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
    </property>
   </action>
   <action name="actionOpen_session">
@@ -78188,6 +78415,11 @@
    <property name="text">
     <string>&amp;push Jupyter var. to GUI</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>9</pointsize>
+    </font>
+   </property>
   </action>
   <action name="actionGet_LaTex_table_with_priors">
    <property name="text">
@@ -78197,6 +78429,29 @@
   <action name="actionRV_Auto_fit">
    <property name="text">
     <string>RV Auto fit</string>
+   </property>
+  </action>
+  <action name="actionWindows">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Windows</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionMacintosh">
+   <property name="text">
+    <string>Macintosh</string>
+   </property>
+  </action>
+  <action name="actionLinux_Fusion">
+   <property name="text">
+    <string>Linux (Fusion)</string>
    </property>
   </action>
  </widget>
@@ -78294,5 +78549,6 @@
   <buttongroup name="buttonGroup_color_picker"/>
   <buttongroup name="buttonGroup_use_ld_2"/>
   <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_apply_tra_dilution"/>
  </buttongroups>
 </ui>

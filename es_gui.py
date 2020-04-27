@@ -1253,6 +1253,17 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_9,9)
         self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_10,10)
 
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_1,1)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_2,2)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_3,3)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_4,4)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_5,5)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_6,6)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_7,7)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_8,8)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_9,9)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_10,10)
+
         self.buttonGroup_transit_data.setId(self.Button_transit_data_1,1)
         self.buttonGroup_transit_data.setId(self.Button_transit_data_2,2)
         self.buttonGroup_transit_data.setId(self.Button_transit_data_3,3)
@@ -3500,17 +3511,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
         self.update_activity_gls_plots(but_ind-1)
      #   self.update_activity_data_plots(but_ind-1)
-
-    def apply_tra_data_options(self):
+     
+    def apply_tra_dilution(self):
         global fit
-        but_ind = self.buttonGroup_apply_tra_data_options.checkedId()
-
-#        if   self.tra_sigma_clip[but_ind-1][1].isChecked() == True:
-#            rv.sigma_clip(fit, type = 'tra', sigma_clip = self.tra_sigma_clip[but_ind-1][0].value(), 
-#                          remove_mean = False, file_n = but_ind-1)
-#        elif self.tra_sigma_clip[but_ind-1][1].isChecked() == False:
-#            rv.sigma_clip(fit, type = 'tra', sigma_clip = self.tra_sigma_clip[but_ind-1][0].value(), 
-#                          remove_mean = False, file_n = but_ind-1)
+        but_ind = self.buttonGroup_apply_tra_dilution.checkedId()
 
 
         if self.tra_dilution[but_ind-1][1].isChecked() == True  and len(fit.tra_data_sets[but_ind-1]) != 0:
@@ -3521,7 +3525,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         elif self.tra_dilution[but_ind-1][1].isChecked() == False  and len(fit.tra_data_sets[but_ind-1]) != 0:
             fit.tra_dil[but_ind-1] = 1.0
             fit.tra_data_sets[but_ind-1][8] = fit.tra_dil[but_ind-1]
-            
+     
+        self.update_veiw()
+
+    def apply_tra_data_options(self):
+        global fit
+        but_ind = self.buttonGroup_apply_tra_data_options.checkedId()
+ 
 
         if self.tra_norm[but_ind-1].isChecked() == True and len(fit.tra_data_sets[but_ind-1]) != 0:
             #rv.transit_data_norm(fit,  file_n = but_ind-1, norm = True)
@@ -6801,7 +6811,7 @@ If this does not help, please open a GitHub issue here:
         fit.use.update_use_planet_params_one_planet(fit.npl+1,True,True,True,True,True,False,False)   
 
 
-        self.update_use_from_input_file()   
+        self.update_use_from_input_file()
         self.update_use() 
        # self.update_params()  
         self.update_gui_params()
@@ -6812,6 +6822,20 @@ If this does not help, please open a GitHub issue here:
 
  
 #############################  TEST ZONE ################################  
+
+ 
+
+    def set_Win_widget_Style(self, widget):
+        QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Windows'))
+    def set_Fus_widget_Style(self, widget):
+        QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Fusion'))
+    def set_Mac_widget_Style(self, widget):
+        if sys.platform != "Darwin":
+            self.tabWidget_helper.setCurrentWidget(self.tab_info)
+            print("\n 'Macintosh' window style is only available on MAC OS !!!\n")
+            return
+        else:
+            QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Macintosh'))
 
 
     def transit_data_detrend(self):
@@ -7228,6 +7252,7 @@ If this does not help, please open a GitHub issue here:
         self.buttonGroup_apply_rv_data_options.buttonClicked.connect(self.apply_rv_data_options)
         self.buttonGroup_apply_act_data_options.buttonClicked.connect(self.apply_act_data_options)
         self.buttonGroup_apply_tra_data_options.buttonClicked.connect(self.apply_tra_data_options)
+        self.buttonGroup_apply_tra_dilution.buttonClicked.connect(self.apply_tra_dilution)
 
 
         self.buttonGroup_add_RV_data.buttonClicked.connect(self.showDialog_RV_input_file)
@@ -7291,7 +7316,7 @@ If this does not help, please open a GitHub issue here:
         ########## RV fitting ########################
         
         self.button_init_fit.clicked.connect(lambda: self.fit_dispatcher(init=True))
-        self.button_fit.clicked.connect(lambda: self.fit_dispatcher())        
+        self.button_fit.clicked.connect(lambda: self.fit_dispatcher())
         self.button_auto_fit.clicked.connect(self.run_auto_fit)
         self.minimize_1param()
 
@@ -7317,8 +7342,14 @@ If this does not help, please open a GitHub issue here:
         self.adopt_tls_o_c_param.clicked.connect(self.adopt_trans_TLS_param)
 
 
-        ############ Edit #################
+        ############ Set Widget Style #################
 
+        self.actionWindows.triggered.connect(self.set_Win_widget_Style)
+        self.actionMacintosh.triggered.connect(self.set_Mac_widget_Style)
+        self.actionLinux_Fusion.triggered.connect(self.set_Fus_widget_Style)
+
+
+        ############ Edit #################
 
         self.actionRV_Auto_fit.triggered.connect(self.run_auto_fit)
 
@@ -7533,7 +7564,7 @@ If this does not help, please open a GitHub issue here:
         self.theta_x_label.clicked.connect(self.theta_plot_x_labels)
         self.theta_y_label.clicked.connect(self.theta_plot_y_labels)
 
-    
+
         #self.tab_timeseries_RV.currentChanged.connect(self.tab_selected)
 
 
@@ -7542,7 +7573,6 @@ If this does not help, please open a GitHub issue here:
         
         self.radioButton_RV_MLP_period.toggled.connect(self.update_RV_MLP_plots)
 
-        
         self.mute_boxes()
 #        self.radioButton_transit_RV.toggled.connect(self.mute_boxes)
 #        self.radioButton_transit.toggled.connect(self.mute_boxes)
@@ -7550,8 +7580,7 @@ If this does not help, please open a GitHub issue here:
 #        self.radioButton_ttv.toggled.connect(self.mute_boxes)
 #        self.radioButton_ttv_RV.toggled.connect(self.mute_boxes)
 
-        
-        
+
         self.radioButton_ewm.toggled.connect(self.set_hkl)
 #        self.radioButton_hkl.toggled.connect(self.set_hkl)
         self.radioButton_KP.toggled.connect(self.set_kp_ma)
@@ -7563,28 +7592,26 @@ If this does not help, please open a GitHub issue here:
         self.calc_TLS.clicked.connect(self.worker_tls)
         self.calc_TLS_o_c.clicked.connect(lambda: self.worker_tls(resid =True))
 
-
         self.calc_MLP.clicked.connect(self.worker_mlp)
 
 
-        self.quit_button.clicked.connect(self.close)
+        #self.quit_button.clicked.connect(self.close)
         self.actionQuit.triggered.connect(self.close) 
 
         self.actionopen_RVmod_init_file.triggered.connect(self.showDialog_fortran_input_file)
         self.actionOpen_RVbank_file.triggered.connect(self.showDialog_RVbank_input_file)
-        
- 
+
+
         self.jupiter_push_vars()
-        
+
         self.update_color_picker()
         self.buttonGroup_color_picker.buttonClicked.connect(self.get_color)
         self.update_color_picker_tra()
         self.buttonGroup_color_picker_tra.buttonClicked.connect(self.get_color_tra)
         self.update_color_picker_ttv()
         self.buttonGroup_color_picker_ttv.buttonClicked.connect(self.get_color_ttv)
-        
-        
-        
+
+
         self.dialog_symbols = show_symbols(self)
         self.buttonGroup_symbol_picker.buttonClicked.connect(self.get_symbol) 
         self.buttonGroup_symbol_picker_tra.buttonClicked.connect(self.get_symbol_tra) 
@@ -7618,20 +7645,19 @@ If this does not help, please open a GitHub issue here:
         self.buttonGroup_use_ld_8.buttonClicked.connect(self.set_tra_ld)
         self.buttonGroup_use_ld_9.buttonClicked.connect(self.set_tra_ld)
         self.buttonGroup_use_ld_10.buttonClicked.connect(self.set_tra_ld)
-        
-        
+
+
        # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_change)
         self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_change)
-        
+
         self.check_settings()
         self.mute_boxes_dyn()
         self.update_RV_jitter_flag()
-        
+
         self.force_copl_incl.stateChanged.connect(self.set_force_copl_incl)
 
         self.threadpool = QtCore.QThreadPool()
         self.threadpool.setMaxThreadCount(cpu_count())    
-
 
         self.update_St_params() 
 
@@ -7641,7 +7667,7 @@ If this does not help, please open a GitHub issue here:
         self.St_lumin_input.valueChanged.connect(self.update_St_params)
         self.St_teff_input.valueChanged.connect(self.update_St_params)
         self.St_vsini_input.valueChanged.connect(self.update_St_params)
- 
+
         self.err_St_mass_input.valueChanged.connect(self.update_St_params)
         self.err_St_radius_input.valueChanged.connect(self.update_St_params)
         self.err_St_lumin_input.valueChanged.connect(self.update_St_params)
@@ -7667,7 +7693,7 @@ If this does not help, please open a GitHub issue here:
             self.fit_dispatcher(init=True)  
             self.init_plot_corr()
             self.update_plot_corr()    
-    
+
         print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.24). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
@@ -7677,8 +7703,8 @@ This version is almost full, but there are still some parts of the tool, which a
             print("""
 It seems that you started the 'Exo-Striker' with Python 2. Please consider Python 3 for your work with the 'Exo-Striker'.
 """) 
-            
-         
+
+
         print("""Here you can get some more information from the tool's workflow, stdout/strerr, and piped results.""")
         #self.use_K1.setStyleSheet("color: red")
 

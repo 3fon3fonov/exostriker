@@ -21,10 +21,10 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
 * Activity index signal search via GLS periodogram.
 * Keplerian and Dynamical RV modeling. 
-* Instant online access to the "RVBank" database (over 212 000 RVs and activity indices of about HARPS 3000 stars & over 64 000 RVs and activity indices of about HIRES 1699 stats !!!).
+* Keplerian and Dynamical Transit photometry modeling.
+* Instant online access to the "RVBank" database (over 212 000 RVs and activity indices of about HARPS 3000 stars & over 64 000 RVs and activity indices of about HIRES 1700 stats !!!).
 * Transit signal search via TLS.
 * Interactive transit photometry detrending (via "wotan"), and interactive outlier removal.
-* Transit photometry modeling.
 * GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
 * Joint RVs + Transit + GPs best-fit optimization.
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty").
@@ -50,8 +50,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 
 * More GP kernels (work in progress). 
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ REBOUND is planned to be included). 
-* A photo-dynamical transit model.
-* Internal TTV modeling (i.e. the external "TTVFast" will become a secondary option).
+* Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
 * A pip installer, and a ready-to-use pre-installed binary of the tool (work in progress). 
 * Combined modeling with Astrometry.
 * Documentation, Instructions, and Video tutorials (work in progress here: https://exostriker.readthedocs.io)
