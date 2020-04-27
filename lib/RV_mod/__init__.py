@@ -359,6 +359,48 @@ def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
 
 
 
+def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, fit_results=False):
+
+
+    planets = []
+    for i in range(npl):
+        if fit_results == False:
+            pl_mass,ap = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*i],
+                                            par[len(vel_files)*2 +7*i+1],
+                                            par[len(vel_files)*2 +7*i+2],
+                                            par[len(vel_files)*2 +7*i+3],
+                                            par[len(vel_files)*2 +7*i+4]],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
+        else:
+            pl_mass = float(fit_results.mass[i])
+        pl_params = [pl_mass/1047.70266835,
+                                            par[len(vel_files)*2 +7*i+1],
+                                            par[len(vel_files)*2 +7*i+2],
+                                            par[len(vel_files)*2 +7*i+5],
+                                            par[len(vel_files)*2 +7*i+6],
+                                            (par[len(vel_files)*2 +7*i+3]-180.0)%360.0,
+                                            (par[len(vel_files)*2 +7*i+4]+180.0)%360.0]
+        planet = ttvfast.models.Planet(*pl_params)
+        planets.append(planet)
+
+    results = ttvfast.ttvfast(planets, stellar_mass,times[0],times[1],times[2],input_flag=0)
+    result_rows = list(zip(*results['positions']))
+
+    n1   = [item[0] for item in result_rows]
+ 
+    n2              = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == planet_N])
+    transits_calc   = np.array([item[2]   for i, item in enumerate(result_rows) if n1[i] == planet_N])    
+
+    n2             = n2[np.where(transits_calc > 0)]
+    transits_calc  = transits_calc[np.where(transits_calc > 0)]
+
+    calc_model = [n2,transits_calc]
+
+ 
+    return calc_model
+
+
+
+
 def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = False , return_model = False):
 
 
@@ -437,8 +479,9 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = Fa
 
 
 
-def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl, rtg,tra_gps, return_model = False, tra_model_fact = 10):
+#def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl, rtg,tra_gps, return_model = False, tra_model_fact = 10):
 
+def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl, rtg, tra_gps, stmass, ttv_times, epoch, return_model = False, tra_model_fact = 10 ,fit_results=False):
 
     tr_loglik     = 0
     flux_model    = []
@@ -471,14 +514,13 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_n
             continue
 
         t_        = tr_files[j][0]
-        flux_     = tr_files[j][1] + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l]
+        flux_     = tr_files[j][1] + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l] #* tr_files[j][8]
 
         sig2i_    = 1./(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
         flux_err_ = np.sqrt(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
 
         flux_model_ =np.ones(len(flux_))
-        
- 
+
 
         m  =  {z: [] for z in range(9)}
         tr_params.limb_dark = str(tr_model[0][j])
@@ -519,13 +561,28 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_n
             tr_params.a   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
             tr_params.rp  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
 
-            m[i] = batman.TransitModel(tr_params, t_)
-            flux_model_ = flux_model_ * m[i].light_curve(tr_params) 
 
+
+            if program.endswith("dyn+") or program.endswith("dyn"):
+
+                t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_)], i, fit_results=fit_results)
+    
+                for tran_t0 in t_os[1]:
+                    tr_params.t0  = float(tran_t0) #par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+                    m[i] = batman.TransitModel(tr_params, t_)
+                    tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.17, t_ <= tran_t0+0.17))
+                    flux_model_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
+                    
+                    
+            else:
+                m[i] = batman.TransitModel(tr_params, t_)
+                flux_model_ = flux_model_ * m[i].light_curve(tr_params) 
+ 
 
 
         flux_model_ = flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8])
-        
+        #flux_model_ = (flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8])) /  (1+ tr_files[j][8])
+
         #flux_model_ =  (flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8]))/  (1+ tr_files[j][8]*par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l])
         #flux_model_ = flux_model_ + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l]
 
@@ -597,11 +654,40 @@ def transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_n
             tr_params.t0  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
             tr_params.a   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
             tr_params.rp  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
+            
+            
+            if program.endswith("dyn+") or program.endswith("dyn"):
 
-            m[i] = batman.TransitModel(tr_params, t_rich)
-            flux_model_rich = flux_model_rich * m[i].light_curve(tr_params)
+                t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_rich)], i, fit_results=fit_results)
+    
+                for tran_t0 in t_os[1]:
+                    tr_params.t0  = float(tran_t0) #par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+                    m[i] = batman.TransitModel(tr_params, t_rich)
+                    tr_ind = np.where(np.logical_and(t_rich >= tran_t0-0.17, t_rich <= tran_t0+0.17))
+                    flux_model_rich[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
+                    
+                    
+            else:
+                m[i] = batman.TransitModel(tr_params, t_rich)
+                flux_model_rich = flux_model_ * m[i].light_curve(tr_params) 
             
-            
+
+            #m[i] = batman.TransitModel(tr_params, t_rich)
+            #flux_model_rich = flux_model_rich * m[i].light_curve(tr_params)
+
+        l = 0
+        for j in range(10):
+    
+            if len(tr_files[j]) == 0:
+                continue
+            else:
+
+                tr_ind = np.where(np.logical_and(t_rich >= min(tr_files[j][0]), t_rich <= max(tr_files[j][0])))
+
+                flux_model_rich[tr_ind] =  (flux_model_rich[tr_ind]*tr_files[j][8]  + (1.0 - tr_files[j][8]))
+                #flux_model_rich[tr_ind] =  (flux_model_rich[tr_ind]*tr_files[j][8]  + (1.0 - tr_files[j][8]))/  (1+ tr_files[j][8]*par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l])
+                
+                l +=1
             
         rich_model = np.array([t_rich,flux_model_rich])
         sep_data = np.array([t, flux,flux_err,flux_model, flux_o_c, flux_o_c_gp,tra_gp_model])
@@ -757,13 +843,16 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         rv_loglik =  gp_rv_loglik
 
     if(rtg[2]):
-
- 
+        
+        #ttv_times = [epoch,dt,ttv_times[2]]
+        
         if N_transit_files == 0:
             tr_loglik = 0
+        elif rtg[0] ==False:
+            
+            tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,fit_results=False )
         else:
-            tr_loglik = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps )
-
+            tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,fit_results=fit_results )
 
     if(opt["TTV"]):
 
@@ -872,7 +961,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
             return obj
 
     priors = [pr_nr,jeff_nr]
- 
+    
     opt = {"eps":obj.dyn_model_accuracy*1e-13,
            "dt":obj.time_step_model*86400.0,
            "when_to_kill":when_to_kill,
@@ -1013,7 +1102,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     obj.correct_elements()
     obj.hack_around_rv_params()
 
-    obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, errors)
+    obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, errors, mod)
 
     obj.init_fit = False
     print("--- %s seconds ---" % (time.time() - start_time))
@@ -1024,7 +1113,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
 
 
-def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, pr_nr, gps, tra_gps, rtg, mix_fit, errors):
+def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, pr_nr, gps, tra_gps, rtg, mix_fit, errors, mod):
 
 
     N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0]) 
@@ -1086,7 +1175,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                                                       ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
 
-        obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,return_model = True, tra_model_fact=obj.tra_model_fact)
+        obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,stmass, obj.ttv_times, obj.epoch, return_model = True, tra_model_fact=obj.tra_model_fact)
         obj.loglik = obj.transit_results[0]
 
         obj.fit_results.chi2 = obj.transit_results[4][0]
@@ -1112,7 +1201,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
 
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
-        obj.transit_results = transit_loglik(tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, return_model = True, tra_model_fact=obj.tra_model_fact)
+        obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, stmass, obj.ttv_times, obj.epoch, return_model = True, tra_model_fact=obj.tra_model_fact)
         obj.loglik     =   obj.loglik +  obj.transit_results[0]
 
     elif obj.type_fit["RV"] == True and obj.type_fit["TTV"] == True:
@@ -1534,7 +1623,7 @@ def run_nestsamp(obj, **kwargs):
 
     obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
 
-    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, new_par_errors)
+    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, new_par_errors,mod)
 
     obj.update_with_mcmc_errors(new_par_errors)
 
@@ -1789,7 +1878,7 @@ def run_mcmc(obj, **kwargs):
 
     obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
 
-    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps,tra_gps, rtg, mix_fit, new_par_errors)
+    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps,tra_gps, rtg, mix_fit, new_par_errors,mod)
 
     obj.update_with_mcmc_errors(new_par_errors)
     obj.overwrite_params(newparams)
