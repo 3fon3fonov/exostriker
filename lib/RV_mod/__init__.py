@@ -377,8 +377,11 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, fit_results=False
                                             par[len(vel_files)*2 +7*i+2],
                                             par[len(vel_files)*2 +7*i+5],
                                             par[len(vel_files)*2 +7*i+6],
+                                            #par[len(vel_files)*2 +7*i+3]%360.0,
+                                            #par[len(vel_files)*2 +7*i+4]%360.0]
                                             (par[len(vel_files)*2 +7*i+3]-180.0)%360.0,
                                             (par[len(vel_files)*2 +7*i+4]+180.0)%360.0]
+
         planet = ttvfast.models.Planet(*pl_params)
         planets.append(planet)
 
@@ -394,7 +397,7 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, fit_results=False
     transits_calc  = transits_calc[np.where(transits_calc > 0)]
 
     calc_model = [n2,transits_calc]
-
+ 
  
     return calc_model
 
@@ -569,6 +572,9 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
     
                 for tran_t0 in t_os[1]:
                     tr_params.t0  = float(tran_t0) #par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+                    #tr_params.ecc = 0.0
+                    #tr_params.w   = 90.0
+                    
                     m[i] = batman.TransitModel(tr_params, t_)
                     tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.17, t_ <= tran_t0+0.17))
                     flux_model_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
@@ -662,6 +668,9 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
     
                 for tran_t0 in t_os[1]:
                     tr_params.t0  = float(tran_t0) #par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+                    #tr_params.ecc = 0.0
+                    #tr_params.w   = 90.0
+                    
                     m[i] = batman.TransitModel(tr_params, t_rich)
                     tr_ind = np.where(np.logical_and(t_rich >= tran_t0-0.17, t_rich <= tran_t0+0.17))
                     flux_model_rich[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
@@ -669,7 +678,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                     
             else:
                 m[i] = batman.TransitModel(tr_params, t_rich)
-                flux_model_rich = flux_model_ * m[i].light_curve(tr_params) 
+                flux_model_rich = flux_model_rich * m[i].light_curve(tr_params) 
             
 
             #m[i] = batman.TransitModel(tr_params, t_rich)

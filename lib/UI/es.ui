@@ -48232,6 +48232,9 @@
                   <property name="text">
                    <string>Model points [Ndata * fact.]</string>
                   </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
                  </widget>
                 </item>
                </layout>
