@@ -1101,7 +1101,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     obj.correct_elements()
     obj.hack_around_rv_params()
 
-    obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, errors, mod)
+    obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, errors, mod,opt)
 
     obj.init_fit = False
     print("--- %s seconds ---" % (time.time() - start_time))
@@ -1112,7 +1112,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
 
 
-def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, pr_nr, gps, tra_gps, rtg, mix_fit, errors, mod):
+def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, pr_nr, gps, tra_gps, rtg, mix_fit, errors, mod,opt):
 
 
     N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0]) 
@@ -1158,7 +1158,10 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
 
     if obj.type_fit["RV"] == True and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == False:
-        obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1])
+        #obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1])
+
+        obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=obj.doGP, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
+        
 
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == True:
 
@@ -1199,16 +1202,16 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                                                       ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
 
-
-        #print(mod,obj.loglik, obj.transit_results[0])
-        obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
+       # print(obj.loglik, obj.transit_results[0])
+        obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=obj.doGP, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
+        
         obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, stmass, obj.ttv_times, obj.epoch, return_model = True, tra_model_fact=obj.tra_model_fact)
         #print(obj.loglik, obj.transit_results[0])
         obj.loglik     =   obj.loglik +  obj.transit_results[0]
 
-
+ 
     elif obj.type_fit["RV"] == True and obj.type_fit["TTV"] == True:
-        obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
+        obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=obj.doGP, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
         ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass, obj.ttv_times,obj.fit_results, return_model = False)
         obj.loglik     =   obj.loglik +  ttv_loglik
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == True:
@@ -1622,7 +1625,7 @@ def run_nestsamp(obj, **kwargs):
 
     #obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
 
-    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, new_par_errors,mod)
+    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, new_par_errors,mod,opt)
 
     obj.update_with_mcmc_errors(new_par_errors)
 
@@ -1888,7 +1891,7 @@ def run_mcmc(obj, **kwargs):
 
     #obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
 
-    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps,tra_gps, rtg, mix_fit, new_par_errors,mod)
+    obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps,tra_gps, rtg, mix_fit, new_par_errors,mod,opt)
 
     obj.update_with_mcmc_errors(new_par_errors)
     obj.overwrite_params(newparams)
