@@ -43502,7 +43502,7 @@
                      <number>0</number>
                     </property>
                     <property name="minimum">
-                     <double>1.000000000000000</double>
+                     <double>2.000000000000000</double>
                     </property>
                     <property name="maximum">
                      <double>10000.000000000000000</double>
@@ -50465,7 +50465,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="tabWidget_4">
             <property name="currentIndex">
-             <number>2</number>
+             <number>0</number>
             </property>
             <property name="movable">
              <bool>true</bool>
