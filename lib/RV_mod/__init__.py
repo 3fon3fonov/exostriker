@@ -378,8 +378,8 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, fit_results=False
                                             par[len(vel_files)*2 +7*i+5],
                                             par[len(vel_files)*2 +7*i+6],
                                             #par[len(vel_files)*2 +7*i+3]%360.0,
-                                            #par[len(vel_files)*2 +7*i+4]%360.0]
                                             (par[len(vel_files)*2 +7*i+3]-180.0)%360.0,
+                                            #par[len(vel_files)*2 +7*i+4]%360.0]
                                             (par[len(vel_files)*2 +7*i+4]+180.0)%360.0]
 
         planet = ttvfast.models.Planet(*pl_params)
@@ -571,19 +571,19 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                 t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_)], i, fit_results=fit_results)
     
                 for tran_t0 in t_os[1]:
-                    tr_params.t0  = float(tran_t0) #par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+                    tr_params.t0  = float(tran_t0)
                     #tr_params.ecc = 0.0
                     #tr_params.w   = 90.0
-                    
+
                     m[i] = batman.TransitModel(tr_params, t_)
                     tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.17, t_ <= tran_t0+0.17))
                     flux_model_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
-                    
-                    
+
+
             else:
                 m[i] = batman.TransitModel(tr_params, t_)
                 flux_model_ = flux_model_ * m[i].light_curve(tr_params) 
- 
+
 
 
         flux_model_ = flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8])
@@ -596,7 +596,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
         flux_o_c_ = np.array(flux_) - np.array(flux_model_)
 
-        ###### TBD, GP for each transit dataset #####         
+        ###### TBD, GP for each transit dataset #####
           
         tra_gp_model.append(flux_model_)
         flux_o_c_gp.append(flux_o_c_)
@@ -667,7 +667,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                 t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_rich)], i, fit_results=fit_results)
     
                 for tran_t0 in t_os[1]:
-                    tr_params.t0  = float(tran_t0) #par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+                    tr_params.t0  = float(tran_t0)
                     #tr_params.ecc = 0.0
                     #tr_params.w   = 90.0
                     
@@ -686,41 +686,31 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
         l = 0
         for j in range(10):
-    
+
             if len(tr_files[j]) == 0:
                 continue
             else:
-
                 tr_ind = np.where(np.logical_and(t_rich >= min(tr_files[j][0]), t_rich <= max(tr_files[j][0])))
 
                 flux_model_rich[tr_ind] =  (flux_model_rich[tr_ind]*tr_files[j][8]  + (1.0 - tr_files[j][8]))
                 #flux_model_rich[tr_ind] =  (flux_model_rich[tr_ind]*tr_files[j][8]  + (1.0 - tr_files[j][8]))/  (1+ tr_files[j][8]*par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l])
-                
+
                 l +=1
-            
+
         rich_model = np.array([t_rich,flux_model_rich])
         sep_data = np.array([t, flux,flux_err,flux_model, flux_o_c, flux_o_c_gp,tra_gp_model])
         all_data = np.array([t_all, flux_all,flux_err_all,flux_model_all, flux_o_c_all, flux_o_c_gp_all,tra_gp_model_all])
-         
- 
+
         tr_chi     = np.sum((flux_o_c_gp_all)**2 * sig2i_all ) # - np.log(sig2i / 2./ np.pi)
         tr_chi_red = tr_chi/len(flux_o_c_gp_all)
- 
+
         tr_rms = np.sqrt(np.average(flux_o_c_gp_all**2))
         tr_wrms =  np.sqrt(np.average(flux_o_c_gp_all**2, weights=1/flux_err_all))
         tr_Ndata = len(flux_o_c_gp_all)
-        
+
         tr_stat = [tr_chi,tr_chi_red,tr_rms,tr_wrms, tr_Ndata]
 
-        #if obj.gp_kernel == 'RotKernel':
-       #     N_gp_pars_used = len([i for i in range(4) if obj.GP_rot_use[i] == True])
-       # elif obj.gp_kernel == 'SHOKernel':
-      #      N_gp_pars_used = len([i for i in range(3) if obj.GP_sho_use[i] == True])
 
-      #  obj.fit_results.stat.dof = obj.fit_results.stat.dof - N_gp_pars_used
-       # obj.loglik = gp_rv_loglik
-        
-        
         return np.array([tr_loglik, sep_data, all_data,rich_model,tr_stat])
     else:
         return tr_loglik
@@ -900,7 +890,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
     if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
         return -np.inf
-    #print(rv_loglik, tr_loglik,ttv_loglik,rv_loglik+ttv_loglik)
+    print(rv_loglik, tr_loglik,ttv_loglik,rv_loglik+ttv_loglik)
     return rv_loglik + tr_loglik + ttv_loglik
 
 
@@ -1209,9 +1199,13 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                                                       ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
 
+
+        #print(mod,obj.loglik, obj.transit_results[0])
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
         obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, stmass, obj.ttv_times, obj.epoch, return_model = True, tra_model_fact=obj.tra_model_fact)
+        #print(obj.loglik, obj.transit_results[0])
         obj.loglik     =   obj.loglik +  obj.transit_results[0]
+
 
     elif obj.type_fit["RV"] == True and obj.type_fit["TTV"] == True:
         obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
@@ -1223,11 +1217,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
 
     for i in range(npl):
-#        if obj.hkl == True:
-           # ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
-#            om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
-#            Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
-#            obj.params.update_M0(i,Ma_)
+
         if obj.hkl == False:
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
             obj.M0[i] = float(par[len(vel_files)*2 +7*i+4])
@@ -1630,7 +1620,7 @@ def run_nestsamp(obj, **kwargs):
 
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)
 
-    obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
+    #obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
 
     obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, new_par_errors,mod)
 
@@ -1818,13 +1808,24 @@ def run_mcmc(obj, **kwargs):
 
     #sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit,opt), threads = threads)
 
-
-    # burning phase
-    pos, prob, state  = sampler.run_mcmc(pos,obj.mcmc_burning_ph)
-    sampler.reset()
-
-    # now perform the MCMC
-    pos, prob, state  = sampler.run_mcmc(pos,obj.mcmc_ph)
+    emcee_version = emcee.__version__
+    
+    if int(emcee_version[0]) == 3:
+        # burning phase
+        pos, prob, state  = sampler.run_mcmc(pos,obj.mcmc_burning_ph, progress= True)
+        sampler.reset()
+        # now perform the MCMC
+        pos, prob, state  = sampler.run_mcmc(pos,obj.mcmc_ph, progress= True)
+        
+    else:
+        print("Please upgrade 'emcee' to Ver. 3! E.g. 'sudo pip install emcee -U'")
+        # burning phase
+        pos, prob, state  = sampler.run_mcmc(pos,obj.mcmc_burning_ph)
+        sampler.reset()
+        # now perform the MCMC
+        pos, prob, state  = sampler.run_mcmc(pos,obj.mcmc_ph)
+        
+        
     #ln = np.hstack(sampler.lnprobability)
     sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl)
 
@@ -1885,7 +1886,7 @@ def run_mcmc(obj, **kwargs):
 
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)
 
-    obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
+    #obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
 
     obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps,tra_gps, rtg, mix_fit, new_par_errors,mod)
 

@@ -381,8 +381,12 @@ class MainWindow(QMainWindow):
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
-    app.setApplicationName("Megasolid Idiom")
+    #app.setApplicationName("Megasolid Idiom")
 
     window = MainWindow()
-    app.exec_()
+    window.show()
+    #app.exec_()
+    sys.exit(app.exec_())
+
+ 
  
