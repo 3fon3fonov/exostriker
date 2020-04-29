@@ -194,9 +194,6 @@ def get_gps_model(obj,  kernel_id=-1, get_lnl=False):
 
         obj.fit_results.stat.dof = obj.fit_results.stat.dof - N_gp_pars_used
         obj.loglik = gp_rv_loglik
-        
-        print("TEST")
- 
 
 #    print(obj2.loglik)
 
@@ -890,7 +887,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
     if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
         return -np.inf
-    print(rv_loglik, tr_loglik,ttv_loglik,rv_loglik+ttv_loglik)
+    #print(rv_loglik, tr_loglik,ttv_loglik,rv_loglik+ttv_loglik)
     return rv_loglik + tr_loglik + ttv_loglik
 
 
@@ -3329,10 +3326,6 @@ class signal_fit(object):
             #print(alltheinput[2][j], path)
             self.add_dataset(alltheinput[2][j], path+alltheinput[2][j] ,alltheinput[3][j],alltheinput[4][j])
 
-        #filenames.append(copy_file_to_datafiles(path))
-        #filenames=np.char.array(alltheinput[2])  # the third line contains a list of RV file names
-
-        #print(filenames)
 
 
         #self.filelist=rvfile_list(int(alltheinput[1][0]),filenames,path+filenames) # creating a rvfile_list object
