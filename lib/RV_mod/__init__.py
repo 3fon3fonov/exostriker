@@ -1812,16 +1812,18 @@ def run_mcmc(obj, **kwargs):
     
     if int(emcee_version[0]) == 3:
         # burning phase
-        pos, prob, state  = sampler.run_mcmc(pos,obj.mcmc_burning_ph, progress= True)
-        sampler.reset()
+        if obj.mcmc_burning_ph > 0:
+            pos, prob, state  = sampler.run_mcmc(pos,obj.mcmc_burning_ph, progress= True)
+            sampler.reset()
         # now perform the MCMC
         pos, prob, state  = sampler.run_mcmc(pos,obj.mcmc_ph, progress= True)
         
     else:
         print("Please upgrade 'emcee' to Ver. 3! E.g. 'sudo pip install emcee -U'")
         # burning phase
-        pos, prob, state  = sampler.run_mcmc(pos,obj.mcmc_burning_ph)
-        sampler.reset()
+        if obj.mcmc_burning_ph > 0:
+            pos, prob, state  = sampler.run_mcmc(pos,obj.mcmc_burning_ph)
+            sampler.reset()
         # now perform the MCMC
         pos, prob, state  = sampler.run_mcmc(pos,obj.mcmc_ph)
         

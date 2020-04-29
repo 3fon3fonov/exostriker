@@ -125,7 +125,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.t      = self.parent.tra_data[0]
         self.flux   = self.parent.tra_data[4]
         self.flux_err = self.parent.tra_data[2]
-        self.data_file_name = self.parent.tra_data[5]
+        self.data_file_name = self.parent.tra_data[-1]
         self.old_t = dill.copy(self.t)
         return
 

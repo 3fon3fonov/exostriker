@@ -4873,7 +4873,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.24) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.25) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -6830,7 +6830,7 @@ If this does not help, please open a GitHub issue here:
     def set_Fus_widget_Style(self, widget):
         QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Fusion'))
     def set_Mac_widget_Style(self, widget):
-        if sys.platform != "Darwin":
+        if sys.platform != "darwin":
             self.tabWidget_helper.setCurrentWidget(self.tab_info)
             print("\n 'Macintosh' window style is only available on MAC OS !!!\n")
             return
@@ -7681,7 +7681,7 @@ If this does not help, please open a GitHub issue here:
             self.init_plot_corr()
             self.update_plot_corr()
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.24). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.25). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
