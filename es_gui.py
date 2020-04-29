@@ -7193,13 +7193,11 @@ If this does not help, please open a GitHub issue here:
       
         
         if sys.platform[0:5] == "linux":
-            self.term_emb = terminal.EmbTerminal()
-            self.terminal_embeded.addTab(self.term_emb, "Bash shell")   
+            self.term_emb = terminal.mainWindow()
+            self.terminal_embeded.addTab(self.term_emb, "Bash shell")
+
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")  
-        
-        
-        #self.gridLayout_116.addWidget(terminal.EmbTerminal())
-        
+
         self.text_editor = text_editor_es.MainWindow()
         self.calculator = calc.Calculator()
  
@@ -7448,11 +7446,11 @@ If this does not help, please open a GitHub issue here:
         self.ttv_model_width.valueChanged.connect(self.update_ttv_plots)
         self.ttv_model_z.valueChanged.connect(self.update_ttv_plots)
 
-  
-        ############### RV GLS plotting controll ####################      
+
+        ############### RV GLS plotting controll ####################
         self.gls_model_width.valueChanged.connect(self.update_RV_GLS_plots)
-        self.gls_o_c_model_width.valueChanged.connect(self.update_RV_o_c_GLS_plots) 
-      
+        self.gls_o_c_model_width.valueChanged.connect(self.update_RV_o_c_GLS_plots)
+
         self.N_GLS_peak_to_point.valueChanged.connect(self.update_RV_GLS_plots)
         self.N_GLS_peak_to_point.valueChanged.connect(self.update_RV_o_c_GLS_plots)
         self.avoid_GLS_RV_alias.stateChanged.connect(self.update_RV_GLS_plots)
@@ -7462,10 +7460,9 @@ If this does not help, please open a GitHub issue here:
         self.alias_days_gls.valueChanged.connect(self.update_RV_o_c_GLS_plots)
         self.show_alias_GLS.stateChanged.connect(self.update_RV_GLS_plots)
         self.show_alias_GLS.stateChanged.connect(self.update_RV_o_c_GLS_plots)
-        
-        
+
         self.N_window_peak_to_point.valueChanged.connect(self.update_WF_plots)
-        
+
         self.N_MLP_peak_to_point.valueChanged.connect(self.update_RV_MLP_plots)
         self.avoid_MLP_RV_alias.stateChanged.connect(self.update_RV_MLP_plots)
         self.alias_days_mlp.valueChanged.connect(self.update_RV_MLP_plots)
@@ -7480,26 +7477,25 @@ If this does not help, please open a GitHub issue here:
 
         self.ttv_apply_mean_period.stateChanged.connect(self.update_ttv_plots)
         self.ttv_plot_autorange.stateChanged.connect(self.update_ttv_plots)
-             
-        self.buttonGroup_use_planets.buttonClicked.connect(self.update_veiw)               
-#        self.use_Planet1.stateChanged.connect(self.update_veiw)        
-        
-                
+
+        self.buttonGroup_use_planets.buttonClicked.connect(self.update_veiw)
+#        self.use_Planet1.stateChanged.connect(self.update_veiw)
+
+
         self.init_correlations_combo()
         self.init_activity_combo()
         self.init_scipy_combo()
         self.init_gls_norm_combo()
-        
-        self.comboBox_scipy_minimizer_1.activated.connect(self.check_scipy_min)
-        self.comboBox_scipy_minimizer_2.activated.connect(self.check_scipy_min) 
-        self.gls_norm_combo.activated.connect(self.update_plots) 
 
-        self.init_ns_samp_opt_combo() 
+        self.comboBox_scipy_minimizer_1.activated.connect(self.check_scipy_min)
+        self.comboBox_scipy_minimizer_2.activated.connect(self.check_scipy_min)
+        self.gls_norm_combo.activated.connect(self.update_plots)
+
+        self.init_ns_samp_opt_combo()
         self.comboBox_ns_samp_opt.activated.connect(self.check_ns_samp_opt_combo)
 
-        
         self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
-        
+
         self.radioButton_act_GLS_period.toggled.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
        
         self.comboBox_act_data_gls.activated.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex())) 
@@ -7508,13 +7504,13 @@ If this does not help, please open a GitHub issue here:
         self.comboBox_corr_1.activated.connect(self.update_correlations_data_plots) 
         self.comboBox_corr_2.activated.connect(self.update_correlations_data_plots) 
         self.plot_corr_err.stateChanged.connect(self.update_correlations_data_plots)
-        self.plot_corr_coef.stateChanged.connect(self.update_correlations_data_plots)        
+        self.plot_corr_coef.stateChanged.connect(self.update_correlations_data_plots)
 
         self.do_RV_GP.stateChanged.connect(self.rv_GP_set_use)
         self.do_tra_GP.stateChanged.connect(self.tra_GP_set_use)
 
 
-        ############### Cross hair ####################      
+        ############### Cross hair ####################
 
         self.gls_cross_hair.stateChanged.connect(self.update_RV_GLS_plots)
         self.gls_o_c_cross_hair.stateChanged.connect(self.update_RV_o_c_GLS_plots)
@@ -7535,14 +7531,10 @@ If this does not help, please open a GitHub issue here:
 
 
 
-
-
-
-                
         self.color_corr.clicked.connect(self.get_corr_color)
         self.corr_x_label.clicked.connect(self.corr_plot_x_labels)
         self.corr_y_label.clicked.connect(self.corr_plot_y_labels)
-        
+
         self.colors_gls.clicked.connect(self.get_RV_GLS_plot_color)
         self.colors_gls_o_c.clicked.connect(self.get_RV_o_c_GLS_plot_color)
         self.colors_alias_gls.clicked.connect(self.get_RV_GLS_alias_color)
@@ -7555,7 +7547,7 @@ If this does not help, please open a GitHub issue here:
         self.color_delta_om.clicked.connect(self.get_delta_omega_color)
         self.delta_om_x_label.clicked.connect(self.delta_omega_plot_x_labels)
         self.delta_om_y_label.clicked.connect(self.delta_omega_plot_y_labels)
-        
+
         self.color_per_evol.clicked.connect(self.get_per_rat_color)
         self.per_evol_x_label.clicked.connect(self.per_rat_plot_x_labels)
         self.per_evol_y_label.clicked.connect(self.per_rat_plot_y_labels)
@@ -7567,10 +7559,8 @@ If this does not help, please open a GitHub issue here:
 
         #self.tab_timeseries_RV.currentChanged.connect(self.tab_selected)
 
-
         self.radioButton_RV_o_c_GLS_period.toggled.connect(self.update_RV_o_c_GLS_plots)
         self.radioButton_RV_GLS_period.toggled.connect(self.update_RV_GLS_plots)
-        
         self.radioButton_RV_MLP_period.toggled.connect(self.update_RV_MLP_plots)
 
         self.mute_boxes()
@@ -7584,14 +7574,12 @@ If this does not help, please open a GitHub issue here:
         self.radioButton_ewm.toggled.connect(self.set_hkl)
 #        self.radioButton_hkl.toggled.connect(self.set_hkl)
         self.radioButton_KP.toggled.connect(self.set_kp_ma)
- 
 
 
         self.radioButton_RV_WF_period.toggled.connect(self.update_WF_plots)
 
         self.calc_TLS.clicked.connect(self.worker_tls)
         self.calc_TLS_o_c.clicked.connect(lambda: self.worker_tls(resid =True))
-
         self.calc_MLP.clicked.connect(self.worker_mlp)
 
 
@@ -7600,7 +7588,6 @@ If this does not help, please open a GitHub issue here:
 
         self.actionopen_RVmod_init_file.triggered.connect(self.showDialog_fortran_input_file)
         self.actionOpen_RVbank_file.triggered.connect(self.showDialog_RVbank_input_file)
-
 
         self.jupiter_push_vars()
 
@@ -7614,22 +7601,22 @@ If this does not help, please open a GitHub issue here:
 
         self.dialog_symbols = show_symbols(self)
         self.buttonGroup_symbol_picker.buttonClicked.connect(self.get_symbol) 
-        self.buttonGroup_symbol_picker_tra.buttonClicked.connect(self.get_symbol_tra) 
-        self.buttonGroup_symbol_picker_ttv.buttonClicked.connect(self.get_symbol_ttv) 
+        self.buttonGroup_symbol_picker_tra.buttonClicked.connect(self.get_symbol_tra)
+        self.buttonGroup_symbol_picker_ttv.buttonClicked.connect(self.get_symbol_ttv)
 
 
         ###########  GP control ##########
+
         self.set_RV_GP()
         self.set_tra_GP()
 
         self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)
         self.buttonGroup_use_tra_GP_kernel.buttonClicked.connect(self.set_tra_GP)
-        
         self.buttonGroup_use_GP.buttonClicked.connect(self.set_use_GP)
 
 
         #### Transit detrend   ####
-        
+
         self.buttonGroup_detrend_tra.buttonClicked.connect(self.transit_data_detrend)
         self.DetrendWindow = DetrendWindow(self)
 
@@ -7657,9 +7644,9 @@ If this does not help, please open a GitHub issue here:
         self.force_copl_incl.stateChanged.connect(self.set_force_copl_incl)
 
         self.threadpool = QtCore.QThreadPool()
-        self.threadpool.setMaxThreadCount(cpu_count())    
+        self.threadpool.setMaxThreadCount(cpu_count())
 
-        self.update_St_params() 
+        self.update_St_params()
 
         ############### Stellar params ####################      
         self.St_mass_input.valueChanged.connect(self.update_St_params)
@@ -7672,7 +7659,7 @@ If this does not help, please open a GitHub issue here:
         self.err_St_radius_input.valueChanged.connect(self.update_St_params)
         self.err_St_lumin_input.valueChanged.connect(self.update_St_params)
         self.err_St_teff_input.valueChanged.connect(self.update_St_params)
-        self.err_St_vsini_input.valueChanged.connect(self.update_St_params)    
+        self.err_St_vsini_input.valueChanged.connect(self.update_St_params)
 
         self.check_fortran_routines()
 
@@ -7680,7 +7667,7 @@ If this does not help, please open a GitHub issue here:
             self.update_bounds()
             
             self.set_gui_use_GP()
-            self.init_fit()
+            #self.init_fit()
             self.update_use_from_input_file()
             self.update_use()
             self.update_gui_params()
@@ -7690,9 +7677,9 @@ If this does not help, please open a GitHub issue here:
             self.update_act_file_buttons()
             self.update_ttv_file_buttons()
 
-            self.fit_dispatcher(init=True)  
+            #self.fit_dispatcher(init=True)
             self.init_plot_corr()
-            self.update_plot_corr()    
+            self.update_plot_corr()
 
         print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.24). 
               
