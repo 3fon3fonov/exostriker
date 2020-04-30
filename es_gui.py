@@ -6718,19 +6718,38 @@ If this does not help, please open a GitHub issue here:
         self.label_St_rot_value.setText("%.4f +/- %.4f [days]"%(st_rot[0],st_rot[1]))
         self.label_kb1995.setText("%.4f +/- %.4f [m/sec]"%(kb1995[0],kb1995[1]))
         self.label_kb2011.setText("%.4f +/- %.4f [m/sec]"%(kb2011[0],kb2011[1]))
-       
-        
-        #fit.stellar_rotation = 25.0
-       # fit.stellar_rotation_err = 0.0    
-       
-   
-    def initialize_font(self):
+
+
+
+################################## System #######################################
+
+
+    def set_Win_widget_Style(self, widget):
+        QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Windows'))
+    def set_Fus_widget_Style(self, widget):
+        QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Fusion'))
+    def set_Mac_widget_Style(self, widget):
+        if sys.platform != "darwin":
+            self.tabWidget_helper.setCurrentWidget(self.tab_info)
+            print("\n 'Macintosh' window style is only available on MAC OS !!!\n")
+            return
+        else:
+            QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Macintosh'))
+
+    def set_widget_font(self, widget):
+        font, ok = QtWidgets.QFontDialog.getFont()
+        if ok:
+            #app.setFont(font)
+           # fontt = QtGui.QFont("Ubuntu", 9)
+            QtGui.QApplication.setFont(font)
+
+
+    def initialize_font(self): #not working!
 
         self.font = QtGui.QFont()
         self.font.setPointSize(9)
         self.font.setBold(False)
               
-################################## System #######################################
 
 
     def closeEvent(self, event):
@@ -6824,18 +6843,6 @@ If this does not help, please open a GitHub issue here:
 #############################  TEST ZONE ################################  
 
  
-
-    def set_Win_widget_Style(self, widget):
-        QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Windows'))
-    def set_Fus_widget_Style(self, widget):
-        QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Fusion'))
-    def set_Mac_widget_Style(self, widget):
-        if sys.platform != "darwin":
-            self.tabWidget_helper.setCurrentWidget(self.tab_info)
-            print("\n 'Macintosh' window style is only available on MAC OS !!!\n")
-            return
-        else:
-            QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Macintosh'))
 
 
     def transit_data_detrend(self):
@@ -7346,6 +7353,7 @@ If this does not help, please open a GitHub issue here:
         self.actionMacintosh.triggered.connect(self.set_Mac_widget_Style)
         self.actionLinux_Fusion.triggered.connect(self.set_Fus_widget_Style)
 
+        self.actionSet_Font.triggered.connect(self.set_widget_font)
 
         ############ Edit #################
 
@@ -7677,7 +7685,7 @@ If this does not help, please open a GitHub issue here:
             self.update_act_file_buttons()
             self.update_ttv_file_buttons()
 
-            #self.fit_dispatcher(init=True)
+            self.fit_dispatcher(init=True)
             self.init_plot_corr()
             self.update_plot_corr()
 
@@ -7698,6 +7706,8 @@ It seems that you started the 'Exo-Striker' with Python 2. Please consider Pytho
 def main():
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle('Fusion') #The available styles depend on your platform but are usually 'Fusion', 'Windows', 'WindowsVista' (Windows only) and 'Macintosh' (Mac only). 
+    
+    
     window = Exo_striker()
     screen_resolution = app.desktop().screenGeometry()
     width, height = screen_resolution.width(), screen_resolution.height()
