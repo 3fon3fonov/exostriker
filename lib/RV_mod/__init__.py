@@ -1130,7 +1130,6 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     if rtg[1]:
         rv_gp_npar = len(gps.get_parameter_vector())
-        get_gps_model(obj)
     else:
         rv_gp_npar = 0
 
@@ -1147,7 +1146,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     if rtg[3]:
         tra_gp_npar = len(tra_gps.get_parameter_vector())
-        get_transit_gps_model(obj)
+        #get_transit_gps_model(obj)
     else:
         tra_gp_npar = 0
 
@@ -1157,8 +1156,9 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
     if obj.type_fit["RV"] == True and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == False:
         #obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1])
 
-        obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=obj.doGP, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
-        
+        obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
+        if rtg[1]:
+            get_gps_model(obj, get_lnl=True)
 
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == True:
 
@@ -1175,7 +1175,12 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
 
         obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,stmass, obj.ttv_times, obj.epoch, return_model = True, tra_model_fact=obj.tra_model_fact)
+
+        if rtg[3]:
+            get_transit_gps_model(obj)
+
         obj.loglik = obj.transit_results[0]
+
 
         obj.fit_results.chi2 = obj.transit_results[4][0]
         obj.fit_results.reduced_chi2 = obj.transit_results[4][1]
@@ -1200,17 +1205,27 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
 
        # print(obj.loglik, obj.transit_results[0])
-        obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=obj.doGP, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
+        obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
         
         obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, stmass, obj.ttv_times, obj.epoch, return_model = True, tra_model_fact=obj.tra_model_fact)
         #print(obj.loglik, obj.transit_results[0])
+        if rtg[1]:
+            get_gps_model(obj, get_lnl=True)
+
+        if rtg[3]:
+            get_transit_gps_model(obj)
+        
         obj.loglik     =   obj.loglik +  obj.transit_results[0]
 
  
     elif obj.type_fit["RV"] == True and obj.type_fit["TTV"] == True:
-        obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=obj.doGP, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
+        obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
         ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass, obj.ttv_times,obj.fit_results, return_model = False)
+        if rtg[1]:
+            get_gps_model(obj, get_lnl=True)
+
         obj.loglik     =   obj.loglik +  ttv_loglik
+
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == True:
         ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass,obj.ttv_times,obj.fit_results, return_model = False)
         obj.loglik     =  ttv_loglik
