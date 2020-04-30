@@ -6736,15 +6736,19 @@ If this does not help, please open a GitHub issue here:
         else:
             QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Macintosh'))
 
+
     def set_widget_font(self, widget):
+        #QtWidgets.QFontDialog.setOption(QtWidgets.QFontDialog.DontUseNativeDialog, True)
         font, ok = QtWidgets.QFontDialog.getFont()
+
         if ok:
-            #app.setFont(font)
-           # fontt = QtGui.QFont("Ubuntu", 9)
             QtGui.QApplication.setFont(font)
 
+            for topLevel in QtGui.QApplication.allWidgets():
+                topLevel.setFont(font)
+ 
 
-    def initialize_font(self): #not working!
+    def initialize_font(self): #not working as I want!
 
         self.font = QtGui.QFont()
         self.font.setPointSize(9)
