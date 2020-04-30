@@ -78325,8 +78325,7 @@
     <addaction name="actionNew_session"/>
     <addaction name="actionOpen_session"/>
     <addaction name="actionOpen_multi_session"/>
-    <addaction name="actionAdd_session_not_active_yet"/>
-    <addaction name="actionRemove_session_not_active_yet"/>
+    <addaction name="action"/>
     <addaction name="actionSave_session"/>
     <addaction name="actionSave_multi_sesion"/>
     <addaction name="separator"/>
@@ -78354,7 +78353,7 @@
     <widget class="QMenu" name="menuSet_Widget_Style">
      <property name="font">
       <font>
-       <pointsize>9</pointsize>
+       <pointsize>12</pointsize>
       </font>
      </property>
      <property name="title">
@@ -78400,7 +78399,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78410,7 +78409,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78423,7 +78422,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78434,6 +78433,11 @@
    <property name="text">
     <string>&amp;add session</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
   </action>
   <action name="actionRemove_session_not_active_yet">
    <property name="enabled">
@@ -78442,6 +78446,11 @@
    <property name="text">
     <string>&amp;remove session</string>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
   </action>
   <action name="actionSave_multi_sesion">
    <property name="text">
@@ -78449,13 +78458,18 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
   <action name="actionOpen_multi_session">
    <property name="text">
     <string>open &amp;multi session</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
   </action>
   <action name="actiongrab_screen">
@@ -78464,7 +78478,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78474,7 +78488,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78484,7 +78498,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78494,7 +78508,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78504,7 +78518,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78514,7 +78528,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78524,7 +78538,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78534,7 +78548,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78544,7 +78558,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78554,7 +78568,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78564,7 +78578,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78584,7 +78598,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78597,7 +78611,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78607,7 +78621,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78617,7 +78631,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
   </action>
@@ -78660,8 +78674,16 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>9</pointsize>
+     <pointsize>12</pointsize>
     </font>
+   </property>
+  </action>
+  <action name="action">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>   </string>
    </property>
   </action>
  </widget>
