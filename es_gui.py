@@ -4803,6 +4803,28 @@ Transit duration: %s d
         self.dialog_chi_table.show()
 
 
+    def print_GP_info(self):
+        self.dialog_GP_help.setFixedSize(600, 600)
+        self.dialog_GP_help.setWindowTitle('GP modeling help')
+
+        text = ''
+        self.dialog_GP_help.text.setText(text) 
+
+
+        text = """
+<br>
+<br>
+The GP parameters are explained in the <a href='https://ui.adsabs.harvard.edu/abs/2017AJ....154..220F/abstract'> 'Celerite' paper</a>
+<br>  
+<br>
+<br> If you made the use of these GP kernels for your paper, please also cite: <a href='https://ui.adsabs.harvard.edu/abs/2017AJ....154..220F/abstract'> Foreman-Mackey et al. (2017)</a>
+"""
+
+        self.dialog_GP_help.text.append(text)
+        self.dialog_GP_help.text.setReadOnly(True)
+        self.dialog_GP_help.show()
+
+
 
     def print_TTV_info(self, image=False):
         #self.dialog.statusBar().showMessage('Ready')
@@ -5439,7 +5461,7 @@ highly appreciated!
         # check if RV data is present
         if fit.type_fit["RV"] == True and fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "Not possible to run MCMC if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
+             "Not possible to run Nested Sampling if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
              self.button_nest_samp.setEnabled(True)  
              self.statusBar().showMessage('') 
              return
@@ -5450,12 +5472,23 @@ highly appreciated!
 
         if fit.type_fit["Transit"] == True  and ntran_data == 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "Not possible to run MCMC if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)
+             "Not possible to run Nested Sampling if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)
              self.button_nest_samp.setEnabled(True)  
              self.statusBar().showMessage('') 
 
              return
 
+        nttv_data = 0
+        for i in range(0,10,1):
+            nttv_data += len(fit.ttv_data_sets[i]) 
+
+        if fit.type_fit["TTV"] == True  and nttv_data == 0:
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "Not possible to run Nested Sampling if there are no TTV data loaded. Please add your TTV data first. Okay?", QtGui.QMessageBox.Ok)      
+             self.button_nest_samp.setEnabled(True)  
+             self.statusBar().showMessage('') 
+
+             return
 
         choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
@@ -5620,6 +5653,17 @@ highly appreciated!
 
              return
 
+        nttv_data = 0
+        for i in range(0,10,1):
+            nttv_data += len(fit.ttv_data_sets[i]) 
+
+        if fit.type_fit["TTV"] == True  and nttv_data == 0:
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "Not possible to run MCMC if there are no TTV data loaded. Please add your TTV data first. Okay?", QtGui.QMessageBox.Ok)      
+             self.button_MCMC.setEnabled(True)  
+             self.statusBar().showMessage('') 
+
+             return
 
         choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
@@ -7172,13 +7216,18 @@ If this does not help, please open a GitHub issue here:
         self.initialize_buttons()
         self.initialize_plots()   
  
-        self.initialize_color_dialog()             
+        self.initialize_color_dialog()
         #Hill_LED = './lib/UI/grey_led.png'
         #self.Hill_led.setPixmap(QtGui.QPixmap(Hill_LED))
         AMD_LED = './lib/UI/grey_led.png'
         self.AMD_led.setPixmap(QtGui.QPixmap(AMD_LED))
         
         self.check_type_fit()
+        
+        self.RV_GP_Rot_readme_info.clicked.connect(self.print_GP_info)
+        self.RV_GP_SHO_readme_info.clicked.connect(self.print_GP_info)
+        self.Tra_GP_Rot_readme_info.clicked.connect(self.print_GP_info)
+        self.Tra_GP_SHO_readme_info.clicked.connect(self.print_GP_info)
         
         ###################### Console #############################
         self.console_widget = ConsoleWidget_embed(font_size = 9)
@@ -7257,6 +7306,7 @@ If this does not help, please open a GitHub issue here:
         self.dialog_credits = print_info(self)
         self.dialog_chi_table = print_info(self)
         self.dialog_ttv_help = print_info(self)
+        self.dialog_GP_help = print_info(self)
 
         self.buttonGroup_apply_rv_data_options.buttonClicked.connect(self.apply_rv_data_options)
         self.buttonGroup_apply_act_data_options.buttonClicked.connect(self.apply_act_data_options)
