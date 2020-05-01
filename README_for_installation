@@ -126,6 +126,21 @@ https://seanthegeek.net/234/graphical-linux-applications-bash-ubuntu-windows/
 
 These two tutorials worked for me, but there might be other options too. 
 
+On high DPI displays with Windows display scaling activated (>100%),
+the X-server DPI has to be set, otherwise exostriker will not display correctly (text clipping).
+Edit the file `.Xresources` in the home directory of the WSL installation,
+for example with `nano ~/.Xresources`.
+Add the line `Xft.dpi: 100` and save & close with Ctrl+O Ctrl+X,
+then reload the X configuration with `xrdb ~/.Xresources`.
+On Ubuntu WSL you might need to install `x11-xserver-utils`
+with `sudo apt install x11-xserver-utils` for xrdb to be available.
+
+Launch exostriker and check the scaling.
+If text is clipping, the DPI need to be set lower, if everything is too small,
+the dpi need to be higher. Remember to always reload the configuration with `xrdb ~/.Xresources`.
+For the configuration to automatically load at startup,
+add the xrdb command to your ~/.bashrc, after the `export DISPLAY=:0.0`.
+
 
 Running the tool via the official Windows 10 python 2/3 installation should generally work too. For example, if one has an Anaconda installation the "anaconda_installer.sh"
 could be an option. However, one must recompile all the Fortran/C++ 
