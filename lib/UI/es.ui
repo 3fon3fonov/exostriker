@@ -10220,8 +10220,8 @@
                  <attribute name="title">
                   <string>SHO Kernel</string>
                  </attribute>
-                 <layout class="QGridLayout" name="gridLayout_150">
-                  <item row="0" column="0">
+                 <layout class="QGridLayout" name="gridLayout_41">
+                  <item row="0" column="0" rowspan="2">
                    <layout class="QGridLayout" name="gridLayout_149">
                     <property name="horizontalSpacing">
                      <number>4</number>
@@ -10457,6 +10457,19 @@
                     </item>
                    </layout>
                   </item>
+                  <item row="1" column="2">
+                   <spacer name="verticalSpacer_44">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>63</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
                   <item row="0" column="1">
                    <spacer name="horizontalSpacer_45">
                     <property name="orientation">
@@ -10470,15 +10483,15 @@
                     </property>
                    </spacer>
                   </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_136">
+                  <item row="0" column="2">
+                   <widget class="QPushButton" name="RV_GP_SHO_readme_info">
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
                      </font>
                     </property>
                     <property name="text">
-                     <string>  (parameters are NOT in log!)</string>
+                     <string>READ ME !!!</string>
                     </property>
                    </widget>
                   </item>
@@ -10496,13 +10509,31 @@
                    </spacer>
                   </item>
                  </layout>
+                 <widget class="QLabel" name="label_136">
+                  <property name="geometry">
+                   <rect>
+                    <x>9</x>
+                    <y>110</y>
+                    <width>160</width>
+                    <height>16</height>
+                   </rect>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>  (parameters are NOT in log!)</string>
+                  </property>
+                 </widget>
                 </widget>
                 <widget class="QWidget" name="tab_48">
                  <attribute name="title">
                   <string>Rot. Kernel</string>
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_37">
-                  <item row="0" column="0">
+                  <item row="0" column="0" rowspan="2">
                    <layout class="QGridLayout" name="gridLayout_48">
                     <property name="horizontalSpacing">
                      <number>4</number>
@@ -10815,7 +10846,32 @@
                     </property>
                    </spacer>
                   </item>
-                  <item row="1" column="0">
+                  <item row="0" column="2">
+                   <widget class="QPushButton" name="RV_GP_Rot_readme_info">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>READ ME !!!</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="2">
+                   <spacer name="verticalSpacer_68">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>89</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="2" column="0">
                    <widget class="QLabel" name="label_135">
                     <property name="font">
                      <font>
@@ -10827,7 +10883,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0">
+                  <item row="3" column="0">
                    <spacer name="verticalSpacer_13">
                     <property name="orientation">
                      <enum>Qt::Vertical</enum>
@@ -10886,8 +10942,8 @@
                  <attribute name="title">
                   <string>SHO Kernel</string>
                  </attribute>
-                 <layout class="QGridLayout" name="gridLayout_180">
-                  <item row="0" column="0">
+                 <layout class="QGridLayout" name="gridLayout_150">
+                  <item row="0" column="0" rowspan="2">
                    <layout class="QGridLayout" name="gridLayout_203">
                     <property name="horizontalSpacing">
                      <number>4</number>
@@ -11136,7 +11192,32 @@
                     </property>
                    </spacer>
                   </item>
-                  <item row="1" column="0">
+                  <item row="0" column="2">
+                   <widget class="QPushButton" name="Tra_GP_SHO_readme_info">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>READ ME !!!</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="2" rowspan="3">
+                   <spacer name="verticalSpacer_52">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>150</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="2" column="0">
                    <widget class="QLabel" name="label_208">
                     <property name="font">
                      <font>
@@ -11148,7 +11229,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0">
+                  <item row="3" column="0">
                    <spacer name="verticalSpacer_47">
                     <property name="orientation">
                      <enum>Qt::Vertical</enum>
@@ -11167,8 +11248,8 @@
                  <attribute name="title">
                   <string>Rot. Kernel</string>
                  </attribute>
-                 <layout class="QGridLayout" name="gridLayout_204">
-                  <item row="0" column="0">
+                 <layout class="QGridLayout" name="gridLayout_180">
+                  <item row="0" column="0" rowspan="2">
                    <layout class="QGridLayout" name="gridLayout_205">
                     <property name="horizontalSpacing">
                      <number>4</number>
@@ -11481,7 +11562,32 @@
                     </property>
                    </spacer>
                   </item>
-                  <item row="1" column="0">
+                  <item row="0" column="2">
+                   <widget class="QPushButton" name="Tra_GP_Rot_readme_info">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>READ ME !!!</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="2">
+                   <spacer name="verticalSpacer_56">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>89</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="2" column="0">
                    <widget class="QLabel" name="label_209">
                     <property name="font">
                      <font>
@@ -11493,7 +11599,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0">
+                  <item row="3" column="0">
                    <spacer name="verticalSpacer_48">
                     <property name="orientation">
                      <enum>Qt::Vertical</enum>
