@@ -80,7 +80,7 @@ class MatplotlibExporter(Exporter):
                 
                 if x is None:
                     continue
-
+ 
                 opts = item.opts
                 #print(self.item.curves[indx].__class__.__name__)
 
@@ -144,9 +144,14 @@ class MatplotlibExporter(Exporter):
 
                 if self.item.items[indx].__class__.__name__ == "InfiniteLine":
                     level = self.item.items[indx].value() 
+                    Inf_line_color = self.item.items[indx].pen.color().name()
                     #pen = fn.mkPen(self.item.items[indx].pen)
                     #print(pen)
-                    ax.axhline(y=level, linewidth=0.8, linestyle="-", color="#ff9933", zorder=-30)
+                    if Inf_line_color == '#000000': 
+                        linestyle="--" 
+                    else: 
+                        linestyle="-"
+                    ax.axhline(y=level, linewidth=0.8, linestyle=linestyle, color=Inf_line_color, zorder=-30)
                     
                     continue   
                
@@ -158,7 +163,10 @@ class MatplotlibExporter(Exporter):
                     ax.fill_between(x=x1, y1=y1, y2=y2, facecolor="#f48c42" )#fn.mkColor(244,140,66,128))
                     #print(self.item.items[indx].curve1)                               
                     continue
- 
+
+                if self.item.items[indx].__class__.__name__ == "TextItem":
+                    continue
+
                 
                 if "top" in self.item.items[indx].opts:
                     yerr=self.item.items[indx].opts["top"]
