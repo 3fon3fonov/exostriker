@@ -4107,6 +4107,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         if len(fit.tls) == 0:
             return
 
+        N_transit_files = len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0])
+
+
         p9.plot(clear=True,) 
         
         if self.tls_cross_hair.isChecked():
