@@ -497,6 +497,8 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
     flux_model_rich  = []
 
     N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0])
+    
+
 
     l = 0
     k = 0
@@ -907,8 +909,9 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     tr_files = obj.tra_data_sets
     tr_mo    = obj.ld_m
     tr_ld    = obj.ld_u
+    tr_gr    = obj.ld_gr
 
-    tr_model = np.array([tr_mo,tr_ld], dtype=object)
+    tr_model = np.array([tr_mo,tr_ld,tr_gr], dtype=object)
     tr_params = obj.tr_params
 
     ttv_files = obj.ttv_data_sets
@@ -1386,8 +1389,9 @@ def run_nestsamp(obj, **kwargs):
     tr_files = obj.tra_data_sets
     tr_mo    = obj.ld_m
     tr_ld    = obj.ld_u
+    tr_gr    = obj.ld_gr
 
-    tr_model = np.array([tr_mo,tr_ld], dtype=object)
+    tr_model = np.array([tr_mo,tr_ld,tr_gr], dtype=object)
     tr_params = obj.tr_params
 
     ttv_files = obj.ttv_data_sets
@@ -1719,8 +1723,9 @@ def run_mcmc(obj, **kwargs):
     tr_files = obj.tra_data_sets
     tr_mo    = obj.ld_m
     tr_ld    = obj.ld_u
-    
-    tr_model = np.array([tr_mo,tr_ld], dtype=object)
+    tr_gr    = obj.ld_gr
+
+    tr_model = np.array([tr_mo,tr_ld,tr_gr], dtype=object)
     tr_params = obj.tr_params
 
     ttv_files = obj.ttv_data_sets
@@ -2207,7 +2212,7 @@ class signal_fit(object):
         self.ld_u_quad_str        = {k: [r'ld-quad-1$_%s$'%str(k+1),r'ld-quad-2$_%s$'%str(k+1)] for k in range(10)}
         self.ld_u_nonlin_str      = {k: [r'ld-quad-1$_%s$'%str(k+1),r'ld-quad-2$_%s$'%str(k+1),r'ld-quad-3$_%s$'%str(k+1),r'ld-quad-4$_%s$'%str(k+1)] for k in range(10)}
 
-
+        self.ld_gr = [0,1,2,3,4,5,6,7,8,9]
         ############################################
 
 

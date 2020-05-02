@@ -275,7 +275,7 @@ class MainWindow(QMainWindow):
 
         # Initialize.
         self.update_format()
-        self.update_title()
+        #self.update_title()
         self.show()
 
     def block_signals(self, objects, b):
@@ -326,7 +326,7 @@ class MainWindow(QMainWindow):
             self.path = path
             # Qt will automatically try and guess the format as txt/html
             self.editor.setText(text)
-            self.update_title()
+            #self.update_title()
 
             #self.statusBar().showMessage(path)        
 #            self.setStatusBar(self.status(path))
@@ -364,7 +364,7 @@ class MainWindow(QMainWindow):
 
         else:
             self.path = path
-            self.update_title()
+            #self.update_title()
 
     def file_print(self):
         dlg = QPrintDialog()
@@ -378,15 +378,14 @@ class MainWindow(QMainWindow):
         self.editor.setLineWrapMode( 1 if self.editor.lineWrapMode() == 0 else 0 )
 
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
 
-    app = QApplication(sys.argv)
+#    app = QApplication(sys.argv)
     #app.setApplicationName("Megasolid Idiom")
 
-    window = MainWindow()
-    window.show()
-    #app.exec_()
-    sys.exit(app.exec_())
+#    window = MainWindow()
+#    window.show()
+#    sys.exit(app.exec_())
 
  
  

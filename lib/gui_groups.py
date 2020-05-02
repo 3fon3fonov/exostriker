@@ -320,6 +320,15 @@ def om_dot_bounds_gui(self):
 
 
 ################### LD  ########################
+ 
+def data_ld_group(self):
+
+    data_ld_group = [
+            self.LD_group_1,self.LD_group_2,self.LD_group_3,self.LD_group_4,self.LD_group_5,
+            self.LD_group_6,self.LD_group_7,self.LD_group_8,self.LD_group_9,self.LD_group_10
+            ]
+    return data_ld_group
+
 
 def use_uni_ld_models(self):
 
