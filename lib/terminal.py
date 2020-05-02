@@ -76,10 +76,10 @@ class mainWindow(QtWidgets.QMainWindow):
     def close(self):
         self.term.process.kill()
 
-if __name__ == "__main__":
+#if __name__ == "__main__":
     
-    app = QtWidgets.QApplication(sys.argv)
-    main = mainWindow()
-    main.show()
-    sys.exit(app.exec_())
+#    app = QtWidgets.QApplication(sys.argv)
+#    main = mainWindow()
+#    main.show()
+#    sys.exit(app.exec_())
  

@@ -501,6 +501,28 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 fit.ld_u[i] = [self.quad_u1[i].value(),self.quad_u2[i].value()]
 
 
+
+    def set_tra_gr(self):
+        global fit
+        
+        for i in range(10):
+            
+            if len(fit.tra_data_sets[i]) == 0:
+                print("Data set # %s is not present: The request is ignored"%str(i+1))
+                self.data_ld_group[i].setValue(i+1)
+                fit.ld_gr[i] = i
+            else:
+                if len(fit.tra_data_sets[self.data_ld_group[i].value()-1]) == 0:
+                    print("Data set # %s is present, but Data set # %s is not: The request is ignored"%(str(i+1), self.data_ld_group[i].value()))
+                    self.data_ld_group[i].setValue(i+1)
+                    fit.ld_gr[i] = i
+                else:
+                    fit.ld_gr[i] = self.data_ld_group[i].value() -1
+        print("\n")
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+
+#        print(fit.ld_gr)
+
     def update_errors(self):
         global fit
 
@@ -4898,7 +4920,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.25) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.26) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -6678,46 +6700,46 @@ Please install via 'pip install ttvfast'.
 
         self.console_widget.print_text("rv.export_orbital_evol(fit, file='planet_N.txt', planet = 1, width = 10, precision = 6)", before_prompt=False)  
         self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
-        self.terminal_embeded.setCurrentWidget(self.console_widget)           
-        
+        self.terminal_embeded.setCurrentWidget(self.console_widget)
+
 ################################## Version controll #######################################
 
-    
+
     def check_fortran_routines(self):
-        
+
         version_kep_loglik= "0.07"
         result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
         if flag1 == -1 or str(result1[0][0]) != version_kep_loglik:
             print("New source code available: Updating Keplerian Simplex")
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep', 3,output=True)             
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep', 3,output=True)
             result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
 
         version_kep_LM= "0.07"
         result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)
         if flag2 == -1 or str(result2[0][0]) != version_kep_LM:
             print("New source code available: Updating Keplerian L-M") 
-            result2, flag2 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep', 3,output=True)             
+            result2, flag2 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep', 3,output=True)
             result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)
 
         version_dyn_loglik= "0.07"
         result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)
         if flag3 == -1 or str(result3[0][0]) != version_dyn_loglik:
             print("New source code available: Updating N-body Simplex")   
-            result3, flag3 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn', 3,output=True)             
+            result3, flag3 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn', 3,output=True)
             result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)
 
         version_dyn_LM= "0.07"
         result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)
         if flag4 == -1 or str(result4[0][0]) != version_dyn_LM:
             print("New source code available: Updating N-body L-M")
-            result4, flag4 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn', 3,output=True)             
+            result4, flag4 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn', 3,output=True)
             result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)
 
         version_dyn_loglik_= "0.05"
         result5, flag5 = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)
         if flag5 == -1 or str(result5[0][0]) != version_dyn_loglik_:
             print("New source code available: Updating Mixed Simplex")
-            result5, flag5 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+', 3,output=True)             
+            result5, flag5 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+', 3,output=True)
             result5, flag5 = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)
 
         try:
@@ -6745,9 +6767,8 @@ If this does not help, please open a GitHub issue here:
 
 ################################## Stellar params #######################################
 
-  
     def update_St_params(self):
-        global fit  
+        global fit
 
         fit.stellar_mass     = self.St_mass_input.value()
         fit.stellar_mass_err = self.err_St_mass_input.value()
@@ -7214,6 +7235,8 @@ If this does not help, please open a GitHub issue here:
         self.ld_u2_bounds_gui     = gui_groups.ld_u2_bounds_gui(self)
         self.ld_u3_bounds_gui     = gui_groups.ld_u3_bounds_gui(self)
         self.ld_u4_bounds_gui     = gui_groups.ld_u4_bounds_gui(self)
+        
+        self.data_ld_group        = gui_groups.data_ld_group(self)
 
         ########### TEMP ##############
         self.TTV_readme_info.clicked.connect(lambda: self.print_TTV_info()) 
@@ -7265,7 +7288,7 @@ If this does not help, please open a GitHub issue here:
             self.term_emb = terminal.mainWindow()
             self.terminal_embeded.addTab(self.term_emb, "Bash shell")
 
-        self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")  
+        self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")
 
         self.text_editor = text_editor_es.MainWindow()
         self.calculator = calc.Calculator()
@@ -7352,12 +7375,12 @@ If this does not help, please open a GitHub issue here:
 
 
         self.buttonGroup_transit_data.buttonClicked.connect(self.showDialog_tra_input_file)
-        self.buttonGroup_remove_transit_data.buttonClicked.connect(self.remove_tra_file)         
+        self.buttonGroup_remove_transit_data.buttonClicked.connect(self.remove_tra_file)
 
         self.buttonGroup_use.buttonClicked.connect(self.update_use)
         self.buttonGroup_mixed_fitting.buttonClicked.connect(self.update_mixed_fitting)
-        
- 
+
+
         self.button_orb_evol.clicked.connect(self.worker_Nbody) 
         self.button_MCMC.clicked.connect(self.worker_mcmc)
        # self.button_nest_samp.clicked.connect(lambda: self.run_nest_samp())
@@ -7705,6 +7728,9 @@ If this does not help, please open a GitHub issue here:
         self.buttonGroup_use_ld_10.buttonClicked.connect(self.set_tra_ld)
 
 
+        self.Button_apply_set_ld_group.clicked.connect(self.set_tra_gr)
+
+
        # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_change)
         self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_change)
 
@@ -7752,7 +7778,7 @@ If this does not help, please open a GitHub issue here:
             self.init_plot_corr()
             self.update_plot_corr()
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.25). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.26). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
 """)
