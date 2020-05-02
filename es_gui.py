@@ -500,6 +500,59 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 fit.ld_m[i] = "quadratic"
                 fit.ld_u[i] = [self.quad_u1[i].value(),self.quad_u2[i].value()]
 
+        self.set_tra_gr_index()
+
+
+    def set_tra_gr_index(self):
+        global fit
+
+        k =0
+ 
+        for i in range(10):
+            if len(fit.tra_data_sets[i]) == 0:
+                fit.ld_gr_ind[i] = 0
+                continue
+            elif fit.ld_gr[i] == i:
+                if fit.ld_m[i] == "linear":
+                    fit.ld_gr_ind[i] = k
+                    k +=1
+                elif fit.ld_m[i] == "quadratic":
+                    fit.ld_gr_ind[i] = k
+                    k +=2
+                elif fit.ld_m[i] == "nonlinear":
+                    fit.ld_gr_ind[i] = k
+                    k +=4
+            elif fit.ld_gr[i] != i:
+                fit.ld_gr_ind[i] = fit.ld_gr_ind[fit.ld_gr[i]]
+                fit.ld_m[i] = fit.ld_m[fit.ld_gr[i]]
+                fit.ld_u[i] = fit.ld_u[fit.ld_gr[i]]
+
+
+##############################
+#    k =0
+#    
+#    z = [0]*10
+
+#    for i in range(10):
+#        if len(tr_files[i]) == 0:
+#            z[i] = 0
+#            continue
+#        elif tr_model[2][i] == i:
+#            if tr_model[0][i] == "linear":
+#                z[i] = k
+#                k +=1
+#            elif tr_model[0][i] == "quadratic":
+#                z[i] = k
+#                k +=2
+#            elif tr_model[0][i] == "nonlinear":
+#                z[i] = k
+#                k +=4
+#        elif tr_model[2][i] != i:
+#            z[i] = z[tr_model[2][i]]
+#            tr_model[1][i] = tr_model[1][tr_model[2][i]]
+#            tr_model[0][i] = tr_model[0][tr_model[2][i]]
+##############################
+    
 
 
     def set_tra_gr(self):
@@ -512,13 +565,21 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.data_ld_group[i].setValue(i+1)
                 fit.ld_gr[i] = i
             else:
-                if len(fit.tra_data_sets[self.data_ld_group[i].value()-1]) == 0:
+                if self.data_ld_group[i].value()-1 > i:
+                    print("""
+Data set # %s is present, but you cannot tie it to a Data set with a larger index; in this case, # %s. You should do the opposite; (see README): The request is ignored.
+"""%(str(i+1), self.data_ld_group[i].value()))
+                    self.data_ld_group[i].setValue(i+1)
+                    fit.ld_gr[i] = i
+                elif len(fit.tra_data_sets[self.data_ld_group[i].value()-1]) == 0:
                     print("Data set # %s is present, but Data set # %s is not: The request is ignored"%(str(i+1), self.data_ld_group[i].value()))
                     self.data_ld_group[i].setValue(i+1)
                     fit.ld_gr[i] = i
                 else:
                     fit.ld_gr[i] = self.data_ld_group[i].value() -1
         print("\n")
+        
+        self.set_tra_gr_index()
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
 #        print(fit.ld_gr)
@@ -6853,7 +6914,17 @@ If this does not help, please open a GitHub issue here:
         elif choice == QtGui.QMessageBox.Cancel:
             event.ignore()
 
- 
+
+    def reset_mid_pannel_buttons(self):
+
+        self.button_fit.setEnabled(True)
+        self.button_init_fit.setEnabled(True)
+        self.button_MCMC.setEnabled(True)
+        self.button_nest_samp.setEnabled(True)
+        self.button_orb_evol.setEnabled(True)
+        self.button_auto_fit.setEnabled(True)
+
+
         
     def file_from_path(self, path):
         head, tail = ntpath.split(path)
@@ -7403,9 +7474,8 @@ If this does not help, please open a GitHub issue here:
         
         self.comboBox_phase_pl_tran.activated.connect(self.update_transit_plots)
 
-        
         ########## RV fitting ########################
-        
+
         self.button_init_fit.clicked.connect(lambda: self.fit_dispatcher(init=True))
         self.button_fit.clicked.connect(lambda: self.fit_dispatcher())
         self.button_auto_fit.clicked.connect(self.run_auto_fit)
@@ -7417,7 +7487,7 @@ If this does not help, please open a GitHub issue here:
         self.radioButton_omega_dot_free.toggled.connect(self.mute_boxes_dyn)
 #        self.radioButton_omega_dot_GR.toggled.connect(self.set_gr_flag)
 
- 
+
 
         self.radioButton_Keplerian.toggled.connect(self.update_dyn_kep_flag)
         
@@ -7444,6 +7514,7 @@ If this does not help, please open a GitHub issue here:
         ############ Edit #################
 
         self.actionRV_Auto_fit.triggered.connect(self.run_auto_fit)
+        self.actionReset_Buttons_dev_mode.triggered.connect(self.reset_mid_pannel_buttons)
 
         ############ View #################
 
@@ -7452,9 +7523,9 @@ If this does not help, please open a GitHub issue here:
         self.actionGet_LaTeX_table_with_parameters.triggered.connect(self.get_latex_table)
         self.actionGet_LaTex_table_with_priors.triggered.connect(self.get_latex_prior_table)
         self.actionGet_RV_model.triggered.connect(self.get_RV_model)
-        self.actionGet_RV_data.triggered.connect(self.get_RV_data)     
-        
-        self.actionGet_Orb_evol.triggered.connect(self.get_orb_evol)   
+        self.actionGet_RV_data.triggered.connect(self.get_RV_data)
+
+        self.actionGet_Orb_evol.triggered.connect(self.get_orb_evol)
 
         ############ Jupyter  #################
 
@@ -7463,23 +7534,23 @@ If this does not help, please open a GitHub issue here:
 
 
         ############ Sessions #################
-        
+
         self.actionNew_session.triggered.connect(self.new_session)
         self.actionOpen_session.triggered.connect(self.open_session)
         self.actionSave_session.triggered.connect(self.save_session)
         self.actionSave_multi_sesion.triggered.connect(self.save_sessions)
-        self.actionOpen_multi_session.triggered.connect(self.open_sessions) 
-        #self.comboBox_extra_plot.activated.connect(self.change_extra_plot)      
+        self.actionOpen_multi_session.triggered.connect(self.open_sessions)
+        #self.comboBox_extra_plot.activated.connect(self.change_extra_plot)
         self.comboBox_select_ses.activated.connect(self.select_session)
         #self.comboBox_select_ses.lineEdit.editingFinished.connect(self.change_session_label)
         self.comboBox_select_ses.currentTextChanged.connect(self.change_session_label)
-        
+
         self.session_list()
         self.new_ses.clicked.connect(self.getNewses)
         self.copy_ses.clicked.connect(self.cop_ses)
         self.remove_ses.clicked.connect(self.rem_ses)
-  
-        self.actionvisit_TRIFON_on_GitHub.triggered.connect(lambda: webbrowser.open('https://github.com/3fon3fonov/exostriker'))    
+
+        self.actionvisit_TRIFON_on_GitHub.triggered.connect(lambda: webbrowser.open('https://github.com/3fon3fonov/exostriker'))
         self.actionCredits.triggered.connect(lambda: self.print_info_credits())
         self.actionConfidence_Intervals_Table.triggered.connect(lambda: self.print_chi_table())
 
@@ -7488,17 +7559,17 @@ If this does not help, please open a GitHub issue here:
         self.comboBox_pl_2.activated.connect(self.plot_delta_omega)
         self.radioButton_dom_180_fold.toggled.connect(self.plot_delta_omega)
         self.radioButton_theta_180_fold.toggled.connect(self.plot_theta)
-        
+
         self.per_evol_comboBox_pl_1.activated.connect(self.plot_per_rat)
         self.per_evol_comboBox_pl_2.activated.connect(self.plot_per_rat)
-        
- 
+
+
         self.plot_i.toggled.connect(self.plot_i_Om)
         self.plot_Om.toggled.connect(self.plot_i_Om)
         #self.radioButton_Omega_no_fold.toggled.connect(self.plot_i_Om)
         self.radioButton_Omega_180_fold.toggled.connect(self.plot_i_Om)
-       
-        self.radioButton_energy.clicked.connect(self.plot_energy)       
+
+        self.radioButton_energy.clicked.connect(self.plot_energy)
         self.radioButton_lx.clicked.connect(self.plot_energy)
         self.radioButton_ly.clicked.connect(self.plot_energy)
         self.radioButton_lz.clicked.connect(self.plot_energy)
