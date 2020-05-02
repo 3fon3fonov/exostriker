@@ -5494,7 +5494,12 @@ highly appreciated!
              return
 
         choice = QtGui.QMessageBox.information(self, 'Warning!',
-                                            "This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
+"""
+This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?
+
+
+Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY open! Make sure your priors are 'reasonable' for your science case; otherwise, the Nested Sampling run may take forever!
+""",
                                             QtGui.QMessageBox.Cancel | QtGui.QMessageBox.Ok)       
 
         if choice == QtGui.QMessageBox.Cancel:
@@ -5669,8 +5674,9 @@ highly appreciated!
              return
 
         choice = QtGui.QMessageBox.information(self, 'Warning!',
-                                            "This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?",
-                                            QtGui.QMessageBox.Cancel | QtGui.QMessageBox.Ok)       
+"""This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?
+                                            """,
+                                            QtGui.QMessageBox.Cancel | QtGui.QMessageBox.Ok)
 
         if choice == QtGui.QMessageBox.Cancel:
             self.statusBar().showMessage('') 
