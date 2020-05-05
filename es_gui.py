@@ -7390,7 +7390,7 @@ If this does not help, please open a GitHub issue here:
                      # print versions, but check if package is imported first 
                 for m in pkg_resources.working_set: 
                     if m.project_name.lower() in root_packages: 
-                        print(f"{m.project_name}=={m.version}") 
+                        print("%s==%s"%(m.project_name,m.version))
                     #else:
                     #    print(f"{m.project_name}== Not found!")
 
