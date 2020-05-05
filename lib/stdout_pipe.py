@@ -1,4 +1,4 @@
-import sys
+import sys, traceback
 from PyQt5 import QtCore, QtGui
 
 #sys.stdout.isatty = lambda: False
@@ -6,6 +6,28 @@ from PyQt5 import QtCore, QtGui
 
 import logging
 logger = logging.getLogger(__name__)
+
+ 
+#sys.stdout = sys.__stdout__
+#sys.stderr = sys.__stderr__
+
+sys._excepthook = sys.excepthook 
+def exception_hook(exctype, value, traceback):
+    print(exctype, value, traceback)
+    sys._excepthook(exctype, value, traceback) 
+    #sys.exit(1) 
+sys.excepthook = exception_hook 
+
+
+#def excepthook(exc_type, exc_value, exc_tb):
+#    tb = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
+#    print("error catched!:")
+#    print("error message:\n", tb)
+#    QtWidgets.QApplication.quit()
+    # or QtWidgets.QApplication.exit(0)
+
+#sys.excepthook = excepthook
+
 
 class QtHandler(logging.Handler):
 
@@ -15,6 +37,7 @@ class QtHandler(logging.Handler):
     def emit(self, record):
         record = self.format(record)
         XStream.stdout().write("{}\n".format(record))
+        #XStream.stderr().write("{}\n".format(record))
 
 handler = QtHandler()
 handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
@@ -23,6 +46,14 @@ logger.setLevel(logging.DEBUG)
 
 #sys.stdout.isatty = lambda: False
 #sys.stdout.encoding = sys.getdefaultencoding()
+
+def ensureUtf(string, encoding='utf8'):
+  """Converts input to unicode if necessary."""
+  if type(string) == bytes:
+    return string.decode(encoding, 'ignore')
+  else:
+    return string
+
 
 class XStream(QtCore.QObject):
     _stdout = None
@@ -34,7 +65,7 @@ class XStream(QtCore.QObject):
         return -1
     def write( self, msg ):
         if ( not self.signalsBlocked() ):
-            self.messageWritten.emit(msg)
+            self.messageWritten.emit(ensureUtf(msg))
     @staticmethod
     def stdout():
         if ( not XStream._stdout ):
@@ -50,7 +81,7 @@ class XStream(QtCore.QObject):
         if ( not XStream._stderr ):
             XStream._stderr = XStream()
             sys.stderr = XStream._stderr
-            sys.stderr.isatty = lambda: False            
+            sys.stderr.isatty = lambda: False
             sys.stderr.encoding = sys.getdefaultencoding()
  
         return XStream._stderr
@@ -65,11 +96,12 @@ class LogMessageViewer(QtGui.QTextBrowser):
 
     @QtCore.pyqtSlot(str)
     def appendLogMessage(self, msg):
+        #print(msg)
         horScrollBar = self.horizontalScrollBar()
         verScrollBar = self.verticalScrollBar()
         scrollIsAtEnd = verScrollBar.maximum() - verScrollBar.value() <= 10
 
-        self.insertPlainText(msg)
+        self.insertPlainText(ensureUtf(msg))
 
         if scrollIsAtEnd:
             verScrollBar.setValue(verScrollBar.maximum()) # Scrolls to the bottom
@@ -86,7 +118,8 @@ class MyDialog(QtGui.QDialog):
         self.setLayout(layout)
 
         XStream.stdout().messageWritten.connect(self._console.appendLogMessage)
-        XStream.stderr().messageWritten.connect(self._console.appendLogMessage)
+        if sys.version_info[0] == 2:
+            XStream.stderr().messageWritten.connect(self._console.appendLogMessage)
 
 
     def pipe_output( self ):
@@ -116,12 +149,28 @@ class DebugDialog(QtGui.QDialog):
         logger.error('error message')
         #print('Old school hand made print message')
 
-if ( __name__ == '__main__' ):
+#if ( __name__ == '__main__' ):
+    
+    
+
     #app = None
     # if ( not QtGui.QApplication.instance() ):
-    app = QtGui.QApplication([])
-    dlg = MyDialog()
-    dlg.show()
+#    app = QtGui.QApplication(sys.argv)
+#    dlg = MyDialog()
+#    dlg.show()
 
     #if ( app ):
-    app.exec_()
+    #app.exec_()
+#    sys.exit(app.exec_())
+
+ 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
