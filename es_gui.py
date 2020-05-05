@@ -7325,7 +7325,7 @@ If this does not help, please open a GitHub issue here:
       
         
         if sys.platform[0:5] == "linux":
-            self.term_emb = terminal.mainWindow()
+            self.term_emb = terminal.EmbTerminal()
             self.terminal_embeded.addTab(self.term_emb, "Bash shell")
 
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")
