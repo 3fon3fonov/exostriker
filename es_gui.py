@@ -309,6 +309,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.nonlin_u2[i].setValue(fit.ld_u_nonlin[i][1])
             self.nonlin_u3[i].setValue(fit.ld_u_nonlin[i][2])
             self.nonlin_u4[i].setValue(fit.ld_u_nonlin[i][3])
+            
+            
+
 
 
         self.St_mass_input.setValue(fit.params.stellar_mass)  
@@ -682,6 +685,19 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             
         self.use_RV_lin_trend.setChecked(bool(fit.use.use_linear_trend)) 
         self.use_RV_quad_trend.setChecked(bool(fit.rv_quadtr_use)) 
+        
+        
+        for i in range(10):
+            self.use_lin_u[i].setChecked(bool(fit.ld_u_lin_use[i][0]))
+            self.use_quad_u1[i].setChecked(bool(fit.ld_u_quad_use[i][0]))
+            self.use_quad_u2[i].setChecked(bool(fit.ld_u_quad_use[i][1]))
+            self.use_nonlin_u1[i].setChecked(bool(fit.ld_u_nonlin_use[i][0]))
+            self.use_nonlin_u2[i].setChecked(bool(fit.ld_u_nonlin_use[i][1]))
+            self.use_nonlin_u3[i].setChecked(bool(fit.ld_u_nonlin_use[i][2]))
+            self.use_nonlin_u4[i].setChecked(bool(fit.ld_u_nonlin_use[i][3]))
+ 
+            self.data_ld_group[i].setValue(int(fit.ld_gr[i])+1)
+
 
         for i in range(len(self.use_gp_rot_params)):
             self.use_gp_rot_params[i].setChecked(bool(fit.GP_rot_use[i]))
@@ -717,12 +733,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.npl = checked
 
         for i in range(9*7):
-            fit.use.use_planet_params[i] = int(self.use_param_gui[i].isChecked())         
+            fit.use.use_planet_params[i] = int(self.use_param_gui[i].isChecked())
  
         for i in range(9):
             fit.omega_dot_use[i] = int(self.use_param_gui_wd[i].isChecked())
 
-        for i in range(9):        
+        for i in range(9):
             fit.t0_use[i] = self.use_param_gui_tr[i*3].isChecked()  
             fit.pl_rad_use[i] = self.use_param_gui_tr[i*3+1].isChecked()  
             fit.pl_a_use[i] = self.use_param_gui_tr[i*3+2].isChecked()  
@@ -789,9 +805,49 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             for z in range(2):
                 self.offset_bounds_gui[i][z].setValue(fit.rvoff_bounds[i][z])
                 self.jitter_bounds_gui[i][z].setValue(fit.jitt_bounds[i][z])
+                self.offset_bounds_gui_tra[i][z].setValue(fit.tra_off_bounds[i][z])
+                self.jitter_bounds_gui_tra[i][z].setValue(fit.tra_jitt_bounds[i][z])
+
+        self.update_nr_prior()
+        self.update_jeff_prior()
 
 
- 
+    def update_nr_prior(self):
+        global fit
+
+        for i in range(10): 
+            for z in range(2):
+
+                 self.offset_nr_priors_gui[i][z].setValue(fit.rvoff_norm_pr[i][z])
+                 self.jitter_nr_priors_gui[i][z].setValue(fit.jitt_norm_pr[i][z])
+                 self.offset_nr_priors_gui_tra[i][z].setValue(fit.tra_off_norm_pr[i][z])
+                 self.jitter_nr_priors_gui_tra[i][z].setValue(fit.tra_jitt_norm_pr[i][z])
+
+            self.offset_nr_priors_gui[i][2].setChecked(fit.rvoff_norm_pr[i][2])
+            self.jitter_nr_priors_gui[i][2].setChecked(fit.jitt_norm_pr[i][2])
+            self.offset_nr_priors_gui_tra[i][2].setChecked(fit.tra_off_norm_pr[i][2])
+            self.jitter_nr_priors_gui_tra[i][2].setChecked(fit.tra_jitt_norm_pr[i][2])
+
+
+    def update_jeff_prior(self):
+        global fit
+
+        for i in range(10): 
+            for z in range(2):
+
+                 self.offset_jeff_priors_gui[i][z].setValue(fit.rvoff_jeff_pr[i][z])
+                 self.jitter_jeff_priors_gui[i][z].setValue(fit.jitt_jeff_pr[i][z])
+                 self.offset_jeff_priors_gui_tra[i][z].setValue(fit.tra_off_jeff_pr[i][z])
+                 self.jitter_jeff_priors_gui_tra[i][z].setValue(fit.tra_jitt_jeff_pr[i][z])
+
+            self.offset_jeff_priors_gui[i][2].setChecked(fit.rvoff_jeff_pr[i][2])
+            self.jitter_jeff_priors_gui[i][2].setChecked(fit.jitt_jeff_pr[i][2])
+            self.offset_jeff_priors_gui_tra[i][2].setChecked(fit.tra_off_jeff_pr[i][2])
+            self.jitter_jeff_priors_gui_tra[i][2].setChecked(fit.tra_jitt_jeff_pr[i][2])
+
+
+
+
     def check_bounds(self):
         global fit
 
@@ -821,27 +877,17 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         fit.rv_lintr_bounds[0] = [self.lin_trend_min.value(),self.lin_trend_max.value()]
 
-        offset_bounds_gui_tra = [
-        [self.tra_Data_min_1.value(),self.tra_Data_max_1.value()], [self.tra_Data_min_2.value(),self.tra_Data_max_2.value()], [self.tra_Data_min_3.value(),self.tra_Data_max_3.value()], [self.tra_Data_min_4.value(),self.tra_Data_max_4.value()], [self.tra_Data_min_5.value(),self.tra_Data_max_5.value()],   
-        [self.tra_Data_min_6.value(),self.tra_Data_max_6.value()], [self.tra_Data_min_7.value(),self.tra_Data_max_7.value()], [self.tra_Data_min_8.value(),self.tra_Data_max_8.value()], [self.tra_Data_min_9.value(),self.tra_Data_max_9.value()], [self.tra_Data_min_10.value(),self.tra_Data_max_10.value()]
-        ]
-        
-        jitter_bounds_gui_tra = [
-        [self.tra_jitter_min_1.value(),self.tra_jitter_max_1.value()], [self.tra_jitter_min_2.value(),self.tra_jitter_max_2.value()], [self.tra_jitter_min_3.value(),self.tra_jitter_max_3.value()], [self.tra_jitter_min_4.value(),self.tra_jitter_max_4.value()], [self.tra_jitter_min_5.value(),self.tra_jitter_max_5.value()],   
-        [self.tra_jitter_min_6.value(),self.tra_jitter_max_6.value()], [self.tra_jitter_min_7.value(),self.tra_jitter_max_7.value()], [self.tra_jitter_min_8.value(),self.tra_jitter_max_8.value()], [self.tra_jitter_min_9.value(),self.tra_jitter_max_9.value()], [self.tra_jitter_min_10.value(),self.tra_jitter_max_10.value()]
-        ]
-        
-    
         for i in range(10): 
-            fit.tra_off_bounds[i] = offset_bounds_gui_tra[i]
-            fit.tra_jitt_bounds[i]  = jitter_bounds_gui_tra[i] 
-            
+            for z in range(2):
+                fit.tra_off_bounds[i][z] = self.offset_bounds_gui_tra[i][z].value()
+                fit.tra_jitt_bounds[i][z]   = self.jitter_bounds_gui_tra[i][z].value()
+
         self.check_RV_GP_bounds()
         self.check_tra_GP_bounds()
-        self.check_ld_bounds()    
-        
-        
-        
+        self.check_ld_bounds()
+
+
+
     def check_RV_GP_bounds(self):
         global fit
         
@@ -902,16 +948,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 fit.ld_u_nonlin_bound[i][1][z] = self.ld_u2_bounds_gui[i][z].value()
                 fit.ld_u_nonlin_bound[i][2][z] = self.ld_u3_bounds_gui[i][z].value()
                 fit.ld_u_nonlin_bound[i][3][z] = self.ld_u4_bounds_gui[i][z].value()
- 
-          
-            
-            
+
+
+
+
     def check_priors_nr(self):
         global fit
- 
+
         for i in range(9):
             for z in range(2):
-                
+
                 fit.K_norm_pr[i][z] = self.param_nr_priors_gui[10*i + 0][z].value()
                 fit.P_norm_pr[i][z] = self.param_nr_priors_gui[10*i + 1][z].value()
                 fit.e_norm_pr[i][z] = self.param_nr_priors_gui[10*i + 2][z].value()
@@ -922,7 +968,6 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 fit.t0_norm_pr[i][z]  =  self.param_nr_priors_gui[10*i + 7][z].value()
                 fit.pl_rad_norm_pr[i][z]  =   self.param_nr_priors_gui[10*i + 8][z].value()
                 fit.pl_a_norm_pr[i][z]   =   self.param_nr_priors_gui[10*i + 9][z].value()
-            
 
             fit.K_norm_pr[i][2] = self.param_nr_priors_gui[10*i + 0][2].isChecked()
             fit.P_norm_pr[i][2] = self.param_nr_priors_gui[10*i + 1][2].isChecked()
@@ -936,102 +981,53 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.pl_a_norm_pr[i][2]   =   self.param_nr_priors_gui[10*i + 9][2].isChecked()
  
 
-
-        offset_nr_priors_gui = [
-        [self.RV_Data_mean_1.value(),self.RV_Data_sigma_1.value(),self.use_rvoff_nr_1.isChecked()], 
-        [self.RV_Data_mean_2.value(),self.RV_Data_sigma_2.value(),self.use_rvoff_nr_2.isChecked()], 
-        [self.RV_Data_mean_3.value(),self.RV_Data_sigma_3.value(),self.use_rvoff_nr_3.isChecked()], 
-        [self.RV_Data_mean_4.value(),self.RV_Data_sigma_4.value(),self.use_rvoff_nr_4.isChecked()], 
-        [self.RV_Data_mean_5.value(),self.RV_Data_sigma_5.value(),self.use_rvoff_nr_5.isChecked()], 
-        [self.RV_Data_mean_6.value(),self.RV_Data_sigma_6.value(),self.use_rvoff_nr_6.isChecked()], 
-        [self.RV_Data_mean_7.value(),self.RV_Data_sigma_7.value(),self.use_rvoff_nr_7.isChecked()], 
-        [self.RV_Data_mean_8.value(),self.RV_Data_sigma_8.value(),self.use_rvoff_nr_8.isChecked()], 
-        [self.RV_Data_mean_9.value(),self.RV_Data_sigma_9.value(),self.use_rvoff_nr_9.isChecked()], 
-        [self.RV_Data_mean_10.value(),self.RV_Data_sigma_10.value(),self.use_rvoff_nr_10.isChecked()]
-        ]
-        
-        jitter_nr_priors_gui = [
-        [self.RV_jitter_mean_1.value(),self.RV_jitter_sigma_1.value(),self.use_rvjitt_nr_1.isChecked()], 
-        [self.RV_jitter_mean_2.value(),self.RV_jitter_sigma_2.value(),self.use_rvjitt_nr_2.isChecked()], 
-        [self.RV_jitter_mean_3.value(),self.RV_jitter_sigma_3.value(),self.use_rvjitt_nr_3.isChecked()], 
-        [self.RV_jitter_mean_4.value(),self.RV_jitter_sigma_4.value(),self.use_rvjitt_nr_4.isChecked()], 
-        [self.RV_jitter_mean_5.value(),self.RV_jitter_sigma_5.value(),self.use_rvjitt_nr_5.isChecked()], 
-        [self.RV_jitter_mean_6.value(),self.RV_jitter_sigma_6.value(),self.use_rvjitt_nr_6.isChecked()],
-        [self.RV_jitter_mean_7.value(),self.RV_jitter_sigma_7.value(),self.use_rvjitt_nr_7.isChecked()], 
-        [self.RV_jitter_mean_8.value(),self.RV_jitter_sigma_8.value(),self.use_rvjitt_nr_8.isChecked()], 
-        [self.RV_jitter_mean_9.value(),self.RV_jitter_sigma_9.value(),self.use_rvjitt_nr_9.isChecked()], 
-        [self.RV_jitter_mean_10.value(),self.RV_jitter_sigma_10.value(),self.use_rvjitt_nr_10.isChecked()]   
-        ]  
-    
-    
         for i in range(10): 
-            fit.rvoff_norm_pr[i] = offset_nr_priors_gui[i]
-            fit.jitt_norm_pr[i]  = jitter_nr_priors_gui[i] 
-            
-            
+            for z in range(2):
+
+                fit.rvoff_norm_pr[i][z] = self.offset_nr_priors_gui[i][z].value()
+                fit.jitt_norm_pr[i][z]  = self.jitter_nr_priors_gui[i][z].value()
+            fit.rvoff_norm_pr[i][2] = self.offset_nr_priors_gui[i][2].isChecked()
+            fit.jitt_norm_pr[i][2]  = self.jitter_nr_priors_gui[i][2].isChecked()
+
         om_nr_priors_gui = [
         [self.omega_dot_mean_1.value(),self.omega_dot_sigma_1.value(),self.use_omega_dot_norm_pr_1.isChecked()], [self.omega_dot_mean_2.value(),self.omega_dot_sigma_2.value(),self.use_omega_dot_norm_pr_2.isChecked()], 
         [self.omega_dot_mean_3.value(),self.omega_dot_sigma_3.value(),self.use_omega_dot_norm_pr_3.isChecked()], [self.omega_dot_mean_4.value(),self.omega_dot_sigma_4.value(),self.use_omega_dot_norm_pr_4.isChecked()], 
         [self.omega_dot_mean_5.value(),self.omega_dot_sigma_5.value(),self.use_omega_dot_norm_pr_5.isChecked()], [self.omega_dot_mean_6.value(),self.omega_dot_sigma_6.value(),self.use_omega_dot_norm_pr_6.isChecked()], 
         [self.omega_dot_mean_7.value(),self.omega_dot_sigma_7.value(),self.use_omega_dot_norm_pr_7.isChecked()], [self.omega_dot_mean_8.value(),self.omega_dot_sigma_8.value(),self.use_omega_dot_norm_pr_8.isChecked()], 
-        [self.omega_dot_mean_9.value(),self.omega_dot_sigma_9.value(),self.use_omega_dot_norm_pr_9.isChecked()]   
-        ]  
+        [self.omega_dot_mean_9.value(),self.omega_dot_sigma_9.value(),self.use_omega_dot_norm_pr_9.isChecked()]
+        ]
 
         for i in range(9): 
             fit.omega_dot_norm_pr[i] = om_nr_priors_gui[i]
 
         fit.rv_lintr_norm_pr[0]  = [self.lin_trend_mean.value(),self.lin_trend_sigma.value(),self.use_lin_tr_nr_pr.isChecked()]
 
-        offset_nr_priors_gui_tra = [
-        [self.tra_Data_mean_1.value(),self.tra_Data_sigma_1.value(),self.use_traoff_nr_1.isChecked()], 
-        [self.tra_Data_mean_2.value(),self.tra_Data_sigma_2.value(),self.use_traoff_nr_2.isChecked()], 
-        [self.tra_Data_mean_3.value(),self.tra_Data_sigma_3.value(),self.use_traoff_nr_3.isChecked()],
-        [self.tra_Data_mean_4.value(),self.tra_Data_sigma_4.value(),self.use_traoff_nr_4.isChecked()], 
-        [self.tra_Data_mean_5.value(),self.tra_Data_sigma_5.value(),self.use_traoff_nr_5.isChecked()],   
-        [self.tra_Data_mean_6.value(),self.tra_Data_sigma_6.value(),self.use_traoff_nr_6.isChecked()],
-        [self.tra_Data_mean_7.value(),self.tra_Data_sigma_7.value(),self.use_traoff_nr_7.isChecked()],
-        [self.tra_Data_mean_8.value(),self.tra_Data_sigma_8.value(),self.use_traoff_nr_8.isChecked()], 
-        [self.tra_Data_mean_9.value(),self.tra_Data_sigma_9.value(),self.use_traoff_nr_9.isChecked()], 
-        [self.tra_Data_mean_10.value(),self.tra_Data_sigma_10.value(),self.use_traoff_nr_10.isChecked()]
-        ]
-        
-        jitter_nr_priors_gui_tra = [
-        [self.tra_jitter_mean_1.value(),self.tra_jitter_sigma_1.value(),self.use_trajitt_nr_1.isChecked()], 
-        [self.tra_jitter_mean_2.value(),self.tra_jitter_sigma_2.value(),self.use_trajitt_nr_2.isChecked()], 
-        [self.tra_jitter_mean_3.value(),self.tra_jitter_sigma_3.value(),self.use_trajitt_nr_3.isChecked()], 
-        [self.tra_jitter_mean_4.value(),self.tra_jitter_sigma_4.value(),self.use_trajitt_nr_4.isChecked()], 
-        [self.tra_jitter_mean_5.value(),self.tra_jitter_sigma_5.value(),self.use_trajitt_nr_5.isChecked()],   
-        [self.tra_jitter_mean_6.value(),self.tra_jitter_sigma_6.value(),self.use_trajitt_nr_6.isChecked()], 
-        [self.tra_jitter_mean_7.value(),self.tra_jitter_sigma_7.value(),self.use_trajitt_nr_7.isChecked()], 
-        [self.tra_jitter_mean_8.value(),self.tra_jitter_sigma_8.value(),self.use_trajitt_nr_8.isChecked()], 
-        [self.tra_jitter_mean_9.value(),self.tra_jitter_sigma_9.value(),self.use_trajitt_nr_9.isChecked()], 
-        [self.tra_jitter_mean_10.value(),self.tra_jitter_sigma_10.value(),self.use_trajitt_nr_10.isChecked()]
-        ]
-        
-    
         for i in range(10): 
-            fit.tra_off_norm_pr[i] = offset_nr_priors_gui_tra[i]
-            fit.tra_jitt_norm_pr[i] = jitter_nr_priors_gui_tra[i] 
+            for z in range(2):
+
+                fit.tra_off_norm_pr[i][z]  = self.offset_nr_priors_gui_tra[i][z].value()
+                fit.tra_jitt_norm_pr[i][z] = self.jitter_nr_priors_gui_tra[i][z].value()
+            fit.tra_off_norm_pr[i][2]  = self.offset_nr_priors_gui_tra[i][2].isChecked()
+            fit.tra_jitt_norm_pr[i][2] = self.jitter_nr_priors_gui_tra[i][2].isChecked()
 
         self.check_RV_GP_priors_nr()
         self.check_tra_GP_priors_nr()
-    
-    
+
+
 
     def check_RV_GP_priors_nr(self):
         global fit
 
- 
         GP_rot_nr_priors_gui = [
         [self.GP_rot_kernel_Amp_mean.value(),self.GP_rot_kernel_Amp_sigma.value(),self.use_GP_rot_kernel_Amp_nr_pr.isChecked()],  
         [self.GP_rot_kernel_time_sc_mean.value(),self.GP_rot_kernel_time_sc_sigma.value(),self.use_GP_rot_kernel_time_sc_nr_pr.isChecked()],  
         [self.GP_rot_kernel_Per_mean.value(),self.GP_rot_kernel_Per_sigma.value(),self.use_GP_rot_kernel_Per_sigma_nr_pr.isChecked()],  
         [self.GP_rot_kernel_fact_mean.value(),self.GP_rot_kernel_fact_sigma.value(),self.use_GP_rot_kernel_fact_nr_pr.isChecked()],  
         ]
- 
+
         for i in range(4): 
-            fit.GP_rot_norm_pr[i] = GP_rot_nr_priors_gui[i]            
-    
+            fit.GP_rot_norm_pr[i] = GP_rot_nr_priors_gui[i]
+
 
         GP_sho_nr_priors_gui = [
         [self.GP_sho_kernel_S_mean.value(),self.GP_sho_kernel_S_sigma.value(), self.use_GP_sho_kernel_S_nr_pr.isChecked()],  
@@ -1099,37 +1095,13 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.pl_a_jeff_pr[i][2]   =   self.param_jeff_priors_gui[10*i + 9][2].isChecked()
 
 
-        offset_jeff_priors_gui = [
-        [self.RV_Data_jeff_alpha_1.value(),self.RV_Data_jeff_beta_1.value(),self.use_rvoff_jeff_1.isChecked()], 
-        [self.RV_Data_jeff_alpha_2.value(),self.RV_Data_jeff_beta_2.value(),self.use_rvoff_jeff_2.isChecked()], 
-        [self.RV_Data_jeff_alpha_3.value(),self.RV_Data_jeff_beta_3.value(),self.use_rvoff_jeff_3.isChecked()], 
-        [self.RV_Data_jeff_alpha_4.value(),self.RV_Data_jeff_beta_4.value(),self.use_rvoff_jeff_4.isChecked()], 
-        [self.RV_Data_jeff_alpha_5.value(),self.RV_Data_jeff_beta_5.value(),self.use_rvoff_jeff_5.isChecked()], 
-        [self.RV_Data_jeff_alpha_6.value(),self.RV_Data_jeff_beta_6.value(),self.use_rvoff_jeff_6.isChecked()], 
-        [self.RV_Data_jeff_alpha_7.value(),self.RV_Data_jeff_beta_7.value(),self.use_rvoff_jeff_7.isChecked()], 
-        [self.RV_Data_jeff_alpha_8.value(),self.RV_Data_jeff_beta_8.value(),self.use_rvoff_jeff_8.isChecked()], 
-        [self.RV_Data_jeff_alpha_9.value(),self.RV_Data_jeff_beta_9.value(),self.use_rvoff_jeff_9.isChecked()], 
-        [self.RV_Data_jeff_alpha_10.value(),self.RV_Data_jeff_beta_10.value(),self.use_rvoff_jeff_10.isChecked()]
-        ]
-        
-        jitter_jeff_priors_gui = [
-        [self.RV_jitter_jeff_alpha_1.value(),self.RV_jitter_jeff_beta_1.value(),self.use_rvjitt_jeff_1.isChecked()], 
-        [self.RV_jitter_jeff_alpha_2.value(),self.RV_jitter_jeff_beta_2.value(),self.use_rvjitt_jeff_2.isChecked()], 
-        [self.RV_jitter_jeff_alpha_3.value(),self.RV_jitter_jeff_beta_3.value(),self.use_rvjitt_jeff_3.isChecked()], 
-        [self.RV_jitter_jeff_alpha_4.value(),self.RV_jitter_jeff_beta_4.value(),self.use_rvjitt_jeff_4.isChecked()], 
-        [self.RV_jitter_jeff_alpha_5.value(),self.RV_jitter_jeff_beta_5.value(),self.use_rvjitt_jeff_5.isChecked()], 
-        [self.RV_jitter_jeff_alpha_6.value(),self.RV_jitter_jeff_beta_6.value(),self.use_rvjitt_jeff_6.isChecked()],
-        [self.RV_jitter_jeff_alpha_7.value(),self.RV_jitter_jeff_beta_7.value(),self.use_rvjitt_jeff_7.isChecked()], 
-        [self.RV_jitter_jeff_alpha_8.value(),self.RV_jitter_jeff_beta_8.value(),self.use_rvjitt_jeff_8.isChecked()], 
-        [self.RV_jitter_jeff_alpha_9.value(),self.RV_jitter_jeff_beta_9.value(),self.use_rvjitt_jeff_9.isChecked()], 
-        [self.RV_jitter_jeff_alpha_10.value(),self.RV_jitter_jeff_beta_10.value(),self.use_rvjitt_jeff_10.isChecked()]   
-        ]  
-    
-    
         for i in range(10): 
-            fit.rvoff_jeff_pr[i] = offset_jeff_priors_gui[i]
-            fit.jitt_jeff_pr[i]  = jitter_jeff_priors_gui[i] 
+            for z in range(2):
 
+                fit.rvoff_jeff_pr[i][z] = self.offset_jeff_priors_gui[i][z].value()
+                fit.jitt_jeff_pr[i][z]  = self.jitter_jeff_priors_gui[i][z].value()
+            fit.rvoff_jeff_pr[i][2] = self.offset_jeff_priors_gui[i][2].isChecked()
+            fit.jitt_jeff_pr[i][2]  = self.jitter_jeff_priors_gui[i][2].isChecked()
 
         om_dot_jeff_priors_gui = [
         [self.omega_dot_alpha_1.value(),self.omega_dot_beta_1.value(),self.use_omega_dot_jeff_pr_1.isChecked()], [self.omega_dot_alpha_2.value(),self.omega_dot_beta_2.value(),self.use_omega_dot_jeff_pr_2.isChecked()], 
@@ -1147,37 +1119,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         fit.rv_lintr_jeff_pr[0]  = [self.lin_trend_jeff_alpha.value(),self.lin_trend_jeff_beta.value(),self.use_lin_tr_jeff_pr.isChecked()]
 
 
-        offset_jeff_priors_gui_tra = [
-        [self.tra_Data_alpha_1.value(),self.tra_Data_beta_1.value(),self.use_traoff_jeff_1.isChecked()], 
-        [self.tra_Data_alpha_2.value(),self.tra_Data_beta_2.value(),self.use_traoff_jeff_2.isChecked()], 
-        [self.tra_Data_alpha_3.value(),self.tra_Data_beta_3.value(),self.use_traoff_jeff_3.isChecked()], 
-        [self.tra_Data_alpha_4.value(),self.tra_Data_beta_4.value(),self.use_traoff_jeff_4.isChecked()], 
-        [self.tra_Data_alpha_5.value(),self.tra_Data_beta_5.value(),self.use_traoff_jeff_5.isChecked()],   
-        [self.tra_Data_alpha_6.value(),self.tra_Data_beta_6.value(),self.use_traoff_jeff_6.isChecked()], 
-        [self.tra_Data_alpha_7.value(),self.tra_Data_beta_7.value(),self.use_traoff_jeff_7.isChecked()], 
-        [self.tra_Data_alpha_8.value(),self.tra_Data_beta_8.value(),self.use_traoff_jeff_8.isChecked()], 
-        [self.tra_Data_alpha_9.value(),self.tra_Data_beta_9.value(),self.use_traoff_jeff_9.isChecked()], 
-        [self.tra_Data_alpha_10.value(),self.tra_Data_beta_10.value(),self.use_traoff_jeff_10.isChecked()]
-        ]
-        
-        jitter_jeff_priors_gui_tra = [
-        [self.tra_jitter_alpha_1.value(),self.tra_jitter_beta_1.value(),self.use_trajitt_jeff_1.isChecked()],
-        [self.tra_jitter_alpha_2.value(),self.tra_jitter_beta_2.value(),self.use_trajitt_jeff_2.isChecked()], 
-        [self.tra_jitter_alpha_3.value(),self.tra_jitter_beta_3.value(),self.use_trajitt_jeff_3.isChecked()], 
-        [self.tra_jitter_alpha_4.value(),self.tra_jitter_beta_4.value(),self.use_trajitt_jeff_4.isChecked()], 
-        [self.tra_jitter_alpha_5.value(),self.tra_jitter_beta_5.value(),self.use_trajitt_jeff_5.isChecked()],   
-        [self.tra_jitter_alpha_6.value(),self.tra_jitter_beta_6.value(),self.use_trajitt_jeff_6.isChecked()], 
-        [self.tra_jitter_alpha_7.value(),self.tra_jitter_beta_7.value(),self.use_trajitt_jeff_7.isChecked()], 
-        [self.tra_jitter_alpha_8.value(),self.tra_jitter_beta_8.value(),self.use_trajitt_jeff_8.isChecked()], 
-        [self.tra_jitter_alpha_9.value(),self.tra_jitter_beta_9.value(),self.use_trajitt_jeff_9.isChecked()], 
-        [self.tra_jitter_alpha_10.value(),self.tra_jitter_beta_10.value(),self.use_trajitt_jeff_10.isChecked()]
-        ]
-        
+
     
         for i in range(10): 
-            fit.tra_off_jeff_pr[i] = offset_jeff_priors_gui_tra[i]
-            fit.tra_jitt_jeff_pr[i] = jitter_jeff_priors_gui_tra[i] 
-
+            for z in range(2):
+                fit.tra_off_jeff_pr[i][z]  = self.offset_jeff_priors_gui_tra[i][z].value()
+                fit.tra_jitt_jeff_pr[i][z] = self.jitter_jeff_priors_gui_tra[i][z].value() 
+            fit.tra_off_jeff_pr[i][2]  = self.offset_jeff_priors_gui_tra[i][2].isChecked()
+            fit.tra_jitt_jeff_pr[i][2] = self.jitter_jeff_priors_gui_tra[i][2].isChecked()
+            
+            
         self.check_RV_GP_priors_jeff()
         self.check_tra_GP_priors_jeff()
     
@@ -3926,14 +3877,14 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         # A hack when .ses are imported from the Example directory... TBFixed
         fit.cwd = os.getcwd()
 
+        #self.fit_dispatcher(init=True)
+
         minimize_fortran=True
         if fit.model_saved == False or len(fit.fit_results.rv_model.jd) != len(fit.filelist.idset):
             fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran, doGP=fit.doGP,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value(),return_flag=True)
+            #self.fit_dispatcher(init=True)
 
-
-            #fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=fit.doGP, minimize_fortran=minimize_fortran,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
-
-
+ 
             for i in range(fit.npl):
                  rv.phase_RV_planet_signal(fit,i+1)
         
@@ -4297,7 +4248,7 @@ Transit duration: %s d
                          
         self.statusBar().showMessage('')  
         
-        self.button_fit.setEnabled(True)         
+        self.button_fit.setEnabled(True)
         
         if fit.bound_error == True:
             self.get_error_msg(fit.bound_error_msg)
@@ -4458,7 +4409,7 @@ Transit duration: %s d
         self.update_labels()
         self.update_gui_params()
         self.update_errors() 
-        self.update_a_mass()                 
+        self.update_a_mass()
         
         #print(fit.fit_results.mass)
 
@@ -4674,7 +4625,7 @@ Transit duration: %s d
     def worker_RV_fitting_complete(self):
         global fit  
         
-#        start_time =time.time()   
+       # start_time =time.time()   
         fit=rv.get_xyz(fit)
 
         self.update_labels()
@@ -4683,7 +4634,7 @@ Transit duration: %s d
         self.update_a_mass()
         self.update_plots()
         self.jupiter_push_vars() 
-
+        #print("--- %s seconds ---" % (time.time() - start_time))     
         self.statusBar().showMessage('')
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
         self.button_fit.setEnabled(True)  
@@ -5462,6 +5413,7 @@ highly appreciated!
         self.update_bounds()
 
         self.init_fit()
+        
 
         self.update_use_from_input_file()
         self.update_use()
@@ -5474,7 +5426,9 @@ highly appreciated!
 
         self.update_act_file_buttons()
         self.update_color_picker()
-        
+
+
+
         if not ind == None:
             ses_list[ind] = fit 
  
@@ -5892,7 +5846,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def change_corner_plot_file_name(self, type_plot = "mcmc"):
         global fit
         
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the corener plot', '', 'Data (*.png)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the corener plot', '', 'All (*.*);;Data (*.pdf);;Data (*.png)', options=QtGui.QFileDialog.DontUseNativeDialog)
         if output_file[0] != '':
             if type_plot == "mcmc":
                 fit.mcmc_corner_plot_file = output_file[0] 
@@ -7198,6 +7152,8 @@ If this does not help, please open a GitHub issue here:
         self.param_bounds_gui  = gui_groups.param_bounds_gui(self)
         self.offset_bounds_gui = gui_groups.offset_bounds_gui(self)
         self.jitter_bounds_gui = gui_groups.jitter_bounds_gui(self)
+        self.offset_bounds_gui_tra = gui_groups.offset_bounds_gui_tra(self)
+        self.jitter_bounds_gui_tra = gui_groups.jitter_bounds_gui_tra(self)
 
         self.param_gui         = gui_groups.param_gui(self)
         self.use_param_gui     = gui_groups.use_param_gui(self)
@@ -7309,12 +7265,25 @@ If this does not help, please open a GitHub issue here:
         
         self.data_ld_group        = gui_groups.data_ld_group(self)
 
-        ########### TEMP ##############
-        self.TTV_readme_info.clicked.connect(lambda: self.print_TTV_info()) 
+
 
         self.param_nr_priors_gui = gui_groups.param_nr_priors_gui(self)
-        
         self.param_jeff_priors_gui = gui_groups.param_jeff_priors_gui(self)
+
+        
+        self.offset_nr_priors_gui = gui_groups.offset_nr_priors_gui(self)
+        self.jitter_nr_priors_gui = gui_groups.jitter_nr_priors_gui(self)
+        self.offset_jeff_priors_gui = gui_groups.offset_jeff_priors_gui(self)
+        self.jitter_jeff_priors_gui = gui_groups.jitter_jeff_priors_gui(self)
+
+
+        self.offset_nr_priors_gui_tra = gui_groups.offset_nr_priors_gui_tra(self)
+        self.jitter_nr_priors_gui_tra = gui_groups.jitter_nr_priors_gui_tra(self)
+        self.offset_jeff_priors_gui_tra = gui_groups.offset_jeff_priors_gui_tra(self)
+        self.jitter_jeff_priors_gui_tra = gui_groups.jitter_jeff_priors_gui_tra(self)
+
+        ########### TEMP ##############
+        self.TTV_readme_info.clicked.connect(lambda: self.print_TTV_info()) 
 
         self.initialize_buttons()
         self.initialize_plots()   

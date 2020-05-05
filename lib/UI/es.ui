@@ -61902,7 +61902,7 @@
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
-                      <width>248</width>
+                      <width>249</width>
                       <height>20</height>
                      </size>
                     </property>
@@ -66002,7 +66002,7 @@
              </sizepolicy>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>2</number>
             </property>
             <property name="movable">
              <bool>true</bool>
@@ -66015,7 +66015,7 @@
               <item row="0" column="1">
                <widget class="QTabWidget" name="tabWidget_25">
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>2</number>
                 </property>
                 <property name="movable">
                  <bool>true</bool>
@@ -70687,7 +70687,7 @@
                  </font>
                 </property>
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>2</number>
                 </property>
                 <widget class="QWidget" name="tab_86">
                  <attribute name="title">
@@ -70713,13 +70713,16 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="maximum">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.001000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -70730,14 +70733,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -70764,16 +70773,16 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="maximum">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.001000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -70812,14 +70821,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -70830,17 +70845,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -70851,14 +70869,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -70870,13 +70894,16 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="maximum">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.001000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -70887,14 +70914,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -70921,16 +70954,16 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="maximum">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.001000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -70956,14 +70989,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -70975,13 +71014,16 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="maximum">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.001000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -70992,14 +71034,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71011,13 +71059,13 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-0.010000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>99.000000000000000</double>
+                       <double>9.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>0.010000000000000</double>
@@ -71034,17 +71082,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71071,13 +71122,16 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="maximum">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.001000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71088,17 +71142,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71110,13 +71167,16 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="maximum">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.001000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71139,14 +71199,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71173,13 +71239,16 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="maximum">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.001000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71220,17 +71289,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71241,17 +71313,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71262,17 +71337,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71283,17 +71361,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71305,13 +71386,13 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-0.010000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>99.000000000000000</double>
+                       <double>9.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>0.010000000000000</double>
@@ -71329,13 +71410,13 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-0.010000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>99.000000000000000</double>
+                       <double>9.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>0.010000000000000</double>
@@ -71353,13 +71434,13 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-0.010000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>99.000000000000000</double>
+                       <double>9.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>0.010000000000000</double>
@@ -71377,13 +71458,13 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-0.010000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>99.000000000000000</double>
+                       <double>9.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>0.010000000000000</double>
@@ -71400,17 +71481,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71421,17 +71505,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71442,17 +71529,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71464,13 +71554,16 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="maximum">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.001000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71481,17 +71574,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71515,14 +71611,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71560,13 +71662,13 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-0.010000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>99.000000000000000</double>
+                       <double>9.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>0.010000000000000</double>
@@ -71595,17 +71697,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>100000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.100000000000000</double>
                       </property>
                       <property name="value">
-                       <double>-100000.000000000000000</double>
+                       <double>-10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -71697,13 +71802,13 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-0.010000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>99.000000000000000</double>
+                       <double>9.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>0.010000000000000</double>
@@ -71721,13 +71826,13 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-0.010000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>99.000000000000000</double>
+                       <double>9.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>0.010000000000000</double>
@@ -71745,13 +71850,13 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-0.010000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>99.000000000000000</double>
+                       <double>9.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>0.010000000000000</double>
@@ -71862,13 +71967,13 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-0.010000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>99.000000000000000</double>
+                       <double>9.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>0.010000000000000</double>
@@ -71990,13 +72095,16 @@
                        </font>
                       </property>
                       <property name="decimals">
-                       <number>3</number>
+                       <number>7</number>
                       </property>
                       <property name="maximum">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.001000000000000</double>
                       </property>
                       <property name="value">
-                       <double>100.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -72057,17 +72165,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-10000.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>1.000000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -72077,6 +72188,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -72099,6 +72213,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -72119,6 +72236,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -72141,6 +72261,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -72162,14 +72285,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-10000.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -72179,6 +72305,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -72201,6 +72330,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -72221,6 +72353,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -72250,6 +72385,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -72271,6 +72409,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -72291,6 +72432,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -72325,14 +72469,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-10000.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -72354,6 +72501,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -72428,6 +72578,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -72449,17 +72602,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-10000.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>1.000000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -72469,6 +72625,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -72490,6 +72649,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -72519,6 +72681,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -72537,6 +72702,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -72554,6 +72722,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -72585,6 +72756,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -72603,6 +72777,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -72620,6 +72797,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -72642,6 +72822,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -72663,14 +72846,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-10000.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -72680,6 +72866,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -72699,6 +72888,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -72716,6 +72908,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -72735,14 +72930,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-10000.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -72768,14 +72966,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-10000.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -72792,6 +72993,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -72814,6 +73018,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -72835,14 +73042,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-10000.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -72852,6 +73062,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -72873,6 +73086,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-10000.000000000000000</double>
@@ -72972,14 +73188,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-10000.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73005,14 +73224,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-10000.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73022,6 +73244,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -73093,6 +73318,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -73306,17 +73534,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-10000.000000000000000</double>
+                       <double>0.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73326,6 +73557,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -73348,6 +73582,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -73368,6 +73605,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -73390,6 +73630,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -73411,14 +73654,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-10000.000000000000000</double>
+                       <double>0.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73428,6 +73677,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -73450,6 +73702,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -73470,6 +73725,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -73499,6 +73757,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -73520,6 +73781,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -73540,6 +73804,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -73574,14 +73841,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-10000.000000000000000</double>
+                       <double>0.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73603,6 +73876,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -73677,6 +73953,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -73698,17 +73977,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-10000.000000000000000</double>
+                       <double>0.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73718,6 +74000,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -73739,6 +74024,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -73768,14 +74056,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-0.000100000000000</double>
                       </property>
                       <property name="maximum">
                        <double>100000.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.001000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73786,14 +74077,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-0.000100000000000</double>
                       </property>
                       <property name="maximum">
                        <double>100000.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.001000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73804,14 +74098,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-0.000100000000000</double>
                       </property>
                       <property name="maximum">
                        <double>100000.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.001000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73834,14 +74131,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-0.000100000000000</double>
                       </property>
                       <property name="maximum">
                        <double>100000.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.001000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73852,14 +74152,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-0.000100000000000</double>
                       </property>
                       <property name="maximum">
                        <double>100000.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.001000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73869,6 +74172,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -73891,6 +74197,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -73912,14 +74221,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-10000.000000000000000</double>
+                       <double>0.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73930,14 +74245,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-0.000100000000000</double>
                       </property>
                       <property name="maximum">
                        <double>100000.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.001000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73948,14 +74266,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-0.000100000000000</double>
                       </property>
                       <property name="maximum">
                        <double>100000.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.001000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73966,14 +74287,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-0.000100000000000</double>
                       </property>
                       <property name="maximum">
                        <double>100000.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.001000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -73984,14 +74308,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-10000.000000000000000</double>
+                       <double>0.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -74017,14 +74347,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-10000.000000000000000</double>
+                       <double>0.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -74041,6 +74377,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -74063,6 +74402,9 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
                       </property>
@@ -74084,14 +74426,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-10000.000000000000000</double>
+                       <double>0.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -74101,6 +74449,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -74123,14 +74474,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-10000.000000000000000</double>
+                       <double>-0.000100000000000</double>
                       </property>
                       <property name="maximum">
                        <double>10000.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.001000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -74221,14 +74575,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-10000.000000000000000</double>
+                       <double>0.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -74254,14 +74614,20 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-10000.000000000000000</double>
+                       <double>0.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>10000.000000000000000</double>
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1000.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -74272,14 +74638,17 @@
                         <pointsize>9</pointsize>
                        </font>
                       </property>
+                      <property name="decimals">
+                       <number>7</number>
+                      </property>
                       <property name="minimum">
-                       <double>-100000.000000000000000</double>
+                       <double>-0.000100000000000</double>
                       </property>
                       <property name="maximum">
                        <double>100000.000000000000000</double>
                       </property>
                       <property name="singleStep">
-                       <double>1.000000000000000</double>
+                       <double>0.001000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -74342,6 +74711,9 @@
                        <font>
                         <pointsize>9</pointsize>
                        </font>
+                      </property>
+                      <property name="decimals">
+                       <number>7</number>
                       </property>
                       <property name="minimum">
                        <double>-100000.000000000000000</double>
@@ -78791,7 +79163,11 @@
          </attribute>
          <layout class="QGridLayout" name="gridLayout_90">
           <item row="0" column="0">
-           <layout class="QGridLayout" name="gridLayout_text_editor"/>
+           <layout class="QGridLayout" name="gridLayout_text_editor">
+            <item row="0" column="0">
+             <widget class="QWidget" name="widget_text_editor" native="true"/>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -78801,7 +79177,21 @@
          </attribute>
          <layout class="QGridLayout" name="gridLayout_91">
           <item row="0" column="0">
-           <layout class="QGridLayout" name="gridLayout_calculator"/>
+           <layout class="QGridLayout" name="gridLayout_calculator">
+            <item row="0" column="0">
+             <widget class="QWidget" name="widget_calculator" native="true">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
