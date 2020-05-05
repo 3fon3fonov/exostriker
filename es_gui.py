@@ -7365,6 +7365,39 @@ If this does not help, please open a GitHub issue here:
         if debug == False:
             self.pipe_text = MyDialog()
         else:
+            try:
+                import pkg_resources 
+                     # list packages to be checked 
+                root_packages = [ 
+                    'numpy', 
+                    'scipy', 
+                    'matplotlib',
+                    'pyqt5',  
+                    'qtconsole',
+                    'jupyter-client',
+                    'ipykernel',
+                    'jupyter', 
+                    'pathos', 
+                    'emcee',
+                    'celerite', 
+                    'transitleastsquares',
+                    'dynesty', 
+                    'ttvfast',
+                    'wotan'] 
+                
+                
+                #root_packages.sort(reverse=True)
+                     # print versions, but check if package is imported first 
+                for m in pkg_resources.working_set: 
+                    if m.project_name.lower() in root_packages: 
+                        print(f"{m.project_name}=={m.version}") 
+                    #else:
+                    #    print(f"{m.project_name}== Not found!")
+
+            except:
+                print(" It seems that you have missing packages!")
+                pass
+
             self.pipe_text = DebugDialog()
 
         self.gridLayout_stdout.addWidget(self.pipe_text)
