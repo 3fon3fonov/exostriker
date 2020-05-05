@@ -53,7 +53,7 @@ def transit_tperi(per, ecc, om, ma, epoch):
         if the epoch in is BJD then tp and t0 are also in BJD.
     """
     om = np.radians(om)
-    ma = np.radians(ma)
+    ma = np.radians(ma)  # forgotten! Either E or M0
 
     E = 2.0*np.arctan( np.sqrt( ( (1.0-ecc)/(1.0+ecc) ) ) * np.tan( (np.pi/4.0)-(om/2.0) ) )
     t_peri    = epoch  - ((ma/TAU)*per)

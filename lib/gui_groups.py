@@ -305,6 +305,35 @@ def jitter_bounds_gui(self):
     return jitter_bounds_gui
 
 
+
+
+def offset_bounds_gui_tra(self):
+    
+    offset_bounds_gui_tra = [
+    [self.tra_Data_min_1,self.tra_Data_max_1], [self.tra_Data_min_2,self.tra_Data_max_2], [self.tra_Data_min_3,self.tra_Data_max_3],
+    [self.tra_Data_min_4,self.tra_Data_max_4], [self.tra_Data_min_5,self.tra_Data_max_5], [self.tra_Data_min_6,self.tra_Data_max_6],
+    [self.tra_Data_min_7,self.tra_Data_max_7], [self.tra_Data_min_8,self.tra_Data_max_8], [self.tra_Data_min_9,self.tra_Data_max_9],
+    [self.tra_Data_min_10,self.tra_Data_max_10]
+    ]
+
+    return offset_bounds_gui_tra
+
+
+
+def jitter_bounds_gui_tra(self):  
+      
+    jitter_bounds_gui_tra = [
+            [self.tra_jitter_min_1,self.tra_jitter_max_1],[self.tra_jitter_min_2,self.tra_jitter_max_2],
+            [self.tra_jitter_min_3,self.tra_jitter_max_3],[self.tra_jitter_min_4,self.tra_jitter_max_4],
+            [self.tra_jitter_min_5,self.tra_jitter_max_5],[self.tra_jitter_min_6,self.tra_jitter_max_6],
+            [self.tra_jitter_min_7,self.tra_jitter_max_7],[self.tra_jitter_min_8,self.tra_jitter_max_8],
+            [self.tra_jitter_min_9,self.tra_jitter_max_9],[self.tra_jitter_min_10,self.tra_jitter_max_10]
+    ]
+
+    return jitter_bounds_gui_tra
+
+
+
 ################### OmDot ########################
 
 def om_dot_bounds_gui(self):
@@ -598,6 +627,81 @@ def param_nr_priors_gui(self):
 
 
 
+def offset_nr_priors_gui(self):
+
+
+        offset_nr_priors_gui = [
+        [self.RV_Data_mean_1,self.RV_Data_sigma_1,self.use_rvoff_nr_1], 
+        [self.RV_Data_mean_2,self.RV_Data_sigma_2,self.use_rvoff_nr_2], 
+        [self.RV_Data_mean_3,self.RV_Data_sigma_3,self.use_rvoff_nr_3], 
+        [self.RV_Data_mean_4,self.RV_Data_sigma_4,self.use_rvoff_nr_4], 
+        [self.RV_Data_mean_5,self.RV_Data_sigma_5,self.use_rvoff_nr_5], 
+        [self.RV_Data_mean_6,self.RV_Data_sigma_6,self.use_rvoff_nr_6], 
+        [self.RV_Data_mean_7,self.RV_Data_sigma_7,self.use_rvoff_nr_7], 
+        [self.RV_Data_mean_8,self.RV_Data_sigma_8,self.use_rvoff_nr_8], 
+        [self.RV_Data_mean_9,self.RV_Data_sigma_9,self.use_rvoff_nr_9], 
+        [self.RV_Data_mean_10,self.RV_Data_sigma_10,self.use_rvoff_nr_10]
+        ]
+        
+        return offset_nr_priors_gui
+        
+    
+    
+def jitter_nr_priors_gui(self):
+
+        jitter_nr_priors_gui = [
+        [self.RV_jitter_mean_1,self.RV_jitter_sigma_1,self.use_rvjitt_nr_1], 
+        [self.RV_jitter_mean_2,self.RV_jitter_sigma_2,self.use_rvjitt_nr_2], 
+        [self.RV_jitter_mean_3,self.RV_jitter_sigma_3,self.use_rvjitt_nr_3], 
+        [self.RV_jitter_mean_4,self.RV_jitter_sigma_4,self.use_rvjitt_nr_4], 
+        [self.RV_jitter_mean_5,self.RV_jitter_sigma_5,self.use_rvjitt_nr_5], 
+        [self.RV_jitter_mean_6,self.RV_jitter_sigma_6,self.use_rvjitt_nr_6],
+        [self.RV_jitter_mean_7,self.RV_jitter_sigma_7,self.use_rvjitt_nr_7], 
+        [self.RV_jitter_mean_8,self.RV_jitter_sigma_8,self.use_rvjitt_nr_8], 
+        [self.RV_jitter_mean_9,self.RV_jitter_sigma_9,self.use_rvjitt_nr_9], 
+        [self.RV_jitter_mean_10,self.RV_jitter_sigma_10,self.use_rvjitt_nr_10]
+        ]
+        
+        return jitter_nr_priors_gui
+    
+    
+def offset_nr_priors_gui_tra(self):
+
+
+        offset_nr_priors_gui_tra = [
+        [self.tra_Data_mean_1,self.tra_Data_sigma_1,self.use_traoff_nr_1], 
+        [self.tra_Data_mean_2,self.tra_Data_sigma_2,self.use_traoff_nr_2], 
+        [self.tra_Data_mean_3,self.tra_Data_sigma_3,self.use_traoff_nr_3], 
+        [self.tra_Data_mean_4,self.tra_Data_sigma_4,self.use_traoff_nr_4], 
+        [self.tra_Data_mean_5,self.tra_Data_sigma_5,self.use_traoff_nr_5], 
+        [self.tra_Data_mean_6,self.tra_Data_sigma_6,self.use_traoff_nr_6], 
+        [self.tra_Data_mean_7,self.tra_Data_sigma_7,self.use_traoff_nr_7], 
+        [self.tra_Data_mean_8,self.tra_Data_sigma_8,self.use_traoff_nr_8], 
+        [self.tra_Data_mean_9,self.tra_Data_sigma_9,self.use_traoff_nr_9], 
+        [self.tra_Data_mean_10,self.tra_Data_sigma_10,self.use_traoff_nr_10]
+        ]
+        
+        return offset_nr_priors_gui_tra
+        
+    
+    
+def jitter_nr_priors_gui_tra(self):
+
+        jitter_nr_priors_gui_tra = [
+        [self.tra_jitter_mean_1,self.tra_jitter_sigma_1,self.use_trajitt_nr_1], 
+        [self.tra_jitter_mean_2,self.tra_jitter_sigma_2,self.use_trajitt_nr_2], 
+        [self.tra_jitter_mean_3,self.tra_jitter_sigma_3,self.use_trajitt_nr_3], 
+        [self.tra_jitter_mean_4,self.tra_jitter_sigma_4,self.use_trajitt_nr_4], 
+        [self.tra_jitter_mean_5,self.tra_jitter_sigma_5,self.use_trajitt_nr_5], 
+        [self.tra_jitter_mean_6,self.tra_jitter_sigma_6,self.use_trajitt_nr_6],
+        [self.tra_jitter_mean_7,self.tra_jitter_sigma_7,self.use_trajitt_nr_7], 
+        [self.tra_jitter_mean_8,self.tra_jitter_sigma_8,self.use_trajitt_nr_8], 
+        [self.tra_jitter_mean_9,self.tra_jitter_sigma_9,self.use_trajitt_nr_9], 
+        [self.tra_jitter_mean_10,self.tra_jitter_sigma_10,self.use_trajitt_nr_10]
+        ]
+        
+        return jitter_nr_priors_gui_tra
+
 ################# Jeff Prior ################
     
 
@@ -616,6 +720,89 @@ def param_jeff_priors_gui(self):
         ]
 
         return param_jeff_priors_gui
+    
+    
+    
+    
+def offset_jeff_priors_gui(self):
+
+
+        offset_jeff_priors_gui = [
+        [self.RV_Data_jeff_alpha_1,self.RV_Data_jeff_beta_1,self.use_rvoff_jeff_1], 
+        [self.RV_Data_jeff_alpha_2,self.RV_Data_jeff_beta_2,self.use_rvoff_jeff_2], 
+        [self.RV_Data_jeff_alpha_3,self.RV_Data_jeff_beta_3,self.use_rvoff_jeff_3], 
+        [self.RV_Data_jeff_alpha_4,self.RV_Data_jeff_beta_4,self.use_rvoff_jeff_4], 
+        [self.RV_Data_jeff_alpha_5,self.RV_Data_jeff_beta_5,self.use_rvoff_jeff_5], 
+        [self.RV_Data_jeff_alpha_6,self.RV_Data_jeff_beta_6,self.use_rvoff_jeff_6], 
+        [self.RV_Data_jeff_alpha_7,self.RV_Data_jeff_beta_7,self.use_rvoff_jeff_7], 
+        [self.RV_Data_jeff_alpha_8,self.RV_Data_jeff_beta_8,self.use_rvoff_jeff_8], 
+        [self.RV_Data_jeff_alpha_9,self.RV_Data_jeff_beta_9,self.use_rvoff_jeff_9], 
+        [self.RV_Data_jeff_alpha_10,self.RV_Data_jeff_beta_10,self.use_rvoff_jeff_10]
+        ]
+        
+        return offset_jeff_priors_gui
+        
+    
+    
+def jitter_jeff_priors_gui(self):
+
+        jitter_jeff_priors_gui = [
+        [self.RV_jitter_jeff_alpha_1,self.RV_jitter_jeff_beta_1,self.use_rvjitt_jeff_1], 
+        [self.RV_jitter_jeff_alpha_2,self.RV_jitter_jeff_beta_2,self.use_rvjitt_jeff_2], 
+        [self.RV_jitter_jeff_alpha_3,self.RV_jitter_jeff_beta_3,self.use_rvjitt_jeff_3], 
+        [self.RV_jitter_jeff_alpha_4,self.RV_jitter_jeff_beta_4,self.use_rvjitt_jeff_4], 
+        [self.RV_jitter_jeff_alpha_5,self.RV_jitter_jeff_beta_5,self.use_rvjitt_jeff_5], 
+        [self.RV_jitter_jeff_alpha_6,self.RV_jitter_jeff_beta_6,self.use_rvjitt_jeff_6],
+        [self.RV_jitter_jeff_alpha_7,self.RV_jitter_jeff_beta_7,self.use_rvjitt_jeff_7], 
+        [self.RV_jitter_jeff_alpha_8,self.RV_jitter_jeff_beta_8,self.use_rvjitt_jeff_8], 
+        [self.RV_jitter_jeff_alpha_9,self.RV_jitter_jeff_beta_9,self.use_rvjitt_jeff_9], 
+        [self.RV_jitter_jeff_alpha_10,self.RV_jitter_jeff_beta_10,self.use_rvjitt_jeff_10]
+        ]
+        
+        return jitter_jeff_priors_gui
+
+
+
+
+def offset_jeff_priors_gui_tra(self):
+
+
+        offset_jeff_priors_gui_tra = [
+        [self.tra_Data_alpha_1,self.tra_Data_beta_1,self.use_traoff_jeff_1], 
+        [self.tra_Data_alpha_2,self.tra_Data_beta_2,self.use_traoff_jeff_2], 
+        [self.tra_Data_alpha_3,self.tra_Data_beta_3,self.use_traoff_jeff_3], 
+        [self.tra_Data_alpha_4,self.tra_Data_beta_4,self.use_traoff_jeff_4], 
+        [self.tra_Data_alpha_5,self.tra_Data_beta_5,self.use_traoff_jeff_5], 
+        [self.tra_Data_alpha_6,self.tra_Data_beta_6,self.use_traoff_jeff_6], 
+        [self.tra_Data_alpha_7,self.tra_Data_beta_7,self.use_traoff_jeff_7], 
+        [self.tra_Data_alpha_8,self.tra_Data_beta_8,self.use_traoff_jeff_8], 
+        [self.tra_Data_alpha_9,self.tra_Data_beta_9,self.use_traoff_jeff_9], 
+        [self.tra_Data_alpha_10,self.tra_Data_beta_10,self.use_traoff_jeff_10]
+        ]
+        
+        return offset_jeff_priors_gui_tra
+        
+    
+    
+def jitter_jeff_priors_gui_tra(self):
+
+        jitter_jeff_priors_gui_tra = [
+        [self.tra_jitter_alpha_1,self.tra_jitter_beta_1,self.use_trajitt_jeff_1], 
+        [self.tra_jitter_alpha_2,self.tra_jitter_beta_2,self.use_trajitt_jeff_2], 
+        [self.tra_jitter_alpha_3,self.tra_jitter_beta_3,self.use_trajitt_jeff_3], 
+        [self.tra_jitter_alpha_4,self.tra_jitter_beta_4,self.use_trajitt_jeff_4], 
+        [self.tra_jitter_alpha_5,self.tra_jitter_beta_5,self.use_trajitt_jeff_5], 
+        [self.tra_jitter_alpha_6,self.tra_jitter_beta_6,self.use_trajitt_jeff_6],
+        [self.tra_jitter_alpha_7,self.tra_jitter_beta_7,self.use_trajitt_jeff_7], 
+        [self.tra_jitter_alpha_8,self.tra_jitter_beta_8,self.use_trajitt_jeff_8], 
+        [self.tra_jitter_alpha_9,self.tra_jitter_beta_9,self.use_trajitt_jeff_9], 
+        [self.tra_jitter_alpha_10,self.tra_jitter_beta_10,self.use_trajitt_jeff_10]
+        ]
+        
+        return jitter_jeff_priors_gui_tra
+
+ 
+ 
  
 ################### GP ########################
 
