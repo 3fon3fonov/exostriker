@@ -14,6 +14,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 sys.path.insert(0, './lib')
 
+sys._excepthook = sys.excepthook 
+def exception_hook(exctype, value, traceback):
+    print(exctype, value, traceback)
+    sys._excepthook(exctype, value, traceback) 
+    sys.exit(1) 
+sys.excepthook = exception_hook 
+
 
 import RV_mod as rv
 
