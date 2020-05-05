@@ -378,14 +378,14 @@ class MainWindow(QMainWindow):
         self.editor.setLineWrapMode( 1 if self.editor.lineWrapMode() == 0 else 0 )
 
 
-#if __name__ == '__main__':
+if __name__ == '__main__':
 
-#    app = QApplication(sys.argv)
+    app = QApplication(sys.argv)
     #app.setApplicationName("Megasolid Idiom")
 
-#    window = MainWindow()
-#    window.show()
-#    sys.exit(app.exec_())
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
 
  
  
