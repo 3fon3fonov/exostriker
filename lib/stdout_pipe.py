@@ -7,7 +7,8 @@ from PyQt5 import QtCore, QtGui
 import logging
 logger = logging.getLogger(__name__)
 
- 
+from dynesty import __version__ as dynesty_version
+
 #sys.stdout = sys.__stdout__
 #sys.stderr = sys.__stderr__
 
@@ -120,7 +121,8 @@ class MyDialog(QtGui.QDialog):
         XStream.stdout().messageWritten.connect(self._console.appendLogMessage)
         if sys.version_info[0] == 2:
             XStream.stderr().messageWritten.connect(self._console.appendLogMessage)
-
+        elif  int(dynesty_version[0]) < 1 and int(dynesty_version[4]) <= 2:   # ignors stderr pipe if dynesty>0.9.2. TBFixed !!!!! 
+            XStream.stderr().messageWritten.connect(self._console.appendLogMessage)
 
     def pipe_output( self ):
         logger.debug('debug message')
