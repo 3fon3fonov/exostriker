@@ -39302,11 +39302,14 @@
               <property name="decimals">
                <number>4</number>
               </property>
+              <property name="minimum">
+               <double>0.000100000000000</double>
+              </property>
               <property name="singleStep">
                <double>0.200000000000000</double>
               </property>
               <property name="value">
-               <double>0.000000000000000</double>
+               <double>0.000100000000000</double>
               </property>
              </widget>
             </item>
@@ -39371,6 +39374,9 @@
               <property name="decimals">
                <number>4</number>
               </property>
+              <property name="minimum">
+               <double>0.010000000000000</double>
+              </property>
               <property name="singleStep">
                <double>0.100000000000000</double>
               </property>
@@ -39389,11 +39395,14 @@
               <property name="decimals">
                <number>4</number>
               </property>
+              <property name="minimum">
+               <double>0.000100000000000</double>
+              </property>
               <property name="singleStep">
                <double>0.100000000000000</double>
               </property>
               <property name="value">
-               <double>0.000000000000000</double>
+               <double>0.000100000000000</double>
               </property>
              </widget>
             </item>
@@ -39419,11 +39428,14 @@
               <property name="decimals">
                <number>4</number>
               </property>
+              <property name="minimum">
+               <double>0.000100000000000</double>
+              </property>
               <property name="singleStep">
                <double>0.200000000000000</double>
               </property>
               <property name="value">
-               <double>0.000000000000000</double>
+               <double>0.000100000000000</double>
               </property>
              </widget>
             </item>
@@ -39437,6 +39449,9 @@
               <property name="decimals">
                <number>3</number>
               </property>
+              <property name="minimum">
+               <double>0.001000000000000</double>
+              </property>
               <property name="maximum">
                <double>10000.000000000000000</double>
               </property>
@@ -39444,7 +39459,7 @@
                <double>10.000000000000000</double>
               </property>
               <property name="value">
-               <double>0.000000000000000</double>
+               <double>0.001000000000000</double>
               </property>
              </widget>
             </item>
@@ -39557,11 +39572,14 @@
               <property name="decimals">
                <number>3</number>
               </property>
+              <property name="minimum">
+               <double>0.001000000000000</double>
+              </property>
               <property name="singleStep">
                <double>0.200000000000000</double>
               </property>
               <property name="value">
-               <double>0.000000000000000</double>
+               <double>0.001000000000000</double>
               </property>
              </widget>
             </item>
@@ -61525,7 +61543,7 @@
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_204">
                   <item row="0" column="0" rowspan="2">
-                   <layout class="QGridLayout" name="Data_Layout_16" rowstretch="0,0,0,0,0,0,0,0,0,0,0" columnstretch="0,0,0,0">
+                   <layout class="QGridLayout" name="Data_Layout_16" rowstretch="0,0,0,0,0,0,0,0,0,0,0" columnstretch="0,0,0">
                     <property name="sizeConstraint">
                      <enum>QLayout::SetDefaultConstraint</enum>
                     </property>
@@ -79591,7 +79609,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>   </string>
+    <string/>
    </property>
   </action>
   <action name="actionReset_Buttons_dev_mode">
@@ -79621,8 +79639,8 @@
  <connections/>
  <buttongroups>
   <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
   <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
   <buttongroup name="buttonGroup_symbol_picker_ttv"/>
   <buttongroup name="buttonGroup_remove_RV_data"/>
   <buttongroup name="buttonGroup_use">
@@ -79641,11 +79659,11 @@
   <buttongroup name="buttonGroup_apply_act_data_options"/>
   <buttongroup name="buttonGroup_energy"/>
   <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
   <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
   <buttongroup name="buttonGroup_use_ld_8"/>
-  <buttongroup name="buttonGroup_omega_dot_opt"/>
   <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_omega_dot_opt"/>
   <buttongroup name="buttonGroup_use_ld_3"/>
   <buttongroup name="buttonGroup_apply_tra_dilution"/>
   <buttongroup name="buttonGroup_use_ld_5"/>
@@ -79665,8 +79683,8 @@
    </property>
   </buttongroup>
   <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
   <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
   <buttongroup name="buttonGroup_use_ld_4"/>
   <buttongroup name="buttonGroup_Omega_fold"/>
   <buttongroup name="buttonGroup_nest_stat_dyn"/>
