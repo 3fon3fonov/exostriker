@@ -2851,9 +2851,8 @@ class signal_fit(object):
         return
 
 ############################ transit datasets ##########################################
-    def add_transit_dataset(self, name, path, tra_idset = 0):
-
-
+    def add_transit_dataset(self, name, path, tra_idset = 0, PDC = False):
+ 
         if path.endswith("lc.fits"):
 
             if pyfits_not_found == True:
@@ -2866,10 +2865,15 @@ class signal_fit(object):
             try:
                 sc = pyfits.open(path) 
                 dd =  sc[1].data
-
-                tra_JD        = dd['TIME'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
-                tra_data      = dd['SAP_FLUX'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
-                tra_data_sig  = dd['SAP_FLUX_ERR'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
+                
+                if PDC == True:
+                    tra_JD        = dd['TIME'][np.isfinite(dd['TIME']) & np.isfinite(dd['PDCSAP_FLUX']) & np.isfinite(dd['PDCSAP_FLUX_ERR'])]
+                    tra_data      = dd['PDCSAP_FLUX'][np.isfinite(dd['TIME']) & np.isfinite(dd['PDCSAP_FLUX']) & np.isfinite(dd['PDCSAP_FLUX_ERR'])]
+                    tra_data_sig  = dd['PDCSAP_FLUX_ERR'][np.isfinite(dd['TIME']) & np.isfinite(dd['PDCSAP_FLUX']) & np.isfinite(dd['PDCSAP_FLUX_ERR'])]
+                else:
+                    tra_JD        = dd['TIME'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
+                    tra_data      = dd['SAP_FLUX'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
+                    tra_data_sig  = dd['SAP_FLUX_ERR'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
 
             except:
                 print("Unknown type of .fits file! Please provide a TESS *lc.fits file")
