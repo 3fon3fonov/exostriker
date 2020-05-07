@@ -1665,7 +1665,7 @@ def run_nestsamp(obj, **kwargs):
         obj.loglik = maxlnl
 
     if(obj.ns_save_sampler):
-        obj.sampler=sampler
+        obj.sampler=sampler.results
         obj.sampler_saved=True
   #      sampler.reset()
   #  else:
