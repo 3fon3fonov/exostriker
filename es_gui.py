@@ -45,6 +45,8 @@ from Jupyter_emb import ConsoleWidget_embed
 from stdout_pipe import MyDialog, DebugDialog
 from print_info_window import print_info
 from symbols_window import show_symbols
+from TESS_pdc_window import pdc
+
 from datafiles_window import datafiles_window
 from RVBank_window import RVBank_window
 
@@ -3690,8 +3692,21 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'All (*.*);;Data (*.tran)', options=QtGui.QFileDialog.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
-
-            fit.add_transit_dataset('test', str(input_files[0]),tra_idset =but_ind-1)
+            
+            
+            if input_files[0].endswith("lc.fits"):
+                
+                but_n = self.tess_pdc_dialog.get_radio()
+                
+                if but_n ==1:
+                    PDC = False
+                elif but_n ==2: 
+                    PDC = True
+                else:
+                    PDC = False
+                fit.add_transit_dataset('test', str(input_files[0]),tra_idset =but_ind-1, PDC = PDC)
+            else:
+                fit.add_transit_dataset('test', str(input_files[0]),tra_idset =but_ind-1)
 
             self.update_use_from_input_file()
             self.update_use()
@@ -7772,7 +7787,7 @@ If this does not help, please open a GitHub issue here:
         self.update_color_picker_ttv()
         self.buttonGroup_color_picker_ttv.buttonClicked.connect(self.get_color_ttv)
 
-
+        self.tess_pdc_dialog = pdc(self)
         self.dialog_symbols = show_symbols(self)
         self.buttonGroup_symbol_picker.buttonClicked.connect(self.get_symbol) 
         self.buttonGroup_symbol_picker_tra.buttonClicked.connect(self.get_symbol_tra)
