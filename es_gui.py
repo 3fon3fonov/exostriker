@@ -18,7 +18,7 @@ sys._excepthook = sys.excepthook
 def exception_hook(exctype, value, traceback):
     print(exctype, value, traceback)
     sys._excepthook(exctype, value, traceback) 
-    sys.exit(1) 
+    #sys.exit(1) 
 sys.excepthook = exception_hook 
 
 
@@ -1491,8 +1491,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
        # self.buttonGroup_use_planets.setId(self.use_Planet8,8)
        # self.buttonGroup_use_planets.setId(self.use_Planet9,9)
 
-        self.colors_gls.setFont(self.font) 
-        self.colors_gls_o_c.setFont(self.font) 
+        self.colors_gls.setFont(self.plot_font) 
+        self.colors_gls_o_c.setFont(self.plot_font) 
 
         #self.colors_ttv.setFont(self.font) 
 
@@ -1547,13 +1547,13 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         for i in range(len(zzz)):
 
-                zzz[i].getAxis("bottom").tickFont = self.font
+                zzz[i].getAxis("bottom").tickFont = self.plot_font
                 zzz[i].getAxis("bottom").setStyle(tickTextOffset = 12)
-                zzz[i].getAxis("top").tickFont = self.font
+                zzz[i].getAxis("top").tickFont = self.plot_font
                 zzz[i].getAxis("top").setStyle(tickTextOffset = 12)
-                zzz[i].getAxis("left").tickFont = self.font
+                zzz[i].getAxis("left").tickFont = self.plot_font
                 zzz[i].getAxis("left").setStyle(tickTextOffset = 12)
-                zzz[i].getAxis("right").tickFont = self.font
+                zzz[i].getAxis("right").tickFont = self.plot_font
                 zzz[i].getAxis("right").setStyle(tickTextOffset = 12)
                 zzz[i].getAxis('left').setWidth(50)
                 zzz[i].getAxis('right').setWidth(10)
@@ -4029,6 +4029,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
     def update_RV_MLP_plots(self):
         global fit, p_mlp 
+        
+        # a bug fix... must be done smarter.
+        if not  hasattr(fit.mlp, 'freq'):
+            return
  
         p_mlp.plot(clear=True,)
 
@@ -6858,12 +6862,19 @@ If this does not help, please open a GitHub issue here:
             for topLevel in QtGui.QApplication.allWidgets():
                 topLevel.setFont(font)
  
+    def set_plot_font(self):
+        #QtWidgets.QFontDialog.setOption(QtWidgets.QFontDialog.DontUseNativeDialog, True)
+        font, ok = QtWidgets.QFontDialog.getFont()
 
-    def initialize_font(self): #not working as I want!
+        if ok:
+            self.plot_font.setFamily(font.family())
+            self.plot_font.setPointSize(font.pointSize())
+            
+    def initialize_font_plot(self): #not working as I want!
 
-        self.font = QtGui.QFont()
-        self.font.setPointSize(9)
-        self.font.setBold(False)
+        self.plot_font = QtGui.QFont()
+        self.plot_font.setPointSize(9)
+        self.plot_font.setBold(False)
               
 
 
@@ -7167,7 +7178,8 @@ If this does not help, please open a GitHub issue here:
        # self.showMaximized()
 
         self.setupUi(self)
-        self.initialize_font()
+        
+        self.initialize_font_plot()
         
 #        self.installEventFilter(self)
         
@@ -7533,7 +7545,10 @@ If this does not help, please open a GitHub issue here:
         self.actionMacintosh.triggered.connect(self.set_Mac_widget_Style)
         self.actionLinux_Fusion.triggered.connect(self.set_Fus_widget_Style)
 
-        self.actionSet_Font.triggered.connect(self.set_widget_font)
+        self.actionSet_GUI_Font.triggered.connect(self.set_widget_font)
+        self.actionSet_plots_font.triggered.connect(self.set_plot_font)
+
+
 
         ############ Edit #################
 
