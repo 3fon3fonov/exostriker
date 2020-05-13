@@ -66020,7 +66020,7 @@
              </sizepolicy>
             </property>
             <property name="currentIndex">
-             <number>2</number>
+             <number>0</number>
             </property>
             <property name="movable">
              <bool>true</bool>
@@ -66033,7 +66033,7 @@
               <item row="0" column="1">
                <widget class="QTabWidget" name="tabWidget_25">
                 <property name="currentIndex">
-                 <number>2</number>
+                 <number>0</number>
                 </property>
                 <property name="movable">
                  <bool>true</bool>
@@ -70705,7 +70705,7 @@
                  </font>
                 </property>
                 <property name="currentIndex">
-                 <number>2</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="tab_86">
                  <attribute name="title">
