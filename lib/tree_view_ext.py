@@ -47,7 +47,7 @@ class Widget_tree(QWidget):
         self.fileModel = QFileSystemModel()
         self.fileModel.setFilter(QDir.NoDotAndDotDot |  QDir.Files)
 
-        filter = ['*.vels', '*.act','*.tran']
+        filter = ['*.vels', '*.act','*.tran','*.dat']
         #filter = ['*.vels']
        
         

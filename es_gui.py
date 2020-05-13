@@ -5896,7 +5896,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
             filename, file_extension = os.path.splitext(path)
 
-            if file_extension == '.vels':
+            if file_extension == '.vels' or file_extension == '.dat':
                 fit.add_dataset(self.file_from_path(path), str(path),0.0,1.0)
                 self.init_fit()
                 self.update_use_from_input_file()
@@ -6070,16 +6070,22 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         if RVBank == False:
 
             path = self.datafiles_window.listview.model().filePath(self.datafiles_window.listview.currentIndex()) 
-
-            try:
-                x     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-                y     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-                y_err = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-            except:
-                pdi.setLabel('bottom', 'x', units='',  **{'font-size':'9pt'})
-                pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
-                return
             
+            if os.path.exists(path) and os.path.getsize(path) > 0:
+                try:
+                    x     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+                    y     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+                    y_err = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+                #except:
+                except Exception as ex:
+                    #print(ex)
+                    #pdi.plot(clear=True,)
+                    pdi.setLabel('bottom', 'x', units='',  **{'font-size':'9pt'})
+                    pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
+                    return
+            else:
+                print("%s is an empty file"%path)
+                return
         else:
             
             if self.RVBank_window.url_success == False:

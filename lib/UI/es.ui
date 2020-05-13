@@ -3080,6 +3080,58 @@
                   <property name="verticalSpacing">
                    <number>0</number>
                   </property>
+                  <item row="1" column="13">
+                   <widget class="DoubleSpinBox" name="P3">
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>1000000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>300.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="0">
+                   <widget class="QLabel" name="label_incl">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>incl [deg]</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="10" column="3">
+                   <widget class="QDoubleSpinBox" name="t0_1">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="minimum">
+                     <double>-10000000.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>10000000.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.001000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>2458357.390000000130385</double>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="8" column="6">
                    <widget class="QCheckBox" name="use_Omega2">
                     <property name="sizePolicy">
@@ -3137,25 +3189,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="11">
-                   <widget class="QCheckBox" name="use_K3">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
-                   </widget>
-                  </item>
                   <item row="10" column="1">
                    <widget class="QCheckBox" name="use_t0_1">
                     <property name="sizePolicy">
@@ -3190,21 +3223,6 @@
                     </property>
                     <property name="value">
                      <double>90.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="7" column="0">
-                   <widget class="QLabel" name="label_incl">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>incl [deg]</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                     </property>
                    </widget>
                   </item>
@@ -3366,28 +3384,6 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="3" column="1">
-                   <widget class="QCheckBox" name="use_P1">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
-                   </widget>
-                  </item>
                   <item row="5" column="3">
                    <widget class="DoubleSpinBox" name="om1">
                     <property name="font">
@@ -3475,34 +3471,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="9">
-                   <widget class="QLabel" name="err_K2">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="13">
-                   <widget class="DoubleSpinBox" name="K3">
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>100000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>50.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="15" column="0">
                    <widget class="QLabel" name="label_3">
                     <property name="font">
@@ -3564,37 +3532,6 @@
                     </property>
                     <property name="textInteractionFlags">
                      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="3">
-                   <widget class="DoubleSpinBox" name="K1">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>100000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>50.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="13">
-                   <widget class="DoubleSpinBox" name="P3">
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>1000000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>300.000000000000000</double>
                     </property>
                    </widget>
                   </item>
@@ -3695,32 +3632,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="8">
-                   <widget class="DoubleSpinBox" name="P2">
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>1000000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>150.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="8">
-                   <widget class="DoubleSpinBox" name="K2">
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>100000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>50.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="4" column="14">
                    <widget class="QLabel" name="err_e3">
                     <property name="font">
@@ -3775,21 +3686,6 @@
                   </item>
                   <item row="4" column="9">
                    <widget class="QLabel" name="err_e2">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="9">
-                   <widget class="QLabel" name="err_P2">
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
@@ -3892,25 +3788,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="11">
-                   <widget class="QCheckBox" name="use_P3">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
-                   </widget>
-                  </item>
                   <item row="8" column="4">
                    <widget class="QLabel" name="err_Om1">
                     <property name="font">
@@ -3950,21 +3827,6 @@
                     </property>
                     <property name="text">
                      <string>+/- 0.000</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="label_Period">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>P [d]</string>
                     </property>
                     <property name="textInteractionFlags">
                      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -4071,25 +3933,6 @@
                     <property name="singleStep">
                      <double>0.010000000000000</double>
                     </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="6">
-                   <widget class="QCheckBox" name="use_P2">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
                    </widget>
                   </item>
                   <item row="11" column="3">
@@ -4266,25 +4109,6 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="1" column="6">
-                   <widget class="QCheckBox" name="use_K2">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
-                   </widget>
-                  </item>
                   <item row="12" column="6">
                    <widget class="QCheckBox" name="use_a_sol_2">
                     <property name="sizePolicy">
@@ -4302,21 +4126,6 @@
                     <attribute name="buttonGroup">
                      <string notr="true">buttonGroup_use</string>
                     </attribute>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_K">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>K [m/s]</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
                    </widget>
                   </item>
                   <item row="7" column="11">
@@ -4524,28 +4333,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
-                   <widget class="QCheckBox" name="use_K1">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="autoFillBackground">
-                     <bool>false</bool>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
-                   </widget>
-                  </item>
                   <item row="14" column="1">
                    <spacer name="verticalSpacer_2">
                     <property name="orientation">
@@ -4574,27 +4361,6 @@
                     </property>
                     <property name="textInteractionFlags">
                      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="3">
-                   <widget class="DoubleSpinBox" name="P1">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>1000000.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>1.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>3.361000000000000</double>
                     </property>
                    </widget>
                   </item>
@@ -4764,24 +4530,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="14">
-                   <widget class="QLabel" name="err_K3">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textFormat">
-                     <enum>Qt::AutoText</enum>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="7" column="13">
                    <widget class="DoubleSpinBox" name="incl3">
                     <property name="decimals">
@@ -4911,24 +4659,6 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="3" column="14">
-                   <widget class="QLabel" name="err_P3">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textFormat">
-                     <enum>Qt::AutoText</enum>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="12" column="3">
                    <widget class="DoubleSpinBox" name="a_sol_1">
                     <property name="font">
@@ -4966,30 +4696,6 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="10" column="3">
-                   <widget class="QDoubleSpinBox" name="t0_1">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="minimum">
-                     <double>-10000000.000000000000000</double>
-                    </property>
-                    <property name="maximum">
-                     <double>10000000.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.001000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>2458357.390000000130385</double>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="11" column="9">
                    <widget class="QLabel" name="err_pl_rad_2">
                     <property name="font">
@@ -5022,21 +4728,6 @@
                     <attribute name="buttonGroup">
                      <string notr="true">buttonGroup_use</string>
                     </attribute>
-                   </widget>
-                  </item>
-                  <item row="3" column="4">
-                   <widget class="QLabel" name="err_P1">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
                    </widget>
                   </item>
                   <item row="6" column="9">
@@ -5157,24 +4848,6 @@
                     </property>
                     <property name="text">
                      <string>Planet 2</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="4">
-                   <widget class="QLabel" name="err_K1">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textFormat">
-                     <enum>Qt::AutoText</enum>
                     </property>
                     <property name="textInteractionFlags">
                      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -5307,8 +4980,8 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="9" column="14">
-                   <widget class="QLabel" name="err_om_dot_3">
+                  <item row="9" column="4">
+                   <widget class="QLabel" name="err_om_dot_1">
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
@@ -5337,8 +5010,8 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="9" column="4">
-                   <widget class="QLabel" name="err_om_dot_1">
+                  <item row="9" column="14">
+                   <widget class="QLabel" name="err_om_dot_3">
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
@@ -5367,6 +5040,333 @@
                      </size>
                     </property>
                    </spacer>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_Period">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>P [d]</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="8">
+                   <widget class="DoubleSpinBox" name="P2">
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>1000000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>150.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="3">
+                   <widget class="DoubleSpinBox" name="K1">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>100000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>50.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="8">
+                   <widget class="DoubleSpinBox" name="K2">
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>100000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>50.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="3">
+                   <widget class="DoubleSpinBox" name="P1">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>1000000.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>1.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>3.361000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="6">
+                   <widget class="QCheckBox" name="use_K2">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="1" column="6">
+                   <widget class="QCheckBox" name="use_P2">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QCheckBox" name="use_K1">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="autoFillBackground">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="1" column="4">
+                   <widget class="QLabel" name="err_P1">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="11">
+                   <widget class="QCheckBox" name="use_K3">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="1" column="9">
+                   <widget class="QLabel" name="err_P2">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="11">
+                   <widget class="QCheckBox" name="use_P3">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_K">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>K [m/s]</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="13">
+                   <widget class="DoubleSpinBox" name="K3">
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>100000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>50.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="9">
+                   <widget class="QLabel" name="err_K2">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QCheckBox" name="use_P1">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="3" column="4">
+                   <widget class="QLabel" name="err_K1">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::AutoText</enum>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="14">
+                   <widget class="QLabel" name="err_K3">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::AutoText</enum>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="14">
+                   <widget class="QLabel" name="err_P3">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::AutoText</enum>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </item>
@@ -5464,25 +5464,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="6">
-                   <widget class="QCheckBox" name="use_K5">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
-                   </widget>
-                  </item>
                   <item row="10" column="14">
                    <widget class="QLabel" name="err_t0_6">
                     <property name="font">
@@ -5499,46 +5480,6 @@
                     <property name="textInteractionFlags">
                      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                     </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="14">
-                   <widget class="QLabel" name="err_P6">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textFormat">
-                     <enum>Qt::AutoText</enum>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1">
-                   <widget class="QCheckBox" name="use_P4">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
                    </widget>
                   </item>
                   <item row="7" column="8">
@@ -5572,28 +5513,6 @@
                     <property name="textInteractionFlags">
                      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                     </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QCheckBox" name="use_K4">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="autoFillBackground">
-                     <bool>false</bool>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
                    </widget>
                   </item>
                   <item row="0" column="8">
@@ -5818,24 +5737,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="9">
-                   <widget class="QLabel" name="err_K5">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textFormat">
-                     <enum>Qt::AutoText</enum>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="4" column="6">
                    <widget class="QCheckBox" name="use_e5">
                     <property name="sizePolicy">
@@ -5955,21 +5856,6 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_K_3">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>K [m/s]</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="0" column="1">
                    <widget class="QCheckBox" name="use_Planet4">
                     <property name="text">
@@ -6035,21 +5921,6 @@
                     <attribute name="buttonGroup">
                      <string notr="true">buttonGroup_use</string>
                     </attribute>
-                   </widget>
-                  </item>
-                  <item row="1" column="4">
-                   <widget class="QLabel" name="err_K4">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
                    </widget>
                   </item>
                   <item row="0" column="6">
@@ -6265,25 +6136,6 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="1" column="11">
-                   <widget class="QCheckBox" name="use_K6">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
-                   </widget>
-                  </item>
                   <item row="4" column="9">
                    <widget class="QLabel" name="err_e5">
                     <property name="font">
@@ -6344,24 +6196,6 @@
                     </property>
                     <property name="textInteractionFlags">
                      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="8">
-                   <widget class="DoubleSpinBox" name="K5">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>100000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>50.000000000000000</double>
                     </property>
                    </widget>
                   </item>
@@ -6490,27 +6324,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="13">
-                   <widget class="DoubleSpinBox" name="K6">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="inputMethodHints">
-                     <set>Qt::ImhFormattedNumbersOnly</set>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>100000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>50.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="6" column="13">
                    <widget class="DoubleSpinBox" name="ma6">
                     <property name="font">
@@ -6628,24 +6441,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="14">
-                   <widget class="QLabel" name="err_K6">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textFormat">
-                     <enum>Qt::AutoText</enum>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="4" column="14">
                    <widget class="QLabel" name="err_e6">
                     <property name="font">
@@ -6736,40 +6531,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="6">
-                   <widget class="QCheckBox" name="use_P5">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="label_Period_3">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>P [d]</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="0" column="4">
                    <spacer name="horizontalSpacer_5">
                     <property name="orientation">
@@ -6833,94 +6594,6 @@
                      </size>
                     </property>
                    </spacer>
-                  </item>
-                  <item row="3" column="4">
-                   <widget class="QLabel" name="err_P4">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="11">
-                   <widget class="QCheckBox" name="use_P6">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
-                   </widget>
-                  </item>
-                  <item row="3" column="9">
-                   <widget class="QLabel" name="err_P5">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textFormat">
-                     <enum>Qt::AutoText</enum>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="8">
-                   <widget class="DoubleSpinBox" name="P5">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>1000000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>900.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="13">
-                   <widget class="DoubleSpinBox" name="P6">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>1000000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>1200.000000000000000</double>
-                    </property>
-                   </widget>
                   </item>
                   <item row="0" column="7">
                    <spacer name="horizontalSpacer_72">
@@ -7024,24 +6697,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="3">
-                   <widget class="DoubleSpinBox" name="K4">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>100000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>50.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="6" column="3">
                    <widget class="DoubleSpinBox" name="ma4">
                     <property name="font">
@@ -7054,24 +6709,6 @@
                     </property>
                     <property name="maximum">
                      <double>100000.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="3">
-                   <widget class="DoubleSpinBox" name="P4">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>1000000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>600.000000000000000</double>
                     </property>
                    </widget>
                   </item>
@@ -7767,6 +7404,369 @@
                     </property>
                    </widget>
                   </item>
+                  <item row="3" column="3">
+                   <widget class="DoubleSpinBox" name="K4">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>100000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>50.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="3">
+                   <widget class="DoubleSpinBox" name="P4">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>1000000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>600.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_K_3">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>K [m/s]</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_Period_3">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>P [d]</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="8">
+                   <widget class="DoubleSpinBox" name="K5">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>100000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>50.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="8">
+                   <widget class="DoubleSpinBox" name="P5">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>1000000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>900.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="13">
+                   <widget class="DoubleSpinBox" name="K6">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="inputMethodHints">
+                     <set>Qt::ImhFormattedNumbersOnly</set>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>100000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>50.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="13">
+                   <widget class="DoubleSpinBox" name="P6">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>1000000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>1200.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QCheckBox" name="use_K4">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="autoFillBackground">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QCheckBox" name="use_P4">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="3" column="6">
+                   <widget class="QCheckBox" name="use_K5">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="1" column="6">
+                   <widget class="QCheckBox" name="use_P5">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="3" column="11">
+                   <widget class="QCheckBox" name="use_K6">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="1" column="11">
+                   <widget class="QCheckBox" name="use_P6">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="3" column="4">
+                   <widget class="QLabel" name="err_K4">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="4">
+                   <widget class="QLabel" name="err_P4">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="9">
+                   <widget class="QLabel" name="err_K5">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::AutoText</enum>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="9">
+                   <widget class="QLabel" name="err_P5">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::AutoText</enum>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="14">
+                   <widget class="QLabel" name="err_K6">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::AutoText</enum>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="14">
+                   <widget class="QLabel" name="err_P6">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::AutoText</enum>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
                </layout>
@@ -7797,6 +7797,62 @@
                   <property name="verticalSpacing">
                    <number>0</number>
                   </property>
+                  <item row="11" column="11">
+                   <widget class="QCheckBox" name="use_pl_rad_9">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="12" column="9">
+                   <widget class="QLabel" name="err_a_sol_8">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QCheckBox" name="use_P7">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
                   <item row="4" column="6">
                    <widget class="QCheckBox" name="use_e8">
                     <property name="sizePolicy">
@@ -8129,7 +8185,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
+                  <item row="3" column="1">
                    <widget class="QCheckBox" name="use_K7">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -8166,43 +8222,6 @@
                      </size>
                     </property>
                    </spacer>
-                  </item>
-                  <item row="1" column="6">
-                   <widget class="QCheckBox" name="use_K8">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
-                   </widget>
-                  </item>
-                  <item row="3" column="3">
-                   <widget class="DoubleSpinBox" name="P7">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>1000000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>1500.000000000000000</double>
-                    </property>
-                   </widget>
                   </item>
                   <item row="13" column="3">
                    <widget class="QLabel" name="label_a7">
@@ -8332,24 +8351,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="9">
-                   <widget class="QLabel" name="err_K8">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textFormat">
-                     <enum>Qt::AutoText</enum>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="7" column="6">
                    <widget class="QCheckBox" name="use_incl8">
                     <property name="sizePolicy">
@@ -8367,21 +8368,6 @@
                     <attribute name="buttonGroup">
                      <string notr="true">buttonGroup_use</string>
                     </attribute>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="label_Period_4">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>P [d]</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
                    </widget>
                   </item>
                   <item row="6" column="6">
@@ -8494,25 +8480,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="11">
-                   <widget class="QCheckBox" name="use_P9">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
-                   </widget>
-                  </item>
                   <item row="7" column="11">
                    <widget class="QCheckBox" name="use_incl9">
                     <property name="sizePolicy">
@@ -8532,21 +8499,6 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="3" column="4">
-                   <widget class="QLabel" name="err_P7">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="5" column="11">
                    <widget class="QCheckBox" name="use_om9">
                     <property name="sizePolicy">
@@ -8564,24 +8516,6 @@
                     <attribute name="buttonGroup">
                      <string notr="true">buttonGroup_use</string>
                     </attribute>
-                   </widget>
-                  </item>
-                  <item row="1" column="3">
-                   <widget class="DoubleSpinBox" name="K7">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>100000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>50.000000000000000</double>
-                    </property>
                    </widget>
                   </item>
                   <item row="7" column="8">
@@ -8707,42 +8641,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="14">
-                   <widget class="QLabel" name="err_K9">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textFormat">
-                     <enum>Qt::AutoText</enum>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="9">
-                   <widget class="QLabel" name="err_P8">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textFormat">
-                     <enum>Qt::AutoText</enum>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="13" column="8">
                    <widget class="QLabel" name="label_a8">
                     <property name="font">
@@ -8767,60 +8665,6 @@
                     </property>
                     <property name="text">
                      <string>+/- 0.000</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="8">
-                   <widget class="DoubleSpinBox" name="K8">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>100000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>50.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="13">
-                   <widget class="DoubleSpinBox" name="P9">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>1000000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>2500.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="14">
-                   <widget class="QLabel" name="err_P9">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textFormat">
-                     <enum>Qt::AutoText</enum>
                     </property>
                     <property name="textInteractionFlags">
                      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -8948,25 +8792,6 @@
                     <property name="maximum">
                      <double>100000.000000000000000</double>
                     </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="6">
-                   <widget class="QCheckBox" name="use_P8">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
                    </widget>
                   </item>
                   <item row="15" column="13">
@@ -9098,27 +8923,6 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="1" column="13">
-                   <widget class="DoubleSpinBox" name="K9">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="inputMethodHints">
-                     <set>Qt::ImhFormattedNumbersOnly</set>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>100000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>50.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="4" column="11">
                    <widget class="QCheckBox" name="use_e9">
                     <property name="sizePolicy">
@@ -9150,40 +8954,6 @@
                     </property>
                     <property name="textFormat">
                      <enum>Qt::AutoText</enum>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="11">
-                   <widget class="QCheckBox" name="use_K9">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_K_4">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>K [m/s]</string>
                     </property>
                     <property name="textInteractionFlags">
                      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -9452,43 +9222,6 @@
                     </property>
                    </spacer>
                   </item>
-                  <item row="3" column="1">
-                   <widget class="QCheckBox" name="use_P7">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
-                   </widget>
-                  </item>
-                  <item row="1" column="4">
-                   <widget class="QLabel" name="err_K7">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="10" column="1">
                    <widget class="QCheckBox" name="use_t0_7">
                     <property name="sizePolicy">
@@ -9506,24 +9239,6 @@
                     <attribute name="buttonGroup">
                      <string notr="true">buttonGroup_use</string>
                     </attribute>
-                   </widget>
-                  </item>
-                  <item row="3" column="8">
-                   <widget class="DoubleSpinBox" name="P8">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>8</number>
-                    </property>
-                    <property name="maximum">
-                     <double>1000000.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>2000.000000000000000</double>
-                    </property>
                    </widget>
                   </item>
                   <item row="11" column="1">
@@ -9889,40 +9604,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="11" column="11">
-                   <widget class="QCheckBox" name="use_pl_rad_9">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_use</string>
-                    </attribute>
-                   </widget>
-                  </item>
-                  <item row="12" column="9">
-                   <widget class="QLabel" name="err_a_sol_8">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>+/- 0.000</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="12" column="11">
                    <widget class="QCheckBox" name="use_a_sol_9">
                     <property name="sizePolicy">
@@ -10113,8 +9794,8 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="9" column="4">
-                   <widget class="QLabel" name="err_om_dot_7">
+                  <item row="9" column="14">
+                   <widget class="QLabel" name="err_om_dot_9">
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
@@ -10143,8 +9824,8 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="9" column="14">
-                   <widget class="QLabel" name="err_om_dot_9">
+                  <item row="9" column="4">
+                   <widget class="QLabel" name="err_om_dot_7">
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
@@ -10152,6 +9833,325 @@
                     </property>
                     <property name="text">
                      <string>+/- 0.000</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="3">
+                   <widget class="DoubleSpinBox" name="K7">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>100000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>50.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="3">
+                   <widget class="DoubleSpinBox" name="P7">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>1000000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>1500.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="4">
+                   <widget class="QLabel" name="err_P7">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="4">
+                   <widget class="QLabel" name="err_K7">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="6">
+                   <widget class="QCheckBox" name="use_K8">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="1" column="13">
+                   <widget class="DoubleSpinBox" name="P9">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>1000000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>2500.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="8">
+                   <widget class="DoubleSpinBox" name="P8">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>1000000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>2000.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="11">
+                   <widget class="QCheckBox" name="use_P9">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="1" column="6">
+                   <widget class="QCheckBox" name="use_P8">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_Period_4">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>P [d]</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="11">
+                   <widget class="QCheckBox" name="use_K9">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">buttonGroup_use</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_K_4">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>K [m/s]</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="8">
+                   <widget class="DoubleSpinBox" name="K8">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>100000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>50.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="13">
+                   <widget class="DoubleSpinBox" name="K9">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="inputMethodHints">
+                     <set>Qt::ImhFormattedNumbersOnly</set>
+                    </property>
+                    <property name="decimals">
+                     <number>8</number>
+                    </property>
+                    <property name="maximum">
+                     <double>100000.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>50.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="9">
+                   <widget class="QLabel" name="err_K8">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::AutoText</enum>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="9">
+                   <widget class="QLabel" name="err_P8">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::AutoText</enum>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="14">
+                   <widget class="QLabel" name="err_K9">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::AutoText</enum>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="14">
+                   <widget class="QLabel" name="err_P9">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>+/- 0.000</string>
+                    </property>
+                    <property name="textFormat">
+                     <enum>Qt::AutoText</enum>
                     </property>
                     <property name="textInteractionFlags">
                      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -79649,85 +79649,85 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_use_ld_8"/>
-  <buttongroup name="buttonGroup_apply_tra_data_options"/>
-  <buttongroup name="buttonGroup_use_RV_GP_kernel">
-   <property name="exclusive">
-    <bool>true</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_symbol_picker"/>
-  <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_remove_ttv_data"/>
-  <buttongroup name="buttonGroup_nest_stat_dyn"/>
-  <buttongroup name="buttonGroup_apply_act_data_options"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
-  <buttongroup name="buttonGroup_activity_data"/>
-  <buttongroup name="buttonGroup_remove_RV_data"/>
-  <buttongroup name="buttonGroup_add_RV_data"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
-  <buttongroup name="buttonGroup_Omega_fold"/>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_color_picker_ttv"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
-  <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_omega_dot_opt"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_use_ld_10"/>
   <buttongroup name="buttonGroup_mixed_fitting">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_detrend_tra"/>
-  <buttongroup name="buttonGroup_use_ld_2"/>
-  <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_use_ld_10"/>
+  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
+  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_use_RV_GP_kernel">
+   <property name="exclusive">
+    <bool>true</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_symbol_picker"/>
   <buttongroup name="buttonGroup_apply_tra_dilution"/>
-  <buttongroup name="buttonGroup_use_ld_5"/>
-  <buttongroup name="buttonGroup_use_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_1"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
   <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_use_ld_3"/>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_AMD_stab_opt"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
-  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
-  <buttongroup name="buttonGroup_transit_data"/>
-  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_Omega_fold"/>
+  <buttongroup name="buttonGroup_omega_dot_opt"/>
   <buttongroup name="buttonGroup_use_planets">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
   <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
+  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_apply_rv_data_options"/>
+  <buttongroup name="buttonGroup_type_fit"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
+  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_detrend_tra"/>
+  <buttongroup name="buttonGroup_AMD_satb_NS"/>
+  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_AMD_stab_opt"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_apply_tra_data_options"/>
+  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_use_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
+  <buttongroup name="buttonGroup_remove_activity_data"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
   <buttongroup name="buttonGroup_use">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_dom_fold"/>
-  <buttongroup name="buttonGroup_apply_rv_data_options"/>
-  <buttongroup name="buttonGroup_AMD_satb_NS"/>
   <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
  </buttongroups>
 </ui>

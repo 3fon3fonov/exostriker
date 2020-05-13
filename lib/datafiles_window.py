@@ -36,7 +36,7 @@ class datafiles_window(QtWidgets.QDialog):
         self.fileModel = QtWidgets.QFileSystemModel()
         self.fileModel.setFilter(QtCore.QDir.NoDotAndDotDot |  QtCore.QDir.Files)
 
-        filter = ['*.vels', '*.act','*.tran']
+        filter = ['*.vels', '*.act','*.tran','*.dat']
 
         self.fileModel.setNameFilters(filter)
 
