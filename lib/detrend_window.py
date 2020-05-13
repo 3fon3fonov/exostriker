@@ -16,6 +16,36 @@ qtCreatorFile = "./lib/UI/tdt.ui"
 Ui_DetrendWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 
+
+try:
+    import sklearn
+    sklearn_found = True
+except (ImportError, KeyError) as e:
+    sklearn_found = False
+    pass
+
+try:
+    import statsmodels
+    statsmodels_found = True
+except (ImportError, KeyError) as e:
+    statsmodels_found = False
+    pass
+
+try:
+    import pygam
+    pygam_found = True
+except (ImportError, KeyError) as e:
+    pygam_found = False
+    pass
+
+try:
+    import supersmoother
+    supersmoother_found = True
+except (ImportError, KeyError) as e:
+    supersmoother_found = False
+    pass
+
+
 class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
     def __init__(self,parent):
         super(DetrendWindow, self).__init__()
@@ -35,37 +65,17 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.ui.setupUi(self)
         self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
 
-        self.sklearn_found = True
-        self.statsmodels_found = True
-        self.pygam_found = True
-        self.supersmoother_found = True
+        self.sklearn_found = sklearn_found
+        self.statsmodels_found = statsmodels_found
+        self.pygam_found = pygam_found
+        self.supersmoother_found = supersmoother_found
+        
+        self.ui.radio_GPs.setEnabled(sklearn_found)
+        self.ui.comboBox_GP.setEnabled(sklearn_found)
+        self.ui.kernel_size.setEnabled(sklearn_found)
+        
 
-        try:
-            import sklearn
-        except (ImportError, KeyError) as e:
-            self.ui.radio_GPs.setEnabled(False)
-            self.ui.comboBox_GP.setEnabled(False)
-            self.ui.kernel_size.setEnabled(False)
-            self.sklearn_found = False
-            pass
-        
-        try:
-            import statsmodels
-        except (ImportError, KeyError) as e:
-            self.statsmodels_found = False
-            pass
-        
-        try:
-            import pygam
-        except (ImportError, KeyError) as e:
-            self.pygam_found = False
-            pass
-        
-        try:
-            import supersmoother
-        except (ImportError, KeyError) as e:
-            self.supersmoother_found = False
-            pass
+
 
         self.t_store             = {k: [] for k in range(10)}
         self.flux_store          = {k: [] for k in range(10)}

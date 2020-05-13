@@ -37,6 +37,7 @@ import scipy.optimize as op
 from scipy import stats
 
 
+
 try:
     import batman as batman
 
@@ -685,7 +686,10 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
             #m[i] = batman.TransitModel(tr_params, t_rich)
             #flux_model_rich = flux_model_rich * m[i].light_curve(tr_params)
-
+            
+#            fac = m[i].fac 
+#            print("stepsize:", fac)
+ 
         l = 0
         for j in range(10):
 
@@ -2781,10 +2785,14 @@ class signal_fit(object):
 ############################ RV datasets ##########################################
     def add_rv_dataset(self, name, path, rv_idset = 0):
 
+        #try:
+        
         rv_JD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
         rv_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
         rv_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-
+        #except Exception as ex:
+       #     print(ex)
+            
         rv_data_set = np.array([rv_JD,rv_data,rv_data_sig,[rv_idset]*len(rv_JD)])
  
         ####### for now ###########
