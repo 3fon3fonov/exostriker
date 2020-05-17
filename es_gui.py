@@ -3750,8 +3750,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         for i in range(10):
             if len(fit.tra_data_sets[i]) != 0:
-                self.buttonGroup_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-                self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
+                self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
                 self.buttonGroup_transit_data.button(i+1).setText(fit.tra_data_sets[i][-1])
 
             else:
@@ -3903,7 +3903,12 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         minimize_fortran=True
         if fit.model_saved == False or len(fit.fit_results.rv_model.jd) != len(fit.filelist.idset):
-            fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran, doGP=fit.doGP,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value(),return_flag=True)
+            
+            fit.model_npoints = self.points_to_draw_model.value()
+            fit.model_max = self.model_max_range.value()
+            fit.model_min = self.model_min_range.value()
+            
+            fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran, doGP=fit.doGP,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), return_flag=True)
             #self.fit_dispatcher(init=True)
 
  
@@ -4286,7 +4291,7 @@ Transit duration: %s d
             for i in range(fit.npl):
                 rv.phase_RV_planet_signal(fit,i+1) 
             self.run_gls()
-            self.run_gls_o_c()                
+            self.run_gls_o_c()
             self.update_plots()  
         self.jupiter_push_vars() 
 
@@ -4339,7 +4344,8 @@ Transit duration: %s d
 
         self.check_scipy_min()
         fit.model_npoints = self.points_to_draw_model.value()
-
+        fit.model_max = self.model_max_range.value()
+        fit.model_min = self.model_min_range.value()
           
         worker4 = Worker(lambda:  self.transit_fit(ff=ff ) )# Any other args, kwargs are passed to the run  
  
@@ -4692,7 +4698,12 @@ Transit duration: %s d
         self.check_priors_jeff()   
      
         fit.model_npoints = self.points_to_draw_model.value()
+        fit.model_max = self.model_max_range.value()
+        fit.model_min = self.model_min_range.value()
+        
         #self.tabWidget_helper.setCurrentWidget(self.tab_info)
+ 
+
 
         if init == True:
             fit.init_fit= True
@@ -5574,7 +5585,9 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.check_bounds()
         self.check_priors_nr() 
         fit.model_npoints = self.points_to_draw_model.value()
-
+        fit.model_max = self.model_max_range.value()
+        fit.model_min = self.model_min_range.value()
+        
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
         if self.use_nest_percentile_level.isChecked():
@@ -5750,7 +5763,9 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.check_bounds()
         self.check_priors_nr() 
         fit.model_npoints = self.points_to_draw_model.value()
-
+        fit.model_max = self.model_max_range.value()
+        fit.model_min = self.model_min_range.value()
+        
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
 
@@ -7896,7 +7911,7 @@ If this does not help, please open a GitHub issue here:
 
         print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.27). 
               
-This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git clone' regularly to be up to date with the newest version.
+This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)
 
         if sys.version_info[0] == 2:
