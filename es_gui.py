@@ -6088,11 +6088,14 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             
             if os.path.exists(path) and os.path.getsize(path) > 0:
                 try:
-                    x     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-                    y     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-                    y_err = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-                #except:
-                except Exception as ex:
+                    x     = np.genfromtxt("%s"%(path),skip_header=0,comments="#", unpack=True,skip_footer=0, usecols = [0])
+                    y     = np.genfromtxt("%s"%(path),skip_header=0,comments="#", unpack=True,skip_footer=0, usecols = [1])
+                    y_err = np.genfromtxt("%s"%(path),skip_header=0,comments="#", unpack=True,skip_footer=0, usecols = [2])
+                    
+                    if np.isnan(x).any() or np.isnan(y).any() or np.isnan(y_err).any():
+                        print("wrong file format")
+                        return
+                except (ValueError,Exception) as ex:
                     #print(ex)
                     #pdi.plot(clear=True,)
                     pdi.setLabel('bottom', 'x', units='',  **{'font-size':'9pt'})
