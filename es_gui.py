@@ -4046,6 +4046,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
         power_levels = np.array([self.mlp_fap1.value(),self.mlp_fap2.value(),self.mlp_fap3.value()])
+
+        Delta_f = max(fit.mlp.freq) - min(fit.mlp.freq)
+        delta_f = 1.0/(max(fit.fit_results.rv_model.jd) - min(fit.fit_results.rv_model.jd))
+        M = Delta_f/delta_f
+       # print(M, power_levels)
+       # return
+        power_levels = np.log(1.0/(power_levels/M))
         #power_levels = np.array([5,10,15])
 
         gls_model_width = float(self.gls_model_width.value())
@@ -4173,12 +4180,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             return
 
         N_transit_files = len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0])
+        SDE_levels = np.array([self.tls_fap_1.value(),self.tls_fap_2.value(),self.tls_fap_3.value()])
 
-
+        
         p9.plot(clear=True,) 
         
         if self.tls_cross_hair.isChecked():
-            self.cross_hair(p9,log=False)      
+            self.cross_hair(p9,log=False)
             
         if N_transit_files != 0:
 
@@ -4197,9 +4205,9 @@ Transit duration: %s d
 #0.99     7.0
 #0.999    8.3
 #0.9999   9.1
-            [p9.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
+            [p9.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(SDE_levels)]
 
-            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls.periods,fit.tls.power,  sig_level = np.array([5.7,7.0,8.3] )   )
+            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls.periods,fit.tls.power,  sig_level = SDE_levels   )
 
             self.label_peaks(p9, pos_peaks, GLS = False)
 
@@ -4220,6 +4228,7 @@ Transit duration: %s d
             return
 
         N_transit_files = len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0])
+        SDE_levels = np.array([self.tls_fap_1.value(),self.tls_fap_2.value(),self.tls_fap_3.value()])
 
 
         p10.plot(clear=True,) 
@@ -4245,9 +4254,9 @@ Transit duration: %s d
 #0.99     7.0
 #0.999    8.3
 #0.9999   9.1
-            [p10.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(np.array([5.7,7.0,8.3]))]
+            [p10.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(SDE_levels)]
    
-            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls_o_c.periods,fit.tls_o_c.power,  sig_level = np.array([5.7,7.0,8.3] ) )
+            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls_o_c.periods,fit.tls_o_c.power,  sig_level = SDE_levels )
  
             self.label_peaks(p10, pos_peaks, GLS = False)
             
