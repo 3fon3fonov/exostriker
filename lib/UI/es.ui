@@ -42667,7 +42667,7 @@
                 <string>GLS/MLP/TLS param.</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_18">
-                <item row="0" column="0" rowspan="2">
+                <item row="0" column="0">
                  <layout class="QGridLayout" name="gridLayout_123">
                   <item row="6" column="0">
                    <widget class="QLabel" name="label_42">
@@ -42709,7 +42709,7 @@
                    <widget class="QLabel" name="label_41">
                     <property name="font">
                      <font>
-                      <pointsize>9</pointsize>
+                      <pointsize>8</pointsize>
                      </font>
                     </property>
                     <property name="text">
@@ -42812,7 +42812,7 @@
                      </font>
                     </property>
                     <property name="decimals">
-                     <number>4</number>
+                     <number>5</number>
                     </property>
                     <property name="singleStep">
                      <double>0.010000000000000</double>
@@ -42842,7 +42842,7 @@
                      </font>
                     </property>
                     <property name="decimals">
-                     <number>4</number>
+                     <number>5</number>
                     </property>
                     <property name="singleStep">
                      <double>0.010000000000000</double>
@@ -42878,7 +42878,7 @@
                      </font>
                     </property>
                     <property name="decimals">
-                     <number>4</number>
+                     <number>5</number>
                     </property>
                     <property name="singleStep">
                      <double>0.001000000000000</double>
@@ -42926,14 +42926,14 @@
                   </item>
                  </layout>
                 </item>
-                <item row="0" column="1" rowspan="2">
+                <item row="0" column="1">
                  <widget class="Line" name="line_15">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2" rowspan="2">
+                <item row="0" column="2">
                  <widget class="Line" name="line">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -42946,29 +42946,8 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="3" rowspan="2">
+                <item row="0" column="3">
                  <layout class="QGridLayout" name="gridLayout_124">
-                  <item row="6" column="1">
-                   <widget class="QDoubleSpinBox" name="mlp_fap1">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>2</number>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.100000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>5.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="8" column="0">
                    <widget class="QLabel" name="label_375">
                     <property name="font">
@@ -42977,7 +42956,7 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>FAP level 3 [dlnL]</string>
+                     <string>FAP level 3 </string>
                     </property>
                    </widget>
                   </item>
@@ -43023,27 +43002,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="7" column="1">
-                   <widget class="QDoubleSpinBox" name="mlp_fap2">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="decimals">
-                     <number>2</number>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.100000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>10.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="3" column="0">
                    <widget class="QLabel" name="label_376">
                     <property name="font">
@@ -43064,7 +43022,7 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>FAP level 2 [dlnL]</string>
+                     <string>FAP level 2</string>
                     </property>
                    </widget>
                   </item>
@@ -43134,18 +43092,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="0">
-                   <widget class="QLabel" name="label_373">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>MLP oversamp. fact.</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="6" column="0">
                    <widget class="QLabel" name="label_369">
                     <property name="font">
@@ -43154,7 +43100,7 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>FAP level 1 [dlnL]</string>
+                     <string>FAP level 1</string>
                     </property>
                    </widget>
                   </item>
@@ -43181,13 +43127,13 @@
                      </font>
                     </property>
                     <property name="decimals">
-                     <number>2</number>
+                     <number>5</number>
                     </property>
                     <property name="singleStep">
                      <double>0.100000000000000</double>
                     </property>
                     <property name="value">
-                     <double>15.000000000000000</double>
+                     <double>0.001000000000000</double>
                     </property>
                    </widget>
                   </item>
@@ -43212,9 +43158,63 @@
                     </property>
                    </widget>
                   </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="label_373">
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>MLP oversamp. fact.</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="1">
+                   <widget class="QDoubleSpinBox" name="mlp_fap2">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>5</number>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.100000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>0.010000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1">
+                   <widget class="QDoubleSpinBox" name="mlp_fap1">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>5</number>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.100000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>0.100000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
-                <item row="0" column="4" rowspan="2">
+                <item row="0" column="4">
                  <widget class="Line" name="line_14">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -43227,7 +43227,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="5" rowspan="2">
+                <item row="0" column="5">
                  <widget class="Line" name="line_9">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -43240,8 +43240,29 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="6" colspan="2">
+                <item row="0" column="6">
                  <layout class="QGridLayout" name="gridLayout_114">
+                  <item row="7" column="1">
+                   <widget class="QDoubleSpinBox" name="tls_fap_2">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>5</number>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.100000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>7.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="3" column="0">
                    <widget class="QCheckBox" name="tls_period_min_use">
                     <property name="text">
@@ -43366,20 +43387,97 @@
                     </property>
                    </widget>
                   </item>
+                  <item row="6" column="0">
+                   <widget class="QLabel" name="label_446">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>SDE level 1</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="label_445">
+                    <property name="font">
+                     <font>
+                      <pointsize>8</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string> </string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1">
+                   <widget class="QDoubleSpinBox" name="tls_fap_1">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>5</number>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.100000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>5.700000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="8" column="1">
+                   <widget class="QDoubleSpinBox" name="tls_fap_3">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="decimals">
+                     <number>5</number>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.100000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>8.300000000000001</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="0">
+                   <widget class="QLabel" name="label_447">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>SDE level 2</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="8" column="0">
+                   <widget class="QLabel" name="label_448">
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>SDE level 3</string>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
-                </item>
-                <item row="1" column="7">
-                 <spacer name="verticalSpacer_51">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>172</height>
-                   </size>
-                  </property>
-                 </spacer>
                 </item>
                </layout>
               </widget>
@@ -79649,85 +79747,85 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_mixed_fitting">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_remove_RV_data"/>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_remove_ttv_data"/>
-  <buttongroup name="buttonGroup_use_RV_GP_kernel">
-   <property name="exclusive">
-    <bool>true</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_symbol_picker"/>
   <buttongroup name="buttonGroup_apply_tra_dilution"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_Omega_fold"/>
-  <buttongroup name="buttonGroup_omega_dot_opt"/>
-  <buttongroup name="buttonGroup_use_planets">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
-  <buttongroup name="buttonGroup_use_ld_6"/>
-  <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_color_picker"/>
-  <buttongroup name="buttonGroup_apply_rv_data_options"/>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
   <buttongroup name="buttonGroup_transit_data"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
   <buttongroup name="buttonGroup_activity_data"/>
-  <buttongroup name="buttonGroup_detrend_tra"/>
-  <buttongroup name="buttonGroup_AMD_satb_NS"/>
-  <buttongroup name="buttonGroup_apply_act_data_options"/>
-  <buttongroup name="buttonGroup_AMD_stab_opt"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
   <buttongroup name="buttonGroup_use_ld_1"/>
-  <buttongroup name="buttonGroup_apply_tra_data_options"/>
-  <buttongroup name="buttonGroup_nest_stat_dyn"/>
-  <buttongroup name="buttonGroup_use_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
-  <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_use_ld_5"/>
-  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_omega_dot_opt"/>
+  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
+  <buttongroup name="buttonGroup_type_fit"/>
+  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
   <buttongroup name="buttonGroup_use_ttv_data_to_planet">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
+  <buttongroup name="buttonGroup_AMD_stab_opt"/>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
   <buttongroup name="buttonGroup_use">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_color_picker_ttv"/>
-  <buttongroup name="buttonGroup_dom_fold"/>
-  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_use_RV_GP_kernel">
+   <property name="exclusive">
+    <bool>true</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_apply_tra_data_options"/>
+  <buttongroup name="buttonGroup_AMD_satb_NS"/>
   <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_use_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_detrend_tra"/>
+  <buttongroup name="buttonGroup_mixed_fitting">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_f77_or_scipy"/>
+  <buttongroup name="buttonGroup_use_ld_10"/>
+  <buttongroup name="buttonGroup_remove_activity_data"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_use_planets">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
   <buttongroup name="buttonGroup_use_ld_3"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_ttv_data"/>
+  <buttongroup name="buttonGroup_Omega_fold"/>
+  <buttongroup name="buttonGroup_apply_rv_data_options"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_theta_fold"/>
  </buttongroups>
 </ui>
