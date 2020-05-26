@@ -3965,6 +3965,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.calc_MLP.setEnabled(True)
        # self.calc_MLP_o_c.setEnabled(True)
 
+        self.save_last_session("auto_save.ses")
+
  
     def worker_mlp(self, resid = False):
         global fit  
@@ -4102,7 +4104,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.calc_TLS.setEnabled(True)         
         self.calc_TLS_o_c.setEnabled(True)  
        # print("--- %s seconds ---" % (time.time() - start_time))     
- 
+
+        self.save_last_session("auto_save.ses")
+
+
     def worker_tls(self, resid = False):
         global fit  
         
@@ -4473,6 +4478,9 @@ Transit duration: %s d
         self.update_plots()
         self.jupiter_push_vars()
 
+        self.save_last_session("auto_save.ses")
+
+
 
     def worker_ttv_fitting(self, ff=1, auto_fit = False ):
         global fit  
@@ -4551,8 +4559,6 @@ Transit duration: %s d
 
     def worker_Nbody_complete(self):
         global fit, colors, p13, p14, p15  
-          
-
 
         self.plot_evol_all()
 #        self.update_orb_plot()
@@ -4562,8 +4568,10 @@ Transit duration: %s d
              
         self.button_orb_evol.setEnabled(True)       
         self.statusBar().showMessage('')      
-          
- 
+
+        self.save_last_session("auto_save.ses")
+
+
     def worker_Nbody(self):
         global fit  
 
@@ -4685,6 +4693,9 @@ Transit duration: %s d
         
         self.run_gls()
         self.run_gls_o_c()
+        
+        self.save_last_session("auto_save.ses")
+
 
 #        print("--- %s seconds ---" % (time.time() - start_time))     
 
@@ -5380,6 +5391,16 @@ highly appreciated!
             file_pi = open(output_file[0], 'wb')
             dill.dump(fit, file_pi) #,protocol=2
             file_pi.close()
+            
+            
+    def save_last_session(self,session_name):
+        global fit
+
+        if str(session_name) != '':
+            file_pi = open(session_name, 'wb')
+            dill.dump(fit, file_pi) #,protocol=2
+            file_pi.close()
+            
 
 
     def open_sessions(self):
@@ -5512,7 +5533,9 @@ highly appreciated!
             self.init_fit()
         else:
             self.jupiter_push_vars()
- 
+
+        self.save_last_session("auto_save.ses")
+
 
     def worker_nest(self):
         global fit  
@@ -5693,6 +5716,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             self.init_fit()
         else:
             self.jupiter_push_vars()
+
+        self.save_last_session("auto_save.ses")
 
 
     def worker_mcmc(self):
