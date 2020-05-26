@@ -1,7 +1,5 @@
-#!/usr/bin/python3
-#__author__ = 'Trifon Trifonov'
-#from __future__ import (absolute_import, division, print_function,
-#                        unicode_literals)
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 
@@ -10,15 +8,8 @@ import re
 
 import matplotlib
 from matplotlib import cm, colors as mcolors, markers, image as mimage
-#import matplotlib.backends.qt_editor.formlayout as formlayout
-from matplotlib.backends.qt_compat import QtGui
-#matplotlib.rcParams['backend.qt5']='PySide'
- 
-#try:
-#    import formlayout
-#except (ImportError, KeyError) as e:
 import matplotlib.backends.qt_editor.formlayout as formlayout
-
+from matplotlib.backends.qt_compat import QtGui
 
 
 def get_icon(name):

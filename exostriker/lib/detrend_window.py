@@ -12,7 +12,10 @@ import dill
 
 from wotan import flatten
 
-qtCreatorFile = "./lib/UI/tdt.ui" 
+
+lib_path = os.path.dirname(os.path.abspath(__file__))
+
+qtCreatorFile = "%s/UI/tdt.ui"%lib_path
 Ui_DetrendWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 
@@ -63,7 +66,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         # Create the main window
         self.ui = Ui_DetrendWindow()
         self.ui.setupUi(self)
-        self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
+        self.setWindowIcon(QtGui.QIcon('%s/UI/33_striker.png'%lib_path))
 
         self.sklearn_found = sklearn_found
         self.statsmodels_found = statsmodels_found
