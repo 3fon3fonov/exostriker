@@ -5852,6 +5852,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.button_make_mcmc_cornerplot.setEnabled(True)
         self.button_make_nest_cornerplot.setEnabled(True)
 
+        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+
 
     def worker_cornerplot(self, type_plot = "mcmc"):
         global fit  

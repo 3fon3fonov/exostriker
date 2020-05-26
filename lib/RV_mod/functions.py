@@ -1,5 +1,4 @@
- #!/usr/bin/python
-
+ #!/usr/bin/python3
 
 __author__ = 'Trifon Trifonov'
 
@@ -249,6 +248,9 @@ def cornerplot(obj, fileinput=False, level=(100.0-68.3)/2.0,type_plot = 'mcmc', 
     '''Generates a corner plot visualizing the mcmc samples. Optionally samples can be read from a file.'''
     #self.mcmc_sample_file = 'mcmc_samples'+'_%s'%mod
     #self.corner_plot_file = 'cornerplot.png'
+
+
+    
     if(fileinput):
         if type_plot == 'mcmc':
             samples=read_file_as_array_of_arrays_mcmc(obj.mcmc_sample_file)
@@ -256,9 +258,12 @@ def cornerplot(obj, fileinput=False, level=(100.0-68.3)/2.0,type_plot = 'mcmc', 
             samples=read_file_as_array_of_arrays_mcmc(obj.nest_sample_file)
    # elif(obj.sampler_saved):
    #     samples=obj.sampler.samples
+        if len(samples[0]) != len(obj.e_for_mcmc):
+            print("The number of selected parameters is not equal to the number of dimensions in the %s samples file. Was the %s samples file generated from the same session? If yes, then perhaps you (de)selected some more parameters?"%(type_plot,type_plot))
+            return
     else:
         raise Exception ('Please run mcmc/nested sampling and save sampler or provide a valid samples file!')
-    #print(len(obj.e_for_mcmc),len(samples),obj.e_for_mcmc)
+
     fig = corner.corner(samples,bins=25, color="k", reverse=True, upper= True, labels=obj.e_for_mcmc, quantiles=[level/100.0, 1.0-level/100.0],
                         levels=(0.6827, 0.9545,0.9973), smooth=1.0, smooth1d=1.0, plot_contours= True, show_titles=True, truths=obj.par_for_mcmc,
                         dpi = 300, pad=15, labelpad = 50 ,truth_color ='r', title_kwargs={"fontsize": 12}, scale_hist=True,  no_fill_contours=True,
@@ -270,10 +275,11 @@ def cornerplot(obj, fileinput=False, level=(100.0-68.3)/2.0,type_plot = 'mcmc', 
         fig.savefig(obj.nest_corner_plot_file)
 
 
-    ### memory leak in loops!
+    ### to avoid memory leak in loops!
     fig.clf()
     del fig
     samples = 0
+    print("Cornerplot done!")
 
     return
 
