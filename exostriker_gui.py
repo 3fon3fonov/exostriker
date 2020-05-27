@@ -1,3 +1,3 @@
 #!/usr/bin/env python3
 import exostriker
-exostriker.lib.gui.main()
+exostriker.gui.main()
