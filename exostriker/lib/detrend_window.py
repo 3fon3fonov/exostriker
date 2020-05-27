@@ -12,13 +12,17 @@ import dill
 
 from wotan import flatten
 
+#qtCreatorFile = "./lib/UI/tdt.ui" 
+#Ui_DetrendWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
+#import time
+#start_time = time.time()
 
-lib_path = os.path.dirname(os.path.abspath(__file__))
-
-qtCreatorFile = "%s/UI/tdt.ui"%lib_path
-Ui_DetrendWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
-
-
+try:
+    from tdt import Ui_Detrend as Ui_DetrendWindow
+except (ImportError, KeyError) as e:
+    qtCreatorFile = "./lib/UI/tdt.ui" #%lib_path 
+    Ui_DetrendWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
+#print("--- %s seconds ---" % (time.time() - start_time))
 
 try:
     import sklearn
@@ -66,7 +70,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         # Create the main window
         self.ui = Ui_DetrendWindow()
         self.ui.setupUi(self)
-        self.setWindowIcon(QtGui.QIcon('%s/UI/33_striker.png'%lib_path))
+        self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
 
         self.sklearn_found = sklearn_found
         self.statsmodels_found = statsmodels_found
