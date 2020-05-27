@@ -1,0 +1,16 @@
+numpy
+scipy
+matplotlib
+PyQt5
+qtconsole
+jupyter
+pathos
+dill
+emcee
+corner
+celerite
+transitleastsquares
+dynesty
+batman
+ttvfast
+wotan
