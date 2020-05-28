@@ -1,1 +1,1 @@
-recursive-include exostriker/lib
+recursive-include exostriker/ *
