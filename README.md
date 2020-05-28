@@ -70,8 +70,8 @@ and then:
 $ cd exostriker  
 $ python exostriker_gui.py    
 
-Generally, you do not need to install anything if you already have all the dependencies needed for the tool to run. For dependency list, see the "setup.py" file.    
-The Exo-Striker will automatically compile the Fortran code for you at the first start of the program and will keep you updated if the source code was updated (if you regurely "git pull").    
+Generally, you do not need to install anything if you already have all the dependencies needed for the tool to run. For the dependency list, see the "setup.py" file.    
+The Exo-Striker will automatically compile the Fortran code for you at the first start of the program and will keep you updated if the source code was updated (if you regularly "git pull").    
  
  
 #######################################################    
@@ -89,7 +89,7 @@ Then, open a terminal and
 
 $ exostriker    
 
-should start the gui.    
+Should start the Exo-Striker  
 
 
 #######################################################    
@@ -102,19 +102,32 @@ Then, open a terminal and
 
 $ exostriker
 
-should start the gui.
+Should start the Exo-Striker  
 
 #######################################################     
 
 If you still cannot boot the tool after a 'successful' installation, please try:
 
-$ python es_gui.py -debug 
+$ python exostriker_gui.py -debug 
 
-Then, copy the output error and please open a 'GitHub' issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
-'stdout/stderr' tab of the tool. If you use this tool and you find a bug or a problem, please report it!    
+or 
 
+$ exostriker -debug 
+
+(depending on how you use the tool)
+
+Then, copy the output error, and please open a 'GitHub' issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
+'stdout/stderr' tab of the tool. If you use this tool, and you find a bug or a problem, please report it!    
+
+#######################################################
+
+Please keep in mind that this software is developed mostly for my needs and for fun. I hope, however, that you may find it capable of solving your scientific problems, too.
+
+Feedback and help in further development will be highly appreciated!
 A wish-list with your favorite tools and methods to be implemented is also welcome!    
+
 Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.    
+Few comments to understand your new setup better.
 
 
 

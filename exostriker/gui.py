@@ -5041,11 +5041,11 @@ in https://github.com/3fon3fonov/exostriker
         text = "\n"*5 + """Note:
 Please keep in mind that this software is developed 
 mostly for my needs and for fun. I hope, however, 
-that you may find it capable to solve your scientific 
-problems, too. 
+that you may find it capable of solving your scientific 
+problems, too.
 
-Feedback and help in further developing will be 
-highly appreciated!
+Feedback and help in further development 
+will be highly appreciated!
 """
         self.dialog_credits.text.append(text)
         self.dialog_credits.text.setReadOnly(True)
