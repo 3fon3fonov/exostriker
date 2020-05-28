@@ -6816,35 +6816,35 @@ Please install via 'pip install ttvfast'.
         result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
         if flag1 == -1 or str(result1[0][0]) != version_kep_loglik:
             print("New source code available: Updating Keplerian Simplex")
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep', 6,output=True)
+            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep', 10,output=True)
             result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
 
         version_kep_LM= "0.07"
         result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)
         if flag2 == -1 or str(result2[0][0]) != version_kep_LM:
             print("New source code available: Updating Keplerian L-M") 
-            result2, flag2 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep', 6,output=True)
+            result2, flag2 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep', 10,output=True)
             result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)
 
         version_dyn_loglik= "0.07"
         result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)
         if flag3 == -1 or str(result3[0][0]) != version_dyn_loglik:
             print("New source code available: Updating N-body Simplex")   
-            result3, flag3 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn', 6,output=True)
+            result3, flag3 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn',10,output=True)
             result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)
 
         version_dyn_LM= "0.07"
         result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)
         if flag4 == -1 or str(result4[0][0]) != version_dyn_LM:
             print("New source code available: Updating N-body L-M")
-            result4, flag4 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn', 6,output=True)
+            result4, flag4 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn', 10,output=True)
             result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)
 
         version_dyn_loglik_= "0.05"
         result5, flag5 = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)
         if flag5 == -1 or str(result5[0][0]) != version_dyn_loglik_:
             print("New source code available: Updating Mixed Simplex")
-            result5, flag5 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+', 6,output=True)
+            result5, flag5 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+', 10,output=True)
             result5, flag5 = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)
 
         try:
