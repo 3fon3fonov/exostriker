@@ -6848,19 +6848,12 @@ Please install via 'pip install ttvfast'.
             r5 = float(result5[0][0])
         except (ImportError, KeyError, AttributeError,ValueError, IndexError) as e:
 
-            #print("""
-#Something went wrong!!! Most likely the swift library was updated and now you 
-#need to recompile it. E.g. use: 
-#    
-#   $ bash installers/XXXXX_install.sh 
-#    
-#(see README_for_installation)
-#
-#If this does not help, please open a GitHub issue here:
-#    
-#    https://github.com/3fon3fonov/exostriker/issues
-           # """
-#            )
+            print("""
+Something went wrong!!! please open a GitHub issue here:
+    
+https://github.com/3fon3fonov/exostriker/issues
+            """
+            )
  
         if not os.path.exists("./lib/libswift.a"):
             result6, flag6 = rv.run_command_with_timeout('./install_swift.sh', 600,output=True)
