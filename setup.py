@@ -35,7 +35,7 @@ install_requires=[
 "jupyter-client==5.3.4",
 "ipykernel==5.1.3",
 "pathos>=0.2.5",
-"dill",
+"dill>=0.3.1",
 "emcee>=3.0.2",
 "corner",
 "celerite>=0.3.1",
