@@ -13,17 +13,16 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 
 * Trifon Trifonov, MPIA Heidelberg.
 
-* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, and Stefan Dreizler.
+* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler and Grigorii Smirnov-Pinchukov
 
 
 **What works**:
 
 * RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
 * Activity index signal search via GLS periodogram.
-* Keplerian and Dynamical RV modeling. 
-* Keplerian and Dynamical Transit photometry modeling.
+* Keplerian and Dynamical modeling of RV & Transit photometry exoplanet data.
 * Instant online access to the "RVBank" database (over 212 000 RVs and activity indices of about HARPS 3000 stars & over 64 000 RVs and activity indices of about HIRES 1700 stats !!!).
-* Transit signal search via TLS.
+* Transit signal search (via "TLS").
 * Interactive transit photometry detrending (via "wotan"), and interactive outlier removal.
 * GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
 * Joint RVs + Transit + GPs best-fit optimization.
@@ -51,110 +50,71 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * More GP kernels (work in progress). 
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ REBOUND is planned to be included). 
 * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
-* A pip installer, and a ready-to-use pre-installed binary of the tool (work in progress). 
 * Combined modeling with Astrometry.
 * Documentation, Instructions, and Video tutorials (work in progress here: https://exostriker.readthedocs.io)
 
 
 
-
-
 **Installation:**
 
-Since the Exo-Striker tool is under active development, and its functionality is enhanced on a daily basis,
-I intentionally did not make a "pip" installer. This will be done close to the official Ver.1 release. The only way to install the tool is simply to "git clone" and then 
-insite the "exostriker" root directory, simply run "$python es_gui.py".
-Generally, you do not need to install anything if you already have all the dependencies.
-The Exo-Striker will automatically compile the Fortran code for you at the first start of the program and will keep you updated if the source code was updated. 
-Yet, to avoid problems, I recommend to follow the steps listed below:
 
+Currently there are three ways to install/run The Exo-Striker:    
 
-**for a first download, just do:**
+#######################################################    
+*  The simpliest way to "git clone"    
 
 $ git clone https://github.com/3fon3fonov/exostriker  
 
-**then, e.g. for an Ubuntu (Debian) installation:**
+and then:    
 
 $ cd exostriker  
-$ bash installers/linux_debian_install.sh  
+$ python exostriker_gui.py    
 
-**Successful installation should look like this:**
-
-For which Python version we want to check/install packages?  
-1) Python2  
-2) Python3  
-*#? 2*  
-
-**(now it will check if you have the needed dependencies. If packages are missing it will ask you to install it")**
-
-gfortran - yes!  
-csh - yes!  
-setuptools - yes!  
-pip - yes!  
-numpy - yes!  
-scipy - yes!  
-matplotlib - yes!  
-PyQt5 - yes!  
-PyQt5.QtSvg - yes!   
-qtconsole - yes!   
-jupyter - yes!   
-pathos - yes!  
-dill - yes!  
-emcee - yes!  
-corner - yes!  
-celerite - yes!  
-transitleastsquares - yes!  
-dynesty - yes!  
-rxvt - yes!  
-batman - yes!   
-ttvfast - yes!   
-wotan - yes!   
-
-*Installing the swift N-body lib, OK?  (you must if you haven't done it already!)*
-  
-1) Yes  
-2) No   
-*#? 1*  
-
-**(some output will be printed, it takes ~1 min.)**  
-DONE
+Generally, you do not need to install anything if you already have all the dependencies needed for the tool to run. For dependency list, see the "setup.py" file.    
+The Exo-Striker will automatically compile the Fortran code for you at the first start of the program and will keep you updated if the source code was updated (if you regurely "git pull").    
  
-
-*Compiling the Fortran fitting routines, OK? (you must if you haven't done it already!)*
  
-1) Yes  
-2) No   
-*#? 1*  
- 
-*Compiling Symba/mvs and other N-body routines, OK? (you must if you haven't done it already!)*
- 
-1) Yes  
-2) No   
-*#? 1*   
+#######################################################    
+*  The second way to instal the tool is:    
 
-**That's it! Then simply:**
+$ git clone https://github.com/3fon3fonov/exostriker     
 
-$ python es_gui.py
+and then:    
 
-**to update the tool (inside the "exostriker" directory) just do:**
+$ cd exostriker    
+$ python setup.py install    
 
-$ git pull  
+This will (hopefully) install the tool in your system.     
+Then, open a terminal and     
 
+$ exostriker    
+
+should start the gui.    
 
 
-**Also please read "README_for_installation"!**
+#######################################################    
+*  and last, you can try:    
 
-I believe the installation instructions are very clear and easy to run.
+$ pip install git+https://github.com/3fon3fonov/exostriker    
+
+This will (hopefully) install the tool in your system.    
+Then, open a terminal and     
+
+$ exostriker
+
+should start the gui.
+
+#######################################################     
 
 If you still cannot boot the tool after a 'successful' installation, please try:
 
 $ python es_gui.py -debug 
 
 Then, copy the output error and please open a 'GitHub' issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
-'stdout/stderr' tab of the tool. If you use this tool and you find a bug or a problem, please report it!
+'stdout/stderr' tab of the tool. If you use this tool and you find a bug or a problem, please report it!    
 
-A wish-list with your favorite tools and methods to be implemented is also welcome!
-Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.
+A wish-list with your favorite tools and methods to be implemented is also welcome!    
+Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.    
 
 
 
