@@ -6,20 +6,6 @@ import setuptools
 with open("README.md", "r") as fh:
      long_description = fh.read()
 
-#os.chdir("exostriker")
-
-#os.system("echo hallo world!")
-#os.system("""
-#gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep; # chi2 keplerian
-#gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn; # chi2 dynamical
-#gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep; # lnL keplerian
-#gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn; # lnL dynamical
-#gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+; # lnL dynamical/keplerian mixed
-#""")
-
-#os.chdir("../")
- 
-
 setup(
 name='exostriker',  
 version='0.27',
@@ -53,7 +39,7 @@ install_requires=[
 "emcee>=3.0.2",
 "corner",
 "celerite>=0.3.1",
-"transitleastsquares",
+"transitleastsquares==1.0.24",
 "dynesty>=1.0.1",
 "ttvfast>=0.3.0",
 "wotan>=1.7"],
