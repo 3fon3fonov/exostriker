@@ -6856,8 +6856,10 @@ https://github.com/3fon3fonov/exostriker/issues
             )
  
         if not os.path.exists("./lib/libswift.a"):
+            print("Installing the swift N-body lib for a first time!")
             result6, flag6 = rv.run_command_with_timeout('./install_swift.sh', 600,output=True)
-            print(result6)
+            #print(result6)
+            print("Installation DONE!")
         #else:
             
             
