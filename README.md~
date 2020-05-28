@@ -70,7 +70,8 @@ and then:
 $ cd exostriker  
 $ python exostriker_gui.py    
 
-Generally, you do not need to install anything if you already have all the dependencies needed for the tool to run. For the dependency list, see the "setup.py" file. The Exo-Striker will automatically compile the Fortran code for you at the first start of the program and will keep you updated if the source code was updated (if you regularly "git pull").    
+Generally, you do not need to install anything if you already have all the dependencies needed for the tool to run. For the dependency list, see the "setup.py" file.    
+The Exo-Striker will automatically compile the Fortran code for you at the first start of the program and will keep you updated if the source code was updated (if you regularly "git pull").    
  
  
 #######################################################    
@@ -126,6 +127,7 @@ Feedback and help in further development will be highly appreciated!
 A wish-list with your favorite tools and methods to be implemented is also welcome!    
 
 Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.    
+Few comments to understand your new setup better.
 
 
 
