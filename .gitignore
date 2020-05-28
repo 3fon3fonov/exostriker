@@ -9,6 +9,8 @@ exostriker/lib/libswift.a
 source/swift_j/libswift.a
 @make
 
+git-push
+
 # Setuptools distribution folder.
 /dist/
 
