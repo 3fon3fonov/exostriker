@@ -4990,7 +4990,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.27) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.30) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -7947,7 +7947,7 @@ https://github.com/3fon3fonov/exostriker/issues
             self.init_plot_corr()
             self.update_plot_corr()
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.27). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.30). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)
