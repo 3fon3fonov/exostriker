@@ -31,7 +31,7 @@ long_description=long_description,
 long_description_content_type="text/markdown",
 url="https://github.com/3fon3fonov/exostriker",
 #packages=['exostriker'],
-packages=find_packages(),
+packages=find_packages(where="lib"),
 include_package_data = True,
 classifiers=[
  "Programming Language :: Python :: 3",
