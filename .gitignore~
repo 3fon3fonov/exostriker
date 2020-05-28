@@ -3,7 +3,6 @@ exostriker/stability/mvs/*
 exostriker/stability/mvs_gr/*
 exostriker/stability/symba/*
 exostriker/datafiles/*
-exostriker/auto_save.ses
 *.pyc
 exostriker/lib/libswift.a
 source/swift_j/libswift.a
