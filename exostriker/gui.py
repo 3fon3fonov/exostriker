@@ -6805,6 +6805,13 @@ Please install via 'pip install ttvfast'.
 
     def check_fortran_routines(self):
 
+        if not os.path.exists("./lib/libswift.a"):
+            print("Installing the swift N-body lib for a first time!")
+            result6, flag6 = rv.run_command_with_timeout('./install_swift.sh', 600,output=True)
+            #print(result6)
+            print("Installation DONE!")
+
+
         version_kep_loglik= "0.07"
         result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
         if flag1 == -1 or str(result1[0][0]) != version_kep_loglik:
@@ -6855,15 +6862,8 @@ https://github.com/3fon3fonov/exostriker/issues
             """
             )
  
-        if not os.path.exists("./lib/libswift.a"):
-            print("Installing the swift N-body lib for a first time!")
-            result6, flag6 = rv.run_command_with_timeout('./install_swift.sh', 600,output=True)
-            #print(result6)
-            print("Installation DONE!")
-        #else:
-            
-            
-
+ 
+ 
 
 ################################## Stellar params #######################################
 
@@ -7239,7 +7239,9 @@ https://github.com/3fon3fonov/exostriker/issues
         self.setupUi(self)
         
         self.initialize_font_plot()
-        
+
+        self.check_fortran_routines()
+
 #        self.installEventFilter(self)
         
         self.param_bounds_gui  = gui_groups.param_bounds_gui(self)
@@ -7926,8 +7928,6 @@ https://github.com/3fon3fonov/exostriker/issues
         self.err_St_lumin_input.valueChanged.connect(self.update_St_params)
         self.err_St_teff_input.valueChanged.connect(self.update_St_params)
         self.err_St_vsini_input.valueChanged.connect(self.update_St_params)
-
-        self.check_fortran_routines()
 
         if start_arg_ses == True:
             self.update_bounds()
