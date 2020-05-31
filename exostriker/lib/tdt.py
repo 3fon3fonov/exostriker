@@ -2,13 +2,11 @@
 
 # Form implementation generated from reading ui file 'tdt.ui'
 #
-# Created by: PyQt5 UI code generator 5.14.2
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_Detrend(object):
     def setupUi(self, Detrend):
@@ -378,8 +376,8 @@ class Ui_Detrend(object):
         self.click_to_reject.setText(_translate("Detrend", "remove outliers"))
         self.apply_dilution.setText(_translate("Detrend", "Apply Dilution fact."))
         self.add_epoch.setText(_translate("Detrend", "Add BJD"))
-from pyqtgraph import PlotWidget
 
+from pyqtgraph import PlotWidget
 
 if __name__ == "__main__":
     import sys
@@ -389,3 +387,4 @@ if __name__ == "__main__":
     ui.setupUi(Detrend)
     Detrend.show()
     sys.exit(app.exec_())
+
