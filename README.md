@@ -74,7 +74,7 @@ Generally, you do not need to install anything if you already have all the depen
  
  
 #######################################################    
-*  The second way to instal the tool is:    
+*  The second way to install the tool is:    
 
 $ git clone https://github.com/3fon3fonov/exostriker     
 
@@ -187,6 +187,8 @@ and more.
 
 **Scientific papers which used The Exo-Striker (to my knowledge):**
 
+*  Obermeier, C., Steuer, J., Kellermann, H., Saglia, R., Henning, Th., et al. Following the TraCS of exoplanets with Pan-Planets: Wendelstein-1b and Wendelstein-2b (A&A, in press) arXiv e-prints arXiv:2005.13560
+
 * Stock, S., J. Kemmer, S. Reffert, et al. (2020). The CARMENES search for exoplanets around M dwarfs. Characterization of the nearby ultra-compact multiplanetary system YZ Ceti. (A&A, in press) arXiv e-prints arXiv:2002.01772.
  
 * Trifonov, T., M. H. Lee, M. Kürster, et al. (2020). The CARMENES search for exoplanets around M dwarfs. Dynamical characterization of the multiple planet system GJ 1148 and prospects of habitable exomoons around GJ 1148 b. (A&A, in press) arXiv e-prints arXiv:2002.00906.
@@ -199,6 +201,6 @@ and more.
 
 * Trifonov, Trifon, Jan Rybizki, and Martin Kürster. (2019). TESS exoplanet candidates validated with HARPS archival data. A massive Neptune around GJ 143 and two Neptunes around HD 23472. A&A, 622, L7. 
 
-(And as of April 2020, I am aware of at least 7 more papers in preperation !!!)
+(And as of May 2020, I am aware of at least 8 more papers in preperation !!!)
 
 
