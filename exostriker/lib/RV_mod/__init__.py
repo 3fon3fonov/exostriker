@@ -1528,6 +1528,8 @@ def run_nestsamp(obj, **kwargs):
     threads = int(obj.ns_threads)
     stop_crit = obj.stop_crit
     Dynamic_nest = obj.Dynamic_nest
+    ns_bound = obj.ns_samp_bound
+    ns_pfrac = obj.ns_pfrac
 
     thread = Pool(ncpus=threads)
 
@@ -1545,14 +1547,14 @@ def run_nestsamp(obj, **kwargs):
             #    thread.join()
             #    thread.clear()
             sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, pool = thread,
-                                                queue_size=threads, sample = dynesty_samp)
+                                                queue_size=threads, sample = dynesty_samp, bound = ns_bound)
             sampler.run_nested(print_progress=print_progress,dlogz=stop_crit) #dlogz=stop_crit,
             thread.close()
             thread.join()
             thread.clear()
 
         else:
-             sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, sample = dynesty_samp)
+             sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, sample = dynesty_samp, bound = ns_bound)
              sampler.run_nested(print_progress=print_progress,dlogz=stop_crit)
 
 
@@ -1573,7 +1575,7 @@ def run_nestsamp(obj, **kwargs):
 #                thread.clear()
 
             sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, pool = thread,
-                                                   queue_size=threads, sample = dynesty_samp, bound='multi') # nlive=nwalkers,
+                                                   queue_size=threads, sample = dynesty_samp, bound = ns_bound, wt_kwargs={'pfrac': ns_pfrac}) # nlive=nwalkers,
 
             sampler.run_nested(print_progress=print_progress,dlogz_init=stop_crit,nlive_init=nwalkers) #nlive_init=nwalkers, , nlive_batch=1
             thread.close()
@@ -1581,7 +1583,7 @@ def run_nestsamp(obj, **kwargs):
             thread.clear()
 
         else:
-             sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, sample = dynesty_samp, bound='multi')
+             sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, sample = dynesty_samp, bound = ns_bound, wt_kwargs={'pfrac': ns_pfrac})
              sampler.run_nested(print_progress=print_progress,dlogz_init=stop_crit,nlive_init=nwalkers) #nlive_init=nwalkers,
 
 
@@ -2703,6 +2705,10 @@ class signal_fit(object):
 
         self.ns_samp_method_opt = ['slice','unif','rwalk','rstagger','rslice','hslice']
         self.ns_samp_method = self.ns_samp_method_opt[0]
+        
+        self.ns_samp_bound_opt = ['none','single','multi','balls','rslice','cubes']
+        self.ns_samp_bound = self.ns_samp_bound_opt[0]
+        self.ns_pfrac = 1.0
 
         self.ns_threads=1
         self.Dynamic_nest = False
