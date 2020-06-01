@@ -5686,11 +5686,24 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         for i in range(len(fit.ns_samp_method_opt)):
             self.comboBox_ns_samp_opt.addItem('%s'%(fit.ns_samp_method_opt[i]),i+1)
 
+        for i in range(len(fit.ns_samp_bound_opt)):
+            self.comboBox_ns_bound_opt.addItem('%s'%(fit.ns_samp_bound_opt[i]),i+1)
+
+
     def check_ns_samp_opt_combo(self):
         global fit
 
         ind_ns_opt = self.comboBox_ns_samp_opt.currentIndex()
         fit.ns_samp_method = fit.ns_samp_method_opt[ind_ns_opt]
+
+        ind_ns_bound_opt = self.comboBox_ns_bound_opt.currentIndex()
+        fit.ns_samp_bound = fit.ns_samp_bound_opt[ind_ns_bound_opt]
+        
+        fit.ns_pfrac = self.nest_pfrac.value()
+
+        self.check_nested_params()
+
+
 
 
 ################################## MCMC #######################################
@@ -7758,6 +7771,7 @@ https://github.com/3fon3fonov/exostriker/issues
 
         self.init_ns_samp_opt_combo()
         self.comboBox_ns_samp_opt.activated.connect(self.check_ns_samp_opt_combo)
+        self.comboBox_ns_bound_opt.activated.connect(self.check_ns_samp_opt_combo)
 
         self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
 
