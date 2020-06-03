@@ -4990,7 +4990,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.30) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.31) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -5662,7 +5662,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
     def check_nested_params(self):
         global fit
-        #fit.gaussian_ball = self.init_gauss_ball.value() 
+
+
         fit.live_points_fact = int(self.live_points.value())
         fit.ns_threads=int(self.nest_N_threads.value())
         fit.Dynamic_nest = self.radioButton_dyn_nest_samp.isChecked()
@@ -5675,6 +5676,9 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         fit.ns_save_maxlnL=self.adopt_nest_best_lnL_as_pars.isChecked() 
         fit.ns_save_sampler=self.save_samples_nested_in_memory.isChecked()
 
+        fit.ns_use_stop = self.ns_use_stop.isChecked()
+        fit.ns_maxiter = {0:self.use_ns_maxiter.isChecked(), 1:self.ns_maxiter.value()}
+        fit.ns_maxcall = {0:self.use_ns_maxcall.isChecked(), 1:self.ns_maxcall.value()}
 
     def force_nest_check_box(self):
         if self.button_make_cornerplot_nested.isChecked():
@@ -7772,6 +7776,10 @@ https://github.com/3fon3fonov/exostriker/issues
         self.init_ns_samp_opt_combo()
         self.comboBox_ns_samp_opt.activated.connect(self.check_ns_samp_opt_combo)
         self.comboBox_ns_bound_opt.activated.connect(self.check_ns_samp_opt_combo)
+        
+        self.use_ns_maxiter.stateChanged.connect(self.check_ns_samp_opt_combo)
+        self.use_ns_maxcall.stateChanged.connect(self.check_ns_samp_opt_combo)
+        self.ns_use_stop.stateChanged.connect(self.check_ns_samp_opt_combo)
 
         self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
 
@@ -7961,7 +7969,7 @@ https://github.com/3fon3fonov/exostriker/issues
             self.init_plot_corr()
             self.update_plot_corr()
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.30). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.31). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)

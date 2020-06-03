@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
 
 setup(
 name='exostriker',  
-version='0.30',
+version='0.31',
 scripts=['scripts/exostriker'],
 author="Trifon Trifonov",
 author_email="trifonov@mpia.de",
@@ -25,17 +25,16 @@ classifiers=[
  "Operating System :: OS Independent",
 ],
 install_requires=[
-"numpy>=1.18.4",
+"numpy>=1.16.6",
 "scipy>=1.2.1",
 "matplotlib==3.2.1",
 "PyQt5==5.9.2",
-#"PyQt5.QtSvg",
-"qtconsole>=4.5.5",
-"jupyter==1.0.0",
-"jupyter-client==5.3.4",
-"ipykernel==5.1.3",
-"pathos>=0.2.5",
+"qtconsole",
+"jupyter",
+"jupyter-client",
+"ipykernel",
 "dill>=0.3.1",
+"pathos>=0.2.5",
 "emcee>=3.0.2",
 "corner",
 "celerite>=0.3.1",
@@ -43,6 +42,7 @@ install_requires=[
 "dynesty>=1.0.1",
 "ttvfast>=0.3.0",
 "wotan>=1.7"],
+extra_requires=['pexpect>=4.8.0'],
 license="MIT"
  )
  
