@@ -27,7 +27,7 @@ classifiers=[
 install_requires=[
 "numpy>=1.16.6",
 "scipy>=1.2.1",
-"matplotlib==3.2.1",
+"matplotlib>=2.2.5",
 "PyQt5==5.9.2",
 "qtconsole",
 "jupyter",
