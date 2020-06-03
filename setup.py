@@ -28,7 +28,6 @@ install_requires=[
 "numpy>=1.16.6",
 "scipy>=1.2.1",
 "matplotlib>=2.2.5",
-"PyQt5==5.9.2",
 "qtconsole",
 "jupyter",
 "jupyter-client",
@@ -42,7 +41,7 @@ install_requires=[
 "dynesty>=1.0.1",
 "ttvfast>=0.3.0",
 "wotan>=1.7"],
-extra_requires=['pexpect>=4.8.0'],
+extra_requires=['pexpect>=4.8.0',"PyQt5==5.9.2"],
 license="MIT"
  )
  
