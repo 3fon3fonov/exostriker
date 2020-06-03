@@ -19,13 +19,13 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 **What works**:
 
 * RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
-* Keplerian and Dynamical modeling of RV & Transit photometry exoplanet data.
 * Transit signal search (via "TLS").
-* Interactive transit photometry detrending (via "wotan"), and interactive outlier removal.
-* GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
+* Interactive transit photometry detrending (via "wotan"), interactive outlier removal, and more.
+* Keplerian and Dynamical modeling of RV & Transit photometry exoplanet data.
 * Joint RVs + Transit + GPs best-fit optimization (internal Fortran Simplex and L-M minimizers, or many more via "SciPyOp").
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty") 
 * TTVs and/or joint TTVs + RVs analysis.
+* GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
 * Activity index signal search via GLS periodogram.
 * RVs vs. Activity time-series correlation analysis/plots.
 * RV auto-fit (RV automated planet-finder algorithm).
