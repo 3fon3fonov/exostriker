@@ -1530,12 +1530,25 @@ def run_nestsamp(obj, **kwargs):
     Dynamic_nest = obj.Dynamic_nest
     ns_bound = obj.ns_samp_bound
     ns_pfrac = obj.ns_pfrac
+    ns_use_stop = obj.ns_use_stop 
+    
+    if obj.ns_maxiter[0] == False:
+         ns_maxiter = None
+    else:
+         ns_maxiter = obj.ns_maxiter[1]
+
+    if obj.ns_maxcall[0] == False:
+         ns_maxcall = None
+    else:
+         ns_maxcall = obj.ns_maxcall[1]
+ 
+
 
     thread = Pool(ncpus=threads)
 
 
     if Dynamic_nest == False:
-        print("'Static' Nest. Samp. is running, please wait... (still under tests!)")
+        print("'Static' Nest. Samp. is running, please wait...")
 
         if threads > 1:
             #with closing(Pool(processes=threads)) as thread:
@@ -1548,21 +1561,23 @@ def run_nestsamp(obj, **kwargs):
             #    thread.clear()
             sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, pool = thread,
                                                 queue_size=threads, sample = dynesty_samp, bound = ns_bound)
-            sampler.run_nested(print_progress=print_progress,dlogz=stop_crit) #dlogz=stop_crit,
+            sampler.run_nested(print_progress=print_progress,dlogz=stop_crit, 
+            maxiter = ns_maxiter, maxcall = ns_maxcall ) #dlogz=stop_crit,
             thread.close()
             thread.join()
             thread.clear()
 
         else:
              sampler = dynesty.NestedSampler(partial_func, prior_transform, ndim, nlive=nwalkers, sample = dynesty_samp, bound = ns_bound)
-             sampler.run_nested(print_progress=print_progress,dlogz=stop_crit)
+             sampler.run_nested(print_progress=print_progress,dlogz=stop_crit, 
+             maxiter = ns_maxiter, maxcall = ns_maxcall )
 
 
         obj.dyn_res = sampler.results
         obj.dyn_res.summary()
 
     else:
-        print("'Dynamic' Nest. Samp. is running, please wait... (still under tests!)")
+        print("'Dynamic' Nest. Samp. is running, please wait...")
 
         if threads > 1:
 #            with closing(Pool(processes=threads)) as thread:
@@ -1575,16 +1590,18 @@ def run_nestsamp(obj, **kwargs):
 #                thread.clear()
 
             sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, pool = thread,
-                                                   queue_size=threads, sample = dynesty_samp, bound = ns_bound, wt_kwargs={'pfrac': ns_pfrac}) # nlive=nwalkers,
+                                                   queue_size=threads, sample = dynesty_samp, bound = ns_bound) # nlive=nwalkers,
 
-            sampler.run_nested(print_progress=print_progress,dlogz_init=stop_crit,nlive_init=nwalkers) #nlive_init=nwalkers, , nlive_batch=1
+            sampler.run_nested(print_progress=print_progress,dlogz_init=stop_crit,nlive_init=nwalkers, 
+            maxiter = ns_maxiter, maxcall = ns_maxcall,use_stop = ns_use_stop, wt_kwargs={'pfrac': ns_pfrac})   #nlive_batch=1
             thread.close()
             thread.join()
             thread.clear()
 
         else:
-             sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, sample = dynesty_samp, bound = ns_bound, wt_kwargs={'pfrac': ns_pfrac})
-             sampler.run_nested(print_progress=print_progress,dlogz_init=stop_crit,nlive_init=nwalkers) #nlive_init=nwalkers,
+            sampler = dynesty.DynamicNestedSampler(partial_func, prior_transform, ndim, sample = dynesty_samp, bound = ns_bound)
+            sampler.run_nested(print_progress=print_progress,dlogz_init=stop_crit,nlive_init=nwalkers,  
+            maxiter = ns_maxiter, maxcall = ns_maxcall,use_stop = ns_use_stop, wt_kwargs={'pfrac': ns_pfrac} ) 
 
 
         obj.dyn_res = sampler.results
@@ -2720,6 +2737,10 @@ class signal_fit(object):
         self.ns_save_mode=False
         self.ns_save_maxlnL=False
         self.ns_save_sampler=True
+        
+        self.ns_use_stop = True
+        self.ns_maxiter = {0:False, 1:10000000}
+        self.ns_maxcall = {0:False, 1:10000000}
 
         self.nest_mad = False
         self.nest_AMD_stab   = False
