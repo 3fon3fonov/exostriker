@@ -19,22 +19,21 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 **What works**:
 
 * RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
-* Activity index signal search via GLS periodogram.
 * Keplerian and Dynamical modeling of RV & Transit photometry exoplanet data.
-* Instant online access to the "RVBank" database (over 212 000 RVs and activity indices of about HARPS 3000 stars & over 64 000 RVs and activity indices of about HIRES 1700 stats !!!).
 * Transit signal search (via "TLS").
 * Interactive transit photometry detrending (via "wotan"), and interactive outlier removal.
 * GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
-* Joint RVs + Transit + GPs best-fit optimization.
-* Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty").
+* Joint RVs + Transit + GPs best-fit optimization (internal Fortran Simplex and L-M minimizers, or many more via "SciPyOp").
+* Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty") 
 * TTVs and/or joint TTVs + RVs analysis.
+* Activity index signal search via GLS periodogram.
+* RVs vs. Activity time-series correlation analysis/plots.
 * RV auto-fit (RV automated planet-finder algorithm).
 * Fit for apsidal orbital precession, or apply General Relativity (GR) precession. 
+* Instant online access to the "RVBank" database (over 212 000 RVs and activity indices of about HARPS 3000 stars & over 64 000 RVs and activity indices of about HIRES 1700 stats !!!).
 * Instant AMD stability check for multiple planetary systems (including during optimization or MCMC/Nested Sampling).
 * Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.
-* Various of minimization methods (via "SciPyOp").
 * Fully interactive, super-fast, high-quality, exportable plots.
-* RV vs. Activity time-series correlation analysis/plots.
 * Import/Export of work sessions and multi-sessions. 
 * Export plots to a matplotlib window for further customization.
 * Export ready to use LaTeX tables with best-fit parameters, errors, and statistics. 
@@ -61,7 +60,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 Currently there are three ways to install/run The Exo-Striker:    
 
 #######################################################    
-*  The simpliest way to "git clone"    
+*  The simpliest way to "git clone":    
 
 $ git clone https://github.com/3fon3fonov/exostriker  
 
@@ -127,6 +126,7 @@ A wish-list with your favorite tools and methods to be implemented is also welco
 
 Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.    
 
+Also, please only use Python 3 for installing The Exo-Striker! The tool works with Python 2, but since Python 2 and is no longer maintained (since Jan 1, 2020) I do not provide assistance in case of problems.    
 
 
 **Credit**
