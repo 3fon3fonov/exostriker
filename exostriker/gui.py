@@ -3620,7 +3620,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 #print(rv_JD_in,rv_data_in, rv_data_sig_in)
 
                 if len(rv_JD_in) != len(rv_data_in) != len(rv_data_sig_in):
-                    print("Something is wrong with your RV file! Please provide a valid RV file that contains BJD RV [m/s] sigma_RV [m/s] ")
+                    print("Something is wrong with your RV data file! Please provide a valid RV data file that contains: BJD RV [m/s] sigma_RV [m/s] ")
                     return
                  
                 rv_JD        = rv_JD_in[      np.isfinite(rv_JD_in) & np.isfinite(rv_data_in) & np.isfinite(rv_data_sig_in)]
@@ -3630,11 +3630,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 #print(len(rv_JD_in),len(rv_JD),len(rv_data_in),len(rv_data),len(rv_data_sig_in),len(rv_data_sig))
                 
                 if len(rv_JD_in) ==0 or len(rv_JD_in) != len(rv_JD):
-                    print("Something is wrong with your RV file! Perhaps some not all entires are numeric? Please provide a valid RV file that contains BJD RV [m/s] sigma_RV [m/s] ")
+                    print("Something is wrong with your RV data file! Perhaps some not all entries are numeric? Please provide a valid RV data file that contains: BJD RV [m/s] sigma_RV [m/s] ")
                     return
      
             except:
-                print("Something is wrong with your RV file! Please provide a valid RV file that contains BJD RV [m/s] sigma_RV [m/s] ")
+                print("Something is wrong with your RV data file! Please provide a valid RV data file that contains: BJD RV [m/s] sigma_RV [m/s] ")
                 return 
             ################################################################################
 

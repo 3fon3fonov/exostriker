@@ -2839,18 +2839,26 @@ class signal_fit(object):
 ############################ activity datasets ##########################################
     def add_act_dataset(self, name, path, act_idset = 0):
 
-        act_JD_       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-        act_data_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-        act_data_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
 
-        act_JD        = act_JD_[      np.isfinite(act_JD_) & np.isfinite(act_data_) & np.isfinite(act_data_sig_)]
-        act_data      = ttv_data_[    np.isfinite(act_JD_) & np.isfinite(act_data_) & np.isfinite(act_data_sig_)]
-        act_data_sig  = ttv_data_sig_[np.isfinite(act_JD_) & np.isfinite(act_data_) & np.isfinite(act_data_sig_)]
+        try:
+ 
+            act_JD_       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+            act_data_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+            act_data_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
 
-        if len(act_JD) <= 3:
-            print("Unknown type of file! Please provide a valid activity file")
+            if len(act_JD_) != len(act_data_) != len(act_data_sig_):
+                print("Something is wrong with your activity data file! Please provide a valid activity data file that contains: BJD  y  sigma_y")
+                return
+            act_JD        = act_JD_[      np.isfinite(act_JD_) & np.isfinite(act_data_) & np.isfinite(act_data_sig_)]
+            act_data      = act_data_[    np.isfinite(act_JD_) & np.isfinite(act_data_) & np.isfinite(act_data_sig_)]
+            act_data_sig  = act_data_sig_[np.isfinite(act_JD_) & np.isfinite(act_data_) & np.isfinite(act_data_sig_)]
+
+            if len(act_JD) <= 3:
+                print("Something is wrong with your activity data file! Perhaps some not all entries are numeric? Please provide a valid activity data file that contains: BJD  y  sigma_y")
+                return
+        except:
+            print("Something is wrong with your activity data file! Please provide a valid activity data file that contains: BJD  y  sigma_y")
             return
-            
             
         act_file_name = file_from_path(path)
 
@@ -2873,16 +2881,25 @@ class signal_fit(object):
 ############################ TTV datasets ##########################################
     def add_ttv_dataset(self, name, path, ttv_idset = 0, planet = 0, use = False):
 
-        ttv_N_        = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-        ttv_data_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-        ttv_data_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-        
-        ttv_N         = ttv_N_[       np.isfinite(ttv_N_) & np.isfinite(ttv_data_) & np.isfinite(ttv_data_sig_)]
-        ttv_data      = ttv_data_[    np.isfinite(ttv_N_) & np.isfinite(ttv_data_) & np.isfinite(ttv_data_sig_)]
-        ttv_data_sig  = ttv_data_sig_[np.isfinite(ttv_N_) & np.isfinite(ttv_data_) & np.isfinite(tra_data_sig_)]
 
-        if len(ttv_N) == 0:
-            print("Unknown type of file! Please provide a valid ttv file")
+        try:
+            ttv_N_        = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+            ttv_data_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+            ttv_data_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+
+            if len(ttv_N_) != len(ttv_data_) != len(ttv_data_sig_):
+                print("Something is wrong with your ttv data file! Please provide a ttv data file that contains: N  t_N  sigma_t_N")
+                return
+
+            ttv_N         = ttv_N_[       np.isfinite(ttv_N_) & np.isfinite(ttv_data_) & np.isfinite(ttv_data_sig_)]
+            ttv_data      = ttv_data_[    np.isfinite(ttv_N_) & np.isfinite(ttv_data_) & np.isfinite(ttv_data_sig_)]
+            ttv_data_sig  = ttv_data_sig_[np.isfinite(ttv_N_) & np.isfinite(ttv_data_) & np.isfinite(ttv_data_sig_)]
+
+            if len(ttv_N) == 0:
+                print("Something is wrong with your ttv data file! Perhaps some not all entries are numeric? Please provide a ttv data file that contains: N  t_N  sigma_t_N")
+                return
+        except:
+            print("Something is wrong with your ttv data file! Please provide a ttv data file that contains: N  t_N  sigma_t_N")
             return
 
         ttv_file_name = file_from_path(path)
@@ -2931,15 +2948,19 @@ class signal_fit(object):
                 tra_data_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
                 tra_data_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
                 
+                if len(tra_JD_) != len(tra_data_) != len(tra_data_sig_):
+                    print("Something is wrong with your transit data file! Please provide a valid transit data that contains: BJD  flux  sigma_flux")
+                    return
+                    
                 tra_JD        = tra_JD_[      np.isfinite(tra_JD_) & np.isfinite(tra_data_) & np.isfinite(tra_data_sig_)]
                 tra_data      = tra_data_[    np.isfinite(tra_JD_) & np.isfinite(tra_data_) & np.isfinite(tra_data_sig_)]
                 tra_data_sig  = tra_data_sig_[np.isfinite(tra_JD_) & np.isfinite(tra_data_) & np.isfinite(tra_data_sig_)]
 
                 if len(tra_JD) <= 5:
-                    print("Unknown type of file! Please provide a valid transit file")
+                    print("Something is wrong with your transit data file! Perhaps some not all entries are numeric? Please provide a valid transit data that contains: BJD  flux  sigma_flux")
                     return
             except:
-                print("Unknown type of file! Please provide a valid transit file")
+                print("Something is wrong with your transit data file! Please provide a valid transit data that contains: BJD  flux  sigma_flux")
                 return
 
         tra_data_o_c = tra_data
