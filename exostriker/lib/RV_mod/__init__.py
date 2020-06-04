@@ -2811,14 +2811,12 @@ class signal_fit(object):
 
 ############################ RV datasets ##########################################
     def add_rv_dataset(self, name, path, rv_idset = 0):
-
-        #try:
-        
+ 
+ 
         rv_JD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
         rv_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
         rv_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-        #except Exception as ex:
-       #     print(ex)
+ 
             
         rv_data_set = np.array([rv_JD,rv_data,rv_data_sig,[rv_idset]*len(rv_JD)])
  
@@ -2841,10 +2839,19 @@ class signal_fit(object):
 ############################ activity datasets ##########################################
     def add_act_dataset(self, name, path, act_idset = 0):
 
-        act_JD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-        act_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-        act_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+        act_JD_       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+        act_data_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+        act_data_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
 
+        act_JD        = act_JD_[      np.isfinite(act_JD_) & np.isfinite(act_data_) & np.isfinite(act_data_sig_)]
+        act_data      = ttv_data_[    np.isfinite(act_JD_) & np.isfinite(act_data_) & np.isfinite(act_data_sig_)]
+        act_data_sig  = ttv_data_sig_[np.isfinite(act_JD_) & np.isfinite(act_data_) & np.isfinite(act_data_sig_)]
+
+        if len(act_JD) <= 3:
+            print("Unknown type of file! Please provide a valid activity file")
+            return
+            
+            
         act_file_name = file_from_path(path)
 
         act_data_set = np.array([act_JD,act_data,act_data_sig,act_file_name])
@@ -2866,23 +2873,27 @@ class signal_fit(object):
 ############################ TTV datasets ##########################################
     def add_ttv_dataset(self, name, path, ttv_idset = 0, planet = 0, use = False):
 
-        ttv_N        = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-        ttv_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-        ttv_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+        ttv_N_        = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+        ttv_data_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+        ttv_data_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+        
+        ttv_N         = ttv_N_[       np.isfinite(ttv_N_) & np.isfinite(ttv_data_) & np.isfinite(ttv_data_sig_)]
+        ttv_data      = ttv_data_[    np.isfinite(ttv_N_) & np.isfinite(ttv_data_) & np.isfinite(ttv_data_sig_)]
+        ttv_data_sig  = ttv_data_sig_[np.isfinite(ttv_N_) & np.isfinite(ttv_data_) & np.isfinite(tra_data_sig_)]
+
+        if len(ttv_N) == 0:
+            print("Unknown type of file! Please provide a valid ttv file")
+            return
 
         ttv_file_name = file_from_path(path)
-
         ttv_data_set = np.array([ttv_N,ttv_data,ttv_data_sig,planet,use,ttv_file_name])
 
         self.ttv_data_sets[ttv_idset] = ttv_data_set
-
         return
 
 
     def remove_ttv_dataset(self, ttv_idset):
-
         self.ttv_data_sets[ttv_idset] = []
-
         return
 
 ############################ transit datasets ##########################################
@@ -2916,9 +2927,17 @@ class signal_fit(object):
 
         else:
             try:
-                tra_JD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-                tra_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-                tra_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+                tra_JD_       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+                tra_data_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+                tra_data_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+                
+                tra_JD        = tra_JD_[      np.isfinite(tra_JD_) & np.isfinite(tra_data_) & np.isfinite(tra_data_sig_)]
+                tra_data      = tra_data_[    np.isfinite(tra_JD_) & np.isfinite(tra_data_) & np.isfinite(tra_data_sig_)]
+                tra_data_sig  = tra_data_sig_[np.isfinite(tra_JD_) & np.isfinite(tra_data_) & np.isfinite(tra_data_sig_)]
+
+                if len(tra_JD) <= 5:
+                    print("Unknown type of file! Please provide a valid transit file")
+                    return
             except:
                 print("Unknown type of file! Please provide a valid transit file")
                 return
@@ -2962,16 +2981,19 @@ class signal_fit(object):
 
     def add_dataset(self,name,path,offset,jitter,useoffset=True,usejitter=True):
 
-        path =  copy_file_to_datafiles(path)
 
+        path =  copy_file_to_datafiles(path)
+ 
+        flag=self.filelist.add_datafile(name,path)
+ 
         if(self.filelist.ndset==20):
             self.params.offsets=np.concatenate((np.atleast_1d(self.params.offsets),np.atleast_1d(0.0))) # to allocate more places in offsets array
             self.params.jitters=np.concatenate((np.atleast_1d(self.params.jitters),np.atleast_1d(0.0))) # to allocate more places in offsets array
             warnings=Warning_log(['By deafult we assume max 20 datasets, to satisfy your request we had to overwrite this rule! More then 20 datasets will cause an error in fortran codes, modify them if necessary.'],'Adding a new dataset')
             warnings.print_warning_log()
-        flag=self.filelist.add_datafile(name,path)
 
-        if (flag==1): # flag will be zero if invalid path is provided
+
+        if flag==1: # flag will be zero if invalid path is provided
             self.params.update_offset(self.filelist.ndset-1,offset)
             self.params.update_jitter(self.filelist.ndset-1,jitter)
             self.use.update_use_offset(self.filelist.ndset-1,useoffset)
@@ -2980,8 +3002,8 @@ class signal_fit(object):
             if self.epoch < 1:
                 self.update_epoch(self.filelist.first_observation())
                 
-        #### new stuff, TB fixed!
-        self.add_rv_dataset(name, path, rv_idset = int(max(self.filelist.idset)))
+            #### new stuff, TB fixed!
+            self.add_rv_dataset(name, path, rv_idset = int(max(self.filelist.idset)))
         
         return
 
