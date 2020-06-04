@@ -187,6 +187,10 @@ and more.
 
 **Scientific papers which used The Exo-Striker (to my knowledge):**
 
+
+*  Jones, M. I., Wittenmyer, R., Aguilera-Gómez, C., Soto, M. G., Torres, P. et al. Four Jovian planets around low-luminosity giant stars observed by the EXPRESS and PPPS (A&A, submitted) arXiv e-prints 
+arXiv:2006.01277
+
 *  Obermeier, C., Steuer, J., Kellermann, H., Saglia, R., Henning, Th., et al. Following the TraCS of exoplanets with Pan-Planets: Wendelstein-1b and Wendelstein-2b (A&A, in press) arXiv e-prints arXiv:2005.13560
 
 * Stock, S., J. Kemmer, S. Reffert, et al. (2020). The CARMENES search for exoplanets around M dwarfs. Characterization of the nearby ultra-compact multiplanetary system YZ Ceti. (A&A, in press) arXiv e-prints arXiv:2002.01772.
