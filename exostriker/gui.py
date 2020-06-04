@@ -3611,7 +3611,34 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RV data', '', 'All (*.*);;Data (*.vels)', options=QtGui.QFileDialog.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
- 
+
+            ######## This must be in RV_mod once the obsolite code is removed ##########
+            try:
+                rv_JD_in       = np.genfromtxt("%s"%(str(input_files[0])),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+                rv_data_in     = np.genfromtxt("%s"%(str(input_files[0])),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+                rv_data_sig_in = np.genfromtxt("%s"%(str(input_files[0])),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+                #print(rv_JD_in,rv_data_in, rv_data_sig_in)
+
+                if len(rv_JD_in) != len(rv_data_in) != len(rv_data_sig_in):
+                    print("Something is wrong with your RV file! Please provide a valid RV file that contains BJD RV [m/s] sigma_RV [m/s] ")
+                    return
+                 
+                rv_JD        = rv_JD_in[      np.isfinite(rv_JD_in) & np.isfinite(rv_data_in) & np.isfinite(rv_data_sig_in)]
+                rv_data      = rv_data_in[    np.isfinite(rv_JD_in) & np.isfinite(rv_data_in) & np.isfinite(rv_data_sig_in)]
+                rv_data_sig  = rv_data_sig_in[np.isfinite(rv_JD_in) & np.isfinite(rv_data_in) & np.isfinite(rv_data_sig_in)]
+                
+                #print(len(rv_JD_in),len(rv_JD),len(rv_data_in),len(rv_data),len(rv_data_sig_in),len(rv_data_sig))
+                
+                if len(rv_JD_in) ==0 or len(rv_JD_in) != len(rv_JD):
+                    print("Something is wrong with your RV file! Perhaps some not all entires are numeric? Please provide a valid RV file that contains BJD RV [m/s] sigma_RV [m/s] ")
+                    return
+     
+            except:
+                print("Something is wrong with your RV file! Please provide a valid RV file that contains BJD RV [m/s] sigma_RV [m/s] ")
+                return 
+            ################################################################################
+
+
             fit.add_dataset(self.file_from_path(input_files[0]), str(input_files[0]),0.0,1.0)
             #### new stuf ####
             #fit.add_rv_dataset('test', str(input_files[0]),rv_idset =but_ind-1)
