@@ -661,6 +661,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.param_mass_gui[i].setText("%.3f"%(fit.fit_results.mass[i])) 
                 #param_t_peri_gui[i].setText("%.3f"%( (float(fit.epoch) - (np.radians(fit.params.planet_params[7*i + 4])/(2*np.pi))*fit.params.planet_params[7*i + 1] ))) # epoch  - ((ma/TWOPI)*a[1])
                 self.param_t_peri_gui[i].setText("%.3f"%(fit.t_peri[i]))
+ 
+
 
 
     def update_use_from_input_file(self):

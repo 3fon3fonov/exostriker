@@ -68,11 +68,12 @@ class CustomSampler(emcee.EnsembleSampler):
                             #    self.samples[j,i+2]=self.samples[j,i+2]+-180.0
                     self.means[i]=np.mean(self.samples[:,i])
                 elif (np.mod(nr,7)==3): # correct w to be in a 360 interval around mean value 
+                    self.samples[:,i] = self.samples[:,i]%360.0
                     self.means[i]=np.mean(self.samples[:,i]) 
                     meanw=self.means[i]
-                   # for j in range(len(self.samples)):
-                   #     self.samples[j,i]=np.where(self.samples[j,i]<meanw-180.0,self.samples[j,i]+360.0,self.samples[j,i])
-                   #     self.samples[j,i]=np.where(self.samples[j,i]>meanw+180.0,self.samples[j,i]-360.0,self.samples[j,i])
+                    for j in range(len(self.samples)):
+                        self.samples[j,i]=np.where(self.samples[j,i]<meanw-180.0,self.samples[j,i]+360.0,self.samples[j,i])
+                        self.samples[j,i]=np.where(self.samples[j,i]>meanw+180.0,self.samples[j,i]-360.0,self.samples[j,i])
                     # now let's make sure meanw is between 0 and 360:
                     newmeanw=np.fmod(meanw,360.0)
                     delta=newmeanw-meanw
@@ -80,11 +81,12 @@ class CustomSampler(emcee.EnsembleSampler):
                         for j in range(len(self.samples)):
                             self.samples[j,i]=self.samples[j,i]+delta
                 elif (np.mod(nr,7)==4):# correct M to be in a 360 interval around mean value
+                    self.samples[:,i] = self.samples[:,i]%360.0
                     self.means[i]=np.mean(self.samples[:,i]) 
                     meanM=self.means[i]
-                   # for j in range(len(self.samples)):
-                   #     self.samples[j,i]=np.where(self.samples[j,i]<meanM-180.0,self.samples[j,i]+360.0,self.samples[j,i])
-                   #     self.samples[j,i]=np.where(self.samples[j,i]>meanM+180.0,self.samples[j,i]-360.0,self.samples[j,i])
+                    for j in range(len(self.samples)):
+                        self.samples[j,i]=np.where(self.samples[j,i]<meanM-180.0,self.samples[j,i]+360.0,self.samples[j,i])
+                        self.samples[j,i]=np.where(self.samples[j,i]>meanM+180.0,self.samples[j,i]-360.0,self.samples[j,i])
                     # now let's make sure meanw is between 0 and 360:
                     newmeanM=np.fmod(meanM,360.0)
                     delta=newmeanM-meanM
