@@ -45,11 +45,13 @@ class fortran_output(object):
     chi2=1
     rms=1
     
-    def __init__(self,text, npl, ndset, stellar_mass):
+    def __init__(self,text, npl, ndset, stellar_mass, planet_a = [1.0]*9, planet_mass=[1.0]*9):
         self.text=text
         self.npl=npl
         self.ndset=ndset
         self.stellar_mass=stellar_mass
+        self.masses=planet_mass
+        self.semiM = planet_a
         
     def dismantle_RV_kep(self): # save each column of RV_kep in a separate attribute 
         a=np.transpose(np.array(self.RV_kep)) # so columns are rows now
@@ -214,9 +216,15 @@ class fortran_output(object):
                 self.rms_str   = self.best_par[i+2]
                 self.chi_str   = self.best_par[i+3]
                 self.epoch_str = self.best_par[i+4]
-                self.masses  = list(map(float,self.best_par[i+6]))
-                self.semiM = list(map(float,self.best_par[i+8]))
                 self.mfit = int(self.mfit_str[2])
+
+                
+                masses_  = list(map(float,self.best_par[i+6]))
+                semiM_ = list(map(float,self.best_par[i+8]))
+                for z in range(self.npl):
+                    self.masses[z] =  masses_[z]
+                    self.semiM[z]  =  semiM_[z]
+                    
                 i=i+9
             else:
                 i=i+1
@@ -253,7 +261,7 @@ class fortran_output(object):
         else:
             self.wrms = 0
         
-        
+ 
         results = kernel(self.generate_summary(), self.jd, self.rv_obs, self.rv_error,self.o_c, self.model, 
                          self.JD_model, self.npl,self.semiM,self.masses,self.data_set,self.stat_array_saved,
                          self.reduced_chi2,self.chi2,self.rms,self.wrms,self.loglik, self.mfit,self.omega_dot,

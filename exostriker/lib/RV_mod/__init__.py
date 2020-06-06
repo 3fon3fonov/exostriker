@@ -1232,14 +1232,14 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
  
     elif obj.type_fit["RV"] == True and obj.type_fit["TTV"] == True:
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
-        ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass, obj.ttv_times,obj.fit_results, return_model = False)
+        ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass, obj.ttv_times, fit_results=obj.fit_results, return_model = False)
         if rtg[1]:
             get_gps_model(obj, get_lnl=True)
 
         obj.loglik     =   obj.loglik +  ttv_loglik
 
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == True:
-        ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass,obj.ttv_times,obj.fit_results, return_model = False)
+        ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass,obj.ttv_times,fit_results=False, return_model = False)
         obj.loglik     =  ttv_loglik
 
 
@@ -2026,7 +2026,7 @@ class signal_fit(object):
         # saving the name for the inputfile and the information that it has not yet been processed
         self.inputfile = inputfile
         self.inputfile_read=False
-        self.name = name # for example the name of a host star of the planetary system, any name with which we will identify a given signal_fit object, preferably the same as the name of the signal_fit object
+        self.name = name # for example the name of a host star of the planetary system
         self.input_processed = False
         self.never_saved=True # important for print_info function
         self.stellar_mass_known=False
@@ -2048,17 +2048,18 @@ class signal_fit(object):
         self.fit_performed = False
         self.model_saved=False
         self.stat_saved=False
-        self.masses=[0.0]*9
-        self.semimajor=[0.0]*9
+
+        
         self.f_for_mcmc=[]
         self.par_for_mcmc=[]
         self.e_for_mcmc=[]
         self.b_for_mcmc=[]
 
-        #### TBD here ###########
 
         self.init_St_params()
-
+        self.init_st_mass()
+        self.init_mass_a()
+        
         self.init_GP()
         self.init_transit_GP()
 
@@ -2073,8 +2074,7 @@ class signal_fit(object):
         self.init_tra_jitter()
         self.init_tra_offset()
         self.init_tra_dilution()
-        
-        self.init_st_mass()
+
         self.cwd = os.getcwd()
 
         self.init_pl_arb()
@@ -2114,7 +2114,7 @@ class signal_fit(object):
         self.filelist.rv_err,
         np.zeros(len(self.filelist.time)),
         np.zeros(len(self.filelist.time)),
-        self.filelist.time, 0, [0]*9, [0]*9, self.filelist.idset,0,0,0,0,0,0)
+        self.filelist.time, 0, self.semimajor, self.masses, self.filelist.idset,0,0,0,0,0,0)
         self.loglik=0.0
         self.rms=0.0
         self.chi2=0.0
@@ -2267,11 +2267,19 @@ class signal_fit(object):
         self.rhill  = {k: [] for k in range(10)}
 
 
+    def init_mass_a(self):
+        self.masses    =[]
+        self.semimajor = []
+        
+        for i in range(9):
+            masses,semimajor  = mass_a_from_Kepler_fit([self.K[i], self.P[i], self.e[i], self.w[i], self.M0[i]],1,self.st_mass[0])
+            self.masses.append(masses[0]),self.semimajor.append(semimajor[0])
+            
     def init_pl_params(self):
 
         #### RV #####
         self.K    = {k: 50.0 for k in range(9)}
-        self.P    = {k: 100.0 + 50.0*k for k in range(9)}
+        self.P    = {k: 100.0 + 150.0*k for k in range(9)}
         self.e    = {k: 0.0  for k in range(9)}
         self.w    = {k: 0.0 for k in range(9)}
         self.M0   = {k: 0.0 for k in range(9)}
@@ -3910,7 +3918,7 @@ class signal_fit(object):
     
         
         if flag==1: # or self.rtg[0] == True
-            fortranoutput=fortran_output(text,self.npl,self.filelist.ndset,self.params.stellar_mass) # create an object for fortran output, which we need to split into part
+            fortranoutput=fortran_output(text,self.npl,self.filelist.ndset,self.params.stellar_mass,self.fit_results.a, self.fit_results.mass) # create an object for fortran output, which we need to split into part
             self.fit_results=fortranoutput.modfit(print_stat=print_stat)
 
             self.stat_saved=self.fit_results.stat_array_saved
