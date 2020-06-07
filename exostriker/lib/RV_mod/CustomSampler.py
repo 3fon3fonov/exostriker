@@ -11,6 +11,7 @@ import emcee
 
 
 class CustomSampler(emcee.EnsembleSampler):
+ 
 
     def unique_rows(self):
 
@@ -68,31 +69,20 @@ class CustomSampler(emcee.EnsembleSampler):
                             #    self.samples[j,i+2]=self.samples[j,i+2]+-180.0
                     self.means[i]=np.mean(self.samples[:,i])
                 elif (np.mod(nr,7)==3): # correct w to be in a 360 interval around mean value 
-                    self.samples[:,i] = self.samples[:,i]%360.0
-                    self.means[i]=np.mean(self.samples[:,i]) 
-                    meanw=self.means[i]
+                    meanw=self.circ_mean_np(self.samples[:,i])  
+
                     for j in range(len(self.samples)):
                         self.samples[j,i]=np.where(self.samples[j,i]<meanw-180.0,self.samples[j,i]+360.0,self.samples[j,i])
                         self.samples[j,i]=np.where(self.samples[j,i]>meanw+180.0,self.samples[j,i]-360.0,self.samples[j,i])
-                    # now let's make sure meanw is between 0 and 360:
-                    newmeanw=np.fmod(meanw,360.0)
-                    delta=newmeanw-meanw
-                    if not (delta==0):
-                        for j in range(len(self.samples)):
-                            self.samples[j,i]=self.samples[j,i]+delta
+
+                    self.means[i]=meanw 
                 elif (np.mod(nr,7)==4):# correct M to be in a 360 interval around mean value
-                    self.samples[:,i] = self.samples[:,i]%360.0
-                    self.means[i]=np.mean(self.samples[:,i]) 
-                    meanM=self.means[i]
+                    meanw=self.circ_mean_np(self.samples[:,i])  
                     for j in range(len(self.samples)):
-                        self.samples[j,i]=np.where(self.samples[j,i]<meanM-180.0,self.samples[j,i]+360.0,self.samples[j,i])
-                        self.samples[j,i]=np.where(self.samples[j,i]>meanM+180.0,self.samples[j,i]-360.0,self.samples[j,i])
-                    # now let's make sure meanw is between 0 and 360:
-                    newmeanM=np.fmod(meanM,360.0)
-                    delta=newmeanM-meanM
-                    if not (delta==0):
-                        for j in range(len(self.samples)):
-                            self.samples[j,i]=self.samples[j,i]+delta
+                        self.samples[j,i]=np.where(self.samples[j,i]<meanw-180.0,self.samples[j,i]+360.0,self.samples[j,i])
+                        self.samples[j,i]=np.where(self.samples[j,i]>meanw+180.0,self.samples[j,i]-360.0,self.samples[j,i])
+                        
+                    self.means[i]=meanw 
             elif (idx<2*ndset+6*npl):# correct i to be in a 180 interval around mean value
                 self.means[i]=np.mean(self.samples[:,i])
                 meani=self.means[i]
@@ -100,11 +90,11 @@ class CustomSampler(emcee.EnsembleSampler):
                #     self.samples[j,i]=np.where(self.samples[j,i]<meani-90.0,self.samples[j,i]+180.0,self.samples[j,i])
                #     self.samples[j,i]=np.where(self.samples[j,i]>meani+90.0,self.samples[j,i]-180.0,self.samples[j,i])
                 # now let's make sure meani is between 0 and 180:
-                newmeani=np.fmod(meani,180.0)
-                delta=newmeani-meani
-                if not (delta==0):
-                    for j in range(len(self.samples)):    
-                        self.samples[j,i]=self.samples[j,i]+delta
+               # newmeani=np.fmod(meani,180.0)
+               # delta=newmeani-meani
+               # if not (delta==0):
+               #     for j in range(len(self.samples)):    
+               #         self.samples[j,i]=self.samples[j,i]+delta
             elif (idx<2*ndset+7*npl):# correct lineofnodes to be in a 360 interval around mean value 
                 self.means[i]=np.mean(self.samples[:,i])
                 meancap=self.means[i]
@@ -122,6 +112,16 @@ class CustomSampler(emcee.EnsembleSampler):
             i=i+1
         return
 
+    def circ_mean_np(self, angles,azimuth=True):  
+        """ numpy version of above"""  
+        rads = np.radians(angles)  
+        av_sin = np.mean(np.sin(rads)) 
+        av_cos = np.mean(np.cos(rads))  
+        ang_rad = np.arctan2(av_sin,av_cos)  
+        ang_deg = np.degrees(ang_rad)  
+        if azimuth:  
+            ang_deg = np.mod(ang_deg,360.)  
+        return  ang_deg  
 
     def get_meadians(self,f):
         '''Gets median values in posterior sample'''
