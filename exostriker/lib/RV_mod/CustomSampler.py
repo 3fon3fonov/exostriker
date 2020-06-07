@@ -71,6 +71,8 @@ class CustomSampler(emcee.EnsembleSampler):
                 elif (np.mod(nr,7)==3): # correct w to be in a 360 interval around mean value 
                     meanw=self.circ_mean_np(self.samples[:,i])  
 
+
+
                     for j in range(len(self.samples)):
                         self.samples[j,i]=np.where(self.samples[j,i]<meanw-180.0,self.samples[j,i]+360.0,self.samples[j,i])
                         self.samples[j,i]=np.where(self.samples[j,i]>meanw+180.0,self.samples[j,i]-360.0,self.samples[j,i])
