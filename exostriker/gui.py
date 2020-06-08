@@ -142,7 +142,23 @@ if '-debug' in sys.argv:
 else:
     debug = False
 
-if arguments != 0 and sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
+if '-last' in sys.argv:
+    try:
+        file_pi = open("auto_save.ses", 'rb')
+        fit_ses = dill.load(file_pi)
+        file_pi.close()   
+        fit = fit_ses 
+        ses_list = [fit_ses] 
+        fit.init_pl_arb()
+
+        start_arg_ses = True  
+    except (ImportError, KeyError, AttributeError) as e:
+        print("No last session found.")
+        fit=rv.signal_fit(name='session')
+        ses_list = [fit]
+        start_arg_ses = False
+
+elif arguments != 0 and sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
     try:
         file_pi = open(sys.argv[2], 'rb')
         fit_ses = dill.load(file_pi)
@@ -150,7 +166,6 @@ if arguments != 0 and sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
         fit = fit_ses 
         ses_list = [fit_ses] 
         fit.init_pl_arb()
-#        rv.check_temp_RV_file(fit)
 
         start_arg_ses = True  
     except (ImportError, KeyError, AttributeError) as e:
@@ -167,7 +182,7 @@ elif arguments != 0 and sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
         ses_list = fit_ses
         fit = ses_list[0]
         fit.init_pl_arb()
-#        rv.check_temp_RV_file(fit)
+
         start_arg_ses = True  
     except (ImportError, KeyError, TypeError, AttributeError) as e:
         print("You have entered non-RVmod multi-session. %s cannot be recognaized"%sys.argv[2])
@@ -327,15 +342,16 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 
-        self.St_mass_input.setValue(fit.params.stellar_mass)  
-        self.St_radius_input.setValue(fit.stellar_radius)  
+        #self.St_mass_input.setValue(fit.params.stellar_mass)  
+        #self.St_radius_input.setValue(fit.stellar_radius)  
 
         self.RV_lin_trend.setValue(fit.params.linear_trend)   
         self.RV_quad_trend.setValue(fit.rv_quadtr)   
 
         self.Epoch.setValue(fit.epoch)
         self.Epoch_ttv.setValue(fit.epoch_ttv)
-
+        
+        self.update_GUI_St_params()
 
     def update_params(self):
         global fit
@@ -6923,7 +6939,7 @@ https://github.com/3fon3fonov/exostriker/issues
         fit.stellar_radius_err = self.err_St_radius_input.value()
         
         fit.stellar_luminosity     = self.St_lumin_input.value()
-        fit.stellar_luminosity_err = self.err_St_lumin_input .value()
+        fit.stellar_luminosity_err = self.err_St_lumin_input.value()
         
         fit.stellar_Teff       = self.St_teff_input.value()
         fit.stellar_Teff_err   = self.err_St_teff_input.value()
@@ -6940,6 +6956,25 @@ https://github.com/3fon3fonov/exostriker/issues
         self.label_kb2011.setText("%.4f +/- %.4f [m/sec]"%(kb2011[0],kb2011[1]))
 
 
+    def update_GUI_St_params(self):
+        global fit
+
+        self.St_mass_input.setValue(fit.stellar_mass)
+        self.err_St_mass_input.setValue(fit.stellar_mass_err)
+        
+        self.St_radius_input.setValue(fit.stellar_radius)
+        self.err_St_radius_input.setValue(fit.stellar_radius_err)
+        
+        self.St_lumin_input.setValue(fit.stellar_luminosity)
+        self.err_St_lumin_input.setValue(fit.stellar_luminosity_err)
+        
+        self.St_teff_input.setValue(fit.stellar_Teff)
+        self.err_St_teff_input.setValue(fit.stellar_Teff_err)
+        
+        self.St_vsini_input.setValue(fit.stellar_vsini)
+        self.err_St_vsini_input.setValue(fit.stellar_vsini_err)
+        
+ 
 
 ################################## System #######################################
 
@@ -7965,6 +8000,7 @@ https://github.com/3fon3fonov/exostriker/issues
         self.threadpool = QtCore.QThreadPool()
         self.threadpool.setMaxThreadCount(cpu_count())
 
+        self.update_GUI_St_params()
         self.update_St_params()
 
         ############### Stellar params ####################      
