@@ -111,11 +111,126 @@ def mass_to_K(P,ecc,incl, pl_mass,Stellar_mass):
     #K = ((2.0*np.pi*GMSUN)/T)**THIRD * (pl_mass*np.sin(np.radians(incl)) / 
     #    (Stellar_mass+pl_mass)**(2.0/3.0)) * 1.0/np.sqrt(1.0-ecc**2.0)
 
+  #  K = ((2.0*np.pi*GMSUN)/T)**THIRD * (pl_mass*np.sin(np.radians(incl)) / 
+   #     (Stellar_mass+pl_mass)**(2.0/3.0)) 
     K = ((2.0*np.pi*GMSUN)/T)**THIRD * (pl_mass*np.sin(np.radians(incl)) / 
-        (Stellar_mass+pl_mass)**(2.0/3.0)) 
-
+        (Stellar_mass+pl_mass)**(2.0/3.0)) * 1.0/np.sqrt(1.0-ecc**2.0)
 
     return K
+
+
+ 
+def get_mass(K, P, ecc, i, Stellar_mass):
+    '''Returns the mass in 
+    
+    Parameters
+    ----------
+    K : float
+        Semi-amplitude of the RV signal in [m/s]
+    P : float
+        Period of the planet in [d]
+    ecc : float
+        eccentricity
+    incl: float
+        inclination in [deg]
+    Stellar_mass: float
+        Primary mass in [Msol]
+    
+    Returns 
+        float
+        planet mass in [Mj]
+    -------
+    '''
+    T = P*86400.0 
+    THIRD = 1.0/3.0
+ 
+    GMSUN = 1.32712497e20
+    msini = (T/(2.0*np.pi*GMSUN))**THIRD * K * Stellar_mass**(2./3) * np.sqrt(1.0-ecc**2.0)
+    
+    return msini/np.sin(np.radians(i))*1047.70266835 
+
+
+def a_to_P(a,m0):
+    GMSUN = 1.32712497e20
+    AU=1.49597892e11
+    T = np.sqrt( (a*AU)**3.0 * (2.0*np.pi)**2.0 /(GMSUN*(m0)))
+    T = T /86400.0
+    return T
+
+def P_to_a(P,m0):
+    GMSUN = 1.32712497e20
+    AU=1.49597892e11
+    P = P * 86400.0
+    a = ((P**2.0 * (GMSUN*(m0)))/(4.0*(np.pi)**2.0))**(1.0/3.0)
+
+    return a/AU
+
+
+####################### mass_semimajor ###########################################
+def get_mass_a(obj, mass_type="J"):
+    '''Calculates the actual masses and Jacobi semimajor axes of a
+       system for using the parameters P, K and e from a Kepler fit.
+       The output of the semi-major axis is in AU.
+       if mass_type="J" the mass is in Jupiter masses (deafault)
+       if mass_type="E" the mass is in Erath masses (deafault)
+       else, e.g.,        mass_type="" mass is in Solar units.
+    '''
+    THIRD = 1.0/3.0
+    PI    = 3.14159265358979e0
+    TWOPI = 2.0*PI
+    GMSUN = 1.32712497e20
+    AU=1.49597892e11
+    
+    mass = np.zeros(10)
+    ap    = np.zeros(9)
+    pl_mass = np.zeros(9)
+    mpold = pl_mass
+
+#*******G is set to be unit, and s, m, kg as unit of time, length and mass
+#*****  and there is a reason for that! later I might correct for that.
+    mtotal = obj.st_mass[0]
+    f = 5e-6
+    for i in range(obj.npl):
+
+        T = obj.P[i]*86400.0
+        mass[0] = obj.st_mass[0]
+
+        # we need innitial guess for each planet mass
+        dm = 0
+        mass[i+1] = abs(obj.K[i])*(T*(obj.st_mass[0])**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-obj.e[i]**2.0)/abs(np.sin(np.radians(obj.i[i])))
+        mpold[i] = mass[i+1]
+        # This is a simple iteration to solve for mp
+        while (dm <= 0):
+
+            if i == 0:
+                mtotal = obj.st_mass[0]
+                mass[i+1] = abs(obj.K[i])*(T*(obj.st_mass[0] + mpold[i])**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-obj.e[i]**2.0)/abs(np.sin(np.radians(obj.i[i])))
+                mtotal = obj.st_mass[0]
+                for j in range(i):
+                    mtotal = mtotal + mass[j+1]
+                mass[i+1] = abs(obj.K[i])*(T*(mtotal + mpold[i])**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-obj.e[i]**2.0)/abs(np.sin(np.radians(obj.i[i])))
+
+            dm = (mpold[i] - mass[i+1])
+            mpold[i] =  mpold[i] + f
+           # print mass[i+1], mpold[i]
+
+        ap[i] = (GMSUN*(mtotal + mass[i+1])*(T/TWOPI)**2)**THIRD
+
+#    for i in range(npl+1):
+#        mass[i] = mass[i]*GMSUN
+    for i in range(obj.npl):
+
+        ap[i] = ap[i]/AU # to be in AU
+        if mass_type=="J":
+            pl_mass[i] = mass[i+1]*1047.70266835 # to be in Jup. masses
+        elif  mass_type=="E":
+            pl_mass[i] = mass[i+1]*1047.70266835 * 317.82838 # to be in Earth. masses
+        else:
+            pl_mass[i] = mass[i+1]
+            
+            
+        # I have seen that 1 Sol Mass = 1047.92612 Jup. masses???
+    return pl_mass,ap
 
 
 def convert_Session_to_Py3(old_ses):
@@ -2314,24 +2429,6 @@ alpha value = %s
     else:
     	print("Null hypothesis cannot be rejected")
 
-
-
-
-
-def a_to_P(a,m0):
-    GMSUN = 1.32712497e20
-    AU=1.49597892e11
-    T = np.sqrt( (a*AU)**3.0 * (2.0*np.pi)**2.0 /(GMSUN*(m0)))
-    T = T /86400.0
-    return T
-
-def P_to_a(P,m0):
-    GMSUN = 1.32712497e20
-    AU=1.49597892e11
-    P = P * 86400.0
-    a = ((P**2.0 * (GMSUN*(m0)))/(4.0*(np.pi)**2.0))**(1.0/3.0)
-
-    return a/AU
 
 
 def plot_gp(obj, curve=False):

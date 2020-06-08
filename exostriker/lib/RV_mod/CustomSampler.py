@@ -1,10 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 
 __author__ = 'Trifon Trifonov, Jakub Morawski'
 
 import sys 
-#sys.path.insert(0, '../lib')
 import numpy as np
 import emcee
 
@@ -69,9 +68,8 @@ class CustomSampler(emcee.EnsembleSampler):
                             #    self.samples[j,i+2]=self.samples[j,i+2]+-180.0
                     self.means[i]=np.mean(self.samples[:,i])
                 elif (np.mod(nr,7)==3): # correct w to be in a 360 interval around mean value 
+                    self.samples[:, i] = self.samples[:,i]%360
                     meanw=self.circ_mean_np(self.samples[:,i])  
-
-
 
                     for j in range(len(self.samples)):
                         self.samples[j,i]=np.where(self.samples[j,i]<meanw-180.0,self.samples[j,i]+360.0,self.samples[j,i])
@@ -79,6 +77,7 @@ class CustomSampler(emcee.EnsembleSampler):
 
                     self.means[i]=meanw 
                 elif (np.mod(nr,7)==4):# correct M to be in a 360 interval around mean value
+                    self.samples[:, i] = self.samples[:,i]%360
                     meanw=self.circ_mean_np(self.samples[:,i])  
                     for j in range(len(self.samples)):
                         self.samples[j,i]=np.where(self.samples[j,i]<meanw-180.0,self.samples[j,i]+360.0,self.samples[j,i])
@@ -88,34 +87,22 @@ class CustomSampler(emcee.EnsembleSampler):
             elif (idx<2*ndset+6*npl):# correct i to be in a 180 interval around mean value
                 self.means[i]=np.mean(self.samples[:,i])
                 meani=self.means[i]
-               # for j in range(len(self.samples)):
-               #     self.samples[j,i]=np.where(self.samples[j,i]<meani-90.0,self.samples[j,i]+180.0,self.samples[j,i])
-               #     self.samples[j,i]=np.where(self.samples[j,i]>meani+90.0,self.samples[j,i]-180.0,self.samples[j,i])
-                # now let's make sure meani is between 0 and 180:
-               # newmeani=np.fmod(meani,180.0)
-               # delta=newmeani-meani
-               # if not (delta==0):
-               #     for j in range(len(self.samples)):    
-               #         self.samples[j,i]=self.samples[j,i]+delta
+ 
             elif (idx<2*ndset+7*npl):# correct lineofnodes to be in a 360 interval around mean value 
-                self.means[i]=np.mean(self.samples[:,i])
-                meancap=self.means[i]
-              #  for j in range(len(self.samples)):
-               #     self.samples[j,i]=np.where(self.samples[j,i]<meancap-180.0,self.samples[j,i]+360.0,self.samples[j,i])
-               #     self.samples[j,i]=np.where(self.samples[j,i]>meancap+180.0,self.samples[j,i]-360.0,self.samples[j,i])
-                # now let's make sure meancap is between 0 and 360:
-                newmeancap=np.fmod(meancap,360.0)
-                delta=newmeancap-meancap
-                if not (delta==0):
-                    for j in range(len(self.samples)):
-                        self.samples[j,i]=self.samples[j,i]+delta
+                self.samples[:, i] = self.samples[:,i]%360
+                meanw=self.circ_mean_np(self.samples[:,i])  
+                for j in range(len(self.samples)):
+                    self.samples[j,i]=np.where(self.samples[j,i]<meanw-180.0,self.samples[j,i]+360.0,self.samples[j,i])
+                    self.samples[j,i]=np.where(self.samples[j,i]>meanw+180.0,self.samples[j,i]-360.0,self.samples[j,i])
+                    
+                self.means[i]=meanw 
             else:
                 self.means[i]=np.mean(self.samples[:,i])
             i=i+1
         return
 
     def circ_mean_np(self, angles,azimuth=True):  
-        """ numpy version of above"""  
+        """find circular mean"""  
         rads = np.radians(angles)  
         av_sin = np.mean(np.sin(rads)) 
         av_cos = np.mean(np.cos(rads))  
