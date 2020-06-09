@@ -1688,7 +1688,7 @@ def run_nestsamp(obj, **kwargs):
         obj.loglik = maxlnl
 
     if(obj.ns_save_sampler):
-        obj.sampler=sampler.results
+        obj.ns_sampler=sampler.results
         obj.sampler_saved=True
   #      sampler.reset()
   #  else:
@@ -1961,7 +1961,7 @@ def run_mcmc(obj, **kwargs):
 
 
     if(obj.mcmc_save_sampler):
-        obj.sampler=sampler
+        obj.mcmc_sampler=sampler
         obj.sampler_saved=True
     else:
         sampler.reset()
@@ -2713,6 +2713,8 @@ class signal_fit(object):
         self.mcmc_save_mode=False
         self.mcmc_save_maxlnL=False
         self.mcmc_save_sampler=True
+        self.mcmc_sampler=[]
+
 
         self.mcmc_mad = False
         self.mcmc_AMD_stab   = False
@@ -2745,6 +2747,7 @@ class signal_fit(object):
         self.ns_save_mode=False
         self.ns_save_maxlnL=False
         self.ns_save_sampler=True
+        self.ns_sampler=[]
         
         self.ns_use_stop = True
         self.ns_maxiter = {0:False, 1:10000000}
