@@ -39767,7 +39767,7 @@
                </font>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>3</number>
               </property>
               <property name="movable">
                <bool>true</bool>
@@ -47483,18 +47483,6 @@
                 <property name="verticalSpacing">
                  <number>2</number>
                 </property>
-                <item row="7" column="0">
-                 <widget class="QLabel" name="label_350">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Jitter color</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="1" column="2">
                  <widget class="QDoubleSpinBox" name="points_to_draw_model">
                   <property name="font">
@@ -47706,7 +47694,7 @@
                  </widget>
                 </item>
                 <item row="7" column="2">
-                 <widget class="QPushButton" name="pushButton_2">
+                 <widget class="QPushButton" name="jitter_color_button">
                   <property name="font">
                    <font>
                     <pointsize>9</pointsize>
@@ -47732,7 +47720,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="2">
+                <item row="7" column="0">
                  <widget class="QCheckBox" name="split_jitter">
                   <property name="font">
                    <font>

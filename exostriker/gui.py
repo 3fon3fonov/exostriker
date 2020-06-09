@@ -230,6 +230,8 @@ colors_theta    = ['#0066ff','#666699']
 colors_per_rat  = ['#0066ff','#666699']
 colors_GLS_alias = ['#666699']
 colors_MLP_alias = ['#666699']
+colors_RV_jitter = ['#000000']
+                    
                
 symbols = ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
 
@@ -1901,7 +1903,16 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         colors_MLP_alias[0]=colorz.name()   
 
         self.update_RV_MLP_plots() 
- 
+
+    def get_RV_jitter_color(self):
+        global fit
+
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        colors_RV_jitter[0]=colorz.name()   
+
+        self.update_RV_plots() 
+        self.update_extra_plots()
+
 
     def update_RV_GLS_plots(self):
         global fit, p7 
@@ -2023,6 +2034,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         p2.plot(clear=True,)
 
         self.check_RV_symbol_sizes()
+        self.jitter_color_button.setStyleSheet("color: %s;"%colors_RV_jitter[0])
+
 
         if len(fit.filelist.idset)==0:
             return
@@ -2083,7 +2096,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 #height=error_list[fit.filelist.idset==i],
                 top=error_list2[fit.filelist.idset==i],
                 bottom=error_list2[fit.filelist.idset==i],
-                beam=0.0, pen='#000000')  
+                beam=0.0, pen=colors_RV_jitter[0])  
                 err1a.setZValue(-10)
                 p1.addItem(err1a)
 
@@ -3323,7 +3336,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 symbol=fit.pyqt_symbols_rvs[i], 
                 top=error_list2[ph_data[3]==i],
                 bottom=error_list2[ph_data[3]==i],
-                beam=0.0, pen='#000000')  
+                beam=0.0, pen=colors_RV_jitter[0])  
                 err_2.setZValue(-10)
                 pe.addItem(err_2) 
         pe.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)
@@ -6537,7 +6550,7 @@ Please install via 'pip install ttvfast'.
         global fit
 
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(9)
         font.setBold(False)
         #font.setWeight(75)
 
@@ -6587,7 +6600,7 @@ Please install via 'pip install ttvfast'.
         global fit
 
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(9)
         font.setBold(False)
         #font.setWeight(75)
 
@@ -7820,6 +7833,7 @@ https://github.com/3fon3fonov/exostriker/issues
 
         self.jitter_to_plots.stateChanged.connect(self.update_plots)
         self.split_jitter.stateChanged.connect(self.update_plots)
+        self.jitter_color_button.clicked.connect(self.get_RV_jitter_color)
 
         self.ttv_apply_mean_period.stateChanged.connect(self.update_ttv_plots)
         self.ttv_plot_autorange.stateChanged.connect(self.update_ttv_plots)
