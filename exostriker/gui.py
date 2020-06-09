@@ -25,6 +25,9 @@ def exception_hook(exctype, value, traceback):
     #sys.exit(1) 
 sys.excepthook = exception_hook 
 
+if not sys.warnoptions:
+    import warnings
+    warnings.simplefilter("ignore")
 
 import RV_mod as rv
 
@@ -269,7 +272,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         if fit.npl >1 and amd == True:
             AMD_LED = './lib/UI/green_led.png'
         elif fit.npl >1 and amd == False:
-            AMD_LED = './lib/UI/red_led.png'
+            AMD_LED = './lib/UI/red_led.png' 
         else:
             AMD_LED = './lib/UI/grey_led.png'
 
@@ -5944,6 +5947,28 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
 ################################## Cornerplot #######################################
 
+    def switch_to_corenrplot_opt(self):
+        global fit  
+
+        self.param_tabs.setCurrentWidget(self.plot_options_tabs)
+        self.plot_opt_tab.setCurrentWidget(self.cornerplot_plot_tab)
+        
+        self.check_cornerplot_samples()
+
+    def check_cornerplot_samples(self):
+        global fit  
+        
+        if isinstance(fit.mcmc_sampler, rv.CustomSampler):
+            SAMP_LED = './lib/UI/green_led.png'
+            SAMP_TXT = "MCMC Samples present in memory" 
+        else:
+            SAMP_LED = './lib/UI/red_led.png' 
+            SAMP_TXT = "No MCMC samples available" 
+            
+        self.samples_led.setPixmap(QtGui.QPixmap(SAMP_LED)) 
+        self.cornerplot_samp_indicator.setText(SAMP_TXT)
+        
+
     def worker_cornerplot_complete(self):
         global fit  
         self.statusBar().showMessage('') 
@@ -5959,6 +5984,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.button_make_nest_cornerplot.setEnabled(False)
 
         self.statusBar().showMessage('Cornerplot in progress....')
+
         # check if RV data is present
         if type_plot == "mcmc":
             samp_file = fit.mcmc_sample_file
@@ -5972,7 +5998,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
              "%s file not found. Generate one and try again?"%type_samp, QtGui.QMessageBox.Ok)
              self.button_make_mcmc_cornerplot.setEnabled(True)
              self.button_make_nest_cornerplot.setEnabled(True)
-
+             self.statusBar().showMessage('')
              return
 
 
@@ -6369,6 +6395,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
 
     def mute_boxes(self):
+        global fit
 
 #        self.get_jupyter_vars()
         
@@ -7650,6 +7677,7 @@ https://github.com/3fon3fonov/exostriker/issues
         
         self.run_orb_evol_arbitary.clicked.connect(self.worker_Nbody_arb) 
  
+        self.button_make_mcmc_cornerplot_redir.clicked.connect(self.switch_to_corenrplot_opt)
         
         self.button_make_mcmc_cornerplot.clicked.connect(lambda: self.worker_cornerplot(type_plot = "mcmc"))
         self.button_make_nest_cornerplot.clicked.connect(lambda: self.worker_cornerplot(type_plot = "nest"))
