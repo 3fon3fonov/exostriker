@@ -3626,7 +3626,24 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 fit.tra_data_sets[but_ind-1][5] = dill.copy(self.DetrendWindow.flux_store[but_ind-1])
                 fit.tra_data_sets[but_ind-1][6] = dill.copy(self.DetrendWindow.flux_err_store[but_ind-1])
                 fit.tra_data_sets[but_ind-1][7] = dill.copy(self.DetrendWindow.trend_store[but_ind-1])
+                
+                #### CHECK FOR NAN ENTRIES AND REMOVE IF ANY, BELOW !!!! ####
+               
+                bjd    = dill.copy(self.DetrendWindow.t_store[but_ind-1])
+                flux   = dill.copy(self.DetrendWindow.flux_o_c_store[but_ind-1])               
+                flux_e = dill.copy(self.DetrendWindow.flux_o_c_store[but_ind-1])                   
+                
+                for j in range(8): 
+                    fit.tra_data_sets[but_ind-1][j] = fit.tra_data_sets[but_ind-1][j][np.isfinite(bjd) & np.isfinite(flux) & np.isfinite(flux_e)]
+                
+                if len(bjd) != len(fit.tra_data_sets[but_ind-1][0]):
+                    print("WARNING! Something is wrong for these epochs:")          
+                    for v in range(len(bjd)):
+                        if np.isnan(flux[v]) or np.isnan(flux_e[v]):
+                            print("%s  %s   %s"%(bjd[v], flux[v], flux_e[v]))
+                    print("These data are not included!")
 
+                #### CHECK IS OVER ####                  
 
             else:
                 rv.transit_data_norm(fit,  file_n = but_ind-1, norm = False)

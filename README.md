@@ -53,72 +53,6 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Documentation, Instructions, and Video tutorials (work in progress here: https://exostriker.readthedocs.io)
 
 
-
-**Installation:**
-
-
-Currently there are three ways to install/run The Exo-Striker:    
-
-#######################################################    
-*  The simpliest way to "git clone":    
-
-$ git clone https://github.com/3fon3fonov/exostriker  
-
-and then:    
-
-$ cd exostriker  
-$ python exostriker_gui.py    
-
-Generally, you do not need to install anything if you already have all the dependencies needed for the tool to run. For the dependency list, see the "setup.py" file. The Exo-Striker will automatically compile the Fortran code for you at the first start of the program and will keep you updated if the source code was updated (if you regularly "git pull").    
- 
- 
-#######################################################    
-*  The second way to install the tool is:    
-
-$ git clone https://github.com/3fon3fonov/exostriker     
-
-and then:    
-
-$ cd exostriker    
-$ python setup.py install    
-
-This will (hopefully) install the tool in your system.     
-Then, open a terminal and     
-
-$ exostriker    
-
-Should start the Exo-Striker  
-
-
-#######################################################    
-*  and last, you can try:    
-
-$ pip install git+https://github.com/3fon3fonov/exostriker    
-
-This will (hopefully) install the tool in your system.    
-Then, open a terminal and     
-
-$ exostriker
-
-Should start the Exo-Striker  
-
-#######################################################     
-
-If you still cannot boot the tool after a 'successful' installation, please try:
-
-$ python exostriker_gui.py -debug 
-
-or 
-
-$ exostriker -debug 
-
-(depending on how you use the tool)
-
-Then, copy the output error, and please open a 'GitHub' issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
-'stdout/stderr' tab of the tool. If you use this tool, and you find a bug or a problem, please report it!    
-
-#######################################################
-
 Please keep in mind that this software is developed mostly for my needs and for fun. I hope, however, that you may find it capable of solving your scientific problems, too.
 
 Feedback and help in further development will be highly appreciated!
@@ -126,7 +60,15 @@ A wish-list with your favorite tools and methods to be implemented is also welco
 
 Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.    
 
-Also, please only use Python 3 for installing The Exo-Striker! The tool works with Python 2, but since Python 2 and is no longer maintained (since Jan 1, 2020) I do not provide assistance in case of problems.    
+
+
+**Installation:**
+
+$ pip install git+https://github.com/3fon3fonov/exostriker   
+
+However, please read the [Installation instructions](README_for_installation),
+because some problems may occure deppending on your OS system.
+
 
 
 **Credit**
