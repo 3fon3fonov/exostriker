@@ -178,17 +178,14 @@ For the configuration to automatically load at startup,
 add the xrdb command to your ~/.bashrc, after the `export DISPLAY=:0.0`.
 
 
-Running the tool via the official Windows 10 python 2/3 installation should generally work too,
+Running the tool via the official Windows 10 python3 installation should generally work too,
 it was never tried! If you want to experiment, and you successfully install the tool under the official
 Windows python path, I would appreciate it if you share your experience and some instructions.
 
 
-For now, the recommended Win10 installation option of the Exo-Striker is via the "Windows 
+For now, the recommended WINDOWS 10 installation option of the Exo-Striker is via the "Windows 
 Subsystem for Linux" as pointed above.
  
-
-(I am also working on a "pip" installation of the Exo-Striker, which should work 
-also on the official Windows python installation)
  
  
 ################################################################################
