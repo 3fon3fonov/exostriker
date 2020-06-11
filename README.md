@@ -62,7 +62,7 @@ Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.
 
 
 
-**Installation:**
+**Installation**
 
 $ pip install git+https://github.com/3fon3fonov/exostriker   
 

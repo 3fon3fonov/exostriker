@@ -5556,12 +5556,16 @@ will be highly appreciated!
         self.check_settings()
         self.update_bounds()
 
-        self.init_fit()
+        #self.init_fit()
         
 
         self.update_use_from_input_file()
         self.update_use()
         self.update_gui_params()
+        self.update_errors() 
+        self.update_plots() 
+        self.update_labels()
+        
         self.update_params()
         self.update_RV_file_buttons() 
         self.update_tra_file_buttons()
@@ -5571,6 +5575,23 @@ will be highly appreciated!
         self.update_act_file_buttons()
         self.update_color_picker()
 
+
+        #self.update_bounds()
+        
+        self.set_gui_use_GP()
+        #self.init_fit()
+        #self.update_use_from_input_file()
+        #self.update_use()
+        #self.update_gui_params()
+       # self.update_params()
+       # self.update_RV_file_buttons()
+       # self.update_tra_file_buttons()
+        self.update_act_file_buttons()
+       # self.update_ttv_file_buttons()
+
+       # self.fit_dispatcher(init=True)
+        self.init_plot_corr()
+        self.update_plot_corr()
 
 
         if not ind == None:
@@ -6452,6 +6473,15 @@ Please install via 'pip install ttvfast'.
             fit.type_fit["RV"] = True
             fit.type_fit["Transit"] = True
             fit.type_fit["TTV"] = False
+            
+            incl_flag = True
+            Dom_flag = True 
+
+            for i in range(9):
+                self.param_gui[7*i + 5].setEnabled(incl_flag)
+                self.use_param_gui[7*i + 5].setEnabled(incl_flag)
+                self.param_gui[7*i + 6].setEnabled(Dom_flag)
+                self.use_param_gui[7*i + 6].setEnabled(Dom_flag)           
 
         elif self.radioButton_transit.isChecked():
 
@@ -6463,6 +6493,16 @@ Please install via 'pip install ttvfast'.
             fit.type_fit["RV"] = False
             fit.type_fit["Transit"] = True 
             fit.type_fit["TTV"] = False
+
+            incl_flag = True
+            Dom_flag = True 
+
+            for i in range(9):
+                self.param_gui[7*i + 5].setEnabled(incl_flag)
+                self.use_param_gui[7*i + 5].setEnabled(incl_flag)
+                self.param_gui[7*i + 6].setEnabled(Dom_flag)
+                self.use_param_gui[7*i + 6].setEnabled(Dom_flag)   
+
 
         elif self.radioButton_RV.isChecked():
 
@@ -7288,14 +7328,14 @@ https://github.com/3fon3fonov/exostriker/issues
         corr1_ind = self.comboBox_samp_corr_1.currentIndex()
         corr2_ind = self.comboBox_samp_corr_2.currentIndex()
  
-        if corr1_ind ==-1 or corr2_ind ==-1 or len(fit.e_for_mcmc) ==0 or fit.sampler==None:
+        if corr1_ind ==-1 or corr2_ind ==-1 or len(fit.e_for_mcmc) ==0 or fit.mcmc_sampler==None:
             return
         #else:
        #     last_stable = min(len(fit.evol_p[pl1_ind]),len(fit.evol_p[pl2_ind]))
         
  
         pcor.plot(clear=True,)
-        pcor.plot(fit.sampler.samples[:,corr1_ind], fit.sampler.samples[:,corr2_ind] ,pen=None, #{'color': colors[i], 'width': 1.1},
+        pcor.plot(fit.mcmc_sampler.samples[:,corr1_ind], fit.mcmc_sampler.samples[:,corr2_ind] ,pen=None, #{'color': colors[i], 'width': 1.1},
         symbol='o',
         symbolPen={'color': 'b', 'width': 1},
         symbolSize=1,enableAutoRange=True,viewRect=True,
@@ -8075,23 +8115,13 @@ https://github.com/3fon3fonov/exostriker/issues
         self.err_St_teff_input.valueChanged.connect(self.update_St_params)
         self.err_St_vsini_input.valueChanged.connect(self.update_St_params)
 
-        if start_arg_ses == True:
-            self.update_bounds()
-            
-            self.set_gui_use_GP()
-            #self.init_fit()
-            self.update_use_from_input_file()
-            self.update_use()
-            self.update_gui_params()
-            self.update_params()
-            self.update_RV_file_buttons()
-            self.update_tra_file_buttons()
-            self.update_act_file_buttons()
-            self.update_ttv_file_buttons()
+        self.select_session(-1)
 
-            self.fit_dispatcher(init=True)
-            self.init_plot_corr()
-            self.update_plot_corr()
+
+        #if start_arg_ses == True:
+            
+            
+
 
         print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.31). 
               

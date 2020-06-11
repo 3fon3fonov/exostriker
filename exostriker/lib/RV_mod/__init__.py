@@ -772,8 +772,8 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                 ecc_, om_, = par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]
 
             par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
-                                                      ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
-
+                                                      ecc_, om_, par[len(vel_files)*2 +7*i+6], par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
+ 
     else:
         for i in range(npl):
             if hkl == True:
@@ -784,7 +784,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                 ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]
 
             par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i] = transit_tperi(par[len(vel_files)*2 +7*i+1],
-                                                                  ecc_, om_, Ma_ ,epoch)[1]%par[len(vel_files)*2 +7*i+1]
+                                                                  ecc_, om_,par[len(vel_files)*2 +7*i+6], Ma_ ,epoch)[1]%par[len(vel_files)*2 +7*i+1]
 
     if(rtg[0]):
 
@@ -1183,7 +1183,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                 ecc_, om_, = par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]
 
             par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
-                                                      ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
+                                                      ecc_, om_, par[len(vel_files)*2 +7*i+6], par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
 
         obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,stmass, obj.ttv_times, obj.epoch, return_model = True, tra_model_fact=obj.tra_model_fact)
@@ -1213,7 +1213,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                 ecc_, om_, = par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]
 
             par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
-                                                      ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
+                                                      ecc_, om_, par[len(vel_files)*2 +7*i+6], par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
+
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
 
         #print(float(opt["eps"])/1e-13, float(opt["dt"])/86400.0)

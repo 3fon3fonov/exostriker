@@ -29,7 +29,8 @@ TAU= 2.0*np.pi
 
 
 
-def transit_tperi(per, ecc, om, ma, epoch):
+
+def transit_tperi(per, ecc, om,Omega, ma, epoch):
     """It derives Time of periatron [tp]
     and time of mid transit [t0]
 
@@ -51,32 +52,34 @@ def transit_tperi(per, ecc, om, ma, epoch):
     [tp,t0]
         if the epoch in is BJD then tp and t0 are also in BJD.
     """
-    om = np.radians(om)
-    ma = np.radians(ma)  # forgotten! Either E or M0
-
-    E = 2.0*np.arctan( np.sqrt( ( (1.0-ecc)/(1.0+ecc) ) ) * np.tan( (np.pi/4.0)-(om/2.0) ) )
+    om = np.radians((om + Omega)%360)
+    f = np.pi/2.0 - om 
+    E = 2.0*np.arctan( np.sqrt( (1.0-ecc)/(1.0+ecc) ) * np.tan(f/2.0)  )
     t_peri    = epoch  - ((ma/TAU)*per)
     t_transit = t_peri + (E + ecc*np.sin(E)) * (per/TAU)
 
     return t_peri, t_transit
 
 
-def ma_from_t0(per, ecc, om, t_transit, epoch):
+def ma_from_t0(per, ecc, om, Omega, t_transit, epoch):
     '''
     '''
-    om = np.radians(om)
-    E = 2.0*np.arctan( np.sqrt( ( (1.0-ecc)/(1.0+ecc) ) ) * np.tan( (np.pi/4.0)-(om/2.0) ) )
+    om = np.radians((om + Omega)%360)
+    f = np.pi/2.0 - om 
+    E = 2.0*np.arctan( np.sqrt( (1.0-ecc)/(1.0+ecc) ) * np.tan(f/2.0)  )
    # t_transit = epoch  - ((ma/TAU)*per) + (E + ecc*np.sin(E)) * (per/TAU)
 
-    ma =  ((epoch  - t_transit + (E + ecc*np.sin(E)) * (per/TAU))*TAU)/per
+   # ma =  ((epoch  - t_transit + (E + ecc*np.sin(E)) * (per/TAU))*TAU)/per
+    ma = E + ecc*np.sin(E)
     ma = np.degrees(ma)%360.0
+
 
     return ma
 
-def ma_for_epoch(per, t_peri, epoch):
+def ma_from_epoch(per, t_peri, epoch):
     '''
     '''
-    ma =  np.degrees(2.0*np.pi*( (epoch-fit.t_peri)/per % 1.))
+    ma =  np.degrees(2.0*np.pi*( (epoch-t_peri)/per % 1.))
 
     return ma
 
