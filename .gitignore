@@ -10,6 +10,7 @@ source/swift_j/libswift.a
 @make
 
 git-push
+requests
 
 # Setuptools distribution folder.
 /dist/
