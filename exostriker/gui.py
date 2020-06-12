@@ -5455,6 +5455,7 @@ will be highly appreciated!
 
             ses_list.append(fit_new)
 
+
             #self.check_settings()
             rv.check_temp_RV_file(fit_new)
             self.session_list()
