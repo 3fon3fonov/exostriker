@@ -60,7 +60,7 @@ def transit_tperi(per, ecc, om, ma, epoch):
     return t_peri, t_transit
 
 
-def get_m0(per, ecc, om, epoch):
+def get_m0(per, ecc, om, t0, epoch):
     '''
     '''
     om = np.radians(om)
@@ -70,9 +70,9 @@ def get_m0(per, ecc, om, epoch):
 #    t_peri    =  epoch  - (per/TAU)*(E - ecc*np.sin(E))
 #    print(t_peri)
  #   t0 = 2458334.3166
-#    ma =  np.degrees(2.0*np.pi*( (epoch-t_peri)/per % 1.))
-
-    ma = E - ecc*np.sin(E)    
+    ma_ =  2.0*np.pi*( (epoch-t0)/per % 1.)
+    
+    ma = E - ecc*np.sin(E) + ma_
     ma = np.degrees(ma)%360.0
 
     return ma
