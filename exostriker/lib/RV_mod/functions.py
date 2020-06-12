@@ -67,12 +67,13 @@ def get_m0(per, ecc, om, epoch):
     f = np.pi/2.0 - om 
     E = 2.0*np.arctan( np.sqrt( (1.0-ecc)/(1.0+ecc) ) * np.tan(f/2.0)  )
 
-    t_peri    =  epoch  - (per/TAU)*(E - ecc*np.sin(E))
- 
-    ma =  np.degrees(2.0*np.pi*( (epoch-t_peri)/per % 1.))
+#    t_peri    =  epoch  - (per/TAU)*(E - ecc*np.sin(E))
+#    print(t_peri)
+ #   t0 = 2458334.3166
+#    ma =  np.degrees(2.0*np.pi*( (epoch-t_peri)/per % 1.))
 
-   # ma = E - ecc*np.sin(E)    
-   # ma = np.degrees(ma)%360.0
+    ma = E - ecc*np.sin(E)    
+    ma = np.degrees(ma)%360.0
 
     return ma
 
@@ -1639,24 +1640,44 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
             text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +1], max(np.abs(obj.param_errors.planet_params_errors[7*i +1])), width = width, precision = precision)
         text = text + '''\\\\
         '''
-        text = text + '''{0:{width}s}'''.format("$e$  ", width = 30)
-        for i in range(obj.npl):
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +2], max(np.abs(obj.param_errors.planet_params_errors[7*i +2])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-        text = text + '''{0:{width}s}'''.format("$\omega$ [deg]", width = 30)
-        for i in range(obj.npl):
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +3], max(np.abs(obj.param_errors.planet_params_errors[7*i +3])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-        if obj.type_fit["RV"]== True or obj.type_fit["TTV"]== True:
-
-            text = text + '''{0:{width}s}'''.format("$M_{\\rm 0}$ [deg]", width = 30)
+        
+        if obj.hkl == False:
+            text = text + '''{0:{width}s}'''.format("$e$  ", width = 30)
             for i in range(obj.npl):
-                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +4], max(np.abs(obj.param_errors.planet_params_errors[7*i +4])), width = width, precision = precision)
+                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +2], max(np.abs(obj.param_errors.planet_params_errors[7*i +2])), width = width, precision = precision)
             text = text + '''\\\\
         '''
+            text = text + '''{0:{width}s}'''.format("$\omega$ [deg]", width = 30)
+            for i in range(obj.npl):
+                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +3], max(np.abs(obj.param_errors.planet_params_errors[7*i +3])), width = width, precision = precision)
+            text = text + '''\\\\
+        '''
+        else:
+            text = text + '''{0:{width}s}'''.format("$e sin(\omega)$  ", width = 30)
+            for i in range(obj.npl):
+                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.e_sinw[i], max(np.abs(obj.e_sinw_err[i])), width = width, precision = precision)
+            text = text + '''\\\\
+        '''
+            text = text + '''{0:{width}s}'''.format("$e cos(\omega)$", width = 30)
+            for i in range(obj.npl):
+                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.e_cosw[i], max(np.abs(obj.e_cosw_err[i])), width = width, precision = precision)
+            text = text + '''\\\\
+        '''           
+        
+        if obj.type_fit["RV"]== True or obj.type_fit["TTV"]== True:
 
+            if obj.hkl == False:
+                text = text + '''{0:{width}s}'''.format("$M_{\\rm 0}$ [deg]", width = 30)
+                for i in range(obj.npl):
+                    text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.params.planet_params[7*i +4], max(np.abs(obj.param_errors.planet_params_errors[7*i +4])), width = width, precision = precision)
+                text = text + '''\\\\
+        '''
+            else:
+                text = text + '''{0:{width}s}'''.format("$\lambda$ [deg]", width = 30)
+                for i in range(obj.npl):
+                    text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.lamb[i], max(np.abs(obj.lamb_err[i])), width = width, precision = precision)
+                text = text + '''\\\\
+        '''                
         if obj.mod_dynamical == True:
             text = text + '''{0:{width}s}'''.format("$i$ [deg]", width = 30)
             for i in range(obj.npl):
@@ -1777,7 +1798,7 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
         '''
 
         text = text + '''{0:{width}s}'''.format("$-\ln\mathcal{L}$", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.loglik), width = width, precision = precision)
+        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.loglik), width = width, precision = precision)
         text = text + '''\\\\
         '''
         text = text + '''{0:{width}s}'''.format("N$_{\\rm RV}$ data", width = 30)
@@ -1845,25 +1866,43 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
             text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +1], obj.param_errors.planet_params_errors[7*i +1][0], obj.param_errors.planet_params_errors[7*i +1][1], width = width, width2 = 0, precision = precision)
         text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
         '''
-        text = text + '''{0:{width}s}'''.format("$e$ ", width = 30)
-        for i in range(obj.npl):
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +2], obj.param_errors.planet_params_errors[7*i +2][0], obj.param_errors.planet_params_errors[7*i +2][1], width = width, width2 = 0, precision = precision)
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-        text = text + '''{0:{width}s}'''.format("$\omega$ [deg]", width = 30)
-        for i in range(obj.npl):
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +3], obj.param_errors.planet_params_errors[7*i +3][0], obj.param_errors.planet_params_errors[7*i +3][1], width = width, width2 = 0, precision = precision)
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
         
-        if obj.type_fit["RV"]== True or obj.type_fit["TTV"]== True:
-            
-            text = text + '''{0:{width}s}'''.format("$M_{\\rm 0}$ [deg]", width = 30)
+        if obj.hkl == False:
+            text = text + '''{0:{width}s}'''.format("$e$ ", width = 30)
             for i in range(obj.npl):
-                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +4], obj.param_errors.planet_params_errors[7*i +4][0], obj.param_errors.planet_params_errors[7*i +4][1], width = width, width2 = 0, precision = precision)
+                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +2], obj.param_errors.planet_params_errors[7*i +2][0], obj.param_errors.planet_params_errors[7*i +2][1], width = width, width2 = 0, precision = precision)
             text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
         '''
-
+            text = text + '''{0:{width}s}'''.format("$\omega$ [deg]", width = 30)
+            for i in range(obj.npl):
+                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +3], obj.param_errors.planet_params_errors[7*i +3][0], obj.param_errors.planet_params_errors[7*i +3][1], width = width, width2 = 0, precision = precision)
+            text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
+        '''
+        else:
+            text = text + '''{0:{width}s}'''.format("$e sin(\omega)$  ", width = 30)
+            for i in range(obj.npl):
+                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$'''.format(obj.e_sinw[i],  obj.e_sinw_err[i][0], obj.e_sinw_err[i][1], width = width, width2 = 0,  precision = precision)
+            text = text + '''\\\\
+        '''
+            text = text + '''{0:{width}s}'''.format("$e cos(\omega)$", width = 30)
+            for i in range(obj.npl):
+                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$'''.format(obj.e_cosw[i],  obj.e_cosw_err[i][0], obj.e_cosw_err[i][1], width = width, width2 = 0, precision = precision)
+            text = text + '''\\\\   
+        '''
+        if obj.type_fit["RV"]== True or obj.type_fit["TTV"]== True:
+            
+            if obj.hkl == False:
+                text = text + '''{0:{width}s}'''.format("$M_{\\rm 0}$ [deg]", width = 30)
+                for i in range(obj.npl):
+                    text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.params.planet_params[7*i +4], obj.param_errors.planet_params_errors[7*i +4][0], obj.param_errors.planet_params_errors[7*i +4][1], width = width, width2 = 0, precision = precision)
+                text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
+        '''
+            else:
+                text = text + '''{0:{width}s}'''.format("$\lambda$ [deg]", width = 30)
+                for i in range(obj.npl):
+                    text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.lamb[i],  obj.lamb_err[i][0], obj.lamb_err[i][1], width = width,  width2 = 0, precision = precision)
+                text = text + '''\\\\
+        '''                
         if obj.mod_dynamical == True:
             text = text + '''{0:{width}s}'''.format("$i$ [deg]", width = 30)
             for i in range(obj.npl):
