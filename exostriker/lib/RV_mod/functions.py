@@ -70,9 +70,8 @@ def get_m0(per, ecc, om, t0, epoch):
 #    t_peri    =  epoch  - (per/TAU)*(E - ecc*np.sin(E))
 #    print(t_peri)
  #   t0 = 2458334.3166
-    ma_ =  2.0*np.pi*( (epoch-t0)/per % 1.)
     
-    ma = E - ecc*np.sin(E) + ma_
+    ma = E - ecc*np.sin(E) + 2.0*np.pi*( (epoch-t0)/per % 1.)
     ma = np.degrees(ma)%360.0
 
     return ma
