@@ -6474,14 +6474,14 @@ Please install via 'pip install ttvfast'.
             fit.type_fit["Transit"] = True
             fit.type_fit["TTV"] = False
             
-            incl_flag = True
-            Dom_flag = True 
+            #incl_flag = True
+            #Dom_flag = True 
 
-            for i in range(9):
-                self.param_gui[7*i + 5].setEnabled(incl_flag)
-                self.use_param_gui[7*i + 5].setEnabled(incl_flag)
-                self.param_gui[7*i + 6].setEnabled(Dom_flag)
-                self.use_param_gui[7*i + 6].setEnabled(Dom_flag)           
+            #for i in range(9):
+           #     self.param_gui[7*i + 5].setEnabled(incl_flag)
+           #     self.use_param_gui[7*i + 5].setEnabled(incl_flag)
+           #     self.param_gui[7*i + 6].setEnabled(Dom_flag)
+           #     self.use_param_gui[7*i + 6].setEnabled(Dom_flag)           
 
         elif self.radioButton_transit.isChecked():
 
@@ -6493,15 +6493,6 @@ Please install via 'pip install ttvfast'.
             fit.type_fit["RV"] = False
             fit.type_fit["Transit"] = True 
             fit.type_fit["TTV"] = False
-
-            incl_flag = True
-            Dom_flag = True 
-
-            for i in range(9):
-                self.param_gui[7*i + 5].setEnabled(incl_flag)
-                self.use_param_gui[7*i + 5].setEnabled(incl_flag)
-                self.param_gui[7*i + 6].setEnabled(Dom_flag)
-                self.use_param_gui[7*i + 6].setEnabled(Dom_flag)   
 
 
         elif self.radioButton_RV.isChecked():
