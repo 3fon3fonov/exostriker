@@ -60,15 +60,19 @@ def transit_tperi(per, ecc, om, ma, epoch):
     return t_peri, t_transit
 
 
-def get_m0(per, ecc, om):
+def get_m0(per, ecc, om, epoch):
     '''
     '''
     om = np.radians(om)
     f = np.pi/2.0 - om 
     E = 2.0*np.arctan( np.sqrt( (1.0-ecc)/(1.0+ecc) ) * np.tan(f/2.0)  )
 
-    ma = E - ecc*np.sin(E)    
-    ma = np.degrees(ma)%360.0
+    t_peri    =  epoch  - (per/TAU)*(E - ecc*np.sin(E))
+ 
+    ma =  np.degrees(2.0*np.pi*( (epoch-t_peri)/per % 1.))
+
+   # ma = E - ecc*np.sin(E)    
+   # ma = np.degrees(ma)%360.0
 
     return ma
 
@@ -1736,6 +1740,24 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
                     text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.tra_jitt[i]), float(max(np.abs(obj.tra_jitt_err[i]))), width = width, precision = precision)
                     text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
         '''
+        if obj.doGP == True:
+
+            if obj.gp_kernel == 'RotKernel':
+                for i in range(4):
+                    text = text + '''{0:{width}s}'''.format("%s"%(obj.GP_rot_str[i]), width = 30)
+                    text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.GP_rot_params[i]), float(max(np.abs(obj.param_errors.GP_params_errors[i]))), width = width, precision = precision)
+                    text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
+        '''                    
+ 
+
+            elif obj.gp_kernel == 'SHOKernel':
+                for i in range(3):
+                    text = text + '''{0:{width}s}'''.format("%s"%(obj.GP_sho_str[i]), width = 30)
+                    text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.GP_sho_params[i]), float(max(np.abs(obj.param_errors.GP_params_errors[i]))), width = width, precision = precision)
+                    text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
+        '''                   
+             
+        
 
         text = text + '''{0:{width}s}'''.format("$\chi^2$", width = 30)
         text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.chi2), width = width, precision = precision)
@@ -1925,6 +1947,24 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
                     text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.tra_jitt[i]), obj.tra_jitt_err[i][0], obj.tra_jitt_err[i][1], width = width, width2 = 0, precision = precision)
                     text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
         '''
+        
+        if obj.doGP == True:
+
+            if obj.gp_kernel == 'RotKernel':
+                for i in range(4):
+                    text = text + '''{0:{width}s}'''.format("%s"%(obj.GP_rot_str[i]), width = 30)
+                    text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.GP_rot_params[i]), obj.param_errors.GP_params_errors[i][0], obj.param_errors.GP_params_errors[i][1], width = width, width2 = 0, precision = precision)
+                    text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
+        '''                    
+ 
+
+            elif obj.gp_kernel == 'SHOKernel':
+                for i in range(3):
+                    text = text + '''{0:{width}s}'''.format("%s"%(obj.GP_sho_str[i]), width = 30)
+                    text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.GP_sho_params[i]), obj.param_errors.GP_params_errors[i][0], obj.param_errors.GP_params_errors[i][1], width = width, width2 = 0, precision = precision)
+                    text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
+        '''                   
+     
 
         text = text + '''{0:{width}s}'''.format("$\chi^2$", width = 30)
         text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.chi2), width = width, precision = precision)
@@ -1944,7 +1984,7 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
         '''
 
         text = text + '''{0:{width}s}'''.format("$-\ln\mathcal{L}$", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.loglik), width = width, precision = precision)
+        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.loglik), width = width, precision = precision)
         text = text + '''\\\\
         '''
         text = text + '''{0:{width}s}'''.format("N$_{\\rm RV}$ data", width = 30)
@@ -2169,7 +2209,7 @@ def latex_prior_table(obj, width = 10, precision = 2,  file_name='prior_table.te
         text = text + '''\\\\
     '''
         
-        text = text + '''{0:{width}s}'''.format("Pl.Rad. [$R_\odot$]", width = 30)
+        text = text + '''{0:{width}s}'''.format("Rp\$R_\star$", width = 30)
         for i in range(obj.npl):
             if obj.pl_rad_norm_pr[i][2]==True:
                 sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.pl_rad_norm_pr[i][0],obj.pl_rad_norm_pr[i][1],"$^2$"
@@ -2183,7 +2223,7 @@ def latex_prior_table(obj, width = 10, precision = 2,  file_name='prior_table.te
     '''
         
         
-        text = text + '''{0:{width}s}'''.format("$a$ [$R_\odot$]", width = 30)
+        text = text + '''{0:{width}s}'''.format("a\$R_\star$", width = 30)
         for i in range(obj.npl):
             if obj.pl_a_norm_pr[i][2]==True:
                 sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.pl_a_norm_pr[i][0],obj.pl_a_norm_pr[i][1],"$^2$"

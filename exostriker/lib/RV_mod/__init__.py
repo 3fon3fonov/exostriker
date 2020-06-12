@@ -773,7 +773,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
             #par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
             #                                          ecc_, om_, par[len(vel_files)*2 +7*i+6], par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
-            par[len(vel_files)*2 +7*i+4] = get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_)
+            par[len(vel_files)*2 +7*i+4] = get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_ , epoch)
  
     else:
         for i in range(npl):
@@ -1185,7 +1185,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
             #par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
            #                                           ecc_, om_, par[len(vel_files)*2 +7*i+6], par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
-            par[len(vel_files)*2 +7*i+4] = get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_)
+            par[len(vel_files)*2 +7*i+4] = get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_,epoch)
 
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
 
@@ -1217,7 +1217,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
             #par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
             #                                          ecc_, om_, par[len(vel_files)*2 +7*i+6], par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
-            par[len(vel_files)*2 +7*i+4] = get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_)
+            par[len(vel_files)*2 +7*i+4] = get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_,epoch)
 
             obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
 
@@ -1304,6 +1304,12 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
 #        else:
 #            tr_params.u = []
+    ##################### New stuff to be added here ######################
+    for i in range(obj.npl):
+        #self.t_peri[i] = (float(self.epoch) - (np.radians(self.M0[i])/(2*np.pi))*self.P[i] ) # epoch  - ((ma/TWOPI)*a[1])
+        obj.t_peri[i] = transit_tperi(obj.P[i],obj.e[i], obj.w[i], obj.M0[i] ,obj.epoch)[0]
+
+   #####################
 
     if len(flags) != 0:
         print("Best lnL: %s"%obj.loglik)
@@ -2372,9 +2378,9 @@ class signal_fit(object):
         self.pl_a_jeff_pr     = {k: np.array([10.0,10.0, False]) for k in range(9)}
         self.pl_rad_jeff_pr   = {k: np.array([0.1,0.05, False]) for k in range(9)}
 
-        self.t0_str      = {k: r't0$_%s$'%chr(98+k) for k in range(9)}
-        self.pl_a_str    = {k: r'pl_a$_%s$'%chr(98+k) for k in range(9)}
-        self.pl_rad_str  = {k: r'pl_rad$_%s$'%chr(98+k) for k in range(9)}
+        self.t0_str      = {k: r't0 $%s$'%chr(98+k) for k in range(9)}
+        self.pl_a_str    = {k: r'a\$R_\star$ $%s$'%chr(98+k) for k in range(9)}
+        self.pl_rad_str  = {k: r'R\$R_\star$ $%s$'%chr(98+k) for k in range(9)}
 
 
 
@@ -2549,7 +2555,7 @@ class signal_fit(object):
         self.GP_rot_params = [1.0,10.0,15.0,1.0]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_rot_err = [0.0,0.0,0.0,0.0]
         self.GP_rot_use = [False,False,False,False]
-        self.GP_rot_str = [r'GP Rot. Amp.', r'GP Rot. timescale', r'GP Rot. Period', r'GP Rot. fact.']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_rot_str = [r'RV GP$_{\rm Rot.}$ Amp.', r'RV GP$_{\rm Rot.}$ timescale', r'RV GP$_{\rm Rot.}$ Period', r'RV GP$_{\rm Rot.}$ fact.']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_rot_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_rot_params))}
         self.GP_rot_norm_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_rot_params))}
         self.GP_rot_jeff_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_rot_params))}
@@ -2557,7 +2563,7 @@ class signal_fit(object):
         self.GP_sho_params     = [100.0,1.0,0.05]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_sho_err = [0.0,0.0,0.0]
         self.GP_sho_use = [False,False,False]
-        self.GP_sho_str = [r'GP SHO $S$', r'GP SHO $Q$', r'GP SHO $\omega$']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_sho_str = [r'RV GP$_{\rm SHO}$ $S$', r'RV GP$_{\rm SHO}$ $Q$', r'RV GP$_{\rm SHO}$ $\omega$']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.GP_sho_bounds     = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_sho_params))}
         self.GP_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_sho_params))}
         self.GP_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_sho_params))}
@@ -2576,7 +2582,7 @@ class signal_fit(object):
         self.tra_GP_rot_params = [1.0,10.0,15.0,1.0]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.tra_GP_rot_err = [0.0,0.0,0.0,0.0]
         self.tra_GP_rot_use = [False,False,False,False]
-        self.tra_GP_rot_str = [r'GP Rot. Amp.', r'GP Rot. timescale', r'GP Rot. Period', r'GP Rot. fact.']#we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.tra_GP_rot_str = [r'Transit GP$_{\rm Rot.}$ Amp.', r'Transit GP$_{\rm Rot.}$ timescale', r'Transit GP$_{\rm Rot.}$ Period', r'Transit GP$_{\rm Rot.}$ fact.']#we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.tra_GP_rot_bounds  = {k: np.array([0.0,100000.0]) for k in range(len(self.tra_GP_rot_params))}
         self.tra_GP_rot_norm_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_rot_params))}
         self.tra_GP_rot_jeff_pr = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_rot_params))}
@@ -2584,7 +2590,7 @@ class signal_fit(object):
         self.tra_GP_sho_params     = [100.0,1.0,0.05]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.tra_GP_sho_err = [0.0,0.0,0.0]
         self.tra_GP_sho_use = [False,False,False]
-        self.tra_GP_sho_str = [r'GP SHO $S$', r'GP SHO $Q$', r'GP SHO $\omega$']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.tra_GP_sho_str = [r'Transit GP$_{\rm SHO}$ $S$', r'Transit GP$_{\rm SHO}$ $Q$', r'Transit GP$_{\rm SHO}$ $\omega$']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
         self.tra_GP_sho_bounds     = {k: np.array([0.0,100000.0]) for k in range(len(self.tra_GP_sho_params))}
         self.tra_GP_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_sho_params))}
         self.tra_GP_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_sho_params))}
