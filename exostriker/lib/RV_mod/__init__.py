@@ -3185,7 +3185,7 @@ class signal_fit(object):
         if len(self.fit_results.o_c) != 0:
             wrms = np.sqrt(np.average(self.fit_results.o_c**2, weights=1/self.fit_results.rv_err))
         else:
-            wrms = 0
+            wrms = 0           
         return wrms
 
 

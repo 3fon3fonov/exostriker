@@ -4976,6 +4976,82 @@ Transit duration: %s d
         self.dialog_chi_table.show()
 
 
+
+
+    def print_more_stat(self):
+        global fit 
+        
+        #self.dialog.statusBar().showMessage('Ready')
+        self.dialog_more_info.setFixedSize(500,450)
+        self.dialog_more_info.setWindowTitle('Fit stat. info')  
+        #self.dialog.setGeometry(300, 300, 800, 800)
+        #self.dialog_credits.acceptRichText(True)
+        
+        ################## text generator #################
+        text_info = """ (Work in progress) """
+        self.dialog_more_info.text.setText(text_info) 
+         
+        text_info ="""Fit quality
+----------------------------------------------  
+max lnL = %.5f
+chi^2   = %.5f
+red. chi^2   = %.5f
+----------------------------------------------
+"""%(fit.loglik,fit.fit_results.chi2,fit.fit_results.reduced_chi2)   
+
+        self.dialog_more_info.text.append(text_info)
+
+        text_info = """data rms/wrms 
+----------------------------------------------"""   
+        self.dialog_more_info.text.append(text_info)
+        
+        if fit.filelist.ndset != 0:
+            for i in range(max(fit.filelist.idset)+1):
+                rms = np.sqrt(np.average(fit.fit_results.o_c[fit.filelist.idset==i]**2))
+                text_wrm = "rms %s = %.5f m/s"%(fit.filelist.files[i].name,rms)       
+                self.dialog_more_info.text.append(text_wrm)
+            text_info = """ """   
+            self.dialog_more_info.text.append(text_info)               
+            for i in range(max(fit.filelist.idset)+1):
+                wrms = np.sqrt(np.average(fit.fit_results.o_c[fit.filelist.idset==i]**2, weights=1/fit.fit_results.rv_err[fit.filelist.idset==i]))
+                text_wrm = "wrms %s = %.5f m/s"%(fit.filelist.files[i].name,wrms)       
+                self.dialog_more_info.text.append(text_wrm)        
+
+       # self.dialog_more_info.text.append(text_info)
+      
+#        text_info = text_info + """
+#----------------------------------------------
+#"""
+
+       # self.value_stellar_mass.setText("%.4f"%(fit.params.stellar_mass))
+       # self.value_epoch.setText(str(fit.epoch))
+       # self.value_rms.setText("%.4f"%(fit.fit_results.rms))
+       # self.value_wrms.setText("%.4f"%(fit.fit_results.wrms))
+
+        #self.value_wrms.setText("%.4f"%(fit.wrms()))
+        
+      #  self.value_chi2.setText("%.4f"%(fit.fit_results.chi2)) 
+      #  self.value_reduced_chi2.setText("%.4f"%(fit.fit_results.reduced_chi2))
+        #self.value_loglik.setText("%.4f"%(fit.fit_results.loglik)) 
+      #  self.value_loglik.setText("%.4f"%(fit.loglik)) 
+      #  self.value_BIC.setText("%.2f"%(fit.BIC()))
+      #  self.value_AIC.setText("%.2f"%(fit.AIC()))
+        
+        #self.value_Ndata.setText("%s"%(len(fit.fit_results.jd))) 
+       # self.value_Ndata.setText("%s"%(fit.fit_results.Ndata)) 
+        
+       # self.value_DOF.setText("%s"%(int(fit.fit_results.stat.dof)))
+
+       # self.dialog_more_info.text.setText(text_info) 
+
+#        self.dialog_more_info.text.append(text_info)
+
+        self.dialog_more_info.text.setReadOnly(True)
+   
+        self.dialog_more_info.show()
+
+
+
     def print_GP_info(self):
         self.dialog_GP_help.setFixedSize(600, 600)
         self.dialog_GP_help.setWindowTitle('GP modeling help')
@@ -7677,6 +7753,9 @@ https://github.com/3fon3fonov/exostriker/issues
         self.dialog_chi_table = print_info(self)
         self.dialog_ttv_help = print_info(self)
         self.dialog_GP_help = print_info(self)
+        self.dialog_more_info = print_info(self)
+
+        self.More_info.clicked.connect(self.print_more_stat)
 
         self.buttonGroup_apply_rv_data_options.buttonClicked.connect(self.apply_rv_data_options)
         self.buttonGroup_apply_act_data_options.buttonClicked.connect(self.apply_act_data_options)
