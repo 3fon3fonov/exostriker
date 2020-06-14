@@ -2444,7 +2444,7 @@ class signal_fit(object):
         self.jitt      = {k: 0.0 for k in range(10)}
         self.jitt_err  = {k: np.array([0.0,0.0]) for k in range(10)}
         self.jitt_use  = {k: True for k in range(10)}
-        self.jitt_str  = {k: r'RV jitt$_%s$'%k for k in range(10)}
+        self.jitt_str  = {k: r'RV jitt$_%s$'%str(k+1) for k in range(10)}
         self.jitt_bounds  = {k: np.array([0.0,10000.0] )for k in range(10)}
         self.jitt_norm_pr = {k: np.array([1.0,5.0, False] )for k in range(10)}
         self.jitt_jeff_pr = {k: np.array([1.0,5.0, False] )for k in range(10)}
@@ -2455,7 +2455,7 @@ class signal_fit(object):
         self.rvoff      = {k: 0.0 for k in range(10)}
         self.rvoff_err  = {k: np.array([0.0,0.0])  for k in range(10)}
         self.rvoff_use  = {k: True for k in range(10)}
-        self.rvoff_str  = {k: r'RV off$_%s$'%k for k in range(10)}
+        self.rvoff_str  = {k: r'RV off$_%s$'%str(k+1) for k in range(10)}
         self.rvoff_bounds  = {k: np.array([-1000000.0,1000000.0] )for k in range(10)}
         self.rvoff_norm_pr = {k: np.array([0.0,100.0, False] )for k in range(10)}
         self.rvoff_jeff_pr = {k: np.array([0.0,100.0, False] )for k in range(10)}
@@ -2466,7 +2466,7 @@ class signal_fit(object):
         self.tra_jitt      = {k: 0.0 for k in range(10)}
         self.tra_jitt_err  = {k: np.array([0.0,0.0]) for k in range(10)}
         self.tra_jitt_use  = {k: False for k in range(10)}
-        self.tra_jitt_str  = {k: r'transit jitt$_%s$'%k for k in range(10)}
+        self.tra_jitt_str  = {k: r'transit jitt$_%s$'%str(k+1) for k in range(10)}
         self.tra_jitt_bounds  = {k: np.array([-0.2,0.2] )for k in range(10)}
         self.tra_jitt_norm_pr = {k: np.array([0.0,0.1, False] )for k in range(10)}
         self.tra_jitt_jeff_pr = {k: np.array([0.0,0.1, False] )for k in range(10)}
@@ -2477,7 +2477,7 @@ class signal_fit(object):
         self.tra_off      = {k: 0.0 for k in range(10)}
         self.tra_off_err  = {k: np.array([0.0,0.0])  for k in range(10)}
         self.tra_off_use  = {k: False for k in range(10)}
-        self.tra_off_str  = {k: r'transit off$_%s$'%k for k in range(10)}
+        self.tra_off_str  = {k: r'transit off$_%s$'%str(k+1) for k in range(10)}
         self.tra_off_bounds  = {k: np.array([-1.0,2.0] )for k in range(10)}
         self.tra_off_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(10)}
         self.tra_off_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(10)}
@@ -2487,7 +2487,7 @@ class signal_fit(object):
         self.tra_dil     = {k: 1.0 for k in range(10)}
         self.tra_dil_err  = {k: np.array([0.0,0.0])  for k in range(10)}
         self.tra_dil_use  = {k: False for k in range(10)}
-        self.tra_dil_str  = {k: r'transit off$_%s$'%k for k in range(10)}
+        self.tra_dil_str  = {k: r'tr. data dilution$_%s$'%str(k+1) for k in range(10)}
         self.tra_dil_bounds  = {k: np.array([0.0,1.0] )for k in range(10)}
         self.tra_dil_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(10)}
         self.tra_dil_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(10)}
