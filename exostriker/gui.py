@@ -30,6 +30,10 @@ if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
 import RV_mod as rv
+import dynesty
+
+#from dynesty import NestedSampler
+#from dynesty import DynamicNestedSampler
 
 import pyqtgraph as pg
 import pyqtgraph.console as pg_console
@@ -123,11 +127,16 @@ if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
 
 #start_time = time.time()
 
-qtCreatorFile = "%s/UI/es.ui"%lib_path 
-Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
+
+try:
+    from es import Ui_MainWindow 
+except (ImportError, KeyError) as e:
+    qtCreatorFile = "%s/UI/es.ui"%lib_path 
+    Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
+
+
 #from es import Ui_MainWindow
 #print("--- %s seconds ---" % (time.time() - start_time))
-
 
 pg.setConfigOption('background', '#ffffff')
 pg.setConfigOption('foreground', 'k')
@@ -6070,19 +6079,71 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         
         self.check_cornerplot_samples()
 
+    def remove_mcmc_samples_from_fit(self):
+        global fit  
+        
+        if isinstance(fit.mcmc_sampler, rv.CustomSampler):
+            choice = QtGui.QMessageBox.information(self, 'Warning!',
+                                            "Are you sure you want to remove the MCMC samples?",
+                                             QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)
+
+            if choice == QtGui.QMessageBox.No:
+                return   
+            elif choice == QtGui.QMessageBox.Yes:
+                del fit.mcmc_sampler
+                fit.mcmc_sampler = []
+                self.check_cornerplot_samples()
+                return          
+            else: 
+                return   
+        else:
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "MCMC samples not found.", QtGui.QMessageBox.Ok)            
+
+ 
+    def remove_ns_samples_from_fit(self):
+        global fit  
+        
+        if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
+            choice = QtGui.QMessageBox.information(self, 'Warning!',
+                                            "Are you sure you want to remove the NS samples?",
+                                             QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)
+
+            if choice == QtGui.QMessageBox.No:
+                return   
+            elif choice == QtGui.QMessageBox.Yes:
+                del fit.ns_sampler
+                fit.ns_sampler = []
+                self.check_cornerplot_samples()
+                return          
+            else: 
+                return   
+        else:
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "NS samples not found.", QtGui.QMessageBox.Ok)             
+
     def check_cornerplot_samples(self):
         global fit  
         
         if isinstance(fit.mcmc_sampler, rv.CustomSampler):
-            SAMP_LED = './lib/UI/green_led.png'
-            SAMP_TXT = "MCMC Samples present in memory" 
+            MCMC_SAMP_LED = './lib/UI/green_led.png'
+            MCMC_SAMP_TXT = "MCMC samples present in memory" 
         else:
-            SAMP_LED = './lib/UI/red_led.png' 
-            SAMP_TXT = "No MCMC samples available" 
+            MCMC_SAMP_LED = './lib/UI/red_led.png' 
+            MCMC_SAMP_TXT = "No MCMC samples available" 
+#dynesty.nestedsamplers.UnitCubeSampler
+        if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
+            NS_SAMP_LED = './lib/UI/green_led.png'
+            NS_SAMP_TXT = "NS samples present in memory" 
+        else:
+            NS_SAMP_LED = './lib/UI/red_led.png' 
+            NS_SAMP_TXT = "No BS samples available" 
             
-        self.samples_led.setPixmap(QtGui.QPixmap(SAMP_LED)) 
-        self.cornerplot_samp_indicator.setText(SAMP_TXT)
+        self.mcmc_samples_led.setPixmap(QtGui.QPixmap(MCMC_SAMP_LED)) 
+        self.mcmc_cornerplot_samp_indicator.setText(MCMC_SAMP_TXT)
         
+        self.ns_samples_led.setPixmap(QtGui.QPixmap(NS_SAMP_LED)) 
+        self.ns_cornerplot_samp_indicator.setText(NS_SAMP_TXT)        
 
     def worker_cornerplot_complete(self):
         global fit  
@@ -6095,17 +6156,39 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def worker_cornerplot(self, type_plot = "mcmc"):
         global fit  
 
+
+        if type_plot == "mcmc" and not isinstance(fit.mcmc_sampler, rv.CustomSampler):
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "MCMC samples not found.", QtGui.QMessageBox.Ok)
+             return   
+      
+        if type_plot == "nest" and not isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
+             choice = QtGui.QMessageBox.information(self, 'Warning!',
+             "NS samples not found.", QtGui.QMessageBox.Ok)
+             return   
+
         self.button_make_mcmc_cornerplot.setEnabled(False)
         self.button_make_nest_cornerplot.setEnabled(False)
 
         self.statusBar().showMessage('Cornerplot in progress....')
+        
+        
+        
 
         # check if RV data is present
         if type_plot == "mcmc":
             samp_file = fit.mcmc_sample_file
+            make_mass = self.samp_mcmc_incl_mass.isChecked()
+            make_a = self.samp_mcmc_incl_a.isChecked()
+            mean = False
+            median = False
             type_samp = "MCMC"
         elif type_plot == "nest":
             samp_file = fit.nest_sample_file
+            make_mass = self.samp_ns_incl_mass.isChecked()
+            make_a = self.samp_ns_incl_a.isChecked()
+            mean = False
+            median = False
             type_samp = "Nest. Samp."
 
         if not os.path.exists(samp_file):
@@ -6118,7 +6201,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
 
         # Pass the function to execute
-        worker_cor = Worker(lambda: self.make_cornerplot(type_plot = type_plot)) # Any other args, kwargs are passed to the run  
+        worker_cor = Worker(lambda: self.make_cornerplot(make_mass=make_mass, make_a=make_a, mean=mean, median=median, type_plot = type_plot)) # Any other args, kwargs are passed to the run  
         # Execute
         worker_cor.signals.finished.connect(self.worker_cornerplot_complete)
         
@@ -6128,9 +6211,9 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.threadpool.start(worker_cor)
 
 
-    def make_cornerplot(self,type_plot = 'mcmc'):
+    def make_cornerplot(self,type_plot = 'mcmc',make_mass=False, make_a=False, mean =False, median = False, ):
         global fit
-        rv.cornerplot(fit, fileinput=True, type_plot = type_plot )
+        rv.cornerplot(fit,  make_mass=make_mass, make_a=make_a, mean=mean, median=median, type_plot=type_plot )
 
 
     def change_corner_plot_file_name(self, type_plot = "mcmc"):
@@ -7806,6 +7889,10 @@ https://github.com/3fon3fonov/exostriker/issues
         self.run_orb_evol_arbitary.clicked.connect(self.worker_Nbody_arb) 
  
         self.button_make_mcmc_cornerplot_redir.clicked.connect(self.switch_to_corenrplot_opt)
+        self.button_make_mcmc_cornerplot_redir_2.clicked.connect(self.switch_to_corenrplot_opt)
+
+        self.remove_mcmc_samples.clicked.connect(self.remove_mcmc_samples_from_fit)
+        self.remove_ns_samples.clicked.connect(self.remove_ns_samples_from_fit)
         
         self.button_make_mcmc_cornerplot.clicked.connect(lambda: self.worker_cornerplot(type_plot = "mcmc"))
         self.button_make_nest_cornerplot.clicked.connect(lambda: self.worker_cornerplot(type_plot = "nest"))
@@ -8161,10 +8248,14 @@ https://github.com/3fon3fonov/exostriker/issues
        # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_change)
         self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_change)
 
+        self.select_session(-1)
+
+
         self.check_settings()
         self.mute_boxes_dyn()
         self.update_RV_jitter_flag()
-
+        self.check_cornerplot_samples()
+        
         self.force_copl_incl.stateChanged.connect(self.set_force_copl_incl)
 
         self.threadpool = QtCore.QThreadPool()
@@ -8186,7 +8277,6 @@ https://github.com/3fon3fonov/exostriker/issues
         self.err_St_teff_input.valueChanged.connect(self.update_St_params)
         self.err_St_vsini_input.valueChanged.connect(self.update_St_params)
 
-        self.select_session(-1)
 
 
         #if start_arg_ses == True:

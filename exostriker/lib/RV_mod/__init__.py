@@ -1584,8 +1584,8 @@ def run_nestsamp(obj, **kwargs):
              maxiter = ns_maxiter, maxcall = ns_maxcall )
 
 
-        obj.dyn_res = sampler.results
-        obj.dyn_res.summary()
+        #obj.dyn_res = sampler.results
+        sampler.results.summary()
 
     else:
         print("'Dynamic' Nest. Samp. is running, please wait...")
@@ -1615,15 +1615,17 @@ def run_nestsamp(obj, **kwargs):
             maxiter = ns_maxiter, maxcall = ns_maxcall,use_stop = ns_use_stop, wt_kwargs={'pfrac': ns_pfrac} ) 
 
 
-        obj.dyn_res = sampler.results
+       # obj.dyn_res = sampler.results
 
         res = ("niter: {:d}\n"
                "ncall: {:d}\n"
                "eff(%): {:6.3f}\n"
-               "logz: {:6.3f} +/- {:6.3f}".format( obj.dyn_res.niter, sum(obj.dyn_res.ncall),
-                       obj.dyn_res.eff, obj.dyn_res.logz[-1], obj.dyn_res.logzerr[-1]))
+               "logz: {:6.3f} +/- {:6.3f}".format(sampler.results.niter, sum(sampler.results.ncall),
+                       sampler.results.eff, sampler.results.logz[-1], sampler.results.logzerr[-1]))
 
         print('Summary\n=======\n'+res)
+
+
 
 
    # print("--- %s seconds ---" % (time.time() - start_time))
@@ -1670,7 +1672,7 @@ def run_nestsamp(obj, **kwargs):
     # else:
    #     pp = obj.par_for_mcmc
 
-    sampler.samples = sampler.results.samples
+    #sampler.samples = sampler.results.samples
 
 
     if obj.nest_mad == False:
@@ -1699,11 +1701,11 @@ def run_nestsamp(obj, **kwargs):
         obj.loglik = maxlnl
 
     if(obj.ns_save_sampler):
-        obj.ns_sampler=sampler.results
+        obj.ns_sampler=sampler
         obj.sampler_saved=True
   #      sampler.reset()
-  #  else:
-    sampler.reset()
+   # else:
+   #     sampler.reset()
 
     # To avoid memory leak
     if (rtg[1]):
