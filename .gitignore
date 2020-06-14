@@ -6,6 +6,9 @@ exostriker/datafiles/*
 exostriker/auto_save.ses
 exostriker/mcmc_samples
 
+exostriker/mcmc/MCMC_cornerplot.pdf
+exostriker/mcmc/eta_ceti_py3_mcmc.ses
+
 *.pyc
 exostriker/lib/libswift.a
 source/swift_j/libswift.a
