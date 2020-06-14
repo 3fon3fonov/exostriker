@@ -206,10 +206,10 @@ if make_a:
  
 # e.g. to change the labels:
 
-#samp_labels[0] = "RV off Lick m/s"
-#samp_labels[1] = "RV off CRIRES m/s"
-#samp_labels[2] = "RV jitt Lick m/s"
-#samp_labels[3] = "RV jitt CRIRES m/s"
+samp_labels[0] = "RV off Lick m/s"
+samp_labels[1] = "RV off CRIRES m/s"
+samp_labels[2] = "RV jitt Lick m/s"
+samp_labels[3] = "RV jitt CRIRES m/s"
  
  
 
@@ -217,9 +217,9 @@ if make_a:
 
 ########### if you want to remove parameters from the cornerplot use this: ####
 
-#del samp[2] 
-#del samp_labels[2] 
-#del samp_best_fit_par[2] 
+del samp[2] 
+del samp_labels[2] 
+del samp_best_fit_par[2] 
 
 #del samp[3]               # repeat for another element. (use -help to get the indices)
 #del samp_labels[3] 

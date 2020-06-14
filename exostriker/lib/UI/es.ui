@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1273</width>
+    <width>1271</width>
     <height>860</height>
    </rect>
   </property>
@@ -10216,7 +10216,7 @@
                  </font>
                 </property>
                 <property name="currentIndex">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="tab_50">
                  <attribute name="title">
@@ -10303,7 +10303,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>S</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -10344,7 +10344,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ω [2pi/P]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ω&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt; [2pi/P]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -10979,7 +10979,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>S</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -11172,7 +11172,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ω [2pi/P]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ω&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt; [2pi/P]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -44058,8 +44058,8 @@
                <attribute name="title">
                 <string>Nest. Samp. param.</string>
                </attribute>
-               <layout class="QGridLayout" name="gridLayout_144">
-                <item row="0" column="0" rowspan="4">
+               <layout class="QGridLayout" name="gridLayout_10">
+                <item row="0" column="0" rowspan="3">
                  <layout class="QGridLayout" name="gridLayout_262">
                   <property name="verticalSpacing">
                    <number>2</number>
@@ -44322,33 +44322,6 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item row="10" column="1" colspan="2">
-                   <widget class="QPushButton" name="nest_corner_plot_change_name">
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>./nest_cornerplot.pdf</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="10" column="0">
-                   <widget class="QPushButton" name="button_make_nest_cornerplot">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>8</pointsize>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>make Cornerplot</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="4" column="1" colspan="2">
                    <widget class="QDoubleSpinBox" name="live_points">
                     <property name="enabled">
@@ -44385,6 +44358,21 @@
                     </property>
                    </widget>
                   </item>
+                  <item row="10" column="0">
+                   <widget class="QPushButton" name="button_make_mcmc_cornerplot_redir_2">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>9</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>Go to &quot;Make cornerplot&quot;</string>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
                 <item row="0" column="1">
@@ -44394,7 +44382,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2" colspan="2">
+                <item row="0" column="2">
                  <layout class="QGridLayout" name="gridLayout_264">
                   <property name="verticalSpacing">
                    <number>4</number>
@@ -44585,14 +44573,14 @@
                   </item>
                  </layout>
                 </item>
-                <item row="1" column="2" colspan="2">
+                <item row="1" column="2">
                  <widget class="Line" name="line_19">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="2" rowspan="2" colspan="2">
+                <item row="2" column="2">
                  <layout class="QGridLayout" name="gridLayout_331">
                   <property name="verticalSpacing">
                    <number>4</number>
@@ -44623,12 +44611,18 @@
                     <property name="text">
                      <string>maxcall</string>
                     </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
                    </widget>
                   </item>
                   <item row="2" column="0">
                    <widget class="QCheckBox" name="use_ns_maxiter">
                     <property name="text">
                      <string>maxiter</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
@@ -44680,7 +44674,7 @@
                      <string>use stop</string>
                     </property>
                     <property name="checked">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
                    </widget>
                   </item>
@@ -50750,13 +50744,28 @@
              <attribute name="title">
               <string>Cornerplot</string>
              </attribute>
-             <layout class="QGridLayout" name="gridLayout_332">
+             <layout class="QGridLayout" name="gridLayout_36">
               <item row="0" column="0">
                <layout class="QGridLayout" name="gridLayout_330">
-                <item row="0" column="3" colspan="2">
-                 <widget class="QCheckBox" name="samp_incl_mass">
+                <item row="2" column="6">
+                 <widget class="QRadioButton" name="radioButton_8">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Rj</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="3" colspan="2">
+                 <widget class="QCheckBox" name="samp_mcmc_incl_mass">
+                  <property name="enabled">
+                   <bool>true</bool>
                   </property>
                   <property name="font">
                    <font>
@@ -50768,7 +50777,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="6">
+                <item row="1" column="8">
                  <widget class="QPushButton" name="button_make_mcmc_cornerplot">
                   <property name="enabled">
                    <bool>true</bool>
@@ -50783,7 +50792,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="4">
+                <item row="2" column="4">
                  <widget class="QRadioButton" name="radioButton_3">
                   <property name="enabled">
                    <bool>false</bool>
@@ -50798,8 +50807,8 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="samples_led">
+                <item row="1" column="0">
+                 <widget class="QLabel" name="mcmc_samples_led">
                   <property name="minimumSize">
                    <size>
                     <width>15</width>
@@ -50826,10 +50835,10 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="5">
-                 <widget class="QCheckBox" name="samp_incl_a">
+                <item row="1" column="5">
+                 <widget class="QCheckBox" name="samp_mcmc_incl_a">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="font">
                    <font>
@@ -50841,8 +50850,14 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="1" colspan="2">
-                 <widget class="QLabel" name="cornerplot_samp_indicator">
+                <item row="1" column="1" colspan="2">
+                 <widget class="QLabel" name="mcmc_cornerplot_samp_indicator">
+                  <property name="minimumSize">
+                   <size>
+                    <width>160</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="font">
                    <font>
                     <pointsize>9</pointsize>
@@ -50853,19 +50868,56 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="3" colspan="3">
-                 <widget class="QPushButton" name="mcmc_corner_plot_change_name">
+                <item row="0" column="0" colspan="9">
+                 <widget class="QLabel" name="label_453">
+                  <property name="text">
+                   <string>MCMC</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="8">
+                 <widget class="QLabel" name="label_451">
                   <property name="font">
                    <font>
                     <pointsize>9</pointsize>
                    </font>
                   </property>
                   <property name="text">
-                   <string>./cornerplot.pdf</string>
+                   <string>save directory:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="3">
+                <item row="1" column="6" colspan="2">
+                 <widget class="QCheckBox" name="samp_incl_a_3">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Include R</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="7">
+                 <widget class="QRadioButton" name="radioButton_9">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Re</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="3">
                  <widget class="QRadioButton" name="radioButton_2">
                   <property name="enabled">
                    <bool>false</bool>
@@ -50880,15 +50932,49 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0" colspan="3">
-                 <widget class="QLabel" name="label_451">
+                <item row="2" column="5">
+                 <widget class="QRadioButton" name="radioButton_7">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="font">
                    <font>
                     <pointsize>9</pointsize>
                    </font>
                   </property>
                   <property name="text">
-                   <string>save directory:</string>
+                   <string>au</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0" colspan="3">
+                 <widget class="QPushButton" name="remove_mcmc_samples">
+                  <property name="minimumSize">
+                   <size>
+                    <width>160</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>remove MCMC samples</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="8">
+                 <widget class="QPushButton" name="mcmc_corner_plot_change_name">
+                  <property name="minimumSize">
+                   <size>
+                    <width>130</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>./cornerplot.pdf</string>
                   </property>
                  </widget>
                 </item>
@@ -50907,15 +50993,257 @@
                 </property>
                </spacer>
               </item>
-              <item row="1" column="0">
-               <spacer name="verticalSpacer_51">
+              <item row="1" column="0" colspan="2">
+               <widget class="Line" name="line_20">
                 <property name="orientation">
-                 <enum>Qt::Vertical</enum>
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" rowspan="2">
+               <layout class="QGridLayout" name="gridLayout_332">
+                <item row="1" column="8">
+                 <widget class="QPushButton" name="button_make_nest_cornerplot">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>make Cornerplot</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="4">
+                 <widget class="QRadioButton" name="radioButton_4">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Me</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="3">
+                 <widget class="QRadioButton" name="radioButton_5">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Mj</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1" colspan="2">
+                 <widget class="QLabel" name="ns_cornerplot_samp_indicator">
+                  <property name="minimumSize">
+                   <size>
+                    <width>160</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Samples in memory</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="3" colspan="2">
+                 <widget class="QCheckBox" name="samp_ns_incl_mass">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Include mass</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="5">
+                 <widget class="QCheckBox" name="samp_ns_incl_a">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Include a</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="ns_samples_led">
+                  <property name="minimumSize">
+                   <size>
+                    <width>15</width>
+                    <height>15</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>15</width>
+                    <height>15</height>
+                   </size>
+                  </property>
+                  <property name="sizeIncrement">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="scaledContents">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" colspan="9">
+                 <widget class="QLabel" name="label_350">
+                  <property name="text">
+                   <string>Nested sampling</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="6">
+                 <widget class="QRadioButton" name="radioButton_10">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Rj</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="7">
+                 <widget class="QRadioButton" name="radioButton_11">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Re</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="6" colspan="2">
+                 <widget class="QCheckBox" name="samp_incl_a_4">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Include R</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="5">
+                 <widget class="QRadioButton" name="radioButton_12">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>au</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="8">
+                 <widget class="QLabel" name="label_452">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>save directory:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0" colspan="3">
+                 <widget class="QPushButton" name="remove_ns_samples">
+                  <property name="minimumSize">
+                   <size>
+                    <width>160</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>remove NS samples</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="8">
+                 <widget class="QPushButton" name="nest_corner_plot_change_name">
+                  <property name="minimumSize">
+                   <size>
+                    <width>130</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>./nest_cornerplot.pdf</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="3" column="1">
+               <spacer name="horizontalSpacer_157">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
-                  <width>20</width>
-                  <height>166</height>
+                  <width>73</width>
+                  <height>20</height>
                  </size>
                 </property>
                </spacer>
@@ -79622,7 +79950,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1273</width>
+     <width>1271</width>
      <height>20</height>
     </rect>
    </property>
@@ -80032,85 +80360,85 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
-  <buttongroup name="buttonGroup_symbol_picker"/>
-  <buttongroup name="buttonGroup_add_RV_data"/>
   <buttongroup name="buttonGroup_detrend_tra"/>
-  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
-  <buttongroup name="buttonGroup_apply_tra_dilution"/>
-  <buttongroup name="buttonGroup_use">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_nest_stat_dyn"/>
-  <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
-  <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_mixed_fitting">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
-  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_use_ld_10"/>
   <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
-  <buttongroup name="buttonGroup_AMD_stab_opt"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_use_RV_GP_kernel">
-   <property name="exclusive">
-    <bool>true</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_Omega_fold"/>
-  <buttongroup name="buttonGroup_remove_RV_data"/>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_use_ld_3"/>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_apply_act_data_options"/>
-  <buttongroup name="buttonGroup_omega_dot_opt"/>
-  <buttongroup name="buttonGroup_apply_tra_data_options"/>
-  <buttongroup name="buttonGroup_color_picker"/>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
   <buttongroup name="buttonGroup_use_planets">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_2"/>
-  <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_use_ld_1"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_AMD_satb_NS"/>
-  <buttongroup name="buttonGroup_transit_data"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_activity_data"/>
-  <buttongroup name="buttonGroup_remove_ttv_data"/>
-  <buttongroup name="buttonGroup_apply_rv_data_options"/>
-  <buttongroup name="buttonGroup_dom_fold"/>
-  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
   <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_AMD_stab_opt"/>
+  <buttongroup name="buttonGroup_apply_rv_data_options"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
   <buttongroup name="buttonGroup_use_GP">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="buttonGroup_omega_dot_opt"/>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_mixed_fitting">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_AMD_satb_NS"/>
+  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_apply_tra_dilution"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_apply_tra_data_options"/>
+  <buttongroup name="buttonGroup_theta_fold"/>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
+  <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_use_RV_GP_kernel">
+   <property name="exclusive">
+    <bool>true</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_f77_or_scipy"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_use">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_Omega_fold"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_remove_activity_data"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
+  <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
  </buttongroups>
 </ui>
