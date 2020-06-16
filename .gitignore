@@ -3,7 +3,7 @@ exostriker/stability/mvs/*
 exostriker/stability/mvs_gr/*
 exostriker/stability/symba/*
 exostriker/datafiles/*
-exostriker/auto_save.ses
+exostriker/autosave/auto_save.ses
 exostriker/mcmc_samples
 
 exostriker/mcmc/MCMC_cornerplot.pdf
