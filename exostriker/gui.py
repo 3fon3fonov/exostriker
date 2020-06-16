@@ -160,7 +160,7 @@ else:
 
 if '-last' in sys.argv:
     try:
-        file_pi = open("auto_save.ses", 'rb')
+        file_pi = open("autosave/auto_save.ses", 'rb')
         fit_ses = dill.load(file_pi)
         file_pi.close()   
         fit = fit_ses 
@@ -4399,7 +4399,7 @@ Transit duration: %s d
             self.update_plots()  
         self.jupiter_push_vars() 
 
-        self.save_last_session("auto_save.ses")
+        self.save_last_session("autosave/auto_save.ses")
 
 
     def check_model_fact(self):
@@ -4570,7 +4570,7 @@ Transit duration: %s d
         self.update_plots()
         self.jupiter_push_vars()
         
-        self.save_last_session("auto_save.ses")
+        self.save_last_session("autosave/auto_save.ses")
 
 
     def worker_ttv_fitting(self, ff=1, auto_fit = False ):
@@ -4662,7 +4662,7 @@ Transit duration: %s d
         self.button_orb_evol.setEnabled(True)       
         self.statusBar().showMessage('')      
 
-        self.save_last_session("auto_save.ses")
+        self.save_last_session("autosave/auto_save.ses")
 
  
     def worker_Nbody(self):
@@ -4787,20 +4787,20 @@ Transit duration: %s d
         self.run_gls()
         self.run_gls_o_c()
 
-        self.save_last_session("auto_save.ses")
-
+        self.save_last_session("autosave/auto_save.ses")
+        self.mute_buttons(trigger=True)
 #        print("--- %s seconds ---" % (time.time() - start_time))     
 
     def worker_RV_fitting(self, ff=20, m_ln=True, auto_fit = False , init = False ):
         global fit  
         
-        self.button_fit.setEnabled(False)
+        #self.button_fit.setEnabled(False)
         
         # check if RV data is present
         if fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
-             self.button_fit.setEnabled(True)
+             #self.button_fit.setEnabled(True)
              return   
 
         self.check_model_params()
@@ -4808,6 +4808,9 @@ Transit duration: %s d
         self.check_bounds()
         self.check_priors_nr()   
         self.check_priors_jeff()   
+        self.mute_buttons(trigger=False)
+
+
      
         fit.model_npoints = self.points_to_draw_model.value()
         fit.model_max = self.model_max_range.value()
@@ -5228,14 +5231,14 @@ will be highly appreciated!
         if fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
-             self.button_auto_fit.setEnabled(True)         
+             #self.mute_buttons(trigger=True)       
              return        
 
         # the first one on the data GLS
         if fit.gls.power.max() <= fit.gls.powerLevel(self.auto_fit_FAP_level.value()):
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "No significant power on the GLS. Therefore no planets to fit OK?", QtGui.QMessageBox.Ok)      
-             self.button_auto_fit.setEnabled(True)                                                           
+             #self.mute_buttons(trigger=True)                                                          
              return
         
         else:
@@ -5264,7 +5267,7 @@ will be highly appreciated!
 
                     fit.sort_by_period(reverse=False)
                     self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True) 
-                    self.button_auto_fit.setEnabled(True)     
+                    #self.button_auto_fit.setEnabled(True)     
                     return
                 #elif (1/RV_per_res.hpstat["fbest"]) > 1.5:
                 else:    
@@ -5292,7 +5295,7 @@ will be highly appreciated!
 
             self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
  
-        self.button_auto_fit.setEnabled(True)   
+        #self.button_auto_fit.setEnabled(True)   
 
 
     def run_auto_fit(self):
@@ -5300,7 +5303,8 @@ will be highly appreciated!
 
  
         self.radioButton_Keplerian.setChecked(True) # this is to be fixed! Only with keplerian fitting th autofit works fine so far.
-        self.button_auto_fit.setEnabled(False)
+        #self.button_auto_fit.setEnabled(False)
+        self.mute_buttons(trigger=False)    
         
         if fit.npl != 0:        
             choice = QtGui.QMessageBox.information(self, 'Warning!',
@@ -5308,7 +5312,9 @@ will be highly appreciated!
                                             QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
 
             if choice == QtGui.QMessageBox.No:
-                self.button_auto_fit.setEnabled(True)
+                #self.button_auto_fit.setEnabled(True)
+                self.mute_buttons(trigger=True)
+
                 return
             elif choice == QtGui.QMessageBox.Yes:
                 for j in range(fit.npl):
@@ -5316,6 +5322,8 @@ will be highly appreciated!
                 
                 self.find_planets()
         else:
+
+           #time.sleep(0.5)
             self.find_planets()
 
         fit.type_fit["RV"] = True
@@ -5324,7 +5332,8 @@ will be highly appreciated!
         self.check_type_fit()
         self.mute_boxes()
         self.plot_tabs.setCurrentWidget(self.tab_timeseries_RV)
-
+        self.mute_buttons(trigger=True)
+        
 
 
     def minimize_1param(self):
@@ -5722,8 +5731,11 @@ will be highly appreciated!
         else:
             self.jupiter_push_vars()
 
-        self.save_last_session("auto_save.ses")
+        self.save_last_session("autosave/auto_save.ses")
         self.check_cornerplot_samples()
+        self.mute_buttons(trigger=True)
+
+
 
     def worker_nest(self):
         global fit  
@@ -5759,7 +5771,7 @@ will be highly appreciated!
         if fit.type_fit["RV"] == True and fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to run Nested Sampling if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
-             self.button_nest_samp.setEnabled(True)  
+            # self.button_nest_samp.setEnabled(True)  
              self.statusBar().showMessage('') 
              return
 
@@ -5770,7 +5782,7 @@ will be highly appreciated!
         if fit.type_fit["Transit"] == True  and ntran_data == 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to run Nested Sampling if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)
-             self.button_nest_samp.setEnabled(True)  
+           #  self.button_nest_samp.setEnabled(True)  
              self.statusBar().showMessage('') 
 
              return
@@ -5782,7 +5794,7 @@ will be highly appreciated!
         if fit.type_fit["TTV"] == True  and nttv_data == 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to run Nested Sampling if there are no TTV data loaded. Please add your TTV data first. Okay?", QtGui.QMessageBox.Ok)      
-             self.button_nest_samp.setEnabled(True)  
+             #self.button_nest_samp.setEnabled(True)  
              self.statusBar().showMessage('') 
 
              return
@@ -5798,7 +5810,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
         if choice == QtGui.QMessageBox.Cancel:
             self.statusBar().showMessage('') 
-            self.button_nest_samp.setEnabled(True)
+           # self.button_nest_samp.setEnabled(True)
             return
 
         self.set_tra_ld()
@@ -5814,6 +5826,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             fit.nest_percentile_level = self.nest_percentile_level.value()
         else:
             fit.nest_percentile_level = 68.3
+
+        self.mute_buttons(trigger=False)
 
         # Pass the function to execute
         worker_n = Worker(self.run_nest) # Any other args, kwargs are passed to the run  
@@ -5922,7 +5936,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         else:
             self.jupiter_push_vars()
 
-        self.save_last_session("auto_save.ses")
+        self.save_last_session("autosave/auto_save.ses")
+        self.mute_buttons(trigger=True)
 
     def worker_mcmc(self):
         global fit  
@@ -5952,13 +5967,13 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             fit.mcmc_Nbody_stab = False
 
 
-        self.button_MCMC.setEnabled(False)
+        #self.button_MCMC.setEnabled(False)
         self.statusBar().showMessage('MCMC in progress....')
         # check if RV data is present
         if fit.type_fit["RV"] == True and fit.filelist.ndset <= 0:
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to run MCMC if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
-             self.button_MCMC.setEnabled(True)  
+             #self.button_MCMC.setEnabled(True)  
              self.statusBar().showMessage('') 
 
              return
@@ -6006,11 +6021,13 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
-
         if self.use_percentile_level.isChecked():
             fit.percentile_level = self.percentile_level.value()
         else:
             fit.percentile_level = 68.3
+
+        self.mute_buttons(trigger=False)
+
 
         # Pass the function to execute
         worker = Worker(lambda: self.run_mcmc()) # Any other args, kwargs are passed to the run  
@@ -7291,15 +7308,30 @@ https://github.com/3fon3fonov/exostriker/issues
 
 
     def reset_mid_pannel_buttons(self):
-
-        self.button_fit.setEnabled(True)
-        self.button_init_fit.setEnabled(True)
-        self.button_MCMC.setEnabled(True)
-        self.button_nest_samp.setEnabled(True)
-        self.button_orb_evol.setEnabled(True)
-        self.button_auto_fit.setEnabled(True)
+ 
+        self.button_orb_evol.setEnabled(True)        
+        self.mute_buttons(trigger=True)
 
 
+
+    def mute_buttons(self, trigger=True):
+        global fit
+        
+        self.button_init_fit.setEnabled(trigger)        
+        self.button_MCMC.setEnabled(trigger) 
+        self.button_nest_samp.setEnabled(trigger) 
+        self.button_auto_fit.setEnabled(trigger) 
+        self.button_fit.setEnabled(trigger) 
+        self.radioButton_RV.setEnabled(trigger) 
+        self.radioButton_transit.setEnabled(trigger) 
+        self.radioButton_ttv.setEnabled(trigger) 
+        self.radioButton_transit_RV.setEnabled(trigger) 
+        self.radioButton_ttv_RV.setEnabled(trigger) 
+        self.comboBox_select_ses.setEnabled(trigger) 
+        self.new_ses.setEnabled(trigger) 
+        self.copy_ses.setEnabled(trigger) 
+        self.remove_ses.setEnabled(trigger) 
+        
         
     def file_from_path(self, path):
         head, tail = ntpath.split(path)
@@ -7366,6 +7398,8 @@ https://github.com/3fon3fonov/exostriker/issues
  
 #############################  TEST ZONE ################################  
 
+        
+        
  
     def get_cornerplot_param(self, type_plot = "mcmc"):
         global fit
