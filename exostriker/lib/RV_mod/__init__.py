@@ -1704,20 +1704,32 @@ def run_nestsamp(obj, **kwargs):
     bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none","mass","semimajor","radius"]
     bestfit_labels_bool = [obj.ns_save_median,obj.ns_save_means,obj.ns_save_mode, obj.ns_save_maxlnL,False,False,False,False,False]
 
+   #del sampler.rstate
+   # del sampler.pool
+   # del sampler.M   
+    
+    delattr(sampler, 'rstate')
+   # delattr(fit, 'rstate')
+
+    # sampler.rstate = np.random
+   #sampler.pool = thread
+   # sampler.M = thread.map
+
  
-    if(obj.ns_save_sampler):
+    if obj.ns_save_sampler == True:
         
-        sampler.lbf     = {k: np.array([ee[k], True]) for k in range(len(ee))}
+        obj.ns_sampler= dill.copy(sampler.results)
+        obj.ns_sampler.lbf     = {k: np.array([ee[k], True]) for k in range(len(ee))}
         for k in range(9):
-            sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]    
+            obj.ns_sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]    
             
-        obj.ns_sampler=sampler
+        
         obj.sampler_saved=True
-  #      sampler.reset()
+ #       sampler.reset()
 #    else:
 #        sampler.reset()
 
-#    sampler.reset()
+    sampler.reset()
 
     # To avoid memory leak
     if (rtg[1]):

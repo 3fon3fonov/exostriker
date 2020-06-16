@@ -396,8 +396,11 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     elif type_plot == 'nest':
             
         #### load the samples, labels and lnL values
-        ln      = dill.copy(obj.ns_sampler.results.logl)
-        samples = dill.copy(np.array(obj.ns_sampler.results.samples))
+        #ln      = dill.copy(obj.ns_sampler.results.logl)
+       # samples = dill.copy(np.array(obj.ns_sampler.results.samples))
+        ln      = dill.copy(obj.ns_sampler.logl)
+        samples = dill.copy(np.array(obj.ns_sampler.samples))        
+        
         labels  = dill.copy(obj.e_for_mcmc)
         mod_labels  = dill.copy(obj.ns_sampler.lbf)
         
