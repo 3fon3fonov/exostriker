@@ -6107,8 +6107,9 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
  
     def remove_ns_samples_from_fit(self):
         global fit  
-        
-        if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
+
+        if len(fit.ns_sampler)!=0:       
+        #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
             choice = QtGui.QMessageBox.information(self, 'Warning!',
                                             "Are you sure you want to remove the NS samples?",
                                              QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)
@@ -6136,12 +6137,13 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             MCMC_SAMP_LED = './lib/UI/red_led.png' 
             MCMC_SAMP_TXT = "No MCMC samples available" 
 #dynesty.nestedsamplers.UnitCubeSampler
-        if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
+        if len(fit.ns_sampler)!=0:
+        #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
             NS_SAMP_LED = './lib/UI/green_led.png'
             NS_SAMP_TXT = "NS samples available" 
         else:
             NS_SAMP_LED = './lib/UI/red_led.png' 
-            NS_SAMP_TXT = "No BS samples available" 
+            NS_SAMP_TXT = "No NS samples available" 
             
         self.mcmc_samples_led.setPixmap(QtGui.QPixmap(MCMC_SAMP_LED)) 
         self.mcmc_cornerplot_samp_indicator.setText(MCMC_SAMP_TXT)
@@ -6167,7 +6169,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 return   
        
         if type_plot == "nest": 
-            if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler)==False and isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler)==False:
+            if len(fit.ns_sampler)==0:
+            #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler)==False and isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler)==False:
                 choice = QtGui.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtGui.QMessageBox.Ok)
                 return   
   
@@ -7373,7 +7376,8 @@ https://github.com/3fon3fonov/exostriker/issues
                 return   
        
         if type_plot == "nest": 
-            if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler)==False and isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler)==False:
+            if len(fit.ns_sampler)==0:
+            #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler)==False and isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler)==False:
                 choice = QtGui.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtGui.QMessageBox.Ok)
                 return   
  

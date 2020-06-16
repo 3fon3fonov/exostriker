@@ -44219,6 +44219,9 @@
                   </item>
                   <item row="6" column="0">
                    <widget class="QCheckBox" name="run_ns_in_bg">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
                     <property name="font">
                      <font>
                       <pointsize>9</pointsize>
