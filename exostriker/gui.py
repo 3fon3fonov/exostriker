@@ -58,6 +58,10 @@ from print_info_window import print_info
 from symbols_window import show_symbols
 from TESS_pdc_window import pdc
 
+from cornerplot_parameter_window import show_param_boxes
+
+
+
 from datafiles_window import datafiles_window
 from RVBank_window import RVBank_window
 
@@ -5153,7 +5157,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.31) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.32) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -5719,7 +5723,7 @@ will be highly appreciated!
             self.jupiter_push_vars()
 
         self.save_last_session("auto_save.ses")
-
+        self.check_cornerplot_samples()
 
     def worker_nest(self):
         global fit  
@@ -6127,14 +6131,14 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         
         if isinstance(fit.mcmc_sampler, rv.CustomSampler):
             MCMC_SAMP_LED = './lib/UI/green_led.png'
-            MCMC_SAMP_TXT = "MCMC samples present in memory" 
+            MCMC_SAMP_TXT = "MCMC samples available" 
         else:
             MCMC_SAMP_LED = './lib/UI/red_led.png' 
             MCMC_SAMP_TXT = "No MCMC samples available" 
 #dynesty.nestedsamplers.UnitCubeSampler
         if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
             NS_SAMP_LED = './lib/UI/green_led.png'
-            NS_SAMP_TXT = "NS samples present in memory" 
+            NS_SAMP_TXT = "NS samples available" 
         else:
             NS_SAMP_LED = './lib/UI/red_led.png' 
             NS_SAMP_TXT = "No BS samples available" 
@@ -6157,15 +6161,16 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         global fit  
 
 
-        if type_plot == "mcmc" and not isinstance(fit.mcmc_sampler, rv.CustomSampler):
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "MCMC samples not found.", QtGui.QMessageBox.Ok)
-             return   
-      
-        if type_plot == "nest" and not isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "NS samples not found.", QtGui.QMessageBox.Ok)
-             return   
+        if type_plot == "mcmc":
+            if isinstance(fit.mcmc_sampler, rv.CustomSampler)==False:
+                choice = QtGui.QMessageBox.information(self, 'Warning!', "MCMC samples not found.", QtGui.QMessageBox.Ok)
+                return   
+       
+        if type_plot == "nest": 
+            if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler)==False and isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler)==False:
+                choice = QtGui.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtGui.QMessageBox.Ok)
+                return   
+  
 
         self.button_make_mcmc_cornerplot.setEnabled(False)
         self.button_make_nest_cornerplot.setEnabled(False)
@@ -6178,17 +6183,9 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         # check if RV data is present
         if type_plot == "mcmc":
             samp_file = fit.mcmc_sample_file
-            make_mass = self.samp_mcmc_incl_mass.isChecked()
-            make_a = self.samp_mcmc_incl_a.isChecked()
-            mean = False
-            median = False
             type_samp = "MCMC"
         elif type_plot == "nest":
             samp_file = fit.nest_sample_file
-            make_mass = self.samp_ns_incl_mass.isChecked()
-            make_a = self.samp_ns_incl_a.isChecked()
-            mean = False
-            median = False
             type_samp = "Nest. Samp."
 
         if not os.path.exists(samp_file):
@@ -6201,7 +6198,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
 
         # Pass the function to execute
-        worker_cor = Worker(lambda: self.make_cornerplot(make_mass=make_mass, make_a=make_a, mean=mean, median=median, type_plot = type_plot)) # Any other args, kwargs are passed to the run  
+        worker_cor = Worker(lambda: self.make_cornerplot(type_plot = type_plot)) # Any other args, kwargs are passed to the run  
         # Execute
         worker_cor.signals.finished.connect(self.worker_cornerplot_complete)
         
@@ -6211,9 +6208,9 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.threadpool.start(worker_cor)
 
 
-    def make_cornerplot(self,type_plot = 'mcmc',make_mass=False, make_a=False, mean =False, median = False, ):
+    def make_cornerplot(self,type_plot = 'mcmc'):
         global fit
-        rv.cornerplot(fit,  make_mass=make_mass, make_a=make_a, mean=mean, median=median, type_plot=type_plot )
+        rv.cornerplot(fit, type_plot=type_plot )
 
 
     def change_corner_plot_file_name(self, type_plot = "mcmc"):
@@ -7367,7 +7364,36 @@ https://github.com/3fon3fonov/exostriker/issues
 #############################  TEST ZONE ################################  
 
  
-
+    def get_cornerplot_param(self, type_plot = "mcmc"):
+        global fit
+        
+        if type_plot == "mcmc":
+            if isinstance(fit.mcmc_sampler, rv.CustomSampler)==False:
+                choice = QtGui.QMessageBox.information(self, 'Warning!', "MCMC samples not found.", QtGui.QMessageBox.Ok)
+                return   
+       
+        if type_plot == "nest": 
+            if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler)==False and isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler)==False:
+                choice = QtGui.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtGui.QMessageBox.Ok)
+                return   
+ 
+         
+            
+        if type_plot == "mcmc":
+            self.lables_cornerplot = dill.copy(fit.mcmc_sampler.lbf)
+        else:
+            self.lables_cornerplot = dill.copy(fit.ns_sampler.lbf)
+            
+        label_results = self.dialog_select_param_cornerplot.get_labels(self)
+        
+        if type_plot == "mcmc":
+            del fit.mcmc_sampler.lbf
+            fit.mcmc_sampler.lbf  = dill.copy(label_results)
+        else:
+            fit.ns_sampler.lbf  = dill.copy(label_results)
+ 
+        return  
+   
 
     def transit_data_detrend(self):
         global fit
@@ -8179,6 +8205,13 @@ https://github.com/3fon3fonov/exostriker/issues
 #        self.radioButton_ttv_RV.toggled.connect(self.mute_boxes)
 
 
+
+        self.customize_mcmc_cornerplot.clicked.connect(lambda: self.get_cornerplot_param(type_plot = "mcmc"))
+        self.customize_ns_cornerplot.clicked.connect(lambda: self.get_cornerplot_param(type_plot = "nest"))
+
+
+
+
         self.radioButton_ewm.toggled.connect(self.set_hkl)
 #        self.radioButton_hkl.toggled.connect(self.set_hkl)
         self.radioButton_KP.toggled.connect(self.set_kp_ma)
@@ -8211,7 +8244,10 @@ https://github.com/3fon3fonov/exostriker/issues
         self.buttonGroup_symbol_picker.buttonClicked.connect(self.get_symbol) 
         self.buttonGroup_symbol_picker_tra.buttonClicked.connect(self.get_symbol_tra)
         self.buttonGroup_symbol_picker_ttv.buttonClicked.connect(self.get_symbol_ttv)
-
+        
+        
+        self.lables_cornerplot = []
+        self.dialog_select_param_cornerplot = show_param_boxes(self)
 
         ###########  GP control ##########
 
@@ -8284,7 +8320,7 @@ https://github.com/3fon3fonov/exostriker/issues
             
 
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.31). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.32). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)

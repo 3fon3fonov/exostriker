@@ -609,81 +609,6 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="8">
-      <widget class="QDoubleSpinBox" name="extra_BJD">
-       <property name="maximumSize">
-        <size>
-         <width>100</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="decimals">
-        <number>3</number>
-       </property>
-       <property name="minimum">
-        <double>-9999999.000000000000000</double>
-       </property>
-       <property name="maximum">
-        <double>9999999.000000000000000</double>
-       </property>
-       <property name="value">
-        <double>2457000.000000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="7">
-      <widget class="QPushButton" name="add_epoch">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Add/Remove BJD</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="7">
-      <widget class="QCheckBox" name="checkBox">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>bin data [d]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="8">
-      <widget class="QDoubleSpinBox" name="doubleSpinBox">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="minimum">
-        <double>0.000000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>0.010000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.010000000000000</double>
-       </property>
-      </widget>
-     </item>
      <item row="9" column="7">
       <widget class="QPushButton" name="apply_dilution">
        <property name="font">
@@ -717,6 +642,81 @@
        </property>
        <property name="value">
         <double>1.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="7">
+      <widget class="QCheckBox" name="checkBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>bin data [d]</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="8">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="minimum">
+        <double>0.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.010000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="8">
+      <widget class="QDoubleSpinBox" name="extra_BJD">
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="minimum">
+        <double>-9999999.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>9999999.000000000000000</double>
+       </property>
+       <property name="value">
+        <double>2457000.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="7">
+      <widget class="QPushButton" name="add_epoch">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Add/Remove BJD</string>
        </property>
       </widget>
      </item>

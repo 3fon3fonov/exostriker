@@ -361,7 +361,7 @@ def get_best_lnl_of_samples(samples,lnl, nsamp):
 
 
 
-def cornerplot(obj, make_mass=True, make_a=True, mean =False, median = False, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
+def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
     #obj = dill.copy(copied_obj)
     '''Generates a corner plot visualizing the mcmc samples. Optionally samples can be read from a file.'''
@@ -371,48 +371,69 @@ def cornerplot(obj, make_mass=True, make_a=True, mean =False, median = False, le
      
     if type_plot == 'mcmc':
     
-  
         #### load the samples, labels and lnL values
         ln      = dill.copy(np.hstack(obj.mcmc_sampler.lnL))
         samples = dill.copy(np.array(obj.mcmc_sampler.samples))
         labels  = dill.copy(obj.e_for_mcmc)
-        
-        if mean:
+        mod_labels  = dill.copy(obj.mcmc_sampler.lbf)
+
+        if mod_labels['mean'] ==True:
             best_fit_par = obj.mcmc_stat["mean"] 
-            median = False
-        elif median:
+        elif mod_labels['median']==True:
             best_fit_par = obj.mcmc_stat["median"] 
-        else:
-            best_fit_par = obj.mcmc_stat["best"] 
+        elif mod_labels['mode']==True:
+            best_fit_par = obj.mcmc_stat["mode"]             
+        elif mod_labels['best_samp']==True:
+            best_fit_par = obj.mcmc_stat["best"]
+        elif mod_labels['none']==True:
+            best_fit_par = obj.par_for_mcmc
             
-    if type_plot == 'nest':
+        elif mod_labels['best_gui']==True:
+            best_fit_par = obj.par_for_mcmc
+        else:
+            best_fit_par = obj.par_for_mcmc
+
+    elif type_plot == 'nest':
             
         #### load the samples, labels and lnL values
         ln      = dill.copy(obj.ns_sampler.results.logl)
         samples = dill.copy(np.array(obj.ns_sampler.results.samples))
         labels  = dill.copy(obj.e_for_mcmc)
+        mod_labels  = dill.copy(obj.ns_sampler.lbf)
         
-        if mean:
+        if mod_labels['mean'] ==True:
             best_fit_par = obj.nest_stat["mean"] 
-            median = False
-        elif median:
+        elif mod_labels['median']==True:
             best_fit_par = obj.nest_stat["median"] 
+        elif mod_labels['mode']==True:
+            best_fit_par = obj.nest_stat["mode"]             
+        elif mod_labels['best_samp']==True:
+            best_fit_par = obj.nest_stat["best"]
+        elif mod_labels['none']==True:
+            best_fit_par = obj.par_for_mcmc
+            
+        elif mod_labels['best_gui']==True:
+            best_fit_par = obj.par_for_mcmc
         else:
-            best_fit_par = obj.nest_stat["best"] 
+            best_fit_par = obj.par_for_mcmc        
         
+    else:
+        return
+
         
-        
-        
+
+ 
     ############### make "Gaussan" samples of the stellar parameters ##############
-    m_s   = np.random.normal(loc=obj.stellar_mass,      scale=obj.stellar_mass_err,      size=len(samples[:,0]))
-    r_s   = np.random.normal(loc=obj.stellar_radius,    scale=obj.stellar_radius_err,    size=len(samples[:,0]))
-    L_s   = np.random.normal(loc=obj.stellar_luminosity,scale=obj.stellar_luminosity_err,size=len(samples[:,0]))
-    vsini = np.random.normal(loc=obj.stellar_vsini,     scale=obj.stellar_vsini_err,     size=len(samples[:,0]))
-    
+    #m_s   = np.random.normal(loc=obj.stellar_mass,      scale=obj.stellar_mass_err,      size=len(samples[:,0]))
+    #r_s   = np.random.normal(loc=obj.stellar_radius,    scale=obj.stellar_radius_err,    size=len(samples[:,0]))
+   # L_s   = np.random.normal(loc=obj.stellar_luminosity,scale=obj.stellar_luminosity_err,size=len(samples[:,0]))
+   # vsini = np.random.normal(loc=obj.stellar_vsini,     scale=obj.stellar_vsini_err,     size=len(samples[:,0]))
+   # 
            
     ######### define new samples, labels and best-fit params to be refilled again
-    ######### with masses, semi-major axes, etc. (to be re-worked).
+    ######### with masses, semi-major axes, etc. (to be re-worked). 
     
+    m_s     = []
     samp    = []
     samp_labels =  []
     samp_best_fit_par = []
@@ -427,37 +448,57 @@ def cornerplot(obj, make_mass=True, make_a=True, mean =False, median = False, le
         
     letters = ['b','c','d','e','f','g','h'] #... For the planets
         
-    if make_mass:
+    if mod_labels['mass']:
+        
+        m_s   = np.random.normal(loc=obj.stellar_mass,      scale=obj.stellar_mass_err,      size=len(samples[:,0]))
+        
         for i in range(obj.npl):
             let = letters[i]
+            
+            if not 'K$_%s$'%let in labels or not 'P$_%s$'%let in labels or not 'e$_%s$'%let in labels:
+                continue
+            if 'i$_%s$'%let in labels:
+                i   = samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]]
+            else:
+                i = 90.0
+            
+            
             K   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'K$_%s$'%let]])
             P   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'P$_%s$'%let]])
             ecc = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'e$_%s$'%let]])
-    #        i   = samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]]
     
-            samp.append(np.array(get_mass(K,P, ecc, 90.0, m_s)))
+            samp.append(np.array(get_mass(K,P, ecc, i, m_s)))
             samp_labels.append(r'm $\sin i_%s$'%let)
             
-            if mean:
+            if mod_labels['mean']:
                 samp_best_fit_par.append(get_mass(np.mean(K),np.mean(P),np.mean(ecc), 90.0, np.mean(m_s)))
-            elif median:
+            elif mod_labels['median']:
                 samp_best_fit_par.append(get_mass(np.median(K),np.median(P),np.median(ecc), 90.0, np.median(m_s)))
             else:
                 samp_best_fit_par.append(get_mass(K[np.argmax(ln)],P[np.argmax(ln)], ecc[np.argmax(ln)], 90.0, obj.stellar_mass))
     
     
-    if make_a:
+    if mod_labels['semimajor']:
+        
+        if len(m_s) == 0:
+            m_s   = np.random.normal(loc=obj.stellar_mass,      scale=obj.stellar_mass_err,      size=len(samples[:,0]))
+            
+        
         for i in range(obj.npl):
             let = letters[i]
+            
+            if not 'P$_%s$'%let in labels:
+                continue            
+            
             P   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'P$_%s$'%let]])
     
             samp.append(P_to_a(P,m_s))
             samp_labels.append(r'a$_%s$'%let)
     
     
-            if mean:
+            if mod_labels['mean']:
                 samp_best_fit_par.append(P_to_a(np.mean(P),np.mean(m_s)))
-            elif median:
+            elif mod_labels['median']:
                 samp_best_fit_par.append(P_to_a(np.median(P),np.median(m_s)))
             else:
                 samp_best_fit_par.append(P_to_a(P[np.argmax(ln)],obj.stellar_mass))
@@ -465,10 +506,17 @@ def cornerplot(obj, make_mass=True, make_a=True, mean =False, median = False, le
     
      
     ################### Transpose is needed fro the cornerplot. ###################
+    
+    for i in range(len(labels)):
+        samp_labels[i] = mod_labels[i][0]
+
+    
     samples_ = np.transpose(samp)
     labels = samp_labels
     best_fit_par =samp_best_fit_par
-    
+
+    if mod_labels['none']==True:
+        best_fit_par = None  
      
     fig = corner.corner(samples_,bins=25, color="k", reverse=True, upper= True, labels=labels, quantiles=[level/100.0, 1.0-level/100.0],
                         levels=(0.6827, 0.9545,0.9973), smooth=1.0, smooth1d=1.0, plot_contours= True, show_titles=True, truths=best_fit_par,
