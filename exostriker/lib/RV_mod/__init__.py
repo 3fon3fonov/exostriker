@@ -1700,12 +1700,24 @@ def run_nestsamp(obj, **kwargs):
     elif (obj.ns_save_maxlnL):
         obj.loglik = maxlnl
 
+
+    bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none","mass","semimajor","radius"]
+    bestfit_labels_bool = [obj.ns_save_median,obj.ns_save_means,obj.ns_save_mode, obj.ns_save_maxlnL,False,False,False,False,False]
+
+ 
     if(obj.ns_save_sampler):
+        
+        sampler.lbf     = {k: np.array([ee[k], True]) for k in range(len(ee))}
+        for k in range(9):
+            sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]    
+            
         obj.ns_sampler=sampler
         obj.sampler_saved=True
   #      sampler.reset()
-   # else:
-   #     sampler.reset()
+#    else:
+#        sampler.reset()
+
+#    sampler.reset()
 
     # To avoid memory leak
     if (rtg[1]):
@@ -1971,11 +1983,18 @@ def run_mcmc(obj, **kwargs):
     elif (obj.mcmc_save_maxlnL):
         obj.loglik = sampler.lnL_max
 
-
+    bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none","mass","semimajor","radius"]
+    bestfit_labels_bool = [obj.mcmc_save_median,obj.mcmc_save_means,obj.mcmc_save_mode, obj.mcmc_save_maxlnL,False,False,False,False,False]
 
     if(obj.mcmc_save_sampler):
+        sampler.lbf             = {k: np.array([ee[k], True]) for k in range(len(ee))}
+        for k in range(9):
+            sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]         
+
+
         obj.mcmc_sampler=sampler
         obj.sampler_saved=True
+        
     else:
         sampler.reset()
 
