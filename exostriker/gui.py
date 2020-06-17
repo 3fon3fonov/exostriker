@@ -4383,7 +4383,7 @@ Transit duration: %s d
                          
         self.statusBar().showMessage('')  
         
-        self.button_fit.setEnabled(True)
+       # self.button_fit.setEnabled(True)
         
         if fit.bound_error == True:
             self.get_error_msg(fit.bound_error_msg)
@@ -4400,6 +4400,7 @@ Transit duration: %s d
         self.jupiter_push_vars() 
 
         self.save_last_session("autosave/auto_save.ses")
+        self.mute_buttons(trigger=True)
 
 
     def check_model_fact(self):
@@ -4411,7 +4412,9 @@ Transit duration: %s d
     def worker_transit_fitting(self, ff=1, auto_fit = False ):
         global fit  
         
-        self.button_fit.setEnabled(False)         
+        #self.button_fit.setEnabled(False)  
+        self.mute_buttons(trigger=True)
+        
         self.update_params() 
         self.update_use()   
         
@@ -4424,7 +4427,7 @@ Transit duration: %s d
         if z <= 0:
             choice = QtGui.QMessageBox.information(self, 'Warning!',
             "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
-            self.button_fit.setEnabled(True)
+           # self.button_fit.setEnabled(True)
             self.update_transit_plots()
 
             return 
@@ -4433,7 +4436,7 @@ Transit duration: %s d
              if fit.filelist.ndset <= 0:
                  choice = QtGui.QMessageBox.information(self, 'Warning!',
                  "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
-                 self.button_fit.setEnabled(True)         
+                 #self.button_fit.setEnabled(True)         
                  return   
 
         if fit.type_fit["RV"] == True :        
