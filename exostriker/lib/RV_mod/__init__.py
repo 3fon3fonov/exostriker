@@ -374,11 +374,11 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, fit_results=False
                                             par[len(vel_files)*2 +7*i+1],
                                             par[len(vel_files)*2 +7*i+2],
                                             par[len(vel_files)*2 +7*i+5],
-                                            par[len(vel_files)*2 +7*i+6],
+                                            par[len(vel_files)*2 +7*i+6] ,
                                             #par[len(vel_files)*2 +7*i+3]%360.0,
-                                            (par[len(vel_files)*2 +7*i+3])%360.0,
+                                            (par[len(vel_files)*2 +7*i+3]+180.0)%360.0,
                                             #par[len(vel_files)*2 +7*i+4]%360.0]
-                                            (par[len(vel_files)*2 +7*i+4])%360.0]
+                                            (par[len(vel_files)*2 +7*i+4]-180.0)%360.0]
 
         planet = ttvfast.models.Planet(*pl_params)
         planets.append(planet)
@@ -426,8 +426,8 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = Fa
                                             par[len(vel_files)*2 +7*i+2],
                                             par[len(vel_files)*2 +7*i+5],
                                             par[len(vel_files)*2 +7*i+6],
-                                            (par[len(vel_files)*2 +7*i+3])%360.0,
-                                            (par[len(vel_files)*2 +7*i+4])%360.0]
+                                            (par[len(vel_files)*2 +7*i+3]+180.0)%360.0,
+                                            (par[len(vel_files)*2 +7*i+4]-180.0)%360.0]
         planet = ttvfast.models.Planet(*pl_params)
         planets.append(planet)
 
