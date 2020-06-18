@@ -161,7 +161,9 @@ def get_mass(K, P, ecc, i, Stellar_mass):
     GMSUN = 1.32712497e20
     msini = (T/(2.0*np.pi*GMSUN))**THIRD * K * Stellar_mass**(2./3) * np.sqrt(1.0-ecc**2.0)
     
-    return msini/np.sin(np.radians(i))*1047.70266835 
+    msini = msini/np.sin(np.radians(i))*1047.70266835 
+    
+    return msini  
 
 
 def a_to_P(a,m0):
@@ -456,12 +458,25 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         samp_labels.append(labels[i])
         samp_best_fit_par.append(best_fit_par[i])
         
+ 
+
+    index_to_keep = []
+    for i in range(len(labels)):
+        samp_labels[i] = mod_labels[i][0]
+        if mod_labels[i][1] == 'True':
+            index_to_keep.append(i)    
+        
+            
+    samp              = [samp[i] for i in index_to_keep]
+    samp_labels       = [samp_labels[i] for i in index_to_keep]
+    samp_best_fit_par = [samp_best_fit_par[i] for i in index_to_keep]
+
         
     letters = ['b','c','d','e','f','g','h'] #... For the planets
         
     if mod_labels['mass']:
         
-        m_s   = np.random.normal(loc=obj.stellar_mass,      scale=obj.stellar_mass_err,      size=len(samples[:,0]))
+        m_s   = np.random.normal(loc=obj.stellar_mass,      scale=obj.stellar_mass_err,      size=len(ss))
         
         for i in range(obj.npl):
             let = letters[i]
@@ -469,7 +484,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             if not 'K$_%s$'%let in labels or not 'P$_%s$'%let in labels or not 'e$_%s$'%let in labels:
                 continue
             if 'i$_%s$'%let in labels:
-                i   = samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]]
+                i   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]])
             else:
                 i = 90.0
             
@@ -503,7 +518,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             
             P   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'P$_%s$'%let]])
     
-            samp.append(P_to_a(P,m_s))
+            samp.append(np.array(P_to_a(P,m_s)))
             samp_labels.append(r'a$_%s$'%let)
     
     
@@ -516,12 +531,10 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 
     
      
-    ################### Transpose is needed fro the cornerplot. ###################
-    
-    for i in range(len(labels)):
-        samp_labels[i] = mod_labels[i][0]
+    ################### Transpose is needed for the cornerplot. ###################
+ 
 
-    
+
     samples_ = np.transpose(samp)
     labels = samp_labels
     best_fit_par =samp_best_fit_par
