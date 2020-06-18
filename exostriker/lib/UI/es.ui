@@ -56795,7 +56795,7 @@
                  </font>
                 </property>
                 <property name="currentIndex">
-                 <number>2</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="tab_102">
                  <attribute name="title">
@@ -79334,34 +79334,7 @@
     </item>
     <item row="2" column="1" rowspan="2">
      <layout class="QGridLayout" name="gridLayout_102">
-      <item row="0" column="3">
-       <widget class="QLabel" name="label_300">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string extracomment="h = e sin(w), k = e cos (w), lambda = Ma + w"/>
-        </property>
-        <property name="statusTip">
-         <string extracomment="h = e sin(w), k = e cos (w), lambda = Ma + w"/>
-        </property>
-        <property name="whatsThis">
-         <string extracomment="h = e sin(w), k = e cos (w), lambda = Ma + w"/>
-        </property>
-        <property name="accessibleDescription">
-         <string extracomment="h = e sin(w), k = e cos (w), lambda = Ma + w"/>
-        </property>
-        <property name="text">
-         <string comment="h = e sin(w), k = e cos (w), lambda = Ma + w" extracomment="h = e sin(w), k = e cos (w), lambda = Ma + w">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;h,k,&amp;lambda;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
+      <item row="0" column="1">
        <widget class="QRadioButton" name="radioButton_hkl">
         <property name="enabled">
          <bool>true</bool>
@@ -79373,23 +79346,11 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string/>
+         <string>h,k,λ</string>
         </property>
         <attribute name="buttonGroup">
          <string notr="true">buttonGroup_ewm_hkl</string>
         </attribute>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="label_299">
-        <property name="font">
-         <font>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;e,&amp;omega;,Ma&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
        </widget>
       </item>
       <item row="0" column="0">
@@ -79401,7 +79362,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string/>
+         <string>e,ω,Ma</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -80161,15 +80122,15 @@
   </buttongroup>
   <buttongroup name="buttonGroup_plot_i_Omega"/>
   <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_AMD_stab_opt"/>
   <buttongroup name="buttonGroup_apply_rv_data_options"/>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_AMD_stab_opt"/>
   <buttongroup name="buttonGroup_use_GP">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
   <buttongroup name="buttonGroup_omega_dot_opt"/>
   <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
   <buttongroup name="buttonGroup_mixed_fitting">
@@ -80177,8 +80138,8 @@
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_AMD_satb_NS"/>
   <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_AMD_satb_NS"/>
   <buttongroup name="buttonGroup_apply_tra_dilution"/>
   <buttongroup name="buttonGroup_use_ld_3"/>
   <buttongroup name="buttonGroup_nest_stat_dyn"/>
@@ -80186,8 +80147,8 @@
   <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
   <buttongroup name="buttonGroup_use_ld_2"/>
   <buttongroup name="buttonGroup_apply_tra_data_options"/>
-  <buttongroup name="buttonGroup_theta_fold"/>
   <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_theta_fold"/>
   <buttongroup name="buttonGroup_use_ld_8"/>
   <buttongroup name="buttonGroup_use_ld_9"/>
   <buttongroup name="buttonGroup_adopt_nest_as_par"/>

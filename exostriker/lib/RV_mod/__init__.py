@@ -1251,7 +1251,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
     for i in range(npl):
 
         if obj.hkl == False:
-            obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
+            #obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
             obj.M0[i] = float(par[len(vel_files)*2 +7*i+4])
             obj.M0_err[i] = e_par[len(vel_files)*2 +7*i+4]
 
@@ -1708,7 +1708,6 @@ def run_nestsamp(obj, **kwargs):
    # del sampler.pool
    # del sampler.M   
     
-    delattr(sampler, 'rstate')
    # delattr(fit, 'rstate')
 
     # sampler.rstate = np.random
@@ -1723,7 +1722,7 @@ def run_nestsamp(obj, **kwargs):
         for k in range(9):
             obj.ns_sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]    
             
-        
+        #delattr(obj.ns_sampler, 'rstate')
         obj.sampler_saved=True
  #       sampler.reset()
 #    else:

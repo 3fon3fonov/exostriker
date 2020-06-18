@@ -6150,6 +6150,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def check_cornerplot_samples(self):
         global fit  
         
+       # print("TESTTTTT")
+        
         if isinstance(fit.mcmc_sampler, rv.CustomSampler):
             MCMC_SAMP_LED = './lib/UI/green_led.png'
             MCMC_SAMP_TXT = "MCMC samples available" 
@@ -7334,7 +7336,8 @@ https://github.com/3fon3fonov/exostriker/issues
         self.new_ses.setEnabled(trigger) 
         self.copy_ses.setEnabled(trigger) 
         self.remove_ses.setEnabled(trigger) 
-        
+        self.radioButton_ewm.setEnabled(trigger)       
+        self.radioButton_hkl.setEnabled(trigger)       
         
     def file_from_path(self, path):
         head, tail = ntpath.split(path)
@@ -8355,7 +8358,10 @@ https://github.com/3fon3fonov/exostriker/issues
         self.err_St_vsini_input.valueChanged.connect(self.update_St_params)
 
 
-
+        self.plot_opt_tab.tabBarClicked.connect(self.check_cornerplot_samples)
+        #self.cornerplot_plot_tab.isVisible.connect(self.check_cornerplot_samples)
+        
+       # isVisible
         #if start_arg_ses == True:
             
             
