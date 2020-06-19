@@ -1716,17 +1716,8 @@ def run_nestsamp(obj, **kwargs):
 
  
     if obj.ns_save_sampler == True:
-        
-        obj.ns_sampler= dill.copy(sampler.results)
-        obj.ns_sampler.lbf     = {k: np.array([ee[k], True]) for k in range(len(ee))}
-        for k in range(9):
-            obj.ns_sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]    
-            
-        #delattr(obj.ns_sampler, 'rstate')
-        obj.sampler_saved=True
- #       sampler.reset()
-#    else:
-#        sampler.reset()
+        add_ns_samples(obj,sampler)
+ 
 
     sampler.reset()
 
@@ -1994,18 +1985,10 @@ def run_mcmc(obj, **kwargs):
     elif (obj.mcmc_save_maxlnL):
         obj.loglik = sampler.lnL_max
 
-    bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none","mass","semimajor","radius"]
-    bestfit_labels_bool = [obj.mcmc_save_median,obj.mcmc_save_means,obj.mcmc_save_mode, obj.mcmc_save_maxlnL,False,False,False,False,False]
+ 
 
-    if(obj.mcmc_save_sampler):
-        sampler.lbf             = {k: np.array([ee[k], True]) for k in range(len(ee))}
-        for k in range(9):
-            sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]         
-
-
-        obj.mcmc_sampler=sampler
-        obj.sampler_saved=True
-        
+    if(obj.mcmc_save_sampler):     
+        add_mcmc_samples(obj,sampler)       
     else:
         sampler.reset()
 
@@ -2029,8 +2012,7 @@ def run_mcmc(obj, **kwargs):
 
 
 
-
-
+ 
 class FunctionWrapper(object):
     """
     This is a hack to make the likelihood function pickleable when ``args``

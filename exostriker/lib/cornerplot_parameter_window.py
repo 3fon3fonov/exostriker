@@ -43,7 +43,7 @@ class show_param_boxes(QtWidgets.QDialog):
         self.radio_best_gui   = QtWidgets.QRadioButton('max lnL GUI', self) 
         self.radio_no_cross   = QtWidgets.QRadioButton('do not show', self) 
         
-        self.label_bestfit    = QtWidgets.QLabel("Best fit as:")
+        self.label_bestfit    = QtWidgets.QLabel("Truths as:")
         
         self.radio_group.addButton(self.radio_median,0)
         self.radio_group.addButton(self.radio_mean,1)
@@ -52,7 +52,7 @@ class show_param_boxes(QtWidgets.QDialog):
         self.radio_group.addButton(self.radio_best_gui,4)
         self.radio_group.addButton(self.radio_no_cross,5)
         
-
+ 
         self.mass_check  = QtWidgets.QCheckBox('incl. mass (needed: K,P,e )', self)
         self.semi_check  = QtWidgets.QCheckBox('incl. semi-major axis (needed: P)', self)
         self.radi_check  = QtWidgets.QCheckBox('incl. radius (needed: Rp/Rs)', self)
@@ -66,9 +66,31 @@ class show_param_boxes(QtWidgets.QDialog):
                                  self.radio_best_samp,self.radio_best_gui,self.radio_no_cross,
                                  self.mass_check,self.semi_check,self.radi_check]
 
-        
-        self.init_buttons()     
 
+        self.label_cornerplot_opt    = QtWidgets.QLabel("Cornerplot options:")
+
+
+        self.cancel_button = QtGui.QPushButton('Close', self)
+        
+   
+
+        self.truth_color_button = QtGui.QPushButton('Truths color', self)
+        self.truth_color_button.clicked.connect(self.get_color_truth)
+
+
+        self.samp_color_button = QtGui.QPushButton('Samples color', self)
+        self.samp_color_button.clicked.connect(self.get_color_samp)
+        
+        self.check_plot_datapoints  = QtWidgets.QCheckBox('plot datapoints', self)
+        self.check_plot_contours    = QtWidgets.QCheckBox('plot contours', self)
+        self.check_plot_show_titles = QtWidgets.QCheckBox('show titles', self)
+        self.check_plot_scale_hist  = QtWidgets.QCheckBox('scale hist', self)
+        self.check_no_fill_contours = QtWidgets.QCheckBox('no fill contours', self)
+        
+        
+        self.spin_bins  = QtWidgets.QSpinBox(self)
+        self.spin_bins.setSuffix(' bins')
+        
 
         if len(self.parent.lables_cornerplot)!=0:
             self.radio_median.setChecked(bool(self.parent.lables_cornerplot["median"]))
@@ -80,6 +102,40 @@ class show_param_boxes(QtWidgets.QDialog):
             self.mass_check.setChecked(self.parent.lables_cornerplot["mass"])
             self.semi_check.setChecked(self.parent.lables_cornerplot["semimajor"])
             self.radi_check.setChecked(self.parent.lables_cornerplot["radius"])
+            
+            self.cornerplot_opt2 = {"bins":25,
+                              "reverse":True,
+                              "upper":True,
+                              "quantiles":68.3,
+                              "levels":(0.6827, 0.9545,0.9973), 
+                              "smooth":1.0, 
+                              "smooth1d":1.0, 
+                              "dpi":300, 
+                              "pad":15, 
+                              "labelpad":50,
+                              "title_kwargs":{"fontsize": 12},  }      
+            
+            self.cornerplot_opt = self.parent.lables_cornerplot["cornerplot"]
+            self.truth_color_button.setStyleSheet("color: %s;"%self.cornerplot_opt["truth_color"])
+            self.samp_color_button.setStyleSheet("color: %s;"%self.cornerplot_opt["color"])
+            
+            self.check_plot_datapoints.setChecked(self.cornerplot_opt["plot_datapoints"])       
+            self.check_plot_contours.setChecked(self.cornerplot_opt["plot_contours"])
+            self.check_plot_show_titles.setChecked(self.cornerplot_opt["show_titles"])
+            self.check_plot_scale_hist.setChecked(self.cornerplot_opt["scale_hist"])
+            self.check_no_fill_contours.setChecked(self.cornerplot_opt["no_fill_contours"])
+           
+            self.spin_bins.setValue(self.cornerplot_opt["bins"])
+            
+        else:
+            self.truth_color_button.setStyleSheet("color: #ff0000;")
+            self.samp_color_button.setStyleSheet("color: #ff0000;")
+
+
+
+        self.initialize_color_dialog()
+        self.init_buttons()  
+        
 
     
     def init_buttons(self):
@@ -87,7 +143,7 @@ class show_param_boxes(QtWidgets.QDialog):
 
         
         k = 0
-        for g in range(len(self.parent.lables_cornerplot)-9):
+        for g in range(len(self.parent.lables_cornerplot)-10):
 
             
             
@@ -125,12 +181,30 @@ class show_param_boxes(QtWidgets.QDialog):
         self.layout.addWidget(self.radio_best_samp,4,2)
         self.layout.addWidget(self.radio_best_gui, 5,2)  
         self.layout.addWidget(self.radio_no_cross, 6,2)  
+        self.layout.addWidget(self.truth_color_button, 7,2)  
+        
+        
+ 
+        self.layout.addWidget(self.label_cornerplot_opt, 0,3)
+        self.layout.addWidget(self.spin_bins, 1,3)
+        
+        
+        self.layout.addWidget(self.check_plot_datapoints, 2,3) 
+        self.layout.addWidget(self.check_plot_contours, 3,3) 
+        self.layout.addWidget(self.check_plot_show_titles, 4,3) 
+        self.layout.addWidget(self.check_plot_scale_hist, 5,3) 
+        self.layout.addWidget(self.check_no_fill_contours, 6,3) 
+
+        
+             
+        self.layout.addWidget(self.samp_color_button, 7,3)              
+        
+        
         
         #self.setCentralWidget(self.widget)
         #self.Ok_button = QtGui.QPushButton('OK', self)
         #self.layout.addWidget(self.Ok_button)        
         
-        self.cancel_button = QtGui.QPushButton('Accept', self)
 
         self.layout.addWidget(self.cancel_button, k+1+6,2, 2, 3)
 
@@ -138,6 +212,8 @@ class show_param_boxes(QtWidgets.QDialog):
         #self.Ok_button.clicked.connect(self.get_radio)
         #self.layout.setRowStretch(k, 1)
         #self.layout.setColumnStretch(k, 1)
+        
+        
 
 
     def return_but_N(self):
@@ -151,11 +227,52 @@ class show_param_boxes(QtWidgets.QDialog):
             results[self.radio_bestfit_labels[k]] = self.radio_group_list[k].isChecked() 
         
         #print(np.array([[bestfit_labels[k],bestfit_labels_bool[k]] for k in range(6)]) )  
-
+        
+        self.cornerplot_opt["plot_datapoints"] = self.check_plot_datapoints.isChecked()
+        self.cornerplot_opt["plot_contours"]   = self.check_plot_contours.isChecked()
+        self.cornerplot_opt["show_titles"]     = self.check_plot_show_titles.isChecked()
+        self.cornerplot_opt["scale_hist"]      = self.check_plot_scale_hist.isChecked()
+        self.cornerplot_opt["no_fill_contours"]= self.check_no_fill_contours.isChecked()
+          
+        self.cornerplot_opt["bins"]            = self.spin_bins.value()
+           
+      
+        
+        results["cornerplot"] = self.cornerplot_opt
         
         return results
  
-            
+    def get_color_truth(self):
+        global fit
+
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog|QtGui.QColorDialog.ShowAlphaChannel,)
+ 
+        if colorz.isValid(): 
+            self.cornerplot_opt["truth_color"]=colorz.name() 
+            self.truth_color_button.setStyleSheet("color: %s;"%colorz.name())
+
+        else:
+            return
+        
+    def get_color_samp(self):
+        global fit
+
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog|QtGui.QColorDialog.ShowAlphaChannel,)
+ 
+        if colorz.isValid(): 
+            self.cornerplot_opt["color"]=colorz.name() 
+            self.samp_color_button.setStyleSheet("color: %s;"%colorz.name())
+
+        else:
+            return        
+        
+
+    def initialize_color_dialog(self):
+
+        self.colorDialog = QtGui.QColorDialog()
+        self.colorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel, True)
+        self.colorDialog.setOption(QtGui.QColorDialog.DontUseNativeDialog, True)
+
  
     # static method to create the dialog and return button pressed
     @staticmethod

@@ -158,20 +158,23 @@ if '-debug' in sys.argv:
 else:
     debug = False
 
+fit=rv.signal_fit(name='session')
+
 if '-last' in sys.argv:
     try:
         file_pi = open("autosave/auto_save.ses", 'rb')
         fit_ses = dill.load(file_pi)
         file_pi.close()   
+        fit = rv.check_for_missing_instances(fit,fit_ses)
         #fit=rv.signal_fit(name='session')    
-        fit = fit_ses 
+       # fit = fit_ses 
         ses_list = [fit_ses] 
         fit.init_pl_arb()
 
         start_arg_ses = True  
     except (ImportError, KeyError, AttributeError) as e:
         print("No last session found.")
-        fit=rv.signal_fit(name='session')
+        ##fit=rv.signal_fit(name='session')
         ses_list = [fit]
         start_arg_ses = False
 
@@ -180,14 +183,15 @@ elif arguments != 0 and sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
         file_pi = open(sys.argv[2], 'rb')
         fit_ses = dill.load(file_pi)
         file_pi.close()   
-        fit = fit_ses 
+        #fit = fit_ses 
+        fit = rv.check_for_missing_instances(fit,fit_ses)
         ses_list = [fit_ses] 
         fit.init_pl_arb()
 
         start_arg_ses = True  
     except (ImportError, KeyError, AttributeError) as e:
         print("You have entered non-RVmod session. %s cannot be recognaized"%sys.argv[2])
-        fit=rv.signal_fit(name='session')
+        #fit=rv.signal_fit(name='session')
         ses_list = [fit]
         start_arg_ses = False
 
@@ -197,13 +201,14 @@ elif arguments != 0 and sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
         fit_ses = dill.load(file_pi)
         file_pi.close()
         ses_list = fit_ses
-        fit = ses_list[0]
+        fit = rv.check_for_missing_instances(fit,ses_list[0])
+        #fit = ses_list[0]
         fit.init_pl_arb()
 
         start_arg_ses = True  
     except (ImportError, KeyError, TypeError, AttributeError) as e:
         print("You have entered non-RVmod multi-session. %s cannot be recognaized"%sys.argv[2])
-        fit=rv.signal_fit(name='session')
+        #fit=rv.signal_fit(name='session')
         ses_list = [fit]
         start_arg_ses = False
 
@@ -235,7 +240,7 @@ elif arguments != 0 and sys.argv[1] == '-rvbank' and os.path.exists(sys.argv[2])
         start_arg_ses = False
 
 else:
-    fit=rv.signal_fit(name='session')
+   # fit=rv.signal_fit(name='session')
     ses_list = [fit]
     start_arg_ses = False
 
@@ -4388,6 +4393,7 @@ Transit duration: %s d
         
         if fit.bound_error == True:
             self.get_error_msg(fit.bound_error_msg)
+            self.mute_buttons(trigger=True)
             return
 
         self.update_transit_plots()
@@ -4414,7 +4420,7 @@ Transit duration: %s d
         global fit  
         
         #self.button_fit.setEnabled(False)  
-        self.mute_buttons(trigger=True)
+        self.mute_buttons(trigger=False)
         
         self.update_params() 
         self.update_use()   
@@ -4559,10 +4565,11 @@ Transit duration: %s d
                          
         self.statusBar().showMessage('')  
         
-        self.button_fit.setEnabled(True)         
+        #self.button_fit.setEnabled(True)         
         
         if fit.bound_error == True:
             self.get_error_msg(fit.bound_error_msg)
+            self.mute_buttons(trigger=True)
             return
 
         self.update_transit_plots()
@@ -4575,14 +4582,17 @@ Transit duration: %s d
         self.jupiter_push_vars()
         
         self.save_last_session("autosave/auto_save.ses")
+        self.mute_buttons(trigger=True)
 
 
     def worker_ttv_fitting(self, ff=1, auto_fit = False ):
         global fit  
 
-        self.button_fit.setEnabled(False)
+        #self.button_fit.setEnabled(False)
         self.update_params() 
         self.update_use()   
+        self.mute_buttons(trigger=False)
+
 
         # check if transit data is present
         z=0
@@ -4593,7 +4603,7 @@ Transit duration: %s d
                 z=z+1
                 if fit.ttv_data_sets[i][3] > fit.npl and fit.ttv_data_sets[i][4] == True:
                     choice = QtGui.QMessageBox.information(self, 'Warning!',"TTV dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ttv_data_sets[i][3]), QtGui.QMessageBox.Ok)      
-                    self.button_fit.setEnabled(True)
+                    #self.button_fit.setEnabled(True)
                     return 
 
         if z <= 0:
@@ -4606,7 +4616,7 @@ Transit duration: %s d
              if fit.filelist.ndset <= 0:
                  choice = QtGui.QMessageBox.information(self, 'Warning!',
                  "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)
-                 self.button_fit.setEnabled(True)
+                 #self.button_fit.setEnabled(True)
                  return
 
         if fit.type_fit["RV"] == True :
@@ -4783,9 +4793,10 @@ Transit duration: %s d
         #print("--- %s seconds ---" % (time.time() - start_time))     
         self.statusBar().showMessage('')
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
-        self.button_fit.setEnabled(True)  
+        #self.button_fit.setEnabled(True)  
         if fit.bound_error == True:
             self.get_error_msg(fit.bound_error_msg)
+            self.mute_buttons(trigger=True)
             return
         
         self.run_gls()
@@ -4813,16 +4824,12 @@ Transit duration: %s d
         self.check_priors_nr()   
         self.check_priors_jeff()   
         self.mute_buttons(trigger=False)
-
-
      
         fit.model_npoints = self.points_to_draw_model.value()
         fit.model_max = self.model_max_range.value()
         fit.model_min = self.model_min_range.value()
         
         #self.tabWidget_helper.setCurrentWidget(self.tab_info)
- 
-
 
         if init == True:
             fit.init_fit= True
@@ -5164,7 +5171,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.32) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.33) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -5553,7 +5560,8 @@ will be highly appreciated!
                 fit_new = dill.load(file_pi) #, encoding='latin1'
                 file_pi.close()     
 
-            self.check_for_missing_instances(fit_new)
+            fit_new = rv.check_for_missing_instances(fit,fit_new)
+            #self.check_for_missing_instances(fit_new)
 
             ses_list.append(fit_new)
 
@@ -5595,7 +5603,9 @@ will be highly appreciated!
             file_pi.close()
 
             for jj in fit2:
-                self.check_for_missing_instances(jj)
+                jj = rv.check_for_missing_instances(fit,jj)
+
+                #self.check_for_missing_instances(jj)
 
 
             choice = QtGui.QMessageBox.information(self, 'Warning!',
@@ -5728,6 +5738,8 @@ will be highly appreciated!
 
         if fit.bound_error == True:
             self.get_error_msg(fit.bound_error_msg)
+            self.mute_buttons(trigger=True)
+
             return
 
         if self.adopt_nest_means_as_par.isChecked() or self.adopt_nest_median_as_par.isChecked() or  self.adopt_nest_best_lnL_as_pars.isChecked() or self.adopt_nest_mode_as_par.isChecked():
@@ -5769,7 +5781,7 @@ will be highly appreciated!
             fit.NS_Nbody_stab = False
 
 
-        self.button_nest_samp.setEnabled(False)
+        #self.button_nest_samp.setEnabled(False)
         self.statusBar().showMessage('Nested Sampling in progress....')
         # check if RV data is present
         if fit.type_fit["RV"] == True and fit.filelist.ndset <= 0:
@@ -5933,6 +5945,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
         if fit.bound_error == True:
             self.get_error_msg(fit.bound_error_msg)
+            self.mute_buttons(trigger=True)
             return
         
         if self.adopt_mcmc_means_as_par.isChecked() or self.adopt_mcmc_median_as_par.isChecked() or self.adopt_best_lnL_as_pars.isChecked() or self.adopt_mcmc_mode_as_par.isChecked():
@@ -7474,7 +7487,8 @@ https://github.com/3fon3fonov/exostriker/issues
         #self.update_color_picker()
         
         #self.init_fit()
-
+        
+    #NOT used anymore#
     def check_for_missing_instances(self,fit_new):
         global fit
 
@@ -7485,6 +7499,9 @@ https://github.com/3fon3fonov/exostriker/issues
         for iii in fit.fit_results.__dict__:
             if iii not in fit_new.fit_results.__dict__: 
                 fit_new.fit_results.__dict__[iii] = dill.copy(fit.fit_results.__dict__[iii])
+
+        fit_new.cwd = dill.copy(fit.cwd)    
+
         return
 
 
@@ -7820,7 +7837,7 @@ https://github.com/3fon3fonov/exostriker/issues
       
         
         if sys.platform[0:5] == "linux":
-            self.term_emb = terminal.EmbTerminal()
+            self.term_emb = terminal.mainWindow()
             self.terminal_embeded.addTab(self.term_emb, "Bash shell")
 
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")
@@ -8329,6 +8346,11 @@ https://github.com/3fon3fonov/exostriker/issues
        # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_change)
         self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_change)
 
+
+        self.threadpool = QtCore.QThreadPool()
+        self.threadpool.setMaxThreadCount(cpu_count())
+
+
         self.select_session(-1)
 
 
@@ -8339,8 +8361,7 @@ https://github.com/3fon3fonov/exostriker/issues
         
         self.force_copl_incl.stateChanged.connect(self.set_force_copl_incl)
 
-        self.threadpool = QtCore.QThreadPool()
-        self.threadpool.setMaxThreadCount(cpu_count())
+
 
         self.update_GUI_St_params()
         self.update_St_params()
@@ -8368,7 +8389,7 @@ https://github.com/3fon3fonov/exostriker/issues
             
 
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.32). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.33). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)
