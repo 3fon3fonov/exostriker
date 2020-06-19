@@ -4435,6 +4435,7 @@ Transit duration: %s d
             choice = QtGui.QMessageBox.information(self, 'Warning!',
             "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
            # self.button_fit.setEnabled(True)
+            self.mute_buttons(trigger=True)
             self.update_transit_plots()
 
             return 
@@ -4443,7 +4444,8 @@ Transit duration: %s d
              if fit.filelist.ndset <= 0:
                  choice = QtGui.QMessageBox.information(self, 'Warning!',
                  "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
-                 #self.button_fit.setEnabled(True)         
+                 #self.button_fit.setEnabled(True)   
+                 self.mute_buttons(trigger=True)
                  return   
 
         if fit.type_fit["RV"] == True :        
@@ -4604,12 +4606,14 @@ Transit duration: %s d
                 if fit.ttv_data_sets[i][3] > fit.npl and fit.ttv_data_sets[i][4] == True:
                     choice = QtGui.QMessageBox.information(self, 'Warning!',"TTV dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ttv_data_sets[i][3]), QtGui.QMessageBox.Ok)      
                     #self.button_fit.setEnabled(True)
+                    self.mute_buttons(trigger=True)
                     return 
 
         if z <= 0:
             choice = QtGui.QMessageBox.information(self, 'Warning!',
             "Not possible to model planets if there are no TTV data loaded. Please add your TTV data first. Okay?", QtGui.QMessageBox.Ok)      
-            self.button_fit.setEnabled(True)
+            #self.button_fit.setEnabled(True)
+            self.mute_buttons(trigger=True)
             return 
 
         if fit.type_fit["RV"] == True:
@@ -4617,6 +4621,7 @@ Transit duration: %s d
                  choice = QtGui.QMessageBox.information(self, 'Warning!',
                  "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)
                  #self.button_fit.setEnabled(True)
+                 self.mute_buttons(trigger=True)
                  return
 
         if fit.type_fit["RV"] == True :
@@ -4816,6 +4821,7 @@ Transit duration: %s d
              choice = QtGui.QMessageBox.information(self, 'Warning!',
              "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
              #self.button_fit.setEnabled(True)
+             self.mute_buttons(trigger=True)
              return   
 
         self.check_model_params()
@@ -5009,7 +5015,8 @@ Transit duration: %s d
         global fit 
         
         #self.dialog.statusBar().showMessage('Ready')
-        self.dialog_more_info.setFixedSize(500,450)
+        #self.dialog_more_info.setFixedSize(500,450)
+        self.dialog_more_info.setGeometry(1,1, 490, 385)
         self.dialog_more_info.setWindowTitle('Fit stat. info')  
         #self.dialog.setGeometry(300, 300, 800, 800)
         #self.dialog_credits.acceptRichText(True)
@@ -5017,32 +5024,54 @@ Transit duration: %s d
         ################## text generator #################
         text_info = """ (Work in progress) """
         self.dialog_more_info.text.setText(text_info) 
+
          
-        text_info ="""Fit quality
+        text_info ="""RV Fit quality
 ----------------------------------------------  
 max lnL = %.5f
 chi^2   = %.5f
 red. chi^2   = %.5f
 ----------------------------------------------
-"""%(fit.loglik,fit.fit_results.chi2,fit.fit_results.reduced_chi2)   
+        """%(fit.loglik,fit.fit_results.chi2,fit.fit_results.reduced_chi2)   
 
         self.dialog_more_info.text.append(text_info)
 
-        text_info = """data rms/wrms 
+        if fit.type_fit["RV"] == True:
+
+            text_info = """RV data rms/wrms 
 ----------------------------------------------"""   
-        self.dialog_more_info.text.append(text_info)
-        
-        if fit.filelist.ndset != 0:
-            for i in range(max(fit.filelist.idset)+1):
-                rms = np.sqrt(np.average(fit.fit_results.o_c[fit.filelist.idset==i]**2))
-                text_wrm = "rms %s = %.5f m/s"%(fit.filelist.files[i].name,rms)       
-                self.dialog_more_info.text.append(text_wrm)
-            text_info = """ """   
-            self.dialog_more_info.text.append(text_info)               
-            for i in range(max(fit.filelist.idset)+1):
-                wrms = np.sqrt(np.average(fit.fit_results.o_c[fit.filelist.idset==i]**2, weights=1/fit.fit_results.rv_err[fit.filelist.idset==i]))
-                text_wrm = "wrms %s = %.5f m/s"%(fit.filelist.files[i].name,wrms)       
-                self.dialog_more_info.text.append(text_wrm)        
+            self.dialog_more_info.text.append(text_info)
+            
+            if fit.filelist.ndset != 0:
+                for i in range(max(fit.filelist.idset)+1):
+                    rms = np.sqrt(np.average(fit.fit_results.o_c[fit.filelist.idset==i]**2))
+                    text_wrm = "rms %s = %.5f m/s"%(fit.filelist.files[i].name,rms)       
+                    self.dialog_more_info.text.append(text_wrm)
+                text_info = """ """   
+                self.dialog_more_info.text.append(text_info)               
+                for i in range(max(fit.filelist.idset)+1):
+                    wrms = np.sqrt(np.average(fit.fit_results.o_c[fit.filelist.idset==i]**2, weights=1/fit.fit_results.rv_err[fit.filelist.idset==i]))
+                    text_wrm = "wrms %s = %.5f m/s"%(fit.filelist.files[i].name,wrms)       
+                    self.dialog_more_info.text.append(text_wrm)        
+
+        if fit.type_fit["Transit"] == True:
+ 
+
+            text_info = """Transit data rms/wrms 
+----------------------------------------------"""   
+            self.dialog_more_info.text.append(text_info)
+            
+            if fit.filelist.ndset != 0:
+                for i in range(max(fit.filelist.idset)+1):
+                    rms = np.sqrt(np.average(fit.fit_results.o_c[fit.filelist.idset==i]**2))
+                    text_wrm = "rms %s = %.5f m/s"%(fit.filelist.files[i].name,rms)       
+                    self.dialog_more_info.text.append(text_wrm)
+                text_info = """ """   
+                self.dialog_more_info.text.append(text_info)               
+                for i in range(max(fit.filelist.idset)+1):
+                    wrms = np.sqrt(np.average(fit.fit_results.o_c[fit.filelist.idset==i]**2, weights=1/fit.fit_results.rv_err[fit.filelist.idset==i]))
+                    text_wrm = "wrms %s = %.5f m/s"%(fit.filelist.files[i].name,wrms)       
+                    self.dialog_more_info.text.append(text_wrm)        
 
        # self.dialog_more_info.text.append(text_info)
       
