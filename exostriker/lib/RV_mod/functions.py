@@ -29,6 +29,18 @@ TAU= 2.0*np.pi
 
 
 
+def check_for_missing_instances(fit,fit_new):
+    
+    for iii in fit.__dict__:
+        if iii not in fit_new.__dict__: 
+            fit_new.__dict__[iii] = dill.copy(fit.__dict__[iii])
+
+    for iii in fit.fit_results.__dict__:
+        if iii not in fit_new.fit_results.__dict__: 
+            fit_new.fit_results.__dict__[iii] = dill.copy(fit.fit_results.__dict__[iii])
+    return fit_new
+
+
 def transit_tperi(per, ecc, om, ma, epoch):
     """It derives Time of periatron [tp]
     and time of mid transit [t0]
