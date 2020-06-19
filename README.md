@@ -12,7 +12,6 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 **Developer**
 
 * Trifon Trifonov, MPIA Heidelberg.
-
 * with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler and Grigorii Smirnov-Pinchukov
 
 
@@ -34,6 +33,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Instant AMD stability check for multiple planetary systems (including during optimization or MCMC/Nested Sampling).
 * Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.
 * Fully interactive, super-fast, high-quality, exportable plots.
+* GUI control of making MCMC/NS cornerplot with many options.
 * Import/Export of work sessions and multi-sessions. 
 * Export plots to a matplotlib window for further customization.
 * Export ready to use LaTeX tables with best-fit parameters, errors, and statistics. 
@@ -137,7 +137,7 @@ arXiv:2006.01277
 
 * Stock, S., J. Kemmer, S. Reffert, et al. (2020). The CARMENES search for exoplanets around M dwarfs. Characterization of the nearby ultra-compact multiplanetary system YZ Ceti. (A&A, in press) arXiv e-prints arXiv:2002.01772.
  
-* Trifonov, T., M. H. Lee, M. Kürster, et al. (2020). The CARMENES search for exoplanets around M dwarfs. Dynamical characterization of the multiple planet system GJ 1148 and prospects of habitable exomoons around GJ 1148 b. (A&A, in press) arXiv e-prints arXiv:2002.00906.
+* Trifonov, T., M. H. Lee, M. Kürster, et al. (2020). The CARMENES search for exoplanets around M dwarfs. Dynamical characterization of the multiple planet system GJ 1148 and prospects of habitable exomoons around GJ 1148 b. A&A, 638, 16.
 
 * Trifon Trifonov, Lev Tal-Or, Mathias Zechmeister, et al. (2020). A public HARPS radial velocity database corrected for systematic errors. A&A, 636, A74 
  
