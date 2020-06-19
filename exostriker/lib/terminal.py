@@ -27,8 +27,10 @@ class EmbTerminal(QtWidgets.QWidget):
             
         #self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
-        #self.setFixedSize(450, 340)
-        self.setGeometry(1,1, 495, 390) 
+        #self.setFixedSize(495, 390)
+        self.setGeometry(1,1, 490, 385) 
+        self.setLayout(layout)
+
         #self.terminal.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
    # def sizeHint(self):
    #     size = super(EmbTerminal, self).sizeHint()
@@ -75,6 +77,14 @@ class mainWindow(QtWidgets.QMainWindow):
 
     def close(self):
         self.term.process.kill()
+
+
+
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    main = mainWindow()
+    main.show()
+    sys.exit(app.exec_())
 
 #if __name__ == "__main__":
     

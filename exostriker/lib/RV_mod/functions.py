@@ -38,6 +38,9 @@ def check_for_missing_instances(fit,fit_new):
     for iii in fit.fit_results.__dict__:
         if iii not in fit_new.fit_results.__dict__: 
             fit_new.fit_results.__dict__[iii] = dill.copy(fit.fit_results.__dict__[iii])
+
+    fit_new.cwd = dill.copy(fit.cwd)    
+
     return fit_new
 
 
@@ -320,7 +323,76 @@ unknown
     param_file.close()
     return
 
+def add_mcmc_samples(obj,sampler):
+    
+    bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none","mass","semimajor","radius"]
+    bestfit_labels_bool = [obj.mcmc_save_median,obj.mcmc_save_means,obj.mcmc_save_mode, obj.mcmc_save_maxlnL,False,False,False,False,False]
+    
+ 
+    sampler.lbf             = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
+    for k in range(9):
+        sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]     
+        
+    cornerplot_opt = {"bins":25,
+                      "color":"k",
+                      "reverse":True,
+                      "upper":True,
+                      "quantiles":68.3,
+                      "levels":(0.6827, 0.9545,0.9973), 
+                      "smooth":1.0, 
+                      "smooth1d":1.0, 
+                      "plot_contours":True, 
+                      "show_titles":True, 
+                      "dpi":300, 
+                      "pad":15, 
+                      "labelpad":50,
+                      "truth_color":'r', 
+                      "title_kwargs":{"fontsize": 12}, 
+                      "scale_hist":True,  
+                      "no_fill_contours":True,
+                      "plot_datapoints":True}        
+        
+    sampler.lbf["cornerplot"] = cornerplot_opt
 
+    obj.mcmc_sampler=sampler
+    obj.sampler_saved=True        
+        
+
+
+
+def add_ns_samples(obj,sampler):
+
+    bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none","mass","semimajor","radius"]
+    bestfit_labels_bool = [obj.ns_save_median,obj.ns_save_means,obj.ns_save_mode, obj.ns_save_maxlnL,False,False,False,False,False]    
+    
+    obj.ns_sampler= dill.copy(sampler.results)
+    obj.ns_sampler.lbf     = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
+    for k in range(9):
+        obj.ns_sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]   
+        
+    cornerplot_opt = {"bins":25,
+                      "color":"k",
+                      "reverse":True,
+                      "upper":True,
+                      "quantiles":68.3,
+                      "levels":(0.6827, 0.9545,0.9973), 
+                      "smooth":1.0, 
+                      "smooth1d":1.0, 
+                      "plot_contours":True, 
+                      "show_titles":True, 
+                      "dpi":300, 
+                      "pad":15, 
+                      "labelpad":50,
+                      "truth_color":'r', 
+                      "title_kwargs":{"fontsize": 12}, 
+                      "scale_hist":True,  
+                      "no_fill_contours":True,
+                      "plot_datapoints":True}        
+        
+    obj.ns_sampler.lbf["cornerplot"] = cornerplot_opt 
+       
+    #delattr(obj.ns_sampler, 'rstate')
+    obj.sampler_saved=True
 
 def get_mode_of_samples(samples, nsamp):
 
@@ -414,6 +486,9 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             best_fit_par = obj.par_for_mcmc
         else:
             best_fit_par = obj.par_for_mcmc
+            
+        cornerplot_opt = dill.copy(obj.mcmc_sampler.lbf["cornerplot"])
+
 
     elif type_plot == 'nest':
             
@@ -440,7 +515,9 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         elif mod_labels['best_gui']==True:
             best_fit_par = obj.par_for_mcmc
         else:
-            best_fit_par = obj.par_for_mcmc        
+            best_fit_par = obj.par_for_mcmc  
+            
+        cornerplot_opt = dill.copy(obj.ns_sampler.lbf["cornerplot"])
         
     else:
         return
@@ -495,25 +572,27 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             
             if not 'K$_%s$'%let in labels or not 'P$_%s$'%let in labels or not 'e$_%s$'%let in labels:
                 continue
-            if 'i$_%s$'%let in labels:
-                i   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]])
-            else:
-                i = 90.0
-            
             
             K   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'K$_%s$'%let]])
             P   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'P$_%s$'%let]])
-            ecc = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'e$_%s$'%let]])
-    
+            ecc = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'e$_%s$'%let]])            
+            
+            if 'i$_%s$'%let in labels:
+                i   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]])
+                samp_labels.append(r'm$_%s$'%let)
+            else:
+                i = 90.0
+                samp_labels.append(r'm $\sin i_%s$'%let)
+            
+            
             samp.append(np.array(get_mass(K,P, ecc, i, m_s)))
-            samp_labels.append(r'm $\sin i_%s$'%let)
             
             if mod_labels['mean']:
-                samp_best_fit_par.append(get_mass(np.mean(K),np.mean(P),np.mean(ecc), 90.0, np.mean(m_s)))
+                samp_best_fit_par.append(get_mass(np.mean(K),np.mean(P),np.mean(ecc), np.mean(i), np.mean(m_s)))
             elif mod_labels['median']:
-                samp_best_fit_par.append(get_mass(np.median(K),np.median(P),np.median(ecc), 90.0, np.median(m_s)))
+                samp_best_fit_par.append(get_mass(np.median(K),np.median(P),np.median(ecc), np.median(i), np.median(m_s)))
             else:
-                samp_best_fit_par.append(get_mass(K[np.argmax(ln)],P[np.argmax(ln)], ecc[np.argmax(ln)], 90.0, obj.stellar_mass))
+                samp_best_fit_par.append(get_mass(K[np.argmax(ln)],P[np.argmax(ln)], ecc[np.argmax(ln)], i[np.argmax(ln)], obj.stellar_mass))
     
     
     if mod_labels['semimajor']:
@@ -553,11 +632,48 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
     if mod_labels['none']==True:
         best_fit_par = None  
-     
-    fig = corner.corner(samples_,bins=25, color="k", reverse=True, upper= True, labels=labels, quantiles=[level/100.0, 1.0-level/100.0],
-                        levels=(0.6827, 0.9545,0.9973), smooth=1.0, smooth1d=1.0, plot_contours= True, show_titles=True, truths=best_fit_par,
-                        dpi = 300, pad=15, labelpad = 50 ,truth_color ='r', title_kwargs={"fontsize": 12}, scale_hist=True,  no_fill_contours=True,
-                        plot_datapoints=True, kwargs=kwargs)
+        """        
+            self.cornerplot_opt2 = {"bins":25,
+                              "color":"k",
+                              "reverse":True,
+                              "upper":True,
+                              "quantiles":68.3,
+                              "levels":(0.6827, 0.9545,0.9973), 
+                              "smooth":1.0, 
+                              "smooth1d":1.0, 
+                              "plot_contours":True, 
+                              "show_titles":True, 
+                              "dpi":300, 
+                              "pad":15, 
+                              "labelpad":50,
+                              "truth_color":'r', 
+                              "title_kwargs":{"fontsize": 12}, 
+                              "scale_hist":True,  
+                              "no_fill_contours":True,
+                              "plot_datapoints":True}            
+            """        
+    fig = corner.corner(samples_, 
+                        bins=cornerplot_opt["bins"], 
+                        color=cornerplot_opt["color"], 
+                        reverse=cornerplot_opt["reverse"], 
+                        upper=cornerplot_opt["upper"],
+                        labels=labels, 
+                        quantiles=[level/100.0, 1.0-level/100.0],
+                        levels=(0.6827, 0.9545,0.9973), 
+                        smooth=cornerplot_opt["smooth"],
+                        smooth1d=cornerplot_opt["smooth1d"],
+                        plot_contours=cornerplot_opt["plot_contours"],
+                        show_titles=cornerplot_opt["show_titles"],
+                        truths=best_fit_par,
+                        dpi=cornerplot_opt["dpi"],
+                        pad=cornerplot_opt["pad"],
+                        labelpad=cornerplot_opt["labelpad"],
+                        truth_color=cornerplot_opt["truth_color"], 
+                        title_kwargs={"fontsize": 12}, 
+                        scale_hist=cornerplot_opt["scale_hist"], 
+                        no_fill_contours=cornerplot_opt["no_fill_contours"], 
+                        plot_datapoints=cornerplot_opt["plot_datapoints"], 
+                        kwargs=kwargs)
 
     if type_plot == 'mcmc':
         fig.savefig(obj.mcmc_corner_plot_file)
