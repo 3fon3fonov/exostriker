@@ -163,6 +163,7 @@ if '-last' in sys.argv:
         file_pi = open("autosave/auto_save.ses", 'rb')
         fit_ses = dill.load(file_pi)
         file_pi.close()   
+        #fit=rv.signal_fit(name='session')    
         fit = fit_ses 
         ses_list = [fit_ses] 
         fit.init_pl_arb()
@@ -6206,20 +6207,20 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         
 
         # check if RV data is present
-        if type_plot == "mcmc":
-            samp_file = fit.mcmc_sample_file
-            type_samp = "MCMC"
-        elif type_plot == "nest":
-            samp_file = fit.nest_sample_file
-            type_samp = "Nest. Samp."
+     #   if type_plot == "mcmc":
+     #       samp_file = fit.mcmc_sample_file
+     #       type_samp = "MCMC"
+     #   elif type_plot == "nest":
+     #       samp_file = fit.nest_sample_file
+     #       type_samp = "Nest. Samp."
 
-        if not os.path.exists(samp_file):
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "%s file not found. Generate one and try again?"%type_samp, QtGui.QMessageBox.Ok)
-             self.button_make_mcmc_cornerplot.setEnabled(True)
-             self.button_make_nest_cornerplot.setEnabled(True)
-             self.statusBar().showMessage('')
-             return
+     #   if not os.path.exists(samp_file):
+     #        choice = QtGui.QMessageBox.information(self, 'Warning!',
+     #        "%s file not found. Generate one and try again?"%type_samp, QtGui.QMessageBox.Ok)
+     #        self.button_make_mcmc_cornerplot.setEnabled(True)
+     #        self.button_make_nest_cornerplot.setEnabled(True)
+     #        self.statusBar().showMessage('')
+     #        return
 
 
         # Pass the function to execute
