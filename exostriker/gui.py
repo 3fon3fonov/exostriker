@@ -4622,6 +4622,7 @@ Transit duration: %s d
                  "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)
                  #self.button_fit.setEnabled(True)
                  self.mute_buttons(trigger=True)
+
                  return
 
         if fit.type_fit["RV"] == True :
@@ -5701,26 +5702,26 @@ will be highly appreciated!
         #self.init_fit()
         
 
-        self.update_use_from_input_file()
-        self.update_use()
-        self.update_gui_params()
+        #self.update_use_from_input_file()
+       # self.update_use()
+        #self.update_gui_params()
         self.update_errors() 
-        self.update_plots() 
-        self.update_labels()
+        #self.update_plots() 
+        #self.update_labels()
         
         self.update_params()
-        self.update_RV_file_buttons() 
-        self.update_tra_file_buttons()
-        self.update_ttv_file_buttons()
+       # self.update_RV_file_buttons() 
+       # self.update_tra_file_buttons()
+       # self.update_ttv_file_buttons()
 
 
-        self.update_act_file_buttons()
-        self.update_color_picker()
+      #  self.update_act_file_buttons()
+      #  self.update_color_picker()
 
 
         #self.update_bounds()
         
-        self.set_gui_use_GP()
+     #   self.set_gui_use_GP()
         #self.init_fit()
         #self.update_use_from_input_file()
         #self.update_use()
@@ -5728,12 +5729,12 @@ will be highly appreciated!
        # self.update_params()
        # self.update_RV_file_buttons()
        # self.update_tra_file_buttons()
-        self.update_act_file_buttons()
+      #  self.update_act_file_buttons()
        # self.update_ttv_file_buttons()
 
        # self.fit_dispatcher(init=True)
-        self.init_plot_corr()
-        self.update_plot_corr()
+      #  self.init_plot_corr()
+     #   self.update_plot_corr()
 
 
         if not ind == None:
