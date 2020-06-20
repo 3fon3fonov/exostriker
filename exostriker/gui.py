@@ -3846,7 +3846,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.update_tra_file_buttons()
 
 
-    def update_tra_file_buttons(self):
+    def update_tra_file_buttons(self,init=False):
         global fit, colors          
 
         for i in range(10):
@@ -3863,6 +3863,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
  
         if len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0]) == 0:
+            self.update_transit_plots()
+        elif init==True:
             self.update_transit_plots()
         else:
             self.worker_transit_fitting(ff=0)
@@ -5702,26 +5704,23 @@ will be highly appreciated!
         #self.init_fit()
         
 
-        #self.update_use_from_input_file()
-       # self.update_use()
-        #self.update_gui_params()
+        self.update_use_from_input_file()
+        self.update_use()
+        self.update_gui_params()
         self.update_errors() 
-        #self.update_plots() 
-        #self.update_labels()
+        self.update_plots() 
+        self.update_labels()
         
         self.update_params()
-       # self.update_RV_file_buttons() 
-       # self.update_tra_file_buttons()
-       # self.update_ttv_file_buttons()
+        self.update_RV_file_buttons() 
+        self.update_tra_file_buttons(init=True)
+        self.update_ttv_file_buttons()
 
 
-      #  self.update_act_file_buttons()
-      #  self.update_color_picker()
-
-
-        #self.update_bounds()
-        
-     #   self.set_gui_use_GP()
+        self.update_act_file_buttons()
+        self.update_color_picker()
+ 
+        self.set_gui_use_GP()
         #self.init_fit()
         #self.update_use_from_input_file()
         #self.update_use()
@@ -5729,12 +5728,12 @@ will be highly appreciated!
        # self.update_params()
        # self.update_RV_file_buttons()
        # self.update_tra_file_buttons()
-      #  self.update_act_file_buttons()
+        self.update_act_file_buttons()
        # self.update_ttv_file_buttons()
 
        # self.fit_dispatcher(init=True)
-      #  self.init_plot_corr()
-     #   self.update_plot_corr()
+        self.init_plot_corr()
+        self.update_plot_corr()
 
 
         if not ind == None:
