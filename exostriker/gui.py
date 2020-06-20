@@ -3846,7 +3846,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.update_tra_file_buttons()
 
 
-    def update_tra_file_buttons(self,init=False):
+    def update_tra_file_buttons(self):
         global fit, colors          
 
         for i in range(10):
@@ -3863,8 +3863,6 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
  
         if len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0]) == 0:
-            self.update_transit_plots()
-        elif init==True:
             self.update_transit_plots()
         else:
             self.worker_transit_fitting(ff=0)
@@ -5713,7 +5711,9 @@ will be highly appreciated!
         
         self.update_params()
         self.update_RV_file_buttons() 
-        self.update_tra_file_buttons(init=True)
+        
+        #if fit.type_fit["Transit"] == True:
+        self.update_tra_file_buttons()
         self.update_ttv_file_buttons()
 
 
