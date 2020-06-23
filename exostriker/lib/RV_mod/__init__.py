@@ -772,8 +772,9 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                 ecc_, om_, = par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]
 
             #par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
-            #                                          ecc_, om_, par[len(vel_files)*2 +7*i+6], par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
-            par[len(vel_files)*2 +7*i+4] = get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_ ,par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i], epoch)
+            #                                      ecc_, om_, par[len(vel_files)*2 +7*i+6], par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
+            if program.endswith("kep"):
+                par[len(vel_files)*2 +7*i+4] = get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_ ,par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i], epoch)
  
     else:
         for i in range(npl):
@@ -1185,9 +1186,11 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
             #par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
            #                                           ecc_, om_, par[len(vel_files)*2 +7*i+6], par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
-            par[len(vel_files)*2 +7*i+4] = get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i], epoch)
 
-            obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
+            if mod.endswith("kep"):
+                par[len(vel_files)*2 +7*i+4] = get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i], epoch)
+
+                obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
 
         obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,stmass, obj.ttv_times, obj.epoch, return_model = True, tra_model_fact=obj.tra_model_fact)
 
@@ -1217,9 +1220,11 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
             #par[len(vel_files)*2 +7*i+4] = ma_from_t0(par[len(vel_files)*2 +7*i+1],
             #                                          ecc_, om_, par[len(vel_files)*2 +7*i+6], par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
-            par[len(vel_files)*2 +7*i+4] = get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i], epoch)
-
-            obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
+            if mod.endswith("kep"):
+    
+                par[len(vel_files)*2 +7*i+4] = get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i], epoch)
+    
+                obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
 
         #print(float(opt["eps"])/1e-13, float(opt["dt"])/86400.0)
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)

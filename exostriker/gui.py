@@ -6686,32 +6686,31 @@ Please install via 'pip install ttvfast'.
 
         ######### TESTS!!!!!!!!!!!###########
 
-        self.mute_boxes_dyn()
 
         if self.radioButton_transit_RV.isChecked():
-
-            ma_flag = False
-            t0_flag = True
+         
             K_flag = True
             pl_rad_flag = True
             a_sol_flag = True
             fit.type_fit["RV"] = True
             fit.type_fit["Transit"] = True
             fit.type_fit["TTV"] = False
-            
-            #incl_flag = True
-            #Dom_flag = True 
+          
 
-            #for i in range(9):
-           #     self.param_gui[7*i + 5].setEnabled(incl_flag)
-           #     self.use_param_gui[7*i + 5].setEnabled(incl_flag)
-           #     self.param_gui[7*i + 6].setEnabled(Dom_flag)
-           #     self.use_param_gui[7*i + 6].setEnabled(Dom_flag)           
+            if self.radioButton_Dynamical.isChecked():
+                ma_flag = True
+                t0_flag = False
+                incl_flag = True
+                Dom_flag = True
+            else:
+                ma_flag = False
+                t0_flag = True   
+                incl_flag = True
+                Dom_flag = False
+         
 
         elif self.radioButton_transit.isChecked():
 
-            ma_flag = False
-            t0_flag = True
             K_flag = False
             pl_rad_flag = True
             a_sol_flag = True
@@ -6719,22 +6718,39 @@ Please install via 'pip install ttvfast'.
             fit.type_fit["Transit"] = True 
             fit.type_fit["TTV"] = False
 
+            if self.radioButton_Dynamical.isChecked():
+                ma_flag = True
+                t0_flag = False
+                incl_flag = True
+                Dom_flag = True
+            else:
+                ma_flag = False
+                t0_flag = True   
+                incl_flag = True
+                Dom_flag = False
 
         elif self.radioButton_RV.isChecked():
 
-            ma_flag = True
-            t0_flag = False
             K_flag = True
             pl_rad_flag = False
             a_sol_flag = False
             fit.type_fit["RV"] = True
             fit.type_fit["Transit"] = False
             fit.type_fit["TTV"] = False
-
+            
+            if self.radioButton_Dynamical.isChecked():
+                ma_flag = True
+                t0_flag = False
+                incl_flag = True
+                Dom_flag = True
+            else:
+                ma_flag = True
+                t0_flag = False   
+                incl_flag = False
+                Dom_flag = False
+                
         elif self.radioButton_ttv.isChecked() or self. radioButton_ttv_RV.isChecked():
 
-            ma_flag = True
-            t0_flag = False
             K_flag = True
             pl_rad_flag = False
             a_sol_flag = False
@@ -6744,16 +6760,27 @@ Please install via 'pip install ttvfast'.
                 fit.type_fit["RV"] = True
             fit.type_fit["Transit"] = False 
             fit.type_fit["TTV"] = True 
+            
+            if self.radioButton_Dynamical.isChecked():
+                ma_flag = True
+                t0_flag = False
+                incl_flag = True
+                Dom_flag = True
+            else:
+                ma_flag = True
+                t0_flag = False
+                incl_flag = True
+                Dom_flag = True          
 
-            incl_flag = True
-            Dom_flag = True 
 
-            for i in range(9):
-                self.param_gui[7*i + 5].setEnabled(incl_flag)
-                self.use_param_gui[7*i + 5].setEnabled(incl_flag)
-                self.param_gui[7*i + 6].setEnabled(Dom_flag)
-                self.use_param_gui[7*i + 6].setEnabled(Dom_flag)
+        om_flag = False
 
+        if fit.type_fit["RV"] == True and self.radioButton_Keplerian.isChecked():             
+            if self.deattach_omega_dot.isChecked():
+                self.set_gr_flag()
+                if not self.radioButton_omega_dot_GR.isChecked(): 
+                    om_flag = True
+ 
         for i in range(9):
             self.param_gui[7*i].setEnabled(K_flag)
             self.use_param_gui[7*i].setEnabled(K_flag)
@@ -6765,18 +6792,18 @@ Please install via 'pip install ttvfast'.
             self.use_param_gui_tr[3*i + 1].setEnabled(pl_rad_flag)
             self.param_gui_tr[3*i + 2].setEnabled(a_sol_flag)
             self.use_param_gui_tr[3*i + 2].setEnabled(a_sol_flag)
+            self.param_gui[7*i + 5].setEnabled(incl_flag)
+            self.use_param_gui[7*i + 5].setEnabled(incl_flag)
+            self.param_gui[7*i + 6].setEnabled(Dom_flag)
+            self.use_param_gui[7*i + 6].setEnabled(Dom_flag)
+            self.param_gui_wd[i].setEnabled(om_flag)
+            self.use_param_gui_wd[i].setEnabled(om_flag)
 
 
-    def set_gr_flag(self):
-        global fit
-        
-        if self.radioButton_omega_dot_free.isChecked():
-            fit.gr_flag = False
-        elif self.deattach_omega_dot.isChecked() and self.radioButton_omega_dot_GR.isChecked():
-            fit.gr_flag = True
-        else:
-            fit.gr_flag = False
+        #self.mute_boxes_dyn()
 
+
+    ### NOT used anymore 
     def mute_boxes_dyn(self):
                 
         if self.radioButton_Keplerian.isChecked() and self.radioButton_RV.isChecked()==True:
@@ -6804,6 +6831,18 @@ Please install via 'pip install ttvfast'.
             incl_flag = True
             Dom_flag = True 
 
+            if self.radioButton_transit_RV.isChecked() or self.radioButton_transit.isChecked():
+                ma_flag = True
+                t0_flag = False
+            else:
+                
+                for i in range(9):
+                    self.param_gui[7*i + 4].setEnabled(ma_flag)
+                    self.use_param_gui[7*i + 4].setEnabled(ma_flag)
+                    self.param_gui_tr[3*i].setEnabled(t0_flag)
+                    self.use_param_gui_tr[3*i].setEnabled(t0_flag)                
+                        
+
         for i in range(9):
             self.param_gui[7*i + 5].setEnabled(incl_flag)
             self.use_param_gui[7*i + 5].setEnabled(incl_flag)
@@ -6811,6 +6850,8 @@ Please install via 'pip install ttvfast'.
             self.use_param_gui[7*i + 6].setEnabled(Dom_flag)
             self.param_gui_wd[i].setEnabled(om_flag)
             self.use_param_gui_wd[i].setEnabled(om_flag)
+            
+            
 
     def keyPressEvent(self, event):
         global fit
@@ -6831,6 +6872,16 @@ Please install via 'pip install ttvfast'.
         self.fit_dispatcher(init=True)
         return
 
+
+    def set_gr_flag(self):
+        global fit
+        
+        if self.radioButton_omega_dot_free.isChecked():
+            fit.gr_flag = False
+        elif self.deattach_omega_dot.isChecked() and self.radioButton_omega_dot_GR.isChecked():
+            fit.gr_flag = True
+        else:
+            fit.gr_flag = False
 
 ############################# Tab selector (not ready) ################################
 
@@ -7229,15 +7280,32 @@ Please install via 'pip install ttvfast'.
             r4 = float(result4[0][0])
             r5 = float(result5[0][0])
         except (ImportError, KeyError, AttributeError,ValueError, IndexError) as e:
+            
+            result6, flag6 = rv.run_command_with_timeout('gfortran -v', 15,output=True)
 
+            
+            
             print("""
-Something went wrong!!! please open a GitHub issue here:
+Something went wrong!!! 
+
+Perhaps you do not have user permission to compile code in the Exo-Striker directory?
+Or perhaps, you do not have 'gfortran' installed? 
+
+Trying 
+
+$ gfortran -v 
+
+returned:
+    
+%s    
+
+If 'gfortran' is not found, please install it and try again. Else, please open a GitHub issue here:
     
 https://github.com/3fon3fonov/exostriker/issues
-            """
+            """%result6
             )
  
- 
+  
  
 
 ################################## Stellar params #######################################
@@ -8033,20 +8101,20 @@ https://github.com/3fon3fonov/exostriker/issues
         self.minimize_1param()
 
         self.radioButton_Dynamical.toggled.connect(self.update_dyn_kep_flag)
-        self.radioButton_Dynamical.toggled.connect(self.mute_boxes_dyn)
+        self.radioButton_Dynamical.toggled.connect(self.mute_boxes)
 
-        self.radioButton_omega_dot_free.toggled.connect(self.mute_boxes_dyn)
+        self.radioButton_omega_dot_free.toggled.connect(self.mute_boxes)
 #        self.radioButton_omega_dot_GR.toggled.connect(self.set_gr_flag)
 
 
 
         self.radioButton_Keplerian.toggled.connect(self.update_dyn_kep_flag)
         
-        self.deattach_omega_dot.stateChanged.connect(self.mute_boxes_dyn)
+        self.deattach_omega_dot.stateChanged.connect(self.mute_boxes)
                 
         self.amoeba_radio_button.toggled.connect(self.update_RV_jitter_flag)
         self.lm_radio_button.toggled.connect(self.update_RV_jitter_flag)       
-        self.radioButton_Keplerian.toggled.connect(self.mute_boxes_dyn)
+        self.radioButton_Keplerian.toggled.connect(self.mute_boxes)
         
         
         self.adopt_best_RV__o_c_GLS_per.clicked.connect(self.adopt_RV_GLS_param)
@@ -8384,7 +8452,7 @@ https://github.com/3fon3fonov/exostriker/issues
 
 
         self.check_settings()
-        self.mute_boxes_dyn()
+        self.mute_boxes()
         self.update_RV_jitter_flag()
         self.check_cornerplot_samples()
         
