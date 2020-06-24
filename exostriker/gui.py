@@ -8068,6 +8068,11 @@ https://github.com/3fon3fonov/exostriker/issues
 
         self.button_orb_evol.clicked.connect(self.worker_Nbody) 
         self.button_MCMC.clicked.connect(self.worker_mcmc)
+        
+        self.buttonGroup_adopt_mcmc_as_par.buttonClicked.connect(self.check_mcmc_params)
+        self.buttonGroup_adopt_nest_as_par.buttonClicked.connect(self.check_nested_params)
+      
+    
        # self.button_nest_samp.clicked.connect(lambda: self.run_nest_samp())
         self.button_nest_samp.clicked.connect(self.worker_nest)
         
