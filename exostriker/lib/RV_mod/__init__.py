@@ -357,28 +357,37 @@ def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
 
 
 
-def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, fit_results=False):
+def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, hkl, fit_results=False):
 
 
     planets = []
     for i in range(npl):
+        
+        if hkl == True:
+            ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
+            om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
+            Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
+        else:
+            ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]        
+        
+        
         if fit_results == False:
             pl_mass,ap = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*i],
                                             par[len(vel_files)*2 +7*i+1],
-                                            par[len(vel_files)*2 +7*i+2],
-                                            par[len(vel_files)*2 +7*i+3],
-                                            par[len(vel_files)*2 +7*i+4]],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
+                                            ecc_,
+                                            om_,
+                                            Ma_],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
         else:
             pl_mass = float(fit_results.mass[i])
         pl_params = [pl_mass/1047.70266835,
                                             par[len(vel_files)*2 +7*i+1],
-                                            par[len(vel_files)*2 +7*i+2],
+                                            ecc_,
                                             par[len(vel_files)*2 +7*i+5],
                                             par[len(vel_files)*2 +7*i+6] ,
                                             #par[len(vel_files)*2 +7*i+3]%360.0,
-                                            (par[len(vel_files)*2 +7*i+3]+180.0)%360.0,
+                                            (om_+180.0)%360.0,
                                             #par[len(vel_files)*2 +7*i+4]%360.0]
-                                            (par[len(vel_files)*2 +7*i+4]-180.0)%360.0]
+                                            (Ma_-180.0)%360.0]
 
         planet = ttvfast.models.Planet(*pl_params)
         planets.append(planet)
@@ -408,26 +417,34 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, fit_results=False
 
 
 
-def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, fit_results = False , return_model = False):
+def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results = False , return_model = False):
 
 
     planets = []
     for i in range(npl):
+        
+        if hkl == True:
+            ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
+            om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
+            Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
+        else:
+            ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]         
+        
         if fit_results == False:
             pl_mass,ap = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*i],
                                             par[len(vel_files)*2 +7*i+1],
-                                            par[len(vel_files)*2 +7*i+2],
-                                            par[len(vel_files)*2 +7*i+3],
-                                            par[len(vel_files)*2 +7*i+4]],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
+                                            ecc_,
+                                            om_,
+                                            Ma_],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
         else:
             pl_mass = float(fit_results.mass[i])
         pl_params = [pl_mass/1047.70266835,
                                             par[len(vel_files)*2 +7*i+1],
-                                            par[len(vel_files)*2 +7*i+2],
+                                            ecc_,
                                             par[len(vel_files)*2 +7*i+5],
                                             par[len(vel_files)*2 +7*i+6],
-                                            (par[len(vel_files)*2 +7*i+3]+180.0)%360.0,
-                                            (par[len(vel_files)*2 +7*i+4]-180.0)%360.0]
+                                            (om_+180.0)%360.0,
+                                            (Ma_-180.0)%360.0]
         planet = ttvfast.models.Planet(*pl_params)
         planets.append(planet)
 
@@ -571,7 +588,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
             if program.endswith("dyn+") or program.endswith("dyn"):
 
-                t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_)], i, fit_results=fit_results)
+                t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_)], i, hkl, fit_results=fit_results)
     
                 for tran_t0 in t_os[1]:
                     tr_params.t0  = float(tran_t0)
@@ -667,7 +684,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
             
             if program.endswith("dyn+") or program.endswith("dyn"):
 
-                t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_rich)], i, fit_results=fit_results)
+                t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_rich)], i,hkl, fit_results=fit_results)
     
                 for tran_t0 in t_os[1]:
                     tr_params.t0  = float(tran_t0)
@@ -865,9 +882,9 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     if(opt["TTV"]):
 
         if(rtg[0])==False:
-            ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,fit_results=False, return_model = False)
+            ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,hkl,fit_results=False, return_model = False)
         else:
-            ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,fit_results=fit_results, return_model = False)
+            ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,hkl,fit_results=fit_results, return_model = False)
  
     if opt["AMD_stab"] == True and npl >=2:
                
@@ -1028,7 +1045,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
    # elif obj.SciPy_min_use_1 == obj.SciPy_min[7]:
    #      options1=obj.COBYLA_opt
    #      fit_bounds = None
-    elif obj.SciPy_min_use_1 == obj.SciPy_min[8]:
+    elif obj.SciPy_min_use_1 == obj.SciPy_min[7]:
          options1=obj.SLSQP_opt
          fit_bounds = None
    # elif obj.SciPy_min_use_1 == obj.SciPy_min[9]:
@@ -1063,7 +1080,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
   #  elif obj.SciPy_min_use_2 == obj.SciPy_min[7]:
 #         options2=obj.COBYLA_opt
 #         fit_bounds = None
-    elif obj.SciPy_min_use_2 == obj.SciPy_min[8]:
+    elif obj.SciPy_min_use_2 == obj.SciPy_min[7]:
          options2=obj.SLSQP_opt
          fit_bounds = bb
     else:
@@ -1242,14 +1259,14 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
  
     elif obj.type_fit["RV"] == True and obj.type_fit["TTV"] == True:
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
-        ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass, obj.ttv_times, fit_results=obj.fit_results, return_model = False)
+        ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass, obj.ttv_times,obj.hkl,fit_results=obj.fit_results, return_model = False)
         if rtg[1]:
             get_gps_model(obj, get_lnl=True)
 
         obj.loglik     =   obj.loglik +  ttv_loglik
 
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == True:
-        ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass,obj.ttv_times,fit_results=False, return_model = False)
+        ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass,obj.ttv_times,obj.hkl,fit_results=False, return_model = False)
         obj.loglik     =  ttv_loglik
 
 

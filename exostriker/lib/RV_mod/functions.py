@@ -570,12 +570,22 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         for i in range(obj.npl):
             let = letters[i]
             
-            if not 'K$_%s$'%let in labels or not 'P$_%s$'%let in labels or not 'e$_%s$'%let in labels:
+            if not 'K$_%s$'%let in labels or not 'P$_%s$'%let in labels:
                 continue
             
             K   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'K$_%s$'%let]])
             P   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'P$_%s$'%let]])
-            ecc = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'e$_%s$'%let]])            
+                        
+            if obj.hkl == True and '$e sin(\omega_%s)$'%let in labels and '$e cos(\omega_%s)$'%let in labels:
+ 
+                esinw = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == '$e sin(\omega_%s)$'%let]]) 
+                ecosw = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == '$e cos(\omega_%s)$'%let]]) 
+                
+                ecc = np.sqrt(esinw**2 + ecosw**2)
+            elif obj.hkl == False and 'e$_%s$'%let in labels:
+                ecc = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'e$_%s$'%let]])  
+            else:
+                continue
             
             if 'i$_%s$'%let in labels:
                 i   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]])
