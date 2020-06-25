@@ -2617,9 +2617,9 @@ Polyfit coefficients:
             if fit.npl > 0:
                 
                 if fit.rtg[0] == False:
-                    ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit_results = False, return_model = True)
+                    ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True)
                 else:
-                    ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit_results =fit.fit_results, return_model = True)
+                    ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True)
 
                 fit.ttv_results = ttv_loglik
 
