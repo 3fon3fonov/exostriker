@@ -1214,6 +1214,66 @@ def modify_temp_RV_file_old(obj, file_n = 0, add_error = 0, data_to_keep = None)
         obj.filelist.read_rvfiles(obj.params.offsets)
         
         return obj
+    
+
+def common_member(a, b): 
+    a_set = set(a) 
+    b_set = set(b) 
+  
+    if (a_set & b_set): 
+        return True
+    else: 
+        return False
+         
+
+    
+def bin_data(JD,rv,sigma,idset, bin_size = 1.0):
+
+    
+    binning_list = []
+    v_l = [1100000,1212234324]
+    for i in range(len(JD)):
+        b_l = [x for x,z in enumerate(JD) if abs(z - JD[i]) < bin_size]
+        if common_member(b_l, v_l):
+            continue
+        else:
+            binning_list.append(b_l)
+            v_l = b_l
+    
+    mj_all = []
+    mr_all = []
+    ms_all = []   
+    mi_all = []
+    
+    for x in range(len(binning_list)):
+    
+            mj_all.append(np.mean(JD[binning_list[x]]))
+            mr_all.append(np.average(rv[binning_list[x]], weights=1./sigma[binning_list[x]]))       
+            #ms_all.append(np.average(ms/np.sqrt(len(ms)), weights=1./ms) )   
+            ms_all.append(np.average(sigma[binning_list[x]]) )      
+            #ms_all.append( np.sqrt( (np.average(ms/np.sqrt(len(ms)), weights=1./ms)**2.0) + (abs(max(mr)-min(mr))**2.0) ) )           
+            #ms_all.append( np.sqrt( (np.average(ms/np.sqrt(len(ms)), weights=1./ms)**2.0) + np.std(mr)**2.0) ) )   
+            #print np.median(mr), np.std(mr)                       
+            mi_all.append(np.mean(idset[binning_list[x]]))
+                      
+    JD2, indices = np.unique(np.asarray(mj_all), return_index=True)
+    
+    ind    = np.array(indices)
+    mr_all = np.array(mr_all)
+    mj_all = np.array(mj_all) 
+    ms_all = np.array(ms_all)
+    mi_all = np.array(mi_all)
+    
+    mr_all = mr_all[ind]
+    mj_all = mj_all[ind] 
+    ms_all = ms_all[ind]
+    mi_all = mi_all[ind]
+    
+    print(len(JD2))
+   
+    return  mj_all, mr_all, ms_all, mi_all
+
+
 
 def bin_rv_data(obj, file_n = 0, bin_size = 1.0, bin_tf = False):
     
@@ -1226,7 +1286,34 @@ def bin_rv_data(obj, file_n = 0, bin_size = 1.0, bin_tf = False):
         JD    = np.array(obj.rv_data_sets[file_n][0])
         rv    = np.array(obj.rv_data_sets[file_n][1])
         sigma = np.array(obj.rv_data_sets[file_n][2])
-        idset = np.array(obj.rv_data_sets[file_n][2])
+        idset = np.array(obj.rv_data_sets[file_n][3])
+
+
+        mj_all,mr_all,ms_all,mi_all = bin_data(JD,rv,sigma,idset, bin_size = bin_size)
+
+        obj.rv_data_sets[file_n] = np.array([mj_all,mr_all,ms_all,mi_all])
+ 
+        #obj.rv_data_sets[file_n][0] = dill.copy(mj_all)
+        #obj.rv_data_sets[file_n][1] = dill.copy(mr_all)
+        #obj.rv_data_sets[file_n][2] = dill.copy(ms_all)
+        #obj.rv_data_sets[file_n][3] = dill.copy(mi_all)
+
+        return obj
+
+
+
+def bin_rv_dataOld(obj, file_n = 0, bin_size = 1.0, bin_tf = False):
+    
+    if bin_tf == False:
+        obj.rv_data_sets[file_n] = dill.copy(obj.rv_data_sets_init[file_n])
+        return
+
+    else:
+
+        JD    = np.array(obj.rv_data_sets[file_n][0])
+        rv    = np.array(obj.rv_data_sets[file_n][1])
+        sigma = np.array(obj.rv_data_sets[file_n][2])
+        idset = np.array(obj.rv_data_sets[file_n][3])
 
 
         mask = np.zeros(len(JD))
