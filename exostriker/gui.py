@@ -5981,6 +5981,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             self.init_fit()
         else:
             self.jupiter_push_vars()
+            
+            
 
         self.save_last_session("autosave/auto_save.ses")
         self.mute_buttons(trigger=True)
