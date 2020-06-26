@@ -1325,21 +1325,25 @@ def modify_temp_RV_file(obj, file_n = 0, add_error = 0, data_to_keep = None):
 ### some experimets! ###
 def sigma_clip(obj, type = 'RV', sigma_clip = 10, file_n = 0, add_error = 0, remove_mean = False, verbose = True):
 
-    if type == 'RV':
-
+    
+    if type == 'RV':        
+        
         if sigma_clip == None:
             modify_temp_RV_file(obj, file_n = file_n, add_error = add_error, data_to_keep = None)
             return
- 
         else:
             obj2 = dill.copy(obj)
+
             modify_temp_RV_file(obj2, file_n = file_n, add_error = add_error, data_to_keep = None)
             #obj2.epoch = obj.epoch
-            obj2.fitting(outputfiles=[1,1,0], minimize_fortran=True, minimize_loglik=True,amoeba_starts=0)
+            obj2.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True,amoeba_starts=0)
+            #print(len(obj2.rv_data_sets[file_n][0]))
 
             JD_data  = obj2.fit_results.rv_model.jd[obj2.filelist.idset==file_n] 
             o_c_data = obj2.fit_results.rv_model.o_c[obj2.filelist.idset==file_n] 
             data_ind = obj2.filelist.idset 
+            
+            #print(len(JD_data))
         
             c, low, upp = pdf.sigmaclip(o_c_data, sigma_clip, sigma_clip)
             remaining_idx    = [x for x, z in enumerate(o_c_data) if z in c]
