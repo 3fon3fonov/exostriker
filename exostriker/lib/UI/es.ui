@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1271</width>
+    <width>1278</width>
     <height>860</height>
    </rect>
   </property>
@@ -2041,6 +2041,11 @@
                     </item>
                     <item row="0" column="7">
                      <widget class="QLabel" name="label_263">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;theta;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
@@ -11656,7 +11661,7 @@
                  <attribute name="title">
                   <string>Bounds</string>
                  </attribute>
-                 <layout class="QGridLayout" name="gridLayout_250">
+                 <layout class="QGridLayout" name="gridLayout_43">
                   <item row="0" column="0" rowspan="2">
                    <layout class="QGridLayout" name="grid_pl_1_10">
                     <property name="leftMargin">
@@ -11677,6 +11682,19 @@
                     <property name="verticalSpacing">
                      <number>0</number>
                     </property>
+                    <item row="2" column="1">
+                     <widget class="QCheckBox" name="use_P_bound_1">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="11" column="1">
                      <widget class="QCheckBox" name="use_pl_rad_bound_1">
                       <property name="enabled">
@@ -11766,21 +11784,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="3">
-                     <widget class="DoubleSpinBox" name="K_max_1">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="8" column="3">
                      <widget class="DoubleSpinBox" name="incl_max_1">
                       <property name="font">
@@ -11818,19 +11821,6 @@
                       </property>
                       <property name="maximum">
                        <double>360.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="1">
-                     <widget class="QCheckBox" name="use_P_bound_1">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -12087,21 +12077,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="0">
-                     <widget class="QLabel" name="label_Period_minmax_1">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>P [d]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="5" column="3">
                      <widget class="DoubleSpinBox" name="e_max_1">
                       <property name="sizePolicy">
@@ -12168,21 +12143,6 @@
                       </property>
                       <property name="value">
                        <double>10000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="2">
-                     <widget class="DoubleSpinBox" name="K_min_1">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>0.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -12289,7 +12249,35 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="2">
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="label_K_minmax_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>K [m/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QCheckBox" name="use_K_bound_1">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="2">
                      <widget class="DoubleSpinBox" name="P_min_1">
                       <property name="font">
                        <font>
@@ -12307,7 +12295,37 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="4" column="2">
+                     <widget class="DoubleSpinBox" name="K_min_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>0.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="4" column="3">
+                     <widget class="DoubleSpinBox" name="K_max_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="3">
                      <widget class="DoubleSpinBox" name="P_max_1">
                       <property name="font">
                        <font>
@@ -12325,28 +12343,15 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="1">
-                     <widget class="QCheckBox" name="use_K_bound_1">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="2" column="0">
-                     <widget class="QLabel" name="label_K_minmax_1">
+                     <widget class="QLabel" name="label_Period_minmax_1">
                       <property name="font">
                        <font>
                         <pointsize>9</pointsize>
                        </font>
                       </property>
                       <property name="text">
-                       <string>K [m/s]</string>
+                       <string>P [d]</string>
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -12355,7 +12360,7 @@
                     </item>
                    </layout>
                   </item>
-                  <item row="0" column="1" colspan="3">
+                  <item row="0" column="1" colspan="2">
                    <layout class="QGridLayout" name="gridLayout_45">
                     <property name="leftMargin">
                      <number>1</number>
@@ -12716,7 +12721,7 @@
                  <attribute name="title">
                   <string>Gaussian</string>
                  </attribute>
-                 <layout class="QGridLayout" name="gridLayout_259">
+                 <layout class="QGridLayout" name="gridLayout_144">
                   <item row="0" column="0" rowspan="2">
                    <layout class="QGridLayout" name="grid_pl_1_15">
                     <property name="leftMargin">
@@ -12820,59 +12825,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="1">
-                     <widget class="QCheckBox" name="use_K_norm_pr_1">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="3">
-                     <widget class="DoubleSpinBox" name="P_sigma_1">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="1">
-                     <widget class="QCheckBox" name="use_P_norm_pr_1">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="3">
-                     <widget class="DoubleSpinBox" name="K_sigma_1">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="12" column="2">
                      <widget class="DoubleSpinBox" name="a_sol_mean_1">
                       <property name="font">
@@ -12933,24 +12885,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="2">
-                     <widget class="DoubleSpinBox" name="P_mean_1">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="decimals">
-                       <number>4</number>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>150.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="8" column="3">
                      <widget class="DoubleSpinBox" name="incl_sigma_1">
                       <property name="font">
@@ -13008,21 +12942,6 @@
                       </property>
                       <property name="value">
                        <double>30.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="2">
-                     <widget class="DoubleSpinBox" name="K_mean_1">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -13206,21 +13125,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="0">
-                     <widget class="QLabel" name="label_K_minmax_10">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>K [m/s]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="1" column="0">
                      <widget class="QCheckBox" name="use_norm_prior_pl_1">
                       <property name="enabled">
@@ -13236,21 +13140,6 @@
                       </property>
                       <property name="checked">
                        <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QLabel" name="label_Period_minmax_10">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>P [d]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
@@ -13362,6 +13251,122 @@
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="3">
+                     <widget class="DoubleSpinBox" name="K_sigma_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="2">
+                     <widget class="DoubleSpinBox" name="P_mean_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>4</number>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>150.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="DoubleSpinBox" name="K_mean_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QCheckBox" name="use_K_norm_pr_1">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QCheckBox" name="use_P_norm_pr_1">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="label_K_minmax_10">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>K [m/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QLabel" name="label_Period_minmax_10">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>P [d]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="3">
+                     <widget class="DoubleSpinBox" name="P_sigma_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -13728,7 +13733,7 @@
                  <attribute name="title">
                   <string>Jeffreys</string>
                  </attribute>
-                 <layout class="QGridLayout" name="gridLayout_274">
+                 <layout class="QGridLayout" name="gridLayout_250">
                   <item row="0" column="0" rowspan="2">
                    <layout class="QGridLayout" name="grid_pl_1_28">
                     <property name="leftMargin">
@@ -13812,49 +13817,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="1">
-                     <widget class="QCheckBox" name="use_K_jeff_pr_1">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="3">
-                     <widget class="DoubleSpinBox" name="P_jeff_beta_1">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="3">
-                     <widget class="DoubleSpinBox" name="K_jeff_beta_1">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="12" column="2">
                      <widget class="DoubleSpinBox" name="a_sol_jeff_alpha_1">
                       <property name="font">
@@ -13882,24 +13844,6 @@
                       </property>
                       <property name="maximum">
                        <double>360.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="2">
-                     <widget class="DoubleSpinBox" name="P_jeff_alpha_1">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="decimals">
-                       <number>4</number>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>150.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -13960,21 +13904,6 @@
                       </property>
                       <property name="value">
                        <double>30.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="2">
-                     <widget class="DoubleSpinBox" name="K_jeff_alpha_1">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -14138,21 +14067,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="0">
-                     <widget class="QLabel" name="label_K_minmax_19">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>K [m/s]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="1" column="0">
                      <widget class="QCheckBox" name="use_norm_prior_pl_12">
                       <property name="enabled">
@@ -14168,21 +14082,6 @@
                       </property>
                       <property name="checked">
                        <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QLabel" name="label_Period_minmax_19">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>P [d]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
@@ -14367,13 +14266,119 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="4" column="3">
+                     <widget class="DoubleSpinBox" name="K_jeff_beta_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="DoubleSpinBox" name="K_jeff_alpha_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="2">
+                     <widget class="DoubleSpinBox" name="P_jeff_alpha_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>4</number>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>150.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="4" column="1">
+                     <widget class="QCheckBox" name="use_K_jeff_pr_1">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
                      <widget class="QCheckBox" name="use_P_jeff_pr_1">
                       <property name="layoutDirection">
                        <enum>Qt::RightToLeft</enum>
                       </property>
                       <property name="text">
                        <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="label_K_minmax_19">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>K [m/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QLabel" name="label_Period_minmax_19">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>P [d]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="3">
+                     <widget class="DoubleSpinBox" name="P_jeff_beta_1">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -14803,16 +14808,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="2">
-                     <widget class="DoubleSpinBox" name="K_min_2">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>0.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="9" column="2">
                      <widget class="DoubleSpinBox" name="Omega_min_2">
                       <property name="maximum">
@@ -14858,44 +14853,6 @@
                       </property>
                       <property name="value">
                        <double>-720.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="3">
-                     <widget class="DoubleSpinBox" name="P_max_2">
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="0">
-                     <widget class="QLabel" name="label_K_minmax_2">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>K [m/s]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="3">
-                     <widget class="DoubleSpinBox" name="K_max_2">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>1000000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -14954,21 +14911,6 @@
                       </property>
                       <property name="value">
                        <double>720.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QLabel" name="label_Period_minmax_2">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>P [d]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
@@ -15123,19 +15065,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="2">
-                     <widget class="DoubleSpinBox" name="P_min_2">
-                      <property name="decimals">
-                       <number>4</number>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>0.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="10" column="3">
                      <widget class="DoubleSpinBox" name="t0_max_2">
                       <property name="decimals">
@@ -15234,19 +15163,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="1">
-                     <widget class="QCheckBox" name="use_K_bound_2">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="5" column="1">
                      <widget class="QCheckBox" name="use_e_bound_2">
                       <property name="enabled">
@@ -15338,7 +15254,53 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="4" column="3">
+                     <widget class="DoubleSpinBox" name="K_max_2">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="DoubleSpinBox" name="K_min_2">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>0.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="2">
+                     <widget class="DoubleSpinBox" name="P_min_2">
+                      <property name="decimals">
+                       <number>4</number>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>0.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="4" column="1">
+                     <widget class="QCheckBox" name="use_K_bound_2">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
                      <widget class="QCheckBox" name="use_P_bound_2">
                       <property name="enabled">
                        <bool>false</bool>
@@ -15348,6 +15310,49 @@
                       </property>
                       <property name="checked">
                        <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="label_K_minmax_2">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>K [m/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QLabel" name="label_Period_minmax_2">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>P [d]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="3">
+                     <widget class="DoubleSpinBox" name="P_max_2">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -15674,7 +15679,7 @@
                  <attribute name="title">
                   <string>Gaussian</string>
                  </attribute>
-                 <layout class="QGridLayout" name="gridLayout_260">
+                 <layout class="QGridLayout" name="gridLayout_259">
                   <item row="0" column="0" rowspan="2">
                    <layout class="QGridLayout" name="grid_pl_1_20">
                     <property name="leftMargin">
@@ -15717,29 +15722,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="3">
-                     <widget class="DoubleSpinBox" name="P_sigma_2">
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="2">
-                     <widget class="DoubleSpinBox" name="K_mean_2">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="9" column="2">
                      <widget class="DoubleSpinBox" name="Omega_mean_2">
                       <property name="maximum">
@@ -15754,16 +15736,6 @@
                       </property>
                       <property name="value">
                        <double>0.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="3">
-                     <widget class="DoubleSpinBox" name="K_sigma_2">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -15792,16 +15764,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="1">
-                     <widget class="QCheckBox" name="use_P_norm_pr_2">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="9" column="3">
                      <widget class="DoubleSpinBox" name="Omega_sigma_2">
                       <property name="maximum">
@@ -15814,44 +15776,6 @@
                     </item>
                     <item row="6" column="1">
                      <widget class="QCheckBox" name="use_om_norm_pr_2">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="2">
-                     <widget class="DoubleSpinBox" name="P_mean_2">
-                      <property name="decimals">
-                       <number>4</number>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>150.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="0">
-                     <widget class="QLabel" name="label_K_minmax_11">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>K [m/s]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="1">
-                     <widget class="QCheckBox" name="use_K_norm_pr_2">
                       <property name="layoutDirection">
                        <enum>Qt::RightToLeft</enum>
                       </property>
@@ -15940,21 +15864,6 @@
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;omega; [deg]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QLabel" name="label_Period_minmax_11">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>P [d]</string>
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -16220,6 +16129,102 @@
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="3">
+                     <widget class="DoubleSpinBox" name="K_sigma_2">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="DoubleSpinBox" name="K_mean_2">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="2">
+                     <widget class="DoubleSpinBox" name="P_mean_2">
+                      <property name="decimals">
+                       <number>4</number>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>150.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QCheckBox" name="use_K_norm_pr_2">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QCheckBox" name="use_P_norm_pr_2">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="label_K_minmax_11">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>K [m/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QLabel" name="label_Period_minmax_11">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>P [d]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="3">
+                     <widget class="DoubleSpinBox" name="P_sigma_2">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -16546,7 +16551,7 @@
                  <attribute name="title">
                   <string>Jeffreys</string>
                  </attribute>
-                 <layout class="QGridLayout" name="gridLayout_275">
+                 <layout class="QGridLayout" name="gridLayout_260">
                   <item row="0" column="0" rowspan="2">
                    <layout class="QGridLayout" name="grid_pl_1_29">
                     <property name="leftMargin">
@@ -16587,16 +16592,6 @@
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="2">
-                     <widget class="DoubleSpinBox" name="K_jeff_alpha_2">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -16731,16 +16726,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="3">
-                     <widget class="DoubleSpinBox" name="K_jeff_beta_2">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="5" column="0">
                      <widget class="QLabel" name="label_ecc_minmax_20">
                       <property name="font">
@@ -16800,21 +16785,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="0">
-                     <widget class="QLabel" name="label_K_minmax_20">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>K [m/s]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="9" column="3">
                      <widget class="DoubleSpinBox" name="Omega_jeff_beta_2">
                       <property name="maximum">
@@ -16857,42 +16827,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="2">
-                     <widget class="DoubleSpinBox" name="P_jeff_alpha_2">
-                      <property name="decimals">
-                       <number>4</number>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>150.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="3">
-                     <widget class="DoubleSpinBox" name="P_jeff_beta_2">
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="1">
-                     <widget class="QCheckBox" name="use_K_jeff_pr_2">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="11" column="2">
                      <widget class="DoubleSpinBox" name="pl_rad_jeff_alpha_2">
                       <property name="decimals">
@@ -16903,16 +16837,6 @@
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="1">
-                     <widget class="QCheckBox" name="use_P_jeff_pr_2">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
                       </property>
                      </widget>
                     </item>
@@ -17070,7 +16994,85 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="8" column="3">
+                     <widget class="DoubleSpinBox" name="incl_jeff_beta_2">
+                      <property name="maximum">
+                       <double>180.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>30.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="3">
+                     <widget class="DoubleSpinBox" name="K_jeff_beta_2">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="DoubleSpinBox" name="K_jeff_alpha_2">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="2">
+                     <widget class="DoubleSpinBox" name="P_jeff_alpha_2">
+                      <property name="decimals">
+                       <number>4</number>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>150.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QCheckBox" name="use_K_jeff_pr_2">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QCheckBox" name="use_P_jeff_pr_2">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="4" column="0">
+                     <widget class="QLabel" name="label_K_minmax_20">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>K [m/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
                      <widget class="QLabel" name="label_Period_minmax_20">
                       <property name="font">
                        <font>
@@ -17085,13 +17087,16 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="8" column="3">
-                     <widget class="DoubleSpinBox" name="incl_jeff_beta_2">
+                    <item row="3" column="3">
+                     <widget class="DoubleSpinBox" name="P_jeff_beta_2">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
                       <property name="maximum">
-                       <double>180.000000000000000</double>
+                       <double>100000.000000000000000</double>
                       </property>
                       <property name="value">
-                       <double>30.000000000000000</double>
+                       <double>50.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -17458,6 +17463,19 @@
                     <property name="verticalSpacing">
                      <number>0</number>
                     </property>
+                    <item row="2" column="1">
+                     <widget class="QCheckBox" name="use_P_bound_3">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="1" column="2">
                      <widget class="QLabel" name="Planet1_7">
                       <property name="font">
@@ -17470,16 +17488,6 @@
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="2">
-                     <widget class="DoubleSpinBox" name="K_min_3">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>0.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -17528,44 +17536,6 @@
                       </property>
                       <property name="value">
                        <double>-720.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="3">
-                     <widget class="DoubleSpinBox" name="P_max_3">
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="0">
-                     <widget class="QLabel" name="label_K_minmax_3">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>K [m/s]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="3">
-                     <widget class="DoubleSpinBox" name="K_max_3">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>1000000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -17624,21 +17594,6 @@
                       </property>
                       <property name="value">
                        <double>720.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QLabel" name="label_Period_minmax_3">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>P [d]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
@@ -17793,19 +17748,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="2">
-                     <widget class="DoubleSpinBox" name="P_min_3">
-                      <property name="decimals">
-                       <number>4</number>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>0.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="10" column="3">
                      <widget class="DoubleSpinBox" name="t0_max_3">
                       <property name="decimals">
@@ -17898,19 +17840,6 @@
                       </property>
                       <property name="text">
                        <string>use bounds</string>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="1">
-                     <widget class="QCheckBox" name="use_K_bound_3">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="text">
-                       <string/>
                       </property>
                       <property name="checked">
                        <bool>true</bool>
@@ -18021,8 +17950,23 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="2" column="0">
+                     <widget class="QLabel" name="label_Period_minmax_3">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>P [d]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="4" column="1">
-                     <widget class="QCheckBox" name="use_P_bound_3">
+                     <widget class="QCheckBox" name="use_K_bound_3">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
@@ -18031,6 +17975,67 @@
                       </property>
                       <property name="checked">
                        <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="3">
+                     <widget class="DoubleSpinBox" name="K_max_3">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="label_K_minmax_3">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>K [m/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="2">
+                     <widget class="DoubleSpinBox" name="P_min_3">
+                      <property name="decimals">
+                       <number>4</number>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>0.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="DoubleSpinBox" name="K_min_3">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>0.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="3">
+                     <widget class="DoubleSpinBox" name="P_max_3">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -18501,39 +18506,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="3">
-                     <widget class="DoubleSpinBox" name="K_sigma_3">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="1">
-                     <widget class="QCheckBox" name="use_P_norm_pr_3">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="3">
-                     <widget class="DoubleSpinBox" name="P_sigma_3">
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="8" column="1">
                      <widget class="QCheckBox" name="use_incl_norm_pr_3">
                       <property name="layoutDirection">
@@ -18569,21 +18541,6 @@
                       </property>
                       <property name="checked">
                        <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QLabel" name="label_Period_minmax_12">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>P [d]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
@@ -18701,16 +18658,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="2">
-                     <widget class="DoubleSpinBox" name="K_mean_3">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="12" column="0">
                      <widget class="QLabel" name="label_a_sol_minmax_12">
                       <property name="font">
@@ -18804,35 +18751,10 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="0">
-                     <widget class="QLabel" name="label_K_minmax_12">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>K [m/s]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="6" column="2">
                      <widget class="DoubleSpinBox" name="om_mean_3">
                       <property name="maximum">
                        <double>360.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="1">
-                     <widget class="QCheckBox" name="use_K_norm_pr_3">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
                       </property>
                      </widget>
                     </item>
@@ -18893,7 +18815,27 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="4" column="3">
+                     <widget class="DoubleSpinBox" name="K_sigma_3">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="4" column="2">
+                     <widget class="DoubleSpinBox" name="K_mean_3">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="2">
                      <widget class="DoubleSpinBox" name="P_mean_3">
                       <property name="decimals">
                        <number>4</number>
@@ -18903,6 +18845,69 @@
                       </property>
                       <property name="value">
                        <double>150.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QCheckBox" name="use_K_norm_pr_3">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QCheckBox" name="use_P_norm_pr_3">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="label_K_minmax_12">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>K [m/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QLabel" name="label_Period_minmax_12">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>P [d]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="3">
+                     <widget class="DoubleSpinBox" name="P_sigma_3">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -19229,7 +19234,7 @@
                  <attribute name="title">
                   <string>Jeffreys</string>
                  </attribute>
-                 <layout class="QGridLayout" name="gridLayout_276">
+                 <layout class="QGridLayout" name="gridLayout_274">
                   <item row="0" column="0" rowspan="2">
                    <layout class="QGridLayout" name="grid_pl_1_30">
                     <property name="leftMargin">
@@ -19250,18 +19255,13 @@
                     <property name="verticalSpacing">
                      <number>0</number>
                     </property>
-                    <item row="8" column="0">
-                     <widget class="QLabel" name="label_incl_minmax_21">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
+                    <item row="8" column="3">
+                     <widget class="DoubleSpinBox" name="incl_jeff_beta_3">
+                      <property name="maximum">
+                       <double>180.000000000000000</double>
                       </property>
-                      <property name="text">
-                       <string>incl [deg]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      <property name="value">
+                       <double>30.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -19275,13 +19275,18 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="8" column="3">
-                     <widget class="DoubleSpinBox" name="incl_jeff_beta_3">
-                      <property name="maximum">
-                       <double>180.000000000000000</double>
+                    <item row="8" column="0">
+                     <widget class="QLabel" name="label_incl_minmax_21">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
                       </property>
-                      <property name="value">
-                       <double>30.000000000000000</double>
+                      <property name="text">
+                       <string>incl [deg]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
@@ -19367,19 +19372,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="2">
-                     <widget class="DoubleSpinBox" name="P_jeff_alpha_3">
-                      <property name="decimals">
-                       <number>4</number>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>150.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="8" column="2">
                      <widget class="DoubleSpinBox" name="incl_jeff_alpha_3">
                       <property name="maximum">
@@ -19436,16 +19428,6 @@
                      <widget class="DoubleSpinBox" name="ma_jeff_alpha_3">
                       <property name="maximum">
                        <double>360.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="1">
-                     <widget class="QCheckBox" name="use_P_jeff_pr_3">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
                       </property>
                      </widget>
                     </item>
@@ -19516,16 +19498,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="1">
-                     <widget class="QCheckBox" name="use_K_jeff_pr_3">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="12" column="0">
                      <widget class="QLabel" name="label_a_sol_minmax_21">
                       <property name="font">
@@ -19535,16 +19507,6 @@
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="2">
-                     <widget class="DoubleSpinBox" name="K_jeff_alpha_3">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -19570,43 +19532,6 @@
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="0">
-                     <widget class="QLabel" name="label_K_minmax_21">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>K [m/s]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="5" column="3">
-                     <widget class="DoubleSpinBox" name="e_jeff_beta_3">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="decimals">
-                       <number>5</number>
-                      </property>
-                      <property name="maximum">
-                       <double>1.000000000000000</double>
-                      </property>
-                      <property name="singleStep">
-                       <double>0.010000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>0.100000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -19654,19 +19579,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="3">
-                     <widget class="DoubleSpinBox" name="P_jeff_beta_3">
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="9" column="0">
                      <widget class="QLabel" name="label_Omega_minmax_21">
                       <property name="font">
@@ -19692,16 +19604,6 @@
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="3">
-                     <widget class="DoubleSpinBox" name="K_jeff_beta_3">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -19763,7 +19665,7 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="0">
+                    <item row="3" column="0">
                      <widget class="QLabel" name="label_Period_minmax_21">
                       <property name="font">
                        <font>
@@ -19775,6 +19677,109 @@
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="3">
+                     <widget class="DoubleSpinBox" name="e_jeff_beta_3">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="decimals">
+                       <number>5</number>
+                      </property>
+                      <property name="maximum">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>0.100000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="3">
+                     <widget class="DoubleSpinBox" name="K_jeff_beta_3">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QCheckBox" name="use_K_jeff_pr_3">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="label_K_minmax_21">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>K [m/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="DoubleSpinBox" name="K_jeff_alpha_3">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QCheckBox" name="use_P_jeff_pr_3">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="2">
+                     <widget class="DoubleSpinBox" name="P_jeff_alpha_3">
+                      <property name="decimals">
+                       <number>4</number>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>150.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="3">
+                     <widget class="DoubleSpinBox" name="P_jeff_beta_3">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -19791,6 +19796,21 @@
                     <property name="verticalSpacing">
                      <number>3</number>
                     </property>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="label_K_minmax_111">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;lambda;=&amp;omega;+Ma [deg]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="1" column="2">
                      <widget class="DoubleSpinBox" name="omega_dot_alpha_3">
                       <property name="sizePolicy">
@@ -19807,21 +19827,6 @@
                       </property>
                       <property name="value">
                        <double>-360.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="0">
-                     <widget class="QLabel" name="label_K_minmax_108">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;k=ecos(&amp;omega;)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
@@ -19920,21 +19925,6 @@
                       </property>
                       <property name="checked">
                        <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QLabel" name="label_K_minmax_111">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;lambda;=&amp;omega;+Ma [deg]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
@@ -20064,6 +20054,21 @@
                       </property>
                       <property name="value">
                        <double>720.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QLabel" name="label_K_minmax_108">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;k=ecos(&amp;omega;)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
@@ -50819,6 +50824,11 @@
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Remove MCMC samples</string>
                   </property>
@@ -50826,6 +50836,11 @@
                 </item>
                 <item row="0" column="0" colspan="5">
                  <widget class="QLabel" name="label_453">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>MCMC</string>
                   </property>
@@ -50851,6 +50866,11 @@
                 </item>
                 <item row="1" column="3">
                  <widget class="QPushButton" name="customize_mcmc_cornerplot">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Customize cornerplot</string>
                   </property>
@@ -50937,6 +50957,11 @@
                 </item>
                 <item row="0" column="0" colspan="4">
                  <widget class="QLabel" name="label_350">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Nested sampling</string>
                   </property>
@@ -50968,6 +50993,11 @@
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Remove NS samples</string>
                   </property>
@@ -50993,6 +51023,11 @@
                 </item>
                 <item row="1" column="2">
                  <widget class="QPushButton" name="customize_ns_cornerplot">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Customize cornerplot</string>
                   </property>
@@ -72115,6 +72150,11 @@
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>bounds</string>
                       </property>
@@ -73888,6 +73928,11 @@
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>norm. pr.</string>
                       </property>
@@ -75280,6 +75325,11 @@
                      <widget class="QCheckBox" name="use_norm_prior_pl_22">
                       <property name="enabled">
                        <bool>false</bool>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
                       </property>
                       <property name="text">
                        <string>norm. pr.</string>
@@ -79293,11 +79343,11 @@
                       </property>
                       <property name="font">
                        <font>
-                        <pointsize>8</pointsize>
+                        <pointsize>7</pointsize>
                        </font>
                       </property>
                       <property name="text">
-                       <string/>
+                       <string>bounds</string>
                       </property>
                       <property name="checked">
                        <bool>true</bool>
@@ -79345,6 +79395,11 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>h,k,λ</string>
         </property>
@@ -79360,6 +79415,11 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+         </font>
         </property>
         <property name="text">
          <string>e,ω,Ma</string>
@@ -79707,7 +79767,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1271</width>
+     <width>1278</width>
      <height>20</height>
     </rect>
    </property>
