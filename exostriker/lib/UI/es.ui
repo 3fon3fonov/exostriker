@@ -54485,16 +54485,16 @@
                 <item row="1" column="13">
                  <widget class="QDoubleSpinBox" name="RV_bin_data_1">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="decimals">
-                   <number>2</number>
+                   <number>4</number>
                   </property>
                   <property name="minimum">
-                   <double>0.050000000000000</double>
+                   <double>0.001000000000000</double>
                   </property>
                   <property name="maximum">
-                   <double>30.000000000000000</double>
+                   <double>60.000000000000000</double>
                   </property>
                   <property name="singleStep">
                    <double>0.100000000000000</double>
@@ -54555,16 +54555,16 @@
                 <item row="2" column="13">
                  <widget class="QDoubleSpinBox" name="RV_bin_data_2">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="decimals">
-                   <number>2</number>
+                   <number>4</number>
                   </property>
                   <property name="minimum">
-                   <double>0.050000000000000</double>
+                   <double>0.001000000000000</double>
                   </property>
                   <property name="maximum">
-                   <double>30.000000000000000</double>
+                   <double>60.000000000000000</double>
                   </property>
                   <property name="singleStep">
                    <double>0.100000000000000</double>
@@ -54577,16 +54577,16 @@
                 <item row="3" column="13">
                  <widget class="QDoubleSpinBox" name="RV_bin_data_3">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="decimals">
-                   <number>2</number>
+                   <number>4</number>
                   </property>
                   <property name="minimum">
-                   <double>0.050000000000000</double>
+                   <double>0.001000000000000</double>
                   </property>
                   <property name="maximum">
-                   <double>30.000000000000000</double>
+                   <double>60.000000000000000</double>
                   </property>
                   <property name="singleStep">
                    <double>0.100000000000000</double>
@@ -54599,16 +54599,16 @@
                 <item row="4" column="13">
                  <widget class="QDoubleSpinBox" name="RV_bin_data_4">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="decimals">
-                   <number>2</number>
+                   <number>4</number>
                   </property>
                   <property name="minimum">
-                   <double>0.050000000000000</double>
+                   <double>0.001000000000000</double>
                   </property>
                   <property name="maximum">
-                   <double>30.000000000000000</double>
+                   <double>60.000000000000000</double>
                   </property>
                   <property name="singleStep">
                    <double>0.100000000000000</double>
@@ -54621,16 +54621,16 @@
                 <item row="5" column="13">
                  <widget class="QDoubleSpinBox" name="RV_bin_data_5">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="decimals">
-                   <number>2</number>
+                   <number>4</number>
                   </property>
                   <property name="minimum">
-                   <double>0.050000000000000</double>
+                   <double>0.001000000000000</double>
                   </property>
                   <property name="maximum">
-                   <double>30.000000000000000</double>
+                   <double>60.000000000000000</double>
                   </property>
                   <property name="singleStep">
                    <double>0.100000000000000</double>
@@ -54643,16 +54643,16 @@
                 <item row="6" column="13">
                  <widget class="QDoubleSpinBox" name="RV_bin_data_6">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="decimals">
-                   <number>2</number>
+                   <number>4</number>
                   </property>
                   <property name="minimum">
-                   <double>0.050000000000000</double>
+                   <double>0.001000000000000</double>
                   </property>
                   <property name="maximum">
-                   <double>30.000000000000000</double>
+                   <double>60.000000000000000</double>
                   </property>
                   <property name="singleStep">
                    <double>0.100000000000000</double>
@@ -54665,16 +54665,16 @@
                 <item row="7" column="13">
                  <widget class="QDoubleSpinBox" name="RV_bin_data_7">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="decimals">
-                   <number>2</number>
+                   <number>4</number>
                   </property>
                   <property name="minimum">
-                   <double>0.050000000000000</double>
+                   <double>0.001000000000000</double>
                   </property>
                   <property name="maximum">
-                   <double>30.000000000000000</double>
+                   <double>60.000000000000000</double>
                   </property>
                   <property name="singleStep">
                    <double>0.100000000000000</double>
@@ -54687,16 +54687,16 @@
                 <item row="8" column="13">
                  <widget class="QDoubleSpinBox" name="RV_bin_data_8">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="decimals">
-                   <number>2</number>
+                   <number>4</number>
                   </property>
                   <property name="minimum">
-                   <double>0.050000000000000</double>
+                   <double>0.001000000000000</double>
                   </property>
                   <property name="maximum">
-                   <double>30.000000000000000</double>
+                   <double>60.000000000000000</double>
                   </property>
                   <property name="singleStep">
                    <double>0.100000000000000</double>
@@ -54709,16 +54709,16 @@
                 <item row="9" column="13">
                  <widget class="QDoubleSpinBox" name="RV_bin_data_9">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="decimals">
-                   <number>2</number>
+                   <number>4</number>
                   </property>
                   <property name="minimum">
-                   <double>0.050000000000000</double>
+                   <double>0.001000000000000</double>
                   </property>
                   <property name="maximum">
-                   <double>30.000000000000000</double>
+                   <double>60.000000000000000</double>
                   </property>
                   <property name="singleStep">
                    <double>0.100000000000000</double>
@@ -54731,16 +54731,16 @@
                 <item row="10" column="13">
                  <widget class="QDoubleSpinBox" name="RV_bin_data_10">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="decimals">
-                   <number>2</number>
+                   <number>4</number>
                   </property>
                   <property name="minimum">
-                   <double>0.050000000000000</double>
+                   <double>0.001000000000000</double>
                   </property>
                   <property name="maximum">
-                   <double>30.000000000000000</double>
+                   <double>60.000000000000000</double>
                   </property>
                   <property name="singleStep">
                    <double>0.100000000000000</double>
@@ -54783,7 +54783,7 @@
              </font>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>2</number>
             </property>
             <property name="movable">
              <bool>true</bool>
