@@ -116,6 +116,7 @@ class show_param_boxes(QtWidgets.QDialog):
                               "title_kwargs":{"fontsize": 12},  }      
             
             self.cornerplot_opt = self.parent.lables_cornerplot["cornerplot"]
+            self.OrigLabels     = self.parent.lables_cornerplot["OrigLabels"]
             self.truth_color_button.setStyleSheet("color: %s;"%self.cornerplot_opt["truth_color"])
             self.samp_color_button.setStyleSheet("color: %s;"%self.cornerplot_opt["color"])
             
@@ -126,11 +127,12 @@ class show_param_boxes(QtWidgets.QDialog):
             self.check_no_fill_contours.setChecked(self.cornerplot_opt["no_fill_contours"])
            
             self.spin_bins.setValue(self.cornerplot_opt["bins"])
-            
+#            print(self.OrigLabels)            
         else:
             self.truth_color_button.setStyleSheet("color: #ff0000;")
             self.samp_color_button.setStyleSheet("color: #ff0000;")
 
+        
 
 
         self.initialize_color_dialog()
@@ -143,7 +145,7 @@ class show_param_boxes(QtWidgets.QDialog):
 
         
         k = 0
-        for g in range(len(self.parent.lables_cornerplot)-10):
+        for g in range(len(self.parent.lables_cornerplot)-11):
 
             
             
@@ -239,6 +241,7 @@ class show_param_boxes(QtWidgets.QDialog):
       
         
         results["cornerplot"] = self.cornerplot_opt
+        results["OrigLabels"] = self.OrigLabels
         
         return results
  

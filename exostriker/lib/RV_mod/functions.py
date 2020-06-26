@@ -353,6 +353,8 @@ def add_mcmc_samples(obj,sampler):
                       "plot_datapoints":True}        
         
     sampler.lbf["cornerplot"] = cornerplot_opt
+    sampler.lbf["OrigLabels"] = dill.copy(obj.e_for_mcmc)
+
 
     obj.mcmc_sampler=sampler
     obj.sampler_saved=True        
@@ -390,6 +392,7 @@ def add_ns_samples(obj,sampler):
                       "plot_datapoints":True}        
         
     obj.ns_sampler.lbf["cornerplot"] = cornerplot_opt 
+    obj.ns_sampler.lbf["OrigLabels"] = dill.copy(obj.e_for_mcmc)
        
     #delattr(obj.ns_sampler, 'rstate')
     obj.sampler_saved=True
@@ -468,7 +471,8 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         #### load the samples, labels and lnL values
         ln      = dill.copy(np.hstack(obj.mcmc_sampler.lnL))
         samples = dill.copy(np.array(obj.mcmc_sampler.samples))
-        labels  = dill.copy(obj.e_for_mcmc)
+        #labels  = dill.copy(obj.e_for_mcmc)
+        labels  = dill.copy(obj.mcmc_sampler.lbf["OrigLabels"])
         mod_labels  = dill.copy(obj.mcmc_sampler.lbf)
 
         if mod_labels['mean'] ==True:
@@ -496,9 +500,9 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         #ln      = dill.copy(obj.ns_sampler.results.logl)
        # samples = dill.copy(np.array(obj.ns_sampler.results.samples))
         ln      = dill.copy(obj.ns_sampler.logl)
-        samples = dill.copy(np.array(obj.ns_sampler.samples))        
-        
-        labels  = dill.copy(obj.e_for_mcmc)
+        samples = dill.copy(np.array(obj.ns_sampler.samples))                
+        #labels  = dill.copy(obj.e_for_mcmc)
+        labels  = dill.copy(obj.mcmc_sampler.lbf["OrigLabels"])   
         mod_labels  = dill.copy(obj.ns_sampler.lbf)
         
         if mod_labels['mean'] ==True:
