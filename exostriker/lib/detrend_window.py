@@ -9,6 +9,8 @@ from worker import Worker
 from multiprocessing import cpu_count
 import gls as gls
 import dill
+import RV_mod as rv
+
 
 from wotan import flatten
 
@@ -118,7 +120,8 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.ui.click_to_reject.clicked.connect(self.top_plot)
         self.ui.reset_data.clicked.connect(self.reset_data)
         self.ui.add_epoch.clicked.connect(self.add_bjd)
-        
+
+        self.ui.button_bin_data.clicked.connect(self.bin_data)        
         
         self.ui.apply_dilution.clicked.connect(self.add_dilution)
 
@@ -172,12 +175,31 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
  
         return
 
+    def bin_data(self):
+ 
+        self.ui.radio_remove_median.setChecked(True)
+        
+        self.ui.try_button.setText("Working!!!")
+        t_, flux_, flux_err_, ind = rv.bin_data(self.t,self.flux,self.flux_err, np.zeros(len(self.t)), bin_size =self.ui.bin_data.value())         
+        self.ui.try_button.setText("Try !")
+
+        self.t = t_         
+        self.flux = flux_
+        self.flux_err = flux_err_
+        
+        self.worker_detrend()
+ 
+        return
+
+
 
     def reset_data(self):
  
         self.ui.radio_remove_median.setChecked(True)
         self.t = []
         self.worker_detrend()
+        
+        return
 
 
     def calculate(self):
