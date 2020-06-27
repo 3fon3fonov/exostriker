@@ -502,7 +502,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         ln      = dill.copy(obj.ns_sampler.logl)
         samples = dill.copy(np.array(obj.ns_sampler.samples))                
         #labels  = dill.copy(obj.e_for_mcmc)
-        labels  = dill.copy(obj.mcmc_sampler.lbf["OrigLabels"])   
+        labels  = dill.copy(obj.ns_sampler.lbf["OrigLabels"])   
         mod_labels  = dill.copy(obj.ns_sampler.lbf)
         
         if mod_labels['mean'] ==True:

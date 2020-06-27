@@ -713,6 +713,11 @@
      </item>
      <item row="5" column="7">
       <widget class="QPushButton" name="button_bin_data">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>Bin data [d]</string>
        </property>
