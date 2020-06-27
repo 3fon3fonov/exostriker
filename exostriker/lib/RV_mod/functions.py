@@ -458,6 +458,7 @@ def get_best_lnl_of_samples(samples,lnl, nsamp):
 
 
 
+
 def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
     #obj = dill.copy(copied_obj)
@@ -589,13 +590,14 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             elif obj.hkl == False and 'e$_%s$'%let in labels:
                 ecc = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'e$_%s$'%let]])  
             else:
-                continue
+                ecc = np.array([0]*len(K))
+                print("Warning, no eccentricity samples found for planet %s ! Assuming ecc = 0"%i+1)
             
             if 'i$_%s$'%let in labels:
                 i   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]])
                 samp_labels.append(r'm$_%s$'%let)
             else:
-                i = 90.0
+                i = np.array([90]*len(K))
                 samp_labels.append(r'm $\sin i_%s$'%let)
             
             
@@ -698,12 +700,14 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     ### to avoid memory leak in loops!
     fig.clf()
     del fig
-    samples_ = 0
-    samp = 0
-    samples = 0
+    del samples_ 
+    del samp 
+    del samples 
+    del ln
     print("Cornerplot done!")
 
     return
+
 
 
 

@@ -2415,8 +2415,8 @@ class signal_fit(object):
         self.pl_rad_jeff_pr   = {k: np.array([0.1,0.05, False]) for k in range(9)}
 
         self.t0_str      = {k: r't0 $%s$'%chr(98+k) for k in range(9)}
-        self.pl_a_str    = {k: r'a\$R_\star$ $%s$'%chr(98+k) for k in range(9)}
-        self.pl_rad_str  = {k: r'R\$R_\star$ $%s$'%chr(98+k) for k in range(9)}
+        self.pl_a_str    = {k: r'a/$R_\star$ $%s$'%chr(98+k) for k in range(9)}
+        self.pl_rad_str  = {k: r'R/$R_\star$ $%s$'%chr(98+k) for k in range(9)}
 
 
 
