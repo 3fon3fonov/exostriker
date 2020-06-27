@@ -37021,7 +37021,7 @@ class Ui_MainWindow(object):
         self.tabWidget_40.setCurrentIndex(0)
         self.tabWidget_5.setCurrentIndex(0)
         self.tabWidget_4.setCurrentIndex(0)
-        self.tabWidget_29.setCurrentIndex(2)
+        self.tabWidget_29.setCurrentIndex(0)
         self.tabWidget_31.setCurrentIndex(0)
         self.tabWidget_10.setCurrentIndex(0)
         self.tabWidget_25.setCurrentIndex(0)
