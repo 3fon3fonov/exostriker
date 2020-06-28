@@ -181,6 +181,22 @@ def get_mass(K, P, ecc, i, Stellar_mass):
     return msini  
 
 
+def get_gravity(m_p, r_p):
+    '''Returns the gravity in 
+    
+    Parameters
+    ----------    
+    m_p in kg
+    r_p in m
+    Returns 
+        float
+        g mass in in m/s^2
+    -------
+    '''
+    G = 6.67e-11
+    return G*m_p/r_p**2
+
+
 def a_to_P(a,m0):
     GMSUN = 1.32712497e20
     AU=1.49597892e11
@@ -367,6 +383,7 @@ def add_ns_samples(obj,sampler):
     bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none","mass","semimajor","radius"]
     bestfit_labels_bool = [obj.ns_save_median,obj.ns_save_means,obj.ns_save_mode, obj.ns_save_maxlnL,False,False,False,False,False]    
     
+    
     obj.ns_sampler= dill.copy(sampler.results)
     obj.ns_sampler.lbf     = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
     for k in range(9):
@@ -541,6 +558,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     ######### with masses, semi-major axes, etc. (to be re-worked). 
     
     m_s     = []
+    r_s     = []
     samp    = []
     samp_labels =  []
     samp_best_fit_par = []
@@ -591,24 +609,30 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 ecc = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'e$_%s$'%let]])  
             else:
                 ecc = np.array([0]*len(K))
-                print("Warning, no eccentricity samples found for planet %s ! Assuming ecc = 0"%i+1)
+                print("Warning, no eccentricity samples found for planet %s ! Assuming ecc = 0"%str(i+1))
+
+            
+            M_earth = 317.82838 #from MJ to ME.
+            
+            M_fact = M_earth
+
             
             if 'i$_%s$'%let in labels:
                 i   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]])
-                samp_labels.append(r'm$_%s$'%let)
+                samp_labels.append(r'm$_%s$ [M$_\oplus$]'%let)
             else:
                 i = np.array([90]*len(K))
-                samp_labels.append(r'm $\sin i_%s$'%let)
-            
-            
-            samp.append(np.array(get_mass(K,P, ecc, i, m_s)))
+                samp_labels.append(r'm $\sin i_%s$ [M$_\oplus$]'%let)
+
+           
+            samp.append(np.array(get_mass(K,P, ecc, i, m_s) * M_fact))
             
             if mod_labels['mean']:
-                samp_best_fit_par.append(get_mass(np.mean(K),np.mean(P),np.mean(ecc), np.mean(i), np.mean(m_s)))
+                samp_best_fit_par.append(get_mass(np.mean(K),np.mean(P),np.mean(ecc), np.mean(i), np.mean(m_s)) * M_fact)
             elif mod_labels['median']:
-                samp_best_fit_par.append(get_mass(np.median(K),np.median(P),np.median(ecc), np.median(i), np.median(m_s)))
+                samp_best_fit_par.append(get_mass(np.median(K),np.median(P),np.median(ecc), np.median(i), np.median(m_s)) *M_fact)
             else:
-                samp_best_fit_par.append(get_mass(K[np.argmax(ln)],P[np.argmax(ln)], ecc[np.argmax(ln)], i[np.argmax(ln)], obj.stellar_mass))
+                samp_best_fit_par.append(get_mass(K[np.argmax(ln)],P[np.argmax(ln)], ecc[np.argmax(ln)], i[np.argmax(ln)], obj.stellar_mass)*M_fact)
     
     
     if mod_labels['semimajor']:
@@ -626,7 +650,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             P   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'P$_%s$'%let]])
     
             samp.append(np.array(P_to_a(P,m_s)))
-            samp_labels.append(r'a$_%s$'%let)
+            samp_labels.append(r'a$_%s$ [au]'%let)
     
     
             if mod_labels['mean']:
@@ -636,7 +660,38 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             else:
                 samp_best_fit_par.append(P_to_a(P[np.argmax(ln)],obj.stellar_mass))
                 
-    
+                
+    if mod_labels['radius']:
+        r_s   = np.random.normal(loc=obj.stellar_radius,    scale=obj.stellar_radius_err,    size=len(samples[:,0]))
+        
+        for i in range(obj.npl):
+            let = letters[i]
+            
+            if not 'R/$R_\star$ $%s$'%let in labels:
+                continue   
+            
+            R_earth = 109.076 #sol rad.
+            
+            rad = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'R/$R_\star$ $%s$'%let]]) * R_earth
+            samp.append(np.array(rad*r_s))
+            samp_labels.append(r'R$_{\rm pl}$ $%s$ [M$_\oplus$]'%let)
+
+            if mod_labels['mean']:
+                samp_best_fit_par.ppend(np.mean(rad)*np.mean(r_s))
+            elif mod_labels['median']:
+                samp_best_fit_par.append(np.meian(rad)*np.meian(r_s))
+            else:
+                samp_best_fit_par.append(rad[np.argmax(ln)]*obj.stellar_radius)
+
+
+#    if mod_labels['gravity']:
+        
+#        if len(r_s) == 0:
+#            r_s   = np.random.normal(loc=obj.stellar_radius,    scale=obj.stellar_radius_err,    size=len(samples[:,0]))
+        
+ 
+
+
      
     ################### Transpose is needed for the cornerplot. ###################
  
@@ -2686,7 +2741,7 @@ def latex_prior_table(obj, width = 10, precision = 2,  file_name='prior_table.te
         text = text + '''\\\\
     '''
         
-        text = text + '''{0:{width}s}'''.format("Rp\$R_\star$", width = 30)
+        text = text + '''{0:{width}s}'''.format("Rp/$R_\star$", width = 30)
         for i in range(obj.npl):
             if obj.pl_rad_norm_pr[i][2]==True:
                 sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.pl_rad_norm_pr[i][0],obj.pl_rad_norm_pr[i][1],"$^2$"
@@ -2700,7 +2755,7 @@ def latex_prior_table(obj, width = 10, precision = 2,  file_name='prior_table.te
     '''
         
         
-        text = text + '''{0:{width}s}'''.format("a\$R_\star$", width = 30)
+        text = text + '''{0:{width}s}'''.format("a/$R_\star$", width = 30)
         for i in range(obj.npl):
             if obj.pl_a_norm_pr[i][2]==True:
                 sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.pl_a_norm_pr[i][0],obj.pl_a_norm_pr[i][1],"$^2$"

@@ -1737,6 +1737,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             plot_wg.addItem(v2aLine, ignoreBounds=True)
             plot_wg.addItem(v2bLine, ignoreBounds=True)
 
+            v3aLine = pg.InfiniteLine(angle=90, movable=False, pen=alias[2])#, pos=0)
+            v3bLine = pg.InfiniteLine(angle=90, movable=False, pen=alias[2])#, pos=0)
+
+            plot_wg.addItem(v3aLine, ignoreBounds=True)
+            plot_wg.addItem(v3bLine, ignoreBounds=True)
 
         def mouseMoved(evt):
 
@@ -1758,9 +1763,14 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                     if log == True:
                         v2aLine.setPos(np.log10((1.0 / ( (1.0/(10**mousePoint.x()) ) + 1.0/alias[1] )) ))
                         v2bLine.setPos(np.log10((1.0 / ( (1.0/(10**mousePoint.x()) ) - 1.0/alias[1] )) ))
+                        v3aLine.setPos(np.log10((1.0 / ( 1.0/alias[1] + (1.0/(10**mousePoint.x()) ) )) ))
+                        v3bLine.setPos(np.log10((1.0 / ( 1.0/alias[1] - (1.0/(10**mousePoint.x()) ) )) ))
                     else:
                         v2aLine.setPos(  (mousePoint.x()  + 1.0/alias[1]) )  
                         v2bLine.setPos(  (mousePoint.x()  - 1.0/alias[1]) )  
+                        v3aLine.setPos(  (1.0/alias[1] + mousePoint.x() ))   
+                        v3bLine.setPos(  (1.0/alias[1] - mousePoint.x() ))                         
+                        
 
                 if mousePoint.x() < (viewrange[0][1]+viewrange[0][0])/2.0:
                     label.setAnchor((0,1))
