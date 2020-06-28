@@ -51,13 +51,16 @@ class show_param_boxes(QtWidgets.QDialog):
         self.radio_group.addButton(self.radio_best_samp,3)
         self.radio_group.addButton(self.radio_best_gui,4)
         self.radio_group.addButton(self.radio_no_cross,5)
-        
+
+     #   self.radio_mp_So      = QtWidgets.QRadioButton('Solar', self)
+     #   self.radio_mp_Mj      = QtWidgets.QRadioButton('Jupiter', self)
+     #   self.radio_mp_Me      = QtWidgets.QRadioButton('Earth', self)        
  
         self.mass_check  = QtWidgets.QCheckBox('incl. mass (needed: K,P,e )', self)
         self.semi_check  = QtWidgets.QCheckBox('incl. semi-major axis (needed: P)', self)
         self.radi_check  = QtWidgets.QCheckBox('incl. radius (needed: Rp/Rs)', self)
         
-        self.radi_check.setEnabled(False)
+        #self.radi_check.setEnabled(False)
         
        # self.mass_check.setChecked(bool(self.parent.lables_cornerplot['mass']))
 
@@ -65,7 +68,11 @@ class show_param_boxes(QtWidgets.QDialog):
         self.radio_group_list = [self.radio_median,self.radio_mean,self.radio_mode,
                                  self.radio_best_samp,self.radio_best_gui,self.radio_no_cross,
                                  self.mass_check,self.semi_check,self.radi_check]
-
+        
+        #self.radio_group_mass_list = [self.radio_mp_So,self.radio_mp_Mj,self.radio_mp_Me,
+       #                          self.radio_best_samp,self.radio_best_gui,self.radio_no_cross,
+       #                          self.mass_check,self.semi_check,self.radi_check]        
+#
 
         self.label_cornerplot_opt    = QtWidgets.QLabel("Cornerplot options:")
 
