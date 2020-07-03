@@ -181,7 +181,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>print info</string>
+                   <string>Print info</string>
                   </property>
                  </widget>
                 </item>
@@ -221,7 +221,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>Fre&amp;quency</string>
+                   <string>Frequency</string>
                   </property>
                  </widget>
                 </item>
@@ -263,7 +263,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>print info</string>
+                   <string>Print info</string>
                   </property>
                  </widget>
                 </item>
@@ -303,7 +303,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>Fre&amp;quency</string>
+                   <string>Frequency</string>
                   </property>
                  </widget>
                 </item>
@@ -327,7 +327,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>adopt best P.</string>
+                   <string>Adopt best P.</string>
                   </property>
                  </widget>
                 </item>
@@ -390,7 +390,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>print info</string>
+                   <string>Print info</string>
                   </property>
                  </widget>
                 </item>
@@ -418,7 +418,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>calc. MLP</string>
+                   <string>Calc. MLP</string>
                   </property>
                  </widget>
                 </item>
@@ -448,7 +448,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>Fre&amp;q.</string>
+                   <string>Freq.</string>
                   </property>
                  </widget>
                 </item>
@@ -490,7 +490,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>print info</string>
+                   <string>Print info</string>
                   </property>
                  </widget>
                 </item>
@@ -515,7 +515,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>Fre&amp;quency</string>
+                   <string>Frequency</string>
                   </property>
                  </widget>
                 </item>
@@ -605,7 +605,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>print info</string>
+                   <string>Print info</string>
                   </property>
                  </widget>
                 </item>
@@ -630,7 +630,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>calculate TLS</string>
+                   <string>Calculate TLS</string>
                   </property>
                  </widget>
                 </item>
@@ -665,7 +665,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>print info</string>
+                   <string>Print info</string>
                   </property>
                  </widget>
                 </item>
@@ -690,7 +690,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>calculate TLS o-c</string>
+                   <string>Calculate TLS o-c</string>
                   </property>
                  </widget>
                 </item>
@@ -705,7 +705,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>adopt best P.</string>
+                   <string>Adopt best P.</string>
                   </property>
                  </widget>
                 </item>
@@ -790,7 +790,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>print info</string>
+                   <string>Print info</string>
                   </property>
                  </widget>
                 </item>
@@ -802,7 +802,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>cross hair</string>
+                   <string>Cross hair</string>
                   </property>
                  </widget>
                 </item>
@@ -835,7 +835,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>print info</string>
+                   <string>Print info</string>
                   </property>
                  </widget>
                 </item>
@@ -863,7 +863,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string> cross hair</string>
+                   <string> Cross hair</string>
                   </property>
                  </widget>
                 </item>
@@ -956,7 +956,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>print info</string>
+                   <string>Print info</string>
                   </property>
                  </widget>
                 </item>
@@ -1065,7 +1065,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>color</string>
+                   <string>Color</string>
                   </property>
                   <property name="checkable">
                    <bool>true</bool>
@@ -1080,7 +1080,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>plot err</string>
+                   <string>Plot err.</string>
                   </property>
                  </widget>
                 </item>
@@ -1092,7 +1092,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>plot corr.</string>
+                   <string>Plot corr.</string>
                   </property>
                  </widget>
                 </item>
@@ -1116,7 +1116,7 @@
                 <item row="0" column="2">
                  <widget class="QLabel" name="label_4">
                   <property name="text">
-                   <string>vs</string>
+                   <string>vs.</string>
                   </property>
                  </widget>
                 </item>
@@ -1147,7 +1147,7 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>print info</string>
+                   <string>Print info</string>
                   </property>
                  </widget>
                 </item>
@@ -1197,7 +1197,7 @@
                </font>
               </property>
               <property name="text">
-               <string>print info</string>
+               <string>Print info</string>
               </property>
              </widget>
             </item>
@@ -1233,7 +1233,7 @@
                <bool>false</bool>
               </property>
               <property name="text">
-               <string>corner mode</string>
+               <string>Corner mode</string>
               </property>
              </widget>
             </item>
@@ -1248,7 +1248,7 @@
                </font>
               </property>
               <property name="text">
-               <string>options</string>
+               <string>Options</string>
               </property>
              </widget>
             </item>
@@ -1289,7 +1289,7 @@
                 </property>
                 <widget class="QWidget" name="tab_27">
                  <attribute name="title">
-                  <string>semi-major axes</string>
+                  <string>Semi-major axes</string>
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_105">
                   <item row="0" column="0">
@@ -1303,7 +1303,7 @@
                 </widget>
                 <widget class="QWidget" name="tab_28">
                  <attribute name="title">
-                  <string>eccentricities</string>
+                  <string>Eccentricities</string>
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_106">
                   <item row="0" column="0">
@@ -1317,7 +1317,7 @@
                 </widget>
                 <widget class="QWidget" name="tab_118">
                  <attribute name="title">
-                  <string>arg. of peri.</string>
+                  <string>Arg. of peri.</string>
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_224">
                   <item row="0" column="0">
@@ -1331,9 +1331,9 @@
                 </widget>
                 <widget class="QWidget" name="tab_92">
                  <attribute name="title">
-                  <string>inc/Omega</string>
+                  <string>Incl/Omega</string>
                  </attribute>
-                 <layout class="QGridLayout" name="gridLayout_288">
+                 <layout class="QGridLayout" name="gridLayout_276">
                   <item row="0" column="0">
                    <layout class="QGridLayout" name="gridLayout_247">
                     <item row="0" column="0">
@@ -1351,7 +1351,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>incl</string>
+                       <string>Inclination</string>
                       </property>
                       <property name="checked">
                        <bool>true</bool>
@@ -1359,13 +1359,6 @@
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_plot_i_Omega</string>
                       </attribute>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="Line" name="line_6">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
                      </widget>
                     </item>
                     <item>
@@ -1384,6 +1377,13 @@
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_plot_i_Omega</string>
                       </attribute>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="Line" name="line_21">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
                      </widget>
                     </item>
                     <item>
@@ -1664,7 +1664,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>color</string>
+                       <string>Color</string>
                       </property>
                       <property name="checkable">
                        <bool>true</bool>
@@ -1785,7 +1785,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>color</string>
+                       <string>Color</string>
                       </property>
                       <property name="checkable">
                        <bool>true</bool>
@@ -1886,7 +1886,7 @@
                 </widget>
                 <widget class="QWidget" name="tab_30">
                  <attribute name="title">
-                  <string>theta</string>
+                  <string>Res. angle (theta)</string>
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_67">
                   <item row="0" column="0">
@@ -1951,7 +1951,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>color</string>
+                       <string>Color</string>
                       </property>
                       <property name="checkable">
                        <bool>true</bool>
@@ -3290,7 +3290,7 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                    </widget>
                   </item>
@@ -3848,7 +3848,7 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                    </widget>
                   </item>
@@ -6825,7 +6825,7 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                    </widget>
                   </item>
@@ -7105,7 +7105,7 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                    </widget>
                   </item>
@@ -8611,7 +8611,7 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                    </widget>
                   </item>
@@ -9275,7 +9275,7 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                    </widget>
                   </item>
@@ -11765,7 +11765,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>use bounds</string>
+                       <string>Bounds</string>
                       </property>
                       <property name="checked">
                        <bool>true</bool>
@@ -11865,7 +11865,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -11936,7 +11936,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -13238,7 +13238,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -13250,7 +13250,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -14190,7 +14190,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -14212,7 +14212,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -15096,7 +15096,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -15108,7 +15108,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -15156,7 +15156,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>use bounds</string>
+                       <string>Bounds</string>
                       </property>
                       <property name="checked">
                        <bool>true</bool>
@@ -15808,7 +15808,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -16005,7 +16005,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -16865,7 +16865,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -16990,7 +16990,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -17779,7 +17779,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -17791,7 +17791,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -17839,7 +17839,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>use bounds</string>
+                       <string>Bounds</string>
                       </property>
                       <property name="checked">
                        <bool>true</bool>
@@ -18552,7 +18552,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -18666,7 +18666,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -19506,7 +19506,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -19531,7 +19531,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -20166,16 +20166,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="2">
-                     <widget class="DoubleSpinBox" name="K_min_4">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>0.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="9" column="2">
                      <widget class="DoubleSpinBox" name="Omega_min_4">
                       <property name="maximum">
@@ -20221,44 +20211,6 @@
                       </property>
                       <property name="value">
                        <double>-720.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="3">
-                     <widget class="DoubleSpinBox" name="P_max_4">
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100000.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="0">
-                     <widget class="QLabel" name="label_K_minmax_4">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>K [m/s]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="3">
-                     <widget class="DoubleSpinBox" name="K_max_4">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>1000000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -20317,21 +20269,6 @@
                       </property>
                       <property name="value">
                        <double>720.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QLabel" name="label_Period_minmax_4">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>P [d]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
@@ -20486,19 +20423,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="2">
-                     <widget class="DoubleSpinBox" name="P_min_4">
-                      <property name="decimals">
-                       <number>4</number>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>0.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="10" column="3">
                      <widget class="DoubleSpinBox" name="t0_max_4">
                       <property name="decimals">
@@ -20520,7 +20444,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -20532,7 +20456,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -20580,20 +20504,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>use bounds</string>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="1">
-                     <widget class="QCheckBox" name="use_K_bound_4">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="text">
-                       <string/>
+                       <string>Bounds</string>
                       </property>
                       <property name="checked">
                        <bool>true</bool>
@@ -20704,7 +20615,40 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="4" column="3">
+                     <widget class="DoubleSpinBox" name="K_max_4">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="DoubleSpinBox" name="K_min_4">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>0.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="4" column="1">
+                     <widget class="QCheckBox" name="use_K_bound_4">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
                      <widget class="QCheckBox" name="use_P_bound_4">
                       <property name="enabled">
                        <bool>false</bool>
@@ -20714,6 +20658,62 @@
                       </property>
                       <property name="checked">
                        <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="2">
+                     <widget class="DoubleSpinBox" name="P_min_4">
+                      <property name="decimals">
+                       <number>4</number>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>0.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="label_K_minmax_4">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>K [m/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QLabel" name="label_Period_minmax_4">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>P [d]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="3">
+                     <widget class="DoubleSpinBox" name="P_max_4">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -21041,7 +21041,7 @@
                   <string>Gaussian</string>
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_268">
-                  <item row="0" column="0" rowspan="2">
+                  <item row="0" column="0" rowspan="3">
                    <layout class="QGridLayout" name="grid_pl_1_22">
                     <property name="leftMargin">
                      <number>1</number>
@@ -21061,26 +21061,6 @@
                     <property name="verticalSpacing">
                      <number>0</number>
                     </property>
-                    <item row="4" column="1">
-                     <widget class="QCheckBox" name="use_P_norm_pr_4">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="2">
-                     <widget class="DoubleSpinBox" name="K_mean_4">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="6" column="2">
                      <widget class="DoubleSpinBox" name="om_mean_4">
                       <property name="maximum">
@@ -21092,16 +21072,6 @@
                      <widget class="DoubleSpinBox" name="ma_mean_4">
                       <property name="maximum">
                        <double>360.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="1">
-                     <widget class="QCheckBox" name="use_K_norm_pr_4">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
                       </property>
                      </widget>
                     </item>
@@ -21122,19 +21092,6 @@
                       </property>
                       <property name="text">
                        <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="2">
-                     <widget class="DoubleSpinBox" name="P_mean_4">
-                      <property name="decimals">
-                       <number>4</number>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>150.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -21170,21 +21127,6 @@
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;sigma;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QLabel" name="label_Period_minmax_13">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>P [d]</string>
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -21249,21 +21191,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="0">
-                     <widget class="QLabel" name="label_K_minmax_13">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>K [m/s]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="10" column="0">
                      <widget class="QLabel" name="label_t0_minmax_13">
                       <property name="font">
@@ -21276,16 +21203,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="3">
-                     <widget class="DoubleSpinBox" name="K_sigma_4">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="11" column="0">
                      <widget class="QLabel" name="label_pl_rad_minmax_13">
                       <property name="font">
@@ -21294,7 +21211,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -21306,7 +21223,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -21473,19 +21390,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="3">
-                     <widget class="DoubleSpinBox" name="P_sigma_4">
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="8" column="0">
                      <widget class="QLabel" name="label_incl_minmax_13">
                       <property name="font">
@@ -21586,6 +21490,102 @@
                       </property>
                       <property name="maximum">
                        <double>2500000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="3">
+                     <widget class="DoubleSpinBox" name="K_sigma_4">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="3">
+                     <widget class="DoubleSpinBox" name="P_sigma_4">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="DoubleSpinBox" name="K_mean_4">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="2">
+                     <widget class="DoubleSpinBox" name="P_mean_4">
+                      <property name="decimals">
+                       <number>4</number>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>150.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QCheckBox" name="use_K_norm_pr_4">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QCheckBox" name="use_P_norm_pr_4">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QLabel" name="label_Period_minmax_13">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>P [d]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="label_K_minmax_13">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>K [m/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
@@ -21880,7 +21880,7 @@
                     </item>
                    </layout>
                   </item>
-                  <item row="1" column="1">
+                  <item row="1" column="1" rowspan="2">
                    <spacer name="horizontalSpacer_81">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -21893,7 +21893,7 @@
                     </property>
                    </spacer>
                   </item>
-                  <item row="1" column="2">
+                  <item row="2" column="2">
                    <spacer name="verticalSpacer_74">
                     <property name="orientation">
                      <enum>Qt::Vertical</enum>
@@ -21912,7 +21912,7 @@
                  <attribute name="title">
                   <string>Jeffreys</string>
                  </attribute>
-                 <layout class="QGridLayout" name="gridLayout_277">
+                 <layout class="QGridLayout" name="gridLayout_275">
                   <item row="0" column="0" rowspan="2">
                    <layout class="QGridLayout" name="grid_pl_1_31">
                     <property name="leftMargin">
@@ -21983,7 +21983,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -22015,7 +22015,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -22049,16 +22049,6 @@
                       </property>
                       <property name="value">
                        <double>1.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="2">
-                     <widget class="DoubleSpinBox" name="K_jeff_alpha_4">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -22144,16 +22134,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="3">
-                     <widget class="DoubleSpinBox" name="K_jeff_beta_4">
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>100.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="7" column="2">
                      <widget class="DoubleSpinBox" name="ma_jeff_alpha_4">
                       <property name="maximum">
@@ -22183,19 +22163,6 @@
                       </property>
                       <property name="value">
                        <double>30.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="3">
-                     <widget class="DoubleSpinBox" name="P_jeff_beta_4">
-                      <property name="decimals">
-                       <number>3</number>
-                      </property>
-                      <property name="maximum">
-                       <double>100000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>50.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -22284,19 +22251,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="2">
-                     <widget class="DoubleSpinBox" name="P_jeff_alpha_4">
-                      <property name="decimals">
-                       <number>4</number>
-                      </property>
-                      <property name="maximum">
-                       <double>1000000.000000000000000</double>
-                      </property>
-                      <property name="value">
-                       <double>150.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="9" column="2">
                      <widget class="DoubleSpinBox" name="Omega_jeff_alpha_4">
                       <property name="maximum">
@@ -22311,31 +22265,6 @@
                       </property>
                       <property name="value">
                        <double>30.000000000000000</double>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="1">
-                     <widget class="QCheckBox" name="use_P_jeff_pr_4">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QLabel" name="label_Period_minmax_22">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>P [d]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
@@ -22354,16 +22283,6 @@
                       </property>
                       <property name="checked">
                        <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="1">
-                     <widget class="QCheckBox" name="use_K_jeff_pr_4">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
                       </property>
                      </widget>
                     </item>
@@ -22414,21 +22333,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="0">
-                     <widget class="QLabel" name="label_K_minmax_22">
-                      <property name="font">
-                       <font>
-                        <pointsize>9</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>K [m/s]</string>
-                      </property>
-                      <property name="textInteractionFlags">
-                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="1" column="3">
                      <widget class="QLabel" name="Planet2_24">
                       <property name="font">
@@ -22458,6 +22362,102 @@
                      <widget class="DoubleSpinBox" name="om_jeff_alpha_4">
                       <property name="maximum">
                        <double>360.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="3">
+                     <widget class="DoubleSpinBox" name="K_jeff_beta_4">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>100.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="3">
+                     <widget class="DoubleSpinBox" name="P_jeff_beta_4">
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="2">
+                     <widget class="DoubleSpinBox" name="P_jeff_alpha_4">
+                      <property name="decimals">
+                       <number>4</number>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>150.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="DoubleSpinBox" name="K_jeff_alpha_4">
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>50.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QCheckBox" name="use_P_jeff_pr_4">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QCheckBox" name="use_K_jeff_pr_4">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QLabel" name="label_Period_minmax_22">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>P [d]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="label_K_minmax_22">
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>K [m/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
@@ -23211,7 +23211,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -23223,7 +23223,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -23271,7 +23271,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>use bounds</string>
+                       <string>Bounds</string>
                       </property>
                       <property name="checked">
                        <bool>true</bool>
@@ -23769,7 +23769,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -23781,7 +23781,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -25036,7 +25036,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -25110,7 +25110,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -25876,7 +25876,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -25888,7 +25888,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -25936,7 +25936,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>use bounds</string>
+                       <string>Bounds</string>
                       </property>
                       <property name="checked">
                        <bool>true</bool>
@@ -26621,7 +26621,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -26884,7 +26884,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -27409,7 +27409,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -27658,7 +27658,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -28554,7 +28554,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -28566,7 +28566,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -28614,7 +28614,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>use bounds</string>
+                       <string>Bounds</string>
                       </property>
                       <property name="checked">
                        <bool>true</bool>
@@ -29554,7 +29554,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -29619,7 +29619,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -30056,7 +30056,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -30219,7 +30219,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -31232,7 +31232,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -31244,7 +31244,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -31292,7 +31292,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>use bounds</string>
+                       <string>Bounds</string>
                       </property>
                       <property name="checked">
                        <bool>true</bool>
@@ -31832,7 +31832,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -31879,7 +31879,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -33137,7 +33137,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -33169,7 +33169,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -33644,7 +33644,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -33747,7 +33747,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>use bounds</string>
+                       <string>Bounds</string>
                       </property>
                       <property name="checked">
                        <bool>true</bool>
@@ -34019,7 +34019,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -34484,7 +34484,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -34637,7 +34637,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -35613,7 +35613,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;/&gt;[R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; font-weight:600; vertical-align:sub;&quot;&gt;pl.&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -35635,7 +35635,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -36246,7 +36246,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>minimum</string>
+                           <string>Minimum</string>
                           </property>
                          </widget>
                         </item>
@@ -36287,7 +36287,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>S</string>
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                           </property>
                          </widget>
                         </item>
@@ -36315,8 +36315,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;omega;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
-</string>
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ω&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                           </property>
                          </widget>
                         </item>
@@ -36340,7 +36339,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>maximum</string>
+                           <string>Maximum</string>
                           </property>
                          </widget>
                         </item>
@@ -36572,8 +36571,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;omega;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
-</string>
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ω&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                           </property>
                          </widget>
                         </item>
@@ -36597,7 +36595,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>S</string>
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                           </property>
                          </widget>
                         </item>
@@ -36790,8 +36788,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;omega;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
-</string>
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ω&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                           </property>
                          </widget>
                         </item>
@@ -36815,7 +36812,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>S</string>
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                           </property>
                          </widget>
                         </item>
@@ -36907,7 +36904,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>fact.</string>
+                           <string>Fact.</string>
                           </property>
                          </widget>
                         </item>
@@ -36960,7 +36957,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>maximum</string>
+                           <string>Maximum</string>
                           </property>
                          </widget>
                         </item>
@@ -36988,7 +36985,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>Per.</string>
+                           <string>Period</string>
                           </property>
                          </widget>
                         </item>
@@ -37016,7 +37013,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>minimum</string>
+                           <string>Minimum</string>
                           </property>
                          </widget>
                         </item>
@@ -37057,7 +37054,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>time scale</string>
+                           <string>Time scale</string>
                           </property>
                          </widget>
                         </item>
@@ -37384,7 +37381,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>time scale</string>
+                           <string>Time scale</string>
                           </property>
                          </widget>
                         </item>
@@ -37396,7 +37393,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>Per.</string>
+                           <string>Period</string>
                           </property>
                          </widget>
                         </item>
@@ -37408,7 +37405,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>fact.</string>
+                           <string>Fact.</string>
                           </property>
                          </widget>
                         </item>
@@ -37655,7 +37652,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>time scale</string>
+                           <string>Time scale</string>
                           </property>
                          </widget>
                         </item>
@@ -37667,7 +37664,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>Per.</string>
+                           <string>Period</string>
                           </property>
                          </widget>
                         </item>
@@ -37679,7 +37676,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>fact.</string>
+                           <string>Fact.</string>
                           </property>
                          </widget>
                         </item>
@@ -37741,7 +37738,7 @@
                 </property>
                 <widget class="QWidget" name="tab_89">
                  <attribute name="title">
-                  <string>SHO kernel</string>
+                  <string>SHO Kernel</string>
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_293">
                   <item row="0" column="0">
@@ -37796,7 +37793,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>minimum</string>
+                           <string>Minimum</string>
                           </property>
                          </widget>
                         </item>
@@ -37829,18 +37826,6 @@
                           </property>
                          </widget>
                         </item>
-                        <item row="1" column="0">
-                         <widget class="QLabel" name="label_GP_rot_kernel_Per_5">
-                          <property name="font">
-                           <font>
-                            <pointsize>9</pointsize>
-                           </font>
-                          </property>
-                          <property name="text">
-                           <string>S</string>
-                          </property>
-                         </widget>
-                        </item>
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_Q_min">
                           <property name="decimals">
@@ -37865,8 +37850,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;omega;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
-</string>
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ω&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                           </property>
                          </widget>
                         </item>
@@ -37890,7 +37874,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>maximum</string>
+                           <string>Maximum</string>
                           </property>
                          </widget>
                         </item>
@@ -37943,6 +37927,18 @@
                           </property>
                           <property name="checked">
                            <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="1" column="0">
+                         <widget class="QLabel" name="label_GP_rot_kernel_Per_5">
+                          <property name="font">
+                           <font>
+                            <pointsize>9</pointsize>
+                           </font>
+                          </property>
+                          <property name="text">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                           </property>
                          </widget>
                         </item>
@@ -38122,8 +38118,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;omega;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
-</string>
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ω&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                           </property>
                          </widget>
                         </item>
@@ -38147,7 +38142,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>S</string>
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                           </property>
                          </widget>
                         </item>
@@ -38340,8 +38335,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;omega;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
-</string>
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ω&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                           </property>
                          </widget>
                         </item>
@@ -38365,7 +38359,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>S</string>
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S&lt;span style=&quot; vertical-align:sub;&quot;&gt;0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                           </property>
                          </widget>
                         </item>
@@ -38462,7 +38456,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>fact.</string>
+                           <string>Fact.</string>
                           </property>
                          </widget>
                         </item>
@@ -38515,7 +38509,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>maximum</string>
+                           <string>Maximum</string>
                           </property>
                          </widget>
                         </item>
@@ -38543,7 +38537,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>Per.</string>
+                           <string>Period</string>
                           </property>
                          </widget>
                         </item>
@@ -38571,7 +38565,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>minimum</string>
+                           <string>Minimum</string>
                           </property>
                          </widget>
                         </item>
@@ -38612,7 +38606,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>time scale</string>
+                           <string>Time scale</string>
                           </property>
                          </widget>
                         </item>
@@ -38939,7 +38933,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>time scale</string>
+                           <string>Time scale</string>
                           </property>
                          </widget>
                         </item>
@@ -38951,7 +38945,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>Per.</string>
+                           <string>Period</string>
                           </property>
                          </widget>
                         </item>
@@ -38963,7 +38957,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>fact.</string>
+                           <string>Fact.</string>
                           </property>
                          </widget>
                         </item>
@@ -39210,7 +39204,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>time scale</string>
+                           <string>Time scale</string>
                           </property>
                          </widget>
                         </item>
@@ -39222,7 +39216,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>Per.</string>
+                           <string>Period</string>
                           </property>
                          </widget>
                         </item>
@@ -39234,7 +39228,7 @@
                            </font>
                           </property>
                           <property name="text">
-                           <string>fact.</string>
+                           <string>Fact.</string>
                           </property>
                          </widget>
                         </item>
@@ -44743,7 +44737,7 @@
                      </font>
                     </property>
                     <property name="text">
-                     <string>GLS Significance threshold (FAP)</string>
+                     <string>Signal significance threshold (FAP)</string>
                     </property>
                     <property name="textInteractionFlags">
                      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -44804,6 +44798,26 @@
                     </property>
                     <property name="value">
                      <double>0.001000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QRadioButton" name="auto_fit_use_gls">
+                    <property name="text">
+                     <string>Use GLS (fast)</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QRadioButton" name="auto_fit_use_mlp">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Use MLP (slow)</string>
                     </property>
                    </widget>
                   </item>
@@ -79613,7 +79627,7 @@
                </font>
               </property>
               <property name="text">
-               <string>print stat.</string>
+               <string>Print info</string>
               </property>
              </widget>
             </item>
@@ -79628,7 +79642,7 @@
                </font>
               </property>
               <property name="text">
-               <string>cross hair</string>
+               <string>Cross hair</string>
               </property>
               <property name="checked">
                <bool>false</bool>
@@ -79683,7 +79697,7 @@
                </font>
               </property>
               <property name="text">
-               <string>inspect:</string>
+               <string>Inspect:</string>
               </property>
              </widget>
             </item>
@@ -79695,7 +79709,7 @@
                </font>
               </property>
               <property name="text">
-               <string>load</string>
+               <string>Load</string>
               </property>
              </widget>
             </item>
@@ -80177,85 +80191,85 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_remove_RV_data"/>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_use_planets">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_Omega_fold"/>
-  <buttongroup name="buttonGroup_use">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_apply_tra_dilution"/>
-  <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
-  <buttongroup name="buttonGroup_use_ld_6"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
   <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
-  <buttongroup name="buttonGroup_symbol_picker"/>
-  <buttongroup name="buttonGroup_use_ld_5"/>
-  <buttongroup name="buttonGroup_use_RV_GP_kernel">
-   <property name="exclusive">
-    <bool>true</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_apply_rv_data_options"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_add_RV_data"/>
-  <buttongroup name="buttonGroup_AMD_stab_opt"/>
-  <buttongroup name="buttonGroup_apply_act_data_options"/>
-  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
   <buttongroup name="buttonGroup_mixed_fitting">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_dom_fold"/>
-  <buttongroup name="buttonGroup_color_picker"/>
   <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
   <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_omega_dot_opt"/>
-  <buttongroup name="buttonGroup_detrend_tra"/>
   <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
-  <buttongroup name="buttonGroup_AMD_satb_NS"/>
-  <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_nest_stat_dyn"/>
-  <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_apply_tra_data_options"/>
-  <buttongroup name="buttonGroup_color_picker_ttv"/>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_use_ld_1"/>
-  <buttongroup name="buttonGroup_use_ld_2"/>
   <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_f77_or_scipy"/>
+  <buttongroup name="buttonGroup_use">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_RV_GP_kernel">
+   <property name="exclusive">
+    <bool>true</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_detrend_tra"/>
+  <buttongroup name="buttonGroup_AMD_stab_opt"/>
+  <buttongroup name="buttonGroup_Omega_fold"/>
+  <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_omega_dot_opt"/>
   <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
   <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_use_planets">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_type_fit"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_theta_fold"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
+  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
+  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_apply_tra_dilution"/>
+  <buttongroup name="buttonGroup_apply_tra_data_options"/>
+  <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_apply_rv_data_options"/>
   <buttongroup name="buttonGroup_use_ttv_data_to_planet">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
   <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
+  <buttongroup name="buttonGroup_use_ld_10"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
   <buttongroup name="buttonGroup_use_GP">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="buttonGroup_AMD_satb_NS"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
  </buttongroups>
 </ui>
