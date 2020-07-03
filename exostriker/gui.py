@@ -2147,14 +2147,14 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
 
             
-        if fit.doGP == True and self.plot_RV_GP_model.isChecked() == True:
+        if fit.doGP == True and self.plot_RV_GP_model.isChecked() == False:
             pfill_o_c = pg.FillBetweenItem(p2.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]+fit.gp_model_curve[2]), 
                                            p2.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]-fit.gp_model_curve[2]), 
                                            brush = pg.mkColor(244,140,66,128))
             p2.addItem(pfill_o_c)
             y_model_o_c = fit.gp_model_curve[0]
             data_o_c = fit.fit_results.rv_model.o_c 
-        elif fit.doGP == True and self.plot_RV_GP_model.isChecked() ==  False:
+        elif fit.doGP == True and self.plot_RV_GP_model.isChecked() ==  True:
             data_o_c = fit.fit_results.rv_model.o_c - fit.gp_model_data[0]
             y_model_o_c = np.zeros(len(y_model))
         else:
@@ -5211,7 +5211,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.33) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.34) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -8279,12 +8279,13 @@ https://github.com/3fon3fonov/exostriker/issues
         self.jitter_to_plots.stateChanged.connect(self.update_plots)
         self.split_jitter.stateChanged.connect(self.update_plots)
         self.jitter_color_button.clicked.connect(self.get_RV_jitter_color)
+        self.plot_RV_GP_model.stateChanged.connect(self.update_RV_plots)
+
 
         self.ttv_apply_mean_period.stateChanged.connect(self.update_ttv_plots)
         self.ttv_plot_autorange.stateChanged.connect(self.update_ttv_plots)
 
         self.buttonGroup_use_planets.buttonClicked.connect(self.update_veiw)
-#        self.use_Planet1.stateChanged.connect(self.update_veiw)
 
 
         self.init_correlations_combo()
@@ -8400,7 +8401,6 @@ https://github.com/3fon3fonov/exostriker/issues
         self.calc_MLP.clicked.connect(self.worker_mlp)
 
 
-        #self.quit_button.clicked.connect(self.close)
         self.actionQuit.triggered.connect(self.close) 
 
         self.actionopen_RVmod_init_file.triggered.connect(self.showDialog_fortran_input_file)
@@ -8497,13 +8497,9 @@ https://github.com/3fon3fonov/exostriker/issues
         self.plot_opt_tab.tabBarClicked.connect(self.check_cornerplot_samples)
         #self.cornerplot_plot_tab.isVisible.connect(self.check_cornerplot_samples)
         
-       # isVisible
-        #if start_arg_ses == True:
-            
-            
 
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.33). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.34). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)
