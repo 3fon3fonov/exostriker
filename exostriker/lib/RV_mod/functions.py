@@ -44,7 +44,7 @@ def check_for_missing_instances(fit,fit_new):
     return fit_new
 
 
-def transit_tperi(per, ecc, om, ma, epoch):
+def transit_tperi(per, ecc, om, ma, epoch, primary = True):
     """It derives Time of periatron [tp]
     and time of mid transit [t0]
     Parameters
@@ -64,13 +64,22 @@ def transit_tperi(per, ecc, om, ma, epoch):
     [tp,t0]
         if the epoch in is BJD then tp and t0 are also in BJD.
     """
+  
+    trueA = np.pi/2.0
     om = np.radians((om)%360)
-    ma = np.radians(ma)
-    f = np.pi/2.0 - om 
+    #ma = np.radians(ma)
+    f = trueA - om 
     E = 2.0*np.arctan( np.sqrt( (1.0-ecc)/(1.0+ecc) ) * np.tan(f/2.0)  )
-    t_peri    =  epoch  - (per/TAU)*(E - ecc*np.sin(E))
-
+    t_peri    =  epoch - (per/TAU)*(E - ecc*np.sin(E))
     t_transit = t_peri + (E - ecc*np.sin(E)) * (per/TAU)
+    
+    if primary != True:
+        trueA = 3.0 * np.pi/2.0       
+        f = trueA - om 
+        E = 2.0*np.arctan( np.sqrt( (1.0-ecc)/(1.0+ecc) ) * np.tan(f/2.0)  )
+        t_transit = t_peri + (E - ecc*np.sin(E)) * (per/TAU)
+        return t_peri, t_transit
+    
 
     return t_peri, t_transit
 
@@ -279,6 +288,28 @@ def get_mass_a(obj, mass_type="J"):
         # I have seen that 1 Sol Mass = 1047.92612 Jup. masses???
     return pl_mass,ap
 
+
+
+def LoadSession(input_file, template_session = None):
+ 
+    try:
+        file_pi = open(input_file, 'rb')
+        fit_new = dill.load(file_pi) #, encoding='latin1'
+        file_pi.close()     
+    except (UnicodeDecodeError, ImportError, KeyError) as e:
+        py3_ses = convert_Session_to_Py3(input_file)
+        
+        file_pi = open(py3_ses, 'rb')
+        fit_new = dill.load(file_pi) #, encoding='latin1'
+        file_pi.close()     
+
+    if template_session != None:    
+        fit_new = check_for_missing_instances(template_session,fit_new)
+    #self.check_for_missing_instances(fit_new)
+ 
+    #self.check_settings()
+    check_temp_RV_file(fit_new)
+    return fit_new
 
 def convert_Session_to_Py3(old_ses):
     """
@@ -1137,19 +1168,13 @@ def export_RV_data(obj, idset_ts, file="RV_data.txt",  jitter=False, o_c=False, 
         sigma =  obj.fit_results.rv_model.rv_err
 
 
-    if len(idset_ts)==1:
+ 
 
-        for i in range(len(JD[id_set==idset_ts[0]])):
-            if print_data  ==  True:
-                print(float(JD[i]), float(rv[i]), float(sigma[i]))
-            f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  \n'.format(float(JD[i]), float(rv[i]), float(sigma[i]),  width = width, precision = precision )   )
-    else:
-
-        for i in range(len(idset_ts)):
-            for ii in range(len(JD)):
-                 if int(id_set[ii]) != int(idset_ts[i]):
-                     continue
-                 else:
+    for i in range(len(idset_ts)):
+        for ii in range(len(JD)):
+             if int(id_set[ii]) != int(idset_ts[i]):
+                 continue
+             else:
 	                 f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  {3:{width}.{precision}f}  \n'.format(float(JD[ii]), float(rv[ii]), float(sigma[ii]), idset_ts[i], width = width, precision = precision )   )
 
     f.close()
