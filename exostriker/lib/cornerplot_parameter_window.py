@@ -93,6 +93,7 @@ class show_param_boxes(QtWidgets.QDialog):
         self.check_plot_show_titles = QtWidgets.QCheckBox('show titles', self)
         self.check_plot_scale_hist  = QtWidgets.QCheckBox('scale hist', self)
         self.check_no_fill_contours = QtWidgets.QCheckBox('no fill contours', self)
+        self.check_reverse          = QtWidgets.QCheckBox('reverse', self)
         
         
         self.spin_bins  = QtWidgets.QSpinBox(self)
@@ -132,7 +133,8 @@ class show_param_boxes(QtWidgets.QDialog):
             self.check_plot_show_titles.setChecked(self.cornerplot_opt["show_titles"])
             self.check_plot_scale_hist.setChecked(self.cornerplot_opt["scale_hist"])
             self.check_no_fill_contours.setChecked(self.cornerplot_opt["no_fill_contours"])
-           
+            self.check_reverse.setChecked(self.cornerplot_opt["reverse"])   
+            
             self.spin_bins.setValue(self.cornerplot_opt["bins"])
 #            print(self.OrigLabels)            
         else:
@@ -203,10 +205,11 @@ class show_param_boxes(QtWidgets.QDialog):
         self.layout.addWidget(self.check_plot_show_titles, 4,3) 
         self.layout.addWidget(self.check_plot_scale_hist, 5,3) 
         self.layout.addWidget(self.check_no_fill_contours, 6,3) 
+        self.layout.addWidget(self.check_reverse, 7,3) 
 
         
              
-        self.layout.addWidget(self.samp_color_button, 7,3)              
+        self.layout.addWidget(self.samp_color_button, 8,3)              
         
         
         
@@ -242,6 +245,7 @@ class show_param_boxes(QtWidgets.QDialog):
         self.cornerplot_opt["show_titles"]     = self.check_plot_show_titles.isChecked()
         self.cornerplot_opt["scale_hist"]      = self.check_plot_scale_hist.isChecked()
         self.cornerplot_opt["no_fill_contours"]= self.check_no_fill_contours.isChecked()
+        self.cornerplot_opt["reverse"]         = self.check_reverse.isChecked()
           
         self.cornerplot_opt["bins"]            = self.spin_bins.value()
            

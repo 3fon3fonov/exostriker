@@ -8048,6 +8048,7 @@ https://github.com/3fon3fonov/exostriker/issues
                     'pathos', 
                     'emcee',
                     'celerite', 
+                    'corner',
                     'transitleastsquares',
                     'dynesty', 
                     'ttvfast',

@@ -382,7 +382,7 @@ def add_mcmc_samples(obj,sampler):
         
     cornerplot_opt = {"bins":25,
                       "color":"k",
-                      "reverse":True,
+                      "reverse":False,
                       "upper":True,
                       "quantiles":68.3,
                       "levels":(0.6827, 0.9545,0.9973), 
@@ -422,7 +422,7 @@ def add_ns_samples(obj,sampler):
         
     cornerplot_opt = {"bins":25,
                       "color":"k",
-                      "reverse":True,
+                      "reverse":False,
                       "upper":True,
                       "quantiles":68.3,
                       "levels":(0.6827, 0.9545,0.9973), 
@@ -737,7 +737,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         """        
             self.cornerplot_opt2 = {"bins":25,
                               "color":"k",
-                              "reverse":True,
+                              "reverse":False,
                               "upper":True,
                               "quantiles":68.3,
                               "levels":(0.6827, 0.9545,0.9973), 
