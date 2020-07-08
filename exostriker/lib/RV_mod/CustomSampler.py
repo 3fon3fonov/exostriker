@@ -11,7 +11,7 @@ import emcee
 
 class CustomSampler(emcee.EnsembleSampler):
  
-
+    
     def unique_rows(self):
 
         '''
@@ -21,27 +21,25 @@ class CustomSampler(emcee.EnsembleSampler):
         # Perform lex sort and get sorted data
         sorted_idx = np.lexsort(self.flatchain.T)
         sorted_data =  self.flatchain[sorted_idx,:]
-
+        sorted_lnL  =  self.flatlnprobability[sorted_idx]
         # Get unique row mask
         row_mask = np.append([True],np.any(np.diff(sorted_data,axis=0),1))
 
         # Get unique rows 
-        out = sorted_data[row_mask] 
-        self.samples = out
-
-        # same for LnL
-        lnL = np.hstack(self.lnprobability)
-        sorted_lnL =  lnL[sorted_idx]
-        self.lnL = sorted_lnL[row_mask]
+        self.samples = sorted_data[row_mask] 
+        self.lnL     = sorted_lnL[row_mask]
+       # sorted_lnL =  lnL[sorted_idx]
+        #self.lnL = sorted_lnL[row_mask]
 
         lnL_max_idx = np.argmax(self.lnL)
         #print(abs(lnL_min))
 
         # get samples at minimum Lnl
-        self.maxlnL = out[lnL_max_idx]
+        self.maxlnL = self.samples[lnL_max_idx]
         self.lnL_max = self.lnL[lnL_max_idx]
 
         return
+
 
     def correct_rows(self,f,ndset,npl):
 
