@@ -2777,10 +2777,10 @@ class signal_fit(object):
         self.live_points_fact = 4
         self.nest_percentile_level = 68.3
 
-        self.ns_samp_method_opt = ['slice','unif','rwalk','rstagger','rslice','hslice']
+        self.ns_samp_method_opt = ['rwalk','slice','unif','rstagger','rslice','hslice']
         self.ns_samp_method = self.ns_samp_method_opt[0]
         
-        self.ns_samp_bound_opt = ['none','single','multi','balls','rslice','cubes']
+        self.ns_samp_bound_opt = ['multi','single','balls','rslice','cubes','none']
         self.ns_samp_bound = self.ns_samp_bound_opt[0]
         self.ns_pfrac = 1.0
 

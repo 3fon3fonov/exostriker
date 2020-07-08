@@ -5745,7 +5745,10 @@ will be highly appreciated!
         self.init_plot_corr()
         self.update_plot_corr()
 
-
+        self.update_GUI_mcmc_params()
+        self.update_GUI_ns_params()
+        
+        
         if not ind == None:
             ses_list[ind] = fit 
  
@@ -5965,7 +5968,34 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
         self.check_nested_params()
 
+    def update_GUI_ns_params(self):
+        global fit
+  
 
+        self.live_points.setValue(fit.live_points_fact)
+        self.nest_N_threads.setValue(fit.ns_threads)
+        self.radioButton_dyn_nest_samp.setChecked(fit.Dynamic_nest)
+        self.stop_crit.setValue(fit.stop_crit)
+        self.save_samples.setChecked(fit.ns_fileoutput)
+        self.adopt_nest_means_as_par.setChecked(fit.ns_save_means) 
+        self.adopt_nest_median_as_par.setChecked(fit.ns_save_median) 
+        self.adopt_nest_mode_as_par.setChecked(fit.ns_save_mode) 
+        self.adopt_nest_best_lnL_as_pars.setChecked(fit.ns_save_maxlnL) 
+        self.save_samples_nested_in_memory.setChecked(fit.ns_save_sampler)
+
+        self.ns_use_stop.setChecked(fit.ns_use_stop)
+        self.use_ns_maxiter.setChecked(fit.ns_maxiter[0])
+        self.ns_maxiter.setValue(fit.ns_maxiter[1])
+        self.use_ns_maxcall.setChecked(fit.ns_maxcall[0])
+        self.ns_maxcall.setValue(fit.ns_maxcall[1])
+
+        #ind_ns_opt = self.comboBox_ns_samp_opt.currentIndex()
+        #fit.ns_samp_method = fit.ns_samp_method_opt[ind_ns_opt]
+
+        #ind_ns_bound_opt = self.comboBox_ns_bound_opt.currentIndex()
+        #fit.ns_samp_bound = fit.ns_samp_bound_opt[ind_ns_bound_opt]
+        
+        self.nest_pfrac.setValue(fit.ns_pfrac)
 
 
 ################################## MCMC #######################################
@@ -6147,6 +6177,23 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def force_mcmc_check_box(self):
         if self.make_corner_plot.isChecked():
             self.save_samples.setChecked(True)
+
+
+    def update_GUI_mcmc_params(self):
+        global fit
+ 
+        self.init_gauss_ball.setValue(fit.gaussian_ball) 
+        self.nwalkers_fact.setValue(fit.nwalkers_fact) 
+        self.burning_phase.setValue(fit.mcmc_burning_ph) 
+        self.mcmc_phase.setValue(fit.mcmc_ph) 
+        self.N_threads.setValue(fit.mcmc_threads)
+        self.save_samples.setChecked(fit.mcmc_fileoutput)
+        self.adopt_mcmc_means_as_par.setChecked(fit.mcmc_save_means) 
+        self.adopt_mcmc_median_as_par.setChecked(fit.mcmc_save_median) 
+
+        self.adopt_mcmc_mode_as_par.setChecked(fit.mcmc_save_mode) 
+        self.adopt_best_lnL_as_pars.setChecked(fit.mcmc_save_maxlnL) 
+        self.save_samples_mcmc_in_memory.setChecked(fit.mcmc_save_sampler)   
 
 ################################## Cornerplot #######################################
 
