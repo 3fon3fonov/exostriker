@@ -4006,7 +4006,14 @@ class signal_fit(object):
     # if you want to temporarily change use flags and run a new fit, use this wrapper
     def quick_overwrite_use_and_fit(self,useflags,minimize_loglik=False, fileinput=False, filename='Kep_input', outputfiles=[1,1,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500, model_min=0):
         oldflags=self.overwrite_use(useflags,save=True)
-        self.fitting(minimize_loglik=minimize_loglik,fileinput=fileinput,filename=filename,
+        
+        if self.type_fit["Transit"] == True or self.type_fit["TTV"] == True:
+            minimize_fortran = False
+        else:
+            minimize_fortran = True
+            
+        
+        self.fitting(minimize_loglik=minimize_loglik,fileinput=fileinput,filename=filename, minimize_fortran=minimize_fortran,
         amoeba_starts=amoeba_starts,outputfiles=outputfiles, eps=eps,dt=dt,timeout_sec=timeout_sec,print_stat=print_stat, fortran_kill=fortran_kill )
         self.overwrite_use(oldflags,save=False)
         return
@@ -4014,8 +4021,15 @@ class signal_fit(object):
     # if you want to temporarily change initial parameters and run a new fit, use this wrapper
     def quick_overwrite_params_and_fit(self,params,minimize_loglik=True, fileinput=False, filename='Kep_input',outputfiles=[1,1,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500, model_min=0):
         oldparams=self.overwrite_params(params,save=True)
+        
+        if self.type_fit["Transit"] == True or self.type_fit["TTV"] == True:
+            minimize_fortran = False
+        else:
+            minimize_fortran = True        
+        
         if (return_flag):
-            flag=self.fitting(minimize_loglik=minimize_loglik,fileinput=fileinput,filename=filename,amoeba_starts=amoeba_starts,outputfiles=outputfiles,eps=eps,dt=dt,timeout_sec=timeout_sec,print_stat=print_stat, return_flag=True, fortran_kill=fortran_kill)
+            flag=self.fitting(minimize_loglik=minimize_loglik,fileinput=fileinput,filename=filename, minimize_fortran=minimize_fortran,
+            amoeba_starts=amoeba_starts,outputfiles=outputfiles,eps=eps,dt=dt,timeout_sec=timeout_sec,print_stat=print_stat, return_flag=True, fortran_kill=fortran_kill)
             self.overwrite_params(oldparams,save=False)
             return flag
         else:
