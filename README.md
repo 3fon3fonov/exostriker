@@ -12,7 +12,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 **Developer**
 
 * Trifon Trifonov, MPIA Heidelberg.
-* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler and Grigorii Smirnov-Pinchukov
+* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler and Grigorii Smirnov-Pinchukov.
 
 
 **What works**:
@@ -50,7 +50,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ REBOUND is planned to be included). 
 * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
 * Combined modeling with Astrometry.
-* Documentation, Instructions, and Video tutorials (work in progress here: https://exostriker.readthedocs.io)
+* Documentation, Instructions, and Video tutorials (work in progress [here](https://notebooks.azure.com/anon-jhu4eq/libraries/ReadmeLinkingTest/tree/testfolder)
 
 
 Please keep in mind that this software is developed mostly for my needs and for fun. I hope, however, that you may find it capable of solving your scientific problems, too.
@@ -148,6 +148,6 @@ and more.
 
 * Trifonov, Trifon, Jan Rybizki, and Martin Kürster. (2019). TESS exoplanet candidates validated with HARPS archival data. A massive Neptune around GJ 143 and two Neptunes around HD 23472. A&A, 622, L7. 
 
-(And as of May 2020, I am aware of at least 8 more papers in preperation !!!)
+(And as of June 2020, I am aware of at least 9 more papers in preperation !!!)
 
 

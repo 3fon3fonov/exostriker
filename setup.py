@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
 
 setup(
 name='exostriker',  
-version='0.34',
+version='0.35',
 scripts=['scripts/exostriker'],
 author="Trifon Trifonov",
 author_email="trifonov@mpia.de",
@@ -36,7 +36,7 @@ install_requires=[
 "dill>=0.3.1",
 "pathos>=0.2.5",
 "emcee>=3.0.2",
-"corner",
+"corner>=2.1.0",
 "celerite>=0.3.1",
 "transitleastsquares==1.0.24",
 "dynesty>=1.0.1",
