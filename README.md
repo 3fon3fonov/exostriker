@@ -50,7 +50,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ REBOUND is planned to be included). 
 * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
 * Combined modeling with Astrometry.
-* Documentation, Instructions, and Video tutorials (work in progress [here](https://notebooks.azure.com/anon-jhu4eq/libraries/ReadmeLinkingTest/tree/testfolder)
+* Documentation, Instructions, and Video tutorials (work in progress [here](https://exostriker.readthedocs.io))
 
 
 Please keep in mind that this software is developed mostly for my needs and for fun. I hope, however, that you may find it capable of solving your scientific problems, too.
