@@ -154,10 +154,15 @@ class show_param_boxes(QtWidgets.QDialog):
 
         
         k = 0
+        l = 0
         for g in range(len(self.parent.lables_cornerplot)-11):
 
-            
-            
+            k = g%20
+
+            if g != 0 and k == 0:
+                l = l+2
+ 
+                
             self.button  = QtWidgets.QCheckBox('', self)
             self.button.setChecked(self.parent.lables_cornerplot[g][1]=="True")
 
@@ -170,46 +175,46 @@ class show_param_boxes(QtWidgets.QDialog):
             self.text_panel.setFixedHeight(20)
             self.text_panel.setFixedWidth(200)
            
-            self.layout.addWidget(self.button, g, 0)
-            self.layout.addWidget(self.text_panel,g, 1)
+            self.layout.addWidget(self.button, k, l)
+            self.layout.addWidget(self.text_panel,k, l+1)
 
             self.checked_boxes.append(self.button)
             self.text_boxes.append(self.text_panel) 
-            k = g
+#            k = g
             #for 
             
             
         #for g in range(4):
-        self.layout.addWidget(self.mass_check, k+1, 0, 1, 2)
-        self.layout.addWidget(self.semi_check, k+2, 0, 1, 2)
-        self.layout.addWidget(self.radi_check, k+3, 0, 1, 2)
+        self.layout.addWidget(self.mass_check, 0, l+2)
+        self.layout.addWidget(self.semi_check, 1, l+2)
+        self.layout.addWidget(self.radi_check, 2, l+2)
 
          
-        self.layout.addWidget(self.label_bestfit, 0,2)              
-        self.layout.addWidget(self.radio_median, 1,2)
-        self.layout.addWidget(self.radio_mean,2,2)
-        self.layout.addWidget(self.radio_mode,3,2)
-        self.layout.addWidget(self.radio_best_samp,4,2)
-        self.layout.addWidget(self.radio_best_gui, 5,2)  
-        self.layout.addWidget(self.radio_no_cross, 6,2)  
-        self.layout.addWidget(self.truth_color_button, 7,2)  
+        self.layout.addWidget(self.label_bestfit, 0,l+3)              
+        self.layout.addWidget(self.radio_median, 1,l+3)
+        self.layout.addWidget(self.radio_mean,2,l+3)
+        self.layout.addWidget(self.radio_mode,3,l+3)
+        self.layout.addWidget(self.radio_best_samp,4,l+3)
+        self.layout.addWidget(self.radio_best_gui, 5,l+3)  
+        self.layout.addWidget(self.radio_no_cross, 6,l+3)  
+        self.layout.addWidget(self.truth_color_button, 8,l+3)  
         
         
  
-        self.layout.addWidget(self.label_cornerplot_opt, 0,3)
-        self.layout.addWidget(self.spin_bins, 1,3)
+        self.layout.addWidget(self.label_cornerplot_opt, 0,l+4)
+        self.layout.addWidget(self.spin_bins, 1,l+4)
         
         
-        self.layout.addWidget(self.check_plot_datapoints, 2,3) 
-        self.layout.addWidget(self.check_plot_contours, 3,3) 
-        self.layout.addWidget(self.check_plot_show_titles, 4,3) 
-        self.layout.addWidget(self.check_plot_scale_hist, 5,3) 
-        self.layout.addWidget(self.check_no_fill_contours, 6,3) 
-        self.layout.addWidget(self.check_reverse, 7,3) 
+        self.layout.addWidget(self.check_plot_datapoints, 2,l+4) 
+        self.layout.addWidget(self.check_plot_contours, 3,l+4) 
+        self.layout.addWidget(self.check_plot_show_titles, 4,l+4) 
+        self.layout.addWidget(self.check_plot_scale_hist, 5,l+4) 
+        self.layout.addWidget(self.check_no_fill_contours, 6,l+4) 
+        self.layout.addWidget(self.check_reverse, 7,l+4) 
 
         
              
-        self.layout.addWidget(self.samp_color_button, 8,3)              
+        self.layout.addWidget(self.samp_color_button, 8,l+4)              
         
         
         
@@ -218,7 +223,7 @@ class show_param_boxes(QtWidgets.QDialog):
         #self.layout.addWidget(self.Ok_button)        
         
 
-        self.layout.addWidget(self.cancel_button, k+1+6,2, 2, 3)
+        self.layout.addWidget(self.cancel_button, 11,l+4)
 
         self.cancel_button.clicked.connect(self.close)
         #self.Ok_button.clicked.connect(self.get_radio)
