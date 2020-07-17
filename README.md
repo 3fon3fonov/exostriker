@@ -29,7 +29,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * RVs vs. Activity time-series correlation analysis/plots.
 * RV auto-fit (RV automated planet-finder algorithm).
 * Fit for apsidal orbital precession, or apply General Relativity (GR) precession. 
-* Instant online access to the "RVBank" database (over 212 000 RVs and activity indices of about HARPS 3000 stars & over 64 000 RVs and activity indices of about HIRES 1700 stats !!!).
+* Instant online access to the "RVBank" database (over 212 000 RVs and activity indices of about 3000 HARPS stars & over 64 000 RVs and activity indices of about 1700 HIRES stars !!!).
 * Instant AMD stability check for multiple planetary systems (including during optimization or MCMC/Nested Sampling).
 * Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.
 * Fully interactive, super-fast, high-quality, exportable plots.
