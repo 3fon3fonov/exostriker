@@ -3158,18 +3158,26 @@ def mass_a_from_Kepler_fit(a,npl,m0):
 
 
 
-def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = './', integrator='symba'):
+
+def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = './run', remove_stab_save_dir = True, integrator='symba'):
 
 #if not os.path.exists(directory):
 #    os.makedirs(directory)
 
-    if integrator=='symba':
-        os.chdir('./stability/symba/')
-    elif integrator=='mvs':
-        os.chdir('./stability/mvs/')
-    elif integrator=='mvs_gr':
-        os.chdir('./stability/mvs_gr/')
+    #if integrator=='symba':
+    #    os.chdir('./stability/symba/')
+    #elif integrator=='mvs':
+    #    os.chdir('./stability/mvs/')
+    #elif integrator=='mvs_gr':
+    #    os.chdir('./stability/mvs_gr/')
+    
+    #if stab_save_dir != '':
 
+    os.chdir('./stability/')
+    os.system("mkdir %s"%stab_save_dir)
+    os.chdir("./%s"%stab_save_dir)
+    
+    
     print("running stability with: %s"%integrator)
     ##### crate the param.in file (change only the "t_max" and the "dt" for now) ######
     param_file = open('param.in', 'wb')
@@ -3215,14 +3223,14 @@ pl.in
     getin_file.close()
 
     # runnning fortran codes
-    result, flag = run_command_with_timeout('./geninit_j3_in_days < geninit_j.in', timeout_sec)
+    result, flag = run_command_with_timeout('../mvs/geninit_j3_in_days < geninit_j.in', timeout_sec)
 
     if integrator=='symba':
-        result, flag = run_command_with_timeout('./swift_symba5_j << EOF \nparam.in \npl.in \n1e-40 \nEOF', timeout_sec)
+        result, flag = run_command_with_timeout('../symba/swift_symba5_j << EOF \nparam.in \npl.in \n1e-40 \nEOF', timeout_sec)
     elif integrator=='mvs':
-        result, flag = run_command_with_timeout('./swift_mvs_j << EOF \nparam.in \npl.in \nEOF', timeout_sec)
+        result, flag = run_command_with_timeout('../mvs/swift_mvs_j << EOF \nparam.in \npl.in \nEOF', timeout_sec)
     elif integrator=='mvs_gr':
-        result, flag = run_command_with_timeout('./swift_mvs_j_GR << EOF \nparam.in \npl.in \n%s \nEOF'%int(obj.GR_step), timeout_sec)
+        result, flag = run_command_with_timeout('../mvs_gr/swift_mvs_j_GR << EOF \nparam.in \npl.in \n%s \nEOF'%int(obj.GR_step), timeout_sec)
 
     #print('./swift_mvs_j_GR << EOF \nparam.in \npl.in \n%s \nEOF'%obj.GR_step)
 
@@ -3245,10 +3253,10 @@ pl.in
     for k in range(obj.npl):
 
         if integrator=='symba':
-            result, flag = run_command_with_timeout('./follow_symba2 << EOF \nparam.in \npl.in \n%s \nEOF'%(k+2),timeout_sec)
+            result, flag = run_command_with_timeout('../symba/follow_symba2 << EOF \nparam.in \npl.in \n%s \nEOF'%(k+2),timeout_sec)
             result, flag = run_command_with_timeout('mv follow_symba.out pl_%s.out'%(k+1),timeout_sec)
         elif integrator=='mvs' or integrator=='mvs_gr':
-            result, flag = run_command_with_timeout('./follow2 << EOF \nparam.in \npl.in \n-%s \nEOF'%(k+2),timeout_sec)
+            result, flag = run_command_with_timeout('../mvs/follow2 << EOF \nparam.in \npl.in \n-%s \nEOF'%(k+2),timeout_sec)
             result, flag = run_command_with_timeout('mv follow2.out pl_%s.out'%(k+1),timeout_sec)
 
         obj.evol_T[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.25
@@ -3270,11 +3278,17 @@ pl.in
     except OSError:
         pass
 
-    os.chdir('../../')
-
+    os.chdir('../')
+    if remove_stab_save_dir == True:
+        os.system("rm -r %s"%stab_save_dir)
+    os.chdir('../')
+    
     print("stability with: %s done!"%integrator)
 
     return obj
+
+
+
 
 
 
