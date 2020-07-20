@@ -8,7 +8,7 @@
 import os, sys 
 import numpy as np
 #import corner as corner
-import corner3 as corner
+import corner as corner
 import dill
 from scipy.ndimage import gaussian_filter
  
@@ -21,6 +21,8 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import matplotlib as mpl
 
+from pathos.pools import ProcessPool as Pool
+    
 ###### For nice plotting ##############
 mpl.rcParams['axes.linewidth'] = 2.0 #set the value globally
 mpl.rcParams['xtick.major.pad']='8'
@@ -69,7 +71,11 @@ if '-semimajor' in sys.argv:
     make_a = True
 else:
     make_a = False
-
+    
+if '-stab' in sys.argv:
+    make_stab = True
+else:
+    make_stab = False
 
 if '-best' in sys.argv:
     best = True
@@ -198,6 +204,146 @@ if make_a:
         else:
             samp_best_fit_par.append(rv.P_to_a(P[np.argmax(ln)],fit.stellar_mass))
             
+ 
+        
+
+if make_stab:
+
+    def circ_mean_np(angles,azimuth=True):  
+        """find circular mean"""  
+        rads = np.radians(angles)  
+        av_sin = np.mean(np.sin(rads)) 
+        av_cos = np.mean(np.cos(rads))  
+        ang_rad = np.arctan2(av_sin,av_cos)  
+        ang_deg = np.degrees(ang_rad)  
+        if azimuth:  
+            ang_deg = np.mod(ang_deg,360.)  
+        return  ang_deg  
+
+    def mcmc_satb(obj,samp_i):
+
+        fit2 = dill.copy(obj)
+        newparams = fit2.generate_newparams_for_mcmc(samp_i)
+        fit2.overwrite_params(newparams) 
+        
+        random_dir = rv.randomString(5)
+        
+        rv.run_stability(fit2, timemax=5.0, timestep=0.1, timeout_sec=100.0,  integrator='mvs',stab_save_dir=random_dir)
+        last_stable = min(len(fit2.evol_Per[0]),len(fit2.evol_Per[1]))
+
+
+        pl1_ind = 0
+        pl2_ind = 1
+        Per_2 = 0
+        Per_1 = 1
+        
+        Prat = fit2.evol_Per[pl2_ind][0:last_stable] / fit2.evol_Per[pl1_ind][0:last_stable]
+        dom  = (fit2.evol_p[pl2_ind][0:last_stable] - fit2.evol_p[pl1_ind][0:last_stable])%360
+        dom[dom>=180.0] -= 360.0
+
+        lambda1  = (fit2.evol_M[pl1_ind][0:last_stable]    + fit2.evol_p[pl1_ind][0:last_stable]   + 0)%360
+        lambda2  = (fit2.evol_M[pl2_ind][0:last_stable]    + fit2.evol_p[pl2_ind][0:last_stable]   + 0)%360
+ 
+ 
+
+        
+        theta = {k: [ ] for k in range(10)}    
+        coef1 = Per_2 +1
+        coef2 = Per_1 +1
+        order = abs(coef2 - coef1)
+ 
+        for i in range(order+1):
+ 
+            theta[i] = (coef1*lambda1%360 - coef2*lambda2%360 )%360 + (((coef2 -coef1) -i)*fit2.evol_p[pl1_ind][0:last_stable] + i*fit2.evol_p[pl2_ind][0:last_stable])%360 
+            theta[i] = theta[i]%360
+            theta[i][theta[i]>=180.0] -= 360.0
+            
+        theta[0] = theta[0] - circ_mean_np(theta[0])
+        theta[1] = theta[1] - circ_mean_np(theta[1])
+        dom      = dom - circ_mean_np(dom)
+        
+        theta_1_amp = (max(theta[0]) - min(theta[0]))/2.0
+        theta_2_amp = (max(theta[1]) - min(theta[1]))/2.0
+        dom_amp = (max(dom) - min(dom))/2.0
+        
+        
+        del fit2 
+        
+        return [
+        np.mean(np.array(Prat)),
+        np.mean(np.array(dom_amp)),
+        np.mean(np.array(theta_1_amp)),
+        np.mean(np.array(theta_2_amp))]
+
+
+    os.chdir('../')
+    
+    ncpus = 4
+    fit2 = dill.copy(fit)
+    del fit2.mcmc_sampler
+
+    def partial_func(samp_ii):
+        loglik = mcmc_satb(fit2, samp_ii)
+        return loglik
+
+    with Pool(ncpus=ncpus) as thread: 
+        results = thread.map(partial_func,   [samp_i for samp_i in samples])
+ 
+
+    thread.close()
+    thread.join()
+    thread.clear()
+
+        
+    os.chdir('./MCMC/')
+
+    #print(len(results[0]))
+    results = np.transpose(results)
+   # print(len(results[0]))
+
+    mean_Prat = np.array(results[0])
+    samp.append(mean_Prat)
+    samp_labels.append(r'P$_{\rm rat}$')
+    
+    if mean:
+        samp_best_fit_par.append(np.mean(mean_Prat))
+    elif median:
+        samp_best_fit_par.append(np.median(mean_Prat))
+    else:
+        samp_best_fit_par.append(mean_Prat[np.argmax(ln)])
+        
+    dom_amp = np.array(results[1])
+    samp.append(dom_amp)
+    samp_labels.append(r'$\Delta\omega$')
+    
+    if mean:
+        samp_best_fit_par.append(np.mean(dom_amp))
+    elif median:
+        samp_best_fit_par.append(np.median(dom_amp))
+    else:
+        samp_best_fit_par.append(dom_amp[np.argmax(ln)])
+    
+    t1_amp = np.array(results[2])
+    samp.append(t1_amp)
+    samp_labels.append(r'$\Delta\theta 1$')
+    
+    if mean:
+        samp_best_fit_par.append(np.mean(t1_amp))
+    elif median:
+        samp_best_fit_par.append(np.median(t1_amp))
+    else:
+        samp_best_fit_par.append(t1_amp[np.argmax(ln)])
+    
+    t2_amp = np.array(results[3])
+    samp.append(t2_amp)
+    samp_labels.append(r'$\Delta\theta 2$')
+
+    if mean:
+        samp_best_fit_par.append(np.mean(t2_amp))
+    elif median:
+        samp_best_fit_par.append(np.median(t2_amp))
+    else:
+        samp_best_fit_par.append(t2_amp[np.argmax(ln)])
 
 
 
@@ -205,21 +351,17 @@ if make_a:
 ############# Here you can make changes to the input structures ################
  
 # e.g. to change the labels:
-
-samp_labels[0] = "RV off Lick m/s"
-samp_labels[1] = "RV off CRIRES m/s"
-samp_labels[2] = "RV jitt Lick m/s"
-samp_labels[3] = "RV jitt CRIRES m/s"
  
+#samp_labels[2] = "RV jitt Lick m/s"
+#samp_labels[3] = "RV jitt CRIRES m/s"
  
-
 
 
 ########### if you want to remove parameters from the cornerplot use this: ####
 
-del samp[2] 
-del samp_labels[2] 
-del samp_best_fit_par[2] 
+#del samp[2] 
+#del samp_labels[2] 
+#del samp_best_fit_par[2] 
 
 #del samp[3]               # repeat for another element. (use -help to get the indices)
 #del samp_labels[3] 
@@ -259,8 +401,7 @@ if print_output:
 fig = corner.corner(samples_,
 bins=25, 
 color="k", 
-reverse=True, 
-upper= True, 
+reverse=False, 
 labels=labels, 
 quantiles=[0.1585, 0.8415],
 levels=(0.6827, 0.9545,0.9973),
