@@ -45,7 +45,7 @@ because some problems may occur depending on your OS system.
     <td>Transit signal search (via "TLS")</td>
   </tr>
   <tr>  
-    <td><img src="./docs/png/ES3_new.png" width=800></td>
+    <td><img src="./docs/png/ES4_new.png" width=800></td>
 
   </tr>
  </table>
@@ -68,7 +68,17 @@ because some problems may occur depending on your OS system.
 * Joint RVs + Transit + GPs best-fit optimization (internal Fortran Simplex and L-M minimizers, or many more via "SciPyOp").
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty") 
 * TTVs and/or joint TTVs + RVs analysis.
-* GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
+ 
+ <table>
+  <tr>
+    <td>GP modeling</td>
+  </tr>
+  <tr>  
+    <td><img src="./docs/png/ES5_new.png" width=800></td>
+
+  </tr>
+ </table>
+
 * Activity index signal search via GLS periodogram.
 * RVs vs. Activity time-series correlation analysis/plots.
 * RV auto-fit (RV automated planet-finder algorithm).
@@ -85,7 +95,17 @@ because some problems may occur depending on your OS system.
 * Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
 * Integrated Bash-shell (Linux only).
 * Integrated Jupyter shell.
-* Importable as a standard python library (i.e., ideal for scripting and notebooks, see "Notebook_and_script_examples").
+ 
+ <table>
+  <tr>
+    <td>Importable as a standard python library (i.e., ideal for scripting and notebooks").</td>
+  </tr>
+  <tr>  
+    <td><img src="./docs/png/ES_terminal.png" width=800></td>
+
+  </tr>
+ </table>
+
 * Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
 
 **What is to be implemented**:
