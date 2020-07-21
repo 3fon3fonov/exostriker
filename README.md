@@ -23,11 +23,10 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
  <table>
   <tr>
     <td>RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).</td>
-     <td>test2</td>
   </tr>
   <tr>  
-    <td><img src="./docs/png/ES7_new.png" width=400></td>
-    <td><img src="./docs/png/ES6_new.png" width=400></td>
+    <td><img src="./docs/png/ES3_new.png" width=700></td>
+
   </tr>
  </table>
  
