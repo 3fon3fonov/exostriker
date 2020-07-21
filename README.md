@@ -11,9 +11,18 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
   <img width="800" src="./docs/png/ES_new.png">
 </p>
 
+
+**Developer**
+
+* Trifon Trifonov, MPIA Heidelberg.
+* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler and Grigorii Smirnov-Pinchukov.
+
+
+**What works**:
+ 
  <table>
   <tr>
-    <td>test</td>
+    <td>RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).</td>
      <td>test2</td>
   </tr>
   <tr>  
@@ -23,15 +32,8 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
  </table>
  
  
-**Developer**
-
-* Trifon Trifonov, MPIA Heidelberg.
-* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler and Grigorii Smirnov-Pinchukov.
 
 
-**What works**:
-
-* RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
 * Transit signal search (via "TLS").
 * Interactive transit photometry detrending (via "wotan"), interactive outlier removal, and more.
 * Keplerian and Dynamical modeling of RV & Transit photometry exoplanet data.
