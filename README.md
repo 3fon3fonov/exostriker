@@ -40,10 +40,30 @@ because some problems may occur depending on your OS system.
  </table>
  
  
+ <table>
+  <tr>
+    <td>Transit signal search (via "TLS")</td>
+  </tr>
+  <tr>  
+    <td><img src="./docs/png/ES3_new.png" width=800></td>
 
+  </tr>
+ </table>
+ 
+ 
+ 
+ <table>
+  <tr>
+    <td>Interactive transit photometry detrending (via "wotan"), interactive outlier removal, and more.</td>
+  </tr>
+  <tr>  
+    <td><img src="./docs/png/ES_detrend.png" width=800></td>
 
-* Transit signal search (via "TLS").
-* Interactive transit photometry detrending (via "wotan"), interactive outlier removal, and more.
+  </tr>
+ </table>
+ 
+
+ 
 * Keplerian and Dynamical modeling of RV & Transit photometry exoplanet data.
 * Joint RVs + Transit + GPs best-fit optimization (internal Fortran Simplex and L-M minimizers, or many more via "SciPyOp").
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty") 
