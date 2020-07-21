@@ -17,15 +17,24 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Trifon Trifonov, MPIA Heidelberg.
 * with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler and Grigorii Smirnov-Pinchukov.
 
+(This tool is still work in progress!)
 
-**What works**:
+**Installation**
+
+$ pip install git+https://github.com/3fon3fonov/exostriker   
+
+However, please read the [Installation instructions](README_for_installation),
+because some problems may occur depending on your OS system.   
+
+
+**A quick overview**:
  
  <table>
   <tr>
     <td>RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).</td>
   </tr>
   <tr>  
-    <td><img src="./docs/png/ES3_new.png" width=700></td>
+    <td><img src="./docs/png/ES3_new.png" width=800></td>
 
   </tr>
  </table>
@@ -76,13 +85,6 @@ A wish-list with your favorite tools and methods to be implemented is also welco
 Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.    
 
 
-
-**Installation**
-
-$ pip install git+https://github.com/3fon3fonov/exostriker   
-
-However, please read the [Installation instructions](README_for_installation),
-because some problems may occur depending on your OS system.   
 
 **Credit**
 
