@@ -67,13 +67,11 @@ Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.
 $ pip install git+https://github.com/3fon3fonov/exostriker   
 
 However, please read the [Installation instructions](README_for_installation),
-because some problems may occure deppending on your OS system.
-
-
+because some problems may occur depending on your OS system.   
 
 **Credit**
 
-If you made the use of The Exo-Striker for your paper, I would appreciate if you give credit to it.
+If you made the use of The Exo-Striker for your paper, I would appreciate it if you give credit to it.
 As it is unlikely that I will find time to write a refereed paper on The Exo-Striker soon, please cite the tool with its ASCL ID ascl:1906.004 (see https://ascl.net/1906.004).    
  
 The Exo-Striker relies on many open-source packages, which if you had made the use of (some of) them while working with the tool, 
