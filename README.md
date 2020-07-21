@@ -17,7 +17,6 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Trifon Trifonov, MPIA Heidelberg.
 * with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler and Grigorii Smirnov-Pinchukov.
 
-(This tool is still work in progress!)
 
 **Installation**
 
@@ -27,58 +26,16 @@ However, please read the [Installation instructions](README_for_installation),
 because some problems may occur depending on your OS system.   
 
 
-**A quick overview**:
- 
- <table>
-  <tr>
-    <td>RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).</td>
-  </tr>
-  <tr>  
-    <td><img src="./docs/png/ES3_new.png" width=800></td>
+**What works**:
 
-  </tr>
- </table>
- 
- 
- <table>
-  <tr>
-    <td>Transit signal search (via "TLS")</td>
-  </tr>
-  <tr>  
-    <td><img src="./docs/png/ES4_new.png" width=800></td>
-
-  </tr>
- </table>
- 
- 
- 
- <table>
-  <tr>
-    <td>Transit signal search (via "TLS")</td>
-  </tr>
-  <tr>  
-    <td><img src="./docs/png/ES_detrend.png" width=800></td>
-
-  </tr>
- </table>
- 
-
- 
+* RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
+* Transit signal search (via "TLS").
+* Interactive transit photometry detrending (via "wotan"), interactive outlier removal, and more.
 * Keplerian and Dynamical modeling of RV & Transit photometry exoplanet data.
 * Joint RVs + Transit + GPs best-fit optimization (internal Fortran Simplex and L-M minimizers, or many more via "SciPyOp").
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty") 
 * TTVs and/or joint TTVs + RVs analysis.
- 
- <table>
-  <tr>
-    <td>GP modeling</td>
-  </tr>
-  <tr>  
-    <td><img src="./docs/png/ES5_new.png" width=800></td>
-
-  </tr>
- </table>
-
+* GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
 * Activity index signal search via GLS periodogram.
 * RVs vs. Activity time-series correlation analysis/plots.
 * RV auto-fit (RV automated planet-finder algorithm).
@@ -95,17 +52,7 @@ because some problems may occur depending on your OS system.
 * Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
 * Integrated Bash-shell (Linux only).
 * Integrated Jupyter shell.
- 
- <table>
-  <tr>
-    <td>Importable as a standard python library (i.e., ideal for scripting and notebooks").</td>
-  </tr>
-  <tr>  
-    <td><img src="./docs/png/ES_terminal.png" width=800></td>
-
-  </tr>
- </table>
-
+* Importable as a standard python library (i.e., ideal for scripting and notebooks, see "Notebook_and_script_examples").
 * Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
 
 **What is to be implemented**:
