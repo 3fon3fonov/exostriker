@@ -41,3 +41,18 @@ class SHOTerm2(terms.SHOTerm):
         Q = Plife(np.pi)/Prot 
         
         kernel = terms.SHOTerm(log_S0=np.log(S0), log_Q=np.log(Q), log_omega0=np.log(w0) )
+        return kernel   
+
+
+class Matern32(terms.Matern32Term):
+
+    parameter_names = ("sigma", "rho", "eps")
+    
+    def __init__(self, params):
+        sigma, rho, eps = params
+  
+        kernel = terms.Matern32Term(log_sigma=np.log(sigma), log_rho=np.log(rho), eps=eps)     
+        return kernel    
+ 
+        
+        
