@@ -7966,8 +7966,11 @@ https://github.com/3fon3fonov/exostriker/issues
         
         self.RV_GP_Rot_readme_info.clicked.connect(self.print_GP_info)
         self.RV_GP_SHO_readme_info.clicked.connect(self.print_GP_info)
+        self.RV_GP_Matern_readme_info.clicked.connect(self.print_GP_info)
+        
         self.Tra_GP_Rot_readme_info.clicked.connect(self.print_GP_info)
         self.Tra_GP_SHO_readme_info.clicked.connect(self.print_GP_info)
+        self.Tra_GP_Matern_readme_info.clicked.connect(self.print_GP_info)
         
         ###################### Console #############################
         self.console_widget = ConsoleWidget_embed(font_size = 9)
