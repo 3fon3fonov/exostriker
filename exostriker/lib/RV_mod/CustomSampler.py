@@ -41,7 +41,7 @@ class CustomSampler(emcee.EnsembleSampler):
         return
 
 
-    def correct_rows(self,f,ndset,npl):
+    def correct_rows(self,f,ndset,npl,hkl):
 
         '''Corrects angles and eccentricities for all samples'''
 
@@ -66,14 +66,20 @@ class CustomSampler(emcee.EnsembleSampler):
                             #    self.samples[j,i+2]=self.samples[j,i+2]+-180.0
                     self.means[i]=np.mean(self.samples[:,i])
                 elif (np.mod(nr,7)==3): # correct w to be in a 360 interval around mean value 
-                    self.samples[:, i] = self.samples[:,i]%360
-                    meanw=self.circ_mean_np(self.samples[:,i])  
-
-                    for j in range(len(self.samples)):
-                        self.samples[j,i]=np.where(self.samples[j,i]<meanw-180.0,self.samples[j,i]+360.0,self.samples[j,i])
-                        self.samples[j,i]=np.where(self.samples[j,i]>meanw+180.0,self.samples[j,i]-360.0,self.samples[j,i])
-
-                    self.means[i]=meanw 
+                    
+                    if hkl == False:
+                        self.samples[:, i] = self.samples[:,i]%360
+                        meanw=self.circ_mean_np(self.samples[:,i])  
+    
+                        for j in range(len(self.samples)):
+                            self.samples[j,i]=np.where(self.samples[j,i]<meanw-180.0,self.samples[j,i]+360.0,self.samples[j,i])
+                            self.samples[j,i]=np.where(self.samples[j,i]>meanw+180.0,self.samples[j,i]-360.0,self.samples[j,i])
+    
+                        self.means[i]=meanw 
+                        
+                    else:
+                        self.means[i]=np.mean(self.samples[:,i]) 
+                        
                 elif (np.mod(nr,7)==4):# correct M to be in a 360 interval around mean value
                     self.samples[:, i] = self.samples[:,i]%360
                     meanw=self.circ_mean_np(self.samples[:,i])  
@@ -118,8 +124,8 @@ class CustomSampler(emcee.EnsembleSampler):
         return     
 
                 
-    def save_samples(self,f,ndset,npl):
+    def save_samples(self,f,ndset,npl,hkl):
         self.unique_rows()
-        self.correct_rows(f,ndset,npl)
+        self.correct_rows(f,ndset,npl,hkl)
         self.get_meadians(f)
         return
