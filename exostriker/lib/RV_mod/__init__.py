@@ -1258,8 +1258,15 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
  
     elif obj.type_fit["RV"] == True and obj.type_fit["TTV"] == True:
+        
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
-        ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass, obj.ttv_times,obj.hkl,fit_results=obj.fit_results, return_model = False)
+        #ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass,obj.ttv_times,obj.hkl,fit_results=False, return_model = False)
+ 
+        ttv_loglik = ttvs_loglik(obj.parameters,vel_files, obj.ttv_data_sets,obj.npl,obj.params.stellar_mass,obj.ttv_times,obj.hkl,
+                                 fit_results=obj.fit_results, return_model = False)
+
+       # ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass, obj.ttv_times,obj.hkl,fit_results=obj.fit_results, return_model = False)
+ 
         if rtg[1]:
             get_gps_model(obj, get_lnl=True)
 
@@ -1930,7 +1937,8 @@ def run_mcmc(obj, **kwargs):
         
         
     #ln = np.hstack(sampler.lnprobability)
-    sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl)
+   # sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl)
+    sampler.save_samples(obj.f_for_mcmc,obj.filelist.ndset,obj.npl,obj.hkl)
 
     pool.close()
     pool.join()
