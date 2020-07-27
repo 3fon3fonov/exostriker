@@ -228,24 +228,24 @@ class ActivityWindow(QtWidgets.QWidget, Ui_ActivityWindow):
             
             #smoothed_  = smooth(self.flux,30)
         
-            fs_ = int(max(time_gls)-min(time_gls))
-            nyq = 0.5 * (1./fs_)
+            #fs_ = int(max(time_gls)-min(time_gls))
+           # nyq = 0.5 * (1./(fs_*86400.0))
             #2.0*np.pi ,86400.0
             
             if self.ui.comboBox_sliders.currentText() == "lowpass":
-                and_freq = (1 / (float(self.ui.filter_low_freq.value()) )) / nyq
+                filter_freq = (1 / (float(self.ui.filter_low_freq.value()) )) #/ nyq
             elif  self.ui.comboBox_sliders.currentText() == "highpass":
-                and_freq = (1 / (float(self.ui.filter_high_freq.value()) )) / nyq
+                filter_freq = (1 / (float(self.ui.filter_high_freq.value()) )) #/ nyq
             else:
-                and_freq = [(1 /  (float(self.ui.filter_low_freq.value()) )) / nyq, 
-                            (1 /  (float(self.ui.filter_high_freq.value()) )) / nyq]
+                filter_freq = [(1 /  (float(self.ui.filter_low_freq.value()) ))# / nyq, 
+                            (1 /  (float(self.ui.filter_high_freq.value()) ))  ]#/ nyq]
                 
                 
             
-            print(and_freq)
+            print(filter_freq)
             
-            sos = signal.butter(int(self.ui.filter_order.value()), and_freq, 
-                                str(self.ui.comboBox_sliders.currentText()), analog = False, fs=fs_, 
+            sos = signal.butter(int(self.ui.filter_order.value()), filter_freq, 
+                                str(self.ui.comboBox_sliders.currentText()), analog = True, # fs=fs_, 
                                 output='sos')
             
 #fs=1000
