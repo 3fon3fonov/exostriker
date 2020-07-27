@@ -65724,6 +65724,104 @@
             <property name="verticalSpacing">
              <number>0</number>
             </property>
+            <item row="0" column="1">
+             <spacer name="verticalSpacer_26">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="6" column="4">
+             <widget class="QCheckBox" name="act_opt_6">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="5">
+             <widget class="QPushButton" name="act_dataOption_10">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Modify data</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoRepeat">
+               <bool>false</bool>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>false</bool>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="4">
+             <widget class="QCheckBox" name="act_opt_2">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="4">
+             <widget class="QCheckBox" name="act_opt_9">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="4">
+             <widget class="QCheckBox" name="act_opt_10">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="5">
+             <widget class="QPushButton" name="act_dataOption_8">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Modify data</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoRepeat">
+               <bool>false</bool>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>false</bool>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
             <item row="3" column="2">
              <widget class="QPushButton" name="Button_activity_data_3">
               <property name="minimumSize">
@@ -65896,84 +65994,6 @@
               <attribute name="buttonGroup">
                <string notr="true">buttonGroup_activity_data</string>
               </attribute>
-             </widget>
-            </item>
-            <item row="4" column="4">
-             <widget class="QCheckBox" name="use_act_sigma_clip_4">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="4">
-             <widget class="QCheckBox" name="use_act_sigma_clip_9">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="3">
-             <widget class="QCheckBox" name="act_remove_mean_7">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="3">
-             <widget class="QCheckBox" name="act_remove_mean_8">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="4">
-             <widget class="QCheckBox" name="use_act_sigma_clip_1">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="4">
-             <widget class="QCheckBox" name="use_act_sigma_clip_2">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
              </widget>
             </item>
             <item row="7" column="1">
@@ -66186,20 +66206,6 @@
               <attribute name="buttonGroup">
                <string notr="true">buttonGroup_remove_activity_data</string>
               </attribute>
-             </widget>
-            </item>
-            <item row="10" column="3">
-             <widget class="QCheckBox" name="act_remove_mean_10">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="3">
-             <widget class="QCheckBox" name="act_remove_mean_2">
-              <property name="text">
-               <string/>
-              </property>
              </widget>
             </item>
             <item row="1" column="1">
@@ -66516,204 +66522,6 @@
               </attribute>
              </widget>
             </item>
-            <item row="4" column="3">
-             <widget class="QCheckBox" name="act_remove_mean_4">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="3">
-             <widget class="QCheckBox" name="act_remove_mean_5">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="4">
-             <widget class="QCheckBox" name="use_act_sigma_clip_10">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="5">
-             <widget class="QDoubleSpinBox" name="act_sigma_clip_4">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>2</number>
-              </property>
-              <property name="minimum">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>30.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="value">
-               <double>10.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="4" colspan="2">
-             <widget class="QLabel" name="label_442">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;outlier &amp;sigma; clip. [&amp;sigma;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="5">
-             <widget class="QDoubleSpinBox" name="act_sigma_clip_3">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>2</number>
-              </property>
-              <property name="minimum">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>30.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="value">
-               <double>10.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="4">
-             <widget class="QCheckBox" name="use_act_sigma_clip_8">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="4">
-             <widget class="QCheckBox" name="use_act_sigma_clip_6">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <spacer name="verticalSpacer_26">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="9" column="5">
-             <widget class="QDoubleSpinBox" name="act_sigma_clip_9">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>2</number>
-              </property>
-              <property name="minimum">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>30.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="value">
-               <double>10.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="5">
-             <widget class="QDoubleSpinBox" name="act_sigma_clip_8">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>2</number>
-              </property>
-              <property name="minimum">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>30.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="value">
-               <double>10.000000000000000</double>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="6">
              <widget class="QPushButton" name="Button_apply_act_options_1">
               <property name="font">
@@ -66732,94 +66540,6 @@
               </attribute>
              </widget>
             </item>
-            <item row="7" column="5">
-             <widget class="QDoubleSpinBox" name="act_sigma_clip_7">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>2</number>
-              </property>
-              <property name="minimum">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>30.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="value">
-               <double>10.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="5">
-             <widget class="QDoubleSpinBox" name="act_sigma_clip_5">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>2</number>
-              </property>
-              <property name="minimum">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>30.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="value">
-               <double>10.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="5">
-             <widget class="QDoubleSpinBox" name="act_sigma_clip_1">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>2</number>
-              </property>
-              <property name="minimum">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>30.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="value">
-               <double>10.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="3">
-             <widget class="QCheckBox" name="act_remove_mean_1">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
             <item row="0" column="2">
              <spacer name="horizontalSpacer_54">
               <property name="orientation">
@@ -66835,168 +66555,6 @@
                </size>
               </property>
              </spacer>
-            </item>
-            <item row="2" column="5">
-             <widget class="QDoubleSpinBox" name="act_sigma_clip_2">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>2</number>
-              </property>
-              <property name="minimum">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>30.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="value">
-               <double>10.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="3">
-             <widget class="QCheckBox" name="act_remove_mean_3">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="3">
-             <widget class="QLabel" name="label_402">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>remove mean</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="3">
-             <widget class="QCheckBox" name="act_remove_mean_6">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="3">
-             <widget class="QCheckBox" name="act_remove_mean_9">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="4">
-             <widget class="QCheckBox" name="use_act_sigma_clip_3">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="4">
-             <widget class="QCheckBox" name="use_act_sigma_clip_5">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="4">
-             <widget class="QCheckBox" name="use_act_sigma_clip_7">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="5">
-             <widget class="QDoubleSpinBox" name="act_sigma_clip_6">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>2</number>
-              </property>
-              <property name="minimum">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>30.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="value">
-               <double>10.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="5">
-             <widget class="QDoubleSpinBox" name="act_sigma_clip_10">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>2</number>
-              </property>
-              <property name="minimum">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>30.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.500000000000000</double>
-              </property>
-              <property name="value">
-               <double>10.000000000000000</double>
-              </property>
-             </widget>
             </item>
             <item row="2" column="6">
              <widget class="QPushButton" name="Button_apply_act_options_2">
@@ -67158,6 +66716,290 @@
               <attribute name="buttonGroup">
                <string notr="true">buttonGroup_apply_act_data_options</string>
               </attribute>
+             </widget>
+            </item>
+            <item row="7" column="5">
+             <widget class="QPushButton" name="act_dataOption_7">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Modify data</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoRepeat">
+               <bool>false</bool>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>false</bool>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="4">
+             <widget class="QCheckBox" name="act_opt_4">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="5">
+             <widget class="QPushButton" name="act_dataOption_1">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Modify data</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoRepeat">
+               <bool>false</bool>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>false</bool>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup_options_act</string>
+              </attribute>
+             </widget>
+            </item>
+            <item row="3" column="4">
+             <widget class="QCheckBox" name="act_opt_3">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="5">
+             <widget class="QPushButton" name="act_dataOption_9">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Modify data</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoRepeat">
+               <bool>false</bool>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>false</bool>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="4">
+             <widget class="QCheckBox" name="act_opt_5">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="5">
+             <widget class="QPushButton" name="act_dataOption_2">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Modify data</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoRepeat">
+               <bool>false</bool>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>false</bool>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup_options_act</string>
+              </attribute>
+             </widget>
+            </item>
+            <item row="8" column="4">
+             <widget class="QCheckBox" name="act_opt_8">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="4">
+             <widget class="QCheckBox" name="act_opt_7">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="5">
+             <widget class="QPushButton" name="act_dataOption_4">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Modify data</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoRepeat">
+               <bool>false</bool>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>false</bool>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="4">
+             <widget class="QCheckBox" name="act_opt_1">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="5">
+             <widget class="QPushButton" name="act_dataOption_5">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Modify data</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoRepeat">
+               <bool>false</bool>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>false</bool>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="5">
+             <widget class="QPushButton" name="act_dataOption_3">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Modify data</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoRepeat">
+               <bool>false</bool>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>false</bool>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="5">
+             <widget class="QPushButton" name="act_dataOption_6">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Modify data</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoRepeat">
+               <bool>false</bool>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>false</bool>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <spacer name="horizontalSpacer_160">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="5">
+             <widget class="QLabel" name="label_402">
+              <property name="text">
+               <string>Data Options</string>
+              </property>
              </widget>
             </item>
            </layout>
@@ -80812,85 +80654,86 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_color_picker"/>
-  <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
-  <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
-  <buttongroup name="buttonGroup_AMD_satb_NS"/>
-  <buttongroup name="buttonGroup_color_picker_ttv"/>
   <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_use">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_AMD_stab_opt"/>
-  <buttongroup name="buttonGroup_add_RV_data"/>
-  <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_apply_tra_dilution"/>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_Omega_fold"/>
-  <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_use_ld_5"/>
-  <buttongroup name="buttonGroup_use_ld_2"/>
-  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
-  <buttongroup name="buttonGroup_transit_data"/>
-  <buttongroup name="buttonGroup_apply_tra_data_options"/>
-  <buttongroup name="buttonGroup_use_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_dom_fold"/>
-  <buttongroup name="buttonGroup_use_planets">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_omega_dot_opt"/>
+  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
   <buttongroup name="buttonGroup_symbol_picker_tra"/>
   <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_remove_ttv_data"/>
-  <buttongroup name="buttonGroup_activity_data"/>
-  <buttongroup name="buttonGroup_detrend_tra"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_use_ld_3"/>
-  <buttongroup name="buttonGroup_apply_rv_data_options"/>
-  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
-  <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_use_ld_1"/>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_apply_act_data_options"/>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
-  <buttongroup name="buttonGroup_symbol_picker"/>
-  <buttongroup name="buttonGroup_mixed_fitting">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
+  <buttongroup name="buttonGroup_use_ld_2"/>
   <buttongroup name="buttonGroup_use_RV_GP_kernel">
    <property name="exclusive">
     <bool>true</bool>
    </property>
   </buttongroup>
+  <buttongroup name="buttonGroup_use">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_use_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_detrend_tra"/>
+  <buttongroup name="buttonGroup_apply_rv_data_options"/>
+  <buttongroup name="buttonGroup_type_fit"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
+  <buttongroup name="buttonGroup_remove_activity_data"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
+  <buttongroup name="buttonGroup_mixed_fitting">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_AMD_stab_opt"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
+  <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_options_act"/>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_apply_tra_data_options"/>
   <buttongroup name="buttonGroup_use_ttv_data_to_planet">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
   <buttongroup name="buttonGroup_nest_stat_dyn"/>
-  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_use_ld_10"/>
+  <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_AMD_satb_NS"/>
+  <buttongroup name="buttonGroup_use_planets">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
+  <buttongroup name="buttonGroup_Omega_fold"/>
+  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
   <buttongroup name="buttonGroup_use_ld_6"/>
-  <buttongroup name="buttonGroup_omega_dot_opt"/>
+  <buttongroup name="buttonGroup_apply_tra_dilution"/>
  </buttongroups>
 </ui>

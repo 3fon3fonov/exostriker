@@ -66,6 +66,7 @@ from datafiles_window import datafiles_window
 from RVBank_window import RVBank_window
 
 from detrend_window import DetrendWindow
+from activity_window import ActivityWindow
 #from RVBank_window import RVBank_window as DetrendWindow
 
 
@@ -1513,6 +1514,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_detrend_tra.setId(self.tra_detrend_9,9)
         self.buttonGroup_detrend_tra.setId(self.tra_detrend_10,10)
 
+        self.buttonGroup_options_act.setId(self.act_dataOption_1,1)
+        self.buttonGroup_options_act.setId(self.act_dataOption_2,2)
+        self.buttonGroup_options_act.setId(self.act_dataOption_3,3)
+        self.buttonGroup_options_act.setId(self.act_dataOption_4,4)
+        self.buttonGroup_options_act.setId(self.act_dataOption_5,5)
+        self.buttonGroup_options_act.setId(self.act_dataOption_6,6)
+        self.buttonGroup_options_act.setId(self.act_dataOption_7,7)
+        self.buttonGroup_options_act.setId(self.act_dataOption_8,8)
+        self.buttonGroup_options_act.setId(self.act_dataOption_9,9)
+        self.buttonGroup_options_act.setId(self.act_dataOption_10,10)
 
         self.buttonGroup_use_planets = QtWidgets.QButtonGroup()
         self.buttonGroup_use_planets.setExclusive(False)
@@ -3598,29 +3609,77 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.update_veiw()
 
 
+#    def apply_act_data_options_old(self):
+#        global fit
+#        but_ind = self.buttonGroup_apply_act_data_options.checkedId()
+
+#        if   self.act_sigma_clip[but_ind-1][1].isChecked() == True  and self.act_remove_mean[but_ind-1].isChecked() == False:
+#            rv.sigma_clip(fit, type = 'act', sigma_clip = self.act_sigma_clip[but_ind-1][0].value(), 
+#                          remove_mean = False, file_n = but_ind-1)
+#        elif self.act_sigma_clip[but_ind-1][1].isChecked() == True  and self.act_remove_mean[but_ind-1].isChecked() == True:
+#            rv.sigma_clip(fit, type = 'act', sigma_clip = self.act_sigma_clip[but_ind-1][0].value(), 
+#                          remove_mean =  True, file_n = but_ind-1)
+#        elif self.act_sigma_clip[but_ind-1][1].isChecked() == False and self.act_remove_mean[but_ind-1].isChecked()  == True:
+#            rv.sigma_clip(fit, type = 'act', sigma_clip = None, 
+#                          remove_mean =  True, file_n = but_ind-1)
+#        elif self.act_sigma_clip[but_ind-1][1].isChecked() == False and self.act_remove_mean[but_ind-1].isChecked() == False:
+#            rv.sigma_clip(fit, type = 'act', sigma_clip = None, 
+#                          remove_mean =  False, file_n = but_ind-1)
+#        else:
+#            return
+
+#        self.tabWidget_helper.setCurrentWidget(self.tab_info)
+#        self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
+#        self.update_activity_gls_plots(but_ind-1)
+#     #   self.update_activity_data_plots(but_ind-1)
+
+
+
     def apply_act_data_options(self):
         global fit
         but_ind = self.buttonGroup_apply_act_data_options.checkedId()
+ 
 
-        if   self.act_sigma_clip[but_ind-1][1].isChecked() == True  and self.act_remove_mean[but_ind-1].isChecked() == False:
-            rv.sigma_clip(fit, type = 'act', sigma_clip = self.act_sigma_clip[but_ind-1][0].value(), 
-                          remove_mean = False, file_n = but_ind-1)
-        elif self.act_sigma_clip[but_ind-1][1].isChecked() == True  and self.act_remove_mean[but_ind-1].isChecked() == True:
-            rv.sigma_clip(fit, type = 'act', sigma_clip = self.act_sigma_clip[but_ind-1][0].value(), 
-                          remove_mean =  True, file_n = but_ind-1)
-        elif self.act_sigma_clip[but_ind-1][1].isChecked() == False and self.act_remove_mean[but_ind-1].isChecked()  == True:
-            rv.sigma_clip(fit, type = 'act', sigma_clip = None, 
-                          remove_mean =  True, file_n = but_ind-1)
-        elif self.act_sigma_clip[but_ind-1][1].isChecked() == False and self.act_remove_mean[but_ind-1].isChecked() == False:
-            rv.sigma_clip(fit, type = 'act', sigma_clip = None, 
-                          remove_mean =  False, file_n = but_ind-1)
+        if self.act_opt[but_ind-1].isChecked() == True and len(fit.act_data_sets[but_ind-1]) != 0:
+            #rv.transit_data_norm(fit,  file_n = but_ind-1, norm = True)
+            if len(self.ActivityWindow.flux_o_c) != 0:
+                fit.act_data_sets[but_ind-1][0] = dill.copy(self.ActivityWindow.t_store[but_ind-1])
+                fit.act_data_sets[but_ind-1][1] = dill.copy(self.ActivityWindow.flux_o_c_store[but_ind-1])
+                fit.act_data_sets[but_ind-1][2] = dill.copy(self.ActivityWindow.flux_err_o_c_store[but_ind-1])
+                fit.act_data_sets[but_ind-1][3] = dill.copy(self.ActivityWindow.flux_o_c_store[but_ind-1])
+                fit.act_data_sets[but_ind-1][4] = dill.copy(self.ActivityWindow.flux_o_c_store[but_ind-1])
+
+                fit.act_data_sets[but_ind-1][5] = dill.copy(self.ActivityWindow.flux_store[but_ind-1])
+                fit.act_data_sets[but_ind-1][6] = dill.copy(self.ActivityWindow.flux_err_store[but_ind-1])
+                fit.act_data_sets[but_ind-1][7] = dill.copy(self.ActivityWindow.trend_store[but_ind-1])
+                
+                #### CHECK FOR NAN ENTRIES AND REMOVE IF ANY, BELOW !!!! ####
+               
+                bjd    = dill.copy(self.ActivityWindow.t_store[but_ind-1])
+                flux   = dill.copy(self.ActivityWindow.flux_o_c_store[but_ind-1])               
+                flux_e = dill.copy(self.ActivityWindow.flux_o_c_store[but_ind-1])                   
+                
+                for j in range(8): 
+                    fit.act_data_sets[but_ind-1][j] = fit.act_data_sets[but_ind-1][j][np.isfinite(bjd) & np.isfinite(flux) & np.isfinite(flux_e)]
+                
+                if len(bjd) != len(fit.act_data_sets[but_ind-1][0]):
+                    print("WARNING! Something is wrong for these epochs:")          
+                    for v in range(len(bjd)):
+                        if np.isnan(flux[v]) or np.isnan(flux_e[v]):
+                            print("%s  %s   %s"%(bjd[v], flux[v], flux_e[v]))
+                    print("These data are not included!")
+
+                #### CHECK IS OVER ####                  
+            else:
+                rv.sigma_clip(fit, type = 'act', sigma_clip = None, remove_mean =  False, file_n = but_ind-1)
         else:
-            return
+            rv.sigma_clip(fit, type = 'act', sigma_clip = None, remove_mean =  False, file_n = but_ind-1)
 
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
         self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
         self.update_activity_gls_plots(but_ind-1)
-     #   self.update_activity_data_plots(but_ind-1)
+
+
      
     def apply_tra_dilution(self):
         global fit
@@ -3921,7 +3980,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if len(fit.act_data_sets[i]) != 0:
                 self.buttonGroup_activity_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
                 self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-                self.buttonGroup_activity_data.button(i+1).setText(fit.act_data_sets[i][3])
+                self.buttonGroup_activity_data.button(i+1).setText(fit.act_data_sets[i][-1])
 
             else:
                 self.buttonGroup_activity_data.button(i+1).setStyleSheet("")
@@ -5211,7 +5270,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.35) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.36) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -7624,6 +7683,21 @@ https://github.com/3fon3fonov/exostriker/issues
         else:
             
             print("No data ",but_ind)
+            
+            
+    def activity_data_options(self):
+        global fit
+ 
+        but_ind = self.buttonGroup_options_act.checkedId()
+        
+        if len(fit.act_data_sets[but_ind-1]) != 0:
+            self.act_data = dill.copy(fit.act_data_sets_init[but_ind-1])
+            self.act_data_index = but_ind-1
+            self.ActivityWindow.reset_data()
+        else:     
+            print("No data ",but_ind)
+                        
+            
 
     # Get variables pushed from the jupyter shell
     def get_jupyter_vars(self):
@@ -7886,12 +7960,14 @@ https://github.com/3fon3fonov/exostriker/issues
         self.rv_sigma_clip  = gui_groups.rv_sigma_clip(self)
         self.bin_rv_data    = gui_groups.bin_rv_data(self)
         
-        self.act_sigma_clip  = gui_groups.act_sigma_clip(self)
-        self.act_remove_mean = gui_groups.act_remove_mean(self)
+        #self.act_sigma_clip  = gui_groups.act_sigma_clip(self)
+        #self.act_remove_mean = gui_groups.act_remove_mean(self)
 
 #        self.tra_sigma_clip  = gui_groups.tra_sigma_clip(self)
         self.tra_norm        = gui_groups.tra_norm(self)
         self.tra_dilution    = gui_groups.tra_dilution(self)
+
+        self.act_opt         = gui_groups.act_opt(self)
 
 
         self.ttv_data_to_planet     = gui_groups.ttv_data_to_planet(self)
@@ -8491,6 +8567,13 @@ https://github.com/3fon3fonov/exostriker/issues
         self.buttonGroup_detrend_tra.buttonClicked.connect(self.transit_data_detrend)
         self.DetrendWindow = DetrendWindow(self)
 
+
+        #### Activity detrend   ####
+        self.buttonGroup_options_act.buttonClicked.connect(self.activity_data_options)
+        self.ActivityWindow = ActivityWindow(self)
+       
+        
+
         ####### LD models #############
  
         self.buttonGroup_use_ld_1.buttonClicked.connect(self.set_tra_ld)
@@ -8550,7 +8633,7 @@ https://github.com/3fon3fonov/exostriker/issues
         
 
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.35). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.36). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)

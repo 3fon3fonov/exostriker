@@ -1634,6 +1634,34 @@ def sigma_clip(obj, type = 'RV', sigma_clip = 10, file_n = 0, add_error = 0, rem
 
 
 
+
+
+### some experimets! ###
+def sigma_clip_act(JD_,act_,sigma_,idset_, sigma_clip = 10, verbose = True):
+
+ 
+
+    act = act_ - np.mean(act_)
+
+ 
+    c, low, upp = pdf.sigmaclip(act, sigma_clip, sigma_clip)
+    remaining_idx    = [x for x, z in enumerate(act) if z in c]
+    removed_idx      = [x for x, z in enumerate(act) if z not in c]
+
+    act   = np.take(act_, remaining_idx)
+    JD    = np.take(JD_, remaining_idx)
+    sigma = np.take(sigma_, remaining_idx)
+    idset = np.take(idset_, remaining_idx)
+
+    if verbose: 
+        print("\n activity clipped epochs:")
+        for z in JD_[removed_idx]:
+            print(z)         
+ 
+    return JD,act,sigma,idset
+ 
+
+
 def transit_data_norm(obj,  file_n = 0, norm = False, verbose = True):
 
 

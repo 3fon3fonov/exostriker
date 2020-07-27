@@ -1049,6 +1049,16 @@ def tra_dilution(self):
  
     return tra_dilution
 
+
+def act_opt(self): 
+    act_opt = [
+             self.act_opt_1,self.act_opt_2,self.act_opt_3,self.act_opt_4,self.act_opt_5,
+             self.act_opt_6,self.act_opt_7,self.act_opt_8,self.act_opt_9,self.act_opt_10
+            ]
+ 
+    return act_opt
+
+
 ######################### Arb N-body #################################
     
 def arb_param_gui(self): 

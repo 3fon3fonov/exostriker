@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
 
 setup(
 name='exostriker',  
-version='0.35',
+version='0.36',
 scripts=['scripts/exostriker'],
 author="Trifon Trifonov",
 author_email="trifonov@mpia.de",

@@ -2925,11 +2925,12 @@ class signal_fit(object):
         except:
             print("Something is wrong with your activity data file! Please provide a valid activity data file that contains: BJD  y  sigma_y")
             return
-            
+
+        act_data_o_c = act_data            
         act_file_name = file_from_path(path)
 
-        act_data_set = np.array([act_JD,act_data,act_data_sig,act_file_name])
-
+        act_data_set = np.array([act_JD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, act_file_name])
+ 
         self.act_data_sets[act_idset]      = act_data_set
         self.act_data_sets_init[act_idset] = dill.copy(self.act_data_sets[act_idset])
 
