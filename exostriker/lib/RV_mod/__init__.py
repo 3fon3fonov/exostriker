@@ -1540,7 +1540,7 @@ def run_nestsamp(obj, **kwargs):
         return a + (b-a)*p
 
     def trans_loguni(p,a,b):
-        print(a,b,p,np.log(a),np.log(b) )
+        #print(a,b,p,np.log(a),np.log(b) )
         return np.exp(np.log(a) + p*(np.log(b)-np.log(a)))
 
 
