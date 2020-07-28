@@ -1398,7 +1398,7 @@ def run_nestsamp_bg(obj):
     target_name = 'ns_run'
 
     print("Nested Sampling is running behind the GUI. For status, see the main terminal.")
-    file_ses = open(r"%s.ses"%target_name, 'wb')
+    file_ses = open("%s.ses"%target_name, 'wb')
     dill.dump(obj, file_ses)
     file_ses.close()
 
@@ -1407,7 +1407,7 @@ def run_nestsamp_bg(obj):
     elif sys.version_info[0] == 3:
         os.system("python3 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
 
-    file_ses2 = open(r"%s_out.ses"%target_name, 'rb')
+    file_ses2 = open("%s_out.ses"%target_name, 'rb')
     obj = dill.load(file_ses2)
     file_ses2.close()
 
@@ -1772,7 +1772,7 @@ def run_mcmc_bg(obj):
     target_name = 'mcmc_run'
 
     print("MCMC is running behind the GUI. For status, see the main terminal.")
-    file_ses = open(r"%s.ses"%target_name, 'wb')
+    file_ses = open("%s.ses"%target_name, 'wb')
     dill.dump(obj, file_ses)
     file_ses.close()
 
@@ -1782,7 +1782,7 @@ def run_mcmc_bg(obj):
         os.system("python3 ./lib/run_mcmc_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
 
 
-    file_ses2 = open(r"%s_out.ses"%target_name, 'rb')
+    file_ses2 = open("%s_out.ses"%target_name, 'rb')
     obj = dill.load(file_ses2)
     file_ses2.close()
 
@@ -3145,7 +3145,7 @@ class signal_fit(object):
 
        fo = open(path, "r")
        lines = fo.readlines()
-
+       fo.close()
 
        name1 = '%s_pre.dat'%basename[:-4]
        name2 = '%s_post.dat'%basename[:-4]
