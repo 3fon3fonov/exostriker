@@ -99,6 +99,8 @@ class show_param_boxes(QtWidgets.QDialog):
         self.spin_bins  = QtWidgets.QSpinBox(self)
         self.spin_bins.setSuffix(' bins')
         
+        self.spin_label_pad  = QtWidgets.QSpinBox(self)
+        self.spin_label_pad.setSuffix(' label pad')        
 
         if len(self.parent.lables_cornerplot)!=0:
             self.radio_median.setChecked(bool(self.parent.lables_cornerplot["median"]))
@@ -120,7 +122,6 @@ class show_param_boxes(QtWidgets.QDialog):
                               "smooth1d":1.0, 
                               "dpi":300, 
                               "pad":15, 
-                              "labelpad":50,
                               "title_kwargs":{"fontsize": 12},  }      
             
             self.cornerplot_opt = self.parent.lables_cornerplot["cornerplot"]
@@ -136,6 +137,8 @@ class show_param_boxes(QtWidgets.QDialog):
             self.check_reverse.setChecked(self.cornerplot_opt["reverse"])   
             
             self.spin_bins.setValue(self.cornerplot_opt["bins"])
+            self.spin_label_pad.setValue(self.cornerplot_opt["labelpad"])
+            
 #            print(self.OrigLabels)            
         else:
             self.truth_color_button.setStyleSheet("color: #ff0000;")
@@ -197,7 +200,7 @@ class show_param_boxes(QtWidgets.QDialog):
         self.layout.addWidget(self.radio_best_samp,4,l+3)
         self.layout.addWidget(self.radio_best_gui, 5,l+3)  
         self.layout.addWidget(self.radio_no_cross, 6,l+3)  
-        self.layout.addWidget(self.truth_color_button, 8,l+3)  
+        self.layout.addWidget(self.truth_color_button, 9,l+3)  
         
         
  
@@ -211,10 +214,11 @@ class show_param_boxes(QtWidgets.QDialog):
         self.layout.addWidget(self.check_plot_scale_hist, 5,l+4) 
         self.layout.addWidget(self.check_no_fill_contours, 6,l+4) 
         self.layout.addWidget(self.check_reverse, 7,l+4) 
+        self.layout.addWidget(self.spin_label_pad, 8,l+4)
 
         
              
-        self.layout.addWidget(self.samp_color_button, 8,l+4)              
+        self.layout.addWidget(self.samp_color_button, 9,l+4)              
         
         
         
@@ -253,7 +257,8 @@ class show_param_boxes(QtWidgets.QDialog):
         self.cornerplot_opt["reverse"]         = self.check_reverse.isChecked()
           
         self.cornerplot_opt["bins"]            = self.spin_bins.value()
-           
+        self.cornerplot_opt["labelpad"]            = self.spin_label_pad.value()
+          
       
         
         results["cornerplot"] = self.cornerplot_opt
