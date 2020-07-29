@@ -7374,7 +7374,7 @@ Please install via 'pip install ttvfast'.
             result2, flag2 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep', 15,output=True)
             result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)
 
-        version_dyn_loglik= "0.07"
+        version_dyn_loglik= "0.08"
         result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)
         if flag3 == -1 or str(result3[0][0]) != version_dyn_loglik:
             print("New source code available: Updating N-body Simplex")   

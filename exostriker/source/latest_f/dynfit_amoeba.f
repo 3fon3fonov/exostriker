@@ -27,7 +27,7 @@ c*************************************************************************
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar, sini
 
-      version = "0.07"
+      version = "0.08"
 
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -1018,7 +1018,14 @@ c SET F/RHO^(1/3) FOR RADIUS (RHO IN G/CM^3) TO 1.D0 FOR NOW.
          else
              ecc = dsqrt(a(j+3)**2 + a(j+4)**2)
              omega = datan2(a(j+3),a(j+4))
+             if (omega.lt.0.d0) capm=dmod(omega+2.d0*PI,2.d0*PI) 
+             if (omega.gt.2.d0*PI) capm=dmod(omega,2.d0*PI)                
+             
              capm = a(j+5) - omega
+             
+             if (capm.lt.0.d0) capm=dmod(capm+2.d0*PI,2.d0*PI) 
+             if (capm.gt.2.d0*PI) capm=dmod(capm,2.d0*PI)             
+             
          endif
 
           gm = gm + mass(i)
@@ -1357,7 +1364,7 @@ c...  Internals:
 c...  Executable code 
 
         if(e.lt.0.0) then
-           write(*,*) ' ERROR in orbel_el2xv: e<0, setting e=0!!1'
+c           write(*,*) ' ERROR in orbel_el2xv: e<0, setting e=0!!1'
            e = 0.0
         endif
 
@@ -1367,9 +1374,9 @@ c...    check for inconsistencies between ialpha and e
      &     ((ialpha.eq.0) .and. (abs(em1).gt.TINY))  .or.
      &     ((ialpha.lt.0) .and. (e.gt.1.0d0))  .or.
      &     ((ialpha.gt.0) .and. (e.lt.1.0d0)) )  then
-        write(*,*) 'ERROR in orbel_el2xv: ialpha and e inconsistent'
-             write(*,*) '                       ialpha = ',ialpha
-             write(*,*) '                            e = ',e
+c        write(*,*) 'ERROR in orbel_el2xv: ialpha and e inconsistent'
+c             write(*,*) '                       ialpha = ',ialpha
+c             write(*,*) '                            e = ',e
         endif
 
 C Generate rotation matrices (on p. 42 of Fitzpatrick)
