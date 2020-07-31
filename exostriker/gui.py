@@ -18,12 +18,20 @@ sys.path.insert(0,lib_path)
  
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-sys._excepthook = sys.excepthook 
-def exception_hook(exctype, value, traceback):
-    print(exctype, value, traceback)
-    sys._excepthook(exctype, value, traceback) 
-    #sys.exit(1) 
-sys.excepthook = exception_hook 
+#sys._excepthook = sys.excepthook
+#def exception_hook(exctype, value, traceback):
+#    print(exctype, value, traceback)
+#    sys._excepthook(exctype, value, traceback)
+    #sys.exit(1)
+#sys.excepthook = exception_hook
+
+
+if QtCore.QT_VERSION >= 0x50501:
+    def excepthook(type_, value, traceback_):
+        traceback.print_exception(type_, value, traceback_)
+        QtCore.qFatal('')
+sys.excepthook = excepthook
+
 
 if not sys.warnoptions:
     import warnings

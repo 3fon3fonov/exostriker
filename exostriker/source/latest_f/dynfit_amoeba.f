@@ -1018,8 +1018,8 @@ c SET F/RHO^(1/3) FOR RADIUS (RHO IN G/CM^3) TO 1.D0 FOR NOW.
          else
              ecc = dsqrt(a(j+3)**2 + a(j+4)**2)
              omega = datan2(a(j+3),a(j+4))
-             if (omega.lt.0.d0) capm=dmod(omega+2.d0*PI,2.d0*PI) 
-             if (omega.gt.2.d0*PI) capm=dmod(omega,2.d0*PI)                
+             if (omega.lt.0.d0) omega=dmod(omega+2.d0*PI,2.d0*PI) 
+             if (omega.gt.2.d0*PI) omega=dmod(omega,2.d0*PI)                
              
              capm = a(j+5) - omega
              
@@ -1364,8 +1364,10 @@ c...  Internals:
 c...  Executable code 
 
         if(e.lt.0.0) then
-c           write(*,*) ' ERROR in orbel_el2xv: e<0, setting e=0!!1'
+c           write(*,*) ' ERROR in orbel_el2xv: e<0, setting e=0!!!'
            e = 0.0
+c           ialpha = -1
+    
         endif
 
 c...    check for inconsistencies between ialpha and e
@@ -1374,6 +1376,9 @@ c...    check for inconsistencies between ialpha and e
      &     ((ialpha.eq.0) .and. (abs(em1).gt.TINY))  .or.
      &     ((ialpha.lt.0) .and. (e.gt.1.0d0))  .or.
      &     ((ialpha.gt.0) .and. (e.lt.1.0d0)) )  then
+           e = 0.0
+           ialpha = -1
+
 c        write(*,*) 'ERROR in orbel_el2xv: ialpha and e inconsistent'
 c             write(*,*) '                       ialpha = ',ialpha
 c             write(*,*) '                            e = ',e
@@ -1397,8 +1402,8 @@ C
       if (ialpha .eq. -1) then
         cape = orbel_ehybrid(e,capm)
         call orbel_scget(cape,scap,ccap)
-        sqe = sqrt(1.d0 -e*e)
-        sqgma = sqrt(gm*a)
+        sqe = dsqrt(1.d0 -e*e)
+        sqgma = dsqrt(gm*a)
         xfac1 = a*(ccap - e)
         xfac2 = a*sqe*scap
         ri = 1.d0/(a*(1.d0 - e*ccap))
@@ -1409,8 +1414,8 @@ c--
       if (ialpha .eq. +1) then
         capf = orbel_fhybrid(e,capm)
         call orbel_schget(capf,shcap,chcap)
-        sqe = sqrt(e*e - 1.d0 )
-        sqgma = sqrt(gm*a)
+        sqe = dsqrt(e*e - 1.d0 )
+        sqgma = dsqrt(gm*a)
         xfac1 = a*(e - chcap)
         xfac2 = a*sqe*shcap
         ri = 1.d0/(a*(e*chcap - 1.d0))
@@ -1420,7 +1425,7 @@ c--
 C--
       if (ialpha .eq. 0) then
         zpara = orbel_zget(capm)
-        sqgma = sqrt(2.d0*gm*a)
+        sqgma = dsqrt(2.d0*gm*a)
         xfac1 = a*(1.d0 - zpara*zpara)
         xfac2 = 2.d0*a*zpara
         ri = 1.d0/(a*(1.d0 + zpara*zpara))
@@ -1585,8 +1590,8 @@ c...  Executable code
       if(x.lt.0.d0) then
            x = x + TWOPI
         endif
-      sx = sin(x)
-      cx= sqrt(1.d0 - sx*sx)
+      sx = dsin(x)
+      cx= dsqrt(1.d0 - sx*sx)
       if( (x .gt. PIBY2) .and. (x .lt.PI3BY2)) then
            cx = -cx
         endif
@@ -1660,7 +1665,7 @@ c...  do sun part first
          zz = zb(i) - zb(j)
          rr2 = xx**2 + yy**2 + zz**2
 
-         fac1 = 1.d0/sqrt(rr2)
+         fac1 = 1.d0/dsqrt(rr2)
          fac = fac1/rr2
 c         if (j.eq.2) write(*,*) fac, rr2, xx , yy , zz
 
@@ -1689,7 +1694,7 @@ c..      save for the J2 and J4 calculations
             yy = yb(i) - yb(j)
             zz = zb(i) - zb(j)
             rr2 = xx**2 + yy**2 + zz**2
-            fac = 1.d0/(rr2*sqrt(rr2))
+            fac = 1.d0/(rr2*dsqrt(rr2))
             axx = xx*fac
             ayy = yy*fac
             azz = zz*fac
@@ -1931,7 +1936,7 @@ c First get the bary acc. of each "planet" due to central oblate "sun"
       do n =2,nbod
 
 c Note that here we assume we know inverse of radius rather than calc. it
-c from (x,y,z) to save the sqrt.
+c from (x,y,z) to save the ddsqrt.
         rinv2= irh(n)**2
         t0 = -mass(1)*rinv2*rinv2*irh(n)
         t1 = 1.5d0 *j2rp2
@@ -2303,7 +2308,7 @@ c...  Executable code
       if (q.lt.1.d-3) then
          orbel_zget = q*(1.d0 - (q*q/3.d0)*(1.d0 -q*q))
       else
-         x = 0.5d0*(3.d0*q + sqrt(9.d0*(q**2) +4.d0))
+         x = 0.5d0*(3.d0*q + dsqrt(9.d0*(q**2) +4.d0))
          tmp = x**(1.d0/3.d0)
          orbel_zget = tmp - 1.d0/tmp
       endif
@@ -2332,7 +2337,7 @@ c             chx    ==>  cosh(angle)  (real scalar)
 c
 c     ALGORITHM: Obvious from the code 
 c     REMARKS: Based on the routine SCGET for sine's and cosine's.
-c       We use the sqrt rather than cosh (it's faster)
+c       We use the dsqrt rather than cosh (it's faster)
 c       BE SURE THE ANGLE IS IN RADIANS AND IT CAN'T BE LARGER THAN 300
 c       OR OVERFLOWS WILL OCCUR!
 c     AUTHOR:  M. Duncan.
@@ -2355,7 +2360,7 @@ c----
 c...  Executable code 
 
       shx = sinh(angle)
-      chx= sqrt(1.d0 + shx*shx)
+      chx= dsqrt(1.d0 + shx*shx)
 
       return
       end   ! orbel_schget
@@ -2427,7 +2432,7 @@ c  Begin with a reasonable guess based on solving the cubic for small F
 
       a = 6.d0*(e-1.d0)/e
       b = -6.d0*capn/e
-      sq = sqrt(0.25*b*b +a*a*a/27.d0)
+      sq = dsqrt(0.25*b*b +a*a*a/27.d0)
       biga = (-0.5*b + sq)**0.3333333333333333d0
       bigb = -(+0.5*b + sq)**0.3333333333333333d0
       x = biga + bigb
