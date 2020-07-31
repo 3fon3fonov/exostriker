@@ -1842,7 +1842,7 @@ def phase_RV_planet_signal(obj,planet):
         data  = [data_time_phase,  phased_data, phased_data_err, phased_data_idset]
 
 
-        #del copied_obj
+        del copied_obj
 
         #####################
         obj.ph_data[planet-1] = data

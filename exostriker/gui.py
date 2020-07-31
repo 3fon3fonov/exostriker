@@ -2111,7 +2111,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             pfill = pg.FillBetweenItem(p1.plot(fit.fit_results.model_jd, fit.fit_results.model + fit.gp_model_curve[0]+fit.gp_model_curve[2]), 
                                        p1.plot(fit.fit_results.model_jd, fit.fit_results.model + fit.gp_model_curve[0]-fit.gp_model_curve[2]), 
                                        brush = pg.mkColor(244,140,66,128))
-            p1.addItem(pfill)  
+            p1.addItem(pfill) 
+            
+            
+#        if len(fit.fit_results.rv_model.rv_err) != len(fit.filelist.idset) or len(fit.fit_results.rv_model.rv_err) ==0 :
+#            return
 
         if self.jitter_to_plots.isChecked() and not self.split_jitter.isChecked():
             error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)
