@@ -37813,7 +37813,7 @@ class Ui_MainWindow(object):
         self.param_tabs.setCurrentIndex(0)
         self.tabWidget_8.setCurrentIndex(0)
         self.tabWidget_14.setCurrentIndex(0)
-        self.tabWidget_2.setCurrentIndex(2)
+        self.tabWidget_2.setCurrentIndex(0)
         self.tabWidget_32.setCurrentIndex(0)
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget_15.setCurrentIndex(0)

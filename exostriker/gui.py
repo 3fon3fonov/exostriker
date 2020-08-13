@@ -973,6 +973,17 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
  
         for i in range(3): 
             fit.GP_sho_bounds[i] = GP_sho_bounds_gui[i]
+            
+        GP_mat_bounds_gui = [
+        [self.GP_mat_kernel_sigma_min.value(),self.GP_mat_kernel_sigma_max.value()],  
+        [self.GP_mat_kernel_rho_min.value(),self.GP_mat_kernel_rho_max.value()],  
+        [self.GP_mat_kernel_eps_min.value(),self.GP_mat_kernel_eps_max.value()],  
+        ]
+ 
+        for i in range(3): 
+            fit.GP_mat_bounds[i] = GP_mat_bounds_gui[i]            
+            
+            
 
     def check_tra_GP_bounds(self):
         global fit
@@ -996,7 +1007,14 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(3): 
             fit.tra_GP_sho_bounds[i] = tra_GP_sho_bounds_gui[i]
             
-  
+        tra_GP_mat_bounds_gui = [
+        [self.tra_GP_mat_kernel_sigma_min.value(),self.tra_GP_mat_kernel_sigma_max.value()],  
+        [self.tra_GP_mat_kernel_rho_min.value(),self.tra_GP_mat_kernel_rho_max.value()],  
+        [self.tra_GP_mat_kernel_eps_min.value(),self.tra_GP_mat_kernel_eps_max.value()],  
+        ]
+ 
+        for i in range(3): 
+            fit.tra_GP_mat_bounds[i] = tra_GP_mat_bounds_gui[i]        
 
     def check_ld_bounds(self):
         global fit
@@ -1101,7 +1119,15 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
  
         for i in range(3): 
             fit.GP_sho_norm_pr[i] = GP_sho_nr_priors_gui[i]   
-            
+
+        GP_mat_nr_priors_gui = [
+        [self.GP_mat_kernel_sigma_mean.value(),self.GP_mat_kernel_sigma_sigma.value(), self.use_GP_mat_kernel_sigma_nr_pr.isChecked()],  
+        [self.GP_mat_kernel_rho_mean.value(),self.GP_mat_kernel_rho_sigma.value(), self.use_GP_mat_kernel_rho_nr_pr.isChecked()],  
+        [self.GP_mat_kernel_eps_mean.value(),self.GP_mat_kernel_eps_sigma.value(), self.use_GP_mat_kernel_eps_nr_pr.isChecked()],  
+        ]
+ 
+        for i in range(3): 
+            fit.GP_mat_norm_pr[i] = GP_mat_nr_priors_gui[i]              
 
     def check_tra_GP_priors_nr(self):
         global fit
@@ -1127,7 +1153,14 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(3): 
             fit.tra_GP_sho_norm_pr[i] = tra_GP_sho_nr_priors_gui[i]
             
-
+        tra_GP_mat_nr_priors_gui = [
+        [self.tra_GP_mat_kernel_sigma_mean.value(),self.tra_GP_mat_kernel_sigma_sigma.value(), self.use_tra_GP_mat_kernel_sigma_nr_pr.isChecked()],  
+        [self.tra_GP_mat_kernel_rho_mean.value(),self.tra_GP_mat_kernel_rho_sigma.value(), self.use_tra_GP_mat_kernel_rho_nr_pr.isChecked()],  
+        [self.tra_GP_mat_kernel_eps_mean.value(),self.tra_GP_mat_kernel_eps_sigma.value(), self.use_tra_GP_mat_kernel_eps_nr_pr.isChecked()],  
+        ]
+ 
+        for i in range(3): 
+            fit.tra_GP_mat_norm_pr[i] = tra_GP_mat_nr_priors_gui[i]  
             
     def check_priors_jeff(self):
         global fit
@@ -1220,6 +1253,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(3): 
             fit.GP_sho_jeff_pr[i] = GP_sho_jeff_priors_gui[i]   
             
+        GP_mat_jeff_priors_gui = [
+        [self.GP_mat_kernel_sigma_alpha.value(),self.GP_mat_kernel_sigma_beta.value(), self.use_GP_mat_kernel_sigma_jeff_pr.isChecked()],  
+        [self.GP_mat_kernel_rho_alpha.value(),self.GP_mat_kernel_rho_beta.value(), self.use_GP_mat_kernel_rho_jeff_pr.isChecked()],  
+        [self.GP_mat_kernel_eps_alpha.value(),self.GP_mat_kernel_eps_beta.value(), self.use_GP_mat_kernel_eps_jeff_pr.isChecked()],  
+        ]
+ 
+        for i in range(3): 
+            fit.GP_mat_jeff_pr[i] = GP_mat_jeff_priors_gui[i]               
+            
+            
             
     def check_tra_GP_priors_jeff(self):
         global fit
@@ -1243,7 +1286,14 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(3): 
             fit.tra_GP_sho_jeff_pr[i] = tra_GP_sho_jeff_priors_gui[i]   
             
+        tra_GP_mat_jeff_priors_gui = [
+        [self.tra_GP_mat_kernel_sigma_alpha.value(),self.tra_GP_mat_kernel_sigma_beta.value(), self.use_tra_GP_mat_kernel_sigma_jeff_pr.isChecked()],  
+        [self.tra_GP_mat_kernel_rho_alpha.value(),self.tra_GP_mat_kernel_rho_beta.value(), self.use_tra_GP_mat_kernel_rho_jeff_pr.isChecked()],  
+        [self.tra_GP_mat_kernel_eps_alpha.value(),self.tra_GP_mat_kernel_eps_beta.value(), self.use_tra_GP_mat_kernel_eps_jeff_pr.isChecked()],  
+        ]
  
+        for i in range(3): 
+            fit.tra_GP_mat_jeff_pr[i] = tra_GP_mat_jeff_priors_gui[i]   
  
     def check_arb_pl(self):
         global fit
