@@ -2612,6 +2612,14 @@ class signal_fit(object):
         self.GP_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_sho_params))}
         self.GP_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_sho_params))}
 
+        self.GP_mat_params     = [1.0,1.0,0.001]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_mat_err = [0.0,0.0,0.0]
+        self.GP_mat_use = [False,False,False]
+        self.GP_mat_str = [r'RV GP$_{\rm mat 3/2}$ $\sigma$', r'RV GP$_{\rm mat 3/2}$ $\rho$', r'RV GP$_{\rm mat 3/2}$ $eps$']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_mat_bounds     = {k: np.array([0.0,10.0]) for k in range(len(self.GP_mat_params))}
+        self.GP_mat_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_mat_params))}
+        self.GP_mat_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_mat_params))}
+
         self.gp_model_curve = {k: 0.0 for k in range(10)}
         self.gp_model_data  = {k: 0.0 for k in range(10)}
 
@@ -2638,6 +2646,15 @@ class signal_fit(object):
         self.tra_GP_sho_bounds     = {k: np.array([0.0,100000.0]) for k in range(len(self.tra_GP_sho_params))}
         self.tra_GP_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_sho_params))}
         self.tra_GP_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_sho_params))}
+
+        self.tra_GP_mat_params     = [1.0,1.0,0.001]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.tra_GP_mat_err = [0.0,0.0,0.0]
+        self.tra_GP_mat_use = [False,False,False]
+        self.tra_GP_mat_str = [r'Transit GP$_{\rm mat 3/2}$ $\sigma$', r'Transit GP$_{\rm mat 3/2}$ $\rho$', r'Transit GP$_{\rm mat 3/2}$ $eps$']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.tra_GP_mat_bounds     = {k: np.array([0.0,10.0]) for k in range(len(self.tra_GP_mat_params))}
+        self.tra_GP_mat_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_mat_params))}
+        self.tra_GP_mat_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_mat_params))}
+
 
         self.tra_gp_model_curve = {k: 0.0 for k in range(10)}
         self.tra_gp_model_data  = {k: 0.0 for k in range(10)}
