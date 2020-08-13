@@ -23,8 +23,8 @@ The instructions below will install the following dependencies:
 * ttvfast-python
 
 
-Also, please only use Python 3 for installing The Exo-Striker! The tool works with Python 2, 
-but since Python 2 and is no longer maintained (since Jan 1, 2020), I do not assist in case of problems.    
+Also, please only use Python 3 for installing the Exo-Striker! The tool works with Python 2, 
+but since Python 2 is no longer maintained (since Jan 1, 2020), I do not assist in case of problems.    
 
 (see below comments on Linux, Mac OS, and Windows 10 installations)
 
@@ -55,8 +55,8 @@ and then:
 $ cd exostriker    
 $ python setup.py install    
 
-This will (hopefully) install the tool in your system.     
-Then, open a terminal and     
+This will install the tool in your system.     
+Then, open a terminal and:     
 
 $ exostriker    
 
@@ -67,8 +67,8 @@ Should start the Exo-Striker
 
 $ pip install git+https://github.com/3fon3fonov/exostriker    
 
-This will (hopefully) install the tool in your system.    
-Then, open a terminal and     
+This will install the tool in your system.    
+Then, open a terminal and:     
 
 $ exostriker
 
@@ -99,10 +99,12 @@ Some OS related comments:
 
 ##############################  LINUX  #########################################
 
+The above istructions usually work without any problem on Linux OS.
  
-For full functionality, you will also need:
+ 
+For full functionality on Linux, you will also need to install:
 
-* rxvt (optional bash shell)
+* rxvt (optional, better bash shell)
  
  
 
@@ -162,7 +164,9 @@ https://seanthegeek.net/234/graphical-linux-applications-bash-ubuntu-windows/
 
 These two tutorials worked for me, but there might be other options too. 
 
-On high DPI displays with Windows display scaling activated (>100%),
+
+In case there is a problem of the appearance of the GUI the problem could be 
+your DPI setup. On high DPI displays with Windows display scaling activated (>100%),
 the X-server DPI has to be set, otherwise, the exostriker will not display correctly (text clipping).
 Edit the file `.Xresources` in the home directory of the WSL installation,
 for example with `nano ~/.Xresources`.
@@ -205,11 +209,23 @@ $ python exostriker_gui.py
  
  
  
-If you want to use the library on the Python shell
+If you want to use the library on the Python shell/script
 
-``import RV_mod as rv''
+In [1]: import exostriker
+
+
+
+or e.g. to load the RV routines:
+
+In [1]: import exostriker.lib.RV_mod as rv
+In [2]: fit = rv.signal_fit(name="hip5364")
+In [3]: fit.add_dataset("./datafiles/","hip5364.vels",0.0.10.0)
+In [4]: fit.add_planet(K=50,P=400,e=0,w=0,M0=0,i=90,cap=0) 
+In [5]: fit.add_planet(K=50,P=700,e=0,w=0,M0=180,i=90,cap=0) 
+In [6]: fit.fitting() 
+
  
-(but the RVmod directory must be in your path! However, one must be familiar with the functions of the RVmod... A manual on RVmod is planned, but not available at the moment.)
+(However, one must be familiar with the functions... A manual on RVmod is planned, but not available at the moment.)
 
 
 
