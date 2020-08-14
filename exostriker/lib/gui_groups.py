@@ -913,6 +913,195 @@ def use_tra_gp_sho_params(self):
     return use_tra_gp_sho_params
 
 
+
+def tra_GP_sho_bounds_gui(self):
+    
+    tra_GP_sho_bounds_gui = [
+        [self.tra_GP_sho_kernel_S_min,self.tra_GP_sho_kernel_S_max,self.use_tra_GP_sho_kernel_S_bound],  
+        [self.tra_GP_sho_kernel_Q_min,self.tra_GP_sho_kernel_Q_max,self.use_tra_GP_sho_kernel_Q_bound],  
+        [self.tra_GP_sho_kernel_omega_min,self.tra_GP_sho_kernel_omega_max,self.use_tra_GP_sho_kernel_omega_bound],  
+        ]
+        
+    return tra_GP_sho_bounds_gui
+
+def tra_GP_rot_bounds_gui(self):
+
+    tra_GP_rot_bounds_gui = [
+        [self.tra_GP_rot_kernel_Amp_min,self.tra_GP_rot_kernel_Amp_max,self.use_tra_GP_rot_kernel_Amp_bound],  
+        [self.tra_GP_rot_kernel_time_sc_min,self.tra_GP_rot_kernel_time_sc_max,self.use_tra_GP_rot_kernel_time_sc_bound],  
+        [self.tra_GP_rot_kernel_Per_min,self.tra_GP_rot_kernel_Per_max,self.use_tra_GP_rot_kernel_Per_sigma_bound],  
+        [self.tra_GP_rot_kernel_fact_min,self.tra_GP_rot_kernel_fact_max,self.use_tra_GP_rot_kernel_fact_bound],  
+        ]
+        
+    return tra_GP_rot_bounds_gui
+
+def tra_GP_mat_bounds_gui(self):
+
+    tra_GP_mat_bounds_gui = [
+        [self.tra_GP_mat_kernel_sigma_min,self.tra_GP_mat_kernel_sigma_max,self.use_tra_GP_mat_kernel_sigma_bound],  
+        [self.tra_GP_mat_kernel_rho_min,self.tra_GP_mat_kernel_rho_max,self.use_tra_GP_mat_kernel_rho_bound],  
+        [self.tra_GP_mat_kernel_eps_min,self.tra_GP_mat_kernel_eps_max,self.use_tra_GP_mat_kernel_sigma_bound],  
+        ]
+    return tra_GP_mat_bounds_gui
+ 
+
+def GP_sho_bounds_gui(self):
+    
+    GP_sho_bounds_gui = [
+        [self.GP_sho_kernel_S_min,self.GP_sho_kernel_S_max,self.use_GP_sho_kernel_S_bound],  
+        [self.GP_sho_kernel_Q_min,self.GP_sho_kernel_Q_max,self.use_GP_sho_kernel_Q_bound],  
+        [self.GP_sho_kernel_omega_min,self.GP_sho_kernel_omega_max,self.use_GP_sho_kernel_omega_bound],  
+        ]
+        
+    return GP_sho_bounds_gui
+
+def GP_rot_bounds_gui(self):
+
+    GP_rot_bounds_gui = [
+        [self.GP_rot_kernel_Amp_min,self.GP_rot_kernel_Amp_max,self.use_GP_rot_kernel_Amp_bound],  
+        [self.GP_rot_kernel_time_sc_min,self.GP_rot_kernel_time_sc_max,self.use_GP_rot_kernel_time_sc_bound],  
+        [self.GP_rot_kernel_Per_min,self.GP_rot_kernel_Per_max,self.use_GP_rot_kernel_Per_sigma_bound],  
+        [self.GP_rot_kernel_fact_min,self.GP_rot_kernel_fact_max,self.use_GP_rot_kernel_fact_bound],  
+        ]
+        
+    return GP_rot_bounds_gui
+
+def GP_mat_bounds_gui(self):
+
+    GP_mat_bounds_gui = [
+        [self.GP_mat_kernel_sigma_min,self.GP_mat_kernel_sigma_max,self.use_GP_mat_kernel_sigma_bound],  
+        [self.GP_mat_kernel_rho_min,self.GP_mat_kernel_rho_max,self.use_GP_mat_kernel_rho_bound],  
+        [self.GP_mat_kernel_eps_min,self.GP_mat_kernel_eps_max,self.use_GP_mat_kernel_sigma_bound],  
+        ]
+    return GP_mat_bounds_gui
+
+
+def GP_rot_nr_priors_gui(self):
+
+    GP_rot_nr_priors_gui = [
+        [self.GP_rot_kernel_Amp_mean,self.GP_rot_kernel_Amp_sigma,self.use_GP_rot_kernel_Amp_nr_pr],  
+        [self.GP_rot_kernel_time_sc_mean,self.GP_rot_kernel_time_sc_sigma,self.use_GP_rot_kernel_time_sc_nr_pr],  
+        [self.GP_rot_kernel_Per_mean,self.GP_rot_kernel_Per_sigma,self.use_GP_rot_kernel_Per_sigma_nr_pr],  
+        [self.GP_rot_kernel_fact_mean,self.GP_rot_kernel_fact_sigma,self.use_GP_rot_kernel_fact_nr_pr],  
+        ]
+
+    return GP_rot_nr_priors_gui
+
+def GP_sho_nr_priors_gui(self):
+
+    GP_sho_nr_priors_gui = [
+        [self.GP_sho_kernel_S_mean,self.GP_sho_kernel_S_sigma, self.use_GP_sho_kernel_S_nr_pr],  
+        [self.GP_sho_kernel_Q_mean,self.GP_sho_kernel_Q_sigma, self.use_GP_sho_kernel_Q_nr_pr],  
+        [self.GP_sho_kernel_omega_mean,self.GP_sho_kernel_omega_sigma, self.use_GP_sho_kernel_omega_nr_pr],  
+        ]
+    
+    return GP_sho_nr_priors_gui
+  
+def GP_mat_nr_priors_gui(self):
+
+    GP_mat_nr_priors_gui = [
+        [self.GP_mat_kernel_sigma_mean,self.GP_mat_kernel_sigma_sigma, self.use_GP_mat_kernel_sigma_nr_pr],  
+        [self.GP_mat_kernel_rho_mean,self.GP_mat_kernel_rho_sigma, self.use_GP_mat_kernel_rho_nr_pr],  
+        [self.GP_mat_kernel_eps_mean,self.GP_mat_kernel_eps_sigma, self.use_GP_mat_kernel_eps_nr_pr],  
+        ]
+        
+    return GP_mat_nr_priors_gui
+
+
+def tra_GP_rot_nr_priors_gui(self):
+
+    tra_GP_rot_nr_priors_gui = [
+        [self.tra_GP_rot_kernel_Amp_mean,self.tra_GP_rot_kernel_Amp_sigma,self.use_tra_GP_rot_kernel_Amp_nr_pr],  
+        [self.tra_GP_rot_kernel_time_sc_mean,self.tra_GP_rot_kernel_time_sc_sigma,self.use_tra_GP_rot_kernel_time_sc_nr_pr],  
+        [self.tra_GP_rot_kernel_Per_mean,self.tra_GP_rot_kernel_Per_sigma,self.use_tra_GP_rot_kernel_Per_sigma_nr_pr],  
+        [self.tra_GP_rot_kernel_fact_mean,self.tra_GP_rot_kernel_fact_sigma,self.use_tra_GP_rot_kernel_fact_nr_pr],  
+        ]
+ 
+    return tra_GP_rot_nr_priors_gui
+
+def tra_GP_sho_nr_priors_gui(self):
+    
+    tra_GP_sho_nr_priors_gui = [
+        [self.tra_GP_sho_kernel_S_mean,self.tra_GP_sho_kernel_S_sigma, self.use_tra_GP_sho_kernel_S_nr_pr],  
+        [self.tra_GP_sho_kernel_Q_mean,self.tra_GP_sho_kernel_Q_sigma, self.use_tra_GP_sho_kernel_Q_nr_pr],  
+        [self.tra_GP_sho_kernel_omega_mean,self.tra_GP_sho_kernel_omega_sigma, self.use_tra_GP_sho_kernel_omega_nr_pr],  
+        ]
+ 
+    return tra_GP_sho_nr_priors_gui
+
+def tra_GP_mat_nr_priors_gui(self):
+            
+    tra_GP_mat_nr_priors_gui = [
+        [self.tra_GP_mat_kernel_sigma_mean,self.tra_GP_mat_kernel_sigma_sigma, self.use_tra_GP_mat_kernel_sigma_nr_pr],  
+        [self.tra_GP_mat_kernel_rho_mean,self.tra_GP_mat_kernel_rho_sigma, self.use_tra_GP_mat_kernel_rho_nr_pr],  
+        [self.tra_GP_mat_kernel_eps_mean,self.tra_GP_mat_kernel_eps_sigma, self.use_tra_GP_mat_kernel_eps_nr_pr],  
+        ]
+    return tra_GP_mat_nr_priors_gui
+
+
+
+def GP_rot_jeff_priors_gui(self):
+
+    GP_rot_jeff_priors_gui = [
+        [self.GP_rot_kernel_Amp_jeff_alpha,self.GP_rot_kernel_Amp_jeff_beta,self.use_GP_rot_kernel_Amp_jeff_pr],  
+        [self.GP_rot_kernel_time_sc_jeff_alpha,self.GP_rot_kernel_time_sc_jeff_beta,self.use_GP_rot_kernel_time_sc_jeff_pr],  
+        [self.GP_rot_kernel_Per_jeff_alpha,self.GP_rot_kernel_Per_jeff_beta,self.use_GP_rot_kernel_Per_jeff_pr],  
+        [self.GP_rot_kernel_fact_jeff_alpha,self.GP_rot_kernel_fact_jeff_beta,self.use_GP_rot_kernel_fact_jeff_pr],  
+        ]
+ 
+    return GP_rot_jeff_priors_gui
+              
+def GP_sho_jeff_priors_gui(self):
+
+    GP_sho_jeff_priors_gui = [
+        [self.GP_sho_kernel_S_jeff_alpha,self.GP_sho_kernel_S_jeff_beta, self.use_GP_sho_kernel_S_jeff_pr],  
+        [self.GP_sho_kernel_Q_jeff_alpha,self.GP_sho_kernel_Q_jeff_beta, self.use_GP_sho_kernel_Q_jeff_pr],  
+        [self.GP_sho_kernel_omega_jeff_alpha,self.GP_sho_kernel_omega_jeff_beta, self.use_GP_sho_kernel_omega_jeff_pr],  
+        ]
+ 
+    return GP_sho_jeff_priors_gui
+ 
+def GP_mat_jeff_priors_gui(self):
+            
+    GP_mat_jeff_priors_gui = [
+        [self.GP_mat_kernel_sigma_alpha,self.GP_mat_kernel_sigma_beta, self.use_GP_mat_kernel_sigma_jeff_pr],  
+        [self.GP_mat_kernel_rho_alpha,self.GP_mat_kernel_rho_beta, self.use_GP_mat_kernel_rho_jeff_pr],  
+        [self.GP_mat_kernel_eps_alpha,self.GP_mat_kernel_eps_beta, self.use_GP_mat_kernel_eps_jeff_pr],  
+        ]
+        
+    return GP_mat_jeff_priors_gui
+
+def tra_GP_rot_jeff_priors_gui(self):
+
+    tra_GP_rot_jeff_priors_gui = [
+        [self.tra_GP_rot_kernel_Amp_jeff_alpha,self.tra_GP_rot_kernel_Amp_jeff_beta,self.use_tra_GP_rot_kernel_Amp_jeff_pr],  
+        [self.tra_GP_rot_kernel_time_sc_jeff_alpha,self.tra_GP_rot_kernel_time_sc_jeff_beta,self.use_tra_GP_rot_kernel_time_sc_jeff_pr],  
+        [self.tra_GP_rot_kernel_Per_jeff_alpha,self.tra_GP_rot_kernel_Per_jeff_beta,self.use_tra_GP_rot_kernel_Per_jeff_pr],  
+        [self.tra_GP_rot_kernel_fact_jeff_alpha,self.tra_GP_rot_kernel_fact_jeff_beta,self.use_tra_GP_rot_kernel_fact_jeff_pr],  
+        ]
+ 
+    return tra_GP_rot_jeff_priors_gui
+              
+def tra_GP_sho_jeff_priors_gui(self):
+
+    tra_GP_sho_jeff_priors_gui = [
+        [self.tra_GP_sho_kernel_S_jeff_alpha,self.tra_GP_sho_kernel_S_jeff_beta, self.use_tra_GP_sho_kernel_S_jeff_pr],  
+        [self.tra_GP_sho_kernel_Q_jeff_alpha,self.tra_GP_sho_kernel_Q_jeff_beta, self.use_tra_GP_sho_kernel_Q_jeff_pr],  
+        [self.tra_GP_sho_kernel_omega_jeff_alpha,self.tra_GP_sho_kernel_omega_jeff_beta, self.use_tra_GP_sho_kernel_omega_jeff_pr],  
+        ]
+ 
+    return tra_GP_sho_jeff_priors_gui
+ 
+def tra_GP_mat_jeff_priors_gui(self):
+            
+    tra_GP_mat_jeff_priors_gui = [
+        [self.tra_GP_mat_kernel_sigma_alpha,self.tra_GP_mat_kernel_sigma_beta, self.use_tra_GP_mat_kernel_sigma_jeff_pr],  
+        [self.tra_GP_mat_kernel_rho_alpha,self.tra_GP_mat_kernel_rho_beta, self.use_tra_GP_mat_kernel_rho_jeff_pr],  
+        [self.tra_GP_mat_kernel_eps_alpha,self.tra_GP_mat_kernel_eps_beta, self.use_tra_GP_mat_kernel_eps_jeff_pr],  
+        ]
+        
+    return tra_GP_mat_jeff_priors_gui
+
 ################ labels ##########################
 
 def param_a_gui(self): 

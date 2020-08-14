@@ -871,10 +871,82 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.jitter_bounds_gui[i][z].setValue(fit.jitt_bounds[i][z])
                 self.offset_bounds_gui_tra[i][z].setValue(fit.tra_off_bounds[i][z])
                 self.jitter_bounds_gui_tra[i][z].setValue(fit.tra_jitt_bounds[i][z])
+                
+                
+        self.update_RV_GP_bounds()
+        self.update_tra_GP_bounds()
+                
 
         self.update_nr_prior()
         self.update_jeff_prior()
 
+
+
+    def update_RV_GP_bounds(self):
+        global fit
+        
+  
+        for i in range(3): 
+            for z in range(2):
+                self.GP_sho_bounds_gui[i][z].setValue(fit.GP_sho_bounds[i][z])
+           # if len(fit.GP_sho_bounds[i]) ==2:
+           #     fit.GP_sho_bounds[i].append(True)
+           #     self.GP_sho_bounds_gui[i][2].setChecked(fit.GP_sho_bounds[i][2])
+           # else:
+           #     self.GP_sho_bounds_gui[i][2].setChecked(fit.GP_sho_bounds[i][2])
+ 
+
+        for i in range(4):
+            for z in range(2):
+                self.GP_rot_bounds_gui[i][z].setValue(fit.GP_rot_bounds[i][z])
+            #if len(fit.GP_rot_bounds[i]) ==2:
+            #    fit.GP_rot_bounds[i].append(True)
+            #    self.GP_rot_bounds_gui[i][2].setChecked(fit.GP_rot_bounds[i][2])
+            #else:
+            #    self.GP_rot_bounds_gui[i][2].setChecked(fit.GP_rot_bounds[i][2])
+            
+ 
+        for i in range(3): 
+            for z in range(2):
+                self.GP_mat_bounds_gui[i][z].setValue(fit.GP_mat_bounds[i][z])   
+            #if len(fit.GP_mat_bounds[i]) ==2:
+            #    fit.GP_mat_bounds[i].append(True)
+            #    self.GP_mat_bounds_gui[i][2].setChecked(fit.GP_mat_bounds[i][2])
+            #else:
+            #    self.GP_mat_bounds_gui[i][2].setChecked(fit.GP_mat_bounds[i][2])
+                
+                
+    def update_tra_GP_bounds(self):
+        global fit
+        
+ 
+        for i in range(3): 
+            for z in range(2):
+                self.tra_GP_sho_bounds_gui[i][z].setValue(fit.tra_GP_sho_bounds[i][z])
+            #if len(fit.tra_GP_sho_bounds[i]) ==2:
+            #    fit.tra_GP_sho_bounds[i].append(True)
+            #    self.tra_GP_sho_bounds_gui[i][2].setChecked(fit.tra_GP_sho_bounds[i][2])
+            #else:
+            #    self.tra_GP_sho_bounds_gui[i][2].setChecked(fit.tra_GP_sho_bounds[i][2])
+
+        for i in range(4):
+            for z in range(2):
+                self.tra_GP_rot_bounds_gui[i][z].setValue(fit.tra_GP_rot_bounds[i][z])
+            #if len(fit.tra_GP_rot_bounds[i]) ==2:
+            #    fit.tra_GP_rot_bounds[i].append(True)
+            #    self.tra_GP_rot_bounds_gui[i][2].setChecked(fit.tra_GP_rot_bounds[i][2])
+            #else:
+            #    self.tra_GP_rot_bounds_gui[i][2].setChecked(fit.tra_GP_rot_bounds[i][2])
+                   
+        for i in range(3): 
+            for z in range(2):
+                self.tra_GP_mat_bounds_gui[i][z].setValue(fit.tra_GP_mat_bounds[i][z])  
+            #if len(fit.tra_GP_mat_bounds[i]) ==2:
+            #    fit.tra_GP_mat_bounds[i].append(True)
+            #    self.tra_GP_mat_bounds_gui[i][2].setChecked(fit.tra_GP_mat_bounds[i][2])
+            #else:
+            #    self.tra_GP_mat_bounds_gui[i][2].setChecked(fit.tra_GP_mat_bounds[i][2])                
+                
 
     def update_nr_prior(self):
         global fit
@@ -893,6 +965,47 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.jitter_nr_priors_gui_tra[i][2].setChecked(fit.tra_jitt_norm_pr[i][2])
 
 
+        self.update_RV_GP_priors_nr()
+        self.update_tra_GP_priors_nr()
+
+    def update_RV_GP_priors_nr(self):
+        global fit
+ 
+        for i in range(4): 
+            for z in range(2):
+                self.GP_rot_nr_priors_gui[i][z].setValue(fit.GP_rot_norm_pr[i][z])
+            self.GP_rot_nr_priors_gui[i][2].setChecked(fit.GP_rot_norm_pr[i][2])
+    
+        for i in range(3): 
+            for z in range(2):
+                self.GP_sho_nr_priors_gui[i][z].setValue(fit.GP_sho_norm_pr[i][z])
+            self.GP_sho_nr_priors_gui[i][2].setChecked(fit.GP_sho_norm_pr[i][2])
+ 
+        for i in range(3): 
+            for z in range(2):
+                self.GP_mat_nr_priors_gui[i][z].setValue(fit.GP_mat_norm_pr[i][z])
+            self.GP_mat_nr_priors_gui[i][2].setChecked(fit.GP_mat_norm_pr[i][2])            
+            
+    def update_tra_GP_priors_nr(self):
+        global fit
+ 
+        for i in range(4): 
+            for z in range(2):
+                self.tra_GP_rot_nr_priors_gui[i][z].setValue(fit.tra_GP_rot_norm_pr[i][z])
+            self.tra_GP_rot_nr_priors_gui[i][2].setChecked(fit.tra_GP_rot_norm_pr[i][2])
+    
+        for i in range(3): 
+            for z in range(2):
+                self.tra_GP_sho_nr_priors_gui[i][z].setValue(fit.tra_GP_sho_norm_pr[i][z])
+            self.tra_GP_sho_nr_priors_gui[i][2].setChecked(fit.tra_GP_sho_norm_pr[i][2])
+ 
+        for i in range(3): 
+            for z in range(2):
+                self.tra_GP_mat_nr_priors_gui[i][z].setValue(fit.tra_GP_mat_norm_pr[i][z])
+            self.tra_GP_mat_nr_priors_gui[i][2].setChecked(fit.tra_GP_mat_norm_pr[i][2])       
+            
+            
+
     def update_jeff_prior(self):
         global fit
 
@@ -910,7 +1023,44 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.jitter_jeff_priors_gui_tra[i][2].setChecked(fit.tra_jitt_jeff_pr[i][2])
 
 
+        self.update_RV_GP_priors_jeff()
+        self.update_tra_GP_priors_jeff()
 
+    def update_RV_GP_priors_jeff(self):
+        global fit
+ 
+        for i in range(4): 
+            for z in range(2):
+                self.GP_rot_jeff_priors_gui[i][z].setValue(fit.GP_rot_jeff_pr[i][z])
+            self.GP_rot_jeff_priors_gui[i][2].setChecked(fit.GP_rot_jeff_pr[i][2])
+    
+        for i in range(3): 
+            for z in range(2):
+                self.GP_sho_jeff_priors_gui[i][z].setValue(fit.GP_sho_jeff_pr[i][z])
+            self.GP_sho_jeff_priors_gui[i][2].setChecked(fit.GP_sho_jeff_pr[i][2])
+ 
+        for i in range(3): 
+            for z in range(2):
+                self.GP_mat_jeff_priors_gui[i][z].setValue(fit.GP_mat_jeff_pr[i][z])
+            self.GP_mat_jeff_priors_gui[i][2].setChecked(fit.GP_mat_jeff_pr[i][2])            
+            
+    def update_tra_GP_priors_jeff(self):
+        global fit
+ 
+        for i in range(4): 
+            for z in range(2):
+                self.tra_GP_rot_jeff_priors_gui[i][z].setValue(fit.tra_GP_rot_jeff_pr[i][z])
+            self.tra_GP_rot_jeff_priors_gui[i][2].setChecked(fit.tra_GP_rot_jeff_pr[i][2])
+    
+        for i in range(3): 
+            for z in range(2):
+                self.tra_GP_sho_jeff_priors_gui[i][z].setValue(fit.tra_GP_sho_jeff_pr[i][z])
+            self.tra_GP_sho_jeff_priors_gui[i][2].setChecked(fit.tra_GP_sho_jeff_pr[i][2])
+ 
+        for i in range(3): 
+            for z in range(2):
+                self.tra_GP_mat_jeff_priors_gui[i][z].setValue(fit.tra_GP_mat_jeff_pr[i][z])
+            self.tra_GP_mat_jeff_priors_gui[i][2].setChecked(fit.tra_GP_mat_jeff_pr[i][2])
 
     def check_bounds(self):
         global fit
@@ -955,66 +1105,42 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     def check_RV_GP_bounds(self):
         global fit
         
-        GP_rot_bounds_gui = [
-        [self.GP_rot_kernel_Amp_min.value(),self.GP_rot_kernel_Amp_max.value()],  
-        [self.GP_rot_kernel_time_sc_min.value(),self.GP_rot_kernel_time_sc_max.value()],  
-        [self.GP_rot_kernel_Per_min.value(),self.GP_rot_kernel_Per_max.value()],  
-        [self.GP_rot_kernel_fact_min.value(),self.GP_rot_kernel_fact_max.value()],  
-        ]
-
+ 
         for i in range(4): 
-            fit.GP_rot_bounds[i] = GP_rot_bounds_gui[i]
+            for z in range(2):
+                fit.GP_rot_bounds[i][z] = self.GP_rot_bounds_gui[i][z].value()
+            #fit.GP_rot_bounds[i][2] = self.GP_rot_bounds_gui[i][2].isChecked()
             
-        GP_sho_bounds_gui = [
-        [self.GP_sho_kernel_S_min.value(),self.GP_sho_kernel_S_max.value()],  
-        [self.GP_sho_kernel_Q_min.value(),self.GP_sho_kernel_Q_max.value()],  
-        [self.GP_sho_kernel_omega_min.value(),self.GP_sho_kernel_omega_max.value()],  
-        ]
+        for i in range(3): 
+            for z in range(2):
+                fit.GP_sho_bounds[i][z]  = self.GP_sho_bounds_gui[i][z].value()
+           # fit.GP_sho_bounds[i][2]  = self.GP_sho_bounds_gui[i][2].isChecked()
  
         for i in range(3): 
-            fit.GP_sho_bounds[i] = GP_sho_bounds_gui[i]
-            
-        GP_mat_bounds_gui = [
-        [self.GP_mat_kernel_sigma_min.value(),self.GP_mat_kernel_sigma_max.value()],  
-        [self.GP_mat_kernel_rho_min.value(),self.GP_mat_kernel_rho_max.value()],  
-        [self.GP_mat_kernel_eps_min.value(),self.GP_mat_kernel_eps_max.value()],  
-        ]
- 
-        for i in range(3): 
-            fit.GP_mat_bounds[i] = GP_mat_bounds_gui[i]            
+            for z in range(2):
+                fit.GP_mat_bounds[i][z]  = self.GP_mat_bounds_gui[i][z].value()           
+            #fit.GP_mat_bounds[i][2]  = self.GP_mat_bounds_gui[i][2].isChecked()           
             
             
 
     def check_tra_GP_bounds(self):
         global fit
 
-        tra_GP_rot_bounds_gui = [
-        [self.tra_GP_rot_kernel_Amp_min.value(),self.tra_GP_rot_kernel_Amp_max.value()],  
-        [self.tra_GP_rot_kernel_time_sc_min.value(),self.tra_GP_rot_kernel_time_sc_max.value()],  
-        [self.tra_GP_rot_kernel_Per_min.value(),self.tra_GP_rot_kernel_Per_max.value()],  
-        [self.tra_GP_rot_kernel_fact_min.value(),self.tra_GP_rot_kernel_fact_max.value()],  
-        ]
- 
         for i in range(4): 
-            fit.tra_GP_rot_bounds[i] = tra_GP_rot_bounds_gui[i]
+            for z in range(2):
+                fit.tra_GP_rot_bounds[i][z] = self.tra_GP_rot_bounds_gui[i][z].value()
+            #fit.tra_GP_rot_bounds[i][2] = self.tra_GP_rot_bounds_gui[i][2].isChecked()
             
-        tra_GP_sho_bounds_gui = [
-        [self.tra_GP_sho_kernel_S_min.value(),self.tra_GP_sho_kernel_S_max.value()],  
-        [self.tra_GP_sho_kernel_Q_min.value(),self.tra_GP_sho_kernel_Q_max.value()],  
-        [self.tra_GP_sho_kernel_omega_min.value(),self.tra_GP_sho_kernel_omega_max.value()],  
-        ]
+        for i in range(3): 
+            for z in range(2):
+                fit.tra_GP_sho_bounds[i][z]  = self.tra_GP_sho_bounds_gui[i][z].value()
+           # fit.tra_GP_sho_bounds[i][2]  = self.tra_GP_sho_bounds_gui[i][2].isChecked()
  
         for i in range(3): 
-            fit.tra_GP_sho_bounds[i] = tra_GP_sho_bounds_gui[i]
+            for z in range(2):
+                fit.tra_GP_mat_bounds[i][z]  = self.tra_GP_mat_bounds_gui[i][z].value()           
+            #fit.tra_GP_mat_bounds[i][2]  = self.tra_GP_mat_bounds_gui[i][2].isChecked() 
             
-        tra_GP_mat_bounds_gui = [
-        [self.tra_GP_mat_kernel_sigma_min.value(),self.tra_GP_mat_kernel_sigma_max.value()],  
-        [self.tra_GP_mat_kernel_rho_min.value(),self.tra_GP_mat_kernel_rho_max.value()],  
-        [self.tra_GP_mat_kernel_eps_min.value(),self.tra_GP_mat_kernel_eps_max.value()],  
-        ]
- 
-        for i in range(3): 
-            fit.tra_GP_mat_bounds[i] = tra_GP_mat_bounds_gui[i]        
 
     def check_ld_bounds(self):
         global fit
@@ -1100,67 +1226,45 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     def check_RV_GP_priors_nr(self):
         global fit
 
-        GP_rot_nr_priors_gui = [
-        [self.GP_rot_kernel_Amp_mean.value(),self.GP_rot_kernel_Amp_sigma.value(),self.use_GP_rot_kernel_Amp_nr_pr.isChecked()],  
-        [self.GP_rot_kernel_time_sc_mean.value(),self.GP_rot_kernel_time_sc_sigma.value(),self.use_GP_rot_kernel_time_sc_nr_pr.isChecked()],  
-        [self.GP_rot_kernel_Per_mean.value(),self.GP_rot_kernel_Per_sigma.value(),self.use_GP_rot_kernel_Per_sigma_nr_pr.isChecked()],  
-        [self.GP_rot_kernel_fact_mean.value(),self.GP_rot_kernel_fact_sigma.value(),self.use_GP_rot_kernel_fact_nr_pr.isChecked()],  
-        ]
 
         for i in range(4): 
-            fit.GP_rot_norm_pr[i] = GP_rot_nr_priors_gui[i]
+            for z in range(2):
+                fit.GP_rot_norm_pr[i][z] = self.GP_rot_nr_priors_gui[i][z].value()
+            fit.GP_rot_norm_pr[i][2] = self.GP_rot_nr_priors_gui[i][2].isChecked()
 
-
-        GP_sho_nr_priors_gui = [
-        [self.GP_sho_kernel_S_mean.value(),self.GP_sho_kernel_S_sigma.value(), self.use_GP_sho_kernel_S_nr_pr.isChecked()],  
-        [self.GP_sho_kernel_Q_mean.value(),self.GP_sho_kernel_Q_sigma.value(), self.use_GP_sho_kernel_Q_nr_pr.isChecked()],  
-        [self.GP_sho_kernel_omega_mean.value(),self.GP_sho_kernel_omega_sigma.value(), self.use_GP_sho_kernel_omega_nr_pr.isChecked()],  
-        ]
+        for i in range(3): 
+            for z in range(2):
+                fit.GP_sho_norm_pr[i][z] = self.GP_sho_nr_priors_gui[i][z].value()   
+            fit.GP_sho_norm_pr[i][2] = self.GP_sho_nr_priors_gui[i][2].isChecked()   
  
         for i in range(3): 
-            fit.GP_sho_norm_pr[i] = GP_sho_nr_priors_gui[i]   
+            for z in range(2):
+                fit.GP_mat_norm_pr[i][z] = self.GP_mat_nr_priors_gui[i][z].value()               
+            fit.GP_mat_norm_pr[i][2] = self.GP_mat_nr_priors_gui[i][2].isChecked()               
 
-        GP_mat_nr_priors_gui = [
-        [self.GP_mat_kernel_sigma_mean.value(),self.GP_mat_kernel_sigma_sigma.value(), self.use_GP_mat_kernel_sigma_nr_pr.isChecked()],  
-        [self.GP_mat_kernel_rho_mean.value(),self.GP_mat_kernel_rho_sigma.value(), self.use_GP_mat_kernel_rho_nr_pr.isChecked()],  
-        [self.GP_mat_kernel_eps_mean.value(),self.GP_mat_kernel_eps_sigma.value(), self.use_GP_mat_kernel_eps_nr_pr.isChecked()],  
-        ]
- 
-        for i in range(3): 
-            fit.GP_mat_norm_pr[i] = GP_mat_nr_priors_gui[i]              
+
 
     def check_tra_GP_priors_nr(self):
         global fit
-
- 
-        tra_GP_rot_nr_priors_gui = [
-        [self.tra_GP_rot_kernel_Amp_mean.value(),self.tra_GP_rot_kernel_Amp_sigma.value(),self.use_tra_GP_rot_kernel_Amp_nr_pr.isChecked()],  
-        [self.tra_GP_rot_kernel_time_sc_mean.value(),self.tra_GP_rot_kernel_time_sc_sigma.value(),self.use_tra_GP_rot_kernel_time_sc_nr_pr.isChecked()],  
-        [self.tra_GP_rot_kernel_Per_mean.value(),self.tra_GP_rot_kernel_Per_sigma.value(),self.use_tra_GP_rot_kernel_Per_sigma_nr_pr.isChecked()],  
-        [self.tra_GP_rot_kernel_fact_mean.value(),self.tra_GP_rot_kernel_fact_sigma.value(),self.use_tra_GP_rot_kernel_fact_nr_pr.isChecked()],  
-        ]
  
         for i in range(4): 
-            fit.tra_GP_rot_norm_pr[i] = tra_GP_rot_nr_priors_gui[i]
-    
+            for z in range(2):
+                fit.tra_GP_rot_norm_pr[i][z] = self.tra_GP_rot_nr_priors_gui[i][z].value()
+            fit.tra_GP_rot_norm_pr[i][2] = self.tra_GP_rot_nr_priors_gui[i][2].isChecked()
+ 
+        for i in range(3): 
+            for z in range(2):
+                fit.tra_GP_sho_norm_pr[i][z] = self.tra_GP_sho_nr_priors_gui[i][z].value()   
+            fit.tra_GP_sho_norm_pr[i][2] = self.tra_GP_sho_nr_priors_gui[i][2].isChecked()   
+ 
+        for i in range(3): 
+            for z in range(2):
+                fit.tra_GP_mat_norm_pr[i][z] = self.tra_GP_mat_nr_priors_gui[i][z].value()               
+            fit.tra_GP_mat_norm_pr[i][2] = self.tra_GP_mat_nr_priors_gui[i][2].isChecked()               
 
-        tra_GP_sho_nr_priors_gui = [
-        [self.tra_GP_sho_kernel_S_mean.value(),self.tra_GP_sho_kernel_S_sigma.value(), self.use_tra_GP_sho_kernel_S_nr_pr.isChecked()],  
-        [self.tra_GP_sho_kernel_Q_mean.value(),self.tra_GP_sho_kernel_Q_sigma.value(), self.use_tra_GP_sho_kernel_Q_nr_pr.isChecked()],  
-        [self.tra_GP_sho_kernel_omega_mean.value(),self.tra_GP_sho_kernel_omega_sigma.value(), self.use_tra_GP_sho_kernel_omega_nr_pr.isChecked()],  
-        ]
- 
-        for i in range(3): 
-            fit.tra_GP_sho_norm_pr[i] = tra_GP_sho_nr_priors_gui[i]
-            
-        tra_GP_mat_nr_priors_gui = [
-        [self.tra_GP_mat_kernel_sigma_mean.value(),self.tra_GP_mat_kernel_sigma_sigma.value(), self.use_tra_GP_mat_kernel_sigma_nr_pr.isChecked()],  
-        [self.tra_GP_mat_kernel_rho_mean.value(),self.tra_GP_mat_kernel_rho_sigma.value(), self.use_tra_GP_mat_kernel_rho_nr_pr.isChecked()],  
-        [self.tra_GP_mat_kernel_eps_mean.value(),self.tra_GP_mat_kernel_eps_sigma.value(), self.use_tra_GP_mat_kernel_eps_nr_pr.isChecked()],  
-        ]
- 
-        for i in range(3): 
-            fit.tra_GP_mat_norm_pr[i] = tra_GP_mat_nr_priors_gui[i]  
+    
+    
+    
             
     def check_priors_jeff(self):
         global fit
@@ -1234,67 +1338,45 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     def check_RV_GP_priors_jeff(self):
         global fit
 
-        GP_rot_jeff_priors_gui = [
-        [self.GP_rot_kernel_Amp_jeff_alpha.value(),self.GP_rot_kernel_Amp_jeff_beta.value(),self.use_GP_rot_kernel_Amp_jeff_pr.isChecked()],  
-        [self.GP_rot_kernel_time_sc_jeff_alpha.value(),self.GP_rot_kernel_time_sc_jeff_beta.value(),self.use_GP_rot_kernel_time_sc_jeff_pr.isChecked()],  
-        [self.GP_rot_kernel_Per_jeff_alpha.value(),self.GP_rot_kernel_Per_jeff_beta.value(),self.use_GP_rot_kernel_Per_jeff_pr.isChecked()],  
-        [self.GP_rot_kernel_fact_jeff_alpha.value(),self.GP_rot_kernel_fact_jeff_beta.value(),self.use_GP_rot_kernel_fact_jeff_pr.isChecked()],  
-        ]
- 
-        for i in range(4): 
-            fit.GP_rot_jeff_pr[i] = GP_rot_jeff_priors_gui[i]               
 
-        GP_sho_jeff_priors_gui = [
-        [self.GP_sho_kernel_S_jeff_alpha.value(),self.GP_sho_kernel_S_jeff_beta.value(), self.use_GP_sho_kernel_S_jeff_pr.isChecked()],  
-        [self.GP_sho_kernel_Q_jeff_alpha.value(),self.GP_sho_kernel_Q_jeff_beta.value(), self.use_GP_sho_kernel_Q_jeff_pr.isChecked()],  
-        [self.GP_sho_kernel_omega_jeff_alpha.value(),self.GP_sho_kernel_omega_jeff_beta.value(), self.use_GP_sho_kernel_omega_jeff_pr.isChecked()],  
-        ]
+        for i in range(4): 
+            for z in range(2):
+                fit.GP_rot_jeff_pr[i][z] = self.GP_rot_jeff_priors_gui[i][z].value()
+            fit.GP_rot_jeff_pr[i][2] = self.GP_rot_jeff_priors_gui[i][2].isChecked()
+
+        for i in range(3): 
+            for z in range(2):
+                fit.GP_sho_jeff_pr[i][z] = self.GP_sho_jeff_priors_gui[i][z].value()   
+            fit.GP_sho_jeff_pr[i][2] = self.GP_sho_jeff_priors_gui[i][2].isChecked()   
  
         for i in range(3): 
-            fit.GP_sho_jeff_pr[i] = GP_sho_jeff_priors_gui[i]   
-            
-        GP_mat_jeff_priors_gui = [
-        [self.GP_mat_kernel_sigma_alpha.value(),self.GP_mat_kernel_sigma_beta.value(), self.use_GP_mat_kernel_sigma_jeff_pr.isChecked()],  
-        [self.GP_mat_kernel_rho_alpha.value(),self.GP_mat_kernel_rho_beta.value(), self.use_GP_mat_kernel_rho_jeff_pr.isChecked()],  
-        [self.GP_mat_kernel_eps_alpha.value(),self.GP_mat_kernel_eps_beta.value(), self.use_GP_mat_kernel_eps_jeff_pr.isChecked()],  
-        ]
- 
-        for i in range(3): 
-            fit.GP_mat_jeff_pr[i] = GP_mat_jeff_priors_gui[i]               
-            
-            
-            
+            for z in range(2):
+                fit.GP_mat_jeff_pr[i][z] = self.GP_mat_jeff_priors_gui[i][z].value()               
+            fit.GP_mat_jeff_pr[i][2] = self.GP_mat_jeff_priors_gui[i][2].isChecked()               
+
+
+
     def check_tra_GP_priors_jeff(self):
         global fit
-
-        tra_GP_rot_jeff_priors_gui = [
-        [self.tra_GP_rot_kernel_Amp_jeff_alpha.value(),self.tra_GP_rot_kernel_Amp_jeff_beta.value(),self.use_tra_GP_rot_kernel_Amp_jeff_pr.isChecked()],  
-        [self.tra_GP_rot_kernel_time_sc_jeff_alpha.value(),self.tra_GP_rot_kernel_time_sc_jeff_beta.value(),self.use_tra_GP_rot_kernel_time_sc_jeff_pr.isChecked()],  
-        [self.tra_GP_rot_kernel_Per_jeff_alpha.value(),self.tra_GP_rot_kernel_Per_jeff_beta.value(),self.use_tra_GP_rot_kernel_Per_jeff_pr.isChecked()],  
-        [self.tra_GP_rot_kernel_fact_jeff_alpha.value(),self.tra_GP_rot_kernel_fact_jeff_beta.value(),self.use_tra_GP_rot_kernel_fact_jeff_pr.isChecked()],  
-        ]
  
         for i in range(4): 
-            fit.tra_GP_rot_jeff_pr[i] = tra_GP_rot_jeff_priors_gui[i]            
-    
-        tra_GP_sho_jeff_priors_gui = [
-        [self.tra_GP_sho_kernel_S_jeff_alpha.value(),self.tra_GP_sho_kernel_S_jeff_beta.value(), self.use_tra_GP_sho_kernel_S_jeff_pr.isChecked()],  
-        [self.tra_GP_sho_kernel_Q_jeff_alpha.value(),self.tra_GP_sho_kernel_Q_jeff_beta.value(), self.use_tra_GP_sho_kernel_Q_jeff_pr.isChecked()],  
-        [self.tra_GP_sho_kernel_omega_jeff_alpha.value(),self.tra_GP_sho_kernel_omega_jeff_beta.value(), self.use_tra_GP_sho_kernel_omega_jeff_pr.isChecked()],  
-        ]
+            for z in range(2):
+                fit.tra_GP_rot_jeff_pr[i][z] = self.tra_GP_rot_jeff_priors_gui[i][z].value()
+            fit.tra_GP_rot_jeff_pr[i][2] = self.tra_GP_rot_jeff_priors_gui[i][2].isChecked()
  
         for i in range(3): 
-            fit.tra_GP_sho_jeff_pr[i] = tra_GP_sho_jeff_priors_gui[i]   
+            for z in range(2):
+                fit.tra_GP_sho_jeff_pr[i][z] = self.tra_GP_sho_jeff_priors_gui[i][z].value()   
+            fit.tra_GP_sho_jeff_pr[i][2] = self.tra_GP_sho_jeff_priors_gui[i][2].isChecked()   
+ 
+        for i in range(3): 
+            for z in range(2):
+                fit.tra_GP_mat_jeff_pr[i][z] = self.tra_GP_mat_jeff_priors_gui[i][z].value()               
+            fit.tra_GP_mat_jeff_pr[i][2] = self.tra_GP_mat_jeff_priors_gui[i][2].isChecked()               
+
             
-        tra_GP_mat_jeff_priors_gui = [
-        [self.tra_GP_mat_kernel_sigma_alpha.value(),self.tra_GP_mat_kernel_sigma_beta.value(), self.use_tra_GP_mat_kernel_sigma_jeff_pr.isChecked()],  
-        [self.tra_GP_mat_kernel_rho_alpha.value(),self.tra_GP_mat_kernel_rho_beta.value(), self.use_tra_GP_mat_kernel_rho_jeff_pr.isChecked()],  
-        [self.tra_GP_mat_kernel_eps_alpha.value(),self.tra_GP_mat_kernel_eps_beta.value(), self.use_tra_GP_mat_kernel_eps_jeff_pr.isChecked()],  
-        ]
  
-        for i in range(3): 
-            fit.tra_GP_mat_jeff_pr[i] = tra_GP_mat_jeff_priors_gui[i]   
- 
+
     def check_arb_pl(self):
         global fit
 
@@ -5332,7 +5414,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.36) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.37) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -8011,7 +8093,31 @@ https://github.com/3fon3fonov/exostriker/issues
 
         self.tra_gp_sho_params     = gui_groups.tra_gp_sho_params(self)
         self.use_tra_gp_sho_params = gui_groups.use_tra_gp_sho_params(self)
+
+        self.GP_sho_bounds_gui = gui_groups.GP_sho_bounds_gui(self) 
+        self.GP_rot_bounds_gui = gui_groups.GP_rot_bounds_gui(self) 
+        self.GP_mat_bounds_gui = gui_groups.GP_mat_bounds_gui(self) 
+
+        self.tra_GP_sho_bounds_gui = gui_groups.tra_GP_sho_bounds_gui(self) 
+        self.tra_GP_rot_bounds_gui = gui_groups.tra_GP_rot_bounds_gui(self) 
+        self.tra_GP_mat_bounds_gui = gui_groups.tra_GP_mat_bounds_gui(self) 
+
+        self.GP_sho_nr_priors_gui = gui_groups.GP_sho_nr_priors_gui(self) 
+        self.GP_rot_nr_priors_gui = gui_groups.GP_rot_nr_priors_gui(self) 
+        self.GP_mat_nr_priors_gui = gui_groups.GP_mat_nr_priors_gui(self) 
+
+        self.tra_GP_sho_nr_priors_gui = gui_groups.tra_GP_sho_nr_priors_gui(self) 
+        self.tra_GP_rot_nr_priors_gui = gui_groups.tra_GP_rot_nr_priors_gui(self) 
+        self.tra_GP_mat_nr_priors_gui = gui_groups.tra_GP_mat_nr_priors_gui(self) 
         
+        self.GP_sho_jeff_priors_gui = gui_groups.GP_sho_jeff_priors_gui(self) 
+        self.GP_rot_jeff_priors_gui = gui_groups.GP_rot_jeff_priors_gui(self) 
+        self.GP_mat_jeff_priors_gui = gui_groups.GP_mat_jeff_priors_gui(self) 
+
+        self.tra_GP_sho_jeff_priors_gui = gui_groups.tra_GP_sho_jeff_priors_gui(self) 
+        self.tra_GP_rot_jeff_priors_gui = gui_groups.tra_GP_rot_jeff_priors_gui(self) 
+        self.tra_GP_mat_jeff_priors_gui = gui_groups.tra_GP_mat_jeff_priors_gui(self) 
+ 
 
         self.param_a_gui      = gui_groups.param_a_gui(self)
         self.param_mass_gui   = gui_groups.param_mass_gui(self)
@@ -8699,7 +8805,7 @@ https://github.com/3fon3fonov/exostriker/issues
         
 
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.36). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.37). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)
