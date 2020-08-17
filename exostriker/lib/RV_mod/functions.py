@@ -1736,6 +1736,7 @@ def run_command_with_timeout(args, secs, output=False, pipe=False): # set output
             os.killpg(proc.pid, signal.SIGTERM)
         except OSError:
             pass
+        #print(args)
         print('Process #{} killed after {} seconds'.format(proc.pid, secs))
         flag = -1
         return '',flag
