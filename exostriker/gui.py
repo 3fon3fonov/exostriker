@@ -323,7 +323,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         zz = 0
         for i in range(9):
-            if not self.buttonGroup_use_planets.buttons()[i].isChecked():
+            #if not self.buttonGroup_use_planets.buttons()[i].isChecked():
+            if not bool(fit.use_planet[i]):
                 continue
             j = 7*i
             for k in range(7):
@@ -370,9 +371,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.nonlin_u2[i].setValue(fit.ld_u_nonlin[i][1])
             self.nonlin_u3[i].setValue(fit.ld_u_nonlin[i][2])
             self.nonlin_u4[i].setValue(fit.ld_u_nonlin[i][3])
-            
-            
-
 
 
         #self.St_mass_input.setValue(fit.params.stellar_mass)  
@@ -391,7 +389,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         zz = 0
         for i in range(9):
-            if not self.buttonGroup_use_planets.buttons()[i].isChecked():
+           # if not self.buttonGroup_use_planets.buttons()[i].isChecked():
+            if not bool(fit.use_planet[i]):
                 continue
             j = 7*i
             for k in range(7):
@@ -746,6 +745,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.planet_checked_gui[i].setChecked(True)  
             else:
                 self.planet_checked_gui[i].setChecked(False)  
+        #for i in range(9):  
+        #    self.planet_checked_gui[i].setChecked(bool(fit.use_planet[i]))
+            
+            
             
         self.use_RV_lin_trend.setChecked(bool(fit.use.use_linear_trend)) 
         self.use_RV_quad_trend.setChecked(bool(fit.rv_quadtr_use)) 
@@ -783,11 +786,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     def update_use(self):
         global fit
         
-        use_planet_gui = [self.use_Planet1,self.use_Planet2,self.use_Planet3,self.use_Planet4,self.use_Planet5,
-                          self.use_Planet6,self.use_Planet7,self.use_Planet8,self.use_Planet9]
-        #for i in range(len(use_planet_gui)):  
+
+        for i in range(9):  
+            fit.use_planet[i] = int(self.planet_checked_gui[i].isChecked()) 
+            
         npl_old = fit.npl
-        checked = int(np.sum( [use_planet_gui[i].isChecked() for i in range(len(use_planet_gui))] ))
+        checked = int(np.sum( [self.planet_checked_gui[i].isChecked() for i in range(9)]))
 
         self.ttv_pl_combo()
 
@@ -3616,19 +3620,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         else:
             return
 
-    def rv_GP_set_use(self):
-
-        if self.do_RV_GP.isChecked():
-            fit.doGP = True
-        else:
-            fit.doGP = False
-
-    def tra_GP_set_use(self):
-
-        if self.do_tra_GP.isChecked():
-            fit.tra_doGP = True
-        else:
-            fit.tra_doGP = False
+ 
 
     def set_RV_GP(self):
         global fit
@@ -3636,7 +3628,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         if self.use_GP_sho_kernel.isChecked():
             fit.gp_kernel = 'SHOKernel'
         elif self.use_GP_rot_kernel.isChecked():
-            fit.gp_kernel = 'RotKernel'
+            fit.gp_kernel = 'RotKernel'    
 
 
     def set_tra_GP(self):
@@ -3647,6 +3639,22 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         elif self.use_tra_GP_rot_kernel.isChecked():
             fit.tra_gp_kernel = 'RotKernel'
 
+
+    def set_gui_RV_GP(self):
+        global fit
+
+        if fit.gp_kernel == 'SHOKernel':
+            self.use_GP_sho_kernel.setChecked(True) 
+        elif fit.gp_kernel == 'RotKernel':
+            self.use_GP_rot_kernel.setChecked(True)
+               
+    def set_gui_tra_GP(self):
+        global fit
+
+        if fit.tra_gp_kernel == 'SHOKernel':
+            self.use_tra_GP_sho_kernel.setChecked(True) 
+        elif fit.tra_gp_kernel == 'RotKernel':
+            self.use_tra_GP_rot_kernel.setChecked(True)
 
     def set_use_GP(self):
         global fit
@@ -3674,8 +3682,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.do_tra_GP.setChecked(True)
         else:
             self.do_tra_GP.setChecked(False)
-            
-            
+         
+        self.set_gui_RV_GP()
+        self.set_gui_tra_GP()            
             
 
 ################################ RV files #######################################################
@@ -5049,6 +5058,9 @@ Transit duration: %s d
         fit.model_max = self.model_max_range.value()
         fit.model_min = self.model_min_range.value()
         
+        self.check_settings()
+
+        
         #self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
         if init == True:
@@ -5863,7 +5875,7 @@ will be highly appreciated!
                 return
 
 
-            self.check_settings()  
+            self.update_settings()  
             self.session_list()
             self.select_session(-1)
 
@@ -5909,12 +5921,13 @@ will be highly appreciated!
         self.check_type_fit()
         self.mute_boxes()
         
-        self.check_settings()
+        self.update_settings()
         self.update_bounds()
 
         #self.init_fit()
+       # print(fit.P)
+        fit.update_rv_params()
         
-
         self.update_use_from_input_file()
         self.update_use()
         self.update_gui_params()
@@ -6105,6 +6118,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
         self.check_model_params() 
         self.check_nested_params()
+        self.check_settings()
+
 
         if self.run_ns_in_bg.isChecked():
             fit = rv.run_nestsamp_bg(fit)
@@ -6306,9 +6321,11 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.set_tra_ld()
         self.check_bounds()
         self.check_priors_nr() 
+        
         fit.model_npoints = self.points_to_draw_model.value()
         fit.model_max = self.model_max_range.value()
         fit.model_min = self.model_min_range.value()
+#        fit.dyn_model_to_kill = 
         
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
@@ -6335,6 +6352,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
         self.check_model_params()
         self.check_mcmc_params()
+        self.check_settings()
 
         if self.run_mcmc_in_bg.isChecked():
             fit = rv.run_mcmc_bg(fit)
@@ -7721,14 +7739,14 @@ https://github.com/3fon3fonov/exostriker/issues
         return tail or ntpath.basename(head)
         
        
-    def check_settings(self):
+    def update_settings(self):
         global fit
 
         mixed_fit_use = [self.mix_pl_1,self.mix_pl_2,self.mix_pl_3,
                          self.mix_pl_4,self.mix_pl_5,self.mix_pl_6,
                          self.mix_pl_7,self.mix_pl_8,self.mix_pl_9 ]
         
-        self.use_mix_fitting.setChecked(bool(fit.mixed_fit[0][0]))
+        self.use_mix_fitting.setChecked(bool(fit.mixed_fit[0]))
         
         for i in range(9):
             mixed_fit_use[i].setChecked(bool(fit.mixed_fit[1][i]))
@@ -7739,6 +7757,15 @@ https://github.com/3fon3fonov/exostriker/issues
         self.kep_model_to_kill.setValue(fit.kep_model_to_kill)
         self.master_timeout.setValue(fit.master_timeout)    
         
+        
+    def check_settings(self):
+        
+        fit.time_step_model = self.time_step_model.value()
+        fit.dyn_model_accuracy = self.dyn_model_accuracy.value()
+        fit.dyn_model_to_kill = self.dyn_model_to_kill.value()
+        fit.kep_model_to_kill = self.kep_model_to_kill.value()
+        fit.master_timeout = self.master_timeout.value()    
+                
         
     def adopt_RV_GLS_param(self):
         global fit   
@@ -8616,8 +8643,8 @@ https://github.com/3fon3fonov/exostriker/issues
         self.plot_corr_err.stateChanged.connect(self.update_correlations_data_plots)
         self.plot_corr_coef.stateChanged.connect(self.update_correlations_data_plots)
 
-        self.do_RV_GP.stateChanged.connect(self.rv_GP_set_use)
-        self.do_tra_GP.stateChanged.connect(self.tra_GP_set_use)
+        self.do_RV_GP.stateChanged.connect(self.set_use_GP)
+        self.do_tra_GP.stateChanged.connect(self.set_use_GP)
 
 
         ############### Cross hair ####################
@@ -8726,8 +8753,8 @@ https://github.com/3fon3fonov/exostriker/issues
 
         ###########  GP control ##########
 
-        self.set_RV_GP()
-        self.set_tra_GP()
+        #self.set_RV_GP()
+        #self.set_tra_GP()
 
         self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)
         self.buttonGroup_use_tra_GP_kernel.buttonClicked.connect(self.set_tra_GP)
@@ -8774,7 +8801,15 @@ https://github.com/3fon3fonov/exostriker/issues
         self.select_session(-1)
 
 
-        self.check_settings()
+        self.update_settings()
+        self.time_step_model.valueChanged.connect(self.check_settings)
+        self.dyn_model_accuracy.valueChanged.connect(self.check_settings)
+        self.dyn_model_to_kill.valueChanged.connect(self.check_settings)
+        self.kep_model_to_kill.valueChanged.connect(self.check_settings)
+        self.points_to_draw_model.valueChanged.connect(self.check_settings)
+        
+        
+        
         self.mute_boxes()
         self.update_RV_jitter_flag()
         self.check_cornerplot_samples()
