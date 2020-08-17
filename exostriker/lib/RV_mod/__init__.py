@@ -853,10 +853,10 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         
 #        print(text,flag)
        # print(fit_results.o_c,fit_results.jd)
-
-        if len(fit_results.o_c) != len(fit_results.jd) or len(fit_results.o_c) == 0 or len(fit_results.jd) ==0 :
-            #print(len(fit_results.o_c), len(fit_results.jd))
-            return -np.inf        
+        if (rtg[1]):
+            if len(fit_results.o_c) != len(fit_results.jd) or len(fit_results.o_c) == 0 or len(fit_results.jd) ==0 :
+                #print(len(fit_results.o_c), len(fit_results.jd))
+                return -np.inf        
         
     else:
         rv_loglik = 0
