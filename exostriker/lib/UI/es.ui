@@ -10933,7 +10933,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                      </widget>
                     </item>
@@ -11079,7 +11079,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                      </widget>
                     </item>
@@ -11089,7 +11089,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                      </widget>
                     </item>
@@ -11958,7 +11958,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                      </widget>
                     </item>
@@ -12107,7 +12107,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                      </widget>
                     </item>
@@ -12117,7 +12117,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                      </widget>
                     </item>
@@ -12260,7 +12260,7 @@
              </font>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>9</number>
             </property>
             <widget class="QWidget" name="tab_6">
              <attribute name="title">
@@ -36802,7 +36802,7 @@
                  </font>
                 </property>
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>2</number>
                 </property>
                 <widget class="QWidget" name="tab_55">
                  <attribute name="title">

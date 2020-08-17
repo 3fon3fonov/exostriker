@@ -740,7 +740,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
  
 
-def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, tra_gps, rtg, mix_fit, opt, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=3000, npoints=50, model_max = 100, model_min =0):
+def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, tra_gps, rtg, mix_fit, opt, outputfiles = [1,0,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=3000, npoints=5000, model_max = 100, model_min =0):
 
     rv_loglik = 0
     gp_rv_loglik = 0
@@ -818,6 +818,9 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             else:
                 ppp+='%f\n%d\n'%(par[i + len(vel_files)],0)
 
+#            ppp+='%f\n%d\n'%(par[i + len(vel_files)],0)
+
+
         # if mixed fitting is requested
         ppp+='%d\n'%npl
         if mix_fit[0] == True and program == '%s/lib/fr/loglik_dyn+'%cwd:
@@ -847,6 +850,12 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         fortranoutput=fortran_output(text,npl,len(vel_files),stmass)
         fit_results=fortranoutput.modfit(print_stat=False)
         rv_loglik = float(fit_results.loglik)
+        
+#        print(text,flag)
+       # print(fit_results.o_c,fit_results.jd)
+
+        
+        
     else:
         rv_loglik = 0
 
@@ -854,12 +863,17 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
         gp_rv_loglik = 0
 
+        
         param_vect = []
         for j in range(len(gps.get_parameter_vector())):
             param_vect.append(np.log(par[len(vel_files)*2  +7*npl +2 +j]))
+       # print(param_vect)
         gps.set_parameter_vector(np.array(param_vect))
 
-        gp_pred = gps.predict(fit_results.o_c, fit_results.jd, return_cov=False)
+        #if len(fit_results.o_c) != len(fit_results.jd) or len(fit_results.o_c) == 0 or len(fit_results.jd)  :
+       #     print(len(fit_results.o_c), len(fit_results.jd))
+       #     return -np.inf
+        gp_pred = gps.predict(fit_results.o_c, fit_results.jd, return_cov=False, return_var = False)
         o_c_kep = fit_results.o_c - gp_pred
 
         for i in range(len(vel_files)):
@@ -2093,6 +2107,8 @@ class signal_fit(object):
         self.params=parameters([0.0]*10,[0.0]*10,[0.0]*70,0.0,DEFAULT_STELLAR_MASS)
         self.param_errors=parameter_errors([0.0]*10,[0.0]*10,[0.0]*70,0.0,0.0)
         self.bounds = parameter_bounds([0.0,0.0]*10,[0.0,0.0]*10,[0.0,0.0]*70,[0.0,0.0],[0.0,0.0]*4,[0.0,0.0])
+        
+        self.use_planet = [0,0,0,0,0,0,0,0,0]
 
 
         ########## new stuff ##########
@@ -2891,6 +2907,18 @@ class signal_fit(object):
                  self.w[i]   = np.degrees(np.arctan2(self.e_sinw[i],self.e_cosw[i]))%360.0
                  self.M0[i]  = (self.lamb[i] - self.w[i])%360.0
 
+
+    def update_rv_params(self):
+
+         for i in range(9):
+             self.params.planet_params[i*7+0] = dill.copy(self.K[i])  
+             self.params.planet_params[i*7+1] = dill.copy(self.P[i])  
+             self.params.planet_params[i*7+2] = dill.copy(self.e[i])  
+             self.params.planet_params[i*7+3] = dill.copy(self.w[i])  
+             self.params.planet_params[i*7+4] = dill.copy(self.M0[i])  
+             
+             self.params.planet_params[i*7+5] = dill.copy(self.i[i])    
+             self.params.planet_params[i*7+6] = dill.copy(self.Node[i]) 
 
 ############################ RV datasets ##########################################
     def add_rv_dataset(self, name, path, rv_idset = 0):
