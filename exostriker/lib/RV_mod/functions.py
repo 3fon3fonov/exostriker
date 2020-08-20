@@ -1797,10 +1797,11 @@ def phase_RV_planet_signal(obj,planet):
 
         copied_obj.params.planet_params[7*index+0] = 0.0000001 # then we set Kj to be 0, i.e. remove the j-th planet signal
         copied_obj.fitting(minimize_loglik=True, amoeba_starts=0,
-                           outputfiles=[0,1,1],return_flag=False, npoints=int(len(obj.fit_results.model)),
-                           model_max=int(max(obj.fit_results.model_jd)-max(copied_obj.fit_results.rv_model.jd)),
-                           model_min=int(copied_obj.epoch -min(obj.fit_results.model_jd)))
-
+                           outputfiles=[0,1,1],return_flag=False, npoints=int(obj.model_npoints),
+                          # model_max=int(max(obj.fit_results.model_jd)-max(copied_obj.fit_results.rv_model.jd)),
+                          # model_min=int(copied_obj.epoch -min(obj.fit_results.model_jd)))
+                           model_max=int(copied_obj.model_max),
+                           model_min=int(copied_obj.model_min))
         # and we create the static Nplanet model for the data and the model curve
         # now this model residuals will contain ONLY the j-th planet signal + the best fit residuals
 
@@ -1821,6 +1822,9 @@ def phase_RV_planet_signal(obj,planet):
 
         sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])
         model_time_phase  = model_time_phase[sort]
+        
+        #print(len(obj.fit_results.model),len(copied_obj.fit_results.model))
+        
         phased_model      = obj.fit_results.model[sort] - copied_obj.fit_results.model[sort]
 
         ############ phase data ######

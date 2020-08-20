@@ -4230,14 +4230,19 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             fit.model_npoints = self.points_to_draw_model.value()
             fit.model_max = self.model_max_range.value()
             fit.model_min = self.model_min_range.value()
-            
-            fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran, doGP=fit.doGP,  fortran_kill=self.dyn_model_to_kill.value(), timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), return_flag=True)
+            fit.init_fit = True            
+            fit.fitting(fileinput=False,outputfiles=[1,1,1], minimize_fortran=minimize_fortran, 
+                        doGP=fit.doGP,  fortran_kill=self.dyn_model_to_kill.value(), 
+                        timeout_sec=self.master_timeout.value(), minimize_loglik=True,amoeba_starts=0, 
+                        print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), 
+                        return_flag=True, npoints=fit.model_npoints, model_max = fit.model_max, model_min = fit.model_min)
             #self.fit_dispatcher(init=True)
 
  
             for i in range(fit.npl):
                  rv.phase_RV_planet_signal(fit,i+1)
         
+        fit.init_fit = False            
         
         #print(fit.fit_results.rv_model.rv_err)
         self.update_labels()
@@ -5426,7 +5431,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.37) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.38) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -8840,7 +8845,7 @@ https://github.com/3fon3fonov/exostriker/issues
         
 
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.37). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.38). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)
