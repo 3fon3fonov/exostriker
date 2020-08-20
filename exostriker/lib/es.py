@@ -23244,7 +23244,7 @@ class Ui_MainWindow(object):
         self.points_to_draw_model.setFont(font)
         self.points_to_draw_model.setDecimals(0)
         self.points_to_draw_model.setMinimum(50.0)
-        self.points_to_draw_model.setMaximum(20000.0)
+        self.points_to_draw_model.setMaximum(60000.0)
         self.points_to_draw_model.setSingleStep(500.0)
         self.points_to_draw_model.setProperty("value", 5000.0)
         self.points_to_draw_model.setObjectName("points_to_draw_model")
