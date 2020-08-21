@@ -39,7 +39,7 @@ if not sys.warnoptions:
 
 import RV_mod as rv
 import dynesty
-
+import celerite
 #from dynesty import NestedSampler
 #from dynesty import DynamicNestedSampler
 
@@ -53,7 +53,7 @@ import mlp as mlp
 from worker import Worker #, WorkerSignals
 #start_time = time.time()
 import gui_groups
-#
+
 
 from multiprocessing import cpu_count
 

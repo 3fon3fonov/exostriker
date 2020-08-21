@@ -10321,7 +10321,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_use</string>
@@ -10334,7 +10334,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_use</string>
@@ -10377,7 +10377,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_use</string>
@@ -10663,7 +10663,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_use</string>
@@ -10715,7 +10715,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_use</string>
@@ -10743,7 +10743,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_use</string>
@@ -10756,7 +10756,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_use</string>
@@ -11367,7 +11367,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_use</string>
@@ -11398,7 +11398,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_use</string>
@@ -11450,7 +11450,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_use</string>
@@ -11688,7 +11688,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_use</string>
@@ -11740,7 +11740,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_use</string>
@@ -11768,7 +11768,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_use</string>
@@ -11781,7 +11781,7 @@
                        <string/>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string notr="true">buttonGroup_use</string>
@@ -12260,7 +12260,7 @@
              </font>
             </property>
             <property name="currentIndex">
-             <number>9</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="tab_6">
              <attribute name="title">
@@ -36802,7 +36802,7 @@
                  </font>
                 </property>
                 <property name="currentIndex">
-                 <number>2</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="tab_55">
                  <attribute name="title">
@@ -36824,7 +36824,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_Q_max">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -36840,7 +36840,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_S_max">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -36868,7 +36868,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_omega_min">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -36881,7 +36881,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_S_min">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -36909,7 +36909,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_Q_min">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -36961,7 +36961,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_omega_max">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -37072,7 +37072,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_omega_sigma">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -37107,7 +37107,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_Q_sigma">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -37133,7 +37133,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_S_sigma">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -37149,7 +37149,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_S_mean">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -37165,7 +37165,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_Q_mean">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000000000.000000000000000</double>
@@ -37217,7 +37217,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_omega_mean">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -37289,7 +37289,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_omega_jeff_beta">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -37324,7 +37324,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_Q_jeff_beta">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -37350,7 +37350,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_S_jeff_beta">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -37366,7 +37366,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_S_jeff_alpha">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -37382,7 +37382,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_Q_jeff_alpha">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000000000.000000000000000</double>
@@ -37434,7 +37434,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="GP_sho_kernel_omega_jeff_alpha">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -37498,7 +37498,7 @@
                         <item row="4" column="3">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_fact_max">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>99999.990000000005239</double>
@@ -37526,7 +37526,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_time_sc_max">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -37542,7 +37542,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_Per_max">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -37579,7 +37579,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_Amp_min">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000.000000000000000</double>
@@ -37607,7 +37607,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_time_sc_min">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -37635,7 +37635,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_Amp_max">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -37651,7 +37651,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_Per_min">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -37676,7 +37676,7 @@
                         <item row="4" column="2">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_fact_min">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -37793,7 +37793,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_Per_sigma">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -37816,7 +37816,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_Per_mean">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -37871,7 +37871,7 @@
                         <item row="4" column="3">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_fact_sigma">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>99999.990000000005239</double>
@@ -37887,7 +37887,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_time_sc_sigma">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -37903,7 +37903,7 @@
                         <item row="4" column="2">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_fact_mean">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -37919,7 +37919,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_Amp_sigma">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -37935,7 +37935,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_time_sc_mean">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -37951,7 +37951,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_Amp_mean">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -38064,7 +38064,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_Per_jeff_beta">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -38087,7 +38087,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_Per_jeff_alpha">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -38142,7 +38142,7 @@
                         <item row="4" column="3">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_fact_jeff_beta">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>99999.990000000005239</double>
@@ -38158,7 +38158,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_time_sc_jeff_beta">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -38174,7 +38174,7 @@
                         <item row="4" column="2">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_fact_jeff_alpha">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -38190,7 +38190,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_Amp_jeff_beta">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -38206,7 +38206,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_time_sc_jeff_alpha">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -38222,7 +38222,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="GP_rot_kernel_Amp_jeff_alpha">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -38349,7 +38349,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_sigma_max">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -38405,7 +38405,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_rho_max">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -38421,7 +38421,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_eps_max">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -38450,7 +38450,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_eps_min">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -38479,7 +38479,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_rho_min">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -38495,7 +38495,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_sigma_min">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000.000000000000000</double>
@@ -38593,7 +38593,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_sigma_sigma">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -38649,7 +38649,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_rho_sigma">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -38665,7 +38665,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_eps_sigma">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -38694,7 +38694,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_eps_mean">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -38723,7 +38723,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_rho_mean">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -38739,7 +38739,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_sigma_mean">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000.000000000000000</double>
@@ -38837,7 +38837,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_sigma_beta">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -38893,7 +38893,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_rho_beta">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -38909,7 +38909,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_eps_beta">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -38938,7 +38938,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_eps_alpha">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -38967,7 +38967,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_rho_alpha">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -38983,7 +38983,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="GP_mat_kernel_sigma_alpha">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000.000000000000000</double>
@@ -39117,7 +39117,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_Q_max">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -39133,7 +39133,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_S_max">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -39161,7 +39161,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_omega_min">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -39174,7 +39174,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_S_min">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -39190,7 +39190,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_Q_min">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -39242,7 +39242,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_omega_max">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -39365,7 +39365,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_omega_sigma">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -39400,7 +39400,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_Q_sigma">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -39426,7 +39426,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_S_sigma">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -39442,7 +39442,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_S_mean">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -39458,7 +39458,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_Q_mean">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000000000.000000000000000</double>
@@ -39510,7 +39510,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_omega_mean">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -39582,7 +39582,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_omega_jeff_beta">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -39617,7 +39617,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_Q_jeff_beta">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -39643,7 +39643,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_S_jeff_beta">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -39659,7 +39659,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_S_jeff_alpha">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -39675,7 +39675,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_Q_jeff_alpha">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000000000.000000000000000</double>
@@ -39727,7 +39727,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_sho_kernel_omega_jeff_alpha">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000000.000000000000000</double>
@@ -39796,7 +39796,7 @@
                         <item row="4" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_fact_max">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>99999.990000000005239</double>
@@ -39824,7 +39824,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_time_sc_max">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -39840,7 +39840,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_Per_max">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -39877,7 +39877,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_Amp_min">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000.000000000000000</double>
@@ -39905,7 +39905,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_time_sc_min">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -39933,7 +39933,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_Amp_max">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -39949,7 +39949,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_Per_min">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -39974,7 +39974,7 @@
                         <item row="4" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_fact_min">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -40091,7 +40091,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_Per_sigma">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -40114,7 +40114,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_Per_mean">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -40169,7 +40169,7 @@
                         <item row="4" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_fact_sigma">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>99999.990000000005239</double>
@@ -40185,7 +40185,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_time_sc_sigma">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -40201,7 +40201,7 @@
                         <item row="4" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_fact_mean">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -40217,7 +40217,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_Amp_sigma">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -40233,7 +40233,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_time_sc_mean">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -40249,7 +40249,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_Amp_mean">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -40362,7 +40362,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_Per_jeff_beta">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -40385,7 +40385,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_Per_jeff_alpha">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -40440,7 +40440,7 @@
                         <item row="4" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_fact_jeff_beta">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>99999.990000000005239</double>
@@ -40456,7 +40456,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_time_sc_jeff_beta">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -40472,7 +40472,7 @@
                         <item row="4" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_fact_jeff_alpha">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -40488,7 +40488,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_Amp_jeff_beta">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -40504,7 +40504,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_time_sc_jeff_alpha">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -40520,7 +40520,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_rot_kernel_Amp_jeff_alpha">
                           <property name="decimals">
-                           <number>4</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>1000.000000000000000</double>
@@ -40647,7 +40647,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_sigma_max">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -40703,7 +40703,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_rho_max">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -40719,7 +40719,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_eps_max">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -40748,7 +40748,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_eps_min">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -40777,7 +40777,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_rho_min">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -40793,7 +40793,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_sigma_min">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000.000000000000000</double>
@@ -40891,7 +40891,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_sigma_sigma">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -40947,7 +40947,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_rho_sigma">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -40963,7 +40963,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_eps_sigma">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -40992,7 +40992,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_eps_mean">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -41021,7 +41021,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_rho_mean">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -41037,7 +41037,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_sigma_mean">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000.000000000000000</double>
@@ -41135,7 +41135,7 @@
                         <item row="1" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_sigma_beta">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -41191,7 +41191,7 @@
                         <item row="2" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_rho_beta">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>10000000.000000000000000</double>
@@ -41207,7 +41207,7 @@
                         <item row="3" column="3">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_eps_beta">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -41236,7 +41236,7 @@
                         <item row="3" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_eps_alpha">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -41265,7 +41265,7 @@
                         <item row="2" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_rho_alpha">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>999999.989999999990687</double>
@@ -41281,7 +41281,7 @@
                         <item row="1" column="2">
                          <widget class="QDoubleSpinBox" name="tra_GP_mat_kernel_sigma_alpha">
                           <property name="decimals">
-                           <number>5</number>
+                           <number>7</number>
                           </property>
                           <property name="maximum">
                            <double>100000.000000000000000</double>

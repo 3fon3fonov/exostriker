@@ -324,10 +324,12 @@ def convert_Session_to_Py3(old_ses):
     # Open the pickle using latin1 encoding
     with open(old_ses, "rb") as f:
         loaded = dill.load(f, encoding="latin1")
+    f.close()
 
     # Re-save as Python 3 pickle
     with open(new_ses, "wb") as outfile:
         dill.dump(loaded, outfile)
+    outfile.close()
         
     return new_ses
 
