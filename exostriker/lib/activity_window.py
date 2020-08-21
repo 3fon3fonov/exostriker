@@ -3,7 +3,7 @@ import pyqtgraph as pg
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 import numpy as np
-import os
+import os,sys
 from print_info_window import print_info
 from worker import Worker
 from multiprocessing import cpu_count
