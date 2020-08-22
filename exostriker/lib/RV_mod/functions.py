@@ -1686,9 +1686,10 @@ def transit_data_norm(obj,  file_n = 0, norm = False, verbose = True):
 ### some experimets! ###
 def gen_RV_curve(obj,x=None):
     obj2 = dill.copy(obj)
-    f  = open('datafiles/RV_curve', 'wb') # open the file
 
     if len(x) > 3:
+        f  = open('datafiles/RV_curve', 'wb') # open the file
+
         for j in range(len(x)):
             #print(fit_new.rv_data_sets[i][0][j])
             text = b"%s  %s  %s \n"%(bytes(str(x[j]).encode()),bytes(str(0.0).encode()),bytes(str(1.0).encode()) )
@@ -2094,6 +2095,7 @@ def convert_array_to_int(a, save_wrong_lines=False):
 def read_file_as_array_of_arrays(inputfile):
     a=open(inputfile, 'r')
     b=a.readlines() # b as array of strings
+    a.close()
     c=[]
     ic=0 # iterator for values in c
     for i in range(len(b)):
@@ -2115,6 +2117,7 @@ def read_file_as_array_of_arrays(inputfile):
 def read_file_as_array_of_arrays_mcmc(inputfile):
     a=open(inputfile, 'r')
     b=a.readlines() # b as array of strings
+    a.close()
     c=[]
     ic=0 # iterator for values in c
     for i in range(len(b)):
