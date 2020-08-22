@@ -2230,7 +2230,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         p1.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
   
         if fit.doGP == True:
-            #rv.get_gps_model(self) 
+            #rv.get_RV_gps_model(self) 
             y_model = fit.fit_results.model + fit.gp_model_curve[0]
         else:
             y_model = fit.fit_results.model 
@@ -5163,7 +5163,7 @@ Transit duration: %s d
             fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
 
         if fit.doGP == True:
-            rv.get_gps_model(fit,get_lnl=fit.get_GP_lnl)
+            rv.get_RV_gps_model(fit,get_lnl=fit.get_GP_lnl)
 
         for i in range(fit.npl):
 #             print("test",fit.hkl,fit.loglik,fit.params.planet_params[0:13])
@@ -5431,7 +5431,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.38) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.39) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -8845,7 +8845,7 @@ https://github.com/3fon3fonov/exostriker/issues
         
 
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.38). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.39). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)

@@ -90,7 +90,7 @@ from . import GP_kernels
 
 
 
-def initiategps(obj,  kernel_id=-1):
+def initiate_RV_gps(obj,  kernel_id=-1):
     """Short summary.
 
     Parameters
@@ -128,16 +128,16 @@ def initiategps(obj,  kernel_id=-1):
                                log_omega0=np.log(obj.GP_sho_params[2]))
 
     gps = celerite.GP(kernel, mean=0.0)
-    gps.compute(obj.filelist.time, obj.filelist.rv_err)
+    #gps.compute(obj.filelist.time, obj.filelist.rv_err)
 
     obj.gps = gps
     return
 
 
-def get_gps_model(obj,  kernel_id=-1, get_lnl=False):
+def get_RV_gps_model(obj,  kernel_id=-1, get_lnl=False):
  
     
-    initiategps(obj,  kernel_id=-1)
+    initiate_RV_gps(obj,  kernel_id=-1)
     #gp_model_data  = []
 
     ############ DATA ####################
@@ -146,6 +146,13 @@ def get_gps_model(obj,  kernel_id=-1, get_lnl=False):
 
     y = obj.fit_results.rv_model.o_c
     x = obj.fit_results.rv_model.jd
+
+    errors_with_jitt = np.array([np.sqrt(obj.fit_results.rv_err[i]**2 + obj.params.jitters[ii]**2)  for i,ii in enumerate(obj.fit_results.idset)])
+
+    obj.gps.compute(x,yerr=errors_with_jitt)    
+   #gps.compute(obj.filelist.time, obj.filelist.rv_err)
+
+    
     mu, var = obj.gps.predict(y, x, return_var=True)
     std = np.sqrt(var)
 
@@ -172,14 +179,17 @@ def get_gps_model(obj,  kernel_id=-1, get_lnl=False):
     
  
     if get_lnl == True:
+        
+        gp_rv_loglik = obj.gps.log_likelihood(obj.fit_results.o_c)
+        
         gp_pred = obj.gps.predict(obj.fit_results.o_c,obj.fit_results.jd, return_cov=False)
         o_c_kep = dill.copy(obj.fit_results.o_c) - gp_pred
-        gp_rv_loglik = 0
+        
         gp_rv_chi = 0
 
         for i in range(max(obj.filelist.idset)+1):
             sig2i_gp = 1.0 / (obj.fit_results.rv_err[obj.fit_results.idset==i]**2 + obj.params.jitters[i]**2 )
-            gp_rv_loglik += -0.5*(np.sum((o_c_kep[obj.fit_results.idset==i])**2 * sig2i_gp - np.log(sig2i_gp / 2./ np.pi)))
+       #     gp_rv_loglik += -0.5*(np.sum((o_c_kep[obj.fit_results.idset==i])**2 * sig2i_gp - np.log(sig2i_gp / 2./ np.pi)))
             gp_rv_chi    += np.sum((o_c_kep[obj.fit_results.idset==i])**2 * sig2i_gp)
 
             
@@ -218,7 +228,7 @@ def initiate_tansit_gps(obj,  kernel_id=-1):
                                log_Q=np.log(obj.tra_GP_sho_params[1]),
                                log_omega0=np.log(obj.tra_GP_sho_params[2]))
 
-    tra_gps = celerite.GP(tra_kernel, mean=1.0)
+    tra_gps = celerite.GP(tra_kernel, mean=0.0)
 
     y = np.concatenate([obj.tra_data_sets[j][2] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
     x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
@@ -228,6 +238,54 @@ def initiate_tansit_gps(obj,  kernel_id=-1):
     obj.tra_gps = tra_gps
     return
 
+
+
+
+
+def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
+
+    get_transit_ts(obj)
+    initiate_tansit_gps(obj,  kernel_id=-1)
+    #gp_model_data  = []
+
+    ############ DATA ####################
+
+    y = np.concatenate([obj.tra_data_sets[j][4] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
+    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
+
+    if len(x_model) == 0 or len(y_model) == 0:
+        x_model = dill.copy(x)
+        y_model = dill.copy(y)
+
+    GP_var = False
+    if GP_var == True:
+        mu, var = obj.tra_gps.predict(y, x, return_var=True)
+        std = np.sqrt(var)
+
+        obj.tra_gp_model_data = [mu,var,std]
+
+        ############ MODEL ####################
+
+        mu, var = obj.tra_gps.predict(y, x, return_var=True)
+        std = np.sqrt(var)
+        obj.tra_gp_model_curve = [mu,var,std]
+
+    else:
+
+        mu = obj.tra_gps.predict(y, x, return_cov=False)
+        #std = np.sqrt(var)
+        obj.tra_gp_model_data = [mu,np.zeros(len(mu)),np.zeros(len(mu))]
+
+        ############ MODEL ####################
+       # obj.tra_gps.compute(x_model, y_model)
+
+        mu = obj.tra_gps.predict(y, x_model, return_cov=False)
+       # std = np.sqrt(var)
+
+        obj.tra_gp_model_curve= [mu,np.zeros(len(mu)),np.zeros(len(mu))]
+
+
+    return 
 
 
 
@@ -306,54 +364,6 @@ def get_transit_ts(obj,  kernel_id=-1):
 
 
     return
-
-
-
-
-def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
-
-    get_transit_ts(obj)
-    initiate_tansit_gps(obj,  kernel_id=-1)
-    #gp_model_data  = []
-
-    ############ DATA ####################
-
-    y = np.concatenate([obj.tra_data_sets[j][4] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
-    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
-
-    if len(x_model) == 0 or len(y_model) == 0:
-        x_model = dill.copy(x)
-        y_model = dill.copy(y)
-
-    GP_var = False
-    if GP_var == True:
-        mu, var = obj.tra_gps.predict(y, x, return_var=True)
-        std = np.sqrt(var)
-
-        obj.tra_gp_model_data = [mu,var,std]
-
-        ############ MODEL ####################
-
-        mu, var = obj.tra_gps.predict(y, x, return_var=True)
-        std = np.sqrt(var)
-        obj.tra_gp_model_curve = [mu,var,std]
-
-    else:
-
-        mu = obj.tra_gps.predict(y, x, return_cov=False)
-        #std = np.sqrt(var)
-        obj.tra_gp_model_data = [mu,np.zeros(len(mu)),np.zeros(len(mu))]
-
-        ############ MODEL ####################
-       # obj.tra_gps.compute(x_model, y_model)
-
-        mu = obj.tra_gps.predict(y, x_model, return_cov=False)
-       # std = np.sqrt(var)
-
-        obj.tra_gp_model_curve= [mu,np.zeros(len(mu)),np.zeros(len(mu))]
-
-
-    return 
 
 
 
@@ -541,7 +551,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
         sig2i_    = 1./(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
         flux_err_ = np.sqrt(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
-
+       # print(par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l])
         flux_model_ =np.ones(len(flux_))
 
 
@@ -606,7 +616,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
 
 
-        flux_model_ = flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8])
+        flux_model_ = flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8]) 
         #flux_model_ = (flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8])) /  (1+ tr_files[j][8])
 
         #flux_model_ =  (flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8]))/  (1+ tr_files[j][8]*par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l])
@@ -650,9 +660,17 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
             param_vect.append(np.log(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + k]))
         tra_gps.set_parameter_vector(np.array(param_vect))
 
-        tra_gp_model_all = tra_gps.predict(flux_o_c_all , t_all , return_cov=False)
-        flux_o_c_gp_all = flux_o_c_all  - tra_gp_model_all
-        tr_loglik = -0.5*(np.sum((flux_o_c_gp_all)**2 * sig2i_all  - np.log(sig2i_all  / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
+        tra_gps.compute(t_all,yerr=flux_err_all)
+        tr_loglik = tr_loglik + tra_gps.log_likelihood(flux_o_c_all)
+
+#        tra_gp_model_all = tra_gps.predict(flux_o_c_all , t_all , return_cov=False)
+#        flux_o_c_gp_all = flux_o_c_all  - tra_gp_model_all       
+#        tr_loglik2 = -0.5*(np.sum((flux_o_c_gp_all)**2           * sig2i_all  - np.log(sig2i_all  / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
+        if return_model == True:        
+            tra_gp_model_all = tra_gps.predict(flux_o_c_all , t_all , return_cov=False)
+            flux_o_c_gp_all = flux_o_c_all  - tra_gp_model_all  
+        
+#        print(tr_loglik,tr_loglik2)
 
     if return_model == True:
 
@@ -717,6 +735,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
                 flux_model_rich[tr_ind] =  (flux_model_rich[tr_ind]*tr_files[j][8]  + (1.0 - tr_files[j][8]))
                 #flux_model_rich[tr_ind] =  (flux_model_rich[tr_ind]*tr_files[j][8]  + (1.0 - tr_files[j][8]))/  (1+ tr_files[j][8]*par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l])
+                #flux_model_rich[tr_ind] =  flux_model_rich[tr_ind] =   + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l]
 
                 l +=1
 
@@ -874,13 +893,24 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         
         #gps.compute(fit_results.jd,yerr=fit_results.o_c)
 
-        gp_pred = gps.predict(fit_results.o_c, fit_results.jd, return_cov=False, return_var = False)
-        o_c_kep = fit_results.o_c - gp_pred
+        #gp_pred = gps.predict(fit_results.o_c, fit_results.jd, return_cov=False, return_var = False)
+       # o_c_kep = fit_results.o_c - gp_pred
 
-        for i in range(len(vel_files)):
-            sig2i_gp = 1.0 / (fit_results.rv_err[fit_results.idset==i]**2 + par[i + len(vel_files)]**2 )
-            gp_rv_loglik += -0.5*(np.sum((o_c_kep[fit_results.idset==i])**2 * sig2i_gp - np.log(sig2i_gp / 2./ np.pi)))
+        #for i in range(len(vel_files)):
+        #    sig2i_gp = 1.0 / (fit_results.rv_err[fit_results.idset==i]**2 + par[i + len(vel_files)]**2 )
+       #     gp_rv_loglik += -0.5*(np.sum((o_c_kep[fit_results.idset==i])**2 * sig2i_gp - np.log(sig2i_gp / 2./ np.pi)))
+       # rv_loglik =  gp_rv_loglik
+
+        errors_with_jitt = np.array([np.sqrt(fit_results.rv_err[i]**2 + par[ii + len(vel_files)]**2)  for i,ii in enumerate(fit_results.idset)])
+        gps.compute(fit_results.jd,yerr=errors_with_jitt)
+        gp_rv_loglik = gp_rv_loglik + gps.log_likelihood(fit_results.o_c)
+
+#        tra_gp_model_all = tra_gps.predict(flux_o_c_all , t_all , return_cov=False)
+#        flux_o_c_gp_all = flux_o_c_all  - tra_gp_model_all       
+#        tr_loglik2 = -0.5*(np.sum((flux_o_c_gp_all)**2           * sig2i_all  - np.log(sig2i_all  / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
         rv_loglik =  gp_rv_loglik
+#        print(gp_rv_loglik)
+
 
     if(rtg[2]):
         
@@ -1022,7 +1052,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     gps = []
     if (rtg[1]):
-        initiategps(obj, kernel_id=kernel_id)
+        initiate_RV_gps(obj, kernel_id=kernel_id)
         gps = obj.gps
         rv_gp_npar = len(gps.get_parameter_vector())
     else:
@@ -1174,7 +1204,6 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             for j in range(len(gps.get_parameter_vector())):
                 obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +2 +j]
 
-    if rtg[1]:
         rv_gp_npar = len(gps.get_parameter_vector())
     else:
         rv_gp_npar = 0
@@ -1184,15 +1213,13 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
     if (rtg[3]) and N_transit_files != 0:
         if obj.tra_gp_kernel == 'RotKernel':
             for j in range(len(tra_gps.get_parameter_vector())):
-                obj.tra_GP_rot_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + rv_gp_npar + 2 +j]
+                obj.tra_GP_rot_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 +j]
 
         if obj.tra_gp_kernel == 'SHOKernel':
             for j in range(len(tra_gps.get_parameter_vector())):
-                obj.tra_GP_sho_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + rv_gp_npar + 2 +j]
+                obj.tra_GP_sho_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 +j]
 
-    if rtg[3]:
         tra_gp_npar = len(tra_gps.get_parameter_vector())
-        #get_transit_gps_model(obj)
     else:
         tra_gp_npar = 0
 
@@ -1204,7 +1231,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
         if rtg[1]:
-            get_gps_model(obj, get_lnl=True)
+            get_RV_gps_model(obj, get_lnl=True)
 
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == True:
 
@@ -1265,7 +1292,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, stmass, obj.ttv_times, obj.epoch, return_model = True, tra_model_fact=obj.tra_model_fact, fit_results=obj.fit_results)
         #print(obj.loglik, obj.transit_results[0])
         if rtg[1]:
-            get_gps_model(obj, get_lnl=True)
+            get_RV_gps_model(obj, get_lnl=True)
 
         if rtg[3]:
             get_transit_gps_model(obj)
@@ -1284,7 +1311,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
        # ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass, obj.ttv_times,obj.hkl,fit_results=obj.fit_results, return_model = False)
  
         if rtg[1]:
-            get_gps_model(obj, get_lnl=True)
+            get_RV_gps_model(obj, get_lnl=True)
 
         obj.loglik     =   obj.loglik +  ttv_loglik
 
@@ -1523,7 +1550,7 @@ def run_nestsamp(obj, **kwargs):
 
     gps = []
     if (rtg[1]):
-        initiategps(obj)
+        initiate_RV_gps(obj)
         gps = obj.gps
 
     tra_gps = []
@@ -1903,7 +1930,7 @@ def run_mcmc(obj, **kwargs):
 
     gps = []
     if (rtg[1]):
-        initiategps(obj)
+        initiate_RV_gps(obj)
         gps = obj.gps
 #        rv_gp_npar = len(gps.get_parameter_vector())
 #    else:
@@ -4048,7 +4075,7 @@ class signal_fit(object):
 #            self.correct_elements() #because amoeba might make things wrong here
 
 #        if self.rtg[1] and self.get_GP_lnl ==True:
-#            get_gps_model(self,get_lnl=self.get_GP_lnl)
+#            get_RV_gps_model(self,get_lnl=self.get_GP_lnl)
         #print(self.fit_results.stat.dof)
         self.hack_around_rv_params()
 
