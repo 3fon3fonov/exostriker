@@ -1437,7 +1437,7 @@ def run_nestsamp_bg(obj):
 
 def run_nestsamp(obj, **kwargs):
 
-    '''Performs nested sampling and saves results'''
+    '''Performs nested sampling and saves results. Work in progress.....'''
 
     start_time = time.time()
     rtg = obj.rtg
@@ -1540,10 +1540,15 @@ def run_nestsamp(obj, **kwargs):
         u_trans = np.zeros(len(p))
         for j in range(len(p)):
 
+            #if p[j] <= bb[j][0] or p[j] >= bb[j][1]:
+            #    return -np.inf            
+            
+            #u_trans[j] = trans_uni(p[j],bb[j][0],bb[j][1])
+            
             if priors[0][j,2] == True:
-                u_trans[j] = trans_norm(p[j],bb[j][0],bb[j][1])
+                u_trans[j] = trans_norm(p[j],priors[0][j,0],priors[0][j,1])
             elif priors[1][j,2] == True:
-                u_trans[j] = trans_loguni(p[j],bb[j][0],bb[j][1])
+                u_trans[j] = trans_loguni(p[j],priors[1][j,0],priors[1][j,1])
             else:
                 u_trans[j] = trans_uni(p[j],bb[j][0],bb[j][1])
         return u_trans
@@ -4463,29 +4468,42 @@ class signal_fit(object):
             else:
                 if self.ld_m[i] == "linear":
                     par.append(self.ld_u_lin[i][0])
-                    flag.append(self.ld_u_lin_use[i][0])
                     par_str.append(self.ld_u_lin_str[i][0])
                     bounds.append(self.ld_u_lin_bound[i][0])
                     prior_nr.append(self.ld_u_lin_norm_pr[i][0])
                     prior_jeff.append(self.ld_u_lin_jeff_pr[i][0])
+                    
+                    if rtg[2] == False:
+                        flag.append(False) #
+                    else:
+                        flag.append(self.ld_u_lin_use[i][0])
+
+                    
                 elif self.ld_m[i] ==  "quadratic":
                     for x in range(2):
                         par.append(self.ld_u_quad[i][x])
-                        flag.append(self.ld_u_quad_use[i][x])
                         par_str.append(self.ld_u_quad_str[i][x])
                         bounds.append(self.ld_u_quad_bound[i][x])
                         prior_nr.append(self.ld_u_quad_norm_pr[i][x])
                         prior_jeff.append(self.ld_u_quad_jeff_pr[i][x])
+
+                        if rtg[2] == False:
+                            flag.append(False) #
+                        else:
+                            flag.append(self.ld_u_quad_use[i][x])
+
                 elif self.ld_m[i] ==  "nonlinear":
                     for x in range(4):
                         par.append(self.ld_u_nonlin[i][x])
-                        flag.append(self.ld_u_nonlin_use[i][x])
                         par_str.append(self.ld_u_nonlin_str[i][x])
                         bounds.append(self.ld_u_nonlin_bound[i][x])
                         prior_nr.append(self.ld_u_nonlin_norm_pr[i][x])
                         prior_jeff.append(self.ld_u_nonlin_jeff_pr[i][x])
 
-
+                        if rtg[2] == False:
+                            flag.append(False) #
+                        else:
+                            flag.append(self.ld_u_nonlin_use[i][x])
 
         par.append(self.params.stellar_mass)
         flag.append(self.use.use_stellar_mass)
