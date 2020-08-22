@@ -1659,6 +1659,10 @@ def run_nestsamp(obj, **kwargs):
             sampler.run_nested(print_progress=print_progress,dlogz_init=stop_crit,nlive_init=nwalkers,  
             maxiter = ns_maxiter, maxcall = ns_maxcall,use_stop = ns_use_stop, wt_kwargs={'pfrac': ns_pfrac} ) 
 
+        # just in case
+        thread.close()
+        thread.join()
+        thread.clear()
 
        # obj.dyn_res = sampler.results
 
