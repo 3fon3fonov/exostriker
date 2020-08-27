@@ -986,11 +986,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                  self.jitter_nr_priors_gui[i][z].setValue(fit.jitt_norm_pr[i][z])
                  self.offset_nr_priors_gui_tra[i][z].setValue(fit.tra_off_norm_pr[i][z])
                  self.jitter_nr_priors_gui_tra[i][z].setValue(fit.tra_jitt_norm_pr[i][z])
-
+                 self.tra_lin_trend_nr_priors_gui[i][z].setValue(fit.tra_lintr_norm_pr[i][z])
+                 self.tra_quad_trend_nr_priors_gui[i][z].setValue(fit.tra_quadtr_norm_pr[i][z])  
+                 
+                 
             self.offset_nr_priors_gui[i][2].setChecked(fit.rvoff_norm_pr[i][2])
             self.jitter_nr_priors_gui[i][2].setChecked(fit.jitt_norm_pr[i][2])
             self.offset_nr_priors_gui_tra[i][2].setChecked(fit.tra_off_norm_pr[i][2])
             self.jitter_nr_priors_gui_tra[i][2].setChecked(fit.tra_jitt_norm_pr[i][2])
+            self.tra_lin_trend_nr_priors_gui[i][2].setChecked(fit.tra_lintr_norm_pr[i][2])
+            self.tra_quad_trend_nr_priors_gui[i][2].setChecked(fit.tra_quadtr_norm_pr[i][2])
 
 
         self.update_RV_GP_priors_nr()
@@ -1044,12 +1049,18 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                  self.jitter_jeff_priors_gui[i][z].setValue(fit.jitt_jeff_pr[i][z])
                  self.offset_jeff_priors_gui_tra[i][z].setValue(fit.tra_off_jeff_pr[i][z])
                  self.jitter_jeff_priors_gui_tra[i][z].setValue(fit.tra_jitt_jeff_pr[i][z])
+                 self.tra_lin_trend_jeff_priors_gui[i][z].setValue(fit.tra_lintr_jeff_pr[i][z])
+                 self.tra_quad_trend_jeff_priors_gui[i][z].setValue(fit.tra_quadtr_jeff_pr[i][z])                 
+                 
+                 
 
             self.offset_jeff_priors_gui[i][2].setChecked(fit.rvoff_jeff_pr[i][2])
             self.jitter_jeff_priors_gui[i][2].setChecked(fit.jitt_jeff_pr[i][2])
             self.offset_jeff_priors_gui_tra[i][2].setChecked(fit.tra_off_jeff_pr[i][2])
-            self.jitter_jeff_priors_gui_tra[i][2].setChecked(fit.tra_jitt_jeff_pr[i][2])
-
+            self.jitter_jeff_priors_gui_tra[i][2].setChecked(fit.tra_jitt_jeff_pr[i][2])    
+            self.tra_lin_trend_jeff_priors_gui[i][2].setChecked(fit.tra_lintr_jeff_pr[i][2])
+            self.tra_quad_trend_jeff_priors_gui[i][2].setChecked(fit.tra_quadtr_jeff_pr[i][2])
+            
 
         self.update_RV_GP_priors_jeff()
         self.update_tra_GP_priors_jeff()
@@ -1124,8 +1135,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 fit.tra_off_bounds[i][z]    = self.offset_bounds_gui_tra[i][z].value()
                 fit.tra_jitt_bounds[i][z]   = self.jitter_bounds_gui_tra[i][z].value()
 
-                fit.tra_lintr_bounds[i][z]  = self.tra_lintr_nr_priors_gui[i][z].value()
-                fit.tra_quadtr_bounds[i][z] = self.tra_quadtr_nr_priors_gui[i][z].value()
+                fit.tra_lintr_bounds[i][z]  = self.tra_lintr_bounds_gui[i][z].value()
+                fit.tra_quadtr_bounds[i][z] = self.tra_quadtr_bounds_gui[i][z].value()
  
 
 
@@ -1246,11 +1257,19 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(10): 
             for z in range(2):
 
-                fit.tra_off_norm_pr[i][z]  = self.offset_nr_priors_gui_tra[i][z].value()
-                fit.tra_jitt_norm_pr[i][z] = self.jitter_nr_priors_gui_tra[i][z].value()
+                fit.tra_off_norm_pr[i][z]    = self.offset_nr_priors_gui_tra[i][z].value()
+                fit.tra_jitt_norm_pr[i][z]   = self.jitter_nr_priors_gui_tra[i][z].value()
+                fit.tra_lintr_norm_pr[i][z]  = self.tra_lin_trend_nr_priors_gui[i][z].value()
+                fit.tra_quadtr_norm_pr[i][z] = self.tra_quad_trend_nr_priors_gui[i][z].value()
+                
+
+
             fit.tra_off_norm_pr[i][2]  = self.offset_nr_priors_gui_tra[i][2].isChecked()
             fit.tra_jitt_norm_pr[i][2] = self.jitter_nr_priors_gui_tra[i][2].isChecked()
-
+            fit.tra_lintr_norm_pr[i][2]  = self.tra_lin_trend_nr_priors_gui[i][2].isChecked()
+            fit.tra_quadtr_norm_pr[i][2] = self.tra_quad_trend_nr_priors_gui[i][2].isChecked()
+            
+            
         self.check_RV_GP_priors_nr()
         self.check_tra_GP_priors_nr()
 
@@ -1357,11 +1376,15 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     
         for i in range(10): 
             for z in range(2):
-                fit.tra_off_jeff_pr[i][z]  = self.offset_jeff_priors_gui_tra[i][z].value()
-                fit.tra_jitt_jeff_pr[i][z] = self.jitter_jeff_priors_gui_tra[i][z].value() 
-            fit.tra_off_jeff_pr[i][2]  = self.offset_jeff_priors_gui_tra[i][2].isChecked()
-            fit.tra_jitt_jeff_pr[i][2] = self.jitter_jeff_priors_gui_tra[i][2].isChecked()
-            
+                fit.tra_off_jeff_pr[i][z]    = self.offset_jeff_priors_gui_tra[i][z].value()
+                fit.tra_jitt_jeff_pr[i][z]   = self.jitter_jeff_priors_gui_tra[i][z].value() 
+                fit.tra_lintr_jeff_pr[i][z]  = self.tra_lin_trend_jeff_priors_gui[i][z].value()
+                fit.tra_quadtr_jeff_pr[i][z] = self.tra_quad_trend_jeff_priors_gui[i][z].value()                
+                
+            fit.tra_off_jeff_pr[i][2]    = self.offset_jeff_priors_gui_tra[i][2].isChecked()
+            fit.tra_jitt_jeff_pr[i][2]   = self.jitter_jeff_priors_gui_tra[i][2].isChecked()
+            fit.tra_lintr_jeff_pr[i][2]  = self.tra_lin_trend_jeff_priors_gui[i][2].isChecked()
+            fit.tra_quadtr_jeff_pr[i][2] = self.tra_quad_trend_jeff_priors_gui[i][2].isChecked()            
             
         self.check_RV_GP_priors_jeff()
         self.check_tra_GP_priors_jeff()
@@ -8106,9 +8129,13 @@ https://github.com/3fon3fonov/exostriker/issues
         self.offset_bounds_gui_tra = gui_groups.offset_bounds_gui_tra(self)
         self.jitter_bounds_gui_tra = gui_groups.jitter_bounds_gui_tra(self)
 
-        self.tra_lintr_nr_priors_gui  = gui_groups.tra_lintr_nr_priors_gui(self)
-        self.tra_quadtr_nr_priors_gui = gui_groups.tra_quadtr_nr_priors_gui(self)
-
+        self.tra_lintr_bounds_gui  = gui_groups.tra_lintr_bounds_gui(self)
+        self.tra_quadtr_bounds_gui = gui_groups.tra_quadtr_bounds_gui(self)
+        
+        self.tra_lin_trend_nr_priors_gui    = gui_groups.tra_lin_trend_nr_priors_gui(self)
+        self.tra_lin_trend_jeff_priors_gui  = gui_groups.tra_lin_trend_jeff_priors_gui(self)
+        self.tra_quad_trend_nr_priors_gui   = gui_groups.tra_quad_trend_nr_priors_gui(self)
+        self.tra_quad_trend_jeff_priors_gui = gui_groups.tra_quad_trend_jeff_priors_gui(self)
 
         self.param_gui         = gui_groups.param_gui(self)
         self.use_param_gui     = gui_groups.use_param_gui(self)
