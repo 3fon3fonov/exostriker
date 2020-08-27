@@ -209,15 +209,6 @@ def tra_data_gui(self):
             self.trans_Data6,self.trans_Data7,self.trans_Data8,self.trans_Data9,self.trans_Data10
             ]
     return tra_data_gui
-           
-def tra_data_jitter_gui(self):
-
-    tra_data_jitter_gui = [
-            self.jitter_trans_Data1,self.jitter_trans_Data2,self.jitter_trans_Data3,self.jitter_trans_Data4,self.jitter_trans_Data5,
-            self.jitter_trans_Data6,self.jitter_trans_Data7,self.jitter_trans_Data8,self.jitter_trans_Data9,self.jitter_trans_Data10
-            ]
-    return tra_data_jitter_gui
-
 
 def use_tra_data_offset_gui(self):
 
@@ -229,7 +220,25 @@ def use_tra_data_offset_gui(self):
 
     return use_tra_data_offset_gui
 
+def tra_data_errors_gui(self):
 
+    tra_data_errors_gui = [
+            self.err_trans_Data1,self.err_trans_Data2,self.err_trans_Data3,self.err_trans_Data4,self.err_trans_Data5,
+            self.err_trans_Data6,self.err_trans_Data7,self.err_trans_Data8,self.err_trans_Data9,self.err_trans_Data10
+            ]
+    
+    return tra_data_errors_gui
+
+           
+def tra_data_jitter_gui(self):
+
+    tra_data_jitter_gui = [
+            self.jitter_trans_Data1,self.jitter_trans_Data2,self.jitter_trans_Data3,self.jitter_trans_Data4,self.jitter_trans_Data5,
+            self.jitter_trans_Data6,self.jitter_trans_Data7,self.jitter_trans_Data8,self.jitter_trans_Data9,self.jitter_trans_Data10
+            ]
+    return tra_data_jitter_gui
+ 
+    
 def use_tra_data_jitter_gui(self):
     
     use_tra_data_jitter_gui = [
@@ -240,15 +249,6 @@ def use_tra_data_jitter_gui(self):
     
     return use_tra_data_jitter_gui
 
-
-def tra_data_errors_gui(self):
-
-    tra_data_errors_gui = [
-            self.err_trans_Data1,self.err_trans_Data2,self.err_trans_Data3,self.err_trans_Data4,self.err_trans_Data5,
-            self.err_trans_Data6,self.err_trans_Data7,self.err_trans_Data8,self.err_trans_Data9,self.err_trans_Data10
-            ]
-    
-    return tra_data_errors_gui
 
 def tra_data_errors_jitter_gui(self):
 
@@ -262,6 +262,60 @@ def tra_data_errors_jitter_gui(self):
 
 
 
+def tra_data_lin_trend_gui(self):
+
+    tra_data_lin_trend_gui = [
+            self.tra_lin_trend_1,self.tra_lin_trend_2,self.tra_lin_trend_3,self.tra_lin_trend_4,self.tra_lin_trend_5,
+            self.tra_lin_trend_6,self.tra_lin_trend_7,self.tra_lin_trend_8,self.tra_lin_trend_9,self.tra_lin_trend_10
+            ]
+    return tra_data_lin_trend_gui
+
+def use_tra_data_lin_trend_gui(self):
+
+    use_tra_data_lin_trend_gui = [
+            self.use_tra_lin_trend_1,self.use_tra_lin_trend_2,self.use_tra_lin_trend_3,self.use_tra_lin_trend_4,
+            self.use_tra_lin_trend_5,self.use_tra_lin_trend_6,self.use_tra_lin_trend_7,self.use_tra_lin_trend_8,
+            self.use_tra_lin_trend_9,self.use_tra_lin_trend_10
+            ]
+
+    return use_tra_data_lin_trend_gui
+
+def err_tra_data_lin_trend_gui(self):
+
+    err_tra_data_lin_trend_gui = [
+            self.err_tra_lin_trend_1,self.err_tra_lin_trend_2,self.err_tra_lin_trend_3,self.err_tra_lin_trend_4,self.err_tra_lin_trend_5,
+            self.err_tra_lin_trend_6,self.err_tra_lin_trend_7,self.err_tra_lin_trend_8,self.err_tra_lin_trend_9,self.err_tra_lin_trend_10
+            ]
+    
+    return err_tra_data_lin_trend_gui
+
+
+def tra_data_quad_trend_gui(self):
+
+    tra_data_quad_trend_gui = [
+            self.tra_quad_trend_1,self.tra_quad_trend_2,self.tra_quad_trend_3,self.tra_quad_trend_4,self.tra_quad_trend_5,
+            self.tra_quad_trend_6,self.tra_quad_trend_7,self.tra_quad_trend_8,self.tra_quad_trend_9,self.tra_quad_trend_10
+            ]
+    return tra_data_quad_trend_gui
+
+def use_tra_data_quad_trend_gui(self):
+
+    use_tra_data_quad_trend_gui = [
+            self.use_tra_quad_trend_1,self.use_tra_quad_trend_2,self.use_tra_quad_trend_3,self.use_tra_quad_trend_4,
+            self.use_tra_quad_trend_5,self.use_tra_quad_trend_6,self.use_tra_quad_trend_7,self.use_tra_quad_trend_8,
+            self.use_tra_quad_trend_9,self.use_tra_quad_trend_10
+            ]
+
+    return use_tra_data_quad_trend_gui
+
+def err_tra_data_quad_trend_gui(self):
+
+    err_tra_data_quad_trend_gui = [
+            self.err_tra_quad_trend_1,self.err_tra_quad_trend_2,self.err_tra_quad_trend_3,self.err_tra_quad_trend_4,self.err_tra_quad_trend_5,
+            self.err_tra_quad_trend_6,self.err_tra_quad_trend_7,self.err_tra_quad_trend_8,self.err_tra_quad_trend_9,self.err_tra_quad_trend_10
+            ]
+    
+    return err_tra_data_quad_trend_gui
 
 
 
@@ -605,7 +659,46 @@ def ld_u4_bounds_gui(self):
         [self.u4_min_10,self.u4_max_10]
         ]         
         return ld_u4_bounds_gui
+  
+    
+################# Bounds (Flat Prior) ################
+    
+    
+def tra_lintr_nr_priors_gui(self):
 
+
+        tra_lintr_nr_priors_gui = [
+        [self.tra_lin_trend_bound_min_1,self.tra_lin_trend_bound_max_1], 
+        [self.tra_lin_trend_bound_min_2,self.tra_lin_trend_bound_max_2], 
+        [self.tra_lin_trend_bound_min_3,self.tra_lin_trend_bound_max_3], 
+        [self.tra_lin_trend_bound_min_4,self.tra_lin_trend_bound_max_4], 
+        [self.tra_lin_trend_bound_min_5,self.tra_lin_trend_bound_max_5], 
+        [self.tra_lin_trend_bound_min_6,self.tra_lin_trend_bound_max_6], 
+        [self.tra_lin_trend_bound_min_7,self.tra_lin_trend_bound_max_7], 
+        [self.tra_lin_trend_bound_min_8,self.tra_lin_trend_bound_max_8], 
+        [self.tra_lin_trend_bound_min_9,self.tra_lin_trend_bound_max_9], 
+        [self.tra_lin_trend_bound_min_10,self.tra_lin_trend_bound_max_10]
+        ]
+        
+        return tra_lintr_nr_priors_gui
+    
+def tra_quadtr_nr_priors_gui(self):
+
+
+        tra_quadtr_nr_priors_gui = [
+        [self.tra_quad_trend_bound_min_1,self.tra_quad_trend_bound_max_1], 
+        [self.tra_quad_trend_bound_min_2,self.tra_quad_trend_bound_max_2], 
+        [self.tra_quad_trend_bound_min_3,self.tra_quad_trend_bound_max_3], 
+        [self.tra_quad_trend_bound_min_4,self.tra_quad_trend_bound_max_4], 
+        [self.tra_quad_trend_bound_min_5,self.tra_quad_trend_bound_max_5], 
+        [self.tra_quad_trend_bound_min_6,self.tra_quad_trend_bound_max_6], 
+        [self.tra_quad_trend_bound_min_7,self.tra_quad_trend_bound_max_7], 
+        [self.tra_quad_trend_bound_min_8,self.tra_quad_trend_bound_max_8], 
+        [self.tra_quad_trend_bound_min_9,self.tra_quad_trend_bound_max_9], 
+        [self.tra_quad_trend_bound_min_10,self.tra_quad_trend_bound_max_10]
+        ]
+        
+        return tra_quadtr_nr_priors_gui
 ################# Normal Prior ################
     
 
@@ -701,6 +794,8 @@ def jitter_nr_priors_gui_tra(self):
         ]
         
         return jitter_nr_priors_gui_tra
+
+
 
 ################# Jeff Prior ################
     

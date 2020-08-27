@@ -240,7 +240,16 @@ def initiate_tansit_gps(obj,  kernel_id=-1):
 
 
 
+def get_quad_model(x,y,a1,a2,a3):
+    
+    x = x - x[0]
+    y = y + a1 + a2*x + a3*x**2
+    return y
 
+    ############ DATA ####################
+
+    y = np.concatenate([obj.tra_data_sets[j][4] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
+    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
 
 def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
 
@@ -560,17 +569,17 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
         
         if tr_model[0][j] == "linear":
-            tr_params.u = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][j] +  npl]]
+            tr_params.u = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][j] +  npl]]
 #            k += 1
         elif tr_model[0][j] == "quadratic":
-            tr_params.u = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][j] + npl], 
-                           par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][j] + 1+ npl]]
+            tr_params.u = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][j] + npl], 
+                           par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][j] + 1+ npl]]
 #            k += 2
         elif tr_model[0][j] == "nonlinear":
-            tr_params.u = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][j] + npl], 
-                           par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][j] + 1+ npl],
-                           par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][j] + 2+ npl], 
-                           par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][j] + 3+ npl]]
+            tr_params.u = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][j] + npl], 
+                           par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][j] + 1+ npl],
+                           par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][j] + 2+ npl], 
+                           par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][j] + 3+ npl]]
 #            k += 4
         else:
             tr_params.u = []
@@ -617,6 +626,12 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
 
         flux_model_ = flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8]) 
+        
+        flux_model_ = get_quad_model(t_,flux_model_,par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l],
+                                                    par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
+                                                    par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])
+
+        
         #flux_model_ = (flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8])) /  (1+ tr_files[j][8])
 
         #flux_model_ =  (flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8]))/  (1+ tr_files[j][8]*par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l])
@@ -855,7 +870,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                                                par[len(vel_files)*2 +7*i+4],
                                                par[len(vel_files)*2 +7*i+5],
                                                par[len(vel_files)*2 +7*i+6],
-                                               par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + tra_gp_npar + 2 + i ])
+                                               par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*4 + tra_gp_npar + 2 + i ])
             ppp+='%d %d %d %d %d %d %d %d\n'%(0,0,0,0,0,0,0,0)
         ppp+='%f\n%d\n'%(par[len(vel_files)*2 +7*npl],0) # information about linear trend
         ppp+='%f\n%d\n'%(par[len(vel_files)*2 +7*npl + 1],0) # information about linear trend
@@ -1335,7 +1350,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.pl_a_err[i]   = e_par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
         obj.pl_rad_err[i] = e_par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
 
-        obj.omega_dot[i] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + tra_gp_npar + 2 + i ]
+        obj.omega_dot[i] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*4 + tra_gp_npar + 2 + i ]
 
     j = 0
 
@@ -1348,31 +1363,38 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             
             obj.tra_off_err[i] =      e_par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + j]
             obj.tra_jitt_err[i] =     e_par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + N_transit_files + j]
+            
+            
+            obj.tra_lintr[i] =      par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + j]
+            obj.tra_quadtr[i] =     par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + j] 
+            
+            obj.tra_lintr_err[i] =      e_par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + j]
+            obj.tra_quadtr_err[i] =     e_par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + j]            
 
             j = j +1
 
 
 
         if tr_model[0][i] == "linear":
-            obj.ld_u_lin[i] = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][i] +  npl]]
-            obj.ld_u_lin_err[i] = [e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][i] +  npl]]
+            obj.ld_u_lin[i] = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] +  npl]]
+            obj.ld_u_lin_err[i] = [e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] +  npl]]
 
         elif tr_model[0][i] == "quadratic":
-            obj.ld_u_quad[i] = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][i] + npl], 
-                                par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][i] + 1+ npl]]
+            obj.ld_u_quad[i] = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + npl], 
+                                par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 1+ npl]]
             
-            obj.ld_u_quad_err[i] = [e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][i] + npl], 
-                                    e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][i] + 1+ npl]]
+            obj.ld_u_quad_err[i] = [e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + npl], 
+                                    e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 1+ npl]]
 
         elif tr_model[0][j] == "nonlinear":
-            obj.ld_u_nonlin[i] = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][i] + npl], 
-                                  par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][i] + 1+ npl],
-                                  par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][i] + 2+ npl], 
-                                  par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][i] + 3+ npl]]
-            obj.ld_u_nonlin_err[i] = [e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][i] + npl], 
-                                  e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][i] + 1+ npl],
-                                  e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][i] + 2+ npl], 
-                                  e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + tr_model[3][i] + 3+ npl]]
+            obj.ld_u_nonlin[i] = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + npl], 
+                                  par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 1+ npl],
+                                  par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 2+ npl], 
+                                  par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 3+ npl]]
+            obj.ld_u_nonlin_err[i] = [e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + npl], 
+                                  e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 1+ npl],
+                                  e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 2+ npl], 
+                                  e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 3+ npl]]
 
 #        else:
 #            tr_params.u = []
@@ -2183,7 +2205,9 @@ class signal_fit(object):
         self.init_tra_jitter()
         self.init_tra_offset()
         self.init_tra_dilution()
-
+        self.init_tra_lintr()
+        self.init_tra_quadtr()
+        
         self.cwd = os.getcwd()
 
         self.init_pl_arb()
@@ -2611,6 +2635,29 @@ class signal_fit(object):
         self.rv_quadtr_norm_pr = {k: np.array([0,0.001, False]) for k in range(1)}
         self.rv_quadtr_jeff_pr = {k: np.array([0,0.001, False]) for k in range(1)}
 
+
+    def init_tra_lintr(self) :
+
+        self.tra_lintr      = {k: 0.0 for k in range(10)}
+        self.tra_lintr_err  = {k: np.array([0.0,0.0])  for k in range(10)}
+        self.tra_lintr_use  = {k: False for k in range(10)}
+        self.tra_lintr_str  = {k: r'tra lin.tr$_%s$'%str(k+1) for k in range(10)}
+        self.tra_lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(10)}
+        self.tra_lintr_norm_pr = {k: np.array([0,0.001, False]) for k in range(10)}
+        self.tra_lintr_jeff_pr = {k: np.array([-0.001,0.001, False]) for k in range(10)}
+
+
+    def init_tra_quadtr(self) :
+
+        self.tra_quadtr      = {k: 0.0 for k in range(10)}
+        self.tra_quadtr_err  = {k: np.array([0.0,0.0])  for k in range(10)}
+        self.tra_quadtr_use  = {k: False for k in range(10)}
+        self.tra_quadtr_str  = {k: r'tra quad.tr$_%s$'%str(k+1) for k in range(10)}
+        self.tra_quadtr_bounds  = {k: np.array([-1.0,1.0]) for k in range(10)}
+        self.tra_quadtr_norm_pr = {k: np.array([0,0.001, False]) for k in range(10)}
+        self.tra_quadtr_jeff_pr = {k: np.array([-0.001,0.001, False]) for k in range(10)}
+
+ 
 
     def init_st_mass(self) :
 
@@ -4478,6 +4525,41 @@ class signal_fit(object):
 
 
 
+
+        for i in range(10):
+            if len(self.tra_data_sets[i]) != 0:
+                par.append(self.tra_lintr[i]) #
+                par_str.append(self.tra_lintr_str[i]) #
+                bounds.append(self.tra_lintr_bounds[i])
+                prior_nr.append(self.tra_lintr_norm_pr[i])
+                prior_jeff.append(self.tra_lintr_jeff_pr[i])
+
+
+                if rtg == [True, False,False,True]:
+                    flag.append(False) #
+                elif rtg == [True,False,False,False]:
+                    flag.append(False) #
+                else:
+                    flag.append(self.tra_lintr_use[i])
+
+        for i in range(10):
+            if len(self.tra_data_sets[i]) != 0:
+                par.append(self.tra_quadtr[i]) #
+                par_str.append(self.tra_quadtr_str[i]) #
+                bounds.append(self.tra_quadtr_bounds[i])
+                prior_nr.append(self.tra_quadtr_norm_pr[i])
+                prior_jeff.append(self.tra_quadtr_jeff_pr[i])
+
+
+                if rtg == [True, False,False,True]:
+                    flag.append(False) #
+                elif rtg == [True,False,False,False]:
+                    flag.append(False) #
+                else:
+                    flag.append(self.tra_quadtr_use[i]) 
+
+
+
         for i  in range(self.npl):
             par.append(self.omega_dot[i]) #
             flag.append(self.omega_dot_use[i])
@@ -4531,6 +4613,12 @@ class signal_fit(object):
                             flag.append(False) #
                         else:
                             flag.append(self.ld_u_nonlin_use[i][x])
+                            
+                            
+
+
+ 
+                            
 
         par.append(self.params.stellar_mass)
         flag.append(self.use.use_stellar_mass)
