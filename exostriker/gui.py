@@ -349,6 +349,11 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.tra_data_gui[i].setValue(fit.tra_off[i]) 
             self.tra_data_jitter_gui[i].setValue(fit.tra_jitt[i])
             self.tra_dilution[i][0].setValue(fit.tra_dil[i])
+
+            self.tra_data_lin_trend_gui[i].setValue(fit.tra_lintr[i])
+            self.tra_data_quad_trend_gui[i].setValue(fit.tra_quadtr[i])
+            
+            
  
         for i in range(len(self.gp_rot_params)):
             self.gp_rot_params[i].setValue(fit.GP_rot_params[i])
@@ -416,6 +421,10 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.tra_jitt[i] = self.tra_data_jitter_gui[i].value()
             fit.tra_dil[i]  = self.tra_dilution[i][0].value()
 
+            fit.tra_lintr[i]   = self.tra_data_lin_trend_gui[i].value()
+            fit.tra_quadtr[i]  = self.tra_data_quad_trend_gui[i].value()
+            
+            
         self.read_RV_GP()
         self.read_tra_GP()
         self.read_ld()
@@ -678,6 +687,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.tra_data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_off_err[i])))
             self.tra_data_errors_jitter_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_jitt_err[i])))
 
+            self.err_tra_data_lin_trend_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_lintr_err[i])))
+            self.err_tra_data_quad_trend_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_quadtr_err[i])))
+ 
+
         self.err_RV_lin_trend.setText("+/- %.8f"%(max(fit.param_errors.linear_trend_error)))
         self.err_RV_quad_trend.setText("+/- %.8f"%(max(fit.rv_quadtr_err)))
 
@@ -739,6 +752,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.use_tra_data_jitter_gui[i].setChecked(bool(fit.tra_jitt_use[i]))
             self.use_tra_data_offset_gui[i].setChecked(bool(fit.tra_off_use[i]))
             self.tra_dilution[i][1].setChecked(bool(fit.tra_dil_use[i]))
+            
+            self.use_tra_data_lin_trend_gui[i].setChecked(bool(fit.tra_lintr_use[i]))
+            self.use_tra_data_quad_trend_gui[i].setChecked(bool(fit.tra_quadtr_use[i]))
+            
+
+                        
  
         for i in range(9):  
             if i < fit.npl:
@@ -818,7 +837,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(10): 
             fit.tra_jitt_use[i] = int(self.use_tra_data_jitter_gui[i].isChecked())
             fit.tra_off_use[i]  = int(self.use_tra_data_offset_gui[i].isChecked())
-            fit.tra_dil_use[i] =  int(self.tra_dilution[i][1].isChecked())
+            fit.tra_dil_use[i]  = int(self.tra_dilution[i][1].isChecked())
+
+            fit.tra_lintr_use[i]  = int(self.use_tra_data_lin_trend_gui[i].isChecked())
+            fit.tra_quadtr_use[i] = int(self.use_tra_data_quad_trend_gui[i].isChecked())
+            
+
 
         fit.use.use_linear_trend = int(self.use_RV_lin_trend.isChecked()) 
         fit.rv_quadtr_use = int(self.use_RV_quad_trend.isChecked())
@@ -1097,8 +1121,13 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         for i in range(10): 
             for z in range(2):
-                fit.tra_off_bounds[i][z] = self.offset_bounds_gui_tra[i][z].value()
+                fit.tra_off_bounds[i][z]    = self.offset_bounds_gui_tra[i][z].value()
                 fit.tra_jitt_bounds[i][z]   = self.jitter_bounds_gui_tra[i][z].value()
+
+                fit.tra_lintr_bounds[i][z]  = self.tra_lintr_nr_priors_gui[i][z].value()
+                fit.tra_quadtr_bounds[i][z] = self.tra_quadtr_nr_priors_gui[i][z].value()
+ 
+
 
         self.check_RV_GP_bounds()
         self.check_tra_GP_bounds()
@@ -5431,7 +5460,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.39) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.40) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -8077,6 +8106,10 @@ https://github.com/3fon3fonov/exostriker/issues
         self.offset_bounds_gui_tra = gui_groups.offset_bounds_gui_tra(self)
         self.jitter_bounds_gui_tra = gui_groups.jitter_bounds_gui_tra(self)
 
+        self.tra_lintr_nr_priors_gui  = gui_groups.tra_lintr_nr_priors_gui(self)
+        self.tra_quadtr_nr_priors_gui = gui_groups.tra_quadtr_nr_priors_gui(self)
+
+
         self.param_gui         = gui_groups.param_gui(self)
         self.use_param_gui     = gui_groups.use_param_gui(self)
         self.param_errors_gui  = gui_groups.param_errors_gui(self)
@@ -8107,10 +8140,19 @@ https://github.com/3fon3fonov/exostriker/issues
         
         self.use_tra_data_offset_gui  = gui_groups.use_tra_data_offset_gui(self)
         self.use_tra_data_jitter_gui  = gui_groups.use_tra_data_jitter_gui(self)
- 
         
         self.tra_data_errors_gui        = gui_groups.tra_data_errors_gui(self)
         self.tra_data_errors_jitter_gui = gui_groups.tra_data_errors_jitter_gui(self)
+        
+
+        self.tra_data_lin_trend_gui       = gui_groups.tra_data_lin_trend_gui(self)
+        self.use_tra_data_lin_trend_gui   = gui_groups.use_tra_data_lin_trend_gui(self)
+        self.err_tra_data_lin_trend_gui   = gui_groups.err_tra_data_lin_trend_gui(self)
+        
+        self.tra_data_quad_trend_gui      = gui_groups.tra_data_quad_trend_gui(self)
+        self.use_tra_data_quad_trend_gui  = gui_groups.use_tra_data_quad_trend_gui(self)
+        self.err_tra_data_quad_trend_gui  = gui_groups.err_tra_data_quad_trend_gui(self)
+ 
 
         self.gp_rot_params     = gui_groups.gp_rot_params(self)
         self.use_gp_rot_params = gui_groups.use_gp_rot_params(self)
@@ -8845,7 +8887,7 @@ https://github.com/3fon3fonov/exostriker/issues
         
 
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.39). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.40). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)
