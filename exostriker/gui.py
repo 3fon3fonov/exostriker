@@ -433,7 +433,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         fit.params.linear_trend = self.RV_lin_trend.value()
         fit.rv_quadtr = self.RV_quad_trend.value()
 
-        fit.stellar_radius = self.St_radius_input.value()
+       # fit.stellar_radius = self.St_radius_input.value()
 
         if self.checkBox_first_RV_epoch.isChecked() and len(fit.fit_results.rv_model.jd) != 0:
             fit.epoch = min(fit.fit_results.rv_model.jd)
@@ -2438,7 +2438,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             t_model             = transit_model_rich[0]
             flux_model_ex       = transit_model_rich[1]
         else:
-            t_model = np.concatenate([transit_results_sep[0][x] for x in range(10) if len(transit_results_sep[0][x]) != 0])
+            t_model        = np.concatenate([transit_results_sep[0][x] for x in range(10) if len(transit_results_sep[0][x]) != 0])
             flux_model_ex  = np.concatenate([transit_results_sep[3][x] for x in range(10) if len(transit_results_sep[3][x]) != 0])
 
 
@@ -2530,8 +2530,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             flux_model_ex    = flux_model_ex[sort2] 
 
         if fit.tra_doGP == True:
-            y_model = flux_model_ex + fit.tra_gp_model_curve[0]
-            y_model_o_c = fit.tra_gp_model_curve[0]
+            y_model =  transit_results_all[6] #fit.tra_gp_model_curve[0]
+            y_model_o_c = transit_results_all[6] - transit_results_all[3]  #fit.tra_gp_model_curve[0]
         else:
             y_model = flux_model_ex 
             y_model_o_c = np.zeros(len(flux_model_ex))
@@ -4097,6 +4097,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.check_type_fit()
             self.mute_boxes()
             
+            self.check_use_tra_GP()
+            
             self.update_params()
             self.update_tra_file_buttons()
             #self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(input_files[0]))
@@ -4125,6 +4127,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         for i in range(10):
             if len(fit.tra_data_sets[i]) != 0:
+                
+                if len(fit.tra_data_sets[i]) ==10:
+                     fit.tra_data_sets[i] = np.insert(fit.tra_data_sets[i], 9, True)
+                     fit.tra_data_sets_init[i] = np.insert(fit.tra_data_sets_init[i], 9, True)
+
+                    
+                
                 self.buttonGroup_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
                 self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
                 self.buttonGroup_transit_data.button(i+1).setText(fit.tra_data_sets[i][-1])
@@ -5483,7 +5492,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.40) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.41) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -6004,6 +6013,7 @@ will be highly appreciated!
         self.update_color_picker()
  
         self.set_gui_use_GP()
+        self.check_use_tra_GP()
         #self.init_fit()
         #self.update_use_from_input_file()
         #self.update_use()
@@ -6020,7 +6030,7 @@ will be highly appreciated!
 
         self.update_GUI_mcmc_params()
         self.update_GUI_ns_params()
-        
+        self.update_GUI_St_params()
         
         if not ind == None:
             ses_list[ind] = fit 
@@ -7440,6 +7450,10 @@ Please install via 'pip install ttvfast'.
         else:
             return    
         
+        
+
+        
+        
     def check_tra_symbol_sizes(self):
         global fit
        
@@ -7651,23 +7665,23 @@ https://github.com/3fon3fonov/exostriker/issues
 
 ################################## Stellar params #######################################
 
-    def update_St_params(self):
+    def update_St_params(self, ind = None):
         global fit
 
-        fit.stellar_mass     = self.St_mass_input.value()
-        fit.stellar_mass_err = self.err_St_mass_input.value()
+        if ind ==1: fit.stellar_mass     = self.St_mass_input.value()
+        if ind ==2: fit.stellar_mass_err = self.err_St_mass_input.value()
         
-        fit.stellar_radius     = self.St_radius_input.value()
-        fit.stellar_radius_err = self.err_St_radius_input.value()
+        if ind ==3: fit.stellar_radius     = self.St_radius_input.value()
+        if ind ==4: fit.stellar_radius_err = self.err_St_radius_input.value()
         
-        fit.stellar_luminosity     = self.St_lumin_input.value()
-        fit.stellar_luminosity_err = self.err_St_lumin_input.value()
+        if ind ==5: fit.stellar_luminosity     = self.St_lumin_input.value()
+        if ind ==6: fit.stellar_luminosity_err = self.err_St_lumin_input.value()
         
-        fit.stellar_Teff       = self.St_teff_input.value()
-        fit.stellar_Teff_err   = self.err_St_teff_input.value()
+        if ind ==7: fit.stellar_Teff       = self.St_teff_input.value()
+        if ind ==8: fit.stellar_Teff_err   = self.err_St_teff_input.value()
  
-        fit.stellar_vsini       = self.St_vsini_input.value()
-        fit.stellar_vsini_err   = self.err_St_vsini_input.value()
+        if ind ==9: fit.stellar_vsini       = self.St_vsini_input.value()
+        if ind ==10: fit.stellar_vsini_err   = self.err_St_vsini_input.value()
         
         st_rot = rv.get_stellar_rotation(fit)
         kb1995 = rv.get_rv_scatter(fit)
@@ -7865,8 +7879,38 @@ https://github.com/3fon3fonov/exostriker/issues
  
 #############################  TEST ZONE ################################  
 
-        
-        
+    def check_use_tra_GP(self):
+        global fit
+        #but_ind = self.buttonGroup_use_tra_data_GP.checkedId()   
+
+        for j in range(10):
+    
+            if len(fit.tra_data_sets[j]) == 0:
+                continue
+            else:
+                self.use_tra_data_GP[j].setChecked(bool(fit.tra_data_sets[j][9]))
+        #print("Test",but_ind)       
+        return
+
+    def set_use_tra_GP_data(self):
+        global fit
+        #but_ind = self.buttonGroup_use_tra_data_GP.checkedId()   
+
+        for j in range(10):
+    
+            if len(fit.tra_data_sets[j]) == 0:
+                continue
+            else:
+                fit.tra_data_sets[j][9] = self.use_tra_data_GP[j].isChecked()
+                
+                
+        if len([fit.tra_data_sets[j][9] for j in range(10) if len(fit.tra_data_sets[j]) != 0  and fit.tra_data_sets[j][9] ==True]) ==0:
+            print("No transit data ready for GP modeling!!! Reverting to 'GP==False'") 
+            fit.tra_doGP = False
+            self.set_gui_use_GP()
+        return    
+                
+
  
     def get_cornerplot_param(self, type_plot = "mcmc"):
         global fit
@@ -8241,7 +8285,7 @@ https://github.com/3fon3fonov/exostriker/issues
         self.tra_dilution    = gui_groups.tra_dilution(self)
 
         self.act_opt         = gui_groups.act_opt(self)
-
+        self.use_tra_data_GP = gui_groups.use_tra_data_GP(self)
 
         self.ttv_data_to_planet     = gui_groups.ttv_data_to_planet(self)
         self.use_ttv_data_to_planet = gui_groups.use_ttv_data_to_planet(self)
@@ -8425,6 +8469,9 @@ https://github.com/3fon3fonov/exostriker/issues
         
         
         self.buttonGroup_type_fit.buttonClicked.connect(self.set_type_fit_options)
+        
+        
+        self.buttonGroup_use_tra_data_GP.buttonClicked.connect(self.set_use_tra_GP_data)
 
         #################### credits  ########################
         
@@ -8893,20 +8940,20 @@ https://github.com/3fon3fonov/exostriker/issues
 
 
         self.update_GUI_St_params()
-        self.update_St_params()
+        #self.update_St_params()
 
         ############### Stellar params ####################      
-        self.St_mass_input.valueChanged.connect(self.update_St_params)
-        self.St_radius_input.valueChanged.connect(self.update_St_params)
-        self.St_lumin_input.valueChanged.connect(self.update_St_params)
-        self.St_teff_input.valueChanged.connect(self.update_St_params)
-        self.St_vsini_input.valueChanged.connect(self.update_St_params)
+        self.St_mass_input.valueChanged.connect(lambda: self.update_St_params(ind=1))
+        self.St_radius_input.valueChanged.connect(lambda: self.update_St_params(ind=3))
+        self.St_lumin_input.valueChanged.connect(lambda: self.update_St_params(ind=5))
+        self.St_teff_input.valueChanged.connect(lambda: self.update_St_params(ind=7))
+        self.St_vsini_input.valueChanged.connect(lambda: self.update_St_params(ind=9))
 
-        self.err_St_mass_input.valueChanged.connect(self.update_St_params)
-        self.err_St_radius_input.valueChanged.connect(self.update_St_params)
-        self.err_St_lumin_input.valueChanged.connect(self.update_St_params)
-        self.err_St_teff_input.valueChanged.connect(self.update_St_params)
-        self.err_St_vsini_input.valueChanged.connect(self.update_St_params)
+        self.err_St_mass_input.valueChanged.connect(lambda: self.update_St_params(ind=2))
+        self.err_St_radius_input.valueChanged.connect(lambda: self.update_St_params(ind=4))
+        self.err_St_lumin_input.valueChanged.connect(lambda: self.update_St_params(ind=6))
+        self.err_St_teff_input.valueChanged.connect(lambda: self.update_St_params(ind=8))
+        self.err_St_vsini_input.valueChanged.connect(lambda: self.update_St_params(ind=10))
 
 
         self.plot_opt_tab.tabBarClicked.connect(self.check_cornerplot_samples)
@@ -8914,7 +8961,7 @@ https://github.com/3fon3fonov/exostriker/issues
         
 
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.40). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.41). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)

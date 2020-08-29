@@ -230,26 +230,26 @@ def initiate_tansit_gps(obj,  kernel_id=-1):
 
     tra_gps = celerite.GP(tra_kernel, mean=0.0)
 
-    y = np.concatenate([obj.tra_data_sets[j][2] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
-    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
 
-    tra_gps.compute(x, y)
+    if len([obj.tra_data_sets[j][9] for j in range(10) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True]) ==0:
+        print("No transit data ready for GP modeling!!! Reverting to 'GP==False'")
+        obj.tra_gps = tra_gps
+        obj.tra_doGP = False
+        #obj.hkl[3] = False
+        return        
 
-    obj.tra_gps = tra_gps
-    return
-
-
-
-def get_quad_model(x,y,a1,a2,a3):
+    else:
+        y = np.concatenate([obj.tra_data_sets[j][2] for j in range(10) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
+        x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
+        
+        
+        tra_gps.compute(x, y)
     
-    x = x - x[0]
-    y = y + a1 + a2*x + a3*x**2
-    return y
+        obj.tra_gps = tra_gps
+        return
 
-    ############ DATA ####################
 
-    y = np.concatenate([obj.tra_data_sets[j][4] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
-    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
+
 
 def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
 
@@ -259,8 +259,11 @@ def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
 
     ############ DATA ####################
 
-    y = np.concatenate([obj.tra_data_sets[j][4] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
-    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0])
+    y = np.concatenate([obj.tra_data_sets[j][4] for j in range(10) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
+    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
+
+   # y_no_gp = np.concatenate([obj.tra_data_sets[j][4] for j in range(10) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] !=True])
+
 
     if len(x_model) == 0 or len(y_model) == 0:
         x_model = dill.copy(x)
@@ -290,6 +293,7 @@ def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
 
         mu = obj.tra_gps.predict(y, x_model, return_cov=False)
        # std = np.sqrt(var)
+       
 
         obj.tra_gp_model_curve= [mu,np.zeros(len(mu)),np.zeros(len(mu))]
 
@@ -532,6 +536,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
     flux_o_c      = []
     flux_o_c_gp   = []
     tra_gp_model  = []
+    use_gp_model  = []
 
     t_rich  = []
     flux_model_rich  = []
@@ -553,6 +558,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
             flux_o_c.append([])
             flux_o_c_gp.append([])
             tra_gp_model.append([])
+            use_gp_model.append([])
             continue
 
         t_        = tr_files[j][0]
@@ -652,8 +658,11 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
         t.append(t_)
         sig2i.append(sig2i_)
         flux_o_c.append(flux_o_c_)
+        use_gp_model.append(tr_files[j][9])
 
 
+#    print(flux_err,len(flux_err),print(flux_err[0]))
+    
     flux_model_all  = np.concatenate(flux_model)#[flux_model_ < 1]
     flux_all        = np.concatenate(flux)#[flux_model_ < 1]
     flux_err_all    = np.concatenate(flux_err)#[flux_model_ < 1]
@@ -664,27 +673,57 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
  
 
     if rtg[3] == False:
+
         tr_loglik = tr_loglik -0.5*(np.sum((flux_all  -flux_model_all)**2 * sig2i_all  - np.log(sig2i_all  / 2./ np.pi)))
+        
         if return_model == True:
             tra_gp_model_all = flux_model_all
             flux_o_c_gp_all = flux_o_c_all
     else:
-
+        
         param_vect = []
         for k in range(len(tra_gps.get_parameter_vector())):
             param_vect.append(np.log(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + k]))
         tra_gps.set_parameter_vector(np.array(param_vect))
 
-        tra_gps.compute(t_all,yerr=flux_err_all)
-        tr_loglik = tr_loglik + tra_gps.log_likelihood(flux_o_c_all)
+        ##### data that will be modeled with a GP ######
+        flux_err_all_gp = np.concatenate([flux_err[x] for x in range(len(flux_err)) if use_gp_model[x] == True])
+        flux_o_c_all_gp = np.concatenate([flux_o_c[x] for x in range(len(flux_o_c)) if use_gp_model[x] == True])
+        t_all_gp        = np.concatenate([t[x] for x in range(len(t)) if use_gp_model[x] == True])
+        flux_model_all_ = np.concatenate([flux_model[x] for x in range(len(flux_model)) if use_gp_model[x] == True])
+
+
+        
+
+        tra_gps.compute(t_all_gp,yerr=flux_err_all_gp)
+        tr_loglik_gp = tr_loglik + tra_gps.log_likelihood(flux_o_c_all_gp)
+ 
+        
+        ##### data that will NOT be modeled with a GP ######
+
+        flux_all_no_gp       = np.concatenate([flux[x] for x in range(len(flux)) if use_gp_model[x] != True])
+        flux_model_all_no_gp = np.concatenate([flux_model[x] for x in range(len(flux_model)) if use_gp_model[x] != True])
+        sig2i_all_no_gp      = np.concatenate([sig2i[x] for x in range(len(sig2i)) if use_gp_model[x] != True])
+       
+        flux_o_c_all_no_gp   = flux_all_no_gp - flux_model_all_no_gp
+ 
+        tr_loglik_no_gp = tr_loglik -0.5*(np.sum((flux_o_c_all_no_gp)**2 * sig2i_all_no_gp  - np.log(sig2i_all_no_gp  / 2./ np.pi)))
+                    
+
+        tr_loglik = tr_loglik_gp + tr_loglik_no_gp
+        #print(tr_loglik_gp,tr_loglik_no_gp)
+
 
 #        tra_gp_model_all = tra_gps.predict(flux_o_c_all , t_all , return_cov=False)
 #        flux_o_c_gp_all = flux_o_c_all  - tra_gp_model_all       
 #        tr_loglik2 = -0.5*(np.sum((flux_o_c_gp_all)**2           * sig2i_all  - np.log(sig2i_all  / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
         if return_model == True:        
-            tra_gp_model_all = tra_gps.predict(flux_o_c_all , t_all , return_cov=False)
-            flux_o_c_gp_all = flux_o_c_all  - tra_gp_model_all  
-        
+            flux_model_all_gp   = tra_gps.predict(flux_o_c_all_gp , t_all_gp , return_cov=False)
+            flux_o_c_gp_all_gp  = flux_o_c_all_gp  - flux_model_all_gp  
+
+            tra_gp_model_all    = np.concatenate([flux_model_all_gp+flux_model_all_, flux_model_all_no_gp])
+            flux_o_c_gp_all     = np.concatenate([flux_o_c_gp_all_gp,  flux_o_c_all_no_gp])        
+            
 #        print(tr_loglik,tr_loglik2)
 
     if return_model == True:
@@ -1268,8 +1307,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
         obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,stmass, obj.ttv_times, obj.epoch, return_model = True, tra_model_fact=obj.tra_model_fact)
 
-        if rtg[3]:
-            get_transit_gps_model(obj)
+       # if rtg[3]:
+       #     get_transit_gps_model(obj)
 
         obj.loglik = obj.transit_results[0]
 
@@ -1309,8 +1348,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         if rtg[1]:
             get_RV_gps_model(obj, get_lnl=True)
 
-        if rtg[3]:
-            get_transit_gps_model(obj)
+       # if rtg[3]:
+       #     get_transit_gps_model(obj)
  
         obj.loglik     =   obj.loglik +  obj.transit_results[0]
 
@@ -2927,8 +2966,8 @@ class signal_fit(object):
         self.ns_maxcall = {0:False, 1:10000000}
 
         self.nest_mad = False
-        self.nest_AMD_stab   = False
-        self.nest_Nbody_stab = False
+        self.NS_AMD_stab   = False
+        self.NS_Nbody_stab = False
 
         self.nest_sample_file = 'nest_samp_samples'
         self.nest_corner_plot_file = 'nest_samp_cornerplot.pdf'
@@ -3164,7 +3203,7 @@ class signal_fit(object):
         tra_file_name = file_from_path(path)
 
 
-        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_data_o_c,tra_data_o_c,tra_data,tra_data_sig,tra_data_o_c, 1.0, tra_file_name])
+        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_data_o_c,tra_data_o_c,tra_data,tra_data_sig,tra_data_o_c, 1.0, True, tra_file_name])
         
         #self.tra_data_set2 = {1:tra_JD,2: tra_data,3:tra_data_sig,4: tra_data_o_c,5:tra_data_o_c,6:tra_file_name }
 

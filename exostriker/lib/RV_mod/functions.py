@@ -447,6 +447,14 @@ def add_ns_samples(obj,sampler):
     #delattr(obj.ns_sampler, 'rstate')
     obj.sampler_saved=True
 
+
+def get_quad_model(x,y,a1,a2,a3):
+    
+    x = x - x[0]
+    y = y + a1 + a2*x + a3*x**2
+    return y
+
+
 def get_mode_of_samples(samples, nsamp):
 
     mode_samp = []

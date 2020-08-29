@@ -1268,6 +1268,19 @@ def tra_GP_mat_jeff_priors_gui(self):
         
     return tra_GP_mat_jeff_priors_gui
 
+def use_tra_data_GP(self):
+            
+    use_tra_data_GP = [
+        self.use_tra_gp_1,self.use_tra_gp_2, self.use_tra_gp_3,  
+        self.use_tra_gp_4,self.use_tra_gp_5, self.use_tra_gp_6,  
+        self.use_tra_gp_8,self.use_tra_gp_7, self.use_tra_gp_9,
+        self.use_tra_gp_10
+        ]
+        
+    return use_tra_data_GP
+
+
+
 ################ labels ##########################
 
 def param_a_gui(self): 

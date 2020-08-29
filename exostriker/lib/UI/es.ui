@@ -58947,7 +58947,7 @@
              </attribute>
              <layout class="QGridLayout" name="gridLayout_353">
               <item row="0" column="0">
-               <layout class="QGridLayout" name="Data_Layout_17" rowstretch="0,0,0,0,0,0,0,0,0,0,0" columnstretch="0,0,0,0,0,0,0">
+               <layout class="QGridLayout" name="Data_Layout_17" rowstretch="0,0,0,0,0,0,0,0,0,0,0" columnstretch="0,0,0,0,0,0,0,0">
                 <property name="sizeConstraint">
                  <enum>QLayout::SetDefaultConstraint</enum>
                 </property>
@@ -58960,7 +58960,7 @@
                 <property name="verticalSpacing">
                  <number>0</number>
                 </property>
-                <item row="9" column="2">
+                <item row="9" column="3">
                  <widget class="QDoubleSpinBox" name="tra_lin_trend_9">
                   <property name="font">
                    <font>
@@ -58984,7 +58984,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="1">
+                <item row="6" column="2">
                  <widget class="QCheckBox" name="use_tra_lin_trend_6">
                   <property name="enabled">
                    <bool>true</bool>
@@ -58994,7 +58994,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="6">
+                <item row="4" column="7">
                  <widget class="QLabel" name="err_tra_quad_trend_4">
                   <property name="font">
                    <font>
@@ -59027,7 +59027,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="2">
+                <item row="1" column="3">
                  <widget class="QDoubleSpinBox" name="tra_lin_trend_1">
                   <property name="font">
                    <font>
@@ -59051,7 +59051,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
+                <item row="1" column="2">
                  <widget class="QCheckBox" name="use_tra_lin_trend_1">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59067,7 +59067,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="1">
+                <item row="3" column="2">
                  <widget class="QCheckBox" name="use_tra_lin_trend_3">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59092,7 +59092,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="1">
+                <item row="5" column="2">
                  <widget class="QCheckBox" name="use_tra_lin_trend_5">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59102,7 +59102,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1">
+                <item row="2" column="2">
                  <widget class="QCheckBox" name="use_tra_lin_trend_2">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59127,7 +59127,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="1">
+                <item row="4" column="2">
                  <widget class="QCheckBox" name="use_tra_lin_trend_4">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59152,7 +59152,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2">
+                <item row="0" column="3">
                  <widget class="QLabel" name="label_469">
                   <property name="font">
                    <font>
@@ -59164,7 +59164,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="4">
+                <item row="7" column="5">
                  <widget class="QCheckBox" name="use_tra_quad_trend_7">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59174,7 +59174,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="4">
+                <item row="6" column="5">
                  <widget class="QCheckBox" name="use_tra_quad_trend_6">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59184,7 +59184,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="4">
+                <item row="8" column="5">
                  <widget class="QCheckBox" name="use_tra_quad_trend_8">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59224,7 +59224,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="4">
+                <item row="9" column="5">
                  <widget class="QCheckBox" name="use_tra_quad_trend_9">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59279,7 +59279,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="4">
+                <item row="1" column="5">
                  <widget class="QCheckBox" name="use_tra_quad_trend_1">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59295,7 +59295,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="10" column="4">
+                <item row="10" column="5">
                  <widget class="QCheckBox" name="use_tra_quad_trend_10">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59320,7 +59320,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="3">
+                <item row="2" column="4">
                  <widget class="QLabel" name="err_tra_lin_trend_2">
                   <property name="font">
                    <font>
@@ -59338,7 +59338,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="5">
+                <item row="0" column="6">
                  <widget class="QLabel" name="label_476">
                   <property name="font">
                    <font>
@@ -59350,7 +59350,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="6">
+                <item row="6" column="7">
                  <widget class="QLabel" name="err_tra_quad_trend_6">
                   <property name="font">
                    <font>
@@ -59368,7 +59368,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="6">
+                <item row="7" column="7">
                  <widget class="QLabel" name="err_tra_quad_trend_7">
                   <property name="font">
                    <font>
@@ -59386,7 +59386,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="4">
+                <item row="2" column="5">
                  <widget class="QCheckBox" name="use_tra_quad_trend_2">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59396,7 +59396,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="6">
+                <item row="5" column="7">
                  <widget class="QLabel" name="err_tra_quad_trend_5">
                   <property name="font">
                    <font>
@@ -59414,7 +59414,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="4">
+                <item row="5" column="5">
                  <widget class="QCheckBox" name="use_tra_quad_trend_5">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59424,7 +59424,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="4">
+                <item row="3" column="5">
                  <widget class="QCheckBox" name="use_tra_quad_trend_3">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59434,7 +59434,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="4">
+                <item row="4" column="5">
                  <widget class="QCheckBox" name="use_tra_quad_trend_4">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59444,7 +59444,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="3">
+                <item row="1" column="4">
                  <widget class="QLabel" name="err_tra_lin_trend_1">
                   <property name="font">
                    <font>
@@ -59462,7 +59462,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="6">
+                <item row="1" column="7">
                  <widget class="QLabel" name="err_tra_quad_trend_1">
                   <property name="font">
                    <font>
@@ -59480,7 +59480,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="6">
+                <item row="8" column="7">
                  <widget class="QLabel" name="err_tra_quad_trend_8">
                   <property name="font">
                    <font>
@@ -59498,7 +59498,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="3">
+                <item row="4" column="4">
                  <widget class="QLabel" name="err_tra_lin_trend_4">
                   <property name="font">
                    <font>
@@ -59516,7 +59516,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="6">
+                <item row="2" column="7">
                  <widget class="QLabel" name="err_tra_quad_trend_2">
                   <property name="font">
                    <font>
@@ -59534,7 +59534,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="10" column="3">
+                <item row="10" column="4">
                  <widget class="QLabel" name="err_tra_lin_trend_10">
                   <property name="font">
                    <font>
@@ -59546,7 +59546,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="3">
+                <item row="3" column="4">
                  <widget class="QLabel" name="err_tra_lin_trend_3">
                   <property name="font">
                    <font>
@@ -59564,7 +59564,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="10" column="6">
+                <item row="10" column="7">
                  <widget class="QLabel" name="err_tra_quad_trend_10">
                   <property name="font">
                    <font>
@@ -59576,7 +59576,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="3">
+                <item row="5" column="4">
                  <widget class="QLabel" name="err_tra_lin_trend_5">
                   <property name="font">
                    <font>
@@ -59594,7 +59594,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="6">
+                <item row="9" column="7">
                  <widget class="QLabel" name="err_tra_quad_trend_9">
                   <property name="font">
                    <font>
@@ -59612,7 +59612,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="3">
+                <item row="8" column="4">
                  <widget class="QLabel" name="err_tra_lin_trend_8">
                   <property name="font">
                    <font>
@@ -59624,7 +59624,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="3">
+                <item row="7" column="4">
                  <widget class="QLabel" name="err_tra_lin_trend_7">
                   <property name="font">
                    <font>
@@ -59642,7 +59642,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="3">
+                <item row="6" column="4">
                  <widget class="QLabel" name="err_tra_lin_trend_6">
                   <property name="font">
                    <font>
@@ -59660,7 +59660,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="3">
+                <item row="9" column="4">
                  <widget class="QLabel" name="err_tra_lin_trend_9">
                   <property name="font">
                    <font>
@@ -59672,7 +59672,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="10" column="2">
+                <item row="10" column="3">
                  <widget class="QDoubleSpinBox" name="tra_lin_trend_10">
                   <property name="font">
                    <font>
@@ -59696,7 +59696,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="2">
+                <item row="4" column="3">
                  <widget class="QDoubleSpinBox" name="tra_lin_trend_4">
                   <property name="font">
                    <font>
@@ -59720,7 +59720,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="2">
+                <item row="3" column="3">
                  <widget class="QDoubleSpinBox" name="tra_lin_trend_3">
                   <property name="font">
                    <font>
@@ -59744,7 +59744,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="2">
+                <item row="5" column="3">
                  <widget class="QDoubleSpinBox" name="tra_lin_trend_5">
                   <property name="font">
                    <font>
@@ -59768,7 +59768,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="1">
+                <item row="7" column="2">
                  <widget class="QCheckBox" name="use_tra_lin_trend_7">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59778,7 +59778,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="2">
+                <item row="8" column="3">
                  <widget class="QDoubleSpinBox" name="tra_lin_trend_8">
                   <property name="font">
                    <font>
@@ -59802,7 +59802,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="1">
+                <item row="9" column="2">
                  <widget class="QCheckBox" name="use_tra_lin_trend_9">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59812,7 +59812,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="1">
+                <item row="8" column="2">
                  <widget class="QCheckBox" name="use_tra_lin_trend_8">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59822,7 +59822,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="2">
+                <item row="2" column="3">
                  <widget class="QDoubleSpinBox" name="tra_lin_trend_2">
                   <property name="font">
                    <font>
@@ -59846,7 +59846,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="2">
+                <item row="7" column="3">
                  <widget class="QDoubleSpinBox" name="tra_lin_trend_7">
                   <property name="font">
                    <font>
@@ -59870,7 +59870,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="10" column="1">
+                <item row="10" column="2">
                  <widget class="QCheckBox" name="use_tra_lin_trend_10">
                   <property name="enabled">
                    <bool>true</bool>
@@ -59880,7 +59880,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="2">
+                <item row="6" column="3">
                  <widget class="QDoubleSpinBox" name="tra_lin_trend_6">
                   <property name="font">
                    <font>
@@ -59904,7 +59904,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="6">
+                <item row="3" column="7">
                  <widget class="QLabel" name="err_tra_quad_trend_3">
                   <property name="font">
                    <font>
@@ -59922,7 +59922,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="5">
+                <item row="1" column="6">
                  <widget class="QDoubleSpinBox" name="tra_quad_trend_1">
                   <property name="font">
                    <font>
@@ -59946,7 +59946,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="5">
+                <item row="2" column="6">
                  <widget class="QDoubleSpinBox" name="tra_quad_trend_2">
                   <property name="font">
                    <font>
@@ -59970,7 +59970,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="5">
+                <item row="3" column="6">
                  <widget class="QDoubleSpinBox" name="tra_quad_trend_3">
                   <property name="font">
                    <font>
@@ -59994,7 +59994,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="5">
+                <item row="4" column="6">
                  <widget class="QDoubleSpinBox" name="tra_quad_trend_4">
                   <property name="font">
                    <font>
@@ -60018,7 +60018,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="5">
+                <item row="5" column="6">
                  <widget class="QDoubleSpinBox" name="tra_quad_trend_5">
                   <property name="font">
                    <font>
@@ -60042,7 +60042,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="5">
+                <item row="6" column="6">
                  <widget class="QDoubleSpinBox" name="tra_quad_trend_6">
                   <property name="font">
                    <font>
@@ -60066,7 +60066,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="5">
+                <item row="7" column="6">
                  <widget class="QDoubleSpinBox" name="tra_quad_trend_7">
                   <property name="font">
                    <font>
@@ -60090,7 +60090,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="5">
+                <item row="8" column="6">
                  <widget class="QDoubleSpinBox" name="tra_quad_trend_8">
                   <property name="font">
                    <font>
@@ -60114,7 +60114,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="5">
+                <item row="9" column="6">
                  <widget class="QDoubleSpinBox" name="tra_quad_trend_9">
                   <property name="font">
                    <font>
@@ -60138,7 +60138,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="10" column="5">
+                <item row="10" column="6">
                  <widget class="QDoubleSpinBox" name="tra_quad_trend_10">
                   <property name="font">
                    <font>
@@ -60160,6 +60160,113 @@
                   <property name="value">
                    <double>0.000000000000000</double>
                   </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="label_514">
+                  <property name="text">
+                   <string>Use GP</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QCheckBox" name="use_tra_gp_1">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_tra_data_GP</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QCheckBox" name="use_tra_gp_2">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_tra_data_GP</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QCheckBox" name="use_tra_gp_3">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_tra_data_GP</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QCheckBox" name="use_tra_gp_4">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_tra_data_GP</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="5" column="1">
+                 <widget class="QCheckBox" name="use_tra_gp_5">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_tra_data_GP</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="6" column="1">
+                 <widget class="QCheckBox" name="use_tra_gp_6">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_tra_data_GP</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="7" column="1">
+                 <widget class="QCheckBox" name="use_tra_gp_7">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_tra_data_GP</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="8" column="1">
+                 <widget class="QCheckBox" name="use_tra_gp_8">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_tra_data_GP</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="9" column="1">
+                 <widget class="QCheckBox" name="use_tra_gp_9">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_tra_data_GP</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="10" column="1">
+                 <widget class="QCheckBox" name="use_tra_gp_10">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_tra_data_GP</string>
+                  </attribute>
                  </widget>
                 </item>
                </layout>
@@ -87798,5 +87905,10 @@
   <buttongroup name="buttonGroup_apply_tra_dilution"/>
   <buttongroup name="buttonGroup_remove_transit_data"/>
   <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_use_tra_data_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
  </buttongroups>
 </ui>
