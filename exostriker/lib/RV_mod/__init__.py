@@ -562,7 +562,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
             continue
 
         t_        = tr_files[j][0]
-        flux_     = tr_files[j][1] + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l] #* tr_files[j][8]
+        flux_     = tr_files[j][1] - par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l] #* tr_files[j][8]
 
         sig2i_    = 1./(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
         flux_err_ = np.sqrt(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
@@ -633,7 +633,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
         flux_model_ = flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8]) 
         
-        flux_model_ = get_quad_model(t_,flux_model_,par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l],
+        flux_model_ = get_quad_model(t_,flux_model_,0.0,
                                                     par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
                                                     par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])
 
