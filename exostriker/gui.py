@@ -552,6 +552,28 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.update_gui_params() 
 
 
+    def set_tra_reg(self, ind = 0):
+        global fit
+
+        #for i in range(10):
+        if len(fit.tra_data_sets[ind]) != 0:
+       #     continue
+       # else:
+            fit.tra_data_sets[ind][10] = self.data_tra_reg_group[ind][1].isChecked()
+
+    def update_GUI_tra_reg(self):
+        global fit
+
+        for i in range(10):
+            if len(fit.tra_data_sets[i]) == 0:
+                self.data_tra_reg_group[i][0].setChecked(True)
+                #print(self.data_tra_reg_group[i][1].isChecked())
+              #  continue
+            else:
+                self.data_tra_reg_group[i][1].setChecked(bool(fit.tra_data_sets[i][10]))
+
+
+
     def set_tra_ld(self):
         global fit
 
@@ -3913,7 +3935,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 fit.tra_data_sets[but_ind-1][0] = dill.copy(self.DetrendWindow.t_store[but_ind-1])
                 fit.tra_data_sets[but_ind-1][1] = dill.copy(self.DetrendWindow.flux_o_c_store[but_ind-1])
                 fit.tra_data_sets[but_ind-1][2] = dill.copy(self.DetrendWindow.flux_err_o_c_store[but_ind-1])
-                fit.tra_data_sets[but_ind-1][3] = dill.copy(self.DetrendWindow.flux_o_c_store[but_ind-1])
+                fit.tra_data_sets[but_ind-1][3] = dill.copy(self.DetrendWindow.airmass_store[but_ind-1])
                 fit.tra_data_sets[but_ind-1][4] = dill.copy(self.DetrendWindow.flux_o_c_store[but_ind-1])
 
                 fit.tra_data_sets[but_ind-1][5] = dill.copy(self.DetrendWindow.flux_store[but_ind-1])
@@ -3924,7 +3946,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                
                 bjd    = dill.copy(self.DetrendWindow.t_store[but_ind-1])
                 flux   = dill.copy(self.DetrendWindow.flux_o_c_store[but_ind-1])               
-                flux_e = dill.copy(self.DetrendWindow.flux_o_c_store[but_ind-1])                   
+                flux_e = dill.copy(self.DetrendWindow.flux_err_o_c_store[but_ind-1])                   
                 
                 for j in range(8): 
                     fit.tra_data_sets[but_ind-1][j] = fit.tra_data_sets[but_ind-1][j][np.isfinite(bjd) & np.isfinite(flux) & np.isfinite(flux_e)]
@@ -4125,14 +4147,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def update_tra_file_buttons(self):
         global fit, colors          
 
+
+
         for i in range(10):
             if len(fit.tra_data_sets[i]) != 0:
                 
-                if len(fit.tra_data_sets[i]) ==10:
-                     fit.tra_data_sets[i] = np.insert(fit.tra_data_sets[i], 9, True)
-                     fit.tra_data_sets_init[i] = np.insert(fit.tra_data_sets_init[i], 9, True)
-
-                    
                 
                 self.buttonGroup_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
                 self.buttonGroup_remove_transit_data.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
@@ -5993,6 +6012,10 @@ will be highly appreciated!
         #self.init_fit()
        # print(fit.P)
         fit.update_rv_params()
+
+        if len(fit.tra_data_sets) == 10:
+            fit = rv.fix_old_to_session_tra(fit)
+
         
         self.update_use_from_input_file()
         self.update_use()
@@ -6007,8 +6030,6 @@ will be highly appreciated!
         #if fit.type_fit["Transit"] == True:
         self.update_tra_file_buttons()
         self.update_ttv_file_buttons()
-
-
         self.update_act_file_buttons()
         self.update_color_picker()
  
@@ -6028,6 +6049,7 @@ will be highly appreciated!
         self.init_plot_corr()
         self.update_plot_corr()
 
+        self.update_GUI_tra_reg()
         self.update_GUI_mcmc_params()
         self.update_GUI_ns_params()
         self.update_GUI_St_params()
@@ -8326,6 +8348,7 @@ https://github.com/3fon3fonov/exostriker/issues
         
         self.data_ld_group        = gui_groups.data_ld_group(self)
 
+        self.data_tra_reg_group   = gui_groups.data_tra_reg_group(self)
 
 
         self.param_nr_priors_gui = gui_groups.param_nr_priors_gui(self)
@@ -8910,7 +8933,19 @@ https://github.com/3fon3fonov/exostriker/issues
 
         self.Button_apply_set_ld_group.clicked.connect(self.set_tra_gr)
 
+        ####### transit linear models #############
 
+        self.buttonGroup_use_tra_reg_1.buttonClicked.connect(lambda: self.set_tra_reg(ind = 0))
+        self.buttonGroup_use_tra_reg_2.buttonClicked.connect(lambda: self.set_tra_reg(ind = 1))
+        self.buttonGroup_use_tra_reg_3.buttonClicked.connect(lambda: self.set_tra_reg(ind = 2))
+        self.buttonGroup_use_tra_reg_4.buttonClicked.connect(lambda: self.set_tra_reg(ind = 3))
+        self.buttonGroup_use_tra_reg_5.buttonClicked.connect(lambda: self.set_tra_reg(ind = 4))
+        self.buttonGroup_use_tra_reg_6.buttonClicked.connect(lambda: self.set_tra_reg(ind = 5))
+        self.buttonGroup_use_tra_reg_7.buttonClicked.connect(lambda: self.set_tra_reg(ind = 6))
+        self.buttonGroup_use_tra_reg_8.buttonClicked.connect(lambda: self.set_tra_reg(ind = 7))
+        self.buttonGroup_use_tra_reg_9.buttonClicked.connect(lambda: self.set_tra_reg(ind = 8))
+        self.buttonGroup_use_tra_reg_10.buttonClicked.connect(lambda: self.set_tra_reg(ind = 9))
+ 
        # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_change)
         self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_change)
 

@@ -402,6 +402,20 @@ def om_dot_bounds_gui(self):
     return om_dot_bounds_gui
 
 
+################### Tra. reg.  ########################
+ 
+def data_tra_reg_group(self):
+
+    data_tra_reg_group = [
+            [self.tra_reg_bjd_1,self.tra_reg_airmass_1],[self.tra_reg_bjd_2,self.tra_reg_airmass_2],
+            [self.tra_reg_bjd_3,self.tra_reg_airmass_3],[self.tra_reg_bjd_4,self.tra_reg_airmass_4],
+            [self.tra_reg_bjd_5,self.tra_reg_airmass_5],[self.tra_reg_bjd_6,self.tra_reg_airmass_6],
+            [self.tra_reg_bjd_7,self.tra_reg_airmass_7],[self.tra_reg_bjd_8,self.tra_reg_airmass_8],
+            [self.tra_reg_bjd_9,self.tra_reg_airmass_9],[self.tra_reg_bjd_10,self.tra_reg_airmass_10]
+            ]
+    return data_tra_reg_group
+
+
 ################### LD  ########################
  
 def data_ld_group(self):
