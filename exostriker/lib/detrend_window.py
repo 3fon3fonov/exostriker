@@ -86,16 +86,20 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
 
 
-        self.t_store             = {k: [] for k in range(10)}
-        self.flux_store          = {k: [] for k in range(10)}
-        self.flux_err_store      = {k: [] for k in range(10)}
-        self.flux_o_c_store      = {k: [] for k in range(10)}
-        self.flux_err_o_c_store  = {k: [] for k in range(10)}
-        self.trend_store         = {k: [] for k in range(10)}
+        self.t_store             = {k: [] for k in range(20)}
+        self.flux_store          = {k: [] for k in range(20)}
+        self.flux_err_store      = {k: [] for k in range(20)}
+        self.flux_o_c_store      = {k: [] for k in range(20)}
+        self.flux_err_o_c_store  = {k: [] for k in range(20)}
+        self.trend_store         = {k: [] for k in range(20)}
+        self.airmass_store       = {k: [] for k in range(20)}
+
 
         self.t = []
         self.old_t = []
         self.flux_o_c = []
+        self.airmass = []
+        
         self.initialize_plots()
 
         self.init_comboBox_regres()
@@ -144,6 +148,8 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
         self.t      = self.parent.tra_data[0]
         self.flux   = self.parent.tra_data[4]
+        self.airmass   = self.parent.tra_data[3]
+        
         self.flux_err = self.parent.tra_data[2]
         self.data_file_name = self.parent.tra_data[-1]
         self.old_t = dill.copy(self.t)
@@ -392,7 +398,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.flux_o_c     = dill.copy(self.flux_o_c[self.old_t != rem_x])
         self.flux_err_o_c = dill.copy(self.flux_err_o_c[self.old_t != rem_x])
         self.trend        = dill.copy(self.trend[self.old_t != rem_x])
-
+        self.airmass      = dill.copy(self.airmass[self.old_t != rem_x])
 
         self.ui.plot.plotItem.items[1].setData(x=self.t,y=self.flux)
         self.ui.plot.plotItem.items[2].setData(x=self.t, y=self.flux,  
@@ -473,6 +479,9 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
                 self.flux_o_c_store[self.parent.tra_data_index]      = self.flux_o_c
                 self.flux_err_o_c_store[self.parent.tra_data_index]  = self.flux_err_o_c
                 self.trend_store[self.parent.tra_data_index]         = self.trend
+
+                self.airmass_store[self.parent.tra_data_index]       = self.airmass
+ 
                 
                 self.ui.radio_remove_median.setChecked(True)
                 QtGui.QMainWindow.closeEvent(self, event)
@@ -486,12 +495,13 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         
         if str(output_file[0]) != '':
             f = open(output_file[0], 'w')
-            f.write("# BJD     Detrended data    Detrended data errors,   Original data   Original data errors    Model applied \n")
+            f.write("# BJD     Detrended data    Detrended data errors  Airmass   Original data   Original data errors    Model applied \n")
             for i in range(len(self.t)):
-                f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f} {3:{width}.{precision}f} {4:{width}.{precision}f} {5:{width}.{precision}f}\n'.format(
+                f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f} {3:{width}.{precision}f} {4:{width}.{precision}f} {5:{width}.{precision}f} {6:{width}.{precision}f}\n'.format(
                         float(self.t[i]), 
                         float(self.flux_o_c[i]), 
                         float(self.flux_err_o_c[i]), 
+                        float(self.airmass[i]),
                         float(self.flux[i]), 
                         float(self.flux_err[i]), 
                         float(self.trend[i]), 

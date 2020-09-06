@@ -333,6 +333,65 @@ def convert_Session_to_Py3(old_ses):
         
     return new_ses
 
+
+def fix_old_to_session_tra(old_ses):
+
+        ################  Some problems with old sessions are fixed here. TB removed later on.# #############
+        
+        if len(old_ses.tra_data_sets) == 20:
+            return old_ses
+        
+        else: 
+            for i in range(10):
+                old_ses.tra_data_sets[10 + i] = []
+                old_ses.tra_data_sets_init[10 + i] = []
+                old_ses.ld_m = ["quadratic"]*20    #limb darkening model
+        
+                old_ses.ld_u[10 + i] =  [0.12, 0.35 ] 
+        
+                old_ses.ld_u_lin[10 + i] = [0.35]  
+                old_ses.ld_u_quad[10 + i] =  [0.12, 0.35 ]  
+                old_ses.ld_u_nonlin[10 + i] =  [0.55,0.12, 0.35,-0.11]  
+        
+                old_ses.ld_u_lin_use[10 + i] =  [False]  
+                old_ses.ld_u_quad_use[10 + i] =  [False, False]  
+                old_ses.ld_u_nonlin_use[10 + i] =  [False, False,False, False] 
+        
+                old_ses.ld_u_lin_err[10 + i] =  [[0.0,0.0]] 
+                old_ses.ld_u_quad_err[10 + i] =  [[0.0,0.0], [0.0,0.0]]  
+                old_ses.ld_u_nonlin_err[10 + i] = [[0.0,0.0], [0.0,0.0],[0.0,0.0], [0.0,0.0]]  
+        
+                old_ses.ld_u_lin_bound[10 + i] =  np.array([[-1.0,1.0]]) 
+                old_ses.ld_u_quad_bound[10 + i] =  np.array([[-1.0,1.0],[-1.0,1.0]])  
+                old_ses.ld_u_nonlin_bound[10 + i] =  np.array([[-1.0,1.0],[-1.0,1.0],[-1.0,1.0],[-1.0,1.0]])  
+        
+                old_ses.ld_u_lin_norm_pr[10 + i] =  np.array([[0.1,0.05, False]])  
+                old_ses.ld_u_quad_norm_pr[10 + i] = np.array([[0.0,1.0, False],[0.0,1.0, False]]) 
+                old_ses.ld_u_nonlin_norm_pr[10 + i] = np.array([[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False]])  
+        
+                old_ses.ld_u_lin_jeff_pr[10 + i] =  np.array([[0.1,0.05, False]])  
+                old_ses.ld_u_quad_jeff_pr[10 + i] =  np.array([[0.0,1.0, False],[0.0,1.0, False]])  
+                old_ses.ld_u_nonlin_jeff_pr[10 + i] =  np.array([[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False]])  
+        
+                old_ses.ld_u_lin_str[10 + i] =  [r'ld-quad-1$_%s$'%str(10 + i+1)]  
+                old_ses.ld_u_quad_str[10 + i] =  [r'ld-quad-1$_%s$'%str(10 + i+1),r'ld-quad-2$_%s$'%str(10 + i+1)]  
+                old_ses.ld_u_nonlin_str[10 + i] =  [r'ld-quad-1$_%s$'%str(10 + i+1),r'ld-quad-2$_%s$'%str(10 + i+1),r'ld-quad-3$_%s$'%str(10 + i+1),r'ld-quad-4$_%s$'%str(10 + i+1)]       
+                old_ses.ld_gr.append(10 + i)
+                old_ses.ld_gr_ind.append(10 + i)
+                
+
+        for i in range(20):
+            if len(old_ses.tra_data_sets[i]) != 0:
+                
+                if len(old_ses.tra_data_sets[i]) ==11:
+                     old_ses.tra_data_sets[i] = np.insert(old_ses.tra_data_sets[i], 9, True)
+                     old_ses.tra_data_sets_init[i] = np.insert(old_ses.tra_data_sets_init[i], 9, True)
+
+        return old_ses
+        
+         ########################################################################################################
+
+
 def find_close_elements(a, b, precision = 0.01):
     """Finds close elements in two arrays with diffrent sizes.
 
@@ -451,6 +510,13 @@ def add_ns_samples(obj,sampler):
 def get_quad_model(x,y,a1,a2,a3):
     
     x = x - x[0]
+    y = y + a1 + a2*x + a3*x**2
+    return y
+
+def get_airmass_model(x,y,a1,a2,a3):
+    
+    #x = x - x[0]   
+    #print(a1,a2,x[0:2],a2*x[0:2])
     y = y + a1 + a2*x + a3*x**2
     return y
 
@@ -1599,8 +1665,8 @@ def sigma_clip(obj, type = 'RV', sigma_clip = 10, file_n = 0, add_error = 0, rem
         org_epoch     = obj.tra_data_sets_init[file_n][0]
         org_data      = obj.tra_data_sets_init[file_n][1]
         org_data_sig  = obj.tra_data_sets_init[file_n][2]
-        org_data_o_c  = obj.tra_data_sets_init[file_n][3]
-        #org_data      = obj.tra_data_sets_init[file_n][1]
+        org_data_air  = obj.tra_data_sets_init[file_n][3]
+        org_data_o_c  = obj.tra_data_sets_init[file_n][4]
 
         org_data_mean = org_data_o_c - np.mean(org_data_o_c)
 
@@ -1637,7 +1703,7 @@ def sigma_clip(obj, type = 'RV', sigma_clip = 10, file_n = 0, add_error = 0, rem
             obj.tra_data_sets[file_n][0] = org_epoch
             obj.tra_data_sets[file_n][1] = org_data
             obj.tra_data_sets[file_n][2] = org_data_sig
-            obj.tra_data_sets[file_n][3] = org_data_o_c
+            obj.tra_data_sets[file_n][3] = org_data_air
             obj.tra_data_sets[file_n][4] = org_data_o_c
         return obj
 

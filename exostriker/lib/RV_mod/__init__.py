@@ -231,7 +231,7 @@ def initiate_tansit_gps(obj,  kernel_id=-1):
     tra_gps = celerite.GP(tra_kernel, mean=0.0)
 
 
-    if len([obj.tra_data_sets[j][9] for j in range(10) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True]) ==0:
+    if len([obj.tra_data_sets[j][9] for j in range(20) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True]) ==0:
         print("No transit data ready for GP modeling!!! Reverting to 'GP==False'")
         obj.tra_gps = tra_gps
         obj.tra_doGP = False
@@ -239,8 +239,8 @@ def initiate_tansit_gps(obj,  kernel_id=-1):
         return        
 
     else:
-        y = np.concatenate([obj.tra_data_sets[j][2] for j in range(10) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
-        x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
+        y = np.concatenate([obj.tra_data_sets[j][2] for j in range(20) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
+        x = np.concatenate([obj.tra_data_sets[j][0] for j in range(20) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
         
         
         tra_gps.compute(x, y)
@@ -259,8 +259,8 @@ def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
 
     ############ DATA ####################
 
-    y = np.concatenate([obj.tra_data_sets[j][4] for j in range(10) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
-    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(10) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
+    y = np.concatenate([obj.tra_data_sets[j][4] for j in range(20) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
+    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(20) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
 
    # y_no_gp = np.concatenate([obj.tra_data_sets[j][4] for j in range(10) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] !=True])
 
@@ -306,11 +306,11 @@ def get_transit_ts(obj,  kernel_id=-1):
 
     tr_files = []
 
-#    for i in range(10):
+#    for i in range(20):
 #        if len(obj.tra_data_sets[i]) != 0:
 #            tr_files.append(obj.tra_data_sets[i])
 
-    for j in range(10):
+    for j in range(20):
 
         if len(obj.tra_data_sets[j]) == 0:
             continue
@@ -541,13 +541,13 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
     t_rich  = []
     flux_model_rich  = []
 
-    N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0])
+    N_transit_files = len([x for x in range(20) if len(tr_files[x]) != 0])
     
 
 
     l = 0
 
-    for j in range(10):
+    for j in range(20):
 
         if len(tr_files[j]) == 0:
             flux_model.append([])
@@ -568,6 +568,18 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
         flux_err_ = np.sqrt(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
        # print(par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l])
         flux_model_ =np.ones(len(flux_))
+
+
+        if tr_files[j][10] == True:
+            flux_model_ = get_airmass_model(tr_files[j][3],flux_model_,0.0,
+                                                    par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
+                                                    par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])           
+        else:
+            flux_model_ = get_quad_model(t_,flux_model_,0.0,
+                                                    par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
+                                                    par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])
+
+        
 
 
         m  =  {z: [] for z in range(9)}
@@ -633,11 +645,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
         flux_model_ = flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8]) 
         
-        flux_model_ = get_quad_model(t_,flux_model_,0.0,
-                                                    par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
-                                                    par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])
 
-        
         #flux_model_ = (flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8])) /  (1+ tr_files[j][8])
 
         #flux_model_ =  (flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8]))/  (1+ tr_files[j][8]*par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + l])
@@ -728,11 +736,12 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
     if return_model == True:
 
-        t_all = np.concatenate([tr_files[x][0] for x in range(10) if len(tr_files[x]) != 0])
+        t_all = np.concatenate([tr_files[x][0] for x in range(20) if len(tr_files[x]) != 0])
         t_rich =np.linspace(min(t_all),max(t_all),len(t_all)*tra_model_fact)
         flux_model_rich = np.ones(len(t_rich))
 
         m  =  {k: [] for k in range(9)}
+       # print(tr_model[0])
         tr_params.limb_dark = str(tr_model[0][j])
         tr_params.u = tr_model[1][j]
 
@@ -780,7 +789,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 #            print("stepsize:", fac)
  
         l = 0
-        for j in range(10):
+        for j in range(20):
 
             if len(tr_files[j]) == 0:
                 continue
@@ -806,7 +815,6 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
         tr_stat = [tr_chi,tr_chi_red,tr_rms,tr_wrms, tr_Ndata]
 
-
         return np.array([tr_loglik, sep_data, all_data,rich_model,tr_stat])
     else:
         return tr_loglik
@@ -831,7 +839,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     ttv_files = opt["TTV_files"]
     ttv_times = opt["TTV_times"]
 
-    N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0])
+    N_transit_files = len([x for x in range(20) if len(tr_files[x]) != 0])
 
     if np.isnan(p).any():
         return -np.inf
@@ -1030,7 +1038,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     for i in range(obj.filelist.ndset):
          vel_files.append(obj.filelist.files[i].path)
 
-    N_transit_files = len([x for x in range(10) if len(obj.tra_data_sets[x]) != 0])
+    N_transit_files = len([x for x in range(20) if len(obj.tra_data_sets[x]) != 0])
 
     tr_files = obj.tra_data_sets
     tr_mo    = obj.ld_m
@@ -1039,6 +1047,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     tr_gr_ind= obj.ld_gr_ind
     
     tr_model = np.array([tr_mo,tr_ld,tr_gr,tr_gr_ind], dtype=object)
+    #print(tr_model)
     tr_params = obj.tr_params
 
     ttv_files = obj.ttv_data_sets
@@ -1242,7 +1251,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, pr_nr, gps, tra_gps, rtg, mix_fit, errors, mod,opt):
 
 
-    N_transit_files = len([x for x in range(10) if len(tr_files[x]) != 0]) 
+    N_transit_files = len([x for x in range(20) if len(tr_files[x]) != 0]) 
     
     e_par = [[0.0,0.0]]*len(par)
     for j in range(len(flags)):
@@ -1306,7 +1315,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                 obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
 
         obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,stmass, obj.ttv_times, obj.epoch, return_model = True, tra_model_fact=obj.tra_model_fact)
-
+        #print(obj.transit_results)
        # if rtg[3]:
        #     get_transit_gps_model(obj)
 
@@ -1393,7 +1402,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     j = 0
 
-    for i in range(10):
+    for i in range(20):
         if len(obj.tra_data_sets[i]) == 0:
             continue
         else:
@@ -1538,7 +1547,7 @@ def run_nestsamp(obj, **kwargs):
         vel_files.append(obj.filelist.files[i].path)
 
 
-    N_transit_files = len([x for x in range(10) if len(obj.tra_data_sets[x]) != 0])
+    N_transit_files = len([x for x in range(20) if len(obj.tra_data_sets[x]) != 0])
 
     tr_files = obj.tra_data_sets
     tr_mo    = obj.ld_m
@@ -1918,7 +1927,7 @@ def run_mcmc(obj, **kwargs):
     for i in range(obj.filelist.ndset):
         vel_files.append(obj.filelist.files[i].path)
 
-    N_transit_files = len([x for x in range(10) if len(obj.tra_data_sets[x]) != 0])
+    N_transit_files = len([x for x in range(20) if len(obj.tra_data_sets[x]) != 0])
 
     tr_files = obj.tra_data_sets
     tr_mo    = obj.ld_m
@@ -2263,13 +2272,13 @@ class signal_fit(object):
         self.rtg = [True,False,False,False]
 
         self.ttv_data_sets = {k: [] for k in range(10)}
-        self.act_data_sets = {k: [] for k in range(10)}
-        self.tra_data_sets = {k: [] for k in range(10)}
-        self.rv_data_sets  = {k: [] for k in range(10)}
+        self.act_data_sets = {k: [] for k in range(20)}
+        self.tra_data_sets = {k: [] for k in range(20)}
+        self.rv_data_sets  = {k: [] for k in range(20)}
         
-        self.act_data_sets_init = {k: [] for k in range(10)}
-        self.tra_data_sets_init = {k: [] for k in range(10)}
-        self.rv_data_sets_init  = {k: [] for k in range(10)}
+        self.act_data_sets_init = {k: [] for k in range(20)}
+        self.tra_data_sets_init = {k: [] for k in range(20)}
+        self.rv_data_sets_init  = {k: [] for k in range(20)}
 
 
         if (readinputfile):
@@ -2327,16 +2336,16 @@ class signal_fit(object):
 
         self.parameters = []
 
-        self.pyqt_symbols_rvs = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
-        self.pyqt_symbols_act = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
-        self.pyqt_symbols_tra = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
-        self.pyqt_symbols_ttv = {k: 'o' for k in range(10)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
+        self.pyqt_symbols_rvs = {k: 'o' for k in range(20)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
+        self.pyqt_symbols_act = {k: 'o' for k in range(20)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
+        self.pyqt_symbols_tra = {k: 'o' for k in range(20)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
+        self.pyqt_symbols_ttv = {k: 'o' for k in range(20)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
 
 
-        self.pyqt_symbols_size_rvs = {k: 6 for k in range(10)} #[6,6,6,6,6,6,6,6,6,6] #
-        self.pyqt_symbols_size_act = {k: 4 for k in range(10)} #[4,4,4,4,4,4,4,4,4,4] #
-        self.pyqt_symbols_size_tra = {k: 2 for k in range(10)} #[2,2,2,2,2,2,2,2,2,2] #
-        self.pyqt_symbols_size_ttv = {k: 4 for k in range(10)} #[2,2,2,2,2,2,2,2,2,2] #
+        self.pyqt_symbols_size_rvs = {k: 6 for k in range(20)} #[6,6,6,6,6,6,6,6,6,6] #
+        self.pyqt_symbols_size_act = {k: 4 for k in range(20)} #[4,4,4,4,4,4,4,4,4,4] #
+        self.pyqt_symbols_size_tra = {k: 2 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #
+        self.pyqt_symbols_size_ttv = {k: 4 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #
 
         
 
@@ -2384,40 +2393,40 @@ class signal_fit(object):
 
 
         self.ld_models = ["uniform", "linear", "quadratic", "nonlinear"]
-        self.ld_m = ["quadratic", "quadratic",  "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic", "quadratic"]    #limb darkening model
+        self.ld_m = ["quadratic"]*20    #limb darkening model
 
-        self.ld_u = {k: [0.12, 0.35 ] for k in range(10)}
+        self.ld_u = {k: [0.12, 0.35 ] for k in range(20)}
 
-        self.ld_u_lin    = {k: [0.35] for k in range(10)}
-        self.ld_u_quad = {k: [0.12, 0.35 ] for k in range(10)}
-        self.ld_u_nonlin = {k: [0.55,0.12, 0.35,-0.11] for k in range(10)}
+        self.ld_u_lin    = {k: [0.35] for k in range(20)}
+        self.ld_u_quad = {k: [0.12, 0.35 ] for k in range(20)}
+        self.ld_u_nonlin = {k: [0.55,0.12, 0.35,-0.11] for k in range(20)}
 
-        self.ld_u_lin_use    = {k: [False] for k in range(10)}
-        self.ld_u_quad_use   = {k: [False, False] for k in range(10)}
-        self.ld_u_nonlin_use = {k: [False, False,False, False] for k in range(10)}
+        self.ld_u_lin_use    = {k: [False] for k in range(20)}
+        self.ld_u_quad_use   = {k: [False, False] for k in range(20)}
+        self.ld_u_nonlin_use = {k: [False, False,False, False] for k in range(20)}
 
-        self.ld_u_lin_err    = {k: [[0.0,0.0]] for k in range(10)}
-        self.ld_u_quad_err   = {k: [[0.0,0.0], [0.0,0.0]] for k in range(10)}
-        self.ld_u_nonlin_err = {k: [[0.0,0.0], [0.0,0.0],[0.0,0.0], [0.0,0.0]] for k in range(10)}
+        self.ld_u_lin_err    = {k: [[0.0,0.0]] for k in range(20)}
+        self.ld_u_quad_err   = {k: [[0.0,0.0], [0.0,0.0]] for k in range(20)}
+        self.ld_u_nonlin_err = {k: [[0.0,0.0], [0.0,0.0],[0.0,0.0], [0.0,0.0]] for k in range(20)}
 
-        self.ld_u_lin_bound       = {k: np.array([[-1.0,1.0]]) for k in range(10)}
-        self.ld_u_quad_bound      = {k: np.array([[-1.0,1.0],[-1.0,1.0]]) for k in range(10)}
-        self.ld_u_nonlin_bound    = {k: np.array([[-1.0,1.0],[-1.0,1.0],[-1.0,1.0],[-1.0,1.0]]) for k in range(10)}
+        self.ld_u_lin_bound       = {k: np.array([[-1.0,1.0]]) for k in range(20)}
+        self.ld_u_quad_bound      = {k: np.array([[-1.0,1.0],[-1.0,1.0]]) for k in range(20)}
+        self.ld_u_nonlin_bound    = {k: np.array([[-1.0,1.0],[-1.0,1.0],[-1.0,1.0],[-1.0,1.0]]) for k in range(20)}
 
-        self.ld_u_lin_norm_pr     = {k: np.array([[0.1,0.05, False]]) for k in range(10)}
-        self.ld_u_quad_norm_pr    = {k: np.array([[0.0,1.0, False],[0.0,1.0, False]]) for k in range(10)}
-        self.ld_u_nonlin_norm_pr  = {k: np.array([[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False]]) for k in range(10)}
+        self.ld_u_lin_norm_pr     = {k: np.array([[0.1,0.05, False]]) for k in range(20)}
+        self.ld_u_quad_norm_pr    = {k: np.array([[0.0,1.0, False],[0.0,1.0, False]]) for k in range(20)}
+        self.ld_u_nonlin_norm_pr  = {k: np.array([[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False]]) for k in range(20)}
 
-        self.ld_u_lin_jeff_pr     = {k: np.array([[0.1,0.05, False]]) for k in range(10)}
-        self.ld_u_quad_jeff_pr    = {k: np.array([[0.0,1.0, False],[0.0,1.0, False]]) for k in range(10)}
-        self.ld_u_nonlin_jeff_pr  = {k: np.array([[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False]]) for k in range(10)}
+        self.ld_u_lin_jeff_pr     = {k: np.array([[0.1,0.05, False]]) for k in range(20)}
+        self.ld_u_quad_jeff_pr    = {k: np.array([[0.0,1.0, False],[0.0,1.0, False]]) for k in range(20)}
+        self.ld_u_nonlin_jeff_pr  = {k: np.array([[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False]]) for k in range(20)}
 
-        self.ld_u_lin_str         = {k: [r'ld-quad-1$_%s$'%str(k+1)] for k in range(10)}
-        self.ld_u_quad_str        = {k: [r'ld-quad-1$_%s$'%str(k+1),r'ld-quad-2$_%s$'%str(k+1)] for k in range(10)}
-        self.ld_u_nonlin_str      = {k: [r'ld-quad-1$_%s$'%str(k+1),r'ld-quad-2$_%s$'%str(k+1),r'ld-quad-3$_%s$'%str(k+1),r'ld-quad-4$_%s$'%str(k+1)] for k in range(10)}
+        self.ld_u_lin_str         = {k: [r'ld-quad-1$_%s$'%str(k+1)] for k in range(20)}
+        self.ld_u_quad_str        = {k: [r'ld-quad-1$_%s$'%str(k+1),r'ld-quad-2$_%s$'%str(k+1)] for k in range(20)}
+        self.ld_u_nonlin_str      = {k: [r'ld-quad-1$_%s$'%str(k+1),r'ld-quad-2$_%s$'%str(k+1),r'ld-quad-3$_%s$'%str(k+1),r'ld-quad-4$_%s$'%str(k+1)] for k in range(20)}
 
-        self.ld_gr     = [0,1,2,3,4,5,6,7,8,9]
-        self.ld_gr_ind = [0,0,0,0,0,0,0,0,0,0]
+        self.ld_gr     = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+        self.ld_gr_ind = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
         ############################################
 
@@ -2624,34 +2633,34 @@ class signal_fit(object):
 
     def init_tra_jitter(self) :
 
-        self.tra_jitt      = {k: 0.0 for k in range(10)}
-        self.tra_jitt_err  = {k: np.array([0.0,0.0]) for k in range(10)}
-        self.tra_jitt_use  = {k: False for k in range(10)}
-        self.tra_jitt_str  = {k: r'transit jitt$_%s$'%str(k+1) for k in range(10)}
-        self.tra_jitt_bounds  = {k: np.array([-0.2,0.2] )for k in range(10)}
-        self.tra_jitt_norm_pr = {k: np.array([0.0,0.1, False] )for k in range(10)}
-        self.tra_jitt_jeff_pr = {k: np.array([0.0,0.1, False] )for k in range(10)}
+        self.tra_jitt      = {k: 0.0 for k in range(20)}
+        self.tra_jitt_err  = {k: np.array([0.0,0.0]) for k in range(20)}
+        self.tra_jitt_use  = {k: False for k in range(20)}
+        self.tra_jitt_str  = {k: r'transit jitt$_%s$'%str(k+1) for k in range(20)}
+        self.tra_jitt_bounds  = {k: np.array([-0.2,0.2] )for k in range(20)}
+        self.tra_jitt_norm_pr = {k: np.array([0.0,0.1, False] )for k in range(20)}
+        self.tra_jitt_jeff_pr = {k: np.array([0.0,0.1, False] )for k in range(20)}
 
 
     def init_tra_offset(self) :
 
-        self.tra_off      = {k: 0.0 for k in range(10)}
-        self.tra_off_err  = {k: np.array([0.0,0.0])  for k in range(10)}
-        self.tra_off_use  = {k: False for k in range(10)}
-        self.tra_off_str  = {k: r'transit off$_%s$'%str(k+1) for k in range(10)}
-        self.tra_off_bounds  = {k: np.array([-1.0,2.0] )for k in range(10)}
-        self.tra_off_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(10)}
-        self.tra_off_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(10)}
+        self.tra_off      = {k: 0.0 for k in range(20)}
+        self.tra_off_err  = {k: np.array([0.0,0.0])  for k in range(20)}
+        self.tra_off_use  = {k: False for k in range(20)}
+        self.tra_off_str  = {k: r'transit off$_%s$'%str(k+1) for k in range(20)}
+        self.tra_off_bounds  = {k: np.array([-1.0,2.0] )for k in range(20)}
+        self.tra_off_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
+        self.tra_off_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
 
     def init_tra_dilution(self) :
 
-        self.tra_dil     = {k: 1.0 for k in range(10)}
-        self.tra_dil_err  = {k: np.array([0.0,0.0])  for k in range(10)}
-        self.tra_dil_use  = {k: False for k in range(10)}
-        self.tra_dil_str  = {k: r'tr. data dilution$_%s$'%str(k+1) for k in range(10)}
-        self.tra_dil_bounds  = {k: np.array([0.0,1.0] )for k in range(10)}
-        self.tra_dil_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(10)}
-        self.tra_dil_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(10)}
+        self.tra_dil     = {k: 1.0 for k in range(20)}
+        self.tra_dil_err  = {k: np.array([0.0,0.0])  for k in range(20)}
+        self.tra_dil_use  = {k: False for k in range(20)}
+        self.tra_dil_str  = {k: r'tr. data dilution$_%s$'%str(k+1) for k in range(20)}
+        self.tra_dil_bounds  = {k: np.array([0.0,1.0] )for k in range(20)}
+        self.tra_dil_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
+        self.tra_dil_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
 
     def init_RV_lintr(self) :
 
@@ -2677,23 +2686,23 @@ class signal_fit(object):
 
     def init_tra_lintr(self) :
 
-        self.tra_lintr      = {k: 0.0 for k in range(10)}
-        self.tra_lintr_err  = {k: np.array([0.0,0.0])  for k in range(10)}
-        self.tra_lintr_use  = {k: False for k in range(10)}
-        self.tra_lintr_str  = {k: r'tra lin.tr$_%s$'%str(k+1) for k in range(10)}
-        self.tra_lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(10)}
-        self.tra_lintr_norm_pr = {k: np.array([0,0.001, False]) for k in range(10)}
-        self.tra_lintr_jeff_pr = {k: np.array([-0.001,0.001, False]) for k in range(10)}
+        self.tra_lintr      = {k: 0.0 for k in range(20)}
+        self.tra_lintr_err  = {k: np.array([0.0,0.0])  for k in range(20)}
+        self.tra_lintr_use  = {k: False for k in range(20)}
+        self.tra_lintr_str  = {k: r'tra lin.tr$_%s$'%str(k+1) for k in range(20)}
+        self.tra_lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(20)}
+        self.tra_lintr_norm_pr = {k: np.array([0,0.001, False]) for k in range(20)}
+        self.tra_lintr_jeff_pr = {k: np.array([-0.001,0.001, False]) for k in range(20)}
 
 
     def init_tra_quadtr(self) :
 
-        self.tra_quadtr      = {k: 0.0 for k in range(10)}
-        self.tra_quadtr_err  = {k: np.array([0.0,0.0])  for k in range(10)}
-        self.tra_quadtr_use  = {k: False for k in range(10)}
-        self.tra_quadtr_str  = {k: r'tra quad.tr$_%s$'%str(k+1) for k in range(10)}
-        self.tra_quadtr_bounds  = {k: np.array([-1.0,1.0]) for k in range(10)}
-        self.tra_quadtr_norm_pr = {k: np.array([0,0.001, False]) for k in range(10)}
+        self.tra_quadtr      = {k: 0.0 for k in range(20)}
+        self.tra_quadtr_err  = {k: np.array([0.0,0.0])  for k in range(20)}
+        self.tra_quadtr_use  = {k: False for k in range(20)}
+        self.tra_quadtr_str  = {k: r'tra quad.tr$_%s$'%str(k+1) for k in range(20)}
+        self.tra_quadtr_bounds  = {k: np.array([-1.0,1.0]) for k in range(20)}
+        self.tra_quadtr_norm_pr = {k: np.array([0,0.001, False]) for k in range(20)}
         self.tra_quadtr_jeff_pr = {k: np.array([-0.001,0.001, False]) for k in range(10)}
 
  
@@ -2796,8 +2805,8 @@ class signal_fit(object):
         self.tra_GP_mat_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_mat_params))}
 
 
-        self.tra_gp_model_curve = {k: 0.0 for k in range(10)}
-        self.tra_gp_model_data  = {k: 0.0 for k in range(10)}
+        self.tra_gp_model_curve = {k: 0.0 for k in range(20)}
+        self.tra_gp_model_data  = {k: 0.0 for k in range(20)}
 
         self.tra_gp_kernels = ['SHOKernel','RotKernel']
         self.tra_gp_kernel = self.gp_kernels[0]
@@ -3151,7 +3160,8 @@ class signal_fit(object):
 
 ############################ transit datasets ##########################################
     def add_transit_dataset(self, name, path, tra_idset = 0, PDC = False):
- 
+     
+  
         if path.endswith("lc.fits"):
 
             if pyfits_not_found == True:
@@ -3173,6 +3183,9 @@ class signal_fit(object):
                     tra_JD        = dd['TIME'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
                     tra_data      = dd['SAP_FLUX'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
                     tra_data_sig  = dd['SAP_FLUX_ERR'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
+
+                tra_airmass_ = np.zeros(len(tra_JD))
+
 
             except:
                 print("Unknown type of .fits file! Please provide a TESS *lc.fits file")
@@ -3199,11 +3212,23 @@ class signal_fit(object):
                 print("Something is wrong with your transit data file! Please provide a valid transit data that contains: BJD  flux  sigma_flux")
                 return
 
+            try:
+                tra_airmass_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [3])
+                
+                if len(tra_airmass_) != len(tra_JD_) != len(tra_data_) != len(tra_data_sig_):
+                    print("Something is wrong with your transit data file in particular the airmass column! Please provide a valid transit data that contains: BJD  flux  sigma_flux ans airmass")
+                else:
+                    print("Airmass column detected? ")
+            except:
+                tra_airmass_ = np.zeros(len(tra_JD))
+                pass
+
+        tra_airmass = tra_airmass_ 
         tra_data_o_c = tra_data
         tra_file_name = file_from_path(path)
 
 
-        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_data_o_c,tra_data_o_c,tra_data,tra_data_sig,tra_data_o_c, 1.0, True, tra_file_name])
+        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_airmass,tra_data_o_c,tra_data,tra_data_sig,tra_data_o_c, 1.0, True, False, tra_file_name])
         
         #self.tra_data_set2 = {1:tra_JD,2: tra_data,3:tra_data_sig,4: tra_data_o_c,5:tra_data_o_c,6:tra_file_name }
 
@@ -4508,7 +4533,7 @@ class signal_fit(object):
 
 
 
-        for i in range(10):
+        for i in range(20):
             if len(self.tra_data_sets[i]) != 0:
 
                 par.append(self.tra_off[i]) #
@@ -4525,7 +4550,7 @@ class signal_fit(object):
                     flag.append(self.tra_off_use[i]) #
 
 
-        for i in range(10):
+        for i in range(20):
             if len(self.tra_data_sets[i]) != 0:
                 par.append(self.tra_jitt[i]) #
                 par_str.append(self.tra_jitt_str[i]) #
@@ -4565,7 +4590,7 @@ class signal_fit(object):
 
 
 
-        for i in range(10):
+        for i in range(20):
             if len(self.tra_data_sets[i]) != 0:
                 par.append(self.tra_lintr[i]) #
                 par_str.append(self.tra_lintr_str[i]) #
@@ -4581,7 +4606,7 @@ class signal_fit(object):
                 else:
                     flag.append(self.tra_lintr_use[i])
 
-        for i in range(10):
+        for i in range(20):
             if len(self.tra_data_sets[i]) != 0:
                 par.append(self.tra_quadtr[i]) #
                 par_str.append(self.tra_quadtr_str[i]) #
@@ -4610,7 +4635,7 @@ class signal_fit(object):
 
 
 
-        for i in range(10):
+        for i in range(20):
             if len(self.tra_data_sets[i]) == 0 or self.ld_gr[i] != i:
                 continue
             else:
