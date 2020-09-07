@@ -222,6 +222,58 @@ def P_to_a(P,m0):
     return a/AU
 
 
+
+def get_transit_times(tr_res, p, t0, precise = False, verbose=False):
+    '''Returns linear transit times (approximate!)
+    
+    Parameters
+    ----------    
+    -------
+    '''
+    #t_ind = np.where(np.logical_and(t >= t0-0.17, t <= t0+0.17))
+    
+    #transits = t0 + p
+    
+    t = tr_res[2][0]
+    f = tr_res[2][3]
+    range_ = int(max(t-t[0])/p)+1
+    
+    tr_index = []
+    tr_t0    = []
+     #tran_t0 = t0
+    for i in range(range_):
+        tran_t0 = t0 + p*i
+
+        tr_ind = np.where(np.logical_and(t >= tran_t0-0.17, t <= tran_t0+0.17))
+        #print(i,tran_t0)
+        if len(t[tr_ind]) !=0:
+            minn = np.argmin(f[tr_ind])
+            tr_index.append(i)
+            tr_t0.append(t[tr_ind][minn]) 
+       
+    if precise:
+        t = tr_res[3][0]
+        f = tr_res[3][1]  
+        tr_t0    = []
+        
+        for i in tr_index:
+            tran_t0 = t0 + p*i
+    
+            tr_ind = np.where(np.logical_and(t >= tran_t0-0.07, t <= tran_t0+0.07))
+            minn = np.argmin(f[tr_ind])
+            tr_t0.append(t[tr_ind][minn])     
+      
+    if verbose == True:
+        for i in range(len(tr_index)):
+            print(tr_index[i],tr_t0[i])
+        
+       
+    return [tr_index, tr_t0]
+
+
+
+
+
 ####################### mass_semimajor ###########################################
 def get_mass_a(obj, mass_type="J"):
     '''Calculates the actual masses and Jacobi semimajor axes of a
@@ -386,6 +438,11 @@ def fix_old_to_session_tra(old_ses):
                 if len(old_ses.tra_data_sets[i]) ==11:
                      old_ses.tra_data_sets[i] = np.insert(old_ses.tra_data_sets[i], 9, True)
                      old_ses.tra_data_sets_init[i] = np.insert(old_ses.tra_data_sets_init[i], 9, True)
+                elif len(old_ses.tra_data_sets[i]) ==10:
+                     old_ses.tra_data_sets[i] = np.insert(old_ses.tra_data_sets[i], 9, True)
+                     old_ses.tra_data_sets_init[i] = np.insert(old_ses.tra_data_sets_init[i], 9, False)
+                     old_ses.tra_data_sets[i] = np.insert(old_ses.tra_data_sets[i], 10, True)
+                     old_ses.tra_data_sets_init[i] = np.insert(old_ses.tra_data_sets_init[i], 10, False)
 
         return old_ses
         

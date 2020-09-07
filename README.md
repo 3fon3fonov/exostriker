@@ -34,6 +34,7 @@ because some problems may occur depending on your OS system.
 * Keplerian and Dynamical modeling of RV & Transit photometry exoplanet data.
 * Joint RVs + Transit + GPs best-fit optimization (internal Fortran Simplex and L-M minimizers, or many more via "SciPyOp").
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty") 
+* TTVs extraction.
 * TTVs and/or joint TTVs + RVs analysis.
 * GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
 * Linear models for detrending ground-based transit photometry.
@@ -45,7 +46,7 @@ because some problems may occur depending on your OS system.
 * Instant AMD stability check for multiple planetary systems (including during optimization or MCMC/Nested Sampling).
 * Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.
 * Fully interactive, super-fast, high-quality, exportable plots.
-* GUI control of making MCMC/NS cornerplot with many options.
+* Handy cornerplot GUI control.
 * Import/Export of work sessions and multi-sessions. 
 * Export plots to a matplotlib window for further customization.
 * Export ready to use LaTeX tables with best-fit parameters, errors, and statistics. 
