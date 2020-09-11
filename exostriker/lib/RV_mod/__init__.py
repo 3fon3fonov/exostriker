@@ -450,6 +450,9 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
             ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
             om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
             Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
+            # reject e > 0 
+            if ecc_ >= 1.0: 
+                return -np.inf  
         else:
             ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]         
         
@@ -887,6 +890,10 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             if hkl == True:
                 ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
                 om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
+                # reject e > 0 
+                if ecc_ >= 1.0: 
+                    return -np.inf  
+                
             else:
                 ecc_, om_, = par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]
 
@@ -898,9 +905,14 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     else:
         for i in range(npl):
             if hkl == True:
-                ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
+                ecc_ = np.sqrt((par[len(vel_files)*2 +7*i+2])**2 + (par[len(vel_files)*2 +7*i+3])**2)
                 om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
                 Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
+                
+                # reject e > 0 
+                if ecc_ >= 1.0: 
+                    return -np.inf        
+
             else:
                 ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]
 
@@ -4539,7 +4551,7 @@ class signal_fit(object):
             flag.append(self.rv_quadtr_use)
 
 
-        if rtg[1] == True:
+        if rtg[1] == True:# and self.type_fit['RV'] == True:
             if self.gp_kernel == 'RotKernel':
                 for i in range(4):
                     par.append(self.GP_rot_params[i])
@@ -4626,7 +4638,7 @@ class signal_fit(object):
 
 
 
-        if rtg[3] == True:
+        if rtg[3] == True: # and self.type_fit['Transit'] == True:
             if self.tra_gp_kernel == 'RotKernel':
                 for i in range(4):
                     par.append(self.tra_GP_rot_params[i])

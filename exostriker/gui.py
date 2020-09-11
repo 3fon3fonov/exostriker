@@ -2482,7 +2482,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
             ############### Phase signal TBD this should not be here! ####################################
 
-            if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True:
+            if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True and fit.npl > 0:
                 
                 self.trans_phase_slider.setEnabled(True) 
              
@@ -2544,7 +2544,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             beam=0.0, pen=fit.tra_colors[j])
             p4.addItem(err_)
 
-        if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True:
+        if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True and fit.npl > 0:
  
             model_time_phase = np.array( (t_model - offset)%fit.P[ph_pl_ind]  )
             sort2 = np.array(sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])    )
