@@ -922,7 +922,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.jitter_bounds_gui[i][z].setValue(fit.jitt_bounds[i][z])
                 self.offset_bounds_gui_tra[i][z].setValue(fit.tra_off_bounds[i][z])
                 self.jitter_bounds_gui_tra[i][z].setValue(fit.tra_jitt_bounds[i][z])
-                
+
+        self.lin_trend_min.setValue(fit.rv_lintr_bounds[0][0])
+        self.lin_trend_max.setValue(fit.rv_lintr_bounds[0][1])                
                 
         self.update_RV_GP_bounds()
         self.update_tra_GP_bounds()
@@ -5512,7 +5514,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.43) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.44) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -8997,7 +8999,7 @@ https://github.com/3fon3fonov/exostriker/issues
         
 
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.43). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.44). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)
