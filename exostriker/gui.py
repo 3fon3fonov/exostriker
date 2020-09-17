@@ -818,7 +818,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     def update_mixed_fitting(self):
         global fit
         
-        fit.mixed_fit[0] =  int(self.use_mix_fitting.isChecked())
+        fit.mixed_fit[0][0] =  int(self.use_mix_fitting.isChecked())
         fit.mixed_fit[1] = [int(self.mix_pl_1.isChecked()),int(self.mix_pl_2.isChecked()),int(self.mix_pl_3.isChecked()),
                             int(self.mix_pl_4.isChecked()),int(self.mix_pl_5.isChecked()),int(self.mix_pl_6.isChecked()),
                             int(self.mix_pl_7.isChecked()),int(self.mix_pl_8.isChecked()),int(self.mix_pl_9.isChecked()),
@@ -6240,7 +6240,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         fit.Dynamic_nest = self.radioButton_dyn_nest_samp.isChecked()
         fit.std_output=True
         fit.stop_crit = self.stop_crit.value()
-        fit.ns_fileoutput=self.save_samples.isChecked()
+        fit.ns_fileoutput=self.save_samples_nested.isChecked()
         fit.ns_save_means=self.adopt_nest_means_as_par.isChecked() 
         fit.ns_save_median=self.adopt_nest_median_as_par.isChecked() 
         fit.ns_save_mode=self.adopt_nest_mode_as_par.isChecked() 
@@ -6286,7 +6286,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.nest_N_threads.setValue(fit.ns_threads)
         self.radioButton_dyn_nest_samp.setChecked(fit.Dynamic_nest)
         self.stop_crit.setValue(fit.stop_crit)
-        self.save_samples.setChecked(fit.ns_fileoutput)
+        self.save_samples_nested.setChecked(fit.ns_fileoutput)
         self.adopt_nest_means_as_par.setChecked(fit.ns_save_means) 
         self.adopt_nest_median_as_par.setChecked(fit.ns_save_median) 
         self.adopt_nest_mode_as_par.setChecked(fit.ns_save_mode) 
@@ -6467,6 +6467,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
     def check_mcmc_params(self):
         global fit
+        #print(fit.mcmc_fileoutput,self.save_samples.isChecked())
+
         fit.gaussian_ball = self.init_gauss_ball.value() 
         fit.nwalkers_fact = int(self.nwalkers_fact.value()) 
         fit.mcmc_burning_ph = self.burning_phase.value() 
@@ -6475,6 +6477,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         fit.mcmc_fileoutput=self.save_samples.isChecked()
         fit.mcmc_save_means=self.adopt_mcmc_means_as_par.isChecked() 
         fit.mcmc_save_median=self.adopt_mcmc_median_as_par.isChecked() 
+       # print(fit.mcmc_fileoutput,self.save_samples.isChecked())
 
         fit.mcmc_save_mode=self.adopt_mcmc_mode_as_par.isChecked() 
         fit.mcmc_save_maxlnL=self.adopt_best_lnL_as_pars.isChecked() 
@@ -6500,9 +6503,12 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.burning_phase.setValue(fit.mcmc_burning_ph) 
         self.mcmc_phase.setValue(fit.mcmc_ph) 
         self.N_threads.setValue(fit.mcmc_threads)
-        self.save_samples.setChecked(fit.mcmc_fileoutput)
+        #print(fit.mcmc_fileoutput,self.save_samples.isChecked())
+       
+        self.save_samples.setChecked(bool(fit.mcmc_fileoutput))
         self.adopt_mcmc_means_as_par.setChecked(fit.mcmc_save_means) 
         self.adopt_mcmc_median_as_par.setChecked(fit.mcmc_save_median) 
+        #print(fit.mcmc_fileoutput,self.save_samples.isChecked())
 
         self.adopt_mcmc_mode_as_par.setChecked(fit.mcmc_save_mode) 
         self.adopt_best_lnL_as_pars.setChecked(fit.mcmc_save_maxlnL) 
@@ -7841,9 +7847,11 @@ https://github.com/3fon3fonov/exostriker/issues
         mixed_fit_use = [self.mix_pl_1,self.mix_pl_2,self.mix_pl_3,
                          self.mix_pl_4,self.mix_pl_5,self.mix_pl_6,
                          self.mix_pl_7,self.mix_pl_8,self.mix_pl_9 ]
+
+                    
+        self.use_mix_fitting.setChecked(bool(fit.mixed_fit[0][0]))
         
-        self.use_mix_fitting.setChecked(bool(fit.mixed_fit[0]))
-        
+         
         for i in range(9):
             mixed_fit_use[i].setChecked(bool(fit.mixed_fit[1][i]))
             

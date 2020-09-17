@@ -1860,8 +1860,14 @@ def run_nestsamp(obj, **kwargs):
     if obj.ns_fileoutput == True:
        # start_time = time.time()
        # print("Please wait... writing the ascii file")
+        dirname, basename = os.path.split(obj.nest_sample_file)
+        if os.path.exists(dirname):
+            ns_file = obj.nest_sample_file
+        else:
+            print("%s does not exist! Sample file will be saved in %s/ns_sample_file"%(dirname,obj.cwd))
+            ns_file = "%s/ns_sample_file"%obj.cwd
 
-        outfile = open(str(obj.nest_sample_file), 'w') # file to save samples
+        outfile = open(str(ns_file), 'w') # file to save samples
         for j in range(len(samples)):
             outfile.write("%s  " %(ln[j]))
             for z in range(len(pp)):
@@ -2147,8 +2153,14 @@ def run_mcmc(obj, **kwargs):
     if (fileoutput):
      #   start_time = time.time()
     #    print("Please wait... writing the ascii file")
+        dirname, basename = os.path.split(obj.mcmc_sample_file)
+        if os.path.exists(dirname):
+            mcmc_file = obj.mcmc_sample_file
+        else:
+            print("%s does not exist! Sample file will be saved in %s/mcmc_samle_file"%(dirname,obj.cwd))
+            mcmc_file = "%s/mcmc_samle_file"%obj.cwd
 
-        outfile = open(str(obj.mcmc_sample_file), 'w') # file to save samples
+        outfile = open(str(mcmc_file), 'w') # file to save samples
         for j in range(len(sampler.samples)):
             outfile.write("%s  " %(sampler.lnL[j]))        #BUG here!!!!!
             for z in range(len(pp)):
@@ -3038,7 +3050,7 @@ class signal_fit(object):
         self.mcmc_burning_ph = 100
         self.mcmc_ph = 100
         self.mcmc_threads= 1
-        self.mcmc_fileoutput=True
+        self.mcmc_fileoutput=False
         self.mcmc_save_means=False
         self.mcmc_save_median=False
         self.mcmc_save_mode=False
@@ -3072,7 +3084,7 @@ class signal_fit(object):
         self.Dynamic_nest = False
         self.std_output=False
         self.stop_crit = 0.001
-        self.ns_fileoutput=True
+        self.ns_fileoutput=False
         self.ns_save_means=False
         self.ns_save_median=False
         self.ns_save_mode=False
