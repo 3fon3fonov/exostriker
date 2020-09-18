@@ -2343,9 +2343,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p1.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.colors[i], 'width': 1.1},
+            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+, 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]
+            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
             )
 
             err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
@@ -2353,7 +2354,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.filelist.idset==i],
             bottom=error_list[fit.filelist.idset==i],
-            beam=0.0, pen=fit.colors[i])  
+            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
 
             p1.addItem(err1)
 
@@ -2412,16 +2413,16 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p2.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],data_o_c[fit.filelist.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.colors[i], 'width': 1.1},
+            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]
+            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
             )
             err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
                                    y=data_o_c[fit.filelist.idset==i],symbol='o', 
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.filelist.idset==i],
             bottom=error_list[fit.filelist.idset==i],
-            beam=0.0, pen=fit.colors[i])  
+            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
 
             p2.addItem(err2)
 
@@ -2516,34 +2517,33 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
             #print(len(t),len(flux),len(flux_err))
 
-
             p3.plot(t, flux,
             pen=None,
             symbol=fit.pyqt_symbols_tra[j],
-            symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
+            symbolPen={'color': fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]), 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.tra_colors[j] ) 
+            symbolBrush=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]) ) 
             
             err_ = pg.ErrorBarItem(x=t, y=flux, symbol = fit.pyqt_symbols_tra[j],
                                   # height=flux_err, 
                                    top=flux_err, 
                                    bottom=flux_err,
-                                   beam=0.0, pen=fit.tra_colors[j])
+                                   beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]))
 
             p3.addItem(err_)
 
             p4.plot(t, tr_o_c,
             pen=None,
             symbol=fit.pyqt_symbols_tra[j],
-            symbolPen={'color': fit.tra_colors[j], 'width': 1.1},
+            symbolPen={'color': fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]), 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.tra_colors[j] )
+            symbolBrush=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]) )
 
             err_ = pg.ErrorBarItem(x=t, y=flux-flux_model, symbol=fit.pyqt_symbols_tra[j],
            # height=flux_err,
             top=flux_err,
             bottom=flux_err,
-            beam=0.0, pen=fit.tra_colors[j])
+            beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]))
             p4.addItem(err_)
 
         if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True and fit.npl > 0:
@@ -3585,16 +3585,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             pe.plot((ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1],rv_data[ph_data[3]==i],
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.colors[i], 'width': 1.1},
+            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]
+            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
             )
 
             err_ = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=rv_data[ph_data[3]==i],
             symbol=fit.pyqt_symbols_rvs[i], 
             top=error_list[ph_data[3]==i],
             bottom=error_list[ph_data[3]==i],
-            beam=0.0, pen=fit.colors[i]) 
+            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])) 
 
             pe.addItem(err_)
 
@@ -5514,7 +5514,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.44) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.45) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -7289,6 +7289,7 @@ Please install via 'pip install ttvfast'.
 
         for i in range(11):
             self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+            self.buttonGroup_color_picker.button(i+1).setText("%s"%fit.colors[i])
             self.buttonGroup_color_picker.button(i+1).setFont(font)
         for i in range(10):    
             self.buttonGroup_symbol_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])  
@@ -7300,7 +7301,7 @@ Please install via 'pip install ttvfast'.
         global fit
 
         but_ind = self.buttonGroup_color_picker.checkedId()
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog|QtGui.QColorDialog.ShowAlphaChannel,)
+        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog) #|QtGui.QColorDialog.ShowAlphaChannel,)
 
 #        print(dir(colorz))
 #        print(colorz.name())
@@ -7339,6 +7340,7 @@ Please install via 'pip install ttvfast'.
 
         for i in range(11):
             self.buttonGroup_color_picker_tra.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
+            self.buttonGroup_color_picker_tra.button(i+1).setText("%s"%fit.tra_colors[i])
             self.buttonGroup_color_picker_tra.button(i+1).setFont(font)
         for i in range(10):
             self.buttonGroup_symbol_picker_tra.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
@@ -7353,7 +7355,7 @@ Please install via 'pip install ttvfast'.
 
         #QtGui.QColorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel,True)
         #colorz = QtGui.QColorDialog.getColor()
-
+        #print(colorz.name())
         if colorz.isValid():
             fit.tra_colors[but_ind-1]=colorz.name()
             self.update_color_picker_tra()
@@ -7459,6 +7461,16 @@ Please install via 'pip install ttvfast'.
         fit.pyqt_symbols_size_rvs[8] = self.rv_data_size_9.value()
         fit.pyqt_symbols_size_rvs[9] = self.rv_data_size_10.value()
 
+        fit.pyqt_color_alpha_rvs[0] = self.rv_data_alpha_1.value()
+        fit.pyqt_color_alpha_rvs[1] = self.rv_data_alpha_2.value()
+        fit.pyqt_color_alpha_rvs[2] = self.rv_data_alpha_3.value()
+        fit.pyqt_color_alpha_rvs[3] = self.rv_data_alpha_4.value()
+        fit.pyqt_color_alpha_rvs[4] = self.rv_data_alpha_5.value()
+        fit.pyqt_color_alpha_rvs[5] = self.rv_data_alpha_6.value()
+        fit.pyqt_color_alpha_rvs[6] = self.rv_data_alpha_7.value()
+        fit.pyqt_color_alpha_rvs[7] = self.rv_data_alpha_8.value()
+        fit.pyqt_color_alpha_rvs[8] = self.rv_data_alpha_9.value()
+        fit.pyqt_color_alpha_rvs[9] = self.rv_data_alpha_10.value()
 
 
     ### Transit ###
@@ -7500,6 +7512,17 @@ Please install via 'pip install ttvfast'.
         fit.pyqt_symbols_size_tra[8] = self.trans_data_size_9.value()
         fit.pyqt_symbols_size_tra[9] = self.trans_data_size_10.value()
 
+
+        fit.pyqt_color_alpha_tra[0] = self.trans_data_alpha_1.value()
+        fit.pyqt_color_alpha_tra[1] = self.trans_data_alpha_2.value()
+        fit.pyqt_color_alpha_tra[2] = self.trans_data_alpha_3.value()
+        fit.pyqt_color_alpha_tra[3] = self.trans_data_alpha_4.value()
+        fit.pyqt_color_alpha_tra[4] = self.trans_data_alpha_5.value()
+        fit.pyqt_color_alpha_tra[5] = self.trans_data_alpha_6.value()
+        fit.pyqt_color_alpha_tra[6] = self.trans_data_alpha_7.value()
+        fit.pyqt_color_alpha_tra[7] = self.trans_data_alpha_8.value()
+        fit.pyqt_color_alpha_tra[8] = self.trans_data_alpha_9.value()
+        fit.pyqt_color_alpha_tra[9] = self.trans_data_alpha_10.value()
 
     ### TTV ####
 
@@ -9007,7 +9030,7 @@ https://github.com/3fon3fonov/exostriker/issues
         
 
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.44). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.45). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)

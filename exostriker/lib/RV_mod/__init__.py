@@ -2431,7 +2431,10 @@ class signal_fit(object):
         self.pyqt_symbols_size_tra = {k: 2 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #
         self.pyqt_symbols_size_ttv = {k: 4 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #
 
-        
+        self.pyqt_color_alpha_rvs = {k: 255 for k in range(20)} #[6,6,6,6,6,6,6,6,6,6] #
+        self.pyqt_color_alpha_act = {k: 255 for k in range(20)} #[4,4,4,4,4,4,4,4,4,4] #
+        self.pyqt_color_alpha_tra = {k: 255 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #
+        self.pyqt_color_alpha_ttv = {k: 255 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #        
 
         self.act_colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
         self.tra_colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
