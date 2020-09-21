@@ -23,6 +23,7 @@ class ErrorBarItem(GraphicsObject):
             beam=None,
             pen=None
         )
+        self.setVisible(False)
         self.setData(**opts)
 
     def setData(self, **opts):
@@ -45,6 +46,7 @@ class ErrorBarItem(GraphicsObject):
         This method was added in version 0.9.9. For prior versions, use setOpts.
         """
         self.opts.update(opts)
+        self.setVisible(all(self.opts[ax] is not None for ax in ['x', 'y']))
         self.path = None
         self.update()
         self.prepareGeometryChange()
@@ -59,6 +61,7 @@ class ErrorBarItem(GraphicsObject):
         
         x, y = self.opts['x'], self.opts['y']
         if x is None or y is None:
+            self.path = p
             return
         
         beam = self.opts['beam']
@@ -67,7 +70,7 @@ class ErrorBarItem(GraphicsObject):
         height, top, bottom = self.opts['height'], self.opts['top'], self.opts['bottom']
         if height is not None or top is not None or bottom is not None:
             ## draw vertical error bars
-            if height is not None and len(height) != 0:
+            if height is not None:
                 y1 = y - height/2.
                 y2 = y + height/2.
             else:
@@ -84,7 +87,7 @@ class ErrorBarItem(GraphicsObject):
                 p.moveTo(x[i], y1[i])
                 p.lineTo(x[i], y2[i])
                 
-            if beam is not None and beam > 0 and len(x) != 0:
+            if beam is not None and beam > 0:
                 x1 = x - beam/2.
                 x2 = x + beam/2.
                 if height is not None or top is not None:

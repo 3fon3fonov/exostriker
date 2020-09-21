@@ -10,7 +10,7 @@ from multiprocessing import cpu_count
 import gls as gls
 import dill
 import RV_mod as rv
-
+import pg_hack
 
 from wotan import flatten
 
@@ -681,14 +681,16 @@ dependencies list. For example:
 
         for i in range(len(zzz)):
 
-            zzz[i].getAxis("bottom").tickFont = self.font
-            zzz[i].getAxis("bottom").setStyle(tickTextOffset = 12)
-            zzz[i].getAxis("top").tickFont = self.font
-            zzz[i].getAxis("top").setStyle(tickTextOffset = 12)
-            zzz[i].getAxis("left").tickFont = self.font
-            zzz[i].getAxis("left").setStyle(tickTextOffset = 12)
-            zzz[i].getAxis("right").tickFont = self.font
-            zzz[i].getAxis("right").setStyle(tickTextOffset = 12)
+            zzz[i].setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+            
+            #zzz[i].getAxis("bottom").tickFont = self.font
+            zzz[i].getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.font)
+            #zzz[i].getAxis("top").tickFont = self.font
+            zzz[i].getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.font)
+            #zzz[i].getAxis("left").tickFont = self.font
+            zzz[i].getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.font)
+            #zzz[i].getAxis("right").tickFont = self.font
+            zzz[i].getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.font)
             zzz[i].getAxis('left').setWidth(50)
             zzz[i].getAxis('right').setWidth(10)
             zzz[i].getAxis('top').setHeight(10)

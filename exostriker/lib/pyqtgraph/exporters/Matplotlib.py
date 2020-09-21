@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from ..Qt import QtGui, QtCore
 from .Exporter import Exporter
 from .. import PlotItem
@@ -31,6 +32,7 @@ publication. Fonts are not vectorized (outlined), and window colors are white.
 class MatplotlibExporter(Exporter):
     Name = "Matplotlib Window"
     windows = []
+
     def __init__(self, item):
         Exporter.__init__(self, item)
         
@@ -55,151 +57,70 @@ class MatplotlibExporter(Exporter):
                 ax.xaxis.set_ticks_position('bottom')
     
     def export(self, fileName=None):
+        if not isinstance(self.item, PlotItem):
+            raise Exception("MatplotlibExporter currently only works with PlotItem")
+    
+        mpw = MatplotlibWindow()
+        MatplotlibExporter.windows.append(mpw)
+
+        fig = mpw.getFigure()
+
+        xax = self.item.getAxis('bottom')
+        yax = self.item.getAxis('left')
         
-        if isinstance(self.item, PlotItem):
-            mpw = MatplotlibWindow()
-            MatplotlibExporter.windows.append(mpw)
+        # get labels from the graphic item
+        xlabel = xax.label.toPlainText()
+        ylabel = yax.label.toPlainText()
+        title = self.item.titleLabel.text
 
-            stdFont = 'Arial'
+        # if axes use autoSIPrefix, scale the data so mpl doesn't add its own
+        # scale factor label
+        xscale = yscale = 1.0
+        if xax.autoSIPrefix:
+            xscale = xax.autoSIPrefixScale
+        if yax.autoSIPrefix:
+            yscale = yax.autoSIPrefixScale
+
+        ax = fig.add_subplot(111, title=title)
+        ax.clear()
+        self.cleanAxes(ax)
+        for item in self.item.curves:
+            x, y = item.getData()
+            x = x * xscale
+            y = y * yscale
+
+            opts = item.opts
+            pen = fn.mkPen(opts['pen'])
+            if pen.style() == QtCore.Qt.NoPen:
+                linestyle = ''
+            else:
+                linestyle = '-'
+            color = tuple([c/255. for c in fn.colorTuple(pen.color())])
+            symbol = opts['symbol']
+            if symbol == 't':
+                symbol = '^'
+            symbolPen = fn.mkPen(opts['symbolPen'])
+            symbolBrush = fn.mkBrush(opts['symbolBrush'])
+            markeredgecolor = tuple([c/255. for c in fn.colorTuple(symbolPen.color())])
+            markerfacecolor = tuple([c/255. for c in fn.colorTuple(symbolBrush.color())])
+            markersize = opts['symbolSize']
             
-            fig = mpw.getFigure()
+            if opts['fillLevel'] is not None and opts['fillBrush'] is not None:
+                fillBrush = fn.mkBrush(opts['fillBrush'])
+                fillcolor = tuple([c/255. for c in fn.colorTuple(fillBrush.color())])
+                ax.fill_between(x=x, y1=y, y2=opts['fillLevel'], facecolor=fillcolor)
             
+            pl = ax.plot(x, y, marker=symbol, color=color, linewidth=pen.width(), 
+                    linestyle=linestyle, markeredgecolor=markeredgecolor, markerfacecolor=markerfacecolor,
+                    markersize=markersize)
 
-            # get labels from the graphic item
-            xlabel = self.item.axes['bottom']['item'].label.toPlainText()
-            ylabel = self.item.axes['left']['item'].label.toPlainText()
-            title = self.item.titleLabel.text
+            xr, yr = self.item.viewRange()
+            ax.set_xbound(xr[0]*xscale, xr[1]*xscale)
+            ax.set_ybound(yr[0]*yscale, yr[1]*yscale)
 
-            ax = fig.add_subplot(111, title=title)
-            ax.clear()
-            self.cleanAxes(ax)
-            #ax.grid(True)
- 
-            for indx, item in enumerate(self.item.curves):
-                x, y = item.getData() 
-                
-                if x is None:
-                    continue
- 
-                opts = item.opts
-                #print(self.item.curves[indx].__class__.__name__)
-
-                pen = fn.mkPen(opts['pen'])
-                if pen.style() == QtCore.Qt.NoPen:
-                    linestyle = ''
-                    zorder = 10
-                else:
-                    linestyle = '-'
-                    if len(y) < 500:
-                        zorder = -100
-                    else:
-                        zorder = 10
- 
-                    
-                color = tuple([c/255. for c in fn.colorTuple(pen.color())])
-                symbol = opts['symbol']
-                if symbol == 't':
-                    symbol = '^'
-                symbolPen = fn.mkPen(opts['symbolPen'])
-                symbolBrush = fn.mkBrush(opts['symbolBrush'])
-                markeredgecolor = tuple([c/255. for c in fn.colorTuple(symbolPen.color())])
-                markerfacecolor = tuple([c/255. for c in fn.colorTuple(symbolBrush.color())])
-                markersize = opts['symbolSize']
-             
-                if opts['fillLevel'] is not None and opts['fillBrush'] is not None:
-                    fillBrush = fn.mkBrush(opts['fillBrush'])
-                    fillcolor = tuple([c/255. for c in fn.colorTuple(fillBrush.color())])
-                    ax.fill_between(x=x, y1=y, y2=opts['fillLevel'], facecolor=fillcolor)
-                
-                if symbol == 't':
-                    symbol = 'v'
-                elif symbol == 't1':
-                    symbol = '^'
-                elif symbol == 't2':
-                    symbol = '>'
-                elif symbol == 't3':
-                    symbol = '<'
-                elif symbol == 'star':
-                    symbol = '*'
-                    
- 
-                ax.plot(x, y, marker=symbol, color=color, linewidth=pen.width(), 
-                        linestyle=linestyle, 
-                        markeredgecolor=markeredgecolor, 
-                        markerfacecolor=markerfacecolor,
-                        markersize=markersize, zorder = zorder)
-
- 
-                xr, yr = self.item.viewRange()
-                ax.set_xbound(*xr)
-                ax.set_ybound(*yr)
-                
-                
-            for indx, item in enumerate(self.item.items):
-                #if indx <=1:
-               #     continue
-                
-               # print(indx,self.item.items[indx].__class__.__name__)
-
-
-                if self.item.items[indx].__class__.__name__ == "InfiniteLine":
-                    level = self.item.items[indx].value() 
-                    Inf_line_color = self.item.items[indx].pen.color().name()
-                    #pen = fn.mkPen(self.item.items[indx].pen)
-                    #print(pen)
-                    if Inf_line_color == '#000000': 
-                        linestyle="--" 
-                    else: 
-                        linestyle="-"
-                    ax.axhline(y=level, linewidth=0.8, linestyle=linestyle, color=Inf_line_color, zorder=-30)
-                    
-                    continue   
-               
-                if self.item.items[indx].__class__.__name__ == "FillBetweenItem":
-                    x1,y1 = self.item.items[indx].curves[0].getData()
-                    x2,y2 = self.item.items[indx].curves[1].getData()
-                    #fillBrush = fn.mkBrush(self.item.items[indx].curves[0].opts['fillBrush'])
-                   # fillcolor = tuple([c/255. for c in fn.colorTuple(fillBrush.color())])                   
-                    ax.fill_between(x=x1, y1=y1, y2=y2, facecolor="#f48c42" )#fn.mkColor(244,140,66,128))
-                    #print(self.item.items[indx].curve1)                               
-                    continue
-
-                if self.item.items[indx].__class__.__name__ == "TextItem":
-                    continue
-
-                
-                if "top" in self.item.items[indx].opts:
-                    yerr=self.item.items[indx].opts["top"]
-                    ax.errorbar(x=self.item.items[indx].opts["x"], y=self.item.items[indx].opts["y"],
-                                     yerr=yerr, linestyle='', marker='o',markersize=0.5, linewidth=1.0, 
-                                     color=self.item.items[indx].opts["pen"], capsize = 0, elinewidth=1,mew=0.0, zorder=-10)
-                                     #color="k", capsize = 0, elinewidth=1,mew=0.0, zorder=-10)
-                if "left" in self.item.items[indx].opts:
-                    xerr=self.item.items[indx].opts["left"]
-                    ax.errorbar(x=self.item.items[indx].opts["x"], y=self.item.items[indx].opts["y"],
-                                     xerr=xerr, linestyle='', marker='o',markersize=0.5, linewidth=1.0, 
-                                     color=self.item.items[indx].opts["pen"], capsize = 0, elinewidth=1,mew=0.0, zorder=-10)  
-
-
-                #print(self.item.items[indx].__class__.__name__)
-                #if self.item.items[indx].__class__.__name__ == "InfiniteLine":                             
-               #     print('TESTTTT')
-                    
-            #print(self.item.items[indx].opts)    
-            ax.set_xlabel(xlabel)  # place the labels.
-            ax.set_ylabel(ylabel)
-            #ax.spines['top'].set_visible(True)
-            #ax.spines['right'].set_visible(True)
-
-            ax.spines['top'].set_color('k')
-            ax.spines['right'].set_color('k')
-            #ax.ticklabel_format(useOffset=False)           
-            #fig.gca().get_xaxis().get_major_formatter().set_useOffset(False)
-
-                     
-            mpw.draw()
-        else:
-            raise Exception("Matplotlib export currently only works with plot items")
+        ax.set_xlabel(xlabel)  # place the labels.
+        ax.set_ylabel(ylabel)
+        mpw.draw()
                 
 MatplotlibExporter.register()        
         
@@ -217,5 +138,4 @@ class MatplotlibWindow(QtGui.QMainWindow):
         
     def closeEvent(self, ev):
         MatplotlibExporter.windows.remove(self)
-
-
+        self.deleteLater()

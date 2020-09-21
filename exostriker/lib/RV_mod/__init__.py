@@ -3309,6 +3309,10 @@ class signal_fit(object):
                     tra_data      = dd['SAP_FLUX'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
                     tra_data_sig  = dd['SAP_FLUX_ERR'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
 
+               # print(sc['TELESCOP'])
+                if sc[0].header['TELESCOP'] == 'TESS':
+                    print("TESS light curve detected. Automatically adding 2457000.0 to BJD_TBD")
+                    tra_JD = tra_JD + 2457000.0
                 tra_airmass_ = np.zeros(len(tra_JD))
 
 

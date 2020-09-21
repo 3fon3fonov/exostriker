@@ -81,7 +81,7 @@ from activity_window import ActivityWindow
 import terminal
 import webbrowser
 import ntpath
-
+import pg_hack
 
 from scipy.signal import argrelextrema
 from scipy.stats.stats import pearsonr   
@@ -1816,23 +1816,24 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p_ttv_oc = self.graphicsView_timeseries_ttv_o_c
         p_per_ev = self.graphicsView_orb_evol_periods
 
-        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','period [d]','period [d]','period [d]','period [d]','period [d]','period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x','x','period [d]','N transit','N transit','t [yr]']
-        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','power','power','SDE','SDE','power','power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.']
+        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','Period [d]','Period [d]','Period [d]','Period [d]','Period [d]','Period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x','x','Period [d]','N transit','N transit','t [yr]']
+        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','Power','Power','SDE','SDE','Power','Power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.']
         xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','','','','','']
         yunit = ['' ,'' , '','','','','','','','','','','','','','','','','','','','','','','','','']
 
         zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev]
 
+
+
         for i in range(len(zzz)):
 
-                zzz[i].getAxis("bottom").tickFont = self.plot_font
-                zzz[i].getAxis("bottom").setStyle(tickTextOffset = 12)
-                zzz[i].getAxis("top").tickFont = self.plot_font
-                zzz[i].getAxis("top").setStyle(tickTextOffset = 12)
-                zzz[i].getAxis("left").tickFont = self.plot_font
-                zzz[i].getAxis("left").setStyle(tickTextOffset = 12)
-                zzz[i].getAxis("right").tickFont = self.plot_font
-                zzz[i].getAxis("right").setStyle(tickTextOffset = 12)
+                zzz[i].setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+
+                #zzz[i].getAxis("bottom").tickFont = self.plot_font
+                zzz[i].getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+                zzz[i].getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+                zzz[i].getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+                zzz[i].getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
                 zzz[i].getAxis('left').setWidth(50)
                 zzz[i].getAxis('right').setWidth(10)
                 zzz[i].getAxis('top').setHeight(10)
@@ -1843,9 +1844,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 zzz[i].showAxis('top') 
                 zzz[i].showAxis('right') 
                 zzz[i].getAxis('bottom').enableAutoSIPrefix(enable=False)
+                #zzz[i].autoRange()
 
         p16.getViewBox().setAspectLocked(True)
-
+               
         return
 
 
@@ -1956,7 +1958,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         plot_wg.addItem(vLine, ignoreBounds=True)
         plot_wg.addItem(hLine, ignoreBounds=True)
         label = pg.TextItem()
-        #plot_wg.addItem(label, ignoreBounds=True) 
+
         plot_wg.addItem(label, ignoreBounds=True)  
          
         vb = plot_wg.getViewBox()   
@@ -2066,7 +2068,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         for i in range(N_peaks):
 
-            text_arrow = pg.TextItem("test", anchor=(0.5,1.9))
+            text_arrow = pg.TextItem("", anchor=(0.5,1.9))
 
             if log == True:
                 arrow = pg.ArrowItem(pos=(np.log10(x_peaks[i]), y_peaks[i]), angle=270)
@@ -2082,12 +2084,36 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 arrow = pg.ArrowItem(pos=(x_peaks[i], y_peaks[i]), angle=270)
                 text_arrow.setText('%0.2f d' % (x_peaks[i]))
                 text_arrow.setPos(x_peaks[i],y_peaks[i])
+ 
 
-            plot_wg2.addItem(arrow) 
-            plot_wg2.addItem(text_arrow)
+            plot_wg2.addItem(arrow)#, ignoreBounds=True)   
+            plot_wg2.addItem(text_arrow, ignoreBounds=True)  
 
+        #  plot_wg2.autoRange()
+      #  plot_wg2.enableAutoRange(enable=True)
+       # plot_wg2.getViewBox().setAutoVisible(y=True)
 
-
+        #vb = plot_wg2.getViewBox()   
+      #  viewrange = vb.viewRange()
+        #plot_wg2.autoRange( padding=0.02)
+        #plot_wg2.getViewBox().setAutoVisible(y=True)
+        #plot_wg2.getViewBox().enableAutoRange(axis='x',enable=0.49)
+        #plot_wg2.setYRange(-0.001, max(y_peaks)+0.3*max(y_peaks), padding=0.001)
+        #plot_wg2.setLimits(yMax=max(y_peaks)+0.3*max(y_peaks))
+       # plot_wg2.getViewBox().setXRange(-0.001, max(y_peaks)+0.3*max(y_peaks), padding=0.01)
+        #plot_wg2.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)
+        #plot_wg2.setYRange(-0.001, max(y_peaks)+0.3*max(y_peaks), padding=0.01)
+        plot_wg2.setRange(yRange=(-0.001, max(y_peaks)+0.3*max(y_peaks)), padding=0.01, update=True, disableAutoRange=True)
+        #plot_wg2.getViewBox().updateAutoRange()
+       
+        #plot_wg2.enableAutoRange(plot_wg2.getViewBox().YAxis, y=True)
+        #plot_wg2.ViewBox().updateAutoRange()
+        #plot_wg2.setAutoVisible(y=True,x=True)   
+        #plot_wg2.enableAutoRange()
+        return
+        #plot_wg2.scene()
+        #plot_wg2.setAutoPan()
+       # plot_wg2.getViewBox().setAutoVisible(y=True)
 
 ######################## RV plots ######################################
 
@@ -2277,11 +2303,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             ######################## GLS o-c ##############################
             if self.radioButton_RV_WF_period.isChecked():
                 p12.setLogMode(True,False)        
-                p12.plot(1/np.array(omega), WF_power,pen='k',symbol=None )   
+                p12.plot(1/np.array(omega), WF_power,pen='k',symbol=None , viewRect=True, enableAutoRange=True)   
                 p12.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})
             else:
                 p12.setLogMode(False,False)        
-                p12.plot(np.array(omega), WF_power,pen='k',symbol=None )   
+                p12.plot(np.array(omega), WF_power,pen='k',symbol=None,  viewRect=True, enableAutoRange=True)   
                 p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'})
 
             text_peaks, pos_peaks = self.identify_power_peaks(1/np.array(omega), WF_power)
@@ -5514,7 +5540,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.45) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. 0.46) \n developed by Trifon Trifonov"
         
         self.dialog_credits.text.append(text)
 
@@ -9030,7 +9056,7 @@ https://github.com/3fon3fonov/exostriker/issues
         
 
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.45). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.46). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """)
