@@ -490,12 +490,15 @@ unknown
 
 def add_mcmc_samples(obj,sampler):
     
-    bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none","mass","semimajor","radius"]
-    bestfit_labels_bool = [obj.mcmc_save_median,obj.mcmc_save_means,obj.mcmc_save_mode, obj.mcmc_save_maxlnL,False,False,False,False,False]
+    bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none",
+                           "mass","use_Me","use_Mj","use_Ms",
+                           "semimajor","radius"]
+    bestfit_labels_bool = [obj.mcmc_save_median,obj.mcmc_save_means,obj.mcmc_save_mode, obj.mcmc_save_maxlnL,False,False,False,
+                           True,False,False,False,False]
     
  
     sampler.lbf             = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
-    for k in range(9):
+    for k in range(12):
         sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]     
         
     cornerplot_opt = {"bins":25,
@@ -514,6 +517,7 @@ def add_mcmc_samples(obj,sampler):
                       "truth_color":'r', 
                       "title_kwargs":{"fontsize": 12}, 
                       "scale_hist":True,  
+                      "fill_contours":False,
                       "no_fill_contours":True,
                       "plot_datapoints":True}        
         
@@ -535,7 +539,7 @@ def add_ns_samples(obj,sampler):
     
     obj.ns_sampler= dill.copy(sampler.results)
     obj.ns_sampler.lbf     = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
-    for k in range(9):
+    for k in range(12):
         obj.ns_sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]   
         
     cornerplot_opt = {"bins":25,
@@ -554,6 +558,7 @@ def add_ns_samples(obj,sampler):
                       "truth_color":'r', 
                       "title_kwargs":{"fontsize": 12}, 
                       "scale_hist":True,  
+                      "fill_contours":False,
                       "no_fill_contours":True,
                       "plot_datapoints":True}        
         
@@ -775,28 +780,35 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 ecc = np.array([0]*len(K))
                 print("Warning, no eccentricity samples found for planet %s ! Assuming ecc = 0"%str(i+1))
 
-            
-            M_earth = 317.82838 #from MJ to ME.
-            
-            M_fact = M_earth
+            if mod_labels['use_Me']:
+                M_fact = 317.82838
+                mass_lab = r'[M$_\oplus$]'
+            elif mod_labels['use_Mj']:
+                M_fact = 1
+                mass_lab = r'[M$_{\rm Jup.}$]'
+            elif mod_labels['use_Ms']:
+                M_fact = 1.0/1047.0
+                mass_lab = r'[M$_\odot$]'
 
             
             if 'i$_%s$'%let in labels:
-                i   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]])
-                samp_labels.append(r'm$_%s$ [M$_\oplus$]'%let)
+                incl   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]])
+                samp_labels.append(r'm$_%s$ %s'%(let,mass_lab))
             else:
-                i = np.array([90]*len(K))
-                samp_labels.append(r'm $\sin i_%s$ [M$_\oplus$]'%let)
+                incl = np.array([90]*len(K))
+                samp_labels.append(r'm $\sin i_%s$ %s'%(let,mass_lab))
 
            
-            samp.append(np.array(get_mass(K,P, ecc, i, m_s) * M_fact))
+            samp.append(np.array(get_mass(K,P, ecc, incl, m_s) * M_fact))
             
             if mod_labels['mean']:
-                samp_best_fit_par.append(get_mass(np.mean(K),np.mean(P),np.mean(ecc), np.mean(i), np.mean(m_s)) * M_fact)
+                samp_best_fit_par.append(get_mass(np.mean(K),np.mean(P),np.mean(ecc), np.mean(incl), np.mean(m_s)) * M_fact)
             elif mod_labels['median']:
-                samp_best_fit_par.append(get_mass(np.median(K),np.median(P),np.median(ecc), np.median(i), np.median(m_s)) *M_fact)
+                samp_best_fit_par.append(get_mass(np.median(K),np.median(P),np.median(ecc), np.median(incl), np.median(m_s)) *M_fact)
+            elif mod_labels['best_gui']:
+                samp_best_fit_par.append(obj.masses[i]*M_fact)                
             else:
-                samp_best_fit_par.append(get_mass(K[np.argmax(ln)],P[np.argmax(ln)], ecc[np.argmax(ln)], i[np.argmax(ln)], obj.stellar_mass)*M_fact)
+                samp_best_fit_par.append(get_mass(K[np.argmax(ln)],P[np.argmax(ln)], ecc[np.argmax(ln)], incl[np.argmax(ln)], obj.stellar_mass)*M_fact)
     
     
     if mod_labels['semimajor']:
@@ -821,6 +833,8 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 samp_best_fit_par.append(P_to_a(np.mean(P),np.mean(m_s)))
             elif mod_labels['median']:
                 samp_best_fit_par.append(P_to_a(np.median(P),np.median(m_s)))
+            elif mod_labels['best_gui']:
+                samp_best_fit_par.append(obj.semimajor[i])  
             else:
                 samp_best_fit_par.append(P_to_a(P[np.argmax(ln)],obj.stellar_mass))
                 
@@ -853,10 +867,36 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 #        if len(r_s) == 0:
 #            r_s   = np.random.normal(loc=obj.stellar_radius,    scale=obj.stellar_radius_err,    size=len(samples[:,0]))
         
+    ################### Verbose output (TBD). ###################
  
-
-
-     
+    verbose = True
+    level = (100.0-68.3)/2.0
+    
+    #samp[8] = samp[8]-360.0
+    
+    if verbose:
+        print("   ")
+        print("   ")
+        if mod_labels['mean']:
+            print("Means and their 1 sigma errors")
+        elif mod_labels['median']:
+            print("Median and their 1 sigma errors")
+        elif mod_labels['best_gui']:
+            print("Best-fit (GUI) and their 1 sigma errors")   
+        else:
+            print("Best-fit (max. samp. lnL) and their 1 sigma errors")
+            
+            
+        for i in range(len(samp_best_fit_par)):
+            ci = np.percentile(samp[i], [level, 100.0-level])
+            if mod_labels['mean']:
+                print(samp_labels[i],'=', np.mean(samp[i]), "- %s"%(np.mean(samp[i])-ci[0]), "+ %s"%(ci[1]  - np.mean(samp[i]) ))
+            elif mod_labels['median']:
+                print(samp_labels[i],'=', np.median(samp[i]), "- %s"%(np.median(samp[i])-ci[0]), "+ %s"%(ci[1]  - np.median(samp[i]) ))
+            elif mod_labels['best_gui']:
+                print(samp_labels[i],'=', samp_best_fit_par[i], "- %s"%(samp_best_fit_par[i]-ci[0]), "+ %s"%(ci[1]  - samp_best_fit_par[i] ))
+            else:
+                print(samp_labels[i],'=', samp[i][np.argmax(ln)], "- %s"%(samp[i][np.argmax(ln)]-ci[0]), "+ %s"%(ci[1]  - samp[i][np.argmax(ln)] ))                
     ################### Transpose is needed for the cornerplot. ###################
  
 
@@ -883,6 +923,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                               "truth_color":'r', 
                               "title_kwargs":{"fontsize": 12}, 
                               "scale_hist":True,  
+                              "fill_contours":False,
                               "no_fill_contours":True,
                               "plot_datapoints":True}            
             """        
@@ -908,12 +949,12 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                         no_fill_contours=cornerplot_opt["no_fill_contours"], 
                         plot_datapoints=cornerplot_opt["plot_datapoints"], 
                         kwargs=kwargs)
+    #fill_contours=True, 
 
     if type_plot == 'mcmc':
         fig.savefig(obj.mcmc_corner_plot_file)
     if type_plot == 'nest':
         fig.savefig(obj.nest_corner_plot_file)
-
 
     ### to avoid memory leak in loops!
     fig.clf()
@@ -923,54 +964,15 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     del samples 
     del ln
     print("Cornerplot done!")
-
-    return
-
-
-
-
-def cornerplotOld(obj, fileinput=False, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
-
-    #obj = dill.copy(copied_obj)
-    '''Generates a corner plot visualizing the mcmc samples. Optionally samples can be read from a file.'''
-    #self.mcmc_sample_file = 'mcmc_samples'+'_%s'%mod
-    #self.corner_plot_file = 'cornerplot.png'
-
-
     
-    if(fileinput):
-        if type_plot == 'mcmc':
-            samples=read_file_as_array_of_arrays_mcmc(obj.mcmc_sample_file)
-        if type_plot == 'nest':
-            samples=read_file_as_array_of_arrays_mcmc(obj.nest_sample_file)
-   # elif(obj.sampler_saved):
-   #     samples=obj.sampler.samples
-        if len(samples[0]) != len(obj.e_for_mcmc):
-            print("The number of selected parameters is not equal to the number of dimensions in the %s samples file. Was the %s samples file generated from the same session? If yes, then perhaps you (de)selected some more parameters?"%(type_plot,type_plot))
-            return
-    else:
-        raise Exception ('Please run mcmc/nested sampling and save sampler or provide a valid samples file!')
-
-    fig = corner.corner(samples,bins=25, color="k", reverse=True, upper= True, labels=obj.e_for_mcmc, quantiles=[level/100.0, 1.0-level/100.0],
-                        levels=(0.6827, 0.9545,0.9973), smooth=1.0, smooth1d=1.0, plot_contours= True, show_titles=True, truths=obj.par_for_mcmc,
-                        dpi = 300, pad=15, labelpad = 50 ,truth_color ='r', title_kwargs={"fontsize": 12}, scale_hist=True,  no_fill_contours=True,
-                        plot_datapoints=True, kwargs=kwargs)
-
-    if type_plot == 'mcmc':
-        fig.savefig(obj.mcmc_corner_plot_file)
-    if type_plot == 'nest':
-        fig.savefig(obj.nest_corner_plot_file)
-
-
-    ### to avoid memory leak in loops!
-    fig.clf()
-    del fig
-    samples = 0
-    print("Cornerplot done!")
+  
+    
 
     return
 
 
+
+ 
 
 def planet_orbit_xyz(obj, planet):
 
