@@ -22,8 +22,46 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 
 $ pip install git+https://github.com/3fon3fonov/exostriker   
 
+or git clone:
+
+$ git clone https://github.com/3fon3fonov/exostriker   
+$ cd exostriker
+$ python setup.py install
+
 However, please read the [Installation instructions](README_for_installation),
 because some problems may occur depending on your OS system.   
+
+Python3.6+ is strongly recommended 
+
+**Usage**
+
+* To load the GUI, on a bash schell type: 
+
+$ exostriker (in case of pip install)
+
+or just:
+
+$ python exostriker_gui.py (inside of the git clone directory)
+ 
+ 
+If you want to use the library on the Python shell/script
+
+In [1]: import exostriker
+
+or e.g. to load the RV routines:
+
+In [1]: import exostriker.lib.RV_mod as rv
+In [2]: fit = rv.signal_fit(name="hip5364") #creates the "fit" object that contains everything.
+In [3]: fit.add_dataset("./datafiles/","hip5364.vels",0.0.10.0) # add the data file
+In [4]: fit.add_planet(K=50,P=400,e=0,w=0,M0=0,i=90,cap=0)   # planet 1
+In [5]: fit.add_planet(K=50,P=700,e=0,w=0,M0=180,i=90,cap=0) # planet 2
+In [6]: fit.fitting() #optimize the parameters
+
+In [7]: fit.run_mcmc() # run MCMC, etc...
+
+ 
+(However, one must be familiar with the functions and the 'fit' object... 
+A manual is planned, but not available at the moment.)
 
 
 **What works**:
@@ -130,6 +168,7 @@ https://www.boulder.swri.edu/~hal/swift.html
 "PyQt5", "matplotlib", "numpy", "scipy", "dill", "Jupyter", "qtconsole",
 and more.
 
+* The Exo-Striker project was inspired by the [Systemic](http://www.stefanom.org/systemic/) project.
 
 
 **Scientific papers which made the use of the Exo-Striker (to my knowledge):**

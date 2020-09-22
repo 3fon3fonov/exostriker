@@ -234,7 +234,7 @@ class show_param_boxes(QtWidgets.QDialog):
         self.layout.addWidget(self.radio_best_samp,4,l+3)
         self.layout.addWidget(self.radio_best_gui, 5,l+3)  
         self.layout.addWidget(self.radio_no_cross, 6,l+3)  
-        self.layout.addWidget(self.truth_color_button, 9,l+3)  
+        self.layout.addWidget(self.truth_color_button, 10,l+3)  
         
         
  
@@ -263,7 +263,7 @@ class show_param_boxes(QtWidgets.QDialog):
         #self.layout.addWidget(self.Ok_button)        
         
 
-        self.layout.addWidget(self.cancel_button, 12,l+4)
+        self.layout.addWidget(self.cancel_button, 13,l+4)
 
         self.cancel_button.clicked.connect(self.close)
         #self.Ok_button.clicked.connect(self.get_radio)

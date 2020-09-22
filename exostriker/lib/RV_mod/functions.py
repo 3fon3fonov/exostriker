@@ -738,8 +738,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         samp.append(ss)
         samp_labels.append(labels[i])
         samp_best_fit_par.append(best_fit_par[i])
-        
- 
+
 
     index_to_keep = []
     for i in range(len(labels)):
@@ -872,8 +871,6 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     verbose = True
     level = (100.0-68.3)/2.0
     
-    #samp[8] = samp[8]-360.0
-    
     if verbose:
         print("   ")
         print("   ")
@@ -898,35 +895,14 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             else:
                 print(samp_labels[i],'=', samp[i][np.argmax(ln)], "- %s"%(samp[i][np.argmax(ln)]-ci[0]), "+ %s"%(ci[1]  - samp[i][np.argmax(ln)] ))                
     ################### Transpose is needed for the cornerplot. ###################
- 
-
-
+    
     samples_ = np.transpose(samp)
     labels = samp_labels
     best_fit_par =samp_best_fit_par
 
     if mod_labels['none']==True:
         best_fit_par = None  
-        """        
-            self.cornerplot_opt2 = {"bins":25,
-                              "color":"k",
-                              "reverse":False,
-                              "upper":True,
-                              "quantiles":68.3,
-                              "levels":(0.6827, 0.9545,0.9973), 
-                              "smooth":1.0, 
-                              "smooth1d":1.0, 
-                              "plot_contours":True, 
-                              "show_titles":True, 
-                              "dpi":300, 
-                              "pad":15, 
-                              "truth_color":'r', 
-                              "title_kwargs":{"fontsize": 12}, 
-                              "scale_hist":True,  
-                              "fill_contours":False,
-                              "no_fill_contours":True,
-                              "plot_datapoints":True}            
-            """        
+    
     fig = corner.corner(samples_, 
                         bins=cornerplot_opt["bins"], 
                         color=cornerplot_opt["color"], 
@@ -950,7 +926,6 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                         fill_contours=cornerplot_opt["fill_contours"],                        
                         plot_datapoints=cornerplot_opt["plot_datapoints"], 
                         kwargs=kwargs)
-    #fill_contours=True, 
 
     if type_plot == 'mcmc':
         fig.savefig(obj.mcmc_corner_plot_file)
@@ -964,10 +939,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     del samp 
     del samples 
     del ln
-    print("Cornerplot done!")
-    
-  
-    
+    print("Cornerplot done!")  
 
     return
 
@@ -1274,17 +1246,6 @@ def export_RV_data(obj, idset_ts, file="RV_data.txt",  jitter=False, o_c=False,
     if len(obj.filelist.idset)==0:
         return
 
-   # if idset_ts ==0:
-   #     print("dataset IDs start from 1")
-   #     return
-   # elif len(np.atleast_1d(idset_ts)) > 1:
-   #     if 0 in idset_ts:
-   #         print("dataset IDs start from 1")
-   #         return
-
-    #if not os.path.exists(path):
-   #     os.makedirs(path)
-
     output_file = str(file)
     f = open(output_file, 'w')
 
@@ -1303,8 +1264,6 @@ def export_RV_data(obj, idset_ts, file="RV_data.txt",  jitter=False, o_c=False,
     else:
         sigma =  obj.fit_results.rv_model.rv_err
 
-
- 
 
     for i in range(len(idset_ts)):
         for ii in range(len(JD)):
@@ -1343,7 +1302,6 @@ def export_RV_model(obj, file="RV_model.txt", width = 10, precision = 4):
         y_model = obj.fit_results.model
 
     for i in range(len(JD)):
-       # f.write('%.4f   %.4f  \n'%(float(JD[i]), float(y_model[i]) ))
         f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f} \n'.format(float(JD[i]), float(y_model[i]), width = width, precision = precision) )
     f.close()
     print('Done!')
@@ -1382,7 +1340,6 @@ def export_orbital_evol(obj, file="orb_evol.txt", planet = 1, width = 10, precis
 
 
     for i in range(len(T)):
-       # f.write('%.4f   %.4f  \n'%(float(JD[i]), float(y_model[i]) ))
         f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  {3:{width}.{precision}f}  {4:{width}.{precision}f}  {5:{width}.{precision}f}  {6:{width}.{precision}f}  \n'.format(float(T[i]), float(a[i]), float(e[i]), float(om[i]),float(M[i]),float(inc[i]),float(Om[i]), width = width, precision = precision) )
     f.close()
     print('Done!')
@@ -1429,7 +1386,6 @@ def modify_temp_RV_file_old(obj, file_n = 0, add_error = 0, data_to_keep = None)
         f  = open(obj.filelist.files[file_n].path, 'wb') # open the file
         
         for j in range(len(obj.rv_data_sets[file_n][0])):
-            #obj.rv_data_sets[file_n+1][2][j] = np.sqrt(new_error[j])
             if str(obj.rv_data_sets[file_n][0][j]).startswith("#") or  data_to_keep != None and  j not in data_to_keep:
                 continue
             text = b"%s  %s  %s \n"%(bytes(str(obj.rv_data_sets[file_n][0][j]).encode()),bytes(str(obj.rv_data_sets[file_n][1][j]).encode()),bytes(str(np.sqrt(new_error[j])).encode()) )
@@ -1620,7 +1576,6 @@ def modify_temp_RV_file(obj, file_n = 0, add_error = 0, data_to_keep = None):
         org_data_file = obj.rv_data_sets[file_n]
  
         for j in range(len(org_data_file[0])):
-            #obj.rv_data_sets[file_n+1][2][j] = np.sqrt(new_error[j])
             if str(org_data_file[0][j]).startswith("#") or  data_to_keep != None and  j not in data_to_keep:
                 continue
             text = b"%s  %s  %s \n"%(bytes(str(org_data_file[0][j]).encode()),bytes(str(org_data_file[1][j]).encode()),bytes(str(np.sqrt(new_error[j])).encode()) )
@@ -1650,14 +1605,11 @@ def sigma_clip(obj, type = 'RV', sigma_clip = 10, file_n = 0, add_error = 0, rem
             modify_temp_RV_file(obj2, file_n = file_n, add_error = add_error, data_to_keep = None)
             #obj2.epoch = obj.epoch
             obj2.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True,amoeba_starts=0)
-            #print(len(obj2.rv_data_sets[file_n][0]))
 
             JD_data  = obj2.fit_results.rv_model.jd[obj2.filelist.idset==file_n] 
             o_c_data = obj2.fit_results.rv_model.o_c[obj2.filelist.idset==file_n] 
             data_ind = obj2.filelist.idset 
-            
-            #print(len(JD_data))
-        
+                    
             c, low, upp = pdf.sigmaclip(o_c_data, sigma_clip, sigma_clip)
             remaining_idx    = [x for x, z in enumerate(o_c_data) if z in c]
             removed_idx    = [x for x, z in enumerate(o_c_data) if z not in c]
@@ -1678,8 +1630,6 @@ def sigma_clip(obj, type = 'RV', sigma_clip = 10, file_n = 0, add_error = 0, rem
         if len(obj.act_data_sets[file_n]) == 0:
             print("No act. file # %s"%(file_n))
             return
-
-        #obj.act_data_sets[file_n] = dill.copy(obj.act_data_sets_init[file_n])
 
         org_epoch     = obj.act_data_sets_init[file_n][0]
         org_data      = obj.act_data_sets_init[file_n][1]
@@ -1726,8 +1676,6 @@ def sigma_clip(obj, type = 'RV', sigma_clip = 10, file_n = 0, add_error = 0, rem
         if len(obj.tra_data_sets[file_n]) == 0:
             print("No transit file # %s"%(file_n))
             return
-
-        #obj.act_data_sets[file_n] = dill.copy(obj.act_data_sets_init[file_n])
 
         org_epoch     = obj.tra_data_sets_init[file_n][0]
         org_data      = obj.tra_data_sets_init[file_n][1]
@@ -1846,7 +1794,7 @@ def gen_RV_curve(obj,x=None):
     jd        = obj2.fit_results.rv_model.jd
 #    rvs       = obj2.fit_results.rv_model.rvs
     o_c       = obj2.fit_results.rv_model.o_c*(-1)
-    #print(o_c)
+
     return np.array([jd,o_c])
 
 
@@ -1983,9 +1931,6 @@ def phase_RV_planet_signal(obj,planet):
 
         if copied_obj.doGP == True:
             phased_data = phased_data - copied_obj.gp_model_data[0][sort]
-        #else:
-        #    rv_data = ph_data[1]
-
 
         model = [model_time_phase,  phased_model]
         data  = [data_time_phase,  phased_data, phased_data_err, phased_data_idset]
@@ -3591,34 +3536,5 @@ pl.in
 
 
     return obj
-
-
-
-
-##################### JUNK ########################
-    
-#def ma_from_t0(per, ecc, om, t_transit, epoch):
-#    '''
-#    '''
-#    om = np.radians(om)
-#    f = np.pi/2.0 - om 
-#    E = 2.0*np.arctan( np.sqrt( (1.0-ecc)/(1.0+ecc) ) * np.tan(f/2.0)  )
-#   # t_transit = epoch  - ((ma/TAU)*per) + (E + ecc*np.sin(E)) * (per/TAU)
-
-#    #ma =  ((epoch  - t_transit + (E + ecc*np.sin(E)) * (per/TAU))*TAU)/per
-#    ma = E - ecc*np.sin(E)    
-#    ma = np.degrees(ma)%360.0
-
-
-#    return ma
-
-
-
-
-
-
-
-
-
 
 
