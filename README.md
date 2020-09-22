@@ -72,8 +72,8 @@ $ pip install git+https://github.com/3fon3fonov/exostriker
 or git clone:
 
 $ git clone https://github.com/3fon3fonov/exostriker   
-$ cd exostriker
-$ python setup.py install
+$ cd exostriker   
+$ python setup.py install   
 
 However, please read the [Installation instructions](README_for_installation),
 because some problems may occur depending on your OS system.   
@@ -165,7 +165,10 @@ https://www.boulder.swri.edu/~hal/swift.html
 "PyQt5", "matplotlib", "numpy", "scipy", "dill", "Jupyter", "qtconsole",
 and more.
 
-* The Exo-Striker project was inspired by the [Systemic](http://www.stefanom.org/systemic/) project.
+* The Exo-Striker project was inspired by the Systemic project.
+
+http://www.stefanom.org/systemic/
+
 
 
 **Scientific papers which made the use of the Exo-Striker (to my knowledge):**
