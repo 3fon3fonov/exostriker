@@ -31,11 +31,11 @@ $ python setup.py install
 However, please read the [Installation instructions](README_for_installation),
 because some problems may occur depending on your OS system.   
 
-Python3.6+ is strongly recommended 
+Python3.6+ is strongly recommended. 
 
 **Usage**
 
-* To load the GUI, on a bash schell type: 
+* To load the GUI, on a bash shell type: 
 
 $ exostriker (in case of pip install)
 
@@ -48,7 +48,7 @@ If you want to use the library on the Python shell/script
 
 In [1]: import exostriker
 
-or e.g. to load the RV routines:
+or e.g., to load the RV routines:
 
 In [1]: import exostriker.lib.RV_mod as rv
 In [2]: fit = rv.signal_fit(name="hip5364") #creates the "fit" object that contains everything.
@@ -61,7 +61,7 @@ In [7]: fit.run_mcmc() # run MCMC, etc...
 
  
 (However, one must be familiar with the functions and the 'fit' object... 
-A manual is planned, but not available at the moment.)
+A manual is planned but not available at the moment.)
 
 
 **What works**:
