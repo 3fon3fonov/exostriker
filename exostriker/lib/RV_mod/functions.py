@@ -947,6 +947,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                         title_kwargs={"fontsize": 12}, 
                         scale_hist=cornerplot_opt["scale_hist"], 
                         no_fill_contours=cornerplot_opt["no_fill_contours"], 
+                        fill_contours=cornerplot_opt["fill_contours"],                        
                         plot_datapoints=cornerplot_opt["plot_datapoints"], 
                         kwargs=kwargs)
     #fill_contours=True, 
@@ -1267,7 +1268,8 @@ def get_rv_scatter(obj, print_output=False,use_kb2011=False):
     return [A, delta_A]
 
 
-def export_RV_data(obj, idset_ts, file="RV_data.txt",  jitter=False, o_c=False, print_data=False, width = 10, precision = 3):
+def export_RV_data(obj, idset_ts, file="RV_data.txt",  jitter=False, o_c=False, 
+                   print_data=False, remove_offset = False, width = 10, precision = 3):
 
     if len(obj.filelist.idset)==0:
         return
@@ -1309,8 +1311,14 @@ def export_RV_data(obj, idset_ts, file="RV_data.txt",  jitter=False, o_c=False, 
              if int(id_set[ii]) != int(idset_ts[i]):
                  continue
              else:
-	                 f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  {3:{width}.{precision}f}  \n'.format(float(JD[ii]), float(rv[ii]), float(sigma[ii]), idset_ts[i], width = width, precision = precision )   )
-
+                 if not remove_offset:
+                     rv[ii] = rv[ii] + float(obj.params.offsets[i])
+                     
+                 f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  {3:{width}.{precision}f}  \n'.format(float(JD[ii]), float(rv[ii]), float(sigma[ii]), idset_ts[i], width = width, precision = precision )   )
+                 
+                 if print_data:
+                     print('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  {3:{width}.{precision}f}'.format(float(JD[ii]), float(rv[ii]), float(sigma[ii]), idset_ts[i], width = width, precision = precision )   )
+                    
     f.close()
     print('Done!')
     return
