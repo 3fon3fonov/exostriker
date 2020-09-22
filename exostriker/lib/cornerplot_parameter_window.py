@@ -103,6 +103,8 @@ class show_param_boxes(QtWidgets.QDialog):
         self.check_plot_show_titles = QtWidgets.QCheckBox('show titles', self)
         self.check_plot_scale_hist  = QtWidgets.QCheckBox('scale hist', self)
         self.check_no_fill_contours = QtWidgets.QCheckBox('no fill contours', self)
+        self.check_fill_contours    = QtWidgets.QCheckBox('fill contours', self)
+        
         self.check_reverse          = QtWidgets.QCheckBox('reverse', self)
         
         
@@ -156,6 +158,14 @@ class show_param_boxes(QtWidgets.QDialog):
             self.check_plot_show_titles.setChecked(self.cornerplot_opt["show_titles"])
             self.check_plot_scale_hist.setChecked(self.cornerplot_opt["scale_hist"])
             self.check_no_fill_contours.setChecked(self.cornerplot_opt["no_fill_contours"])
+            
+            try:
+                self.check_fill_contours.setChecked(self.cornerplot_opt["fill_contours"])
+            except:
+                self.cornerplot_opt["fill_contours"] = False
+                self.check_fill_contours.setChecked(self.cornerplot_opt["fill_contours"])
+                
+                
             self.check_reverse.setChecked(self.cornerplot_opt["reverse"])   
             
             self.spin_bins.setValue(self.cornerplot_opt["bins"])
@@ -237,12 +247,14 @@ class show_param_boxes(QtWidgets.QDialog):
         self.layout.addWidget(self.check_plot_show_titles, 4,l+4) 
         self.layout.addWidget(self.check_plot_scale_hist, 5,l+4) 
         self.layout.addWidget(self.check_no_fill_contours, 6,l+4) 
-        self.layout.addWidget(self.check_reverse, 7,l+4) 
-        self.layout.addWidget(self.spin_label_pad, 8,l+4)
+        self.layout.addWidget(self.check_fill_contours, 7,l+4) 
+        
+        self.layout.addWidget(self.check_reverse, 8,l+4) 
+        self.layout.addWidget(self.spin_label_pad, 9,l+4)
 
         
              
-        self.layout.addWidget(self.samp_color_button, 9,l+4)              
+        self.layout.addWidget(self.samp_color_button, 10,l+4)              
         
         
         
@@ -251,7 +263,7 @@ class show_param_boxes(QtWidgets.QDialog):
         #self.layout.addWidget(self.Ok_button)        
         
 
-        self.layout.addWidget(self.cancel_button, 11,l+4)
+        self.layout.addWidget(self.cancel_button, 12,l+4)
 
         self.cancel_button.clicked.connect(self.close)
         #self.Ok_button.clicked.connect(self.get_radio)
@@ -278,6 +290,8 @@ class show_param_boxes(QtWidgets.QDialog):
         self.cornerplot_opt["show_titles"]     = self.check_plot_show_titles.isChecked()
         self.cornerplot_opt["scale_hist"]      = self.check_plot_scale_hist.isChecked()
         self.cornerplot_opt["no_fill_contours"]= self.check_no_fill_contours.isChecked()
+        self.cornerplot_opt["fill_contours"]   = self.check_fill_contours.isChecked()
+
         self.cornerplot_opt["reverse"]         = self.check_reverse.isChecked()
           
         self.cornerplot_opt["bins"]            = self.spin_bins.value()
