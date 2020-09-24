@@ -5041,9 +5041,9 @@ Transit duration: %s d
             return
         
         ######## this is a fix in case one adds another planet without initialize it 
-        if fit.npl != len(fit.fit_results.mass):  
-            fit.model_saved = False 
-            self.init_fit()
+        #if fit.npl != len(fit.fit_results.mass):  
+        #    fit.model_saved = False 
+       #     self.init_fit()
 
         fit.pl_arb_test = False        
  
