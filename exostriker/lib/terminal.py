@@ -41,8 +41,6 @@ class mainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super(mainWindow, self).__init__(parent)
 
-
-
         layout = QtWidgets.QGridLayout()
         self.term = EmbTerminal()
         layout.addWidget(self.term)

@@ -2901,6 +2901,9 @@ Failed to plot! Perhaps the number of computed transits is smaler than the numbe
 There is no good fix for that at the moment.... Maybe adjust the epoch and try again.
                           """)
                     continue
+                
+                if isinstance(ttv_loglik, float):
+                    return
 
                 ttv_model = ttv_loglik[4][j][1] - ttv_loglik[4][j][1][0]
                 
