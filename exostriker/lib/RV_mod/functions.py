@@ -493,7 +493,8 @@ def add_mcmc_samples(obj,sampler):
     bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none",
                            "mass","use_Me","use_Mj","use_Ms",
                            "semimajor","radius"]
-    bestfit_labels_bool = [obj.mcmc_save_median,obj.mcmc_save_means,obj.mcmc_save_mode, obj.mcmc_save_maxlnL,False,False,False,
+    bestfit_labels_bool = [obj.mcmc_save_median,obj.mcmc_save_means,obj.mcmc_save_mode, 
+                           obj.mcmc_save_maxlnL,False,False,False,
                            True,False,False,False,False]
     
  
@@ -533,8 +534,12 @@ def add_mcmc_samples(obj,sampler):
 
 def add_ns_samples(obj,sampler):
 
-    bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none","mass","semimajor","radius"]
-    bestfit_labels_bool = [obj.ns_save_median,obj.ns_save_means,obj.ns_save_mode, obj.ns_save_maxlnL,False,False,False,False,False]    
+    bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none",
+                           "mass","use_Me","use_Mj","use_Ms",
+                           "semimajor","radius"]
+    bestfit_labels_bool = [obj.ns_save_median,obj.ns_save_means,obj.ns_save_mode, 
+                           obj.ns_save_maxlnL,False,False,False,
+                           True,False,False,False,False]
     
     
     obj.ns_sampler= dill.copy(sampler.results)
