@@ -3394,12 +3394,12 @@ pl.in
         obj.evol_Per[k] = a_to_P(obj.evol_a[k],obj.params.stellar_mass)
 
 
-    try:
-        os.system('rm *.out *.dat *.in')
+    #try:
+    #    os.system('rm *.out *.dat *.in')
         #os.system('mv *.out *.dat *.in last_run')
 
-    except OSError:
-        pass
+    #except OSError:
+    #    pass
 
     os.chdir('../')
     if remove_stab_save_dir == True:

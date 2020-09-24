@@ -15,36 +15,21 @@ class EmbTerminal(QtWidgets.QWidget):
         self.setLayout(layout)
         
         self.process = QtCore.QProcess(self)
-        self.terminal = QtWidgets.QWidget(self)
+        #self.terminal = QtWidgets.QWidget(self)
         
         
         # Works also with urxvt:
         if subprocess.call(["which", 'urxvt'], stdout=open(os.devnull, 'wb')) == 1:
             self.process.start('xterm',['-into', str(int(self.winId()))])
         else:
-            #self.process.start('xterm',['-into', str(int(self.winId()))])
             self.process.start('urxvt',['-embed', str(int(self.winId()))])
             
         #self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
-        #self.setFixedSize(495, 390)
-        self.setGeometry(1,1, 490, 385) 
-        self.setLayout(layout)
-
-        #self.terminal.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-   # def sizeHint(self):
-   #     size = super(EmbTerminal, self).sizeHint()
-   #     size.setHeight(size.height() + 30)
-   #     size.setWidth(max(size.width(), size.height()))
-   #     return size
-    
-    def someFunction(self):
-        self.terminal.setGeometry(1, 1, self.width(), self.height())
-        
-        print(self.terminal.width(), self.terminal.height(),self.width(), self.height())
-        #print("someFunction")
-        #return super(EmbTerminal, self).__init__()
-        #self.setFixedSize(self.width(), self.height())
+        self.setGeometry(1,1, 490, 310) 
+        #self.setLayout(layout)
+        #self.setFixedSize(395, 290)
+ 
 
     def close(self):
         self.process.kill()
@@ -65,10 +50,16 @@ class mainWindow(QtWidgets.QMainWindow):
         container = QtWidgets.QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
+        #self.term.setFixedSize(395, 290)
+
+        self.resized.connect(self.someFunction)
+
+    def someFunction(self):
+        self.term.setGeometry(1, 1, self.width(), self.height())
+        
  
-        #self.resized.connect(self.term.someFunction)
-
     def resizeEvent(self, event):
         self.resized.emit()
         return super(mainWindow, self).resizeEvent(event)
@@ -86,10 +77,4 @@ if __name__ == "__main__":
     main.show()
     sys.exit(app.exec_())
 
-#if __name__ == "__main__":
-    
-#    app = QtWidgets.QApplication(sys.argv)
-#    main = mainWindow()
-#    main.show()
-#    sys.exit(app.exec_())
  
