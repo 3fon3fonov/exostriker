@@ -18,10 +18,7 @@ Created on 19 Feb 2020
 """
 
 import sys 
-sys.path.insert(0, '../lib')
-
-sys.path.append('../lib/') #RV_mod directory must be in your path
-sys.path.append('../lib/RV_mod/') #RV_mod directory must be in your path
+sys.path.append('../exostriker/lib/') #RV_mod directory must be in your path
 import RV_mod as rv
 import dill
 
@@ -58,16 +55,18 @@ font = {'family' : 'normal','weight' : 'bold','size'   : 18,'serif':['Helvetica'
 mpl.rc('font', **font)
 
 
-if sys.version_info[0] == 2:
-    file_ses = open(r"./Eta_Ceti_py2.ses", 'rb')
-else: 
-    file_ses = open(r"./Eta_Ceti_py3.ses", 'rb')
+#if sys.version_info[0] == 2:
+#    file_ses = open(r"./Eta_Ceti_py2.ses", 'rb')
+#else: 
+ 
 
+
+file_ses = open(r"./Eta_Ceti_py3.ses", 'rb')
 
 fit = dill.load(file_ses)
 file_ses.close()      
  
-fit.cwd = '../' # it is also important that the ES current working directory (cwd) point to the "lib" directory. This will be fixed in future releases 
+fit.cwd = '../exostriker/' # it is also important that the ES current working directory (cwd) point to the "lib" directory. This will be fixed in future releases 
 # add the stellar mass
 
 

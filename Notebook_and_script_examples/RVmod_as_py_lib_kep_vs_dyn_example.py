@@ -31,7 +31,7 @@ Created on Sun Jun  2 09:30:02 2019
 """
 
 import sys 
-sys.path.append('../lib/') #RV_mod directory must be in your path
+sys.path.append('../exostriker/lib/') #RV_mod directory must be in your path
 import RV_mod as rv
 
 
@@ -39,15 +39,15 @@ import RV_mod as rv
 # Lets create the RVmod object
 fit=rv.signal_fit('Eta Ceti demo',readinputfile=False);
 
-fit.cwd = '../' # it is also important that the ES current working directory (cwd) point to the "lib" directory. This will be fixed in future releases 
+fit.cwd = '../exostriker/' # it is also important that the ES current working directory (cwd) point to the "lib" directory. This will be fixed in future releases 
 
 # add the stellar mass
 fit.params.stellar_mass = 1.7 # In M sol.
 
  
 
-fit.add_dataset("hip5364_lick", "../datafiles/hip5364.vels",0.0,0.0)  # the last two entries are initial offset and jitter
-fit.add_dataset("hip5364_VLT", "../datafiles/hip5364_crires.vels",0.0,0.0)
+fit.add_dataset("hip5364_lick", "../exostriker/datafiles/hip5364.vels",0.0,0.0)  # the last two entries are initial offset and jitter
+fit.add_dataset("hip5364_VLT", "../exostriker/datafiles/hip5364_crires.vels",0.0,0.0)
 
 
 # Lets not fit for jitters now, i.e. keep at the initial value of 0 m/s

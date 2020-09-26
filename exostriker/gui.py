@@ -5970,6 +5970,7 @@ will be highly appreciated!
 
         if str(input_file[0]) != '':
 
+
             file_pi = open(input_file[0], 'rb')
             fit2 = dill.load(file_pi)
             file_pi.close()
@@ -6034,6 +6035,7 @@ will be highly appreciated!
             return
         else:
             fit = ses_list[ind]
+            
 
         self.check_type_fit()
         self.mute_boxes()
