@@ -15,8 +15,8 @@ import emcee
 
 
 import numpy as np
-import matplotlib.pyplot as plt
-plt.switch_backend('SVG')
+#import matplotlib.pyplot as plt
+#plt.switch_backend('SVG')
 
 
 import time
@@ -5201,3 +5201,171 @@ pl.in
         print("stability with: %s done!"%integrator)
 
         return
+
+
+
+
+def mcmc_stab(obj,samp_i):
+
+    fit2 = dill.copy(obj)
+
+    ncpus = 40
+    random_dir_str = 6
+    
+    timemax=10000 
+    timestep=10
+    timeout_sec=10.0
+    integrator='mvs'
+    
+    
+    a_treshold = 0.2 # i.e. 10 % in semi-major axis
+    e_treshold = 0.95 # i.e. above e>0.95 the system is defined as unstable
+    
+    
+    rand_samp = 1000 # if None then all the samples are integrated
+    
+    cwd = os.getcwd()
+    
+    pl1_ind = 0
+    pl2_ind = 1
+    Per_2 = 0
+    Per_1 = 5
+    
+    newparams = fit2.generate_newparams_for_mcmc(samp_i)
+    fit2.overwrite_params(newparams) 
+    fit2.hack_around_rv_params()
+    fit2.update_rv_params()
+
+    random_dir = randomString(random_dir_str)
+   # for i in range(fit2.npl):
+        #for z in range(7):
+   #     print( [fit2.params.planet_params[i*7+z] for z in range(7)])  
+  
+    run_stability(fit2, timemax=timemax, timestep=timestep, timeout_sec=timeout_sec,  integrator=integrator,stab_save_dir=random_dir)
+ 
+
+    #print(len(fit2.evol_Per[pl1_ind]),len(fit2.evol_Per[pl2_ind]),np.argwhere(np.isnan(fit2.evol_M[pl1_ind])),np.argwhere(np.isnan(fit2.evol_M[pl2_ind])) )]
+    last_stab = []
+    if np.argwhere(np.isnan(fit2.evol_M[pl1_ind])).size > 0:
+        last_stab.append(min(min(np.argwhere(np.isnan(fit2.evol_M[pl1_ind])))))
+    if np.argwhere(np.isnan(fit2.evol_M[pl2_ind])).size > 0:
+        last_stab.append(min(min(np.argwhere(np.isnan(fit2.evol_M[pl2_ind])))))
+ 
+    #if (fit2.evol_a[pl1_ind] > fit2.evol_a[pl1_ind] +fit2.evol_a[pl1_ind]*a_treshold).all():
+    
+    last_stab.append(min(np.argwhere( fit2.evol_a[pl1_ind] > fit2.evol_a[pl1_ind] +fit2.evol_a[pl1_ind]*a_treshold ),default=len(fit2.evol_a[pl1_ind])))            
+    last_stab.append(min(np.argwhere( fit2.evol_a[pl2_ind] > fit2.evol_a[pl2_ind] +fit2.evol_a[pl2_ind]*a_treshold ),default=len(fit2.evol_a[pl2_ind])) )    
+    last_stab.append(min(np.argwhere( fit2.evol_a[pl1_ind] < fit2.evol_a[pl1_ind] -fit2.evol_a[pl1_ind]*a_treshold ),default=len(fit2.evol_a[pl1_ind])) )           
+    last_stab.append(min(np.argwhere( fit2.evol_a[pl2_ind] < fit2.evol_a[pl2_ind] -fit2.evol_a[pl2_ind]*a_treshold ),default=len(fit2.evol_a[pl2_ind])) )  
+    
+    last_stab.append(min(np.argwhere( fit2.evol_e[pl1_ind] > e_treshold ),default=len(fit2.evol_e[pl1_ind])) )
+    last_stab.append(min(np.argwhere( fit2.evol_e[pl2_ind] > e_treshold ),default=len(fit2.evol_e[pl2_ind])) )
+       
+
+#        elif (fit2.evol_a[pl2_ind] > fit2.evol_a[pl2_ind] +fit2.evol_a[pl2_ind]*a_treshold).all() or (fit2.evol_a[pl2_ind] < fit2.evol_a[pl2_ind] - fit2.evol_a[pl2_ind]*a_treshold).all() :
+#            stable = 0
+#        elif (fit2.evol_e[pl1_ind] > e_treshold).all() or (fit2.evol_e[pl2_ind] > e_treshold).all():
+#            stable = 0
+
+
+   #last_stab.append(min(len(fit2.evol_Per[pl1_ind]), len(fit2.evol_Per[pl2_ind])))
+
+    last_stable = int(min(last_stab)-1)
+
+
+    stable = fit2.evol_T[pl1_ind][last_stable]
+   # print(stable,last_stable)
+    #if len(fit2.evol_T[pl1_ind]) >= len(fit2.evol_T[pl2_ind]):
+  #      fit2.evol_T[pl2_ind] = fit2.evol_T[pl1_ind]            
+  #  else:
+ #       fit2.evol_T[pl1_ind] = fit2.evol_T[pl2_ind]            
+ 
+    #np.argwhere(np.isfinite(x))
+
+
+    
+    Prat = fit2.evol_Per[pl2_ind][0:last_stable] / fit2.evol_Per[pl1_ind][0:last_stable]        
+    #print(np.argwhere(np.isnan(fit2.evol_M[pl1_ind][0:last_stable])),np.argwhere(np.isnan(fit2.evol_p[pl1_ind][0:last_stable])),last_stable)      
+
+    lambda1  = (fit2.evol_M[pl1_ind][0:last_stable]    + fit2.evol_p[pl1_ind][0:last_stable]   + 0)%360
+    lambda2  = (fit2.evol_M[pl2_ind][0:last_stable]    + fit2.evol_p[pl2_ind][0:last_stable]   + 0)%360
+
+
+
+#np.nan_to_num(y, nan=111111
+  
+    #print(np.any(np.isnotfinite(lambda1)))
+ 
+    mean_e1 = np.mean(fit2.evol_e[pl1_ind][0:last_stable])
+    min_e1 = min(fit2.evol_e[pl1_ind][0:last_stable], default=0)
+    max_e1 = max(fit2.evol_e[pl1_ind][0:last_stable], default=0.99)
+    ampl_e1 = (max_e1 - min_e1) / 2.0
+
+    mean_e2 = np.mean(fit2.evol_e[pl2_ind][0:last_stable])
+    min_e2 = min(fit2.evol_e[pl2_ind][0:last_stable], default=0)
+    max_e2 = max(fit2.evol_e[pl2_ind][0:last_stable], default=0.9)
+    ampl_e2 = (max_e2 - min_e2) / 2.0
+    
+    theta      = {k: [ ] for k in range(10)}  
+    theta_ampl = {k: [ ] for k in range(10)}  
+    theta_mean = {k: [ ] for k in range(10)}  
+    
+    
+    coef1 = Per_2 +1
+    coef2 = Per_1 +1
+    order = abs(coef2 - coef1)
+ 
+    for i in range(order+1):
+ 
+        theta[i] = (coef1*lambda1%360 - coef2*lambda2%360 )%360 + (((coef2 -coef1) -i)*fit2.evol_p[pl1_ind][0:last_stable] + i*fit2.evol_p[pl2_ind][0:last_stable])%360 
+        theta[i] = theta[i]%360
+
+        if 90 > circ_mean_np(theta[i] ,azimuth=True) or circ_mean_np(theta[i] ,azimuth=True) > 270:
+            theta[i][theta[i] >=180.0] -= 360.0
+            theta_mean[i] = circ_mean_np(theta[i],azimuth=False)
+        else:
+            theta_mean[i] = circ_mean_np(theta[i],azimuth=True)        
+
+        print(max(theta[i]),min(theta[i]))
+        theta_ampl[i] = (max(theta[i], default=360) - min(theta[i], default=0))/2.0
+#        theta_circ_mean = circ_mean_np(theta[i])
+
+
+    dom  = (fit2.evol_p[pl2_ind][0:last_stable] - fit2.evol_p[pl1_ind][0:last_stable])%360
+    
+    
+    print(circ_mean_np(dom,azimuth=True))
+    if 90 > circ_mean_np(dom,azimuth=True) or circ_mean_np(dom,azimuth=True) > 270:
+        dom[dom>=180.0] -= 360.0
+        mean_dom = circ_mean_np(dom,azimuth=False)
+    else:
+        mean_dom = circ_mean_np(dom,azimuth=True)
+        
+ 
+
+    dom_amp = (max(dom, default=360) - min(dom, default=0))/2.0
+
+
+
+
+
+   # print(len(fit2.evol_T[pl1_ind]), max(fit2.evol_T[pl1_ind][0:last_stable]),len(fit2.evol_T[pl2_ind]), max(fit2.evol_T[pl2_ind][0:last_stable]))
+    #elif max(fit2.evol_T[pl1_ind][0:last_stable]) < timemax:
+   #      stable = 0
+    
+    del fit2 
+ 
+
+
+
+    return [
+    np.mean(np.array(Prat)), 
+    mean_e1, ampl_e1,
+    mean_e2, ampl_e2,
+    mean_dom,
+    dom_amp, 
+    theta_mean[0],
+    theta_ampl[0],
+    theta_mean[1],
+    theta_ampl[1],
+    stable]
