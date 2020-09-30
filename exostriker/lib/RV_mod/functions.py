@@ -870,7 +870,14 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         
 #        if len(r_s) == 0:
 #            r_s   = np.random.normal(loc=obj.stellar_radius,    scale=obj.stellar_radius_err,    size=len(samples[:,0]))
-        
+ 
+
+    ################### Transpose is needed for the cornerplot. ###################
+ 
+    samples_ = np.transpose(samp)
+    labels = samp_labels
+    best_fit_par =samp_best_fit_par
+       
     ################### Verbose output (TBD). ###################
  
     verbose = True
@@ -899,11 +906,12 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 print(samp_labels[i],'=', samp_best_fit_par[i], "- %s"%(samp_best_fit_par[i]-ci[0]), "+ %s"%(ci[1]  - samp_best_fit_par[i] ))
             else:
                 print(samp_labels[i],'=', samp[i][np.argmax(ln)], "- %s"%(samp[i][np.argmax(ln)]-ci[0]), "+ %s"%(ci[1]  - samp[i][np.argmax(ln)] ))                
-    ################### Transpose is needed for the cornerplot. ###################
-    
-    samples_ = np.transpose(samp)
-    labels = samp_labels
-    best_fit_par =samp_best_fit_par
+
+
+        mad = get_MAD_of_samples(samples_,len(samp_labels))
+        for i in range(len(samp_labels)):
+            print(samp_labels[i],' MAD =', mad[i])  
+   
 
     range_stab =[]
     for i in range(len(samp)): 
@@ -1884,6 +1892,7 @@ def run_command_with_timeout(args, secs, output=False, pipe=False): # set output
     else:
         text=proc.communicate()[0]
         string_to_output=text.splitlines()
+       # text.close()
     for i in range(len(string_to_output)):
         string_to_output[i]=string_to_output[i].decode('utf-8').split()
     if not (pipe):

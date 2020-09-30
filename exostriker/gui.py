@@ -360,12 +360,18 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(len(self.gp_sho_params)):
             self.gp_sho_params[i].setValue(fit.GP_sho_params[i])
+           
+        for i in range(len(self.gp_mat_params)):
+            self.gp_mat_params[i].setValue(fit.GP_mat_params[i])            
 
         for i in range(len(self.tra_gp_rot_params)):
             self.tra_gp_rot_params[i].setValue(fit.tra_GP_rot_params[i])
 
         for i in range(len(self.tra_gp_sho_params)):
             self.tra_gp_sho_params[i].setValue(fit.tra_GP_sho_params[i])
+
+        for i in range(len(self.tra_gp_mat_params)):
+            self.tra_gp_mat_params[i].setValue(fit.tra_GP_mat_params[i])
 
 
         for i in range(10):
@@ -470,6 +476,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(len(self.tra_gp_sho_params)):
             fit.tra_GP_sho_params[i] = self.tra_gp_sho_params[i].value()
+            
+        for i in range(len(self.tra_gp_mat_params)):
+            fit.tra_GP_mat_params[i] = self.tra_gp_mat_params[i].value()
 
 
     def read_RV_GP(self):
@@ -480,6 +489,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(len(self.gp_sho_params)):
             fit.GP_sho_params[i] = self.gp_sho_params[i].value()
+
+        for i in range(len(self.gp_mat_params)):
+            fit.GP_mat_params[i] = self.gp_mat_params[i].value()
             
     def read_ld(self):
         global fit
@@ -726,6 +738,13 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             for i in range(len(self.gp_sho_errors_gui)):
                 self.gp_sho_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))
             
+        elif fit.gp_kernel == 'Matern32':
+            for i in range(len(self.gp_mat_errors_gui)):
+                self.gp_mat_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))
+                        
+
+
+            
             
         for i in range(10):
             self.err_lin_u[i].setText("+/- %.3f"%max(np.abs(fit.ld_u_lin_err[i][0])))
@@ -889,7 +908,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(len(self.use_tra_gp_sho_params)):
             fit.tra_GP_sho_use[i] = int(self.use_tra_gp_sho_params[i].isChecked())
 
-
+        for i in range(len(self.use_tra_gp_mat_params)):
+            fit.tra_GP_mat_use[i] = int(self.use_tra_gp_mat_params[i].isChecked())
+            
     def update_ld_use(self):
         global fit
 
@@ -3735,7 +3756,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             fit.gp_kernel = 'SHOKernel'
         elif self.use_GP_rot_kernel.isChecked():
             fit.gp_kernel = 'RotKernel'    
-
+        elif self.use_GP_mat_kernel.isChecked():
+            fit.gp_kernel = 'Matern32'    
 
     def set_tra_GP(self):
         global fit
@@ -3744,6 +3766,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             fit.tra_gp_kernel = 'SHOKernel'
         elif self.use_tra_GP_rot_kernel.isChecked():
             fit.tra_gp_kernel = 'RotKernel'
+        elif self.use_tra_GP_mat_kernel.isChecked():
+            fit.tra_gp_kernel = 'Matern32'    
 
 
     def set_gui_RV_GP(self):
@@ -3753,6 +3777,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.use_GP_sho_kernel.setChecked(True) 
         elif fit.gp_kernel == 'RotKernel':
             self.use_GP_rot_kernel.setChecked(True)
+        elif fit.gp_kernel == 'Matern32':
+            self.use_GP_mat_kernel.setChecked(True)            
+            
                
     def set_gui_tra_GP(self):
         global fit
@@ -3761,6 +3788,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.use_tra_GP_sho_kernel.setChecked(True) 
         elif fit.tra_gp_kernel == 'RotKernel':
             self.use_tra_GP_rot_kernel.setChecked(True)
+        elif fit.tra_gp_kernel == 'Matern32':
+            self.use_tra_GP_mat_kernel.setChecked(True)             
+            
 
     def set_use_GP(self):
         global fit
@@ -5363,57 +5393,64 @@ Transit duration: %s d
         self.dialog_more_info.setWindowTitle('Fit stat. info')  
         #self.dialog.setGeometry(300, 300, 800, 800)
         #self.dialog_credits.acceptRichText(True)
-        
+        text = ''
+        self.dialog_more_info.text.setText(text)         
         ################## text generator #################
-        text_info = """ (Work in progress) """
-        self.dialog_more_info.text.setText(text_info) 
-
+        #text_info = """ (Work in progress) """
+       # self.dialog_more_info.text.setText(text_info) 
          
-        text_info ="""RV Fit quality
+        text_info ="""
+Fit quality
 ----------------------------------------------  
 max lnL = %.5f
 chi^2   = %.5f
 red. chi^2   = %.5f
-----------------------------------------------
-        """%(fit.loglik,fit.fit_results.chi2,fit.fit_results.reduced_chi2)   
+----------------------------------------------"""%(fit.loglik,fit.fit_results.chi2,fit.fit_results.reduced_chi2)   
 
         self.dialog_more_info.text.append(text_info)
 
         if fit.type_fit["RV"] == True:
 
-            text_info = """RV data rms/wrms 
+            text_info = """
+            
+RV data rms/wrms 
 ----------------------------------------------"""   
             self.dialog_more_info.text.append(text_info)
             
             if fit.filelist.ndset != 0:
                 for i in range(max(fit.filelist.idset)+1):
+                    text_info = """ """   
+                    self.dialog_more_info.text.append(text_info)    
                     rms = np.sqrt(np.average(fit.fit_results.o_c[fit.filelist.idset==i]**2))
-                    text_wrm = "rms %s = %.5f m/s"%(fit.filelist.files[i].name,rms)       
+                    text_wrm = "%s    rms = %.5f m/s"%(fit.filelist.files[i].name,rms)       
                     self.dialog_more_info.text.append(text_wrm)
-                text_info = """ """   
-                self.dialog_more_info.text.append(text_info)               
-                for i in range(max(fit.filelist.idset)+1):
                     wrms = np.sqrt(np.average(fit.fit_results.o_c[fit.filelist.idset==i]**2, weights=1/fit.fit_results.rv_err[fit.filelist.idset==i]))
-                    text_wrm = "wrms %s = %.5f m/s"%(fit.filelist.files[i].name,wrms)       
+                    text_wrm = "%s wrms = %.5f m/s"%(fit.filelist.files[i].name,wrms)       
                     self.dialog_more_info.text.append(text_wrm)        
 
         if fit.type_fit["Transit"] == True:
  
+            
+            text_info = """
 
-            text_info = """Transit data rms/wrms 
+Transit data rms/wrms 
 ----------------------------------------------"""   
             self.dialog_more_info.text.append(text_info)
-            
-            if fit.filelist.ndset != 0:
-                for i in range(max(fit.filelist.idset)+1):
-                    rms = np.sqrt(np.average(fit.fit_results.o_c[fit.filelist.idset==i]**2))
-                    text_wrm = "rms %s = %.5f m/s"%(fit.filelist.files[i].name,rms)       
+
+            for i in range(20):
+                if len(fit.tra_data_sets[i]) == 0:
+                    continue
+                else:
+                    
+                    text_info = """ """   
+                    self.dialog_more_info.text.append(text_info)                
+                    rms = np.sqrt(np.average(fit.tra_data_sets[i][4]**2))
+                    text_wrm = "%s    rms = %.5f m/s"%(fit.tra_data_sets[i][-1],rms)       
                     self.dialog_more_info.text.append(text_wrm)
-                text_info = """ """   
-                self.dialog_more_info.text.append(text_info)               
-                for i in range(max(fit.filelist.idset)+1):
-                    wrms = np.sqrt(np.average(fit.fit_results.o_c[fit.filelist.idset==i]**2, weights=1/fit.fit_results.rv_err[fit.filelist.idset==i]))
-                    text_wrm = "wrms %s = %.5f m/s"%(fit.filelist.files[i].name,wrms)       
+           
+                    wrms = np.sqrt(np.average(fit.tra_data_sets[i][4]**2,
+                                              weights=1/fit.tra_data_sets[i][2]))
+                    text_wrm = "%s wrms = %.5f m/s"%(fit.tra_data_sets[i][-1],wrms)       
                     self.dialog_more_info.text.append(text_wrm)        
 
        # self.dialog_more_info.text.append(text_info)
@@ -5471,6 +5508,51 @@ The GP parameters are explained in the <a href='https://ui.adsabs.harvard.edu/ab
         self.dialog_GP_help.text.append(text)
         self.dialog_GP_help.text.setReadOnly(True)
         self.dialog_GP_help.show()
+
+
+
+    def print_mcmc_info(self):
+        self.dialog_mcmc_help.setFixedSize(600, 600)
+        self.dialog_mcmc_help.setWindowTitle('MCMC help')
+
+        text = ''
+        self.dialog_mcmc_help.text.setText(text) 
+
+
+        text = """
+<br>
+<br>
+The MCMC is done via the 'emcee' packade. The parameters and options are explained in the 'emcee: The MCMC Hammer' <a href='https://emcee.readthedocs.io/en/stable/'> user guide</a>.
+<br>  
+<br>
+<br> If you made the use of the Exo-Striker's MCMC for your paper, please cite: <a href='https://ui.adsabs.harvard.edu/abs/2013PASP..125..306F/abstract'> Foreman-Mackey et al. (2013)</a>, and references therein.
+"""
+
+        self.dialog_mcmc_help.text.append(text)
+        self.dialog_mcmc_help.text.setReadOnly(True)
+        self.dialog_mcmc_help.show()
+
+    def print_ns_info(self):
+        self.dialog_ns_help.setFixedSize(600, 600)
+        self.dialog_ns_help.setWindowTitle('Nested Sampling help')
+
+        text = ''
+        self.dialog_ns_help.text.setText(text) 
+
+
+        text = """
+<br>
+<br>
+The Nested Sampling is done via the 'dynesty' packade. The parameters and options are explained in the 'dynesty' <a href='https://dynesty.readthedocs.io/en/latest/'> user guide</a>.
+<br>  
+<br>
+<br> If you made the use of the Exo-Striker's Nested Sampling for your paper, please also cite: <a href='https://ui.adsabs.harvard.edu/abs/2020MNRAS.493.3132S/abstract'> Speagle (2019)</a>, and references therein.
+"""
+
+        self.dialog_ns_help.text.append(text)
+        self.dialog_ns_help.text.setReadOnly(True)
+        self.dialog_ns_help.show()
+
 
 
 
@@ -5543,7 +5625,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. 0.46) \n developed by Trifon Trifonov"
+        text = "You are using 'The Exo-Striker' (ver. %s) \n developed by Trifon Trifonov"%es_version
         
         self.dialog_credits.text.append(text)
 
@@ -5970,7 +6052,7 @@ will be highly appreciated!
 
         if str(input_file[0]) != '':
 
-
+                
             file_pi = open(input_file[0], 'rb')
             fit2 = dill.load(file_pi)
             file_pi.close()
@@ -8241,6 +8323,9 @@ https://github.com/3fon3fonov/exostriker/issues
 
     def __init__(self):
         global fit 
+        
+        es_version = 0.47
+
 
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
@@ -8319,12 +8404,24 @@ https://github.com/3fon3fonov/exostriker/issues
         self.gp_sho_params     = gui_groups.gp_sho_params(self)
         self.use_gp_sho_params = gui_groups.use_gp_sho_params(self)
         self.gp_sho_errors_gui = gui_groups.gp_sho_errors_gui(self)
+        
+        self.gp_mat_params     = gui_groups.gp_mat_params(self)
+        self.use_gp_mat_params = gui_groups.use_gp_mat_params(self)
+        self.gp_mat_errors_gui = gui_groups.gp_mat_errors_gui(self)        
+        
 
         self.tra_gp_rot_params = gui_groups.tra_gp_rot_params(self)
         self.use_tra_gp_rot_params = gui_groups.use_tra_gp_rot_params(self)
+        self.tra_gp_rot_errors_gui = gui_groups.tra_gp_rot_errors_gui(self)
 
         self.tra_gp_sho_params     = gui_groups.tra_gp_sho_params(self)
         self.use_tra_gp_sho_params = gui_groups.use_tra_gp_sho_params(self)
+        self.gp_tra_sho_errors_gui = gui_groups.gp_tra_sho_errors_gui(self)
+        
+        self.tra_gp_mat_params     = gui_groups.tra_gp_mat_params(self)
+        self.use_tra_gp_mat_params = gui_groups.use_tra_gp_mat_params(self)        
+        self.tra_gp_mat_errors_gui = gui_groups.tra_gp_mat_errors_gui(self)        
+        
 
         self.GP_sho_bounds_gui = gui_groups.GP_sho_bounds_gui(self) 
         self.GP_rot_bounds_gui = gui_groups.GP_rot_bounds_gui(self) 
@@ -8445,6 +8542,8 @@ https://github.com/3fon3fonov/exostriker/issues
         
         self.check_type_fit()
         
+        ###################### Info buttons #############################
+    
         self.RV_GP_Rot_readme_info.clicked.connect(self.print_GP_info)
         self.RV_GP_SHO_readme_info.clicked.connect(self.print_GP_info)
         self.RV_GP_Matern_readme_info.clicked.connect(self.print_GP_info)
@@ -8452,6 +8551,9 @@ https://github.com/3fon3fonov/exostriker/issues
         self.Tra_GP_Rot_readme_info.clicked.connect(self.print_GP_info)
         self.Tra_GP_SHO_readme_info.clicked.connect(self.print_GP_info)
         self.Tra_GP_Matern_readme_info.clicked.connect(self.print_GP_info)
+           
+        self.mcmc_readme_info.clicked.connect(self.print_mcmc_info)
+        self.ns_readme_info.clicked.connect(self.print_ns_info)
         
         ###################### Console #############################
         self.console_widget = ConsoleWidget_embed(font_size = 9)
@@ -8563,11 +8665,14 @@ https://github.com/3fon3fonov/exostriker/issues
 
         #################### credits  ########################
         
-        self.dialog = print_info(self)
-        self.dialog_credits = print_info(self)
+        self.dialog           = print_info(self)
+        self.dialog_credits   = print_info(self)
         self.dialog_chi_table = print_info(self)
-        self.dialog_ttv_help = print_info(self)
-        self.dialog_GP_help = print_info(self)
+        self.dialog_ttv_help  = print_info(self)
+        self.dialog_GP_help   = print_info(self)
+        self.dialog_mcmc_help = print_info(self)
+        self.dialog_ns_help   = print_info(self)
+        
         self.dialog_more_info = print_info(self)
 
         self.More_info.clicked.connect(self.print_more_stat)
@@ -9061,10 +9166,10 @@ https://github.com/3fon3fonov/exostriker/issues
         
 
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. 0.46). 
+        print("""Hi there! You are running a demo version of the Exo-Striker (ver. %s). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
-""")
+"""%es_version)
 
         if sys.version_info[0] == 2:
             print("""
