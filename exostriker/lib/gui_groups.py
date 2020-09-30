@@ -984,7 +984,7 @@ def tra_quad_trend_jeff_priors_gui(self):
     
  
  
-################### GP ########################
+################### RV GP ########################
 
 def gp_rot_params(self):
 
@@ -997,6 +997,16 @@ def gp_rot_params(self):
 
     return gp_rot_params
 
+
+def use_gp_rot_params(self):
+    use_gp_rot_params = [
+            self.use_GP_rot_kernel_Amp,
+            self.use_GP_rot_kernel_time_sc,
+            self.use_GP_rot_kernel_Per,
+            self.use_GP_rot_kernel_fact
+            ]
+    return use_gp_rot_params
+
 def gp_rot_errors_gui(self):
 
     gp_rot_errors_gui = [
@@ -1008,14 +1018,6 @@ def gp_rot_errors_gui(self):
         
     return gp_rot_errors_gui
 
-def use_gp_rot_params(self):
-    use_gp_rot_params = [
-            self.use_GP_rot_kernel_Amp,
-            self.use_GP_rot_kernel_time_sc,
-            self.use_GP_rot_kernel_Per,
-            self.use_GP_rot_kernel_fact
-            ]
-    return use_gp_rot_params
 
 
 def gp_sho_params(self):
@@ -1027,6 +1029,7 @@ def gp_sho_params(self):
             ]
 
     return gp_sho_params
+
 
 def use_gp_sho_params(self):
 
@@ -1048,6 +1051,39 @@ def gp_sho_errors_gui(self):
     
     return gp_sho_errors_gui
 
+
+def gp_mat_params(self):
+
+    gp_mat_params = [
+            self.GP_mat_kernel_sigma,
+            self.GP_mat_kernel_rho,
+            self.GP_mat_kernel_eps
+            ]
+
+    return gp_mat_params
+
+def use_gp_mat_params(self):
+
+    use_gp_mat_params = [
+            self.use_GP_mat_kernel_sigma,
+            self.use_GP_mat_kernel_rho,
+            self.use_GP_mat_kernel_eps
+            ]
+
+    return use_gp_mat_params
+
+
+def gp_mat_errors_gui(self):
+
+    gp_mat_errors_gui = [
+            self.err_mat_kernel_sigma,
+            self.err_mat_kernel_rho,
+            self.err_mat_kernel_eps
+            ]
+    
+    return gp_mat_errors_gui
+
+################### Tra GP ########################
 
 
 def tra_gp_rot_params(self):
@@ -1073,6 +1109,17 @@ def use_tra_gp_rot_params(self):
     return use_tra_gp_rot_params
 
 
+def tra_gp_rot_errors_gui(self):
+
+    tra_gp_rot_errors_gui = [
+            self.err_tra_rot_kernel_Amp,
+            self.err_tra_rot_kernel_time_sc,
+            self.err_tra_rot_kernel_Per,
+            self.err_tra_rot_kernel_fact
+            ]
+        
+    return tra_gp_rot_errors_gui
+
 
 def tra_gp_sho_params(self):
 
@@ -1093,6 +1140,56 @@ def use_tra_gp_sho_params(self):
     return use_tra_gp_sho_params
 
 
+def gp_tra_sho_errors_gui(self):
+
+    tra_gp_sho_errors_gui = [
+            self.err_tra_sho_kernel_S,
+            self.err_tra_sho_kernel_Q,
+            self.err_tra_sho_kernel_omega
+            ]
+    
+    return tra_gp_sho_errors_gui
+
+
+
+
+def tra_gp_mat_params(self):
+
+    tra_gp_mat_params = [
+            self.tra_GP_mat_kernel_sigma,
+            self.tra_GP_mat_kernel_rho,
+            self.tra_GP_mat_kernel_eps
+            ]
+
+    return tra_gp_mat_params
+
+def use_tra_gp_mat_params(self):
+
+    use_tra_gp_mat_params = [
+            self.use_tra_GP_mat_kernel_sigma,
+            self.use_tra_GP_mat_kernel_rho,
+            self.use_tra_GP_mat_kernel_eps
+            ]
+
+    return use_tra_gp_mat_params
+
+
+def tra_gp_mat_errors_gui(self):
+
+    tra_gp_mat_errors_gui = [
+            self.err_tra_mat_kernel_sigma,
+            self.err_tra_mat_kernel_rho,
+            self.err_tra_mat_kernel_eps
+            ]
+    
+    return tra_gp_mat_errors_gui
+
+
+
+
+
+
+############### GP priors ######################
 
 def tra_GP_sho_bounds_gui(self):
     
