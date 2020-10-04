@@ -4823,7 +4823,7 @@ Transit duration: %s d
         else:
             self.statusBar().showMessage('Minimizing Transit parameters.... SciPy in action, please be patient. ')       
            
-
+        self.check_ttv_params()
         self.set_tra_ld()
         self.check_bounds()
         self.check_priors_nr()
@@ -5031,9 +5031,14 @@ Transit duration: %s d
     def check_ttv_params(self):
         global fit
 
-        fit.epoch_ttv = self.Epoch_ttv.value()
-        fit.ttv_dt = self.time_step_model_ttv.value() 
-        fit.epoch_ttv_end = self.Epoch_ttv_end.value()
+        if fit.type_fit["TTV"] == True:
+            fit.epoch_ttv = self.Epoch_ttv.value()
+            fit.ttv_dt = self.time_step_model_ttv.value() 
+            fit.epoch_ttv_end = self.Epoch_ttv_end.value()
+        else:
+            fit.epoch_ttv = self.Epoch.value()
+            fit.ttv_dt = self.time_step_model.value()
+            fit.epoch_ttv_end = self.Epoch.value()+1000          
         
         fit.ttv_times = [fit.epoch_ttv,fit.ttv_dt,fit.epoch_ttv_end]
 
@@ -6293,6 +6298,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
            # self.button_nest_samp.setEnabled(True)
             return
 
+        self.check_ttv_params()
         self.set_tra_ld()
         self.check_bounds()
         self.check_priors_nr() 
@@ -6524,6 +6530,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             self.button_MCMC.setEnabled(True)
             return
 
+        self.check_ttv_params()
         self.set_tra_ld()
         self.check_bounds()
         self.check_priors_nr() 
@@ -7775,7 +7782,7 @@ Please install via 'pip install ttvfast'.
             result2, flag2 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep', 15,output=True)
             result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)
 
-        version_dyn_loglik= "0.08"
+        version_dyn_loglik= "0.09"
         result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)
         if flag3 == -1 or str(result3[0][0]) != version_dyn_loglik:
             print("New source code available: Updating N-body Simplex")   
@@ -7789,7 +7796,7 @@ Please install via 'pip install ttvfast'.
             result4, flag4 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn', 15,output=True)
             result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)
 
-        version_dyn_loglik_= "0.05"
+        version_dyn_loglik_= "0.06"
         result5, flag5 = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)
         if flag5 == -1 or str(result5[0][0]) != version_dyn_loglik_:
             print("New source code available: Updating Mixed Simplex")
@@ -8325,7 +8332,7 @@ https://github.com/3fon3fonov/exostriker/issues
     def __init__(self):
         global fit 
         
-        es_version = 0.48
+        es_version = 0.49
 
 
         QtWidgets.QMainWindow.__init__(self)
