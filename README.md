@@ -50,7 +50,6 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 
 **What is to be implemented**:
 
-* More GP kernels (work in progress). 
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ REBOUND is planned to be included). 
 * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
 * Combined modeling with Astrometry.
@@ -177,14 +176,18 @@ http://www.stefanom.org/systemic/
 
 
 
-**Scientific papers which made the use of the Exo-Striker (to my knowledge):**
+**Scientific papers which one one way or another made the use of the Exo-Striker (to my knowledge):**
 
 
-* Jeffers, S. V.; Dreizler, S.; Barnes, J. R.; Haswell, C. A.; Nelson, R. P. et al. A multiple planet system of super-Earths orbiting the brightest red dwarf star GJ887. (Science, in press) arXiv e-prints arXiv:2006.16372
+*  Stock, S.; Nagel, E.; Kemmer, J.; Passegger, V. M.; Reffert, S.; Quirrenbach, A. et al. The CARMENES search for exoplanets around M dwarfs. Three temperate to warm super-Earths. arXiv e-prints arXiv:2010.00474
+
+*  Kemmer, J.; Stock, S.; Kossakowski, D.; Kaminski, A.; Molaverdikhani, K. et al. Discovery of a hot, transiting, Earth-sized planet and a second temperate, non-transiting planet around the M4 dwarf GJ 3473 (TOI-488). arXiv e-prints  arXiv:2009.10432
+
+* Jeffers, S. V.; Dreizler, S.; Barnes, J. R.; Haswell, C. A.; Nelson, R. P. et al. A multiple planet system of super-Earths orbiting the brightest red dwarf star GJ887. Science, 368, 1477. 
 
 * Jones, M. I., Wittenmyer, R., Aguilera-Gómez, C., Soto, M. G., Torres, P. et al. Four Jovian planets around low-luminosity giant stars observed by the EXPRESS and PPPS (A&A, submitted) arXiv e-prints arXiv:2006.01277
 
-* Obermeier, C., Steuer, J., Kellermann, H., Saglia, R., Henning, Th., et al. Following the TraCS of exoplanets with Pan-Planets: Wendelstein-1b and Wendelstein-2b (A&A, in press) arXiv e-prints arXiv:2005.13560
+* Obermeier, C., Steuer, J., Kellermann, H., Saglia, R., Henning, Th., et al. Following the TraCS of exoplanets with Pan-Planets: Wendelstein-1b and Wendelstein-2b. A&A, 639, 130.
 
 * Stock, S., J. Kemmer, S. Reffert, et al. (2020). The CARMENES search for exoplanets around M dwarfs. Characterization of the nearby ultra-compact multiplanetary system YZ Ceti. A&A, 636, 119. 
  
@@ -198,6 +201,6 @@ http://www.stefanom.org/systemic/
 
 * Trifonov, Trifon, Jan Rybizki, and Martin Kürster. (2019). TESS exoplanet candidates validated with HARPS archival data. A massive Neptune around GJ 143 and two Neptunes around HD 23472. A&A, 622, L7. 
 
-(And as of June 2020, I am aware of at least 9 more papers in preperation !!!)
+(And as of Sep 2020, I am aware of at least 7 more papers in preperation !!!)
 
 

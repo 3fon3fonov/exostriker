@@ -126,8 +126,9 @@ import dill
 dill._dill._reverse_typemap['ObjectType'] = object
 #os.system("taskset -p %s" %os.getpid())
 os.environ["OPENBLAS_MAIN_FREE"] = "1"
+#os.environ["QT_QPA_PLATFORM"] = "offscreen"
 
-
+ 
 #if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
 #    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
@@ -8324,7 +8325,7 @@ https://github.com/3fon3fonov/exostriker/issues
     def __init__(self):
         global fit 
         
-        es_version = 0.47
+        es_version = 0.48
 
 
         QtWidgets.QMainWindow.__init__(self)

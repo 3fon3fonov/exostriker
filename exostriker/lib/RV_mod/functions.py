@@ -945,7 +945,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                         plot_datapoints=cornerplot_opt["plot_datapoints"], 
                         kwargs=kwargs)
 
-    if "max. time" in obj.mcmc_sampler.lbf["OrigLabels"]:
+    if "max. time" in labels:
         samples_stab = []
        # range_stab =[]
         for i in range(len(samp)): 
