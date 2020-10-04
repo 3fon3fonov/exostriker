@@ -27,7 +27,7 @@ c*************************************************************************
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar, sini
 
-      version = "0.08"
+      version = "0.09"
 
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -667,10 +667,12 @@ c             a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
 
       rms = dsqrt(rms/dble(ndata))
 
+      write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
+      write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
+
+
       if(writeflag_best_par.gt.0) then
 
-        write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
-        write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
 
 
         write (*,*) 'Best-fit K [m/s], P [days], e, w [deg], 
