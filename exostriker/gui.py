@@ -127,7 +127,10 @@ dill._dill._reverse_typemap['ObjectType'] = object
 #os.system("taskset -p %s" %os.getpid())
 os.environ["OPENBLAS_MAIN_FREE"] = "1"
 #os.environ["QT_QPA_PLATFORM"] = "offscreen"
-
+os.environ["QT_SCREEN_SCALE_FACTORS"] = "1"
+os.environ["QT_SCALE_FACTOR"] = "1"
+os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "0"
+ 
  
 #if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
 #    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
