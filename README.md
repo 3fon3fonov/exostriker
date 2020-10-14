@@ -27,7 +27,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty") 
 * TTVs extraction.
 * TTVs and/or joint TTVs + RVs analysis.
-* GP modeling (only SHO and Rot. GP "celerite" kernels integrated so far).
+* GP modeling (via "celerite").
 * Linear models for detrending ground-based transit photometry.
 * Activity index signal search via GLS periodogram.
 * RVs vs. Activity time-series correlation analysis/plots.
@@ -37,7 +37,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Instant AMD stability check for multiple planetary systems (including during optimization or MCMC/Nested Sampling).
 * Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.
 * Fully interactive, super-fast, high-quality, exportable plots.
-* Handy cornerplot GUI control.
+* Handy "cornerplot" GUI control.
 * Import/Export of work sessions and multi-sessions. 
 * Export plots to a matplotlib window for further customization.
 * Export ready to use LaTeX tables with best-fit parameters, errors, and statistics. 
@@ -52,8 +52,8 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ REBOUND is planned to be included). 
 * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
-* Combined modeling with Astrometry.
-* Documentation, Instructions, and Video tutorials (work in progress [here](https://exostriker.readthedocs.io))
+* Combined modeling with Astrometry (work in progress).
+* Documentation, Instructions, and Video tutorials (Work in progress [here](https://exostriker.readthedocs.io))
 
 
 Please keep in mind that this software is developed mostly for my needs and for fun. I hope, however, that you may find it capable of solving your scientific problems, too.
@@ -176,7 +176,7 @@ http://www.stefanom.org/systemic/
 
 
 
-**Scientific papers which one one way or another made the use of the Exo-Striker (to my knowledge):**
+**Scientific papers which one way or another made the use of the Exo-Striker (to my knowledge):**
 
 
 *  Stock, S.; Nagel, E.; Kemmer, J.; Passegger, V. M.; Reffert, S.; Quirrenbach, A. et al. The CARMENES search for exoplanets around M dwarfs. Three temperate to warm super-Earths. arXiv e-prints arXiv:2010.00474
@@ -201,6 +201,6 @@ http://www.stefanom.org/systemic/
 
 * Trifonov, Trifon, Jan Rybizki, and Martin Kürster. (2019). TESS exoplanet candidates validated with HARPS archival data. A massive Neptune around GJ 143 and two Neptunes around HD 23472. A&A, 622, L7. 
 
-(And as of Sep 2020, I am aware of at least 7 more papers in preperation !!!)
+(And as of Oct 2020, I am aware of at least 7 more papers in preperation !!!)
 
 
