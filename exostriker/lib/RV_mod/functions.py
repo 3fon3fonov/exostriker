@@ -2002,7 +2002,7 @@ def phase_RV_planet_signal(obj,planet):
 
 
 
-def find_planets_restricted(obj,fend=1.5):
+def find_planets(obj,fend=0.75):
 
     power_levels = np.array([0.1,0.01,0.001])
 
@@ -2067,7 +2067,7 @@ def find_planets_restricted(obj,fend=1.5):
 
 
 
-def find_planets(obj):
+def find_planets_old(obj):
 
     # check if RV data is present
     if obj.filelist.ndset <= 0:

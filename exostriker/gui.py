@@ -8335,7 +8335,7 @@ https://github.com/3fon3fonov/exostriker/issues
     def __init__(self):
         global fit 
         
-        es_version = 0.49
+        es_version = 0.50
 
 
         QtWidgets.QMainWindow.__init__(self)
