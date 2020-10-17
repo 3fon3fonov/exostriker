@@ -3199,6 +3199,31 @@ class signal_fit(object):
                  self.e[i]   = np.sqrt(self.e_sinw[i]**2 + self.e_cosw[i]**2)
                  self.w[i]   = np.degrees(np.arctan2(self.e_sinw[i],self.e_cosw[i]))%360.0
                  self.M0[i]  = (self.lamb[i] - self.w[i])%360.0
+                 
+         for i in range(9):
+             self.K_err[i]    = self.param_errors.planet_params_errors[i*7+0]
+             self.P_err[i]    = self.param_errors.planet_params_errors[i*7+1]
+             self.i_err[i]    = self.param_errors.planet_params_errors[i*7+5]
+             self.Node_err[i] = self.param_errors.planet_params_errors[i*7+6]
+
+            # print( self.params.planet_params[i*7+2] , self.params.planet_params[i*7+3] )
+             if self.hkl ==False:
+                 self.e_err[i]    = self.param_errors.planet_params_errors[i*7+2]
+                 self.w_err[i]    = self.param_errors.planet_params_errors[i*7+3]
+                 self.M0_err[i]   = self.param_errors.planet_params_errors[i*7+4]
+                 #self.e_sinw_err[i]    = self.e[i]*np.sin(np.radians(self.w[i]))
+                # self.e_cosw_err[i]    = self.e[i]*np.cos(np.radians(self.w[i]))
+                # self.lamb_err[i]      = (self.w[i]  + self.M0[i])%360.0
+
+             if self.hkl ==True:
+                 self.e_sinw_err[i] = self.param_errors.planet_params_errors[i*7+2]
+                 self.e_cosw_err[i] = self.param_errors.planet_params_errors[i*7+3]
+                 self.lamb_err[i]   = self.param_errors.planet_params_errors[i*7+4]
+               #  self.e_err[i]   = np.sqrt(self.e_sinw[i]**2 + self.e_cosw[i]**2)
+              #   self.w_err[i]   = np.degrees(np.arctan2(self.e_sinw[i],self.e_cosw[i]))%360.0
+              #   self.M0_err[i]  = (self.lamb[i] - self.w[i])%360.0
+                                  
+                 
 
 
     def update_rv_params(self):
