@@ -102,13 +102,9 @@ In [1]: import exostriker.lib.RV_mod as rv
     
 * Remember! Every button/action of the GUI is a wrapper of a convenient Python routine. Thus scripting is very easy:    
 
-In [2]: fit = rv.signal_fit(name="hip5364") #creates the "fit" object that contains everything.    
-In [3]: fit.add_dataset("hip5364-Lick","./datafiles/hip5364.vels",0.0.10.0) # add the data file, initial offset and jitter   
-In [4]: fit.add_planet(K=50,P=400,e=0,w=0,M0=0,i=90,cap=0)   # planet 1    
-In [5]: fit.add_planet(K=50,P=700,e=0,w=0,M0=180,i=90,cap=0) # planet 2    
-In [6]: fit.fitting() #optimize the parameters    
-
-In [7]: fit.run_mcmc() # run MCMC, etc...    
+<p align="center">
+  <img width="400" src="./docs/png/ES_terminal.png">
+</p>
 
  
 (However, one must be familiar with the functions and the 'fit' object... 
