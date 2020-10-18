@@ -45,7 +45,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
 * Integrated Bash-shell (Linux only).
 * Integrated Jupyter shell.
-* Importable as a standard python library (i.e., "import exostiker").
+* Importable as a standard python library (i.e., "import exostriker").
 * Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
 
 **What is to be implemented**:
