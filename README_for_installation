@@ -34,16 +34,16 @@ but since Python 2 is no longer maintained (since Jan 1, 2020), I do not assist 
 Currently there are three ways to install/run the Exo-Striker:    
 
 #######################################################    
-*  The simpliest way to "git clone":    
+*  The simplest way to "git clone":    
 
 $ git clone https://github.com/3fon3fonov/exostriker  
 
 and then:    
 
 $ cd exostriker  
-$ python exostriker_gui.py    
+$ python3 exostriker_gui.py    
 
-Generally, you do not need to install anything if you already have all the required dependencies for the tool to run. For the dependency list, see the "setup.py" file. The Exo-Striker will automatically compile the Fortran code for you at the first start of the program and will keep you updated if the source code was updated (if you regularly "git pull").    
+Generally, you do not need to install anything if you already have all the required dependencies for the tool to run. For the dependency list, see the "setup.py" file. The Exo-Striker will automatically compile the Fortran77 code for you at the first start of the program and will keep you updated if the source code was updated (if you regularly "git pull").    
  
 #######################################################    
 *  The second way to install the tool from the source:    
@@ -53,7 +53,7 @@ $ git clone https://github.com/3fon3fonov/exostriker
 and then:    
 
 $ cd exostriker    
-$ python setup.py install    
+$ python3 setup.py install    
 
 This will install the tool in your system.     
 Then, open a terminal and:     
@@ -78,7 +78,7 @@ Should start the Exo-Striker
 
 If you still cannot boot the tool after a 'successful' installation, please try:
 
-$ python exostriker_gui.py -debug 
+$ python3 exostriker_gui.py -debug 
 
 or 
 
@@ -99,7 +99,7 @@ Some OS related comments:
 
 ##############################  LINUX  #########################################
 
-The above istructions usually work without any problem on Linux OS.
+The above instructions usually work without any problem on Linux OS.
  
  
 For full functionality on Linux, you will also need to install:
@@ -167,7 +167,7 @@ These two tutorials worked for me, but there might be other options too.
 
 In case there is a problem of the appearance of the GUI the problem could be 
 your DPI setup. On high DPI displays with Windows display scaling activated (>100%),
-the X-server DPI has to be set, otherwise, the exostriker will not display correctly (text clipping).
+the X-server DPI has to be set, otherwise, the Exo-Striker will not display correctly (text clipping).
 Edit the file `.Xresources` in the home directory of the WSL installation,
 for example with `nano ~/.Xresources`.
 Add the line `Xft.dpi: 100` and save & close with Ctrl+O Ctrl+X,
@@ -175,7 +175,7 @@ then reload the X configuration with `xrdb ~/.Xresources`.
 On Ubuntu WSL you might need to install `x11-xserver-utils`
 with `sudo apt install x11-xserver-utils` for xrdb to be available.
 
-Launch exostriker and check the scaling.
+Launch the Exo-Striker and check the scaling.
 If text is clipping, the DPI needs to be set lower, if everything is too small,
 the dpi needs to be higher. Remember always to reload the configuration with `xrdb ~/.Xresources`.
 For the configuration to automatically load at startup,
@@ -205,7 +205,7 @@ Subsystem for Linux" as pointed above.
 
 To load the GUI 
 
-$ python exostriker_gui.py 
+$ python3 exostriker_gui.py 
  
  
  
@@ -217,13 +217,14 @@ In [1]: import exostriker
 
 or e.g. to load the RV routines:
 
-In [1]: import exostriker.lib.RV_mod as rv
-In [2]: fit = rv.signal_fit(name="hip5364")
-In [3]: fit.add_dataset("./datafiles/","hip5364.vels",0.0.10.0)
-In [4]: fit.add_planet(K=50,P=400,e=0,w=0,M0=0,i=90,cap=0) 
-In [5]: fit.add_planet(K=50,P=700,e=0,w=0,M0=180,i=90,cap=0) 
-In [6]: fit.fitting() 
+In [1]: import exostriker.lib.RV_mod as rv    
+In [2]: fit = rv.signal_fit(name="hip5364") #creates the "fit" object that contains everything.    
+In [3]: fit.add_dataset("hip5364-Lick","./datafiles/hip5364.vels",0.0.10.0) # add the data file, initial offset and jitter   
+In [4]: fit.add_planet(K=50,P=400,e=0,w=0,M0=0,i=90,cap=0)   # planet 1    
+In [5]: fit.add_planet(K=50,P=700,e=0,w=0,M0=180,i=90,cap=0) # planet 2    
+In [6]: fit.fitting() #optimize the parameters    
 
+In [7]: fit.run_mcmc() # run MCMC, etc...    
  
 (However, one must be familiar with the functions... A manual on RVmod is planned, but not available at the moment.)
 
