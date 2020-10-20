@@ -55,7 +55,9 @@ class rvfile(object):
                     y_error=0
                 else:
                     line = line.strip()
-                    line = line.split()
+                    #line = line.split()
+                    line = [float(x) for x in line.split()]
+
                     if is_float(line[1]): #omit lines with invalid RV data, for example 'NaN', '-Inf' etc.
                         comment=False
                         x=float(line[0])

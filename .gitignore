@@ -2,7 +2,7 @@ exostriker/lib/fr/*
 exostriker/stability/mvs/*
 exostriker/stability/mvs_gr/*
 exostriker/stability/symba/*
-#exostriker/datafiles/*
+exostriker/datafiles/*
 exostriker/autosave/auto_save.ses
 exostriker/mcmc_samples
 
