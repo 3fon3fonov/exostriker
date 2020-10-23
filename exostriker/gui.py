@@ -2128,7 +2128,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
        # plot_wg2.getViewBox().setXRange(-0.001, max(y_peaks)+0.3*max(y_peaks), padding=0.01)
         #plot_wg2.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)
         #plot_wg2.setYRange(-0.001, max(y_peaks)+0.3*max(y_peaks), padding=0.01)
-        plot_wg2.setRange(yRange=(-0.001, max(y_peaks)+0.3*max(y_peaks)), padding=0.01, update=True, disableAutoRange=True)
+        if len(y_peaks) != 0:
+            plot_wg2.setRange(yRange=(-0.001, max(y_peaks)+0.3*max(y_peaks)), padding=0.01, update=True, disableAutoRange=True)
         #plot_wg2.getViewBox().updateAutoRange()
        
         #plot_wg2.enableAutoRange(plot_wg2.getViewBox().YAxis, y=True)
@@ -2493,6 +2494,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
         if self.RV_plot_autorange.isChecked():
             p2.autoRange()
+            
 
 
 #### Transit plots ################ 
@@ -8037,6 +8039,10 @@ https://github.com/3fon3fonov/exostriker/issues
         global fit   
  
         
+        if len(fit.tls_o_c)==0 or np.isnan(fit.tls_o_c.period):
+            print("No transit signal that can be adopted as planet")
+            return
+    
         mean_anomaly_from_tls = np.degrees((((fit.epoch - fit.tls_o_c.transit_times[0] )% (fit.tls_o_c.period) )/ (fit.tls_o_c.period) ) * 2*np.pi)
        
         fit.t0[fit.npl]     = fit.tls_o_c.transit_times[0]

@@ -859,9 +859,9 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             samp_labels.append(r'R$_{\rm pl}$ $%s$ [M$_\oplus$]'%let)
 
             if mod_labels['mean']:
-                samp_best_fit_par.ppend(np.mean(rad)*np.mean(r_s))
+                samp_best_fit_par.append(np.mean(rad)*np.mean(r_s))
             elif mod_labels['median']:
-                samp_best_fit_par.append(np.meian(rad)*np.meian(r_s))
+                samp_best_fit_par.append(np.median(rad)*np.median(r_s))
             else:
                 samp_best_fit_par.append(rad[np.argmax(ln)]*obj.stellar_radius)
 
