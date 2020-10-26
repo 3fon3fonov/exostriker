@@ -13,7 +13,7 @@ import RV_mod as rv
 from scipy import signal
 import pg_hack
 
-from wotan import flatten
+#from wotan import flatten
 
 
 #qtCreatorFile = "./lib/UI/tdt.ui" 
@@ -23,7 +23,7 @@ from wotan import flatten
 
 try:
     from act import Ui_Activity as Ui_ActivityWindow
-except (ImportError, KeyError) as e:
+except (ImportError, KeyError,ModuleNotFoundError) as e:
     qtCreatorFile = "./lib/UI/act.ui" #%lib_path 
     Ui_ActivityWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 #print("--- %s seconds ---" % (time.time() - start_time))
@@ -31,31 +31,38 @@ except (ImportError, KeyError) as e:
 try:
     import sklearn
     sklearn_found = False
-except (ImportError, KeyError) as e:
+except (ImportError, KeyError,ModuleNotFoundError) as e:
     sklearn_found = False
     pass
 
 try:
     import statsmodels
     statsmodels_found = True
-except (ImportError, KeyError) as e:
+except (ImportError, KeyError,ModuleNotFoundError) as e:
     statsmodels_found = False
     pass
 
 try:
     import pygam
     pygam_found = True
-except (ImportError, KeyError) as e:
+except (ImportError, KeyError,ModuleNotFoundError) as e:
     pygam_found = False
     pass
 
 try:
     import supersmoother
     supersmoother_found = True
-except (ImportError, KeyError) as e:
+except (ImportError, KeyError,ModuleNotFoundError) as e:
     supersmoother_found = False
     pass
 
+try:
+    from wotan import flatten
+    wotan_found = True
+except (ImportError, KeyError,ModuleNotFoundError) as e:
+    wotan_found = False
+    print("wotan not found!")
+    pass
 
 class ActivityWindow(QtWidgets.QWidget, Ui_ActivityWindow):
     def __init__(self,parent):
@@ -80,12 +87,18 @@ class ActivityWindow(QtWidgets.QWidget, Ui_ActivityWindow):
         self.statsmodels_found = statsmodels_found
         self.pygam_found = pygam_found
         self.supersmoother_found = supersmoother_found
-        
+        self.wotan_found = wotan_found
+      
         self.ui.radio_GPs.setEnabled(sklearn_found)
         self.ui.comboBox_GP.setEnabled(sklearn_found)
         self.ui.kernel_size.setEnabled(sklearn_found)
         
-
+        if wotan_found == False:
+            self.ui.radio_timeW.setEnabled(wotan_found)
+            self.ui.radio_Splines.setEnabled(wotan_found)
+            self.ui.radio_Polynomials.setEnabled(wotan_found)
+            self.ui.radio_Regressions.setEnabled(wotan_found)
+            self.ui.radio_GPs.setEnabled(wotan_found)
 
 
         self.t_store             = {k: [] for k in range(10)}
