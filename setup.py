@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
      long_description = fh.read()
 
 
-if sys.version_info >= (3,7):
+if sys.version_info >= (3,8):
     install_requires_py_ver=[
     "numpy>=1.16.6",
     "scipy>=1.2.1",
