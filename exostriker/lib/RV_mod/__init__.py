@@ -2429,7 +2429,7 @@ class signal_fit(object):
         self.model_max = 5
         self.model_min =0
 
-        self.colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#808080']
+        self.colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#808080']
 
 
         self.init_orb_evol()
@@ -2471,12 +2471,12 @@ class signal_fit(object):
         self.pyqt_color_alpha_tra = {k: 255 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #
         self.pyqt_color_alpha_ttv = {k: 255 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #        
 
-        self.act_colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
-        self.tra_colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
-        self.rvs_colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+        self.act_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+        self.tra_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
+        self.rvs_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 
         self.gls_colors = ['#ff0000',  '#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#000000']
-        self.ttv_colors = ['#0066ff',  '#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
+        self.ttv_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
 
         self.init_sciPy_minimizer()
         self.init_ld_model()
@@ -4719,7 +4719,7 @@ class signal_fit(object):
             prior_jeff.append(self.pl_a_jeff_pr[i])
             prior_jeff.append(self.pl_rad_jeff_pr[i])
 
-            if rtg[2] == [False]:
+            if rtg[2] == False:
                 flag.append(False) #
                 flag.append(False) #
                 flag.append(False)
@@ -4728,6 +4728,8 @@ class signal_fit(object):
                 flag.append(self.pl_a_use[i])
                 flag.append(self.pl_rad_use[i])
 
+
+       # if rtg[3] == True: # and self.type_fit['Transit'] == True:
 
 
         for i in range(20):
@@ -4739,12 +4741,11 @@ class signal_fit(object):
                 prior_nr.append(self.tra_off_norm_pr[i])
                 prior_jeff.append(self.tra_off_jeff_pr[i])
 
-                if rtg == [True, False,False,True]:
-                    flag.append(False) #
-                elif rtg == [True,False,False,False]:
-                    flag.append(False) #
-                else:
+                if rtg[2] == True:
                     flag.append(self.tra_off_use[i]) #
+                else:
+                    flag.append(False) #                    
+
 
 
         for i in range(20):
@@ -4756,12 +4757,10 @@ class signal_fit(object):
                 prior_jeff.append(self.tra_jitt_jeff_pr[i])
 
 
-                if rtg == [True, False,False,True]:
-                    flag.append(False) #
-                elif rtg == [True,False,False,False]:
-                    flag.append(False) #
-                else:
+                if rtg[2] == True:
                     flag.append(self.tra_jitt_use[i])
+                else:
+                    flag.append(False) #
 
 
 
@@ -4804,12 +4803,11 @@ class signal_fit(object):
                 prior_jeff.append(self.tra_lintr_jeff_pr[i])
 
 
-                if rtg == [True, False,False,True]:
-                    flag.append(False) #
-                elif rtg == [True,False,False,False]:
-                    flag.append(False) #
-                else:
+                if rtg[2] == True:
                     flag.append(self.tra_lintr_use[i])
+                else:
+                    flag.append(False) #
+
 
         for i in range(20):
             if len(self.tra_data_sets[i]) != 0:
@@ -4819,14 +4817,11 @@ class signal_fit(object):
                 prior_nr.append(self.tra_quadtr_norm_pr[i])
                 prior_jeff.append(self.tra_quadtr_jeff_pr[i])
 
-
-                if rtg == [True, False,False,True]:
-                    flag.append(False) #
-                elif rtg == [True,False,False,False]:
-                    flag.append(False) #
+ 
+                if rtg[2] == True:
+                    flag.append(self.tra_quadtr_use[i])
                 else:
-                    flag.append(self.tra_quadtr_use[i]) 
-
+                    flag.append(False) #
 
 
         for i  in range(self.npl):
