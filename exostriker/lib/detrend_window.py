@@ -28,35 +28,35 @@ except (ImportError, KeyError) as e:
 try:
     import sklearn
     sklearn_found = True
-except (ImportError, KeyError) as e:
+except (ImportError, KeyError,ModuleNotFoundError) as e:
     sklearn_found = False
     pass
 
 try:
     import statsmodels
     statsmodels_found = True
-except (ImportError, KeyError) as e:
+except (ImportError, KeyError,ModuleNotFoundError) as e:
     statsmodels_found = False
     pass
 
 try:
     import pygam
     pygam_found = True
-except (ImportError, KeyError) as e:
+except (ImportError, KeyError,ModuleNotFoundError) as e:
     pygam_found = False
     pass
 
 try:
     import supersmoother
     supersmoother_found = True
-except (ImportError, KeyError) as e:
+except (ImportError, KeyError,ModuleNotFoundError) as e:
     supersmoother_found = False
     pass
 
 try:
     from wotan import flatten
     wotan_found = True
-except (ImportError, KeyError) as e:
+except (ImportError, KeyError,ModuleNotFoundError) as e:
     wotan_found = False
     print("wotan not found!")
     pass
