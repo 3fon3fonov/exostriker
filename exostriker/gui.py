@@ -5456,12 +5456,12 @@ Transit data rms/wrms
                     text_info = """ """   
                     self.dialog_more_info.text.append(text_info)                
                     rms = np.sqrt(np.average(fit.tra_data_sets[i][4]**2))
-                    text_wrm = "%s    rms = %.5f m/s"%(fit.tra_data_sets[i][-1],rms)       
+                    text_wrm = "%s    rms = %.5f rel. flux"%(fit.tra_data_sets[i][-1],rms)       
                     self.dialog_more_info.text.append(text_wrm)
            
                     wrms = np.sqrt(np.average(fit.tra_data_sets[i][4]**2,
                                               weights=1/fit.tra_data_sets[i][2]))
-                    text_wrm = "%s wrms = %.5f m/s"%(fit.tra_data_sets[i][-1],wrms)       
+                    text_wrm = "%s wrms = %.5f rel. flux"%(fit.tra_data_sets[i][-1],wrms)       
                     self.dialog_more_info.text.append(text_wrm)        
 
        # self.dialog_more_info.text.append(text_info)
