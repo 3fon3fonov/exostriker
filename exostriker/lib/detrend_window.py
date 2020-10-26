@@ -12,7 +12,6 @@ import dill
 import RV_mod as rv
 import pg_hack
 
-from wotan import flatten
 
 #qtCreatorFile = "./lib/UI/tdt.ui" 
 #Ui_DetrendWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
@@ -54,6 +53,16 @@ except (ImportError, KeyError) as e:
     supersmoother_found = False
     pass
 
+try:
+    from wotan import flatten
+    wotan_found = True
+except (ImportError, KeyError) as e:
+    wotan_found = False
+    print("wotan not found!")
+    pass
+
+
+
 
 class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
     def __init__(self,parent):
@@ -78,11 +87,18 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.statsmodels_found = statsmodels_found
         self.pygam_found = pygam_found
         self.supersmoother_found = supersmoother_found
+        self.wotan_found = wotan_found
         
         self.ui.radio_GPs.setEnabled(sklearn_found)
         self.ui.comboBox_GP.setEnabled(sklearn_found)
         self.ui.kernel_size.setEnabled(sklearn_found)
         
+        if wotan_found == False:
+            self.ui.radio_timeW.setEnabled(wotan_found)
+            self.ui.radio_Splines.setEnabled(wotan_found)
+            self.ui.radio_Polynomials.setEnabled(wotan_found)
+            self.ui.radio_Regressions.setEnabled(wotan_found)
+            self.ui.radio_GPs.setEnabled(wotan_found)
 
 
 
@@ -631,7 +647,9 @@ dependencies list. For example:
 
         sliders     = ["biweight","huber","huber_psi","hampel","andrewsinewave","welsch","ramsay","tau","hodges","median",
 "medfilt","mean","trim_mean","winsorize","hampelfilt"] 
-        sliders_use = [True, self.statsmodels_found, True, self.statsmodels_found,True, True, self.statsmodels_found,True,True,True,True,True,True,True,True] 
+        sliders_use = [self.wotan_found, self.statsmodels_found, self.wotan_found, self.statsmodels_found,
+                       self.wotan_found, self.wotan_found, self.statsmodels_found,self.wotan_found,self.wotan_found,
+                       self.wotan_found, self.wotan_found, self.wotan_found, self.wotan_found,self.wotan_found,self.wotan_found] 
         
         for i in range(len(sliders)):
             if sliders_use[i] == True:
@@ -655,7 +673,7 @@ dependencies list. For example:
     def init_comboBox_regres(self):
 
         regres = ["lowess","supersmoother","ridge","lasso"]
-        regres_use = [True,self.supersmoother_found,self.sklearn_found,self.sklearn_found]
+        regres_use = [self.wotan_found,self.supersmoother_found,self.sklearn_found,self.sklearn_found]
         
         for i in range(len(regres)):
             if regres_use[i] == True:
