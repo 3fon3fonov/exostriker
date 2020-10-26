@@ -1,10 +1,51 @@
 from setuptools import setup, find_packages
-import os
-import setuptools 
+import os, sys
+#import setuptools 
 #from numpy.distutils.core import setup, Extention 
 
 with open("README.md", "r") as fh:
      long_description = fh.read()
+
+
+if sys.version_info >= (3,7):
+    install_requires_py_ver=[
+    "numpy>=1.16.6",
+    "scipy>=1.2.1",
+    "matplotlib==3.2.1",
+    "formlayout==1.2.0",
+    "PyQt5>=5.15.0",
+    "jupyter",
+    "jupyter-client",
+    "ipykernel",
+    "qtconsole",
+    "pathos>=0.2.5",
+    "emcee>=3.0.2",
+    "corner>=2.1.0",
+    "celerite>=0.3.1",
+    "batman-package>=2.4.6",
+    "transitleastsquares==1.0.24",
+    "dynesty>=1.0.1",
+    "ttvfast>=0.3.0"]
+else:
+    install_requires_py_ver=[
+    "numpy>=1.16.6",
+    "scipy>=1.2.1",
+    "matplotlib==3.2.1",
+    "formlayout==1.2.0",
+    "PyQt5==5.9.2",
+    "jupyter",
+    "jupyter-client",
+    "ipykernel",
+    "qtconsole",
+    "pathos>=0.2.5",
+    "emcee>=3.0.2",
+    "corner>=2.1.0",
+    "celerite>=0.3.1",
+    "batman-package>=2.4.6",
+    "transitleastsquares==1.0.24",
+    "dynesty>=1.0.1",
+    "ttvfast>=0.3.0"]
+
 
 setup(
 name='exostriker',  
@@ -24,26 +65,11 @@ classifiers=[
  "License :: MIT License",
  "Operating System :: OS Independent",
 ],
-install_requires=[
-"numpy>=1.16.6",
-"scipy>=1.2.1",
-"matplotlib==3.2.1",
-"formlayout==1.2.0",
-"PyQt5==5.9.2",
-"jupyter",
-"jupyter-client",
-"ipykernel",
-"qtconsole",
-"pathos>=0.2.5",
-"emcee>=3.0.2",
-"corner>=2.1.0",
-"celerite>=0.3.1",
-"batman-package>=2.4.6",
-"transitleastsquares==1.0.24",
-"dynesty>=1.0.1",
-"ttvfast>=0.3.0",
-"wotan>=1.7"],
-extra_requires=['pexpect>=4.8.0'],
+install_requires=install_requires_py_ver,
+extras_requires={
+            'pexpect>=4.8.0':['pexpect'],
+            'wotan>=1.7':['wotan'],},    
+
 license="MIT"
  )
  
