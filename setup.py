@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
      long_description = fh.read()
 
 
-if sys.version_info >= (3,8):
+if sys.version_info >= (3,7):
     install_requires_py_ver=[
     "numpy>=1.16.6",
     "scipy>=1.2.1",
@@ -25,7 +25,8 @@ if sys.version_info >= (3,8):
     "batman-package>=2.4.6",
     "transitleastsquares==1.0.24",
     "dynesty>=1.0.1",
-    "ttvfast>=0.3.0"]
+    "ttvfast>=0.3.0",
+    "wotan>=1.7"]
 else:
     install_requires_py_ver=[
     "numpy>=1.16.6",
@@ -44,7 +45,8 @@ else:
     "batman-package>=2.4.6",
     "transitleastsquares==1.0.24",
     "dynesty>=1.0.1",
-    "ttvfast>=0.3.0"]
+    "ttvfast>=0.3.0",
+    "wotan>=1.7"]
 
 
 setup(
@@ -67,8 +69,7 @@ classifiers=[
 ],
 install_requires=install_requires_py_ver,
 extras_requires={
-            'pexpect>=4.8.0':['pexpect'],
-            'wotan>=1.7':['wotan'],},    
+            'pexpect>=4.8.0':['pexpect']},    
 
 license="MIT"
  )

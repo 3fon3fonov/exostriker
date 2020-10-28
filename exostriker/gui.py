@@ -2512,10 +2512,15 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         transit_results_sep = fit.transit_results[1]
         transit_results_all = fit.transit_results[2]
 
-        if self.use_rich_tra_model.isChecked():
+        if self.use_rich_tra_model.isChecked() and fit.tra_doGP == False:
             transit_model_rich  = fit.transit_results[3]
             t_model             = transit_model_rich[0]
             flux_model_ex       = transit_model_rich[1]
+        elif self.use_rich_tra_model.isChecked() and fit.tra_doGP == True:
+            print("Not yet possible to plot 'rich transit model' with a GP model")
+            t_model        = np.concatenate([transit_results_sep[0][x] for x in range(10) if len(transit_results_sep[0][x]) != 0])
+            flux_model_ex  = np.concatenate([transit_results_sep[3][x] for x in range(10) if len(transit_results_sep[3][x]) != 0])
+
         else:
             t_model        = np.concatenate([transit_results_sep[0][x] for x in range(10) if len(transit_results_sep[0][x]) != 0])
             flux_model_ex  = np.concatenate([transit_results_sep[3][x] for x in range(10) if len(transit_results_sep[3][x]) != 0])
