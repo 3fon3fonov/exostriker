@@ -16,6 +16,14 @@ else:
 
 from matplotlib.figure import Figure
 
+
+# matplotlib.rcParams.keys()
+
+matplotlib.rcParams['axes.formatter.useoffset'] = False
+matplotlib.rcParams['axes.formatter.limits'] = [-9, 9]
+#matplotlib.rcParams['axes.grid'] = True
+
+ 
 class MatplotlibWidget(QtGui.QWidget):
     """
     Implements a Matplotlib figure inside a QWidget.
