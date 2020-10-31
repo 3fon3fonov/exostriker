@@ -3768,7 +3768,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         elif self.use_GP_rot_kernel.isChecked():
             fit.gp_kernel = 'RotKernel'    
         elif self.use_GP_mat_kernel.isChecked():
-            fit.gp_kernel = 'Matern32'    
+            fit.gp_kernel = 'Matern32' 
+            
+        self.set_link_GP()
 
     def set_tra_GP(self):
         global fit
@@ -3779,6 +3781,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             fit.tra_gp_kernel = 'RotKernel'
         elif self.use_tra_GP_mat_kernel.isChecked():
             fit.tra_gp_kernel = 'Matern32'    
+
+        self.set_link_GP()
 
 
     def set_gui_RV_GP(self):
@@ -3832,8 +3836,76 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
          
         self.set_gui_RV_GP()
         self.set_gui_tra_GP()            
-            
+       
+    def set_link_GP(self):
+        global fit       
+        
+        
+        if self.use_tra_GP_rot_kernel.isChecked():
+                
+            if self.use_tra_GP_rot_kernel_time_sc_link_to_RV.isChecked()  and self.use_GP_rot_kernel.isChecked():
+                self.use_GP_rot_kernel_time_sc.setChecked(False)
+                self.use_GP_rot_kernel_time_sc.setEnabled(False)
+                self.GP_rot_kernel_time_sc.setEnabled(False)
+            else:
+                self.use_GP_rot_kernel_time_sc.setChecked(True)
+                self.use_GP_rot_kernel_time_sc.setEnabled(True)
+                self.GP_rot_kernel_time_sc.setEnabled(True)                            
+                
+            if self.use_tra_GP_rot_kernel_Per_link_to_RV.isChecked()  and self.use_GP_rot_kernel.isChecked():
+                self.use_GP_rot_kernel_Per.setChecked(False)
+                self.use_GP_rot_kernel_Per.setEnabled(False)
+                self.GP_rot_kernel_Per.setEnabled(False)
+            else:
+                self.use_GP_rot_kernel_Per.setChecked(True)
+                self.use_GP_rot_kernel_Per.setEnabled(True)
+                self.GP_rot_kernel_Per.setEnabled(True)  
+                
+            if self.use_tra_GP_rot_kernel_fact_link_to_RV.isChecked()  and self.use_GP_rot_kernel.isChecked():
+                self.use_GP_rot_kernel_fact.setChecked(False)
+                self.use_GP_rot_kernel_fact.setEnabled(False)
+                self.GP_rot_kernel_fact.setEnabled(False)
+            else:
+                self.use_GP_rot_kernel_fact.setChecked(True)
+                self.use_GP_rot_kernel_fact.setEnabled(True)
+                self.GP_rot_kernel_fact.setEnabled(True)           
 
+            fit.link_RV_GP = [False,
+                              self.use_tra_GP_rot_kernel_time_sc_link_to_RV.isChecked(),
+                              self.use_tra_GP_rot_kernel_Per_link_to_RV.isChecked(),
+                              self.use_tra_GP_rot_kernel_fact_link_to_RV.isChecked()]
+            
+        elif self.use_tra_GP_sho_kernel.isChecked():
+                
+            if self.use_tra_GP_sho_kernel_Q_link_to_RV.isChecked() and self.use_GP_sho_kernel.isChecked():
+                self.use_GP_sho_kernel_Q.setChecked(False)
+                self.use_GP_sho_kernel_Q.setEnabled(False)
+                self.GP_sho_kernel_Q.setEnabled(False)
+            else:
+                self.use_GP_sho_kernel_Q.setChecked(True)
+                self.use_GP_sho_kernel_Q.setEnabled(True)
+                self.GP_sho_kernel_Q.setEnabled(True)                            
+                
+            if self.use_tra_GP_sho_kernel_omega_link_to_RV.isChecked() and self.use_GP_sho_kernel.isChecked():
+                self.use_GP_sho_kernel_omega.setChecked(False)
+                self.use_GP_sho_kernel_omega.setEnabled(False)
+                self.GP_sho_kernel_omega.setEnabled(False)
+            else:
+                self.use_GP_sho_kernel_omega.setChecked(True)
+                self.use_GP_sho_kernel_omega.setEnabled(True)
+                self.GP_sho_kernel_omega.setEnabled(True)         
+
+            fit.link_RV_GP = [False,
+                              self.use_tra_GP_sho_kernel_Q_link_to_RV.isChecked(),
+                              self.use_tra_GP_sho_kernel_omega_link_to_RV.isChecked(),
+                              False]
+                        
+        else:
+                
+            fit.link_RV_GP = [False, False, False,False]
+            
+            
+                
 ################################ RV files #######################################################
 
     def showDialog_fortran_input_file(self):
@@ -8346,7 +8418,7 @@ https://github.com/3fon3fonov/exostriker/issues
     def __init__(self):
         global fit 
         
-        es_version = 0.50
+        es_version = 0.51
 
 
         QtWidgets.QMainWindow.__init__(self)
@@ -9096,7 +9168,7 @@ https://github.com/3fon3fonov/exostriker/issues
         self.buttonGroup_use_tra_GP_kernel.buttonClicked.connect(self.set_tra_GP)
         self.buttonGroup_use_GP.buttonClicked.connect(self.set_use_GP)
 
-
+        self.buttonGroup_link_tra_GP_to_RV_GP.buttonClicked.connect(self.set_link_GP)
         #### Transit detrend   ####
 
         self.buttonGroup_detrend_tra.buttonClicked.connect(self.transit_data_detrend)

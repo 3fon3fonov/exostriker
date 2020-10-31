@@ -1009,10 +1009,13 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
         gp_rv_loglik = 0
 
-        
+        #opt["link_RV_GP"]
         param_vect = []
         for j in range(len(gps.get_parameter_vector())):
-            param_vect.append(np.log(par[len(vel_files)*2  +7*npl +2 +j]))
+            if opt["link_RV_GP"][j]==True and rtg[3] == True:
+                param_vect.append(np.log(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + j]))
+            else:
+                param_vect.append(np.log(par[len(vel_files)*2  +7*npl +2 +j]))
        # print(param_vect)
         gps.set_parameter_vector(np.array(param_vect))
         
@@ -1170,7 +1173,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "TTV_times":obj.ttv_times,
            "AMD_stab":obj.optim_AMD_stab, 
            "Nbody_stab":obj.optim_Nbody_stab,
-           "get_TTVs":obj.get_TTVs}
+           "get_TTVs":obj.get_TTVs,
+           "link_RV_GP":obj.link_RV_GP}
     
 
     if obj.init_fit == True:
@@ -1325,15 +1329,28 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     if (rtg[1]):
         if obj.gp_kernel == 'RotKernel':
-            for j in range(len(gps.get_parameter_vector())):
-                obj.GP_rot_params[j] = par[len(vel_files)*2  +7*npl +2 +j]
-            rv_gp_npar =4 
             
-        elif obj.gp_kernel == 'SHOKernel':
+            rv_gp_npar =4 
+                
             for j in range(len(gps.get_parameter_vector())):
-                obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +2 +j]
-            rv_gp_npar =3 
+        
+                if opt["link_RV_GP"][j]==True and rtg[3] == True and obj.gp_kernel ==obj.tra_gp_kernel:
+                    obj.GP_rot_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + j]
+                else:
+                    obj.GP_rot_params[j] = par[len(vel_files)*2  +7*npl +2 +j]
  
+    
+        elif obj.gp_kernel == 'SHOKernel':
+            
+            rv_gp_npar =3 
+            
+            for j in range(len(gps.get_parameter_vector())):
+    
+                if opt["link_RV_GP"][j]==True and rtg[3] == True and obj.gp_kernel ==obj.tra_gp_kernel:
+                    obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + j]
+                else:
+                    obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +2 +j]
+    
         elif obj.gp_kernel == 'Matern32':
             for j in range(len(gps.get_parameter_vector())):
                 obj.GP_mat_params[j] = par[len(vel_files)*2  +7*npl +2 +j]
@@ -1700,7 +1717,8 @@ def run_nestsamp(obj, **kwargs):
            "TTV_times":obj.ttv_times,
            "AMD_stab":obj.NS_AMD_stab, 
            "Nbody_stab":obj.NS_Nbody_stab,
-           "get_TTVs":obj.get_TTVs}
+           "get_TTVs":obj.get_TTVs,
+           "link_RV_GP":obj.link_RV_GP}
 
 
     gps = []
@@ -2107,7 +2125,8 @@ def run_mcmc(obj, **kwargs):
            "TTV_times":obj.ttv_times,
            "AMD_stab":obj.mcmc_AMD_stab, 
            "Nbody_stab":obj.mcmc_Nbody_stab,
-           "get_TTVs":obj.get_TTVs}
+           "get_TTVs":obj.get_TTVs,
+           "link_RV_GP":obj.link_RV_GP}
 
 
     gps = []
@@ -2389,7 +2408,9 @@ class signal_fit(object):
         self.hkl = False
         self.copl_incl = False
         self.rtg = [True,False,False,False]
-
+        self.link_RV_GP = [False,False,False,False]
+                           
+                           
         self.ttv_data_sets = {k: [] for k in range(10)}
         self.act_data_sets = {k: [] for k in range(20)}
         self.tra_data_sets = {k: [] for k in range(20)}
