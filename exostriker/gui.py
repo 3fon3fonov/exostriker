@@ -1841,13 +1841,18 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p_ttv_oc = self.graphicsView_timeseries_ttv_o_c
         p_per_ev = self.graphicsView_orb_evol_periods
 
-        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','Period [d]','Period [d]','Period [d]','Period [d]','Period [d]','Period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]','t [yr]','t [yr]','t [yr]','','x','x','Period [d]','N transit','N transit','t [yr]']
-        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','Power','Power','SDE','SDE','Power','Power','a [au]','e','omega [deg]','a [au]','delta omega [deg]','theta [deg]','inc [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.']
+        xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','Period [d]','Period [d]','Period [d]',
+                 'Period [d]','Period [d]','Period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]',
+                 't [yr]','t [yr]','t [yr]','','x','x','Period [d]','N transit','N transit','t [yr]']
+        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','Power','Power','SDE','SDE','Power','Power','a [au]','e',
+                 '<html><head/><body><p>&omega; [deg] </p></body></html>','a [au]',
+                 '<html><head/><body><p>&Delta;&omega; [deg] </p></body></html>',
+                 '<html><head/><body><p>&theta; [deg] </p></body></html>',
+                 'i [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.']
         xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','','','','','']
         yunit = ['' ,'' , '','','','','','','','','','','','','','','','','','','','','','','','','']
 
         zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev]
-
 
 
         for i in range(len(zzz)):
@@ -3183,7 +3188,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         for i in range(npl):
             self.comboBox_pl_1.addItem('omega %s'%str(i+1),i+1) 
             self.comboBox_pl_2.addItem('omega %s'%str(i+1),i+1) 
-            
+
         self.comboBox_pl_1.setCurrentIndex(0)
         self.comboBox_pl_2.setCurrentIndex(1)
 
@@ -3357,14 +3362,14 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                      
             x = fit.evol_e[e_ind][0:last_stable]*np.cos(np.radians(theta[tet_n]))
             y = fit.evol_e[e_ind][0:last_stable]*np.sin(np.radians(theta[tet_n])) 
-            p18.setLabel('bottom', 'e%s cos (<html><head/><body><p>&omega%s; [deg]</p></body></html>)'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
-            p18.setLabel('left', 'e%s sin (theta%s)'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
+            p18.setLabel('bottom', '<html><head/><body><p>e%s cos(&omega;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
+            p18.setLabel('left', '<html><head/><body><p>e%s sin(&omega;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
 
         else:
             x = fit.evol_T[0][0:last_stable]
             y = theta[tet_n]
             p18.setLabel('bottom', 't [yr]', units='',  **{'font-size':'9pt'}) 
-            p18.setLabel('left', 'theta%s [deg]'%(tet_n+1), units='',  **{'font-size':'9pt'}) 
+            p18.setLabel('left', '<html><head/><body><p>&theta;%s [deg] </p></body></html>'%(tet_n+1), units='',  **{'font-size':'9pt'}) 
             
 
         p18.plot(x, y ,pen=None, #{'color': colors[i], 'width': 1.1},
@@ -3440,8 +3445,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 symbolBrush=fit.colors[i]
                 )
                 
+            p19.setLabel('left', '<html><head/><body><p>&Omega; [deg] </p></body></html>', units='',  **{'font-size':'9pt'}) 
                 
-            p19.setLabel('left', 'Omega [deg]', units='',  **{'font-size':'9pt'})    
             Om_evol = 0
  
     def plot_energy(self):
@@ -8438,7 +8443,7 @@ https://github.com/3fon3fonov/exostriker/issues
     def __init__(self):
         global fit 
         
-        es_version = 0.51
+        es_version = 0.52
 
 
         QtWidgets.QMainWindow.__init__(self)
