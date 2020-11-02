@@ -3298,7 +3298,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.comboBox_MMR_pl_1.clear()
         self.comboBox_MMR_pl_2.clear()
         
-        for i in range(10):
+        for i in range(20):
             self.comboBox_MMR_pl_1.addItem('%s'%str(i+1),i+1) 
             self.comboBox_MMR_pl_2.addItem('%s'%str(i+1),i+1) 
             
@@ -3345,9 +3345,29 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if self.radioButton_theta_180_fold.isChecked():
                 theta[i][theta[i]>=180.0] -= 360.0
  
-        
+ 
         p18.plot(clear=True,)
-        p18.plot(fit.evol_T[0][0:last_stable], theta[tet_n] ,pen=None, #{'color': colors[i], 'width': 1.1},
+        
+        if self.theta_esin_ecos.isChecked():
+            
+            if self.theta_esin_ecos_e_in.isChecked():
+                e_ind = pl1_ind
+            else:
+                e_ind = pl2_ind
+                     
+            x = fit.evol_e[e_ind][0:last_stable]*np.cos(np.radians(theta[tet_n]))
+            y = fit.evol_e[e_ind][0:last_stable]*np.sin(np.radians(theta[tet_n])) 
+            p18.setLabel('bottom', 'e%s cos (theta%s)'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
+            p18.setLabel('left', 'e%s sin (theta%s)'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
+
+        else:
+            x = fit.evol_T[0][0:last_stable]
+            y = theta[tet_n]
+            p18.setLabel('bottom', 't [yr]', units='',  **{'font-size':'9pt'}) 
+            p18.setLabel('left', 'theta%s [deg]'%(tet_n+1), units='',  **{'font-size':'9pt'}) 
+            
+
+        p18.plot(x, y ,pen=None, #{'color': colors[i], 'width': 1.1},
         symbol='o',
         symbolPen={'color': colors_theta[0], 'width': 1.1},
         symbolSize=1,enableAutoRange=True,viewRect=True,
@@ -3373,7 +3393,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         else:
             return
 
-        self.plot_theta()
+        #self.plot_theta()
 
 
     def theta_plot_y_labels(self):
@@ -3387,7 +3407,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         else:
             return
 
-        self.plot_theta()
+        #self.plot_theta()
 
 
     def plot_i_Om(self):
@@ -8932,6 +8952,9 @@ https://github.com/3fon3fonov/exostriker/issues
         self.comboBox_pl_2.activated.connect(self.plot_delta_omega)
         self.radioButton_dom_180_fold.toggled.connect(self.plot_delta_omega)
         self.radioButton_theta_180_fold.toggled.connect(self.plot_theta)
+        self.theta_esin_ecos.stateChanged.connect(self.plot_theta)
+        self.theta_esin_ecos_e_in.toggled.connect(self.plot_theta)
+
 
         self.per_evol_comboBox_pl_1.activated.connect(self.plot_per_rat)
         self.per_evol_comboBox_pl_2.activated.connect(self.plot_per_rat)
