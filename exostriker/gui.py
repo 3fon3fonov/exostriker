@@ -3357,7 +3357,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                      
             x = fit.evol_e[e_ind][0:last_stable]*np.cos(np.radians(theta[tet_n]))
             y = fit.evol_e[e_ind][0:last_stable]*np.sin(np.radians(theta[tet_n])) 
-            p18.setLabel('bottom', 'e%s cos (theta%s)'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
+            p18.setLabel('bottom', 'e%s cos (<html><head/><body><p>&omega%s; [deg]</p></body></html>)'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
             p18.setLabel('left', 'e%s sin (theta%s)'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
 
         else:
