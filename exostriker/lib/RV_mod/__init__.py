@@ -3169,9 +3169,9 @@ class signal_fit(object):
         self.fitting_method = 'None'
         self.time_step_model = 10.0
         self.dyn_model_accuracy = 1000.0
-        self.dyn_model_to_kill = 86400.0
-        self.kep_model_to_kill = 60.0
-        self.master_timeout = 86400.0
+        self.dyn_model_to_kill = 20.0
+        self.kep_model_to_kill = 10.0
+        self.master_timeout = 20.0 #86400.0
 
 
 
