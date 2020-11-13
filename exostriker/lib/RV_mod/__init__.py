@@ -199,9 +199,11 @@ def get_RV_gps_model(obj,  kernel_id=-1, get_lnl=False):
        #     gp_rv_loglik += -0.5*(np.sum((o_c_kep[obj.fit_results.idset==i])**2 * sig2i_gp - np.log(sig2i_gp / 2./ np.pi)))
             gp_rv_chi    += np.sum((o_c_kep[obj.fit_results.idset==i])**2 * sig2i_gp)
 
+
             
         obj.fit_results.chi2 = gp_rv_chi
-        obj.fit_results.reduced_chi2 = gp_rv_chi /len(o_c_kep)
+        obj.fit_results.reduced_chi2 = gp_rv_chi /(len(o_c_kep) - len(obj.par_for_mcmc))
+
         obj.fit_results.rms = np.sqrt(np.average(o_c_kep**2))
         obj.fit_results.wrms =  np.sqrt(np.average(o_c_kep**2, weights=1/obj.fit_results.rv_err))
 
@@ -1273,6 +1275,22 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         n2 = obj.SciPy_min_N_use_2
 
 
+    bounds = [(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),
+              (-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),
+              (-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05)]
+    
+    from mystic.samplers import BuckshotSampler
+    solution = BuckshotSampler(bounds, nll,disp=1,retall=1,args=(mod, par,flags, npl,vel_files, 
+                                                             tr_files, tr_model, tr_params,  epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, opt ))
+    obj.mys = solution                         
+   # import mystic
+   # from mystic.solvers import fmin
+   # solution = fmin(nll,pp,disp=0,retall=1,args=(mod, par,flags, npl,vel_files, tr_files, tr_model, tr_params,  epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, opt ),
+    #                         method=method1,bounds=fit_bounds, options=options1)
+    #allvecs = solution[-1]
+    
+   # print(allvecs[])
+
     ########################### Primary minimizer #########################
     for k in range(n1): # run at least 3 times the minimizer
         #eps = eps/10.0
@@ -1421,14 +1439,17 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
         obj.loglik = obj.transit_results[0]
 
-
+        obj.fit_results.Ndata    = obj.transit_results[4][4]
+        obj.fit_results.stat.dof = obj.transit_results[4][4] - len(pp)
+        
         obj.fit_results.chi2 = obj.transit_results[4][0]
-        obj.fit_results.reduced_chi2 = obj.transit_results[4][1]
+       # obj.fit_results.reduced_chi2 = obj.transit_results[4][1]
+        obj.fit_results.reduced_chi2 = obj.fit_results.chi2 / obj.fit_results.stat.dof
+        
         obj.fit_results.rms = obj.transit_results[4][2]
         obj.fit_results.wrms = obj.transit_results[4][3]
 
-        obj.fit_results.Ndata    = obj.transit_results[4][4]
-        obj.fit_results.stat.dof = obj.transit_results[4][4] - len(pp)
+
 
     elif obj.type_fit["RV"] == True and obj.type_fit["Transit"] == True:
 
