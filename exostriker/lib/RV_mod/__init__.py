@@ -1274,15 +1274,15 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         n1 = obj.SciPy_min_N_use_1
         n2 = obj.SciPy_min_N_use_2
 
-
-    bounds = [(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),
-              (-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),
-              (-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05)]
+    ############ TESTS begin ####################
+    #bounds = [(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),
+  #            (-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),
+  #            (-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05),(-1.00e+05, 1.00e+05)]
     
-    from mystic.samplers import BuckshotSampler
-    solution = BuckshotSampler(bounds, nll,disp=1,retall=1,args=(mod, par,flags, npl,vel_files, 
-                                                             tr_files, tr_model, tr_params,  epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, opt ))
-    obj.mys = solution                         
+    #from mystic.samplers import BuckshotSampler
+    #solution = BuckshotSampler(bounds, nll,disp=1,retall=1,args=(mod, par,flags, npl,vel_files, 
+    #                                                         tr_files, tr_model, tr_params,  epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, opt ))
+    #obj.mys = solution                         
    # import mystic
    # from mystic.solvers import fmin
    # solution = fmin(nll,pp,disp=0,retall=1,args=(mod, par,flags, npl,vel_files, tr_files, tr_model, tr_params,  epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, opt ),
@@ -1290,6 +1290,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     #allvecs = solution[-1]
     
    # print(allvecs[])
+   ############ TESTS end ####################
 
     ########################### Primary minimizer #########################
     for k in range(n1): # run at least 3 times the minimizer
@@ -2048,12 +2049,15 @@ def run_mcmc_bg(obj):
     dill.dump(obj, file_ses)
     file_ses.close()
 
-    if sys.version_info[0] == 2:
-        os.system("python2 ./lib/run_mcmc_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
-    elif sys.version_info[0] == 3:
-        os.system("python3 ./lib/run_mcmc_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
+   # if sys.version_info[0] == 2:
+#        os.system("python2 ./lib/run_mcmc_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
+#    elif sys.version_info[0] == 3:
+  #      os.system("python3 ./lib/run_mcmc_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
 
-
+    #if sys.version_info[0] == 2:
+    os.system("python%s.%s ./lib/run_mcmc_from_ses.py -ses ./%s.ses %s"%(
+        sys.version_info[0],sys.version_info[1],target_name,target_name))
+ 
     file_ses2 = open("%s_out.ses"%target_name, 'rb')
     obj = dill.load(file_ses2)
     file_ses2.close()
