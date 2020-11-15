@@ -1638,10 +1638,13 @@ def run_nestsamp_bg(obj):
     dill.dump(obj, file_ses)
     file_ses.close()
 
-    if sys.version_info[0] == 2:
-        os.system("python2 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
-    elif sys.version_info[0] == 3:
-        os.system("python3 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
+    #if sys.version_info[0] == 2:
+   #     os.system("python2 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
+   # elif sys.version_info[0] == 3:
+    #    os.system("python3 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
+
+    os.system("python%s.%s ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(
+        sys.version_info[0],sys.version_info[1],target_name,target_name))
 
     file_ses2 = open("%s_out.ses"%target_name, 'rb')
     obj = dill.load(file_ses2)
