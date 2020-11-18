@@ -39,7 +39,6 @@ c*************************************************************************
       
       read (*,*) epsil,deltat, amoebastarts,
      &          when_to_kill, nt, model_max,model_min,gr_flag
-
       read (*,*) mstar,
      &    writeflag_best_par, writeflag_RV,writeflag_fit 
 
