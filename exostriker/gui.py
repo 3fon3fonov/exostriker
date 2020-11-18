@@ -4499,9 +4499,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 #        self.update_params()
 
         self.update_gui_params()
-        print("FFF")
+        #print("FFF")
        # if minimize_loglik == True:
-       #     self.update_errors() 
+        self.update_errors() 
             
         self.update_a_mass() 
         
@@ -5277,11 +5277,12 @@ Transit duration: %s d
 
         self.update_labels()
         self.update_gui_params()
- 
-        if self.reset_errors_at_init.isChecked() == False and fit.init_fit == True:
-            print("Warning: 'Reset the errors to 0 when Initialize' is set to 'False', thus errors are not overwritten!")
-        else:
-            self.update_errors()            
+         #else:
+        self.update_errors()      
+            
+            
+            
+            
         self.update_a_mass()
         self.update_plots()
         self.jupiter_push_vars() 
@@ -5387,7 +5388,10 @@ Transit duration: %s d
         if not auto_fit:
             self.update_params()
  
-            
+  
+        old_err = dill.copy(fit.param_errors.planet_params_errors)
+
+          
         if self.radioButton_Dynamical.isChecked():
             #fit.mod_dynamical = True
             f_kill = self.dyn_model_to_kill.value()
@@ -5430,6 +5434,11 @@ Transit duration: %s d
         for i in range(fit.npl):
 #             print("test",fit.hkl,fit.loglik,fit.params.planet_params[0:13])
              rv.phase_RV_planet_signal(fit,i+1)
+
+        if self.reset_errors_at_init.isChecked() == False and fit.init_fit == True:
+            print("Warning: 'Reset the errors to 0 when Initialize' is set to 'False', thus errors are not overwritten!")
+            fit.param_errors.planet_params_errors = dill.copy(old_err)
+            self.update_params()
 
         if auto_fit:
             self.update_labels()
@@ -7232,7 +7241,6 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             fit.rtg = [True,self.do_RV_GP.isChecked(),False, self.do_tra_GP.isChecked()]
             if(init):
                 self.worker_RV_fitting(ff=0,m_ln=True, init = init )
-
             else:
                 self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked())
 
@@ -8450,7 +8458,7 @@ https://github.com/3fon3fonov/exostriker/issues
     def __init__(self):
         global fit 
         
-        es_version = 0.52
+        es_version = 0.53
 
 
         QtWidgets.QMainWindow.__init__(self)

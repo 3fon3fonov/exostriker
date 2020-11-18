@@ -3249,6 +3249,8 @@ class signal_fit(object):
                  self.w[i]   = np.degrees(np.arctan2(self.e_sinw[i],self.e_cosw[i]))%360.0
                  self.M0[i]  = (self.lamb[i] - self.w[i])%360.0
                  
+        # print(self.param_errors.planet_params_errors)
+                  
          for i in range(9):
              self.K_err[i]    = self.param_errors.planet_params_errors[i*7+0]
              self.P_err[i]    = self.param_errors.planet_params_errors[i*7+1]
@@ -3276,6 +3278,8 @@ class signal_fit(object):
 
 
     def update_rv_params(self):
+        
+         #print(self.K_err[0])
 
          for i in range(9):
              self.params.planet_params[i*7+0] = dill.copy(self.K[i])  
@@ -3286,6 +3290,19 @@ class signal_fit(object):
              
              self.params.planet_params[i*7+5] = dill.copy(self.i[i])    
              self.params.planet_params[i*7+6] = dill.copy(self.Node[i]) 
+             
+             
+             self.param_errors.planet_params_errors[i*7+0] = dill.copy(self.K_err[i])  
+             self.param_errors.planet_params_errors[i*7+1] = dill.copy(self.P_err[i])  
+             self.param_errors.planet_params_errors[i*7+2] = dill.copy(self.e_err[i])  
+             self.param_errors.planet_params_errors[i*7+3] = dill.copy(self.w_err[i])  
+             self.param_errors.planet_params_errors[i*7+4] = dill.copy(self.M0_err[i])  
+             
+             self.param_errors.planet_params_errors[i*7+5] = dill.copy(self.i_err[i])    
+             self.param_errors.planet_params_errors[i*7+6] = dill.copy(self.Node_err[i])              
+             
+             
+             
 
 ############################ RV datasets ##########################################
     def add_rv_dataset(self, name, path, rv_idset = 0):
