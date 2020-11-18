@@ -747,7 +747,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.gp_mat_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))
                         
 
-
+       # print("TEST")
             
             
         for i in range(10):
@@ -4499,7 +4499,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 #        self.update_params()
 
         self.update_gui_params()
-        self.update_errors() 
+        print("FFF")
+       # if minimize_loglik == True:
+       #     self.update_errors() 
+            
         self.update_a_mass() 
         
         self.run_gls()
@@ -5274,7 +5277,11 @@ Transit duration: %s d
 
         self.update_labels()
         self.update_gui_params()
-        self.update_errors()
+ 
+        if self.reset_errors_at_init.isChecked() == False and fit.init_fit == True:
+            print("Warning: 'Reset the errors to 0 when Initialize' is set to 'False', thus errors are not overwritten!")
+        else:
+            self.update_errors()            
         self.update_a_mass()
         self.update_plots()
         self.jupiter_push_vars() 
