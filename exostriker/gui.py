@@ -4465,7 +4465,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 ##################################### Various ################################# 
 
 
-    def init_fit(self): 
+    def init_fit(self, update_error=True): 
         global fit
         
         
@@ -4501,7 +4501,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.update_gui_params()
         #print("FFF")
        # if minimize_loglik == True:
-        self.update_errors() 
+        if update_error ==  True:
+            self.update_errors() 
             
         self.update_a_mass() 
         
@@ -5274,7 +5275,8 @@ Transit duration: %s d
         
        # start_time =time.time()   
         fit=rv.get_xyz(fit)
-
+        fit.init_fit= False 
+        
         self.update_labels()
         self.update_gui_params()
          #else:
@@ -5339,7 +5341,7 @@ Transit duration: %s d
             doGP=self.do_RV_GP.isChecked()
             fit.init_fit= False  
        
-        
+    
         if self.radioButton_fortran77.isChecked() and not self.do_RV_GP.isChecked():
             self.statusBar().showMessage('Minimizing parameters....')    
              # Pass the function to execute
@@ -5348,6 +5350,7 @@ Transit duration: %s d
         else:    
               
             self.check_scipy_min()
+            
 
             self.statusBar().showMessage('Minimizing parameters using SciPyOp (might be slow)....')
             worker2 = Worker(lambda:  self.optimize_fit(ff=0, doGP=self.do_RV_GP.isChecked(),  gp_kernel_id=-1, minimize_fortran=False, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
@@ -5385,13 +5388,17 @@ Transit duration: %s d
     def optimize_fit(self,ff=20,m_ln=True, doGP=False, gp_kernel_id=-1, auto_fit = False, minimize_fortran=True):  
         global fit
         
+         
         if not auto_fit:
             self.update_params()
  
   
-        old_err = dill.copy(fit.param_errors.planet_params_errors)
-
-          
+        old_err1 = dill.copy(fit.param_errors.planet_params_errors)
+        old_err2 = dill.copy(fit.param_errors.offset_errors)
+        old_err3 = dill.copy(fit.param_errors.jitter_errors)
+        old_err4 = dill.copy(fit.param_errors.GP_params_errors)
+ 
+    
         if self.radioButton_Dynamical.isChecked():
             #fit.mod_dynamical = True
             f_kill = self.dyn_model_to_kill.value()
@@ -5434,11 +5441,19 @@ Transit duration: %s d
         for i in range(fit.npl):
 #             print("test",fit.hkl,fit.loglik,fit.params.planet_params[0:13])
              rv.phase_RV_planet_signal(fit,i+1)
-
+             
+       # print(self.reset_errors_at_init.isChecked(), fit.init_fit )
         if self.reset_errors_at_init.isChecked() == False and fit.init_fit == True:
             print("Warning: 'Reset the errors to 0 when Initialize' is set to 'False', thus errors are not overwritten!")
-            fit.param_errors.planet_params_errors = dill.copy(old_err)
+            fit.param_errors.planet_params_errors = dill.copy(old_err1)
+            fit.param_errors.offset_errors = dill.copy(old_err2)
+            fit.param_errors.jitter_errors = dill.copy(old_err3)
+            fit.param_errors.GP_params_errors = dill.copy(old_err4)
+            
+          
+            
             self.update_params()
+            #print(old_err,fit.init_fit )
 
         if auto_fit:
             self.update_labels()
@@ -6571,9 +6586,13 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             return
         
         if self.adopt_mcmc_means_as_par.isChecked() or self.adopt_mcmc_median_as_par.isChecked() or self.adopt_best_lnL_as_pars.isChecked() or self.adopt_mcmc_mode_as_par.isChecked():
-            self.init_fit()
-        else:
-            self.jupiter_push_vars()
+            self.init_fit(update_error = False)
+        #else:
+            
+        self.jupiter_push_vars()
+          
+        #self.fit_dispatcher(init=True)          
+        #self.jupiter_push_vars()
             
             
 

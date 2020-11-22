@@ -1325,7 +1325,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, errors, mod,opt)
 
-    obj.init_fit = False
+  #  obj.init_fit = False
     print("--- %s seconds ---" % (time.time() - start_time))
 
     return obj
