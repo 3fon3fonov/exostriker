@@ -2169,11 +2169,18 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def run_gls_o_c(self):
         global fit
                         
+ 
+        if fit.doGP == True and self.gls_o_c_GP.isChecked() == True:
+            data_o_c = fit.fit_results.rv_model.o_c - fit.gp_model_data[0] 
+        else:
+            data_o_c = fit.fit_results.rv_model.o_c  
+
+        
         omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
         ind_norm = self.gls_norm_combo.currentIndex()
  
         if len(fit.fit_results.rv_model.jd) > 5:
-            RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.o_c, fit.fit_results.rv_model.rv_err), 
+            RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, data_o_c, fit.fit_results.rv_model.rv_err), 
             fast=True,  verbose=False, norm= self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)            
 
             fit.gls_o_c = RV_per_res
@@ -3837,8 +3844,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         if  self.do_RV_GP.isChecked():
             fit.doGP = True
+            self.gls_o_c_GP.setEnabled(True)
         else:
             fit.doGP = False
+            self.gls_o_c_GP.setChecked(False)
+            self.gls_o_c_GP.setEnabled(False)
 
         if  self.do_tra_GP.isChecked():
             fit.tra_doGP = True
@@ -8942,6 +8952,8 @@ https://github.com/3fon3fonov/exostriker/issues
         self.actionSet_plots_font.triggered.connect(self.set_plot_font)
 
 
+
+        self.gls_o_c_GP.stateChanged.connect(self.run_gls_o_c)
 
         ############ Edit #################
 

@@ -1345,7 +1345,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
     for j in range(len(flags)):
         par[flags[j]]   = pp[j]
         e_par[flags[j]] = [errors[j][0],errors[j][1]]
-
+        
     if (rtg[1]):
         if obj.gp_kernel == 'RotKernel':
             
@@ -1566,6 +1566,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                                   e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 1+ npl],
                                   e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 2+ npl], 
                                   e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 3+ npl]]
+
+
 
 #        else:
 #            tr_params.u = []
@@ -4330,6 +4332,7 @@ class signal_fit(object):
             use_planets_to_sort=use_planets_to_sort[sort] # sort grouped array according to the found permutation
             self.use=use_flags(self.use.use_offsets,self.use.use_jitters,np.concatenate(use_planets_to_sort),self.use.use_linear_trend,self.use.use_stellar_mass) # now come back to 1d array
             # now do the same with errors, only if they are established (fit performed)
+ 
             if (self.fit_performed):
                 planet_errors_to_sort=np.array([self.param_errors.planet_params_errors[n:n+7] for n in range(0,7*self.npl,7)]) # group parameters for a single planet together for sorting
                 planet_errors_to_sort=planet_errors_to_sort[sort] # sort grouped array according to the found permutation
