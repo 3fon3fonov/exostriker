@@ -145,9 +145,13 @@ class parameter_errors(object): # Class for parameter errors.
     def __init__(self,offset_errors,jitter_errors,planet_params_errors,linear_trend_error,stellar_mass_error,GP_params_errors=[[0.0,0.0]]*4):
         '''At initiation we provide single values for each error, and we extrapolate them into 2 element arrays corresponding to + and - errors, which are at this point equal. They can be updated with updating functions found below'''
         # allocating room for up to 20 datasets and 10 planets
+ 
+        
         offset_errors=np.concatenate((np.atleast_1d(offset_errors),[0.0]*(max(0,20-len(np.atleast_1d(offset_errors)))))) 
         jitter_errors=np.concatenate((np.atleast_1d(jitter_errors),[0.0]*(max(0,20-len(np.atleast_1d(jitter_errors))))))
         planet_params_errors=np.concatenate((np.atleast_1d(planet_params_errors),[0.0]*max((0,70-len(np.atleast_1d(planet_params_errors))))))
+
+ 
 
         self.offset_errors=np.array([[offset_errors[i],offset_errors[i]] for i in range(len(offset_errors))])
         self.jitter_errors=np.array([[jitter_errors[i],jitter_errors[i]] for i in range(len(jitter_errors))])
