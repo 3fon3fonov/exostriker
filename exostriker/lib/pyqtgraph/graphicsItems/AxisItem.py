@@ -14,14 +14,15 @@ __all__ = ['AxisItem']
 class AxisItem(GraphicsWidget):
     """
     GraphicsItem showing a single plot axis with ticks, values, and label.
-    Can be configured to fit on any side of a plot, and can automatically synchronize its displayed scale with ViewBox items.
+    Can be configured to fit on any side of a plot, 
+    Can automatically synchronize its displayed scale with ViewBox items.
     Ticks can be extended to draw a grid.
     If maxTickLength is negative, ticks point into the plot.
     """
 
     def __init__(self, orientation, pen=None, textPen=None, linkView=None, parent=None, maxTickLength=-5, showValues=True, text='', units='', unitPrefix='', **args):
         """
-        ==============  ===============================================================
+        =============== ===============================================================
         **Arguments:**
         orientation     one of 'left', 'right', 'top', or 'bottom'
         maxTickLength   (px) maximum length of ticks to draw. Negative values draw
@@ -39,7 +40,7 @@ class AxisItem(GraphicsWidget):
                         range of data displayed.
         args            All extra keyword arguments become CSS style options for
                         the <span> tag which will surround the axis label and units.
-        ==============  ===============================================================
+        =============== ===============================================================
         """
 
         GraphicsWidget.__init__(self, parent)
@@ -283,19 +284,19 @@ class AxisItem(GraphicsWidget):
             axis.setLabel('label text', units='V', **labelStyle)
 
         """
-        show_label = False
-        if text is not None:
-            self.labelText = text
-            show_label = True
-        if units is not None:
-            self.labelUnits = units
-            show_label = True
-        if show_label:
-            self.showLabel()
-        if unitPrefix is not None:
-            self.labelUnitPrefix = unitPrefix
+        # `None` input is kept for backward compatibility!
+        self.labelText = text or ""
+        self.labelUnits = units or ""
+        self.labelUnitPrefix = unitPrefix or ""
         if len(args) > 0:
             self.labelStyle = args
+        # Account empty string and `None` for units and text
+        visible = True if (text or units) else False
+        self.showLabel(visible)
+        self._updateLabel()
+
+    def _updateLabel(self):
+        """Internal method to update the label according to the text"""
         self.label.setHtml(self.labelString())
         self._adjustSize()
         self.picture = None
@@ -428,8 +429,7 @@ class AxisItem(GraphicsWidget):
         else:
             self._pen = fn.mkPen(getConfigOption('foreground'))
         self.labelStyle['color'] = '#' + fn.colorStr(self._pen.color())[:6]
-        self.setLabel()
-        self.update()
+        self._updateLabel()
 
     def textPen(self):
         if self._textPen is None:
@@ -447,8 +447,7 @@ class AxisItem(GraphicsWidget):
         else:
             self._textPen = fn.mkPen(getConfigOption('foreground'))
         self.labelStyle['color'] = '#' + fn.colorStr(self._textPen.color())[:6]
-        self.setLabel()
-        self.update()
+        self._updateLabel()
 
     def setScale(self, scale=None):
         """
@@ -465,9 +464,7 @@ class AxisItem(GraphicsWidget):
 
         if scale != self.scale:
             self.scale = scale
-            self.setLabel()
-            self.picture = None
-            self.update()
+            self._updateLabel()
 
     def enableAutoSIPrefix(self, enable=True):
         """
@@ -498,13 +495,11 @@ class AxisItem(GraphicsWidget):
                 scale = 1.0
                 prefix = ''
             self.autoSIPrefixScale = scale
-            self.setLabel(unitPrefix=prefix)
+            self.labelUnitPrefix = prefix
         else:
             self.autoSIPrefixScale = 1.0
 
-        self.picture = None
-        self.update()
-
+        self._updateLabel()
 
     def setRange(self, mn, mx):
         """Set the range of values displayed by the axis.
@@ -513,9 +508,11 @@ class AxisItem(GraphicsWidget):
             raise Exception("Not setting range to [%s, %s]" % (str(mn), str(mx)))
         self.range = [mn, mx]
         if self.autoSIPrefix:
+            # XXX: Will already update once!
             self.updateAutoSIPrefix()
-        self.picture = None
-        self.update()
+        else:
+            self.picture = None
+            self.update()
 
     def linkedView(self):
         """Return the ViewBox this axis is linked to"""
@@ -651,7 +648,6 @@ class AxisItem(GraphicsWidget):
         self._tickSpacing = levels
         self.picture = None
         self.update()
-
 
     def tickSpacing(self, minVal, maxVal, size):
         """Return values describing the desired spacing and offset of ticks.
@@ -831,8 +827,8 @@ class AxisItem(GraphicsWidget):
         return strings
 
     def logTickStrings(self, values, scale, spacing):
-       # estrings = ["%0.1g"%x for x in 10 ** np.array(values).astype(float) * np.array(scale)]
-        estrings = ["%1g"%x for x in 10 ** np.array(values).astype(float) * np.array(scale)]
+        estrings = ["%0.1g"%x for x in 10 ** np.array(values).astype(float) * np.array(scale)]
+
         if sys.version_info < (3, 0):
             # python 2 does not support unicode strings like that
             return estrings
@@ -1152,6 +1148,8 @@ class AxisItem(GraphicsWidget):
         if self.style['tickFont'] is not None:
             p.setFont(self.style['tickFont'])
         p.setPen(self.textPen())
+        bounding = self.boundingRect().toAlignedRect()
+        p.setClipRect(bounding)
         for rect, flags, text in textSpecs:
             p.drawText(rect, int(flags), text)
 
