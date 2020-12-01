@@ -7509,8 +7509,14 @@ Please install via 'pip install ttvfast'.
 
     def keyPressEvent(self, event):
         global fit
+        
+        
         if event.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
-            self.update_veiw()
+            
+            if self.safe_to_init == True:
+                self.update_veiw()
+            else:
+                print("You cannot initialize while a thread is working! This could cause a mess!")
             #self.update_use()
             #self.update_params() 
             #self.init_fit()
@@ -8114,6 +8120,9 @@ https://github.com/3fon3fonov/exostriker/issues
     def mute_buttons(self, trigger=True):
         global fit
         
+        
+        self.safe_to_init = trigger
+        
         self.button_init_fit.setEnabled(trigger)        
         self.button_MCMC.setEnabled(trigger) 
         self.button_nest_samp.setEnabled(trigger) 
@@ -8129,7 +8138,85 @@ https://github.com/3fon3fonov/exostriker/issues
         self.copy_ses.setEnabled(trigger) 
         self.remove_ses.setEnabled(trigger) 
         self.radioButton_ewm.setEnabled(trigger)       
-        self.radioButton_hkl.setEnabled(trigger)       
+        self.radioButton_hkl.setEnabled(trigger) 
+        
+        self.radioButton_Dynamical.setEnabled(trigger) 
+        self.radioButton_Keplerian.setEnabled(trigger) 
+       
+        for i in range(9):
+            self.planet_checked_gui[i].setEnabled(trigger)
+        
+
+        self.Button_RV_data_1.setEnabled(trigger) 
+        self.Button_RV_data_2.setEnabled(trigger) 
+        self.Button_RV_data_3.setEnabled(trigger) 
+        self.Button_RV_data_4.setEnabled(trigger) 
+        self.Button_RV_data_5.setEnabled(trigger) 
+        self.Button_RV_data_6.setEnabled(trigger) 
+        self.Button_RV_data_7.setEnabled(trigger) 
+        self.Button_RV_data_8.setEnabled(trigger) 
+        self.Button_RV_data_9.setEnabled(trigger) 
+        self.Button_RV_data_10.setEnabled(trigger) 
+        
+        self.remove_rv_data1.setEnabled(trigger) 
+        self.remove_rv_data2.setEnabled(trigger) 
+        self.remove_rv_data3.setEnabled(trigger) 
+        self.remove_rv_data4.setEnabled(trigger) 
+        self.remove_rv_data5.setEnabled(trigger) 
+        self.remove_rv_data6.setEnabled(trigger) 
+        self.remove_rv_data7.setEnabled(trigger) 
+        self.remove_rv_data8.setEnabled(trigger) 
+        self.remove_rv_data9.setEnabled(trigger) 
+        self.remove_rv_data10.setEnabled(trigger) 
+
+
+        self.Button_transit_data_1.setEnabled(trigger) 
+        self.Button_transit_data_2.setEnabled(trigger) 
+        self.Button_transit_data_3.setEnabled(trigger) 
+        self.Button_transit_data_4.setEnabled(trigger) 
+        self.Button_transit_data_5.setEnabled(trigger) 
+        self.Button_transit_data_6.setEnabled(trigger) 
+        self.Button_transit_data_7.setEnabled(trigger) 
+        self.Button_transit_data_8.setEnabled(trigger) 
+        self.Button_transit_data_9.setEnabled(trigger) 
+        self.Button_transit_data_10.setEnabled(trigger) 
+        
+        self.remove_transit_data1.setEnabled(trigger) 
+        self.remove_transit_data2.setEnabled(trigger) 
+        self.remove_transit_data3.setEnabled(trigger) 
+        self.remove_transit_data4.setEnabled(trigger) 
+        self.remove_transit_data5.setEnabled(trigger) 
+        self.remove_transit_data6.setEnabled(trigger) 
+        self.remove_transit_data7.setEnabled(trigger) 
+        self.remove_transit_data8.setEnabled(trigger) 
+        self.remove_transit_data9.setEnabled(trigger) 
+        self.remove_transit_data10.setEnabled(trigger)  
+        
+        
+        self.Button_ttv_data_1.setEnabled(trigger) 
+        self.Button_ttv_data_2.setEnabled(trigger) 
+        self.Button_ttv_data_3.setEnabled(trigger) 
+        self.Button_ttv_data_4.setEnabled(trigger) 
+        self.Button_ttv_data_5.setEnabled(trigger) 
+        self.Button_ttv_data_6.setEnabled(trigger) 
+        self.Button_ttv_data_7.setEnabled(trigger) 
+        self.Button_ttv_data_8.setEnabled(trigger) 
+        self.Button_ttv_data_9.setEnabled(trigger) 
+        self.Button_ttv_data_10.setEnabled(trigger) 
+        
+        self.remove_ttv_data_1.setEnabled(trigger) 
+        self.remove_ttv_data_2.setEnabled(trigger) 
+        self.remove_ttv_data_3.setEnabled(trigger) 
+        self.remove_ttv_data_4.setEnabled(trigger) 
+        self.remove_ttv_data_5.setEnabled(trigger) 
+        self.remove_ttv_data_6.setEnabled(trigger) 
+        self.remove_ttv_data_7.setEnabled(trigger) 
+        self.remove_ttv_data_8.setEnabled(trigger) 
+        self.remove_ttv_data_9.setEnabled(trigger) 
+        self.remove_ttv_data_10.setEnabled(trigger)        
+         
+        #self.use_Planet1.setEnabled(trigger) 
+        
         
     def file_from_path(self, path):
         head, tail = ntpath.split(path)
@@ -8487,7 +8574,7 @@ https://github.com/3fon3fonov/exostriker/issues
     def __init__(self):
         global fit 
         
-        es_version = 0.53
+        es_version = 0.54
 
 
         QtWidgets.QMainWindow.__init__(self)
@@ -8499,7 +8586,7 @@ https://github.com/3fon3fonov/exostriker/issues
         self.initialize_font_plot()
 
         self.check_fortran_routines()
-
+        self.safe_to_init = True
 #        self.installEventFilter(self)
         
         self.param_bounds_gui  = gui_groups.param_bounds_gui(self)
