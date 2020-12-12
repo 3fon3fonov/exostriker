@@ -3369,15 +3369,17 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                      
             x = fit.evol_e[e_ind][0:last_stable]*np.cos(np.radians(theta[tet_n]))
             y = fit.evol_e[e_ind][0:last_stable]*np.sin(np.radians(theta[tet_n])) 
-            p18.setLabel('bottom', '<html><head/><body><p>e%s cos(&omega;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
-            p18.setLabel('left', '<html><head/><body><p>e%s sin(&omega;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
+            p18.setLabel('bottom', '<html><head/><body><p>e%s cos(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
+            p18.setLabel('left', '<html><head/><body><p>e%s sin(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
+            p18.getViewBox().setAspectLocked(True)
 
         else:
             x = fit.evol_T[0][0:last_stable]
             y = theta[tet_n]
             p18.setLabel('bottom', 't [yr]', units='',  **{'font-size':'9pt'}) 
             p18.setLabel('left', '<html><head/><body><p>&theta;%s [deg] </p></body></html>'%(tet_n+1), units='',  **{'font-size':'9pt'}) 
-            
+            p18.getViewBox().setAspectLocked(False)
+           
 
         p18.plot(x, y ,pen=None, #{'color': colors[i], 'width': 1.1},
         symbol='o',
@@ -8399,9 +8401,15 @@ https://github.com/3fon3fonov/exostriker/issues
         global fit  
         fit = dill.copy(self.console_widget.kernel_manager.kernel.shell.user_ns.get('fit'))
  
-        for i in range(9):
-            fit.params.update_planet_params_one_planet(i,fit.K[i],fit.P[i],fit.e[i],fit.w[i],fit.M0[i],fit.i[i],fit.Node[i]) 
-#            fit.use.update_use_planet_params_one_planet(i,self.use.use_planet_params[7*i+7],self.use.use_planet_params[7*i 
+        self.set_hkl()    
+ 
+        #for i in range(9):
+        #    if fit.hkl == False:
+        #        fit.params.update_planet_params_one_planet(i,fit.K[i],fit.P[i],fit.e[i],fit.w[i],fit.M0[i],fit.i[i],fit.Node[i]) 
+        #    else:
+        #        fit.params.update_planet_params_one_planet(i,fit.K[i],fit.P[i],fit.e_sinw[i],fit.e_cosw[i],fit.lamb[i],fit.i[i],fit.Node[i]) 
+                
+               # fit.use.update_use_planet_params_one_planet(i,self.use.use_planet_params[7*i+7],self.use.use_planet_params[7*i 
         
         #self.update_use_from_input_file()   
         self.update_use()
