@@ -35,6 +35,7 @@ class show_param_boxes(QtWidgets.QDialog):
         self.radio_group =QtGui.QButtonGroup(self.widget) # Number group
         self.radio_group2=QtGui.QButtonGroup(self.widget) # Number group
         self.radio_group3=QtGui.QButtonGroup(self.widget) # Number group
+        self.radio_group4=QtGui.QButtonGroup(self.widget) # Number group
         
         
         self.radio_median     = QtWidgets.QRadioButton('median', self)
@@ -64,21 +65,37 @@ class show_param_boxes(QtWidgets.QDialog):
         self.radio_group3.addButton(self.radio_mp_So,0)
         self.radio_group3.addButton(self.radio_mp_Mj,1)
         self.radio_group3.addButton(self.radio_mp_Me,2)
+        
+        
+        self.radio_Rp_So      = QtWidgets.QRadioButton('Solar', self)
+        self.radio_Rp_Mj      = QtWidgets.QRadioButton('Jupiter', self)
+        self.radio_Rp_Me      = QtWidgets.QRadioButton('Earth', self)        
+ 
+    
+        self.radio_group4.addButton(self.radio_Rp_So,0)
+        self.radio_group4.addButton(self.radio_Rp_Mj,1)
+        self.radio_group4.addButton(self.radio_Rp_Me,2)        
+        
     
         self.mass_check  = QtWidgets.QCheckBox('incl. mass (needed: K,P,e )', self)
         self.semi_check  = QtWidgets.QCheckBox('incl. semi-major axis (needed: P)', self)
         self.radi_check  = QtWidgets.QCheckBox('incl. radius (needed: Rp/Rs)', self)
+        self.ppm_check   = QtWidgets.QCheckBox('rel. flux --> ppm', self)
+
+
         
         #self.radi_check.setEnabled(False)
         
        # self.mass_check.setChecked(bool(self.parent.lables_cornerplot['mass']))
 
         self.radio_bestfit_labels = ["median","mean","mode","best_samp","best_gui",
-                                     "none","mass","use_Me","use_Mj","use_Ms","semimajor","radius"]
+                                     "none","mass","use_Me","use_Mj","use_Ms","semimajor","radius",
+                                     "use_Re","use_Rj","use_Rs","use_ppm"]
         self.radio_group_list = [self.radio_median,self.radio_mean,self.radio_mode,
                                  self.radio_best_samp,self.radio_best_gui,self.radio_no_cross,
                                  self.mass_check,self.radio_mp_Me, self.radio_mp_Mj, self.radio_mp_So, 
-                                 self.semi_check,self.radi_check]
+                                 self.semi_check,self.radi_check,self.radio_Rp_Me, 
+                                 self.radio_Rp_Mj, self.radio_Rp_So,self.ppm_check]
         
         #self.radio_group_mass_list = [self.radio_mp_So,self.radio_mp_Mj,self.radio_mp_Me,
        #                          self.radio_best_samp,self.radio_best_gui,self.radio_no_cross,
@@ -135,7 +152,26 @@ class show_param_boxes(QtWidgets.QDialog):
                 self.parent.lables_cornerplot["use_Me"] = True
                 self.radio_mp_So.setChecked(self.parent.lables_cornerplot["use_Ms"])
                 self.radio_mp_Mj.setChecked(self.parent.lables_cornerplot["use_Mj"])
-                self.radio_mp_Me.setChecked(self.parent.lables_cornerplot["use_Me"])              
+                self.radio_mp_Me.setChecked(self.parent.lables_cornerplot["use_Me"])      
+            
+            try:
+                self.radio_Rp_So.setChecked(self.parent.lables_cornerplot["use_Rs"])
+                self.radio_Rp_Mj.setChecked(self.parent.lables_cornerplot["use_Rj"])
+                self.radio_Rp_Me.setChecked(self.parent.lables_cornerplot["use_Re"])       
+            except:
+                self.parent.lables_cornerplot["use_Rs"] = False
+                self.parent.lables_cornerplot["use_Rj"] = False
+                self.parent.lables_cornerplot["use_Re"] = True
+                self.radio_Rp_So.setChecked(self.parent.lables_cornerplot["use_Rs"])
+                self.radio_Rp_Mj.setChecked(self.parent.lables_cornerplot["use_Rj"])
+                self.radio_Rp_Me.setChecked(self.parent.lables_cornerplot["use_Re"])                  
+                
+            try:    
+                self.ppm_check.setChecked(self.parent.lables_cornerplot["use_ppm"])
+            except:
+                self.parent.lables_cornerplot["use_ppm"] = False
+                self.ppm_check.setChecked(self.parent.lables_cornerplot["use_ppm"])
+                
             
             self.cornerplot_opt2 = {"bins":25,
                               "reverse":True,
@@ -190,7 +226,7 @@ class show_param_boxes(QtWidgets.QDialog):
         
         k = 0
         l = 0
-        for g in range(len(self.parent.lables_cornerplot)-14):
+        for g in range(len(self.parent.lables_cornerplot)-18):
 
             k = g%20
 
@@ -225,7 +261,10 @@ class show_param_boxes(QtWidgets.QDialog):
         self.layout.addWidget(self.radio_mp_So, 3, l+2)        
         self.layout.addWidget(self.semi_check, 4, l+2)
         self.layout.addWidget(self.radi_check, 5, l+2)
-
+        self.layout.addWidget(self.radio_Rp_Me, 6,  l+2)
+        self.layout.addWidget(self.radio_Rp_Mj, 7,  l+2)         
+        self.layout.addWidget(self.radio_Rp_So, 8, l+2) 
+        self.layout.addWidget(self.ppm_check, 9, l+2) 
          
         self.layout.addWidget(self.label_bestfit, 0,l+3)              
         self.layout.addWidget(self.radio_median, 1,l+3)
@@ -279,7 +318,7 @@ class show_param_boxes(QtWidgets.QDialog):
             
         results = {k: np.array([self.text_boxes[k].toPlainText(), self.checked_boxes[k].isChecked()]) for k in range(len(self.checked_boxes))}
         
-        for k in range(12):
+        for k in range(16):
             #print(self.radio_bestfit_labels[k],self.radio_group_list[k].isChecked() )
             results[self.radio_bestfit_labels[k]] = self.radio_group_list[k].isChecked() 
         
@@ -295,9 +334,8 @@ class show_param_boxes(QtWidgets.QDialog):
         self.cornerplot_opt["reverse"]         = self.check_reverse.isChecked()
           
         self.cornerplot_opt["bins"]            = self.spin_bins.value()
-        self.cornerplot_opt["labelpad"]            = self.spin_label_pad.value()
+        self.cornerplot_opt["labelpad"]        = self.spin_label_pad.value()
           
-      
         
         results["cornerplot"] = self.cornerplot_opt
         results["OrigLabels"] = self.OrigLabels

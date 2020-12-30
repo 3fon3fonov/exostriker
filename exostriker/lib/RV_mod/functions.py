@@ -492,14 +492,14 @@ def add_mcmc_samples(obj,sampler):
     
     bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none",
                            "mass","use_Me","use_Mj","use_Ms",
-                           "semimajor","radius"]
+                           "semimajor","radius","use_Re","use_Rj","use_Rs","use_ppm"]
     bestfit_labels_bool = [obj.mcmc_save_median,obj.mcmc_save_means,obj.mcmc_save_mode, 
                            obj.mcmc_save_maxlnL,False,False,False,
-                           True,False,False,False,False]
+                           True,False,False,False,False,True,False,False,False]
     
  
     sampler.lbf             = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
-    for k in range(12):
+    for k in range(16):
         sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]     
         
     cornerplot_opt = {"bins":25,
@@ -536,15 +536,15 @@ def add_ns_samples(obj,sampler):
 
     bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none",
                            "mass","use_Me","use_Mj","use_Ms",
-                           "semimajor","radius"]
+                           "semimajor","radius","use_Re","use_Rj","use_Rs","use_ppm"]
     bestfit_labels_bool = [obj.ns_save_median,obj.ns_save_means,obj.ns_save_mode, 
                            obj.ns_save_maxlnL,False,False,False,
-                           True,False,False,False,False]
+                           True,False,False,False,False,True,False,False,False]
     
     
     obj.ns_sampler= dill.copy(sampler.results)
     obj.ns_sampler.lbf     = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
-    for k in range(12):
+    for k in range(16):
         obj.ns_sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]   
         
     cornerplot_opt = {"bins":25,
@@ -736,10 +736,15 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     samp    = []
     samp_labels =  []
     samp_best_fit_par = []
-    print(best_fit_par)
+    #print(best_fit_par)
     for i in range(len(labels)):
     
         ss = np.hstack(samples[:,i])
+
+        if mod_labels['use_ppm']:
+            if 'transit' in labels[i]:
+                ss = ss * 1000000.0    
+        
         samp.append(ss)
         samp_labels.append(labels[i])
         samp_best_fit_par.append(best_fit_par[i])
@@ -755,8 +760,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     samp              = [samp[i] for i in index_to_keep]
     samp_labels       = [samp_labels[i] for i in index_to_keep]
     samp_best_fit_par = [samp_best_fit_par[i] for i in index_to_keep]
-
-        
+       
     letters = ['b','c','d','e','f','g','h'] #... For the planets
         
     if mod_labels['mass']:
@@ -851,12 +855,21 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             
             if not 'R/$R_\star$ $%s$'%let in labels:
                 continue   
-            
-            R_earth = 109.076 #sol rad.
-            
-            rad = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'R/$R_\star$ $%s$'%let]]) * R_earth
+             
+            if mod_labels['use_Re']:
+                R_fact = 109.076
+                rad_lab = r'[R$_\oplus$]'
+            elif mod_labels['use_Rj']:
+                R_fact = 9.955201593
+                rad_lab = r'[R$_{\rm Jup.}$]'
+            elif mod_labels['use_Rs']:
+                R_fact = 1.0
+                rad_lab = r'[R$_\odot$]'           
+ 
+            rad = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'R/$R_\star$ $%s$'%let]]) * R_fact
             samp.append(np.array(rad*r_s))
-            samp_labels.append(r'R$_{\rm pl}$ $%s$ [M$_\oplus$]'%let)
+            samp_labels.append(r'R$_%s$ %s'%(let,rad_lab))
+
 
             if mod_labels['mean']:
                 samp_best_fit_par.append(np.mean(rad)*np.mean(r_s))
@@ -864,6 +877,10 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 samp_best_fit_par.append(np.median(rad)*np.median(r_s))
             else:
                 samp_best_fit_par.append(rad[np.argmax(ln)]*obj.stellar_radius)
+
+
+
+
 
 
 #    if mod_labels['gravity']:
@@ -907,6 +924,8 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             else:
                 print(samp_labels[i],'=', samp[i][np.argmax(ln)], "- %s"%(samp[i][np.argmax(ln)]-ci[0]), "+ %s"%(ci[1]  - samp[i][np.argmax(ln)] ))                
 
+        print(" ")
+        print("Median Absolute Deviation values")
 
         mad = get_MAD_of_samples(samples_,len(samp_labels))
         for i in range(len(samp_labels)):
