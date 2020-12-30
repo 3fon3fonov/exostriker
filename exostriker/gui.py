@@ -38,8 +38,8 @@ if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
 import RV_mod as rv
-import dynesty
-import celerite
+#import dynesty
+#import celerite
 #from dynesty import NestedSampler
 #from dynesty import DynamicNestedSampler
 
@@ -58,7 +58,7 @@ import gui_groups
 from multiprocessing import cpu_count
 
 #import BKR as bkr
-from doublespinbox import DoubleSpinBox
+#from doublespinbox import DoubleSpinBox
 from Jupyter_emb import ConsoleWidget_embed
 
 from stdout_pipe import MyDialog, DebugDialog
@@ -8582,7 +8582,7 @@ https://github.com/3fon3fonov/exostriker/issues
     def __init__(self):
         global fit 
         
-        es_version = 0.54
+        es_version = 0.55
 
 
         QtWidgets.QMainWindow.__init__(self)
