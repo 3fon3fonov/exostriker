@@ -6954,6 +6954,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def load_data_inspect(self): 
         global fit
 
+        #print(self.RVBank)   
+        
         if self.RVBank == False:
             path = self.inspector_file
             if path == '':
@@ -7121,8 +7123,14 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             self.cross_hair(pdi,log=False)   
         else:
             self.cross_hair_remove(pdi)
+            
 
-
+    def init_plot_data_inspect(self):
+        
+        if self.RVBank == True:
+            self.plot_data_inspect(0,no_sender=True,RVBank=True)
+        else:
+            self.plot_data_inspect(0,no_sender=True,RVBank=False)
 
 
     def plot_data_inspect(self, index, no_sender=False, RVBank = False):
@@ -9240,7 +9248,7 @@ https://github.com/3fon3fonov/exostriker/issues
         self.ttv_o_c_plot_cross_hair.stateChanged.connect(self.update_ttv_plots)
 
         self.extra_plot_cross_hair.stateChanged.connect(self.update_extra_plots)
-        self.inpector_plot_cross_hair.stateChanged.connect(lambda: self.plot_data_inspect(0,no_sender=True))
+        self.inpector_plot_cross_hair.stateChanged.connect(self.init_plot_data_inspect)
         #self.inpector_plot_cross_hair.stateChanged.connect(lambda: self.tree_view_tab.listview.connect(self.plot_data_inspect))
 
 
@@ -9429,7 +9437,7 @@ https://github.com/3fon3fonov/exostriker/issues
         
 
 
-        print("""Hi there! You are running a demo version of the Exo-Striker (ver. %s). 
+        print("""You are running a demo version of the Exo-Striker (ver. %s). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """%es_version)
