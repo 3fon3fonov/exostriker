@@ -4067,9 +4067,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 bjd    = dill.copy(self.ActivityWindow.t_store[but_ind-1])
                 flux   = dill.copy(self.ActivityWindow.flux_o_c_store[but_ind-1])               
                 flux_e = dill.copy(self.ActivityWindow.flux_o_c_store[but_ind-1])                   
-                
+                print(but_ind-1)
                 for j in range(8): 
-                    fit.act_data_sets[but_ind-1][j] = fit.act_data_sets[but_ind-1][j][np.isfinite(bjd) & np.isfinite(flux) & np.isfinite(flux_e)]
+                    fit.act_data_sets[but_ind-1][j] = fit.act_data_sets[but_ind-1][j][np.isfinite(bjd) & 
+                                                                                      np.isfinite(flux) & 
+                                                                                      np.isfinite(flux_e)]
                 
                 if len(bjd) != len(fit.act_data_sets[but_ind-1][0]):
                     print("WARNING! Something is wrong for these epochs:")          
