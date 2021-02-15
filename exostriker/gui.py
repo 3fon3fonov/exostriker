@@ -4641,14 +4641,14 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.colors_alias_mlp.setStyleSheet("color: %s;"%colors_MLP_alias[0])
 
 
-        power_levels = np.array([self.mlp_fap1.value(),self.mlp_fap2.value(),self.mlp_fap3.value()])
+        power_levels_gui = np.array([self.mlp_fap1.value(),self.mlp_fap2.value(),self.mlp_fap3.value()])
 
         Delta_f = max(fit.mlp.freq) - min(fit.mlp.freq)
         delta_f = 1.0/(max(fit.fit_results.rv_model.jd) - min(fit.fit_results.rv_model.jd))
         M = Delta_f/delta_f
        # print(M, power_levels)
        # return
-        power_levels = np.log(1.0/(power_levels/M))
+        power_levels = np.log(1.0/(power_levels_gui/M))
         #power_levels = np.array([5,10,15])
 
         gls_model_width = float(self.gls_model_width.value())
@@ -4669,7 +4669,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 [p_mlp.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for fap in np.array(power_levels)]
  
 #            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels, sig_level = fit.mlp.powerLevel(np.array(power_levels)) )   
-            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels, sig_level =np.array(power_levels) )   
+            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels_gui, sig_level =np.array(power_levels) )   
 
             self.label_peaks(p_mlp, pos_peaks, GLS = True, MLP = True)
 
