@@ -78,8 +78,23 @@ class MatplotlibExporter(Exporter):
             for indx, item in enumerate(self.item.curves):
                 x, y = item.getData() 
                 
+                
+                if self.item.curves[indx].__class__.__name__ == "PlotDataItem" and self.item.curves[indx].opts['logMode'][0] == True:
+                    gls_log = True
+                else:
+                    gls_log = False
+                    
+                        #ticks_x = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(10.0**x))
+                      #  ax.xaxis.set_major_formatter(ticks_x)   
+                       # ax.semilogx()
+                     #print("TEST")
+                
                 if x is None:
                     continue
+                else:
+                    if gls_log == True:
+                        x = 10.0**x
+                       
  
                 opts = item.opts
                 #print(self.item.curves[indx].__class__.__name__)
@@ -131,6 +146,13 @@ class MatplotlibExporter(Exporter):
 
  
                 xr, yr = self.item.viewRange()
+
+                if gls_log == True:
+                    xr = 10.0**xr
+                    ax.semilogx()
+               # else:
+                    
+                                                      
                 ax.set_xbound(*xr)
                 ax.set_ybound(*yr)
                 
@@ -141,6 +163,8 @@ class MatplotlibExporter(Exporter):
                 
                # print(indx,self.item.items[indx].__class__.__name__)
 
+                    
+                    #print(self.item.items[indx].opts['logMode'])
 
                 if self.item.items[indx].__class__.__name__ == "InfiniteLine":
                     level = self.item.items[indx].value() 
@@ -166,6 +190,7 @@ class MatplotlibExporter(Exporter):
 
                 if self.item.items[indx].__class__.__name__ == "TextItem":
                     continue
+                
 
                 
                 if "top" in self.item.items[indx].opts:
@@ -181,10 +206,7 @@ class MatplotlibExporter(Exporter):
                                      color=self.item.items[indx].opts["pen"], capsize = 0, elinewidth=1,mew=0.0, zorder=-10)  
 
 
-                #print(self.item.items[indx].__class__.__name__)
-                #if self.item.items[indx].__class__.__name__ == "InfiniteLine":                             
-               #     print('TESTTTT')
-                    
+                                         
             #print(self.item.items[indx].opts)    
             ax.set_xlabel(xlabel)  # place the labels.
             ax.set_ylabel(ylabel)
@@ -196,7 +218,7 @@ class MatplotlibExporter(Exporter):
             #ax.ticklabel_format(useOffset=False)           
             #fig.gca().get_xaxis().get_major_formatter().set_useOffset(False)
 
-                     
+
             mpw.draw()
         else:
             raise Exception("Matplotlib export currently only works with plot items")

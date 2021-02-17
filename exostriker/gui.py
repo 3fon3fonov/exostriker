@@ -2282,6 +2282,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         if self.gls_cross_hair.isChecked():
             self.cross_hair(p7,log=self.radioButton_RV_GLS_period.isChecked(), alias=[self.show_alias_GLS.isChecked(), self.alias_days_gls.value(), colors_GLS_alias[0]])    
  
+    
+        fit.pgg = p7.getPlotItem()
+ 
  
     def update_RV_o_c_GLS_plots(self):
         global fit,  p8  
