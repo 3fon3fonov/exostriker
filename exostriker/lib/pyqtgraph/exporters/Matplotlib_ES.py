@@ -84,11 +84,7 @@ class MatplotlibExporter(Exporter):
                 else:
                     gls_log = False
                     
-                        #ticks_x = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(10.0**x))
-                      #  ax.xaxis.set_major_formatter(ticks_x)   
-                       # ax.semilogx()
-                     #print("TEST")
-                
+
                 if x is None:
                     continue
                 else:
@@ -147,12 +143,17 @@ class MatplotlibExporter(Exporter):
  
                 xr, yr = self.item.viewRange()
 
-                if gls_log == True:
-                    xr = 10.0**xr
-                    ax.semilogx()
-               # else:
-                    
-                                                      
+                if xr is None:
+                    continue
+                else:
+                    if gls_log == True:
+                        xr[0] = 10.0**xr[0]
+                        xr[1] = 10.0**xr[1]                       
+                        ax.semilogx()
+                        from matplotlib import ticker
+                        ax.xaxis.set_major_formatter(ticker.ScalarFormatter())  # set regular formatting
+                        ax.ticklabel_format(style='sci', scilimits=(-6, 9))  # disable scientific notation
+                        
                 ax.set_xbound(*xr)
                 ax.set_ybound(*yr)
                 
@@ -161,10 +162,6 @@ class MatplotlibExporter(Exporter):
                 #if indx <=1:
                #     continue
                 
-               # print(indx,self.item.items[indx].__class__.__name__)
-
-                    
-                    #print(self.item.items[indx].opts['logMode'])
 
                 if self.item.items[indx].__class__.__name__ == "InfiniteLine":
                     level = self.item.items[indx].value() 
@@ -215,8 +212,6 @@ class MatplotlibExporter(Exporter):
 
             ax.spines['top'].set_color('k')
             ax.spines['right'].set_color('k')
-            #ax.ticklabel_format(useOffset=False)           
-            #fig.gca().get_xaxis().get_major_formatter().set_useOffset(False)
 
 
             mpw.draw()
