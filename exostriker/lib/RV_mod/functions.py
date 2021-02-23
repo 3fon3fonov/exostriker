@@ -492,14 +492,14 @@ def add_mcmc_samples(obj,sampler):
     
     bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none",
                            "mass","use_Me","use_Mj","use_Ms",
-                           "semimajor","radius","use_Re","use_Rj","use_Rs","use_ppm"]
+                           "semimajor","radius","use_Re","use_Rj","use_Rs","use_lambda", "use_ppm"]
     bestfit_labels_bool = [obj.mcmc_save_median,obj.mcmc_save_means,obj.mcmc_save_mode, 
                            obj.mcmc_save_maxlnL,False,False,False,
-                           True,False,False,False,False,True,False,False,False]
+                           True,False,False,False,False,True,False,False,False,False]
     
  
     sampler.lbf             = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
-    for k in range(16):
+    for k in range(17):
         sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]     
         
     cornerplot_opt = {"bins":25,
@@ -536,15 +536,15 @@ def add_ns_samples(obj,sampler):
 
     bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none",
                            "mass","use_Me","use_Mj","use_Ms",
-                           "semimajor","radius","use_Re","use_Rj","use_Rs","use_ppm"]
+                           "semimajor","radius","use_Re","use_Rj","use_Rs","use_lambda","use_ppm"]
     bestfit_labels_bool = [obj.ns_save_median,obj.ns_save_means,obj.ns_save_mode, 
                            obj.ns_save_maxlnL,False,False,False,
-                           True,False,False,False,False,True,False,False,False]
+                           True,False,False,False,False,True,False,False,False,False]
     
     
     obj.ns_sampler= dill.copy(sampler.results)
     obj.ns_sampler.lbf     = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
-    for k in range(16):
+    for k in range(17):
         obj.ns_sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]   
         
     cornerplot_opt = {"bins":25,
@@ -762,6 +762,32 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     samp_best_fit_par = [samp_best_fit_par[i] for i in index_to_keep]
        
     letters = ['b','c','d','e','f','g','h'] #... For the planets
+
+    if mod_labels['use_lambda']:
+
+        for i in range(obj.npl):
+            let = letters[i]
+            
+            if not 'e$_%s$'%let in labels or not '$\omega_%s$'%let in labels:
+                continue
+            
+            Ma_    = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'MA$_%s$'%let]])
+            omega_ = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == '$\omega_%s$'%let]])  
+            
+            lambda_ = np.array(Ma_ + omega_)%360.0
+
+            samp.append(lambda_)
+            samp_labels.append(r' $\lambda_%s$'%let)
+    
+    
+            if mod_labels['mean']:
+                samp_best_fit_par.append((np.mean(Ma_) + np.mean(omega_))%360.0 )
+            elif mod_labels['median']:
+                samp_best_fit_par.append((np.median(Ma_) + np.median(omega_))%360.0 )
+            elif mod_labels['best_gui']:
+                samp_best_fit_par.append((Ma_[np.argmax(ln)] + omega_[np.argmax(ln)])%360.0 )            
+            else:
+                samp_best_fit_par.append((Ma_[np.argmax(ln)] + omega_[np.argmax(ln)])%360.0 )            
         
     if mod_labels['mass']:
         

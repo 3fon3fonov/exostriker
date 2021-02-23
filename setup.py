@@ -51,7 +51,7 @@ else:
 
 setup(
 name='exostriker',  
-version='0.55',
+version='0.56',
 scripts=['scripts/exostriker'],
 author="Trifon Trifonov",
 author_email="trifonov@mpia.de",
