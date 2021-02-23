@@ -81,6 +81,7 @@ class show_param_boxes(QtWidgets.QDialog):
         self.semi_check  = QtWidgets.QCheckBox('incl. semi-major axis (needed: P)', self)
         self.radi_check  = QtWidgets.QCheckBox('incl. radius (needed: Rp/Rs)', self)
         self.ppm_check   = QtWidgets.QCheckBox('rel. flux --> ppm', self)
+        self.lambda_check   = QtWidgets.QCheckBox('incl. lambda (needed: e,omega )', self)
 
 
         
@@ -90,12 +91,12 @@ class show_param_boxes(QtWidgets.QDialog):
 
         self.radio_bestfit_labels = ["median","mean","mode","best_samp","best_gui",
                                      "none","mass","use_Me","use_Mj","use_Ms","semimajor","radius",
-                                     "use_Re","use_Rj","use_Rs","use_ppm"]
+                                     "use_Re","use_Rj","use_Rs","use_lambda","use_ppm"]
         self.radio_group_list = [self.radio_median,self.radio_mean,self.radio_mode,
                                  self.radio_best_samp,self.radio_best_gui,self.radio_no_cross,
                                  self.mass_check,self.radio_mp_Me, self.radio_mp_Mj, self.radio_mp_So, 
                                  self.semi_check,self.radi_check,self.radio_Rp_Me, 
-                                 self.radio_Rp_Mj, self.radio_Rp_So,self.ppm_check]
+                                 self.radio_Rp_Mj, self.radio_Rp_So,self.lambda_check,self.ppm_check]
         
         #self.radio_group_mass_list = [self.radio_mp_So,self.radio_mp_Mj,self.radio_mp_Me,
        #                          self.radio_best_samp,self.radio_best_gui,self.radio_no_cross,
@@ -165,6 +166,11 @@ class show_param_boxes(QtWidgets.QDialog):
                 self.radio_Rp_So.setChecked(self.parent.lables_cornerplot["use_Rs"])
                 self.radio_Rp_Mj.setChecked(self.parent.lables_cornerplot["use_Rj"])
                 self.radio_Rp_Me.setChecked(self.parent.lables_cornerplot["use_Re"])                  
+            try:    
+                self.lambda_check.setChecked(self.parent.lables_cornerplot["use_lambda"])
+            except:
+                self.parent.lables_cornerplot["use_lambda"] = False
+                self.lambda_check.setChecked(self.parent.lables_cornerplot["use_lambda"])  
                 
             try:    
                 self.ppm_check.setChecked(self.parent.lables_cornerplot["use_ppm"])
@@ -226,7 +232,7 @@ class show_param_boxes(QtWidgets.QDialog):
         
         k = 0
         l = 0
-        for g in range(len(self.parent.lables_cornerplot)-18):
+        for g in range(len(self.parent.lables_cornerplot)-19):
 
             k = g%20
 
@@ -264,7 +270,8 @@ class show_param_boxes(QtWidgets.QDialog):
         self.layout.addWidget(self.radio_Rp_Me, 6,  l+2)
         self.layout.addWidget(self.radio_Rp_Mj, 7,  l+2)         
         self.layout.addWidget(self.radio_Rp_So, 8, l+2) 
-        self.layout.addWidget(self.ppm_check, 9, l+2) 
+        self.layout.addWidget(self.lambda_check, 9, l+2)         
+        self.layout.addWidget(self.ppm_check, 10, l+2) 
          
         self.layout.addWidget(self.label_bestfit, 0,l+3)              
         self.layout.addWidget(self.radio_median, 1,l+3)
@@ -318,7 +325,7 @@ class show_param_boxes(QtWidgets.QDialog):
             
         results = {k: np.array([self.text_boxes[k].toPlainText(), self.checked_boxes[k].isChecked()]) for k in range(len(self.checked_boxes))}
         
-        for k in range(16):
+        for k in range(17):
             #print(self.radio_bestfit_labels[k],self.radio_group_list[k].isChecked() )
             results[self.radio_bestfit_labels[k]] = self.radio_group_list[k].isChecked() 
         
