@@ -520,8 +520,11 @@ def add_mcmc_samples(obj,sampler):
                       "scale_hist":True,  
                       "fill_contours":False,
                       "no_fill_contours":True,
-                      "plot_datapoints":True}        
-        
+                      "plot_datapoints":True,
+                      "stab_color":"r",
+                      "stab_treshold":100000
+                      }    
+
     sampler.lbf["cornerplot"] = cornerplot_opt
     sampler.lbf["OrigLabels"] = dill.copy(obj.e_for_mcmc)
 
@@ -565,8 +568,11 @@ def add_ns_samples(obj,sampler):
                       "scale_hist":True,  
                       "fill_contours":False,
                       "no_fill_contours":True,
-                      "plot_datapoints":True}        
-        
+                      "plot_datapoints":True,        
+                      "stab_color":"r",
+                      "stab_treshold":100000
+                      }    
+            
     obj.ns_sampler.lbf["cornerplot"] = cornerplot_opt 
     obj.ns_sampler.lbf["OrigLabels"] = dill.copy(obj.e_for_mcmc)
        
@@ -918,7 +924,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     ################### Transpose is needed for the cornerplot. ###################
  
     samples_ = np.transpose(samp)
-    labels = samp_labels
+    #labels = samp_labels
     best_fit_par =samp_best_fit_par
        
     ################### Verbose output (TBD). ###################
@@ -959,19 +965,95 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
    
 
     range_stab =[]
-    for i in range(len(samp)): 
-        range_stab.append([0.0,1.0])
+#    for i in range(len(samp)): 
+#        range_stab.append([0.0,1.0])
             
     if mod_labels['none']==True:
         best_fit_par = None  
-    
-    fig = corner.corner(samples_, 
-                        #range = range_stab,
+
+
+    if "max. time" in labels:
+        samples_stab = []
+
+        samples_ = np.transpose(samples_)
+        for i in range(len(samples_)): 
+            samples_stab.append(samples_[i][np.where(samples[:,-1]> cornerplot_opt["stab_treshold"])])
+#        print(max(samples[:,-1])-1000.0,max(samples[:,-1]))
+            range_stab.append([min(samples_[i]),max(samples_[i])])
+        N_samp = len(np.atleast_1d(samples_stab[0]))
+
+        samples_stab = np.transpose(samples_stab)
+        samples_ = np.transpose(samples_) 
+
+
+
+
+
+        if N_samp > len(best_fit_par):
+        
+            fig = corner.corner(samples_stab,
+                            range = range_stab,
+                            bins=cornerplot_opt["bins"], 
+                            color=cornerplot_opt["stab_color"], 
+                            reverse=cornerplot_opt["reverse"], 
+                            upper=cornerplot_opt["upper"],
+                            labels=samp_labels, 
+                            quantiles=[level/100.0, 1.0-level/100.0],
+                            levels=(0.6827, 0.9545,0.9973), 
+                            smooth=cornerplot_opt["smooth"],
+                            smooth1d=cornerplot_opt["smooth1d"],
+                            plot_contours=cornerplot_opt["plot_contours"],
+                            show_titles=cornerplot_opt["show_titles"],
+                            truths=best_fit_par,
+                            dpi=cornerplot_opt["dpi"],
+                            pad=cornerplot_opt["pad"],
+                            labelpad=cornerplot_opt["labelpad"],
+                            truth_color=cornerplot_opt["truth_color"], 
+                            title_kwargs={"fontsize": 12}, 
+                            scale_hist=cornerplot_opt["scale_hist"], 
+                            no_fill_contours=cornerplot_opt["no_fill_contours"], 
+                            fill_contours=cornerplot_opt["fill_contours"],                        
+                            plot_datapoints=cornerplot_opt["plot_datapoints"], 
+                       #     data_kwargs={'zorder':10,'color':cornerplot_opt["stab_color"]}, 
+                            contour_kwargs={'color':cornerplot_opt["stab_color"]},
+                            hist_kwargs={'color':cornerplot_opt["stab_color"]},
+                            kwargs={'zorder':10,'color':cornerplot_opt["stab_color"]}
+                            )
+        else:
+            print("very few, or no stable samples !!!!!")
+            fig = corner.corner(samples_, 
+                                #range = range_stab,
+                                bins=cornerplot_opt["bins"], 
+                                color=cornerplot_opt["color"], 
+                                reverse=cornerplot_opt["reverse"], 
+                                upper=cornerplot_opt["upper"],
+                                labels=samp_labels, 
+                                quantiles=[level/100.0, 1.0-level/100.0],
+                                levels=(0.6827, 0.9545,0.9973), 
+                                smooth=cornerplot_opt["smooth"],
+                                smooth1d=cornerplot_opt["smooth1d"],
+                                plot_contours=cornerplot_opt["plot_contours"],
+                                show_titles=cornerplot_opt["show_titles"],
+                                truths=best_fit_par,
+                                dpi=cornerplot_opt["dpi"],
+                                pad=cornerplot_opt["pad"],
+                                labelpad=cornerplot_opt["labelpad"],
+                                truth_color=cornerplot_opt["truth_color"], 
+                                title_kwargs={"fontsize": 12}, 
+                                scale_hist=cornerplot_opt["scale_hist"], 
+                                no_fill_contours=cornerplot_opt["no_fill_contours"], 
+                                fill_contours=cornerplot_opt["fill_contours"],                        
+                                plot_datapoints=cornerplot_opt["plot_datapoints"], 
+                                kwargs=kwargs) 
+
+ 
+        corner.corner(samples_, 
+                        range = range_stab,
                         bins=cornerplot_opt["bins"], 
                         color=cornerplot_opt["color"], 
                         reverse=cornerplot_opt["reverse"], 
                         upper=cornerplot_opt["upper"],
-                        labels=labels, 
+                        labels=samp_labels, 
                         quantiles=[level/100.0, 1.0-level/100.0],
                         levels=(0.6827, 0.9545,0.9973), 
                         smooth=cornerplot_opt["smooth"],
@@ -988,42 +1070,38 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                         no_fill_contours=cornerplot_opt["no_fill_contours"], 
                         fill_contours=cornerplot_opt["fill_contours"],                        
                         plot_datapoints=cornerplot_opt["plot_datapoints"], 
-                        kwargs=kwargs)
-
-    if "max. time" in labels:
-        samples_stab = []
-       # range_stab =[]
-        for i in range(len(samp)): 
-            samples_stab.append(samp[i][np.where(samp[-1]> 50-1)])
-          #  range_stab.append([0.0,1.0])
-        samples_stab = np.transpose(samples_stab)
-        
-        
-        corner.corner(samples_stab,
-                       # range = range_stab,
-                        bins=cornerplot_opt["bins"], 
-                        color='r', #cornerplot_opt["color"], 
-                        reverse=cornerplot_opt["reverse"], 
-                        upper=cornerplot_opt["upper"],
-                        labels=labels, 
-                        quantiles=[level/100.0, 1.0-level/100.0],
-                        levels=(0.6827, 0.9545,0.9973), 
-                        smooth=cornerplot_opt["smooth"],
-                        smooth1d=cornerplot_opt["smooth1d"],
-                        plot_contours=cornerplot_opt["plot_contours"],
-                        show_titles=cornerplot_opt["show_titles"],
-                        truths=best_fit_par,
-                        dpi=cornerplot_opt["dpi"],
-                        pad=cornerplot_opt["pad"],
-                        labelpad=cornerplot_opt["labelpad"],
-                        truth_color=cornerplot_opt["truth_color"], 
-                        title_kwargs={"fontsize": 12}, 
-                        scale_hist=cornerplot_opt["scale_hist"], 
-                        no_fill_contours=cornerplot_opt["no_fill_contours"], 
-                        fill_contours=cornerplot_opt["fill_contours"],                        
-                        plot_datapoints=cornerplot_opt["plot_datapoints"], 
-                        kwargs=kwargs, 
+                       # data_kwargs={'zorder':-1,'color':cornerplot_opt["color"]}, 
+                        contour_kwargs={'color':cornerplot_opt["color"]},
+                        hist_kwargs={'color':cornerplot_opt["color"]},
+                        kwargs={'zorder':-1,'color':cornerplot_opt["color"]},
                         fig =fig)
+
+    else:
+
+        fig = corner.corner(samples_, 
+                            #range = range_stab,
+                            bins=cornerplot_opt["bins"], 
+                            color=cornerplot_opt["color"], 
+                            reverse=cornerplot_opt["reverse"], 
+                            upper=cornerplot_opt["upper"],
+                            labels=samp_labels, 
+                            quantiles=[level/100.0, 1.0-level/100.0],
+                            levels=(0.6827, 0.9545,0.9973), 
+                            smooth=cornerplot_opt["smooth"],
+                            smooth1d=cornerplot_opt["smooth1d"],
+                            plot_contours=cornerplot_opt["plot_contours"],
+                            show_titles=cornerplot_opt["show_titles"],
+                            truths=best_fit_par,
+                            dpi=cornerplot_opt["dpi"],
+                            pad=cornerplot_opt["pad"],
+                            labelpad=cornerplot_opt["labelpad"],
+                            truth_color=cornerplot_opt["truth_color"], 
+                            title_kwargs={"fontsize": 12}, 
+                            scale_hist=cornerplot_opt["scale_hist"], 
+                            no_fill_contours=cornerplot_opt["no_fill_contours"], 
+                            fill_contours=cornerplot_opt["fill_contours"],                        
+                            plot_datapoints=cornerplot_opt["plot_datapoints"], 
+                            kwargs=kwargs)
 
 
     if type_plot == 'mcmc':
