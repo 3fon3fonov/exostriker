@@ -522,7 +522,7 @@ def add_mcmc_samples(obj,sampler):
                       "no_fill_contours":True,
                       "plot_datapoints":True,
                       "stab_color":"r",
-                      "stab_treshold":100000
+                      "stab_threshold":100000
                       }    
 
     sampler.lbf["cornerplot"] = cornerplot_opt
@@ -570,7 +570,7 @@ def add_ns_samples(obj,sampler):
                       "no_fill_contours":True,
                       "plot_datapoints":True,        
                       "stab_color":"r",
-                      "stab_treshold":100000
+                      "stab_threshold":100000
                       }    
             
     obj.ns_sampler.lbf["cornerplot"] = cornerplot_opt 
@@ -977,7 +977,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
         samples_ = np.transpose(samples_)
         for i in range(len(samples_)): 
-            samples_stab.append(samples_[i][np.where(samples[:,-1]> cornerplot_opt["stab_treshold"])])
+            samples_stab.append(samples_[i][np.where(samples[:,-1]> cornerplot_opt["stab_threshold"])])
 #        print(max(samples[:,-1])-1000.0,max(samples[:,-1]))
             range_stab.append([min(samples_[i]),max(samples_[i])])
         N_samp = len(np.atleast_1d(samples_stab[0]))

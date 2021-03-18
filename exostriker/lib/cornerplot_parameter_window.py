@@ -121,7 +121,7 @@ class show_param_boxes(QtWidgets.QDialog):
         self.stab_samp_color_button.clicked.connect(self.get_color_stab_samp)
 
         self.spin_max_stab_time  = QtWidgets.QDoubleSpinBox(self)
-        self.spin_max_stab_time.setPrefix('stab. treshold = ')
+        self.spin_max_stab_time.setPrefix('stab. threshold = ')
         self.spin_max_stab_time.setSuffix(' [yr]')
         self.spin_max_stab_time.setRange(1, 10000000000)
 
@@ -213,8 +213,8 @@ class show_param_boxes(QtWidgets.QDialog):
             if "stab_color" not in self.cornerplot_opt:
                 self.cornerplot_opt["stab_color"] = 'r'
                 
-            if "stab_treshold" not in self.cornerplot_opt:
-                self.cornerplot_opt["stab_treshold"] = 100000.0
+            if "stab_threshold" not in self.cornerplot_opt:
+                self.cornerplot_opt["stab_threshold"] = 100000.0
  
 
             self.truth_color_button.setStyleSheet("color: %s;"%self.cornerplot_opt["truth_color"])
@@ -337,7 +337,7 @@ class show_param_boxes(QtWidgets.QDialog):
                 self.layout.addWidget(self.stab_samp_color_button, 11,l+4)     
                 self.layout.addWidget(self.spin_max_stab_time, 12,l+4)     
                 self.layout.addWidget(self.cancel_button, 15,l+4)
-                self.spin_max_stab_time.setValue(self.cornerplot_opt["stab_treshold"])
+                self.spin_max_stab_time.setValue(self.cornerplot_opt["stab_threshold"])
 
             else:
                 self.layout.addWidget(self.cancel_button, 13,l+4)           
@@ -382,7 +382,7 @@ class show_param_boxes(QtWidgets.QDialog):
           
         self.cornerplot_opt["bins"]            = self.spin_bins.value()
         self.cornerplot_opt["labelpad"]        = self.spin_label_pad.value()
-        self.cornerplot_opt["stab_treshold"]   = self.spin_max_stab_time.value()
+        self.cornerplot_opt["stab_threshold"]   = self.spin_max_stab_time.value()
           
         
         results["cornerplot"] = self.cornerplot_opt
