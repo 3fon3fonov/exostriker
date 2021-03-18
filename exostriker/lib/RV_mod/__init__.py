@@ -5314,8 +5314,8 @@ def mcmc_stab(obj,samp_i):
     integrator='mvs'
     
     
-    a_treshold = 0.2 # i.e. 10 % in semi-major axis
-    e_treshold = 0.95 # i.e. above e>0.95 the system is defined as unstable
+    a_threshold = 0.2 # i.e. 10 % in semi-major axis
+    e_threshold = 0.95 # i.e. above e>0.95 the system is defined as unstable
     
     
     rand_samp = 1000 # if None then all the samples are integrated
@@ -5347,20 +5347,20 @@ def mcmc_stab(obj,samp_i):
     if np.argwhere(np.isnan(fit2.evol_M[pl2_ind])).size > 0:
         last_stab.append(min(min(np.argwhere(np.isnan(fit2.evol_M[pl2_ind])))))
  
-    #if (fit2.evol_a[pl1_ind] > fit2.evol_a[pl1_ind] +fit2.evol_a[pl1_ind]*a_treshold).all():
+    #if (fit2.evol_a[pl1_ind] > fit2.evol_a[pl1_ind] +fit2.evol_a[pl1_ind]*a_threshold).all():
     
-    last_stab.append(min(np.argwhere( fit2.evol_a[pl1_ind] > fit2.evol_a[pl1_ind] +fit2.evol_a[pl1_ind]*a_treshold ),default=len(fit2.evol_a[pl1_ind])))            
-    last_stab.append(min(np.argwhere( fit2.evol_a[pl2_ind] > fit2.evol_a[pl2_ind] +fit2.evol_a[pl2_ind]*a_treshold ),default=len(fit2.evol_a[pl2_ind])) )    
-    last_stab.append(min(np.argwhere( fit2.evol_a[pl1_ind] < fit2.evol_a[pl1_ind] -fit2.evol_a[pl1_ind]*a_treshold ),default=len(fit2.evol_a[pl1_ind])) )           
-    last_stab.append(min(np.argwhere( fit2.evol_a[pl2_ind] < fit2.evol_a[pl2_ind] -fit2.evol_a[pl2_ind]*a_treshold ),default=len(fit2.evol_a[pl2_ind])) )  
+    last_stab.append(min(np.argwhere( fit2.evol_a[pl1_ind] > fit2.evol_a[pl1_ind] +fit2.evol_a[pl1_ind]*a_threshold ),default=len(fit2.evol_a[pl1_ind])))            
+    last_stab.append(min(np.argwhere( fit2.evol_a[pl2_ind] > fit2.evol_a[pl2_ind] +fit2.evol_a[pl2_ind]*a_threshold ),default=len(fit2.evol_a[pl2_ind])) )    
+    last_stab.append(min(np.argwhere( fit2.evol_a[pl1_ind] < fit2.evol_a[pl1_ind] -fit2.evol_a[pl1_ind]*a_threshold ),default=len(fit2.evol_a[pl1_ind])) )           
+    last_stab.append(min(np.argwhere( fit2.evol_a[pl2_ind] < fit2.evol_a[pl2_ind] -fit2.evol_a[pl2_ind]*a_threshold ),default=len(fit2.evol_a[pl2_ind])) )  
     
-    last_stab.append(min(np.argwhere( fit2.evol_e[pl1_ind] > e_treshold ),default=len(fit2.evol_e[pl1_ind])) )
-    last_stab.append(min(np.argwhere( fit2.evol_e[pl2_ind] > e_treshold ),default=len(fit2.evol_e[pl2_ind])) )
+    last_stab.append(min(np.argwhere( fit2.evol_e[pl1_ind] > e_threshold ),default=len(fit2.evol_e[pl1_ind])) )
+    last_stab.append(min(np.argwhere( fit2.evol_e[pl2_ind] > e_threshold ),default=len(fit2.evol_e[pl2_ind])) )
        
 
-#        elif (fit2.evol_a[pl2_ind] > fit2.evol_a[pl2_ind] +fit2.evol_a[pl2_ind]*a_treshold).all() or (fit2.evol_a[pl2_ind] < fit2.evol_a[pl2_ind] - fit2.evol_a[pl2_ind]*a_treshold).all() :
+#        elif (fit2.evol_a[pl2_ind] > fit2.evol_a[pl2_ind] +fit2.evol_a[pl2_ind]*a_threshold).all() or (fit2.evol_a[pl2_ind] < fit2.evol_a[pl2_ind] - fit2.evol_a[pl2_ind]*a_threshold).all() :
 #            stable = 0
-#        elif (fit2.evol_e[pl1_ind] > e_treshold).all() or (fit2.evol_e[pl2_ind] > e_treshold).all():
+#        elif (fit2.evol_e[pl1_ind] > e_threshold).all() or (fit2.evol_e[pl2_ind] > e_threshold).all():
 #            stable = 0
 
 
