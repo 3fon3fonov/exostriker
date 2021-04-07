@@ -2560,15 +2560,17 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
             if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True and fit.npl > 0:
                 
+                self.tra_xaxis_offset.setEnabled(True) 
                 self.trans_phase_slider.setEnabled(True) 
              
                 ph_pl_ind = self.comboBox_phase_pl_tran.currentIndex()
                 offset = (self.trans_phase_slider.value()/100.0)*fit.P[ph_pl_ind]
                 data_time_phase = np.array( (t  - offset)%fit.P[ph_pl_ind] )
+                tra_offset_xaxis = self.tra_xaxis_offset.value()
 
                 sort = np.array(sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])    )
 
-                t      = data_time_phase[sort] 
+                t      = data_time_phase[sort] + tra_offset_xaxis
                 flux          = flux[sort] 
                 flux_err      = flux_err[sort]
                 flux_model    = flux_model[sort] 
@@ -2586,6 +2588,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
             else:
                 p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'9pt'})
+                self.tra_xaxis_offset.setEnabled(False) 
                 self.trans_phase_slider.setEnabled(False) 
 
             #print(len(t),len(flux),len(flux_err))
@@ -2624,7 +2627,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             model_time_phase = np.array( (t_model - offset)%fit.P[ph_pl_ind]  )
             sort2 = np.array(sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])    )
 
-            t_model = model_time_phase[sort2] 
+            t_model = model_time_phase[sort2] + tra_offset_xaxis
             flux_model_ex    = flux_model_ex[sort2] 
 
         if fit.tra_doGP == True:
@@ -9152,6 +9155,7 @@ https://github.com/3fon3fonov/exostriker/issues
         self.tra_model_ndata_fact.valueChanged.connect(self.update_transit_plots)
         
         self.trans_phase_slider.valueChanged.connect(self.update_transit_plots)       
+        self.tra_xaxis_offset.valueChanged.connect(self.update_transit_plots)
         
         
 

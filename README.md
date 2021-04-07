@@ -178,29 +178,6 @@ http://www.stefanom.org/systemic/
 
 **Scientific papers which one way or another made the use of the Exo-Striker (to my knowledge):**
 
-
-*  Stock, S.; Nagel, E.; Kemmer, J.; Passegger, V. M.; Reffert, S.; Quirrenbach, A. et al. The CARMENES search for exoplanets around M dwarfs. Three temperate to warm super-Earths. arXiv e-prints arXiv:2010.00474
-
-*  Kemmer, J.; Stock, S.; Kossakowski, D.; Kaminski, A.; Molaverdikhani, K. et al. Discovery of a hot, transiting, Earth-sized planet and a second temperate, non-transiting planet around the M4 dwarf GJ 3473 (TOI-488). arXiv e-prints  arXiv:2009.10432
-
-* Jeffers, S. V.; Dreizler, S.; Barnes, J. R.; Haswell, C. A.; Nelson, R. P. et al. A multiple planet system of super-Earths orbiting the brightest red dwarf star GJ887. Science, 368, 1477. 
-
-* Jones, M. I., Wittenmyer, R., Aguilera-Gómez, C., Soto, M. G., Torres, P. et al. Four Jovian planets around low-luminosity giant stars observed by the EXPRESS and PPPS (A&A, submitted) arXiv e-prints arXiv:2006.01277
-
-* Obermeier, C., Steuer, J., Kellermann, H., Saglia, R., Henning, Th., et al. Following the TraCS of exoplanets with Pan-Planets: Wendelstein-1b and Wendelstein-2b. A&A, 639, 130.
-
-* Stock, S., J. Kemmer, S. Reffert, et al. (2020). The CARMENES search for exoplanets around M dwarfs. Characterization of the nearby ultra-compact multiplanetary system YZ Ceti. A&A, 636, 119. 
  
-* Trifonov, T., M. H. Lee, M. Kürster, et al. (2020). The CARMENES search for exoplanets around M dwarfs. Dynamical characterization of the multiple planet system GJ 1148 and prospects of habitable exomoons around GJ 1148 b. A&A, 638, 16.
-
-* Trifon Trifonov, Lev Tal-Or, Mathias Zechmeister, et al. (2020). A public HARPS radial velocity database corrected for systematic errors. A&A, 636, A74 
- 
-* Luque, R., T. Trifonov, S. Reffert, et al. (2019). Precise radial velocities of giant stars. XIII. A second Jupiter orbiting in 4:3 resonance in the 7 CMa system. ApJ, 631, A136.
-
-* Trifonov, Trifon, Stephan Stock, Thomas Henning, et al. (2019). Two Jovian Planets around the Giant Star HD 202696: A Growing Population of Packed Massive Planetary Pairs around Massive Stars?. AJ, 157, 93.
-
-* Trifonov, Trifon, Jan Rybizki, and Martin Kürster. (2019). TESS exoplanet candidates validated with HARPS archival data. A massive Neptune around GJ 143 and two Neptunes around HD 23472. A&A, 622, L7. 
-
-(And as of Oct 2020, I am aware of at least 7 more papers in preperation !!!)
-
+[Check in ADS](https://ui.adsabs.harvard.edu/abs/2019ascl.soft06004T/citations)
 
