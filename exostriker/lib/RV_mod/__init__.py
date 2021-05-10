@@ -3415,7 +3415,7 @@ class signal_fit(object):
     def add_transit_dataset(self, name, path, tra_idset = 0, PDC = False):
      
   
-        if path.endswith("lc.fits"):
+        if path.endswith(".fits"):
 
             if pyfits_not_found == True:
                 print("""
@@ -3428,25 +3428,39 @@ class signal_fit(object):
                 sc = pyfits.open(path) 
                 dd =  sc[1].data
                 
-                if PDC == True:
-                    tra_JD        = dd['TIME'][np.isfinite(dd['TIME']) & np.isfinite(dd['PDCSAP_FLUX']) & np.isfinite(dd['PDCSAP_FLUX_ERR'])]
-                    tra_data      = dd['PDCSAP_FLUX'][np.isfinite(dd['TIME']) & np.isfinite(dd['PDCSAP_FLUX']) & np.isfinite(dd['PDCSAP_FLUX_ERR'])]
-                    tra_data_sig  = dd['PDCSAP_FLUX_ERR'][np.isfinite(dd['TIME']) & np.isfinite(dd['PDCSAP_FLUX']) & np.isfinite(dd['PDCSAP_FLUX_ERR'])]
-                else:
-                    tra_JD        = dd['TIME'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
-                    tra_data      = dd['SAP_FLUX'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
-                    tra_data_sig  = dd['SAP_FLUX_ERR'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
-
-               # print(sc['TELESCOP'])
-                if sc[0].header['TELESCOP'] == 'TESS':
-                    print("TESS light curve detected. Automatically adding 2457000.0 to BJD_TBD")
+                if sc[1].header['TELESCOP'] == 'TESS':
+ 
+                
+                    if PDC == True:
+                        tra_JD        = dd['TIME'][np.isfinite(dd['TIME']) & np.isfinite(dd['PDCSAP_FLUX']) & np.isfinite(dd['PDCSAP_FLUX_ERR'])]
+                        tra_data      = dd['PDCSAP_FLUX'][np.isfinite(dd['TIME']) & np.isfinite(dd['PDCSAP_FLUX']) & np.isfinite(dd['PDCSAP_FLUX_ERR'])]
+                        tra_data_sig  = dd['PDCSAP_FLUX_ERR'][np.isfinite(dd['TIME']) & np.isfinite(dd['PDCSAP_FLUX']) & np.isfinite(dd['PDCSAP_FLUX_ERR'])]
+                    else:
+                        tra_JD        = dd['TIME'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
+                        tra_data      = dd['SAP_FLUX'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
+                        tra_data_sig  = dd['SAP_FLUX_ERR'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
+    
+                   # print(sc['TELESCOP'])
+                        print("TESS light curve detected. Automatically adding 2457000.0 to BJD_TBD")
+                    
                     tra_JD = tra_JD + 2457000.0
-                tra_airmass_ = np.zeros(len(tra_JD))
+                    tra_airmass_ = np.zeros(len(tra_JD))
 
+                elif sc[1].header['TELESCOP'] == 'CHEOPS':
+ 
+                    tra_JD        = dd['BJD_TIME'][np.isfinite(dd['BJD_TIME']) & np.isfinite(dd['FLUX']) & np.isfinite(dd['FLUXERR'])]
+                    tra_data      = dd['FLUX'][np.isfinite(dd['BJD_TIME']) & np.isfinite(dd['FLUX']) & np.isfinite(dd['FLUXERR'])]
+                    tra_data_sig  = dd['FLUXERR'][np.isfinite(dd['BJD_TIME']) & np.isfinite(dd['FLUX']) & np.isfinite(dd['FLUXERR'])]
+
+                    print("CHEOPS light curve detected.")
+
+                    tra_airmass_ = np.zeros(len(tra_JD))
 
             except:
-                print("Unknown type of .fits file! Please provide a TESS *lc.fits file")
+                print("Unknown type of .fits file! Please provide a TESS *lc.fits, or a CHEOPS *SCI_COR*.fits file")
                 return
+ 
+            
 
         else:
             try:

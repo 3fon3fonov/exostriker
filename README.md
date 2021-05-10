@@ -47,11 +47,13 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Integrated Jupyter shell.
 * Importable as a standard python library (i.e., "import exostriker").
 * Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
+* Direct import of TESS *lc.fits and CHEOPS *SCI_COR*.fits files
 
 **What is to be implemented**:
 
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ REBOUND is planned to be included). 
 * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
+* Swap "celerite" with "celerite2"
 * Combined modeling with Astrometry (work in progress).
 * Documentation, Instructions, and Video tutorials (Work in progress [here](https://exostriker.readthedocs.io))
 

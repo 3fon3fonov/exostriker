@@ -4281,7 +4281,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         if str(input_files[0]) != '':
             
             
-            if input_files[0].endswith("lc.fits"):
+            if input_files[0].endswith(".fits"):
                 
                 but_n = self.tess_pdc_dialog.get_radio()
                 
