@@ -98,7 +98,8 @@ class fortran_output(object):
             elif(T[i][0]=='ITMAX'): # error in amoeba
                 #raise RuntimeError ('Runtime error in amoeba (fortran subroutine). Change initial parameters.')
                 print('Runtime error in amoeba (fortran subroutine). Change initial parameters.')  
-                return              
+                i=i+1
+                #return              
             elif(T[i][0]=='loglik,'): # these two lines always appear in the output
                 self.loglik=float(T[i+1][0]) 
                 self.reduced_chi2=float(T[i+1][1])

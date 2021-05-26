@@ -11,9 +11,9 @@ if sys.version_info >= (3,7):
     install_requires_py_ver=[
     "numpy>=1.16.6",
     "scipy>=1.2.1",
-    "matplotlib==3.2.1",
+    "matplotlib==3.3.1",
     "formlayout==1.2.0",
-    "PyQt5>=5.15.0",
+    "PyQt5>=5.15.4",
     "jupyter",
     "jupyter-client",
     "ipykernel",

@@ -130,6 +130,8 @@ os.environ["OPENBLAS_MAIN_FREE"] = "1"
 os.environ["QT_SCREEN_SCALE_FACTORS"] = "1"
 os.environ["QT_SCALE_FACTOR"] = "1"
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "0"
+os.environ["QT_DEVICE_PIXEL_RATIO"] = "1"
+
  
  
 #if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
@@ -137,8 +139,8 @@ os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "0"
 
 #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_Use96Dpi)
 
-if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
-    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps,True)
+#if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+#    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps,True)
 
 
 
