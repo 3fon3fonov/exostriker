@@ -7921,7 +7921,7 @@ Please install via 'pip install ttvfast'.
     def get_RV_data(self):
         global fit
 
-        self.console_widget.print_text("rv.export_RV_data(fit, [0], file='RV_data.txt',  jitter=False, o_c=False, print_data=False, width = 10, precision = 3)", before_prompt=False)  
+        self.console_widget.print_text("rv.export_RV_data(fit, [0], file='RV_data.txt',  jitter=False, o_c=False, print_data=False, remove_offset = False, width = 10, precision = 3)", before_prompt=False)  
         self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
         self.terminal_embeded.setCurrentWidget(self.console_widget)   
         
