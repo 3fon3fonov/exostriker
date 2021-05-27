@@ -1448,7 +1448,7 @@ def export_RV_data(obj, idset_ts, file="RV_data.txt",  jitter=False, o_c=False,
                  continue
              else:
                  if not remove_offset:
-                     rv[ii] = rv[ii] + float(obj.params.offsets[i])
+                     rv[ii] = rv[ii] - float(obj.params.offsets[i])
                      
                  f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f}  {3:{width}.{precision}f}  \n'.format(float(JD[ii]), float(rv[ii]), float(sigma[ii]), idset_ts[i], width = width, precision = precision )   )
                  
