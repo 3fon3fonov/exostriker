@@ -278,6 +278,9 @@ QtGui.QApplication.processEvents()
 
 
 class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
+    
+
+
 
     def update_labels(self):
         global fit
@@ -8602,13 +8605,18 @@ https://github.com/3fon3fonov/exostriker/issues
         
         es_version = 0.57
 
-
+        #self.loading_screen= LoadingScreen()   
+ 
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
        # self.showMaximized()
 
+
+
         self.setupUi(self)
-        
+
+
+
         self.initialize_font_plot()
 
         self.check_fortran_routines()
@@ -9462,12 +9470,48 @@ It seems that you started the 'Exo-Striker' with Python 2. Please consider Pytho
         print("""Here you can get some more information from the tool's workflow, stdout/strerr, and piped results.""")
         #self.use_K1.setStyleSheet("color: red")
 
+
+
+class LoadingScreen(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+ 
+        self.setFixedSize(1300*0.7, 1250*0.7)
+
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.CustomizeWindowHint)
+        self.label_animation = QtWidgets.QLabel(self)
+
+        self.label_animation.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Ignored)
+        # self.label_animation.setStyleSheet("""{ background-image: url('./Icons/Pulse-1s-100px.gif');}""")
+        self.movie= QtGui.QMovie('./lib/UI/33_striker.png')
+        self.label_animation.setMovie(self.movie)
+        # self.label_animation.setPixmap(QtGui.QPixmap("./Icons/Pulse-1s-100px.gif"))
+ 
+        timer = QtCore.QTimer
+        
+        self.startAnimation()
+        timer.singleShot(3000, self.stopAniamtion)
+        self.show()       
+        
+
+    def startAnimation(self):
+        self.movie.start()
+
+
+    def stopAniamtion(self):
+        self.movie.stop()
+        self.close()
+
+
+
 def main():
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle('Fusion') #The available styles depend on your platform but are usually 'Fusion', 'Windows', 'WindowsVista' (Windows only) and 'Macintosh' (Mac only). 
     
-    
+
     window = Exo_striker()
+    
+
     screen_resolution = app.desktop().screenGeometry()
     width, height = screen_resolution.width(), screen_resolution.height()
     #print(width, height)
@@ -9479,6 +9523,9 @@ def main():
         pass
     
 #    window.installEventFilter(window)
+
+   
+
     window.show()
 
     sys.exit(app.exec_())
