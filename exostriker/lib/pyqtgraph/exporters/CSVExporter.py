@@ -7,17 +7,19 @@ from ..python2_3 import asUnicode
 
 __all__ = ['CSVExporter']
     
-    
+translate = QtCore.QCoreApplication.translate
+
 class CSVExporter(Exporter):
     Name = "CSV from plot data"
     windows = []
     def __init__(self, item):
         Exporter.__init__(self, item)
         self.params = Parameter(name='params', type='group', children=[
-            {'name': 'separator', 'type': 'list', 'value': 'comma', 'values': ['comma', 'tab']},
-            {'name': 'precision', 'type': 'int', 'value': 10, 'limits': [0, None]},
-            {'name': 'columnMode', 'type': 'list', 'values': ['(x,y,err_y,err_x) per plot', '(x,y,y,y) for all plots']}
+            {'name': 'separator', 'title': translate("Exporter", 'separator'), 'type': 'list', 'value': 'comma', 'values': ['comma', 'tab']},
+            {'name': 'precision', 'title': translate("Exporter", 'precision'), 'type': 'int', 'value': 10, 'limits': [0, None]},
+            {'name': 'columnMode', 'title': translate("Exporter", 'columnMode'), 'type': 'list', 'values': ['(x,y,err_y,err_x) per plot', '(x,y,y,y) for all plots']}
         ])
+        
         
     def parameters(self):
         return self.params
@@ -37,13 +39,11 @@ class CSVExporter(Exporter):
         appendAllX = self.params['columnMode'] == '(x,y,err_y,err_x) per plot'
 
         for i, c in enumerate(self.item.curves):
+            
             cd = c.getData()
             if cd[0] is None:
                 continue
             data.append(cd)
-
-            #print(cd)
-
 
             if hasattr(c, 'implements') and c.implements('plotData') and c.name() is not None:
                 name = c.name().replace('"', '""') + '_'
@@ -58,27 +58,24 @@ class CSVExporter(Exporter):
                 header.extend([xName, yName,e_yName,e_xName ])
             else:
                 header.extend([yName,e_yName,e_xName ])
-
-        for indx, item in enumerate(self.item.items):
-
-            if self.item.items[indx].__class__.__name__ == "InfiniteLine":                   
-                continue   
-            if self.item.items[indx].__class__.__name__ == "FillBetweenItem":                               
-                continue
-            if self.item.items[indx].__class__.__name__ == "TextItem":
-                continue
-
-            if "top" in self.item.items[indx].opts:
-                yerr=self.item.items[indx].opts["top"]
-                data[1] = list(data[1])
-                data[1].append(yerr)
-                data[1] = tuple(data[1])
-
-            if "left" in self.item.items[indx].opts:
-                xerr=self.item.items[indx].opts["left"]
-                data[1] = list(data[1])
-                data[1].append(xerr)
-                data[1] = tuple(data[1])
+ 
+    
+     
+        for indx, cc in enumerate(self.item.items):
+ 
+            if cc.__class__.__name__ == "ErrorBarItem":                               
+            
+                for option in ['top', 'left']:
+                    if option in cc.opts and i > 0:
+                        err = cc.opts[option]
+                        try:
+                            data[1] = list(data[1])
+                            data[1].append(err)
+                            data[1] = tuple(data[1])
+                        except:
+                            continue
+                    else:
+                        continue
 
         if self.params['separator'] == 'comma':
             sep = ','

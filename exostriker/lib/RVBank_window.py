@@ -88,11 +88,14 @@ class RVBank_window(QtWidgets.QDialog):
         if self.url_success == False:
             return
 
-        self.x_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[0])
-        self.y_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[1])
-        self.e_y_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[2])
+        try:
+            self.x_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[0])
+            self.y_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[1])
+            self.e_y_data = np.genfromtxt(io.BytesIO(self.resp),usecols=[2])
 
-
+        except:
+            print("Something is wrong.... No connection to the HARPS RVBank!!!")
+            self.url_success = False            
 
         self.init_model()
 
