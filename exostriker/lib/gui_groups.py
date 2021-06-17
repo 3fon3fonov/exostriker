@@ -1052,6 +1052,46 @@ def gp_sho_errors_gui(self):
     return gp_sho_errors_gui
 
 
+def gp_double_sho_params(self):
+
+    gp_double_sho_params = [
+            self.GP_double_sho_kernel_sigma,
+            self.GP_double_sho_kernel_P,
+            self.GP_double_sho_kernel_Q0,
+            self.GP_double_sho_kernel_dQ,
+            self.GP_double_sho_kernel_f,
+            ]
+
+    return gp_double_sho_params
+
+
+def use_gp_double_sho_params(self):
+
+    use_gp_double_sho_params = [
+            self.use_GP_double_sho_kernel_sigma,
+            self.use_GP_double_sho_kernel_P,
+            self.use_GP_double_sho_kernel_Q0,
+            self.use_GP_double_sho_kernel_dQ,
+            self.use_GP_double_sho_kernel_f,
+            ]
+    return use_gp_double_sho_params
+
+
+def gp_double_sho_errors_gui(self):
+
+    gp_double_sho_errors_gui = [
+            self.err_GP_double_sho_kernel_sigma,
+            self.err_GP_double_sho_kernel_P,
+            self.err_GP_double_sho_kernel_Q0,
+            self.err_GP_double_sho_kernel_dQ,
+            self.err_GP_double_sho_kernel_f,
+            ]
+    
+    return gp_double_sho_errors_gui
+
+
+
+
 def gp_mat_params(self):
 
     gp_mat_params = [
@@ -1151,6 +1191,44 @@ def gp_tra_sho_errors_gui(self):
     return tra_gp_sho_errors_gui
 
 
+def tra_gp_double_sho_params(self):
+
+    tra_gp_double_sho_params = [
+            self.tra_GP_double_sho_kernel_sigma,
+            self.tra_GP_double_sho_kernel_P,
+            self.tra_GP_double_sho_kernel_Q0,
+            self.tra_GP_double_sho_kernel_dQ,
+            self.tra_GP_double_sho_kernel_f,
+            ]
+
+    return tra_gp_double_sho_params
+
+
+def use_tra_gp_double_sho_params(self):
+
+    use_tra_gp_double_sho_params = [
+            self.use_tra_GP_double_sho_kernel_sigma,
+            self.use_tra_GP_double_sho_kernel_P,
+            self.use_tra_GP_double_sho_kernel_Q0,
+            self.use_tra_GP_double_sho_kernel_dQ,
+            self.use_tra_GP_double_sho_kernel_f,
+            ]
+    return use_tra_gp_double_sho_params
+
+
+def tra_gp_double_sho_errors_gui(self):
+
+    tra_gp_double_sho_errors_gui = [
+            self.err_tra_GP_double_sho_kernel_sigma,
+            self.err_tra_GP_double_sho_kernel_P,
+            self.err_tra_GP_double_sho_kernel_Q0,
+            self.err_tra_GP_double_sho_kernel_dQ,
+            self.err_tra_GP_double_sho_kernel_f,
+            ]
+    
+    return tra_gp_double_sho_errors_gui
+
+
 
 
 def tra_gp_mat_params(self):
@@ -1191,36 +1269,7 @@ def tra_gp_mat_errors_gui(self):
 
 ############### GP priors ######################
 
-def tra_GP_sho_bounds_gui(self):
-    
-    tra_GP_sho_bounds_gui = [
-        [self.tra_GP_sho_kernel_S_min,self.tra_GP_sho_kernel_S_max,self.use_tra_GP_sho_kernel_S_bound],  
-        [self.tra_GP_sho_kernel_Q_min,self.tra_GP_sho_kernel_Q_max,self.use_tra_GP_sho_kernel_Q_bound],  
-        [self.tra_GP_sho_kernel_omega_min,self.tra_GP_sho_kernel_omega_max,self.use_tra_GP_sho_kernel_omega_bound],  
-        ]
-        
-    return tra_GP_sho_bounds_gui
 
-def tra_GP_rot_bounds_gui(self):
-
-    tra_GP_rot_bounds_gui = [
-        [self.tra_GP_rot_kernel_Amp_min,self.tra_GP_rot_kernel_Amp_max,self.use_tra_GP_rot_kernel_Amp_bound],  
-        [self.tra_GP_rot_kernel_time_sc_min,self.tra_GP_rot_kernel_time_sc_max,self.use_tra_GP_rot_kernel_time_sc_bound],  
-        [self.tra_GP_rot_kernel_Per_min,self.tra_GP_rot_kernel_Per_max,self.use_tra_GP_rot_kernel_Per_sigma_bound],  
-        [self.tra_GP_rot_kernel_fact_min,self.tra_GP_rot_kernel_fact_max,self.use_tra_GP_rot_kernel_fact_bound],  
-        ]
-        
-    return tra_GP_rot_bounds_gui
-
-def tra_GP_mat_bounds_gui(self):
-
-    tra_GP_mat_bounds_gui = [
-        [self.tra_GP_mat_kernel_sigma_min,self.tra_GP_mat_kernel_sigma_max,self.use_tra_GP_mat_kernel_sigma_bound],  
-        [self.tra_GP_mat_kernel_rho_min,self.tra_GP_mat_kernel_rho_max,self.use_tra_GP_mat_kernel_rho_bound],  
-        [self.tra_GP_mat_kernel_eps_min,self.tra_GP_mat_kernel_eps_max,self.use_tra_GP_mat_kernel_sigma_bound],  
-        ]
-    return tra_GP_mat_bounds_gui
- 
 
 def GP_sho_bounds_gui(self):
     
@@ -1231,6 +1280,20 @@ def GP_sho_bounds_gui(self):
         ]
         
     return GP_sho_bounds_gui
+
+
+def GP_double_sho_bounds_gui(self):
+    
+    GP_double_sho_bounds_gui = [
+        [self.GP_double_sho_kernel_sigma_min,self.GP_double_sho_kernel_sigma_max,self.use_GP_double_sho_kernel_sigma_bound],  
+        [self.GP_double_sho_kernel_P_min,self.GP_double_sho_kernel_P_max,self.use_GP_double_sho_kernel_P_bound],  
+        [self.GP_double_sho_kernel_Q0_min,self.GP_double_sho_kernel_Q0_max,self.use_GP_double_sho_kernel_Q0_bound],  
+        [self.GP_double_sho_kernel_dQ_min,self.GP_double_sho_kernel_dQ_max,self.use_GP_double_sho_kernel_dQ_bound],  
+        [self.GP_double_sho_kernel_f_min,self.GP_double_sho_kernel_f_max,self.use_GP_double_sho_kernel_f_bound] 
+        ]
+        
+    return GP_double_sho_bounds_gui
+
 
 def GP_rot_bounds_gui(self):
 
@@ -1274,6 +1337,20 @@ def GP_sho_nr_priors_gui(self):
     
     return GP_sho_nr_priors_gui
   
+
+def GP_double_sho_nr_priors_gui(self):
+
+ 
+    GP_double_sho_nr_priors_gui = [
+        [self.GP_double_sho_kernel_sigma_mean,self.GP_double_sho_kernel_sigma_sigma,self.use_GP_double_sho_kernel_sigma_nr_pr],  
+        [self.GP_double_sho_kernel_P_mean,self.GP_double_sho_kernel_P_sigma,self.use_GP_double_sho_kernel_P_nr_pr],  
+        [self.GP_double_sho_kernel_Q0_mean,self.GP_double_sho_kernel_Q0_sigma,self.use_GP_double_sho_kernel_Q0_nr_pr],  
+        [self.GP_double_sho_kernel_dQ_mean,self.GP_double_sho_kernel_dQ_sigma,self.use_GP_double_sho_kernel_dQ_nr_pr],  
+        [self.GP_double_sho_kernel_f_mean,self.GP_double_sho_kernel_f_sigma,self.use_GP_double_sho_kernel_f_nr_pr] 
+        ]    
+    return GP_double_sho_nr_priors_gui
+
+
 def GP_mat_nr_priors_gui(self):
 
     GP_mat_nr_priors_gui = [
@@ -1284,6 +1361,54 @@ def GP_mat_nr_priors_gui(self):
         
     return GP_mat_nr_priors_gui
 
+
+
+
+
+
+
+def tra_GP_sho_bounds_gui(self):
+    
+    tra_GP_sho_bounds_gui = [
+        [self.tra_GP_sho_kernel_S_min,self.tra_GP_sho_kernel_S_max,self.use_tra_GP_sho_kernel_S_bound],  
+        [self.tra_GP_sho_kernel_Q_min,self.tra_GP_sho_kernel_Q_max,self.use_tra_GP_sho_kernel_Q_bound],  
+        [self.tra_GP_sho_kernel_omega_min,self.tra_GP_sho_kernel_omega_max,self.use_tra_GP_sho_kernel_omega_bound],  
+        ]
+        
+    return tra_GP_sho_bounds_gui
+
+def tra_GP_double_sho_bounds_gui(self):
+    
+    tra_GP_double_sho_bounds_gui = [
+        [self.tra_GP_double_sho_kernel_sigma_min,self.tra_GP_double_sho_kernel_sigma_max,self.use_tra_GP_double_sho_kernel_sigma_bound],  
+        [self.tra_GP_double_sho_kernel_P_min,self.tra_GP_double_sho_kernel_P_max,self.use_tra_GP_double_sho_kernel_P_bound],  
+        [self.tra_GP_double_sho_kernel_Q0_min,self.tra_GP_double_sho_kernel_Q0_max,self.use_tra_GP_double_sho_kernel_Q0_bound],  
+        [self.tra_GP_double_sho_kernel_dQ_min,self.tra_GP_double_sho_kernel_dQ_max,self.use_tra_GP_double_sho_kernel_dQ_bound],  
+        [self.tra_GP_double_sho_kernel_f_min,self.tra_GP_double_sho_kernel_f_max,self.use_tra_GP_double_sho_kernel_f_bound] 
+        ]
+        
+    return tra_GP_double_sho_bounds_gui
+
+def tra_GP_rot_bounds_gui(self):
+
+    tra_GP_rot_bounds_gui = [
+        [self.tra_GP_rot_kernel_Amp_min,self.tra_GP_rot_kernel_Amp_max,self.use_tra_GP_rot_kernel_Amp_bound],  
+        [self.tra_GP_rot_kernel_time_sc_min,self.tra_GP_rot_kernel_time_sc_max,self.use_tra_GP_rot_kernel_time_sc_bound],  
+        [self.tra_GP_rot_kernel_Per_min,self.tra_GP_rot_kernel_Per_max,self.use_tra_GP_rot_kernel_Per_sigma_bound],  
+        [self.tra_GP_rot_kernel_fact_min,self.tra_GP_rot_kernel_fact_max,self.use_tra_GP_rot_kernel_fact_bound],  
+        ]
+        
+    return tra_GP_rot_bounds_gui
+
+def tra_GP_mat_bounds_gui(self):
+
+    tra_GP_mat_bounds_gui = [
+        [self.tra_GP_mat_kernel_sigma_min,self.tra_GP_mat_kernel_sigma_max,self.use_tra_GP_mat_kernel_sigma_bound],  
+        [self.tra_GP_mat_kernel_rho_min,self.tra_GP_mat_kernel_rho_max,self.use_tra_GP_mat_kernel_rho_bound],  
+        [self.tra_GP_mat_kernel_eps_min,self.tra_GP_mat_kernel_eps_max,self.use_tra_GP_mat_kernel_sigma_bound],  
+        ]
+    return tra_GP_mat_bounds_gui
+ 
 
 def tra_GP_rot_nr_priors_gui(self):
 
@@ -1306,6 +1431,21 @@ def tra_GP_sho_nr_priors_gui(self):
  
     return tra_GP_sho_nr_priors_gui
 
+def tra_GP_double_sho_nr_priors_gui(self):
+
+ 
+    tra_GP_double_sho_nr_priors_gui = [
+        [self.tra_GP_double_sho_kernel_sigma_mean,self.tra_GP_double_sho_kernel_sigma_sigma,self.use_tra_GP_double_sho_kernel_sigma_nr_pr],  
+        [self.tra_GP_double_sho_kernel_P_mean,self.tra_GP_double_sho_kernel_P_sigma,self.use_tra_GP_double_sho_kernel_P_nr_pr],  
+        [self.tra_GP_double_sho_kernel_Q0_mean,self.tra_GP_double_sho_kernel_Q0_sigma,self.use_tra_GP_double_sho_kernel_Q0_nr_pr],  
+        [self.tra_GP_double_sho_kernel_dQ_mean,self.tra_GP_double_sho_kernel_dQ_sigma,self.use_tra_GP_double_sho_kernel_dQ_nr_pr],  
+        [self.tra_GP_double_sho_kernel_f_mean,self.tra_GP_double_sho_kernel_f_sigma,self.use_tra_GP_double_sho_kernel_f_nr_pr] 
+        ]    
+    return tra_GP_double_sho_nr_priors_gui
+
+
+
+
 def tra_GP_mat_nr_priors_gui(self):
             
     tra_GP_mat_nr_priors_gui = [
@@ -1327,6 +1467,8 @@ def GP_rot_jeff_priors_gui(self):
         ]
  
     return GP_rot_jeff_priors_gui
+
+
               
 def GP_sho_jeff_priors_gui(self):
 
@@ -1337,6 +1479,20 @@ def GP_sho_jeff_priors_gui(self):
         ]
  
     return GP_sho_jeff_priors_gui
+
+
+def GP_double_sho_jeff_priors_gui(self):
+    
+    GP_double_sho_jeff_priors_gui = [
+        [self.GP_double_sho_kernel_sigma_alpha,self.GP_double_sho_kernel_sigma_beta,self.use_GP_double_sho_kernel_sigma_jeff_pr],  
+        [self.GP_double_sho_kernel_P_alpha,self.GP_double_sho_kernel_P_beta,self.use_GP_double_sho_kernel_P_jeff_pr],  
+        [self.GP_double_sho_kernel_Q0_alpha,self.GP_double_sho_kernel_Q0_beta,self.use_GP_double_sho_kernel_Q0_jeff_pr],  
+        [self.GP_double_sho_kernel_dQ_alpha,self.GP_double_sho_kernel_dQ_beta,self.use_GP_double_sho_kernel_dQ_jeff_pr],  
+        [self.GP_double_sho_kernel_f_alpha,self.GP_double_sho_kernel_f_beta,self.use_GP_double_sho_kernel_f_jeff_pr] 
+        ]
+        
+    return GP_double_sho_jeff_priors_gui
+
  
 def GP_mat_jeff_priors_gui(self):
             
@@ -1369,6 +1525,21 @@ def tra_GP_sho_jeff_priors_gui(self):
  
     return tra_GP_sho_jeff_priors_gui
  
+
+def tra_GP_double_sho_jeff_priors_gui(self):
+    
+    tra_GP_double_sho_jeff_priors_gui = [
+        [self.tra_GP_double_sho_kernel_sigma_alpha,self.tra_GP_double_sho_kernel_sigma_beta,self.use_tra_GP_double_sho_kernel_sigma_jeff_pr],  
+        [self.tra_GP_double_sho_kernel_P_alpha,self.tra_GP_double_sho_kernel_P_beta,self.use_tra_GP_double_sho_kernel_P_jeff_pr],  
+        [self.tra_GP_double_sho_kernel_Q0_alpha,self.tra_GP_double_sho_kernel_Q0_beta,self.use_tra_GP_double_sho_kernel_Q0_jeff_pr],  
+        [self.tra_GP_double_sho_kernel_dQ_alpha,self.tra_GP_double_sho_kernel_dQ_beta,self.use_tra_GP_double_sho_kernel_dQ_jeff_pr],  
+        [self.tra_GP_double_sho_kernel_f_alpha,self.tra_GP_double_sho_kernel_f_beta,self.use_tra_GP_double_sho_kernel_f_jeff_pr] 
+        ]
+        
+    return tra_GP_double_sho_jeff_priors_gui
+
+
+
 def tra_GP_mat_jeff_priors_gui(self):
             
     tra_GP_mat_jeff_priors_gui = [

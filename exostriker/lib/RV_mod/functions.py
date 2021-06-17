@@ -3267,8 +3267,7 @@ def latex_prior_table(obj, width = 10, precision = 2,  file_name='prior_table.te
         return 
 
 
-
-def f_test(obj, obj2 = None, alpha = 0.01):
+def f_test(obj, obj2 = None, alpha = 0.01, lnL=False):
 
 
     chi2 = obj.fit_results.chi2
@@ -3287,40 +3286,38 @@ def f_test(obj, obj2 = None, alpha = 0.01):
         obj2 = dill.copy(obj2)
 
         if len(obj.fit_results.jd) != len(obj2.fit_results.jd):
-            print("not the same data, test make no sense")
+            print("not the same data, test makes no sense")
             return
 
 
     chi1 = obj2.fit_results.chi2
     par1 = obj2.fit_results.mfit
-
-    print(chi2,par1)
-    #chi1_red = chi1/(ndata - par1)
+ 
     chi2_red = chi2/(ndata - par2)
+ 
 
-
-    #raw_input("chi1_red = %s, Press Enter to continue <Enter>"%chi1_red)
-    #F = (chi1 - chi2)/chi2_red
-
-    F = ((chi1 - chi2)/(par2-par1))/chi2_red
-
-
-    #raw_input("alpha = %s, Press Enter to continue <Enter>"%alpha)
-    #print F, chi1_red, chi2_red
+    if lnL == True:
+        F = 2*(obj.loglik - obj2.loglik) # in case \Delta lnL must be tested. 
+    else:
+        if abs(par2-par1) > 0:
+            F = ((chi1 - chi2)/(par2-par1))/chi2_red # else standard f-test
+        else:
+            print("Nothing to test. The Tested model has == or < Npar. than the null model.")
+            return
 
     p_value = pdf.f.sf(F, par2 - par1, ndata - par2, loc=0, scale=1)
-
-
 
     print("""
 \chi^2 null model = %s
 \chi^2 tested model = %s
+lnL null model = %s
+lnL tested model = %s
 N parametrs null model = %s
 N parametrs tested model = %s
 F value = %s
 p-value = %s
 alpha value = %s
-"""%(chi1,chi2,par1,par2,F,p_value,alpha))
+"""%(chi1,chi2,obj.loglik,obj2.loglik,par1,par2,F,p_value,alpha))
 
 
     if float(p_value) < alpha:
