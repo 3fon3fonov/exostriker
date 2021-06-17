@@ -15,7 +15,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 **Developer**
 
 * Trifon Trifonov, MPIA Heidelberg.
-* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler and Grigorii Smirnov-Pinchukov.
+* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler, Grigorii Smirnov-Pinchukov, Stephan Stock and Jonas Kemmer.
 
 **What works**:
 
@@ -51,9 +51,9 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 
 **What is to be implemented**:
 
-* Larger arsenal of N-body/dynamical simulation/analysis tools (+ REBOUND is planned to be included). 
+* Larger arsenal of N-body/dynamical simulation/analysis tools (+ "REBOUND" is planned to be included). 
 * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
-* Swap "celerite" with "celerite2"
+* Swap "celerite" with "celerite2" (the dSHO kernel from "celerite2" is available).
 * Combined modeling with Astrometry (work in progress).
 * Documentation, Instructions, and Video tutorials (Work in progress [here](https://exostriker.readthedocs.io))
 

@@ -113,7 +113,6 @@ def initiate_RV_gps(obj,  kernel_id=-1):
         obj.params.update_GP_params(obj.GP_rot_params, kernel_id=kernel_id)
         obj.use.update_use_GP_params(obj.GP_rot_use)
 
-    #print(obj.gp_kernel)
     if obj.gp_kernel == 'RotKernel':
         kernel = terms.TermSum(GP_kernels.RotationTerm(
                 log_amp=np.log(obj.GP_rot_params[0]),
@@ -126,20 +125,41 @@ def initiate_RV_gps(obj,  kernel_id=-1):
         kernel = terms.SHOTerm(log_S0=np.log(obj.GP_sho_params[0]),
                                log_Q=np.log(obj.GP_sho_params[1]),
                                log_omega0=np.log(obj.GP_sho_params[2]))
+
     elif obj.gp_kernel == 'Matern32':
 
         kernel = terms.Matern32Term(log_sigma=np.log(obj.GP_mat_params[0]), 
                                     log_rho=np.log(obj.GP_mat_params[1]), 
                                     eps=obj.GP_mat_params[2])     
 
+    elif obj.gp_kernel == 'dSHOKernel':
 
+        kernel =GP_kernels.double_SHOTerm(
+                sigma_dSHO=obj.GP_double_sho_params[0],
+                period_dSHO=obj.GP_double_sho_params[1],
+                Q0_dSHO=obj.GP_double_sho_params[2],
+                dQ_dSHO=obj.GP_double_sho_params[3], 
+                f_dSHO=obj.GP_double_sho_params[4])
 
+ 
     gps = celerite.GP(kernel, mean=0.0)
     #gps.compute(obj.filelist.time, obj.filelist.rv_err)
 
     obj.gps = gps
     return
 
+
+def init_dSHOKernel(params):
+    kernel =GP_kernels.double_SHOTerm(
+            sigma_dSHO=params[0],
+            period_dSHO=params[1],
+            Q0_dSHO=params[2],
+            dQ_dSHO=params[3], 
+            f_dSHO=params[4])
+
+
+    gps = celerite.GP(kernel, mean=0.0)
+    return gps
 
 def get_RV_gps_model(obj,  kernel_id=-1, get_lnl=False):
  
@@ -213,7 +233,8 @@ def get_RV_gps_model(obj,  kernel_id=-1, get_lnl=False):
             N_gp_pars_used = len([i for i in range(3) if obj.GP_sho_use[i] == True])
         elif obj.gp_kernel == 'Matern32':
             N_gp_pars_used = len([i for i in range(2) if obj.GP_mat_use[i] == True])
-
+        elif obj.gp_kernel == 'dSHOKernel':
+            N_gp_pars_used = len([i for i in range(5) if obj.GP_double_sho_use[i] == True])
 
         obj.fit_results.stat.dof = obj.fit_results.stat.dof - N_gp_pars_used
         obj.loglik = gp_rv_loglik
@@ -244,6 +265,15 @@ def initiate_tansit_gps(obj,  kernel_id=-1):
         tra_kernel = terms.Matern32Term(log_sigma=np.log(obj.tra_GP_mat_params[0]), 
                                     log_rho=np.log(obj.tra_GP_mat_params[1]), 
                                     eps=obj.tra_GP_mat_params[2])     
+
+    elif obj.tra_gp_kernel == 'dSHOKernel':
+
+        tra_kernel =GP_kernels.double_SHOTerm(
+                sigma_dSHO=obj.tra_GP_double_sho_params[0],
+                period_dSHO=obj.tra_GP_double_sho_params[1],
+                Q0_dSHO=obj.GP_double_sho_params[2],
+                dQ_dSHO=obj.tra_GP_double_sho_params[3], 
+                f_dSHO=obj.tra_GP_double_sho_params[4])
 
     tra_gps = celerite.GP(tra_kernel, mean=0.0)
 
@@ -356,20 +386,17 @@ def get_transit_ts(obj,  kernel_id=-1):
                 rv_gp_npar = 3
             if obj.gp_kernel == 'Matern32':
                 rv_gp_npar = 3                
-                
+            if obj.gp_kernel == 'dSHOKernel':
+                rv_gp_npar = 6                   
             #fit.gps = []
         else:
             rv_gp_npar = 0
 
-
-
         obj.tr_params.limb_dark = str(obj.ld_m[j])      #limb darkening model
-        #print(tr_model[0][j], tr_model[1][j] )
         obj.tr_params.u = obj.ld_u[j]
 
 
         for i in range(obj.npl):
-
 
             if obj.hkl == True:
                 obj.tr_params.ecc = np.sqrt(par[obj.filelist.ndset*2 +7*i+2]**2 + par[obj.filelist.ndset*2 +7*i+3]**2)
@@ -384,25 +411,18 @@ def get_transit_ts(obj,  kernel_id=-1):
             obj.tr_params.t0  = par[obj.filelist.ndset*2  +7*obj.npl +2+rv_gp_npar + 3*i]
             obj.tr_params.a   = par[obj.filelist.ndset*2  +7*obj.npl +2+rv_gp_npar + 3*i+1] #15  #semi-major axis (in units of stellar radii)
             obj.tr_params.rp  = par[obj.filelist.ndset*2  +7*obj.npl +2+rv_gp_npar + 3*i+2] #0.15   #planet radius (in units of stellar radii)
-            #print(tr_params.t0)
-            #print(tr_params.per, tr_params.ecc,tr_params.w, tr_params.inc, tr_params.t0,tr_params.a,tr_params.rp )
 
             m[i] = batman.TransitModel(obj.tr_params, t)    #initializes model
 
             flux_model = flux_model * m[i].light_curve(obj.tr_params)
 
-
-
         obj.tra_data_sets[j][4] = flux - flux_model
-
 
     return
 
 
 
 def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, hkl, fit_results=False):
-
-   # print(par, npl, stellar_mass, times, planet_N, hkl, fit_results)
 
     planets = []
     for i in range(npl):
@@ -413,8 +433,6 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, hkl, fit_results=
             Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
         else:
             ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]        
-        
-       # print(ecc_, om_, Ma_,times[0],times[1],times[2])
        
         if fit_results == False:
             pl_mass,ap = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*i],
@@ -550,7 +568,7 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
         return loglik_ttv
 
 
-def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl, rtg, tra_gps, stmass, ttv_times, epoch, get_TTVs, return_model = False, tra_model_fact = 10 ,fit_results=False):
+def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl, rtg, tra_gps, stmass, ttv_times, epoch, get_TTVs, opt, return_model = False, tra_model_fact = 10 ,fit_results=False):
 
     tr_loglik     = 0
     flux_model    = []
@@ -568,7 +586,6 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
     N_transit_files = len([x for x in range(20) if len(tr_files[x]) != 0])
         
-   # print(program,  tr_params, tr_model, par, rv_gp_npar,tra_gp_npar,npl,hkl, rtg, tra_gps, stmass, ttv_times, epoch, get_TTVs, return_model, tra_model_fact ,fit_results)
     l = 0
 
     for j in range(20):
@@ -590,7 +607,6 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
         sig2i_    = 1./(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
         flux_err_ = np.sqrt(tr_files[j][2]**2 + par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l]**2)
-       # print(par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files + l])
         flux_model_ =np.ones(len(flux_))
        
 
@@ -636,7 +652,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
 
             if program.endswith("dyn+") or program.endswith("dyn"):
-                #print(fit_results)
+
                 t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_)], i, hkl, fit_results=fit_results)
                 
                 for tran_t0 in t_os[1]:
@@ -698,8 +714,6 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
         flux_o_c.append(flux_o_c_)
         use_gp_model.append(tr_files[j][9])
 
-
-#    print(flux_err,len(flux_err),print(flux_err[0]))
     
     flux_model_all  = np.concatenate(flux_model)#[flux_model_ < 1]
     flux_all        = np.concatenate(flux)#[flux_model_ < 1]
@@ -714,17 +728,27 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
         tr_loglik = tr_loglik -0.5*(np.sum((flux_all  -flux_model_all)**2 * sig2i_all  - np.log(sig2i_all  / 2./ np.pi)))
         
-        
-        
         if return_model == True:
             tra_gp_model_all = flux_model_all
             flux_o_c_gp_all = flux_o_c_all
     else:
         
+
         param_vect = []
-        for k in range(len(tra_gps.get_parameter_vector())):
-            param_vect.append(np.log(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + k]))
-        tra_gps.set_parameter_vector(np.array(param_vect))
+
+        if opt["tra_GP_kernel"] == "dSHOKernel":
+            for k in range(len(tra_gps.get_parameter_vector())-1):
+                param_vect.append(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + k])
+
+            tra_gps = init_dSHOKernel(param_vect)
+
+        else:
+
+            for k in range(len(tra_gps.get_parameter_vector())):
+                param_vect.append(np.log(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + k]))
+            tra_gps.set_parameter_vector(np.array(param_vect))
+
+
 
         ##### data that will be modeled with a GP ######
         flux_err_all_gp = np.concatenate([flux_err[x] for x in range(len(flux_err)) if use_gp_model[x] == True])
@@ -762,7 +786,6 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
             tra_gp_model_all    = np.concatenate([flux_model_all_gp+flux_model_all_, flux_model_all_no_gp])
             flux_o_c_gp_all     = np.concatenate([flux_o_c_gp_all_gp,  flux_o_c_all_no_gp])        
             
-#        print(tr_loglik,tr_loglik2)
 
     if return_model == True:
 
@@ -993,12 +1016,10 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
         text,flag=run_command_with_timeout(ppp, when_to_kill, output=True,pipe=(not bool(outputfiles[2]))) # running command generated by the fortran_input function
         fortranoutput=fortran_output(text,npl,len(vel_files),stmass)
-        #print(text)
  
         fit_results=fortranoutput.modfit(print_stat=False)
         rv_loglik = float(fit_results.loglik)
  
-       # print(stmass, fit_results.mass[0],fit_results.mass[1],npl,len(vel_files) )
  
         if (rtg[1]):
             if len(fit_results.o_c) != len(fit_results.jd) or len(fit_results.o_c) == 0 or len(fit_results.jd) ==0 :
@@ -1011,35 +1032,35 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
         gp_rv_loglik = 0
 
-        #opt["link_RV_GP"]
         param_vect = []
-        for j in range(len(gps.get_parameter_vector())):
-            if opt["link_RV_GP"][j]==True and rtg[3] == True:
-                param_vect.append(np.log(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + j]))
-            else:
-                param_vect.append(np.log(par[len(vel_files)*2  +7*npl +2 +j]))
-       # print(param_vect)
-        gps.set_parameter_vector(np.array(param_vect))
-        
-        #gps.compute(fit_results.jd,yerr=fit_results.o_c)
 
-        #gp_pred = gps.predict(fit_results.o_c, fit_results.jd, return_cov=False, return_var = False)
-       # o_c_kep = fit_results.o_c - gp_pred
+        if opt["RV_GP_kernel"] == "dSHOKernel":
+           # print(len(gps.get_parameter_vector()))
+            for j in range(len(gps.get_parameter_vector())-1):
+                if opt["link_RV_GP"][j]==True and rtg[3] == True:
+                    param_vect.append(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + j])
+                else:
+                    param_vect.append(par[len(vel_files)*2  +7*npl +2 +j])
 
-        #for i in range(len(vel_files)):
-        #    sig2i_gp = 1.0 / (fit_results.rv_err[fit_results.idset==i]**2 + par[i + len(vel_files)]**2 )
-       #     gp_rv_loglik += -0.5*(np.sum((o_c_kep[fit_results.idset==i])**2 * sig2i_gp - np.log(sig2i_gp / 2./ np.pi)))
-       # rv_loglik =  gp_rv_loglik
+            gps = init_dSHOKernel(param_vect)
+
+        else:
+
+            for j in range(len(gps.get_parameter_vector())):
+                if opt["link_RV_GP"][j]==True and rtg[3] == True:
+                    param_vect.append(np.log(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + j]))
+                else:
+                    param_vect.append(np.log(par[len(vel_files)*2  +7*npl +2 +j]))
+     
+
+            gps.set_parameter_vector(np.array(param_vect))
 
         errors_with_jitt = np.array([np.sqrt(fit_results.rv_err[i]**2 + par[ii + len(vel_files)]**2)  for i,ii in enumerate(fit_results.idset)])
         gps.compute(fit_results.jd,yerr=errors_with_jitt)
         gp_rv_loglik = gp_rv_loglik + gps.log_likelihood(fit_results.o_c)
 
-#        tra_gp_model_all = tra_gps.predict(flux_o_c_all , t_all , return_cov=False)
-#        flux_o_c_gp_all = flux_o_c_all  - tra_gp_model_all       
-#        tr_loglik2 = -0.5*(np.sum((flux_o_c_gp_all)**2           * sig2i_all  - np.log(sig2i_all  / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
         rv_loglik =  gp_rv_loglik
-#        print(gp_rv_loglik)
+
 
 
     if(rtg[2]):
@@ -1047,10 +1068,10 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         if N_transit_files == 0:
             tr_loglik = 0
         elif rtg[0] ==False:      
-            tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,get_TTVs,fit_results=False )
+            tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,get_TTVs,opt,fit_results=False )
         else:
-            tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,get_TTVs,fit_results=fit_results )
-        #tr_loglik = tr_loglik[0]
+            tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,get_TTVs,opt,fit_results=fit_results )
+
     if(opt["TTV"]):
 
         if(rtg[0])==False:
@@ -1176,8 +1197,9 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "AMD_stab":obj.optim_AMD_stab, 
            "Nbody_stab":obj.optim_Nbody_stab,
            "get_TTVs":obj.get_TTVs,
-           "link_RV_GP":obj.link_RV_GP}
-    
+           "link_RV_GP":obj.link_RV_GP,
+           "tra_GP_kernel":obj.tra_gp_kernel,
+           "RV_GP_kernel":obj.gp_kernel}
 
     if obj.init_fit == True:
         flags = []
@@ -1353,7 +1375,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                 
             for j in range(len(gps.get_parameter_vector())):
         
-                if opt["link_RV_GP"][j]==True and rtg[3] == True and obj.gp_kernel ==obj.tra_gp_kernel:
+                if opt["link_RV_GP"][j]==True and rtg[3] == True and obj.gp_kernel == obj.tra_gp_kernel:
                     obj.GP_rot_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + j]
                 else:
                     obj.GP_rot_params[j] = par[len(vel_files)*2  +7*npl +2 +j]
@@ -1365,7 +1387,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             
             for j in range(len(gps.get_parameter_vector())):
     
-                if opt["link_RV_GP"][j]==True and rtg[3] == True and obj.gp_kernel ==obj.tra_gp_kernel:
+                if opt["link_RV_GP"][j]==True and rtg[3] == True and obj.gp_kernel == obj.tra_gp_kernel:
                     obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + j]
                 else:
                     obj.GP_sho_params[j] = par[len(vel_files)*2  +7*npl +2 +j]
@@ -1376,7 +1398,16 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             rv_gp_npar =3 
                
 
-       #rv_gp_npar = len(gps.get_parameter_vector())
+        elif obj.gp_kernel == 'dSHOKernel':
+            
+            rv_gp_npar =6
+            
+            for j in range(len(gps.get_parameter_vector())-1):
+    
+                if opt["link_RV_GP"][j]==True and rtg[3] == True and obj.gp_kernel == obj.tra_gp_kernel:
+                    obj.GP_double_sho_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + j]
+                else:
+                    obj.GP_double_sho_params[j] = par[len(vel_files)*2  +7*npl +2 +j]
     else:
         rv_gp_npar = 0
 
@@ -1398,6 +1429,10 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                 obj.tra_GP_mat_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 +j]
             tra_gp_npar = 3
 
+        elif obj.tra_gp_kernel == 'dSHOKernel':
+            for j in range(len(tra_gps.get_parameter_vector())-1):
+                obj.tra_GP_double_sho_params[j] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 +j]
+            tra_gp_npar = 6
         #tra_gp_npar = len(tra_gps.get_parameter_vector())
     else:
         tra_gp_npar = 0
@@ -1406,7 +1441,6 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
 
     if obj.type_fit["RV"] == True and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == False:
-        #obj.fitting(minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, npoints= obj.model_npoints, outputfiles=[1,1,1])
 
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
         if rtg[1]:
@@ -1433,7 +1467,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
 
 
-        obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,stmass, obj.ttv_times, obj.epoch,get_TTVs,return_model = True, tra_model_fact=obj.tra_model_fact)
+        obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg, obj.tra_gps,stmass, obj.ttv_times, obj.epoch,get_TTVs,opt,return_model = True, tra_model_fact=obj.tra_model_fact)
         #print(obj.transit_results)
        # if rtg[3]:
        #     get_transit_gps_model(obj)
@@ -1478,7 +1512,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
         
-        obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, stmass, obj.ttv_times, obj.epoch, get_TTVs, return_model = True, tra_model_fact=obj.tra_model_fact, fit_results=obj.fit_results)
+        obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, stmass, obj.ttv_times, obj.epoch, get_TTVs, opt, return_model = True, tra_model_fact=obj.tra_model_fact, fit_results=obj.fit_results)
         
         if rtg[1]:
             get_RV_gps_model(obj, get_lnl=True)
@@ -1745,8 +1779,9 @@ def run_nestsamp(obj, **kwargs):
            "AMD_stab":obj.NS_AMD_stab, 
            "Nbody_stab":obj.NS_Nbody_stab,
            "get_TTVs":obj.get_TTVs,
-           "link_RV_GP":obj.link_RV_GP}
-
+           "link_RV_GP":obj.link_RV_GP,
+           "tra_GP_kernel":obj.tra_gp_kernel,
+           "RV_GP_kernel":obj.gp_kernel}
 
     gps = []
     if (rtg[1]):
@@ -1788,7 +1823,6 @@ def run_nestsamp(obj, **kwargs):
         return a + (b-a)*p
 
     def trans_loguni(p,a,b):
-        #print(a,b,p,np.log(a),np.log(b) )
         return np.exp(np.log(a) + p*(np.log(b)-np.log(a)))
 
 
@@ -2156,7 +2190,9 @@ def run_mcmc(obj, **kwargs):
            "AMD_stab":obj.mcmc_AMD_stab, 
            "Nbody_stab":obj.mcmc_Nbody_stab,
            "get_TTVs":obj.get_TTVs,
-           "link_RV_GP":obj.link_RV_GP}
+           "link_RV_GP":obj.link_RV_GP,
+           "tra_GP_kernel":obj.tra_gp_kernel,
+           "RV_GP_kernel":obj.gp_kernel}
 
 
     gps = []
@@ -2194,9 +2230,6 @@ def run_mcmc(obj, **kwargs):
     ndim, nwalkers = len(pp), len(pp)*obj.nwalkers_fact
 
     pos = [pp + obj.gaussian_ball*np.random.rand(ndim) for i in range(nwalkers)]
-    
-   # print(mod, par, flags, npl,  epoch, stmass, rtg, mix_fit, opt)
-   # e=input("what's your name?")    
     
     sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit,opt), pool=pool)
 
@@ -2295,7 +2328,6 @@ def run_mcmc(obj, **kwargs):
 
     obj.update_with_mcmc_errors(new_par_errors)
     obj.overwrite_params(newparams)
-   # print(new_par_errors)
 
     obj.hack_around_rv_params()
 
@@ -2349,7 +2381,6 @@ class FunctionWrapper(object):
     def __call__(self, x):
         try:
             result = self.f(x, *self.args, **self.kwargs)
-            #print(x, result)
             return result
         except:  # pragma: no cover
             import traceback
@@ -2438,7 +2469,7 @@ class signal_fit(object):
         self.hkl = False
         self.copl_incl = False
         self.rtg = [True,False,False,False]
-        self.link_RV_GP = [False,False,False,False]
+        self.link_RV_GP = [False,False,False,False,False,False]
                            
                            
         self.ttv_data_sets = {k: [] for k in range(10)}
@@ -2980,10 +3011,18 @@ class signal_fit(object):
         self.GP_mat_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_mat_params))}
         self.GP_mat_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_mat_params))}
 
+        self.GP_double_sho_params     = [1.5,3.45,1.3,1.05,0.5, 999]# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_double_sho_err = [0.0,0.0,0.0,0.0,0.0,0.0]
+        self.GP_double_sho_use = [False,False,False,False,False,False]
+        self.GP_double_sho_str = [r'RV GP$_{\rm dSHO}$ $\sigma$', r'RV GP$_{\rm dSHO}$ $P$', r'RV GP$_{\rm dSHO}$ $Q0$', r'RV GP$_{\rm dSHO}$ $dQ$', r'RV GP$_{\rm dSHO}$ $f$', r'RV GP$_{\rm dSHO}$ $dummy$']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.GP_double_sho_bounds     = {k: np.array([0.0,100000.0]) for k in range(len(self.GP_double_sho_params))}
+        self.GP_double_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_double_sho_params))}
+        self.GP_double_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_double_sho_params))}
+
         self.gp_model_curve = {k: 0.0 for k in range(10)}
         self.gp_model_data  = {k: 0.0 for k in range(10)}
 
-        self.gp_kernels = ['SHOKernel','RotKernel','Matern32']
+        self.gp_kernels = ['SHOKernel','RotKernel','Matern32','dSHOKernel']
         self.gp_kernel = self.gp_kernels[0]
 
 
@@ -3016,10 +3055,18 @@ class signal_fit(object):
         self.tra_GP_mat_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_mat_params))}
 
 
+        self.tra_GP_double_sho_params     = [1.5,3.45,1.3,1.05,0.5, 999]#  we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.tra_GP_double_sho_err = [0.0,0.0,0.0,0.0,0.0,0.0]
+        self.tra_GP_double_sho_use = [False,False,False,False,False,False]
+        self.tra_GP_double_sho_str = [r'Transit GP$_{\rm dSHO}$ $\sigma$', r'Transit GP$_{\rm dSHO}$ $P$', r'Transit GP$_{\rm dSHO}$ $Q0$', r'Transit GP$_{\rm dSHO}$ $dQ$', r'Transit GP$_{\rm dSHO}$ $f$', r'Transit GP$_{\rm dSHO}$ $dummy$']# we always want to have this attribute, but we only use it if we call GP, and then we update it anyway
+        self.tra_GP_double_sho_bounds     = {k: np.array([0.0,100000.0]) for k in range(len(self.tra_GP_double_sho_params))}
+        self.tra_GP_double_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_double_sho_params))}
+        self.tra_GP_double_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_double_sho_params))}
+
         self.tra_gp_model_curve = {k: 0.0 for k in range(20)}
         self.tra_gp_model_data  = {k: 0.0 for k in range(20)}
 
-        self.tra_gp_kernels = ['SHOKernel','RotKernel','Matern32']
+        self.tra_gp_kernels = ['SHOKernel','RotKernel','Matern32','dSHOKernel']
         self.tra_gp_kernel = self.gp_kernels[0]
 
 
@@ -3234,7 +3281,6 @@ class signal_fit(object):
              self.i[i]    = self.params.planet_params[i*7+5]
              self.Node[i] = self.params.planet_params[i*7+6]
 
-            # print( self.params.planet_params[i*7+2] , self.params.planet_params[i*7+3] )
              if self.hkl ==False:
                  self.e[i]    = self.params.planet_params[i*7+2]
                  self.w[i]    = self.params.planet_params[i*7+3]
@@ -3251,7 +3297,6 @@ class signal_fit(object):
                  self.w[i]   = np.degrees(np.arctan2(self.e_sinw[i],self.e_cosw[i]))%360.0
                  self.M0[i]  = (self.lamb[i] - self.w[i])%360.0
                  
-        # print(self.param_errors.planet_params_errors)
                   
          for i in range(9):
              self.K_err[i]    = self.param_errors.planet_params_errors[i*7+0]
@@ -3280,8 +3325,6 @@ class signal_fit(object):
 
 
     def update_rv_params(self):
-        
-         #print(self.K_err[0])
 
          for i in range(9):
              self.params.planet_params[i*7+0] = dill.copy(self.K[i])  
@@ -3440,7 +3483,6 @@ class signal_fit(object):
                         tra_data      = dd['SAP_FLUX'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
                         tra_data_sig  = dd['SAP_FLUX_ERR'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
     
-                   # print(sc['TELESCOP'])
                         print("TESS light curve detected. Automatically adding 2457000.0 to BJD_TBD")
                     
                     tra_JD = tra_JD + 2457000.0
@@ -3453,14 +3495,11 @@ class signal_fit(object):
                     tra_data_sig  = dd['FLUXERR'][np.isfinite(dd['BJD_TIME']) & np.isfinite(dd['FLUX']) & np.isfinite(dd['FLUXERR'])]
 
                     print("CHEOPS light curve detected.")
-
                     tra_airmass_ = np.zeros(len(tra_JD))
 
             except:
                 print("Unknown type of .fits file! Please provide a TESS *lc.fits, or a CHEOPS *SCI_COR*.fits file")
-                return
- 
-            
+                return            
 
         else:
             try:
@@ -3656,8 +3695,6 @@ class signal_fit(object):
            self.act_data_sets[i] = act_data_set
            self.act_data_sets_init[i] = act_data_set
 
-           #print(act_data[0])
-
        #z = 0
        for ii in range(3):
 
@@ -3671,8 +3708,6 @@ class signal_fit(object):
            act_data_sig = act_data*0.01
            i = i +1
            act_data_set = np.array([BJD,act_data,act_data_sig,data_set_name[i]])
-
-          # print(act_data[0])
 
            self.act_data_sets[i] = act_data_set
            self.act_data_sets_init[i] = act_data_set
@@ -4780,6 +4815,16 @@ class signal_fit(object):
                     prior_nr.append(self.GP_mat_norm_pr[i])
                     prior_jeff.append(self.GP_mat_jeff_pr[i])
 
+            elif self.gp_kernel == 'dSHOKernel':
+                for i in range(6):
+                    par.append(self.GP_double_sho_params[i])
+                    flag.append(self.GP_double_sho_use[i])
+                    par_str.append(self.GP_double_sho_str[i])
+                    bounds.append(self.GP_double_sho_bounds[i])
+                    prior_nr.append(self.GP_double_sho_norm_pr[i])
+                    prior_jeff.append(self.GP_double_sho_jeff_pr[i])
+
+
 
         for i  in range(self.npl):
             par.append(self.t0[i])
@@ -4875,7 +4920,14 @@ class signal_fit(object):
                     prior_nr.append(self.tra_GP_mat_norm_pr[i])
                     prior_jeff.append(self.tra_GP_mat_jeff_pr[i])
 
-
+            elif self.tra_gp_kernel == 'dSHOKernel':
+                for i in range(6):
+                    par.append(self.tra_GP_double_sho_params[i])
+                    flag.append(self.tra_GP_double_sho_use[i])
+                    par_str.append(self.tra_GP_double_sho_str[i])
+                    bounds.append(self.tra_GP_double_sho_bounds[i])
+                    prior_nr.append(self.tra_GP_double_sho_norm_pr[i])
+                    prior_jeff.append(self.tra_GP_double_sho_jeff_pr[i])
 
         for i in range(20):
             if len(self.tra_data_sets[i]) != 0:
