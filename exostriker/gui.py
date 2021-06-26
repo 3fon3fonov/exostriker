@@ -373,6 +373,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(len(self.gp_mat_params)):
             self.gp_mat_params[i].setValue(fit.GP_mat_params[i])   
 
+        for i in range(len(self.gp_drw_params)):
+            self.gp_drw_params[i].setValue(fit.GP_drw_params[i])   
+
         for i in range(len(self.gp_double_sho_params)):
             self.gp_double_sho_params[i].setValue(fit.GP_double_sho_params[i])
          
@@ -385,6 +388,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(len(self.tra_gp_mat_params)):
             self.tra_gp_mat_params[i].setValue(fit.tra_GP_mat_params[i])
+
+        for i in range(len(self.tra_gp_drw_params)):
+            self.tra_gp_drw_params[i].setValue(fit.tra_GP_drw_params[i])
 
         for i in range(len(self.tra_gp_double_sho_params)):
             self.tra_gp_double_sho_params[i].setValue(fit.tra_GP_double_sho_params[i])
@@ -496,6 +502,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in range(len(self.tra_gp_mat_params)):
             fit.tra_GP_mat_params[i] = self.tra_gp_mat_params[i].value()
 
+        for i in range(len(self.tra_gp_drw_params)):
+            fit.tra_GP_drw_params[i] = self.tra_gp_drw_params[i].value()
+
         for i in range(len(self.tra_gp_double_sho_params)):
             fit.tra_GP_double_sho_params[i] = self.tra_gp_double_sho_params[i].value()
 
@@ -510,6 +519,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(len(self.gp_mat_params)):
             fit.GP_mat_params[i] = self.gp_mat_params[i].value()
+
+        for i in range(len(self.gp_drw_params)):
+            fit.GP_drw_params[i] = self.gp_drw_params[i].value()
 
         for i in range(len(self.gp_double_sho_params)):
             fit.GP_double_sho_params[i] = self.gp_double_sho_params[i].value()
@@ -764,6 +776,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             for i in range(len(self.gp_mat_errors_gui)):
                 self.gp_mat_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))
 
+        elif fit.gp_kernel == 'RealTerm':
+            for i in range(len(self.gp_drw_errors_gui)):
+                self.gp_drw_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))
+
         elif fit.gp_kernel == 'dSHOKernel':
             for i in range(len(self.gp_double_sho_errors_gui)-1):
                 self.gp_double_sho_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))                        
@@ -859,6 +875,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(len(self.use_gp_mat_params)):
             self.use_gp_mat_params[i].setChecked(bool(fit.GP_mat_use[i]))
 
+        for i in range(len(self.use_gp_drw_params)):
+            self.use_gp_drw_params[i].setChecked(bool(fit.GP_drw_use[i]))            
+
         for i in range(len(self.use_gp_double_sho_params)):
             self.use_gp_double_sho_params[i].setChecked(bool(fit.GP_double_sho_use[i]))
 
@@ -871,6 +890,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         for i in range(len(self.use_tra_gp_mat_params)):
             self.use_tra_gp_mat_params[i].setChecked(bool(fit.tra_GP_mat_use[i]))
+
+        for i in range(len(self.use_tra_gp_drw_params)):
+            self.use_tra_gp_drw_params[i].setChecked(bool(fit.tra_GP_drw_use[i]))
 
         for i in range(len(self.use_tra_gp_double_sho_params)):
             self.use_tra_gp_double_sho_params[i].setChecked(bool(fit.tra_GP_double_sho_use[i]))
@@ -947,6 +969,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(len(self.use_gp_mat_params)):
             fit.GP_mat_use[i] = int(self.use_gp_mat_params[i].isChecked())  
 
+        for i in range(len(self.use_gp_drw_params)):
+            fit.GP_drw_use[i] = int(self.use_gp_drw_params[i].isChecked()) 
+
         for i in range(len(self.use_gp_double_sho_params)):
             fit.GP_double_sho_use[i] = int(self.use_gp_double_sho_params[i].isChecked())  
 
@@ -961,6 +986,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         for i in range(len(self.use_tra_gp_mat_params)):
             fit.tra_GP_mat_use[i] = int(self.use_tra_gp_mat_params[i].isChecked())
+
+        for i in range(len(self.use_tra_gp_drw_params)):
+            fit.tra_GP_drw_use[i] = int(self.use_tra_gp_drw_params[i].isChecked())
 
         for i in range(len(self.use_tra_gp_double_sho_params)):
             fit.tra_GP_double_sho_use[i] = int(self.use_tra_gp_double_sho_params[i].isChecked())
@@ -1042,7 +1070,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             #    self.GP_mat_bounds_gui[i][2].setChecked(fit.GP_mat_bounds[i][2])
             #else:
             #    self.GP_mat_bounds_gui[i][2].setChecked(fit.GP_mat_bounds[i][2])
- 
+        for i in range(2): 
+            for z in range(2):
+                self.GP_drw_bounds_gui[i][z].setValue(fit.GP_drw_bounds[i][z])   
+    
         for i in range(5): 
             for z in range(2):
                 self.GP_double_sho_bounds_gui[i][z].setValue(fit.GP_double_sho_bounds[i][z])
@@ -1077,7 +1108,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             #    fit.tra_GP_mat_bounds[i].append(True)
             #    self.tra_GP_mat_bounds_gui[i][2].setChecked(fit.tra_GP_mat_bounds[i][2])
             #else:
-            #    self.tra_GP_mat_bounds_gui[i][2].setChecked(fit.tra_GP_mat_bounds[i][2])                
+            #    self.tra_GP_mat_bounds_gui[i][2].setChecked(fit.tra_GP_mat_bounds[i][2])   
+        for i in range(2): 
+            for z in range(2):
+                self.tra_GP_drw_bounds_gui[i][z].setValue(fit.tra_GP_drw_bounds[i][z])  
+             
         for i in range(5): 
             for z in range(2):
                 self.tra_GP_double_sho_bounds_gui[i][z].setValue(fit.tra_GP_double_sho_bounds[i][z])
@@ -1126,6 +1161,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.GP_mat_nr_priors_gui[i][z].setValue(fit.GP_mat_norm_pr[i][z])
             self.GP_mat_nr_priors_gui[i][2].setChecked(fit.GP_mat_norm_pr[i][2])   
 
+        for i in range(2): 
+            for z in range(2):
+                self.GP_drw_nr_priors_gui[i][z].setValue(fit.GP_drw_norm_pr[i][z])
+            self.GP_drw_nr_priors_gui[i][2].setChecked(fit.GP_drw_norm_pr[i][2])   
+
+
         for i in range(5): 
             for z in range(2):
                 self.GP_double_sho_nr_priors_gui[i][z].setValue(fit.GP_double_sho_norm_pr[i][z])
@@ -1148,6 +1189,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             for z in range(2):
                 self.tra_GP_mat_nr_priors_gui[i][z].setValue(fit.tra_GP_mat_norm_pr[i][z])
             self.tra_GP_mat_nr_priors_gui[i][2].setChecked(fit.tra_GP_mat_norm_pr[i][2])       
+
+        for i in range(2): 
+            for z in range(2):
+                self.tra_GP_drw_nr_priors_gui[i][z].setValue(fit.tra_GP_drw_norm_pr[i][z])
+            self.tra_GP_drw_nr_priors_gui[i][2].setChecked(fit.tra_GP_drw_norm_pr[i][2])  
             
         for i in range(5): 
             for z in range(2):
@@ -1198,6 +1244,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.GP_mat_jeff_priors_gui[i][z].setValue(fit.GP_mat_jeff_pr[i][z])
             self.GP_mat_jeff_priors_gui[i][2].setChecked(fit.GP_mat_jeff_pr[i][2])            
 
+        for i in range(2): 
+            for z in range(2):
+                self.GP_drw_jeff_priors_gui[i][z].setValue(fit.GP_drw_jeff_pr[i][z])
+            self.GP_drw_jeff_priors_gui[i][2].setChecked(fit.GP_drw_jeff_pr[i][2])  
+
         for i in range(5): 
             for z in range(2):
                 self.GP_double_sho_jeff_priors_gui[i][z].setValue(fit.GP_double_sho_jeff_pr[i][z])
@@ -1221,6 +1272,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             for z in range(2):
                 self.tra_GP_mat_jeff_priors_gui[i][z].setValue(fit.tra_GP_mat_jeff_pr[i][z])
             self.tra_GP_mat_jeff_priors_gui[i][2].setChecked(fit.tra_GP_mat_jeff_pr[i][2])
+
+        for i in range(2): 
+            for z in range(2):
+                self.tra_GP_drw_jeff_priors_gui[i][z].setValue(fit.tra_GP_drw_jeff_pr[i][z])
+            self.tra_GP_drw_jeff_priors_gui[i][2].setChecked(fit.tra_GP_drw_jeff_pr[i][2])
 
         for i in range(5): 
             for z in range(2):
@@ -1289,8 +1345,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(3): 
             for z in range(2):
                 fit.GP_mat_bounds[i][z]  = self.GP_mat_bounds_gui[i][z].value()           
-            #fit.GP_mat_bounds[i][2]  = self.GP_mat_bounds_gui[i][2].isChecked()           
+            #fit.GP_mat_bounds[i][2]  = self.GP_mat_bounds_gui[i][2].isChecked()   
             
+        for i in range(2): 
+            for z in range(2):
+                fit.GP_drw_bounds[i][z]  = self.GP_drw_bounds_gui[i][z].value()   
+                
         for i in range(5): 
             for z in range(2):
                 fit.GP_double_sho_bounds[i][z]  = self.GP_double_sho_bounds_gui[i][z].value()
@@ -1313,7 +1373,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             for z in range(2):
                 fit.tra_GP_mat_bounds[i][z]  = self.tra_GP_mat_bounds_gui[i][z].value()           
             #fit.tra_GP_mat_bounds[i][2]  = self.tra_GP_mat_bounds_gui[i][2].isChecked() 
-
+            
+        for i in range(2): 
+            for z in range(2):
+                fit.tra_GP_drw_bounds[i][z]  = self.tra_GP_drw_bounds_gui[i][z].value()           
+             
         for i in range(5): 
             for z in range(2):
                 fit.tra_GP_double_sho_bounds[i][z]  = self.tra_GP_double_sho_bounds_gui[i][z].value()
@@ -1428,6 +1492,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 fit.GP_mat_norm_pr[i][z] = self.GP_mat_nr_priors_gui[i][z].value()               
             fit.GP_mat_norm_pr[i][2] = self.GP_mat_nr_priors_gui[i][2].isChecked()               
 
+        for i in range(2): 
+            for z in range(2):
+                fit.GP_drw_norm_pr[i][z] = self.GP_drw_nr_priors_gui[i][z].value()               
+            fit.GP_drw_norm_pr[i][2] = self.GP_drw_nr_priors_gui[i][2].isChecked()   
+
         for i in range(5): 
             for z in range(2):
                 fit.GP_double_sho_norm_pr[i][z] = self.GP_double_sho_nr_priors_gui[i][z].value()   
@@ -1450,6 +1519,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             for z in range(2):
                 fit.tra_GP_mat_norm_pr[i][z] = self.tra_GP_mat_nr_priors_gui[i][z].value()               
             fit.tra_GP_mat_norm_pr[i][2] = self.tra_GP_mat_nr_priors_gui[i][2].isChecked()               
+
+        for i in range(2): 
+            for z in range(2):
+                fit.tra_GP_drw_norm_pr[i][z] = self.tra_GP_drw_nr_priors_gui[i][z].value()               
+            fit.tra_GP_drw_norm_pr[i][2] = self.tra_GP_drw_nr_priors_gui[i][2].isChecked()  
 
         for i in range(5): 
             for z in range(2):
@@ -1550,6 +1624,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 fit.GP_mat_jeff_pr[i][z] = self.GP_mat_jeff_priors_gui[i][z].value()               
             fit.GP_mat_jeff_pr[i][2] = self.GP_mat_jeff_priors_gui[i][2].isChecked()               
 
+        for i in range(2): 
+            for z in range(2):
+                fit.GP_drw_jeff_pr[i][z] = self.GP_drw_jeff_priors_gui[i][z].value()               
+            fit.GP_drw_jeff_pr[i][2] = self.GP_drw_jeff_priors_gui[i][2].isChecked()  
+
         for i in range(5): 
             for z in range(2):
                 fit.GP_double_sho_jeff_pr[i][z] = self.GP_double_sho_jeff_priors_gui[i][z].value()   
@@ -1572,7 +1651,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(3): 
             for z in range(2):
                 fit.tra_GP_mat_jeff_pr[i][z] = self.tra_GP_mat_jeff_priors_gui[i][z].value()               
-            fit.tra_GP_mat_jeff_pr[i][2] = self.tra_GP_mat_jeff_priors_gui[i][2].isChecked()               
+            fit.tra_GP_mat_jeff_pr[i][2] = self.tra_GP_mat_jeff_priors_gui[i][2].isChecked()  
+             
+        for i in range(2): 
+            for z in range(2):
+                fit.tra_GP_drw_jeff_pr[i][z] = self.tra_GP_drw_jeff_priors_gui[i][z].value()               
+            fit.tra_GP_drw_jeff_pr[i][2] = self.tra_GP_drw_jeff_priors_gui[i][2].isChecked()   
 
         for i in range(5): 
             for z in range(2):
@@ -2558,7 +2642,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
        #     y_model_o_c = np.zeros(len(y_model))
         p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
 
-            
+        
         if fit.doGP == True and self.plot_RV_GP_model.isChecked() == False:
             pfill_o_c = pg.FillBetweenItem(p2.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]+fit.gp_model_curve[2]), 
                                            p2.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]-fit.gp_model_curve[2]), 
@@ -2566,7 +2650,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p2.addItem(pfill_o_c)
             y_model_o_c = fit.gp_model_curve[0]
             data_o_c = fit.fit_results.rv_model.o_c 
-        elif fit.doGP == True and self.plot_RV_GP_model.isChecked() ==  True:
+        elif fit.doGP == True and self.plot_RV_GP_model.isChecked() ==  True and len(fit.fit_results.rv_model.o_c)==len(fit.gp_model_data[0]):
             data_o_c = fit.fit_results.rv_model.o_c - fit.gp_model_data[0]
             y_model_o_c = np.zeros(len(y_model))
         else:
@@ -3917,6 +4001,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             fit.gp_kernel = 'RotKernel'    
         elif self.use_GP_mat_kernel.isChecked():
             fit.gp_kernel = 'Matern32' 
+        elif self.use_GP_drw_kernel.isChecked():
+            fit.gp_kernel = 'RealTerm'             
         elif self.use_GP_double_sho_kernel.isChecked():
             fit.gp_kernel = 'dSHOKernel' 
 
@@ -3930,7 +4016,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         elif self.use_tra_GP_rot_kernel.isChecked():
             fit.tra_gp_kernel = 'RotKernel'
         elif self.use_tra_GP_mat_kernel.isChecked():
-            fit.tra_gp_kernel = 'Matern32'    
+            fit.tra_gp_kernel = 'Matern32'  
+        elif self.use_tra_GP_drw_kernel.isChecked():
+            fit.tra_gp_kernel = 'RealTerm'            
         elif self.use_tra_GP_double_sho_kernel.isChecked():
             fit.tra_gp_kernel = 'dSHOKernel'
 
@@ -3945,7 +4033,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         elif fit.gp_kernel == 'RotKernel':
             self.use_GP_rot_kernel.setChecked(True)
         elif fit.gp_kernel == 'Matern32':
-            self.use_GP_mat_kernel.setChecked(True)            
+            self.use_GP_mat_kernel.setChecked(True)         
+        elif fit.gp_kernel == 'RealTerm':
+            self.use_GP_drw_kernel.setChecked(True)              
         elif fit.gp_kernel == 'dSHOKernel':
             self.use_GP_double_sho_kernel.setChecked(True)             
                
@@ -3957,7 +4047,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         elif fit.tra_gp_kernel == 'RotKernel':
             self.use_tra_GP_rot_kernel.setChecked(True)
         elif fit.tra_gp_kernel == 'Matern32':
-            self.use_tra_GP_mat_kernel.setChecked(True)             
+            self.use_tra_GP_mat_kernel.setChecked(True)     
+        elif fit.tra_gp_kernel == 'RealTerm':
+            self.use_tra_GP_drw_kernel.setChecked(True)   
         elif fit.tra_gp_kernel == 'dSHOKernel':
             self.use_tra_GP_double_sho_kernel.setChecked(True)             
 
@@ -5435,6 +5527,8 @@ Transit duration: %s d
             fit = rv.run_stability_arb(fit, timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
         else:         
             fit = rv.run_stability(fit, timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
+
+        self.jupiter_push_vars()         
         
         print("--- %s seconds ---" % (time.time() - start_time))          
 
@@ -8750,7 +8844,7 @@ https://github.com/3fon3fonov/exostriker/issues
     def __init__(self):
         global fit 
         
-        es_version = 0.58
+        es_version = 0.59
 
         #self.loading_screen= LoadingScreen()   
  
@@ -8844,7 +8938,10 @@ https://github.com/3fon3fonov/exostriker/issues
         self.use_gp_mat_params = gui_groups.use_gp_mat_params(self)
         self.gp_mat_errors_gui = gui_groups.gp_mat_errors_gui(self)        
         
-
+        self.gp_drw_params     = gui_groups.gp_drw_params(self)
+        self.use_gp_drw_params = gui_groups.use_gp_drw_params(self)
+        self.gp_drw_errors_gui = gui_groups.gp_drw_errors_gui(self)  
+        
         self.tra_gp_rot_params = gui_groups.tra_gp_rot_params(self)
         self.use_tra_gp_rot_params = gui_groups.use_tra_gp_rot_params(self)
         self.tra_gp_rot_errors_gui = gui_groups.tra_gp_rot_errors_gui(self)
@@ -8855,7 +8952,11 @@ https://github.com/3fon3fonov/exostriker/issues
         
         self.tra_gp_mat_params     = gui_groups.tra_gp_mat_params(self)
         self.use_tra_gp_mat_params = gui_groups.use_tra_gp_mat_params(self)        
-        self.tra_gp_mat_errors_gui = gui_groups.tra_gp_mat_errors_gui(self)        
+        self.tra_gp_mat_errors_gui = gui_groups.tra_gp_mat_errors_gui(self)      
+        
+        self.tra_gp_drw_params     = gui_groups.tra_gp_drw_params(self)
+        self.use_tra_gp_drw_params = gui_groups.use_tra_gp_drw_params(self)        
+        self.tra_gp_drw_errors_gui = gui_groups.tra_gp_drw_errors_gui(self)          
 
         self.tra_gp_double_sho_params     = gui_groups.tra_gp_double_sho_params(self)
         self.use_tra_gp_double_sho_params = gui_groups.use_tra_gp_double_sho_params(self)
@@ -8865,31 +8966,37 @@ https://github.com/3fon3fonov/exostriker/issues
         self.GP_double_sho_bounds_gui = gui_groups.GP_double_sho_bounds_gui(self) 
         self.GP_rot_bounds_gui = gui_groups.GP_rot_bounds_gui(self) 
         self.GP_mat_bounds_gui = gui_groups.GP_mat_bounds_gui(self) 
+        self.GP_drw_bounds_gui = gui_groups.GP_drw_bounds_gui(self) 
 
         self.tra_GP_sho_bounds_gui = gui_groups.tra_GP_sho_bounds_gui(self) 
         self.tra_GP_double_sho_bounds_gui = gui_groups.tra_GP_double_sho_bounds_gui(self) 
         self.tra_GP_rot_bounds_gui = gui_groups.tra_GP_rot_bounds_gui(self) 
         self.tra_GP_mat_bounds_gui = gui_groups.tra_GP_mat_bounds_gui(self) 
+        self.tra_GP_drw_bounds_gui = gui_groups.tra_GP_drw_bounds_gui(self) 
 
         self.GP_sho_nr_priors_gui = gui_groups.GP_sho_nr_priors_gui(self) 
         self.GP_double_sho_nr_priors_gui = gui_groups.GP_double_sho_nr_priors_gui(self) 
         self.GP_rot_nr_priors_gui = gui_groups.GP_rot_nr_priors_gui(self) 
         self.GP_mat_nr_priors_gui = gui_groups.GP_mat_nr_priors_gui(self) 
+        self.GP_drw_nr_priors_gui = gui_groups.GP_drw_nr_priors_gui(self) 
 
         self.tra_GP_sho_nr_priors_gui = gui_groups.tra_GP_sho_nr_priors_gui(self) 
         self.tra_GP_double_sho_nr_priors_gui = gui_groups.tra_GP_double_sho_nr_priors_gui(self) 
         self.tra_GP_rot_nr_priors_gui = gui_groups.tra_GP_rot_nr_priors_gui(self) 
         self.tra_GP_mat_nr_priors_gui = gui_groups.tra_GP_mat_nr_priors_gui(self) 
+        self.tra_GP_drw_nr_priors_gui = gui_groups.tra_GP_drw_nr_priors_gui(self) 
         
         self.GP_sho_jeff_priors_gui = gui_groups.GP_sho_jeff_priors_gui(self) 
         self.GP_double_sho_jeff_priors_gui = gui_groups.GP_double_sho_jeff_priors_gui(self) 
         self.GP_rot_jeff_priors_gui = gui_groups.GP_rot_jeff_priors_gui(self) 
         self.GP_mat_jeff_priors_gui = gui_groups.GP_mat_jeff_priors_gui(self) 
+        self.GP_drw_jeff_priors_gui = gui_groups.GP_drw_jeff_priors_gui(self) 
 
         self.tra_GP_sho_jeff_priors_gui = gui_groups.tra_GP_sho_jeff_priors_gui(self) 
         self.tra_GP_double_sho_jeff_priors_gui = gui_groups.tra_GP_double_sho_jeff_priors_gui(self) 
         self.tra_GP_rot_jeff_priors_gui = gui_groups.tra_GP_rot_jeff_priors_gui(self) 
         self.tra_GP_mat_jeff_priors_gui = gui_groups.tra_GP_mat_jeff_priors_gui(self) 
+        self.tra_GP_drw_jeff_priors_gui = gui_groups.tra_GP_drw_jeff_priors_gui(self) 
  
 
         self.param_a_gui      = gui_groups.param_a_gui(self)
@@ -8992,12 +9099,16 @@ https://github.com/3fon3fonov/exostriker/issues
         self.RV_GP_SHO_readme_info.clicked.connect(self.print_GP_info)
         self.RV_GP_Matern_readme_info.clicked.connect(self.print_GP_info)
         self.RV_GP_double_SHO_readme_info .clicked.connect(self.print_GP_info)  
+        self.RV_GP_DRW_readme_info.clicked.connect(self.print_GP_info)
 
 
         self.Tra_GP_Rot_readme_info.clicked.connect(self.print_GP_info)
         self.Tra_GP_SHO_readme_info.clicked.connect(self.print_GP_info)
         self.Tra_GP_Matern_readme_info.clicked.connect(self.print_GP_info)
-        self.Tra_GP_double_SHO_readme_info .clicked.connect(self.print_GP_info)  
+        self.Tra_GP_double_SHO_readme_info.clicked.connect(self.print_GP_info)  
+        self.Tra_GP_DRW_readme_info.clicked.connect(self.print_GP_info)  
+        
+        
            
         self.mcmc_readme_info.clicked.connect(self.print_mcmc_info)
         self.ns_readme_info.clicked.connect(self.print_ns_info)
