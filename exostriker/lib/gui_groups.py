@@ -1090,7 +1090,7 @@ def gp_double_sho_errors_gui(self):
     return gp_double_sho_errors_gui
 
 
-
+##################### Matern 3/2 ##############################################
 
 def gp_mat_params(self):
 
@@ -1101,6 +1101,9 @@ def gp_mat_params(self):
             ]
 
     return gp_mat_params
+
+
+
 
 def use_gp_mat_params(self):
 
@@ -1122,6 +1125,42 @@ def gp_mat_errors_gui(self):
             ]
     
     return gp_mat_errors_gui
+
+
+
+##################### RV Real term DRW ##############################################
+
+def gp_drw_params(self):
+
+    gp_drw_params = [
+            self.GP_drw_kernel_a,
+            self.GP_drw_kernel_c
+            ]
+
+    return gp_drw_params
+
+
+
+
+def use_gp_drw_params(self):
+
+    use_gp_drw_params = [
+            self.use_GP_drw_kernel_a,
+            self.use_GP_drw_kernel_c
+            ]
+
+    return use_gp_drw_params
+
+
+def gp_drw_errors_gui(self):
+
+    gp_drw_errors_gui = [
+            self.err_drw_kernel_a,
+            self.err_drw_kernel_c
+            ]
+    
+    return gp_drw_errors_gui
+
 
 ################### Tra GP ########################
 
@@ -1229,6 +1268,7 @@ def tra_gp_double_sho_errors_gui(self):
     return tra_gp_double_sho_errors_gui
 
 
+##################### Tra Matern 3/2 ##############################################
 
 
 def tra_gp_mat_params(self):
@@ -1264,6 +1304,36 @@ def tra_gp_mat_errors_gui(self):
 
 
 
+##################### Tra RealTerm DRW ##############################################
+
+
+def tra_gp_drw_params(self):
+
+    tra_gp_drw_params = [
+            self.tra_GP_drw_kernel_a,
+            self.tra_GP_drw_kernel_c
+            ]
+
+    return tra_gp_drw_params
+
+def use_tra_gp_drw_params(self):
+
+    use_tra_gp_drw_params = [
+            self.use_tra_GP_drw_kernel_a,
+            self.use_tra_GP_drw_kernel_c
+            ]
+
+    return use_tra_gp_drw_params
+
+
+def tra_gp_drw_errors_gui(self):
+
+    tra_gp_drw_errors_gui = [
+            self.tra_err_drw_kernel_a,
+            self.tra_err_drw_kernel_c
+            ]
+    
+    return tra_gp_drw_errors_gui
 
 
 
@@ -1316,6 +1386,16 @@ def GP_mat_bounds_gui(self):
     return GP_mat_bounds_gui
 
 
+def GP_drw_bounds_gui(self):
+
+    GP_drw_bounds_gui = [
+        [self.GP_drw_kernel_a_min,self.GP_drw_kernel_a_max,self.use_GP_drw_kernel_a_bound],  
+        [self.GP_drw_kernel_c_min,self.GP_drw_kernel_c_max,self.use_GP_drw_kernel_c_bound]  
+        ]
+    return GP_drw_bounds_gui
+
+
+
 def GP_rot_nr_priors_gui(self):
 
     GP_rot_nr_priors_gui = [
@@ -1361,6 +1441,14 @@ def GP_mat_nr_priors_gui(self):
         
     return GP_mat_nr_priors_gui
 
+
+def GP_drw_nr_priors_gui(self):
+
+    GP_drw_nr_priors_gui = [
+        [self.GP_drw_kernel_a_mean,self.GP_drw_kernel_a_sigma,self.use_GP_drw_kernel_a_nr_pr],  
+        [self.GP_drw_kernel_c_mean,self.GP_drw_kernel_c_sigma,self.use_GP_drw_kernel_c_nr_pr],  
+        ]
+    return GP_drw_nr_priors_gui
 
 
 
@@ -1410,6 +1498,16 @@ def tra_GP_mat_bounds_gui(self):
     return tra_GP_mat_bounds_gui
  
 
+def tra_GP_drw_bounds_gui(self):
+
+    tra_GP_drw_bounds_gui = [
+        [self.tra_GP_drw_kernel_a_min,self.tra_GP_drw_kernel_a_max,self.use_tra_GP_drw_kernel_a_bound],  
+        [self.tra_GP_drw_kernel_c_min,self.tra_GP_drw_kernel_c_max,self.use_tra_GP_drw_kernel_c_bound]  
+        ]
+    return tra_GP_drw_bounds_gui
+ 
+    
+
 def tra_GP_rot_nr_priors_gui(self):
 
     tra_GP_rot_nr_priors_gui = [
@@ -1445,7 +1543,6 @@ def tra_GP_double_sho_nr_priors_gui(self):
 
 
 
-
 def tra_GP_mat_nr_priors_gui(self):
             
     tra_GP_mat_nr_priors_gui = [
@@ -1454,6 +1551,21 @@ def tra_GP_mat_nr_priors_gui(self):
         [self.tra_GP_mat_kernel_eps_mean,self.tra_GP_mat_kernel_eps_sigma, self.use_tra_GP_mat_kernel_eps_nr_pr],  
         ]
     return tra_GP_mat_nr_priors_gui
+
+
+
+
+def tra_GP_drw_nr_priors_gui(self):
+
+    tra_GP_drw_nr_priors_gui = [
+        [self.tra_GP_drw_kernel_a_mean,self.tra_GP_drw_kernel_a_sigma,self.use_tra_GP_drw_kernel_a_nr_pr], 
+        [self.tra_GP_drw_kernel_c_mean,self.tra_GP_drw_kernel_c_sigma,self.use_tra_GP_drw_kernel_c_nr_pr],  
+        ]
+    return tra_GP_drw_nr_priors_gui
+
+
+
+
 
 
 
@@ -1504,6 +1616,22 @@ def GP_mat_jeff_priors_gui(self):
         
     return GP_mat_jeff_priors_gui
 
+
+
+def GP_drw_jeff_priors_gui(self):
+            
+    GP_drw_jeff_priors_gui = [
+        [self.GP_drw_kernel_a_alpha,self.GP_drw_kernel_a_beta, self.use_GP_drw_kernel_a_jeff_pr],  
+        [self.GP_drw_kernel_c_alpha,self.GP_drw_kernel_c_beta, self.use_GP_drw_kernel_c_jeff_pr]   
+        ]
+        
+    return GP_drw_jeff_priors_gui
+
+
+
+
+
+
 def tra_GP_rot_jeff_priors_gui(self):
 
     tra_GP_rot_jeff_priors_gui = [
@@ -1549,6 +1677,21 @@ def tra_GP_mat_jeff_priors_gui(self):
         ]
         
     return tra_GP_mat_jeff_priors_gui
+
+
+def tra_GP_drw_jeff_priors_gui(self):
+            
+    tra_GP_drw_jeff_priors_gui = [
+        [self.tra_GP_drw_kernel_a_alpha,self.tra_GP_drw_kernel_a_beta, self.use_tra_GP_drw_kernel_a_jeff_pr],  
+        [self.tra_GP_drw_kernel_c_alpha,self.tra_GP_drw_kernel_c_beta, self.use_tra_GP_drw_kernel_c_jeff_pr]   
+        ]
+        
+    return tra_GP_drw_jeff_priors_gui
+
+
+
+
+
 
 def use_tra_data_GP(self):
             
