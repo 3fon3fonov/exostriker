@@ -2336,7 +2336,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         ind_norm = self.gls_norm_combo.currentIndex()
 
         if self.gls_incl_jitter.isChecked():
-            error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)
+            error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.fit_results.idset)
         else:
             error_list = fit.fit_results.rv_model.rv_err
 
@@ -2367,7 +2367,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         ind_norm = self.gls_norm_combo.currentIndex()
 
         if self.gls_o_c_incl_jitter.isChecked():
-            error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)
+            error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.fit_results.idset)
         else:
             error_list = fit.fit_results.rv_model.rv_err
  
@@ -2560,7 +2560,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.jitter_color_button.setStyleSheet("color: %s;"%colors_RV_jitter[0])
 
 
-        if len(fit.filelist.idset)==0:
+        if len(fit.fit_results.idset)==0:
             return
  
         p1.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
@@ -2590,16 +2590,16 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 #            return
 
         if self.jitter_to_plots.isChecked() and not self.split_jitter.isChecked():
-            error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)
+            error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.fit_results.idset)
         elif self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
             error_list = fit.fit_results.rv_model.rv_err
-            error_list2 = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.filelist.idset)
+            error_list2 = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.fit_results.idset)
         else:
             error_list = fit.fit_results.rv_model.rv_err
 
 
-        for i in range(max(fit.filelist.idset)+1):
-            p1.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
+        for i in range(max(fit.fit_results.idset)+1):
+            p1.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],fit.fit_results.rv_model.rvs[fit.fit_results.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
             symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
@@ -2608,22 +2608,22 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
             )
 
-            err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
-                                   y=fit.fit_results.rv_model.rvs[fit.filelist.idset==i],symbol='o', 
+            err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
+                                   y=fit.fit_results.rv_model.rvs[fit.fit_results.idset==i],symbol='o', 
             #height=error_list[fit.filelist.idset==i],
-            top=error_list[fit.filelist.idset==i],
-            bottom=error_list[fit.filelist.idset==i],
+            top=error_list[fit.fit_results.idset==i],
+            bottom=error_list[fit.fit_results.idset==i],
             beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
 
             p1.addItem(err1)
 
             if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
 
-                err1a = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
-                                       y=fit.fit_results.rv_model.rvs[fit.filelist.idset==i],symbol='o', 
+                err1a = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
+                                       y=fit.fit_results.rv_model.rvs[fit.fit_results.idset==i],symbol='o', 
                 #height=error_list[fit.filelist.idset==i],
-                top=error_list2[fit.filelist.idset==i],
-                bottom=error_list2[fit.filelist.idset==i],
+                top=error_list2[fit.fit_results.idset==i],
+                bottom=error_list2[fit.fit_results.idset==i],
                 beam=0.0, pen=colors_RV_jitter[0])  
                 err1a.setZValue(-10)
                 p1.addItem(err1a)
@@ -2668,30 +2668,30 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
  
             
-        for i in range(max(fit.filelist.idset)+1):
-            p2.plot(fit.fit_results.rv_model.jd[fit.filelist.idset==i],data_o_c[fit.filelist.idset==i], 
+        for i in range(max(fit.fit_results.idset)+1):
+            p2.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],data_o_c[fit.fit_results.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
             symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
             )
-            err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
-                                   y=data_o_c[fit.filelist.idset==i],symbol='o', 
+            err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
+                                   y=data_o_c[fit.fit_results.idset==i],symbol='o', 
             #height=error_list[fit.filelist.idset==i],
-            top=error_list[fit.filelist.idset==i],
-            bottom=error_list[fit.filelist.idset==i],
+            top=error_list[fit.fit_results.idset==i],
+            bottom=error_list[fit.fit_results.idset==i],
             beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
 
             p2.addItem(err2)
 
             if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
 
-                err2a = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.filelist.idset==i], 
-                                       y=data_o_c[fit.filelist.idset==i],symbol='o',
+                err2a = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
+                                       y=data_o_c[fit.fit_results.idset==i],symbol='o',
                 #height=error_list[fit.filelist.idset==i],
-                top=error_list2[fit.filelist.idset==i],
-                bottom=error_list2[fit.filelist.idset==i],
+                top=error_list2[fit.fit_results.idset==i],
+                bottom=error_list2[fit.fit_results.idset==i],
                 beam=0.0, pen='#000000')
                 err2a.setZValue(-10)
                 p2.addItem(err2a)
@@ -2862,22 +2862,22 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         if fit.filelist.ndset != 0:
 
-            for i in range(max(fit.filelist.idset)+1):
+            for i in range(max(fit.fit_results.idset)+1):
                 self.comboBox_corr_1.addItem('RV %s'%(i+1),i+1) 
                 self.comboBox_corr_2.addItem('RV %s'%(i+1),i+1) 
 
-                self.initialize_corr_y[z] = np.array([fit.fit_results.rv_model.jd[fit.filelist.idset==i],
-                                                      fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
-                                                      fit.fit_results.rv_model.rv_err[fit.filelist.idset==i]])  
+                self.initialize_corr_y[z] = np.array([fit.fit_results.rv_model.jd[fit.fit_results.idset==i],
+                                                      fit.fit_results.rv_model.rvs[fit.fit_results.idset==i], 
+                                                      fit.fit_results.rv_model.rv_err[fit.fit_results.idset==i]])  
                 z +=1
 
-            for i in range(max(fit.filelist.idset)+1):
+            for i in range(max(fit.fit_results.idset)+1):
                 self.comboBox_corr_1.addItem('RV o-c %s'%(i+1),i+1)         
                 self.comboBox_corr_2.addItem('RV o-c %s'%(i+1),i+1)  
     
-                self.initialize_corr_y[z] = np.array([fit.fit_results.rv_model.jd[fit.filelist.idset==i],
-                                                      fit.fit_results.rv_model.o_c[fit.filelist.idset==i], 
-                                                      fit.fit_results.rv_model.rv_err[fit.filelist.idset==i]]) 
+                self.initialize_corr_y[z] = np.array([fit.fit_results.rv_model.jd[fit.fit_results.idset==i],
+                                                      fit.fit_results.rv_model.o_c[fit.fit_results.idset==i], 
+                                                      fit.fit_results.rv_model.rv_err[fit.fit_results.idset==i]]) 
                 z +=1                          
 
 
@@ -4856,13 +4856,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             for i in range(fit.filelist.ndset):
                 
                 if resid == True:
-                    typ = (fit.fit_results.rv_model.jd[fit.filelist.idset==i],
-                       fit.fit_results.rv_model.o_c[fit.filelist.idset==i], 
-                       fit.fit_results.rv_model.rv_err[fit.filelist.idset==i])
+                    typ = (fit.fit_results.rv_model.jd[fit.fit_results.idset==i],
+                       fit.fit_results.rv_model.o_c[fit.fit_results.idset==i], 
+                       fit.fit_results.rv_model.rv_err[fit.fit_results.idset==i])
                 else:
-                    typ = (fit.fit_results.rv_model.jd[fit.filelist.idset==i],
-                       fit.fit_results.rv_model.rvs[fit.filelist.idset==i], 
-                       fit.fit_results.rv_model.rv_err[fit.filelist.idset==i])
+                    typ = (fit.fit_results.rv_model.jd[fit.fit_results.idset==i],
+                       fit.fit_results.rv_model.rvs[fit.fit_results.idset==i], 
+                       fit.fit_results.rv_model.rv_err[fit.fit_results.idset==i])
                     
                 rv_files_for_mlp.append(typ)
             
@@ -5828,13 +5828,13 @@ RV data rms/wrms
             self.dialog_more_info.text.append(text_info)
             
             if fit.filelist.ndset != 0:
-                for i in range(max(fit.filelist.idset)+1):
+                for i in range(max(fit.fit_results.idset)+1):
                     text_info = """ """   
                     self.dialog_more_info.text.append(text_info)    
-                    rms = np.sqrt(np.average(fit.fit_results.o_c[fit.filelist.idset==i]**2))
+                    rms = np.sqrt(np.average(fit.fit_results.o_c[fit.fit_results.idset==i]**2))
                     text_wrm = "%s    rms = %.5f m/s"%(fit.filelist.files[i].name,rms)       
                     self.dialog_more_info.text.append(text_wrm)
-                    wrms = np.sqrt(np.average(fit.fit_results.o_c[fit.filelist.idset==i]**2, weights=1/fit.fit_results.rv_err[fit.filelist.idset==i]))
+                    wrms = np.sqrt(np.average(fit.fit_results.o_c[fit.fit_results.idset==i]**2, weights=1/fit.fit_results.rv_err[fit.fit_results.idset==i]))
                     text_wrm = "%s wrms = %.5f m/s"%(fit.filelist.files[i].name,wrms)       
                     self.dialog_more_info.text.append(text_wrm)        
 
