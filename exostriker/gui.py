@@ -8844,7 +8844,7 @@ https://github.com/3fon3fonov/exostriker/issues
     def __init__(self):
         global fit 
         
-        es_version = 0.59
+        es_version = "0.60"
 
         #self.loading_screen= LoadingScreen()   
  
