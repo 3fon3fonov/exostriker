@@ -3052,7 +3052,9 @@ Polyfit coefficients:
             self.act_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(act_per.info(stdout=False) + text_peaks ))   
 
         if self.gls_act_cross_hair.isChecked():
-            self.cross_hair(p11,log=self.radioButton_act_GLS_period.isChecked()) 
+            #self.cross_hair(p11,log=self.radioButton_act_GLS_period.isChecked()) 
+
+            self.cross_hair(p11,log=self.radioButton_act_GLS_period.isChecked(), alias=[self.show_alias_GLS.isChecked(), self.alias_days_gls.value(), colors_GLS_alias[0]])    
 
 
     def update_activity_data_plots(self,ind):
