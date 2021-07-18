@@ -35,7 +35,7 @@ class RVBank_window(QtWidgets.QDialog):
 #        self.filter.clicked.connect(self.filterClicked)
         self.lineEdit.textChanged.connect(self.filterClicked)
 
-        self.radio_group=QtGui.QButtonGroup(hLayout) # Number group
+        self.radio_group=QtWidgets.QButtonGroup(hLayout) # Number group
         self.button1  = QtWidgets.QRadioButton('HARPS RVBank', self)
         self.button2  = QtWidgets.QRadioButton('HIRES NZP', self)
         self.button1.setChecked(True)
@@ -51,7 +51,7 @@ class RVBank_window(QtWidgets.QDialog):
         self.radio_group.buttonClicked.connect(self.init_model)
 
 
-        self.readme_button = QtGui.QPushButton('READ ME', self)
+        self.readme_button = QtWidgets.QPushButton('READ ME', self)
         hLayout.addWidget(self.readme_button)
 
         self.readme_button.clicked.connect(self.info)

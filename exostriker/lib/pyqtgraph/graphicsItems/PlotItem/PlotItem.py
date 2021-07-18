@@ -1,40 +1,35 @@
 # -*- coding: utf-8 -*-
-import sys
+import importlib
+import os
 import warnings
 import weakref
+import collections.abc
+
 import numpy as np
-import os
-from ...Qt import QtGui, QtCore, QT_LIB
-from ... import pixmaps
+
+from ..AxisItem import AxisItem
+from ..ButtonItem import ButtonItem
+from ..GraphicsWidget import GraphicsWidget
+from ..InfiniteLine import InfiniteLine
+from ..LabelItem import LabelItem
+from ..LegendItem import LegendItem
+from ..PlotDataItem import PlotDataItem
+from ..PlotCurveItem import PlotCurveItem
+from ..ScatterPlotItem import ScatterPlotItem
+from ..ViewBox import ViewBox
 from ... import functions as fn
-from ...widgets.FileDialog import FileDialog
-from .. PlotDataItem import PlotDataItem
-from .. ViewBox import ViewBox
-from .. AxisItem import AxisItem
-from .. LabelItem import LabelItem
-from .. LegendItem import LegendItem
-from .. GraphicsWidget import GraphicsWidget
-from .. ButtonItem import ButtonItem
-from .. InfiniteLine import InfiniteLine
+from ... import icons
+from ...Qt import QtGui, QtCore, QT_LIB
 from ...WidgetGroup import WidgetGroup
 from ...python2_3 import basestring
+from ...widgets.FileDialog import FileDialog
 
-if QT_LIB == 'PyQt4':
-    from .plotConfigTemplate_pyqt import *
-elif QT_LIB == 'PySide':
-    from .plotConfigTemplate_pyside import *
-elif QT_LIB == 'PyQt5':
-    from .plotConfigTemplate_pyqt5 import *
-elif QT_LIB == 'PySide2':
-    from .plotConfigTemplate_pyside2 import *
+translate = QtCore.QCoreApplication.translate
+
+ui_template = importlib.import_module(
+    f'.plotConfigTemplate_{QT_LIB.lower()}', package=__package__)
 
 __all__ = ['PlotItem']
-
-try:
-    from metaarray import *
-    HAVE_METAARRAY = True
-except:
-    HAVE_METAARRAY = False
 
 
 class PlotItem(GraphicsWidget):
@@ -61,6 +56,7 @@ class PlotItem(GraphicsWidget):
     :func:`setYRange <pyqtgraph.ViewBox.setYRange>`,
     :func:`setRange <pyqtgraph.ViewBox.setRange>`,
     :func:`autoRange <pyqtgraph.ViewBox.autoRange>`,
+    :func:`setDefaultPadding <pyqtgraph.ViewBox.setDefaultPadding>`,
     :func:`setXLink <pyqtgraph.ViewBox.setXLink>`,
     :func:`setYLink <pyqtgraph.ViewBox.setYLink>`,
     :func:`setAutoPan <pyqtgraph.ViewBox.setAutoPan>`,
@@ -119,11 +115,11 @@ class PlotItem(GraphicsWidget):
         
         GraphicsWidget.__init__(self, parent)
         
-        self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self.setSizePolicy(QtGui.QSizePolicy.Policy.Expanding, QtGui.QSizePolicy.Policy.Expanding)
         
         ## Set up control buttons
         path = os.path.dirname(__file__)
-        self.autoBtn = ButtonItem(pixmaps.getPixmap('auto'), 14, self)
+        self.autoBtn = ButtonItem(icons.getGraphPixmap('auto'), 14, self)
         self.autoBtn.mode = 'auto'
         self.autoBtn.clicked.connect(self.autoBtnClicked)
         self.buttonsHidden = False ## whether the user has requested buttons to be hidden
@@ -134,12 +130,14 @@ class PlotItem(GraphicsWidget):
         self.setLayout(self.layout)
         self.layout.setHorizontalSpacing(0)
         self.layout.setVerticalSpacing(0)
-        
+
         if viewBox is None:
-            viewBox = ViewBox(parent=self)
+            viewBox = ViewBox(parent=self, enableMenu=enableMenu)
         self.vb = viewBox
         self.vb.sigStateChanged.connect(self.viewStateChanged)
-        self.setMenuEnabled(enableMenu, enableMenu) ## en/disable plotitem and viewbox menus
+
+        # Enable or disable plotItem menu
+        self.setMenuEnabled(enableMenu, None)
         
         if name is not None:
             self.vb.register(name)
@@ -187,23 +185,23 @@ class PlotItem(GraphicsWidget):
         ### Set up context menu
         
         w = QtGui.QWidget()
-        self.ctrl = c = Ui_Form()
+        self.ctrl = c = ui_template.Ui_Form()
         c.setupUi(w)
         dv = QtGui.QDoubleValidator(self)
         
         menuItems = [
-            ('Transforms', c.transformGroup),
-            ('Downsample', c.decimateGroup),
-            ('Average', c.averageGroup),
-            ('Alpha', c.alphaGroup),
-            ('Grid', c.gridGroup),
-            ('Points', c.pointsGroup),
+            (translate("PlotItem", 'Transforms'), c.transformGroup),
+            (translate("PlotItem", 'Downsample'), c.decimateGroup),
+            (translate("PlotItem", 'Average'), c.averageGroup),
+            (translate("PlotItem", 'Alpha'), c.alphaGroup),
+            (translate("PlotItem", 'Grid'), c.gridGroup),
+            (translate("PlotItem", 'Points'), c.pointsGroup),
         ]
         
         
         self.ctrlMenu = QtGui.QMenu()
         
-        self.ctrlMenu.setTitle('Plot Options')
+        self.ctrlMenu.setTitle(translate("PlotItem", 'Plot Options'))
         self.subMenus = []
         for name, grp in menuItems:
             sm = QtGui.QMenu(name)
@@ -244,6 +242,7 @@ class PlotItem(GraphicsWidget):
         self.ctrl.averageGroup.toggled.connect(self.avgToggled)
         
         self.ctrl.maxTracesCheck.toggled.connect(self.updateDecimation)
+        self.ctrl.forgetTracesCheck.toggled.connect(self.updateDecimation)
         self.ctrl.maxTracesSpin.valueChanged.connect(self.updateDecimation)
         
         if labels is None:
@@ -274,7 +273,7 @@ class PlotItem(GraphicsWidget):
     #Important: don't use a settattr(m, getattr(self.vb, m)) as we'd be leaving the viebox alive
     #because we had a reference to an instance method (creating wrapper methods at runtime instead).
     for m in ['setXRange', 'setYRange', 'setXLink', 'setYLink', 'setAutoPan',         # NOTE: 
-              'setAutoVisible', 'setRange', 'autoRange', 'viewRect', 'viewRange',     # If you update this list, please 
+              'setAutoVisible', 'setDefaultPadding', 'setRange', 'autoRange', 'viewRect', 'viewRange',     # If you update this list, please 
               'setMouseEnabled', 'setLimits', 'enableAutoRange', 'disableAutoRange',  # update the class docstring 
               'setAspectLocked', 'invertY', 'invertX', 'register', 'unregister']:                # as well.
                 
@@ -300,7 +299,6 @@ class PlotItem(GraphicsWidget):
         ==============  ==========================================================================================
         """
         
-                
         if axisItems is None:
             axisItems = {}
         
@@ -337,9 +335,9 @@ class PlotItem(GraphicsWidget):
             axis.linkToView(self.vb)
             self.axes[k] = {'item': axis, 'pos': pos}
             self.layout.addItem(axis, *pos)
-            axis.setZValue(-1000)
-            axis.setFlag(axis.ItemNegativeZStacksBehindParent)
-            
+            # place axis above images at z=0, items that want to draw over the axes should be placed at z>=1:
+            axis.setZValue(0.5) 
+            axis.setFlag(axis.GraphicsItemFlag.ItemNegativeZStacksBehindParent)           
             axisVisible = k in visibleAxes
             self.showAxis(k, axisVisible)
         
@@ -378,8 +376,8 @@ class PlotItem(GraphicsWidget):
         if y is not None:
             self.ctrl.yGridCheck.setChecked(y)
         if alpha is not None:
-            v = np.clip(alpha, 0, 1)*self.ctrl.gridAlphaSlider.maximum()
-            self.ctrl.gridAlphaSlider.setValue(v)
+            v = fn.clip_scalar(alpha, 0, 1) * self.ctrl.gridAlphaSlider.maximum() # slider range 0 to 255
+            self.ctrl.gridAlphaSlider.setValue( int(v) )
         
     def close(self):
         ## Most of this crap is needed to avoid PySide trouble. 
@@ -430,7 +428,7 @@ class PlotItem(GraphicsWidget):
         
     def avgParamListClicked(self, item):
         name = str(item.text())
-        self.paramList[name] = (item.checkState() == QtCore.Qt.Checked)
+        self.paramList[name] = (item.checkState() == QtCore.Qt.CheckState.Checked)
         self.recomputeAverages()
         
     def recomputeAverages(self):
@@ -454,7 +452,7 @@ class PlotItem(GraphicsWidget):
             ### First determine the key of the curve to which this new data should be averaged
             for i in range(self.ctrl.avgParamList.count()):
                 item = self.ctrl.avgParamList.item(i)
-                if item.checkState() == QtCore.Qt.Checked:
+                if item.checkState() == QtCore.Qt.CheckState.Checked:
                     remKeys.append(str(item.text()))
                 else:
                     addKeys.append(str(item.text()))
@@ -511,7 +509,11 @@ class PlotItem(GraphicsWidget):
         """
         Enable auto-scaling. The plot will continuously scale to fit the boundaries of its data.
         """
-        print("Warning: enableAutoScale is deprecated. Use enableAutoRange(axis, enable) instead.")
+        warnings.warn(
+            'PlotItem.enableAutoScale is deprecated, and will be removed in 0.13'
+            'Use PlotItem.enableAutoRange(axis, enable) instead',
+            DeprecationWarning, stacklevel=2
+        )
         self.vb.enableAutoRange(self.vb.XYAxes)
 
     def addItem(self, item, *args, **kargs):
@@ -568,7 +570,11 @@ class PlotItem(GraphicsWidget):
             self.legend.addItem(item, name=name)            
 
     def addDataItem(self, item, *args):
-        print("PlotItem.addDataItem is deprecated. Use addItem instead.")
+        warnings.warn(
+            'PlotItem.addDataItem is deprecated and will be removed in 0.13. '
+            'Use PlotItem.addItem instead',
+            DeprecationWarning, stacklevel=2
+        )    
         self.addItem(item, *args)
         
     def listDataItems(self):
@@ -577,7 +583,12 @@ class PlotItem(GraphicsWidget):
         return self.dataItems[:]
         
     def addCurve(self, c, params=None):
-        print("PlotItem.addCurve is deprecated. Use addItem instead.")
+        warnings.warn(
+            'PlotItem.addCurve is deprecated and will be removed in 0.13. '
+            'Use PlotItem.addItem instead.',
+            DeprecationWarning, stacklevel=2
+        )    
+
         self.addItem(c, params)
 
     def addLine(self, x=None, y=None, z=None, **kwds):
@@ -698,18 +709,18 @@ class PlotItem(GraphicsWidget):
                     p = '.'.join(p)
                     
                 ## If the parameter is not in the list, add it.
-                matches = self.ctrl.avgParamList.findItems(p, QtCore.Qt.MatchExactly)
+                matches = self.ctrl.avgParamList.findItems(p, QtCore.Qt.MatchFlag.MatchExactly)
                 if len(matches) == 0:
                     i = QtGui.QListWidgetItem(p)
                     if p in self.paramList and self.paramList[p] is True:
-                        i.setCheckState(QtCore.Qt.Checked)
+                        i.setCheckState(QtCore.Qt.CheckState.Checked)
                     else:
-                        i.setCheckState(QtCore.Qt.Unchecked)
+                        i.setCheckState(QtCore.Qt.CheckState.Unchecked)
                     self.ctrl.avgParamList.addItem(i)
                 else:
                     i = matches[0]
                     
-                self.paramList[p] = (i.checkState() == QtCore.Qt.Checked)
+                self.paramList[p] = (i.checkState() == QtCore.Qt.CheckState.Checked)
 
     def writeSvgCurves(self, fileName=None):
         if fileName is None:
@@ -996,20 +1007,21 @@ class PlotItem(GraphicsWidget):
         return self.ctrl.clipToViewCheck.isChecked()
 
     def updateDecimation(self):
-        if self.ctrl.maxTracesCheck.isChecked():
-            numCurves = self.ctrl.maxTracesSpin.value()
+        if not self.ctrl.maxTracesCheck.isChecked():
+            numCurves = len(self.curves)
         else:
-            numCurves = -1
-            
-        curves = self.curves[:]
-        split = len(curves) - numCurves
-        for curve in curves[split:]:
-            if numCurves != -1:
-                if self.ctrl.forgetTracesCheck.isChecked():
-                    curve.clear()
-                    self.removeItem(curves[i])
-                else:
-                    curve.hide()        
+            numCurves = self.ctrl.maxTracesSpin.value()
+
+        if self.ctrl.forgetTracesCheck.isChecked():
+            for curve in self.curves[:-numCurves]:
+                curve.clear()
+                self.removeItem(curve)
+
+        for i, curve in enumerate(reversed(self.curves)):
+            if i < numCurves:
+                curve.show()
+            else:
+                curve.hide()
       
     def updateAlpha(self, *args):
         (alpha, auto) = self.alphaState()
@@ -1162,9 +1174,69 @@ class PlotItem(GraphicsWidget):
     def hideAxis(self, axis):
         """Hide one of the PlotItem's axes. ('left', 'bottom', 'right', or 'top')"""
         self.showAxis(axis, False)
-            
+        
+    def showAxes(self, selection, showValues=True, size=False):
+        """ 
+        Convenience method for quickly configuring axis settings.
+        
+        Parameters
+        ----------
+        selection: boolean or tuple of booleans (left, top, right, bottom)
+            Determines which AxisItems will be displayed.
+            A single boolean value will set all axes, 
+            so that ``showAxes(True)`` configures the axes to draw a frame.
+        showValues: optional, boolean or tuple of booleans (left, top, right, bottom)
+            Determines if values will be displayed for the ticks of each axis.
+            True value shows values for left and bottom axis (default).
+            False shows no values.
+            None leaves settings unchanged.
+            If not specified, left and bottom axes will be drawn with values.
+        size: optional, float or tuple of floats (width, height)
+            Reserves as fixed amount of space (width for vertical axis, height for horizontal axis)
+            for each axis where tick values are enabled. If only a single float value is given, it
+            will be applied for both width and height. If `None` is given instead of a float value,
+            the axis reverts to automatic allocation of space.
+        """
+        if selection is True: # shortcut: enable all axes, creating a frame
+            selection = (True, True, True, True)
+        elif selection is False: # shortcut: disable all axes
+            selection = (False, False, False, False)
+        if showValues is True: # shortcut: defaults arrangement with labels at left and bottom
+            showValues = (True, False, False, True)
+        elif showValues is False: # shortcut: disable all labels
+            showValues = (False, False, False, False)
+        elif showValues is None: # leave labelling untouched
+            showValues = (None, None, None, None)
+        if size is not False and not isinstance(size, collections.abc.Sized):
+            size = (size, size) # make sure that size is either False or a full set of (width, height)
+
+        all_axes = ('left','top','right','bottom')
+        for show_axis, show_value, axis_key in zip(selection, showValues, all_axes):
+            if show_axis is None:
+                pass # leave axis display as it is.
+            else:
+                if show_axis: self.showAxis(axis_key)
+                else        : self.hideAxis(axis_key)
+                
+            if show_value is None:
+                pass # leave value display as it is.
+            else:
+                ax = self.getAxis(axis_key)
+                ax.setStyle(showValues=show_value)
+                if size is not False: # size adjustment is requested
+                    if axis_key in ('left','right'):
+                        if show_value: ax.setWidth(size[0])
+                        else         : ax.setWidth( None )
+                    elif axis_key in ('top', 'bottom'):
+                        if show_value: ax.setHeight(size[1])
+                        else         : ax.setHeight( None )
+
     def showScale(self, *args, **kargs):
-        print("Deprecated. use showAxis() instead")
+        warnings.warn(
+            'PlotItem.showScale has been deprecated and will be removed in 0.13. '
+            'Use PlotItem.showAxis() instead',
+            DeprecationWarning, stacklevel=2
+        )    
         return self.showAxis(*args, **kargs)
             
     def hideButtons(self):
@@ -1232,7 +1304,7 @@ class PlotItem(GraphicsWidget):
         self.fileDialog = FileDialog()
         if PlotItem.lastFileDir is not None:
             self.fileDialog.setDirectory(PlotItem.lastFileDir)
-        self.fileDialog.setFileMode(QtGui.QFileDialog.AnyFile)
-        self.fileDialog.setAcceptMode(QtGui.QFileDialog.AcceptSave)
+        self.fileDialog.setFileMode(QtGui.QFileDialog.FileMode.AnyFile)
+        self.fileDialog.setAcceptMode(QtGui.QFileDialog.AcceptMode.AcceptSave)
         self.fileDialog.show()
         self.fileDialog.fileSelected.connect(handler)

@@ -7,14 +7,9 @@ from ..python2_3 import basestring
 from .. import exceptionHandling as exceptionHandling
 from .. import getConfigOption
 from ..functions import SignalBlock
-if QT_LIB == 'PySide':
-    from . import template_pyside as template
-elif QT_LIB == 'PySide2':
-    from . import template_pyside2 as template
-elif QT_LIB == 'PyQt5':
-    from . import template_pyqt5 as template
-else:
-    from . import template_pyqt as template
+import importlib
+ui_template = importlib.import_module(
+    f'.template_{QT_LIB.lower()}', package=__package__)
 
 
 class ConsoleWidget(QtGui.QWidget):
@@ -60,7 +55,7 @@ class ConsoleWidget(QtGui.QWidget):
         self.inCmd = False
         self.frames = []  # stack frames to access when an item in the stack list is selected
         
-        self.ui = template.Ui_Form()
+        self.ui = ui_template.Ui_Form()
         self.ui.setupUi(self)
         self.output = self.ui.output
         self.input = self.ui.input
@@ -235,7 +230,7 @@ class ConsoleWidget(QtGui.QWidget):
             atBottom = scroll == sb.maximum()
             scrollToBottom = atBottom
 
-        self.output.moveCursor(QtGui.QTextCursor.End)
+        self.output.moveCursor(QtGui.QTextCursor.MoveOperation.End)
         if html:
             self.output.textCursor().insertHtml(strn)
         else:

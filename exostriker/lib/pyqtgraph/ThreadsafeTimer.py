@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from .Qt import QtCore, QtGui
 
+__all__ = ['ThreadsafeTimer']
+
 class ThreadsafeTimer(QtCore.QObject):
     """
     Thread-safe replacement for QTimer.
@@ -16,8 +18,8 @@ class ThreadsafeTimer(QtCore.QObject):
         self.timer.timeout.connect(self.timerFinished)
         self.timer.moveToThread(QtCore.QCoreApplication.instance().thread())
         self.moveToThread(QtCore.QCoreApplication.instance().thread())
-        self.sigTimerStopRequested.connect(self.stop, QtCore.Qt.QueuedConnection)
-        self.sigTimerStartRequested.connect(self.start, QtCore.Qt.QueuedConnection)
+        self.sigTimerStopRequested.connect(self.stop, QtCore.Qt.ConnectionType.QueuedConnection)
+        self.sigTimerStartRequested.connect(self.start, QtCore.Qt.ConnectionType.QueuedConnection)
         
         
     def start(self, timeout):

@@ -712,7 +712,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
         ###### TBD, GP for each transit dataset #####
           
         tra_gp_model.append(flux_model_)
-        flux_o_c_gp.append(flux_o_c_)
+
 
         flux_model.append(flux_model_)
         flux.append(flux_)
@@ -721,6 +721,35 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
         sig2i.append(sig2i_)
         flux_o_c.append(flux_o_c_)
         use_gp_model.append(tr_files[j][9])
+
+        if rtg[3] == True and return_model == True:
+
+
+            param_vect = []
+
+            if opt["tra_GP_kernel"] == "dSHOKernel":
+                for k in range(len(tra_gps.get_parameter_vector())-1):
+                    param_vect.append(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + k])
+
+                tra_gps = init_dSHOKernel(param_vect)
+
+            else:
+
+                for k in range(len(tra_gps.get_parameter_vector())):
+                    param_vect.append(np.log(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + k]))
+                tra_gps.set_parameter_vector(np.array(param_vect))
+
+
+            
+
+            tra_gps.compute(t_,yerr=flux_err_)
+            flux_model_gp   = tra_gps.predict(flux_o_c_, t_ , return_cov=False)
+            flux_o_c_gp_  = flux_o_c_  - flux_model_gp  
+ 
+
+            flux_o_c_gp.append(flux_o_c_gp_)
+        else:
+            flux_o_c_gp.append(flux_o_c_)
 
     
     flux_model_all  = np.concatenate(flux_model)#[flux_model_ < 1]
@@ -979,6 +1008,12 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
             par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i] = transit_tperi(par[len(vel_files)*2 +7*i+1],
                                                                   ecc_, om_, Ma_ ,epoch)[1]%par[len(vel_files)*2 +7*i+1]
+
+            ddddd = transit_tperi(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,epoch)[1]%par[len(vel_files)*2 +7*i+1]
+            dddd2 = transit_tperi_old(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,epoch)[1]%par[len(vel_files)*2 +7*i+1]
+            
+           # print(ddddd, dddd2)
+
 
 
     if(rtg[0]):

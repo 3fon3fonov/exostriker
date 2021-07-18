@@ -16,7 +16,7 @@ class datafiles_window(QtWidgets.QDialog):
         self.layout = QtWidgets.QVBoxLayout(self)
         self.title = 'Select valid data file'
        # self.setFixedSize(550, 800)        
-        self.widget=QtGui.QWidget(self)  # central widget
+        self.widget=QtWidgets.QWidget(self)  # central widget
         self.setGeometry(1,1, 495, 325) 
 
         
@@ -79,5 +79,5 @@ if __name__ == '__main__':
     #w = show_symbols()
    # w.show()
     #sys.exit(app.exec_())    
-    app = QtGui.QApplication([])
+    app = QtWidgets.QApplication([])
     app.exec_()        

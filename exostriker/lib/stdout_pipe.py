@@ -1,5 +1,5 @@
 import sys, traceback
-from PyQt5 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 #sys.stdout.isatty = lambda: False
 
@@ -87,7 +87,7 @@ class XStream(QtCore.QObject):
  
         return XStream._stderr
 
-class LogMessageViewer(QtGui.QTextBrowser):
+class LogMessageViewer(QtWidgets.QTextBrowser):
 
     def __init__(self, parent=None):
         super(LogMessageViewer,self).__init__(parent)
@@ -108,13 +108,13 @@ class LogMessageViewer(QtGui.QTextBrowser):
             verScrollBar.setValue(verScrollBar.maximum()) # Scrolls to the bottom
             horScrollBar.setValue(0) # scroll to the left
 
-class MyDialog(QtGui.QDialog):
+class MyDialog(QtWidgets.QDialog):
     def __init__( self, parent = None ):
         super(MyDialog, self).__init__(parent)
 
         self._console = LogMessageViewer(self)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self._console)
         self.setLayout(layout)
 
@@ -131,13 +131,13 @@ class MyDialog(QtGui.QDialog):
         logger.error('error message')
 
 
-class DebugDialog(QtGui.QDialog):
+class DebugDialog(QtWidgets.QDialog):
     def __init__( self, parent = None ):
         super(DebugDialog, self).__init__(parent)
 
         self._console = LogMessageViewer(self)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self._console)
         self.setLayout(layout)
 
@@ -156,8 +156,8 @@ class DebugDialog(QtGui.QDialog):
     
 
     #app = None
-    # if ( not QtGui.QApplication.instance() ):
-#    app = QtGui.QApplication(sys.argv)
+    # if ( not QtWidgets.QApplication.instance() ):
+#    app = QtWidgets.QApplication(sys.argv)
 #    dlg = MyDialog()
 #    dlg.show()
 
