@@ -19,7 +19,7 @@ class pdc(QtWidgets.QDialog):
        # self.widget.layout().addWidget(self.text)
 
        #self.layout=QtWidgets.QGridLayout() # layout for the central widget
-        self.widget=QtGui.QWidget(self)  # central widget
+        self.widget=QtWidgets.QWidget(self)  # central widget
       #  self.widget.setLayout(layout)    
 
         self.init_buttons()
@@ -28,7 +28,7 @@ class pdc(QtWidgets.QDialog):
     def init_buttons(self):
 
 
-        self.radio_group=QtGui.QButtonGroup(self.widget) # Number group
+        self.radio_group=QtWidgets.QButtonGroup(self.widget) # Number group
         self.button1  = QtWidgets.QRadioButton('SAP FLUX', self)
         self.button2  = QtWidgets.QRadioButton('PDCSAP FLUX"', self)
  
@@ -45,7 +45,7 @@ class pdc(QtWidgets.QDialog):
         self.layout.addWidget(self.button1)
         self.layout.addWidget(self.button2)
  
-        self.cancel_button = QtGui.QPushButton('Accept', self)
+        self.cancel_button = QtWidgets.QPushButton('Accept', self)
         self.layout.addWidget(self.cancel_button)
 
         self.button1.setChecked(True)
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     #w = show_symbols()
    # w.show()
     #sys.exit(app.exec_())    
-    app = QtGui.QApplication([])
+    app = QtWidgets.QApplication([])
     but = pdc.DateDialog.get_radio()
 #    print("{} {} {}".format(date, time, ok))
     app.exec_()        

@@ -44,6 +44,40 @@ def check_for_missing_instances(fit,fit_new):
     return fit_new
 
 
+
+
+def transit_tperi_old(per, ecc, om, ma, epoch):
+    """It derives Time of periatron [tp]
+    and time of mid transit [t0]
+
+    Parameters
+    ----------
+    per : float
+        Period of the planet [days].
+    ecc : float
+        Eccentricity of the orbit.
+    om : float
+        Argument of periastron [deg]
+    ma : float
+        Mean anomaly [deg].
+    epoch : float
+        Epoch for wich the orbital elements are valid [BJD].
+
+    Returns
+    -------
+    [tp,t0]
+        if the epoch in is BJD then tp and t0 are also in BJD.
+    """
+    om = np.radians(om)
+    ma = np.radians(ma)
+
+    E = 2.0*np.arctan( np.sqrt( ( (1.0-ecc)/(1.0+ecc) ) ) * np.tan( (np.pi/4.0)-(om/2.0) ) )
+    t_peri    = epoch  - ((ma/TAU)*per)
+    t_transit = t_peri + (E + ecc*np.sin(E)) * (per/TAU)
+
+    return t_peri, t_transit
+
+
 def transit_tperi(per, ecc, om, ma, epoch, primary = True):
     """It derives Time of periatron [tp]
     and time of mid transit [t0]

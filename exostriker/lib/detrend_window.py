@@ -481,17 +481,17 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
     def closeEvent(self, event):
         
         if len(self.old_t)  != len(self.t):
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
-            "It seems that you removed data, but you did not refit! This is not allowed. Please press the 'Try!' button and then close", QtGui.QMessageBox.Ok)
+            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+            "It seems that you removed data, but you did not refit! This is not allowed. Please press the 'Try!' button and then close", QtWidgets.QMessageBox.Ok)
             event.ignore()
 
  
     
         else:
-            ret = QtGui.QMessageBox.question(None, 'Close request', 'Are you sure you want to quit?',
-                                             QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
-                                             QtGui.QMessageBox.Yes)
-            if ret == QtGui.QMessageBox.Yes:
+            ret = QtWidgets.QMessageBox.question(None, 'Close request', 'Are you sure you want to quit?',
+                                             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                             QtWidgets.QMessageBox.Yes)
+            if ret == QtWidgets.QMessageBox.Yes:
                 
                 self.t_store[self.parent.tra_data_index]             = self.t
                 self.flux_store[self.parent.tra_data_index]          = self.flux
@@ -504,14 +504,14 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
  
                 
                 self.ui.radio_remove_median.setChecked(True)
-                QtGui.QMainWindow.closeEvent(self, event)
+                QtWidgets.QMainWindow.closeEvent(self, event)
             else:
                 event.ignore()
 
 
     def save_data_product(self):
 
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save detrended data file', 'detrended_%s'%self.data_file_name, 'All (*.*);;Data (*.tran)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save detrended data file', 'detrended_%s'%self.data_file_name, 'All (*.*);;Data (*.tran)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
         
         if str(output_file[0]) != '':
             f = open(output_file[0], 'w')

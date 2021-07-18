@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
+from .. import functions as fn
 from ..Qt import QtGui, QtCore
 import os, weakref, re
-from ..pgcollections import OrderedDict
+from collections import OrderedDict
 from ..python2_3 import asUnicode, basestring
 from .ParameterItem import ParameterItem
+import warnings
 
 PARAM_TYPES = {}
 PARAM_NAMES = {}
 
 def registerParameterType(name, cls, override=False):
+    """Register a parameter type in the parametertree system.
+
+    This enables construction of custom Parameter classes by name in
+    :meth:`~pyqtgraph.parametertree.Parameter.create`.
+    """
     global PARAM_TYPES
     if name in PARAM_TYPES and not override:
         raise Exception("Parameter type '%s' already exists (use override=True to replace)" % name)
@@ -194,17 +201,18 @@ class Parameter(QtCore.QObject):
 
         if 'default' not in self.opts:
             self.opts['default'] = None
+            self.setDefault(self.opts['value'])
     
         ## Connect all state changed signals to the general sigStateChanged
-        self.sigValueChanged.connect(lambda param, data: self.emitStateChanged('value', data))
-        self.sigChildAdded.connect(lambda param, *data: self.emitStateChanged('childAdded', data))
-        self.sigChildRemoved.connect(lambda param, data: self.emitStateChanged('childRemoved', data))
-        self.sigParentChanged.connect(lambda param, data: self.emitStateChanged('parent', data))
-        self.sigLimitsChanged.connect(lambda param, data: self.emitStateChanged('limits', data))
-        self.sigDefaultChanged.connect(lambda param, data: self.emitStateChanged('default', data))
-        self.sigNameChanged.connect(lambda param, data: self.emitStateChanged('name', data))
-        self.sigOptionsChanged.connect(lambda param, data: self.emitStateChanged('options', data))
-        self.sigContextMenu.connect(lambda param, data: self.emitStateChanged('contextMenu', data))
+        self.sigValueChanged.connect(self._emitValueChanged)
+        self.sigChildAdded.connect(self._emitChildAddedChanged)
+        self.sigChildRemoved.connect(self._emitChildRemovedChanged)
+        self.sigParentChanged.connect(self._emitParentChanged)
+        self.sigLimitsChanged.connect(self._emitLimitsChanged)
+        self.sigDefaultChanged.connect(self._emitDefaultChanged)
+        self.sigNameChanged.connect(self._emitNameChanged)
+        self.sigOptionsChanged.connect(self._emitOptionsChanged)
+        self.sigContextMenu.connect(self._emitContextMenuChanged)
 
         
         #self.watchParam(self)  ## emit treechange signals if our own state changes
@@ -283,15 +291,15 @@ class Parameter(QtCore.QObject):
             if blockSignal is not None:
                 self.sigValueChanged.disconnect(blockSignal)
             value = self._interpretValue(value)
-            if self.opts['value'] == value:
+            if fn.eq(self.opts['value'], value):
                 return value
             self.opts['value'] = value
-            self.sigValueChanged.emit(self, value)
+            self.sigValueChanged.emit(self, value)  # value might change after signal is received by tree item
         finally:
             if blockSignal is not None:
                 self.sigValueChanged.connect(blockSignal)
             
-        return value
+        return self.opts['value']
 
     def _interpretValue(self, v):
         return v
@@ -433,13 +441,13 @@ class Parameter(QtCore.QObject):
         
     def valueIsDefault(self):
         """Returns True if this parameter's value is equal to the default value."""
-        return self.value() == self.defaultValue()
+        return fn.eq(self.value(), self.defaultValue())
         
     def setLimits(self, limits):
         """Set limits on the acceptable values for this parameter. 
         The format of limits depends on the type of the parameter and
         some parameters do not make use of limits at all."""
-        if 'limits' in self.opts and self.opts['limits'] == limits:
+        if 'limits' in self.opts and fn.eq(self.opts['limits'], limits):
             return
         self.opts['limits'] = limits
         self.sigLimitsChanged.emit(self, limits)
@@ -503,6 +511,33 @@ class Parameter(QtCore.QObject):
         #self.treeStateChanged(self, changeDesc, data)
         self.treeStateChanges.append((self, changeDesc, data))
         self.emitTreeChanges()
+
+    def _emitValueChanged(self, param, data):
+        self.emitStateChanged("value", data)
+
+    def _emitChildAddedChanged(self, param, *data):
+        self.emitStateChanged("childAdded", data)
+
+    def _emitChildRemovedChanged(self, param, data):
+        self.emitStateChanged("childRemoved", data)
+
+    def _emitParentChanged(self, param, data):
+        self.emitStateChanged("parent", data)
+
+    def _emitLimitsChanged(self, param, data):
+        self.emitStateChanged("limits", data)
+
+    def _emitDefaultChanged(self, param, data):
+        self.emitStateChanged("default", data)
+
+    def _emitNameChanged(self, param, data):
+        self.emitStateChanged("name", data)
+
+    def _emitOptionsChanged(self, param, data):
+        self.emitStateChanged("options", data)
+
+    def _emitContextMenuChanged(self, param, data):
+        self.emitStateChanged("contextMenu", data)
 
     def makeTreeItem(self, depth):
         """
@@ -670,6 +705,9 @@ class Parameter(QtCore.QObject):
             names = (names,)
         return self.param(*names).setValue(value)
 
+    def keys(self):
+        return self.names
+
     def child(self, *names):
         """Return a child parameter. 
         Accepts the name of the child or a tuple (path, to, child)
@@ -697,7 +735,11 @@ class Parameter(QtCore.QObject):
     def __getattr__(self, attr):
         ## Leaving this undocumented because I might like to remove it in the future..
         #print type(self), attr
-        
+        warnings.warn(
+            'Use of Parameter.subParam is deprecated and will be removed in 0.13 '
+            'Use Parameter.param(name) instead.',
+            DeprecationWarning, stacklevel=2
+        )          
         if 'names' not in self.__dict__:
             raise AttributeError(attr)
         if attr in self.names:

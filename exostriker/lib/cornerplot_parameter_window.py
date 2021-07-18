@@ -29,13 +29,13 @@ class show_param_boxes(QtWidgets.QDialog):
        # self.widget.layout().addWidget(self.text)
 
        #self.layout=QtWidgets.QGridLayout() # layout for the central widget
-        self.widget=QtGui.QWidget(self)  # central widget
+        self.widget=QtWidgets.QWidget(self)  # central widget
       #  self.widget.setLayout(layout)    
         
-        self.radio_group =QtGui.QButtonGroup(self.widget) # Number group
-        self.radio_group2=QtGui.QButtonGroup(self.widget) # Number group
-        self.radio_group3=QtGui.QButtonGroup(self.widget) # Number group
-        self.radio_group4=QtGui.QButtonGroup(self.widget) # Number group
+        self.radio_group =QtWidgets.QButtonGroup(self.widget) # Number group
+        self.radio_group2=QtWidgets.QButtonGroup(self.widget) # Number group
+        self.radio_group3=QtWidgets.QButtonGroup(self.widget) # Number group
+        self.radio_group4=QtWidgets.QButtonGroup(self.widget) # Number group
         
         
         self.radio_median     = QtWidgets.QRadioButton('median', self)
@@ -106,18 +106,18 @@ class show_param_boxes(QtWidgets.QDialog):
         self.label_cornerplot_opt    = QtWidgets.QLabel("Cornerplot options:")
 
 
-        self.cancel_button = QtGui.QPushButton('Close', self)
+        self.cancel_button = QtWidgets.QPushButton('Close', self)
         
    
-        self.truth_color_button = QtGui.QPushButton('Truths color', self)
+        self.truth_color_button = QtWidgets.QPushButton('Truths color', self)
         self.truth_color_button.clicked.connect(self.get_color_truth)
 
 
-        self.samp_color_button = QtGui.QPushButton('Samples color', self)
+        self.samp_color_button = QtWidgets.QPushButton('Samples color', self)
         self.samp_color_button.clicked.connect(self.get_color_samp)
 
 ################################### Stab opt. ###########################
-        self.stab_samp_color_button = QtGui.QPushButton('Stab. Samples color', self)
+        self.stab_samp_color_button = QtWidgets.QPushButton('Stab. Samples color', self)
         self.stab_samp_color_button.clicked.connect(self.get_color_stab_samp)
 
         self.spin_max_stab_time  = QtWidgets.QDoubleSpinBox(self)
@@ -393,7 +393,7 @@ class show_param_boxes(QtWidgets.QDialog):
     def get_color_truth(self):
         global fit
 
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog|QtGui.QColorDialog.ShowAlphaChannel,)
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog|QtWidgets.QColorDialog.ShowAlphaChannel,)
  
         if colorz.isValid(): 
             self.cornerplot_opt["truth_color"]=colorz.name() 
@@ -405,7 +405,7 @@ class show_param_boxes(QtWidgets.QDialog):
     def get_color_samp(self):
         global fit
 
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog|QtGui.QColorDialog.ShowAlphaChannel,)
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog|QtWidgets.QColorDialog.ShowAlphaChannel,)
  
         if colorz.isValid(): 
             self.cornerplot_opt["color"]=colorz.name() 
@@ -418,7 +418,7 @@ class show_param_boxes(QtWidgets.QDialog):
     def get_color_stab_samp(self):
         global fit
 
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog|QtGui.QColorDialog.ShowAlphaChannel,)
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog|QtWidgets.QColorDialog.ShowAlphaChannel,)
  
         if colorz.isValid(): 
             self.cornerplot_opt["stab_color"]=colorz.name() 
@@ -431,9 +431,9 @@ class show_param_boxes(QtWidgets.QDialog):
 
     def initialize_color_dialog(self):
 
-        self.colorDialog = QtGui.QColorDialog()
-        self.colorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel, True)
-        self.colorDialog.setOption(QtGui.QColorDialog.DontUseNativeDialog, True)
+        self.colorDialog = QtWidgets.QColorDialog()
+        self.colorDialog.setOption(QtWidgets.QColorDialog.ShowAlphaChannel, True)
+        self.colorDialog.setOption(QtWidgets.QColorDialog.DontUseNativeDialog, True)
 
  
     # static method to create the dialog and return button pressed

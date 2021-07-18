@@ -216,8 +216,9 @@ class MatplotlibExporter(Exporter):
 
             mpw.draw()
         else:
-            raise Exception("Matplotlib export currently only works with plot items")
-                
+          #  raise Exception("Matplotlib export currently only works with plot items")
+            print("Matplotlib export currently only works with plot items, and not with scenes")             
+   
 MatplotlibExporter.register()        
         
 

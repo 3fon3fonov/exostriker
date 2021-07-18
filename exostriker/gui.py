@@ -180,13 +180,15 @@ if '-last' in sys.argv:
         file_pi = open("autosave/auto_save.ses", 'rb')
         fit_ses = dill.load(file_pi)
         file_pi.close()   
+
         fit = rv.check_for_missing_instances(fit,fit_ses)
         #fit=rv.signal_fit(name='session')    
        # fit = fit_ses 
         ses_list = [fit_ses] 
         fit.init_pl_arb()
 
-        start_arg_ses = True  
+        start_arg_ses = True
+        
     except (ImportError, KeyError, AttributeError) as e:
         print("No last session found.")
         ##fit=rv.signal_fit(name='session')
@@ -274,7 +276,7 @@ symbols = ['o','t','t1','t2','t3','s','p','h','star','+','d']
 
 
 
-QtGui.QApplication.processEvents()
+QtWidgets.QApplication.processEvents()
 
 
 class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -1704,9 +1706,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def initialize_color_dialog(self):
 
-        self.colorDialog = QtGui.QColorDialog()
-        self.colorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel, True)
-        self.colorDialog.setOption(QtGui.QColorDialog.DontUseNativeDialog, True)
+        self.colorDialog = QtWidgets.QColorDialog()
+        self.colorDialog.setOption(QtWidgets.QColorDialog.ShowAlphaChannel, True)
+        self.colorDialog.setOption(QtWidgets.QColorDialog.DontUseNativeDialog, True)
         #elf.colorDialog.setOptions(QtWidgets.QColorDialog.DontUseNativeDialog |QtWidgets.QColorDialog.NoButtons |QtWidgets.QColorDialog.ShowAlphaChannel)
 
     def initialize_buttons(self):
@@ -1981,6 +1983,60 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         #self.colors_ttv.setFont(self.font) 
 
 
+    def update_font_plots(self):
+
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31
+
+
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev]
+
+
+        for i in range(len(zzz)):
+
+
+            zzz[i].getAxis('left').setWidth(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+            zzz[i].getAxis("left").tickFont = self.plot_font
+            zzz[i].getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+            zzz[i].getAxis("bottom").tickFont = self.plot_font
+            # zzz[i].getAxis("left").setStyle(tickTextOffset=20)        
+            #  zzz[i].getAxis("bottom").setStyle(tickTextOffset=20)        
+
+            zzz[i].setLabel('bottom', '%s'%zzz[i].getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            zzz[i].setLabel('left', '%s'%zzz[i].getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+
+
+        zzz2 = [p00,p30]
+        for i in range(len(zzz2)):
+
+
+            zzz2[i].getAxis('left').setWidth(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+            zzz2[i].getAxis("left").tickFont = self.plot_font
+          #  zzz2[i].getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+          #  zzz2[i].getAxis("bottom").tickFont = self.plot_font
+           # zzz[i].getAxis("left").setStyle(tickTextOffset=20)        
+          #  zzz[i].getAxis("bottom").setStyle(tickTextOffset=20)        
+            
+           # zzz2[i].setLabel('bottom', '%s'%zzz2[i].getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            zzz2[i].setLabel('left', '%s'%zzz2[i].getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+
+        zzz3 = [p01,p31]
+        for i in range(len(zzz3)):
+
+            zzz3[i].getAxis('left').setWidth(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+            zzz3[i].getAxis("left").tickFont = self.plot_font
+            zzz3[i].getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+            zzz3[i].getAxis("bottom").tickFont = self.plot_font
+           # zzz3[i].getAxis("left").setStyle(tickTextOffset=20)        
+          #  zzz3[i].getAxis("bottom").setStyle(tickTextOffset=20)        
+            
+            zzz3[i].setLabel('bottom', '%s'%zzz3[i].getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            zzz3[i].setLabel('left', '%s'%zzz3[i].getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+
+        return
+
+
+
+
     def initialize_plots(self):
 
         global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev
@@ -1992,6 +2048,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p5  = self.graphicsView_timeseries_activity
         p6  = self.graphicsView_timeseries_correlations
                 
+ 
         p7  = self.graphicsView_peridogram_RV 
         p8  = self.graphicsView_periodogram_RV_o_c
         p9  = self.graphicsView_peridogram_phot
@@ -2038,27 +2095,190 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         for i in range(len(zzz)):
 
-                zzz[i].setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+            zzz[i].setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
 
-                #zzz[i].getAxis("bottom").tickFont = self.plot_font
-                zzz[i].getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
-                zzz[i].getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
-                zzz[i].getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
-                zzz[i].getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
-                zzz[i].getAxis('left').setWidth(50)
-                zzz[i].getAxis('right').setWidth(10)
-                zzz[i].getAxis('top').setHeight(10)
-                zzz[i].getAxis('bottom').setHeight(50)
-                            
-                zzz[i].setLabel('bottom', '%s'%xaxis[i], units='%s'%xunit[i],  **{'font-size':'9pt'})
-                zzz[i].setLabel('left',   '%s'%yaxis[i], units='%s'%yunit[i],  **{'font-size':'9pt'})       
-                zzz[i].showAxis('top') 
-                zzz[i].showAxis('right') 
-                zzz[i].getAxis('bottom').enableAutoSIPrefix(enable=False)
-                #zzz[i].autoRange()
+            #zzz[i].getAxis("bottom").tickFont = self.plot_font
+            zzz[i].getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+            zzz[i].getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+            zzz[i].getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+            zzz[i].getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+            zzz[i].getAxis('left').setWidth(50)
+            zzz[i].getAxis('right').setWidth(10)
+            zzz[i].getAxis('top').setHeight(10)
+            zzz[i].getAxis('bottom').setHeight(50)
+                        
+            zzz[i].setLabel('bottom', '%s'%xaxis[i], units='%s'%xunit[i],  **{'font-size':self.plot_font.pointSize()})
+            zzz[i].setLabel('left',   '%s'%yaxis[i], units='%s'%yunit[i],  **{'font-size':self.plot_font.pointSize()})       
+            zzz[i].showAxis('top') 
+            zzz[i].showAxis('right') 
+            zzz[i].getAxis('bottom').enableAutoSIPrefix(enable=False)
+            #zzz[i].autoRange()
+
+            zzz[i].getViewBox().parentItem().ctrlMenu.actions()[-4].setVisible(False) #removes the "Avarage" junk
 
         p16.getViewBox().setAspectLocked(True)
+
+
+       
+
+        
+        self.initialize_RV_subplots()
+        self.initialize_tra_subplots()
                
+        return
+
+
+
+    def initialize_RV_subplots(self):
+
+        global p1,p00,p01
+        
+        l = pg.GraphicsLayout()                                                             
+        p1.setCentralItem(l)                                                                                                                        
+
+        p00 = l.addPlot(0, 0, colspan=3)                                                                
+        p00.hideAxis('bottom')                                                              
+        p01 = l.addPlot(1, 0, colspan=1)                                                                
+        p01.setXLink(p00)                 
+
+
+        #for i in (1, 2):
+        l.layout.setRowMinimumHeight(0, 220)                                                    
+        l.layout.setRowMinimumHeight(1, 30)         
+        l.layout.setRowMaximumHeight(1, 150)                                                                                               
+        p00.showAxis('top') 
+        p00.showAxis('right') 
+        p01.showAxis('top') 
+        p01.showAxis('right') 
+ 
+        p00.ctrlMenu.actions()[-4].setVisible(False) #removes the submenu "Avarage" junk       
+        p01.ctrlMenu.actions()[-4].setVisible(False) #removes the submenu "Avarage" junk       
+
+
+        p00.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
+        p00.getAxis("left").tickFont = self.plot_font
+        #p00.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+        p00.getAxis("bottom").tickFont = self.plot_font
+        #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p00.setLabel('left', '%s'%p1.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p00.getAxis('right').setWidth(0)
+        p00.getAxis('top').setHeight(0)
+
+        p00.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+
+        #p00.getViewBox().setAspectLocked(lock=False, ratio=2)
+
+        p00.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p00.getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p00.getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p00.getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        #p00.getAxis('bottom').enableAutoSIPrefix(enable=False)
+
+
+        p01.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
+        p01.getAxis("left").tickFont = self.plot_font
+        p01.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+        p01.getAxis("bottom").tickFont = self.plot_font
+
+        #p01.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p01.setLabel('left', 'o-c [m/s]', units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p01.getAxis('right').setWidth(0)
+        p01.getAxis('top').setHeight(0)
+
+        p01.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+        p01.setLabel('bottom', '%s'%p2.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+
+
+        p01.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p01.getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p01.getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p01.getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p01.getAxis('bottom').enableAutoSIPrefix(enable=False)
+
+
+        ax0 = p00.getAxis('bottom')      #get handle to x-axis 0
+        ax0.setStyle(showValues=False)
+
+        l.layout.setSpacing(0.)                                                             
+        l.setContentsMargins(0., 0., 0., 0.)                                                
+
+
+        #fit.p1 = p1
+        return
+
+
+    def initialize_tra_subplots(self):
+
+        global p3,p30,p31
+        
+        ll = pg.GraphicsLayout()                                                             
+        p3.setCentralItem(ll)                                                                                                                        
+        
+        p30 = ll.addPlot(0, 0, colspan=3)                                                               
+        p30.hideAxis('bottom')                                                              
+        p31 = ll.addPlot(1, 0, colspan=1)                                                               
+        p31.setXLink(p30)                                                                     
+         
+        ll.layout.setRowMinimumHeight(0, 220)                                                    
+        ll.layout.setRowMinimumHeight(1, 30)         
+        #ll.layout.setRowMaximumHeight(1, 150)                                                                                               
+          
+        p30.showAxis('top') 
+        p30.showAxis('right') 
+        p31.showAxis('top') 
+        p31.showAxis('right') 
+  
+        p30.ctrlMenu.actions()[-4].setVisible(False) #removes the submenu "Avarage" junk       
+        p31.ctrlMenu.actions()[-4].setVisible(False) #removes the submenu "Avarage" junk       
+
+
+        #p30.autoRange(False)
+        #p31.autoRange(False)
+        
+        p30.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
+        p30.getAxis("left").tickFont = self.plot_font
+        #p00.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+        p30.getAxis("bottom").tickFont = self.plot_font
+        #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        
+        p30.getAxis('right').setWidth(0)
+        p30.getAxis('top').setHeight(0)
+        p30.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+        
+        p30.setLabel('left', '%s'%p3.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        
+        p30.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p30.getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p30.getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p30.getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p30.getAxis('bottom').enableAutoSIPrefix(enable=False)
+        
+         
+        
+        p31.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
+        p31.getAxis("left").tickFont = self.plot_font
+        p31.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+        p31.getAxis("bottom").tickFont = self.plot_font
+        
+        #p31.setLabel('left', '%s'%p4.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p31.setLabel('left', 'o-c', units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p31.getAxis('right').setWidth(0)
+        p31.getAxis('top').setHeight(0)
+        p31.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+        
+        p31.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p31.getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p31.getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p31.getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p31.getAxis('bottom').enableAutoSIPrefix(enable=False)
+        
+        p31.setLabel('bottom', '%s'%p4.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        
+        ax30 = p30.getAxis('bottom')      #get handle to x-axis 0
+        ax30.setStyle(showValues=False)
+        
+        ll.layout.setSpacing(0.)                                                             
+        ll.setContentsMargins(0., 0., 0., 0.)                                                
         return
 
 
@@ -2393,7 +2613,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def get_RV_GLS_plot_color(self):
         global fit
 
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
         fit.gls_colors[0]=colorz.name()   
 
         self.update_RV_GLS_plots() 
@@ -2402,7 +2622,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def get_RV_o_c_GLS_plot_color(self):
         global fit
         
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
         fit.gls_colors[1]=colorz.name()   
          
         self.update_RV_o_c_GLS_plots()  
@@ -2410,7 +2630,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def get_RV_GLS_alias_color(self):
         global fit
 
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
         colors_GLS_alias[0]=colorz.name()   
 
         self.update_RV_GLS_plots() 
@@ -2419,7 +2639,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def get_RV_MLP_alias_color(self):
         global fit
 
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
         colors_MLP_alias[0]=colorz.name()   
 
         self.update_RV_MLP_plots() 
@@ -2427,7 +2647,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def get_RV_jitter_color(self):
         global fit
 
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
         colors_RV_jitter[0]=colorz.name()   
 
         self.update_RV_plots() 
@@ -2453,12 +2673,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 p7.setLogMode(True,False)        
                 p7.plot(1/fit.gls.freq, fit.gls.power,pen={'color': fit.gls_colors[0], 'width': gls_model_width},symbol=None ) 
 
-                p7.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
+                p7.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})    
                 
             else:
                 p7.setLogMode(False,False)        
                 p7.plot(fit.gls.freq, fit.gls.power,pen={'color': fit.gls_colors[0], 'width': self.gls_model_width.value()},symbol=None )                
-                p7.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
+                p7.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
                 
                 
             if fit.gls.norm == 'ZK':
@@ -2495,12 +2715,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             if self.radioButton_RV_o_c_GLS_period.isChecked():
                 p8.setLogMode(True,False)        
                 p8.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen={'color': fit.gls_colors[1], 'width': gls_o_c_model_width},symbol=None ) 
-                p8.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})
+                p8.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})
  
             else:
                 p8.setLogMode(False,False)        
                 p8.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen={'color': fit.gls_colors[1], 'width': gls_o_c_model_width},symbol=None )   
-                p8.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'})                
+                p8.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()})                
                 
             if fit.gls_o_c.norm == 'ZK':
                 [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]            
@@ -2537,11 +2757,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             if self.radioButton_RV_WF_period.isChecked():
                 p12.setLogMode(True,False)        
                 p12.plot(1/np.array(omega), WF_power,pen='k',symbol=None , viewRect=True, enableAutoRange=True)   
-                p12.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})
+                p12.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})
             else:
                 p12.setLogMode(False,False)        
                 p12.plot(np.array(omega), WF_power,pen='k',symbol=None,  viewRect=True, enableAutoRange=True)   
-                p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'})
+                p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()})
 
             text_peaks, pos_peaks = self.identify_power_peaks(1/np.array(omega), WF_power)
 
@@ -2550,19 +2770,380 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(text_peaks))
 
 
+    def update_RV_plot(self):
+        global fit, p1
+
+        p1.plot(clear=True,)
+ 
+        p1.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
+  
+        if fit.doGP == True:
+            y_model = fit.fit_results.model + fit.gp_model_curve[0]
+        else:
+            y_model = fit.fit_results.model 
+            
+            
+        model_curve = p1.plot(fit.fit_results.model_jd,y_model, 
+        pen={'color': fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
+        
+        model_curve.setZValue(self.RV_model_z.value()) 
+        
+        
+        if fit.doGP == True:
+            pfill = pg.FillBetweenItem(p1.plot(fit.fit_results.model_jd, fit.fit_results.model + fit.gp_model_curve[0]+fit.gp_model_curve[2]), 
+                                       p1.plot(fit.fit_results.model_jd, fit.fit_results.model + fit.gp_model_curve[0]-fit.gp_model_curve[2]), 
+                                       brush = pg.mkColor(244,140,66,128))
+            p1.addItem(pfill) 
+ 
+
+        if self.jitter_to_plots.isChecked() and not self.split_jitter.isChecked():
+            error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.fit_results.idset)
+        elif self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
+            error_list = fit.fit_results.rv_model.rv_err
+            error_list2 = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.fit_results.idset)
+        else:
+            error_list = fit.fit_results.rv_model.rv_err
+
+
+        for i in range(max(fit.fit_results.idset)+1):
+            p1.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],fit.fit_results.rv_model.rvs[fit.fit_results.idset==i], 
+            pen=None, #{'color': colors[i], 'width': 1.1},
+            symbol=fit.pyqt_symbols_rvs[i],
+            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+, 'width': 1.1},
+            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            )
+
+            err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
+                                   y=fit.fit_results.rv_model.rvs[fit.fit_results.idset==i],symbol='o', 
+            #height=error_list[fit.filelist.idset==i],
+            top=error_list[fit.fit_results.idset==i],
+            bottom=error_list[fit.fit_results.idset==i],
+            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+
+            p1.addItem(err1)
+
+            if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
+
+                err1a = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
+                                       y=fit.fit_results.rv_model.rvs[fit.fit_results.idset==i],symbol='o', 
+                #height=error_list[fit.filelist.idset==i],
+                top=error_list2[fit.fit_results.idset==i],
+                bottom=error_list2[fit.fit_results.idset==i],
+                beam=0.0, pen=colors_RV_jitter[0])  
+                err1a.setZValue(-10)
+                p1.addItem(err1a)
+
+        if self.RV_plot_autorange.isChecked():
+            p1.autoRange() #padding=0
+
+        if self.RV_plot_cross_hair.isChecked():
+            self.cross_hair(p1,log=False)  
+            
+            
+    def update_RV_plot_o_c(self):
+        global fit, p2
+
+ 
+        p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
+
+        if len(fit.fit_results.idset)==0:
+            return
+
+        if self.jitter_to_plots.isChecked() and not self.split_jitter.isChecked():
+            error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.fit_results.idset)
+        elif self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
+            error_list = fit.fit_results.rv_model.rv_err
+            error_list2 = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.fit_results.idset)
+        else:
+            error_list = fit.fit_results.rv_model.rv_err
+        
+        if fit.doGP == True and self.plot_RV_GP_model.isChecked() == False:
+            pfill_o_c = pg.FillBetweenItem(p2.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]+fit.gp_model_curve[2]), 
+                                           p2.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]-fit.gp_model_curve[2]), 
+                                           brush = pg.mkColor(244,140,66,128))
+            p2.addItem(pfill_o_c)
+            y_model_o_c = fit.gp_model_curve[0]
+            data_o_c = fit.fit_results.rv_model.o_c 
+        elif fit.doGP == True and self.plot_RV_GP_model.isChecked() ==  True and len(fit.fit_results.rv_model.o_c)==len(fit.gp_model_data[0]):
+            data_o_c = fit.fit_results.rv_model.o_c - fit.gp_model_data[0]
+            y_model_o_c = np.zeros(len(fit.fit_results.model))
+        else:
+            data_o_c = fit.fit_results.rv_model.o_c
+            y_model_o_c = np.zeros(len(fit.fit_results.model))
+
+
+
+        model_curve_o_c = p2.plot(fit.fit_results.model_jd,y_model_o_c, 
+        pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
+        
+        
+        model_curve_o_c.setZValue(self.RV_model_z.value()) 
+
+ 
+            
+        for i in range(max(fit.fit_results.idset)+1):
+            p2.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],data_o_c[fit.fit_results.idset==i], 
+            pen=None, #{'color': colors[i], 'width': 1.1},
+            symbol=fit.pyqt_symbols_rvs[i],
+            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
+            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            )
+            err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
+                                   y=data_o_c[fit.fit_results.idset==i],symbol='o', 
+            #height=error_list[fit.filelist.idset==i],
+            top=error_list[fit.fit_results.idset==i],
+            bottom=error_list[fit.fit_results.idset==i],
+            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+
+            p2.addItem(err2)
+
+            if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
+
+                err2a = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
+                                       y=data_o_c[fit.fit_results.idset==i],symbol='o',
+                #height=error_list[fit.filelist.idset==i],
+                top=error_list2[fit.fit_results.idset==i],
+                bottom=error_list2[fit.fit_results.idset==i],
+                beam=0.0, pen='#000000')
+                err2a.setZValue(-10)
+                p2.addItem(err2a)
+
+        if self.RV_o_c_plot_cross_hair.isChecked():
+            self.cross_hair(p2,log=False)       
+            
+        if self.RV_plot_autorange.isChecked():
+            p2.autoRange()
+
+
+#    def control_RV_plot_add_o_c(self):
+
+#        if self.RV_plot_add_o_c.isChecked():
+#            self.update_RV_plot_with_o_c()
+#        else:
+#            p1.removeItem(p00)
+#            p1.removeItem(p01) 
+#            self.update_RV_plot()
+
     def update_RV_plots(self):
-        global fit, p1,p2
+        global fit, p1,p2,p00,p01
 
         p1.plot(clear=True,)
         p2.plot(clear=True,)
+
+
+
 
         self.check_RV_symbol_sizes()
         self.jitter_color_button.setStyleSheet("color: %s;"%colors_RV_jitter[0])
 
 
+        #print(self.RV_plot_add_o_c.isChecked())
+
+        if self.RV_plot_add_o_c.isChecked():
+            self.update_RV_plot_with_o_c()            
+        else:
+            #if hasattr(p1, 'p00'):
+           # p1.removeItem(-1)
+            #if hasattr(p1, 'p01'):
+            try:
+                p1.scene().removeItem(p00)
+                p1.scene().removeItem(p01)
+            #    p1.centralWidget = None
+            except:
+                pass
+            #p1  = self.graphicsView_timeseries_RV
+           # p1 = pz
+            self.update_RV_plot()
+
+        self.update_RV_plot_o_c()
+
+
+
+
+
+
+    def update_RV_plot_with_o_c(self):
+        global fit, p1,p2,p00,p01
+ 
+
+        #p1.scene().removeItem(-1)
+
+
+        if not self.hold_old_plot_RV.isChecked():    
+            p00.plot(clear=True,)
+            p01.plot(clear=True,)
+        else:
+            p00.plot(clear=False,)
+            p01.plot(clear=False,)
+ 
+        #fit.p1 = p1
+        self.check_RV_symbol_sizes()
+        self.jitter_color_button.setStyleSheet("color: %s;"%colors_RV_jitter[0])
+
+        if len(fit.fit_results.idset)==0:
+            return
+
+       # fit.p00 = p00
+
+        if fit.doGP == True:
+            #rv.get_RV_gps_model(self) 
+            y_model = fit.fit_results.model + fit.gp_model_curve[0]
+        else:
+            y_model = fit.fit_results.model 
+  
+
+        p00.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
+          
+            
+        model_curve = p00.plot(fit.fit_results.model_jd,y_model, 
+        pen={'color': fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
+        
+        model_curve.setZValue(self.RV_model_z.value()) 
+        
+        
+        if fit.doGP == True:
+            pfill = pg.FillBetweenItem(p00.plot(fit.fit_results.model_jd, fit.fit_results.model + fit.gp_model_curve[0]+fit.gp_model_curve[2]), 
+                                       p00.plot(fit.fit_results.model_jd, fit.fit_results.model + fit.gp_model_curve[0]-fit.gp_model_curve[2]), 
+                                       brush = pg.mkColor(244,140,66,128))
+            p00.addItem(pfill) 
+            
+            
+#        if len(fit.fit_results.rv_model.rv_err) != len(fit.filelist.idset) or len(fit.fit_results.rv_model.rv_err) ==0 :
+#            return
+
+        if self.jitter_to_plots.isChecked() and not self.split_jitter.isChecked():
+            error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.fit_results.idset)
+        elif self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
+            error_list = fit.fit_results.rv_model.rv_err
+            error_list2 = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.fit_results.idset)
+        else:
+            error_list = fit.fit_results.rv_model.rv_err
+
+
+        for i in range(max(fit.fit_results.idset)+1):
+            p00.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],fit.fit_results.rv_model.rvs[fit.fit_results.idset==i], 
+            pen=None, #{'color': colors[i], 'width': 1.1},
+            symbol=fit.pyqt_symbols_rvs[i],
+            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+, 'width': 1.1},
+            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            )
+
+            err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
+                                   y=fit.fit_results.rv_model.rvs[fit.fit_results.idset==i],symbol='o', 
+            #height=error_list[fit.filelist.idset==i],
+            top=error_list[fit.fit_results.idset==i],
+            bottom=error_list[fit.fit_results.idset==i],
+            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+
+            p00.addItem(err1)
+
+            if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
+
+                err1a = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
+                                       y=fit.fit_results.rv_model.rvs[fit.fit_results.idset==i],symbol='o', 
+                #height=error_list[fit.filelist.idset==i],
+                top=error_list2[fit.fit_results.idset==i],
+                bottom=error_list2[fit.fit_results.idset==i],
+                beam=0.0, pen=colors_RV_jitter[0])  
+                err1a.setZValue(-10)
+                p00.addItem(err1a)
+
+        if self.RV_plot_autorange.isChecked():
+            p00.autoRange() #padding=0
+
+        if self.RV_plot_cross_hair.isChecked():
+            self.cross_hair(p00,log=False)  
+            
+
+        p01.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
+
+        
+        if fit.doGP == True and self.plot_RV_GP_model.isChecked() == False:
+            pfill_o_c = pg.FillBetweenItem(p01.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]+fit.gp_model_curve[2]), 
+                                           p01.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]-fit.gp_model_curve[2]), 
+                                           brush = pg.mkColor(244,140,66,128))
+            p01.addItem(pfill_o_c)
+            y_model_o_c = fit.gp_model_curve[0]
+            data_o_c = fit.fit_results.rv_model.o_c 
+        elif fit.doGP == True and self.plot_RV_GP_model.isChecked() ==  True and len(fit.fit_results.rv_model.o_c)==len(fit.gp_model_data[0]):
+            data_o_c = fit.fit_results.rv_model.o_c - fit.gp_model_data[0]
+            y_model_o_c = np.zeros(len(y_model))
+        else:
+            data_o_c = fit.fit_results.rv_model.o_c
+            y_model_o_c = np.zeros(len(y_model))
+
+
+
+        model_curve_o_c = p01.plot(fit.fit_results.model_jd,y_model_o_c, 
+        pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        viewRect=True, labels =  {'left':'RV [m/s]', 'bottom':'JD'}) 
+        
+        
+        model_curve_o_c.setZValue(self.RV_model_z.value()) 
+
+ 
+            
+        for i in range(max(fit.fit_results.idset)+1):
+            p01.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],data_o_c[fit.fit_results.idset==i], 
+            pen=None, #{'color': colors[i], 'width': 1.1},
+            symbol=fit.pyqt_symbols_rvs[i],
+            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
+            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            )
+            err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
+                                   y=data_o_c[fit.fit_results.idset==i],symbol='o', 
+            #height=error_list[fit.filelist.idset==i],
+            top=error_list[fit.fit_results.idset==i],
+            bottom=error_list[fit.fit_results.idset==i],
+            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+
+            p01.addItem(err2)
+
+            if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
+
+                err2a = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
+                                       y=data_o_c[fit.fit_results.idset==i],symbol='o',
+                #height=error_list[fit.filelist.idset==i],
+                top=error_list2[fit.fit_results.idset==i],
+                bottom=error_list2[fit.fit_results.idset==i],
+                beam=0.0, pen='#000000')
+                err2a.setZValue(-10)
+                p01.addItem(err2a)
+
+        p01.setLabel('bottom', '%s'%p01.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p01.setLabel('left', '%s'%p01.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+
+
+        if self.RV_o_c_plot_cross_hair.isChecked():
+            self.cross_hair(p01,log=False)       
+            
+        if self.RV_plot_autorange.isChecked():
+            p01.autoRange()
+            
+
+
+    def update_RV_plots_old(self):
+        global fit, p1,p2
+
+        p1.plot(clear=True,)
+        p2.plot(clear=True,)
+ 
+        self.check_RV_symbol_sizes()
+        self.jitter_color_button.setStyleSheet("color: %s;"%colors_RV_jitter[0])
+
         if len(fit.fit_results.idset)==0:
             return
  
+
         p1.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
   
         if fit.doGP == True:
@@ -2626,7 +3207,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 bottom=error_list2[fit.fit_results.idset==i],
                 beam=0.0, pen=colors_RV_jitter[0])  
                 err1a.setZValue(-10)
-                p1.addItem(err1a)
+                p0.addItem(err1a)
 
         if self.RV_plot_autorange.isChecked():
             p1.autoRange() #padding=0
@@ -2647,7 +3228,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             pfill_o_c = pg.FillBetweenItem(p2.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]+fit.gp_model_curve[2]), 
                                            p2.plot(fit.fit_results.model_jd, fit.gp_model_curve[0]-fit.gp_model_curve[2]), 
                                            brush = pg.mkColor(244,140,66,128))
-            p2.addItem(pfill_o_c)
+            p00.addItem(pfill_o_c)
             y_model_o_c = fit.gp_model_curve[0]
             data_o_c = fit.fit_results.rv_model.o_c 
         elif fit.doGP == True and self.plot_RV_GP_model.isChecked() ==  True and len(fit.fit_results.rv_model.o_c)==len(fit.gp_model_data[0]):
@@ -2659,7 +3240,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
 
 
-        model_curve_o_c = p2.plot(fit.fit_results.model_jd,y_model_o_c, 
+        model_curve_o_c = p00.plot(fit.fit_results.model_jd,y_model_o_c, 
         pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
@@ -2683,7 +3264,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             bottom=error_list[fit.fit_results.idset==i],
             beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
 
-            p2.addItem(err2)
+            p00.addItem(err2)
 
             if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
 
@@ -2694,10 +3275,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 bottom=error_list2[fit.fit_results.idset==i],
                 beam=0.0, pen='#000000')
                 err2a.setZValue(-10)
-                p2.addItem(err2a)
+                p00.addItem(err2a)
 
         if self.RV_o_c_plot_cross_hair.isChecked():
-            self.cross_hair(p2,log=False)       
+            self.cross_hair(p00,log=False)       
             
         if self.RV_plot_autorange.isChecked():
             p2.autoRange()
@@ -2710,6 +3291,20 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         p3.plot(clear=True,)
         p4.plot(clear=True,)
+
+
+        #if self.tra_plot_add_o_c.isChecked():
+ 
+
+        if not self.hold_old_plot_tra.isChecked():    
+            p30.plot(clear=True,)
+            p31.plot(clear=True,)
+        else:
+            p30.plot(clear=False,)
+            p31.plot(clear=False,)            
+            
+        #p30.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
+
 
         self.check_tra_symbol_sizes()
 
@@ -2744,9 +3339,20 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             flux_model   = np.array(transit_results_sep[3][j])
             
             if fit.tra_doGP == True:
-                tr_o_c       = np.array(transit_results_sep[5][j])
+                if self.plot_transit_GP_model.isChecked():
+                    tr_o_c       = np.array(transit_results_sep[5][j])                
+                else:
+                    tr_o_c       = np.array(transit_results_sep[4][j])
             else:
                 tr_o_c       = np.array(transit_results_sep[4][j])
+
+#        elif fit.doGP == True and self.plot_RV_GP_model.isChecked() ==  True and len(fit.fit_results.rv_model.o_c)==len(fit.gp_model_data[0]):
+#            data_o_c = fit.fit_results.rv_model.o_c - fit.gp_model_data[0]
+#            y_model_o_c = np.zeros(len(fit.fit_results.model))
+#        else:
+#            data_o_c = fit.fit_results.rv_model.o_c
+#            y_model_o_c = np.zeros(len(fit.fit_results.model))
+
  
             ############### Phase signal TBD this should not be here! ####################################
 
@@ -2776,29 +3382,84 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 #t_model = model_time_phase[sort2] 
                # flux_model_ex    = flux_model_ex[sort2] 
                 #fit.ph_model_tra[i] = [model_time_phase[sort2] ,flux_model_ex[sort2]]
-
-                p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
+                if self.tra_plot_add_o_c.isChecked():
+                    p31.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+                else:
+                    p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
             else:
-                p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'9pt'})
+
+                if self.tra_plot_add_o_c.isChecked():
+                    p31.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+                   # p31.getAxis("bottom").setTickFont= self.plot_font
+                    p31.getAxis("bottom").setStyle(tickTextOffset = 2)
+                    p31.getAxis("left").setStyle(tickTextOffset = 2)
+                    p30.getAxis("left").setStyle(tickTextOffset = 2)
+
+                else:
+                    p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                  #  p3.getAxis("bottom").setTickFont= self.plot_font
+                    p3.getAxis("bottom").setStyle(tickTextOffset = 2)                
+                    p3.getAxis("left").setStyle(tickTextOffset = 2) 
+
+
                 self.tra_xaxis_offset.setEnabled(False) 
-                self.trans_phase_slider.setEnabled(False) 
+                self.trans_phase_slider.setEnabled(False)
 
-            #print(len(t),len(flux),len(flux_err))
+            p01.setLabel('bottom', '%s'%p01.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            p01.setLabel('left', '%s'%p01.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
 
-            p3.plot(t, flux,
-            pen=None,
-            symbol=fit.pyqt_symbols_tra[j],
-            symbolPen={'color': fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]), 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]) ) 
-            
-            err_ = pg.ErrorBarItem(x=t, y=flux, symbol = fit.pyqt_symbols_tra[j],
-                                  # height=flux_err, 
-                                   top=flux_err, 
-                                   bottom=flux_err,
-                                   beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]))
 
-            p3.addItem(err_)
+
+            if self.tra_plot_add_o_c.isChecked():
+
+                p30.plot(t, flux,
+                pen=None,
+                symbol=fit.pyqt_symbols_tra[j],
+                symbolPen={'color': fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]), 'width': 1.1},
+                symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
+                symbolBrush=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]) ) 
+                
+                err_ = pg.ErrorBarItem(x=t, y=flux, symbol = fit.pyqt_symbols_tra[j],
+                                      # height=flux_err, 
+                                       top=flux_err, 
+                                       bottom=flux_err,
+                                       beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]))
+
+                p30.addItem(err_)
+
+                p31.plot(t, tr_o_c,
+                pen=None,
+                symbol=fit.pyqt_symbols_tra[j],
+                symbolPen={'color': fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]), 'width': 1.1},
+                symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
+                symbolBrush=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]) )
+
+                err_ = pg.ErrorBarItem(x=t, y=tr_o_c, symbol=fit.pyqt_symbols_tra[j],
+               # height=flux_err,
+                top=flux_err,
+                bottom=flux_err,
+                beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]))
+                p31.addItem(err_)
+
+            else:
+
+                p3.plot(t, flux,
+                pen=None,
+                symbol=fit.pyqt_symbols_tra[j],
+                symbolPen={'color': fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]), 'width': 1.1},
+                symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
+                symbolBrush=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]) ) 
+                
+                err_ = pg.ErrorBarItem(x=t, y=flux, symbol = fit.pyqt_symbols_tra[j],
+                                      # height=flux_err, 
+                                       top=flux_err, 
+                                       bottom=flux_err,
+                                       beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]))
+
+                p3.addItem(err_)
+
+
+
 
             p4.plot(t, tr_o_c,
             pen=None,
@@ -2807,7 +3468,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]) )
 
-            err_ = pg.ErrorBarItem(x=t, y=flux-flux_model, symbol=fit.pyqt_symbols_tra[j],
+            err_ = pg.ErrorBarItem(x=t, y=tr_o_c, symbol=fit.pyqt_symbols_tra[j],
            # height=flux_err,
             top=flux_err,
             bottom=flux_err,
@@ -2824,14 +3485,25 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         if fit.tra_doGP == True:
             y_model =  transit_results_all[6] #fit.tra_gp_model_curve[0]
-            y_model_o_c = transit_results_all[6] - transit_results_all[3]  #fit.tra_gp_model_curve[0]
+            if self.plot_transit_GP_model.isChecked():
+                y_model_o_c = np.zeros(len(flux_model_ex))       
+            else:
+                y_model_o_c = transit_results_all[6] - transit_results_all[3]  #fit.tra_gp_model_curve[0]
         else:
             y_model = flux_model_ex 
             y_model_o_c = np.zeros(len(flux_model_ex))
 
         if len(t_model) != 0:
-            model_curve = p3.plot(t_model,y_model, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
+
+            if self.tra_plot_add_o_c.isChecked():
+                model_curve = p30.plot(t_model,y_model, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
+            enableAutoRange=True,viewRect=True )
+                model_curve_o_c = p31.plot(t_model,y_model_o_c, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
             enableAutoRange=True,viewRect=True ) 
+            else:
+                model_curve = p3.plot(t_model,y_model, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
+            enableAutoRange=True,viewRect=True ) 
+
             model_curve_o_c = p4.plot(t_model,y_model_o_c, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
             enableAutoRange=True,viewRect=True ) 
 
@@ -2839,16 +3511,25 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             model_curve_o_c.setZValue(self.tra_model_z.value())
 
         if self.trans_plot_cross_hair.isChecked():
-            self.cross_hair(p3,log=False)
+
+            if self.tra_plot_add_o_c.isChecked():
+                self.cross_hair(p30,log=False)
+                self.cross_hair(p31,log=False)
+            else:            
+                self.cross_hair(p3,log=False)
 
         if self.trans_o_c_plot_cross_hair.isChecked():
             self.cross_hair(p4,log=False)  
 
         if self.tra_plot_autorange.isChecked():
-            p3.autoRange()
+            if self.tra_plot_add_o_c.isChecked():
+                p30.autoRange()                
+                p31.autoRange()
+            else:
+                p3.autoRange()
             p4.autoRange()
 
-
+#plot_transit_GP_model
 
 ######################## Correlation plots ###################################### 
 
@@ -2976,7 +3657,7 @@ Polyfit coefficients:
     def get_corr_color(self):
         global fit
         
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
         colors[0]=colorz.name()
 
         self.update_correlations_data_plots()
@@ -2984,10 +3665,10 @@ Polyfit coefficients:
     def corr_plot_x_labels(self):
         global fit
         
-        text, okPressed = QtGui.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p6.setLabel('bottom', '%s'%text, units='',  **{'font-size':'9pt'})
+            p6.setLabel('bottom', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
  
         else:
             return
@@ -2998,10 +3679,10 @@ Polyfit coefficients:
     def corr_plot_y_labels(self):
         global fit
         
-        text, okPressed = QtGui.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p6.setLabel('left', '%s'%text, units='',  **{'font-size':'9pt'})
+            p6.setLabel('left', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
 
         else:
             return
@@ -3037,12 +3718,12 @@ Polyfit coefficients:
             if self.radioButton_act_GLS_period.isChecked():
                 p11.setLogMode(True,False)        
                 p11.plot(1/act_per.freq, act_per.power,pen=fit.colors[ind],symbol=None ) 
-                p11.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'}) 
+                p11.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
 
             else:
                 p11.setLogMode(False,False)        
                 p11.plot(act_per.freq, act_per.power,pen=fit.colors[ind],symbol=None )
-                p11.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
+                p11.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
 
             [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
   
@@ -3079,7 +3760,7 @@ Polyfit coefficients:
             symbolBrush=fit.colors[ind]
             )
 
-            p5.setLabel('left', 'y', units='',  **{'font-size':'9pt'})
+            p5.setLabel('left', 'y', units='',  **{'font-size':self.plot_font.pointSize()})
 
             return
         else:
@@ -3227,7 +3908,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 #    def get_ttv_plot_color(self):
 #        global fit
         
-#        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+#        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
 #        fit.ttv_colors[0]=colorz.name()   
         
 #        self.update_ttv_plots() 
@@ -3235,7 +3916,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 #    def get_ttv_model_color(self):
 #        global fit
         
-#        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+#        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
 #        fit.ttv_colors[-1]=colorz.name()   
         
 #        self.update_ttv_plots() 
@@ -3343,8 +4024,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def get_per_rat_color(self):
         global fit, colors_per_rat
         
-        #colorz = QtGui.QColorDialog.getColor()
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        #colorz = QtWidgets.QColorDialog.getColor()
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
         colors_per_rat[0]=colorz.name()   
  
         self.plot_per_rat()
@@ -3352,10 +4033,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def per_rat_plot_x_labels(self):
         global fit, p_per_ev
         
-        text, okPressed = QtGui.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p_per_ev.setLabel('bottom', '%s'%text, units='',  **{'font-size':'9pt'})
+            p_per_ev.setLabel('bottom', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
  
         else:
             return
@@ -3366,10 +4047,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def per_rat_plot_y_labels(self):
         global fit, p_per_ev
         
-        text, okPressed = QtGui.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p_per_ev.setLabel('left', '%s'%text, units='',  **{'font-size':'9pt'})
+            p_per_ev.setLabel('left', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
  
         else:
             return
@@ -3435,8 +4116,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def get_delta_omega_color(self):
         global fit, colors_delta_om
         
-        #colorz = QtGui.QColorDialog.getColor()
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        #colorz = QtWidgets.QColorDialog.getColor()
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
         colors_delta_om[0]=colorz.name()   
  
         self.plot_delta_omega()
@@ -3444,10 +4125,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def delta_omega_plot_x_labels(self):
         global fit, p17
         
-        text, okPressed = QtGui.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p17.setLabel('bottom', '%s'%text, units='',  **{'font-size':'9pt'})
+            p17.setLabel('bottom', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
  
         else:
             return
@@ -3458,10 +4139,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def delta_omega_plot_y_labels(self):
         global fit, p17
         
-        text, okPressed = QtGui.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtGui.QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p17.setLabel('left', '%s'%text, units='',  **{'font-size':'9pt'})
+            p17.setLabel('left', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
  
         else:
             return
@@ -3569,15 +4250,15 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                      
             x = fit.evol_e[e_ind][0:last_stable]*np.cos(np.radians(theta[tet_n]))
             y = fit.evol_e[e_ind][0:last_stable]*np.sin(np.radians(theta[tet_n])) 
-            p18.setLabel('bottom', '<html><head/><body><p>e%s cos(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
-            p18.setLabel('left', '<html><head/><body><p>e%s sin(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':'9pt'}) 
+            p18.setLabel('bottom', '<html><head/><body><p>e%s cos(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p18.setLabel('left', '<html><head/><body><p>e%s sin(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
             p18.getViewBox().setAspectLocked(True)
 
         else:
             x = fit.evol_T[0][0:last_stable]
             y = theta[tet_n]
-            p18.setLabel('bottom', 't [yr]', units='',  **{'font-size':'9pt'}) 
-            p18.setLabel('left', '<html><head/><body><p>&theta;%s [deg] </p></body></html>'%(tet_n+1), units='',  **{'font-size':'9pt'}) 
+            p18.setLabel('bottom', 't [yr]', units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p18.setLabel('left', '<html><head/><body><p>&theta;%s [deg] </p></body></html>'%(tet_n+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
             p18.getViewBox().setAspectLocked(False)
            
 
@@ -3591,7 +4272,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def get_theta_color(self):
         global fit, colors_delta_om
         
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
         colors_theta[0]=colorz.name()   
  
         self.plot_theta()
@@ -3599,10 +4280,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def theta_plot_x_labels(self):
         global fit, p18
         
-        text, okPressed = QtGui.QInputDialog.getText(self, "x-axis label","", QtGui.QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p18.setLabel('bottom', '%s'%text, units='',  **{'font-size':'9pt'})
+            p18.setLabel('bottom', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
 
         else:
             return
@@ -3613,10 +4294,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def theta_plot_y_labels(self):
         global fit, p18
 
-        text, okPressed = QtGui.QInputDialog.getText(self, "y-axis label","", QtGui.QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","", QtWidgets.QLineEdit.Normal, "")
 
         if okPressed and text != '':
-            p18.setLabel('left', '%s'%text, units='',  **{'font-size':'9pt'})
+            p18.setLabel('left', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
 
         else:
             return
@@ -3637,7 +4318,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         if self.plot_i.isChecked():
             for i in range(npl):
                 p19.plot(fit.evol_T[i], fit.evol_i[i] ,pen=fit.colors[i],symbol=None )    
-            p19.setLabel('left', 'i [deg]', units='',  **{'font-size':'9pt'})    
+            p19.setLabel('left', 'i [deg]', units='',  **{'font-size':self.plot_font.pointSize()})    
     
         elif self.plot_Om.isChecked():
             for i in range(npl):
@@ -3654,7 +4335,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 symbolBrush=fit.colors[i]
                 )
                 
-            p19.setLabel('left', '<html><head/><body><p>&Omega; [deg] </p></body></html>', units='',  **{'font-size':'9pt'}) 
+            p19.setLabel('left', '<html><head/><body><p>&Omega; [deg] </p></body></html>', units='',  **{'font-size':self.plot_font.pointSize()}) 
                 
             Om_evol = 0
  
@@ -3670,19 +4351,19 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         if self.radioButton_energy.isChecked():
  
             p20.plot(fit.evol_T_energy, fit.evol_energy ,pen=fit.colors[0],symbol=None )    
-            p20.setLabel('left', 'Energy', units='',  **{'font-size':'9pt'})    
+            p20.setLabel('left', 'Energy', units='',  **{'font-size':self.plot_font.pointSize()})    
     
         elif self.radioButton_lx.isChecked():
             p20.plot(fit.evol_T_energy, fit.evol_momentum['lx'] ,pen=fit.colors[0],symbol=None )    
-            p20.setLabel('left', 'Momentum lx', units='',  **{'font-size':'9pt'})    
+            p20.setLabel('left', 'Momentum lx', units='',  **{'font-size':self.plot_font.pointSize()})    
 
         elif self.radioButton_ly.isChecked():
             p20.plot(fit.evol_T_energy, fit.evol_momentum['ly'] ,pen=fit.colors[0],symbol=None )    
-            p20.setLabel('left', 'Momentum ly', units='',  **{'font-size':'9pt'}) 
+            p20.setLabel('left', 'Momentum ly', units='',  **{'font-size':self.plot_font.pointSize()}) 
             
         elif self.radioButton_lz.isChecked():
             p20.plot(fit.evol_T_energy, fit.evol_momentum['lz'] ,pen=fit.colors[0],symbol=None )    
-            p20.setLabel('left', 'Momentum lz', units='',  **{'font-size':'9pt'})                    
+            p20.setLabel('left', 'Momentum lz', units='',  **{'font-size':self.plot_font.pointSize()})                    
  
     
     def plot_evol_a(self):
@@ -3903,8 +4584,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 err_2.setZValue(-10)
                 pe.addItem(err_2) 
         pe.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)
-        pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'9pt'})
-        pe.setLabel('left',   'RV [m/s]', units='',  **{'font-size':'9pt'})  
+        pe.setLabel('bottom', 'phase [days]', units='',  **{'font-size':self.plot_font.pointSize()})
+        pe.setLabel('left',   'RV [m/s]', units='',  **{'font-size':self.plot_font.pointSize()})  
 
         if self.extra_plot_cross_hair.isChecked():
             self.cross_hair(pe,log=False)   
@@ -3923,13 +4604,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if self.radioButton_RV_GLS_period.isChecked():
                 pe.setLogMode(True,False)        
                 pe.plot(1/fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-                pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
-                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
+                pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})    
+                pe.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
             else:
                 pe.setLogMode(False,False)
                 pe.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-                pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
-                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
+                pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
+                pe.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
     
             if fit.gls.norm == 'ZK':
                 [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
@@ -3949,13 +4630,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if self.radioButton_RV_o_c_GLS_period.isChecked():
                 pe.setLogMode(True,False)        
                 pe.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None ) 
-                pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
-                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
+                pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})    
+                pe.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
             else:
                 pe.setLogMode(False,False)        
                 pe.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None )                    
-                pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
-                pe.setLabel('left', 'Power', units='',  **{'font-size':'9pt'})    
+                pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
+                pe.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
     
     
             if fit.gls.norm == 'ZK':
@@ -4055,7 +4736,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         elif fit.tra_gp_kernel == 'dSHOKernel':
             self.use_tra_GP_double_sho_kernel.setChecked(True)             
 
-    def set_use_GP(self):
+
+    def set_use_RV_GP(self):
         global fit
 
         if  self.do_RV_GP.isChecked():
@@ -4066,10 +4748,30 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.gls_o_c_GP.setChecked(False)
             self.gls_o_c_GP.setEnabled(False)
 
+    def set_use_tra_GP(self):
+        global fit
+
         if  self.do_tra_GP.isChecked():
             fit.tra_doGP = True
         else:
             fit.tra_doGP = False
+
+
+#    def set_use_GP(self):
+#        global fit
+#
+#        if  self.do_RV_GP.isChecked():
+#            fit.doGP = True
+#            self.gls_o_c_GP.setEnabled(True)
+#        else:
+#            fit.doGP = False
+#            self.gls_o_c_GP.setChecked(False)
+#            self.gls_o_c_GP.setEnabled(False)
+
+#        if  self.do_tra_GP.isChecked():
+#            fit.tra_doGP = True
+#        else:
+#            fit.tra_doGP = False
             
             
     def set_gui_use_GP(self):
@@ -4079,12 +4781,12 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.do_RV_GP.setChecked(True)
         else:
             self.do_RV_GP.setChecked(False)
-
-        if  fit.tra_doGP == True:
+ 
+        if  fit.tra_doGP:
             self.do_tra_GP.setChecked(True)
         else:
             self.do_tra_GP.setChecked(False)
-         
+ 
         self.set_gui_RV_GP()
         self.set_gui_tra_GP()            
        
@@ -4196,11 +4898,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             
                 
 ################################ RV files #######################################################
-
     def showDialog_fortran_input_file(self):
         global fit, ses_list
  
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.init)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.init)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
         
         if str(input_files[0]) != '':
             fit_new=rv.signal_fit(str(input_files[0]), 'RVmod session',readinputfile=True)
@@ -4220,17 +4921,17 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def showDialog_RVbank_input_file(self):
         global fit, ses_list
 
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RVBank data', '', 'All (*.*);;Data (*.csv)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open RVBank data', '', 'All (*.*);;Data (*.csv)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
 
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
+            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Do you want to split the RV data to pre- and post- (if applicable)?",
-                                            QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
+                                            QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)  
 
-            if choice == QtGui.QMessageBox.No:
+            if choice == QtWidgets.QMessageBox.No:
                 fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = False)
-            elif choice == QtGui.QMessageBox.Yes:            
+            elif choice == QtWidgets.QMessageBox.Yes:            
                 fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = True)
             else:
                 return
@@ -4410,7 +5111,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_add_RV_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open RV data', '', 'All (*.*);;Data (*.vels)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open RV data', '', 'All (*.*);;Data (*.vels)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
 
@@ -4522,7 +5223,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_transit_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'All (*.*);;Data (*.tran)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'All (*.*);;Data (*.tran)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
             
@@ -4613,7 +5314,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_activity_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'All (*.*);;Data (*.act)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'All (*.*);;Data (*.act)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
 
@@ -4668,7 +5369,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_ttv_data.checkedId()   
-        input_files = QtGui.QFileDialog.getOpenFileName(self, 'Open TTV data', '', 'All (*.*);;Data (*.ttv)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open TTV data', '', 'All (*.*);;Data (*.ttv)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
         
         
         planet_N     = self.ttv_data_to_planet[but_ind-1].value()
@@ -4827,8 +5528,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             resid = False
         
         #if z <= 0:
-        #    choice = QtGui.QMessageBox.information(self, 'Warning!',
-        #    "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
+        #    choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+        #    "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.Ok)      
         #    self.calc_TLS.setEnabled(True)         
         #    return   
 
@@ -4911,11 +5612,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if self.radioButton_RV_MLP_period.isChecked():
                 p_mlp.setLogMode(True,False)        
                 p_mlp.plot(1/fit.mlp.freq, fit.mlp.power,pen={'color': fit.gls_colors[0], 'width': gls_model_width},symbol=None ) 
-                p_mlp.setLabel('bottom', 'period [d]', units='',  **{'font-size':'9pt'})    
+                p_mlp.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})    
             else:
                 p_mlp.setLogMode(False,False)        
                 p_mlp.plot(fit.mlp.freq, fit.mlp.power,pen={'color': fit.gls_colors[0], 'width': self.gls_model_width.value()},symbol=None )                
-                p_mlp.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'9pt'}) 
+                p_mlp.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
 
             if fit.mlp.norm == 'dlnL':
                 [p_mlp.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for fap in np.array(power_levels)]
@@ -4967,8 +5668,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 z=z+1
 
         if z <= 0:
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
-            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)
+            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.Ok)
             self.calc_TLS.setEnabled(True)
             return   
 
@@ -5179,8 +5880,8 @@ Transit duration: %s d
                 z=z+1
         
         if z <= 0:
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
-            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
+            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.Ok)      
            # self.button_fit.setEnabled(True)
             self.mute_buttons(trigger=True)
             self.update_transit_plots()
@@ -5189,8 +5890,8 @@ Transit duration: %s d
         
         if fit.type_fit["RV"] == True:
              if fit.filelist.ndset <= 0:
-                 choice = QtGui.QMessageBox.information(self, 'Warning!',
-                 "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
+                 choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+                 "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtWidgets.QMessageBox.Ok)      
                  #self.button_fit.setEnabled(True)   
                  self.mute_buttons(trigger=True)
                  return   
@@ -5351,22 +6052,22 @@ Transit duration: %s d
             else:
                 z=z+1
                 if fit.ttv_data_sets[i][3] > fit.npl and fit.ttv_data_sets[i][4] == True:
-                    choice = QtGui.QMessageBox.information(self, 'Warning!',"TTV dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ttv_data_sets[i][3]), QtGui.QMessageBox.Ok)      
+                    choice = QtWidgets.QMessageBox.information(self, 'Warning!',"TTV dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ttv_data_sets[i][3]), QtWidgets.QMessageBox.Ok)      
                     #self.button_fit.setEnabled(True)
                     self.mute_buttons(trigger=True)
                     return 
 
         if z <= 0:
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
-            "Not possible to model planets if there are no TTV data loaded. Please add your TTV data first. Okay?", QtGui.QMessageBox.Ok)      
+            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+            "Not possible to model planets if there are no TTV data loaded. Please add your TTV data first. Okay?", QtWidgets.QMessageBox.Ok)      
             #self.button_fit.setEnabled(True)
             self.mute_buttons(trigger=True)
             return 
 
         if fit.type_fit["RV"] == True:
              if fit.filelist.ndset <= 0:
-                 choice = QtGui.QMessageBox.information(self, 'Warning!',
-                 "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)
+                 choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+                 "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtWidgets.QMessageBox.Ok)
                  #self.button_fit.setEnabled(True)
                  self.mute_buttons(trigger=True)
 
@@ -5445,14 +6146,14 @@ Transit duration: %s d
  
         # check if any fits where performed, and tus planets present
         if len(np.atleast_1d(npl_to_fit)) == 1 and npl_to_fit[0] <= 0:
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
-            "Not possible to integrate a fit that does not exist. First perform an orbital fitting and then test the orbital stability. Okay?", QtGui.QMessageBox.Ok)      
+            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+            "Not possible to integrate a fit that does not exist. First perform an orbital fitting and then test the orbital stability. Okay?", QtWidgets.QMessageBox.Ok)      
             self.button_orb_evol.setEnabled(True)         
             return        
 
         if fit.npl < 2:
-            choice = QtGui.QMessageBox.information(self, 'Warning!'," With less than two planets this makes no sense. Okay?",
-                                            QtGui.QMessageBox.Ok) 
+            choice = QtWidgets.QMessageBox.information(self, 'Warning!'," With less than two planets this makes no sense. Okay?",
+                                            QtWidgets.QMessageBox.Ok) 
             self.button_orb_evol.setEnabled(True)                    
             return
         
@@ -5487,8 +6188,8 @@ Transit duration: %s d
         print(fit.npl_arb)
 
         if fit.npl_arb < 2:
-            choice = QtGui.QMessageBox.information(self, 'Warning!'," With less than two planets this makes no sense. Okay?",
-                                            QtGui.QMessageBox.Ok) 
+            choice = QtWidgets.QMessageBox.information(self, 'Warning!'," With less than two planets this makes no sense. Okay?",
+                                            QtWidgets.QMessageBox.Ok) 
             self.run_orb_evol_arbitary.setEnabled(True)                    
             return
  
@@ -5579,8 +6280,8 @@ Transit duration: %s d
         
         # check if RV data is present
         if fit.filelist.ndset <= 0:
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
+             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+             "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtWidgets.QMessageBox.Ok)      
              #self.button_fit.setEnabled(True)
              self.mute_buttons(trigger=True)
              return   
@@ -6106,15 +6807,15 @@ will be highly appreciated!
 
         # check if RV data is present
         if fit.filelist.ndset <= 0:
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
+             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+             "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtWidgets.QMessageBox.Ok)      
              #self.mute_buttons(trigger=True)       
              return        
 
         # the first one on the data GLS
         if fit.gls.power.max() <= fit.gls.powerLevel(self.auto_fit_FAP_level.value()):
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "No significant power on the GLS. Therefore no planets to fit OK?", QtGui.QMessageBox.Ok)      
+             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+             "No significant power on the GLS. Therefore no planets to fit OK?", QtWidgets.QMessageBox.Ok)      
              #self.mute_buttons(trigger=True)                                                          
              return
         
@@ -6184,16 +6885,16 @@ will be highly appreciated!
         self.mute_buttons(trigger=False)    
         
         if fit.npl != 0:        
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
+            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Planets already exist. Do you want to overwrite the analysis?",
-                                            QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
+                                            QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)  
 
-            if choice == QtGui.QMessageBox.No:
+            if choice == QtWidgets.QMessageBox.No:
                 #self.button_auto_fit.setEnabled(True)
                 self.mute_buttons(trigger=True)
 
                 return
-            elif choice == QtGui.QMessageBox.Yes:
+            elif choice == QtWidgets.QMessageBox.Yes:
                 for j in range(fit.npl):
                     fit.remove_planet(fit.npl-(j+1))
                 
@@ -6336,7 +7037,7 @@ will be highly appreciated!
     def getNewses(self):
         global fit, ses_list  
         
-        text, okPressed = QtGui.QInputDialog.getText(self, "New session","Name session: (No special characters!)", QtGui.QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "New session","Name session: (No special characters!)", QtWidgets.QLineEdit.Normal, "")
         if okPressed and text != '':
             
             if len(ses_list) == 0:
@@ -6361,13 +7062,13 @@ will be highly appreciated!
         
         ind = self.comboBox_select_ses.currentIndex()
         
-        choice = QtGui.QMessageBox.information(self, 'Warning!',
+        choice = QtWidgets.QMessageBox.information(self, 'Warning!',
         "Do you really want to remove Session %s"%(ses_list[ind].name),
-                                            QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
+                                            QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)  
          
-        if choice == QtGui.QMessageBox.No:
+        if choice == QtWidgets.QMessageBox.No:
             return
-        elif choice == QtGui.QMessageBox.Yes: # and ind <=0:
+        elif choice == QtWidgets.QMessageBox.Yes: # and ind <=0:
             if len(ses_list)==1:
                 ses_list.pop(0)         
                 self.new_session()
@@ -6411,7 +7112,7 @@ will be highly appreciated!
     def open_session(self):
         global fit,ses_list
 
-        input_file = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.ses)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        input_file = QtWidgets.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.ses)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
         if str(input_file[0]) != '':
 
@@ -6441,8 +7142,9 @@ will be highly appreciated!
     def save_session(self):
         global fit
         
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save session', '%s.ses'%fit.name, 'Data (*.ses)', options=QtGui.QFileDialog.DontUseNativeDialog)
-        
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save session', '%s.ses'%fit.name, 'Data (*.ses)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+
+
         if str(output_file[0]) != '':
             file_pi = open(output_file[0], 'wb')
             dill.dump(fit, file_pi) #,protocol=2
@@ -6460,7 +7162,7 @@ will be highly appreciated!
     def open_sessions(self):
         global fit, ses_list
 
-        input_file = QtGui.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.mses)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        input_file = QtWidgets.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.mses)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
         if str(input_file[0]) != '':
 
@@ -6475,15 +7177,15 @@ will be highly appreciated!
                 #self.check_for_missing_instances(jj)
 
 
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
+            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Do you want to overwrite the current sessions? If you choose 'No' will add the session, 'Cancel' will exit",
-                                            QtGui.QMessageBox.Cancel | QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)  
+                                            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)  
 
-            if choice == QtGui.QMessageBox.No:
+            if choice == QtWidgets.QMessageBox.No:
                 ses_list = ses_list + fit2
-            elif choice == QtGui.QMessageBox.Yes:
+            elif choice == QtWidgets.QMessageBox.Yes:
                 ses_list = fit2
-            elif choice == QtGui.QMessageBox.Cancel:
+            elif choice == QtWidgets.QMessageBox.Cancel:
                 return
 
 
@@ -6494,7 +7196,7 @@ will be highly appreciated!
     def save_sessions(self):
         global fit, ses_list
 
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save multi-session', 'my_sessions.mses', 'Data (*.mses)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save multi-session', 'my_sessions.mses', 'Data (*.mses)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
         if str(output_file[0]) != '':
             file_pi = open(output_file[0], 'wb')
@@ -6538,7 +7240,7 @@ will be highly appreciated!
         self.update_bounds()
 
         #self.init_fit()
-       # print(fit.P)
+
         fit.update_rv_params()
 
         if len(fit.tra_data_sets) == 10:
@@ -6563,6 +7265,8 @@ will be highly appreciated!
  
         self.set_gui_use_GP()
         self.check_use_tra_GP()
+
+
         #self.init_fit()
         #self.update_use_from_input_file()
         #self.update_use()
@@ -6660,8 +7364,8 @@ will be highly appreciated!
         self.statusBar().showMessage('Nested Sampling in progress....')
         # check if RV data is present
         if fit.type_fit["RV"] == True and fit.filelist.ndset <= 0:
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "Not possible to run Nested Sampling if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
+             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+             "Not possible to run Nested Sampling if there are no RV data loaded. Please add your RV data first. Okay?", QtWidgets.QMessageBox.Ok)      
             # self.button_nest_samp.setEnabled(True)  
              self.statusBar().showMessage('') 
              return
@@ -6671,8 +7375,8 @@ will be highly appreciated!
             ntran_data += len(fit.tra_data_sets[i]) 
 
         if fit.type_fit["Transit"] == True  and ntran_data == 0:
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "Not possible to run Nested Sampling if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)
+             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+             "Not possible to run Nested Sampling if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.Ok)
            #  self.button_nest_samp.setEnabled(True)  
              self.statusBar().showMessage('') 
 
@@ -6683,23 +7387,23 @@ will be highly appreciated!
             nttv_data += len(fit.ttv_data_sets[i]) 
 
         if fit.type_fit["TTV"] == True  and nttv_data == 0:
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "Not possible to run Nested Sampling if there are no TTV data loaded. Please add your TTV data first. Okay?", QtGui.QMessageBox.Ok)      
+             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+             "Not possible to run Nested Sampling if there are no TTV data loaded. Please add your TTV data first. Okay?", QtWidgets.QMessageBox.Ok)      
              #self.button_nest_samp.setEnabled(True)  
              self.statusBar().showMessage('') 
 
              return
 
-        choice = QtGui.QMessageBox.information(self, 'Warning!',
+        choice = QtWidgets.QMessageBox.information(self, 'Warning!',
 """
 This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?
 
 
 Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY open! Make sure your priors are 'reasonable' for your science case; otherwise, the Nested Sampling run may take forever!
 """,
-                                            QtGui.QMessageBox.Cancel | QtGui.QMessageBox.Ok)       
+                                            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)       
 
-        if choice == QtGui.QMessageBox.Cancel:
+        if choice == QtWidgets.QMessageBox.Cancel:
             self.statusBar().showMessage('') 
            # self.button_nest_samp.setEnabled(True)
             return
@@ -6749,7 +7453,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def change_nest_samples_file_name(self):
         global fit
         
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the nested samples', '', '', options=QtGui.QFileDialog.DontUseNativeDialog)
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'path and name of the nested samples', '', '', options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
         if output_file[0] != '':
             fit.nest_sample_file = output_file[0] 
@@ -6899,8 +7603,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.statusBar().showMessage('MCMC in progress....')
         # check if RV data is present
         if fit.type_fit["RV"] == True and fit.filelist.ndset <= 0:
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "Not possible to run MCMC if there are no RV data loaded. Please add your RV data first. Okay?", QtGui.QMessageBox.Ok)      
+             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+             "Not possible to run MCMC if there are no RV data loaded. Please add your RV data first. Okay?", QtWidgets.QMessageBox.Ok)      
              #self.button_MCMC.setEnabled(True)  
              self.statusBar().showMessage('') 
 
@@ -6911,8 +7615,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             ntran_data += len(fit.tra_data_sets[i]) 
 
         if fit.type_fit["Transit"] == True  and ntran_data == 0:
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "Not possible to run MCMC if there are no transit data loaded. Please add your transit data first. Okay?", QtGui.QMessageBox.Ok)      
+             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+             "Not possible to run MCMC if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.Ok)      
              self.button_MCMC.setEnabled(True)  
              self.statusBar().showMessage('') 
 
@@ -6923,19 +7627,19 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             nttv_data += len(fit.ttv_data_sets[i]) 
 
         if fit.type_fit["TTV"] == True  and nttv_data == 0:
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "Not possible to run MCMC if there are no TTV data loaded. Please add your TTV data first. Okay?", QtGui.QMessageBox.Ok)      
+             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+             "Not possible to run MCMC if there are no TTV data loaded. Please add your TTV data first. Okay?", QtWidgets.QMessageBox.Ok)      
              self.button_MCMC.setEnabled(True)  
              self.statusBar().showMessage('') 
 
              return
 
-        choice = QtGui.QMessageBox.information(self, 'Warning!',
+        choice = QtWidgets.QMessageBox.information(self, 'Warning!',
 """This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?
                                             """,
-                                            QtGui.QMessageBox.Cancel | QtGui.QMessageBox.Ok)
+                                            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
 
-        if choice == QtGui.QMessageBox.Cancel:
+        if choice == QtWidgets.QMessageBox.Cancel:
             self.statusBar().showMessage('') 
             self.button_MCMC.setEnabled(True)
             return
@@ -6988,7 +7692,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def change_mcmc_samples_file_name(self):
         global fit
         
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the mcmc samples', '', '', options=QtGui.QFileDialog.DontUseNativeDialog)
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'path and name of the mcmc samples', '', '', options=QtWidgets.QFileDialog.DontUseNativeDialog)
         
         if output_file[0] != '':
             fit.mcmc_sample_file = output_file[0] 
@@ -7059,13 +7763,13 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         global fit  
         
         if isinstance(fit.mcmc_sampler, rv.CustomSampler):
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
+            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Are you sure you want to remove the MCMC samples?",
-                                             QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)
+                                             QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)
 
-            if choice == QtGui.QMessageBox.No:
+            if choice == QtWidgets.QMessageBox.No:
                 return   
-            elif choice == QtGui.QMessageBox.Yes:
+            elif choice == QtWidgets.QMessageBox.Yes:
                 del fit.mcmc_sampler
                 fit.mcmc_sampler = []
                 self.check_cornerplot_samples()
@@ -7073,8 +7777,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             else: 
                 return   
         else:
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "MCMC samples not found.", QtGui.QMessageBox.Ok)            
+             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+             "MCMC samples not found.", QtWidgets.QMessageBox.Ok)            
 
  
     def remove_ns_samples_from_fit(self):
@@ -7082,13 +7786,13 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
         if len(fit.ns_sampler)!=0:       
         #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
+            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Are you sure you want to remove the NS samples?",
-                                             QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)
+                                             QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)
 
-            if choice == QtGui.QMessageBox.No:
+            if choice == QtWidgets.QMessageBox.No:
                 return   
-            elif choice == QtGui.QMessageBox.Yes:
+            elif choice == QtWidgets.QMessageBox.Yes:
                 del fit.ns_sampler
                 fit.ns_sampler = []
                 self.check_cornerplot_samples()
@@ -7096,8 +7800,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             else: 
                 return   
         else:
-             choice = QtGui.QMessageBox.information(self, 'Warning!',
-             "NS samples not found.", QtGui.QMessageBox.Ok)             
+             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+             "NS samples not found.", QtWidgets.QMessageBox.Ok)             
 
     def check_cornerplot_samples(self):
         global fit  
@@ -7139,13 +7843,13 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
         if type_plot == "mcmc":
             if isinstance(fit.mcmc_sampler, rv.CustomSampler)==False:
-                choice = QtGui.QMessageBox.information(self, 'Warning!', "MCMC samples not found.", QtGui.QMessageBox.Ok)
+                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "MCMC samples not found.", QtWidgets.QMessageBox.Ok)
                 return   
        
         if type_plot == "nest": 
             if len(fit.ns_sampler)==0:
             #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler)==False and isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler)==False:
-                choice = QtGui.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtGui.QMessageBox.Ok)
+                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtWidgets.QMessageBox.Ok)
                 return   
   
 
@@ -7166,8 +7870,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
      #       type_samp = "Nest. Samp."
 
      #   if not os.path.exists(samp_file):
-     #        choice = QtGui.QMessageBox.information(self, 'Warning!',
-     #        "%s file not found. Generate one and try again?"%type_samp, QtGui.QMessageBox.Ok)
+     #        choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+     #        "%s file not found. Generate one and try again?"%type_samp, QtWidgets.QMessageBox.Ok)
      #        self.button_make_mcmc_cornerplot.setEnabled(True)
      #        self.button_make_nest_cornerplot.setEnabled(True)
      #        self.statusBar().showMessage('')
@@ -7193,7 +7897,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def change_corner_plot_file_name(self, type_plot = "mcmc"):
         global fit
         
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'path and name of the corener plot', '', 'All (*.*);;Data (*.pdf);;Data (*.png)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'path and name of the corener plot', '', 'All (*.*);;Data (*.pdf);;Data (*.png)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
         if output_file[0] != '':
             if type_plot == "mcmc":
                 fit.mcmc_corner_plot_file = output_file[0] 
@@ -7416,8 +8120,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 except (ValueError,Exception) as ex:
                     #print(ex)
                     #pdi.plot(clear=True,)
-                    pdi.setLabel('bottom', 'x', units='',  **{'font-size':'9pt'})
-                    pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
+                    pdi.setLabel('bottom', 'x', units='',  **{'font-size':self.plot_font.pointSize()})
+                    pdi.setLabel('left',   'y', units='',  **{'font-size':self.plot_font.pointSize()})
                     return
             else:
                 print("%s is an empty file"%path)
@@ -7434,8 +8138,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 y     = self.RVBank_window.y_data  
                 y_err = self.RVBank_window.e_y_data 
             except:
-                pdi.setLabel('bottom', 'x', units='',  **{'font-size':'9pt'})
-                pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
+                pdi.setLabel('bottom', 'x', units='',  **{'font-size':self.plot_font.pointSize()})
+                pdi.setLabel('left',   'y', units='',  **{'font-size':self.plot_font.pointSize()})
                 return
              
         
@@ -7468,20 +8172,20 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         filename, file_extension = os.path.splitext(path)  
             
         if file_extension == '.vels':
-            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'9pt'})
-            pdi.setLabel('left',   'RV', units='m/s',  **{'font-size':'9pt'})
+            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':self.plot_font.pointSize()})
+            pdi.setLabel('left',   'RV', units='m/s',  **{'font-size':self.plot_font.pointSize()})
  
         elif file_extension == '.act':
-            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'9pt'})
-            pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
+            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':self.plot_font.pointSize()})
+            pdi.setLabel('left',   'y', units='',  **{'font-size':self.plot_font.pointSize()})
             
         elif file_extension == '.tran':      
-            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'9pt'})
-            pdi.setLabel('left',   'flux', units='',  **{'font-size':'9pt'})
+            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':self.plot_font.pointSize()})
+            pdi.setLabel('left',   'flux', units='',  **{'font-size':self.plot_font.pointSize()})
 
         else:
-            pdi.setLabel('bottom', 'x', units='',  **{'font-size':'9pt'})
-            pdi.setLabel('left',   'y', units='',  **{'font-size':'9pt'})
+            pdi.setLabel('bottom', 'x', units='',  **{'font-size':self.plot_font.pointSize()})
+            pdi.setLabel('left',   'y', units='',  **{'font-size':self.plot_font.pointSize()})
 
         self.inspector_file = path
         
@@ -7845,7 +8549,7 @@ Please install via 'pip install ttvfast'.
         global fit
 
         but_ind = self.buttonGroup_color_picker.checkedId()
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog) #|QtGui.QColorDialog.ShowAlphaChannel,)
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog) #|QtWidgets.QColorDialog.ShowAlphaChannel,)
 
 #        print(dir(colorz))
 #        print(colorz.name())
@@ -7853,8 +8557,8 @@ Please install via 'pip install ttvfast'.
 #        print(colorz.rgba())
         #print(colorz.getRgb())
 
-        #QtGui.QColorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel,True)
-        #colorz = QtGui.QColorDialog.getColor()
+        #QtWidgets.QColorDialog.setOption(QtWidgets.QColorDialog.ShowAlphaChannel,True)
+        #colorz = QtWidgets.QColorDialog.getColor()
 
         if colorz.isValid():
             fit.colors[but_ind-1]=colorz.name()   #[0]+"B3"+colorz.name()[1:]
@@ -7895,10 +8599,10 @@ Please install via 'pip install ttvfast'.
         global fit
 
         but_ind = self.buttonGroup_color_picker_tra.checkedId()
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
 
-        #QtGui.QColorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel,True)
-        #colorz = QtGui.QColorDialog.getColor()
+        #QtWidgets.QColorDialog.setOption(QtWidgets.QColorDialog.ShowAlphaChannel,True)
+        #colorz = QtWidgets.QColorDialog.getColor()
         #print(colorz.name())
         if colorz.isValid():
             fit.tra_colors[but_ind-1]=colorz.name()
@@ -7938,10 +8642,10 @@ Please install via 'pip install ttvfast'.
         global fit
 
         but_ind = self.buttonGroup_color_picker_ttv.checkedId()
-        colorz = self.colorDialog.getColor(options=QtGui.QColorDialog.DontUseNativeDialog)
+        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
 
-        #QtGui.QColorDialog.setOption(QtGui.QColorDialog.ShowAlphaChannel,True)
-        #colorz = QtGui.QColorDialog.getColor()
+        #QtWidgets.QColorDialog.setOption(QtWidgets.QColorDialog.ShowAlphaChannel,True)
+        #colorz = QtWidgets.QColorDialog.getColor()
 
         if colorz.isValid():
             fit.ttv_colors[but_ind-1]=colorz.name()
@@ -8122,11 +8826,11 @@ Please install via 'pip install ttvfast'.
         #screen = QtWidgets.QApplication.primaryScreen()
         #p =  screen.grabWindow(0)
         #painter.setRenderHint(QtGui.QPainter.Antialiasing, self.params['antialias'])
-       # filename = QtGui.QFileDialog.getSaveFileName(self, 'Save image', filter="PNG(*.png);; JPEG(*.jpg)")
+       # filename = QtWidgets.QFileDialog.getSaveFileName(self, 'Save image', filter="PNG(*.png);; JPEG(*.jpg)")
         #p.save(filename[0], 'jpg')        
         #label.setPixmap(p)        # just for fun :)
-        img, _ = QtGui.QFileDialog.getSaveFileName(self,"Save image",
-                                            filter="PNG(*.png);; JPEG(*.jpg)", options=QtGui.QFileDialog.DontUseNativeDialog)
+        img, _ = QtWidgets.QFileDialog.getSaveFileName(self,"Save image",
+                                            filter="PNG(*.png);; JPEG(*.jpg)", options=QtWidgets.QFileDialog.DontUseNativeDialog)
         if img[-3:] == "png":
             p.save(img, "png")
         elif img[-3:] == "jpg":
@@ -8314,16 +9018,16 @@ https://github.com/3fon3fonov/exostriker/issues
 
 
     def set_Win_widget_Style(self, widget):
-        QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Windows'))
+        QtWidgets.QApplication.setStyle(QtGui.QStyleFactory.create('Windows'))
     def set_Fus_widget_Style(self, widget):
-        QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Fusion'))
+        QtWidgets.QApplication.setStyle(QtGui.QStyleFactory.create('Fusion'))
     def set_Mac_widget_Style(self, widget):
         if sys.platform != "darwin":
             self.tabWidget_helper.setCurrentWidget(self.tab_info)
             print("\n 'Macintosh' window style is only available on MAC OS !!!\n")
             return
         else:
-            QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Macintosh'))
+            QtWidgets.QApplication.setStyle(QtGui.QStyleFactory.create('Macintosh'))
 
 
     def set_widget_font(self, widget):
@@ -8331,9 +9035,9 @@ https://github.com/3fon3fonov/exostriker/issues
         font, ok = QtWidgets.QFontDialog.getFont()
 
         if ok:
-            QtGui.QApplication.setFont(font)
+            QtWidgets.QApplication.setFont(font)
 
-            for topLevel in QtGui.QApplication.allWidgets():
+            for topLevel in QtWidgets.QApplication.allWidgets():
                 topLevel.setFont(font)
  
     def set_plot_font(self):
@@ -8343,6 +9047,10 @@ https://github.com/3fon3fonov/exostriker/issues
         if ok:
             self.plot_font.setFamily(font.family())
             self.plot_font.setPointSize(font.pointSize())
+          
+        self.update_font_plots()   
+          
+        #print(self.plot_font.pointSize())
             
     def initialize_font_plot(self): #not working as I want!
 
@@ -8353,26 +9061,26 @@ https://github.com/3fon3fonov/exostriker/issues
 
 
     def closeEvent(self, event):
-        choice = QtGui.QMessageBox.information(self, 'Warning!',
+        choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Do you want to save the session before you Quit?",
-                                            QtGui.QMessageBox.Cancel | QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)
+                                            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)
 
-        if choice == QtGui.QMessageBox.No:
+        if choice == QtWidgets.QMessageBox.No:
 
             if sys.platform[0:5] == "linux":
                 self.term_emb.close()
             self.removeEventFilter(self)
             event.accept()
 
-        elif choice == QtGui.QMessageBox.Yes:
+        elif choice == QtWidgets.QMessageBox.Yes:
             self.save_session()
             if sys.platform[0:5] == "linux":
                 self.term_emb.close()
-            #QtGui.QApplication.instance().removeEventFilter(self) 
+            #QtWidgets.QApplication.instance().removeEventFilter(self) 
             self.removeEventFilter(self)
             event.accept()
 
-        elif choice == QtGui.QMessageBox.Cancel:
+        elif choice == QtWidgets.QMessageBox.Cancel:
             event.ignore()
 
 
@@ -8602,13 +9310,13 @@ https://github.com/3fon3fonov/exostriker/issues
         
         if type_plot == "mcmc":
             if isinstance(fit.mcmc_sampler, rv.CustomSampler)==False:
-                choice = QtGui.QMessageBox.information(self, 'Warning!', "MCMC samples not found.", QtGui.QMessageBox.Ok)
+                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "MCMC samples not found.", QtWidgets.QMessageBox.Ok)
                 return   
        
         if type_plot == "nest": 
             if len(fit.ns_sampler)==0:
             #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler)==False and isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler)==False:
-                choice = QtGui.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtGui.QMessageBox.Ok)
+                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtWidgets.QMessageBox.Ok)
                 return   
  
          
@@ -8739,7 +9447,7 @@ https://github.com/3fon3fonov/exostriker/issues
 
     def get_error_msg(self, msg):
         global fit  
-        choice = QtGui.QMessageBox.information(self, 'Warning!', "%s"%str(msg), QtGui.QMessageBox.Ok)
+        choice = QtWidgets.QMessageBox.information(self, 'Warning!', "%s"%str(msg), QtWidgets.QMessageBox.Ok)
         #return 
         
     def init_plot_corr(self):
@@ -8778,8 +9486,8 @@ https://github.com/3fon3fonov/exostriker/issues
         symbolBrush='b'
         )  
 
-        pcor.setLabel('bottom', '%s'%fit.e_for_mcmc[corr1_ind], units='',  **{'font-size':'9pt'}) 
-        pcor.setLabel('left', '%s'%fit.e_for_mcmc[corr2_ind], units='',  **{'font-size':'9pt'}) 
+        pcor.setLabel('bottom', '%s'%fit.e_for_mcmc[corr1_ind], units='',  **{'font-size':self.plot_font.pointSize()}) 
+        pcor.setLabel('left', '%s'%fit.e_for_mcmc[corr2_ind], units='',  **{'font-size':self.plot_font.pointSize()}) 
         
 
         ## generate empty curves
@@ -8846,7 +9554,7 @@ https://github.com/3fon3fonov/exostriker/issues
     def __init__(self):
         global fit 
         
-        es_version = "0.60"
+        es_version = "0.61"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -9436,18 +10144,23 @@ https://github.com/3fon3fonov/exostriker/issues
         self.tra_model_z.valueChanged.connect(self.update_transit_plots)
         self.use_rich_tra_model.stateChanged.connect(self.update_transit_plots)
         self.tra_model_ndata_fact.valueChanged.connect(self.update_transit_plots)
-        
+        self.tra_label_fontsize.valueChanged.connect(self.update_transit_plots)
+       
         self.trans_phase_slider.valueChanged.connect(self.update_transit_plots)       
         self.tra_xaxis_offset.valueChanged.connect(self.update_transit_plots)
-        
-        
+        self.tra_plot_add_o_c.stateChanged.connect(self.update_transit_plots)                
+
+        self.plot_transit_GP_model.stateChanged.connect(self.update_transit_plots)        
 
         ############### RV plotting controll ####################      
         self.rv_model_width.valueChanged.connect(self.update_RV_plots)
         self.rv_model_width.valueChanged.connect(self.update_extra_plots)    
         self.RV_model_z.valueChanged.connect(self.update_RV_plots)
         self.RV_model_z.valueChanged.connect(self.update_extra_plots)    
-        
+        self.RV_plot_add_o_c.stateChanged.connect(self.update_RV_plots)
+
+        self.plot_RV_GP_model.stateChanged.connect(self.update_RV_plots)
+
         ############### TTV plotting controll ####################      
         #self.ttv_data_size.valueChanged.connect(self.update_ttv_plots)
         self.ttv_model_width.valueChanged.connect(self.update_ttv_plots)
@@ -9487,7 +10200,7 @@ https://github.com/3fon3fonov/exostriker/issues
         self.jitter_to_plots.stateChanged.connect(self.update_plots)
         self.split_jitter.stateChanged.connect(self.update_plots)
         self.jitter_color_button.clicked.connect(self.get_RV_jitter_color)
-        self.plot_RV_GP_model.stateChanged.connect(self.update_RV_plots)
+
 
 
         self.ttv_apply_mean_period.stateChanged.connect(self.update_ttv_plots)
@@ -9525,8 +10238,10 @@ https://github.com/3fon3fonov/exostriker/issues
         self.plot_corr_err.stateChanged.connect(self.update_correlations_data_plots)
         self.plot_corr_coef.stateChanged.connect(self.update_correlations_data_plots)
 
-        self.do_RV_GP.stateChanged.connect(self.set_use_GP)
-        self.do_tra_GP.stateChanged.connect(self.set_use_GP)
+        
+
+        self.do_RV_GP.stateChanged.connect(self.set_use_RV_GP)
+        self.do_tra_GP.stateChanged.connect(self.set_use_tra_GP)
 
 
         ############### Cross hair ####################
@@ -9534,6 +10249,7 @@ https://github.com/3fon3fonov/exostriker/issues
         self.gls_cross_hair.stateChanged.connect(self.update_RV_GLS_plots)
         self.gls_o_c_cross_hair.stateChanged.connect(self.update_RV_o_c_GLS_plots)
         self.RV_plot_cross_hair.stateChanged.connect(self.update_RV_plots)
+
         self.RV_o_c_plot_cross_hair.stateChanged.connect(self.update_RV_plots)
         self.trans_plot_cross_hair.stateChanged.connect(self.update_transit_plots)
         self.trans_o_c_plot_cross_hair.stateChanged.connect(self.update_transit_plots)
@@ -9635,12 +10351,12 @@ https://github.com/3fon3fonov/exostriker/issues
 
         ###########  GP control ##########
 
-        #self.set_RV_GP()
-        #self.set_tra_GP()
+#        self.set_RV_GP()
+ #       self.set_tra_GP()
 
         self.buttonGroup_use_RV_GP_kernel.buttonClicked.connect(self.set_RV_GP)
         self.buttonGroup_use_tra_GP_kernel.buttonClicked.connect(self.set_tra_GP)
-        self.buttonGroup_use_GP.buttonClicked.connect(self.set_use_GP)
+#        self.buttonGroup_use_GP.buttonClicked.connect(self.set_use_GP)
 
         self.buttonGroup_link_tra_GP_to_RV_GP.buttonClicked.connect(self.set_link_GP)
         #### Transit detrend   ####
@@ -9710,7 +10426,8 @@ https://github.com/3fon3fonov/exostriker/issues
         
         self.force_copl_incl.stateChanged.connect(self.set_force_copl_incl)
 
-
+#        self.set_use_GP()
+#        self.set_gui_use_GP()
 
         self.update_GUI_St_params()
         #self.update_St_params()
