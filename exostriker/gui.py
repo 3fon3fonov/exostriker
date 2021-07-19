@@ -2204,6 +2204,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
 
         #fit.p1 = p1
+        #fit.pe = pe
         return
 
 
@@ -4476,16 +4477,19 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         elif fit.filelist.ndset != 0:
             self.comboBox_extra_plot.addItem('RV GLS',fit.npl+1)
-            self.comboBox_extra_plot.addItem('RV GLS o-c',fit.npl+2)     
+            self.comboBox_extra_plot.addItem('RV GLS o-c',fit.npl+2)   
 
-            self.extra_RV_GLS_plots()
+            #self.run_gls()
+          #  self.run_gls_o_c()  
+
+            #self.extra_RV_GLS_plots()
 
         self.comboBox_extra_plot.activated.connect(self.handleActivated)        
 
 
  
     def handleActivated(self, index):
-        global fit, pe
+        global fit, pe, p7, p8
 
         ind = self.comboBox_extra_plot.itemData(index) 
 
@@ -4493,15 +4497,14 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.phase_plots(ind)
         elif ind == fit.npl+1: 
             self.extra_RV_GLS_plots()
+            #p7.show()
+            #pe.setScene(p7.scene())
+            #pe.autoRange()
+
+
         elif ind == fit.npl+2: 
             self.extra_RV_GLS_o_c_plots()            
-            #pe.setYLink(p2)
-           # pe.setXLink(p2)
-            #fit.p2 = p2
-            #gg = p2.getPlotItem().getViewBox()
-         #   hh = gg.getViewBox()
-         #   pe.scene().addItem(gg)   
-         #   pe.scene().addItem(gg)
+            #pe.setScene(p8.scene())
         else:
             return
 
@@ -5441,6 +5444,12 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         #self.fit_dispatcher(init=True)
 
+
+        self.check_model_params()
+        self.check_mcmc_params()
+        self.check_nested_params()
+        self.check_settings()
+
         minimize_fortran=True
         if fit.model_saved == False or len(fit.fit_results.rv_model.jd) != len(fit.filelist.idset):
             
@@ -5473,8 +5482,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             
         self.update_a_mass() 
         
-        self.run_gls()
-        self.run_gls_o_c()
+       # self.run_gls()
+       # self.run_gls_o_c()
         
         self.update_plots() 
         self.update_transit_plots() 
@@ -5849,8 +5858,8 @@ Transit duration: %s d
         if fit.type_fit["RV"] == True:
             for i in range(fit.npl):
                 rv.phase_RV_planet_signal(fit,i+1) 
-            self.run_gls()
-            self.run_gls_o_c()
+           # self.run_gls()
+          #  self.run_gls_o_c()
             self.update_plots()  
         self.jupiter_push_vars() 
 
@@ -6026,8 +6035,8 @@ Transit duration: %s d
         if fit.type_fit["RV"] == True:
             for i in range(fit.npl):
                 rv.phase_RV_planet_signal(fit,i+1) 
-            self.run_gls()
-            self.run_gls_o_c()
+           # self.run_gls()
+           # self.run_gls_o_c()
         self.update_plots()
         self.jupiter_push_vars()
         
@@ -6431,7 +6440,7 @@ Transit duration: %s d
             self.update_a_mass() 
 
             #self.run_gls()
-            self.run_gls_o_c()
+           # self.run_gls_o_c()
             self.update_plots()
             self.statusBar().showMessage('')
             self.jupiter_push_vars()
@@ -7503,10 +7512,12 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
         ind_ns_bound_opt = self.comboBox_ns_bound_opt.currentIndex()
         fit.ns_samp_bound = fit.ns_samp_bound_opt[ind_ns_bound_opt]
-        
+
         fit.ns_pfrac = self.nest_pfrac.value()
 
         self.check_nested_params()
+
+
 
     def update_GUI_ns_params(self):
         global fit
@@ -7529,11 +7540,9 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.use_ns_maxcall.setChecked(fit.ns_maxcall[0])
         self.ns_maxcall.setValue(fit.ns_maxcall[1])
 
-        #ind_ns_opt = self.comboBox_ns_samp_opt.currentIndex()
-        #fit.ns_samp_method = fit.ns_samp_method_opt[ind_ns_opt]
-
-        #ind_ns_bound_opt = self.comboBox_ns_bound_opt.currentIndex()
-        #fit.ns_samp_bound = fit.ns_samp_bound_opt[ind_ns_bound_opt]
+        self.comboBox_ns_samp_opt.setCurrentIndex(fit.ns_samp_method_opt.index(fit.ns_samp_method))
+        self.comboBox_ns_bound_opt.setCurrentIndex(fit.ns_samp_bound_opt.index(fit.ns_samp_bound))
+ 
         
         self.nest_pfrac.setValue(fit.ns_pfrac)
 
@@ -7703,6 +7712,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def check_mcmc_params(self):
         global fit
         #print(fit.mcmc_fileoutput,self.save_samples.isChecked())
+
+        print(int(self.N_threads.value()))
 
         fit.gaussian_ball = self.init_gauss_ball.value() 
         fit.nwalkers_fact = int(self.nwalkers_fact.value()) 
@@ -8235,6 +8246,11 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
     def fit_dispatcher(self, init=False):
         global fit
+
+        self.check_model_params()
+        self.check_mcmc_params()
+        self.check_nested_params()
+        self.check_settings()
 
         if self.radioButton_RV.isChecked():
             fit.rtg = [True,self.do_RV_GP.isChecked(),False, self.do_tra_GP.isChecked()]
