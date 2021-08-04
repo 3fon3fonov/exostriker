@@ -3805,11 +3805,11 @@ Polyfit coefficients:
             
             first_transit = min([min(ttv_files[x][1]) for x in range(10) if len(ttv_files[x]) != 0 and ttv_files[x][3] == pl_ind+1])
             
-            #print(first_transit)
 
             t = np.array(ttv_files[j][0])
             flux = np.array(ttv_files[j][1])
             flux_err = np.array(ttv_files[j][2])
+ 
             
                 #ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,times,fit_results, return_model = False)
             if fit.npl > 0:
@@ -3831,28 +3831,67 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 if isinstance(ttv_loglik, float):
                     return
 
-                ttv_model = ttv_loglik[4][j][1] - ttv_loglik[4][j][1][0]
-                
-                ttv_model_transits = []
-                model_N_transits = ttv_loglik[4][j][0]
+                if self.ttv_show_Ntransit.isChecked():
+                    ttv_model = ttv_loglik[4][j][1] #- flux[0] #ttv_loglik[4][j][1][0]                  
+                    ttv_model_transits = []
+                    model_N_transits = ttv_loglik[4][j][0]
 
-                #print(mean_P)
 
-                if self.ttv_apply_mean_period.isChecked():
-                    periods_t0 = [ttv_model[k+1] - ttv_model[k] for k in range(len(ttv_model)-1)]
-                    mean_P = np.mean(periods_t0)                    
-                else:
-                    mean_P = fit.P[int(ttv_files[j][3]-1)]
-    
-                for k in range(len(ttv_loglik[4][j][1])):
-                    ttv_model[k] = ttv_model[k] - mean_P*(ttv_loglik[4][j][0][k]-1)
-                for k in range(len(ttv_loglik[3][j][1])):
-                    flux[k] = flux[k] - (mean_P*(ttv_loglik[3][j][0][k]-1) + first_transit) #ttv_files[j][1][0])
-                    ttv_model_transits.append(ttv_model[ttv_loglik[3][j][0][k]-1])
+                    if self.ttv_apply_mean_period.isChecked():
+                        periods_t0 = [ttv_model[k+1] - ttv_model[k] for k in range(len(ttv_model)-1)]
+                        mean_P = np.mean(periods_t0)                    
+                    else:
+                        mean_P = fit.P[int(ttv_files[j][3]-1)]
+
+                    #model_N_transits =  ttv_loglik[4][j][0] + np.rint((ttv_loglik[4][j][1][0] - first_transit)/mean_P)
+        
+                    for k in range(len(ttv_loglik[4][j][1])):
+                       # ttv_model[k] = ttv_model[k] - mean_P*(ttv_loglik[4][j][0][k]-1)
+
+                        ttv_model[k] = ttv_model[k] - (mean_P*(ttv_loglik[4][j][0][k]-1) + first_transit) 
+                    for k in range(len(ttv_loglik[3][j][1])):
+                        flux[k] = flux[k] - (mean_P*(ttv_loglik[3][j][0][k]-1) + first_transit) #ttv_files[j][1][0])
+                        ttv_model_transits.append(ttv_model[ttv_loglik[3][j][0][k]-1])
+ 
+
+                elif self.ttv_show_BJD.isChecked():
+
+                    ttv_model = ttv_loglik[4][j][1] #-ttv_loglik[4][j][1][0]                  
+                    ttv_model_transits = []
+                    model_N_transits = ttv_loglik[4][j][0]
+
+                    if self.ttv_apply_mean_period.isChecked():
+                        periods_t0 = [ttv_model[k+1] - ttv_model[k] for k in range(len(ttv_model)-1)]
+                        mean_P = np.mean(periods_t0)                    
+                    else:
+                        mean_P = fit.P[int(ttv_files[j][3]-1)]
+
+                   # model_N_transits =  ttv_loglik[4][j][0] + np.rint((ttv_loglik[4][j][1][0] - first_transit)/mean_P)
+        
+                    for k in range(len(ttv_loglik[4][j][1])):
+                        ttv_model[k] = ttv_model[k] #- mean_P*(ttv_loglik[4][j][0][k]-1)
+                        model_N_transits[k] = (mean_P*(ttv_loglik[4][j][0][k]-1) + first_transit) 
+                    for k in range(len(ttv_loglik[3][j][1])):
+                        flux[k] = flux[k] #- (mean_P*(ttv_loglik[3][j][0][k]-1) + first_transit) #ttv_files[j][1][0])
+                        t[k] = (mean_P*(ttv_loglik[3][j][0][k]-1) + first_transit) 
+                        ttv_model_transits.append(ttv_model[ttv_loglik[3][j][0][k]-1])
+                        #t[k] = t[k]*fit.P[int(ttv_files[j][3]-1)] + first_transit
+
+
+
+                flux_o_c = flux-ttv_model_transits
+ 
+                if self.ttv_subtract_mean.isChecked():
+                    ttv_model = ttv_model - np.mean(flux)
+                    flux = flux - np.mean(flux)
+                                        
+
             else:
                 ttv_model = np.zeros(len(flux))+ np.mean(flux)
                 ttv_model_transits = np.zeros(len(flux))+ np.mean(flux)
                 model_N_transits = t
+
+                flux_o_c = flux-ttv_model_transits
                     
             p_ttv.plot(t, flux,
             pen=None,
@@ -3879,14 +3918,14 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
             p_ttv_oc.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
 
-            p_ttv_oc.plot(t, flux-ttv_model_transits,
+            p_ttv_oc.plot(t, flux_o_c,
             pen=None,  
             symbol=fit.pyqt_symbols_ttv[j],
             symbolPen={'color': fit.ttv_colors[j], 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_ttv[j],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.ttv_colors[j] )
 
-            err_ = pg.ErrorBarItem(x=t, y=flux-ttv_model_transits, symbol=fit.pyqt_symbols_ttv[j],
+            err_ = pg.ErrorBarItem(x=t, y=flux_o_c, symbol=fit.pyqt_symbols_ttv[j],
            # height=flux_err,
             top=flux_err,
             bottom=flux_err,
@@ -6737,7 +6776,8 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False):
+    def print_info_credits(self, image=False, es_version='0.61'):
+ 
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
         self.dialog_credits.setWindowTitle('Credits')  
@@ -8666,14 +8706,14 @@ Please install via 'pip install ttvfast'.
         if colorz.isValid():
             fit.ttv_colors[but_ind-1]=colorz.name()
             self.update_color_picker_ttv()
-            self.update_act_file_buttons()
-            self.update_RV_file_buttons()
-            self.update_tra_file_buttons()
+           # self.update_act_file_buttons()
+          #  self.update_RV_file_buttons()
+         #   self.update_tra_file_buttons()
             self.update_ttv_file_buttons()
 
-            self.update_RV_plots()
-            self.update_extra_plots()
-            self.update_transit_plots()
+         #   self.update_RV_plots()
+        #    self.update_extra_plots()
+        #    self.update_transit_plots()
             self.update_ttv_plots()
 
             #self.update_activity_data_plots()
@@ -8799,14 +8839,14 @@ Please install via 'pip install ttvfast'.
         if but_n != None:
             fit.pyqt_symbols_ttv[but_ind-1] = symbols[but_n-1]
             self.update_color_picker_ttv()
-            self.update_act_file_buttons()      
-            self.update_RV_file_buttons() 
-            self.update_tra_file_buttons()
+        #    self.update_act_file_buttons()      
+        #    self.update_RV_file_buttons() 
+        #    self.update_tra_file_buttons()
             self.update_ttv_file_buttons() 
 
-            self.update_RV_plots() 
-            self.update_extra_plots()
-            self.update_transit_plots()
+        #    self.update_RV_plots() 
+        #    self.update_extra_plots()
+        #    self.update_transit_plots()
             self.update_ttv_plots()
 
         else:
@@ -10113,7 +10153,7 @@ https://github.com/3fon3fonov/exostriker/issues
         self.remove_ses.clicked.connect(self.rem_ses)
 
         self.actionvisit_TRIFON_on_GitHub.triggered.connect(lambda: webbrowser.open('https://github.com/3fon3fonov/exostriker'))
-        self.actionCredits.triggered.connect(lambda: self.print_info_credits())
+        self.actionCredits.triggered.connect(lambda: self.print_info_credits(es_version = es_version))
         self.actionConfidence_Intervals_Table.triggered.connect(lambda: self.print_chi_table())
 
         ############### Orb. Evol. plotting ####################
@@ -10220,6 +10260,8 @@ https://github.com/3fon3fonov/exostriker/issues
 
 
         self.ttv_apply_mean_period.stateChanged.connect(self.update_ttv_plots)
+
+        self.ttv_subtract_mean.stateChanged.connect(self.update_ttv_plots)
         self.ttv_plot_autorange.stateChanged.connect(self.update_ttv_plots)
 
         self.buttonGroup_use_planets.buttonClicked.connect(self.update_veiw)
