@@ -34,11 +34,21 @@ def check_for_missing_instances(fit,fit_new):
     for iii in fit.__dict__:
         if iii not in fit_new.__dict__: 
             fit_new.__dict__[iii] = dill.copy(fit.__dict__[iii])
+#        elif iii in fit_new.__dict__ and len(np.atleast_1d(fit_new.__dict__[iii])) != len(np.atleast_1d(fit.__dict__[iii])):
+#            fit_new.__dict__[iii] = dill.copy(fit.__dict__[iii])
 
     for iii in fit.fit_results.__dict__:
         if iii not in fit_new.fit_results.__dict__: 
             fit_new.fit_results.__dict__[iii] = dill.copy(fit.fit_results.__dict__[iii])
+        
 
+
+    if len(fit_new.tra_colors) <= 11:
+        fit_new.tra_colors = dill.copy(fit.tra_colors)    
+        fit_new.tra_quadtr_jeff_pr = dill.copy(fit.tra_quadtr_jeff_pr)    
+        fit_new.tra_jitt_use  = {k: False for k in range(20)}
+        fit_new.tra_off_use  = {k: False for k in range(20)}
+        fit_new.tra_dil_use  = {k: False for k in range(20)}
     fit_new.cwd = dill.copy(fit.cwd)    
 
     return fit_new

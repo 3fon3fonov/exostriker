@@ -202,20 +202,27 @@ def data_errors_jitter_gui(self):
     return data_errors_jitter_gui
 
 
+######################### Transit data ###########################
+
 def tra_data_gui(self):
 
     tra_data_gui = [
-            self.trans_Data1,self.trans_Data2,self.trans_Data3,self.trans_Data4,self.trans_Data5,
-            self.trans_Data6,self.trans_Data7,self.trans_Data8,self.trans_Data9,self.trans_Data10
+            self.trans_Data_1,self.trans_Data_2,self.trans_Data_3,self.trans_Data_4,self.trans_Data_5,
+            self.trans_Data_6,self.trans_Data_7,self.trans_Data_8,self.trans_Data_9,self.trans_Data_10,
+            self.trans_Data_11,self.trans_Data_12,self.trans_Data_13,self.trans_Data_14,self.trans_Data_15,
+            self.trans_Data_16,self.trans_Data_17,self.trans_Data_18,self.trans_Data_19,self.trans_Data_20
             ]
     return tra_data_gui
 
 def use_tra_data_offset_gui(self):
 
     use_tra_data_offset_gui = [
-            self.use_offset_trans_Data1,self.use_offset_trans_Data2,self.use_offset_trans_Data3,self.use_offset_trans_Data4,
-            self.use_offset_trans_Data5,self.use_offset_trans_Data6,self.use_offset_trans_Data7,self.use_offset_trans_Data8,
-            self.use_offset_trans_Data9,self.use_offset_trans_Data10
+            self.use_offset_trans_Data_1,self.use_offset_trans_Data_2,self.use_offset_trans_Data_3,self.use_offset_trans_Data_4,
+            self.use_offset_trans_Data_5,self.use_offset_trans_Data_6,self.use_offset_trans_Data_7,self.use_offset_trans_Data_8,
+            self.use_offset_trans_Data_9,self.use_offset_trans_Data_10,
+            self.use_offset_trans_Data_11,self.use_offset_trans_Data_12,self.use_offset_trans_Data_13,self.use_offset_trans_Data_14,
+            self.use_offset_trans_Data_15,self.use_offset_trans_Data_16,self.use_offset_trans_Data_17,self.use_offset_trans_Data_18,
+            self.use_offset_trans_Data_19,self.use_offset_trans_Data_20
             ]
 
     return use_tra_data_offset_gui
@@ -223,8 +230,10 @@ def use_tra_data_offset_gui(self):
 def tra_data_errors_gui(self):
 
     tra_data_errors_gui = [
-            self.err_trans_Data1,self.err_trans_Data2,self.err_trans_Data3,self.err_trans_Data4,self.err_trans_Data5,
-            self.err_trans_Data6,self.err_trans_Data7,self.err_trans_Data8,self.err_trans_Data9,self.err_trans_Data10
+            self.err_trans_Data_1,self.err_trans_Data_2,self.err_trans_Data_3,self.err_trans_Data_4,self.err_trans_Data_5,
+            self.err_trans_Data_6,self.err_trans_Data_7,self.err_trans_Data_8,self.err_trans_Data_9,self.err_trans_Data_10,
+            self.err_trans_Data_11,self.err_trans_Data_12,self.err_trans_Data_13,self.err_trans_Data_14,self.err_trans_Data_15,
+            self.err_trans_Data_16,self.err_trans_Data_17,self.err_trans_Data_18,self.err_trans_Data_19,self.err_trans_Data_20
             ]
     
     return tra_data_errors_gui
@@ -233,8 +242,11 @@ def tra_data_errors_gui(self):
 def tra_data_jitter_gui(self):
 
     tra_data_jitter_gui = [
-            self.jitter_trans_Data1,self.jitter_trans_Data2,self.jitter_trans_Data3,self.jitter_trans_Data4,self.jitter_trans_Data5,
-            self.jitter_trans_Data6,self.jitter_trans_Data7,self.jitter_trans_Data8,self.jitter_trans_Data9,self.jitter_trans_Data10
+            self.jitter_trans_Data_1,self.jitter_trans_Data_2,self.jitter_trans_Data_3,self.jitter_trans_Data_4,self.jitter_trans_Data_5,
+            self.jitter_trans_Data_6,self.jitter_trans_Data_7,self.jitter_trans_Data_8,self.jitter_trans_Data_9,self.jitter_trans_Data_10,
+            self.jitter_trans_Data_11,self.jitter_trans_Data_12,self.jitter_trans_Data_13,self.jitter_trans_Data_14,self.jitter_trans_Data_15,
+            self.jitter_trans_Data_16,self.jitter_trans_Data_17,self.jitter_trans_Data_18,self.jitter_trans_Data_19,self.jitter_trans_Data_20
+
             ]
     return tra_data_jitter_gui
  
@@ -242,9 +254,12 @@ def tra_data_jitter_gui(self):
 def use_tra_data_jitter_gui(self):
     
     use_tra_data_jitter_gui = [
-            self.use_jitter_trans_Data1,self.use_jitter_trans_Data2,self.use_jitter_trans_Data3,self.use_jitter_trans_Data4,
-            self.use_jitter_trans_Data5,self.use_jitter_trans_Data6,self.use_jitter_trans_Data7,self.use_jitter_trans_Data8,
-            self.use_jitter_trans_Data9,self.use_jitter_trans_Data10
+            self.use_jitter_trans_Data_1,self.use_jitter_trans_Data_2,self.use_jitter_trans_Data_3,self.use_jitter_trans_Data_4,
+            self.use_jitter_trans_Data_5,self.use_jitter_trans_Data_6,self.use_jitter_trans_Data_7,self.use_jitter_trans_Data_8,
+            self.use_jitter_trans_Data_9,self.use_jitter_trans_Data_10,
+            self.use_jitter_trans_Data_11,self.use_jitter_trans_Data_12,self.use_jitter_trans_Data_13,self.use_jitter_trans_Data_14,
+            self.use_jitter_trans_Data_15,self.use_jitter_trans_Data_16,self.use_jitter_trans_Data_17,self.use_jitter_trans_Data_18,
+            self.use_jitter_trans_Data_19,self.use_jitter_trans_Data_20
             ]
     
     return use_tra_data_jitter_gui
@@ -253,9 +268,12 @@ def use_tra_data_jitter_gui(self):
 def tra_data_errors_jitter_gui(self):
 
     tra_data_errors_jitter_gui = [
-            self.err_jitter_trans_Data1,self.err_jitter_trans_Data2,self.err_jitter_trans_Data3,self.err_jitter_trans_Data4,
-            self.err_jitter_trans_Data5,self.err_jitter_trans_Data6,self.err_jitter_trans_Data7,self.err_jitter_trans_Data8,
-            self.err_jitter_trans_Data9,self.err_jitter_trans_Data10
+            self.err_jitter_trans_Data_1,self.err_jitter_trans_Data_2,self.err_jitter_trans_Data_3,self.err_jitter_trans_Data_4,
+            self.err_jitter_trans_Data_5,self.err_jitter_trans_Data_6,self.err_jitter_trans_Data_7,self.err_jitter_trans_Data_8,
+            self.err_jitter_trans_Data_9,self.err_jitter_trans_Data_10,
+            self.err_jitter_trans_Data_11,self.err_jitter_trans_Data_12,self.err_jitter_trans_Data_13,self.err_jitter_trans_Data_14,
+            self.err_jitter_trans_Data_15,self.err_jitter_trans_Data_16,self.err_jitter_trans_Data_17,self.err_jitter_trans_Data_18,
+            self.err_jitter_trans_Data_19,self.err_jitter_trans_Data_20
             ]
     
     return tra_data_errors_jitter_gui
@@ -266,7 +284,9 @@ def tra_data_lin_trend_gui(self):
 
     tra_data_lin_trend_gui = [
             self.tra_lin_trend_1,self.tra_lin_trend_2,self.tra_lin_trend_3,self.tra_lin_trend_4,self.tra_lin_trend_5,
-            self.tra_lin_trend_6,self.tra_lin_trend_7,self.tra_lin_trend_8,self.tra_lin_trend_9,self.tra_lin_trend_10
+            self.tra_lin_trend_6,self.tra_lin_trend_7,self.tra_lin_trend_8,self.tra_lin_trend_9,self.tra_lin_trend_10,
+            self.tra_lin_trend_11,self.tra_lin_trend_12,self.tra_lin_trend_13,self.tra_lin_trend_14,self.tra_lin_trend_15,
+            self.tra_lin_trend_16,self.tra_lin_trend_17,self.tra_lin_trend_18,self.tra_lin_trend_19,self.tra_lin_trend_20
             ]
     return tra_data_lin_trend_gui
 
@@ -275,7 +295,10 @@ def use_tra_data_lin_trend_gui(self):
     use_tra_data_lin_trend_gui = [
             self.use_tra_lin_trend_1,self.use_tra_lin_trend_2,self.use_tra_lin_trend_3,self.use_tra_lin_trend_4,
             self.use_tra_lin_trend_5,self.use_tra_lin_trend_6,self.use_tra_lin_trend_7,self.use_tra_lin_trend_8,
-            self.use_tra_lin_trend_9,self.use_tra_lin_trend_10
+            self.use_tra_lin_trend_9,self.use_tra_lin_trend_10,
+            self.use_tra_lin_trend_11,self.use_tra_lin_trend_12,self.use_tra_lin_trend_13,self.use_tra_lin_trend_14,
+            self.use_tra_lin_trend_15,self.use_tra_lin_trend_16,self.use_tra_lin_trend_17,self.use_tra_lin_trend_18,
+            self.use_tra_lin_trend_19,self.use_tra_lin_trend_20
             ]
 
     return use_tra_data_lin_trend_gui
@@ -284,7 +307,9 @@ def err_tra_data_lin_trend_gui(self):
 
     err_tra_data_lin_trend_gui = [
             self.err_tra_lin_trend_1,self.err_tra_lin_trend_2,self.err_tra_lin_trend_3,self.err_tra_lin_trend_4,self.err_tra_lin_trend_5,
-            self.err_tra_lin_trend_6,self.err_tra_lin_trend_7,self.err_tra_lin_trend_8,self.err_tra_lin_trend_9,self.err_tra_lin_trend_10
+            self.err_tra_lin_trend_6,self.err_tra_lin_trend_7,self.err_tra_lin_trend_8,self.err_tra_lin_trend_9,self.err_tra_lin_trend_10,
+            self.err_tra_lin_trend_11,self.err_tra_lin_trend_12,self.err_tra_lin_trend_13,self.err_tra_lin_trend_14,self.err_tra_lin_trend_15,
+            self.err_tra_lin_trend_16,self.err_tra_lin_trend_17,self.err_tra_lin_trend_18,self.err_tra_lin_trend_19,self.err_tra_lin_trend_20
             ]
     
     return err_tra_data_lin_trend_gui
@@ -294,7 +319,9 @@ def tra_data_quad_trend_gui(self):
 
     tra_data_quad_trend_gui = [
             self.tra_quad_trend_1,self.tra_quad_trend_2,self.tra_quad_trend_3,self.tra_quad_trend_4,self.tra_quad_trend_5,
-            self.tra_quad_trend_6,self.tra_quad_trend_7,self.tra_quad_trend_8,self.tra_quad_trend_9,self.tra_quad_trend_10
+            self.tra_quad_trend_6,self.tra_quad_trend_7,self.tra_quad_trend_8,self.tra_quad_trend_9,self.tra_quad_trend_10,
+            self.tra_quad_trend_11,self.tra_quad_trend_12,self.tra_quad_trend_13,self.tra_quad_trend_14,self.tra_quad_trend_15,
+            self.tra_quad_trend_16,self.tra_quad_trend_17,self.tra_quad_trend_18,self.tra_quad_trend_19,self.tra_quad_trend_20
             ]
     return tra_data_quad_trend_gui
 
@@ -303,7 +330,10 @@ def use_tra_data_quad_trend_gui(self):
     use_tra_data_quad_trend_gui = [
             self.use_tra_quad_trend_1,self.use_tra_quad_trend_2,self.use_tra_quad_trend_3,self.use_tra_quad_trend_4,
             self.use_tra_quad_trend_5,self.use_tra_quad_trend_6,self.use_tra_quad_trend_7,self.use_tra_quad_trend_8,
-            self.use_tra_quad_trend_9,self.use_tra_quad_trend_10
+            self.use_tra_quad_trend_9,self.use_tra_quad_trend_10,
+            self.use_tra_quad_trend_11,self.use_tra_quad_trend_12,self.use_tra_quad_trend_13,self.use_tra_quad_trend_14,
+            self.use_tra_quad_trend_15,self.use_tra_quad_trend_16,self.use_tra_quad_trend_17,self.use_tra_quad_trend_18,
+            self.use_tra_quad_trend_19,self.use_tra_quad_trend_20
             ]
 
     return use_tra_data_quad_trend_gui
@@ -312,7 +342,9 @@ def err_tra_data_quad_trend_gui(self):
 
     err_tra_data_quad_trend_gui = [
             self.err_tra_quad_trend_1,self.err_tra_quad_trend_2,self.err_tra_quad_trend_3,self.err_tra_quad_trend_4,self.err_tra_quad_trend_5,
-            self.err_tra_quad_trend_6,self.err_tra_quad_trend_7,self.err_tra_quad_trend_8,self.err_tra_quad_trend_9,self.err_tra_quad_trend_10
+            self.err_tra_quad_trend_6,self.err_tra_quad_trend_7,self.err_tra_quad_trend_8,self.err_tra_quad_trend_9,self.err_tra_quad_trend_10,
+            self.err_tra_quad_trend_11,self.err_tra_quad_trend_12,self.err_tra_quad_trend_13,self.err_tra_quad_trend_14,self.err_tra_quad_trend_15,
+            self.err_tra_quad_trend_16,self.err_tra_quad_trend_17,self.err_tra_quad_trend_18,self.err_tra_quad_trend_19,self.err_tra_quad_trend_20
             ]
     
     return err_tra_data_quad_trend_gui
@@ -367,7 +399,11 @@ def offset_bounds_gui_tra(self):
     [self.tra_Data_min_1,self.tra_Data_max_1], [self.tra_Data_min_2,self.tra_Data_max_2], [self.tra_Data_min_3,self.tra_Data_max_3],
     [self.tra_Data_min_4,self.tra_Data_max_4], [self.tra_Data_min_5,self.tra_Data_max_5], [self.tra_Data_min_6,self.tra_Data_max_6],
     [self.tra_Data_min_7,self.tra_Data_max_7], [self.tra_Data_min_8,self.tra_Data_max_8], [self.tra_Data_min_9,self.tra_Data_max_9],
-    [self.tra_Data_min_10,self.tra_Data_max_10]
+    [self.tra_Data_min_10,self.tra_Data_max_10],
+    [self.tra_Data_min_11,self.tra_Data_max_11], [self.tra_Data_min_12,self.tra_Data_max_12], [self.tra_Data_min_13,self.tra_Data_max_13],
+    [self.tra_Data_min_14,self.tra_Data_max_14], [self.tra_Data_min_15,self.tra_Data_max_15], [self.tra_Data_min_16,self.tra_Data_max_16],
+    [self.tra_Data_min_17,self.tra_Data_max_17], [self.tra_Data_min_18,self.tra_Data_max_18], [self.tra_Data_min_19,self.tra_Data_max_19],
+    [self.tra_Data_min_20,self.tra_Data_max_20]
     ]
 
     return offset_bounds_gui_tra
@@ -381,7 +417,12 @@ def jitter_bounds_gui_tra(self):
             [self.tra_jitter_min_3,self.tra_jitter_max_3],[self.tra_jitter_min_4,self.tra_jitter_max_4],
             [self.tra_jitter_min_5,self.tra_jitter_max_5],[self.tra_jitter_min_6,self.tra_jitter_max_6],
             [self.tra_jitter_min_7,self.tra_jitter_max_7],[self.tra_jitter_min_8,self.tra_jitter_max_8],
-            [self.tra_jitter_min_9,self.tra_jitter_max_9],[self.tra_jitter_min_10,self.tra_jitter_max_10]
+            [self.tra_jitter_min_9,self.tra_jitter_max_9],[self.tra_jitter_min_10,self.tra_jitter_max_10],
+            [self.tra_jitter_min_11,self.tra_jitter_max_11],[self.tra_jitter_min_12,self.tra_jitter_max_12],
+            [self.tra_jitter_min_13,self.tra_jitter_max_13],[self.tra_jitter_min_14,self.tra_jitter_max_14],
+            [self.tra_jitter_min_15,self.tra_jitter_max_15],[self.tra_jitter_min_16,self.tra_jitter_max_16],
+            [self.tra_jitter_min_17,self.tra_jitter_max_17],[self.tra_jitter_min_18,self.tra_jitter_max_18],
+            [self.tra_jitter_min_19,self.tra_jitter_max_19],[self.tra_jitter_min_20,self.tra_jitter_max_20]
     ]
 
     return jitter_bounds_gui_tra
@@ -411,7 +452,12 @@ def data_tra_reg_group(self):
             [self.tra_reg_bjd_3,self.tra_reg_airmass_3],[self.tra_reg_bjd_4,self.tra_reg_airmass_4],
             [self.tra_reg_bjd_5,self.tra_reg_airmass_5],[self.tra_reg_bjd_6,self.tra_reg_airmass_6],
             [self.tra_reg_bjd_7,self.tra_reg_airmass_7],[self.tra_reg_bjd_8,self.tra_reg_airmass_8],
-            [self.tra_reg_bjd_9,self.tra_reg_airmass_9],[self.tra_reg_bjd_10,self.tra_reg_airmass_10]
+            [self.tra_reg_bjd_9,self.tra_reg_airmass_9],[self.tra_reg_bjd_10,self.tra_reg_airmass_10],
+            [self.tra_reg_bjd_11,self.tra_reg_airmass_11],[self.tra_reg_bjd_12,self.tra_reg_airmass_12],
+            [self.tra_reg_bjd_13,self.tra_reg_airmass_13],[self.tra_reg_bjd_14,self.tra_reg_airmass_14],
+            [self.tra_reg_bjd_15,self.tra_reg_airmass_15],[self.tra_reg_bjd_16,self.tra_reg_airmass_16],
+            [self.tra_reg_bjd_17,self.tra_reg_airmass_17],[self.tra_reg_bjd_18,self.tra_reg_airmass_18],
+            [self.tra_reg_bjd_19,self.tra_reg_airmass_19],[self.tra_reg_bjd_20,self.tra_reg_airmass_20]
             ]
     return data_tra_reg_group
 
@@ -422,7 +468,9 @@ def data_ld_group(self):
 
     data_ld_group = [
             self.LD_group_1,self.LD_group_2,self.LD_group_3,self.LD_group_4,self.LD_group_5,
-            self.LD_group_6,self.LD_group_7,self.LD_group_8,self.LD_group_9,self.LD_group_10
+            self.LD_group_6,self.LD_group_7,self.LD_group_8,self.LD_group_9,self.LD_group_10,
+            self.LD_group_11,self.LD_group_12,self.LD_group_13,self.LD_group_14,self.LD_group_15,
+            self.LD_group_16,self.LD_group_17,self.LD_group_18,self.LD_group_19,self.LD_group_20
             ]
     return data_ld_group
 
@@ -431,7 +479,10 @@ def use_uni_ld_models(self):
 
     use_uni_ld_models = [
             self.use_uniform_ld_1,self.use_uniform_ld_2,self.use_uniform_ld_3,self.use_uniform_ld_4,self.use_uniform_ld_5,
-            self.use_uniform_ld_6,self.use_uniform_ld_7,self.use_uniform_ld_8,self.use_uniform_ld_9,self.use_uniform_ld_10
+            self.use_uniform_ld_6,self.use_uniform_ld_7,self.use_uniform_ld_8,self.use_uniform_ld_9,self.use_uniform_ld_10,
+            self.use_uniform_ld_11,self.use_uniform_ld_12,self.use_uniform_ld_13,self.use_uniform_ld_14,self.use_uniform_ld_15,
+            self.use_uniform_ld_16,self.use_uniform_ld_17,self.use_uniform_ld_18,self.use_uniform_ld_19,self.use_uniform_ld_20
+
             ]
     return use_uni_ld_models
 
@@ -440,7 +491,9 @@ def use_lin_ld_models(self):
 
     use_lin_ld_models = [
             self.use_linear_ld_1,self.use_linear_ld_2,self.use_linear_ld_3,self.use_linear_ld_4,self.use_linear_ld_5,
-            self.use_linear_ld_6,self.use_linear_ld_7,self.use_linear_ld_8,self.use_linear_ld_9,self.use_linear_ld_10
+            self.use_linear_ld_6,self.use_linear_ld_7,self.use_linear_ld_8,self.use_linear_ld_9,self.use_linear_ld_10,
+            self.use_linear_ld_11,self.use_linear_ld_12,self.use_linear_ld_13,self.use_linear_ld_14,self.use_linear_ld_15,
+            self.use_linear_ld_16,self.use_linear_ld_17,self.use_linear_ld_18,self.use_linear_ld_19,self.use_linear_ld_20
             ]
     return use_lin_ld_models
 
@@ -449,7 +502,9 @@ def use_quad_ld_models(self):
     
     use_quad_ld_models =[
             self.use_quadratic_ld_1,self.use_quadratic_ld_2,self.use_quadratic_ld_3,self.use_quadratic_ld_4,self.use_quadratic_ld_5,
-            self.use_quadratic_ld_6,self.use_quadratic_ld_7,self.use_quadratic_ld_8,self.use_quadratic_ld_9,self.use_quadratic_ld_10
+            self.use_quadratic_ld_6,self.use_quadratic_ld_7,self.use_quadratic_ld_8,self.use_quadratic_ld_9,self.use_quadratic_ld_10,
+            self.use_quadratic_ld_11,self.use_quadratic_ld_12,self.use_quadratic_ld_13,self.use_quadratic_ld_14,self.use_quadratic_ld_15,
+            self.use_quadratic_ld_16,self.use_quadratic_ld_17,self.use_quadratic_ld_18,self.use_quadratic_ld_19,self.use_quadratic_ld_20
             ] 
     return use_quad_ld_models
 
@@ -458,7 +513,9 @@ def use_nonlin_ld_models(self):
     
     use_nonlin_ld_models = [
             self.use_nonlinear_ld_1,self.use_nonlinear_ld_2,self.use_nonlinear_ld_3,self.use_nonlinear_ld_4,self.use_nonlinear_ld_5,
-            self.use_nonlinear_ld_6,self.use_nonlinear_ld_7,self.use_nonlinear_ld_8,self.use_nonlinear_ld_9,self.use_nonlinear_ld_10
+            self.use_nonlinear_ld_6,self.use_nonlinear_ld_7,self.use_nonlinear_ld_8,self.use_nonlinear_ld_9,self.use_nonlinear_ld_10,
+            self.use_nonlinear_ld_11,self.use_nonlinear_ld_12,self.use_nonlinear_ld_13,self.use_nonlinear_ld_14,self.use_nonlinear_ld_15,
+            self.use_nonlinear_ld_16,self.use_nonlinear_ld_17,self.use_nonlinear_ld_18,self.use_nonlinear_ld_19,self.use_nonlinear_ld_20
             ] 
     return use_nonlin_ld_models
 
@@ -466,7 +523,10 @@ def use_nonlin_ld_models(self):
 def lin_u(self):
 
     lin_u = [self.u1_linear_1,self.u1_linear_2,self.u1_linear_3,self.u1_linear_4,self.u1_linear_5,
-             self.u1_linear_6,self.u1_linear_7,self.u1_linear_8,self.u1_linear_9,self.u1_linear_10
+             self.u1_linear_6,self.u1_linear_7,self.u1_linear_8,self.u1_linear_9,self.u1_linear_10,
+             self.u1_linear_11,self.u1_linear_12,self.u1_linear_13,self.u1_linear_14,self.u1_linear_15,
+             self.u1_linear_16,self.u1_linear_17,self.u1_linear_18,self.u1_linear_19,self.u1_linear_20
+
              ]
     return lin_u
 
@@ -474,14 +534,18 @@ def use_lin_u(self):
 
     use_lin_u = [
             self.use_u1_linear_1,self.use_u1_linear_2,self.use_u1_linear_3,self.use_u1_linear_4,self.use_u1_linear_5,
-            self.use_u1_linear_6,self.use_u1_linear_7,self.use_u1_linear_8,self.use_u1_linear_9,self.use_u1_linear_10
+            self.use_u1_linear_6,self.use_u1_linear_7,self.use_u1_linear_8,self.use_u1_linear_9,self.use_u1_linear_10,
+            self.use_u1_linear_11,self.use_u1_linear_12,self.use_u1_linear_13,self.use_u1_linear_14,self.use_u1_linear_15,
+            self.use_u1_linear_16,self.use_u1_linear_17,self.use_u1_linear_18,self.use_u1_linear_19,self.use_u1_linear_20
             ]
     return use_lin_u
 
 def err_lin_u(self):
 
     err_lin_u = [self.err_u1_linear_1,self.err_u1_linear_2,self.err_u1_linear_3,self.err_u1_linear_4,self.err_u1_linear_5,
-                 self.err_u1_linear_6,self.err_u1_linear_7,self.err_u1_linear_8,self.err_u1_linear_9,self.err_u1_linear_10
+                 self.err_u1_linear_6,self.err_u1_linear_7,self.err_u1_linear_8,self.err_u1_linear_9,self.err_u1_linear_10,
+                 self.err_u1_linear_11,self.err_u1_linear_12,self.err_u1_linear_13,self.err_u1_linear_14,self.err_u1_linear_15,
+                 self.err_u1_linear_16,self.err_u1_linear_17,self.err_u1_linear_18,self.err_u1_linear_19,self.err_u1_linear_20
              ]
     return err_lin_u
 
@@ -490,7 +554,9 @@ def quad_u1(self):
 
     quad_u1 = [
             self.u1_quadratic_1,self.u1_quadratic_2,self.u1_quadratic_3,self.u1_quadratic_4,self.u1_quadratic_5,
-            self.u1_quadratic_6,self.u1_quadratic_7,self.u1_quadratic_8,self.u1_quadratic_9,self.u1_quadratic_10
+            self.u1_quadratic_6,self.u1_quadratic_7,self.u1_quadratic_8,self.u1_quadratic_9,self.u1_quadratic_10,
+            self.u1_quadratic_11,self.u1_quadratic_12,self.u1_quadratic_13,self.u1_quadratic_14,self.u1_quadratic_15,
+            self.u1_quadratic_16,self.u1_quadratic_17,self.u1_quadratic_18,self.u1_quadratic_19,self.u1_quadratic_20
              ]
     return quad_u1
 
@@ -498,7 +564,9 @@ def use_quad_u1(self):
 
     use_quad_u1 =  [
             self.use_u1_quadratic_1,self.use_u1_quadratic_2,self.use_u1_quadratic_3,self.use_u1_quadratic_4,self.use_u1_quadratic_5,
-            self.use_u1_quadratic_6,self.use_u1_quadratic_7,self.use_u1_quadratic_8,self.use_u1_quadratic_9,self.use_u1_quadratic_10
+            self.use_u1_quadratic_6,self.use_u1_quadratic_7,self.use_u1_quadratic_8,self.use_u1_quadratic_9,self.use_u1_quadratic_10,
+            self.use_u1_quadratic_11,self.use_u1_quadratic_12,self.use_u1_quadratic_13,self.use_u1_quadratic_14,self.use_u1_quadratic_15,
+            self.use_u1_quadratic_16,self.use_u1_quadratic_17,self.use_u1_quadratic_18,self.use_u1_quadratic_19,self.use_u1_quadratic_20
              ]
     return use_quad_u1
 
@@ -506,7 +574,10 @@ def err_quad_u1(self):
 
     err_quad_u1 =  [
             self.err_u1_quadratic_1,self.err_u1_quadratic_2,self.err_u1_quadratic_3,self.err_u1_quadratic_4,self.err_u1_quadratic_5,
-            self.err_u1_quadratic_6,self.err_u1_quadratic_7,self.err_u1_quadratic_8,self.err_u1_quadratic_9,self.err_u1_quadratic_10
+            self.err_u1_quadratic_6,self.err_u1_quadratic_7,self.err_u1_quadratic_8,self.err_u1_quadratic_9,self.err_u1_quadratic_10,
+            self.err_u1_quadratic_11,self.err_u1_quadratic_12,self.err_u1_quadratic_13,self.err_u1_quadratic_14,self.err_u1_quadratic_15,
+            self.err_u1_quadratic_16,self.err_u1_quadratic_17,self.err_u1_quadratic_18,self.err_u1_quadratic_19,self.err_u1_quadratic_20
+
              ]
     return err_quad_u1
 
@@ -515,7 +586,9 @@ def quad_u2(self):
 
     quad_u2 = [
             self.u2_quadratic_1,self.u2_quadratic_2,self.u2_quadratic_3,self.u2_quadratic_4,self.u2_quadratic_5,
-            self.u2_quadratic_6,self.u2_quadratic_7,self.u2_quadratic_8,self.u2_quadratic_9,self.u2_quadratic_10
+            self.u2_quadratic_6,self.u2_quadratic_7,self.u2_quadratic_8,self.u2_quadratic_9,self.u2_quadratic_10,
+            self.u2_quadratic_11,self.u2_quadratic_12,self.u2_quadratic_13,self.u2_quadratic_14,self.u2_quadratic_15,
+            self.u2_quadratic_16,self.u2_quadratic_17,self.u2_quadratic_18,self.u2_quadratic_19,self.u2_quadratic_20
              ]
     return quad_u2
 
@@ -523,7 +596,10 @@ def use_quad_u2(self):
 
     use_quad_u2 =  [
             self.use_u2_quadratic_1,self.use_u2_quadratic_2,self.use_u2_quadratic_3,self.use_u2_quadratic_4,self.use_u2_quadratic_5,
-            self.use_u2_quadratic_6,self.use_u2_quadratic_7,self.use_u2_quadratic_8,self.use_u2_quadratic_9,self.use_u2_quadratic_10
+            self.use_u2_quadratic_6,self.use_u2_quadratic_7,self.use_u2_quadratic_8,self.use_u2_quadratic_9,self.use_u2_quadratic_10,
+            self.use_u2_quadratic_11,self.use_u2_quadratic_12,self.use_u2_quadratic_13,self.use_u2_quadratic_14,self.use_u2_quadratic_15,
+            self.use_u2_quadratic_16,self.use_u2_quadratic_17,self.use_u2_quadratic_18,self.use_u2_quadratic_19,self.use_u2_quadratic_20
+
              ]
     return use_quad_u2
 
@@ -531,7 +607,9 @@ def err_quad_u2(self):
 
     err_quad_u2 =  [
             self.err_u2_quadratic_1,self.err_u2_quadratic_2,self.err_u2_quadratic_3,self.err_u2_quadratic_4,self.err_u2_quadratic_5,
-            self.err_u2_quadratic_6,self.err_u2_quadratic_7,self.err_u2_quadratic_8,self.err_u2_quadratic_9,self.err_u2_quadratic_10
+            self.err_u2_quadratic_6,self.err_u2_quadratic_7,self.err_u2_quadratic_8,self.err_u2_quadratic_9,self.err_u2_quadratic_10,
+            self.err_u2_quadratic_11,self.err_u2_quadratic_12,self.err_u2_quadratic_13,self.err_u2_quadratic_14,self.err_u2_quadratic_15,
+            self.err_u2_quadratic_16,self.err_u2_quadratic_17,self.err_u2_quadratic_18,self.err_u2_quadratic_19,self.err_u2_quadratic_20
              ]
     return err_quad_u2
     
@@ -541,7 +619,9 @@ def nonlin_u1(self):
 
     nonlin_u1 = [
             self.u1_nonlin_1,self.u1_nonlin_2,self.u1_nonlin_3,self.u1_nonlin_4,self.u1_nonlin_5,
-            self.u1_nonlin_6,self.u1_nonlin_7,self.u1_nonlin_8,self.u1_nonlin_9,self.u1_nonlin_10
+            self.u1_nonlin_6,self.u1_nonlin_7,self.u1_nonlin_8,self.u1_nonlin_9,self.u1_nonlin_10,
+            self.u1_nonlin_11,self.u1_nonlin_12,self.u1_nonlin_13,self.u1_nonlin_14,self.u1_nonlin_15,
+            self.u1_nonlin_16,self.u1_nonlin_17,self.u1_nonlin_18,self.u1_nonlin_19,self.u1_nonlin_20
              ]
     return nonlin_u1
 
@@ -549,7 +629,9 @@ def use_nonlin_u1(self):
 
     use_nonlin_u1 =  [
             self.use_u1_nonlin_1,self.use_u1_nonlin_2,self.use_u1_nonlin_3,self.use_u1_nonlin_4,self.use_u1_nonlin_5,
-            self.use_u1_nonlin_6,self.use_u1_nonlin_7,self.use_u1_nonlin_8,self.use_u1_nonlin_9,self.use_u1_nonlin_10
+            self.use_u1_nonlin_6,self.use_u1_nonlin_7,self.use_u1_nonlin_8,self.use_u1_nonlin_9,self.use_u1_nonlin_10,
+            self.use_u1_nonlin_11,self.use_u1_nonlin_12,self.use_u1_nonlin_13,self.use_u1_nonlin_14,self.use_u1_nonlin_15,
+            self.use_u1_nonlin_16,self.use_u1_nonlin_17,self.use_u1_nonlin_18,self.use_u1_nonlin_19,self.use_u1_nonlin_20
              ]
     return use_nonlin_u1
 
@@ -557,7 +639,9 @@ def err_nonlin_u1(self):
 
     err_nonlin_u1 =  [
             self.err_u1_nonlin_1,self.err_u1_nonlin_2,self.err_u1_nonlin_3,self.err_u1_nonlin_4,self.err_u1_nonlin_5,
-            self.err_u1_nonlin_6,self.err_u1_nonlin_7,self.err_u1_nonlin_8,self.err_u1_nonlin_9,self.err_u1_nonlin_10
+            self.err_u1_nonlin_6,self.err_u1_nonlin_7,self.err_u1_nonlin_8,self.err_u1_nonlin_9,self.err_u1_nonlin_10,
+            self.err_u1_nonlin_11,self.err_u1_nonlin_12,self.err_u1_nonlin_13,self.err_u1_nonlin_14,self.err_u1_nonlin_15,
+            self.err_u1_nonlin_16,self.err_u1_nonlin_17,self.err_u1_nonlin_18,self.err_u1_nonlin_19,self.err_u1_nonlin_20
              ]
     return err_nonlin_u1
 
@@ -565,7 +649,9 @@ def nonlin_u2(self):
 
     nonlin_u2 = [
             self.u2_nonlin_1,self.u2_nonlin_2,self.u2_nonlin_3,self.u2_nonlin_4,self.u2_nonlin_5,
-            self.u2_nonlin_6,self.u2_nonlin_7,self.u2_nonlin_8,self.u2_nonlin_9,self.u2_nonlin_10
+            self.u2_nonlin_6,self.u2_nonlin_7,self.u2_nonlin_8,self.u2_nonlin_9,self.u2_nonlin_10,
+            self.u2_nonlin_11,self.u2_nonlin_12,self.u2_nonlin_13,self.u2_nonlin_14,self.u2_nonlin_15,
+            self.u2_nonlin_16,self.u2_nonlin_17,self.u2_nonlin_18,self.u2_nonlin_19,self.u2_nonlin_20
              ]
     return nonlin_u2
 
@@ -573,7 +659,9 @@ def use_nonlin_u2(self):
 
     use_nonlin_u2 =  [
             self.use_u2_nonlin_1,self.use_u2_nonlin_2,self.use_u2_nonlin_3,self.use_u2_nonlin_4,self.use_u2_nonlin_5,
-            self.use_u2_nonlin_6,self.use_u2_nonlin_7,self.use_u2_nonlin_8,self.use_u2_nonlin_9,self.use_u2_nonlin_10
+            self.use_u2_nonlin_6,self.use_u2_nonlin_7,self.use_u2_nonlin_8,self.use_u2_nonlin_9,self.use_u2_nonlin_10,
+            self.use_u2_nonlin_11,self.use_u2_nonlin_12,self.use_u2_nonlin_13,self.use_u2_nonlin_14,self.use_u2_nonlin_15,
+            self.use_u2_nonlin_16,self.use_u2_nonlin_17,self.use_u2_nonlin_18,self.use_u2_nonlin_19,self.use_u2_nonlin_20
              ]
     return use_nonlin_u2
 
@@ -581,7 +669,9 @@ def err_nonlin_u2(self):
 
     err_nonlin_u2 =  [
             self.err_u2_nonlin_1,self.err_u2_nonlin_2,self.err_u2_nonlin_3,self.err_u2_nonlin_4,self.err_u2_nonlin_5,
-            self.err_u2_nonlin_6,self.err_u2_nonlin_7,self.err_u2_nonlin_8,self.err_u2_nonlin_9,self.err_u2_nonlin_10
+            self.err_u2_nonlin_6,self.err_u2_nonlin_7,self.err_u2_nonlin_8,self.err_u2_nonlin_9,self.err_u2_nonlin_10,
+            self.err_u2_nonlin_11,self.err_u2_nonlin_12,self.err_u2_nonlin_13,self.err_u2_nonlin_14,self.err_u2_nonlin_15,
+            self.err_u2_nonlin_16,self.err_u2_nonlin_17,self.err_u2_nonlin_18,self.err_u2_nonlin_19,self.err_u2_nonlin_20
              ]
     return err_nonlin_u2
 
@@ -589,7 +679,9 @@ def nonlin_u3(self):
 
     nonlin_u3 = [
             self.u3_nonlin_1,self.u3_nonlin_2,self.u3_nonlin_3,self.u3_nonlin_4,self.u3_nonlin_5,
-            self.u3_nonlin_6,self.u3_nonlin_7,self.u3_nonlin_8,self.u3_nonlin_9,self.u3_nonlin_10
+            self.u3_nonlin_6,self.u3_nonlin_7,self.u3_nonlin_8,self.u3_nonlin_9,self.u3_nonlin_10,
+            self.u3_nonlin_11,self.u3_nonlin_12,self.u3_nonlin_13,self.u3_nonlin_14,self.u3_nonlin_15,
+            self.u3_nonlin_16,self.u3_nonlin_17,self.u3_nonlin_18,self.u3_nonlin_19,self.u3_nonlin_20
              ]
     return nonlin_u3
 
@@ -597,7 +689,9 @@ def use_nonlin_u3(self):
 
     use_nonlin_u3 =  [
             self.use_u3_nonlin_1,self.use_u3_nonlin_2,self.use_u3_nonlin_3,self.use_u3_nonlin_4,self.use_u3_nonlin_5,
-            self.use_u3_nonlin_6,self.use_u3_nonlin_7,self.use_u3_nonlin_8,self.use_u3_nonlin_9,self.use_u3_nonlin_10
+            self.use_u3_nonlin_6,self.use_u3_nonlin_7,self.use_u3_nonlin_8,self.use_u3_nonlin_9,self.use_u3_nonlin_10,
+            self.use_u3_nonlin_11,self.use_u3_nonlin_12,self.use_u3_nonlin_13,self.use_u3_nonlin_14,self.use_u3_nonlin_15,
+            self.use_u3_nonlin_16,self.use_u3_nonlin_17,self.use_u3_nonlin_18,self.use_u3_nonlin_19,self.use_u3_nonlin_20
              ]
     return use_nonlin_u3
 
@@ -605,7 +699,9 @@ def err_nonlin_u3(self):
 
     err_nonlin_u3 =  [
             self.err_u3_nonlin_1,self.err_u3_nonlin_2,self.err_u3_nonlin_3,self.err_u3_nonlin_4,self.err_u3_nonlin_5,
-            self.err_u3_nonlin_6,self.err_u3_nonlin_7,self.err_u3_nonlin_8,self.err_u3_nonlin_9,self.err_u3_nonlin_10
+            self.err_u3_nonlin_6,self.err_u3_nonlin_7,self.err_u3_nonlin_8,self.err_u3_nonlin_9,self.err_u3_nonlin_10,
+            self.err_u3_nonlin_11,self.err_u3_nonlin_12,self.err_u3_nonlin_13,self.err_u3_nonlin_14,self.err_u3_nonlin_15,
+            self.err_u3_nonlin_16,self.err_u3_nonlin_17,self.err_u3_nonlin_18,self.err_u3_nonlin_19,self.err_u3_nonlin_20
              ]
     return err_nonlin_u3
 
@@ -613,7 +709,9 @@ def nonlin_u4(self):
 
     nonlin_u4 = [
             self.u4_nonlin_1,self.u4_nonlin_2,self.u4_nonlin_3,self.u4_nonlin_4,self.u4_nonlin_5,
-            self.u4_nonlin_6,self.u4_nonlin_7,self.u4_nonlin_8,self.u4_nonlin_9,self.u4_nonlin_10
+            self.u4_nonlin_6,self.u4_nonlin_7,self.u4_nonlin_8,self.u4_nonlin_9,self.u4_nonlin_10,
+            self.u4_nonlin_11,self.u4_nonlin_12,self.u4_nonlin_13,self.u4_nonlin_14,self.u4_nonlin_15,
+            self.u4_nonlin_16,self.u4_nonlin_17,self.u4_nonlin_18,self.u4_nonlin_19,self.u4_nonlin_20
              ]
     return nonlin_u4
 
@@ -621,7 +719,9 @@ def use_nonlin_u4(self):
 
     use_nonlin_u4 =  [
             self.use_u4_nonlin_1,self.use_u4_nonlin_2,self.use_u4_nonlin_3,self.use_u4_nonlin_4,self.use_u4_nonlin_5,
-            self.use_u4_nonlin_6,self.use_u4_nonlin_7,self.use_u4_nonlin_8,self.use_u4_nonlin_9,self.use_u4_nonlin_10
+            self.use_u4_nonlin_6,self.use_u4_nonlin_7,self.use_u4_nonlin_8,self.use_u4_nonlin_9,self.use_u4_nonlin_10,
+            self.use_u4_nonlin_11,self.use_u4_nonlin_12,self.use_u4_nonlin_13,self.use_u4_nonlin_14,self.use_u4_nonlin_15,
+            self.use_u4_nonlin_16,self.use_u4_nonlin_17,self.use_u4_nonlin_18,self.use_u4_nonlin_19,self.use_u4_nonlin_20
              ]
     return use_nonlin_u4
 
@@ -629,7 +729,9 @@ def err_nonlin_u4(self):
 
     err_nonlin_u4 =  [
             self.err_u4_nonlin_1,self.err_u4_nonlin_2,self.err_u4_nonlin_3,self.err_u4_nonlin_4,self.err_u4_nonlin_5,
-            self.err_u4_nonlin_6,self.err_u4_nonlin_7,self.err_u4_nonlin_8,self.err_u4_nonlin_9,self.err_u4_nonlin_10
+            self.err_u4_nonlin_6,self.err_u4_nonlin_7,self.err_u4_nonlin_8,self.err_u4_nonlin_9,self.err_u4_nonlin_10,
+            self.err_u4_nonlin_11,self.err_u4_nonlin_12,self.err_u4_nonlin_13,self.err_u4_nonlin_14,self.err_u4_nonlin_15,
+            self.err_u4_nonlin_16,self.err_u4_nonlin_17,self.err_u4_nonlin_18,self.err_u4_nonlin_19,self.err_u4_nonlin_20
              ]
     return err_nonlin_u4
 
@@ -639,7 +741,11 @@ def ld_u1_bounds_gui(self):
         [self.u1_min_1,self.u1_max_1],[self.u1_min_2,self.u1_max_2],[self.u1_min_3,self.u1_max_3],
         [self.u1_min_4,self.u1_max_4],[self.u1_min_5,self.u1_max_5],[self.u1_min_6,self.u1_max_6],
         [self.u1_min_7,self.u1_max_7],[self.u1_min_8,self.u1_max_8],[self.u1_min_9,self.u1_max_9],
-        [self.u1_min_10,self.u1_max_10]
+        [self.u1_min_10,self.u1_max_10],
+        [self.u1_min_11,self.u1_max_11],[self.u1_min_12,self.u1_max_12],[self.u1_min_13,self.u1_max_13],
+        [self.u1_min_14,self.u1_max_14],[self.u1_min_15,self.u1_max_15],[self.u1_min_16,self.u1_max_16],
+        [self.u1_min_17,self.u1_max_17],[self.u1_min_18,self.u1_max_18],[self.u1_min_19,self.u1_max_19],
+        [self.u1_min_20,self.u1_max_20],
         ]         
         return ld_u1_bounds_gui
 
@@ -649,7 +755,11 @@ def ld_u2_bounds_gui(self):
         [self.u2_min_1,self.u2_max_1],[self.u2_min_2,self.u2_max_2],[self.u2_min_3,self.u2_max_3],
         [self.u2_min_4,self.u2_max_4],[self.u2_min_5,self.u2_max_5],[self.u2_min_6,self.u2_max_6],
         [self.u2_min_7,self.u2_max_7],[self.u2_min_8,self.u2_max_8],[self.u2_min_9,self.u2_max_9],
-        [self.u2_min_10,self.u2_max_10]
+        [self.u2_min_10,self.u2_max_10],
+        [self.u2_min_11,self.u2_max_11],[self.u2_min_12,self.u2_max_12],[self.u2_min_13,self.u2_max_13],
+        [self.u2_min_14,self.u2_max_14],[self.u2_min_15,self.u2_max_15],[self.u2_min_16,self.u2_max_16],
+        [self.u2_min_17,self.u2_max_17],[self.u2_min_18,self.u2_max_18],[self.u2_min_19,self.u2_max_19],
+        [self.u2_min_20,self.u2_max_20]
         ]         
         return ld_u2_bounds_gui
 
@@ -659,7 +769,11 @@ def ld_u3_bounds_gui(self):
         [self.u3_min_1,self.u3_max_1],[self.u3_min_2,self.u3_max_2],[self.u3_min_3,self.u3_max_3],
         [self.u3_min_4,self.u3_max_4],[self.u3_min_5,self.u3_max_5],[self.u3_min_6,self.u3_max_6],
         [self.u3_min_7,self.u3_max_7],[self.u3_min_8,self.u3_max_8],[self.u3_min_9,self.u3_max_9],
-        [self.u3_min_10,self.u3_max_10]
+        [self.u3_min_10,self.u3_max_10],
+        [self.u3_min_11,self.u3_max_11],[self.u3_min_12,self.u3_max_12],[self.u3_min_13,self.u3_max_13],
+        [self.u3_min_14,self.u3_max_14],[self.u3_min_15,self.u3_max_15],[self.u3_min_16,self.u3_max_16],
+        [self.u3_min_17,self.u3_max_17],[self.u3_min_18,self.u3_max_18],[self.u3_min_19,self.u3_max_19],
+        [self.u3_min_20,self.u3_max_20]
         ]         
         return ld_u3_bounds_gui
 
@@ -670,7 +784,11 @@ def ld_u4_bounds_gui(self):
         [self.u4_min_1,self.u4_max_1],[self.u4_min_2,self.u4_max_2],[self.u4_min_3,self.u4_max_3],
         [self.u4_min_4,self.u4_max_4],[self.u4_min_5,self.u4_max_5],[self.u4_min_6,self.u4_max_6],
         [self.u4_min_7,self.u4_max_7],[self.u4_min_8,self.u4_max_8],[self.u4_min_9,self.u4_max_9],
-        [self.u4_min_10,self.u4_max_10]
+        [self.u4_min_10,self.u4_max_10],
+        [self.u4_min_11,self.u4_max_11],[self.u4_min_12,self.u4_max_12],[self.u4_min_13,self.u4_max_13],
+        [self.u4_min_14,self.u4_max_14],[self.u4_min_15,self.u4_max_15],[self.u4_min_16,self.u4_max_16],
+        [self.u4_min_17,self.u4_max_17],[self.u4_min_18,self.u4_max_18],[self.u4_min_19,self.u4_max_19],
+        [self.u4_min_20,self.u4_max_20]
         ]         
         return ld_u4_bounds_gui
   
@@ -691,7 +809,17 @@ def tra_lintr_bounds_gui(self):
         [self.tra_lin_trend_bound_min_7,self.tra_lin_trend_bound_max_7], 
         [self.tra_lin_trend_bound_min_8,self.tra_lin_trend_bound_max_8], 
         [self.tra_lin_trend_bound_min_9,self.tra_lin_trend_bound_max_9], 
-        [self.tra_lin_trend_bound_min_10,self.tra_lin_trend_bound_max_10]
+        [self.tra_lin_trend_bound_min_10,self.tra_lin_trend_bound_max_10],
+        [self.tra_lin_trend_bound_min_11,self.tra_lin_trend_bound_max_11], 
+        [self.tra_lin_trend_bound_min_12,self.tra_lin_trend_bound_max_12], 
+        [self.tra_lin_trend_bound_min_13,self.tra_lin_trend_bound_max_13], 
+        [self.tra_lin_trend_bound_min_14,self.tra_lin_trend_bound_max_14], 
+        [self.tra_lin_trend_bound_min_15,self.tra_lin_trend_bound_max_15], 
+        [self.tra_lin_trend_bound_min_16,self.tra_lin_trend_bound_max_16], 
+        [self.tra_lin_trend_bound_min_17,self.tra_lin_trend_bound_max_17], 
+        [self.tra_lin_trend_bound_min_18,self.tra_lin_trend_bound_max_18], 
+        [self.tra_lin_trend_bound_min_19,self.tra_lin_trend_bound_max_19], 
+        [self.tra_lin_trend_bound_min_20,self.tra_lin_trend_bound_max_20]
         ]
         
         return tra_lintr_bounds_gui
@@ -709,7 +837,17 @@ def tra_quadtr_bounds_gui(self):
         [self.tra_quad_trend_bound_min_7,self.tra_quad_trend_bound_max_7], 
         [self.tra_quad_trend_bound_min_8,self.tra_quad_trend_bound_max_8], 
         [self.tra_quad_trend_bound_min_9,self.tra_quad_trend_bound_max_9], 
-        [self.tra_quad_trend_bound_min_10,self.tra_quad_trend_bound_max_10]
+        [self.tra_quad_trend_bound_min_10,self.tra_quad_trend_bound_max_10],
+        [self.tra_quad_trend_bound_min_11,self.tra_quad_trend_bound_max_11], 
+        [self.tra_quad_trend_bound_min_12,self.tra_quad_trend_bound_max_12], 
+        [self.tra_quad_trend_bound_min_13,self.tra_quad_trend_bound_max_13], 
+        [self.tra_quad_trend_bound_min_14,self.tra_quad_trend_bound_max_14], 
+        [self.tra_quad_trend_bound_min_15,self.tra_quad_trend_bound_max_15], 
+        [self.tra_quad_trend_bound_min_16,self.tra_quad_trend_bound_max_16], 
+        [self.tra_quad_trend_bound_min_17,self.tra_quad_trend_bound_max_17], 
+        [self.tra_quad_trend_bound_min_18,self.tra_quad_trend_bound_max_18], 
+        [self.tra_quad_trend_bound_min_19,self.tra_quad_trend_bound_max_19], 
+        [self.tra_quad_trend_bound_min_20,self.tra_quad_trend_bound_max_20]
         ]
         
         return tra_quadtr_bounds_gui
@@ -785,7 +923,20 @@ def offset_nr_priors_gui_tra(self):
         [self.tra_Data_mean_7,self.tra_Data_sigma_7,self.use_traoff_nr_7], 
         [self.tra_Data_mean_8,self.tra_Data_sigma_8,self.use_traoff_nr_8], 
         [self.tra_Data_mean_9,self.tra_Data_sigma_9,self.use_traoff_nr_9], 
-        [self.tra_Data_mean_10,self.tra_Data_sigma_10,self.use_traoff_nr_10]
+        [self.tra_Data_mean_10,self.tra_Data_sigma_10,self.use_traoff_nr_10],
+        [self.tra_Data_mean_11,self.tra_Data_sigma_11,self.use_traoff_nr_11], 
+        [self.tra_Data_mean_12,self.tra_Data_sigma_12,self.use_traoff_nr_12], 
+        [self.tra_Data_mean_13,self.tra_Data_sigma_13,self.use_traoff_nr_13], 
+        [self.tra_Data_mean_14,self.tra_Data_sigma_14,self.use_traoff_nr_14], 
+        [self.tra_Data_mean_15,self.tra_Data_sigma_15,self.use_traoff_nr_15], 
+        [self.tra_Data_mean_16,self.tra_Data_sigma_16,self.use_traoff_nr_16], 
+        [self.tra_Data_mean_17,self.tra_Data_sigma_17,self.use_traoff_nr_17], 
+        [self.tra_Data_mean_18,self.tra_Data_sigma_18,self.use_traoff_nr_18], 
+        [self.tra_Data_mean_19,self.tra_Data_sigma_19,self.use_traoff_nr_19], 
+        [self.tra_Data_mean_20,self.tra_Data_sigma_20,self.use_traoff_nr_20]
+
+
+
         ]
         
         return offset_nr_priors_gui_tra
@@ -804,7 +955,18 @@ def jitter_nr_priors_gui_tra(self):
         [self.tra_jitter_mean_7,self.tra_jitter_sigma_7,self.use_trajitt_nr_7], 
         [self.tra_jitter_mean_8,self.tra_jitter_sigma_8,self.use_trajitt_nr_8], 
         [self.tra_jitter_mean_9,self.tra_jitter_sigma_9,self.use_trajitt_nr_9], 
-        [self.tra_jitter_mean_10,self.tra_jitter_sigma_10,self.use_trajitt_nr_10]
+        [self.tra_jitter_mean_10,self.tra_jitter_sigma_10,self.use_trajitt_nr_10],
+        [self.tra_jitter_mean_11,self.tra_jitter_sigma_11,self.use_trajitt_nr_11], 
+        [self.tra_jitter_mean_12,self.tra_jitter_sigma_12,self.use_trajitt_nr_12], 
+        [self.tra_jitter_mean_13,self.tra_jitter_sigma_13,self.use_trajitt_nr_13], 
+        [self.tra_jitter_mean_14,self.tra_jitter_sigma_14,self.use_trajitt_nr_14], 
+        [self.tra_jitter_mean_15,self.tra_jitter_sigma_15,self.use_trajitt_nr_15], 
+        [self.tra_jitter_mean_16,self.tra_jitter_sigma_16,self.use_trajitt_nr_16],
+        [self.tra_jitter_mean_17,self.tra_jitter_sigma_17,self.use_trajitt_nr_17], 
+        [self.tra_jitter_mean_18,self.tra_jitter_sigma_18,self.use_trajitt_nr_18], 
+        [self.tra_jitter_mean_19,self.tra_jitter_sigma_19,self.use_trajitt_nr_19], 
+        [self.tra_jitter_mean_20,self.tra_jitter_sigma_20,self.use_trajitt_nr_20]
+
         ]
         
         return jitter_nr_priors_gui_tra
@@ -822,7 +984,17 @@ def tra_lin_trend_nr_priors_gui(self):
         [self.tra_lin_trend_mean_7,self.tra_lin_trend_sigma_7,self.use_tra_lin_mean_nr_7], 
         [self.tra_lin_trend_mean_8,self.tra_lin_trend_sigma_8,self.use_tra_lin_mean_nr_8], 
         [self.tra_lin_trend_mean_9,self.tra_lin_trend_sigma_9,self.use_tra_lin_mean_nr_9], 
-        [self.tra_lin_trend_mean_10,self.tra_lin_trend_sigma_10,self.use_tra_lin_mean_nr_10]
+        [self.tra_lin_trend_mean_10,self.tra_lin_trend_sigma_10,self.use_tra_lin_mean_nr_10],
+        [self.tra_lin_trend_mean_11,self.tra_lin_trend_sigma_11,self.use_tra_lin_mean_nr_11], 
+        [self.tra_lin_trend_mean_12,self.tra_lin_trend_sigma_12,self.use_tra_lin_mean_nr_12], 
+        [self.tra_lin_trend_mean_13,self.tra_lin_trend_sigma_13,self.use_tra_lin_mean_nr_13], 
+        [self.tra_lin_trend_mean_14,self.tra_lin_trend_sigma_14,self.use_tra_lin_mean_nr_14], 
+        [self.tra_lin_trend_mean_15,self.tra_lin_trend_sigma_15,self.use_tra_lin_mean_nr_15], 
+        [self.tra_lin_trend_mean_16,self.tra_lin_trend_sigma_16,self.use_tra_lin_mean_nr_16],
+        [self.tra_lin_trend_mean_17,self.tra_lin_trend_sigma_17,self.use_tra_lin_mean_nr_17], 
+        [self.tra_lin_trend_mean_18,self.tra_lin_trend_sigma_18,self.use_tra_lin_mean_nr_18], 
+        [self.tra_lin_trend_mean_19,self.tra_lin_trend_sigma_19,self.use_tra_lin_mean_nr_19], 
+        [self.tra_lin_trend_mean_20,self.tra_lin_trend_sigma_20,self.use_tra_lin_mean_nr_20]
         ]
         
         return tra_lin_trend_nr_priors_gui
@@ -840,7 +1012,18 @@ def tra_quad_trend_nr_priors_gui(self):
         [self.tra_quad_trend_mean_7,self.tra_quad_trend_sigma_7,self.use_tra_quad_mean_nr_7], 
         [self.tra_quad_trend_mean_8,self.tra_quad_trend_sigma_8,self.use_tra_quad_mean_nr_8], 
         [self.tra_quad_trend_mean_9,self.tra_quad_trend_sigma_9,self.use_tra_quad_mean_nr_9], 
-        [self.tra_quad_trend_mean_10,self.tra_quad_trend_sigma_10,self.use_tra_quad_mean_nr_10]
+        [self.tra_quad_trend_mean_10,self.tra_quad_trend_sigma_10,self.use_tra_quad_mean_nr_10],
+        [self.tra_quad_trend_mean_11,self.tra_quad_trend_sigma_11,self.use_tra_quad_mean_nr_11], 
+        [self.tra_quad_trend_mean_12,self.tra_quad_trend_sigma_12,self.use_tra_quad_mean_nr_12], 
+        [self.tra_quad_trend_mean_13,self.tra_quad_trend_sigma_13,self.use_tra_quad_mean_nr_13], 
+        [self.tra_quad_trend_mean_14,self.tra_quad_trend_sigma_14,self.use_tra_quad_mean_nr_14], 
+        [self.tra_quad_trend_mean_15,self.tra_quad_trend_sigma_15,self.use_tra_quad_mean_nr_15], 
+        [self.tra_quad_trend_mean_16,self.tra_quad_trend_sigma_16,self.use_tra_quad_mean_nr_16],
+        [self.tra_quad_trend_mean_17,self.tra_quad_trend_sigma_17,self.use_tra_quad_mean_nr_17], 
+        [self.tra_quad_trend_mean_18,self.tra_quad_trend_sigma_18,self.use_tra_quad_mean_nr_18], 
+        [self.tra_quad_trend_mean_19,self.tra_quad_trend_sigma_19,self.use_tra_quad_mean_nr_19], 
+        [self.tra_quad_trend_mean_20,self.tra_quad_trend_sigma_20,self.use_tra_quad_mean_nr_20]
+
         ]
         
         return tra_quad_trend_nr_priors_gui
@@ -921,7 +1104,18 @@ def offset_jeff_priors_gui_tra(self):
         [self.tra_Data_alpha_7,self.tra_Data_beta_7,self.use_traoff_jeff_7], 
         [self.tra_Data_alpha_8,self.tra_Data_beta_8,self.use_traoff_jeff_8], 
         [self.tra_Data_alpha_9,self.tra_Data_beta_9,self.use_traoff_jeff_9], 
-        [self.tra_Data_alpha_10,self.tra_Data_beta_10,self.use_traoff_jeff_10]
+        [self.tra_Data_alpha_10,self.tra_Data_beta_10,self.use_traoff_jeff_10],
+        [self.tra_Data_alpha_11,self.tra_Data_beta_11,self.use_traoff_jeff_11], 
+        [self.tra_Data_alpha_12,self.tra_Data_beta_12,self.use_traoff_jeff_12], 
+        [self.tra_Data_alpha_13,self.tra_Data_beta_13,self.use_traoff_jeff_13], 
+        [self.tra_Data_alpha_14,self.tra_Data_beta_14,self.use_traoff_jeff_14], 
+        [self.tra_Data_alpha_15,self.tra_Data_beta_15,self.use_traoff_jeff_15], 
+        [self.tra_Data_alpha_16,self.tra_Data_beta_16,self.use_traoff_jeff_16], 
+        [self.tra_Data_alpha_17,self.tra_Data_beta_17,self.use_traoff_jeff_17], 
+        [self.tra_Data_alpha_18,self.tra_Data_beta_18,self.use_traoff_jeff_18], 
+        [self.tra_Data_alpha_19,self.tra_Data_beta_19,self.use_traoff_jeff_19], 
+        [self.tra_Data_alpha_20,self.tra_Data_beta_20,self.use_traoff_jeff_20]
+
         ]
         
         return offset_jeff_priors_gui_tra
@@ -940,7 +1134,18 @@ def jitter_jeff_priors_gui_tra(self):
         [self.tra_jitter_alpha_7,self.tra_jitter_beta_7,self.use_trajitt_jeff_7], 
         [self.tra_jitter_alpha_8,self.tra_jitter_beta_8,self.use_trajitt_jeff_8], 
         [self.tra_jitter_alpha_9,self.tra_jitter_beta_9,self.use_trajitt_jeff_9], 
-        [self.tra_jitter_alpha_10,self.tra_jitter_beta_10,self.use_trajitt_jeff_10]
+        [self.tra_jitter_alpha_10,self.tra_jitter_beta_10,self.use_trajitt_jeff_10],
+        [self.tra_jitter_alpha_11,self.tra_jitter_beta_11,self.use_trajitt_jeff_11], 
+        [self.tra_jitter_alpha_12,self.tra_jitter_beta_12,self.use_trajitt_jeff_12], 
+        [self.tra_jitter_alpha_13,self.tra_jitter_beta_13,self.use_trajitt_jeff_13], 
+        [self.tra_jitter_alpha_14,self.tra_jitter_beta_14,self.use_trajitt_jeff_14], 
+        [self.tra_jitter_alpha_15,self.tra_jitter_beta_15,self.use_trajitt_jeff_15], 
+        [self.tra_jitter_alpha_16,self.tra_jitter_beta_16,self.use_trajitt_jeff_16],
+        [self.tra_jitter_alpha_17,self.tra_jitter_beta_17,self.use_trajitt_jeff_17], 
+        [self.tra_jitter_alpha_18,self.tra_jitter_beta_18,self.use_trajitt_jeff_18], 
+        [self.tra_jitter_alpha_19,self.tra_jitter_beta_19,self.use_trajitt_jeff_19], 
+        [self.tra_jitter_alpha_20,self.tra_jitter_beta_20,self.use_trajitt_jeff_20]
+
         ]
         
         return jitter_jeff_priors_gui_tra
@@ -958,7 +1163,17 @@ def tra_lin_trend_jeff_priors_gui(self):
         [self.tra_lin_trend_alpha_7,self.tra_lin_trend_beta_7,self.use_tra_lin_jeff_7], 
         [self.tra_lin_trend_alpha_8,self.tra_lin_trend_beta_8,self.use_tra_lin_jeff_8], 
         [self.tra_lin_trend_alpha_9,self.tra_lin_trend_beta_9,self.use_tra_lin_jeff_9], 
-        [self.tra_lin_trend_alpha_10,self.tra_lin_trend_beta_10,self.use_tra_lin_jeff_10]
+        [self.tra_lin_trend_alpha_10,self.tra_lin_trend_beta_10,self.use_tra_lin_jeff_10],
+        [self.tra_lin_trend_alpha_11,self.tra_lin_trend_beta_11,self.use_tra_lin_jeff_11], 
+        [self.tra_lin_trend_alpha_12,self.tra_lin_trend_beta_12,self.use_tra_lin_jeff_12], 
+        [self.tra_lin_trend_alpha_13,self.tra_lin_trend_beta_13,self.use_tra_lin_jeff_13], 
+        [self.tra_lin_trend_alpha_14,self.tra_lin_trend_beta_14,self.use_tra_lin_jeff_14], 
+        [self.tra_lin_trend_alpha_15,self.tra_lin_trend_beta_15,self.use_tra_lin_jeff_15], 
+        [self.tra_lin_trend_alpha_16,self.tra_lin_trend_beta_16,self.use_tra_lin_jeff_16],
+        [self.tra_lin_trend_alpha_17,self.tra_lin_trend_beta_17,self.use_tra_lin_jeff_17], 
+        [self.tra_lin_trend_alpha_18,self.tra_lin_trend_beta_18,self.use_tra_lin_jeff_18], 
+        [self.tra_lin_trend_alpha_19,self.tra_lin_trend_beta_19,self.use_tra_lin_jeff_19], 
+        [self.tra_lin_trend_alpha_20,self.tra_lin_trend_beta_20,self.use_tra_lin_jeff_20]
         ]
         
         return tra_lin_trend_jeff_priors_gui
@@ -976,7 +1191,17 @@ def tra_quad_trend_jeff_priors_gui(self):
         [self.tra_quad_trend_alpha_7,self.tra_quad_trend_beta_7,self.use_tra_quad_jeff_7], 
         [self.tra_quad_trend_alpha_8,self.tra_quad_trend_beta_8,self.use_tra_quad_jeff_8], 
         [self.tra_quad_trend_alpha_9,self.tra_quad_trend_beta_9,self.use_tra_quad_jeff_9], 
-        [self.tra_quad_trend_alpha_10,self.tra_quad_trend_beta_10,self.use_tra_quad_jeff_10]
+        [self.tra_quad_trend_alpha_10,self.tra_quad_trend_beta_10,self.use_tra_quad_jeff_10],
+        [self.tra_quad_trend_alpha_11,self.tra_quad_trend_beta_11,self.use_tra_quad_jeff_11], 
+        [self.tra_quad_trend_alpha_12,self.tra_quad_trend_beta_12,self.use_tra_quad_jeff_12], 
+        [self.tra_quad_trend_alpha_13,self.tra_quad_trend_beta_13,self.use_tra_quad_jeff_13], 
+        [self.tra_quad_trend_alpha_14,self.tra_quad_trend_beta_14,self.use_tra_quad_jeff_14], 
+        [self.tra_quad_trend_alpha_15,self.tra_quad_trend_beta_15,self.use_tra_quad_jeff_15], 
+        [self.tra_quad_trend_alpha_16,self.tra_quad_trend_beta_16,self.use_tra_quad_jeff_16],
+        [self.tra_quad_trend_alpha_17,self.tra_quad_trend_beta_17,self.use_tra_quad_jeff_17], 
+        [self.tra_quad_trend_alpha_18,self.tra_quad_trend_beta_18,self.use_tra_quad_jeff_18], 
+        [self.tra_quad_trend_alpha_19,self.tra_quad_trend_beta_19,self.use_tra_quad_jeff_19], 
+        [self.tra_quad_trend_alpha_20,self.tra_quad_trend_beta_20,self.use_tra_quad_jeff_20]
         ]
         
         return tra_quad_trend_jeff_priors_gui
@@ -1699,7 +1924,11 @@ def use_tra_data_GP(self):
         self.use_tra_gp_1,self.use_tra_gp_2, self.use_tra_gp_3,  
         self.use_tra_gp_4,self.use_tra_gp_5, self.use_tra_gp_6,  
         self.use_tra_gp_8,self.use_tra_gp_7, self.use_tra_gp_9,
-        self.use_tra_gp_10
+        self.use_tra_gp_10,
+        self.use_tra_gp_11,self.use_tra_gp_12, self.use_tra_gp_13,  
+        self.use_tra_gp_14,self.use_tra_gp_15, self.use_tra_gp_16,  
+        self.use_tra_gp_18,self.use_tra_gp_17, self.use_tra_gp_19,
+        self.use_tra_gp_20,
         ]
         
     return use_tra_data_GP
@@ -1837,7 +2066,14 @@ def tra_dilution(self):
              [self.tra_dilution_3,self.use_tra_dilution_3], [self.tra_dilution_4,self.use_tra_dilution_4],
              [self.tra_dilution_5,self.use_tra_dilution_5], [self.tra_dilution_6,self.use_tra_dilution_6], 
              [self.tra_dilution_7,self.use_tra_dilution_7], [self.tra_dilution_8,self.use_tra_dilution_8], 
-             [self.tra_dilution_9,self.use_tra_dilution_9], [self.tra_dilution_10,self.use_tra_dilution_10]
+             [self.tra_dilution_9,self.use_tra_dilution_9], [self.tra_dilution_10,self.use_tra_dilution_10],
+             [self.tra_dilution_11,self.use_tra_dilution_11], [self.tra_dilution_12,self.use_tra_dilution_12],
+             [self.tra_dilution_13,self.use_tra_dilution_13], [self.tra_dilution_14,self.use_tra_dilution_14],
+             [self.tra_dilution_15,self.use_tra_dilution_15], [self.tra_dilution_16,self.use_tra_dilution_16], 
+             [self.tra_dilution_17,self.use_tra_dilution_17], [self.tra_dilution_18,self.use_tra_dilution_18], 
+             [self.tra_dilution_19,self.use_tra_dilution_19], [self.tra_dilution_20,self.use_tra_dilution_20]
+
+
             ]
  
     return tra_dilution

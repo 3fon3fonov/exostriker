@@ -2612,7 +2612,7 @@ class signal_fit(object):
         self.pyqt_color_alpha_ttv = {k: 255 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #        
 
         self.act_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
-        self.tra_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
+        self.tra_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
         self.rvs_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
 
         self.gls_colors = ['#ff0000',  '#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#000000']
@@ -2963,7 +2963,7 @@ class signal_fit(object):
         self.tra_quadtr_str  = {k: r'tra quad.tr$_%s$'%str(k+1) for k in range(20)}
         self.tra_quadtr_bounds  = {k: np.array([-1.0,1.0]) for k in range(20)}
         self.tra_quadtr_norm_pr = {k: np.array([0,0.001, False]) for k in range(20)}
-        self.tra_quadtr_jeff_pr = {k: np.array([-0.001,0.001, False]) for k in range(10)}
+        self.tra_quadtr_jeff_pr = {k: np.array([-0.001,0.001, False]) for k in range(20)}
 
  
     def init_TTVs(self):
