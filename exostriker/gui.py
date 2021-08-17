@@ -356,7 +356,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.rvs_data_gui[i].setValue(fit.params.offsets[i]) 
             self.rvs_data_jitter_gui[i].setValue(fit.params.jitters[i])
 
-        for i in range(10): 
+        for i in range(20): 
             self.tra_data_gui[i].setValue(fit.tra_off[i]) 
             self.tra_data_jitter_gui[i].setValue(fit.tra_jitt[i])
             self.tra_dilution[i][0].setValue(fit.tra_dil[i])
@@ -398,7 +398,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.tra_gp_double_sho_params[i].setValue(fit.tra_GP_double_sho_params[i])
 
 
-        for i in range(10):
+        for i in range(20):
             self.lin_u[i].setValue(fit.ld_u_lin[i][0])
             self.quad_u1[i].setValue(fit.ld_u_quad[i][0])
             self.quad_u2[i].setValue(fit.ld_u_quad[i][1])
@@ -446,7 +446,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.params.offsets[i] = self.rvs_data_gui[i].value()
             fit.params.jitters[i] = self.rvs_data_jitter_gui[i].value()
  
-        for i in range(10):
+        for i in range(20):
             fit.tra_off[i]  = self.tra_data_gui[i].value()
             fit.tra_jitt[i] = self.tra_data_jitter_gui[i].value()
             fit.tra_dil[i]  = self.tra_dilution[i][0].value()
@@ -532,7 +532,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def read_ld(self):
         global fit
 
-        for i in range(10):
+        for i in range(20):
             fit.ld_u_lin[i]    = [self.lin_u[i].value()]
             fit.ld_u_quad[i]   = [self.quad_u1[i].value(),self.quad_u2[i].value()]
             fit.ld_u_nonlin[i] = [self.nonlin_u1[i].value(),self.nonlin_u2[i].value(),
@@ -612,7 +612,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def update_GUI_tra_reg(self):
         global fit
 
-        for i in range(10):
+        for i in range(20):
             if len(fit.tra_data_sets[i]) == 0:
                 self.data_tra_reg_group[i][0].setChecked(True)
                 #print(self.data_tra_reg_group[i][1].isChecked())
@@ -626,7 +626,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def set_tra_ld(self):
         global fit
 
-        for i in range(10):
+        for i in range(20):
             
             if self.use_uni_ld_models[i].isChecked():
                 fit.ld_m[i] = "uniform"
@@ -652,7 +652,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         k =0
  
-        for i in range(10):
+        for i in range(20):
             if len(fit.tra_data_sets[i]) == 0:
                 fit.ld_gr_ind[i] = 0
                 continue
@@ -702,7 +702,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def set_tra_gr(self):
         global fit
         
-        for i in range(10):
+        for i in range(20):
             
             if len(fit.tra_data_sets[i]) == 0:
                 print("Data set # %s is not present: The request is ignored"%str(i+1))
@@ -787,7 +787,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.gp_double_sho_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.GP_params_errors[i])))                        
 
  
-        for i in range(10):
+        for i in range(20):
             self.err_lin_u[i].setText("+/- %.3f"%max(np.abs(fit.ld_u_lin_err[i][0])))
             self.err_quad_u1[i].setText("+/- %.3f"%max(np.abs(fit.ld_u_quad_err[i][0])))
             self.err_quad_u2[i].setText("+/- %.3f"%max(np.abs(fit.ld_u_quad_err[i][1])))
@@ -831,11 +831,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.use_data_jitter_gui[i].setChecked(bool(fit.use.use_jitters[i]))
             self.use_data_offset_gui[i].setChecked(bool(fit.use.use_offsets[i])) 
 
-        for i in range(10): 
+            
+        for i in range(20): 
             self.use_tra_data_jitter_gui[i].setChecked(bool(fit.tra_jitt_use[i]))
             self.use_tra_data_offset_gui[i].setChecked(bool(fit.tra_off_use[i]))
             self.tra_dilution[i][1].setChecked(bool(fit.tra_dil_use[i]))
-            
             self.use_tra_data_lin_trend_gui[i].setChecked(bool(fit.tra_lintr_use[i]))
             self.use_tra_data_quad_trend_gui[i].setChecked(bool(fit.tra_quadtr_use[i]))
             
@@ -856,7 +856,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.use_RV_quad_trend.setChecked(bool(fit.rv_quadtr_use)) 
         
         
-        for i in range(10):
+        for i in range(20):
             self.use_lin_u[i].setChecked(bool(fit.ld_u_lin_use[i][0]))
             self.use_quad_u1[i].setChecked(bool(fit.ld_u_quad_use[i][0]))
             self.use_quad_u2[i].setChecked(bool(fit.ld_u_quad_use[i][1]))
@@ -944,7 +944,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.use.use_jitters[i] = int(self.use_data_jitter_gui[i].isChecked())
             fit.use.use_offsets[i] = int(self.use_data_offset_gui[i].isChecked())   
 
-        for i in range(10): 
+        for i in range(20): 
             fit.tra_jitt_use[i] = int(self.use_tra_data_jitter_gui[i].isChecked())
             fit.tra_off_use[i]  = int(self.use_tra_data_offset_gui[i].isChecked())
             fit.tra_dil_use[i]  = int(self.tra_dilution[i][1].isChecked())
@@ -998,7 +998,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     def update_ld_use(self):
         global fit
 
-        for i in range(10):
+        for i in range(20):
             fit.ld_u_lin_use[i]    = [self.use_lin_u[i].isChecked()]
             fit.ld_u_quad_use[i]   = [self.use_quad_u1[i].isChecked(),self.use_quad_u2[i].isChecked()]
             fit.ld_u_nonlin_use[i] = [self.use_nonlin_u1[i].isChecked(),self.use_nonlin_u2[i].isChecked(),
@@ -1025,6 +1025,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             for z in range(2):
                 self.offset_bounds_gui[i][z].setValue(fit.rvoff_bounds[i][z])
                 self.jitter_bounds_gui[i][z].setValue(fit.jitt_bounds[i][z])
+
+        for i in range(20): 
+            for z in range(2):
                 self.offset_bounds_gui_tra[i][z].setValue(fit.tra_off_bounds[i][z])
                 self.jitter_bounds_gui_tra[i][z].setValue(fit.tra_jitt_bounds[i][z])
 
@@ -1128,18 +1131,25 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
                  self.offset_nr_priors_gui[i][z].setValue(fit.rvoff_norm_pr[i][z])
                  self.jitter_nr_priors_gui[i][z].setValue(fit.jitt_norm_pr[i][z])
-                 self.offset_nr_priors_gui_tra[i][z].setValue(fit.tra_off_norm_pr[i][z])
-                 self.jitter_nr_priors_gui_tra[i][z].setValue(fit.tra_jitt_norm_pr[i][z])
-                 self.tra_lin_trend_nr_priors_gui[i][z].setValue(fit.tra_lintr_norm_pr[i][z])
-                 self.tra_quad_trend_nr_priors_gui[i][z].setValue(fit.tra_quadtr_norm_pr[i][z])  
                  
                  
             self.offset_nr_priors_gui[i][2].setChecked(fit.rvoff_norm_pr[i][2])
             self.jitter_nr_priors_gui[i][2].setChecked(fit.jitt_norm_pr[i][2])
+
+        for i in range(20): 
+            for z in range(2):
+
+                 self.offset_nr_priors_gui_tra[i][z].setValue(fit.tra_off_norm_pr[i][z])
+                 self.jitter_nr_priors_gui_tra[i][z].setValue(fit.tra_jitt_norm_pr[i][z])
+                 self.tra_lin_trend_nr_priors_gui[i][z].setValue(fit.tra_lintr_norm_pr[i][z])
+                 self.tra_quad_trend_nr_priors_gui[i][z].setValue(fit.tra_quadtr_norm_pr[i][z])  
+ 
             self.offset_nr_priors_gui_tra[i][2].setChecked(fit.tra_off_norm_pr[i][2])
             self.jitter_nr_priors_gui_tra[i][2].setChecked(fit.tra_jitt_norm_pr[i][2])
             self.tra_lin_trend_nr_priors_gui[i][2].setChecked(fit.tra_lintr_norm_pr[i][2])
             self.tra_quad_trend_nr_priors_gui[i][2].setChecked(fit.tra_quadtr_norm_pr[i][2])
+
+
 
 
         self.update_RV_GP_priors_nr()
@@ -1209,20 +1219,26 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             for z in range(2):
 
                  self.offset_jeff_priors_gui[i][z].setValue(fit.rvoff_jeff_pr[i][z])
-                 self.jitter_jeff_priors_gui[i][z].setValue(fit.jitt_jeff_pr[i][z])
+                 self.jitter_jeff_priors_gui[i][z].setValue(fit.jitt_jeff_pr[i][z])      
+                 
+            self.offset_jeff_priors_gui[i][2].setChecked(fit.rvoff_jeff_pr[i][2])
+            self.jitter_jeff_priors_gui[i][2].setChecked(fit.jitt_jeff_pr[i][2])
+
+
+        for i in range(20): 
+            for z in range(2):
+ 
                  self.offset_jeff_priors_gui_tra[i][z].setValue(fit.tra_off_jeff_pr[i][z])
                  self.jitter_jeff_priors_gui_tra[i][z].setValue(fit.tra_jitt_jeff_pr[i][z])
                  self.tra_lin_trend_jeff_priors_gui[i][z].setValue(fit.tra_lintr_jeff_pr[i][z])
                  self.tra_quad_trend_jeff_priors_gui[i][z].setValue(fit.tra_quadtr_jeff_pr[i][z])                 
                  
-                 
-
-            self.offset_jeff_priors_gui[i][2].setChecked(fit.rvoff_jeff_pr[i][2])
-            self.jitter_jeff_priors_gui[i][2].setChecked(fit.jitt_jeff_pr[i][2])
+ 
             self.offset_jeff_priors_gui_tra[i][2].setChecked(fit.tra_off_jeff_pr[i][2])
             self.jitter_jeff_priors_gui_tra[i][2].setChecked(fit.tra_jitt_jeff_pr[i][2])    
             self.tra_lin_trend_jeff_priors_gui[i][2].setChecked(fit.tra_lintr_jeff_pr[i][2])
             self.tra_quad_trend_jeff_priors_gui[i][2].setChecked(fit.tra_quadtr_jeff_pr[i][2])
+
             
 
         self.update_RV_GP_priors_jeff()
@@ -1314,7 +1330,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         fit.rv_lintr_bounds[0] = [self.lin_trend_min.value(),self.lin_trend_max.value()]
 
-        for i in range(10): 
+        for i in range(20): 
             for z in range(2):
                 fit.tra_off_bounds[i][z]    = self.offset_bounds_gui_tra[i][z].value()
                 fit.tra_jitt_bounds[i][z]   = self.jitter_bounds_gui_tra[i][z].value()
@@ -1389,7 +1405,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     def check_ld_bounds(self):
         global fit
 
-        for i in range(10): 
+        for i in range(20): 
             for z in range(2):    
                 fit.ld_u_lin_bound[i][0][z] = self.ld_u1_bounds_gui[i][z].value()
 
@@ -1454,7 +1470,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         fit.rv_lintr_norm_pr[0]  = [self.lin_trend_mean.value(),self.lin_trend_sigma.value(),self.use_lin_tr_nr_pr.isChecked()]
 
-        for i in range(10): 
+        for i in range(20): 
             for z in range(2):
 
                 fit.tra_off_norm_pr[i][z]    = self.offset_nr_priors_gui_tra[i][z].value()
@@ -1590,7 +1606,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
 
     
-        for i in range(10): 
+        for i in range(20): 
             for z in range(2):
                 fit.tra_off_jeff_pr[i][z]    = self.offset_jeff_priors_gui_tra[i][z].value()
                 fit.tra_jitt_jeff_pr[i][z]   = self.jitter_jeff_priors_gui_tra[i][z].value() 
@@ -1771,6 +1787,17 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_8,8)
         self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_9,9)
         self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_10,10)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_11,11)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_12,12)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_13,13)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_14,14)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_15,15)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_16,16)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_17,17)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_18,18)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_19,19)
+        self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_20,20)
+
 
         self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_1,1)
         self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_2,2)
@@ -1782,6 +1809,19 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_8,8)
         self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_9,9)
         self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_10,10)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_11,11)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_12,12)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_13,13)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_14,14)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_15,15)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_16,16)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_17,17)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_18,18)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_19,19)
+        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_20,20)
+
+
+
 
         self.buttonGroup_transit_data.setId(self.Button_transit_data_1,1)
         self.buttonGroup_transit_data.setId(self.Button_transit_data_2,2)
@@ -1793,17 +1833,37 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_transit_data.setId(self.Button_transit_data_8,8)
         self.buttonGroup_transit_data.setId(self.Button_transit_data_9,9)
         self.buttonGroup_transit_data.setId(self.Button_transit_data_10,10)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_11,11)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_12,12)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_13,13)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_14,14)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_15,15)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_16,16)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_17,17)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_18,18)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_19,19)
+        self.buttonGroup_transit_data.setId(self.Button_transit_data_20,20)
 
-        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data1,1)
-        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data2,2)
-        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data3,3)
-        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data4,4)
-        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data5,5)
-        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data6,6)
-        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data7,7)
-        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data8,8)
-        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data9,9)
-        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data10,10)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_1,1)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_2,2)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_3,3)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_4,4)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_5,5)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_6,6)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_7,7)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_8,8)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_9,9)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_10,10)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_11,11)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_12,12)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_13,13)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_14,14)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_15,15)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_16,16)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_17,17)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_18,18)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_19,19)
+        self.buttonGroup_remove_transit_data.setId(self.remove_transit_data_20,20)
 
         self.buttonGroup_activity_data.setId(self.Button_activity_data_1,1)
         self.buttonGroup_activity_data.setId(self.Button_activity_data_2,2)
@@ -1885,6 +1945,18 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_9,9)
         self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_10,10)
         self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_11,11)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_12,12)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_13,13)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_14,14)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_15,15)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_16,16)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_17,17)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_18,18)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_19,19)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_20,20)
+        self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_21,21)
+
+
         
         self.buttonGroup_color_picker_ttv.setId(self.ttv_color_1,1)
         self.buttonGroup_color_picker_ttv.setId(self.ttv_color_2,2)
@@ -1920,6 +1992,17 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_8,8)
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_9,9)
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_10,10)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_11,11)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_12,12)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_13,13)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_14,14)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_15,15)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_16,16)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_17,17)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_18,18)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_19,19)
+        self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_20,20)
+
 
         self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_1,1)
         self.buttonGroup_symbol_picker_ttv.setId(self.ttv_symbol_2,2)
@@ -1942,6 +2025,19 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_detrend_tra.setId(self.tra_detrend_8,8)
         self.buttonGroup_detrend_tra.setId(self.tra_detrend_9,9)
         self.buttonGroup_detrend_tra.setId(self.tra_detrend_10,10)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_11,11)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_12,12)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_13,13)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_14,14)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_15,15)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_16,16)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_17,17)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_18,18)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_19,19)
+        self.buttonGroup_detrend_tra.setId(self.tra_detrend_20,20)
+
+
+
 
         self.buttonGroup_options_act.setId(self.act_dataOption_1,1)
         self.buttonGroup_options_act.setId(self.act_dataOption_2,2)
@@ -3309,7 +3405,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         self.check_tra_symbol_sizes()
 
-        if len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0]) == 0:
+        if len([x for x in range(20) if len(fit.tra_data_sets[x]) != 0]) == 0:
             return
 
         transit_results_sep = fit.transit_results[1]
@@ -3321,15 +3417,15 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             flux_model_ex       = transit_model_rich[1]
         elif self.use_rich_tra_model.isChecked() and fit.tra_doGP == True:
             print("Not yet possible to plot 'rich transit model' with a GP model")
-            t_model        = np.concatenate([transit_results_sep[0][x] for x in range(10) if len(transit_results_sep[0][x]) != 0])
-            flux_model_ex  = np.concatenate([transit_results_sep[3][x] for x in range(10) if len(transit_results_sep[3][x]) != 0])
+            t_model        = np.concatenate([transit_results_sep[0][x] for x in range(20) if len(transit_results_sep[0][x]) != 0])
+            flux_model_ex  = np.concatenate([transit_results_sep[3][x] for x in range(20) if len(transit_results_sep[3][x]) != 0])
 
         else:
-            t_model        = np.concatenate([transit_results_sep[0][x] for x in range(10) if len(transit_results_sep[0][x]) != 0])
-            flux_model_ex  = np.concatenate([transit_results_sep[3][x] for x in range(10) if len(transit_results_sep[3][x]) != 0])
+            t_model        = np.concatenate([transit_results_sep[0][x] for x in range(20) if len(transit_results_sep[0][x]) != 0])
+            flux_model_ex  = np.concatenate([transit_results_sep[3][x] for x in range(20) if len(transit_results_sep[3][x]) != 0])
 
 
-        for j in range(10):
+        for j in range(20):
 
             if len(transit_results_sep[0][j]) == 0:
                 continue
@@ -5328,7 +5424,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
 
-        for i in range(10):
+        for i in range(20):
             if len(fit.tra_data_sets[i]) != 0:
                 
                 
@@ -5343,7 +5439,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
  
-        if len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0]) == 0:
+        if len([x for x in range(20) if len(fit.tra_data_sets[x]) != 0]) == 0:
             self.update_transit_plots()
         else:
             self.worker_transit_fitting(ff=0)
@@ -5711,7 +5807,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.calc_TLS_o_c.setEnabled(False)  
 
         z=0
-        for i in range(10):
+        for i in range(20):
             if len(fit.tra_data_sets[i]) != 0:
                 z=z+1
 
@@ -5738,15 +5834,15 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def tls_search(self, resid = False):
         global fit
 
-        N_transit_files = len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0])
+        N_transit_files = len([x for x in range(20) if len(fit.tra_data_sets[x]) != 0])
 
 
         if resid == True:
-            lc_data = np.concatenate([fit.transit_results[1][4][x] +1.0 for x in range(10) if len(fit.tra_data_sets[x]) != 0])
+            lc_data = np.concatenate([fit.transit_results[1][4][x] +1.0 for x in range(20) if len(fit.tra_data_sets[x]) != 0])
         else:
-            lc_data = np.concatenate([fit.transit_results[1][1][x] for x in range(10) if len(fit.tra_data_sets[x]) != 0]) 
+            lc_data = np.concatenate([fit.transit_results[1][1][x] for x in range(20) if len(fit.tra_data_sets[x]) != 0]) 
 
-        lc_time = np.concatenate([fit.transit_results[1][0][x] for x in range(10) if len(fit.tra_data_sets[x]) != 0])
+        lc_time = np.concatenate([fit.transit_results[1][0][x] for x in range(20) if len(fit.tra_data_sets[x]) != 0])
 
         if self.tls_period_min_use.isChecked():
             tls_period_min = self.tls_min_period.value()
@@ -5776,7 +5872,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         if len(fit.tls) == 0:
             return
 
-        N_transit_files = len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0])
+        N_transit_files = len([x for x in range(20) if len(fit.tra_data_sets[x]) != 0])
         SDE_levels = np.array([self.tls_fap_1.value(),self.tls_fap_2.value(),self.tls_fap_3.value()])
 
         
@@ -5824,7 +5920,7 @@ Transit duration: %s d
         if len(fit.tls_o_c) == 0:
             return
 
-        N_transit_files = len([x for x in range(10) if len(fit.tra_data_sets[x]) != 0])
+        N_transit_files = len([x for x in range(20) if len(fit.tra_data_sets[x]) != 0])
         SDE_levels = np.array([self.tls_fap_1.value(),self.tls_fap_2.value(),self.tls_fap_3.value()])
 
 
@@ -5923,7 +6019,7 @@ Transit duration: %s d
         
         # check if transit data is present
         z=0
-        for i in range(10):
+        for i in range(20):
             if len(fit.tra_data_sets[i]) != 0:
                 z=z+1
         
@@ -6004,6 +6100,7 @@ Transit duration: %s d
             for i in range(10): 
                 fit.use.use_jitters[i] = False
                 fit.use.use_offsets[i] = False   
+            for i in range(20): 
                 fit.tra_off_use[i] = False
                 fit.tra_jitt_use[i] = False
             #old_tra_use = fit.tr_params_use 
@@ -6024,7 +6121,8 @@ Transit duration: %s d
                 fit.use.use_planet_params[i*7+6] = dill.copy(old_rv_use[i*7+6]) 
             for i in range(10): 
                 fit.use.use_jitters[i] =  dill.copy(old_rvjitt_use[i]) 
-                fit.use.use_offsets[i] =  dill.copy(old_rvoff_use[i])  
+                fit.use.use_offsets[i] =  dill.copy(old_rvoff_use[i]) 
+            for i in range(20):  
                 fit.tra_off_use[i] = dill.copy(old_tra_off_use[i])
                 fit.tra_jitt_use[i] = dill.copy(old_tra_jitt_use[i])   
 
@@ -6776,7 +6874,7 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False, es_version='0.61'):
+    def print_info_credits(self, image=False, es_version='0.62'):
  
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
@@ -7420,7 +7518,7 @@ will be highly appreciated!
              return
 
         ntran_data = 0
-        for i in range(0,10,1):
+        for i in range(0,20,1):
             ntran_data += len(fit.tra_data_sets[i]) 
 
         if fit.type_fit["Transit"] == True  and ntran_data == 0:
@@ -7660,7 +7758,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
              return
 
         ntran_data = 0
-        for i in range(0,10,1):
+        for i in range(0,20,1):
             ntran_data += len(fit.tra_data_sets[i]) 
 
         if fit.type_fit["Transit"] == True  and ntran_data == 0:
@@ -7994,7 +8092,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                         return
 
             elif  file_extension == '.tran':
-                for i in range(10):
+                for i in range(20):
                     if len(fit.tra_data_sets[i]) == 0:
                         but_ind = i +1
 
@@ -8642,11 +8740,11 @@ Please install via 'pip install ttvfast'.
         font.setBold(False)
         #font.setWeight(75)
 
-        for i in range(11):
+        for i in range(21):
             self.buttonGroup_color_picker_tra.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
             self.buttonGroup_color_picker_tra.button(i+1).setText("%s"%fit.tra_colors[i])
             self.buttonGroup_color_picker_tra.button(i+1).setFont(font)
-        for i in range(10):
+        for i in range(20):
             self.buttonGroup_symbol_picker_tra.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
             self.buttonGroup_symbol_picker_tra.button(i+1).setText(fit.pyqt_symbols_tra[i])
             self.buttonGroup_symbol_picker_tra.button(i+1).setFont(font)
@@ -8815,7 +8913,16 @@ Please install via 'pip install ttvfast'.
         fit.pyqt_symbols_size_tra[7] = self.trans_data_size_8.value()
         fit.pyqt_symbols_size_tra[8] = self.trans_data_size_9.value()
         fit.pyqt_symbols_size_tra[9] = self.trans_data_size_10.value()
-
+        fit.pyqt_symbols_size_tra[10] = self.trans_data_size_11.value()
+        fit.pyqt_symbols_size_tra[11] = self.trans_data_size_12.value()
+        fit.pyqt_symbols_size_tra[12] = self.trans_data_size_13.value()
+        fit.pyqt_symbols_size_tra[13] = self.trans_data_size_14.value()
+        fit.pyqt_symbols_size_tra[14] = self.trans_data_size_15.value()
+        fit.pyqt_symbols_size_tra[15] = self.trans_data_size_16.value()
+        fit.pyqt_symbols_size_tra[16] = self.trans_data_size_17.value()
+        fit.pyqt_symbols_size_tra[17] = self.trans_data_size_18.value()
+        fit.pyqt_symbols_size_tra[18] = self.trans_data_size_19.value()
+        fit.pyqt_symbols_size_tra[19] = self.trans_data_size_20.value()
 
         fit.pyqt_color_alpha_tra[0] = self.trans_data_alpha_1.value()
         fit.pyqt_color_alpha_tra[1] = self.trans_data_alpha_2.value()
@@ -8827,6 +8934,17 @@ Please install via 'pip install ttvfast'.
         fit.pyqt_color_alpha_tra[7] = self.trans_data_alpha_8.value()
         fit.pyqt_color_alpha_tra[8] = self.trans_data_alpha_9.value()
         fit.pyqt_color_alpha_tra[9] = self.trans_data_alpha_10.value()
+        fit.pyqt_color_alpha_tra[10] = self.trans_data_alpha_11.value()
+        fit.pyqt_color_alpha_tra[11] = self.trans_data_alpha_12.value()
+        fit.pyqt_color_alpha_tra[12] = self.trans_data_alpha_13.value()
+        fit.pyqt_color_alpha_tra[13] = self.trans_data_alpha_14.value()
+        fit.pyqt_color_alpha_tra[14] = self.trans_data_alpha_15.value()
+        fit.pyqt_color_alpha_tra[15] = self.trans_data_alpha_16.value()
+        fit.pyqt_color_alpha_tra[16] = self.trans_data_alpha_17.value()
+        fit.pyqt_color_alpha_tra[17] = self.trans_data_alpha_18.value()
+        fit.pyqt_color_alpha_tra[18] = self.trans_data_alpha_19.value()
+        fit.pyqt_color_alpha_tra[19] = self.trans_data_alpha_20.value()
+
 
     ### TTV ####
 
@@ -9209,19 +9327,40 @@ https://github.com/3fon3fonov/exostriker/issues
         self.Button_transit_data_7.setEnabled(trigger) 
         self.Button_transit_data_8.setEnabled(trigger) 
         self.Button_transit_data_9.setEnabled(trigger) 
-        self.Button_transit_data_10.setEnabled(trigger) 
+        self.Button_transit_data_10.setEnabled(trigger)
+        self.Button_transit_data_11.setEnabled(trigger) 
+        self.Button_transit_data_12.setEnabled(trigger) 
+        self.Button_transit_data_13.setEnabled(trigger) 
+        self.Button_transit_data_14.setEnabled(trigger) 
+        self.Button_transit_data_15.setEnabled(trigger) 
+        self.Button_transit_data_16.setEnabled(trigger) 
+        self.Button_transit_data_17.setEnabled(trigger) 
+        self.Button_transit_data_18.setEnabled(trigger) 
+        self.Button_transit_data_19.setEnabled(trigger) 
+        self.Button_transit_data_20.setEnabled(trigger)
+
         
-        self.remove_transit_data1.setEnabled(trigger) 
-        self.remove_transit_data2.setEnabled(trigger) 
-        self.remove_transit_data3.setEnabled(trigger) 
-        self.remove_transit_data4.setEnabled(trigger) 
-        self.remove_transit_data5.setEnabled(trigger) 
-        self.remove_transit_data6.setEnabled(trigger) 
-        self.remove_transit_data7.setEnabled(trigger) 
-        self.remove_transit_data8.setEnabled(trigger) 
-        self.remove_transit_data9.setEnabled(trigger) 
-        self.remove_transit_data10.setEnabled(trigger)  
-        
+        self.remove_transit_data_1.setEnabled(trigger) 
+        self.remove_transit_data_2.setEnabled(trigger) 
+        self.remove_transit_data_3.setEnabled(trigger) 
+        self.remove_transit_data_4.setEnabled(trigger) 
+        self.remove_transit_data_5.setEnabled(trigger) 
+        self.remove_transit_data_6.setEnabled(trigger) 
+        self.remove_transit_data_7.setEnabled(trigger) 
+        self.remove_transit_data_8.setEnabled(trigger) 
+        self.remove_transit_data_9.setEnabled(trigger) 
+        self.remove_transit_data_10.setEnabled(trigger)  
+        self.remove_transit_data_11.setEnabled(trigger) 
+        self.remove_transit_data_12.setEnabled(trigger) 
+        self.remove_transit_data_13.setEnabled(trigger) 
+        self.remove_transit_data_14.setEnabled(trigger) 
+        self.remove_transit_data_15.setEnabled(trigger) 
+        self.remove_transit_data_16.setEnabled(trigger) 
+        self.remove_transit_data_17.setEnabled(trigger) 
+        self.remove_transit_data_18.setEnabled(trigger) 
+        self.remove_transit_data_19.setEnabled(trigger) 
+        self.remove_transit_data_20.setEnabled(trigger)  
+                
         
         self.Button_ttv_data_1.setEnabled(trigger) 
         self.Button_ttv_data_2.setEnabled(trigger) 
@@ -9332,7 +9471,7 @@ https://github.com/3fon3fonov/exostriker/issues
         global fit
         #but_ind = self.buttonGroup_use_tra_data_GP.checkedId()   
 
-        for j in range(10):
+        for j in range(20):
     
             if len(fit.tra_data_sets[j]) == 0:
                 continue
@@ -9345,7 +9484,7 @@ https://github.com/3fon3fonov/exostriker/issues
         global fit
         #but_ind = self.buttonGroup_use_tra_data_GP.checkedId()   
 
-        for j in range(10):
+        for j in range(20):
     
             if len(fit.tra_data_sets[j]) == 0:
                 continue
@@ -9610,7 +9749,7 @@ https://github.com/3fon3fonov/exostriker/issues
     def __init__(self):
         global fit 
         
-        es_version = "0.61"
+        es_version = "0.62"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -10441,6 +10580,16 @@ https://github.com/3fon3fonov/exostriker/issues
         self.buttonGroup_use_ld_8.buttonClicked.connect(self.set_tra_ld)
         self.buttonGroup_use_ld_9.buttonClicked.connect(self.set_tra_ld)
         self.buttonGroup_use_ld_10.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_11.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_12.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_13.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_14.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_15.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_16.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_17.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_18.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_19.buttonClicked.connect(self.set_tra_ld)
+        self.buttonGroup_use_ld_20.buttonClicked.connect(self.set_tra_ld)
 
 
         self.Button_apply_set_ld_group.clicked.connect(self.set_tra_gr)
@@ -10457,6 +10606,18 @@ https://github.com/3fon3fonov/exostriker/issues
         self.buttonGroup_use_tra_reg_8.buttonClicked.connect(lambda: self.set_tra_reg(ind = 7))
         self.buttonGroup_use_tra_reg_9.buttonClicked.connect(lambda: self.set_tra_reg(ind = 8))
         self.buttonGroup_use_tra_reg_10.buttonClicked.connect(lambda: self.set_tra_reg(ind = 9))
+        self.buttonGroup_use_tra_reg_11.buttonClicked.connect(lambda: self.set_tra_reg(ind = 10))
+        self.buttonGroup_use_tra_reg_12.buttonClicked.connect(lambda: self.set_tra_reg(ind = 11))
+        self.buttonGroup_use_tra_reg_13.buttonClicked.connect(lambda: self.set_tra_reg(ind = 12))
+        self.buttonGroup_use_tra_reg_14.buttonClicked.connect(lambda: self.set_tra_reg(ind = 13))
+        self.buttonGroup_use_tra_reg_15.buttonClicked.connect(lambda: self.set_tra_reg(ind = 14))
+        self.buttonGroup_use_tra_reg_16.buttonClicked.connect(lambda: self.set_tra_reg(ind = 15))
+        self.buttonGroup_use_tra_reg_17.buttonClicked.connect(lambda: self.set_tra_reg(ind = 16))
+        self.buttonGroup_use_tra_reg_18.buttonClicked.connect(lambda: self.set_tra_reg(ind = 17))
+        self.buttonGroup_use_tra_reg_19.buttonClicked.connect(lambda: self.set_tra_reg(ind = 18))
+        self.buttonGroup_use_tra_reg_20.buttonClicked.connect(lambda: self.set_tra_reg(ind = 19))
+
+
  
        # self.RV_phase_slider.sliderReleased.connect(self.rv_plot_phase_change)
         self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_change)
@@ -10509,7 +10670,7 @@ https://github.com/3fon3fonov/exostriker/issues
         
 
 
-        print("""You are running a demo version of the Exo-Striker (ver. %s). 
+        print("""You are running a development version of the Exo-Striker (ver. %s). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
 """%es_version)
