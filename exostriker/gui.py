@@ -5696,7 +5696,14 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         omega = 1/ np.logspace(np.log10(self.mlp_min_period.value()), np.log10(self.mlp_max_period.value()), num=int(self.mlp_n_omega.value()))
         ind_norm = self.gls_norm_combo.currentIndex()
+
+        if self.mlp_cross_hair.isChecked():
+            gls_like = True
+        else:
+            gls_like = False            
  
+        mlp_N_threads = int(self.mlp_N_threads.value())
+
         if len(fit.fit_results.rv_model.jd) > 5:  
             
             rv_files_for_mlp = []
@@ -5713,7 +5720,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                     
                 rv_files_for_mlp.append(typ)
             
-            RV_per = mlp.Gls(rv_files_for_mlp, fast=True,  verbose=False, nojit=True,
+            RV_per = mlp.Gls(rv_files_for_mlp, fast=True,  verbose=False, nojit=True,ls=gls_like,ncpus= mlp_N_threads,
             ofac=self.mlp_ofac.value(), fbeg=omega[-1], fend=omega[0], norm='dlnL')
 
         else:
@@ -5737,7 +5744,6 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])
         self.colors_alias_mlp.setStyleSheet("color: %s;"%colors_MLP_alias[0])
 
-
         power_levels_gui = np.array([self.mlp_fap1.value(),self.mlp_fap2.value(),self.mlp_fap3.value()])
 
         Delta_f = max(fit.mlp.freq) - min(fit.mlp.freq)
@@ -5749,6 +5755,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         #power_levels = np.array([5,10,15])
 
         gls_model_width = float(self.gls_model_width.value())
+
 
         if len(fit.fit_results.rv_model.jd) > 5:
 

@@ -37,6 +37,9 @@ from numpy import sum, pi, cos, sin, arctan2, exp, log, sqrt,\
 #from pause import *
 #from gplot import *
 from scipy import optimize as op
+import time 
+from pathos.pools import ProcessPool as Pool
+
 
 # for python3: emulate the nice python2 behaviour of map and zip
 xmap = map
@@ -143,8 +146,10 @@ class Gls:
     # Available normalizations
     norms = ['dlnL', 'lnL', 'Scargle', 'HorneBaliunas', 'Cumming', 'wrms', 'chisq']
 
-    def __init__(self, lc, fbeg=None, fend=None, Pbeg=None, Pend=None, ofac=10, hifac=1, freq=None, norm="dlnL", ls=False, fast=False, verbose=False, **kwargs):
+    def __init__(self, lc, fbeg=None, fend=None, Pbeg=None, Pend=None, ofac=10, hifac=1, freq=None, norm="dlnL", ls=False, ncpus = 1, fast=False, verbose=False, **kwargs):
 
+
+        self.ncpus = ncpus 
         self.freq = freq
         self.fbeg = fbeg
         self.fend = fend
@@ -273,6 +278,29 @@ class Gls:
           wtrms += [np.sqrt(np.sum((y-ymod)**2/sigma2)/np.sum(1/sigma2))]
        return sum(L)
 
+
+    def partial_func(self,omega):
+
+      # Circular frequencies
+      X = [omega*th for th in self.th]
+      cosX = map(cos, X)
+      sinX = map(sin, X)
+      a = op.fmin_powell(self.nll, self.a, args=(zip(cosX,sinX), self.y, self.e_y, mod_abc), disp=False)
+
+      _a= a[0]
+      _b= a[1]
+      _off= a[2:2+self.Nj]
+      _lnMLj = L
+      _chisqr = chisqr
+      lnML = sum(L)
+      _wtrms = wtrms
+      W = [np.sum(1/(e_y**2+jit**2)) for e_y,jit in zip(self.e_y, a[-self.Nj:])]
+      _wrms = np.sqrt(np.sum(chisqr)/np.sum(W))   # a bit handwavy defined
+      
+      return [a, _a,_b,_off,_lnMLj,_chisqr,lnML,_wtrms,_wrms]
+
+
+
     def _calcPeriodogram(self):
 
         self._a, self._b, self.p, self.lnML = np.zeros((4, self.nf))
@@ -291,7 +319,7 @@ class Gls:
         #a0 = [0.]*self.Nj + [3.]*self.Nj # start guess for first frequency
         a0 = map(np.mean, self.y) + map(np.std, self.y)
         #print(a0)
-
+        self.nll = nll
         # The model with only offset c
         a0 = op.fmin_powell(nll, a0, args=(self.th, self.y, self.e_y, mod_c), disp=False)
         self.lnML0 = sum(L)
@@ -302,30 +330,34 @@ class Gls:
 
         self.chisqr = chisqr
         self.wtrms = wtrms
-        #print(sum(L), L, a0)
-        a = [0., 0.] + list(a0)   # start guess for first frequency
-        a = [np.median(a0[len(a0)//2:])]*2 + list(a0)   # start guess for first frequency
-        for k, omega in enumerate(2.*pi*self.freq):
-          # Circular frequencies
-          X = [omega*th for th in self.th]
-          cosX = map(cos, X)
-          sinX = map(sin, X)
-          # self.lnL(theta, zip(cosX,sinX), self.y, self.e_y, mod_abc)
-          #a = op.fmin(nll, a, args=(zip(cosX,sinX), self.y, self.e_y, mod_abc), disp=False)
-          a = op.fmin_powell(nll, a, args=(zip(cosX,sinX), self.y, self.e_y, mod_abc), disp=False)
-          self.par.append(a)
-          self._a[k]= a[0]
-          self._b[k]= a[1]
-          self._off[k]= a[2:2+self.Nj]
-          self._lnMLj[k] = L
-          self._chisqr[k] = chisqr
-          self.lnML[k] = sum(L)
-          self._wtrms[k] = wtrms
-          W = [np.sum(1/(e_y**2+jit**2)) for e_y,jit in zip(self.e_y, a[-self.Nj:])]
-          self._wrms[k] = np.sqrt(np.sum(chisqr)/np.sum(W))   # a bit handwavy defined
-          #print(k, self.nf, L)
+        self.a = [np.median(a0[len(a0)//2:])]*2 + list(a0)   # start guess for first frequency
+
+       # import tqdm
+
+        start_time = time.time()   
+        with Pool(ncpus=self.ncpus) as thread: 
+          results = thread.map(self.partial_func,   [omega for omega in 2.*pi*self.freq])
+
+        thread.close()
+        thread.join()
+        thread.clear()
+
+        for k in range(len(results)):
+
+          self.par.append(results[k][0])
+          self._a[k]= results[k][1]
+          self._b[k]= results[k][2]
+          self._off[k]= results[k][3]
+          self._lnMLj[k] = results[k][4]
+          self._chisqr[k] = results[k][5]
+          self.lnML[k] = results[k][6]
+          self._wtrms[k] = results[k][7]
+          self._wrms[k] = results[k][8]
+
         self.p = self.lnML
-        #print()
+
+        print("--- %s CPUs done in %s seconds --- " % (self.ncpus, time.time() - start_time))     
+
 
     def _normcheck(self, norm):
         """
@@ -398,7 +430,8 @@ class Gls:
         p["ph"] = ph = arctan2(self._a[k], self._b[k]) / (2.*pi)
         p["T0"]  = self.tmin - ph/fbest
         p["offset"] = self._off[k]
-        p["jitter"] = self.par[k][-self.Nj:]
+        #print(len(self.par),self.Nj)
+        p["jitter"] = self.par[0][-self.Nj:]
 
         # Error estimates
         p["amp_err"] = sqrt(2./self.N) * rms
