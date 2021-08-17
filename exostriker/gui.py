@@ -9748,6 +9748,14 @@ https://github.com/3fon3fonov/exostriker/issues
             return super(Exo_striker, self).eventFilter(obj, event)
 
 
+
+
+    def count_cpus(self):
+
+        self.mlp_N_threads.setValue(cpu_count())
+        self.N_threads.setValue(cpu_count())
+        self.nest_N_threads.setValue(cpu_count())
+
 ################################################################################################
 
 
@@ -10675,6 +10683,9 @@ https://github.com/3fon3fonov/exostriker/issues
         self.plot_opt_tab.tabBarClicked.connect(self.check_cornerplot_samples)
         #self.cornerplot_plot_tab.isVisible.connect(self.check_cornerplot_samples)
         
+
+
+        self.count_cpus()
 
 
         print("""You are running a development version of the Exo-Striker (ver. %s). 

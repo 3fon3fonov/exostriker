@@ -318,7 +318,7 @@ class Gls:
         nll = lambda *args: -self.lnL(*args)
         #a0 = [0.]*self.Nj + [3.]*self.Nj # start guess for first frequency
         a0 = map(np.mean, self.y) + map(np.std, self.y)
-        #print(a0)
+
         self.nll = nll
         # The model with only offset c
         a0 = op.fmin_powell(nll, a0, args=(self.th, self.y, self.e_y, mod_c), disp=False)
@@ -431,7 +431,7 @@ class Gls:
         p["T0"]  = self.tmin - ph/fbest
         p["offset"] = self._off[k]
         #print(len(self.par),self.Nj)
-        p["jitter"] = self.par[0][-self.Nj:]
+        p["jitter"] = self.par[k][-self.Nj:]
 
         # Error estimates
         p["amp_err"] = sqrt(2./self.N) * rms
