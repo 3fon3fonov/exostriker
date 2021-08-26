@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 if sys.version_info >= (3,7):
     install_requires_py_ver=[
-    "numpy>=1.16.6",
+    "numpy>=1.16.6,<1.21",
     "scipy>=1.2.1",
     "matplotlib==3.3.1",
     "formlayout==1.2.0",
