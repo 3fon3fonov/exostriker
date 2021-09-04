@@ -3570,6 +3570,23 @@ class signal_fit(object):
                     print("CHEOPS light curve detected.")
                     tra_airmass_ = np.zeros(len(tra_JD))
 
+                else:
+  
+                    if PDC == True:
+                        tra_JD        = dd['TIME'][np.isfinite(dd['TIME']) & np.isfinite(dd['PDCSAP_FLUX']) & np.isfinite(dd['PDCSAP_FLUX_ERR'])]
+                        tra_data      = dd['PDCSAP_FLUX'][np.isfinite(dd['TIME']) & np.isfinite(dd['PDCSAP_FLUX']) & np.isfinite(dd['PDCSAP_FLUX_ERR'])]
+                        tra_data_sig  = dd['PDCSAP_FLUX_ERR'][np.isfinite(dd['TIME']) & np.isfinite(dd['PDCSAP_FLUX']) & np.isfinite(dd['PDCSAP_FLUX_ERR'])]
+                    else:
+                        tra_JD        = dd['TIME'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
+                        tra_data      = dd['SAP_FLUX'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
+                        tra_data_sig  = dd['SAP_FLUX_ERR'][np.isfinite(dd['TIME']) & np.isfinite(dd['SAP_FLUX']) & np.isfinite(dd['SAP_FLUX_ERR'])]
+    
+                    print("Kepler/K2 or other telescope light curve detected.")
+                    
+                    tra_JD = tra_JD + 2457000.0
+                    tra_airmass_ = np.zeros(len(tra_JD))
+
+
             except:
                 print("Unknown type of .fits file! Please provide a TESS *lc.fits, or a CHEOPS *SCI_COR*.fits file")
                 return            

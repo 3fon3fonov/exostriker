@@ -34,11 +34,15 @@ from __future__ import print_function, division
 import numpy as np
 from numpy import sum, pi, cos, sin, arctan2, exp, log, sqrt,\
                   dot, argmax, arange
+#from math import sqrt
 #from pause import *
 #from gplot import *
 from scipy import optimize as op
-import time 
-from pathos.pools import ProcessPool as Pool
+import time
+try:
+   from pathos.pools import ProcessPool as Pool
+except:
+   pass
 
 
 # for python3: emulate the nice python2 behaviour of map and zip
@@ -146,10 +150,8 @@ class Gls:
     # Available normalizations
     norms = ['dlnL', 'lnL', 'Scargle', 'HorneBaliunas', 'Cumming', 'wrms', 'chisq']
 
-    def __init__(self, lc, fbeg=None, fend=None, Pbeg=None, Pend=None, ofac=10, hifac=1, freq=None, norm="dlnL", ls=False, ncpus = 1, fast=False, verbose=False, **kwargs):
+    def __init__(self, lc, fbeg=None, fend=None, Pbeg=None, Pend=None, ofac=10, hifac=1, freq=None, norm="dlnL", ls=False, fast=False, ncpus=None, verbose=False, **kwargs):
 
-
-        self.ncpus = ncpus 
         self.freq = freq
         self.fbeg = fbeg
         self.fend = fend
@@ -160,6 +162,7 @@ class Gls:
         self.ls = ls
         self.norm = norm
         self.fast = fast
+        self.ncpus = ncpus
         self.label = {'title': 'Maximum Likelihood Periodogram',
                       'xlabel': 'Frequency'}
         if "stats" in kwargs:
@@ -279,7 +282,7 @@ class Gls:
        return sum(L)
 
 
-    def partial_func(self,omega):
+    def single_freq_fit(self, omega):
 
       # Circular frequencies
       X = [omega*th for th in self.th]
@@ -296,8 +299,8 @@ class Gls:
       _wtrms = wtrms
       W = [np.sum(1/(e_y**2+jit**2)) for e_y,jit in zip(self.e_y, a[-self.Nj:])]
       _wrms = np.sqrt(np.sum(chisqr)/np.sum(W))   # a bit handwavy defined
-      
-      return [a, _a,_b,_off,_lnMLj,_chisqr,lnML,_wtrms,_wrms]
+
+      return (a, _a, _b, _off, _lnMLj, _chisqr, lnML, _wtrms, _wrms)
 
 
 
@@ -318,7 +321,7 @@ class Gls:
         nll = lambda *args: -self.lnL(*args)
         #a0 = [0.]*self.Nj + [3.]*self.Nj # start guess for first frequency
         a0 = map(np.mean, self.y) + map(np.std, self.y)
-
+        #print(a0)
         self.nll = nll
         # The model with only offset c
         a0 = op.fmin_powell(nll, a0, args=(self.th, self.y, self.e_y, mod_c), disp=False)
@@ -332,27 +335,30 @@ class Gls:
         self.wtrms = wtrms
         self.a = [np.median(a0[len(a0)//2:])]*2 + list(a0)   # start guess for first frequency
 
-       # import tqdm
+        # frequency grid
+        omegas = [omega for omega in 2.*pi*self.freq]
 
-        start_time = time.time()   
-        with Pool(ncpus=self.ncpus) as thread: 
-          results = thread.map(self.partial_func,   [omega for omega in 2.*pi*self.freq])
+        start_time = time.time()
+        if self.ncpus is not None:
+           with Pool(ncpus=self.ncpus) as thread:
+              results = thread.map(self.single_freq_fit, omegas)
 
-        thread.close()
-        thread.join()
-        thread.clear()
+        for k, omega in enumerate(omegas):
+           if self.ncpus is None:
+              res_k = self.single_freq_fit(omega)
+              print(end="%6.2f %%\r" % (k/(self.nf-1)*100))    # progress indicator
+           else:
+              res_k = results[k]
 
-        for k in range(len(results)):
-
-          self.par.append(results[k][0])
-          self._a[k]= results[k][1]
-          self._b[k]= results[k][2]
-          self._off[k]= results[k][3]
-          self._lnMLj[k] = results[k][4]
-          self._chisqr[k] = results[k][5]
-          self.lnML[k] = results[k][6]
-          self._wtrms[k] = results[k][7]
-          self._wrms[k] = results[k][8]
+           self.par.append(res_k[0])
+           self._a[k] = res_k[1]
+           self._b[k] = res_k[2]
+           self._off[k] = res_k[3]
+           self._lnMLj[k] = res_k[4]
+           self._chisqr[k] = res_k[5]
+           self.lnML[k] = res_k[6]
+           self._wtrms[k] = res_k[7]
+           self._wrms[k] = res_k[8]
 
         self.p = self.lnML
 

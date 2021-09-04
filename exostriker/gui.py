@@ -5158,7 +5158,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 bjd    = dill.copy(self.ActivityWindow.t_store[but_ind-1])
                 flux   = dill.copy(self.ActivityWindow.flux_o_c_store[but_ind-1])               
                 flux_e = dill.copy(self.ActivityWindow.flux_o_c_store[but_ind-1])                   
-                print(but_ind-1)
+                #print(but_ind-1)
                 for j in range(8): 
                     fit.act_data_sets[but_ind-1][j] = fit.act_data_sets[but_ind-1][j][np.isfinite(bjd) & 
                                                                                       np.isfinite(flux) & 
@@ -6338,7 +6338,7 @@ Transit duration: %s d
         self.run_orb_evol_arbitary.setEnabled(False)           
         self.check_arb_pl()
 
-        print(fit.npl_arb)
+        #print(fit.npl_arb)
 
         if fit.npl_arb < 2:
             choice = QtWidgets.QMessageBox.information(self, 'Warning!'," With less than two planets this makes no sense. Okay?",
@@ -7858,7 +7858,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         global fit
         #print(fit.mcmc_fileoutput,self.save_samples.isChecked())
 
-        print(int(self.N_threads.value()))
+        #print(int(self.N_threads.value()))
 
         fit.gaussian_ball = self.init_gauss_ball.value() 
         fit.nwalkers_fact = int(self.nwalkers_fact.value()) 
@@ -7961,8 +7961,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
     def check_cornerplot_samples(self):
         global fit  
-        
-       # print("TESTTTTT")
+      
         
         if isinstance(fit.mcmc_sampler, rv.CustomSampler):
             MCMC_SAMP_LED = './lib/UI/green_led.png'
@@ -9738,7 +9737,7 @@ https://github.com/3fon3fonov/exostriker/issues
            # if index != -1:
            #     QtGui.QToolTip.showText(helpEvent.globalPos(), self.shapeItems[index].toolTip())
            # else:
-            print("TEST")
+            #print("TEST")
             QtGui.QToolTip.hideText()
             event.ignore()
 
