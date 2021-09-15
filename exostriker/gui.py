@@ -3915,7 +3915,7 @@ Polyfit coefficients:
                 else:
                     ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True)
 
-                fit.ttv_results = ttv_loglik
+                fit.ttv_results = dill.copy(ttv_loglik)
 
                 if ttv_loglik == None:
                     print("""
@@ -3928,9 +3928,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                     return
 
                 if self.ttv_show_Ntransit.isChecked():
-                    ttv_model = ttv_loglik[4][j][1] #- flux[0] #ttv_loglik[4][j][1][0]                  
+                    ttv_model = dill.copy(ttv_loglik[4][j][1]) #- flux[0] #ttv_loglik[4][j][1][0]                  
                     ttv_model_transits = []
-                    model_N_transits = ttv_loglik[4][j][0]
+                    model_N_transits = dill.copy(ttv_loglik[4][j][0])
 
 
                     if self.ttv_apply_mean_period.isChecked():
@@ -3952,9 +3952,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
                 elif self.ttv_show_BJD.isChecked():
 
-                    ttv_model = ttv_loglik[4][j][1] #-ttv_loglik[4][j][1][0]                  
+                    ttv_model = dill.copy(ttv_loglik[4][j][1]) #-ttv_loglik[4][j][1][0]                  
                     ttv_model_transits = []
-                    model_N_transits = ttv_loglik[4][j][0]
+                    model_N_transits = dill.copy(ttv_loglik[4][j][0])
 
                     if self.ttv_apply_mean_period.isChecked():
                         periods_t0 = [ttv_model[k+1] - ttv_model[k] for k in range(len(ttv_model)-1)]
