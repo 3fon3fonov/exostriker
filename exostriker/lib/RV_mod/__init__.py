@@ -37,7 +37,6 @@ import scipy.optimize as op
 from scipy import stats
 
 
-
 try:
     import batman as batman
 
@@ -74,6 +73,7 @@ from .Warning_log import Warning_log
 from .parameters import parameters, GP_parameters, parameter_errors, parameter_bounds, use_flags
 from .fortran_output import fortran_output
 from .functions import *
+
 from .errors import Error, InputError, FittingError
 from .kernel import kernel, rvmodel, summary
 from .rv_files import rvfile, rvfile_list
@@ -87,6 +87,13 @@ DEFAULT_PATH='./datafiles/'
 
 from . import GP_kernels
 
+ 
+try:
+    check_fortran_routines()  
+
+except (ImportError, KeyError, AttributeError) as e:
+    print("Something is wrong with the fortran binaries....")
+    pass
 
 
 

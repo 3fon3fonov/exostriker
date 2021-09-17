@@ -55,6 +55,8 @@ from worker import Worker #, WorkerSignals
 import gui_groups
 
 
+
+
 from multiprocessing import cpu_count
 
 #import BKR as bkr
@@ -9063,85 +9065,6 @@ Please install via 'pip install ttvfast'.
         self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
         self.terminal_embeded.setCurrentWidget(self.console_widget)
 
-################################## Version controll #######################################
-
-
-    def check_fortran_routines(self):
-
-        if not os.path.exists("./lib/libswift.a"):
-            print("Installing the swift N-body lib for a first time!")
-            result6, flag6 = rv.run_command_with_timeout('./install_swift.sh', 600,output=True)
-            #print(result6)
-            print("Installation DONE!")
-
-
-        version_kep_loglik= "0.07"
-        result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
-        if flag1 == -1 or str(result1[0][0]) != version_kep_loglik:
-            print("New source code available: Updating Keplerian Simplex")
-            result1, flag1 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep', 15,output=True)
-            result1, flag1 = rv.run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
-
-        version_kep_LM= "0.07"
-        result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)
-        if flag2 == -1 or str(result2[0][0]) != version_kep_LM:
-            print("New source code available: Updating Keplerian L-M") 
-            result2, flag2 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep', 15,output=True)
-            result2, flag2 = rv.run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)
-
-        version_dyn_loglik= "0.09"
-        result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)
-        if flag3 == -1 or str(result3[0][0]) != version_dyn_loglik:
-            print("New source code available: Updating N-body Simplex")   
-            result3, flag3 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn',15,output=True)
-            result3, flag3 = rv.run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)
-
-        version_dyn_LM= "0.07"
-        result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)
-        if flag4 == -1 or str(result4[0][0]) != version_dyn_LM:
-            print("New source code available: Updating N-body L-M")
-            result4, flag4 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn', 15,output=True)
-            result4, flag4 = rv.run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)
-
-        version_dyn_loglik_= "0.06"
-        result5, flag5 = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)
-        if flag5 == -1 or str(result5[0][0]) != version_dyn_loglik_:
-            print("New source code available: Updating Mixed Simplex")
-            result5, flag5 = rv.run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+', 15,output=True)
-            result5, flag5 = rv.run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)
-
-        try:
-            r1 = float(result1[0][0])
-            r2 = float(result2[0][0])
-            r3 = float(result3[0][0])
-            r4 = float(result4[0][0])
-            r5 = float(result5[0][0])
-        except (ImportError, KeyError, AttributeError,ValueError, IndexError) as e:
-            
-            result6, flag6 = rv.run_command_with_timeout('gfortran -v', 15,output=True)
-
-            
-            
-            print("""
-Something went wrong!!! 
-
-Perhaps you do not have user permission to compile code in the Exo-Striker directory?
-Or perhaps, you do not have 'gfortran' installed? 
-
-Trying 
-
-$ gfortran -v 
-
-returned:
-    
-%s    
-
-If 'gfortran' is not found, please install it and try again. Else, please open a GitHub issue here:
-    
-https://github.com/3fon3fonov/exostriker/issues
-            """%result6
-            )
- 
   
  
 
@@ -9779,7 +9702,9 @@ https://github.com/3fon3fonov/exostriker/issues
 
         self.initialize_font_plot()
 
-        self.check_fortran_routines()
+       # check_fortran_routines()
+        #self.check_fortran_routines()
+
         self.safe_to_init = True
 #        self.installEventFilter(self)
         
