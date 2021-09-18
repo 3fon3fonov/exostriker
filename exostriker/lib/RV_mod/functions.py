@@ -59,49 +59,50 @@ def check_for_missing_instances(fit,fit_new):
 ################################## Version controll #######################################
 
 
-def check_fortran_routines():
 
-    if not os.path.exists("./lib/libswift.a"):
+def check_fortran_routines(path='./'):
+
+    if not os.path.exists("%s/lib/libswift.a"%path):
         print("Installing the swift N-body lib for a first time!")
-        result6, flag6 = run_command_with_timeout('./install_swift.sh', 600,output=True)
+        result6, flag6 = run_command_with_timeout('%s/install_swift.sh'%path, 600,output=True)
         #print(result6)
         print("Installation DONE!")
 
 
     version_kep_loglik= "0.07"
-    result1, flag1 = run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
+    result1, flag1 = run_command_with_timeout('%s/lib/fr/loglik_kep -version'%path, 1,output=True)
     if flag1 == -1 or str(result1[0][0]) != version_kep_loglik:
         print("New source code available: Updating Keplerian Simplex")
-        result1, flag1 = run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_amoeba.f -o ./lib/fr/loglik_kep', 15,output=True)
-        result1, flag1 = run_command_with_timeout('./lib/fr/loglik_kep -version', 1,output=True)
+        result1, flag1 = run_command_with_timeout('gfortran -O3 %s/source/latest_f/kepfit_amoeba.f -o %s/lib/fr/loglik_kep'%(path,path), 15,output=True)
+        result1, flag1 = run_command_with_timeout('%s/lib/fr/loglik_kep -version'%path, 1,output=True)
 
     version_kep_LM= "0.07"
-    result2, flag2 = run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)
+    result2, flag2 = run_command_with_timeout('%s/lib/fr/chi2_kep -version'%path, 1,output=True)
     if flag2 == -1 or str(result2[0][0]) != version_kep_LM:
         print("New source code available: Updating Keplerian L-M") 
-        result2, flag2 = run_command_with_timeout('gfortran -O3 ./source/latest_f/kepfit_LM.f -o ./lib/fr/chi2_kep', 15,output=True)
-        result2, flag2 = run_command_with_timeout('./lib/fr/chi2_kep -version', 1,output=True)
+        result2, flag2 = run_command_with_timeout('gfortran -O3 %s/source/latest_f/kepfit_LM.f -o %s/lib/fr/chi2_kep'%(path,path), 15,output=True)
+        result2, flag2 = run_command_with_timeout('%s/lib/fr/chi2_kep -version'%path, 1,output=True)
 
     version_dyn_loglik= "0.09"
-    result3, flag3 = run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)
+    result3, flag3 = run_command_with_timeout('%s/lib/fr/loglik_dyn -version'%path, 1,output=True)
     if flag3 == -1 or str(result3[0][0]) != version_dyn_loglik:
         print("New source code available: Updating N-body Simplex")   
-        result3, flag3 = run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba.f -o ./lib/fr/loglik_dyn',15,output=True)
-        result3, flag3 = run_command_with_timeout('./lib/fr/loglik_dyn -version', 1,output=True)
+        result3, flag3 = run_command_with_timeout('gfortran -O3 %s/source/latest_f/dynfit_amoeba.f -o %s/lib/fr/loglik_dyn'%(path,path),15,output=True)
+        result3, flag3 = run_command_with_timeout('%s/lib/fr/loglik_dyn -version'%path, 1,output=True)
 
     version_dyn_LM= "0.07"
-    result4, flag4 = run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)
+    result4, flag4 = run_command_with_timeout('%s/lib/fr/chi2_dyn -version'%path, 1,output=True)
     if flag4 == -1 or str(result4[0][0]) != version_dyn_LM:
         print("New source code available: Updating N-body L-M")
-        result4, flag4 = run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_LM.f -o ./lib/fr/chi2_dyn', 15,output=True)
-        result4, flag4 = run_command_with_timeout('./lib/fr/chi2_dyn -version', 1,output=True)
+        result4, flag4 = run_command_with_timeout('gfortran -O3 %s/source/latest_f/dynfit_LM.f -o %s/lib/fr/chi2_dyn'%(path,path), 15,output=True)
+        result4, flag4 = run_command_with_timeout('%s/lib/fr/chi2_dyn -version'%path, 1,output=True)
 
     version_dyn_loglik_= "0.06"
-    result5, flag5 = run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)
+    result5, flag5 = run_command_with_timeout('%s/lib/fr/loglik_dyn+ -version'%path, 1,output=True)
     if flag5 == -1 or str(result5[0][0]) != version_dyn_loglik_:
         print("New source code available: Updating Mixed Simplex")
-        result5, flag5 = run_command_with_timeout('gfortran -O3 ./source/latest_f/dynfit_amoeba+.f -o ./lib/fr/loglik_dyn+', 15,output=True)
-        result5, flag5 = run_command_with_timeout('./lib/fr/loglik_dyn+ -version', 1,output=True)
+        result5, flag5 = run_command_with_timeout('gfortran -O3 %s/source/latest_f/dynfit_amoeba+.f -o %s/lib/fr/loglik_dyn+'%(path,path), 15,output=True)
+        result5, flag5 = run_command_with_timeout('%s/lib/fr/loglik_dyn+ -version'%path, 1,output=True)
 
     try:
         r1 = float(result1[0][0])
@@ -135,7 +136,7 @@ https://github.com/3fon3fonov/exostriker/issues
         """%result6
         )
 
-
+ 
 
 
 def transit_tperi_old(per, ecc, om, ma, epoch):
