@@ -13,7 +13,9 @@ import sys, os, traceback
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 #sys.path.insert(0, './lib') 
-lib_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib')
+es_path = os.path.dirname(os.path.abspath(__file__))
+lib_path = os.path.join(es_path, 'lib')
+
 sys.path.insert(0,lib_path)
  
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -10605,7 +10607,8 @@ Please install via 'pip install ttvfast'.
 
 
         self.count_cpus()
-
+        
+        rv.check_fortran_routines(es_path)
 
         print("""You are running a development version of the Exo-Striker (ver. %s). 
               

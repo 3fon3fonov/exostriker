@@ -88,8 +88,13 @@ DEFAULT_PATH='./datafiles/'
 from . import GP_kernels
 
  
+
+ES_path = os.path.abspath(__file__ + "/../../../")
+
+
+
 try:
-    check_fortran_routines()  
+    check_fortran_routines(path=ES_path)  
 
 except (ImportError, KeyError, AttributeError) as e:
     print("Something is wrong with the fortran binaries....")
