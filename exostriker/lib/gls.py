@@ -139,6 +139,8 @@ class Gls:
         self.pnorm(norm)
         self._peakPeriodogram()
 
+        self._calcWF()
+
         # Output statistics
         if verbose:
             self.info()
@@ -279,6 +281,23 @@ class Gls:
 
         # power
         self.p = (SS*YC*YC + CC*YS*YS - 2.*CS*YC*YS) / (self._YY*D)   # Eq. (5) in ZK09
+
+
+    def _calcWF(self):
+        
+
+        ######################## DFT (Window) ##############################
+
+        WF_power = []
+        for omi in 2.*pi*self.f: 
+            phase = self.th * omi
+            WC = np.sum(np.cos(phase))
+            WS = np.sum(np.sin(phase))
+            WF_power.append((WC**2 + WS**2)/self.N**2) 
+
+        self.WF_power = np.array(WF_power)
+        self.WF_omega = self.f
+
 
     def _normcheck(self, norm):
         """

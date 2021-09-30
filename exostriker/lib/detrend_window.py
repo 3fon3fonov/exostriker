@@ -200,9 +200,16 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
     def bin_data(self):
  
         self.ui.radio_remove_median.setChecked(True)
-        
-        self.ui.try_button.setText("Working!!!")
+
+
+        self.ui.try_button.setEnabled(False)
+        #self.ui.label_working.setText("Working!!!")
+        self.ui.try_button.setText("Working!!!")        
+        #self.ui.try_button.setText("Working!!!")
+        #print('test 1')
         t_, flux_, flux_err_, ind = rv.bin_data(self.t,self.flux,self.flux_err, np.zeros(len(self.t)), bin_size =self.ui.bin_data.value())         
+        #print('test 2')
+        self.ui.try_button.setEnabled(True)
         self.ui.try_button.setText("Try !")
 
         self.t = t_         
