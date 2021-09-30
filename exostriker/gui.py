@@ -2651,7 +2651,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def run_gls(self):
         global fit
 
-        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
+      #  omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
         ind_norm = self.gls_norm_combo.currentIndex()
 
         if self.gls_incl_jitter.isChecked():
@@ -2662,14 +2662,14 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         if len(fit.fit_results.rv_model.jd) > 5:      
             RV_per = gls.Gls((fit.fit_results.rv_model.jd, fit.fit_results.rv_model.rvs, error_list), 
-            fast=True,  verbose=False, norm=self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[0],)
-
+            #fast=True,  verbose=False, norm=self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[0],)
+            fast=True,  verbose=False, norm=self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=1/self.gls_max_period.value(), fend=1/self.gls_min_period.value())            
             fit.gls = RV_per
         else:
             return
 
         self.update_RV_GLS_plots()
-
+        self.update_WF_plots()
 
 
     def run_gls_o_c(self):
@@ -2682,7 +2682,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             data_o_c = fit.fit_results.rv_model.o_c  
 
         
-        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
+        #omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
         ind_norm = self.gls_norm_combo.currentIndex()
 
         if self.gls_o_c_incl_jitter.isChecked():
@@ -2692,13 +2692,38 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
         if len(fit.fit_results.rv_model.jd) > 5:
             RV_per_res = gls.Gls((fit.fit_results.rv_model.jd, data_o_c, error_list), 
-            fast=True,  verbose=False, norm= self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)            
+            fast=True,  verbose=False, norm= self.norms[ind_norm],ofac=self.gls_ofac.value(), fbeg=1/self.gls_max_period.value(), fend=1/self.gls_min_period.value())            
 
             fit.gls_o_c = RV_per_res
         else:
             return
 
         self.update_RV_o_c_GLS_plots()  
+
+
+#    def run_WF(self, RV = True):
+#        global fit
+#
+#
+#        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()),  num=int(self.gls_n_omega.value()))
+# 
+#
+#        if len(fit.fit_results.rv_model.jd) > 5:
+#            ######################## DFT (Window) ##############################
+#            WF_power = []
+#            for omi in 2*np.pi*omega: 
+#                phase = (fit.fit_results.rv_model.jd-fit.fit_results.rv_model.jd[0]) * omi
+#                WC = np.sum(np.cos(phase))
+#                WS = np.sum(np.sin(phase))
+#                WF_power.append((WC**2 + WS**2)/len(fit.fit_results.rv_model.jd)**2) 
+#
+#            fit.RV_WF_power = np.array(WF_power)
+#            fit.RV_WF_omega = np.array(omega)
+# 
+#        else:
+#            return
+#
+#        self.update_WF_plots()
 
 
     def init_gls_norm_combo(self):    
@@ -2839,34 +2864,24 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         p12.plot(clear=True,) 
         p12.setLogMode(True,False)
                         
-        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()),  num=int(self.gls_n_omega.value()))
-        #power_levels = np.array([0.1,0.01,0.001])
 
-        if len(fit.fit_results.rv_model.jd) > 5:
-            ######################## DFT (Window) ##############################
-            WF_power = []
-            for omi in 2*np.pi*omega: 
-                phase = (fit.fit_results.rv_model.jd-fit.fit_results.rv_model.jd[0]) * omi
-                WC = np.sum(np.cos(phase))
-                WS = np.sum(np.sin(phase))
-                WF_power.append((WC**2 + WS**2)/len(fit.fit_results.rv_model.jd)**2) 
+        ######################## GLS o-c ##############################
+        if self.radioButton_RV_WF_period.isChecked():
+            p12.setLogMode(True,False)        
+            #p12.plot(1/fit.RV_WF_omega, fit.RV_WF_power,pen='k',symbol=None , viewRect=True, enableAutoRange=True)   
+            p12.plot(1/fit.gls.WF_omega, fit.gls.WF_power,pen='k',symbol=None , viewRect=True, enableAutoRange=True)   
+            p12.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})
+        else:
+            p12.setLogMode(False,False)        
+           # p12.plot(fit.RV_WF_omega, fit.RV_WF_power,pen='k',symbol=None,  viewRect=True, enableAutoRange=True)  
+            p12.plot(fit.gls.WF_omega, fit.gls.WF_power,pen='k',symbol=None,  viewRect=True, enableAutoRange=True)   
+            p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()})
 
-            WF_power = np.array(WF_power)
-            ######################## GLS o-c ##############################
-            if self.radioButton_RV_WF_period.isChecked():
-                p12.setLogMode(True,False)        
-                p12.plot(1/np.array(omega), WF_power,pen='k',symbol=None , viewRect=True, enableAutoRange=True)   
-                p12.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})
-            else:
-                p12.setLogMode(False,False)        
-                p12.plot(np.array(omega), WF_power,pen='k',symbol=None,  viewRect=True, enableAutoRange=True)   
-                p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()})
+        text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls.WF_omega, fit.gls.WF_power)
 
-            text_peaks, pos_peaks = self.identify_power_peaks(1/np.array(omega), WF_power)
+        self.label_peaks(p12, pos_peaks, GLS = True, DFT = True)
 
-            self.label_peaks(p12, pos_peaks, GLS = True, DFT = True)
-
-            self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(text_peaks))
+        self.WF_print_info.clicked.connect(lambda: self.print_info_for_object(text_peaks))
 
 
     def update_RV_plot(self):
@@ -4795,7 +4810,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         #self.update_RV_o_c_GLS_plots()
         self.run_gls()
         self.run_gls_o_c()
-        self.update_WF_plots()
+       # self.run_WF(RV = True)
+
         self.update_RV_plots()
         self.update_extra_plots()
         self.update_orb_plot()
