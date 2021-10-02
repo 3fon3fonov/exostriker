@@ -443,6 +443,60 @@ def om_dot_bounds_gui(self):
     return om_dot_bounds_gui
 
 
+
+def om_dot_bounds_gui2(self):
+
+    om_dot_bounds_gui = [
+    [self.omega_dot_min_1,self.omega_dot_max_1,self.use_omega_dot_bound_1], 
+    [self.omega_dot_min_2,self.omega_dot_max_2,self.use_omega_dot_bound_2], 
+    [self.omega_dot_min_3,self.omega_dot_max_3,self.use_omega_dot_bound_3], 
+    [self.omega_dot_min_4,self.omega_dot_max_4,self.use_omega_dot_bound_4], 
+    [self.omega_dot_min_5,self.omega_dot_max_5,self.use_omega_dot_bound_5], 
+    [self.omega_dot_min_6,self.omega_dot_max_6,self.use_omega_dot_bound_6], 
+    [self.omega_dot_min_7,self.omega_dot_max_7,self.use_omega_dot_bound_7], 
+    [self.omega_dot_min_8,self.omega_dot_max_8,self.use_omega_dot_bound_8], 
+    [self.omega_dot_min_9,self.omega_dot_max_9,self.use_omega_dot_bound_9]
+    ]
+
+    return om_dot_bounds_gui
+
+
+
+def om_dot_norm_pr_gui(self):
+
+    om_dot_norm_pr_gui = [
+    [self.omega_dot_mean_1,self.omega_dot_sigma_1,self.use_omega_dot_norm_pr_1], 
+    [self.omega_dot_mean_2,self.omega_dot_sigma_2,self.use_omega_dot_norm_pr_2], 
+    [self.omega_dot_mean_3,self.omega_dot_sigma_3,self.use_omega_dot_norm_pr_3], 
+    [self.omega_dot_mean_4,self.omega_dot_sigma_4,self.use_omega_dot_norm_pr_4], 
+    [self.omega_dot_mean_5,self.omega_dot_sigma_5,self.use_omega_dot_norm_pr_5], 
+    [self.omega_dot_mean_6,self.omega_dot_sigma_6,self.use_omega_dot_norm_pr_6], 
+    [self.omega_dot_mean_7,self.omega_dot_sigma_7,self.use_omega_dot_norm_pr_7], 
+    [self.omega_dot_mean_8,self.omega_dot_sigma_8,self.use_omega_dot_norm_pr_8], 
+    [self.omega_dot_mean_9,self.omega_dot_sigma_9,self.use_omega_dot_norm_pr_9]
+    ]
+
+    return om_dot_norm_pr_gui
+
+
+
+def om_dot_jeff_pr_gui(self):
+
+    om_dot_jeff_pr_gui = [
+    [self.omega_dot_alpha_1,self.omega_dot_beta_1,self.use_omega_dot_jeff_pr_1], 
+    [self.omega_dot_alpha_2,self.omega_dot_beta_2,self.use_omega_dot_jeff_pr_2], 
+    [self.omega_dot_alpha_3,self.omega_dot_beta_3,self.use_omega_dot_jeff_pr_3], 
+    [self.omega_dot_alpha_4,self.omega_dot_beta_4,self.use_omega_dot_jeff_pr_4], 
+    [self.omega_dot_alpha_5,self.omega_dot_beta_5,self.use_omega_dot_jeff_pr_5], 
+    [self.omega_dot_alpha_6,self.omega_dot_beta_6,self.use_omega_dot_jeff_pr_6], 
+    [self.omega_dot_alpha_7,self.omega_dot_beta_7,self.use_omega_dot_jeff_pr_7], 
+    [self.omega_dot_alpha_8,self.omega_dot_beta_8,self.use_omega_dot_jeff_pr_8], 
+    [self.omega_dot_alpha_9,self.omega_dot_beta_9,self.use_omega_dot_jeff_pr_9]
+    ]
+
+    return om_dot_jeff_pr_gui
+
+
 ################### Tra. reg.  ########################
  
 def data_tra_reg_group(self):
@@ -851,6 +905,11 @@ def tra_quadtr_bounds_gui(self):
         ]
         
         return tra_quadtr_bounds_gui
+
+
+
+
+
 ################# Normal Prior ################
     
 
