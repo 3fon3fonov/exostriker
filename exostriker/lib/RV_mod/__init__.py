@@ -1916,7 +1916,7 @@ def run_nestsamp(obj, **kwargs):
 
 
     dynesty_samp = obj.ns_samp_method
-    print_progress = obj.std_output #std_output
+    print_progress = obj.ns_progress #std_output
     threads = int(obj.ns_threads)
     stop_crit = obj.stop_crit
     Dynamic_nest = obj.Dynamic_nest
@@ -1924,6 +1924,8 @@ def run_nestsamp(obj, **kwargs):
     ns_pfrac = obj.ns_pfrac
     ns_use_stop = obj.ns_use_stop 
     
+
+
     if obj.ns_maxiter[0] == False:
          ns_maxiter = None
     else:
@@ -2262,7 +2264,8 @@ def run_mcmc(obj, **kwargs):
            "get_TTVs":obj.get_TTVs,
            "link_RV_GP":obj.link_RV_GP,
            "tra_GP_kernel":obj.tra_gp_kernel,
-           "RV_GP_kernel":obj.gp_kernel}
+           "RV_GP_kernel":obj.gp_kernel
+            }
 
 
     gps = []
@@ -2310,10 +2313,10 @@ def run_mcmc(obj, **kwargs):
     if int(emcee_version[0]) == 3:
         # burning phase
         if obj.mcmc_burning_ph > 0:
-            pos, prob, state  = sampler.run_mcmc(pos,int(obj.mcmc_burning_ph), progress= True)
+            pos, prob, state  = sampler.run_mcmc(pos,int(obj.mcmc_burning_ph), progress= obj.mcmc_progress)
             sampler.reset()
         # now perform the MCMC
-        pos, prob, state  = sampler.run_mcmc(pos,int(obj.mcmc_ph), progress= True)
+        pos, prob, state  = sampler.run_mcmc(pos,int(obj.mcmc_ph), progress= obj.mcmc_progress)
         
     else:
         print("Please upgrade 'emcee' to Ver. 3! E.g. 'sudo pip install emcee -U'")

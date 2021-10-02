@@ -1023,6 +1023,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.param_bounds_gui[10*i + 8][z].setValue(fit.pl_rad_bound[i][z])
                 self.param_bounds_gui[10*i + 9][z].setValue(fit.pl_a_bound[i][z])
 
+
+        for i in range(9): 
+            for z in range(2):
+                self.om_dot_bounds_gui[i][z].setValue(fit.omega_dot_bounds[i][z])
+
         for i in range(10): 
             for z in range(2):
                 self.offset_bounds_gui[i][z].setValue(fit.rvoff_bounds[i][z])
@@ -1034,7 +1039,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.jitter_bounds_gui_tra[i][z].setValue(fit.tra_jitt_bounds[i][z])
 
         self.lin_trend_min.setValue(fit.rv_lintr_bounds[0][0])
-        self.lin_trend_max.setValue(fit.rv_lintr_bounds[0][1])                
+        self.lin_trend_max.setValue(fit.rv_lintr_bounds[0][1])    
+
+        self.quad_trend_min.setValue(fit.rv_quadtr_bounds[0][0])
+        self.quad_trend_max.setValue(fit.rv_quadtr_bounds[0][1])             
                 
         self.update_RV_GP_bounds()
         self.update_tra_GP_bounds()
@@ -1128,6 +1136,49 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     def update_nr_prior(self):
         global fit
 
+
+        for i in range(9):
+            for z in range(2):
+
+                self.param_nr_priors_gui[10*i + 0][z].setValue(fit.K_norm_pr[i][z])
+                self.param_nr_priors_gui[10*i + 1][z].setValue(fit.P_norm_pr[i][z])
+                self.param_nr_priors_gui[10*i + 2][z].setValue(fit.e_norm_pr[i][z])
+                self.param_nr_priors_gui[10*i + 3][z].setValue(fit.w_norm_pr[i][z])
+                self.param_nr_priors_gui[10*i + 4][z].setValue(fit.M0_norm_pr[i][z])
+                self.param_nr_priors_gui[10*i + 5][z].setValue(fit.i_norm_pr[i][z])
+                self.param_nr_priors_gui[10*i + 6][z].setValue(fit.Node_norm_pr[i][z])
+                self.param_nr_priors_gui[10*i + 7][z].setValue(fit.t0_norm_pr[i][z])
+                self.param_nr_priors_gui[10*i + 8][z].setValue(fit.pl_rad_norm_pr[i][z])
+                self.param_nr_priors_gui[10*i + 9][z].setValue(fit.pl_a_norm_pr[i][z])
+                
+
+            self.param_nr_priors_gui[10*i + 0][2].setChecked(fit.K_norm_pr[i][2])
+            self.param_nr_priors_gui[10*i + 1][2].setChecked(fit.P_norm_pr[i][2])
+            self.param_nr_priors_gui[10*i + 2][2].setChecked(fit.e_norm_pr[i][2])
+            self.param_nr_priors_gui[10*i + 3][2].setChecked(fit.w_norm_pr[i][2])
+            self.param_nr_priors_gui[10*i + 4][2].setChecked(fit.M0_norm_pr[i][2])
+            self.param_nr_priors_gui[10*i + 5][2].setChecked(fit.i_norm_pr[i][2])
+            self.param_nr_priors_gui[10*i + 6][2].setChecked(fit.Node_norm_pr[i][2])
+            self.param_nr_priors_gui[10*i + 7][2].setChecked(fit.t0_norm_pr[i][2])
+            self.param_nr_priors_gui[10*i + 8][2].setChecked(fit.pl_rad_norm_pr[i][2])
+            self.param_nr_priors_gui[10*i + 9][2].setChecked(fit.pl_a_norm_pr[i][2])
+ 
+
+        for i in range(9): 
+            for z in range(2):
+                self.om_dot_norm_pr_gui[i][z].setValue(fit.omega_dot_norm_pr[i][z])
+            self.om_dot_norm_pr_gui[i][2].setChecked(fit.omega_dot_norm_pr[i][2])
+
+
+        self.lin_trend_mean.setValue(fit.rv_lintr_norm_pr[0][0])
+        self.lin_trend_sigma.setValue(fit.rv_lintr_norm_pr[0][1])
+        self.use_lin_tr_nr_pr.setChecked(fit.rv_lintr_norm_pr[0][2])
+ 
+        self.quad_trend_mean.setValue(fit.rv_quadtr_norm_pr[0][0])
+        self.quad_trend_sigma.setValue(fit.rv_quadtr_norm_pr[0][1])
+        self.use_quad_tr_nr_pr.setChecked(fit.rv_quadtr_norm_pr[0][2])
+ 
+ 
         for i in range(10): 
             for z in range(2):
 
@@ -1150,8 +1201,6 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.jitter_nr_priors_gui_tra[i][2].setChecked(fit.tra_jitt_norm_pr[i][2])
             self.tra_lin_trend_nr_priors_gui[i][2].setChecked(fit.tra_lintr_norm_pr[i][2])
             self.tra_quad_trend_nr_priors_gui[i][2].setChecked(fit.tra_quadtr_norm_pr[i][2])
-
-
 
 
         self.update_RV_GP_priors_nr()
@@ -1214,8 +1263,54 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.tra_GP_double_sho_nr_priors_gui[i][z].setValue(fit.tra_GP_double_sho_norm_pr[i][z])
             self.tra_GP_double_sho_nr_priors_gui[i][2].setChecked(fit.tra_GP_double_sho_norm_pr[i][2])            
 
+
+
+
+
+
     def update_jeff_prior(self):
         global fit
+
+        for i in range(9):
+            for z in range(2):
+
+                self.param_jeff_priors_gui[10*i + 0][z].setValue(fit.K_jeff_pr[i][z])
+                self.param_jeff_priors_gui[10*i + 1][z].setValue(fit.P_jeff_pr[i][z])
+                self.param_jeff_priors_gui[10*i + 2][z].setValue(fit.e_jeff_pr[i][z])
+                self.param_jeff_priors_gui[10*i + 3][z].setValue(fit.w_jeff_pr[i][z])
+                self.param_jeff_priors_gui[10*i + 4][z].setValue(fit.M0_jeff_pr[i][z])
+                self.param_jeff_priors_gui[10*i + 5][z].setValue(fit.i_jeff_pr[i][z])
+                self.param_jeff_priors_gui[10*i + 6][z].setValue(fit.Node_jeff_pr[i][z])
+                self.param_jeff_priors_gui[10*i + 7][z].setValue(fit.t0_jeff_pr[i][z])
+                self.param_jeff_priors_gui[10*i + 8][z].setValue(fit.pl_rad_jeff_pr[i][z])
+                self.param_jeff_priors_gui[10*i + 9][z].setValue(fit.pl_a_jeff_pr[i][z])
+                
+            self.param_jeff_priors_gui[10*i + 0][2].setChecked(fit.K_jeff_pr[i][2])
+            self.param_jeff_priors_gui[10*i + 1][2].setChecked(fit.P_jeff_pr[i][2])
+            self.param_jeff_priors_gui[10*i + 2][2].setChecked(fit.e_jeff_pr[i][2])
+            self.param_jeff_priors_gui[10*i + 3][2].setChecked(fit.w_jeff_pr[i][2])
+            self.param_jeff_priors_gui[10*i + 4][2].setChecked(fit.M0_jeff_pr[i][2])
+            self.param_jeff_priors_gui[10*i + 5][2].setChecked(fit.i_jeff_pr[i][2])
+            self.param_jeff_priors_gui[10*i + 6][2].setChecked(fit.Node_jeff_pr[i][2])
+            self.param_jeff_priors_gui[10*i + 7][2].setChecked(fit.t0_jeff_pr[i][2])
+            self.param_jeff_priors_gui[10*i + 8][2].setChecked(fit.pl_rad_jeff_pr[i][2])
+            self.param_jeff_priors_gui[10*i + 9][2].setChecked(fit.pl_a_jeff_pr[i][2])
+ 
+
+        for i in range(9): 
+            for z in range(2):
+                self.om_dot_jeff_pr_gui[i][z].setValue(fit.omega_dot_jeff_pr[i][z])
+            self.om_dot_jeff_pr_gui[i][2].setChecked(fit.omega_dot_jeff_pr[i][2])
+
+
+        self.lin_trend_jeff_alpha.setValue(fit.rv_lintr_jeff_pr[0][0])
+        self.lin_trend_jeff_beta.setValue(fit.rv_lintr_jeff_pr[0][1])
+        self.use_lin_tr_jeff_pr.setChecked(fit.rv_lintr_jeff_pr[0][2])
+
+        self.quad_trend_jeff_alpha.setValue(fit.rv_quadtr_jeff_pr[0][0])
+        self.quad_trend_jeff_beta.setValue(fit.rv_quadtr_jeff_pr[0][1])
+        self.use_quad_tr_jeff_pr.setChecked(fit.rv_quadtr_jeff_pr[0][2]) 
+ 
 
         for i in range(10): 
             for z in range(2):
@@ -1330,7 +1425,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             for z in range(2):
                 fit.omega_dot_bounds[i][z] = self.om_dot_bounds_gui[i][z].value()
 
-        fit.rv_lintr_bounds[0] = [self.lin_trend_min.value(),self.lin_trend_max.value()]
+        fit.rv_lintr_bounds[0]  = [self.lin_trend_min.value(),self.lin_trend_max.value()]
+        fit.rv_quadtr_bounds[0] = [self.quad_trend_min.value(),self.quad_trend_max.value()]
+
 
         for i in range(20): 
             for z in range(2):
@@ -1471,6 +1568,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.omega_dot_norm_pr[i] = om_nr_priors_gui[i]
 
         fit.rv_lintr_norm_pr[0]  = [self.lin_trend_mean.value(),self.lin_trend_sigma.value(),self.use_lin_tr_nr_pr.isChecked()]
+        fit.rv_quadtr_norm_pr[0]  = [self.quad_trend_mean.value(),self.quad_trend_sigma.value(),self.use_quad_tr_nr_pr.isChecked()]
+
 
         for i in range(20): 
             for z in range(2):
@@ -1603,11 +1702,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.omega_dot_jeff_pr[i] = om_dot_jeff_priors_gui[i]   
     
  
-        fit.rv_lintr_jeff_pr[0]  = [self.lin_trend_jeff_alpha.value(),self.lin_trend_jeff_beta.value(),self.use_lin_tr_jeff_pr.isChecked()]
+        fit.rv_lintr_jeff_pr[0]   = [self.lin_trend_jeff_alpha.value(),self.lin_trend_jeff_beta.value(),self.use_lin_tr_jeff_pr.isChecked()]
+        fit.rv_quadtr_jeff_pr[0]  = [self.quad_trend_jeff_alpha.value(),self.quad_trend_jeff_beta.value(),self.use_quad_tr_jeff_pr.isChecked()]
 
 
-
-    
         for i in range(20): 
             for z in range(2):
                 fit.tra_off_jeff_pr[i][z]    = self.offset_jeff_priors_gui_tra[i][z].value()
@@ -6899,7 +6997,7 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False, es_version='0.62'):
+    def print_info_credits(self, image=False, es_version='0.63'):
  
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
@@ -7640,7 +7738,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         fit.live_points_fact = int(self.live_points.value())
         fit.ns_threads=int(self.nest_N_threads.value())
         fit.Dynamic_nest = self.radioButton_dyn_nest_samp.isChecked()
-        fit.std_output=True
+        fit.ns_progress = self.ns_progress.isChecked() 
         fit.stop_crit = self.stop_crit.value()
         fit.ns_fileoutput=self.save_samples_nested.isChecked()
         fit.ns_save_means=self.adopt_nest_means_as_par.isChecked() 
@@ -7887,6 +7985,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         fit.mcmc_save_means=self.adopt_mcmc_means_as_par.isChecked() 
         fit.mcmc_save_median=self.adopt_mcmc_median_as_par.isChecked() 
        # print(fit.mcmc_fileoutput,self.save_samples.isChecked())
+        fit.mcmc_progress= self.mcmc_progress.isChecked() 
 
         fit.mcmc_save_mode=self.adopt_mcmc_mode_as_par.isChecked() 
         fit.mcmc_save_maxlnL=self.adopt_best_lnL_as_pars.isChecked() 
@@ -9701,7 +9800,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        es_version = "0.62"
+        es_version = "0.63"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -9742,7 +9841,12 @@ Please install via 'pip install ttvfast'.
         self.param_gui_wd      = gui_groups.param_gui_wd(self)
         self.use_param_gui_wd  = gui_groups.use_param_gui_wd(self)
         self.param_errors_gui_wd = gui_groups.param_errors_gui_wd(self)
+        
         self.om_dot_bounds_gui = gui_groups.om_dot_bounds_gui(self)
+        self.om_dot_norm_pr_gui = gui_groups.om_dot_norm_pr_gui(self)
+        self.om_dot_jeff_pr_gui = gui_groups.om_dot_jeff_pr_gui(self)
+
+
 
         
         self.param_gui_tr      = gui_groups.param_gui_tr(self)
