@@ -1441,10 +1441,12 @@ def copy_file_to_datafiles(path):
     f  = open(temp_path, 'wb') # open the file
 
     for j in range(len(lines)):
-        line = lines[j].split()
-        if line[0].startswith("#"):
+
+        if lines[j].isspace() or lines[j].split()[0].startswith("#"):
             continue
-        text = b"%s  %s  %s \n"%(bytes(str(line[0]).encode()),bytes(str(line[1]).encode()),bytes(str(line[2]).encode()) )
+
+        line = lines[j].split()
+        text = b"%s  %s  %s \n"%(bytes(str(lines[j].split()[0]).encode()),bytes(str(lines[j].split()[1]).encode()),bytes(str(lines[j].split()[2]).encode()) )
         f.write(text)
     f.close()
     f_in.close()
