@@ -1517,6 +1517,58 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 fit.ld_u_nonlin_bound[i][3][z] = self.ld_u4_bounds_gui[i][z].value()
 
 
+    def check_ld_priors_nr(self):
+        global fit
+
+        for i in range(20): 
+            for z in range(2):    
+                fit.ld_u_lin_norm_pr[i][0][z] = self.ld_u1_norm_pr_gui[i][z].value()
+
+                fit.ld_u_quad_norm_pr[i][0][z] = self.ld_u1_norm_pr_gui[i][z].value()
+                fit.ld_u_quad_norm_pr[i][1][z] = self.ld_u2_norm_pr_gui[i][z].value()
+                
+                fit.ld_u_nonlin_norm_pr[i][0][z] = self.ld_u1_norm_pr_gui[i][z].value()
+                fit.ld_u_nonlin_norm_pr[i][1][z] = self.ld_u2_norm_pr_gui[i][z].value()
+                fit.ld_u_nonlin_norm_pr[i][2][z] = self.ld_u3_norm_pr_gui[i][z].value()
+                fit.ld_u_nonlin_norm_pr[i][3][z] = self.ld_u4_norm_pr_gui[i][z].value()
+
+            fit.ld_u_lin_norm_pr[i][0][2] = self.ld_u1_norm_pr_gui[i][2].isChecked()
+
+            fit.ld_u_quad_norm_pr[i][0][2] = self.ld_u1_norm_pr_gui[i][2].isChecked()
+            fit.ld_u_quad_norm_pr[i][1][2] = self.ld_u2_norm_pr_gui[i][2].isChecked()
+            
+            fit.ld_u_nonlin_norm_pr[i][0][2] = self.ld_u1_norm_pr_gui[i][2].isChecked()
+            fit.ld_u_nonlin_norm_pr[i][1][2] = self.ld_u2_norm_pr_gui[i][2].isChecked()
+            fit.ld_u_nonlin_norm_pr[i][2][2] = self.ld_u3_norm_pr_gui[i][2].isChecked()
+            fit.ld_u_nonlin_norm_pr[i][3][2] = self.ld_u4_norm_pr_gui[i][2].isChecked()
+
+
+
+    def check_ld_priors_jeff(self):
+        global fit
+
+        for i in range(20): 
+            for z in range(2):    
+                fit.ld_u_lin_jeff_pr[i][0][z] = self.ld_u1_jeff_pr_gui[i][z].value()
+
+                fit.ld_u_quad_jeff_pr[i][0][z] = self.ld_u1_jeff_pr_gui[i][z].value()
+                fit.ld_u_quad_jeff_pr[i][1][z] = self.ld_u2_jeff_pr_gui[i][z].value()
+                
+                fit.ld_u_nonlin_jeff_pr[i][0][z] = self.ld_u1_jeff_pr_gui[i][z].value()
+                fit.ld_u_nonlin_jeff_pr[i][1][z] = self.ld_u2_jeff_pr_gui[i][z].value()
+                fit.ld_u_nonlin_jeff_pr[i][2][z] = self.ld_u3_jeff_pr_gui[i][z].value()
+                fit.ld_u_nonlin_jeff_pr[i][3][z] = self.ld_u4_jeff_pr_gui[i][z].value()
+
+            fit.ld_u_lin_jeff_pr[i][0][2] = self.ld_u1_jeff_pr_gui[i][2].isChecked()
+
+            fit.ld_u_quad_jeff_pr[i][0][2] = self.ld_u1_jeff_pr_gui[i][2].isChecked()
+            fit.ld_u_quad_jeff_pr[i][1][2] = self.ld_u2_jeff_pr_gui[i][2].isChecked()
+            
+            fit.ld_u_nonlin_jeff_pr[i][0][2] = self.ld_u1_jeff_pr_gui[i][2].isChecked()
+            fit.ld_u_nonlin_jeff_pr[i][1][2] = self.ld_u2_jeff_pr_gui[i][2].isChecked()
+            fit.ld_u_nonlin_jeff_pr[i][2][2] = self.ld_u3_jeff_pr_gui[i][2].isChecked()
+            fit.ld_u_nonlin_jeff_pr[i][3][2] = self.ld_u4_jeff_pr_gui[i][2].isChecked()
+
 
 
     def check_priors_nr(self):
@@ -1589,7 +1641,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             
         self.check_RV_GP_priors_nr()
         self.check_tra_GP_priors_nr()
-
+        self.check_ld_priors_nr()
 
 
     def check_RV_GP_priors_nr(self):
@@ -1720,7 +1772,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             
         self.check_RV_GP_priors_jeff()
         self.check_tra_GP_priors_jeff()
-    
+        self.check_ld_priors_jeff()    
     
 
     def check_RV_GP_priors_jeff(self):
@@ -10019,6 +10071,17 @@ Please install via 'pip install ttvfast'.
         self.ld_u2_bounds_gui     = gui_groups.ld_u2_bounds_gui(self)
         self.ld_u3_bounds_gui     = gui_groups.ld_u3_bounds_gui(self)
         self.ld_u4_bounds_gui     = gui_groups.ld_u4_bounds_gui(self)
+
+        self.ld_u1_norm_pr_gui     = gui_groups.ld_u1_norm_pr_gui(self)
+        self.ld_u2_norm_pr_gui     = gui_groups.ld_u2_norm_pr_gui(self)
+        self.ld_u3_norm_pr_gui     = gui_groups.ld_u3_norm_pr_gui(self)
+        self.ld_u4_norm_pr_gui     = gui_groups.ld_u4_norm_pr_gui(self)
+
+        self.ld_u1_jeff_pr_gui     = gui_groups.ld_u1_jeff_pr_gui(self)
+        self.ld_u2_jeff_pr_gui     = gui_groups.ld_u2_jeff_pr_gui(self)
+        self.ld_u3_jeff_pr_gui     = gui_groups.ld_u3_jeff_pr_gui(self)
+        self.ld_u4_jeff_pr_gui     = gui_groups.ld_u4_jeff_pr_gui(self)
+                
         
         self.data_ld_group        = gui_groups.data_ld_group(self)
 
