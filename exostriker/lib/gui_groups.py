@@ -846,6 +846,221 @@ def ld_u4_bounds_gui(self):
         ]         
         return ld_u4_bounds_gui
   
+
+############################
+
+def ld_u1_norm_pr_gui(self):
+    
+        ld_u1_norm_pr_gui = [
+        [self.u1_mean_1,self.u1_sigma_1,self.use_u1_mean_nr_1],
+        [self.u1_mean_2,self.u1_sigma_2,self.use_u1_mean_nr_2],
+        [self.u1_mean_3,self.u1_sigma_3,self.use_u1_mean_nr_3],
+        [self.u1_mean_4,self.u1_sigma_4,self.use_u1_mean_nr_4],
+        [self.u1_mean_5,self.u1_sigma_5,self.use_u1_mean_nr_5],
+        [self.u1_mean_6,self.u1_sigma_6,self.use_u1_mean_nr_6],
+        [self.u1_mean_7,self.u1_sigma_7,self.use_u1_mean_nr_7],
+        [self.u1_mean_8,self.u1_sigma_8,self.use_u1_mean_nr_8],
+        [self.u1_mean_9,self.u1_sigma_9,self.use_u1_mean_nr_9],
+        [self.u1_mean_10,self.u1_sigma_10,self.use_u1_mean_nr_10],
+        [self.u1_mean_11,self.u1_sigma_11,self.use_u1_mean_nr_11],
+        [self.u1_mean_12,self.u1_sigma_12,self.use_u1_mean_nr_12],
+        [self.u1_mean_13,self.u1_sigma_13,self.use_u1_mean_nr_13],
+        [self.u1_mean_14,self.u1_sigma_14,self.use_u1_mean_nr_14],
+        [self.u1_mean_15,self.u1_sigma_15,self.use_u1_mean_nr_15],
+        [self.u1_mean_16,self.u1_sigma_16,self.use_u1_mean_nr_16],
+        [self.u1_mean_17,self.u1_sigma_17,self.use_u1_mean_nr_17],
+        [self.u1_mean_18,self.u1_sigma_18,self.use_u1_mean_nr_18],
+        [self.u1_mean_19,self.u1_sigma_19,self.use_u1_mean_nr_19],
+        [self.u1_mean_20,self.u1_sigma_20,self.use_u1_mean_nr_20],
+        ]         
+        return ld_u1_norm_pr_gui
+
+def ld_u2_norm_pr_gui(self):
+    
+        ld_u2_norm_pr_gui = [
+        [self.u2_mean_1,self.u2_sigma_1,self.use_u2_mean_nr_1],
+        [self.u2_mean_2,self.u2_sigma_2,self.use_u2_mean_nr_2],
+        [self.u2_mean_3,self.u2_sigma_3,self.use_u2_mean_nr_3],
+        [self.u2_mean_4,self.u2_sigma_4,self.use_u2_mean_nr_4],
+        [self.u2_mean_5,self.u2_sigma_5,self.use_u2_mean_nr_5],
+        [self.u2_mean_6,self.u2_sigma_6,self.use_u2_mean_nr_6],
+        [self.u2_mean_7,self.u2_sigma_7,self.use_u2_mean_nr_7],
+        [self.u2_mean_8,self.u2_sigma_8,self.use_u2_mean_nr_8],
+        [self.u2_mean_9,self.u2_sigma_9,self.use_u2_mean_nr_9],
+        [self.u2_mean_10,self.u2_sigma_10,self.use_u2_mean_nr_10],
+        [self.u2_mean_11,self.u2_sigma_11,self.use_u2_mean_nr_11],
+        [self.u2_mean_12,self.u2_sigma_12,self.use_u2_mean_nr_12],
+        [self.u2_mean_13,self.u2_sigma_13,self.use_u2_mean_nr_13],
+        [self.u2_mean_14,self.u2_sigma_14,self.use_u2_mean_nr_14],
+        [self.u2_mean_15,self.u2_sigma_15,self.use_u2_mean_nr_15],
+        [self.u2_mean_16,self.u2_sigma_16,self.use_u2_mean_nr_16],
+        [self.u2_mean_17,self.u2_sigma_17,self.use_u2_mean_nr_17],
+        [self.u2_mean_18,self.u2_sigma_18,self.use_u2_mean_nr_18],
+        [self.u2_mean_19,self.u2_sigma_19,self.use_u2_mean_nr_19],
+        [self.u2_mean_20,self.u2_sigma_20,self.use_u2_mean_nr_20],
+        ]         
+        return ld_u2_norm_pr_gui
+
+def ld_u3_norm_pr_gui(self):
+    
+        ld_u3_norm_pr_gui = [
+        [self.u3_mean_1,self.u3_sigma_1,self.use_u3_mean_nr_1],
+        [self.u3_mean_2,self.u3_sigma_2,self.use_u3_mean_nr_2],
+        [self.u3_mean_3,self.u3_sigma_3,self.use_u3_mean_nr_3],
+        [self.u3_mean_4,self.u3_sigma_4,self.use_u3_mean_nr_4],
+        [self.u3_mean_5,self.u3_sigma_5,self.use_u3_mean_nr_5],
+        [self.u3_mean_6,self.u3_sigma_6,self.use_u3_mean_nr_6],
+        [self.u3_mean_7,self.u3_sigma_7,self.use_u3_mean_nr_7],
+        [self.u3_mean_8,self.u3_sigma_8,self.use_u3_mean_nr_8],
+        [self.u3_mean_9,self.u3_sigma_9,self.use_u3_mean_nr_9],
+        [self.u3_mean_10,self.u3_sigma_10,self.use_u3_mean_nr_10],
+        [self.u3_mean_11,self.u3_sigma_11,self.use_u3_mean_nr_11],
+        [self.u3_mean_12,self.u3_sigma_12,self.use_u3_mean_nr_12],
+        [self.u3_mean_13,self.u3_sigma_13,self.use_u3_mean_nr_13],
+        [self.u3_mean_14,self.u3_sigma_14,self.use_u3_mean_nr_14],
+        [self.u3_mean_15,self.u3_sigma_15,self.use_u3_mean_nr_15],
+        [self.u3_mean_16,self.u3_sigma_16,self.use_u3_mean_nr_16],
+        [self.u3_mean_17,self.u3_sigma_17,self.use_u3_mean_nr_17],
+        [self.u3_mean_18,self.u3_sigma_18,self.use_u3_mean_nr_18],
+        [self.u3_mean_19,self.u3_sigma_19,self.use_u3_mean_nr_19],
+        [self.u3_mean_20,self.u3_sigma_20,self.use_u3_mean_nr_20],
+        ]         
+        return ld_u3_norm_pr_gui
+
+
+def ld_u4_norm_pr_gui(self):
+    
+        ld_u4_norm_pr_gui = [
+        [self.u4_mean_1,self.u4_sigma_1,self.use_u4_mean_nr_1],
+        [self.u4_mean_2,self.u4_sigma_2,self.use_u4_mean_nr_2],
+        [self.u4_mean_3,self.u4_sigma_3,self.use_u4_mean_nr_3],
+        [self.u4_mean_4,self.u4_sigma_4,self.use_u4_mean_nr_4],
+        [self.u4_mean_5,self.u4_sigma_5,self.use_u4_mean_nr_5],
+        [self.u4_mean_6,self.u4_sigma_6,self.use_u4_mean_nr_6],
+        [self.u4_mean_7,self.u4_sigma_7,self.use_u4_mean_nr_7],
+        [self.u4_mean_8,self.u4_sigma_8,self.use_u4_mean_nr_8],
+        [self.u4_mean_9,self.u4_sigma_9,self.use_u4_mean_nr_9],
+        [self.u4_mean_10,self.u4_sigma_10,self.use_u4_mean_nr_10],
+        [self.u4_mean_11,self.u4_sigma_11,self.use_u4_mean_nr_11],
+        [self.u4_mean_12,self.u4_sigma_12,self.use_u4_mean_nr_12],
+        [self.u4_mean_13,self.u4_sigma_13,self.use_u4_mean_nr_13],
+        [self.u4_mean_14,self.u4_sigma_14,self.use_u4_mean_nr_14],
+        [self.u4_mean_15,self.u4_sigma_15,self.use_u4_mean_nr_15],
+        [self.u4_mean_16,self.u4_sigma_16,self.use_u4_mean_nr_16],
+        [self.u4_mean_17,self.u4_sigma_17,self.use_u4_mean_nr_17],
+        [self.u4_mean_18,self.u4_sigma_18,self.use_u4_mean_nr_18],
+        [self.u4_mean_19,self.u4_sigma_19,self.use_u4_mean_nr_19],
+        [self.u4_mean_20,self.u4_sigma_20,self.use_u4_mean_nr_20],
+        ]         
+        return ld_u4_norm_pr_gui
+
+
+############################
+
+def ld_u1_jeff_pr_gui(self):
+    
+        ld_u1_jeff_pr_gui = [
+        [self.u1_alpha_1,self.u1_beta_1,self.use_u1_jeff_1],
+        [self.u1_alpha_2,self.u1_beta_2,self.use_u1_jeff_2],
+        [self.u1_alpha_3,self.u1_beta_3,self.use_u1_jeff_3],
+        [self.u1_alpha_4,self.u1_beta_4,self.use_u1_jeff_4],
+        [self.u1_alpha_5,self.u1_beta_5,self.use_u1_jeff_5],
+        [self.u1_alpha_6,self.u1_beta_6,self.use_u1_jeff_6],
+        [self.u1_alpha_7,self.u1_beta_7,self.use_u1_jeff_7],
+        [self.u1_alpha_8,self.u1_beta_8,self.use_u1_jeff_8],
+        [self.u1_alpha_9,self.u1_beta_9,self.use_u1_jeff_9],
+        [self.u1_alpha_10,self.u1_beta_10,self.use_u1_jeff_10],
+        [self.u1_alpha_11,self.u1_beta_11,self.use_u1_jeff_11],
+        [self.u1_alpha_12,self.u1_beta_12,self.use_u1_jeff_12],
+        [self.u1_alpha_13,self.u1_beta_13,self.use_u1_jeff_13],
+        [self.u1_alpha_14,self.u1_beta_14,self.use_u1_jeff_14],
+        [self.u1_alpha_15,self.u1_beta_15,self.use_u1_jeff_15],
+        [self.u1_alpha_16,self.u1_beta_16,self.use_u1_jeff_16],
+        [self.u1_alpha_17,self.u1_beta_17,self.use_u1_jeff_17],
+        [self.u1_alpha_18,self.u1_beta_18,self.use_u1_jeff_18],
+        [self.u1_alpha_19,self.u1_beta_19,self.use_u1_jeff_19],
+        [self.u1_alpha_20,self.u1_beta_20,self.use_u1_jeff_20],
+        ]         
+        return ld_u1_jeff_pr_gui
+
+def ld_u2_jeff_pr_gui(self):
+    
+        ld_u2_jeff_pr_gui = [
+        [self.u2_alpha_1,self.u2_beta_1,self.use_u2_jeff_1],
+        [self.u2_alpha_2,self.u2_beta_2,self.use_u2_jeff_2],
+        [self.u2_alpha_3,self.u2_beta_3,self.use_u2_jeff_3],
+        [self.u2_alpha_4,self.u2_beta_4,self.use_u2_jeff_4],
+        [self.u2_alpha_5,self.u2_beta_5,self.use_u2_jeff_5],
+        [self.u2_alpha_6,self.u2_beta_6,self.use_u2_jeff_6],
+        [self.u2_alpha_7,self.u2_beta_7,self.use_u2_jeff_7],
+        [self.u2_alpha_8,self.u2_beta_8,self.use_u2_jeff_8],
+        [self.u2_alpha_9,self.u2_beta_9,self.use_u2_jeff_9],
+        [self.u2_alpha_10,self.u2_beta_10,self.use_u2_jeff_10],
+        [self.u2_alpha_11,self.u2_beta_11,self.use_u2_jeff_11],
+        [self.u2_alpha_12,self.u2_beta_12,self.use_u2_jeff_12],
+        [self.u2_alpha_13,self.u2_beta_13,self.use_u2_jeff_13],
+        [self.u2_alpha_14,self.u2_beta_14,self.use_u2_jeff_14],
+        [self.u2_alpha_15,self.u2_beta_15,self.use_u2_jeff_15],
+        [self.u2_alpha_16,self.u2_beta_16,self.use_u2_jeff_16],
+        [self.u2_alpha_17,self.u2_beta_17,self.use_u2_jeff_17],
+        [self.u2_alpha_18,self.u2_beta_18,self.use_u2_jeff_18],
+        [self.u2_alpha_19,self.u2_beta_19,self.use_u2_jeff_19],
+        [self.u2_alpha_20,self.u2_beta_20,self.use_u2_jeff_20],
+        ]         
+        return ld_u2_jeff_pr_gui
+
+def ld_u3_jeff_pr_gui(self):
+    
+        ld_u3_jeff_pr_gui = [
+        [self.u3_alpha_1,self.u3_beta_1,self.use_u3_jeff_1],
+        [self.u3_alpha_2,self.u3_beta_2,self.use_u3_jeff_2],
+        [self.u3_alpha_3,self.u3_beta_3,self.use_u3_jeff_3],
+        [self.u3_alpha_4,self.u3_beta_4,self.use_u3_jeff_4],
+        [self.u3_alpha_5,self.u3_beta_5,self.use_u3_jeff_5],
+        [self.u3_alpha_6,self.u3_beta_6,self.use_u3_jeff_6],
+        [self.u3_alpha_7,self.u3_beta_7,self.use_u3_jeff_7],
+        [self.u3_alpha_8,self.u3_beta_8,self.use_u3_jeff_8],
+        [self.u3_alpha_9,self.u3_beta_9,self.use_u3_jeff_9],
+        [self.u3_alpha_10,self.u3_beta_10,self.use_u3_jeff_10],
+        [self.u3_alpha_11,self.u3_beta_11,self.use_u3_jeff_11],
+        [self.u3_alpha_12,self.u3_beta_12,self.use_u3_jeff_12],
+        [self.u3_alpha_13,self.u3_beta_13,self.use_u3_jeff_13],
+        [self.u3_alpha_14,self.u3_beta_14,self.use_u3_jeff_14],
+        [self.u3_alpha_15,self.u3_beta_15,self.use_u3_jeff_15],
+        [self.u3_alpha_16,self.u3_beta_16,self.use_u3_jeff_16],
+        [self.u3_alpha_17,self.u3_beta_17,self.use_u3_jeff_17],
+        [self.u3_alpha_18,self.u3_beta_18,self.use_u3_jeff_18],
+        [self.u3_alpha_19,self.u3_beta_19,self.use_u3_jeff_19],
+        [self.u3_alpha_20,self.u3_beta_20,self.use_u3_jeff_20],
+        ]         
+        return ld_u3_jeff_pr_gui
+
+
+def ld_u4_jeff_pr_gui(self):
+    
+        ld_u4_jeff_pr_gui = [
+        [self.u4_alpha_1,self.u4_beta_1,self.use_u4_jeff_1],
+        [self.u4_alpha_2,self.u4_beta_2,self.use_u4_jeff_2],
+        [self.u4_alpha_3,self.u4_beta_3,self.use_u4_jeff_3],
+        [self.u4_alpha_4,self.u4_beta_4,self.use_u4_jeff_4],
+        [self.u4_alpha_5,self.u4_beta_5,self.use_u4_jeff_5],
+        [self.u4_alpha_6,self.u4_beta_6,self.use_u4_jeff_6],
+        [self.u4_alpha_7,self.u4_beta_7,self.use_u4_jeff_7],
+        [self.u4_alpha_8,self.u4_beta_8,self.use_u4_jeff_8],
+        [self.u4_alpha_9,self.u4_beta_9,self.use_u4_jeff_9],
+        [self.u4_alpha_10,self.u4_beta_10,self.use_u4_jeff_10],
+        [self.u4_alpha_11,self.u4_beta_11,self.use_u4_jeff_11],
+        [self.u4_alpha_12,self.u4_beta_12,self.use_u4_jeff_12],
+        [self.u4_alpha_13,self.u4_beta_13,self.use_u4_jeff_13],
+        [self.u4_alpha_14,self.u4_beta_14,self.use_u4_jeff_14],
+        [self.u4_alpha_15,self.u4_beta_15,self.use_u4_jeff_15],
+        [self.u4_alpha_16,self.u4_beta_16,self.use_u4_jeff_16],
+        [self.u4_alpha_17,self.u4_beta_17,self.use_u4_jeff_17],
+        [self.u4_alpha_18,self.u4_beta_18,self.use_u4_jeff_18],
+        [self.u4_alpha_19,self.u4_beta_19,self.use_u4_jeff_19],
+        [self.u4_alpha_20,self.u4_beta_20,self.use_u4_jeff_20],
+        ]         
+        return ld_u4_jeff_pr_gui
     
 ################# Bounds (Flat Prior) ################
     
