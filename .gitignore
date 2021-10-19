@@ -17,6 +17,8 @@ source/swift_j/libswift.a
 git-push
 requests
 
+/docs/build/*
+
 # Setuptools distribution folder.
 /dist/
 
