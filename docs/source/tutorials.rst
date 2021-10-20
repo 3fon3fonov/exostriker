@@ -20,26 +20,35 @@ homepage of exostriker.
 * **rms**: root-mean-square, the root-mean-square deviation of an estimator is a measure of the imperfection of the fit of the estimator to the data.
 * **wrms**: weighted root-mean-square.
 * **χ**\ :sup:`2`: chi-squared.
-* **χ**\ :sup:`2` :sub:`reduced`\: chi-squared reduced, ~ 1 for a good fit.
-* **lnL**: likelihood function, describes the odds that a model fits your expectations/data, we use this funtion for comparison between models. The model with higher value is preferred.
-* **BIC**: Bayesian information criterion, can be used to compare models **only** when the numerical values of the dependent variables (like χ\ :sup:`2` & lnL) are identical for all models being compared, the model with the lowest BIC is preferred.
-* **AIC**: Akaike information criterion, estimates the relative amount of information lost by a given model. The less information a model loses, the higher the quality of it. The smaller the AIC the less information is lost (comparison between models).
+* **χ**\ :sup:`2` :sub:`reduced`\ : chi-squared reduced.
+* lnL_: likelihood function, describes the odds that a model fits your expectations/data, we use this funtion for comparison between models. The model with higher value is preferred.
+* BIC_ : Bayesian information criterion, can be used to compare models **only** when the numerical values of the dependent variables (like χ\ :sup:`2` & lnL) are identical for all models being compared, the model with the lowest BIC is preferred.
+* AIC_ : Akaike information criterion, estimates the relative amount of information lost by a given model. The less information a model loses, the higher the quality of it. The smaller the AIC the less information is lost (comparison between models).
 * **N data**: number of data/observations.
 * **DOF**: degrees of freedom , the value is a result of subtracting all the parameters in the fit from total number of data points. 
+
+.. _BIC: https://en.wikipedia.org/wiki/Bayesian_information_criterion
+.. _AIC: https://en.wikipedia.org/wiki/Akaike_information_criterion
+.. _lnL: https://en.wikipedia.org/wiki/Maximum_likelihood_estimation
 
 
 **Some options to fit your model**
 
-* **Simplex**: fitting curves to data using the Simplex algorithm.
-* **L-M**: fitting curves to data using the Leveberg-Marquardt algorithm.
-* **Keplerian**: a Keplerian analysis is performed on the data.
+* Simplex_ : fitting curves to data using the Simplex algorithm.
+* L-M_ : fitting curves to data using the Leveberg-Marquardt algorithm.
+* Keplerian_ : a Keplerian analysis is performed on the data.
 * **Dynamical**: a dynamical analysis is performed on the data.
 * **Initialize**: ?
-* **Fit**: optimization parameter. fix the offsets
-* **Run MCMC**: ?
-* **Run Nest.samp**: ?
+* **Fit**: optimization parameter, fixes the offsets of the datasets.
+* **Run MCMC**: runs Monte Carlo simulations.
+* **Run Nest.samp**: generates samples using the Nested sampling alogithm.
 * **Run orbital evolution**: runs an orbital evolution to your data.
-* **RV auto fit**: fits the data.
+* **RV auto fit**: a curve is applied to data.
+
+
+.. _Simplex: https://www.researchgate.net/publication/246199710_Fitting_curves_to_data_The_simplex_algorithm_is_the_answer
+.. _L-M: https://en.wikipedia.org/wiki/Levenberg%E2%80%93Marquardt_algorithm
+.. _Keplerian: https://exoplanetmusings.wordpress.com/2013/05/17/rv-fits-the-keplerian-solution/
 
 
 **Planet & orbital parameters**
@@ -65,9 +74,6 @@ homepage of exostriker.
 Now, depending on the type of data that you are trying to fit, you have to choose
 between Radial Velocities (RV data), Transits (Transit data) and TTVs on the 
 **bottom right panel** and then add the data files.
-
-(but now lets perform a **simple fit** to data to showcase how exostriker works and we will
-explain the remaining GUI options as a part of each tutorial.)
 
 ----------------------------------------------------------------------------------------------
 
@@ -120,29 +126,13 @@ You can check the phase diagram of each peak by selecting *Extra Plots*.
 The *RVs o-c* & *GLS o-c* windows represent the residual RV signal and periodogram each time
 a planet is included in the analysis. 
 
-If the statistical parameters of your fit are maximized/minimized the you have probably 
+If the statistical parameters of your fit are maximized/minimized then you have probably 
 obtained the *best Keplerian fit* of your model. 
 
 ----------------------------------------------------------------------------------------
 
-In case of multiplanetary systems it is kind to consider the planet masses and distances from each other.
-Massive planets with close distances from the host star, will surely interact with each other due to gravity. 
-Then a further investigation using the **Dynamical model** is necessary. That will take into account the
-gravitational interactions between the massive bodies by intergrating the equations of motion using the 
-Gragg-Bulirsch-Stoer method.
-
-Before you enable the Dynamical option make sure that the orbital parameters that are acquired so far 
-correspond to the **best Keplerian fit**, because they will be used as a first guess for this fit.
-The next thing that you need to notice is that the orbital parameters inclination (i) and the longitude 
-of the ascending node (Ω) become available. The dynamical model has the advantage of being able to fit for 
-mutually inclined orbits. For the purposes of this tutorial we assume edge-on coplanar
-orbits (i=90, Ω=0) for consistency with the unperturbed Keplerian frame and in order to work with minimum
-dynamical masses.
-
-
-------------------------------------------------------------------------------------------
-
-*  Performing an **orbital evolution**.
+Performing an orbital evolution
+===============================
 
 
 At this point we can perform an orbital evolution in order to notice how
@@ -150,7 +140,7 @@ the orbital parameters develop with time.
 
 .. image:: images/1orbitalevo.gif
 
-First you need to distinguish the stellar parameters, by changing the values
+First the stellar parameters need to be distinguished, by changing the values
 of *Stellar param.* on the bottom left panel. Then add the maximum time of evolution
 by clicking at *N-body*. Run orbital evolution (*Run orb. evol*) and you will be 
 transfered automatically to the *Orb. Evol* panel, where you can see how the orbital parameters 
@@ -159,26 +149,41 @@ evolve with time.
 
 ----------------------------------------------------------------------------------------------
 
-WARNING
-Both the Keplerian and dynamical ﬁts reveal a moderate
-best-ﬁt value of e c for the eccentricity of the outer planet but
-with a large uncertainty toward nearly circular orbits. This
-indicates that e c is likely poorly constrained, and perhaps this
-moderate eccentricity value is a result of overﬁtting. Indeed, a
-two-planet Keplerian model with circular orbits (i.e., e b,c ,
-ω b,c =0) has - ln  = 150.286 , meaning that the difference
-between the circular and noncircular Keplerian models is only
-D ln  ≈1.5, which is insigniﬁcant. 11 Thus, we conclude that
-neither the Keplerian nor the dynamical model applied to the
-current RV data can place tight constraints on the orbital
-eccentricities. ???
+Multiplanetary systems
+======================
+
+In case of *multiplanetary systems* it is kind to consider the planet masses and distances from each other (close orbits).
+Massive planets with close distances from the host star, will surely interact with each other due to gravity. 
+Then a further investigation using the **Dynamical model** is necessary. That will take into account the
+gravitational interactions between the massive bodies by intergrating the equations of motion using the 
+Gragg-Bulirsch-Stoer_ method.
+
+.. _Gragg-Bulirsch-Stoer: https://en.wikipedia.org/wiki/Bulirsch%E2%80%93Stoer_algorithm
 
 
 
--------------------------------------------------------------------------------------------------
+.. image:: images/dynamicalrv.gif
+
+Before you enable the *Dynamical option* make sure that the orbital parameters that are acquired so far 
+correspond to the *best Keplerian fit*, because they will be used as a first guess for this fit.
+The next thing that you need to notice is that the orbital parameters inclination (i) and the longitude 
+of the ascending node (Ω) become available. The dynamical model has the advantage of being able to fit for 
+mutually inclined orbits. For the purposes of this tutorial we assume edge-on coplanar
+orbits (i=90, Ω=0) for consistency with the unperturbed Keplerian frame and in order to work with minimum
+dynamical masses.
+
+The difference in the phase diagrams between the two models is significant! 
+
+.. figure:: images/dynamicalorb.gif
+
+   Running an *orbital evolution* with dynamical model.
+
+
+
+------------------------------------------------------------------------------------------
 
 MCMC
-
+====
 
 For parameter distribution analysis and uncertainty esti-
 mates, we couple our MLE ﬁtting algorithm with a Markov
