@@ -15,7 +15,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 **Developer**
 
 * Trifon Trifonov, MPIA Heidelberg.
-* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler, Grigorii Smirnov-Pinchukov, Stephan Stock and Jonas Kemmer.
+* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler, Grigorii Smirnov-Pinchukov, Stephan Stock, Jonas Kemmer, and Harry Psarakis.
 
 **What works**:
 
@@ -47,7 +47,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Integrated Jupyter shell.
 * Importable as a standard python library (i.e., "import exostriker").
 * Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
-* Direct import of TESS *lc.fits and CHEOPS *SCI_COR*.fits files
+* Direct import of TESS & K2 *lc.fits, and CHEOPS *SCI_COR*.fits files.
 
 **What is to be implemented**:
 
@@ -55,7 +55,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
 * Swap "celerite" with "celerite2" (the dSHO kernel from "celerite2" is available).
 * Combined modeling with Astrometry (work in progress).
-* Documentation, Instructions, and Video tutorials (Work in progress [here](https://exostriker.readthedocs.io))
+* Documentation, Instructions, and Video tutorials (Work in progress [here](https://exostriker.readthedocs.io)).
 
 
 Please keep in mind that this software is developed mostly for my needs and fun. I hope, however, that you may find it capable of solving your scientific problems, too. At the moment, there is NO documentation,

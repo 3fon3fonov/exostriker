@@ -21,7 +21,6 @@ from ... import functions as fn
 from ... import icons
 from ...Qt import QtGui, QtCore, QT_LIB
 from ...WidgetGroup import WidgetGroup
-from ...python2_3 import basestring
 from ...widgets.FileDialog import FileDialog
 
 translate = QtCore.QCoreApplication.translate
@@ -43,35 +42,35 @@ class PlotItem(GraphicsWidget):
 
     It's main functionality is:
 
-    - Manage placement of ViewBox, AxisItems, and LabelItems
-    - Create and manage a list of PlotDataItems displayed inside the ViewBox
-    - Implement a context menu with commonly used display and analysis options
+      - Manage placement of ViewBox, AxisItems, and LabelItems
+      - Create and manage a list of PlotDataItems displayed inside the ViewBox
+      - Implement a context menu with commonly used display and analysis options
 
     Use :func:`plot() <pyqtgraph.PlotItem.plot>` to create a new PlotDataItem and
     add it to the view. Use :func:`addItem() <pyqtgraph.PlotItem.addItem>` to
     add any QGraphicsItem to the view.
     
     This class wraps several methods from its internal ViewBox:
-    :func:`setXRange <pyqtgraph.ViewBox.setXRange>`,
-    :func:`setYRange <pyqtgraph.ViewBox.setYRange>`,
-    :func:`setRange <pyqtgraph.ViewBox.setRange>`,
-    :func:`autoRange <pyqtgraph.ViewBox.autoRange>`,
-    :func:`setDefaultPadding <pyqtgraph.ViewBox.setDefaultPadding>`,
-    :func:`setXLink <pyqtgraph.ViewBox.setXLink>`,
-    :func:`setYLink <pyqtgraph.ViewBox.setYLink>`,
-    :func:`setAutoPan <pyqtgraph.ViewBox.setAutoPan>`,
-    :func:`setAutoVisible <pyqtgraph.ViewBox.setAutoVisible>`,
-    :func:`setLimits <pyqtgraph.ViewBox.setLimits>`,
-    :func:`viewRect <pyqtgraph.ViewBox.viewRect>`,
-    :func:`viewRange <pyqtgraph.ViewBox.viewRange>`,
-    :func:`setMouseEnabled <pyqtgraph.ViewBox.setMouseEnabled>`,
-    :func:`enableAutoRange <pyqtgraph.ViewBox.enableAutoRange>`,
-    :func:`disableAutoRange <pyqtgraph.ViewBox.disableAutoRange>`,
-    :func:`setAspectLocked <pyqtgraph.ViewBox.setAspectLocked>`,
-    :func:`invertY <pyqtgraph.ViewBox.invertY>`,
-    :func:`invertX <pyqtgraph.ViewBox.invertX>`,
-    :func:`register <pyqtgraph.ViewBox.register>`,
-    :func:`unregister <pyqtgraph.ViewBox.unregister>`
+      - :func:`setXRange <pyqtgraph.ViewBox.setXRange>`
+      - :func:`setYRange <pyqtgraph.ViewBox.setYRange>`
+      - :func:`setRange <pyqtgraph.ViewBox.setRange>`
+      - :func:`autoRange <pyqtgraph.ViewBox.autoRange>`
+      - :func:`setDefaultPadding <pyqtgraph.ViewBox.setDefaultPadding>`
+      - :func:`setXLink <pyqtgraph.ViewBox.setXLink>`
+      - :func:`setYLink <pyqtgraph.ViewBox.setYLink>`
+      - :func:`setAutoPan <pyqtgraph.ViewBox.setAutoPan>`
+      - :func:`setAutoVisible <pyqtgraph.ViewBox.setAutoVisible>`
+      - :func:`setLimits <pyqtgraph.ViewBox.setLimits>`
+      - :func:`viewRect <pyqtgraph.ViewBox.viewRect>`
+      - :func:`viewRange <pyqtgraph.ViewBox.viewRange>`
+      - :func:`setMouseEnabled <pyqtgraph.ViewBox.setMouseEnabled>`
+      - :func:`enableAutoRange <pyqtgraph.ViewBox.enableAutoRange>`
+      - :func:`disableAutoRange <pyqtgraph.ViewBox.disableAutoRange>`
+      - :func:`setAspectLocked <pyqtgraph.ViewBox.setAspectLocked>`
+      - :func:`invertY <pyqtgraph.ViewBox.invertY>`
+      - :func:`invertX <pyqtgraph.ViewBox.invertX>`
+      - :func:`register <pyqtgraph.ViewBox.register>`
+      - :func:`unregister <pyqtgraph.ViewBox.unregister>`
     
     The ViewBox itself can be accessed by calling :func:`getViewBox() <pyqtgraph.PlotItem.getViewBox>` 
     
@@ -241,7 +240,7 @@ class PlotItem(GraphicsWidget):
         self.ctrl.avgParamList.itemClicked.connect(self.avgParamListClicked)
         self.ctrl.averageGroup.toggled.connect(self.avgToggled)
         
-        self.ctrl.maxTracesCheck.toggled.connect(self.updateDecimation)
+        self.ctrl.maxTracesCheck.toggled.connect(self._handle_max_traces_toggle)
         self.ctrl.forgetTracesCheck.toggled.connect(self.updateDecimation)
         self.ctrl.maxTracesSpin.valueChanged.connect(self.updateDecimation)
         
@@ -252,7 +251,7 @@ class PlotItem(GraphicsWidget):
                 labels[label] = kargs[label]
                 del kargs[label]
         for k in labels:
-            if isinstance(labels[k], basestring):
+            if isinstance(labels[k], str):
                 labels[k] = (labels[k],)
             self.setLabel(k, *labels[k])
                 
@@ -764,9 +763,8 @@ class PlotItem(GraphicsWidget):
 
             for item in self.curves:
                 if isinstance(item, PlotCurveItem):
-                    color = fn.colorStr(item.pen.color())
-                    opacity = item.pen.color().alpha() / 255.
-                    color = color[:6]
+                    color = item.pen.color()
+                    hrrggbb, opacity = color.name(), color.alphaF()
                     x, y = item.getData()
                     mask = (x > xRange[0]) * (x < xRange[1])
                     mask[:-1] += mask[1:]
@@ -781,9 +779,9 @@ class PlotItem(GraphicsWidget):
                     # fh.write('<g fill="none" stroke="#%s" '
                     #          'stroke-opacity="1" stroke-width="1">\n' % (
                     #           color, ))
-                    fh.write('<path fill="none" stroke="#%s" '
+                    fh.write('<path fill="none" stroke="%s" '
                              'stroke-opacity="%f" stroke-width="1" '
-                             'd="M%f,%f ' % (color, opacity, x[0], y[0]))
+                             'd="M%f,%f ' % (hrrggbb, opacity, x[0], y[0]))
                     for i in range(1, len(x)):
                         fh.write('L%f,%f ' % (x[i], y[i]))
 
@@ -799,15 +797,14 @@ class PlotItem(GraphicsWidget):
                         pos = point.pos()
                         if not rect.contains(pos):
                             continue
-                        color = fn.colorStr(point.brush.color())
-                        opacity = point.brush.color().alpha() / 255.
-                        color = color[:6]
+                        color = point.brush.color()
+                        hrrggbb, opacity = color.name(), color.alphaF()
                         x = pos.x() * sx
                         y = pos.y() * sy
 
-                        fh.write('<circle cx="%f" cy="%f" r="1" fill="#%s" '
+                        fh.write('<circle cx="%f" cy="%f" r="1" fill="%s" '
                                  'stroke="none" fill-opacity="%f"/>\n' % (
-                                    x, y, color, opacity))
+                                    x, y, hrrggbb, opacity))
 
             fh.write("</svg>\n")
 
@@ -1005,10 +1002,27 @@ class PlotItem(GraphicsWidget):
         
     def clipToViewMode(self):
         return self.ctrl.clipToViewCheck.isChecked()
-
+    
+    def _handle_max_traces_toggle(self, check_state):
+        if check_state:
+            self.updateDecimation()
+        else:
+            for curve in self.curves:
+                curve.show()
+    
     def updateDecimation(self):
+        """Reduce or increase number of visible curves depending from Max Traces spinner value
+        if Max Traces is checked in the context menu. Destroy not visible curves if forget traces
+        is checked. This function is called in most cases automaticaly when Max Traces GUI elements
+        are triggered. Also it is auto-called when state of PlotItem is updated, state restored
+        or new items being added/removed.
+        
+        This can cause unexpected/conflicting state of curve visibility (or destruction) if curve
+        visibilities are controlled externaly. In case of external control it is adviced to disable
+        the Max Traces checkbox (or context menu) to prevent user from the unexpected
+        curve state change."""
         if not self.ctrl.maxTracesCheck.isChecked():
-            numCurves = len(self.curves)
+            return
         else:
             numCurves = self.ctrl.maxTracesSpin.value()
 
@@ -1133,7 +1147,7 @@ class PlotItem(GraphicsWidget):
             if k == 'title':
                 self.setTitle(v)
             else:
-                if isinstance(v, basestring):
+                if isinstance(v, str):
                     v = (v,)
                 self.setLabel(k, *v)
         

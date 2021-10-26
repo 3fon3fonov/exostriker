@@ -1,6 +1,5 @@
+# -*- coding: utf-8 -*-
 from ..Qt import QtGui, QtCore
-from ..python2_3 import asUnicode
-import os, weakref, re
 
 translate = QtCore.QCoreApplication.translate
 
@@ -9,10 +8,10 @@ class ParameterItem(QtGui.QTreeWidgetItem):
     Abstract ParameterTree item. 
     Used to represent the state of a Parameter from within a ParameterTree.
     
-    - Sets first column of item to name
-    - generates context menu if item is renamable or removable
-    - handles child added / removed events
-    - provides virtual functions for handling changes from parameter
+      - Sets first column of item to name
+      - generates context menu if item is renamable or removable
+      - handles child added / removed events
+      - provides virtual functions for handling changes from parameter
     
     For more ParameterItem types, see ParameterTree.parameterTypes module.
     """
@@ -138,7 +137,7 @@ class ParameterItem(QtGui.QTreeWidgetItem):
             if self.ignoreNameColumnChange:
                 return
             try:
-                newName = self.param.setName(asUnicode(self.text(col)))
+                newName = self.param.setName(self.text(col))
             except Exception:
                 self.setText(0, self.param.name())
                 raise
