@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fiting the RV data &mdash; exostriker latest documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Credits" href="credits.html" />
+    <link rel="prev" title="Introduction" href="tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> exostriker<img src="_static/33striker.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                latest
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="userguide.html">Installation / Loading the GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide.html#os-related-comments">OS related comments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide.html#some-known-problems">Some known problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide.html#reporting-an-issue">Reporting an issue</a></li>
+</ul>
+<p class="caption"><span class="caption-text">tutorials based on gui</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html#adding-the-rv-data">Adding the RV data</a></li>
+</ul>
+<p class="caption"><span class="caption-text">tutorials based on Jupyter shell</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Fiting the RV data</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Credits</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="credits.html">Credits</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">exostriker</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Fiting the RV data</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tutorials2.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="fiting-the-rv-data">
+<span id="tutorials2"></span><h1>Fiting the RV data<a class="headerlink" href="#fiting-the-rv-data" title="Permalink to this headline"></a></h1>
+<p>If you want to use the library on the Python shell/script</p>
+<p>In [1]: import exostriker</p>
+<p>or e.g. to load the RV routines:</p>
+<p>In [1]: import exostriker.lib.RV_mod as rv</p>
+<p>In [2]: fit = rv.signal_fit(name=”hip5364”) #creates the “fit” object that contains everything.</p>
+<p>In [3]: fit.add_dataset(“hip5364-Lick”,”./datafiles/hip5364.vels”,0.0.10.0) # add the data file, initial offset and jitter</p>
+<p>In [4]: fit.add_planet(K=50,P=400,e=0,w=0,M0=0,i=90,cap=0)   # planet 1</p>
+<p>In [5]: fit.add_planet(K=50,P=700,e=0,w=0,M0=180,i=90,cap=0) # planet 2</p>
+<p>In [6]: fit.fitting() #optimize the parameters</p>
+<p>In [7]: fit.run_mcmc() # run MCMC, etc…</p>
+<p>(However, one must be familiar with the functions… A manual on RVmod is planned, but not available at the moment.)</p>
+<ul class="simple">
+<li><p>All Fortran and python codes in this version need serious clean-up from junk.</p></li>
+<li><p>All Fortran codes are planned to be translated with f2py into python-importable libraries.</p></li>
+<li><p>Don’t ever run MCMC runs (or Nest. Samp.) directly in the embedded Jupyter shell! This will freeze the GUI until is the MCMC done!
+This is not a bug, simply the jupyter shell needs its thread and this is not done, yet. Hopefully, this will be fixed soon.
+Please use the GUI navigation.</p></li>
+</ul>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorials.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="credits.html" class="btn btn-neutral float-right" title="Credits" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Trifon Trifonov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
