@@ -15,6 +15,7 @@ Widget used for displaying 2D or 3D data. Features:
 import os
 from math import log10
 import numpy as np
+from time import perf_counter
 
 from ..Qt import QtCore, QtGui, QT_LIB
 from .. import functions as fn
@@ -29,7 +30,6 @@ from ..graphicsItems.InfiniteLine import *
 from ..graphicsItems.ViewBox import *
 from ..graphicsItems.VTickGroup import VTickGroup
 from ..graphicsItems.GradientEditorItem import addGradientListToDocstring
-from .. import ptime as ptime
 from .. import debug as debug
 from ..SignalProxy import SignalProxy
 from .. import getConfigOption
@@ -53,15 +53,15 @@ class ImageView(QtGui.QWidget):
     Widget used for display and analysis of image data.
     Implements many features:
     
-    * Displays 2D and 3D image data. For 3D data, a z-axis
-      slider is displayed allowing the user to select which frame is displayed.
-    * Displays histogram of image data with movable region defining the dark/light levels
-    * Editable gradient provides a color lookup table 
-    * Frame slider may also be moved using left/right arrow keys as well as pgup, pgdn, home, and end.
-    * Basic analysis features including:
-    
-        * ROI and embedded plot for measuring image values across frames
-        * Image normalization / background subtraction 
+      * Displays 2D and 3D image data. For 3D data, a z-axis
+        slider is displayed allowing the user to select which frame is displayed.
+      * Displays histogram of image data with movable region defining the dark/light levels
+      * Editable gradient provides a color lookup table
+      * Frame slider may also be moved using left/right arrow keys as well as pgup, pgdn, home, and end.
+      * Basic analysis features including:
+
+          * ROI and embedded plot for measuring image values across frames
+          * Image normalization / background subtraction
     
     Basic Usage::
     
@@ -71,13 +71,13 @@ class ImageView(QtGui.QWidget):
         
     **Keyboard interaction**
     
-    * left/right arrows step forward/backward 1 frame when pressed,
-      seek at 20fps when held.
-    * up/down arrows seek at 100fps
-    * pgup/pgdn seek at 1000fps
-    * home/end seek immediately to the first/last frame
-    * space begins playing frames. If time values (in seconds) are given 
-      for each frame, then playback is in realtime.
+      * left/right arrows step forward/backward 1 frame when pressed,
+        seek at 20fps when held.
+      * up/down arrows seek at 100fps
+      * pgup/pgdn seek at 1000fps
+      * home/end seek immediately to the first/last frame
+      * space begins playing frames. If time values (in seconds) are given
+        for each frame, then playback is in realtime.
     """
     sigTimeChanged = QtCore.Signal(object, object)
     sigProcessingChanged = QtCore.Signal(object)
@@ -127,7 +127,6 @@ class ImageView(QtGui.QWidget):
         self.ui = ui_template.Ui_Form()
         self.ui.setupUi(self)
         self.scene = self.ui.graphicsView.scene()
-        self.ui.histogram.setLevelMode(levelMode)
         
         self.ignorePlaying = False
         
@@ -138,15 +137,6 @@ class ImageView(QtGui.QWidget):
         self.ui.graphicsView.setCentralItem(self.view)
         self.view.setAspectLocked(True)
         self.view.invertY()
-        
-        if imageItem is None:
-            self.imageItem = ImageItem()
-        else:
-            self.imageItem = imageItem
-        self.view.addItem(self.imageItem)
-        self.currentIndex = 0
-        
-        self.ui.histogram.setImageItem(self.imageItem)
         
         self.menu = None
         
@@ -162,7 +152,6 @@ class ImageView(QtGui.QWidget):
         self.view.addItem(self.normRoi)
         self.normRoi.hide()
         self.roiCurves = []
-        self.roiCurve = self.ui.roiPlot.plot()
         self.timeLine = InfiniteLine(0, movable=True)
         if getConfigOption('background')=='w':
             self.timeLine.setPen((20, 80,80, 200))
@@ -171,6 +160,18 @@ class ImageView(QtGui.QWidget):
         self.timeLine.setZValue(1)
         self.ui.roiPlot.addItem(self.timeLine)
         self.ui.splitter.setSizes([self.height()-35, 35])
+
+        # init imageItem and histogram
+        if imageItem is None:
+            self.imageItem = ImageItem()
+        else:
+            self.imageItem = imageItem
+            self.setImage(imageItem.image, autoRange=False, autoLevels=False, transform=imageItem.transform())
+        self.view.addItem(self.imageItem)
+        self.currentIndex = 0
+        
+        self.ui.histogram.setImageItem(self.imageItem)
+        self.ui.histogram.setLevelMode(levelMode)
         
         # make splitter an unchangeable small grey line:
         s = self.ui.splitter
@@ -358,13 +359,15 @@ class ImageView(QtGui.QWidget):
         
         profiler()
 
-        self.imageItem.resetTransform()
-        if scale is not None:
-            self.imageItem.scale(*scale)
-        if pos is not None:
-            self.imageItem.setPos(*pos)
-        if transform is not None:
-            self.imageItem.setTransform(transform)
+        if transform is None:
+            transform = QtGui.QTransform()
+            # note that the order of transform is
+            #   scale followed by translate
+            if pos is not None:
+                transform.translate(*pos)
+            if scale is not None:
+                transform.scale(*scale)
+        self.imageItem.setTransform(transform)
 
         profiler()
 
@@ -390,7 +393,7 @@ class ImageView(QtGui.QWidget):
             self.playTimer.stop()
             return
             
-        self.lastPlayTime = ptime.time()
+        self.lastPlayTime = perf_counter()
         if not self.playTimer.isActive():
             self.playTimer.start(16)
             
@@ -483,12 +486,12 @@ class ImageView(QtGui.QWidget):
             if key == QtCore.Qt.Key.Key_Right:
                 self.play(20)
                 self.jumpFrames(1)
-                self.lastPlayTime = ptime.time() + 0.2  ## 2ms wait before start
-                                                        ## This happens *after* jumpFrames, since it might take longer than 2ms
+                # effectively pause playback for 0.2 s
+                self.lastPlayTime = perf_counter() + 0.2  
             elif key == QtCore.Qt.Key.Key_Left:
                 self.play(-20)
                 self.jumpFrames(-1)
-                self.lastPlayTime = ptime.time() + 0.2
+                self.lastPlayTime = perf_counter() + 0.2
             elif key == QtCore.Qt.Key.Key_Up:
                 self.play(-100)
             elif key == QtCore.Qt.Key.Key_Down:
@@ -501,7 +504,7 @@ class ImageView(QtGui.QWidget):
             self.play(0)
         
     def timeout(self):
-        now = ptime.time()
+        now = perf_counter()
         dt = now - self.lastPlayTime
         if dt < 0:
             return
@@ -563,12 +566,12 @@ class ImageView(QtGui.QWidget):
         if self.ui.roiBtn.isChecked():
             showRoiPlot = True
             self.roi.show()
-            #self.ui.roiPlot.show()
             self.ui.roiPlot.setMouseEnabled(True, True)
             self.ui.splitter.setSizes([int(self.height()*0.6), int(self.height()*0.4)])
             self.ui.splitter.handle(1).setEnabled(True)
-            self.roiCurve.show()
             self.roiChanged()
+            for c in self.roiCurves:
+                c.show()
             self.ui.roiPlot.showAxis('left')
         else:
             self.roi.hide()
@@ -584,13 +587,11 @@ class ImageView(QtGui.QWidget):
             self.ui.roiPlot.setXRange(mn, mx, padding=0.01)
             self.timeLine.show()
             self.timeLine.setBounds([mn, mx])
-            self.ui.roiPlot.show()
             if not self.ui.roiBtn.isChecked():
                 self.ui.splitter.setSizes([self.height()-35, 35])
                 self.ui.splitter.handle(1).setEnabled(False)
         else:
             self.timeLine.hide()
-            #self.ui.roiPlot.hide()
             
         self.ui.roiPlot.setVisible(showRoiPlot)
 

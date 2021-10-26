@@ -2,7 +2,7 @@
 """
 RawImageWidget.py
 Copyright 2010-2016 Luke Campagnola
-Distributed under MIT/X11 license. See license.txt for more infomation.
+Distributed under MIT/X11 license. See license.txt for more information.
 """
 
 from .. import getConfigOption, functions as fn, getCupy
@@ -162,4 +162,4 @@ if HAVE_OPENGL:
             glTexCoord2f(0, 0)
             glVertex3f(-1, 1, 0)
             glEnd()
-            glDisable(GL_TEXTURE_3D)
+            glDisable(GL_TEXTURE_2D)
