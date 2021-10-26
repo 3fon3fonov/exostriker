@@ -5,7 +5,6 @@ import math
 from copy import deepcopy
 import numpy as np
 from ...Qt import QtGui, QtCore
-from ...python2_3 import basestring
 from ...Point import Point
 from ... import functions as fn
 from .. ItemGroup import ItemGroup
@@ -51,7 +50,7 @@ class ChildGroup(ItemGroup):
         #         mechanism, but this causes a different PySide crash.
         self.itemsChangedListeners = WeakList()
 
-        # excempt from telling view when transform changes
+        # exempt from telling view when transform changes
         self._GraphicsObject__inform_view_on_change = False
 
     def itemChange(self, change, value):
@@ -81,10 +80,10 @@ class ViewBox(GraphicsWidget):
 
     Features:
 
-    * Scaling contents by mouse or auto-scale when contents change
-    * View linking--multiple views display the same data ranges
-    * Configurable by context menu
-    * Item coordinate mapping methods
+      * Scaling contents by mouse or auto-scale when contents change
+      * View linking--multiple views display the same data ranges
+      * Configurable by context menu
+      * Item coordinate mapping methods
 
     """
 
@@ -279,20 +278,17 @@ class ViewBox(GraphicsWidget):
     def implements(self, interface):
         return interface == 'ViewBox'
 
-    # removed due to https://bugreports.qt-project.org/browse/PYSIDE-86
-    #def itemChange(self, change, value):
-        ## Note: Calling QWidget.itemChange causes segv in python 3 + PyQt
-        ##ret = QtGui.QGraphicsItem.itemChange(self, change, value)
-        #ret = GraphicsWidget.itemChange(self, change, value)
-        #if change == self.ItemSceneChange:
-            #scene = self.scene()
-            #if scene is not None and hasattr(scene, 'sigPrepareForPaint'):
-                #scene.sigPrepareForPaint.disconnect(self.prepareForPaint)
-        #elif change == self.ItemSceneHasChanged:
-            #scene = self.scene()
-            #if scene is not None and hasattr(scene, 'sigPrepareForPaint'):
-                #scene.sigPrepareForPaint.connect(self.prepareForPaint)
-        #return ret
+    def itemChange(self, change, value):
+        ret = super().itemChange(change, value)
+        if change == self.GraphicsItemChange.ItemSceneChange:
+            scene = self.scene()
+            if scene is not None and hasattr(scene, 'sigPrepareForPaint'):
+                scene.sigPrepareForPaint.disconnect(self.prepareForPaint)
+        elif change == self.GraphicsItemChange.ItemSceneHasChanged:
+            scene = self.scene()
+            if scene is not None and hasattr(scene, 'sigPrepareForPaint'):
+                scene.sigPrepareForPaint.connect(self.prepareForPaint)
+        return ret
 
     def prepareForPaint(self):
         #autoRangeEnabled = (self.state['autoRange'][0] is not False) or (self.state['autoRange'][1] is not False)
@@ -309,7 +305,7 @@ class ViewBox(GraphicsWidget):
         for v in state['linkedViews']:
             if isinstance(v, weakref.ref):
                 v = v()
-            if v is None or isinstance(v, basestring):
+            if v is None or isinstance(v, str):
                 views.append(v)
             else:
                 views.append(v.name)
@@ -426,7 +422,6 @@ class ViewBox(GraphicsWidget):
         if scene is not None:
             scene.removeItem(item)
         item.setParentItem(None)
-
         self.updateAutoRange()
 
     def clear(self):
@@ -452,7 +447,6 @@ class ViewBox(GraphicsWidget):
         
             self.sigStateChanged.emit(self)
             self.sigResized.emit(self)
-
 
     def viewRange(self):
         """Return a the view's visible range as a list: [[xmin, xmax], [ymin, ymax]]"""
@@ -627,7 +621,6 @@ class ViewBox(GraphicsWidget):
                 self._autoRangeNeedsUpdate = True
             elif changed[1] and self.state['autoVisibleOnly'][0] and (self.state['autoRange'][1] is not False):
                 self._autoRangeNeedsUpdate = True
-
             self.sigStateChanged.emit(self)
 
     def setYRange(self, min, max, padding=None, update=True):
@@ -942,7 +935,7 @@ class ViewBox(GraphicsWidget):
         Link X or Y axes of two views and unlink any previously connected axes. *axis* must be ViewBox.XAxis or ViewBox.YAxis.
         If view is None, the axis is left unlinked.
         """
-        if isinstance(view, basestring):
+        if isinstance(view, str):
             if view == '':
                 view = None
             else:
@@ -970,7 +963,7 @@ class ViewBox(GraphicsWidget):
                 pass
 
 
-        if view is None or isinstance(view, basestring):
+        if view is None or isinstance(view, str):
             self.state['linkedViews'][axis] = view
         else:
             self.state['linkedViews'][axis] = weakref.ref(view)
@@ -1003,7 +996,7 @@ class ViewBox(GraphicsWidget):
         ## Return the linked view for axis *ax*.
         ## this method _always_ returns either a ViewBox or None.
         v = self.state['linkedViews'][ax]
-        if v is None or isinstance(v, basestring):
+        if v is None or isinstance(v, str):
             return None
         else:
             return v()  ## dereference weakref pointer. If the reference is dead, this returns None
@@ -1248,9 +1241,8 @@ class ViewBox(GraphicsWidget):
         ## if axis is specified, event will only affect that axis.
         ev.accept()  ## we accept all buttons
 
-        pos = ev.pos()
-        lastPos = ev.lastPos()
-        dif = pos - lastPos
+        pos = ev.scenePos()
+        dif = pos - ev.lastScenePos()
         dif = dif * -1
 
         ## Ignore axes if mouse is disabled
@@ -1265,14 +1257,14 @@ class ViewBox(GraphicsWidget):
                 if ev.isFinish():  ## This is the final move in the drag; change the view scale now
                     #print "finish"
                     self.rbScaleBox.hide()
-                    ax = QtCore.QRectF(Point(ev.buttonDownPos(ev.button())), Point(pos))
-                    ax = self.childGroup.mapRectFromParent(ax)
+                    ax = QtCore.QRectF(Point(ev.buttonDownScenePos(ev.button())), Point(pos))
+                    ax = self.childGroup.mapRectFromScene(ax)
                     self.showAxRect(ax)
                     self.axHistoryPointer += 1
                     self.axHistory = self.axHistory[:self.axHistoryPointer] + [ax]
                 else:
                     ## update shape of scale box
-                    self.updateScaleBox(ev.buttonDownPos(), ev.pos())
+                    self.updateScaleBox(ev.buttonDownScenePos(), ev.scenePos())
             else:
                 tr = self.childGroup.transform()
                 tr = fn.invertQTransform(tr)
@@ -1336,7 +1328,7 @@ class ViewBox(GraphicsWidget):
 
     def updateScaleBox(self, p1, p2):
         r = QtCore.QRectF(p1, p2)
-        r = self.childGroup.mapRectFromParent(r)
+        r = self.childGroup.mapRectFromScene(r)
         self.rbScaleBox.setPos(r.topLeft())
         tr = QtGui.QTransform.fromScale(r.width(), r.height())
         self.rbScaleBox.setTransform(tr)
@@ -1475,6 +1467,10 @@ class ViewBox(GraphicsWidget):
 
         bounds = QtCore.QRectF(range[0][0], range[1][0], range[0][1]-range[0][0], range[1][1]-range[1][0])
         return bounds
+        
+    def update(self, *args, **kwargs):
+        self.prepareForPaint()
+        GraphicsWidget.update(self, *args, **kwargs)
 
     def updateViewRange(self, forceX=False, forceY=False):
         ## Update viewRange to match targetRange as closely as possible, given
@@ -1608,7 +1604,6 @@ class ViewBox(GraphicsWidget):
         self.sigTransformChanged.emit(self)  ## segfaults here: 1
 
     def paint(self, p, opt, widget):
-        self.prepareForPaint()
         if self.border is not None:
             bounds = self.shape()
             p.setPen(self.border)
@@ -1649,7 +1644,7 @@ class ViewBox(GraphicsWidget):
 
         for ax in [0,1]:
             link = self.state['linkedViews'][ax]
-            if isinstance(link, basestring):     ## axis has not been linked yet; see if it's possible now
+            if isinstance(link, str):     ## axis has not been linked yet; see if it's possible now
                 for v in nv:
                     if link == v.name:
                         self.linkView(ax, v)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from math import atan2
 from ..Qt import QtGui, QtCore
 from ..Point import Point
@@ -137,35 +138,33 @@ class TargetItem(UIGraphicsItem):
     def sigDragged(self):
         warnings.warn(
             "'sigDragged' has been deprecated and will be removed in 0.13.0.  Use "
-            "`sigPositionChanged` instead",
+            "`sigPositionChangeFinished` instead",
             DeprecationWarning,
             stacklevel=2,
         )
         return self.sigPositionChangeFinished
 
-    def setPos(self, pos):
+    def setPos(self, *args):
         """Method to set the position to ``(x, y)`` within the plot view
 
         Parameters
         ----------
-        pos : tuple, list, QPointF, QPoint, or pg.Point
-            Container that consists of ``(x, y)`` representation of where the
+        args : tuple, list, QPointF, QPoint, pg.Point, or two floats
+            Two float values or a container that specifies ``(x, y)`` position where the
             TargetItem should be placed
 
         Raises
         ------
         TypeError
-            If the type of ``pos`` does not match the known types to extract
-            coordinate info from, a TypeError is raised
+            If args cannot be used to instantiate a pg.Point
         """
-        if isinstance(pos, Point):
-            newPos = pos
-        elif isinstance(pos, (tuple, list)):
-            newPos = Point(pos)
-        elif isinstance(pos, (QtCore.QPointF, QtCore.QPoint)):
-            newPos = Point(pos.x(), pos.y())
-        else:
-            raise TypeError
+        try:
+            newPos = Point(*args)
+        except TypeError:
+            raise
+        except Exception:
+            raise TypeError(f"Could not make Point from arguments: {args!r}")
+
         if self._pos != newPos:
             self._pos = newPos
             super().setPos(self._pos)
@@ -363,8 +362,8 @@ class TargetLabel(TextItem):
     """A TextItem that attaches itself to a TargetItem.
 
     This class extends TextItem with the following features :
-    * Automatically positions adjacent to the symbol at a fixed position.
-    * Automatically reformats text when the symbol location has changed.
+      * Automatically positions adjacent to the symbol at a fixed position.
+      * Automatically reformats text when the symbol location has changed.
 
     Parameters
     ----------
@@ -380,7 +379,7 @@ class TargetLabel(TextItem):
         the target in pixels, by default it is (20, 0).
     anchor : tuple, list, QPointF or QPoint
         Position to rotate the TargetLabel about, and position to set the
-        offset value to see :class:`~pyqtgraph.TextItem` for more inforation.
+        offset value to see :class:`~pyqtgraph.TextItem` for more information.
     kwargs : dict of arguments that are passed on to
         :class:`~pyqtgraph.TextItem` constructor, excluding text parameter
     """

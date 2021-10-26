@@ -5,7 +5,6 @@ from .. import functions as fn
 from .Terminal import *
 from collections import OrderedDict
 from ..debug import *
-import numpy as np
 import warnings
 
 translate = QtCore.QCoreApplication.translate
@@ -18,7 +17,7 @@ class Node(QtCore.QObject):
     Node represents the basic processing unit of a flowchart. 
     A Node subclass implements at least:
     
-    1) A list of input / ouptut terminals and their properties
+    1) A list of input / output terminals and their properties
     2) a process() function which takes the names of input terminals as keyword arguments and returns a dict with the names of output terminals as keys.
 
     A flowchart thus consists of multiple instances of Node subclasses, each of which is connected
@@ -505,7 +504,7 @@ class NodeGraphicsItem(GraphicsObject):
         #GraphicsObject.setZValue(self, z)
         
     def labelChanged(self):
-        newName = str(self.nameItem.toPlainText())
+        newName = self.nameItem.toPlainText()
         if newName != self.node.name():
             self.node.rename(newName)
             

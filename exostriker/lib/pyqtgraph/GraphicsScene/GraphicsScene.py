@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-import time
 import weakref
 import warnings
+from time import perf_counter, perf_counter_ns
 
 from ..Qt import QtCore, QtGui, QT_LIB, isQObjectAlive
 from ..Point import Point
-from .. import functions as fn
-from .. import ptime as ptime
 from .mouseEvents import *
 from .. import debug as debug
 from .. import getConfigOption
 
-getMillis = lambda: int(round(time.time() * 1000))
+getMillis = lambda: perf_counter_ns() // 10 ** 6
 
 
 if QT_LIB.startswith('PyQt'):
@@ -30,15 +28,15 @@ class GraphicsScene(QtGui.QGraphicsScene):
     events, but this turned out to be impossible because the constructor for QGraphicsMouseEvent
     is private)
     
-    *  Generates MouseClicked events in addition to the usual press/move/release events. 
-       (This works around a problem where it is impossible to have one item respond to a 
-       drag if another is watching for a click.)
-    *  Adjustable radius around click that will catch objects so you don't have to click *exactly* over small/thin objects
-    *  Global context menu--if an item implements a context menu, then its parent(s) may also add items to the menu.
-    *  Allows items to decide _before_ a mouse click which item will be the recipient of mouse events.
-       This lets us indicate unambiguously to the user which item they are about to click/drag on
-    *  Eats mouseMove events that occur too soon after a mouse press.
-    *  Reimplements items() and itemAt() to circumvent PyQt bug
+      *  Generates MouseClicked events in addition to the usual press/move/release events.
+         (This works around a problem where it is impossible to have one item respond to a
+         drag if another is watching for a click.)
+      *  Adjustable radius around click that will catch objects so you don't have to click *exactly* over small/thin objects
+      *  Global context menu--if an item implements a context menu, then its parent(s) may also add items to the menu.
+      *  Allows items to decide _before_ a mouse click which item will be the recipient of mouse events.
+         This lets us indicate unambiguously to the user which item they are about to click/drag on
+      *  Eats mouseMove events that occur too soon after a mouse press.
+      *  Reimplements items() and itemAt() to circumvent PyQt bug
 
     ====================== ====================================================================
     **Signals**
@@ -198,7 +196,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
                 # button is pressed' send mouseMoveEvents and mouseDragEvents
                 super().mouseMoveEvent(ev)
                 if self.mouseGrabberItem() is None:
-                    now = ptime.time()
+                    now = perf_counter()
                     init = False
                     ## keep track of which buttons are involved in dragging
                     for btn in [QtCore.Qt.MouseButton.LeftButton, QtCore.Qt.MouseButton.MiddleButton, QtCore.Qt.MouseButton.RightButton]:

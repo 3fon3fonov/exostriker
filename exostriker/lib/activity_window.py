@@ -466,8 +466,8 @@ class ActivityWindow(QtWidgets.QWidget, Ui_ActivityWindow):
 
         #omega = 1/ np.logspace(np.log10(self.parent.gls_min_period.value()), np.log10(self.parent.gls_max_period.value()), num=int(self.parent.gls_n_omega.value()))
         time_gls = dill.copy(self.t)
-        
-        omega = 1/ np.logspace(np.log10(0.9), np.log10((max(time_gls)-min(time_gls))*2.0), num=int(self.parent.gls_n_omega.value()))
+        ind_norm = self.parent.gls_norm_combo.currentIndex()        
+        #omega = 1/ np.logspace(np.log10(0.9), np.log10((max(time_gls)-min(time_gls))*2.0), num=int(self.parent.gls_n_omega.value()))
         
         
         if model == False and o_c == False:
@@ -481,8 +481,8 @@ class ActivityWindow(QtWidgets.QWidget, Ui_ActivityWindow):
             e_data_for_GLS = dill.copy(self.flux_err)
 
         self.trend_per = gls.Gls((time_gls, data_for_GLS, e_data_for_GLS), 
-            fast=True,  verbose=False, norm= "ZK",ofac=self.parent.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)
-
+           # fast=True,  verbose=False, norm= "ZK",ofac=self.parent.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)
+            fast=True,  verbose=False, norm=self.parent.norms[ind_norm],ofac=self.parent.gls_ofac.value(), fbeg=1/self.parent.gls_max_period.value(), fend=1/self.parent.gls_min_period.value())            
 
 
     def plot_GLS(self):
@@ -514,17 +514,17 @@ class ActivityWindow(QtWidgets.QWidget, Ui_ActivityWindow):
     def closeEvent(self, event):
         
         if len(self.old_t)  != len(self.t):
-            choice = QtGui.QMessageBox.information(self, 'Warning!',
-            "It seems that you removed data, but you did not refit! This is not allowed. Please press the 'Try!' button and then close", QtGui.QMessageBox.Ok)
+            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+            "It seems that you removed data, but you did not refit! This is not allowed. Please press the 'Try!' button and then close", QtWidgets.QMessageBox.Ok)
             event.ignore()
 
  
     
         else:
-            ret = QtGui.QMessageBox.question(None, 'Close request', 'Are you sure you want to quit?',
-                                             QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
-                                             QtGui.QMessageBox.Yes)
-            if ret == QtGui.QMessageBox.Yes:
+            ret = QtWidgets.QMessageBox.question(None, 'Close request', 'Are you sure you want to quit?',
+                                             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                             QtWidgets.QMessageBox.Yes)
+            if ret == QtWidgets.QMessageBox.Yes:
                 
                 self.t_store[self.parent.act_data_index]             = self.t
                 self.flux_store[self.parent.act_data_index]          = self.flux
@@ -534,14 +534,14 @@ class ActivityWindow(QtWidgets.QWidget, Ui_ActivityWindow):
                 self.trend_store[self.parent.act_data_index]         = self.trend
                 
                 self.ui.radio_remove_median.setChecked(True)
-                QtGui.QMainWindow.closeEvent(self, event)
+                QtWidgets.QMainWindow.closeEvent(self, event)
             else:
                 event.ignore()
 
 
     def save_data_product(self):
 
-        output_file = QtGui.QFileDialog.getSaveFileName(self, 'Save modified data file', 'act_%s'%self.data_file_name, 'All (*.*);;Data (*.tran)', options=QtGui.QFileDialog.DontUseNativeDialog)
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save modified data file', 'act_%s'%self.data_file_name, 'All (*.*);;Data (*.tran)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
         
         if str(output_file[0]) != '':
             f = open(output_file[0], 'w')

@@ -6,7 +6,7 @@ Welcome to the complete beginner's guide to Exostriker!
 Review
 ......
 
-(**T**)ransit and (**R**)adial velocity (**I**)nteractive (**F**)itting tool for (**O**)rbital analysis and (**N**)-body simulations: 
+Transit and Radial velocity Interactive Fitting tool for Orbital analysis and N-body simulations: 
 The Exo-Striker.
 
 The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and models the RV stellar reflex motion

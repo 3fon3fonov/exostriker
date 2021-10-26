@@ -451,7 +451,7 @@ if __name__ == '__main__':
     #w = show_symbols()
    # w.show()
     #sys.exit(app.exec_())    
-    app = QtGui.QApplication([])
+    app = QtWidgets.QApplication([])
     but = show_param_boxes.DateDialog.get_radio()
 #    print("{} {} {}".format(date, time, ok))
     app.exec_()        

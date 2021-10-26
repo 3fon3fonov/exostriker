@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to the complete beginner’s guide to Exostriker! &mdash; exostriker latest documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation / Loading the GUI" href="userguide.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="#" class="icon icon-home"> exostriker<img src="_static/33striker.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                latest
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="userguide.html">Installation / Loading the GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide.html#os-related-comments">OS related comments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide.html#some-known-problems">Some known problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide.html#reporting-an-issue">Reporting an issue</a></li>
+</ul>
+<p class="caption"><span class="caption-text">tutorials based on gui</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html#adding-the-rv-data">Adding the RV data</a></li>
+</ul>
+<p class="caption"><span class="caption-text">tutorials based on Jupyter shell</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials2.html">Fiting the RV data</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Credits</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="credits.html">Credits</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">exostriker</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+      <li>Welcome to the complete beginner’s guide to Exostriker!</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="welcome-to-the-complete-beginner-s-guide-to-exostriker">
+<h1>Welcome to the complete beginner’s guide to Exostriker!<a class="headerlink" href="#welcome-to-the-complete-beginner-s-guide-to-exostriker" title="Permalink to this headline"></a></h1>
+<div class="section" id="review">
+<h2>Review<a class="headerlink" href="#review" title="Permalink to this headline"></a></h2>
+<p>Transit and Radial velocity Interactive Fitting tool for Orbital analysis and N-body simulations:
+The Exo-Striker.</p>
+<p>The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and models the RV stellar reflex motion
+caused by dynamically interacting planets in multi-planetary systems. It offers a broad range of tools for detailed
+analysis of transit and Doppler data, including power spectrum analysis for Doppler and transit data; Keplerian and
+dynamical modeling of multi-planet systems; MCMC and nested sampling; Gaussian Processes modeling; and a long-term
+stability check of multi-planet systems. The Exo-Striker can also perform Mean Motion Resonance (MMR) analysis, create
+fast fully interactive plots, and export ready-to-use LaTeX tables with best-fit parameters, errors, and statistics.
+It combines Fortran efficiency and Python flexibility and is cross-platform compatible (MAC OS, Linux, Windows).</p>
+</div>
+<div class="section" id="what-works">
+<h2>What works<a class="headerlink" href="#what-works" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>RV signal and alias search: via GLS periodogram &amp; maximum lnL periodogram (MLP).</p></li>
+<li><p>Transit signal search (via “TLS”).</p></li>
+<li><p>Interactive transit photometry detrending (via “wotan”), interactive outlier removal, and more.</p></li>
+<li><p>Keplerian and Dynamical modeling of RV &amp; Transit photometry exoplanet data.</p></li>
+<li><p>Joint RVs + Transit + GPs best-fit optimization (internal Fortran Simplex and L-M minimizers, or many more via “SciPyOp”).</p></li>
+<li><p>Joint RVs + Transit + GPs MCMC/Nested Sampling (via “emcee” &amp; “dynesty”)</p></li>
+<li><p>TTVs extraction.</p></li>
+<li><p>TTVs and/or joint TTVs + RVs analysis.</p></li>
+<li><p>GP modeling (via “celerite”).</p></li>
+<li><p>Linear models for detrending ground-based transit photometry.</p></li>
+<li><p>Activity index signal search via GLS periodogram.</p></li>
+<li><p>RVs vs. Activity time-series correlation analysis/plots.</p></li>
+<li><p>RV auto-fit (RV automated planet-finder algorithm).</p></li>
+<li><p>Fit for apsidal orbital precession, or apply General Relativity (GR) precession.</p></li>
+<li><p>Instant online access to the “RVBank” database (over 212 000 RVs and activity indices of about 3000 HARPS stars &amp; over 64 000 RVs and activity indices of about 1700 HIRES stars !!!).</p></li>
+<li><p>Instant AMD stability check for multiple planetary systems (including during optimization or MCMC/Nested Sampling).</p></li>
+<li><p>Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.</p></li>
+<li><p>Fully interactive, super-fast, high-quality, exportable plots.</p></li>
+<li><p>Handy “cornerplot” GUI control.</p></li>
+<li><p>Import/Export of work sessions and multi-sessions.</p></li>
+<li><p>Export plots to a matplotlib window for further customization.</p></li>
+<li><p>Export ready to use LaTeX tables with best-fit parameters, errors, and statistics.</p></li>
+<li><p>Handy text-editor and calculator tools.</p></li>
+<li><p>Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.</p></li>
+<li><p>Integrated Bash-shell (Linux only).</p></li>
+<li><p>Integrated Jupyter shell.</p></li>
+<li><p>Importable as a standard python library (i.e., “import exostriker”).</p></li>
+<li><p>Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).</p></li>
+<li><p>Direct import of TESS lc.fits and CHEOPS SCI_COR.fits files.</p></li>
+</ul>
+</div>
+<div class="section" id="what-is-to-be-implemented">
+<h2>What is to be implemented<a class="headerlink" href="#what-is-to-be-implemented" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Larger arsenal of N-body/dynamical simulation/analysis tools (+ “REBOUND” is planned to be included).</p></li>
+<li><p>Internal TTV and photo-dynamical modeling (i.e. the external “TTVFast” will become a secondary option).</p></li>
+<li><p>Swap “celerite” with “celerite2” (the dSHO kernel from “celerite2” is available).</p></li>
+<li><p>Combined modeling with Astrometry (work in progress).</p></li>
+</ul>
+</div>
+<div class="section" id="developer">
+<h2>Developer<a class="headerlink" href="#developer" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p><strong>Trifon Trifonov</strong>, MPIA Heidelberg.</p></li>
+<li><p>with contributions by <strong>Mathias Zechmeister</strong>, <strong>Jakub Morawski</strong>, <strong>Man Hoi Lee</strong>, <strong>Stefan Dreizler</strong>, <strong>Grigorii Smirnov-Pinchukov</strong>, <strong>Stephan Stock</strong> and <strong>Jonas Kemmer</strong>.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="userguide.html" class="btn btn-neutral float-right" title="Installation / Loading the GUI" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Trifon Trifonov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

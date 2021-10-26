@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from ..Qt import QtGui, QtCore
-from ..python2_3 import asUnicode
 import numpy as np
 from ..Point import Point
 from .. import debug as debug
@@ -158,7 +157,7 @@ class AxisItem(GraphicsWidget):
         tickAlpha           (float or int or None) If None, pyqtgraph will draw the
                             ticks with the alpha it deems appropriate.  Otherwise, 
                             the alpha will be fixed at the value passed.  With int, 
-                            accepted values are [0..255].  With vaule of type
+                            accepted values are [0..255].  With value of type
                             float, accepted values are from [0..1].
         =================== =======================================================
 
@@ -233,6 +232,10 @@ class AxisItem(GraphicsWidget):
 
         ## Set the position of the label
         nudge = 5
+        if self.label is None: # self.label is set to None on close, but resize events can still occur.
+            self.picture = None
+            return
+            
         br = self.label.boundingRect()
         p = QtCore.QPointF(0, 0)
         if self.orientation == 'left':
@@ -310,16 +313,15 @@ class AxisItem(GraphicsWidget):
             if not self.autoSIPrefix or self.autoSIPrefixScale == 1.0:
                 units = ''
             else:
-                units = asUnicode('(x%g)') % (1.0/self.autoSIPrefixScale)
+                units = '(x%g)' % (1.0/self.autoSIPrefixScale)
         else:
-            #print repr(self.labelUnitPrefix), repr(self.labelUnits)
-            units = asUnicode('(%s%s)') % (asUnicode(self.labelUnitPrefix), asUnicode(self.labelUnits))
+            units = '(%s%s)' % (self.labelUnitPrefix, self.labelUnits)
 
-        s = asUnicode('%s %s') % (asUnicode(self.labelText), asUnicode(units))
+        s = '%s %s' % (self.labelText, units)
 
         style = ';'.join(['%s: %s' % (k, self.labelStyle[k]) for k in self.labelStyle])
 
-        return asUnicode("<span style='%s'>%s</span>") % (style, asUnicode(s))
+        return "<span style='%s'>%s</span>" % (style, s)
 
     def _updateMaxTextSize(self, x):
         ## Informs that the maximum tick size orthogonal to the axis has
@@ -431,7 +433,7 @@ class AxisItem(GraphicsWidget):
             self._pen = fn.mkPen(*args, **kwargs)
         else:
             self._pen = fn.mkPen(getConfigOption('foreground'))
-        self.labelStyle['color'] = '#' + fn.colorStr(self._pen.color())[:6]
+        self.labelStyle['color'] = self._pen.color().name() #   #RRGGBB
         self._updateLabel()
 
     def textPen(self):
@@ -449,7 +451,7 @@ class AxisItem(GraphicsWidget):
             self._textPen = fn.mkPen(*args, **kwargs)
         else:
             self._textPen = fn.mkPen(getConfigOption('foreground'))
-        self.labelStyle['color'] = '#' + fn.colorStr(self._textPen.color())[:6]
+        self.labelStyle['color'] = self._textPen.color().name() #   #RRGGBB
         self._updateLabel()
 
     def setScale(self, scale=None):
@@ -841,36 +843,31 @@ class AxisItem(GraphicsWidget):
 
     def logTickStrings(self, values, scale, spacing):
         estrings = ["%0.1g"%x for x in 10 ** np.array(values).astype(float) * np.array(scale)]
-
-        if sys.version_info < (3, 0):
-            # python 2 does not support unicode strings like that
-            return estrings
-        else:  # python 3+
-            convdict = {"0": "⁰",
-                        "1": "¹",
-                        "2": "²",
-                        "3": "³",
-                        "4": "⁴",
-                        "5": "⁵",
-                        "6": "⁶",
-                        "7": "⁷",
-                        "8": "⁸",
-                        "9": "⁹",
-                        }
-            dstrings = []
-            for e in estrings:
-                if e.count("e"):
-                    v, p = e.split("e")
-                    sign = "⁻" if p[0] == "-" else ""
-                    pot = "".join([convdict[pp] for pp in p[1:].lstrip("0")])
-                    if v == "1":
-                        v = ""
-                    else:
-                        v = v + "·"
-                    dstrings.append(v + "10" + sign + pot)
+        convdict = {"0": "⁰",
+                    "1": "¹",
+                    "2": "²",
+                    "3": "³",
+                    "4": "⁴",
+                    "5": "⁵",
+                    "6": "⁶",
+                    "7": "⁷",
+                    "8": "⁸",
+                    "9": "⁹",
+                    }
+        dstrings = []
+        for e in estrings:
+            if e.count("e"):
+                v, p = e.split("e")
+                sign = "⁻" if p[0] == "-" else ""
+                pot = "".join([convdict[pp] for pp in p[1:].lstrip("0")])
+                if v == "1":
+                    v = ""
                 else:
-                    dstrings.append(e)
-            return dstrings
+                    v = v + "·"
+                dstrings.append(v + "10" + sign + pot)
+            else:
+                dstrings.append(e)
+        return dstrings
 
     def generateDrawSpecs(self, p):
         """
@@ -1066,7 +1063,7 @@ class AxisItem(GraphicsWidget):
                 if s is None:
                     rects.append(None)
                 else:
-                    br = p.boundingRect(QtCore.QRectF(0, 0, 100, 100), QtCore.Qt.AlignmentFlag.AlignCenter, asUnicode(s))
+                    br = p.boundingRect(QtCore.QRectF(0, 0, 100, 100), QtCore.Qt.AlignmentFlag.AlignCenter, s)
                     ## boundingRect is usually just a bit too large
                     ## (but this probably depends on per-font metrics?)
                     br.setHeight(br.height() * 0.8)
@@ -1108,7 +1105,6 @@ class AxisItem(GraphicsWidget):
                 vstr = strings[j]
                 if vstr is None: ## this tick was ignored because it is out of bounds
                     continue
-                vstr = asUnicode(vstr)
                 x = tickPositions[i][j]
                 #textRect = p.boundingRect(QtCore.QRectF(0, 0, 100, 100), QtCore.Qt.AlignmentFlag.AlignCenter, vstr)
                 textRect = rects[j]
