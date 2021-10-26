@@ -442,10 +442,10 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
     def make_GLS(self, model=False, o_c=False):
 
-        #omega = 1/ np.logspace(np.log10(self.parent.gls_min_period.value()), np.log10(self.parent.gls_max_period.value()), num=int(self.parent.gls_n_omega.value()))
-        
-        omega = 1/ np.logspace(np.log10(0.9), np.log10((max(self.t)-min(self.t))*2.0), num=int(self.parent.gls_n_omega.value()))
-        
+        #omega = 1/ np.logspace(np.log10(self.parent.gls_min_period.value()), np.log10(self.parent.gls_max_period.value()), num=int(self.parent.gls_n_omega.value()))        
+        #omega = 1/ np.logspace(np.log10(0.9), np.log10((max(self.t)-min(self.t))*2.0), num=int(self.parent.gls_n_omega.value()))
+        ind_norm = self.parent.gls_norm_combo.currentIndex()
+
         if model == False and o_c == False:
             data_for_GLS   = self.flux
             e_data_for_GLS = self.flux_err
@@ -457,8 +457,8 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
             e_data_for_GLS = self.flux_err
 
         self.trend_per = gls.Gls((self.t, data_for_GLS, e_data_for_GLS), 
-            fast=True,  verbose=False, norm= "ZK",ofac=self.parent.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)
-
+          #  fast=True,  verbose=False, norm= "ZK",ofac=self.parent.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)
+            fast=True,  verbose=False, norm=self.parent.norms[ind_norm],ofac=self.parent.gls_ofac.value(), fbeg=1/self.parent.gls_max_period.value(), fend=1/self.parent.gls_min_period.value())            
 
 
     def plot_GLS(self):
