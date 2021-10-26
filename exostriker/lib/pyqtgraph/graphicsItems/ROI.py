@@ -21,7 +21,6 @@ from math import atan2, cos, degrees, sin, hypot
 from .. import functions as fn
 from .GraphicsObject import GraphicsObject
 from .UIGraphicsItem import UIGraphicsItem
-from .. import getConfigOption
 import warnings
 import sys
 
@@ -50,12 +49,12 @@ class ROI(GraphicsObject):
 
     Default mouse interaction:
 
-    * Left drag moves the ROI
-    * Left drag + Ctrl moves the ROI with position snapping
-    * Left drag + Alt rotates the ROI
-    * Left drag + Alt + Ctrl rotates the ROI with angle snapping
-    * Left drag + Shift scales the ROI
-    * Left drag + Shift + Ctrl scales the ROI with size snapping
+      * Left drag moves the ROI
+      * Left drag + Ctrl moves the ROI with position snapping
+      * Left drag + Alt rotates the ROI
+      * Left drag + Alt + Ctrl rotates the ROI with angle snapping
+      * Left drag + Shift scales the ROI
+      * Left drag + Shift + Ctrl scales the ROI with size snapping
 
     In addition to the above interaction modes, it is possible to attach any
     number of handles to the ROI that can be dragged to change the ROI in
@@ -1299,7 +1298,7 @@ class ROI(GraphicsObject):
         p.drawPath(shape)
         p.end()
         cidx = 0 if sys.byteorder == 'little' else 3
-        mask = fn.qimage_to_ndarray(im)[...,cidx].T
+        mask = fn.ndarray_from_qimage(im)[...,cidx].T
         return mask.astype(float) / 255
         
     def getGlobalTransform(self, relativeTo=None):

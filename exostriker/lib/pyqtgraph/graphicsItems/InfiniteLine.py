@@ -8,7 +8,6 @@ from .TextItem import TextItem
 from .ViewBox import ViewBox
 from .. import functions as fn
 import numpy as np
-import weakref
 
 
 __all__ = ['InfiniteLine', 'InfLineLabel']
@@ -449,11 +448,11 @@ class InfLineLabel(TextItem):
     
     This class extends TextItem with the following features:
     
-    * Automatically positions adjacent to the line at a fixed position along
-      the line and within the view box.
-    * Automatically reformats text when the line value has changed.
-    * Can optionally be dragged to change its location along the line.
-    * Optionally aligns to its parent line.
+      * Automatically positions adjacent to the line at a fixed position along
+        the line and within the view box.
+      * Automatically reformats text when the line value has changed.
+      * Can optionally be dragged to change its location along the line.
+      * Optionally aligns to its parent line.
 
     =============== ==================================================================
     **Arguments:**

@@ -80,10 +80,8 @@ class ImageExporter(Exporter):
         ## set resolution of image:
         origTargetRect = self.getTargetRect()
         resolutionScale = targetRect.width() / origTargetRect.width()
-
-        #print(resolutionScale,targetRect.width(),origTargetRect.width())
-       # self.png.setDotsPerMeterX(self.png.dotsPerMeterX() / resolutionScale)
-     #   self.png.setDotsPerMeterY(self.png.dotsPerMeterY() / resolutionScale)
+        #self.png.setDotsPerMeterX(self.png.dotsPerMeterX() * resolutionScale)
+        #self.png.setDotsPerMeterY(self.png.dotsPerMeterY() * resolutionScale)
         
         painter = QtGui.QPainter(self.png)
         #dtr = painter.deviceTransform()
@@ -100,7 +98,7 @@ class ImageExporter(Exporter):
         painter.end()
         
         if self.params['invertValue']:
-            bg = fn.qimage_to_ndarray(self.png)
+            bg = fn.ndarray_from_qimage(self.png)
             if sys.byteorder == 'little':
                 cv = slice(0, 3)
             else:
