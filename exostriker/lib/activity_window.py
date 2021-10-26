@@ -466,8 +466,8 @@ class ActivityWindow(QtWidgets.QWidget, Ui_ActivityWindow):
 
         #omega = 1/ np.logspace(np.log10(self.parent.gls_min_period.value()), np.log10(self.parent.gls_max_period.value()), num=int(self.parent.gls_n_omega.value()))
         time_gls = dill.copy(self.t)
-        
-        omega = 1/ np.logspace(np.log10(0.9), np.log10((max(time_gls)-min(time_gls))*2.0), num=int(self.parent.gls_n_omega.value()))
+        ind_norm = self.parent.gls_norm_combo.currentIndex()        
+        #omega = 1/ np.logspace(np.log10(0.9), np.log10((max(time_gls)-min(time_gls))*2.0), num=int(self.parent.gls_n_omega.value()))
         
         
         if model == False and o_c == False:
@@ -481,8 +481,8 @@ class ActivityWindow(QtWidgets.QWidget, Ui_ActivityWindow):
             e_data_for_GLS = dill.copy(self.flux_err)
 
         self.trend_per = gls.Gls((time_gls, data_for_GLS, e_data_for_GLS), 
-            fast=True,  verbose=False, norm= "ZK",ofac=self.parent.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)
-
+           # fast=True,  verbose=False, norm= "ZK",ofac=self.parent.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)
+            fast=True,  verbose=False, norm=self.parent.norms[ind_norm],ofac=self.parent.gls_ofac.value(), fbeg=1/self.parent.gls_max_period.value(), fend=1/self.parent.gls_min_period.value())            
 
 
     def plot_GLS(self):

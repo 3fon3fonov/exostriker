@@ -3970,14 +3970,15 @@ Polyfit coefficients:
 
         p11.plot(clear=True,) 
 
-        omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
+        ind_norm = self.gls_norm_combo.currentIndex()
+      #  omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
 
         if len(fit.act_data_sets[ind]) != 0 and len(fit.act_data_sets[ind][0]) > 5:
 
             act_per = gls.Gls((fit.act_data_sets[ind][0], fit.act_data_sets[ind][1],fit.act_data_sets[ind][2]), 
-            fast=True,  verbose=False, norm= "ZK",ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)
-
+            #fast=True,  verbose=False, norm= "ZK",ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)
+            fast=True,  verbose=False, norm=self.norms[ind_norm], ofac=self.gls_ofac.value(), fbeg=1/self.gls_max_period.value(), fend=1/self.gls_min_period.value())            
             ######################## GLS ##############################
             if self.radioButton_act_GLS_period.isChecked():
                 p11.setLogMode(True,False)        
