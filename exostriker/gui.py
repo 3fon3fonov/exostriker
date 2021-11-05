@@ -5863,7 +5863,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def mlp_search(self, resid = False):
         global fit
 
-        omega = 1/ np.logspace(np.log10(self.mlp_min_period.value()), np.log10(self.mlp_max_period.value()), num=int(self.mlp_n_omega.value()))
+        #omega = 1/ np.logspace(np.log10(self.mlp_min_period.value()), np.log10(self.mlp_max_period.value()), num=int(self.mlp_n_omega.value()))
         ind_norm = self.gls_norm_combo.currentIndex()
 
         if self.mlp_cross_hair.isChecked():
@@ -5888,9 +5888,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                        fit.fit_results.rv_model.rv_err[fit.fit_results.idset==i])
                     
                 rv_files_for_mlp.append(typ)
-            
+ 
             RV_per = mlp.Gls(rv_files_for_mlp, fast=True,  verbose=False, nojit=True,ls=gls_like,ncpus= mlp_N_threads,
-            ofac=self.mlp_ofac.value(), fbeg=omega[-1], fend=omega[0], norm='dlnL')
+            ofac=self.mlp_ofac.value(), fbeg=1/self.mlp_max_period.value(), fend=1/self.mlp_min_period.value(), norm='dlnL')
 
         else:
             return
