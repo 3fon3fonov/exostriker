@@ -1,97 +1,84 @@
 .. _tutorials:
 
-Introduction
-............
+GUI Layout
+..........
 
 Before starting the tutorials, it is kind to familiarize yourself with the
 basic parameters that exostriker uses to determine the goodness of a fit but also
 the ones that describe the planet orbits. All of these parameters can be seen on the 
 homepage of exostriker.
 
-
 .. figure:: /images/homepage.png
    
 
    *Home Page of the GUI*
 
-**Some statistical parameters**
+**Statistical parameters**
 
-
-* **rms**: root-mean-square, the root-mean-square deviation of an estimator is a measure of the imperfection of the fit of the estimator to the data.
+* **rms**: root-mean-square.
 * **wrms**: weighted root-mean-square.
 * **χ**\ :sup:`2`: chi-squared.
 * **χ**\ :sup:`2` :sub:`reduced`\ : chi-squared reduced.
-* lnL_: likelihood function, describes the odds that a model fits your expectations/data, we use this funtion for comparison between models. The model with higher value is preferred.
-* BIC_ : Bayesian information criterion, can be used to compare models **only** when the numerical values of the dependent variables (like χ\ :sup:`2` & lnL) are identical for all models being compared, the model with the lowest BIC is preferred.
-* AIC_ : Akaike information criterion, estimates the relative amount of information lost by a given model. The less information a model loses, the higher the quality of it. The smaller the AIC the less information is lost (comparison between models).
+* **lnL** : likelihood function.
+* **BIC** : Bayesian information criterion.
+* **AIC** : Akaike information criterion.
 * **N data**: number of data/observations.
-* **DOF**: degrees of freedom , the value is a result of subtracting all the parameters in the fit from total number of data points. 
+* **DOF**: degrees of freedom. 
 
-.. _BIC: https://en.wikipedia.org/wiki/Bayesian_information_criterion
-.. _AIC: https://en.wikipedia.org/wiki/Akaike_information_criterion
-.. _lnL: https://en.wikipedia.org/wiki/Maximum_likelihood_estimation
+**Control parameters**
 
-
-**Some options to fit your model**
-
-* Simplex_ : fitting curves to data using the Simplex algorithm.
-* L-M_ : fitting curves to data using the Leveberg-Marquardt algorithm.
-* Keplerian_ : a Keplerian analysis is performed on the data.
-* **Dynamical**: a dynamical analysis is performed on the data.
+* **Simplex** : fitting curves using the Simplex algorithm.
+* **L-M** : fitting curves using the Leveberg-Marquardt algorithm.
+* **Keplerian** : perform a Keplerian analysis.
+* **Dynamical**: perform a Dynamical analysis.
 * **Initialize**: ?
-* **Fit**: optimization parameter, fixes the offsets of the datasets.
-* Run MCMC_ : runs Markov chain Monte Carlo simulations.
-* Run Nest.samp_ : generates samples using the Nested sampling alogithm.
-* **Run orbital evolution**: runs an orbital evolution to your data.
+* **Fit**: optimization parameter.
+* **Run MCMC** : generates samples using the Markov chain Monte Carlo algorithm.
+* **Run Nest.samp** : generates samples using the Nested sampling alogithm.
+* **Run orbital evolution**: run orbital evolution.
 * **RV auto fit**: a curve is applied to data.
 
-.. _Nest.samp: https://arxiv.org/abs/2101.09675
-.. _MCMC: https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo
-.. _Simplex: https://www.researchgate.net/publication/246199710_Fitting_curves_to_data_The_simplex_algorithm_is_the_answer
-.. _L-M: https://en.wikipedia.org/wiki/Levenberg%E2%80%93Marquardt_algorithm
-.. _Keplerian: https://exoplanetmusings.wordpress.com/2013/05/17/rv-fits-the-keplerian-solution/
-
-**Planet & orbital parameters**
+**Input/Output parameters**
 
 * **P [d]**: planets period.
 * **K [m/s]**: planets RV amplitude. 
-* **e**: eccentricity of the planets orbit.
+* **e**: eccentricity of the orbit.
 * **ω [deg]**: argument of periastron.
 * **Ma [deg]**: mean anomaly at the first observational epoch.
-* **inc**: orbits inclination.
+* **inc**: inclination of the orbit.
 * **Ω [deg]**: longitude of the ascending node.  
 * **ώ [deg/yr]**: ? 
-* **t**\ :sub:`0`\ **[d]**: ? 
-* **R**\ :sub:`pl`\ /**R**\ :sub:`*`\ : planets radius to stars radius ratio.
-* **a**\ :sub:`pl`\ /**R**\ :sub:`*`\ : semimajor axis to stars radius ratio.
+* **t**\ :sub:`0`\ **[d]**: time of inferior transit conjunction.
+* **R**\ :sub:`pl`\ /**R**\ :sub:`*`\ : planet radius in units of stellar radius.
+* **a**\ :sub:`pl`\ /**R**\ :sub:`*`\ : planet semimajor axis in units of stellar radius.
 * **a [au]**: semimajor axis.
 * **m** [**M**\ :sub:`jup`\ ] : planets mass. 
 * **t**\ :sub:`ω`\ [**d**]: ? 
 
 Now, depending on the type of data that you are trying to fit, you have to choose
 between Radial Velocities (RV data), Transits (Transit data) and TTVs on the 
-**bottom right panel** and then add the data files.
+**Data area** and then add the data files.
 
 ----------------------------------------------------------------------------------------------
 
 Adding the RV data
 ..................
 
-*There are 3 ways to load RV data on exostriker*
+*There are 3 ways to load RV data on exostriker*.
 
-*  the **first** is through the **bottom right panel**
+*  the **first** is through the **Data area**.
 
 .. image:: images/1addrv.gif
 
    
 
-* the **second** is through the **Data inspector** on the top right panel
+* the **second** is through the **Data inspector** on the *Help widgets area*.
 
 .. image:: images/2addrv.gif
 
    
 
-* the **third** is also through the **Data inspector** but from the RVBank option
+* the **third** is also through the **Data inspector** but from the RVBank option.
 
 .. image:: images/3addrv.gif
 
@@ -114,7 +101,7 @@ velocity equation to fit the data. It's a model of motion of the star as expecte
 By *fitting* the data (Fit option), exostriker fixes the Offset parameter and also applies the jitter (jitter is only included on Simplex).
 A curve is applied on the data by the *RV Auto fit* option. It is proper to fit between the 
 Simplex & L-M algorithms and notice how the Statistical parameters change in order to find the best fit.
-Now we notice that the RV graph is a periodic function. On the *GLS* window, on the top left panel, you can
+Now we notice that the RV graph is a periodic function. On the *GLS* window (generalized Lomb-Scargle periodogram), on the top left panel, you can
 see the periodogram of our initial RV periodic function but also the main peaks that it is 
 consisted of. Every significant peak needs investigation of whether it is a planet or stellar activity.
 In this tutorial the initial signal is consisted of two planets.
@@ -135,9 +122,7 @@ In case of *multiplanetary systems* it is kind to consider the planet masses and
 Massive planets with close distances from the host star, will surely interact with each other due to gravity. 
 Then a further investigation using the **Dynamical model** is necessary. That will take into account the
 gravitational interactions between the massive bodies by intergrating the equations of motion using the 
-Gragg-Bulirsch-Stoer_ method.
-
-.. _Gragg-Bulirsch-Stoer: https://en.wikipedia.org/wiki/Bulirsch%E2%80%93Stoer_algorithm
+*Gragg-Bulirsch-Stoer* method.
 
 .. image:: images/dynamicalrv.gif
 
@@ -192,8 +177,8 @@ stability criteria are efﬁcient to detect unstable conﬁgurations and save CP
 
 ----------------------------------------------------------------------------------------------------
 
-Obtaining the best fit parameters uncertainties
-===============================================
+Obtaining the best fit parameters uncertainties I
+=================================================
 
 In order to perform a parameter distribution analysis, of the best-fit, and estimate their uncertainties,
 you need to couple them with a *Markov chain Monte Carlo* (**Run MCMC**) sampling scheme using the *emcee
@@ -201,13 +186,13 @@ sampler*.
 
 .. image:: images/mcmc.gif
 
-First, you need to fill the parameters in *MCMC param.* (Models param.) on the bottom left panel.
+First, you need to fill the parameters in *MCMC param.* (Models param.) on I/O parameters panel.
 
-* Burning phase samp. : First steps in the MCMC chain to let the walkers explore the parameter space. (At least 1000)
-* MCMC phase samp. : Represents the total amount of samples. (At least 5000) 
-* N threads/CPUs : How many CPUs from your local machine will be used for this progress.
-* Init. Gaussian Ball : How far from the starting point the sampler will start producing samples.
-* N walkers factor : Each walker will produce a different chain. 
+* **Burning phase samp.** : First steps in the MCMC chain to let the walkers explore the parameter space. (At least 1000)
+* **MCMC phase samp.** : Represents the total amount of samples. (At least 5000) 
+* **N threads/CPUs** : Number of CPUs from your local machine that will be used for this process.
+* **Init. Gaussian Ball** : How far from the starting point the sampler will start producing samples.
+* **N walkers factor** : Each walker will produce a different chain (N walkers factor * DOF). 
 
 Then, you need to select between the options in *Adopt MCMC param. as*, in this tutorial we select the *best
 maximum likelihood* .
@@ -221,7 +206,7 @@ at a reasonable time. Sometimes the MCMC process can take from hours to days, de
 dimensions of the system (N data minus DOF). You can always check the MCMC progress at the **Stdout/Stderr** on the top right
 panel. 
 
-You can also set some bounds on each parameter on the *Limits and Priors* on the bottom left panel. If you are sure about the
+You can also set some bounds on each parameter on the *Limits and Priors* on the I/O parameters panel. If you are sure about the
 range of values of a single parameter, that will save you computational time. In this tutorial we set the boundaries empirically. 
 
 .. image:: images/mcmc1.gif
@@ -231,18 +216,95 @@ redirected to the *Plot options*. There you can customize the cornerplot but als
 being printed. By pressing *Make cornerplot* the final results are extracted on your local exostriker folder as a pdf
 format. 
 
-In our case the final figure shows the posterior MCMC distribution of the ﬁtted parameters with a dynamical modeling scheme whose orbital
+.. figure:: images/histograms.png
+
+   Final histograms.
+
+In our case the final histograms show the posterior MCMC distribution of the ﬁtted parameters with a dynamical modeling scheme whose orbital
 conﬁguration is edge-on and coplanar. The histogram panels in the figure provide a comparison between the probability density distribution
 of the overall MCMC samples for each fitted parameter. The two-dimensional parameter distribution panels represent all possible parameter 
 correlations with respect to the best dynamical ﬁt (starting point), whose position is marked with blue lines. In color red all the samples
 are represented. Also The red 2D contours are constructed from the overall MCMC samples and indicate the 68.3%, 95.5%, and 99.7% conﬁdence
 levels (i.e., 1σ, 2σ, and 3σ).
 
-.. figure:: images/histograms.png
+Obtaining the best fit parameters uncertainties II
+==================================================
+
+A modern way to perform parameter distribution analysis is by the *Nested Sampling technique* (**Run Nest. samp**)
+using the *DYNESTY* sampler. Nested Sampling algorithm is a computational approach to the Bayesian statistics
+problems of comparing models and generating samples from the posterior distributions.
+
+.. image:: images/ns1.gif
+
+First, you need to fill the parameters in *Nest. Samp. param.* (Models param.) on the I/O parameters panel aswell.
+
+* **Static** : Static sampling, the number of live points remain constant.
+* **Dynamic** : Dynamic sampling, the number of live points vary during runtime.
+* **Dynamic samp. opt.** : Some sampling options. 
+* **N threads/CPUs** : Number of CPUs from your local machine that will be used for the process.
+* **dlogz stop** : Stopping criterion.
+* **Live points factor** : Number of live points used (live points factor * DOF).
+
+Then, you need to select between the options in *Adopt MCMC param. as*, in this tutorial we select the *best
+maximum likelihood*. *Dynesty* also supports a number of options for bounding the target distribution (*Dynesty bound opt.*).
+
+Unlike MCMC, Nested Sampling starts by randomly sampling from the entire parameter space specified by the prior.
+This is not possible unless the priors are “proper” (i.e. that they integrate prior to 1). So while normal
+priors spanning (−∞, +∞) are fine, uniform priors spanning the same range are not and must be bounded 
+(*Limits and Priors*).
+
+In this tutorial we run *dynesty* using the default settings whenever possible to highlight performance in a “typical” 
+use case. You can always check the progress of the sampling at *Stdout/Stderr* on help widgets area. 
+
+.. image:: images/ns2.gif
+
+When the process is over, the samples are ready! Then you can press *Go to "Make Cornerplot"* and you will be
+redirected to the *Plot options*. There you can customize the cornerplot but also include/exclude parameters from
+being printed. By pressing *Make cornerplot* the final results are extracted on your local exostriker folder as a pdf
+format. 
+
+.. figure:: images/ns1.png
 
    Final histograms.
+
+The final histograms show the posterior distribution of the ﬁtted parameters with a dynamical modeling scheme whose orbital
+conﬁguration is edge-on and coplanar. The histogram panels in the figure provide a comparison between the probability density distribution
+of the overall NS samples for each fitted parameter. The two-dimensional parameter distribution panels represent all possible parameter 
+correlations with respect to the best dynamical ﬁt (starting point), whose position is marked with red lines. In color blue all the samples
+are represented. Also The blue 2D contours are constructed from the overall NS samples and indicate the 68.3%, 95.5%, and 99.7% conﬁdence
+levels (i.e., 1σ, 2σ, and 3σ).
+
+Further information about *DYNESTY* and its modes can be found on the `documentation`_.
+
+.. _documentation: https://dynesty.readthedocs.io/en/latest/index.html
+
+
 
 --------------------------------------------------------------------------------------------------------
 
 Adding the Transit data
 .......................
+
+*There are 2 ways to load Transit data on exostriker*.
+
+*  the **first** is through the **Data area**.
+
+.. image:: images/tra1.gif
+
+   
+* the **second** is through the **Data inspector** on the *Help widgets area*.
+
+.. image:: images/tra2.gif
+
+
+
+Fitting the Transit data
+========================
+
+* Inspecting for **periodicities** on the Transit graph.
+
+transit period search using the transit least
+squares (TLS) package
+
+
+
