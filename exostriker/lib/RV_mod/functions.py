@@ -49,6 +49,26 @@ def check_for_missing_instances(fit,fit_new):
         fit_new.tra_jitt_use  = {k: False for k in range(20)}
         fit_new.tra_off_use  = {k: False for k in range(20)}
         fit_new.tra_dil_use  = {k: False for k in range(20)}
+ 
+       # fit_new.tra_off_bounds  = {k: np.array([-1.0,2.0] )for k in range(20)}
+       # fit_new.tra_off_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
+       # fit_new.tra_off_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
+
+        #fit_new.tra_jitt_bounds  = {k: np.array([-0.2,0.2] )for k in range(20)}
+        #fit_new.tra_jitt_norm_pr = {k: np.array([0.0,0.1, False] )for k in range(20)}
+        #fit_new.tra_jitt_jeff_pr = {k: np.array([0.0,0.1, False] )for k in range(20)}
+
+        #fit_new.tra_off_bounds  = {k: np.array([-1.0,2.0] )for k in range(20)}
+        #fit_new.tra_off_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
+        #fit_new.tra_off_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
+
+        fit_new.init_tra_jitter()
+        fit_new.init_tra_offset()
+        fit_new.init_tra_dilution()
+        fit_new.init_tra_lintr()
+        fit_new.init_tra_quadtr()
+
+
     fit_new.cwd = dill.copy(fit.cwd)    
 
     return fit_new
@@ -1424,10 +1444,18 @@ def copy_file_to_datafiles(path):
     #temp_dir = './datafiles'#tempfile.gettempdir()
 
     tmp = '/tmp/es2'
+
+
     if platform.system() == 'Darwin':
         if not os.path.exists(tmp):
             os.system("mkdir %s"%tmp)
-        tmp = '/tmp/es2/%s'%randomString(5)
+        else:
+            if os.access(tmp, os.W_OK):
+                tmp = '/tmp/es2'
+            else:
+                tmp = '/tmp/%s'%(randomString(3))
+
+        tmp = '%s/%s'%(tmp,randomString(5))
         os.system("mkdir %s"%tmp)
     else:
         tmp = tempfile.mkdtemp()
@@ -1655,10 +1683,27 @@ def check_temp_RV_file(obj):
 
     for i in range(obj.filelist.ndset):
 
-        if os.path.exists(obj.filelist.files[i].path):
+        if os.path.exists(obj.filelist.files[i].path) and os.access(obj.filelist.files[i].path, os.W_OK):
+           # print(obj.filelist.files[i].path)
             continue
+
+
         else:
             dirname, basename = os.path.split(obj.filelist.files[i].path)
+         
+            if platform.system() == 'Darwin':
+                dirname = '/tmp/es_%s'%(randomString(3))
+            else:
+                dirname = '/tmp/%s'%(randomString(3))
+ 
+
+            dirname = '%s/%s'%(dirname,randomString(5))
+
+            #else:
+            #    dirname = os.path.abspath(dirname)+'_'+randomString(3)+'/'+randomString(3)
+            obj.filelist.files[i].path = os.path.join(dirname, basename)
+
+
             os.makedirs(dirname)
             f  = open(obj.filelist.files[i].path, 'wb') # open the file
             for j in range(len(obj.rv_data_sets[i][0])):
@@ -3586,7 +3631,7 @@ def mass_a_from_Kepler_fit(a,npl,m0):
 
 
 
-def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = './run', remove_stab_save_dir = True, integrator='symba'):
+def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = './run', remove_stab_save_dir = True, integrator='symba' ):
 
 #if not os.path.exists(directory):
 #    os.makedirs(directory)
@@ -3837,8 +3882,71 @@ pl.in
 
     print("stability with: %s done!"%integrator)
 
+    return obj
 
+
+
+def run_copl_fit_stab(obj, incl_max=90.0, incl_min=90.0, incl_step = 1.0, save_output=True, output_file="./copl_incl.txt", fit_bf = False,
+ timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = './run', remove_stab_save_dir = True, integrator='symba',a_threshold =10, e_max =0.9):
+
+    """So far only RVs can be fitted!!!"""
+
+    incl_fit = dill.copy(obj)
+    incl_fit.mod_dynamical=True
+
+    if save_output == True:
+        f = open(output_file,"w")
+
+
+    incl_range = np.arange(incl_max,incl_min,-incl_step)
+
+    for incl in incl_range:
+
+        for i in range(incl_fit.npl):
+            incl_fit.params.planet_params[7*i+5] = incl
+            incl_fit.use.use_planet_params[7*i+5] = False
+ 
+            if fit_bf:
+                incl_fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False)     
+            else:
+                incl_fit.use.update_use_planet_params_one_planet(i,False,False,False,False,False,False,False)     
+
+
+        incl_fit.fitting(outputfiles=[1,1,1], doGP=False,  minimize_fortran=True, minimize_loglik=False, amoeba_starts=0, print_stat=False)
+        incl_fit.fitting(outputfiles=[1,1,1], doGP=False,  minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, print_stat=False)
+        incl_fit.fitting(outputfiles=[1,1,1], doGP=False,  minimize_fortran=True, minimize_loglik=True, amoeba_starts=10, print_stat=False)
+
+        run_stability(incl_fit, timemax=timemax, timestep=timestep, timeout_sec=timeout_sec, stab_save_dir = stab_save_dir, remove_stab_save_dir = remove_stab_save_dir, integrator=integrator)
+
+        for i in range(incl_fit.npl):
+            export_orbital_evol(incl_fit, file='planet_%s_%s.txt'%(i,incl), planet = i+1, width = 10, precision = 6)
+
+
+        stab_amd = int(get_AMD_stab(incl_fit))
+
+
+        stab = 1
+        for i in range(incl_fit.npl): 
+            if max(incl_fit.evol_e[i]) > e_max:
+                stab = 0
+
+ 
+        print("%s   %s "%(incl,incl_fit.loglik))
+
+        if save_output == True:
+            f.write("%s"%incl_fit.loglik)
+            for i in range(incl_fit.npl):
+                for z in range(7):
+                    f.write("%s  " %(incl_fit.params.planet_params[7*i+z]))        
+            f.write("%s %s\n"%(stab,stab_amd))
+
+    if save_output == True:
+        f.close()
 
     return obj
+
+
+
+
 
 
