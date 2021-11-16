@@ -12,9 +12,7 @@ To install the Exo-Striker, first please make sure that you have:
 Also, please only use **Python 3** for installing the Exo-Striker! The tool works with Python 2, 
 but since Python 2 is no longer maintained (since Jan 1, 2020), I do not assist in case of problems.    
 
-
-Currently there are **three ways to install/run** the Exo-Striker:    
-
+Currently there are **three ways to install/run** the Exo-Striker:
    
 * The **simplest way** to "git clone":    
 
@@ -24,21 +22,18 @@ $ cd exostriker
 
 and then **load the gui**:    
 
-
 $ python3 exostriker_gui.py 
 
 or 
 
 $ ./exostriker_gui.py
 
-Generally, you do not need to install anything if you already have all the required dependencies for the tool to run. For the dependency list, see the "setup.py" file. The Exo-Striker will automatically compile the Fortran77 code for you at the first start of the program and will keep you updated if the source code was updated (if you regularly "git pull").    
- 
-
+Generally, you do not need to install anything if you already have all the required dependencies for the tool to run.
+For the dependency list, see the "setup.py" file. The Exo-Striker will automatically compile the Fortran77 code for you
+at the first start of the program and will keep you updated if the source code was updated (if you regularly "git pull").    
 
 --------------------------------------------------------------
 
-
-    
 * The **second way** to install the tool from the source:    
 
 $ git clone https://github.com/3fon3fonov/exostriker and then:    
@@ -56,7 +51,6 @@ This should start the Exo-Striker.
 
 ----------------------------------------------------------------
 
-    
 * and **last**, you can try pip install:    
 
 $ pip install git+https://github.com/3fon3fonov/exostriker    
@@ -71,8 +65,6 @@ This should start the Exo-Striker.
 
 ---------------------------------------------------------------
 
-     
-
 If you **still cannot boot** the tool after a 'successful' installation, please try:
 
 $ python3 exostriker_gui.py -debug 
@@ -83,8 +75,9 @@ $ exostriker -debug
 
 (depending on how you use the tool)
 
-Then, copy the output error, and please open a 'GitHub' issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
-'stdout/stderr' tab of the tool. If you use this tool, and you find a bug or a problem, please report it!    
+Then, copy the output error, and please open a 'GitHub' issue. Otherwise, all possible problems/bugs/crashes
+will be displayed on the 'stdout/stderr' tab of the tool. If you use this tool, and you find a bug or a problem,
+please report it!    
 
 The instructions above will install the following **dependencies**: 
 
@@ -105,12 +98,10 @@ The instructions above will install the following **dependencies**:
 
 if not, install them manually. e.g pip install jupyter, ..., etc.
 
------------------------------------------------------------------
-
+-----------------------------------------------------------------------------------------------------
 
 OS related comments
 ...................
-
 
 **LINUX**
 
@@ -122,10 +113,8 @@ installed on your system. See anaconda documentation : https://docs.anaconda.com
 For full functionality on Linux, you will also need to install:
 
 * rxvt (optional, better bash shell)
- 
- 
------------------------------------------------------------------
 
+-----------------------------------------------------------------
 
 **MAC OS** 
 
@@ -135,7 +124,6 @@ According to
 https://brew.sh/
 
 To install "homebrew", it should be as simple as this:
-
 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
@@ -156,7 +144,6 @@ if you see an error like this during the installations (mostly during the "batma
 
 
 
-
 Please do the following:
 
 export CFLAGS="-I /usr/local/lib/pythonX.X/site-packages/numpy/core/include $CFLAGS"
@@ -166,8 +153,7 @@ export CFLAGS="-I /usr/local/lib/pythonX.X/site-packages/numpy/core/include $CFL
 and then re-run your Exo-Striker installation (via pip or setup.py).
  
 
------------------------------------------------------------------
-
+----------------------------------------------------------------------------------
 
 **WINDOWS 10**
 
@@ -184,9 +170,7 @@ Follow these instructions:
 
 https://seanthegeek.net/234/graphical-linux-applications-bash-ubuntu-windows/
 
-
 These two tutorials worked for me, but there might be other options too. 
-
 
 In case there is a problem of the appearance of the GUI the problem could be 
 your DPI setup. On high DPI displays with Windows display scaling activated (>100%),
@@ -213,20 +197,16 @@ Windows python path, I would appreciate it if you share your experience and some
 For now, the recommended WINDOWS 10 installation option of the Exo-Striker is via the "Windows 
 Subsystem for Linux" as pointed above.
  
------------------------------------------------------------------
-
+------------------------------------------------------------------------------------------------------------
 
 Some known problems
 ...................  
-
- 
  
 For work in progress issues see:
  
 https://github.com/3fon3fonov/exostriker/issues
  
 ------------------------------------------------
-
 
 Reporting an issue
 ..................

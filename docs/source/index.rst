@@ -88,8 +88,11 @@ Developer
    :hidden:
    :maxdepth: 5
    :caption: tutorials based on gui
-
-   tutorials
+   
+   gui
+   rvs
+   transit
+   rvtran
 
 .. toctree::
    :hidden:
