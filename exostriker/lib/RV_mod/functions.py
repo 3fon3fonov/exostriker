@@ -8,6 +8,9 @@ import numpy as np
 import jac2astrocen
 import corner
 
+import matplotlib
+matplotlib.pyplot.switch_backend('Agg')
+
 import re
 from subprocess import PIPE, Popen
 import signal
