@@ -2,7 +2,6 @@
 Welcome to the complete beginner's guide to Exostriker!
 =======================================================
 
-
 Review
 ......
 
@@ -53,7 +52,6 @@ What works
 What is to be implemented
 .........................
 
-
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ "REBOUND" is planned to be included).
 * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
 * Swap "celerite" with "celerite2" (the dSHO kernel from "celerite2" is available).
@@ -65,18 +63,6 @@ Developer
 * **Trifon Trifonov**, MPIA Heidelberg.
 * with contributions by **Mathias Zechmeister**, **Jakub Morawski**, **Man Hoi Lee**, **Stefan Dreizler**, **Grigorii Smirnov-Pinchukov**, **Stephan Stock** and **Jonas Kemmer**.
 
-
-
-
-
-
-
-
-
-
-
-
-
 .. toctree::
    :hidden:
    :maxdepth: 5
@@ -86,13 +72,15 @@ Developer
 
 .. toctree::
    :hidden:
-   :maxdepth: 5
+   :maxdepth: 6
    :caption: tutorials based on gui
    
    gui
    rvs
    transit
    rvtran
+   otbfpu
+   stability
 
 .. toctree::
    :hidden:
@@ -100,7 +88,6 @@ Developer
    :caption: tutorials based on Jupyter shell
 
    tutorials2
-
 
 .. toctree::
    :hidden:

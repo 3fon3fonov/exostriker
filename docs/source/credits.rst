@@ -20,55 +20,64 @@ If you made the use of The Exo-Striker for your paper, I would appreciate it if 
 
 * The AMD stability check function was donated by **Stefan Dreizler** (IAG, Germany). 
 
-The Exo-Striker relies on many open-source packages, which if you had made the use of (some of) them while working with the tool, you should acknowledge too. (It is your responsibility to find the correct references in the literature):
+The Exo-Striker relies on many open-source packages, which if you had made the use of 
+(some of) them while working with the tool, you should acknowledge too. (It is your responsibility
+to find the correct references in the literature):
 
+* The interactive plotting is done with a custom version of the "`pyqtgraph`_".
 
+.. _pyqtgraph: http://www.pyqtgraph.org/
 
+* "GLS" and "MLP" periodograms are taken from `Mathias Zechmeister's`_ repo. 
 
-* The interactive plotting is done with a custom version of the "pyqtgraph": 
+.. _Mathias Zechmeister's:  https://github.com/mzechmeister/python
 
-http://www.pyqtgraph.org/
+* Transit least squares is taken from "`TLS`_" 
 
-* "GLS" and "MLP" periodograms are taken from **Mathias Zechmeister's** repo: 
+.. _TLS: https://github.com/hippke/tls
 
-https://github.com/mzechmeister/python
-
-* "TLS" is taken from: 
-
-https://github.com/hippke/tls
-
-* The transit modeling is done with "batman":
+* The transit modeling is done with "`batman`_".
  
-https://github.com/lkreidberg/batman
+.. _batman: https://github.com/lkreidberg/batman
 
-* MCMC sampling is done with "emcee": 
+* MCMC sampling is done with "`emcee`_".
 
-https://github.com/dfm/emcee
+.. _emcee: https://github.com/dfm/emcee
 
-* Nested Sampling is done with "dynesty": 
+* Nested Sampling is done with "`dynesty`_".
 
-https://github.com/joshspeagle/dynesty
+.. _dynesty: https://github.com/joshspeagle/dynesty
 
-* TTV models are adopted from "TTVfast-python":
+* TTV models are adopted from "`TTVfast-python`_".
 
-https://github.com/mindriot101/ttvfast-python
+.. _TTVfast-python: https://github.com/mindriot101/ttvfast-python
 
-* The "Text editor" used in the tool is a hack between "Megasolid Idiom" 
-  and "PyEdit2":
+* The "Text editor" used in the tool is a hack between "`Megasolid Idiom`_" 
+  and "`PyEdit2`_".
 
-https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor
+.. _Megasolid Idiom: https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor
 
-https://github.com/Axel-Erfurt/PyEdit2'
+.. _PyEdit2: https://github.com/Axel-Erfurt/PyEdit2'
 
-* N-body tests are performed using a custom version of the "Swift" N-body library,
+* N-body tests are performed using a custom version of the "`Swift`_" N-body library,
   modified by **Man Hoi Lee** (HKU) and **Trifon Trifonov** (MPIA).
 
-https://www.boulder.swri.edu/~hal/swift.html
+.. _Swift: https://www.boulder.swri.edu/~hal/swift.html
 
 
 * Additionally, the Exo-Striker uses many "standard" Python libraries like 
   "PyQt5", "matplotlib", "numpy", "scipy", "dill", "Jupyter", "qtconsole",
   and more.
+
+* The Exo-Striker project was inspired by the "`Systemic project`_".
+
+.. _Systemic project: http://www.stefanom.org/systemic/
+
+Scientific papers which one way or another made the use of the Exo-Striker (to my knowledge):
+
+`Check in ADS`_
+
+.. _Check in ADS : https://ui.adsabs.harvard.edu/abs/2019ascl.soft06004T/citations
 
 
 

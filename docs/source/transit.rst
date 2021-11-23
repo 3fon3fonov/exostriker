@@ -1,9 +1,9 @@
 .. _transit:
 
-Adding the Transit data
-.......................
+Transit data
+............
 
-*There are 2 ways to load Transit data on exostriker*.
+There are 2 ways to load Transit data on exostriker.
 
 *  the **first** is through the **Data area**.
 
@@ -62,6 +62,12 @@ signal shape, adding two more parameters, u1 and u2.
 
 
 .. image:: images/transfit.gif
+
+The **phase folded planetary signal** can be investigated on *Plot opt.*, when the option
+*plot phase-folded* is enabled.
+
+
+.. image:: images/tranpf.gif
 
 
 * Checking the **residual signal**.

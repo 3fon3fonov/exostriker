@@ -37,10 +37,3 @@ In the example above the data set has ~10 RV observations in a time span of 1 ho
 data through eg. 0.02 days, you only accept RV measurements with minimum period of ~30 minutes between 
 2 observations.
 
-----------------------------------------------------------------------------------------------------------------
-
-Stability analysis
-==================
-
-
-system
