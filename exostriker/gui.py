@@ -8110,7 +8110,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def remove_ns_samples_from_fit(self):
         global fit  
 
-        if len(fit.ns_sampler)!=0:       
+        #if len(fit.ns_sampler)!=0:     
+        if len(np.atleast_1d(fit.ns_sampler))!=0:  
         #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Are you sure you want to remove the NS samples?",
@@ -8132,7 +8133,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def check_cornerplot_samples(self):
         global fit  
       
-        
+       # import dynesty
         if isinstance(fit.mcmc_sampler, rv.CustomSampler):
             MCMC_SAMP_LED = './lib/UI/green_led.png'
             MCMC_SAMP_TXT = "MCMC samples available" 
@@ -8140,7 +8141,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             MCMC_SAMP_LED = './lib/UI/red_led.png' 
             MCMC_SAMP_TXT = "No MCMC samples available" 
 #dynesty.nestedsamplers.UnitCubeSampler
-        if len(fit.ns_sampler)!=0:
+        #if len(fit.ns_sampler)!=0:
+        if len(np.atleast_1d(fit.ns_sampler))!=0:
         #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
             NS_SAMP_LED = './lib/UI/green_led.png'
             NS_SAMP_TXT = "NS samples available" 
@@ -8172,7 +8174,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 return   
        
         if type_plot == "nest": 
-            if len(fit.ns_sampler)==0:
+            if len(np.atleast_1d(fit.ns_sampler))==0:
             #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler)==False and isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler)==False:
                 choice = QtWidgets.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtWidgets.QMessageBox.Ok)
                 return   
@@ -9533,6 +9535,22 @@ Please install via 'pip install ttvfast'.
         self.optimize_fit(0,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
     
  
+    def adopt_RV_mlp_param(self):
+        global fit   
+        
+        mean_anomaly_from_gls = np.degrees((((fit.epoch - float(fit.mlp.hpstat["T0"]) )% (fit.mlp.hpstat["P"]) )/ (fit.mlp.hpstat["P"]) ) * 2*np.pi)
+ 
+        fit.add_planet(fit.mlp.hpstat["amp"],fit.mlp.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
+        fit.use.update_use_planet_params_one_planet(fit.npl-1,True,True,fit.auto_fit_allow_ecc,fit.auto_fit_allow_ecc,True,False,False)   
+       
+        self.update_use_from_input_file()   
+        self.update_use() 
+        #self.update_params()  
+       # self.update_gui_params()
+        self.optimize_fit(0,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
+    
+
+
     def adopt_trans_TLS_param(self):
         global fit   
  
@@ -9605,7 +9623,8 @@ Please install via 'pip install ttvfast'.
                 return   
        
         if type_plot == "nest": 
-            if len(fit.ns_sampler)==0:
+            #if len(fit.ns_sampler)==0:
+            if len(np.atleast_1d(fit.ns_sampler))==0:
             #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler)==False and isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler)==False:
                 choice = QtWidgets.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtWidgets.QMessageBox.Ok)
                 return   
@@ -9613,17 +9632,17 @@ Please install via 'pip install ttvfast'.
          
             
         if type_plot == "mcmc":
-            self.lables_cornerplot = dill.copy(fit.mcmc_sampler.lbf)
+            self.lables_cornerplot = dill.copy(fit.mcmc_sampler._lbf)
         else:
-            self.lables_cornerplot = dill.copy(fit.ns_sampler.lbf)
+            self.lables_cornerplot = dill.copy(fit.ns_sampler._lbf)
             
         label_results = self.dialog_select_param_cornerplot.get_labels(self)
         
         if type_plot == "mcmc":
-            del fit.mcmc_sampler.lbf
-            fit.mcmc_sampler.lbf  = dill.copy(label_results)
+            del fit.mcmc_sampler._lbf
+            fit.mcmc_sampler._lbf  = dill.copy(label_results)
         else:
-            fit.ns_sampler.lbf  = dill.copy(label_results)
+            fit.ns_sampler._lbf  = dill.copy(label_results)
  
         return  
    
@@ -10358,7 +10377,7 @@ Please install via 'pip install ttvfast'.
         
         
         self.adopt_best_RV__o_c_GLS_per.clicked.connect(self.adopt_RV_GLS_param)
-        
+        self.adopt_mpl_param.clicked.connect(self.adopt_RV_mlp_param)        
         self.adopt_tls_o_c_param.clicked.connect(self.adopt_trans_TLS_param)
 
 

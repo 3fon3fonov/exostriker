@@ -45,6 +45,19 @@ def check_for_missing_instances(fit,fit_new):
             fit_new.fit_results.__dict__[iii] = dill.copy(fit.fit_results.__dict__[iii])
         
 
+    if len(np.atleast_1d(fit_new.ns_sampler))!=0:
+        try:
+            fit_new.ns_sampler._lbf = dill.copy(fit_new.ns_sampler.lbf)
+        except:
+            pass
+
+    if len(np.atleast_1d(fit_new.mcmc_sampler))!=0:
+        try:
+            fit_new.mcmc_sampler._lbf = dill.copy(fit_new.mcmc_sampler.lbf)
+        except:
+            pass
+
+
 
     if len(fit_new.tra_colors) <= 11:
         fit_new.tra_colors = dill.copy(fit.tra_colors)    
@@ -53,18 +66,6 @@ def check_for_missing_instances(fit,fit_new):
         fit_new.tra_off_use  = {k: False for k in range(20)}
         fit_new.tra_dil_use  = {k: False for k in range(20)}
  
-       # fit_new.tra_off_bounds  = {k: np.array([-1.0,2.0] )for k in range(20)}
-       # fit_new.tra_off_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
-       # fit_new.tra_off_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
-
-        #fit_new.tra_jitt_bounds  = {k: np.array([-0.2,0.2] )for k in range(20)}
-        #fit_new.tra_jitt_norm_pr = {k: np.array([0.0,0.1, False] )for k in range(20)}
-        #fit_new.tra_jitt_jeff_pr = {k: np.array([0.0,0.1, False] )for k in range(20)}
-
-        #fit_new.tra_off_bounds  = {k: np.array([-1.0,2.0] )for k in range(20)}
-        #fit_new.tra_off_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
-        #fit_new.tra_off_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
-
         fit_new.init_tra_jitter()
         fit_new.init_tra_offset()
         fit_new.init_tra_dilution()
@@ -648,9 +649,9 @@ def add_mcmc_samples(obj,sampler):
                            True,False,False,False,False,True,False,False,False,False]
     
  
-    sampler.lbf             = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
+    sampler._lbf             = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
     for k in range(17):
-        sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]     
+        sampler._lbf[bestfit_labels[k]] = bestfit_labels_bool[k]     
         
     cornerplot_opt = {"bins":25,
                       "color":"k",
@@ -675,8 +676,8 @@ def add_mcmc_samples(obj,sampler):
                       "stab_threshold":100000
                       }    
 
-    sampler.lbf["cornerplot"] = cornerplot_opt
-    sampler.lbf["OrigLabels"] = dill.copy(obj.e_for_mcmc)
+    sampler._lbf["cornerplot"] = cornerplot_opt
+    sampler._lbf["OrigLabels"] = dill.copy(obj.e_for_mcmc)
 
 
     obj.mcmc_sampler=sampler
@@ -696,9 +697,9 @@ def add_ns_samples(obj,sampler):
     
     
     obj.ns_sampler= dill.copy(sampler.results)
-    obj.ns_sampler.lbf     = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
+    obj.ns_sampler._lbf     = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
     for k in range(17):
-        obj.ns_sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]   
+        obj.ns_sampler._lbf[bestfit_labels[k]] = bestfit_labels_bool[k]   
         
     cornerplot_opt = {"bins":25,
                       "color":"k",
@@ -723,8 +724,8 @@ def add_ns_samples(obj,sampler):
                       "stab_threshold":100000
                       }    
             
-    obj.ns_sampler.lbf["cornerplot"] = cornerplot_opt 
-    obj.ns_sampler.lbf["OrigLabels"] = dill.copy(obj.e_for_mcmc)
+    obj.ns_sampler._lbf["cornerplot"] = cornerplot_opt 
+    obj.ns_sampler._lbf["OrigLabels"] = dill.copy(obj.e_for_mcmc)
        
     #delattr(obj.ns_sampler, 'rstate')
     obj.sampler_saved=True
@@ -820,8 +821,8 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         ln      = dill.copy(np.hstack(obj.mcmc_sampler.lnL))
         samples = dill.copy(np.array(obj.mcmc_sampler.samples))
         #labels  = dill.copy(obj.e_for_mcmc)
-        labels  = dill.copy(obj.mcmc_sampler.lbf["OrigLabels"])
-        mod_labels  = dill.copy(obj.mcmc_sampler.lbf)
+        labels  = dill.copy(obj.mcmc_sampler._lbf["OrigLabels"])
+        mod_labels  = dill.copy(obj.mcmc_sampler._lbf)
 
         if mod_labels['mean'] ==True:
             best_fit_par = obj.mcmc_stat["mean"] 
@@ -839,7 +840,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         else:
             best_fit_par = obj.par_for_mcmc
             
-        cornerplot_opt = dill.copy(obj.mcmc_sampler.lbf["cornerplot"])
+        cornerplot_opt = dill.copy(obj.mcmc_sampler._lbf["cornerplot"])
 
 
     elif type_plot == 'nest':
@@ -850,8 +851,8 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         ln      = dill.copy(obj.ns_sampler.logl)
         samples = dill.copy(np.array(obj.ns_sampler.samples))                
         #labels  = dill.copy(obj.e_for_mcmc)
-        labels  = dill.copy(obj.ns_sampler.lbf["OrigLabels"])   
-        mod_labels  = dill.copy(obj.ns_sampler.lbf)
+        labels  = dill.copy(obj.ns_sampler._lbf["OrigLabels"])   
+        mod_labels  = dill.copy(obj.ns_sampler._lbf)
         
         if mod_labels['mean'] ==True:
             best_fit_par = obj.nest_stat["mean"] 
@@ -869,7 +870,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         else:
             best_fit_par = obj.par_for_mcmc  
             
-        cornerplot_opt = dill.copy(obj.ns_sampler.lbf["cornerplot"])
+        cornerplot_opt = dill.copy(obj.ns_sampler._lbf["cornerplot"])
         
     else:
         return
