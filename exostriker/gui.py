@@ -40,10 +40,6 @@ if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
 import RV_mod as rv
-#import dynesty
-#import celerite
-#from dynesty import NestedSampler
-#from dynesty import DynamicNestedSampler
 
 import pyqtgraph as pg
 import pyqtgraph.console as pg_console
