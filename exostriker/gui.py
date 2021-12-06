@@ -84,6 +84,7 @@ import pg_hack
 from scipy.signal import argrelextrema
 from scipy.stats.stats import pearsonr   
 import scipy.stats as stat
+from scipy.interpolate import interp1d
 
 #import batman as batman
 
@@ -271,7 +272,7 @@ colors_RV_jitter = ['#000000']
                     
                
 symbols = ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
-
+ttv_interpol_opt = ['linear', 'nearest', 'nearest-up', 'zero', 'slinear', 'quadratic', 'cubic'] #, 'previous', ‘next’.
 
 
 QtWidgets.QApplication.processEvents()
@@ -481,13 +482,23 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.epoch_ttv = self.Epoch_ttv.value()
            # self.checkBox_first_TTV_epoch.setEnabled(True)
 
-        if self.Epoch_ttv_end_plus_1000.isChecked():
-            fit.epoch_ttv_end = float(fit.epoch_ttv) + 1000.0
-            self.Epoch_ttv_end.setValue(fit.epoch_ttv + 1000.0)
-#        else:
-#            fit.epoch_ttv_end = self.Epoch_ttv_end.value()
- 
+        if self.Epoch_ttv_end_plus_1000.isChecked()==True:
+            if len(fit.ttv_data_sets[0]) != 0:
+                ttv_TS = np.concatenate([fit.ttv_data_sets[x][1] for x in range(10) if len(np.atleast_1d(fit.ttv_data_sets[x])) != 0])
+                fit.epoch_ttv_end = max(ttv_TS) + max(fit.P[x] for x in range(9))*2
+            else:
+                fit.epoch_ttv_end = float(fit.epoch_ttv) + 1000.0 
 
+        elif self.Epoch_ttv_end_plus_1000.isChecked()==False:
+            
+            fit.epoch_ttv_end = self.Epoch_ttv_end.value()
+
+            #self.Epoch_ttv_end.setValue(fit.epoch_ttv_end)
+
+        self.Epoch_ttv_end.setValue(fit.epoch_ttv_end)
+#        else:
+#            fit.epoch_ttv_end = float(fit.epoch_ttv) + 1000.0 
+ 
 
 
     def read_tra_GP(self):
@@ -2588,6 +2599,17 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.comboBox_scipy_minimizer_2.setCurrentIndex(0)
 
 
+
+    def init_scipy_ttv_interpolation(self):
+        global fit 
+
+
+        for i in range(len(ttv_interpol_opt)):
+            self.comboBox_ttv_model_interpolate.addItem('%s'%(ttv_interpol_opt[i]),i) 
+           
+        self.comboBox_ttv_model_interpolate.setCurrentIndex(0)
+
+
     def set_AMD_consttraints(self):
         global fit
         
@@ -4152,15 +4174,35 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 model_N_transits = t
 
                 flux_o_c = flux-ttv_model_transits
-                    
-            p_ttv.plot(t, flux,
+
+
+            if self.ttv_o_c.isChecked():   
+
+                ttv_data = flux_o_c         
+                ttv_model_ = np.zeros(len(ttv_model)) 
+
+  
+            else:
+                ttv_data = flux         
+                ttv_model_ = ttv_model         
+
+            if self.ttv_model_interpolate.isChecked():
+
+                ind_ttv_inter = self.comboBox_ttv_model_interpolate.currentIndex()
+
+                func_interpol = interp1d(model_N_transits, ttv_model_, kind=ttv_interpol_opt[ind_ttv_inter])
+                model_N_transits = np.linspace(min(model_N_transits),max(model_N_transits), num=int(self.ttv_model_interpolate_points.value()), endpoint=True)
+                ttv_model_ = func_interpol(model_N_transits) 
+
+
+            p_ttv.plot(t, ttv_data,
             pen=None,
             symbol=fit.pyqt_symbols_ttv[j],
             symbolPen={'color': fit.ttv_colors[j], 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_ttv[j],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.ttv_colors[j] ) 
             
-            err_ = pg.ErrorBarItem(x=t, y=flux, symbol=fit.pyqt_symbols_ttv[j],
+            err_ = pg.ErrorBarItem(x=t, y=ttv_data, symbol=fit.pyqt_symbols_ttv[j],
                                   # height=flux_err, 
                                    top=flux_err, 
                                    bottom=flux_err,
@@ -4168,7 +4210,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
             p_ttv.addItem(err_)
 
-            model_curve = p_ttv.plot(model_N_transits,ttv_model,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True, viewRect=True )
+            model_curve = p_ttv.plot(model_N_transits,ttv_model_,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True, viewRect=True )
 
             model_curve.setZValue(self.ttv_model_z.value())
 
@@ -5722,15 +5764,46 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 self.buttonGroup_ttv_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
                 self.buttonGroup_remove_ttv_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
                 self.buttonGroup_ttv_data.button(i+1).setText(fit.ttv_data_sets[i][5])
+                self.ttv_data_to_planet[i].setValue(fit.ttv_data_sets[i][3])
+                self.use_ttv_data_to_planet[i].setChecked(bool(fit.ttv_data_sets[i][4]))
 
             else:
                 self.buttonGroup_ttv_data.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_ttv_data.button(i+1).setStyleSheet("")
                 self.buttonGroup_ttv_data.button(i+1).setText("data %s"%(i+1))
+                self.ttv_data_to_planet[i].setValue(1)
+                self.use_ttv_data_to_planet[i].setChecked(False)
+#                self.set_ttv_dataset_to_planet()
 
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
         #self.init_correlations_combo()
 
+
+
+    def set_ttv_dataset_to_planet(self):
+
+        for i in range(10):
+
+            if len(fit.ttv_data_sets[i]) ==0:
+                self.ttv_data_to_planet[i].setValue(1)
+                self.use_ttv_data_to_planet[i].setChecked(False)
+                continue
+            else:
+                print(fit.ttv_data_sets[i][3],fit.ttv_data_sets[i][4])                
+                self.ttv_data_to_planet[i].setValue(fit.ttv_data_sets[i][3])
+                self.use_ttv_data_to_planet[i].setChecked(bool(fit.ttv_data_sets[i][4]))
+
+
+
+
+    def ttv_dataset_to_planet(self):
+        
+        for i in range(10):
+            if len(fit.ttv_data_sets[i]) ==0:
+                continue
+            else:
+                fit.ttv_data_sets[i][3] = self.ttv_data_to_planet[i].value()
+               # fit.ttv_data_sets[i][4] = self.use_ttv_data_to_planet[i].isChecked()
 
 ##################################### Various ################################# 
 
@@ -7046,7 +7119,7 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False, es_version='0.64'):
+    def print_info_credits(self, image=False, es_version='0.65'):
  
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
@@ -7594,7 +7667,6 @@ will be highly appreciated!
        # self.update_RV_file_buttons()
        # self.update_tra_file_buttons()
         self.update_act_file_buttons()
-       # self.update_ttv_file_buttons()
 
        # self.fit_dispatcher(init=True)
         self.init_plot_corr()
@@ -7604,6 +7676,8 @@ will be highly appreciated!
         self.update_GUI_mcmc_params()
         self.update_GUI_ns_params()
         self.update_GUI_St_params()
+
+        self.jupiter_push_vars()
         
         if not ind == None:
             ses_list[ind] = fit 
@@ -9727,15 +9801,6 @@ Please install via 'pip install ttvfast'.
         
         self.mute_boxes()
 
-    def ttv_dataset_to_planet(self):
-        
-        for i in range(10):
-            if len(fit.ttv_data_sets[i]) ==0:
-                continue
-            else:
-                fit.ttv_data_sets[i][3] = self.ttv_data_to_planet[i].value()
-                fit.ttv_data_sets[i][4] = self.use_ttv_data_to_planet[i].isChecked()
-
     def check_type_fit(self):
         global fit  
 
@@ -9868,7 +9933,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        es_version = "0.64"
+        es_version = "0.65"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -10287,26 +10352,51 @@ Please install via 'pip install ttvfast'.
         self.buttonGroup_activity_data.buttonClicked.connect(self.showDialog_act_input_file)
         self.buttonGroup_remove_activity_data.buttonClicked.connect(self.remove_act_file)     
 
-        ######## TTVs ########
+ 
+
+        ############### TTV plotting controll ####################     
+ 
+        #self.ttv_data_size.valueChanged.connect(self.update_ttv_plots)
+
+        self.init_scipy_ttv_interpolation()
+        self.ttv_model_width.valueChanged.connect(self.update_ttv_plots)
+        self.ttv_model_z.valueChanged.connect(self.update_ttv_plots)
+
+        self.ttv_model_interpolate_points.valueChanged.connect(self.update_ttv_plots)
+        self.ttv_model_interpolate.stateChanged.connect(self.update_ttv_plots)
+
+        self.comboBox_ttv_model_interpolate.activated.connect(self.update_ttv_plots)
 
         self.buttonGroup_ttv_data.buttonClicked.connect(self.showDialog_ttv_input_file)
         self.buttonGroup_remove_ttv_data.buttonClicked.connect(self.remove_ttv_file)
-        self.buttonGroup_use_ttv_data_to_planet.buttonClicked.connect(self.ttv_dataset_to_planet)
+        self.buttonGroup_use_ttv_data_to_planet.buttonClicked.connect(self.update_ttv_file_buttons)
         
-        self.ttv_data_planet_1.valueChanged.connect(self.ttv_dataset_to_planet)
-        self.ttv_data_planet_2.valueChanged.connect(self.ttv_dataset_to_planet)
-        self.ttv_data_planet_3.valueChanged.connect(self.ttv_dataset_to_planet)
-        self.ttv_data_planet_4.valueChanged.connect(self.ttv_dataset_to_planet)
-        self.ttv_data_planet_5.valueChanged.connect(self.ttv_dataset_to_planet)
-        self.ttv_data_planet_6.valueChanged.connect(self.ttv_dataset_to_planet)
-        self.ttv_data_planet_7.valueChanged.connect(self.ttv_dataset_to_planet)
-        self.ttv_data_planet_8.valueChanged.connect(self.ttv_dataset_to_planet)
-        self.ttv_data_planet_9.valueChanged.connect(self.ttv_dataset_to_planet)
-        self.ttv_data_planet_10.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_1.valueChanged.connect(self.update_ttv_file_buttons)
+        self.ttv_data_planet_2.valueChanged.connect(self.update_ttv_file_buttons)
+        self.ttv_data_planet_3.valueChanged.connect(self.update_ttv_file_buttons)
+        self.ttv_data_planet_4.valueChanged.connect(self.update_ttv_file_buttons)
+        self.ttv_data_planet_5.valueChanged.connect(self.update_ttv_file_buttons)
+        self.ttv_data_planet_6.valueChanged.connect(self.update_ttv_file_buttons)
+        self.ttv_data_planet_7.valueChanged.connect(self.update_ttv_file_buttons)
+        self.ttv_data_planet_8.valueChanged.connect(self.update_ttv_file_buttons)
+        self.ttv_data_planet_9.valueChanged.connect(self.update_ttv_file_buttons)
+        self.ttv_data_planet_10.valueChanged.connect(self.update_ttv_file_buttons)
 
         self.ttv_pl_combo()
         self.ttv_comboBox_pl.activated.connect(self.update_ttv_plots)
         self.ttv_o_c_comboBox_pl.activated.connect(self.update_ttv_plots)
+
+        self.ttv_plot_cross_hair.stateChanged.connect(self.update_ttv_plots)
+        self.ttv_o_c_plot_cross_hair.stateChanged.connect(self.update_ttv_plots)
+
+        self.ttv_o_c.stateChanged.connect(self.update_ttv_plots) 
+
+        self.ttv_apply_mean_period.stateChanged.connect(self.update_ttv_plots)
+
+        self.ttv_subtract_mean.stateChanged.connect(self.update_ttv_plots)
+        self.ttv_plot_autorange.stateChanged.connect(self.update_ttv_plots)
+
+        ############################################################
 
 
         self.buttonGroup_transit_data.buttonClicked.connect(self.showDialog_tra_input_file)
@@ -10491,10 +10581,7 @@ Please install via 'pip install ttvfast'.
 
         self.plot_RV_GP_model.stateChanged.connect(self.update_RV_plots)
 
-        ############### TTV plotting controll ####################      
-        #self.ttv_data_size.valueChanged.connect(self.update_ttv_plots)
-        self.ttv_model_width.valueChanged.connect(self.update_ttv_plots)
-        self.ttv_model_z.valueChanged.connect(self.update_ttv_plots)
+
 
 
         ############### RV GLS plotting controll ####################
@@ -10532,11 +10619,6 @@ Please install via 'pip install ttvfast'.
         self.jitter_color_button.clicked.connect(self.get_RV_jitter_color)
 
 
-
-        self.ttv_apply_mean_period.stateChanged.connect(self.update_ttv_plots)
-
-        self.ttv_subtract_mean.stateChanged.connect(self.update_ttv_plots)
-        self.ttv_plot_autorange.stateChanged.connect(self.update_ttv_plots)
 
         self.buttonGroup_use_planets.buttonClicked.connect(self.update_veiw)
 
@@ -10589,8 +10671,7 @@ Please install via 'pip install ttvfast'.
         self.tls_o_c_cross_hair.stateChanged.connect(self.update_tls_o_c_plots)
         self.gls_act_cross_hair.stateChanged.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
         self.mlp_cross_hair.stateChanged.connect(self.update_RV_MLP_plots)
-        self.ttv_plot_cross_hair.stateChanged.connect(self.update_ttv_plots)
-        self.ttv_o_c_plot_cross_hair.stateChanged.connect(self.update_ttv_plots)
+
 
         self.extra_plot_cross_hair.stateChanged.connect(self.update_extra_plots)
         self.inpector_plot_cross_hair.stateChanged.connect(self.init_plot_data_inspect)
