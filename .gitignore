@@ -5,6 +5,7 @@ exostriker/stability/symba/*
 exostriker/datafiles/*
 exostriker/autosave/auto_save.ses
 exostriker/mcmc_samples
+exostriker/exported_plots
 
 exostriker/mcmc/MCMC_cornerplot.pdf
 exostriker/mcmc/eta_ceti_py3_mcmc.ses

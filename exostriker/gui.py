@@ -2238,10 +2238,38 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         #self.colors_ttv.setFont(self.font) 
 
 
-    def update_font_plots(self):
+    def get_pyqtgraph_plots(self):
+
+        import pyqtgraph.exporters
 
         global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31
 
+
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev]
+        zzz_str = ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12','p13','p14','p15','p16','p17','p18','p19','p20','pe','pdi','pcor','p_mlp','p_ttv','p_ttv_oc','p_per_ev']
+        for i in range(len(zzz)):
+
+            # create an exporter instance, as an argument give it
+            # the item you wish to export
+
+            #zzz[i].scene().getViewWidget()
+ 
+            plots_dir = 'exported_plots'
+            if not os.path.exists(plots_dir):
+                os.system("mkdir %s"%plots_dir)
+
+            exporter = pg.exporters.ImageExporter(zzz[i].scene())
+
+            # set export parameters if needed
+            #exporter.parameters()['width'] = 100   # (note this also affects height parameter)
+
+            # save to file
+            exporter.export('%s/%s.png'%(plots_dir,zzz_str[i]))    
+        return
+
+    def update_font_plots(self):
+
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31
 
         zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev]
 
@@ -2252,6 +2280,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             zzz[i].getAxis('left').setWidth(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
             zzz[i].getAxis("left").tickFont = self.plot_font
             zzz[i].getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+
             zzz[i].getAxis("bottom").tickFont = self.plot_font
             # zzz[i].getAxis("left").setStyle(tickTextOffset=20)        
             #  zzz[i].getAxis("bottom").setStyle(tickTextOffset=20)        
@@ -10475,6 +10504,10 @@ Please install via 'pip install ttvfast'.
 
         self.actionSet_GUI_Font.triggered.connect(self.set_widget_font)
         self.actionSet_plots_font.triggered.connect(self.set_plot_font)
+
+
+        self.actionGet_all_plots.triggered.connect(self.get_pyqtgraph_plots)
+
 
 
         ############ Edit #################
