@@ -55,7 +55,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'exostriker'
-copyright = u'2020, Trifon Trifonov'
+copyright = u'2021, Harry Psarakis & Trifon Trifonov'
 author = u'Trifon Trifonov'
 
 # The version info for the project you're documenting, acts as replacement for

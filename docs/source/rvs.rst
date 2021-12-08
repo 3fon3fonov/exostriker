@@ -9,18 +9,21 @@ There are 3 ways to load RV data on exostriker.
 
 
 .. image:: images/1addrv.gif
+   :target: _images/1addrv.gif
 
 
 * the **second** is through the **Data inspector** on the *Help widgets area*.
 
 
-.. image:: images/2addrv.gif   
+.. image:: images/2addrv.gif
+   :target: _images/2addrv.gif
 
 
-* the **third** is also through the **Data inspector** but from the RVBank option.
+* the **third** is also through the *Data inspector* but from the **RVBank** option. 
 
 
 .. image:: images/3addrv.gif
+   :target: _images/3addrv.gif
 
 
 ---------------------------------------------------------------------------------------
@@ -38,6 +41,7 @@ velocity equation to fit the data. It's a model of motion of the star as expecte
 
 
 .. image:: images/checkperiodrv.gif
+   :target: _images/checkperiodrv.gif
   
 
 By *fitting* the data (Fit option), exostriker fixes the Offset parameter and also applies the jitter (jitter is only included on Simplex).
@@ -53,8 +57,19 @@ A phase diagram of each significant peak is displayed by selecting *Extra Plots*
 * Checking the **residual signal**. 
 
 The *RVs o-c* & *GLS o-c* panels represent the residual RV signal and periodogram each time
-a planet is included in the analysis. Calculate MLP (Maximum Likelihood Periodogram) on MLP section, to further
-check which periods have significant likelihoods.
+a planet is included in the analysis. The *Adopt best Period* option will include the strongest peak of the residual signal to the analysis.
+
+
+.. image:: images/residualrv.gif
+   :target: _images/residualrv.gif
+
+
+Furthermore, calculate *MLP (Maximum Likelihood Periodogram)* on **MLP** section, to investigate which periods have significant likelihoods.
+
+
+.. image:: images/mlp.gif
+   :target: _images/mlp.gif
+
 
 If the statistical parameters of a model are maximized/minimized then, probably 
 the **best Keplerian fit** is adopted. 
@@ -72,6 +87,7 @@ gravitational interactions between the massive bodies by intergrating the equati
 
 
 .. image:: images/dynamicalrv.gif
+   :target: _images/dynamicalrv.gif
 
 
 Before enabling the *Dynamical option* make sure that the orbital parameters that are acquired so far 
@@ -81,8 +97,5 @@ of the ascending node (Ω) become available. The dynamical model has the advanta
 mutually inclined orbits. For the purposes of this tutorial we assume edge-on coplanar
 orbits (i=90, Ω=0) for consistency with the unperturbed Keplerian frame and in order to work with minimum
 dynamical masses.
-
-The difference in the phase diagrams between the two models is significant! 
-
 
 

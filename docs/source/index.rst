@@ -61,7 +61,7 @@ Developer
 .........
 
 * **Trifon Trifonov**, MPIA Heidelberg.
-* with contributions by **Mathias Zechmeister**, **Jakub Morawski**, **Man Hoi Lee**, **Stefan Dreizler**, **Grigorii Smirnov-Pinchukov**, **Stephan Stock** and **Jonas Kemmer**.
+* with contributions by **Mathias Zechmeister**, **Jakub Morawski**, **Man Hoi Lee**, **Stefan Dreizler**, **Grigorii Smirnov-Pinchukov**, **Stephan Stock**, **Jonas Kemmer** and **Harry Psarakis**.
 
 .. toctree::
    :hidden:

@@ -6,12 +6,14 @@ Obtaining the best fit parameters uncertainties
 Obtaining the best fit parameters uncertainties I
 =================================================
 
-In order to perform a parameter distribution analysis and estimate the best fits parameters uncertainties,
-they need to coupled with a *Markov chain Monte Carlo* (**Run MCMC**) sampling scheme using the *emcee
+In order to perform a parameter distribution analysis and estimate the best fit parameters uncertainties,
+they need to be coupled with a *Markov chain Monte Carlo* (**Run MCMC**) sampling scheme using the *emcee
 sampler*. 
 
 
 .. image:: images/mcmc.gif
+   :target: _images/mcmc.gif
+
 
 
 First, fill the parameters in *MCMC param.* (Models param.) on I/O parameters panel.
@@ -20,7 +22,7 @@ First, fill the parameters in *MCMC param.* (Models param.) on I/O parameters pa
 * **MCMC phase samp.** : Represents the total amount of samples (At least 5000).
 * **N threads/CPUs** : Number of CPUs from your local machine that will be used for this process.
 * **Init. Gaussian Ball** : How far from the starting point the sampler will start producing samples.
-* **N walkers factor** : Each walker will produce a different chain (N walkers factor * DOF). 
+* **N walkers factor** : Each walker will produce a different chain that will explore the parameter space (N walkers factor * DOF). 
 
 Then, select between the options in *Adopt MCMC param. as*, in this tutorial we select the *best
 maximum likelihood*.
@@ -36,10 +38,11 @@ widgets area.
 
 .. NOTE::
    **Keep in mind** that setting bounds on each parameter on the *Limits and Priors*, on the I/O parameters panel, will save
-   computational time. In this tutorial we set the boundaries empirically. 
+   computational time. In the previous tutorial we set the boundaries empirically. 
 
 
 .. image:: images/mcmc1.gif
+   :target: _images/mcmc1.gif
 
 
 When the process is over, the samples are ready! *Go to "Make Cornerplot"* option redirectes to the *Plot options*. 
@@ -49,6 +52,7 @@ format.
 
 
 .. figure:: images/histograms.png
+   :target: _images/histograms.png
 
    Final histograms.
 
@@ -74,6 +78,7 @@ problems of comparing models and generating samples from the posterior distribut
 
 
 .. image:: images/ns1.gif
+   :target: _images/ns1.gif
 
 
 First, fill the parameters in *Nest. Samp. param.* (Models param.) on the I/O parameters panel aswell.
@@ -97,6 +102,7 @@ In this tutorial we run *dynesty* using the default settings whenever possible t
 use case. You can always check the progress of the sampling at *Stdout/Stderr* on Help widgets area. 
 
 .. image:: images/ns2.gif
+   :target: _images/ns2.gif
 
 When the process is over, the samples are ready! *Go to "Make Cornerplot"* option redirectes to the *Plot options*. 
 There a customization of the cornerplot is offered but also an option to include/exclude parameters from
@@ -105,6 +111,7 @@ format.
 
 
 .. figure:: images/ns1.png
+   :target: _images/ns1.png
 
    Final histograms.
 

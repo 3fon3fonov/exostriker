@@ -12,6 +12,7 @@ area.
 
 
 .. image:: images/include.gif
+   :target: _images/include.gif
 
 
 Besides loading Transits mentioned in the previous section, load the RVs for the same system through the *RV Bank*.
@@ -31,6 +32,7 @@ very short period of time.
 
 
 .. image:: images/bin.gif
+   :target: _images/bin.gif
 
 
 In the example above the data set has ~10 RV observations in a time span of 1 hour. By binning the

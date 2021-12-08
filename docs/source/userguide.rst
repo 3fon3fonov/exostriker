@@ -14,7 +14,7 @@ but since Python 2 is no longer maintained (since Jan 1, 2020), I do not assist 
 
 Currently there are **three ways to install/run** the Exo-Striker:
    
-* The **simplest way** to "git clone":    
+* The **simplest way** is to "git clone":    
 
 $ git clone https://github.com/3fon3fonov/exostriker  
 
@@ -114,45 +114,6 @@ For full functionality on Linux, you will also need to install:
 
 * rxvt (optional, better bash shell)
 
------------------------------------------------------------------
-
-**MAC OS** 
-
-You will need to install "homebrew", which requires "sudo" privileges. 
-According to 
-
-https://brew.sh/
-
-To install "homebrew", it should be as simple as this:
-
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-
-try it out in bash shell terminal.
-
-
-If you have MAC OS 10.14+ it is likely to have problems with the numpy headers.
-
-if you see an error like this during the installations (mostly during the "batman-package" build):
-
-
-
-    c_src/_nonlinear_ld.c:21:10: fatal error: 'numpy/arrayobject.h' file not found
-    #include "numpy/arrayobject.h"
-             
-    1 error generated.
-    error: command 'clang' failed with exit status 1
-
-
-
-Please do the following:
-
-export CFLAGS="-I /usr/local/lib/pythonX.X/site-packages/numpy/core/include $CFLAGS"
-
-(Where X is your Python version, e.g., 3.6, 3.7 to 3.8)
-
-and then re-run your Exo-Striker installation (via pip or setup.py).
- 
-
 ----------------------------------------------------------------------------------
 
 **WINDOWS 10**
@@ -198,15 +159,6 @@ For now, the recommended WINDOWS 10 installation option of the Exo-Striker is vi
 Subsystem for Linux" as pointed above.
  
 ------------------------------------------------------------------------------------------------------------
-
-Some known problems
-...................  
- 
-For work in progress issues see:
- 
-https://github.com/3fon3fonov/exostriker/issues
- 
-------------------------------------------------
 
 Reporting an issue
 ..................

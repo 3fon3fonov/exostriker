@@ -9,6 +9,7 @@ There are 2 ways to load Transit data on exostriker.
 
 
 .. image:: images/tra1.gif
+   :target: _images/tra1.gif
 
 
 loading a *.fits* file (Flexible Image Transport System), a pop up appears with two options : 
@@ -21,6 +22,7 @@ loading a *.fits* file (Flexible Image Transport System), a pop up appears with 
 
 
 .. image:: images/tra2.gif
+   :target: _images/tra2.gif
 
 
 Detrending the Light curve
@@ -33,6 +35,7 @@ on the **Data area section**. In the following tutorial we use the Gaussian proc
 
 
 .. image:: images/detrend.gif
+   :target: _images/detrend.gif
 
 
 For further information on the detrending algorithms see `wotan`_ and its `documentation`_.
@@ -52,6 +55,7 @@ transit detection threshold is SDE > 8, Signal Detection Efficiency, (Aigrain et
 
 
 .. image:: images/tls.gif
+   :target: _images/tls.gif
 
 
 * **Applying the model** on the data.
@@ -62,12 +66,15 @@ signal shape, adding two more parameters, u1 and u2.
 
 
 .. image:: images/transfit.gif
+   :target: _images/transfit.gif
+
 
 The **phase folded planetary signal** can be investigated on *Plot opt.*, when the option
 *plot phase-folded* is enabled.
 
 
 .. image:: images/tranpf.gif
+   :target: _images/tranpf.gif
 
 
 * Checking the **residual signal**.
@@ -78,6 +85,7 @@ on the *TLS o-c section*. If there aren't any peaks left on the *TLS o-c graph*,
 
 
 .. image:: images/residtls.gif
+   :target: _images/residtls.gif
 
 
 

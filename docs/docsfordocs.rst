@@ -36,6 +36,10 @@
 
           (comments)
 
+4a) Make the image clickable with the :target: option!!
+   eg. .. image:: images/homepage.png
+          :target: _images/homepage.png   
+
 5) Bold words with the symbol **
    eg. **Exostriker** 
 
@@ -62,6 +66,7 @@
     eg. in gui.rst file
        * Stdout/Stderr
 
+12) Before pushing to github make sure to $ make clean , for the build files to be deleted. These are unnecessary files!!
 
 For more info check links : 1) https://docutils.sourceforge.io/docs/ref/rst/roles.html#customization
 2) https://docutils.sourceforge.io/docs/ref/doctree.html#element-hierarchy
