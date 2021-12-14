@@ -8,8 +8,10 @@ There are 2 ways to load Transit data on exostriker.
 *  the **first** is through the **Data area**.
 
 
-.. image:: images/tra1.gif
+.. figure:: images/tra1.gif
    :target: _images/tra1.gif
+
+   *Data area.*
 
 
 loading a *.fits* file (Flexible Image Transport System), a pop up appears with two options : 
@@ -21,9 +23,12 @@ loading a *.fits* file (Flexible Image Transport System), a pop up appears with 
   extensions)
 
 
-.. image:: images/tra2.gif
+.. figure:: images/tra2.gif
    :target: _images/tra2.gif
 
+   *Data inspector.*
+
+---------------------------------------------------------------------------------------------
 
 Detrending the Light curve
 ===========================
@@ -34,8 +39,10 @@ A wide range of normalization methods are offered in the *Detrend options*
 on the **Data area section**. In the following tutorial we use the Gaussian processes normalization.
 
 
-.. image:: images/detrend.gif
+.. figure:: images/detrend.gif
    :target: _images/detrend.gif
+
+   *Detrending the light curve.*
 
 
 For further information on the detrending algorithms see `wotan`_ and its `documentation`_.
@@ -44,48 +51,58 @@ For further information on the detrending algorithms see `wotan`_ and its `docum
 
 .. _documentation: https://wotan.readthedocs.io/en/latest/
 
+----------------------------------------------------------------------------
+
 Looking for Transits
 ====================
 
 * Inspecting for **periodicities** on the Transit graph.
 
-When the light curve is detrended, a **period search** using the *Transit Least Squares* algorithm (TLS) 
-can be performed (*Calcute TLS*). The result is a prominent peak followed by its harmonics. The empirical
+When the light curve is detrended, a **period search** using the *Transit Least Squares* algorithm **(TLS)** 
+can be performed **(Calcute TLS*)**. The result is a prominent peak followed by its harmonics. The empirical
 transit detection threshold is SDE > 8, Signal Detection Efficiency, (Aigrain et al. 2016).
 
 
-.. image:: images/tls.gif
+.. figure:: images/tls.gif
    :target: _images/tls.gif
+
+   *Transit period search.*
 
 
 * **Applying the model** on the data.
 
-When the potential planets period is obtained it can be included to the model with other planet parameters.
+When the planets period is obtained it can be included to the model with other planet parameters.
 In the following tutorial we also adopted a quadratic limb-darkening model to describe the transit 
 signal shape, adding two more parameters, u1 and u2.
 
 
-.. image:: images/transfit.gif
+.. figure:: images/transfit.gif
    :target: _images/transfit.gif
+
+   *Fitting a transit.*
 
 
 The **phase folded planetary signal** can be investigated on *Plot opt.*, when the option
 *plot phase-folded* is enabled.
 
 
-.. image:: images/tranpf.gif
+.. figure:: images/tranpf.gif
    :target: _images/tranpf.gif
+
+   *Phase folded transit.*
 
 
 * Checking the **residual signal**.
 
 If there are any other periodicities left on the residual signal they can be calculated
 on the *TLS o-c section*. If there aren't any peaks left on the *TLS o-c graph*, a message that 
-*You have reached the maximum number of TLS peaks.* will be shown on *Stdout/Stderr* panel.
+*You have reached the maximum number of TLS peaks* will be shown on *Stdout/Stderr* panel.
 
 
-.. image:: images/residtls.gif
+.. figure:: images/residtls.gif
    :target: _images/residtls.gif
+
+   *Residual signal.*
 
 
 

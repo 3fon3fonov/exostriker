@@ -36,9 +36,11 @@
 
           (comments)
 
-4a) Make the image clickable with the :target: option!!
-   eg. .. image:: images/homepage.png
+4a) Make the figure clickable with the :target: option!!
+   eg. .. figure:: images/homepage.png
           :target: _images/homepage.png   
+
+          (Comments)
 
 5) Bold words with the symbol **
    eg. **Exostriker** 
