@@ -4475,13 +4475,38 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         
         
         p17.plot(clear=True,)
-        p17.plot(fit.evol_T[0][0:last_stable], dom ,pen=None, #{'color': colors[i], 'width': 1.1},
+
+    
+        if self.domega_esin_ecos.isChecked():
+            
+            if self.domega_esin_ecos_e_in.isChecked():
+                e_ind = pl1_ind
+            else:
+                e_ind = pl2_ind
+                     
+            x = fit.evol_e[e_ind][0:last_stable]*np.cos(np.radians(dom))
+            y = fit.evol_e[e_ind][0:last_stable]*np.sin(np.radians(dom)) 
+            p17.setLabel('bottom', '<html><head/><body><p>e%s cos(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p17.setLabel('left', '<html><head/><body><p>e%s sin(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p17.getViewBox().setAspectLocked(True)
+
+        else:
+            x = fit.evol_T[0][0:last_stable]
+            y = dom
+            p17.setLabel('bottom', 't [yr]', units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p17.setLabel('left', '<html><head/><body><p>&Delta;&omega; [deg] </p></body></html>', units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p17.getViewBox().setAspectLocked(False)
+           
+ 
+ 
+        p17.plot(x, y ,pen=None, #{'color': colors[i], 'width': 1.1},
         symbol='o',
         symbolPen={'color': colors_delta_om[0], 'width': 1.1},
         symbolSize=1,enableAutoRange=True,viewRect=True,
         symbolBrush=fit.colors[0]
         )  
- 
+
+
 
         
     def get_delta_omega_color(self):
@@ -10560,6 +10585,9 @@ Please install via 'pip install ttvfast'.
         self.radioButton_theta_180_fold.toggled.connect(self.plot_theta)
         self.theta_esin_ecos.stateChanged.connect(self.plot_theta)
         self.theta_esin_ecos_e_in.toggled.connect(self.plot_theta)
+
+        self.domega_esin_ecos.stateChanged.connect(self.plot_delta_omega)
+        self.domega_esin_ecos_e_in.toggled.connect(self.plot_delta_omega)
 
 
         self.per_evol_comboBox_pl_1.activated.connect(self.plot_per_rat)
