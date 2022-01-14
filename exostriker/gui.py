@@ -4521,30 +4521,33 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def delta_omega_plot_x_labels(self):
         global fit, p17
         
-        text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(HTML special characters accepted!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p17.setLabel('bottom', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
- 
+           # p17.setLabel('bottom', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
+            p17.setLabel('bottom', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':self.plot_font.pointSize()})  
         else:
             return
     
-        self.plot_delta_omega()
+        #self.plot_delta_omega()
  
 
     def delta_omega_plot_y_labels(self):
         global fit, p17
         
-        text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","(TML special characters accepted!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p17.setLabel('left', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
- 
+            #p17.setLabel('left', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
+            p17.setLabel('left', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':self.plot_font.pointSize()})   
         else:
             return
     
-        self.plot_delta_omega()        
-        
+        #self.plot_delta_omega()        
+  
+
+
+      
     ######### theta ############################## 
  
 
@@ -4676,25 +4679,21 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def theta_plot_x_labels(self):
         global fit, p18
         
-        text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","", QtWidgets.QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(HTML special characters accepted!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p18.setLabel('bottom', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
 
+            p18.setLabel('bottom', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':self.plot_font.pointSize()})  
         else:
             return
-
-        #self.plot_theta()
-
 
     def theta_plot_y_labels(self):
         global fit, p18
 
-        text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","", QtWidgets.QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(HTML special characters accepted!)", QtWidgets.QLineEdit.Normal, "")
 
         if okPressed and text != '':
-            p18.setLabel('left', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
-
+            p18.setLabel('left', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':self.plot_font.pointSize()})  
         else:
             return
 
@@ -7698,6 +7697,7 @@ will be highly appreciated!
         self.update_gui_params()
         self.update_errors() 
         self.update_plots() 
+        self.plot_evol_all()
         self.update_labels()
         
         self.update_params()
