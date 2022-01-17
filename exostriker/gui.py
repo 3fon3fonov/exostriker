@@ -968,6 +968,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.update_tra_GP_use()
         self.update_ld_use()
 
+        self.set_ttv_dataset_to_planet()
+
     def update_RV_GP_use(self):
         global fit
 
@@ -5817,35 +5819,20 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 self.buttonGroup_ttv_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
                 self.buttonGroup_remove_ttv_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
                 self.buttonGroup_ttv_data.button(i+1).setText(fit.ttv_data_sets[i][5])
-                self.ttv_data_to_planet[i].setValue(fit.ttv_data_sets[i][3])
-                self.use_ttv_data_to_planet[i].setChecked(bool(fit.ttv_data_sets[i][4]))
+                #self.ttv_data_to_planet[i].setValue(fit.ttv_data_sets[i][3])
+                #self.use_ttv_data_to_planet[i].setChecked(bool(fit.ttv_data_sets[i][4]))
+               # print(i, bool(fit.ttv_data_sets[i][4]))
 
             else:
                 self.buttonGroup_ttv_data.button(i+1).setStyleSheet("")
                 self.buttonGroup_remove_ttv_data.button(i+1).setStyleSheet("")
                 self.buttonGroup_ttv_data.button(i+1).setText("data %s"%(i+1))
-                self.ttv_data_to_planet[i].setValue(1)
-                self.use_ttv_data_to_planet[i].setChecked(False)
-#                self.set_ttv_dataset_to_planet()
+               # self.ttv_data_to_planet[i].setValue(1)
+                #self.use_ttv_data_to_planet[i].setChecked(False)
+                #self.set_ttv_dataset_to_planet()
 
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
         #self.init_correlations_combo()
-
-
-
-    def set_ttv_dataset_to_planet(self):
-
-        for i in range(10):
-
-            if len(fit.ttv_data_sets[i]) ==0:
-                self.ttv_data_to_planet[i].setValue(1)
-                self.use_ttv_data_to_planet[i].setChecked(False)
-                continue
-            else:
-                print(fit.ttv_data_sets[i][3],fit.ttv_data_sets[i][4])                
-                self.ttv_data_to_planet[i].setValue(fit.ttv_data_sets[i][3])
-                self.use_ttv_data_to_planet[i].setChecked(bool(fit.ttv_data_sets[i][4]))
-
 
 
 
@@ -5856,7 +5843,29 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 continue
             else:
                 fit.ttv_data_sets[i][3] = self.ttv_data_to_planet[i].value()
-               # fit.ttv_data_sets[i][4] = self.use_ttv_data_to_planet[i].isChecked()
+
+    def use_ttv_dataset_to_planet(self):
+
+        for i in range(10):
+            if len(fit.ttv_data_sets[i]) ==0:
+                continue
+            else:
+                fit.ttv_data_sets[i][4] = self.use_ttv_data_to_planet[i].isChecked()
+ 
+
+    def set_ttv_dataset_to_planet(self):
+
+        for i in range(10):
+            if len(fit.ttv_data_sets[i]) ==0:
+                self.ttv_data_to_planet[i].setValue(1)
+                self.use_ttv_data_to_planet[i].setChecked(False)
+                continue
+            else:
+                #print(fit.ttv_data_sets[i][3],fit.ttv_data_sets[i][4])                
+                self.ttv_data_to_planet[i].setValue(fit.ttv_data_sets[i][3])
+                self.use_ttv_data_to_planet[i].setChecked(bool(fit.ttv_data_sets[i][4]))
+
+
 
 ##################################### Various ################################# 
 
@@ -10423,18 +10432,18 @@ Please install via 'pip install ttvfast'.
 
         self.buttonGroup_ttv_data.buttonClicked.connect(self.showDialog_ttv_input_file)
         self.buttonGroup_remove_ttv_data.buttonClicked.connect(self.remove_ttv_file)
-        self.buttonGroup_use_ttv_data_to_planet.buttonClicked.connect(self.update_ttv_file_buttons)
+        self.buttonGroup_use_ttv_data_to_planet.buttonClicked.connect(self.use_ttv_dataset_to_planet)
         
-        self.ttv_data_planet_1.valueChanged.connect(self.update_ttv_file_buttons)
-        self.ttv_data_planet_2.valueChanged.connect(self.update_ttv_file_buttons)
-        self.ttv_data_planet_3.valueChanged.connect(self.update_ttv_file_buttons)
-        self.ttv_data_planet_4.valueChanged.connect(self.update_ttv_file_buttons)
-        self.ttv_data_planet_5.valueChanged.connect(self.update_ttv_file_buttons)
-        self.ttv_data_planet_6.valueChanged.connect(self.update_ttv_file_buttons)
-        self.ttv_data_planet_7.valueChanged.connect(self.update_ttv_file_buttons)
-        self.ttv_data_planet_8.valueChanged.connect(self.update_ttv_file_buttons)
-        self.ttv_data_planet_9.valueChanged.connect(self.update_ttv_file_buttons)
-        self.ttv_data_planet_10.valueChanged.connect(self.update_ttv_file_buttons)
+        self.ttv_data_planet_1.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_2.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_3.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_4.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_5.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_6.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_7.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_8.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_9.valueChanged.connect(self.ttv_dataset_to_planet)
+        self.ttv_data_planet_10.valueChanged.connect(self.ttv_dataset_to_planet)
 
         self.ttv_pl_combo()
         self.ttv_comboBox_pl.activated.connect(self.update_ttv_plots)
