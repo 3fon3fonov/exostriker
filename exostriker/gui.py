@@ -2244,11 +2244,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         import pyqtgraph.exporters
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2
 
 
         zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev]
-        zzz_str = ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12','p13','p14','p15','p16','p17','p18','p19','p20','pe','pdi','pcor','p_mlp','p_ttv','p_ttv_oc','p_per_ev']
+        zzz_str = ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12','p13','p14','p15','p16','p17','p18','p19','p20','pe','pdi','pcor','p_mlp','p_ttv','p_ttv_oc','p_per_ev','pe2']
         for i in range(len(zzz)):
 
             # create an exporter instance, as an argument give it
@@ -2271,9 +2271,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_font_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2]
 
 
         for i in range(len(zzz)):
@@ -2325,7 +2325,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def initialize_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2
 
         p1  = self.graphicsView_timeseries_RV
         p2  = self.graphicsView_timeseries_RV_o_c
@@ -2355,7 +2355,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p20 = self.graphicsView_orb_evol_energy
         
         pe  = self.graphicsView_extra_plot
-        
+        pe2  = self.graphicsView_extra_plot_gls        
         pdi = self.load_data_plot
 
         pcor = self.graphicsView_corner
@@ -2367,16 +2367,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','Period [d]','Period [d]','Period [d]',
                  'Period [d]','Period [d]','Period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]',
-                 't [yr]','t [yr]','t [yr]','','x','x','Period [d]','N transit','N transit','t [yr]']
+                 't [yr]','t [yr]','t [yr]','','x','x','Period [d]','N transit','N transit','t [yr]','Period [d]']
         yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','Power','Power','SDE','SDE','Power','Power','a [au]','e',
                  '<html><head/><body><p>&omega; [deg] </p></body></html>','a [au]',
                  '<html><head/><body><p>&Delta;&omega; [deg] </p></body></html>',
                  '<html><head/><body><p>&theta; [deg] </p></body></html>',
-                 'i [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.']
-        xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','','','','','']
-        yunit = ['' ,'' , '','','','','','','','','','','','','','','','','','','','','','','','','']
+                 'i [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.','Power']
+        xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','','','','','','']
+        yunit = ['' ,'' , '','','','','','','','','','','','','','','','','','','','','','','','','','']
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2]
 
 
         for i in range(len(zzz)):
@@ -4864,24 +4864,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         if fit.npl != 0:
             for i in range(fit.npl):
-                self.comboBox_extra_plot.addItem('phase pl %s'%(i+1),i+1)
-
-            self.comboBox_extra_plot.addItem('RV GLS',fit.npl+1)
-            self.comboBox_extra_plot.addItem('RV GLS o-c',fit.npl+2)
-
-            self.phase_plots(1)  
-
-        elif fit.filelist.ndset != 0:
-            self.comboBox_extra_plot.addItem('RV GLS',fit.npl+1)
-            self.comboBox_extra_plot.addItem('RV GLS o-c',fit.npl+2)   
-
-            #self.run_gls()
-          #  self.run_gls_o_c()  
-
-            #self.extra_RV_GLS_plots()
-
-        self.comboBox_extra_plot.activated.connect(self.handleActivated)        
-
+                self.comboBox_extra_plot.addItem('pl %s'%(i+1),i+1)
+ 
+            self.phase_plots(1)
+        self.comboBox_extra_plot.activated.connect(self.handleActivated)   
 
  
     def handleActivated(self, index):
@@ -4889,9 +4875,38 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         ind = self.comboBox_extra_plot.itemData(index) 
 
-        if ind <= fit.npl:
+        if ind == -1:
+            return
+
+        elif ind <= fit.npl:
             self.phase_plots(ind)
-        elif ind == fit.npl+1: 
+ 
+        else:
+            return
+
+
+
+    def update_extra_plots2(self):
+        global fit
+
+        self.comboBox_extra_plot_gls.clear()
+        if fit.filelist.ndset != 0:
+            self.comboBox_extra_plot_gls.addItem('RV GLS',fit.npl+1)
+            self.comboBox_extra_plot_gls.addItem('RV GLS o-c',fit.npl+2)   
+
+            self.extra_RV_GLS_plots()
+
+        self.comboBox_extra_plot_gls.activated.connect(self.handleActivated2)   
+
+ 
+    def handleActivated2(self, index):
+        global fit, pe, p7, p8
+
+        ind = self.comboBox_extra_plot_gls.itemData(index) 
+
+#        if ind <= fit.npl:
+#            self.phase_plots(ind)
+        if ind == fit.npl+1: 
             self.extra_RV_GLS_plots()
             #p7.show()
             #pe.setScene(p7.scene())
@@ -4903,6 +4918,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             #pe.setScene(p8.scene())
         else:
             return
+
+
+
+
 
     def phase_plots(self, ind, offset = 0):
         global fit, colors
@@ -4993,56 +5012,56 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     ############### VERY VERY VERY Ugly fix !!!! 
 
     def extra_RV_GLS_plots(self):
-        global fit,  pe 
+        global fit,  pe2 
  
-        pe.plot(clear=True,)   
+        pe2.plot(clear=True,)   
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
 
         if len(fit.fit_results.rv_model.jd) > 5:
             ######################## GLS ##############################
             if self.radioButton_RV_GLS_period.isChecked():
-                pe.setLogMode(True,False)        
-                pe.plot(1/fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-                pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})    
-                pe.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
+                pe2.setLogMode(True,False)        
+                pe2.plot(1/fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
+                pe2.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})    
+                pe2.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
             else:
-                pe.setLogMode(False,False)
-                pe.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-                pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
-                pe.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
+                pe2.setLogMode(False,False)
+                pe2.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
+                pe2.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
+                pe2.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
     
             if fit.gls.norm == 'ZK':
-                [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
+                [pe2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
 
 
-        if self.extra_plot_cross_hair.isChecked():
-            self.cross_hair(pe,log=self.radioButton_RV_GLS_period.isChecked())   
+        if self.extra_plot_cross_hair_gls.isChecked():
+            self.cross_hair(pe2,log=self.radioButton_RV_GLS_period.isChecked())   
 
     def extra_RV_GLS_o_c_plots(self):
-        global fit,  pe 
+        global fit,  pe2 
  
-        pe.plot(clear=True,)
+        pe2.plot(clear=True,)
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
 
         if len(fit.fit_results.rv_model.jd) > 5:
         ######################## GLS o-c ##############################
             if self.radioButton_RV_o_c_GLS_period.isChecked():
-                pe.setLogMode(True,False)        
-                pe.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None ) 
-                pe.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})    
-                pe.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
+                pe2.setLogMode(True,False)        
+                pe2.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None ) 
+                pe2.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})    
+                pe2.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
             else:
-                pe.setLogMode(False,False)        
-                pe.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None )                    
-                pe.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
-                pe.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
+                pe2.setLogMode(False,False)        
+                pe2.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None )                    
+                pe2.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
+                pe2.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
     
     
             if fit.gls.norm == 'ZK':
-                [pe.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]
+                [pe2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]
 
-        if self.extra_plot_cross_hair.isChecked():
-            self.cross_hair(pe,log=self.radioButton_RV_o_c_GLS_period.isChecked())   
+        if self.extra_plot_cross_hair_gls.isChecked():
+            self.cross_hair(pe2,log=self.radioButton_RV_o_c_GLS_period.isChecked())   
 
 
 
@@ -5058,6 +5077,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         self.update_RV_plots()
         self.update_extra_plots()
+        self.update_extra_plots2()
         self.update_orb_plot()
         #self.change_extra_plot()
         self.update_transit_plots()    
@@ -5068,7 +5088,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         ind = self.comboBox_extra_plot.currentIndex()
-        if ind+1 <= fit.npl:
+        if ind == -1:
+            return
+        elif ind+1 <= fit.npl:
             self.phase_plots(ind+1)
         else:
             return
@@ -9035,6 +9057,7 @@ Please install via 'pip install ttvfast'.
 
             self.update_RV_plots() 
             self.update_extra_plots()
+            self.update_extra_plots2()
             self.update_transit_plots() 
             #self.update_activity_data_plots() 
             #self.update_activity_gls_plots()
@@ -9079,6 +9102,7 @@ Please install via 'pip install ttvfast'.
 
             self.update_RV_plots()
             self.update_extra_plots()
+            self.update_extra_plots2()
             self.update_transit_plots()
             #self.update_activity_data_plots()
             #self.update_activity_gls_plots()
@@ -9151,6 +9175,7 @@ Please install via 'pip install ttvfast'.
             self.update_tra_file_buttons() 
             self.update_RV_plots() 
             self.update_extra_plots()
+            self.update_extra_plots2()
             self.update_transit_plots()     
         else:
             return  
@@ -9202,6 +9227,7 @@ Please install via 'pip install ttvfast'.
             self.update_tra_file_buttons() 
             self.update_RV_plots() 
             self.update_extra_plots()
+            self.update_extra_plots2()
             self.update_transit_plots()     
         else:
             return    
@@ -10744,6 +10770,7 @@ Please install via 'pip install ttvfast'.
 
 
         self.extra_plot_cross_hair.stateChanged.connect(self.update_extra_plots)
+        self.extra_plot_cross_hair_gls.stateChanged.connect(self.update_extra_plots2)
         self.inpector_plot_cross_hair.stateChanged.connect(self.init_plot_data_inspect)
         #self.inpector_plot_cross_hair.stateChanged.connect(lambda: self.tree_view_tab.listview.connect(self.plot_data_inspect))
 
