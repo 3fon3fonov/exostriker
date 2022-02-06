@@ -2244,7 +2244,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         import pyqtgraph.exporters
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2,pe0,pe1
 
 
         zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev]
@@ -2271,9 +2271,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_font_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2,pe0,pe1
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,pe0,pe1]
 
 
         for i in range(len(zzz)):
@@ -2320,7 +2320,20 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         return
 
+        zzz4 = [pe0,pe1]
+        for i in range(len(zzz4)):
 
+            zzz4[i].getAxis('left').setWidth(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+            zzz4[i].getAxis("left").tickFont = self.plot_font
+            zzz4[i].getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+            zzz4[i].getAxis("bottom").tickFont = self.plot_font
+           # zzz4[i].getAxis("left").setStyle(tickTextOffset=20)        
+          #  zzz4[i].getAxis("bottom").setStyle(tickTextOffset=20)        
+            
+            zzz4[i].setLabel('bottom', '%s'%zzz4[i].getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            zzz4[i].setLabel('left', '%s'%zzz4[i].getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+
+        return
 
 
     def initialize_plots(self):
@@ -2410,10 +2423,89 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         
         self.initialize_RV_subplots()
         self.initialize_tra_subplots()
-               
+        self.initialize_RV_phase_subplots()               
+
+
         return
 
 
+    def initialize_RV_phase_subplots(self):
+
+        global pe,pe0,pe1
+        
+        l = pg.GraphicsLayout()                                                             
+        pe.setCentralItem(l)                                                                                                                        
+
+        pe0 = l.addPlot(0, 0, colspan=3)                                                                
+        pe0.hideAxis('bottom')                                                              
+        pe1 = l.addPlot(1, 0, colspan=1)                                                                
+        pe1.setXLink(pe0)                 
+
+
+        #for i in (1, 2):
+        l.layout.setRowMinimumHeight(0, 220)                                                    
+        l.layout.setRowMinimumHeight(1, 30)         
+        l.layout.setRowMaximumHeight(1, 150)                                                                                               
+        pe0.showAxis('top') 
+        pe0.showAxis('right') 
+        pe1.showAxis('top') 
+        pe1.showAxis('right') 
+ 
+        pe0.ctrlMenu.actions()[-4].setVisible(False) #removes the submenu "Avarage" junk       
+        pe1.ctrlMenu.actions()[-4].setVisible(False) #removes the submenu "Avarage" junk       
+
+
+        pe0.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
+        pe0.getAxis("left").tickFont = self.plot_font
+        #pe0.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+        pe0.getAxis("bottom").tickFont = self.plot_font
+        #pe0.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        pe0.setLabel('left', '%s'%p1.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        pe0.getAxis('right').setWidth(0)
+        pe0.getAxis('top').setHeight(0)
+
+        pe0.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+
+        #pe0.getViewBox().setAspectLocked(lock=False, ratio=2)
+
+        pe0.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe0.getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe0.getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe0.getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        #pe0.getAxis('bottom').enableAutoSIPrefix(enable=False)
+
+
+        pe1.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
+        pe1.getAxis("left").tickFont = self.plot_font
+        pe1.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+        pe1.getAxis("bottom").tickFont = self.plot_font
+
+        #pe1.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        pe1.setLabel('left', 'o-c [m/s]', units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        pe1.getAxis('right').setWidth(0)
+        pe1.getAxis('top').setHeight(0)
+
+        pe1.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+        pe1.setLabel('bottom', '%s'%p2.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+
+
+        pe1.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe1.getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe1.getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe1.getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe1.getAxis('bottom').enableAutoSIPrefix(enable=False)
+
+
+        ax0 = pe0.getAxis('bottom')      #get handle to x-axis 0
+        ax0.setStyle(showValues=False)
+
+        l.layout.setSpacing(0.)                                                             
+        l.setContentsMargins(0., 0., 0., 0.)                                                
+
+
+        #fit.p1 = p1
+        #fit.pe = pe
+        return
 
     def initialize_RV_subplots(self):
 
@@ -2562,6 +2654,82 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p31.setLabel('bottom', '%s'%p4.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         
         ax30 = p30.getAxis('bottom')      #get handle to x-axis 0
+        ax30.setStyle(showValues=False)
+        
+        ll.layout.setSpacing(0.)                                                             
+        ll.setContentsMargins(0., 0., 0., 0.)                                                
+        return
+
+
+
+    def initialize_phase_subplots(self):
+
+        global p3,pe0,pe1
+        
+        ll = pg.GraphicsLayout()                                                             
+        pe.setCentralItem(ll)                                                                                                                        
+        
+        pe0 = ll.addPlot(0, 0, colspan=3)                                                               
+        pe0.hideAxis('bottom')                                                              
+        pe1 = ll.addPlot(1, 0, colspan=1)                                                               
+        pe1.setXLink(pe0)                                                                     
+         
+        ll.layout.setRowMinimumHeight(0, 220)                                                    
+        ll.layout.setRowMinimumHeight(1, 30)         
+        #ll.layout.setRowMaximumHeight(1, 150)                                                                                               
+          
+        pe0.showAxis('top') 
+        pe0.showAxis('right') 
+        pe1.showAxis('top') 
+        pe1.showAxis('right') 
+  
+        pe0.ctrlMenu.actions()[-4].setVisible(False) #removes the submenu "Avarage" junk       
+        pe1.ctrlMenu.actions()[-4].setVisible(False) #removes the submenu "Avarage" junk       
+
+
+        #pe0.autoRange(False)
+        #pe1.autoRange(False)
+        
+        pe0.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
+        pe0.getAxis("left").tickFont = self.plot_font
+        #p00.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+        pe0.getAxis("bottom").tickFont = self.plot_font
+        #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        
+        pe0.getAxis('right').setWidth(0)
+        pe0.getAxis('top').setHeight(0)
+        pe0.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+        
+        pe0.setLabel('left', '%s'%p3.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        
+        pe0.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe0.getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe0.getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe0.getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe0.getAxis('bottom').enableAutoSIPrefix(enable=False)
+        
+         
+        
+        pe1.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
+        pe1.getAxis("left").tickFont = self.plot_font
+        pe1.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+        pe1.getAxis("bottom").tickFont = self.plot_font
+        
+        #pe1.setLabel('left', '%s'%p4.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        pe1.setLabel('left', 'o-c', units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        pe1.getAxis('right').setWidth(0)
+        pe1.getAxis('top').setHeight(0)
+        pe1.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+        
+        pe1.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe1.getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe1.getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe1.getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        pe1.getAxis('bottom').enableAutoSIPrefix(enable=False)
+        
+        pe1.setLabel('bottom', '%s'%pe.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        
+        ax30 = pe0.getAxis('bottom')      #get handle to x-axis 0
         ax30.setStyle(showValues=False)
         
         ll.layout.setSpacing(0.)                                                             
@@ -4871,7 +5039,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
  
     def handleActivated(self, index):
-        global fit, pe, p7, p8
+        global fit 
 
         ind = self.comboBox_extra_plot.itemData(index) 
 
@@ -4900,7 +5068,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
  
     def handleActivated2(self, index):
-        global fit, pe, p7, p8
+        global fit
 
         ind = self.comboBox_extra_plot_gls.itemData(index) 
 
@@ -4922,8 +5090,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
 
-
-    def phase_plots(self, ind, offset = 0):
+    def phase_plots_old(self, ind, offset = 0):
         global fit, colors
 
         pe.plot(clear=True,)
@@ -5009,6 +5176,144 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.cross_hair(pe,log=False)   
 
 
+
+    def phase_plots(self, ind, offset = 0):
+        global fit, colors
+
+       # pe.plot(clear=True,)
+        pe0.plot(clear=True,)
+        pe0.setLogMode(False,False)
+        pe1.plot(clear=True,)
+        pe1.setLogMode(False,False)
+
+        ######## TBF #############
+        if self.radioButton_transit.isChecked():
+            return
+        ########################
+
+        ph_data = fit.ph_data[ind-1]
+        ph_model = fit.ph_model[ind-1]
+
+        offset = (self.RV_phase_slider.value()/100.0)* fit.params.planet_params[7*(ind-1)+1] 
+
+        if len(ph_data) == 1:
+            return
+
+        if self.jitter_to_plots.isChecked() and len(ph_data) != 0 and not self.split_jitter.isChecked() :
+            error_list = self.add_jitter(ph_data[2], ph_data[3])
+        elif self.jitter_to_plots.isChecked() and len(ph_data) != 0 and self.split_jitter.isChecked() :
+            error_list = ph_data[2]
+            error_list2 = self.add_jitter(ph_data[2], ph_data[3])
+        else:
+            if len(ph_data) != 0:
+                error_list = ph_data[2]
+            else:
+                return
+ 
+ 
+
+        time_phase = (ph_data[0]-offset)%fit.params.planet_params[7*(ind-1)+1]
+        rv_data = ph_data[1]
+        try:          
+            rv_data_o_c = ph_data[4]
+        except:
+            rv_data_o_c = ph_data[1]
+
+
+
+        model_time_phase = np.array((ph_model[0]-offset)%fit.params.planet_params[7*(ind-1)+1] )
+
+        sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])
+        model_time_phase  = model_time_phase[sort] 
+        ph_model =  ph_model[1][sort] 
+
+
+
+        pe0.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
+        pe1.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
+
+
+
+        if self.extra_plot_RVphase_norm.isChecked():
+            model_time_phase = (model_time_phase/max(model_time_phase)) - 0.5
+            time_phase = ((time_phase)/max(time_phase)) -0.5 # - fit.params.planet_params[7*(ind-1)+1]/2.0) /fit.params.planet_params[7*(ind-1)+1]
+ 
+
+        model_curve = pe0.plot(model_time_phase,ph_model, pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()+1},
+        enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'})   
+ 
+        model_curve.setZValue(self.RV_model_z.value())
+
+        for i in range(max(ph_data[3])+1):
+
+            pe0.plot((time_phase[ph_data[3]==i]),rv_data[ph_data[3]==i],
+            pen=None, #{'color': colors[i], 'width': 1.1},
+            symbol=fit.pyqt_symbols_rvs[i],
+            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
+            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            )
+
+            pe1.plot((time_phase[ph_data[3]==i]),rv_data_o_c[ph_data[3]==i],
+            pen=None, #{'color': colors[i], 'width': 1.1},
+            symbol=fit.pyqt_symbols_rvs[i],
+            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
+            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            )
+
+
+            err_ = pg.ErrorBarItem(x=(time_phase[ph_data[3]==i]), y=rv_data[ph_data[3]==i],
+            symbol=fit.pyqt_symbols_rvs[i], 
+            top=error_list[ph_data[3]==i],
+            bottom=error_list[ph_data[3]==i],
+            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])) 
+
+            pe0.addItem(err_)
+
+            err_o_c = pg.ErrorBarItem(x=(time_phase[ph_data[3]==i]), y=rv_data_o_c[ph_data[3]==i],
+            symbol=fit.pyqt_symbols_rvs[i], 
+            top=error_list[ph_data[3]==i],
+            bottom=error_list[ph_data[3]==i],
+            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])) 
+
+            pe1.addItem(err_o_c)
+
+            if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
+ 
+                err_2 = pg.ErrorBarItem(x=(time_phase[ph_data[3]==i]), y=rv_data[ph_data[3]==i],
+                symbol=fit.pyqt_symbols_rvs[i], 
+                top=error_list2[ph_data[3]==i],
+                bottom=error_list2[ph_data[3]==i],
+                beam=0.0, pen=colors_RV_jitter[0])  
+                err_2.setZValue(-10)
+                pe0.addItem(err_2) 
+
+                err_2_o_c = pg.ErrorBarItem(x=(time_phase[ph_data[3]==i]), y=rv_data_o_c[ph_data[3]==i],
+                symbol=fit.pyqt_symbols_rvs[i], 
+                top=error_list2[ph_data[3]==i],
+                bottom=error_list2[ph_data[3]==i],
+                beam=0.0, pen=colors_RV_jitter[0])  
+                err_2_o_c.setZValue(-10)
+                pe1.addItem(err_2_o_c) 
+
+
+
+        pe0.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)
+#        pe0.setLabel('bottom', 'phase [days]', units='',  **{'font-size':self.plot_font.pointSize()})
+        pe0.setLabel('left',   'RV [m/s]', units='',  **{'font-size':self.plot_font.pointSize()})  
+
+
+        if self.extra_plot_RVphase_norm.isChecked():
+            pe1.setLabel('bottom', 'phase', units='',  **{'font-size':self.plot_font.pointSize()})
+        else:
+            pe1.setLabel('bottom', 'phase [days]', units='',  **{'font-size':self.plot_font.pointSize()})
+
+        if self.extra_plot_cross_hair.isChecked():
+            self.cross_hair(pe0,log=False)   
+            self.cross_hair(pe1,log=False)   
+
+
     ############### VERY VERY VERY Ugly fix !!!! 
 
     def extra_RV_GLS_plots(self):
@@ -5033,6 +5338,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if fit.gls.norm == 'ZK':
                 [pe2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
 
+
+        text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls.freq, fit.gls.power, power_level = power_levels, sig_level = fit.gls.powerLevel(np.array(power_levels)) )           
+        self.label_peaks(pe2, pos_peaks, GLS = True, o_c = False)
 
         if self.extra_plot_cross_hair_gls.isChecked():
             self.cross_hair(pe2,log=self.radioButton_RV_GLS_period.isChecked())   
@@ -5059,6 +5367,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     
             if fit.gls.norm == 'ZK':
                 [pe2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]
+
+        text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls_o_c.freq, fit.gls_o_c.power, power_level = power_levels, sig_level = fit.gls_o_c.powerLevel(np.array(power_levels)) )           
+        self.label_peaks(pe2, pos_peaks, GLS = True, o_c = True)
 
         if self.extra_plot_cross_hair_gls.isChecked():
             self.cross_hair(pe2,log=self.radioButton_RV_o_c_GLS_period.isChecked())   
@@ -7203,7 +7514,7 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False, es_version='0.65'):
+    def print_info_credits(self, image=False, es_version='0.66'):
  
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
@@ -10022,7 +10333,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        es_version = "0.65"
+        es_version = "0.66"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -10674,6 +10985,8 @@ Please install via 'pip install ttvfast'.
         self.RV_model_z.valueChanged.connect(self.update_RV_plots)
         self.RV_model_z.valueChanged.connect(self.update_extra_plots)    
         self.RV_plot_add_o_c.stateChanged.connect(self.update_RV_plots)
+        self.extra_plot_RVphase_norm.stateChanged.connect(self.update_extra_plots)    
+
 
         self.plot_RV_GP_model.stateChanged.connect(self.update_RV_plots)
 

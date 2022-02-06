@@ -218,10 +218,11 @@ def transit_tperi(per, ecc, om, ma, epoch, primary = True):
   
     trueA = np.pi/2.0
     om = np.radians((om)%360)
-    #ma = np.radians(ma)
+    ma = np.radians((ma)%360)
     f = trueA - om 
     E = 2.0*np.arctan( np.sqrt( (1.0-ecc)/(1.0+ecc) ) * np.tan(f/2.0)  )
-    t_peri    =  epoch - (per/TAU)*(E - ecc*np.sin(E))
+    #t_peri    =  epoch - (per/TAU)*(E - ecc*np.sin(E))
+    t_peri    = epoch  - ((ma/TAU)*per)
     t_transit = t_peri + (E - ecc*np.sin(E)) * (per/TAU)
     
     if primary != True:
@@ -2281,6 +2282,7 @@ def phase_RV_planet_signal(obj,planet):
         sort = sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])
         data_time_phase      = data_time_phase[sort]
         phased_data          = copied_obj.fit_results.rv_model.o_c[sort]#  - copied_obj.fit_results.rv_model.rvs[sort]
+        phased_data_o_c      = obj.fit_results.rv_model.o_c[sort]#  - copied_obj.fit_results.rv_model.rvs[sort]
         phased_data_err      = copied_obj.fit_results.rv_model.rv_err[sort]
         phased_data_idset    = copied_obj.fit_results.idset[sort]
 
@@ -2289,7 +2291,7 @@ def phase_RV_planet_signal(obj,planet):
             phased_data = phased_data - copied_obj.gp_model_data[0][sort]
 
         model = [model_time_phase,  phased_model]
-        data  = [data_time_phase,  phased_data, phased_data_err, phased_data_idset]
+        data  = [data_time_phase,  phased_data, phased_data_err, phased_data_idset,phased_data_o_c]
 
 
         del copied_obj

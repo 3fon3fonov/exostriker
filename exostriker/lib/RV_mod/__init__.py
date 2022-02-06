@@ -1021,10 +1021,10 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i] = transit_tperi(par[len(vel_files)*2 +7*i+1],
                                                                   ecc_, om_, Ma_ ,epoch)[1]%par[len(vel_files)*2 +7*i+1]
 
-            ddddd = transit_tperi(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,epoch)[1]%par[len(vel_files)*2 +7*i+1]
-            dddd2 = transit_tperi_old(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,epoch)[1]%par[len(vel_files)*2 +7*i+1]
+          #  ddddd = transit_tperi(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,epoch)[1]%par[len(vel_files)*2 +7*i+1]
+          #  dddd2 = transit_tperi_old(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,epoch)[1]%par[len(vel_files)*2 +7*i+1]
             
-           # print(ddddd, dddd2)
+          #  print(ddddd, dddd2)
 
 
 
