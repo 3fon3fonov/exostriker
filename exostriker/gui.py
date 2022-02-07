@@ -5339,8 +5339,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 [pe2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
 
 
-        text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls.freq, fit.gls.power, power_level = power_levels, sig_level = fit.gls.powerLevel(np.array(power_levels)) )           
-        self.label_peaks(pe2, pos_peaks, GLS = True, o_c = False)
+            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls.freq, fit.gls.power, power_level = power_levels, sig_level = fit.gls.powerLevel(np.array(power_levels)) )           
+            self.label_peaks(pe2, pos_peaks, GLS = True, o_c = False)
 
         if self.extra_plot_cross_hair_gls.isChecked():
             self.cross_hair(pe2,log=self.radioButton_RV_GLS_period.isChecked())   
@@ -5368,8 +5368,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if fit.gls.norm == 'ZK':
                 [pe2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]
 
-        text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls_o_c.freq, fit.gls_o_c.power, power_level = power_levels, sig_level = fit.gls_o_c.powerLevel(np.array(power_levels)) )           
-        self.label_peaks(pe2, pos_peaks, GLS = True, o_c = True)
+            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls_o_c.freq, fit.gls_o_c.power, power_level = power_levels, sig_level = fit.gls_o_c.powerLevel(np.array(power_levels)) )           
+            self.label_peaks(pe2, pos_peaks, GLS = True, o_c = True)
 
         if self.extra_plot_cross_hair_gls.isChecked():
             self.cross_hair(pe2,log=self.radioButton_RV_o_c_GLS_period.isChecked())   
@@ -8869,6 +8869,22 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
                 self.update_act_file_buttons()
 
+    def save_DataInspector_data(self):
+
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save to data (ascii) file', '%s_%s.dat'%(self.RVBank_window.target_name,self.RVBank_window.data_name), 'All (*.*);;', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        
+        if str(output_file[0]) != '':
+            f = open(output_file[0], 'w')
+            for i in range(len(self.RVBank_window.x_data)):
+                f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f} \n'.format(
+                        float(self.RVBank_window.x_data[i]), 
+                        float(self.RVBank_window.y_data[i]), 
+                        float(self.RVBank_window.e_y_data[i]),  
+                        width = 14, precision = 7 ))
+            f.close()
+
+        return
+
 
 
     def cross_data_inspect(self):
@@ -10663,6 +10679,8 @@ Please install via 'pip install ttvfast'.
         #self.gridLayout_file_tree.setRowStretch(1, 4)
         #self.gridLayout_file_tree.addWidget(self.tree_view_tab)
 
+
+        self.export_DataInspector_data.clicked.connect(self.save_DataInspector_data)
         self.data_insp_load_data.clicked.connect(self.load_data_inspect)
         self.datafiles_window.listview.clicked.connect(self.plot_data_inspect)
 
