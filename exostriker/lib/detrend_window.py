@@ -138,8 +138,13 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.ui.buttonGroup_trendOptions.buttonClicked.connect(self.update_labels)
 
         self.ui.click_to_reject.clicked.connect(self.top_plot)
+        self.ui.addROI.clicked.connect(self.top_plot)
+
         self.ui.reset_data.clicked.connect(self.reset_data)
         self.ui.add_epoch.clicked.connect(self.add_bjd)
+
+        self.ui.removeROIdata_in.clicked.connect(lambda: self.removeROI_data(inside=True))
+        self.ui.removeROIdata_out.clicked.connect(lambda: self.removeROI_data(inside=False))
 
         self.ui.button_bin_data.clicked.connect(self.bin_data)        
         
@@ -353,7 +358,15 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
     def top_plot(self):
         global p_1
         
-        if self.ui.click_to_reject.isChecked():
+        
+        if self.ui.addROI.isChecked():
+            self.ui.removeROIdata_in.setEnabled(True)
+            self.ui.removeROIdata_out.setEnabled(True)
+        else:
+            self.ui.removeROIdata_in.setEnabled(False)
+            self.ui.removeROIdata_out.setEnabled(False)                
+    
+        if self.ui.click_to_reject.isChecked() or self.ui.addROI.isChecked():
             symbolSize=6
         else:
             symbolSize=2
@@ -377,11 +390,39 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         model_curve = self.ui.plot.plot(self.t, self.trend , pen={'color': '#000000', 'width': 3}, enableAutoRange=True,viewRect=True ) 
         model_curve.setZValue(1)
 
+
+        if self.ui.addROI.isChecked() == True:
+
+            range_plot = self.ui.plot.viewRange()
+
+            self.roi = pg.ROI([range_plot[0][0],range_plot[1][0]],[(range_plot[0][1]-range_plot[0][0])/10.0,(range_plot[1][1]-range_plot[1][0])/2.0],pen=pg.mkPen(color='r', width=3))
+            ## handles scaling horizontally around center
+            self.roi.addScaleHandle([1, 0.5], [0.5, 0.5])
+            self.roi.addScaleHandle([0, 0.5], [0.5, 0.5])
+
+            ## handles scaling vertically from opposite edge
+            self.roi.addScaleHandle([0.5, 0], [0.5, 1])
+            self.roi.addScaleHandle([0.5, 1], [0.5, 0])
+
+            ## handles scaling both vertically and horizontally
+            self.roi.addScaleHandle([1, 1], [0, 0])
+            self.roi.addScaleHandle([0, 0], [1, 1])
+            self.ui.plot.addItem(self.roi)
+ 
+            self.ui.plot.plotItem.items[4].sigRegionChanged.connect(self.getROIbox)
+            self.getROIbox(self.roi)
+
         self.ui.plot.plotItem.items[1].sigPointsClicked.connect(self.plotClicked)
 
 
+    def getROIbox(self,roi):
+        self.roi_xwindow = (roi.pos()[0] , roi.pos()[0] + roi.size()[0])
+        self.roi_ywindow = (roi.pos()[1] , roi.pos()[1] + roi.size()[1])
+
+
+
     def bottom_plot_lc(self):
-        #global p_2
+
         
         self.ui.plot_2.plot(clear=True,)
         ######## Bottom plot ############
@@ -402,8 +443,43 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
                                    
         self.ui.plot_2.addItem(err_)
         
+
+
+
+    def removeROI_data(self, inside=True):
+ 
+        self.old_t = dill.copy(self.t)
+        self.old_f = dill.copy(self.flux)
+
+        if inside==True:
+            subsetter = np.where((self.roi_xwindow[0] > self.old_t) | (self.old_t > self.roi_xwindow[1]) | (self.roi_ywindow[0] > self.old_f) | (self.old_f > self.roi_ywindow[1])  )  
+        else:
+            subsetter = np.where((self.roi_xwindow[0] < self.old_t) & (self.old_t < self.roi_xwindow[1]) & (self.roi_ywindow[0] < self.old_f) & (self.old_f < self.roi_ywindow[1])  )       
+ 
+
+        self.t            = dill.copy(self.t[subsetter])
+        self.flux         = dill.copy(self.flux[subsetter])
+        self.flux_err     = dill.copy(self.flux_err[subsetter])
+        self.flux_o_c     = dill.copy(self.flux_o_c[subsetter])
+        self.flux_err_o_c = dill.copy(self.flux_err_o_c[subsetter])
+        self.trend        = dill.copy(self.trend[subsetter])
+        self.airmass      = dill.copy(self.airmass[subsetter])
+
+        self.ui.plot.plotItem.items[1].setData(x=self.t, y=self.flux)
+        self.ui.plot.plotItem.items[2].setData(x=self.t, y=self.flux,  
+                                   top=self.flux_err, 
+                                   bottom=self.flux_err)
+
         
-        
+        if self.ui.flatten_data.isChecked():
+            self.ui.plot_2.plotItem.items[1].setData(x=self.t, y=self.flux_o_c)
+            self.ui.plot_2.plotItem.items[2].setData(x=self.t, y=self.flux_o_c,  
+                                       top=self.flux_err_o_c, 
+                                       bottom=self.flux_err_o_c)
+        else:
+            self.replot()
+ 
+   
 
     def plotClicked(self,curve,datas):
 
@@ -411,7 +487,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
             return
 
         rem_x,rem_y = datas[0].pos()
-        print("Removed x,y: ",rem_x,rem_y)
+        print("Removed x,y: ",rem_x,rem_y) 
 
         self.old_t = dill.copy(self.t)
 
@@ -423,7 +499,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.trend        = dill.copy(self.trend[self.old_t != rem_x])
         self.airmass      = dill.copy(self.airmass[self.old_t != rem_x])
 
-        self.ui.plot.plotItem.items[1].setData(x=self.t,y=self.flux)
+        self.ui.plot.plotItem.items[1].setData(x=self.t, y=self.flux)
         self.ui.plot.plotItem.items[2].setData(x=self.t, y=self.flux,  
                                    top=self.flux_err, 
                                    bottom=self.flux_err)

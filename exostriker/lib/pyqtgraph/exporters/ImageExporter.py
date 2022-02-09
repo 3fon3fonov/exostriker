@@ -76,6 +76,7 @@ class ImageExporter(Exporter):
 
         self.png = QtGui.QImage(w, h, QtGui.QImage.Format.Format_ARGB32)
         self.png.fill(self.params['background'])
+
         
         ## set resolution of image:
         origTargetRect = self.getTargetRect()
@@ -84,6 +85,8 @@ class ImageExporter(Exporter):
         #self.png.setDotsPerMeterY(self.png.dotsPerMeterY() * resolutionScale)
         
         painter = QtGui.QPainter(self.png)
+ 
+        #self.png.width()
         #dtr = painter.deviceTransform()
         try:
             self.setExportMode(True, {
@@ -92,6 +95,8 @@ class ImageExporter(Exporter):
                 'painter': painter,
                 'resolutionScale': resolutionScale})
             painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing, self.params['antialias'])
+            #painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform, True)
+
             self.getScene().render(painter, QtCore.QRectF(targetRect), QtCore.QRectF(sourceRect))
         finally:
             self.setExportMode(False)
