@@ -2327,7 +2327,9 @@ def act_remove_mean(self):
 def tra_norm(self): 
     tra_norm = [
              self.tra_norm_1,self.tra_norm_2,self.tra_norm_3,self.tra_norm_4,self.tra_norm_5,
-             self.tra_norm_6,self.tra_norm_7,self.tra_norm_8,self.tra_norm_9,self.tra_norm_10
+             self.tra_norm_6,self.tra_norm_7,self.tra_norm_8,self.tra_norm_9,self.tra_norm_10,
+             self.tra_norm_11,self.tra_norm_12,self.tra_norm_13,self.tra_norm_14,self.tra_norm_15,
+             self.tra_norm_16,self.tra_norm_17,self.tra_norm_18,self.tra_norm_19,self.tra_norm_20
             ]
  
     return tra_norm
