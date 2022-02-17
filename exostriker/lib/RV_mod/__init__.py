@@ -27,12 +27,16 @@ from pathos import multiprocessing
 #from emcee.utils import MPIPool
 import celerite
 from celerite import terms
-import dynesty
+
+try:
+    import dynesty2 as dynesty
+except:
+    print("dynesty not found")
+    import dynesty_1_2 as dynesty
 
 #import batman
 
 #import copy
-import dill
 import scipy.optimize as op
 from scipy import stats
 
