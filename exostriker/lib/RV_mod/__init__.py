@@ -29,7 +29,7 @@ import celerite
 from celerite import terms
 
 try:
-    import dynesty2 as dynesty
+    import dynesty as dynesty
 except:
     print("dynesty not found")
     import dynesty_1_2 as dynesty
