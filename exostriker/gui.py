@@ -7514,7 +7514,7 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False, es_version='0.66'):
+    def print_info_credits(self, image=False, es_version='0.67'):
  
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
@@ -8270,6 +8270,9 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         fit.ns_maxiter = {0:self.use_ns_maxiter.isChecked(), 1:self.ns_maxiter.value()}
         fit.ns_maxcall = {0:self.use_ns_maxcall.isChecked(), 1:self.ns_maxcall.value()}
 
+        fit.nest_weighted=self.nest_weighted.isChecked()
+
+
     def force_nest_check_box(self):
         if self.button_make_cornerplot_nested.isChecked():
             self.save_samples_nested.setChecked(True)
@@ -8325,7 +8328,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
  
         
         self.nest_pfrac.setValue(fit.ns_pfrac)
-
+        self.nest_weighted.setChecked(fit.nest_weighted)
 
 ################################## MCMC #######################################
 
@@ -10349,7 +10352,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        es_version = "0.66"
+        es_version = "0.67"
 
         #self.loading_screen= LoadingScreen()   
  

@@ -260,7 +260,17 @@ def get_m0(per, ecc, om, t0, epoch):
 
     return m0
 
+def ma_from_t0(per, ecc, om, t_transit, epoch):
+    '''
+    '''
+    om = np.radians(om)
+    E = 2.0*np.arctan( np.sqrt( ( (1.0-ecc)/(1.0+ecc) ) ) * np.tan( (np.pi/4.0)-(om/2.0) ) )
+   # t_transit = epoch  - ((ma/TAU)*per) + (E + ecc*np.sin(E)) * (per/TAU)
 
+    ma =  ((epoch  - t_transit + (E + ecc*np.sin(E)) * (per/TAU))*TAU)/per
+    ma = np.degrees(ma)%360.0
+
+    return ma
 
 
 def ma_from_epoch(per, t_peri, epoch):
@@ -680,7 +690,6 @@ def add_mcmc_samples(obj,sampler):
     sampler._lbf["cornerplot"] = cornerplot_opt
     sampler._lbf["OrigLabels"] = dill.copy(obj.e_for_mcmc)
 
-
     obj.mcmc_sampler=sampler
     obj.sampler_saved=True        
         
@@ -695,10 +704,10 @@ def add_ns_samples(obj,sampler):
     bestfit_labels_bool = [obj.ns_save_median,obj.ns_save_means,obj.ns_save_mode, 
                            obj.ns_save_maxlnL,False,False,False,
                            True,False,False,False,False,True,False,False,False,False]
-    
-    
+  
     obj.ns_sampler= dill.copy(sampler.results)
     obj.ns_sampler._lbf     = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
+
     for k in range(17):
         obj.ns_sampler._lbf[bestfit_labels[k]] = bestfit_labels_bool[k]   
         
@@ -730,7 +739,7 @@ def add_ns_samples(obj,sampler):
        
     #delattr(obj.ns_sampler, 'rstate')
     obj.sampler_saved=True
-
+    return obj
 
 def get_quad_model(x,y,a1,a2,a3):
     

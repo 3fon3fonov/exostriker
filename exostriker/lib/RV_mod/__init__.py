@@ -29,13 +29,21 @@ import celerite
 from celerite import terms
 
 try:
-    import dynesty as dynesty
+    import dynesty
+
+    if float(dynesty.__version__)<=1.1:
+        print("Your dynesty is version<=1.1, switching to the internally imported github version==1.2!")
+        import dynesty_1_2 as dynesty        
+        import dynesty_patch
+        dynesty.results =  dynesty_patch
+
 except:
-    print("dynesty not found")
+    print("dynesty not found, switching to the internally imported github version==1.2!")
     import dynesty_1_2 as dynesty
+    import dynesty_patch
+    dynesty.results =  dynesty_patch
 
-#import batman
-
+ 
 #import copy
 import scipy.optimize as op
 from scipy import stats
@@ -1006,8 +1014,8 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             #    par[len(vel_files)*2 +7*i+4] = get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_ ,par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i], epoch)
 
             if program.endswith("kep"):
-                Ma_= get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_ ,par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i], epoch)
-#
+                Ma_= get_m0(    par[len(vel_files)*2 +7*i+1], ecc_, om_ ,par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i], epoch)
+                #Ma_= ma_from_t0(par[len(vel_files)*2 +7*i+1], ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
                 if hkl == True:              
                     par[len(vel_files)*2 +7*i+4] = (Ma_ + om_)%360.0  
                 else:
@@ -1533,7 +1541,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
             if mod.endswith("kep"):
                 Ma_= get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_ ,par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i], epoch)
-#
+                #Ma_= ma_from_t0(par[len(vel_files)*2 +7*i+1], ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
                 if obj.hkl == True:              
                     par[len(vel_files)*2 +7*i+4] = (Ma_ + om_)%360.0  
                 else:
@@ -1572,7 +1580,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
             if mod.endswith("kep"):
                 Ma_= get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_ ,par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i], epoch)
-#
+                #Ma_= ma_from_t0(par[len(vel_files)*2 +7*i+1], ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
+
                 if obj.hkl == True:              
                     par[len(vel_files)*2 +7*i+4] = (Ma_ + om_)%360.0  
                 else:
@@ -1855,7 +1864,8 @@ def run_nestsamp(obj, **kwargs):
            "get_TTVs":obj.get_TTVs,
            "link_RV_GP":obj.link_RV_GP,
            "tra_GP_kernel":obj.tra_gp_kernel,
-           "RV_GP_kernel":obj.gp_kernel}
+           "RV_GP_kernel":obj.gp_kernel,
+           "nest_weighted":obj.nest_weighted}
 
     gps = []
     if (rtg[1]):
@@ -2012,8 +2022,7 @@ def run_nestsamp(obj, **kwargs):
                 thread.close()
                 thread.join()
                 thread.clear()
-                
-            
+               
             
 
         else:
@@ -2036,13 +2045,17 @@ def run_nestsamp(obj, **kwargs):
 
         print('Summary\n=======\n'+res)
 
-
-
+ 
 
    # print("--- %s seconds ---" % (time.time() - start_time))
     ln = np.hstack(sampler.results.logl)
-    samples = np.array(sampler.results.samples)
+    add_ns_samples(obj,sampler)
 
+ 
+    if opt["nest_weighted"] == True:
+        weighted = np.exp(sampler.results.logwt - sampler.results.logz[-1])
+        obj.ns_sampler.samples  =  dill.copy(dynesty.utils.resample_equal(sampler.results.samples, weighted))   
+  
 
     if obj.ns_fileoutput == True:
        # start_time = time.time()
@@ -2054,6 +2067,7 @@ def run_nestsamp(obj, **kwargs):
             print("%s does not exist! Sample file will be saved in %s/ns_sample_file"%(dirname,obj.cwd))
             ns_file = "%s/ns_sample_file"%obj.cwd
 
+        samples = np.array(obj.ns_sampler.samples)
         outfile = open(str(ns_file), 'w') # file to save samples
         for j in range(len(samples)):
             outfile.write("%s  " %(ln[j]))
@@ -2063,12 +2077,12 @@ def run_nestsamp(obj, **kwargs):
         outfile.close()
 
 
-    obj.nest_stat["mean"] = get_mean_of_samples(sampler.results.samples,len(pp))
-    obj.nest_stat["median"] = get_median_of_samples(sampler.results.samples,len(pp))
-    samp_maxlnl, maxlnl = get_best_lnl_of_samples(sampler.results.samples,ln, len(pp))
+    obj.nest_stat["mean"] = get_mean_of_samples(obj.ns_sampler.samples,len(pp))
+    obj.nest_stat["median"] = get_median_of_samples(obj.ns_sampler.samples,len(pp))
+    samp_maxlnl, maxlnl = get_best_lnl_of_samples(obj.ns_sampler.samples,ln, len(pp))
     obj.nest_stat["best"] = samp_maxlnl
-    obj.nest_stat["mode"] = get_mode_of_samples(sampler.results.samples,len(pp))
-    obj.nest_stat["MAD"]  = get_MAD_of_samples(sampler.results.samples,len(pp))
+    obj.nest_stat["mode"] = get_mode_of_samples(obj.ns_sampler.samples,len(pp))
+    obj.nest_stat["MAD"]  = get_MAD_of_samples(obj.ns_sampler.samples,len(pp))
 
 
     if (obj.ns_save_means):
@@ -2089,11 +2103,11 @@ def run_nestsamp(obj, **kwargs):
     # else:
    #     pp = obj.par_for_mcmc
 
-    #sampler.samples = sampler.results.samples
+    #sampler.samples = obj.ns_sampler.samples
 
 
     if obj.nest_mad == False:
-        new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.results.samples[:,i], [level])), float(np.percentile(sampler.results.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))]
+        new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(obj.ns_sampler.samples[:,i], [level])), float(np.percentile(obj.ns_sampler.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))]
     else:
         new_par_errors = [[float(obj.nest_stat["MAD"][i]),float(obj.nest_stat["MAD"][i])] for i in range(len(obj.par_for_mcmc))]
 
@@ -2121,20 +2135,11 @@ def run_nestsamp(obj, **kwargs):
     bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none","mass","semimajor","radius"]
     bestfit_labels_bool = [obj.ns_save_median,obj.ns_save_means,obj.ns_save_mode, obj.ns_save_maxlnL,False,False,False,False,False]
 
-   #del sampler.rstate
-   # del sampler.pool
-   # del sampler.M   
-    
-   # delattr(fit, 'rstate')
-
-    # sampler.rstate = np.random
-   #sampler.pool = thread
-   # sampler.M = thread.map
-
  
-    if obj.ns_save_sampler == True:
-        add_ns_samples(obj,sampler)
  
+    if obj.ns_save_sampler != True:
+        del obj.ns_sampler        
+        obj.ns_sampler = []
 
     sampler.reset()
 
@@ -3327,6 +3332,7 @@ class signal_fit(object):
         self.nest_mad = False
         self.NS_AMD_stab   = False
         self.NS_Nbody_stab = False
+        self.nest_weighted = True
 
         self.nest_sample_file = 'nest_samp_samples'
         self.nest_corner_plot_file = 'nest_samp_cornerplot.pdf'
@@ -3341,7 +3347,6 @@ class signal_fit(object):
         self.dyn_model_to_kill = 20.0
         self.kep_model_to_kill = 10.0
         self.master_timeout = 20.0 #86400.0
-
 
 
     def update_epoch(self,epoch):
