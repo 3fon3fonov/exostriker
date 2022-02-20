@@ -2298,6 +2298,7 @@ def phase_RV_planet_signal(obj,planet):
 
         if copied_obj.doGP == True:
             phased_data = phased_data - copied_obj.gp_model_data[0][sort]
+            phased_data_o_c = phased_data_o_c - copied_obj.gp_model_data[0][sort]
 
         model = [model_time_phase,  phased_model]
         data  = [data_time_phase,  phased_data, phased_data_err, phased_data_idset,phased_data_o_c]
