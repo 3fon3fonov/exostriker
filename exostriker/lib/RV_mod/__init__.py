@@ -2048,6 +2048,10 @@ def run_nestsamp(obj, **kwargs):
  
 
    # print("--- %s seconds ---" % (time.time() - start_time))
+
+
+
+
     ln = np.hstack(sampler.results.logl)
     add_ns_samples(obj,sampler)
 

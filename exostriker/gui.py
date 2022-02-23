@@ -10121,17 +10121,17 @@ Please install via 'pip install ttvfast'.
          
             
         if type_plot == "mcmc":
-            self.lables_cornerplot = dill.copy(fit.mcmc_sampler._lbf)
+            self.lables_cornerplot = dill.copy(fit.mcmc_sampler.lbf)
         else:
-            self.lables_cornerplot = dill.copy(fit.ns_sampler._lbf)
+            self.lables_cornerplot = dill.copy(fit.ns_sampler.lbf)
             
         label_results = self.dialog_select_param_cornerplot.get_labels(self)
         
         if type_plot == "mcmc":
-            del fit.mcmc_sampler._lbf
-            fit.mcmc_sampler._lbf  = dill.copy(label_results)
+            del fit.mcmc_sampler.lbf
+            fit.mcmc_sampler.lbf  = dill.copy(label_results)
         else:
-            fit.ns_sampler._lbf  = dill.copy(label_results)
+            fit.ns_sampler.lbf  = dill.copy(label_results)
  
         return  
    
