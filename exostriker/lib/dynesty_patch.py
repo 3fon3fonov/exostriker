@@ -4,16 +4,7 @@
 Utilities for handling results.
 
 """
-import dynesty
-   
-class Results2(dynesty.results.Results):
-
-
-    def __setattr__(self,name, value):
-        if name[0] != '_' and self._initialized:
-            pass
-       #     #raise RuntimeError("Cannot set attributes directly")
-        super().__setattr__(name, value)
+ 
 
 class Results(dict):
     """Contains the full output of a run along with a set of helper

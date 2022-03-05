@@ -845,7 +845,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         elif mod_labels['best_samp']==True:
             best_fit_par = obj.mcmc_stat["best"]
         elif mod_labels['none']==True:
-            best_fit_par = obj.par_for_mcmc
+            best_fit_par = np.array([0]*len(labels), dtype=np.float64) #obj.par_for_mcmc
             
         elif mod_labels['best_gui']==True:
             best_fit_par = obj.par_for_mcmc
@@ -875,7 +875,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         elif mod_labels['best_samp']==True:
             best_fit_par = obj.nest_stat["best"]
         elif mod_labels['none']==True:
-            best_fit_par = obj.par_for_mcmc
+            best_fit_par = np.array([0]*len(labels), dtype=np.float64) #obj.par_for_mcmc
             
         elif mod_labels['best_gui']==True:
             best_fit_par = obj.par_for_mcmc
@@ -978,9 +978,10 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 
                 ecc = np.sqrt(esinw**2 + ecosw**2)
             elif obj.hkl == False and 'e$_%s$'%let in labels:
-                ecc = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'e$_%s$'%let]])  
+                ecc = np.array(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'e$_%s$'%let]]), dtype=np.float64) 
+
             else:
-                ecc = np.array([0]*len(K))
+                ecc = np.array([0]*len(K), dtype=np.float64) 
                 print("Warning, no eccentricity samples found for planet %s ! Assuming ecc = 0"%str(i+1))
 
             if mod_labels['use_Me']:
@@ -1001,7 +1002,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 incl = np.array([90]*len(K))
                 samp_labels.append(r'm $\sin i_%s$ %s'%(let,mass_lab))
 
-           
+ 
             samp.append(np.array(get_mass(K,P, ecc, incl, m_s) * M_fact))
             
             if mod_labels['mean']:
@@ -1152,7 +1153,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
 
 
-        if N_samp > len(best_fit_par):
+        if N_samp > len(samp_best_fit_par):
         
             fig = corner.corner(samples_stab,
                             range = range_stab,
