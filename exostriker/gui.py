@@ -4536,6 +4536,18 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         else:
             p_per_ev.plot(clear=False,)
 
+
+        if self.Prat_plot_line.isChecked():
+            Prat_plot_pen={'color':colors_per_rat[0], 'width':1.1}
+        else:
+            Prat_plot_pen=None
+
+
+        if self.Prat_plot_dot.isChecked():
+            Prat_plot_dot='o'
+        else:
+            Prat_plot_dot=None
+
         self.color_per_evol.setStyleSheet("color: %s;"%colors_per_rat[0]) 
 
 
@@ -4550,8 +4562,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         Prat = fit.evol_Per[pl1_ind][0:last_stable] / fit.evol_Per[pl2_ind][0:last_stable]
 
 
-        p_per_ev.plot(fit.evol_T[0][0:last_stable], Prat ,pen=None, #{'color': colors[i], 'width': 1.1},
-        symbol='o',
+        p_per_ev.plot(fit.evol_T[0][0:last_stable], Prat ,pen=Prat_plot_pen, #{'color': colors[i], 'width': 1.1},
+        symbol=Prat_plot_dot,
         symbolPen={'color': colors_per_rat[0], 'width': 1.1},
         symbolSize=1,enableAutoRange=True,viewRect=True,
         symbolBrush=fit.colors[0]
@@ -4646,6 +4658,18 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         
         p17.plot(clear=True,)
 
+
+        if self.Dom_plot_line.isChecked():
+            Dom_plot_pen={'color':colors_delta_om[0], 'width':1.1}
+        else:
+            Dom_plot_pen=None
+
+
+        if self.Dom_plot_dot.isChecked():
+            Dom_plot_dot='o'
+        else:
+            Dom_plot_dot=None
+
     
         if self.domega_esin_ecos.isChecked():
             
@@ -4660,6 +4684,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             p17.setLabel('left', '<html><head/><body><p>e%s sin(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
             p17.getViewBox().setAspectLocked(True)
 
+            p17.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
+
         else:
             x = fit.evol_T[0][0:last_stable]
             y = dom
@@ -4669,8 +4695,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
            
  
  
-        p17.plot(x, y ,pen=None, #{'color': colors[i], 'width': 1.1},
-        symbol='o',
+        p17.plot(x, y ,pen=Dom_plot_pen, #{'color': colors[i], 'width': 1.1},
+        symbol=Dom_plot_dot,
         symbolPen={'color': colors_delta_om[0], 'width': 1.1},
         symbolSize=1,enableAutoRange=True,viewRect=True,
         symbolBrush=fit.colors[0]
@@ -4705,7 +4731,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def delta_omega_plot_y_labels(self):
         global fit, p17
         
-        text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","(TML special characters accepted!)", QtWidgets.QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","(HTML special characters accepted!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
             #p17.setLabel('left', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
@@ -4809,6 +4835,18 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
  
         p18.plot(clear=True,)
+
+        if self.theta_plot_line.isChecked():
+            theta_plot_pen={'color':colors_theta[0], 'width':1.1}
+        else:
+            theta_plot_pen=None
+
+
+        if self.theta_plot_dot.isChecked():
+            theta_plot_dot='o'
+        else:
+            theta_plot_dot=None
+
         
         if self.theta_esin_ecos.isChecked():
             
@@ -4823,6 +4861,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             p18.setLabel('left', '<html><head/><body><p>e%s sin(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
             p18.getViewBox().setAspectLocked(True)
 
+            p18.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
+
         else:
             x = fit.evol_T[0][0:last_stable]
             y = theta[tet_n]
@@ -4831,8 +4871,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             p18.getViewBox().setAspectLocked(False)
            
 
-        p18.plot(x, y ,pen=None, #{'color': colors[i], 'width': 1.1},
-        symbol='o',
+        p18.plot(x, y ,pen=theta_plot_pen, #{'color': colors[i], 'width': 1.1},
+        symbol=theta_plot_dot,
         symbolPen={'color': colors_theta[0], 'width': 1.1},
         symbolSize=1,enableAutoRange=True,viewRect=True,
         symbolBrush=fit.colors[0]
@@ -4943,13 +4983,31 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             p13.plot(clear=True,)
         else:
             p13.plot(clear=False,)
-            
  
+
         for i in range(npl):
-            p13.plot(fit.evol_T[i], fit.evol_a[i] ,pen=fit.colors[i],symbol=None )     
- 
+
+            if self.a_plot_line.isChecked():
+                a_plot_pen={'color':fit.colors[i], 'width':self.a_line_size.value()}
+            else:
+                a_plot_pen=None
+
+            if self.a_plot_dot.isChecked():
+                a_plot_dot='o'
+            else:
+                a_plot_dot=None
+
+            p13.plot(fit.evol_T[i], fit.evol_a[i],pen=a_plot_pen,  
+        symbol=a_plot_dot,
+        symbolPen={'color': fit.colors[i], 'width': self.a_dot_size.value()},
+        symbolSize=1,enableAutoRange=True,viewRect=True,
+        symbolBrush=fit.colors[i]
+        )    
+
         if self.orb_evol_auto_range_a.isChecked():
             p13.autoRange()   
+
+
 
          
      
@@ -10949,16 +11007,30 @@ Please install via 'pip install ttvfast'.
         self.comboBox_pl_1.activated.connect(self.plot_delta_omega)
         self.comboBox_pl_2.activated.connect(self.plot_delta_omega)
         self.radioButton_dom_180_fold.toggled.connect(self.plot_delta_omega)
-        self.radioButton_theta_180_fold.toggled.connect(self.plot_theta)
-        self.theta_esin_ecos.stateChanged.connect(self.plot_theta)
-        self.theta_esin_ecos_e_in.toggled.connect(self.plot_theta)
 
         self.domega_esin_ecos.stateChanged.connect(self.plot_delta_omega)
         self.domega_esin_ecos_e_in.toggled.connect(self.plot_delta_omega)
 
+        self.Dom_plot_line.toggled.connect(self.plot_delta_omega)
+        self.Dom_plot_dot.toggled.connect(self.plot_delta_omega)
+
+        self.radioButton_theta_180_fold.toggled.connect(self.plot_theta)
+        self.theta_esin_ecos.stateChanged.connect(self.plot_theta)
+        self.theta_esin_ecos_e_in.toggled.connect(self.plot_theta)
+
+        self.theta_plot_line.toggled.connect(self.plot_theta)
+        self.theta_plot_dot.toggled.connect(self.plot_theta)
 
         self.per_evol_comboBox_pl_1.activated.connect(self.plot_per_rat)
         self.per_evol_comboBox_pl_2.activated.connect(self.plot_per_rat)
+
+        self.Prat_plot_line.toggled.connect(self.plot_per_rat)
+        self.Prat_plot_dot.toggled.connect(self.plot_per_rat)
+
+        self.a_plot_dot.toggled.connect(self.plot_evol_a)
+        self.a_plot_line.toggled.connect(self.plot_evol_a)
+        self.a_line_size.valueChanged.connect(self.plot_evol_a)
+        self.a_dot_size.valueChanged.connect(self.plot_evol_a)   
 
 
         self.plot_i.toggled.connect(self.plot_i_Om)
