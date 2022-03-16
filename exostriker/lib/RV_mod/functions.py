@@ -1146,6 +1146,34 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             range_stab.append([min(samples_[i]),max(samples_[i])])
         N_samp = len(np.atleast_1d(samples_stab[0]))
 
+
+  
+        if verbose:
+            print("   ")
+            print("   ")
+            if mod_labels['mean']:
+                print("Means and their 1 sigma errors (stable)")
+            elif mod_labels['median']:
+                print("Median and their 1 sigma errors (stable)")
+            elif mod_labels['best_gui']:
+                print("Best-fit (GUI) and their 1 sigma errors (stable)")   
+            else:
+                print("Best-fit (max. samp. lnL) and their 1 sigma errors (stable)")
+                
+                
+            for i in range(len(samp_best_fit_par)):
+                ci = np.percentile(samples_stab[i], [level, 100.0-level])
+                if mod_labels['mean']:
+                    print(samp_labels[i],'=', np.mean(samples_stab[i]), "- %s"%(np.mean(samples_stab[i])-ci[0]), "+ %s"%(ci[1]  - np.mean(samples_stab[i]) ))
+                elif mod_labels['median']:
+                    print(samp_labels[i],'=', np.median(samples_stab[i]), "- %s"%(np.median(samples_stab[i])-ci[0]), "+ %s"%(ci[1]  - np.median(samples_stab[i]) ))
+                elif mod_labels['best_gui']:
+                    print(samp_labels[i],'=', samp_best_fit_par[i], "- %s"%(samp_best_fit_par[i]-ci[0]), "+ %s"%(ci[1]  - samp_best_fit_par[i] ))
+                else:
+                    print(samp_labels[i],'=', samples_stab[i][np.argmax(ln)], "- %s"%(samples_stab[i][np.argmax(ln)]-ci[0]), "+ %s"%(ci[1]  - samples_stab[i][np.argmax(ln)] ))                
+
+            print(" ")
+
         samples_stab = np.transpose(samples_stab)
         samples_ = np.transpose(samples_) 
 
