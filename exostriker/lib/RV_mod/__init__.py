@@ -1244,7 +1244,6 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     par = np.array(obj.parameters)
 
 #    print(pp)
-#    print(par)
     #print(flags)
 
     obj.bound_error = False
@@ -1414,6 +1413,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     obj.par_for_mcmc = pp
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)
+
     obj.overwrite_params(newparams)
 
     obj.correct_elements()
@@ -1441,7 +1441,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
     for j in range(len(flags)):
         par[flags[j]]   = pp[j]
         e_par[flags[j]] = [errors[j][0],errors[j][1]]
-        
+  
+      
     if (rtg[1]):
         if obj.gp_kernel == 'RotKernel':
             
@@ -1622,6 +1623,11 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass,obj.ttv_times,obj.hkl,fit_results=False, return_model = False)
         obj.loglik     =  ttv_loglik
 
+
+
+    if obj.type_fit["RV"] == True and obj.rv_quadtr_use == True:
+        obj.rv_quadtr = par[len(vel_files)*2  +7*npl +1]
+ 
 
     for i in range(npl):
 

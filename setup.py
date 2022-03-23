@@ -9,7 +9,8 @@ with open("README.md", "r") as fh:
 
 if sys.version_info >= (3,7):
     install_requires_py_ver=[
-    "numpy>=1.20.2,<1.21",
+    "numpy=>1.21",
+    "numba==0.52",
     "scipy>=1.2.1",
     "matplotlib==3.3.1",
     "formlayout==1.2.0",
@@ -51,7 +52,7 @@ else:
 
 setup(
 name='exostriker',  
-version='0.67',
+version='0.68',
 scripts=['scripts/exostriker'],
 author="Trifon Trifonov",
 author_email="trifonov@mpia.de",
