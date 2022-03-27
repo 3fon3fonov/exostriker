@@ -10508,6 +10508,8 @@ Please install via 'pip install ttvfast'.
         self.tabWidget.setTabText(1,"Sine signal 2")
         self.tabWidget.setTabText(0,"Sine signal 1")
 
+        ############  Bounds ###################
+
         self.label_ecc_minmax_1.setVisible(False)
         self.use_e_bound_1.setVisible(False)
         self.e_min_1.setVisible(False)
@@ -10686,6 +10688,207 @@ Please install via 'pip install ttvfast'.
         self.Planet1_34.setVisible(False) 
         self.Planet2_32.setVisible(False) 
 
+        ############  Bounds End ###################
+
+        ############  Jeff ###################
+
+        self.label_ecc_minmax_19.setVisible(False)
+        self.use_e_jeff_pr_1.setVisible(False)
+        self.e_jeff_alpha_1.setVisible(False)
+        self.e_jeff_beta_1.setVisible(False)
+
+        self.label_omega_minmax_19.setVisible(False)
+        self.use_om_jeff_pr_1.setVisible(False)
+        self.om_jeff_alpha_1.setVisible(False)
+        self.om_jeff_beta_1.setVisible(False)
+
+        self.label_incl_minmax_19.setVisible(False)
+        self.use_incl_jeff_pr_1.setVisible(False)
+        self.incl_jeff_alpha_1.setVisible(False)
+        self.incl_jeff_beta_1.setVisible(False)
+ 
+        self.label_Omega_minmax_19.setVisible(False)
+        self.use_Omega_jeff_pr_1.setVisible(False)
+        self.Omega_jeff_alpha_1.setVisible(False)
+        self.Omega_jeff_beta_1.setVisible(False)
+
+        self.label_t0_minmax_19.setVisible(False)
+        self.use_t0_jeff_pr_1.setVisible(False)
+        self.t0_jeff_alpha_1.setVisible(False)
+        self.t0_jeff_beta_1.setVisible(False) 
+
+        self.label_pl_rad_minmax_19.setVisible(False)
+        self.use_pl_rad_jeff_pr_1.setVisible(False)
+        self.pl_rad_jeff_alpha_1.setVisible(False)
+        self.pl_rad_jeff_beta_1.setVisible(False) 
+
+        self.label_a_sol_minmax_19.setVisible(False)
+        self.use_a_sol_jeff_pr_1.setVisible(False)
+        self.a_sol_jeff_alpha_1.setVisible(False)
+        self.a_sol_jeff_beta_1.setVisible(False) 
+
+        self.label_K_minmax_102.setVisible(False)
+        self.use_omega_dot_jeff_pr_1.setVisible(False)
+        self.omega_dot_alpha_1.setVisible(False)
+        self.omega_dot_beta_1.setVisible(False) 
+
+
+        self.label_K_minmax_101.setVisible(False)
+        self.use_h_jeff_pr_1.setVisible(False)
+        self.h_alpha_1.setVisible(False)
+        self.h_beta_1.setVisible(False) 
+
+        self.label_K_minmax_100.setVisible(False)
+        self.use_k_jeff_pr_1.setVisible(False)
+        self.k_alpha_1.setVisible(False)
+        self.k_beta_1.setVisible(False)  
+
+
+        self.label_K_minmax_103.setVisible(False) 
+        self.use_lambda_jeff_pr_1.setVisible(False)
+        self.lambda_alpha_1.setVisible(False)
+        self.lambda_beta_1.setVisible(False) 
+ 
+ 
+ 
+        self.label_ecc_minmax_20.setVisible(False)
+        self.use_e_jeff_pr_2.setVisible(False)
+        self.e_jeff_alpha_2.setVisible(False)
+        self.e_jeff_beta_2.setVisible(False)
+
+        self.label_omega_minmax_20.setVisible(False)
+        self.use_om_jeff_pr_2.setVisible(False)
+        self.om_jeff_alpha_2.setVisible(False)
+        self.om_jeff_beta_2.setVisible(False)
+
+        self.label_incl_minmax_20.setVisible(False)
+        self.use_incl_jeff_pr_2.setVisible(False)
+        self.incl_jeff_alpha_2.setVisible(False)
+        self.incl_jeff_beta_2.setVisible(False)
+ 
+        self.label_Omega_minmax_20.setVisible(False)
+        self.use_Omega_jeff_pr_2.setVisible(False)
+        self.Omega_jeff_alpha_2.setVisible(False)
+        self.Omega_jeff_beta_2.setVisible(False)
+
+        self.label_t0_minmax_20.setVisible(False)
+        self.use_t0_jeff_pr_2.setVisible(False)
+        self.t0_jeff_alpha_2.setVisible(False)
+        self.t0_jeff_beta_2.setVisible(False) 
+
+        self.label_pl_rad_minmax_20.setVisible(False)
+        self.use_pl_rad_jeff_pr_2.setVisible(False)
+        self.pl_rad_jeff_alpha_2.setVisible(False)
+        self.pl_rad_jeff_beta_2.setVisible(False) 
+
+        self.label_a_sol_minmax_20.setVisible(False)
+        self.use_a_sol_jeff_pr_2.setVisible(False)
+        self.a_sol_jeff_alpha_2.setVisible(False)
+        self.a_sol_jeff_beta_2.setVisible(False) 
+
+        self.label_K_minmax_106.setVisible(False)
+        self.use_omega_dot_jeff_pr_2.setVisible(False)
+        self.omega_dot_alpha_2.setVisible(False)
+        self.omega_dot_beta_2.setVisible(False) 
+
+
+        self.label_K_minmax_105.setVisible(False)
+        self.use_h_jeff_pr_2.setVisible(False)
+        self.h_alpha_2.setVisible(False)
+        self.h_beta_2.setVisible(False) 
+
+        self.label_K_minmax_104.setVisible(False)
+        self.use_k_jeff_pr_2.setVisible(False)
+        self.k_alpha_2.setVisible(False)
+        self.k_beta_2.setVisible(False)  
+
+
+        self.label_K_minmax_107.setVisible(False) 
+        self.use_lambda_jeff_pr_2.setVisible(False)
+        self.lambda_alpha_2.setVisible(False)
+        self.lambda_beta_2.setVisible(False) 
+ 
+
+        self.label_ecc_minmax_21.setVisible(False)
+        self.use_e_jeff_pr_3.setVisible(False)
+        self.e_jeff_alpha_3.setVisible(False)
+        self.e_jeff_beta_3.setVisible(False)
+
+        self.label_omega_minmax_21.setVisible(False)
+        self.use_om_jeff_pr_3.setVisible(False)
+        self.om_jeff_alpha_3.setVisible(False)
+        self.om_jeff_beta_3.setVisible(False)
+
+        self.label_incl_minmax_21.setVisible(False)
+        self.use_incl_jeff_pr_3.setVisible(False)
+        self.incl_jeff_alpha_3.setVisible(False)
+        self.incl_jeff_beta_3.setVisible(False)
+ 
+        self.label_Omega_minmax_21.setVisible(False)
+        self.use_Omega_jeff_pr_3.setVisible(False)
+        self.Omega_jeff_alpha_3.setVisible(False)
+        self.Omega_jeff_beta_3.setVisible(False)
+
+        self.label_t0_minmax_21.setVisible(False)
+        self.use_t0_jeff_pr_3.setVisible(False)
+        self.t0_jeff_alpha_3.setVisible(False)
+        self.t0_jeff_beta_3.setVisible(False) 
+
+        self.label_pl_rad_minmax_21.setVisible(False)
+        self.use_pl_rad_jeff_pr_3.setVisible(False)
+        self.pl_rad_jeff_alpha_3.setVisible(False)
+        self.pl_rad_jeff_beta_3.setVisible(False) 
+
+        self.label_a_sol_minmax_21.setVisible(False)
+        self.use_a_sol_jeff_pr_3.setVisible(False)
+        self.a_sol_jeff_alpha_3.setVisible(False)
+        self.a_sol_jeff_beta_3.setVisible(False) 
+
+        self.label_K_minmax_110.setVisible(False)
+        self.use_omega_dot_jeff_pr_3.setVisible(False)
+        self.omega_dot_alpha_3.setVisible(False)
+        self.omega_dot_beta_3.setVisible(False) 
+
+
+        self.label_K_minmax_109.setVisible(False)
+        self.use_h_jeff_pr_3.setVisible(False)
+        self.h_alpha_3.setVisible(False)
+        self.h_beta_3.setVisible(False) 
+
+        self.label_K_minmax_108.setVisible(False)
+        self.use_k_jeff_pr_3.setVisible(False)
+        self.k_alpha_3.setVisible(False)
+        self.k_beta_3.setVisible(False)  
+
+
+        self.label_K_minmax_111.setVisible(False) 
+        self.use_lambda_jeff_pr_3.setVisible(False)
+        self.lambda_alpha_3.setVisible(False)
+        self.lambda_beta_3.setVisible(False) 
+
+
+        self.Planet2_48.setVisible(False) 
+        self.Planet1_50.setVisible(False) 
+        self.Planet1_51.setVisible(False) 
+        self.Planet1_52.setVisible(False) 
+        self.Planet2_50.setVisible(False) 
+        self.Planet2_49.setVisible(False) 
+  
+        ############  Jeff End ###################
+
+        self.label_Ma_minmax_1.setText("Phase [deg]") 
+        self.label_Ma_minmax_2.setText("Phase [deg]") 
+        self.label_Ma_minmax_3.setText("Phase [deg]")  
+
+        self.label_Ma_minmax_10.setText("Phase [deg]") 
+        self.label_Ma_minmax_11.setText("Phase [deg]") 
+        self.label_Ma_minmax_12.setText("Phase [deg]")  
+
+        self.label_Ma_minmax_19.setText("Phase [deg]") 
+        self.label_Ma_minmax_20.setText("Phase [deg]") 
+        self.label_Ma_minmax_21.setText("Phase [deg]")  
+
+
 
 
         self.tabWidget_8.removeTab(2)
@@ -10704,7 +10907,12 @@ Please install via 'pip install ttvfast'.
         self.RV_plot_cross_hair.setText("Plot crosshair") 
         self.RV_o_c_plot_cross_hair.setText("o-c Plot crosshair") 
         self.plot_RV_GP_model.setText("subtract GP model from o-c") 
- 
+
+        self.label_18.setText("Sine minimizer algorithm")
+        self.checkBox_first_RV_epoch.setText("First data [BJD]")
+        self.label_kep_model_to_kill.setText("Fit interrupt [s]")
+
+
 
         self.tabWidget_10.removeTab(4)
         self.tabWidget_10.removeTab(3)

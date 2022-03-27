@@ -19,7 +19,7 @@ class EmbTerminal(QtWidgets.QWidget):
         
         
         # Works also with urxvt:
-        if subprocess.call(["which", 'urxvt'], stdout=open(os.devnull, 'wb')) == 1:
+        if subprocess.call(["which", 'urxvt2'], stdout=open(os.devnull, 'wb')) == 1:
             self.process.start('xterm',['-into', str(int(self.winId()))])
         else:
             self.process.start('urxvt',['-embed', str(int(self.winId()))])
