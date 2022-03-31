@@ -27,7 +27,8 @@ if sys.version_info >= (3,7):
     "transitleastsquares==1.0.24",
     "dynesty>=1.1",
     "ttvfast>=0.3.0",
-    "wotan>=1.7"]
+    "wotan>=1.7",
+    "wrapt>=1.12.1"]
 else:
     install_requires_py_ver=[
     "numpy>=1.16.6",
