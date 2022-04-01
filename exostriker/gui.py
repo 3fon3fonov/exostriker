@@ -11490,7 +11490,7 @@ class LoadingScreen(QtWidgets.QWidget):
 
 
 
-def main():
+def main(*args):
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle('Fusion') #The available styles depend on your platform but are usually 'Fusion', 'Windows', 'WindowsVista' (Windows only) and 'Macintosh' (Mac only). 
     
