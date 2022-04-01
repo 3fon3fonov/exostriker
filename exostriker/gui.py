@@ -51,7 +51,7 @@ import mlp as mlp
 from worker import Worker #, WorkerSignals
 #start_time = time.time()
 import gui_groups
-
+import qso
 
 from multiprocessing import cpu_count
 
@@ -2388,7 +2388,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','Period [d]','Period [d]','Period [d]',
                  'Period [d]','Period [d]','Period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]',
                  't [yr]','t [yr]','t [yr]','','x','x','Period [d]','N transit','N transit','t [yr]','Period [d]']
-        yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','Power','Power','SDE','SDE','Power','Power','a [au]','e',
+
+        if qso_mode:
+            yaxis = ['flux [mag.]','flux [mag.]','Rel. Flux','Rel. Flux','y','y','Power','Power','SDE','SDE','Power','Power','a [au]','e',
+                 '<html><head/><body><p>&omega; [deg] </p></body></html>','a [au]',
+                 '<html><head/><body><p>&Delta;&omega; [deg] </p></body></html>',
+                 '<html><head/><body><p>&theta; [deg] </p></body></html>',
+                 'i [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.','Power']
+        else:
+
+            yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','Power','Power','SDE','SDE','Power','Power','a [au]','e',
                  '<html><head/><body><p>&omega; [deg] </p></body></html>','a [au]',
                  '<html><head/><body><p>&Delta;&omega; [deg] </p></body></html>',
                  '<html><head/><body><p>&theta; [deg] </p></body></html>',
@@ -2441,7 +2450,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         global pe,pe0,pe1
         
         l = pg.GraphicsLayout()                                                             
-        pe.setCentralItem(l)                                                                                                                        
+        pe.setCentralItem(l)            
+
+        if qso_mode:
+            o_c_label = "o-c [mag.]"
+        else:
+            o_c_label = "o-c [m/s]"                                                                                                                   
 
         pe0 = l.addPlot(0, 0, colspan=3)                                                                
         pe0.hideAxis('bottom')                                                              
@@ -2488,7 +2502,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         pe1.getAxis("bottom").tickFont = self.plot_font
 
         #pe1.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        pe1.setLabel('left', 'o-c [m/s]', units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        pe1.setLabel('left', o_c_label, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         pe1.getAxis('right').setWidth(0)
         pe1.getAxis('top').setHeight(0)
 
@@ -2517,7 +2531,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     def initialize_RV_subplots(self):
 
         global p1,p00,p01
-        
+
+        if qso_mode:
+            o_c_label = "o-c [mag.]"
+        else:
+            o_c_label = "o-c [m/s]"    
+       
         l = pg.GraphicsLayout()                                                             
         p1.setCentralItem(l)                                                                                                                        
 
@@ -2566,7 +2585,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p01.getAxis("bottom").tickFont = self.plot_font
 
         #p01.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p01.setLabel('left', 'o-c [m/s]', units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p01.setLabel('left', o_c_label, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         p01.getAxis('right').setWidth(0)
         p01.getAxis('top').setHeight(0)
 
@@ -5724,7 +5743,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         if str(input_files[0]) != '':
 
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-                                            "Do you want to split the RV data to pre- and post- (if applicable)?",
+                                            "Do you want to split the %s to pre- and post- (if applicable)?"%self.data_str,
                                             QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)  
 
             if choice == QtWidgets.QMessageBox.No:
@@ -5909,7 +5928,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_add_RV_data.checkedId()   
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open RV data', '', 'All (*.*);;Data (*.vels)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open %s'%self.data_str, '', 'All (*.*);;Data (*.vels)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
 
@@ -5921,7 +5940,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 #print(rv_JD_in,rv_data_in, rv_data_sig_in)
 
                 if len(rv_JD_in) != len(rv_data_in) != len(rv_data_sig_in):
-                    print("Something is wrong with your RV data file! Please provide a valid RV data file that contains: BJD RV [m/s] sigma_RV [m/s] ")
+                    print("Something is wrong with your %s file! Please provide a valid %s file that contains: BJD RV [m/s] sigma_RV [m/s] "%(self.data_str,self.data_str))
                     return
                  
                 rv_JD        = rv_JD_in[      np.isfinite(rv_JD_in) & np.isfinite(rv_data_in) & np.isfinite(rv_data_sig_in)]
@@ -5931,11 +5950,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 #print(len(rv_JD_in),len(rv_JD),len(rv_data_in),len(rv_data),len(rv_data_sig_in),len(rv_data_sig))
                 
                 if len(rv_JD_in) ==0 or len(rv_JD_in) != len(rv_JD):
-                    print("Something is wrong with your RV data file! Perhaps some not all entries are numeric? Please provide a valid RV data file that contains: BJD RV [m/s] sigma_RV [m/s] ")
+                    print("Something is wrong with your %s file! Perhaps some not all entries are numeric? Please provide a valid %s file that contains: BJD RV [m/s] sigma_RV [m/s] "%(self.data_str,self.data_str))
                     return
      
             except:
-                print("Something is wrong with your RV data file! Please provide a valid RV data file that contains: BJD RV [m/s] sigma_RV [m/s] ")
+                print("Something is wrong with your %s file! Please provide a valid %s file that contains: BJD RV [m/s] sigma_RV [m/s] "%(self.data_str,self.data_str))
                 return 
             ################################################################################
 
@@ -6740,7 +6759,7 @@ Transit duration: %s d
         if fit.type_fit["RV"] == True:
              if fit.filelist.ndset <= 0:
                  choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-                 "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtWidgets.QMessageBox.Ok)      
+                 "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.Ok)      
                  #self.button_fit.setEnabled(True)   
                  self.mute_buttons(trigger=True)
                  return   
@@ -6918,7 +6937,7 @@ Transit duration: %s d
         if fit.type_fit["RV"] == True:
              if fit.filelist.ndset <= 0:
                  choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-                 "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtWidgets.QMessageBox.Ok)
+                 "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.Ok)
                  #self.button_fit.setEnabled(True)
                  self.mute_buttons(trigger=True)
 
@@ -7132,7 +7151,7 @@ Transit duration: %s d
         # check if RV data is present
         if fit.filelist.ndset <= 0:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtWidgets.QMessageBox.Ok)      
+             "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.Ok)      
              #self.button_fit.setEnabled(True)
              self.mute_buttons(trigger=True)
              return   
@@ -7361,7 +7380,7 @@ Transit duration: %s d
         self.dialog_more_info.text.setText(text)         
         ################## text generator #################
         #text_info = """ (Work in progress) """
-       # self.dialog_more_info.text.setText(text_info) 
+       # self.dialog_more_info.text.setText(text_info)     
          
         text_info ="""
 Fit quality
@@ -7377,8 +7396,8 @@ red. chi^2   = %.5f
 
             text_info = """
             
-RV data rms/wrms 
-----------------------------------------------"""   
+%s rms/wrms 
+----------------------------------------------"""%(self.data_str)
             self.dialog_more_info.text.append(text_info)
             
             if fit.filelist.ndset != 0:
@@ -7579,7 +7598,7 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False, es_version='0.68'):
+    def print_info_credits(self, image=False, es_version='0.69'):
  
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
@@ -7660,7 +7679,7 @@ will be highly appreciated!
         # check if RV data is present
         if fit.filelist.ndset <= 0:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to look for planets if there are no RV data loaded. Please add your RV data first. Okay?", QtWidgets.QMessageBox.Ok)      
+             "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.Ok)      
              #self.mute_buttons(trigger=True)       
              return        
 
@@ -7679,7 +7698,11 @@ will be highly appreciated!
             mean_anomaly_from_gls = np.degrees((((fit.epoch - float(fit.gls.hpstat["T0"]) )% (fit.gls.hpstat["P"]) )/ (fit.gls.hpstat["P"]) ) * 2*np.pi)
              
             fit.add_planet(fit.gls.hpstat["amp"],fit.gls.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
-            fit.use.update_use_planet_params_one_planet(0,True,True,True,True,True,False,False)     
+
+            if qso_mode==True:
+                fit.use.update_use_planet_params_one_planet(0,True,True,False,False,True,False,False)     
+            else:
+                fit.use.update_use_planet_params_one_planet(0,True,True,True,True,True,False,False)     
             self.update_use_from_input_file()   
             self.update_use()                     
             self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
@@ -7704,8 +7727,11 @@ will be highly appreciated!
                     mean_anomaly_from_gls = np.degrees((((fit.epoch - float(fit.gls_o_c.hpstat["T0"]) )% (fit.gls_o_c.hpstat["P"]) )/ (fit.gls_o_c.hpstat["P"]) ) * 2*np.pi)
              
                     fit.add_planet(fit.gls_o_c.hpstat["amp"],fit.gls_o_c.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
-                    fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False)  
-
+ 
+                    if qso_mode==True:
+                        fit.use.update_use_planet_params_one_planet(i,True,True,False,False,True,False,False)     
+                    else:
+                        fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False) 
                     self.update_use_from_input_file()   
                     self.update_use()
 
@@ -7716,7 +7742,10 @@ will be highly appreciated!
                  #   continue
 
             for j in range(fit.npl):
-                fit.use.update_use_planet_params_one_planet(j,True,True,True,True,True,False,False)
+                if qso_mode==True:
+                    fit.use.update_use_planet_params_one_planet(j,True,True,False,False,True,False,False)     
+                else:
+                    fit.use.update_use_planet_params_one_planet(j,True,True,True,True,True,False,False) 
 
 
             self.update_use_from_input_file()
@@ -8219,7 +8248,7 @@ will be highly appreciated!
         # check if RV data is present
         if fit.type_fit["RV"] == True and fit.filelist.ndset <= 0:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to run Nested Sampling if there are no RV data loaded. Please add your RV data first. Okay?", QtWidgets.QMessageBox.Ok)      
+             "Not possible to run Nested Sampling if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.Ok)      
             # self.button_nest_samp.setEnabled(True)  
              self.statusBar().showMessage('') 
              return
@@ -8461,7 +8490,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         # check if RV data is present
         if fit.type_fit["RV"] == True and fit.filelist.ndset <= 0:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to run MCMC if there are no RV data loaded. Please add your RV data first. Okay?", QtWidgets.QMessageBox.Ok)      
+             "Not possible to run MCMC if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.Ok)      
              #self.button_MCMC.setEnabled(True)  
              self.statusBar().showMessage('') 
 
@@ -10409,652 +10438,8 @@ Please install via 'pip install ttvfast'.
         self.N_threads.setValue(cpu_count())
         self.nest_N_threads.setValue(cpu_count())
 
-
-    def qso_mode(self):
-
-        self.param_tabs.removeTab(5)
-        self.param_tabs.removeTab(2)
-        self.param_tabs.setTabText(0,"Sine param.")
-
-        self.plot_tabs.removeTab(5)
-
-
-        self.tab_ts_RV.removeTab(1)
-
-        self.plot_tabs.removeTab(2)
-        self.plot_tabs.removeTab(1)
-
-        self.tabWidget_data_section.removeTab(2)
-        self.tabWidget_data_section.removeTab(1)
-
-
-        self.tabWidget_14.removeTab(1)
-        self.tabWidget_14.setTabText(0,"GP")
-
-        self.tabWidget_34.removeTab(1)
-        self.tabWidget_34.setTabText(0,"Model")
-        self.model_param_tab.setTabText(0,"Fortran param.")
-
-        self.tabWidget_10.setTabText(0,"Offsets and Jitters")
-        self.tabWidget_10.setTabText(1,"Ternds")
- 
-        self.Planet3_11.setText("Offset min.")
-        self.Planet3_13.setText("Offset max.")
-        self.label_36.setText("Jitter min.")
-        self.label_36.setText("Jitter max.")
-
-
- 
-        self.use_mix_fitting.setVisible(False)
-        self.label_134.setVisible(False)
-        self.label_133.setVisible(False)
-        self.mix_pl_1.setVisible(False)
-        self.mix_pl_2.setVisible(False)
-        self.mix_pl_3.setVisible(False)
-        self.mix_pl_4.setVisible(False)
-        self.mix_pl_5.setVisible(False)
-        self.mix_pl_6.setVisible(False)
-        self.mix_pl_7.setVisible(False)
-        self.mix_pl_8.setVisible(False)
-        self.mix_pl_9.setVisible(False)
-
-        self.label_dyn_model_to_kill.setVisible(False)
-        self.dyn_model_to_kill.setVisible(False)
-        self.label_dyn_model_accuracy.setVisible(False)
-        self.dyn_model_accuracy.setVisible(False)
-        self.label_time_step_of_model.setVisible(False)
-        self.time_step_model.setVisible(False)
-        self.use_optim_stab_constraints.setVisible(False)
-        self.optim_AMD.setVisible(False)
-        self.optim_Nbody.setVisible(False)
-        self.radioButton_omega_dot_free.setVisible(False)
-        self.radioButton_omega_dot_GR.setVisible(False)
-        self.deattach_omega_dot.setVisible(False)
-        self.force_copl_incl.setVisible(False)
-
-
-        self.actionopen_RVmod_init_file.setVisible(False)
-        self.actionOpen_RVbank_file.setVisible(False)
-
-        self.actionRV_Auto_fit.setText("Auto fit")
- 
-        self.do_RV_GP.setText("Use GP") 
-
-        self.radioButton_ewm.setHidden(True)
-
-        self.radioButton_RV.setHidden(True)
-        self.radioButton_transit.setHidden(True)
-        self.radioButton_transit_RV.setHidden(True)
-        self.radioButton_ttv.setHidden(True)
-        self.radioButton_ttv_RV.setHidden(True)
-        self.radioButton_hkl.setHidden(True)
-
-        self.radioButton_Keplerian.setHidden(True)
-        self.radioButton_Dynamical.setHidden(True)
-
-
-        self.tabWidget.removeTab(10)
-        self.tabWidget.removeTab(8)
-        self.tabWidget.removeTab(7)
-        self.tabWidget.removeTab(6)
-        self.tabWidget.removeTab(5)
-        self.tabWidget.removeTab(4)
-        self.tabWidget.removeTab(3)
-        #self.tabWidget.removeTab(2)
-        #self.tabWidget.removeTab(1)
-
-        self.tabWidget.setTabText(3,"GP")
-        self.tabWidget.setTabText(2,"Sine signal 3")
-        self.tabWidget.setTabText(1,"Sine signal 2")
-        self.tabWidget.setTabText(0,"Sine signal 1")
-
-        ############  Bounds ###################
-
-        self.label_ecc_minmax_1.setVisible(False)
-        self.use_e_bound_1.setVisible(False)
-        self.e_min_1.setVisible(False)
-        self.e_max_1.setVisible(False)
-
-        self.label_omega_minmax_1.setVisible(False)
-        self.use_om_bound_1.setVisible(False)
-        self.om_min_1.setVisible(False)
-        self.om_max_1.setVisible(False)
-
-        self.label_incl_minmax_1.setVisible(False)
-        self.use_inc_bound_1.setVisible(False)
-        self.incl_min_1.setVisible(False)
-        self.incl_max_1.setVisible(False)
- 
-        self.label_Omega_minmax_1.setVisible(False)
-        self.use_Omega_bound_1.setVisible(False)
-        self.Omega_min_1.setVisible(False)
-        self.Omega_max_1.setVisible(False)
-
-        self.label_t0_minmax_1.setVisible(False)
-        self.use_t0_bound_1.setVisible(False)
-        self.t0_min_1.setVisible(False)
-        self.t0_max_1.setVisible(False) 
-
-        self.label_pl_rad_minmax_1.setVisible(False)
-        self.use_pl_rad_bound_1.setVisible(False)
-        self.pl_rad_min_1.setVisible(False)
-        self.pl_rad_max_1.setVisible(False) 
-
-        self.label_a_sol_minmax_1.setVisible(False)
-        self.use_a_sol_bound_1.setVisible(False)
-        self.a_sol_min_1.setVisible(False)
-        self.a_sol_max_1.setVisible(False) 
-
-        self.label_K_minmax_28.setVisible(False)
-        self.use_omega_dot_bound_1.setVisible(False)
-        self.omega_dot_min_1.setVisible(False)
-        self.omega_dot_max_1.setVisible(False) 
-
-
-        self.label_K_minmax_29.setVisible(False)
-        self.use_h_bound_1.setVisible(False)
-        self.h_min_1.setVisible(False)
-        self.h_max_1.setVisible(False) 
-
-        self.label_K_minmax_30.setVisible(False)
-        self.use_k_bound_1.setVisible(False)
-        self.k_min_1.setVisible(False)
-        self.k_max_1.setVisible(False) 
-
-        self.label_K_minmax_31.setVisible(False) 
-        self.use_lambda_bound_1.setVisible(False)
-        self.lambda_min_1.setVisible(False)
-        self.lambda_max_1.setVisible(False) 
-
-        self.Planet1_32.setVisible(False) 
-        self.Planet2_30.setVisible(False) 
- 
-        self.label_ecc_minmax_2.setVisible(False)
-        self.use_e_bound_2.setVisible(False)
-        self.e_min_2.setVisible(False)
-        self.e_max_2.setVisible(False)
-
-        self.label_omega_minmax_2.setVisible(False)
-        self.use_om_bound_2.setVisible(False)
-        self.om_min_2.setVisible(False)
-        self.om_max_2.setVisible(False)
-
-        self.label_incl_minmax_2.setVisible(False)
-        self.use_inc_bound_2.setVisible(False)
-        self.incl_min_2.setVisible(False)
-        self.incl_max_2.setVisible(False)
- 
-        self.label_Omega_minmax_2.setVisible(False)
-        self.use_Omega_bound_2.setVisible(False)
-        self.Omega_min_2.setVisible(False)
-        self.Omega_max_2.setVisible(False)
-
-        self.label_t0_minmax_2.setVisible(False)
-        self.use_t0_bound_2.setVisible(False)
-        self.t0_min_2.setVisible(False)
-        self.t0_max_2.setVisible(False) 
-
-        self.label_pl_rad_minmax_2.setVisible(False)
-        self.use_pl_rad_bound_2.setVisible(False)
-        self.pl_rad_min_2.setVisible(False)
-        self.pl_rad_max_2.setVisible(False) 
-
-        self.label_a_sol_minmax_2.setVisible(False)
-        self.use_a_sol_bound_2.setVisible(False)
-        self.a_sol_min_2.setVisible(False)
-        self.a_sol_max_2.setVisible(False) 
-
-        self.label_K_minmax_32.setVisible(False)
-        self.use_omega_dot_bound_2.setVisible(False)
-        self.omega_dot_min_2.setVisible(False)
-        self.omega_dot_max_2.setVisible(False) 
-
-
-        self.label_K_minmax_33.setVisible(False)
-        self.use_h_bound_2.setVisible(False)
-        self.h_min_2.setVisible(False)
-        self.h_max_2.setVisible(False) 
-
-        self.label_K_minmax_34.setVisible(False)
-        self.use_k_bound_2.setVisible(False)
-        self.k_min_2.setVisible(False)
-        self.k_max_2.setVisible(False) 
-
-        self.label_K_minmax_35.setVisible(False) 
-        self.use_lambda_bound_2.setVisible(False)
-        self.lambda_min_2.setVisible(False)
-        self.lambda_max_2.setVisible(False) 
-
-        self.Planet1_33.setVisible(False) 
-        self.Planet2_31.setVisible(False) 
-
- 
-        self.label_ecc_minmax_3.setVisible(False)
-        self.use_e_bound_3.setVisible(False)
-        self.e_min_3.setVisible(False)
-        self.e_max_3.setVisible(False)
-
-        self.label_omega_minmax_3.setVisible(False)
-        self.use_om_bound_3.setVisible(False)
-        self.om_min_3.setVisible(False)
-        self.om_max_3.setVisible(False)
-
-        self.label_incl_minmax_3.setVisible(False)
-        self.use_inc_bound_3.setVisible(False)
-        self.incl_min_3.setVisible(False)
-        self.incl_max_3.setVisible(False)
- 
-        self.label_Omega_minmax_3.setVisible(False)
-        self.use_Omega_bound_3.setVisible(False)
-        self.Omega_min_3.setVisible(False)
-        self.Omega_max_3.setVisible(False)
-
-        self.label_t0_minmax_3.setVisible(False)
-        self.use_t0_bound_3.setVisible(False)
-        self.t0_min_3.setVisible(False)
-        self.t0_max_3.setVisible(False) 
-
-        self.label_pl_rad_minmax_3.setVisible(False)
-        self.use_pl_rad_bound_3.setVisible(False)
-        self.pl_rad_min_3.setVisible(False)
-        self.pl_rad_max_3.setVisible(False) 
-
-        self.label_a_sol_minmax_3.setVisible(False)
-        self.use_a_sol_bound_3.setVisible(False)
-        self.a_sol_min_3.setVisible(False)
-        self.a_sol_max_3.setVisible(False) 
-
-        self.label_K_minmax_36.setVisible(False)
-        self.use_omega_dot_bound_3.setVisible(False)
-        self.omega_dot_min_3.setVisible(False)
-        self.omega_dot_max_3.setVisible(False) 
-
-
-        self.label_K_minmax_37.setVisible(False)
-        self.use_h_bound_3.setVisible(False)
-        self.h_min_3.setVisible(False)
-        self.h_max_3.setVisible(False) 
-
-        self.label_K_minmax_38.setVisible(False)
-        self.use_k_bound_3.setVisible(False)
-        self.k_min_3.setVisible(False)
-        self.k_max_3.setVisible(False) 
-
-        self.label_K_minmax_39.setVisible(False) 
-        self.use_lambda_bound_3.setVisible(False)
-        self.lambda_min_3.setVisible(False)
-        self.lambda_max_3.setVisible(False) 
-
-        self.Planet1_34.setVisible(False) 
-        self.Planet2_32.setVisible(False) 
-
-        ############  Bounds End ###################
-
-        ############  Jeff ###################
-
-        self.label_ecc_minmax_19.setVisible(False)
-        self.use_e_jeff_pr_1.setVisible(False)
-        self.e_jeff_alpha_1.setVisible(False)
-        self.e_jeff_beta_1.setVisible(False)
-
-        self.label_omega_minmax_19.setVisible(False)
-        self.use_om_jeff_pr_1.setVisible(False)
-        self.om_jeff_alpha_1.setVisible(False)
-        self.om_jeff_beta_1.setVisible(False)
-
-        self.label_incl_minmax_19.setVisible(False)
-        self.use_incl_jeff_pr_1.setVisible(False)
-        self.incl_jeff_alpha_1.setVisible(False)
-        self.incl_jeff_beta_1.setVisible(False)
- 
-        self.label_Omega_minmax_19.setVisible(False)
-        self.use_Omega_jeff_pr_1.setVisible(False)
-        self.Omega_jeff_alpha_1.setVisible(False)
-        self.Omega_jeff_beta_1.setVisible(False)
-
-        self.label_t0_minmax_19.setVisible(False)
-        self.use_t0_jeff_pr_1.setVisible(False)
-        self.t0_jeff_alpha_1.setVisible(False)
-        self.t0_jeff_beta_1.setVisible(False) 
-
-        self.label_pl_rad_minmax_19.setVisible(False)
-        self.use_pl_rad_jeff_pr_1.setVisible(False)
-        self.pl_rad_jeff_alpha_1.setVisible(False)
-        self.pl_rad_jeff_beta_1.setVisible(False) 
-
-        self.label_a_sol_minmax_19.setVisible(False)
-        self.use_a_sol_jeff_pr_1.setVisible(False)
-        self.a_sol_jeff_alpha_1.setVisible(False)
-        self.a_sol_jeff_beta_1.setVisible(False) 
-
-        self.label_K_minmax_102.setVisible(False)
-        self.use_omega_dot_jeff_pr_1.setVisible(False)
-        self.omega_dot_alpha_1.setVisible(False)
-        self.omega_dot_beta_1.setVisible(False) 
-
-
-        self.label_K_minmax_101.setVisible(False)
-        self.use_h_jeff_pr_1.setVisible(False)
-        self.h_alpha_1.setVisible(False)
-        self.h_beta_1.setVisible(False) 
-
-        self.label_K_minmax_100.setVisible(False)
-        self.use_k_jeff_pr_1.setVisible(False)
-        self.k_alpha_1.setVisible(False)
-        self.k_beta_1.setVisible(False)  
-
-
-        self.label_K_minmax_103.setVisible(False) 
-        self.use_lambda_jeff_pr_1.setVisible(False)
-        self.lambda_alpha_1.setVisible(False)
-        self.lambda_beta_1.setVisible(False) 
  
  
- 
-        self.label_ecc_minmax_20.setVisible(False)
-        self.use_e_jeff_pr_2.setVisible(False)
-        self.e_jeff_alpha_2.setVisible(False)
-        self.e_jeff_beta_2.setVisible(False)
-
-        self.label_omega_minmax_20.setVisible(False)
-        self.use_om_jeff_pr_2.setVisible(False)
-        self.om_jeff_alpha_2.setVisible(False)
-        self.om_jeff_beta_2.setVisible(False)
-
-        self.label_incl_minmax_20.setVisible(False)
-        self.use_incl_jeff_pr_2.setVisible(False)
-        self.incl_jeff_alpha_2.setVisible(False)
-        self.incl_jeff_beta_2.setVisible(False)
- 
-        self.label_Omega_minmax_20.setVisible(False)
-        self.use_Omega_jeff_pr_2.setVisible(False)
-        self.Omega_jeff_alpha_2.setVisible(False)
-        self.Omega_jeff_beta_2.setVisible(False)
-
-        self.label_t0_minmax_20.setVisible(False)
-        self.use_t0_jeff_pr_2.setVisible(False)
-        self.t0_jeff_alpha_2.setVisible(False)
-        self.t0_jeff_beta_2.setVisible(False) 
-
-        self.label_pl_rad_minmax_20.setVisible(False)
-        self.use_pl_rad_jeff_pr_2.setVisible(False)
-        self.pl_rad_jeff_alpha_2.setVisible(False)
-        self.pl_rad_jeff_beta_2.setVisible(False) 
-
-        self.label_a_sol_minmax_20.setVisible(False)
-        self.use_a_sol_jeff_pr_2.setVisible(False)
-        self.a_sol_jeff_alpha_2.setVisible(False)
-        self.a_sol_jeff_beta_2.setVisible(False) 
-
-        self.label_K_minmax_106.setVisible(False)
-        self.use_omega_dot_jeff_pr_2.setVisible(False)
-        self.omega_dot_alpha_2.setVisible(False)
-        self.omega_dot_beta_2.setVisible(False) 
-
-
-        self.label_K_minmax_105.setVisible(False)
-        self.use_h_jeff_pr_2.setVisible(False)
-        self.h_alpha_2.setVisible(False)
-        self.h_beta_2.setVisible(False) 
-
-        self.label_K_minmax_104.setVisible(False)
-        self.use_k_jeff_pr_2.setVisible(False)
-        self.k_alpha_2.setVisible(False)
-        self.k_beta_2.setVisible(False)  
-
-
-        self.label_K_minmax_107.setVisible(False) 
-        self.use_lambda_jeff_pr_2.setVisible(False)
-        self.lambda_alpha_2.setVisible(False)
-        self.lambda_beta_2.setVisible(False) 
- 
-
-        self.label_ecc_minmax_21.setVisible(False)
-        self.use_e_jeff_pr_3.setVisible(False)
-        self.e_jeff_alpha_3.setVisible(False)
-        self.e_jeff_beta_3.setVisible(False)
-
-        self.label_omega_minmax_21.setVisible(False)
-        self.use_om_jeff_pr_3.setVisible(False)
-        self.om_jeff_alpha_3.setVisible(False)
-        self.om_jeff_beta_3.setVisible(False)
-
-        self.label_incl_minmax_21.setVisible(False)
-        self.use_incl_jeff_pr_3.setVisible(False)
-        self.incl_jeff_alpha_3.setVisible(False)
-        self.incl_jeff_beta_3.setVisible(False)
- 
-        self.label_Omega_minmax_21.setVisible(False)
-        self.use_Omega_jeff_pr_3.setVisible(False)
-        self.Omega_jeff_alpha_3.setVisible(False)
-        self.Omega_jeff_beta_3.setVisible(False)
-
-        self.label_t0_minmax_21.setVisible(False)
-        self.use_t0_jeff_pr_3.setVisible(False)
-        self.t0_jeff_alpha_3.setVisible(False)
-        self.t0_jeff_beta_3.setVisible(False) 
-
-        self.label_pl_rad_minmax_21.setVisible(False)
-        self.use_pl_rad_jeff_pr_3.setVisible(False)
-        self.pl_rad_jeff_alpha_3.setVisible(False)
-        self.pl_rad_jeff_beta_3.setVisible(False) 
-
-        self.label_a_sol_minmax_21.setVisible(False)
-        self.use_a_sol_jeff_pr_3.setVisible(False)
-        self.a_sol_jeff_alpha_3.setVisible(False)
-        self.a_sol_jeff_beta_3.setVisible(False) 
-
-        self.label_K_minmax_110.setVisible(False)
-        self.use_omega_dot_jeff_pr_3.setVisible(False)
-        self.omega_dot_alpha_3.setVisible(False)
-        self.omega_dot_beta_3.setVisible(False) 
-
-
-        self.label_K_minmax_109.setVisible(False)
-        self.use_h_jeff_pr_3.setVisible(False)
-        self.h_alpha_3.setVisible(False)
-        self.h_beta_3.setVisible(False) 
-
-        self.label_K_minmax_108.setVisible(False)
-        self.use_k_jeff_pr_3.setVisible(False)
-        self.k_alpha_3.setVisible(False)
-        self.k_beta_3.setVisible(False)  
-
-
-        self.label_K_minmax_111.setVisible(False) 
-        self.use_lambda_jeff_pr_3.setVisible(False)
-        self.lambda_alpha_3.setVisible(False)
-        self.lambda_beta_3.setVisible(False) 
-
-
-        self.Planet2_48.setVisible(False) 
-        self.Planet1_50.setVisible(False) 
-        self.Planet1_51.setVisible(False) 
-        self.Planet1_52.setVisible(False) 
-        self.Planet2_50.setVisible(False) 
-        self.Planet2_49.setVisible(False) 
-  
-        ############  Jeff End ###################
-
-        self.label_Ma_minmax_1.setText("Phase [deg]") 
-        self.label_Ma_minmax_2.setText("Phase [deg]") 
-        self.label_Ma_minmax_3.setText("Phase [deg]")  
-
-        self.label_Ma_minmax_10.setText("Phase [deg]") 
-        self.label_Ma_minmax_11.setText("Phase [deg]") 
-        self.label_Ma_minmax_12.setText("Phase [deg]")  
-
-        self.label_Ma_minmax_19.setText("Phase [deg]") 
-        self.label_Ma_minmax_20.setText("Phase [deg]") 
-        self.label_Ma_minmax_21.setText("Phase [deg]")  
-
-
-
-
-        self.tabWidget_8.removeTab(2)
-        self.tabWidget_8.removeTab(1)
-
-        self.plot_opt_tab.removeTab(8)
-        self.plot_opt_tab.removeTab(4)
-        self.plot_opt_tab.removeTab(3)
-        self.plot_opt_tab.removeTab(2)
-
-
-        self.plot_opt_tab.setTabText(0,"Data")
-        self.plot_opt_tab.setTabText(1,"GP")
-
-
-        self.RV_plot_cross_hair.setText("Plot crosshair") 
-        self.RV_o_c_plot_cross_hair.setText("o-c Plot crosshair") 
-        self.plot_RV_GP_model.setText("subtract GP model from o-c") 
-
-        self.label_18.setText("Sine minimizer algorithm")
-        self.checkBox_first_RV_epoch.setText("First data [BJD]")
-        self.label_kep_model_to_kill.setText("Fit interrupt [s]")
-
-
-
-        self.tabWidget_10.removeTab(4)
-        self.tabWidget_10.removeTab(3)
-        self.tabWidget_10.removeTab(2)
-
-
-        ####### planet tabs ############
-
-        self.Planet1.setText("Signal 1") 
-        self.Planet2.setText("Signal 2") 
-        self.Planet3.setText("Signal 3") 
-
-        self.e1.setVisible(False) 
-        self.e2.setVisible(False) 
-        self.e3.setVisible(False) 
- 
-        self.use_e1.setVisible(False) 
-        self.use_e2.setVisible(False) 
-        self.use_e3.setVisible(False) 
-
-        self.err_e1.setVisible(False) 
-        self.err_e2.setVisible(False) 
-        self.err_e3.setVisible(False)
-
-
-        self.om1.setVisible(False) 
-        self.om2.setVisible(False) 
-        self.om3.setVisible(False) 
-
-        self.err_om1.setVisible(False) 
-        self.err_om2.setVisible(False) 
-        self.err_om3.setVisible(False)
-
-        self.use_om1.setVisible(False) 
-        self.use_om2.setVisible(False) 
-        self.use_om3.setVisible(False)
-
-
-        self.incl1.setVisible(False) 
-        self.incl2.setVisible(False) 
-        self.incl3.setVisible(False) 
-
-        self.err_i1.setVisible(False) 
-        self.err_i2.setVisible(False) 
-        self.err_i3.setVisible(False) 
-
-        self.use_incl1.setVisible(False) 
-        self.use_incl2.setVisible(False) 
-        self.use_incl3.setVisible(False) 
-
-        self.Omega1.setVisible(False) 
-        self.Omega2.setVisible(False) 
-        self.Omega3.setVisible(False) 
-
-        self.err_Om1.setVisible(False) 
-        self.err_Om2.setVisible(False) 
-        self.err_Om3.setVisible(False) 
-
-        self.use_Omega1.setVisible(False) 
-        self.use_Omega2.setVisible(False) 
-        self.use_Omega3.setVisible(False) 
-
- 
-        self.label_omega.setVisible(False)
-        self.label_ecc.setVisible(False)
-        self.label_incl.setVisible(False)
-
-        self.label_Omega.setVisible(False)
-        self.label_omega_2.setVisible(False)
-        self.label_55.setVisible(False)
-
-
-        self.label_a.setVisible(False)
-        self.label_a1.setVisible(False)
-        self.label_a2.setVisible(False)
-        self.label_a3.setVisible(False)
-
-        self.label_mp.setVisible(False)
-        self.label_mass1.setVisible(False)
-        self.label_mass2.setVisible(False)
-        self.label_mass3.setVisible(False)
-
-        self.label_tw.setVisible(False)
-        self.label_t_peri1.setVisible(False)
-        self.label_t_peri2.setVisible(False)
-        self.label_t_peri3.setVisible(False)
-
-        self.label_Rp.setVisible(False)
-        self.label_ap.setVisible(False)
-
-        self.tabWidget_8.setTabText(0,"Sine signals 1-3")
-        self.plot_tabs.setTabText(0,"Data")
-        self.tab_ts_RV.setTabText(0,"Data and model")
-        self.tab_ts_RV.removeTab(1)
-
- 
-
-        self.tabWidget_data_section.setTabText(0,"Data")
-        self.tabWidget_4.setTabText(1,"Trends")
-
-        self.label_19.setText("[mag./day]") 
-        self.label_353.setText("[mag./day]") 
-        self.label_393.setText("<html><head/><body><p>Quad. add to &sigma; [mag.]</p></body></html>") 
-
-        self.Planet3_4.setText("Offset [mag.]") 
-        self.Planet3_6.setText("Jitter [mag.]") 
- 
-        self.label_stellar_mass.setVisible(False)
-        self.value_stellar_mass.setVisible(False)
-
-        self.label_K.setText("Ampl. [mag.]") 
-        self.label_Ma.setText("Phase [deg]") 
-
-        self.button_orb_evol.setVisible(False)
-
-
-        self.button_auto_fit.setText("Auto fit") 
-
-        for i in range(3*9):
-
-            self.param_gui_tr[i].setVisible(False) 
-            self.use_param_gui_tr[i].setVisible(False) 
-
-
-  
-        for i in range(9):
-            self.param_gui_wd[i].setVisible(False) 
-            self.use_param_gui_wd[i].setVisible(False) 
-            self.param_errors_gui_wd[i].setVisible(False) 
-
-            self.err_t0[i].setVisible(False) 
-            self.err_pl_rad[i].setVisible(False)  
-            self.err_a_sol[i].setVisible(False)  
- 
- 
-        self.dataInspector_HARPS_RVBank.setVisible(False)
-
-        self.tabWidget_7.setTabText(0,"Phase plots")
-
-
-        self.label_370.setVisible(False)
-        self.AMD_led.setVisible(False)
 ################################################################################################
 
 
@@ -11063,7 +10448,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        es_version = "0.68"
+        es_version = "0.69"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -11082,6 +10467,8 @@ Please install via 'pip install ttvfast'.
         #self.check_fortran_routines()
         self.safe_to_init = True
 #        self.installEventFilter(self)
+
+
         
         self.param_bounds_gui  = gui_groups.param_bounds_gui(self)
         self.offset_bounds_gui = gui_groups.offset_bounds_gui(self)
@@ -12041,14 +11428,15 @@ Please install via 'pip install ttvfast'.
         #self.cornerplot_plot_tab.isVisible.connect(self.check_cornerplot_samples)
         
 
-        if qso_mode==True:
-            self.qso_mode()
-
-
-
         self.count_cpus()
         
         rv.check_fortran_routines(es_path)
+
+
+        self.data_str = "RV data"      
+        if qso_mode==True:
+            self.set_qso_mode = qso.qso_mode(self)
+            self.data_str = "Data"
 
         print("""You are running a development version of the Exo-Striker (ver. %s). 
               
@@ -12063,6 +11451,10 @@ It seems that you started the 'Exo-Striker' with Python 2. Please consider Pytho
 
         print("""Here you can get some more information from the tool's workflow, stdout/strerr, and piped results.""")
         #self.use_K1.setStyleSheet("color: red")
+
+
+
+ 
 
 
 
