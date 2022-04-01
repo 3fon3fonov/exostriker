@@ -268,11 +268,11 @@ else:
     start_arg_ses = False
 
 
-colors          = ['#0066ff','#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
-colors_gls      = ['#0066ff','#ff0000']
-colors_delta_om = ['#0066ff','#666699']
-colors_theta    = ['#0066ff','#666699']
-colors_per_rat  = ['#0066ff','#666699']
+colors           = ['#0066ff','#ff0000','#66ff66','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+colors_gls       = ['#0066ff','#ff0000']
+colors_delta_om  = ['#0066ff','#666699']
+colors_theta     = ['#0066ff','#666699']
+colors_per_rat   = ['#0066ff','#666699']
 colors_GLS_alias = ['#666699']
 colors_MLP_alias = ['#666699']
 colors_RV_jitter = ['#000000']
