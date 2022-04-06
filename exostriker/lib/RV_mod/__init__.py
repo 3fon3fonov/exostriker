@@ -49,12 +49,12 @@ import scipy.optimize as op
 from scipy import stats
 
 ####### fixes https://github.com/3fon3fonov/exostriker/issues/80   ??? ####
-import wrapt
+import wrapt_ES
 import tqdm.std
 
 methods = ['__del__', 'close']
 for method_name in methods:
-    @wrapt.patch_function_wrapper(tqdm.std.tqdm, method_name)
+    @wrapt_ES.patch_function_wrapper(tqdm.std.tqdm, method_name)
     def new_del(wrapped, instance, args, kwargs):
         try:
             return wrapped(*args, **kwargs)

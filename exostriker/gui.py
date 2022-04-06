@@ -3588,10 +3588,14 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             y_model_o_c = np.zeros(len(y_model))
 
 
+        if qso_mode:
+            label = "flux [mag.]"
+        else:
+            label = "RV [m/s]" 
 
         model_curve_o_c = p01.plot(fit.fit_results.model_jd,y_model_o_c, 
         pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
-        viewRect=True, labels =  {'left':'RV [m/s]', 'bottom':'JD'}) 
+        viewRect=True, labels =  {'left':'%s'%label, 'bottom':'JD'}) 
         
         
         model_curve_o_c.setZValue(self.RV_model_z.value()) 
@@ -5381,11 +5385,14 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 err_2_o_c.setZValue(-10)
                 pe1.addItem(err_2_o_c) 
 
-
+        if qso_mode:
+            label = "flux [mag.]"
+        else:
+            label = "RV [m/s]" 
 
         pe0.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)
 #        pe0.setLabel('bottom', 'phase [days]', units='',  **{'font-size':self.plot_font.pointSize()})
-        pe0.setLabel('left',   'RV [m/s]', units='',  **{'font-size':self.plot_font.pointSize()})  
+        pe0.setLabel('left',   '%s'%label, units='',  **{'font-size':self.plot_font.pointSize()})  
 
 
         if self.extra_plot_RVphase_norm.isChecked():
@@ -11433,20 +11440,22 @@ Please install via 'pip install ttvfast'.
         rv.check_fortran_routines(es_path)
 
 
-        self.data_str = "RV data"      
+        self.data_str = "RV data"     
+        self.QSO_str = "Exo" 
         if qso_mode==True:
             self.set_qso_mode = qso.qso_mode(self)
             self.data_str = "Data"
+            self.QSO_str = "QSO"
 
-        print("""You are running a development version of the Exo-Striker (ver. %s). 
+        print("""You are running a development version of the %s-Striker (ver. %s). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
-"""%es_version)
+"""%(self.QSO_str,es_version))
 
         if sys.version_info[0] == 2:
             print("""
-It seems that you started the 'Exo-Striker' with Python 2. Please consider Python 3 for your work with the 'Exo-Striker'.
-""") 
+It seems that you started the '%s-Striker' with Python 2. Please consider Python 3 for your work with the '%s-Striker'.
+"""%(self.QSO_str,self.QSO_str))
 
 
         print("""Here you can get some more information from the tool's workflow, stdout/strerr, and piped results.""")
@@ -11490,10 +11499,11 @@ class LoadingScreen(QtWidgets.QWidget):
 
 
 
-def main(*args):
+def main():
+
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle('Fusion') #The available styles depend on your platform but are usually 'Fusion', 'Windows', 'WindowsVista' (Windows only) and 'Macintosh' (Mac only). 
-    
+
 
     window = Exo_striker()
     
