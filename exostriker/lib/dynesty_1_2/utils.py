@@ -1,293 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 """
 A collection of useful functions.
 
 """
 
+from __future__ import (print_function, division)
+from six.moves import range
+
 import sys
 import warnings
 import math
-import copy
-from collections import namedtuple
-from functools import partial
-import numpy as np
-from scipy.special import logsumexp
-
 try:
-    import tqdm
+    from scipy.special import logsumexp
 except ImportError:
-    tqdm = None
+    from scipy.misc import logsumexp
 
-from .results import Results, print_fn, results_substitute
+import numpy as np
+import copy
 
-__all__ = [
-    "unitcheck", "resample_equal", "mean_and_cov", "quantile", "jitter_run",
-    "resample_run", "simulate_run", "reweight_run", "unravel_run",
-    "merge_runs", "kld_error", "_merge_two", "_get_nsamps_samples_n",
-    "get_enlarge_bootstrap"
-]
+from .results import Results
+
+__all__ = ["unitcheck", "resample_equal", "mean_and_cov", "quantile",
+           "jitter_run", "resample_run", "simulate_run", "reweight_run",
+           "unravel_run", "merge_runs", "kl_divergence", "kld_error",
+           "_merge_two", "_get_nsamps_samples_n"]
 
 SQRTEPS = math.sqrt(float(np.finfo(np.float64).eps))
-
-IteratorResult = namedtuple('IteratorResult', [
-    'worst', 'ustar', 'vstar', 'loglstar', 'logvol', 'logwt', 'logz',
-    'logzvar', 'h', 'nc', 'worst_it', 'boundidx', 'bounditer', 'eff',
-    'delta_logz'
-])
-
-IteratorResultShort = namedtuple('IteratorResult', [
-    'worst', 'ustar', 'vstar', 'loglstar', 'nc', 'worst_it', 'boundidx',
-    'bounditer', 'eff'
-])
-
-
-class LogLikelihood:
-    """ Class that calls the likelihood function (using a pool if provided)
-    Also if requested it saves the history of evaluations
-    """
-    def __init__(self,
-                 loglikelihood,
-                 ndim,
-                 pool=None,
-                 save=False,
-                 history_filename=None):
-        """ Initialize the object.
-
-        Parameters:
-        loglikelihood: function
-        ndim: int
-            Dimensionality
-        pool: Pool (optional)
-            Any kind of pool capable of performing map()
-        save: bool
-            if True the function evaluations will be saved in the hdf5 file
-        history_filename: string
-            The filename where the history will go
-        """
-        self.loglikelihood = loglikelihood
-        self.pool = pool
-        self.history_pars = []
-        self.history_logl = []
-        self.save_every = 10000
-        self.save = save
-        self.history_filename = history_filename
-        self.ndim = ndim
-        self.failed_save = False
-        if save:
-            self.history_init()
-
-    def map(self, pars):
-        """ Evaluate the likelihood f-n on the list of vectors
-        The pool is used if it was provided when the object was created
-        """
-        if self.pool is None:
-            ret = np.array(list(map(self.loglikelihood, pars)))
-        else:
-            ret = np.array(self.pool.map(self.loglikelihood, pars))
-        if self.save:
-            self.history_append(ret, pars)
-        return ret
-
-    def __call__(self, x):
-        """
-        Evaluate the likelihood f-n once
-        """
-        ret = self.loglikelihood(x)
-        if self.save:
-            self.history_append([ret], [x])
-        return ret
-
-    def history_append(self, logls, pars):
-        """
-        Append to the internal history the list of loglikelihood values
-        And points
-        """
-        self.history_logl.extend(logls)
-        self.history_pars.extend(pars)
-        if len(self.history_logl) > self.save_every:
-            self.history_save()
-
-    def history_init(self):
-        """ Initialize the hdf5 storage of evaluations """
-        import h5py
-        self.history_counter = 0
-        try:
-            with h5py.File(self.history_filename, mode='w') as fp:
-                fp.create_dataset('param', (self.save_every, self.ndim),
-                                  maxshape=(None, self.ndim))
-                fp.create_dataset('logl', (self.save_every, ),
-                                  maxshape=(None, ))
-        except OSError:
-            print('Failed to initialize history file')
-            raise
-
-    def history_save(self):
-        """
-        Save the actual history from an internal buffer into the file
-        """
-        if self.failed_save or not self.save:
-            # if failed to save before, do not try again
-            # also quickly return if saving is not needed
-            return
-        import h5py
-        try:
-            with h5py.File(self.history_filename, mode='a') as fp:
-                # pylint: disable=no-member
-                nadd = len(self.history_logl)
-                fp['param'].resize(self.history_counter + nadd, axis=0)
-                fp['logl'].resize(self.history_counter + nadd, axis=0)
-                fp['param'][-nadd:, :] = np.array(self.history_pars)
-                fp['logl'][-nadd:] = np.array(self.history_logl)
-                self.history_pars = []
-                self.history_logl = []
-                self.history_counter += nadd
-        except OSError:
-            warnings.warn(
-                'Failed to save history of evaluations. Will not try again.')
-            self.failed_save = True
-
-    def __getstate__(self):
-        """Get state information for pickling."""
-        state = self.__dict__.copy()
-        del state['pool']
-        return state
-
-
-class RunRecord:
-    """
-    This is the class that saves the results of the nested
-    run so it is basically a collection of various lists of
-    quantities
-    """
-    def __init__(self, dynamic=False):
-        """
-        If dynamic is true. We initialize the class for
-        a dynamic nested run
-        """
-        D = {}
-        keys = [
-            'id',  # live point labels
-            'u',  # unit cube samples
-            'v',  # transformed variable samples
-            'logl',  # loglikelihoods of samples
-            'logvol',  # expected ln(volume)
-            'logwt',  # ln(weights)
-            'logz',  # cumulative ln(evidence)
-            'logzvar',  # cumulative error on ln(evidence)
-            'h',  # cumulative information
-            'nc',  # number of calls at each iteration
-            'boundidx',  # index of bound dead point was drawn from
-            'it',  # iteration the live (now dead) point was proposed
-            'n',  # number of live points interior to dead point
-            'bounditer',  # active bound at a specific iteration
-            'scale'  # scale factor at each iteration
-        ]
-        if dynamic:
-            keys.extend([
-                'batch',  # live point batch ID
-                # these are special since their length
-                # is == the number of batches
-                'batch_nlive',  # number of live points added in batch
-                'batch_bounds'
-            ])  # loglikelihood bounds used in batch
-        for k in keys:
-            D[k] = []
-        self.D = D
-
-    def append(self, newD):
-        """
-        append new information to the RunRecord in the form a dictionary
-        i.e. run.append(dict(batch=3, niter=44))
-        """
-        for k in newD.keys():
-            self.D[k].append(newD[k])
-
-
-def get_enlarge_bootstrap(sample, enlarge, bootstrap):
-    """
-    Determine the enlarge, bootstrap for a given run
-    """
-    # we should make it dimension dependent I think...
-    DEFAULT_ENLARGE = 1.25
-    DEFAULT_UNIF_BOOTSTRAP = 5
-    if enlarge is not None and bootstrap is None:
-        """If enlarge is specified and bootstrap is not we just use enlarge
-        with no nootstrapping"""
-        assert enlarge >= 1
-        return enlarge, 0
-    elif enlarge is None and bootstrap is not None:
-        """
-        If bootstrap is specified but enlarge is not we just use bootstrap
-        And if we allow zero bootstrap if we want to force no bootstrap
-        """
-        assert ((bootstrap > 1) or (bootstrap == 0))
-        return 1, bootstrap
-    elif enlarge is None and bootstrap is None:
-        """
-        If neither enlarge or bootstrap are specified we are doing
-        things in auto-mode. I.e. use enlarge unless the uniform
-        sampler is selected
-        """
-        if sample == 'unif':
-            return 1, DEFAULT_UNIF_BOOTSTRAP
-        else:
-            return DEFAULT_ENLARGE, 0
-    else:
-        """Both enlarge and bootstrap were specified"""
-        if bootstrap == 0 or enlarge == 1:
-            return enlarge, bootstrap
-        else:
-            raise ValueError('Enlarge and bootstrap together do not make'
-                             'sense unless bootstrap=1 or enlarge = 1')
-
-
-def get_nonbounded(ndim, periodic, reflective):
-    """
-    Return a boolean mask for dimensions that are either
-    periodic or reflective
-    """
-    if periodic is not None and reflective is not None:
-        if np.intersect1d(periodic, reflective) != 0:
-            raise ValueError("You have specified a parameter as both "
-                             "periodic and reflective.")
-
-    if periodic is not None or reflective is not None:
-        nonbounded = np.ones(ndim, dtype=bool)
-        if periodic is not None:
-            nonbounded[periodic] = False
-        if reflective is not None:
-            nonbounded[reflective] = False
-    else:
-        nonbounded = None
-
-
-def get_print_func(print_func, print_progress):
-    pbar = None
-    if print_func is None:
-        if tqdm is None or not print_progress:
-            print_func = print_fn
-        else:
-            pbar = tqdm.tqdm()
-            print_func = partial(print_fn, pbar=pbar)
-    return pbar, print_func
-
-
-def get_random_generator(seed=None):
-    """
-    Return a random generator (using the seed provided if available)
-    """
-    return np.random.Generator(np.random.PCG64(seed))
-
-
-def get_seed_sequence(rstate, nitems):
-    """
-    Return the list of seeds to initialize random generators
-    This is useful when distributing work across a pool
-    """
-    seeds = np.random.SeedSequence(rstate.integers(0, 2**63 - 1,
-                                                   size=4)).spawn(nitems)
-    return seeds
 
 
 def unitcheck(u, nonbounded=None):
@@ -297,17 +37,16 @@ def unitcheck(u, nonbounded=None):
 
     if nonbounded is None:
         # No periodic boundary conditions provided.
-        return np.min(u) > 0 and np.max(u) < 1
+        return np.all(u > 0.) and np.all(u < 1.)
     else:
         # Alternating periodic and non-periodic boundary conditions.
-        unb = u[nonbounded]
-        # pylint: disable=invalid-unary-operand-type
-        ub = u[~nonbounded]
-        return (unb.min() > 0 and unb.max() < 1 and ub.min() > -0.5
-                and ub.max() < 1.5)
+        return (np.all(u[nonbounded] > 0.) and
+                np.all(u[nonbounded] < 1.) and
+                np.all(u[~nonbounded] > -0.5) and
+                np.all(u[~nonbounded] < 1.5))
 
 
-def apply_reflect(u):
+def reflect(u):
     """
     Iteratively reflect a number until it is contained in [0, 1].
 
@@ -391,8 +130,8 @@ def resample_equal(samples, weights, rstate=None):
     weights : `~numpy.ndarray` with shape (nsamples,)
         Corresponding weight of each sample.
 
-    rstate : `~numpy.random.Generator`, optional
-        `~numpy.random.Generator` instance.
+    rstate : `~numpy.random.RandomState`, optional
+        `~numpy.random.RandomState` instance.
 
     Returns
     -------
@@ -413,18 +152,16 @@ def resample_equal(samples, weights, rstate=None):
     -----
     Implements the systematic resampling method described in `Hol, Schon, and
     Gustafsson (2006) <doi:10.1109/NSSPW.2006.4378824>`_.
-   """
+
+    """
 
     if rstate is None:
-        rstate = get_random_generator()
+        rstate = np.random
 
-    cumulative_sum = np.cumsum(weights)
-    if abs(cumulative_sum[-1] - 1.) > SQRTEPS:
-        # same tol as in numpy's random.choice.
+    if abs(np.sum(weights) - 1.) > SQRTEPS:  # same tol as in np.random.choice.
         # Guarantee that the weights will sum to 1.
         warnings.warn("Weights do not sum to 1 and have been renormalized.")
-    cumulative_sum /= cumulative_sum[-1]
-    # this ensures that the last element is strictly == 1
+        weights = np.array(weights) / np.sum(weights)
 
     # Make N subdivisions and choose positions with a consistent random offset.
     nsamples = len(weights)
@@ -432,6 +169,7 @@ def resample_equal(samples, weights, rstate=None):
 
     # Resample the data.
     idx = np.zeros(nsamples, dtype=int)
+    cumulative_sum = np.cumsum(weights)
     i, j = 0, 0
     while i < nsamples:
         if positions[i] < cumulative_sum[j]:
@@ -502,72 +240,29 @@ def _get_nsamps_samples_n(res):
     Returns
     -------
     nsamps: int
-        The total number of samples/iterations
+        The total number of samples
     samples_n: array
         Number of live points at a given iteration
 
     """
-    if res.isdynamic():
+    try:
         # Check if the number of live points explicitly changes.
         samples_n = res.samples_n
         nsamps = len(samples_n)
-    else:
+    except:
         # If the number of live points is constant, compute `samples_n`.
         niter = res.niter
         nlive = res.nlive
         nsamps = len(res.logvol)
         if nsamps == niter:
-            samples_n = np.ones(niter, dtype=int) * nlive
+            samples_n = np.ones(niter, dtype='int') * nlive
         elif nsamps == (niter + nlive):
-            samples_n = np.minimum(np.arange(nsamps, 0, -1), nlive)
+            samples_n = np.append(np.ones(niter, dtype='int') * nlive,
+                                  np.arange(1, nlive + 1)[::-1])
         else:
             raise ValueError("Final number of samples differs from number of "
                              "iterations and number of live points.")
     return nsamps, samples_n
-
-
-def _find_decrease(samples_n):
-    """
-    Find all instances where the number of live points is either constant
-    or increasing.
-    Return the mask,
-    the values of nlive when nlives starts to decrease
-    The ranges of decreasing nlives
-    v=[3,2,1,13,13,12,23,22];
-    > print(dynesty.utils._find_decrease(v))
-    (array([ True, False, False,  True,  True, False,  True, False]),
-    [3, 13, 23],
-    [[0, 3], [4, 6], (6, 8)])
-
-    """
-    nsamps = len(samples_n)
-    nlive_flag = np.zeros(nsamps, dtype=bool)
-    nlive_start, bounds = [], []
-    nlive_flag[1:] = np.diff(samples_n) < 0
-
-    # For all the portions that are decreasing, find out where they start,
-    # where they end, and how many live points are present at that given
-    # iteration.
-    ids = np.nonzero(nlive_flag)[0]
-    if len(ids) > 0:
-        boundl = ids[0] - 1
-        last = ids[0]
-        nlive_start.append(samples_n[boundl])
-        for curi in ids[1:]:
-            if curi == last + 1:
-                last += 1
-                # we are in the interval of continuisly decreasing values
-                continue
-            else:
-                # we need to close the last interval
-                bounds.append([boundl, last + 1])
-                nlive_start.append(samples_n[curi - 1])
-                last = curi
-                boundl = curi - 1
-        # we need to close the last interval
-        bounds.append((boundl, last + 1))
-        nlive_start = np.array(nlive_start)
-    return ~nlive_flag, nlive_start, bounds
 
 
 def jitter_run(res, rstate=None, approx=False):
@@ -583,8 +278,8 @@ def jitter_run(res, rstate=None, approx=False):
         The :class:`~dynesty.results.Results` instance taken from a previous
         nested sampling run.
 
-    rstate : `~numpy.random.Generator`, optional
-        `~numpy.random.Generator` instance.
+    rstate : `~numpy.random.RandomState`, optional
+        `~numpy.random.RandomState` instance.
 
     approx : bool, optional
         Whether to approximate all sets of uniform order statistics by their
@@ -599,7 +294,7 @@ def jitter_run(res, rstate=None, approx=False):
     """
 
     if rstate is None:
-        rstate = get_random_generator()
+        rstate = np.random
 
     # Initialize evolution of live points over the course of the run.
     nsamps, samples_n = _get_nsamps_samples_n(res)
@@ -612,12 +307,30 @@ def jitter_run(res, rstate=None, approx=False):
     # If instead the number of live points is decreasing, that means we're
     # instead  sampling down a set of uniform random variables
     # (i.e. uniform order statistics).
+    nlive_flag = np.ones(nsamps, dtype='bool')
+    nlive_start, bounds = [], []
 
-    if approx:
-        nlive_flag = np.ones(nsamps, dtype=bool)
-        nlive_start, bounds = [], []
-    else:
-        nlive_flag, nlive_start, bounds = _find_decrease(samples_n)
+    if not approx:
+        # Find all instances where the number of live points is either constant
+        # or increasing.
+        nlive_flag[1:] = np.diff(samples_n) >= 0
+
+        # For all the portions that are decreasing, find out where they start,
+        # where they end, and how many live points are present at that given
+        # iteration.
+
+        if np.any(~nlive_flag):
+            i = 0
+            while i < nsamps:
+                if not nlive_flag[i]:
+                    bound = []
+                    bound.append(i-1)
+                    nlive_start.append(samples_n[i-1])
+                    while i < nsamps and not nlive_flag[i]:
+                        i += 1
+                    bound.append(i)
+                    bounds.append(bound)
+                i += 1
 
     # The maximum out of a set of `K_i` uniformly distributed random variables
     # has a marginal distribution of `Beta(K_i, 1)`.
@@ -638,10 +351,10 @@ def jitter_run(res, rstate=None, approx=False):
         nstart = nlive_start[i]
         bound = bounds[i]
         sn = samples_n[bound[0]:bound[1]]
-        y_arr = rstate.exponential(scale=1.0, size=nstart + 1)
+        y_arr = rstate.exponential(scale=1.0, size=nstart+1)
         ycsum = y_arr.cumsum()
         ycsum /= ycsum[-1]
-        uorder = ycsum[np.append(nstart, sn - 1)]
+        uorder = ycsum[np.append(nstart, sn-1)]
         rorder = uorder[1:] / uorder[:-1]
         t_arr[bound[0]:bound[1]] = rorder
 
@@ -649,109 +362,50 @@ def jitter_run(res, rstate=None, approx=False):
     # these into associated ln(volumes).
     logvol = np.log(t_arr).cumsum()
 
-    (saved_logwt, saved_logz, saved_logzvar,
-     saved_h) = compute_integrals(logl=logl, logvol=logvol)
+    # Compute weights using quadratic estimator.
+    h = 0.
+    logz = -1.e300
+    loglstar = -1.e300
+    logzvar = 0.
+    logvols_pad = np.concatenate(([0.], logvol))
+    logdvols = logsumexp(a=np.c_[logvols_pad[:-1], logvols_pad[1:]],
+                         axis=1, b=np.c_[np.ones(nsamps), -np.ones(nsamps)])
+    logdvols += math.log(0.5)
+    dlvs = -np.diff(np.append(0., res.logvol))
+    saved_logwt, saved_logz, saved_logzvar, saved_h = [], [], [], []
+    for i in range(nsamps):
+        loglstar_new = logl[i]
+        logdvol, dlv = logdvols[i], dlvs[i]
+        logwt = np.logaddexp(loglstar_new, loglstar) + logdvol
+        logz_new = np.logaddexp(logz, logwt)
+        lzterm = (math.exp(loglstar - logz_new) * loglstar +
+                  math.exp(loglstar_new - logz_new) * loglstar_new)
+        h_new = (math.exp(logdvol) * lzterm +
+                 math.exp(logz - logz_new) * (h + logz) -
+                 logz_new)
+        dh = h_new - h
+        h = h_new
+        logz = logz_new
+        logzvar += dh * dlv
+        loglstar = loglstar_new
+        saved_logwt.append(logwt)
+        saved_logz.append(logz)
+        saved_logzvar.append(logzvar)
+        saved_h.append(h)
+
+    # Copy results.
+    new_res = Results([item for item in res.items()])
 
     # Overwrite items with our new estimates.
-    substitute = {
-        'logvol': logvol,
-        'logwt': saved_logwt,
-        'logz': saved_logz,
-        'logzerr': np.sqrt(np.maximum(saved_logzvar, 0)),
-        'h': saved_h
-    }
+    new_res.logvol = np.array(logvol)
+    new_res.logwt = np.array(saved_logwt)
+    new_res.logz = np.array(saved_logz)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        new_res.logzerr = np.sqrt(np.array(saved_logzvar))
+    new_res.h = np.array(saved_h)
 
-    new_res = results_substitute(res, substitute)
     return new_res
-
-
-def compute_integrals(logl=None, logvol=None, reweight=None):
-    """
-    Compute weights, logzs and variances using quadratic estimator.
-    Returns logwt, logz, logzvar, h
-
-    Parameters:
-    -----------
-    logl: array
-        array of log likelihoods
-    logvol: array
-        array of log volumes
-    reweight: array (or None)
-        (optional) reweighting array to reweight posterior
-    """
-    # pylint: disable=invalid-unary-operand-type
-    # Unfortunately pylint doesn't get the asserts
-    assert logl is not None
-    assert logvol is not None
-
-    loglstar_pad = np.concatenate([[-1.e300], logl])
-
-    # we want log(exp(logvol_i)-exp(logvol_(i+1)))
-    # assuming that logvol0 = 0
-    # log(exp(LV_{i})-exp(LV_{i+1})) =
-    # = LV{i} + log(1-exp(LV_{i+1}-LV{i}))
-    # = LV_{i+1} - (LV_{i+1} -LV_i) + log(1-exp(LV_{i+1}-LV{i}))
-    dlogvol = np.diff(logvol, prepend=0)
-    logdvol = logvol - dlogvol + np.log1p(-np.exp(dlogvol))
-
-    # logdvol is log(delta(volumes)) i.e. log (X_i-X_{i-1})
-    logdvol2 = logdvol + math.log(0.5)
-    # These are log(1/2(X_(i+1)-X_i))
-
-    dlogvol = -np.diff(logvol, prepend=0)
-    # this are delta(log(volumes)) of the run
-
-    # These are log((L_i+L_{i_1})*(X_i+1-X_i)/2)
-    saved_logwt = np.logaddexp(loglstar_pad[1:], loglstar_pad[:-1]) + logdvol2
-    if reweight is not None:
-        saved_logwt = saved_logwt + reweight
-    saved_logz = np.logaddexp.accumulate(saved_logwt)
-    # This implements eqn 16 of Speagle2020
-
-    logzmax = saved_logz[-1]
-    # we'll need that to just normalize likelihoods to avoid overflows
-
-    # H is defined as
-    # H = 1/z int( L * ln(L) dX,X=0..1) - ln(z)
-    # incomplete H can be defined as
-    # H = int( L/Z * ln(L) dX,X=0..x) - z_x/Z * ln(Z)
-    h_part1 = np.cumsum(
-        (np.exp(loglstar_pad[1:] - logzmax + logdvol2) * loglstar_pad[1:] +
-         np.exp(loglstar_pad[:-1] - logzmax + logdvol2) * loglstar_pad[:-1]))
-    # here we divide the likelihood by zmax to avoid to overflow
-    saved_h = h_part1 - logzmax * np.exp(saved_logz - logzmax)
-    # changes in h in each step
-    dh = np.diff(saved_h, prepend=0)
-
-    # I'm applying abs() here to avoid nans down the line
-    # because partial H integrals could be negative
-    saved_logzvar = np.abs(np.cumsum(dh * dlogvol))
-    return saved_logwt, saved_logz, saved_logzvar, saved_h
-
-
-def progress_integration(loglstar, loglstar_new, logz, logzvar, logvol,
-                         dlogvol, h):
-    """
-    This is the calculation of weights and logz/var estimates one step at the
-    time.
-    Importantly the calculation of H is somewhat different from
-    compute_integrals as incomplete integrals of H() of require knowing Z
-
-    Return logwt, logz, logzvar, h
-    """
-    # Compute relative contribution to results.
-    logdvol = logsumexp(a=[logvol + dlogvol, logvol], b=[0.5, -0.5])
-    logwt = np.logaddexp(loglstar_new, loglstar) + logdvol  # weight
-    logz_new = np.logaddexp(logz, logwt)  # ln(evidence)
-    lzterm = (math.exp(loglstar - logz_new + logdvol) * loglstar +
-              math.exp(loglstar_new - logz_new + logdvol) * loglstar_new)
-    h_new = (lzterm + math.exp(logz - logz_new) * (h + logz) - logz_new
-             )  # information
-    dh = h_new - h
-
-    logzvar_new = logzvar + dh * dlogvol
-    # var[ln(evidence)] estimate
-    return logwt, logz_new, logzvar_new, h_new
 
 
 def resample_run(res, rstate=None, return_idx=False):
@@ -770,8 +424,8 @@ def resample_run(res, rstate=None, return_idx=False):
         The :class:`~dynesty.results.Results` instance taken from a previous
         nested sampling run.
 
-    rstate : `~numpy.random.Generator`, optional
-        `~numpy.random.Generator` instance.
+    rstate : `~numpy.random.RandomState`, optional
+        `~numpy.random.RandomState` instance.
 
     return_idx : bool, optional
         Whether to return the list of resampled indices used to construct
@@ -787,34 +441,36 @@ def resample_run(res, rstate=None, return_idx=False):
     """
 
     if rstate is None:
-        rstate = get_random_generator()
+        rstate = np.random
 
     # Check whether the final set of live points were added to the
     # run.
     nsamps = len(res.ncall)
-    if res.isdynamic():
+    try:
         # Check if the number of live points explicitly changes.
         samples_n = res.samples_n
         samples_batch = res.samples_batch
         batch_bounds = res.batch_bounds
         added_final_live = True
-    else:
+    except:
         # If the number of live points is constant, compute `samples_n` and
         # set up the `added_final_live` flag.
         nlive = res.nlive
         niter = res.niter
         if nsamps == niter:
-            samples_n = np.ones(niter, dtype=int) * nlive
+            samples_n = np.ones(niter, dtype='int') * nlive
             added_final_live = False
         elif nsamps == (niter + nlive):
-            samples_n = np.minimum(np.arange(nsamps, 0, -1), nlive)
+            samples_n = np.append(np.ones(niter, dtype='int') * nlive,
+                                  np.arange(1, nlive + 1)[::-1])
             added_final_live = True
         else:
             raise ValueError("Final number of samples differs from number of "
                              "iterations and number of live points.")
-        samples_batch = np.zeros(len(samples_n), dtype=int)
+        samples_batch = np.zeros(len(samples_n), dtype='int')
         batch_bounds = np.array([(-np.inf, np.inf)])
     batch_llmin = batch_bounds[:, 0]
+
     # Identify unique particles that make up each strand.
     ids = np.unique(res.samples_id)
 
@@ -835,10 +491,10 @@ def resample_run(res, rstate=None, return_idx=False):
 
     # Resample strands.
     if nbase > 0 and nadd > 0:
-        live_idx = np.append(base_ids[rstate.integers(0, nbase, size=nbase)],
-                             addon_ids[rstate.integers(0, nadd, size=nadd)])
+        live_idx = np.append(base_ids[rstate.randint(0, nbase, size=nbase)],
+                             addon_ids[rstate.randint(0, nadd, size=nadd)])
     elif nbase > 0:
-        live_idx = base_ids[rstate.integers(0, nbase, size=nbase)]
+        live_idx = base_ids[rstate.randint(0, nbase, size=nbase)]
     elif nadd > 0:
         raise ValueError("The provided `Results` does not include any points "
                          "initially sampled from the prior!")
@@ -848,8 +504,8 @@ def resample_run(res, rstate=None, return_idx=False):
 
     # Find corresponding indices within the original run.
     samp_idx = np.arange(len(res.ncall))
-    samp_idx = np.concatenate(
-        [samp_idx[res.samples_id == idx] for idx in live_idx])
+    samp_idx = np.concatenate([samp_idx[res.samples_id == idx]
+                               for idx in live_idx])
 
     # Derive new sample size.
     nsamps = len(samp_idx)
@@ -862,7 +518,7 @@ def resample_run(res, rstate=None, return_idx=False):
 
     if added_final_live:
         # Compute the effective number of live points for each sample.
-        samp_n = np.zeros(nsamps, dtype=int)
+        samp_n = np.zeros(nsamps, dtype='int')
         uidxs, uidxs_n = np.unique(live_idx, return_counts=True)
         for uidx, uidx_n in zip(uidxs, uidxs_n):
             sel = (res.samples_id == uidx)  # selection flag
@@ -879,7 +535,7 @@ def resample_run(res, rstate=None, return_idx=False):
             endsel = (logl == upper)
             endsel_n = np.count_nonzero(endsel)
             chunk = endsel_n / uidx_n  # define our chunk
-            counters = np.array(np.arange(endsel_n) / chunk, dtype=int)
+            counters = np.array(np.arange(endsel_n) / chunk, dtype='int')
             nlive_end = counters[::-1] + 1  # decreasing number of live points
             samp_n[endsel] += nlive_end  # add live point sequence
     else:
@@ -890,30 +546,60 @@ def resample_run(res, rstate=None, return_idx=False):
     # Assign log(volume) to samples.
     logvol = np.cumsum(np.log(samp_n / (samp_n + 1.)))
 
-    saved_logwt, saved_logz, saved_logzvar, saved_h = compute_integrals(
-        logl=logl, logvol=logvol)
+    # Computing weights using quadratic estimator.
+    h = 0.
+    logz = -1.e300
+    loglstar = -1.e300
+    logzvar = 0.
+    logvols_pad = np.concatenate(([0.], logvol))
+    logdvols = logsumexp(a=np.c_[logvols_pad[:-1], logvols_pad[1:]],
+                         axis=1, b=np.c_[np.ones(nsamps), -np.ones(nsamps)])
+    logdvols += math.log(0.5)
+    dlvs = logvols_pad[:-1] - logvols_pad[1:]
+    saved_logwt, saved_logz, saved_logzvar, saved_h = [], [], [], []
+    for i in range(nsamps):
+        loglstar_new = logl[i]
+        logdvol, dlv = logdvols[i], dlvs[i]
+        logwt = np.logaddexp(loglstar_new, loglstar) + logdvol
+        logz_new = np.logaddexp(logz, logwt)
+        lzterm = (math.exp(loglstar - logz_new) * loglstar +
+                  math.exp(loglstar_new - logz_new) * loglstar_new)
+        h_new = (math.exp(logdvol) * lzterm +
+                 math.exp(logz - logz_new) * (h + logz) -
+                 logz_new)
+        dh = h_new - h
+        h = h_new
+        logz = logz_new
+        logzvar += dh * dlv
+        loglstar = loglstar_new
+        saved_logwt.append(logwt)
+        saved_logz.append(logz)
+        saved_logzvar.append(logzvar)
+        saved_h.append(h)
 
     # Compute sampling efficiency.
     eff = 100. * len(res.ncall[samp_idx]) / sum(res.ncall[samp_idx])
 
     # Copy results.
+    new_res = Results([item for item in res.items()])
+
     # Overwrite items with our new estimates.
-    new_res_dict = dict(niter=len(res.ncall[samp_idx]),
-                        ncall=res.ncall[samp_idx],
-                        eff=eff,
-                        samples=res.samples[samp_idx],
-                        samples_id=res.samples_id[samp_idx],
-                        samples_it=res.samples_it[samp_idx],
-                        samples_u=res.samples_u[samp_idx],
-                        samples_n=samp_n,
-                        logwt=np.asarray(saved_logwt),
-                        logl=logl,
-                        logvol=logvol,
-                        logz=np.asarray(saved_logz),
-                        logzerr=np.sqrt(
-                            np.maximum(np.asarray(saved_logzvar), 0)),
-                        information=np.asarray(saved_h))
-    new_res = Results(new_res_dict)
+    new_res.niter = len(res.ncall[samp_idx])
+    new_res.ncall = res.ncall[samp_idx]
+    new_res.eff = eff
+    new_res.samples = res.samples[samp_idx]
+    new_res.samples_id = res.samples_id[samp_idx]
+    new_res.samples_it = res.samples_it[samp_idx]
+    new_res.samples_u = res.samples_u[samp_idx]
+    new_res.samples_n = samp_n
+    new_res.logwt = np.array(saved_logwt)
+    new_res.logl = logl
+    new_res.logvol = logvol
+    new_res.logz = np.array(saved_logz)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        new_res.logzerr = np.sqrt(np.array(saved_logzvar))
+    new_res.h = np.array(saved_h)
 
     if return_idx:
         return new_res, samp_idx
@@ -932,8 +618,8 @@ def simulate_run(res, rstate=None, return_idx=False, approx=False):
         The :class:`~dynesty.results.Results` instance taken from a previous
         nested sampling run.
 
-    rstate : `~numpy.random.Generator`, optional
-        `~numpy.random.Generator` instance.
+    rstate : `~numpy.random.RandomState`, optional
+        `~numpy.random.RandomState` instance.
 
     return_idx : bool, optional
         Whether to return the list of resampled indices used to construct
@@ -953,7 +639,7 @@ def simulate_run(res, rstate=None, return_idx=False, approx=False):
     """
 
     if rstate is None:
-        rstate = get_random_generator()
+        rstate = np.random
 
     # Resample run.
     new_res, samp_idx = resample_run(res, rstate=rstate, return_idx=True)
@@ -998,20 +684,51 @@ def reweight_run(res, logp_new, logp_old=None):
     logrwt = logp_new - logp_old  # ln(reweight)
     logvol = res['logvol']
     logl = res['logl']
+    nsamps = len(logvol)
 
-    saved_logwt, saved_logz, saved_logzvar, saved_h = compute_integrals(
-        logl=logl, logvol=logvol, reweight=logrwt)
+    # Compute weights using quadratic estimator.
+    h = 0.
+    logz = -1.e300
+    loglstar = -1.e300
+    logzvar = 0.
+    logvols_pad = np.concatenate(([0.], logvol))
+    logdvols = logsumexp(a=np.c_[logvols_pad[:-1], logvols_pad[1:]],
+                         axis=1, b=np.c_[np.ones(nsamps), -np.ones(nsamps)])
+    logdvols += math.log(0.5)
+    dlvs = -np.diff(np.append(0., logvol))
+    saved_logwt, saved_logz, saved_logzvar, saved_h = [], [], [], []
+    for i in range(nsamps):
+        loglstar_new = logl[i]
+        logdvol, dlv = logdvols[i], dlvs[i]
+        logwt = np.logaddexp(loglstar_new, loglstar) + logdvol + logrwt[i]
+        logz_new = np.logaddexp(logz, logwt)
+        try:
+            lzterm = (math.exp(loglstar - logz_new) * loglstar +
+                      math.exp(loglstar_new - logz_new) * loglstar_new)
+        except:
+            lzterm = 0.
+        h_new = (math.exp(logdvol) * lzterm +
+                 math.exp(logz - logz_new) * (h + logz) -
+                 logz_new)
+        dh = h_new - h
+        h = h_new
+        logz = logz_new
+        logzvar += dh * dlv
+        loglstar = loglstar_new
+        saved_logwt.append(logwt)
+        saved_logz.append(logz)
+        saved_logzvar.append(logzvar)
+        saved_h.append(h)
+
+    # Copy results.
+    new_res = Results([item for item in res.items()])
 
     # Overwrite items with our new estimates.
-    substitute = {
-        'logvol': logvol,
-        'logwt': saved_logwt,
-        'logz': saved_logz,
-        'logzerr': np.sqrt(np.maximum(saved_logzvar, 0)),
-        'h': saved_h
-    }
+    new_res.logwt = np.array(saved_logwt)
+    new_res.logz = np.array(saved_logz)
+    new_res.logzerr = np.sqrt(np.array(saved_logzvar))
+    new_res.h = np.array(saved_h)
 
-    new_res = results_substitute(res, substitute)
     return new_res
 
 
@@ -1051,7 +768,7 @@ def unravel_run(res, save_proposals=True, print_progress=True):
     try:
         if len(idxs) != (res.niter + res.nlive):
             added_live = False
-    except AttributeError:
+    except:
         pass
 
     # Recreate the nested sampling run for each strand.
@@ -1081,52 +798,80 @@ def unravel_run(res, save_proposals=True, print_progress=True):
             niter = nsamps
             logvol = -math.log(2) * (1. + np.arange(niter))
 
-        saved_logwt, saved_logz, saved_logzvar, saved_h = compute_integrals(
-            logl=logl, logvol=logvol)
+        # Compute weights using quadratic estimator.
+        h = 0.
+        logz = -1.e300
+        loglstar = -1.e300
+        logzvar = 0.
+        logvols_pad = np.concatenate(([0.], logvol))
+        logdvols = logsumexp(a=np.c_[logvols_pad[:-1], logvols_pad[1:]],
+                             axis=1, b=np.c_[np.ones(nsamps), -np.ones(nsamps)])
+        logdvols += math.log(0.5)
+        dlvs = logvols_pad[:-1] - logvols_pad[1:]
+        saved_logwt, saved_logz, saved_logzvar, saved_h = [], [], [], []
+        for i in range(nsamps):
+            loglstar_new = logl[i]
+            logdvol, dlv = logdvols[i], dlvs[i]
+            logwt = np.logaddexp(loglstar_new, loglstar) + logdvol
+            logz_new = np.logaddexp(logz, logwt)
+            lzterm = (math.exp(loglstar - logz_new) * loglstar +
+                      math.exp(loglstar_new - logz_new) * loglstar_new)
+            h_new = (math.exp(logdvol) * lzterm +
+                     math.exp(logz - logz_new) * (h + logz) -
+                     logz_new)
+            dh = h_new - h
+            h = h_new
+            logz = logz_new
+            logzvar += dh * dlv
+            loglstar = loglstar_new
+            saved_logwt.append(logwt)
+            saved_logz.append(logz)
+            saved_logzvar.append(logzvar)
+            saved_h.append(h)
 
         # Compute sampling efficiency.
         eff = 100. * nsamps / sum(res.ncall[strand])
 
         # Save results.
-        rdict = dict(nlive=1,
-                     niter=niter,
-                     ncall=res.ncall[strand],
-                     eff=eff,
-                     samples=res.samples[strand],
-                     samples_id=res.samples_id[strand],
-                     samples_it=res.samples_it[strand],
-                     samples_u=res.samples_u[strand],
-                     logwt=saved_logwt,
-                     logl=logl,
-                     logvol=logvol,
-                     logz=saved_logz,
-                     logzerr=np.sqrt(saved_logzvar),
-                     information=saved_h)
+        r = [('nlive', 1),
+             ('niter', niter),
+             ('ncall', res.ncall[strand]),
+             ('eff', eff),
+             ('samples', res.samples[strand]),
+             ('samples_id', res.samples_id[strand]),
+             ('samples_it', res.samples_it[strand]),
+             ('samples_u', res.samples_u[strand]),
+             ('logwt', np.array(saved_logwt)),
+             ('logl', logl),
+             ('logvol', logvol),
+             ('logz', np.array(saved_logz)),
+             ('logzerr', np.sqrt(np.array(saved_logzvar))),
+             ('h', np.array(saved_h))]
 
         # Add proposal information (if available).
         if save_proposals:
             try:
-                rdict['prop'] = res.prop
-                rdict['prop_iter'] = res.prop_iter[strand]
-                rdict['samples_prop'] = res.samples_prop[strand]
-                rdict['scale'] = res.scale[strand]
-            except AttributeError:
+                r.append(('prop', res.prop))
+                r.append(('prop_iter', res.prop_iter[strand]))
+                r.append(('samples_prop', res.samples_prop[strand]))
+                r.append(('scale', res.scale[strand]))
+            except:
                 pass
 
         # Add on batch information (if available).
         try:
-            rdict['samples_batch'] = res.samples_batch[strand]
-            rdict['batch_bounds'] = res.batch_bounds
-        except AttributeError:
+            r.append(('samples_batch', res.samples_batch[strand]))
+            r.append(('batch_bounds', res.batch_bounds))
+        except:
             pass
 
         # Append to list of strands.
-        new_res.append(Results(rdict))
+        new_res.append(Results(r))
 
         # Print progress.
         if print_progress:
-            sys.stderr.write('\rStrand: {0}/{1}     '.format(
-                counter + 1, nstrands))
+            sys.stderr.write('\rStrand: {0}/{1}     '
+                             .format(counter + 1, nstrands))
 
     return new_res
 
@@ -1165,7 +910,7 @@ def merge_runs(res_list, print_progress=True):
                 rlist_base.append(r)
             else:
                 rlist_add.append(r)
-        except AttributeError:
+        except:
             rlist_base.append(r)
     nbase, nadd = len(rlist_base), len(rlist_add)
     if nbase == 1 and nadd == 1:
@@ -1181,18 +926,18 @@ def merge_runs(res_list, print_progress=True):
             while i < nruns:
                 try:
                     # Ignore posterior quantities while merging the runs.
-                    r1, r2 = rlist_base[i], rlist_base[i + 1]
+                    r1, r2 = rlist_base[i], rlist_base[i+1]
                     res = _merge_two(r1, r2, compute_aux=False)
                     rlist_new.append(res)
-                except IndexError:
+                except:
                     # Append the odd run to the new list.
                     rlist_new.append(rlist_base[i])
                 i += 2
                 counter += 1
                 # Print progress.
                 if print_progress:
-                    sys.stderr.write('\rMerge: {0}/{1}     '.format(
-                        counter, ntot))
+                    sys.stderr.write('\rMerge: {0}/{1}     '.format(counter,
+                                                                    ntot))
             # Overwrite baseline set of results with merged results.
             rlist_base = copy.copy(rlist_new)
 
@@ -1213,47 +958,112 @@ def merge_runs(res_list, print_progress=True):
         if print_progress:
             sys.stderr.write('\rMerge: {0}/{1}     '.format(counter, ntot))
 
-    res = check_result_static(res)
-
-    return res
-
-
-def check_result_static(res):
-    """ If the run was from a dynamic run but had constant
-    number of live points, return a new Results object with
-    nlive parameter, so we could use it as static run
-    """
-    samples_n = _get_nsamps_samples_n(res)[1]
+    nsamps, samples_n = _get_nsamps_samples_n(res)
     nlive = max(samples_n)
     niter = res.niter
     standard_run = False
 
     # Check if we have a constant number of live points.
-    nlive_test = np.ones(niter, dtype=int) * nlive
-    if np.all(samples_n == nlive_test):
-        standard_run = True
+    try:
+        nlive_test = np.ones(niter, dtype='int') * nlive
+        if np.all(samples_n == nlive_test):
+            standard_run = True
+    except:
+        pass
 
     # Check if we have a constant number of live points where we have
     # recycled the final set of live points.
-    nlive_test = np.minimum(np.arange(niter, 0, -1), nlive)
-    if np.all(samples_n == nlive_test):
-        standard_run = True
+    try:
+        nlive_test = np.append(np.ones(niter - nlive, dtype='int') * nlive,
+                               np.arange(1, nlive + 1)[::-1])
+        if np.all(samples_n == nlive_test):
+            standard_run = True
+    except:
+        pass
+
     # If the number of live points is consistent with a standard nested
     # sampling run, slightly modify the format to keep with previous usage.
     if standard_run:
-        resdict = res.asdict()
-        resdict['nlive'] = nlive
-        resdict['niter'] = niter - nlive
-        # XXX TODO Is it correct to subtract nlive here ?
-        # That will make things inconsistent
-        res = Results(resdict)
+        res.__delitem__('samples_n')
+        res.nlive = nlive
+        res.niter = niter - nlive
+
     return res
 
 
-def kld_error(res,
-              error='simulate',
-              rstate=None,
-              return_new=False,
+def kl_divergence(res1, res2):
+    """
+    Computes the `Kullback-Leibler (KL) divergence
+    <https://en.wikipedia.org/wiki/Kullback-Leibler_divergence>`_ *from* the
+    discrete probability distribution defined by `res2` *to* the discrete
+    probability distribution defined by `res1`.
+
+    Parameters
+    ----------
+    res1 : :class:`~dynesty.results.Results` instance
+        :class:`~dynesty.results.Results` instance for the distribution we are
+        computing the KL divergence *to*. **Note that, by construction,
+        the samples in `res1` *must* be a subset of the samples in `res2`.**
+
+    res2 : :class:`~dynesty.results.Results` instance
+        :class:`~dynesty.results.Results` instance for the distribution we
+        are computing the KL divergence *from*. **Note that, by construction,
+        the samples in `res2` *must* be a superset of the samples in `res1`.**
+
+    Returns
+    -------
+    kld : `~numpy.ndarray` with shape (nsamps,)
+        The cumulative KL divergence defined over `res1`.
+
+    """
+
+    # Define our importance weights.
+    logp1, logp2 = res1.logwt - res1.logz[-1], res2.logwt - res2.logz[-1]
+
+    # Define the positions where the discrete probability distributions exists.
+    samples1, samples2 = res1.samples, res2.samples
+    samples1_id, samples2_id = res1.samples_id, res2.samples_id
+    nsamps1, nsamps2 = len(samples1), len(samples2)
+
+    # Compute the KL divergence.
+    if nsamps1 == nsamps2 and np.all(samples1_id == samples2_id):
+        # If our runs have the same particles in the same order, compute
+        # the KL divergence in one go.
+        kld = np.exp(logp1) * (logp1 - logp2)
+    else:
+        # Otherwise, compute the components of the KL divergence one at a time.
+        uidxs = np.unique(samples1_id)  # unique particle IDs
+        count1, count2 = np.arange(nsamps1), np.arange(nsamps2)
+        kld = np.zeros(nsamps1)
+        for uidx in uidxs:
+
+            # Select matching particles.
+            sel1 = count1[samples1_id == uidx]
+            sel2 = count2[samples2_id == uidx]
+
+            # Select corresponding positions.
+            pos1, pos2 = samples1[sel1], samples2[sel2]
+            for s, p in zip(sel1, pos1):
+                # Search for a matching position.
+                pos_sel = sel2[np.all(np.isclose(pos2, p), axis=1)]
+                npos = len(pos_sel)
+                if npos > 1:
+                    # If there are several possible matches, pick the
+                    # one with the closet importance weight.
+                    diff = logp1[s] - logp2[pos_sel]
+                    # Compute the `s`-th term.
+                    kld[s] = np.exp(logp1[s]) * diff[np.argmin(abs(diff))]
+                elif npos == 1:
+                    # If there is only one match, compute the result directly.
+                    kld[s] = np.exp(logp1[s]) * (logp1[s] - logp2[pos_sel])
+                else:
+                    raise ValueError("Distribution from `res2` undefined at "
+                                     "position {0}.".format(p))
+
+    return np.cumsum(kld)
+
+
+def kld_error(res, error='simulate', rstate=None, return_new=False,
               approx=False):
     """
     Computes the `Kullback-Leibler (KL) divergence
@@ -1272,8 +1082,8 @@ def kld_error(res,
         :meth:`resample_run`, and :meth:`simulate_run`, respectively.
         Default is `'simulate'`.
 
-    rstate : `~numpy.random.Generator`, optional
-        `~numpy.random.Generator` instance.
+    rstate : `~numpy.random.RandomState`, optional
+        `~numpy.random.RandomState` instance.
 
     return_new : bool, optional
         Whether to return the realization of the run used to compute the
@@ -1309,8 +1119,8 @@ def kld_error(res,
         new_res = jitter_run(new_res)
         logp2 = logp2[samp_idx]  # re-order our original results to match
     else:
-        raise ValueError(
-            "Input `'error'` option '{0}' is not valid.".format(error))
+        raise ValueError("Input `'error'` option '{0}' is not valid."
+                         .format(error))
 
     # Define our new importance weights.
     logp1 = new_res.logwt - new_res.logz[-1]
@@ -1352,104 +1162,132 @@ def _merge_two(res1, res2, compute_aux=False):
     """
 
     # Initialize the first ("base") run.
-    base_info = dict(id=res1.samples_id,
-                     u=res1.samples_u,
-                     v=res1.samples,
-                     logl=res1.logl,
-                     nc=res1.ncall,
-                     it=res1.samples_it)
-    nbase = len(base_info['id'])
+    base_id = res1.samples_id
+    base_u = res1.samples_u
+    base_v = res1.samples
+    base_logl = res1.logl
+    base_nc = res1.ncall
+    base_it = res1.samples_it
+    nbase = len(base_id)
 
     # Number of live points throughout the run.
-    if res1.isdynamic():
+    try:
         base_n = res1.samples_n
-    else:
+    except:
         niter, nlive = res1.niter, res1.nlive
         if nbase == niter:
-            base_n = np.ones(niter, dtype=int) * nlive
+            base_n = np.ones(niter, dtype='int') * nlive
         elif nbase == (niter + nlive):
-            base_n = np.minimum(np.arange(nbase, 0, -1), nlive)
+            base_n = np.append(np.ones(niter, dtype='int') * nlive,
+                               np.arange(1, nlive + 1)[::-1])
         else:
             raise ValueError("Final number of samples differs from number of "
                              "iterations and number of live points in `res1`.")
 
+    # Proposal information (if available).
+    try:
+        base_prop = res1.prop
+        base_propidx = res1.samples_prop
+        base_piter = res1.prop_iter
+        base_scale = res1.scale
+        base_proposals = True
+    except:
+        base_proposals = False
+
     # Batch information (if available).
-    # note we also check for existance of batch_bounds
-    # because unravel_run makes 'static' runs of 1 livepoint
-    # but some will have bounds
-    if res1.isdynamic() or 'batch_bounds' in res1.keys():
-        base_info['batch'] = res1.samples_batch
-        base_info['bounds'] = res1.batch_bounds
-    else:
-        base_info['batch'] = np.zeros(nbase, dtype=int)
-        base_info['bounds'] = np.array([(-np.inf, np.inf)])
+    try:
+        base_batch = res1.samples_batch
+        base_bounds = res1.batch_bounds
+    except:
+        base_batch = np.zeros(nbase, dtype='int')
+        base_bounds = np.array([(-np.inf, np.inf)])
 
     # Initialize the second ("new") run.
-    new_info = dict(id=res2.samples_id,
-                    u=res2.samples_u,
-                    v=res2.samples,
-                    logl=res2.logl,
-                    nc=res2.ncall,
-                    it=res2.samples_it)
-    nnew = len(new_info['id'])
+    new_id = res2.samples_id
+    new_u = res2.samples_u
+    new_v = res2.samples
+    new_logl = res2.logl
+    new_nc = res2.ncall
+    new_it = res2.samples_it
+    nnew = len(new_id)
 
     # Number of live points throughout the run.
-    if res2.isdynamic():
+    try:
         new_n = res2.samples_n
-    else:
+    except:
         niter, nlive = res2.niter, res2.nlive
         if nnew == niter:
-            new_n = np.ones(niter, dtype=int) * nlive
+            new_n = np.ones(niter, dtype='int') * nlive
         elif nnew == (niter + nlive):
-            new_n = np.minimum(np.arange(nnew, 0, -1), nlive)
+            new_n = np.append(np.ones(niter, dtype='int') * nlive,
+                              np.arange(1, nlive + 1)[::-1])
         else:
             raise ValueError("Final number of samples differs from number of "
                              "iterations and number of live points in `res2`.")
 
+    # Proposal information (if available).
+    try:
+        new_prop = res2.prop
+        new_propidx = res2.samples_prop
+        new_piter = res2.prop_iter
+        new_scale = res2.scale
+        new_proposals = True
+    except:
+        new_proposals = False
+
     # Batch information (if available).
-    # note we also check for existance of batch_bounds
-    # because unravel_run makes 'static' runs of 1 livepoint
-    # but some will have bounds
-    if res2.isdynamic() or 'batch_bounds' in res2.keys():
-        new_info['batch'] = res2.samples_batch
-        new_info['bounds'] = res2.batch_bounds
-    else:
-        new_info['batch'] = np.zeros(nnew, dtype=int)
-        new_info['bounds'] = np.array([(-np.inf, np.inf)])
+    try:
+        new_batch = res2.samples_batch
+        new_bounds = res2.batch_bounds
+    except:
+        new_batch = np.zeros(nnew, dtype='int')
+        new_bounds = np.array([(-np.inf, np.inf)])
 
     # Initialize our new combind run.
-    combined_info = dict(id=[],
-                         u=[],
-                         v=[],
-                         logl=[],
-                         logvol=[],
-                         logwt=[],
-                         logz=[],
-                         logzvar=[],
-                         h=[],
-                         nc=[],
-                         it=[],
-                         n=[],
-                         batch=[])
+    combined_id = []
+    combined_u = []
+    combined_v = []
+    combined_logl = []
+    combined_logvol = []
+    combined_logwt = []
+    combined_logz = []
+    combined_logzvar = []
+    combined_h = []
+    combined_nc = []
+    combined_propidx = []
+    combined_it = []
+    combined_n = []
+    combined_piter = []
+    combined_scale = []
+    combined_batch = []
+
+    # Check if proposal info is the same and modify counters accordingly.
+    if base_proposals and new_proposals:
+        if base_prop == new_prop:
+            prop = base_prop
+            poffset = 0
+        else:
+            prop = np.concatenate((base_prop, new_prop))
+            poffset = len(base_prop)
 
     # Check if batch info is the same and modify counters accordingly.
-    if np.all(base_info['bounds'] == new_info['bounds']):
-        bounds = base_info['bounds']
+    if np.all(base_bounds == new_bounds):
+        bounds = base_bounds
         boffset = 0
     else:
-        bounds = np.concatenate((base_info['bounds'], new_info['bounds']))
-        boffset = len(base_info['bounds'])
+        bounds = np.concatenate((base_bounds, new_bounds))
+        boffset = len(base_bounds)
 
     # Start our counters at the beginning of each set of dead points.
     idx_base, idx_new = 0, 0
-    logl_b, logl_n = base_info['logl'][idx_base], new_info['logl'][idx_new]
+    logl_b, logl_n = base_logl[idx_base], new_logl[idx_new]
     nlive_b, nlive_n = base_n[idx_base], new_n[idx_new]
 
     # Iteratively walk through both set of samples to simulate
     # a combined run.
     ntot = nbase + nnew
-    llmin_b = np.min(base_info['bounds'][base_info['batch']])
-    llmin_n = np.min(new_info['bounds'][new_info['batch']])
+    llmin_b = np.min(base_bounds[base_batch])
+    llmin_n = np.min(new_bounds[new_batch])
     logvol = 0.
     for i in range(ntot):
         if logl_b > llmin_n and logl_n > llmin_b:
@@ -1467,209 +1305,121 @@ def _merge_two(res1, res2, compute_aux=False):
 
         # Increment our position along depending on
         # which dead point (saved or new) is worse.
-
         if logl_b <= logl_n:
-            add_idx = idx_base
-            from_run = base_info
+            combined_id.append(base_id[idx_base])
+            combined_u.append(base_u[idx_base])
+            combined_v.append(base_v[idx_base])
+            combined_logl.append(base_logl[idx_base])
+            combined_nc.append(base_nc[idx_base])
+            combined_it.append(base_it[idx_base])
+            combined_batch.append(base_batch[idx_base])
+            if base_proposals and new_proposals:
+                combined_propidx.append(base_propidx[idx_base])
+                combined_piter.append(base_piter[idx_base])
+                combined_scale.append(base_scale[idx_base])
             idx_base += 1
-            combined_info['batch'].append(from_run['batch'][add_idx])
         else:
-            add_idx = idx_new
-            from_run = new_info
+            combined_id.append(new_id[idx_new])
+            combined_u.append(new_u[idx_new])
+            combined_v.append(new_v[idx_new])
+            combined_logl.append(new_logl[idx_new])
+            combined_nc.append(new_nc[idx_new])
+            combined_it.append(new_it[idx_new])
+            combined_batch.append(new_batch[idx_new] + boffset)
+            if base_proposals and new_proposals:
+                combined_propidx.append(new_propidx[idx_new] + poffset)
+                combined_piter.append(new_piter[idx_new] + poffset)
+                combined_scale.append(new_scale[idx_new])
             idx_new += 1
-            combined_info['batch'].append(from_run['batch'][add_idx] + boffset)
-
-        for curk in ['id', 'u', 'v', 'logl', 'nc', 'it']:
-            combined_info[curk].append(from_run[curk][add_idx])
 
         # Save the number of live points and expected ln(volume).
         logvol -= math.log((nlive + 1.) / nlive)
-        combined_info['n'].append(nlive)
-        combined_info['logvol'].append(logvol)
+        combined_n.append(nlive)
+        combined_logvol.append(logvol)
 
         # Attempt to step along our samples. If we're out of samples,
         # set values to defaults.
         try:
-            logl_b = base_info['logl'][idx_base]
+            logl_b = base_logl[idx_base]
             nlive_b = base_n[idx_base]
-        except IndexError:
+        except:
             logl_b = np.inf
             nlive_b = 0
         try:
-            logl_n = new_info['logl'][idx_new]
+            logl_n = new_logl[idx_new]
             nlive_n = new_n[idx_new]
-        except IndexError:
+        except:
             logl_n = np.inf
             nlive_n = 0
 
     # Compute sampling efficiency.
-    eff = 100. * ntot / sum(combined_info['nc'])
+    eff = 100. * ntot / sum(combined_nc)
 
     # Save results.
-    r = dict(niter=ntot,
-             ncall=np.asarray(combined_info['nc']),
-             eff=eff,
-             samples=np.asarray(combined_info['v']),
-             logl=np.asarray(combined_info['logl']),
-             logvol=np.asarray(combined_info['logvol']),
-             batch_bounds=np.asarray(bounds))
+    r = [('niter', ntot),
+         ('ncall', np.array(combined_nc)),
+         ('eff', eff),
+         ('samples', np.array(combined_v)),
+         ('samples_id', np.array(combined_id)),
+         ('samples_it', np.array(combined_it)),
+         ('samples_n', np.array(combined_n)),
+         ('samples_u', np.array(combined_u)),
+         ('samples_batch', np.array(combined_batch)),
+         ('logl', np.array(combined_logl)),
+         ('logvol', np.array(combined_logvol)),
+         ('batch_bounds', np.array(bounds))]
 
-    for curk in ['id', 'it', 'n', 'u', 'batch']:
-        r['samples_' + curk] = np.asarray(combined_info[curk])
+    # Add proposal information (if available).
+    if base_proposals and new_proposals:
+        r.append(('prop', prop))
+        r.append(('prop_iter', np.array(combined_piter)))
+        r.append(('samples_prop', np.array(combined_propidx)))
+        r.append(('scale', np.array(combined_scale)))
 
     # Compute the posterior quantities of interest if desired.
     if compute_aux:
-
-        (r['logwt'], r['logz'], combined_logzvar,
-         r['information']) = compute_integrals(logvol=r['logvol'],
-                                               logl=r['logl'])
-        r['logzerr'] = np.sqrt(np.maximum(combined_logzvar, 0))
+        h = 0.
+        logz = -1.e300
+        loglstar = -1.e300
+        logzvar = 0.
+        logvols_pad = np.concatenate(([0.], combined_logvol))
+        logdvols = logsumexp(a=np.c_[logvols_pad[:-1], logvols_pad[1:]],
+                             axis=1, b=np.c_[np.ones(ntot), -np.ones(ntot)])
+        logdvols += math.log(0.5)
+        dlvs = logvols_pad[:-1] - logvols_pad[1:]
+        for i in range(ntot):
+            loglstar_new = combined_logl[i]
+            logdvol, dlv = logdvols[i], dlvs[i]
+            logwt = np.logaddexp(loglstar_new, loglstar) + logdvol
+            logz_new = np.logaddexp(logz, logwt)
+            lzterm = (math.exp(loglstar - logz_new) * loglstar +
+                      math.exp(loglstar_new - logz_new) * loglstar_new)
+            h_new = (math.exp(logdvol) * lzterm +
+                     math.exp(logz - logz_new) * (h + logz) -
+                     logz_new)
+            dh = h_new - h
+            h = h_new
+            logz = logz_new
+            logzvar += dh * dlv
+            loglstar = loglstar_new
+            combined_logwt.append(logwt)
+            combined_logz.append(logz)
+            combined_logzvar.append(logzvar)
+            combined_h.append(h)
 
         # Compute batch information.
-        combined_id = np.asarray(combined_info['id'])
-        batch_nlive = [
-            len(np.unique(combined_id[combined_info['batch'] == i]))
-            for i in np.unique(combined_info['batch'])
-        ]
+        combined_id = np.array(combined_id)
+        batch_nlive = [len(np.unique(combined_id[combined_batch == i]))
+                       for i in np.unique(combined_batch)]
 
         # Add to our results.
-        r['batch_nlive'] = np.array(batch_nlive, dtype=int)
+        r.append(('logwt', np.array(combined_logwt)))
+        r.append(('logz', np.array(combined_logz)))
+        r.append(('logzerr', np.sqrt(np.array(combined_logzvar))))
+        r.append(('h', np.array(combined_h)))
+        r.append(('batch_nlive', np.array(batch_nlive, dtype='int')))
 
     # Combine to form final results object.
     res = Results(r)
 
     return res
-
-
-def _kld_error(args):
-    """ Internal `pool.map`-friendly wrapper for :meth:`kld_error`
-    used by :meth:`stopping_function`."""
-
-    # Extract arguments.
-    results, error, approx, rseed = args
-    rstate = get_random_generator(rseed)
-    return kld_error(results,
-                     error,
-                     rstate=rstate,
-                     return_new=True,
-                     approx=approx)
-
-
-def old_stopping_function(results,
-                          args=None,
-                          rstate=None,
-                          M=None,
-                          return_vals=False):
-    """
-    The default stopping function utilized by :class:`DynamicSampler`.
-    Zipped parameters are passed to the function via :data:`args`.
-    Assigns the run a stopping value based on a weighted average of the
-    stopping values for the posterior and evidence::
-        stop = pfrac * stop_post + (1.- pfrac) * stop_evid
-    The evidence stopping value is based on the estimated evidence error
-    (i.e. standard deviation) relative to a given threshold::
-        stop_evid = evid_std / evid_thresh
-    The posterior stopping value is based on the fractional error (i.e.
-    standard deviation / mean) in the Kullback-Leibler (KL) divergence
-    relative to a given threshold::
-        stop_post = (kld_std / kld_mean) / post_thresh
-    Estimates of the mean and standard deviation are computed using `n_mc`
-    realizations of the input using a provided `'error'` keyword (either
-    `'jitter'` or `'simulate'`, which call related functions :meth:`jitter_run`
-    and :meth:`simulate_run` in :mod:`dynesty.utils`, respectively, or
-    `'sim_approx'`
-    Returns the boolean `stop <= 1`. If `True`, the :class:`DynamicSampler`
-    will stop adding new samples to our results.
-    Parameters
-    ----------
-    results : :class:`Results` instance
-        :class:`Results` instance.
-    args : dictionary of keyword arguments, optional
-        Arguments used to set the stopping values. Default values are
-        `pfrac = 1.0`, `evid_thresh = 0.1`, `post_thresh = 0.02`,
-        `n_mc = 128`, `error = 'sim_approx'`, and `approx = True`.
-    rstate : `~numpy.random.Generator`, optional
-        `~numpy.random.Generator` instance.
-    M : `map` function, optional
-        An alias to a `map`-like function. This allows users to pass
-        functions from pools (e.g., `pool.map`) to compute realizations in
-        parallel. By default the standard `map` function is used.
-    return_vals : bool, optional
-        Whether to return the stopping value (and its components). Default
-        is `False`.
-    Returns
-    -------
-    stop_flag : bool
-        Boolean flag indicating whether we have passed the desired stopping
-        criteria.
-    stop_vals : tuple of shape (3,), optional
-        The individual stopping values `(stop_post, stop_evid, stop)` used
-        to determine the stopping criteria.
-    """
-
-    with warnings.catch_warnings():
-        warnings.filterwarnings("once")
-        warnings.warn(
-            "This an old stopping function that will "
-            "be removed in future releases", DeprecationWarning)
-    # Initialize values.
-    if args is None:
-        args = dict({})
-    if M is None:
-        M = map
-
-    # Initialize hyperparameters.
-    pfrac = args.get('pfrac', 1.0)
-    if not 0. <= pfrac <= 1.:
-        raise ValueError(
-            "The provided `pfrac` {0} is not between 0. and 1.".format(pfrac))
-    evid_thresh = args.get('evid_thresh', 0.1)
-    if pfrac < 1. and evid_thresh < 0.:
-        raise ValueError("The provided `evid_thresh` {0} is not non-negative "
-                         "even though `1. - pfrac` is {1}.".format(
-                             evid_thresh, 1. - pfrac))
-    post_thresh = args.get('post_thresh', 0.02)
-    if pfrac > 0. and post_thresh < 0.:
-        raise ValueError("The provided `post_thresh` {0} is not non-negative "
-                         "even though `pfrac` is {1}.".format(
-                             post_thresh, pfrac))
-    n_mc = args.get('n_mc', 128)
-    if n_mc <= 1:
-        raise ValueError("The number of realizations {0} must be greater "
-                         "than 1.".format(n_mc))
-    if n_mc < 20:
-        warnings.warn("Using a small number of realizations might result in "
-                      "excessively noisy stopping value estimates.")
-    error = args.get('error', 'sim_approx')
-    if error not in {'jitter', 'simulate', 'sim_approx'}:
-        raise ValueError(
-            "The chosen `'error'` option {0} is not valid.".format(error))
-    if error == 'sim_approx':
-        error = 'jitter'
-    approx = args.get('approx', True)
-
-    # Compute realizations of ln(evidence) and the KL divergence.
-    rlist = [results for i in range(n_mc)]
-    error_list = [error for i in range(n_mc)]
-    approx_list = [approx for i in range(n_mc)]
-    seeds = get_seed_sequence(rstate, n_mc)
-    args = zip(rlist, error_list, approx_list, seeds)
-    outputs = list(M(_kld_error, args))
-    kld_arr, lnz_arr = np.array([(kld[-1], res.logz[-1])
-                                 for kld, res in outputs]).T
-
-    # Evidence stopping value.
-    lnz_std = np.std(lnz_arr)
-    stop_evid = lnz_std / evid_thresh
-
-    # Posterior stopping value.
-    kld_mean, kld_std = np.mean(kld_arr), np.std(kld_arr)
-    stop_post = (kld_std / kld_mean) / post_thresh
-
-    # Effective stopping value.
-    stop = pfrac * stop_post + (1. - pfrac) * stop_evid
-
-    if return_vals:
-        return stop <= 1., (stop_post, stop_evid, stop)
-    else:
-        return stop <= 1.

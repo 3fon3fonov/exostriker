@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 """
 The top-level interface (defined natively upon initialization) that
 provides access to the two main sampler "super-classes" via
@@ -7,20 +8,25 @@ provides access to the two main sampler "super-classes" via
 
 """
 
+from __future__ import (print_function, division)
+
 import sys
 import warnings
 import math
-import traceback
 import numpy as np
 
-from .nestedsamplers import _SAMPLING
-from .dynamicsampler import (DynamicSampler, _get_update_interval_ratio,
-                             _SAMPLERS, sample_init)
-from .utils import (LogLikelihood, get_random_generator, get_enlarge_bootstrap,
-                    get_nonbounded)
+from .nestedsamplers import (UnitCubeSampler, SingleEllipsoidSampler,
+                             MultiEllipsoidSampler, RadFriendsSampler,
+                             SupFriendsSampler, _SAMPLING)
+from .dynamicsampler import DynamicSampler
 
 __all__ = ["NestedSampler", "DynamicNestedSampler", "_function_wrapper"]
 
+_SAMPLERS = {'none': UnitCubeSampler,
+             'single': SingleEllipsoidSampler,
+             'multi': MultiEllipsoidSampler,
+             'balls': RadFriendsSampler,
+             'cubes': SupFriendsSampler}
 
 _CITES = {'default':  # default set of citations
           "Code and Methods:\n================\n"
@@ -61,6 +67,10 @@ _CITES = {'default':  # default set of citations
           "Sampling Method:\n===============\n"
           "Skilling (2006): "
           "projecteuclid.org/euclid.ba/1340370944\n",
+          'rstagger':  # random stagger
+          "Sampling Method:\n===============\n"
+          "Skilling (2006): "
+          "projecteuclid.org/euclid.ba/1340370944\n",
           'slice':  # multivariate slice
           "Sampling Method:\n===============\n"
           "Neal (2003): "
@@ -91,114 +101,18 @@ _CITES = {'default':  # default set of citations
 SQRTEPS = math.sqrt(float(np.finfo(np.float64).eps))
 
 
-def _get_auto_sample(ndim, gradient):
-    """ Decode which sampling method to use
-
-    Arguments:
-    ndim: int (dimensionality)
-    gradient: (None or function/true)
-    Returns: sampler string
-    """
-    if ndim < 10:
-        sample = 'unif'
-    elif 10 <= ndim <= 20:
-        sample = 'rwalk'
-    else:
-        if gradient is None:
-            sample = 'rslice'
-        else:
-            sample = 'hslice'
-    return sample
-
-
-def _get_walks_slices(walks0, slices0, sample, ndim):
-    """
-    Get the best number of steps for random walk/slicing based on
-    the type of sampler and dimension
-
-    Arguments:
-    walks0: integer (provided by user or none for auto)
-    slices0: integer (provided by user or none for auto)
-    sample: string (sampler type)
-    ndim: int (dimensionality)
-    Returns the tuple with number of walk steps, number of slice steps
-    """
-    walks, slices = None, None
-    # see https://github.com/joshspeagle/dynesty/issues/289
-    if sample in ['hslice', 'rslice']:
-        slices = 3 + ndim
-    elif sample == 'slice':
-        slices = 3
-        # we don't add dimensions, since we loop over them
-    elif sample == 'rwalk':
-        # this is technically incorrect a we need to add ndim **2
-        walks = 20 + ndim
-    slices = slices0 or slices
-    walks = walks0 or walks
-    return walks, slices
-
-
-def _parse_pool_queue(pool, queue_size):
-    """
-    Common functionality of interpretign the pool and queue_size
-    arguments to Dynamic and static nested samplers
-    """
-    if queue_size is not None and queue_size < 1:
-        raise ValueError("The queue must contain at least one element!")
-    elif (queue_size == 1) or (pool is None and queue_size is None):
-        M = map
-        queue_size = 1
-    elif pool is not None:
-        M = pool.map
-        if queue_size is None:
-            try:
-                queue_size = pool.size
-            except AttributeError:
-                raise ValueError("Cannot initialize `queue_size` because "
-                                 "`pool.size` has not been provided. Please"
-                                 "define `pool.size` or specify `queue_size` "
-                                 "explicitly.")
-    else:
-        raise ValueError("`queue_size > 1` but no `pool` provided.")
-
-    return M, queue_size
-
-
-def NestedSampler(loglikelihood,
-                  prior_transform,
-                  ndim,
-                  nlive=500,
-                  bound='multi',
-                  sample='auto',
-                  periodic=None,
-                  reflective=None,
-                  update_interval=None,
-                  first_update=None,
-                  npdim=None,
-                  rstate=None,
-                  queue_size=None,
-                  pool=None,
-                  use_pool=None,
-                  live_points=None,
-                  logl_args=None,
-                  logl_kwargs=None,
-                  ptform_args=None,
-                  ptform_kwargs=None,
-                  gradient=None,
-                  grad_args=None,
-                  grad_kwargs=None,
+def NestedSampler(loglikelihood, prior_transform, ndim, nlive=500,
+                  bound='multi', sample='auto', periodic=None, reflective=None,
+                  update_interval=None, first_update=None,
+                  npdim=None, rstate=None, queue_size=None, pool=None,
+                  use_pool=None, live_points=None,
+                  logl_args=None, logl_kwargs=None,
+                  ptform_args=None, ptform_kwargs=None,
+                  gradient=None, grad_args=None, grad_kwargs=None,
                   compute_jac=False,
-                  enlarge=None,
-                  bootstrap=None,
-                  walks=None,
-                  facc=0.5,
-                  slices=None,
-                  fmove=0.9,
-                  max_move=100,
-                  update_func=None,
-                  ncdim=None,
-                  save_history=False,
-                  history_filename=None):
+                  enlarge=None, bootstrap=0, vol_dec=0.5, vol_check=2.0,
+                  walks=25, facc=0.5, slices=5, fmove=0.9, max_move=100,
+                  update_func=None, ncdim=None, **kwargs):
     """
     Initializes and returns a sampler object for Static Nested Sampling.
 
@@ -237,12 +151,13 @@ def NestedSampler(loglikelihood,
         (`'multi'`), balls centered on each live point (`'balls'`), and
         cubes centered on each live point (`'cubes'`). Default is `'multi'`.
 
-    sample : {`'auto'`, `'unif'`, `'rwalk'`,
+    sample : {`'auto'`, `'unif'`, `'rwalk'`, `'rstagger'`,
               `'slice'`, `'rslice'`, `'hslice'`, callable}, optional
         Method used to sample uniformly within the likelihood constraint,
         conditioned on the provided bounds. Unique methods available are:
         uniform sampling within the bounds(`'unif'`),
         random walks with fixed proposals (`'rwalk'`),
+        random walks with variable ("staggering") proposals (`'rstagger'`),
         multivariate slice sampling along preferred orientations (`'slice'`),
         "random" slice sampling along all orientations (`'rslice'`),
         "Hamiltonian" slices along random trajectories (`'hslice'`), and
@@ -253,8 +168,8 @@ def NestedSampler(loglikelihood,
         When `ndim < 10`, this defaults to `'unif'`.
         When `10 <= ndim <= 20`, this defaults to `'rwalk'`.
         When `ndim > 20`, this defaults to `'hslice'` if a `gradient` is
-        provided and `'rslice'` otherwise. `'slice'`
-        is provided as alternatives for`'rslice'`.
+        provided and `'slice'` otherwise. `'rstagger'` and `'rslice'`
+        are provided as alternatives for `'rwalk'` and `'slice'`, respectively.
         Default is `'auto'`.
 
     periodic : iterable, optional
@@ -278,7 +193,7 @@ def NestedSampler(loglikelihood,
         call. Larger update intervals larger can be more efficient
         when the likelihood function is quick to evaluate. Default behavior
         is to target a roughly constant change in prior volume, with
-        `1.5` for `'unif'`, `0.15 * walks` for `'rwalk'`.
+        `1.5` for `'unif'`, `0.15 * walks` for `'rwalk'` and `'rstagger'`,
         `0.9 * ndim * slices` for `'slice'`, `2.0 * slices` for `'rslice'`,
         and `25.0 * slices` for `'hslice'`.
 
@@ -296,8 +211,8 @@ def NestedSampler(loglikelihood,
         upon multiple independently distributed parameters, some of which may
         be nuisance parameters.
 
-    rstate : `~numpy.random.Generator`, optional
-        `~numpy.random.Generator` instance. If not given, the
+    rstate : `~numpy.random.RandomState`, optional
+        `~numpy.random.RandomState` instance. If not given, the
          global random state of the `~numpy.random` module will be used.
 
     queue_size : int, optional
@@ -374,9 +289,18 @@ def NestedSampler(loglikelihood,
         Compute this many bootstrapped realizations of the bounding
         objects. Use the maximum distance found to the set of points left
         out during each iteration to enlarge the resulting volumes. Can
-        lead to unstable bounding ellipsoids. Default is `None` (no bootstrap
-        unless the sampler is uniform). If bootstrap is set to zero,
-        bootstrap is disabled.
+        lead to unstable bounding ellipsoids. Default is `0` (no bootstrap).
+
+    vol_dec : float, optional
+        For the `'multi'` bounding option, the required fractional reduction
+        in volume after splitting an ellipsoid in order to to accept the split.
+        Default is `0.5`.
+
+    vol_check : float, optional
+        For the `'multi'` bounding option, the factor used when checking if
+        the volume of the original bounding ellipsoid is large enough to
+        warrant `> 2` splits via `ell.vol > vol_check * nlive * pointvol`.
+        Default is `2.0`.
 
     walks : int, optional
         For the `'rwalk'` sampling option, the minimum number of steps
@@ -436,18 +360,20 @@ def NestedSampler(loglikelihood,
 
     # Sampling method.
     if sample == 'auto':
-        sample = _get_auto_sample(ndim, gradient)
-
-    walks, slices = _get_walks_slices(walks, slices, sample, ndim)
-
-    if ncdim != npdim and sample in ['slice', 'hslice', 'rslice']:
-        raise ValueError('ncdim unsupported for slice sampling')
+        if npdim < 10:
+            sample = 'unif'
+        elif 10 <= npdim <= 20:
+            sample = 'rwalk'
+        else:
+            if gradient is None:
+                sample = 'slice'
+            else:
+                sample = 'hslice'
 
     # Custom sampling function.
     if sample not in _SAMPLING and not callable(sample):
         raise ValueError("Unknown sampling method: '{0}'".format(sample))
 
-    kwargs = {}
     # Custom updating function.
     if update_func is not None and not callable(update_func):
         raise ValueError("Unknown update function: '{0}'".format(update_func))
@@ -460,11 +386,43 @@ def NestedSampler(loglikelihood,
     # Dimensional warning check.
     if nlive <= 2 * ndim:
         warnings.warn("Beware! Having `nlive <= 2 * ndim` is extremely risky!")
+    elif nlive < ndim * (ndim + 1) // 2 and bound in ['single', 'multi']:
+        warnings.warn("A note of caution: "
+                      "having `nlive < ndim * (ndim + 1) // 2` may result in "
+                      "unconstrained bounding distributions.")
 
-    nonbounded = get_nonbounded(npdim, periodic, reflective)
+    # Gather boundary conditions.
+    if periodic is not None and reflective is not None:
+        if np.intersect1d(periodic, reflective) != 0:
+            raise ValueError("You have specified a parameter as both "
+                             "periodic and reflective.")
+    nonbounded = np.ones(npdim, dtype='bool')
+    if periodic is not None:
+        nonbounded[periodic] = False
+    if reflective is not None:
+        nonbounded[reflective] = False
     kwargs['nonbounded'] = nonbounded
     kwargs['periodic'] = periodic
     kwargs['reflective'] = reflective
+
+    # Update interval for bounds.
+    if update_interval is None:
+        if sample == 'unif':
+            update_interval = 1.5
+        elif sample == 'rwalk' or sample == 'rstagger':
+            update_interval = 0.15 * walks
+        elif sample == 'slice':
+            update_interval = 0.9 * npdim * slices
+        elif sample == 'rslice':
+            update_interval = 2.0 * slices
+        elif sample == 'hslice':
+            update_interval = 25.0 * slices
+        else:
+            raise ValueError("Unknown sampling method: '{0}'".format(sample))
+    if bound == 'none':
+        update_interval = sys.maxsize  # no need to update with no bounds
+    if isinstance(update_interval, float):
+        update_interval = max(1, round(update_interval * nlive))
 
     # Keyword arguments controlling the first update.
     if first_update is None:
@@ -472,7 +430,7 @@ def NestedSampler(loglikelihood,
 
     # Random state.
     if rstate is None:
-        rstate = get_random_generator()
+        rstate = np.random
 
     # Log-likelihood.
     if logl_args is None:
@@ -493,9 +451,14 @@ def NestedSampler(loglikelihood,
         grad_kwargs = {}
 
     # Bounding distribution modifications.
-    enlarge, bootstrap = get_enlarge_bootstrap(sample, enlarge, bootstrap)
-    kwargs['enlarge'] = enlarge
-    kwargs['bootstrap'] = bootstrap
+    if enlarge is not None:
+        kwargs['enlarge'] = enlarge
+    if bootstrap is not None:
+        kwargs['bootstrap'] = bootstrap
+    if vol_dec is not None:
+        kwargs['vol_dec'] = vol_dec
+    if vol_check is not None:
+        kwargs['vol_check'] = vol_check
 
     # Sampling.
     if walks is not None:
@@ -509,107 +472,122 @@ def NestedSampler(loglikelihood,
     if max_move is not None:
         kwargs['max_move'] = max_move
 
-    update_interval_ratio = _get_update_interval_ratio(update_interval, sample,
-                                                       bound, ndim, nlive,
-                                                       slices, walks)
-    update_interval = int(
-        max(min(np.round(update_interval_ratio * nlive), sys.maxsize), 1))
-
     # Set up parallel (or serial) evaluation.
-    M, queue_size = _parse_pool_queue(pool, queue_size)
+    if queue_size is not None and queue_size < 1:
+        raise ValueError("The queue must contain at least one element!")
+    elif (queue_size == 1) or (pool is None and queue_size is None):
+        M = map
+        queue_size = 1
+    elif pool is not None:
+        M = pool.map
+        if queue_size is None:
+            try:
+                queue_size = pool.size
+            except:
+                raise ValueError("Cannot initialize `queue_size` because "
+                                 "`pool.size` has not been provided. Please"
+                                 "define `pool.size` or specify `queue_size` "
+                                 "explicitly.")
+    else:
+        raise ValueError("`queue_size > 1` but no `pool` provided.")
     if use_pool is None:
         use_pool = dict()
 
     # Wrap functions.
-    ptform = _function_wrapper(prior_transform,
-                               ptform_args,
-                               ptform_kwargs,
+    ptform = _function_wrapper(prior_transform, ptform_args, ptform_kwargs,
                                name='prior_transform')
-    if use_pool.get('loglikelihood', True):
-        pool_logl = pool
-    else:
-        pool_logl = None
-    loglike = LogLikelihood(_function_wrapper(loglikelihood,
-                                              logl_args,
-                                              logl_kwargs,
-                                              name='loglikelihood'),
-                            ndim,
-                            save=save_history,
-                            history_filename=history_filename
-                            or 'dynesty_logl_history.h5',
-                            pool=pool_logl)
+    loglike = _function_wrapper(loglikelihood, logl_args, logl_kwargs,
+                                name='loglikelihood')
 
     # Add in gradient.
     if gradient is not None:
-        grad = _function_wrapper(gradient,
-                                 grad_args,
-                                 grad_kwargs,
+        grad = _function_wrapper(gradient, grad_args, grad_kwargs,
                                  name='gradient')
         kwargs['grad'] = grad
         kwargs['compute_jac'] = compute_jac
 
-    live_points = sample_init(live_points,
-                              ptform,
-                              loglike,
-                              M,
-                              nlive=nlive,
-                              npdim=npdim,
-                              rstate=rstate,
-                              use_pool_ptform=use_pool.get(
-                                  'prior_transform', True))
+    # Initialize live points and calculate log-likelihoods.
+    if live_points is None:
+        # If no live points are provided, propose them by randomly sampling
+        # from the unit cube.
+        for attempt in range(100):
+            live_u = rstate.rand(nlive, npdim)  # positions in unit cube
+            if use_pool.get('prior_transform', True):
+                live_v = np.array(list(M(ptform,
+                                         np.array(live_u))))  # parameters
+            else:
+                live_v = np.array(list(map(ptform,
+                                           np.array(live_u))))
+            if use_pool.get('loglikelihood', True):
+                live_logl = np.array(list(M(loglike,
+                                            np.array(live_v))))  # log-like
+            else:
+                live_logl = np.array(list(map(loglike,
+                                              np.array(live_v))))
+            live_points = [live_u, live_v, live_logl]
+
+            # Convert all `-np.inf` log-likelihoods to finite large numbers.
+            # Necessary to keep estimators in our sampler from breaking.
+            for i, logl in enumerate(live_points[2]):
+                if not np.isfinite(logl):
+                    if np.sign(logl) < 0:
+                        live_points[2][i] = -1e300
+                    else:
+                        raise ValueError("The log-likelihood ({0}) of live "
+                                         "point {1} located at u={2} v={3} "
+                                         "is invalid."
+                                         .format(logl, i, live_points[0][i],
+                                                 live_points[1][i]))
+
+            # Check to make sure there is at least one finite log-likelihood
+            # value within the initial set of live points.
+            if any(live_points[2] != -1e300):
+                break
+        else:
+            # If we found nothing after many attempts, raise the alarm.
+            raise RuntimeError("After many attempts, not a single live point "
+                               "had a valid log-likelihood! Please check your "
+                               "prior transform and/or log-likelihood.")
+    else:
+        # If live points were provided, convert the log-likelihoods and then
+        # run a quick safety check.
+        for i, logl in enumerate(live_points[2]):
+            if not np.isfinite(logl):
+                if np.sign(logl) < 0:
+                    live_points[2][i] = -1e300
+                else:
+                    raise ValueError("The log-likelihood ({0}) of live "
+                                     "point {1} located at u={2} v={3} "
+                                     "is invalid."
+                                     .format(logl, i, live_points[0][i],
+                                             live_points[1][i]))
+        if all(live_points[2] == -1e300):
+            raise ValueError("Not a single provided live point has a valid "
+                             "log-likelihood!")
 
     # Initialize our nested sampler.
-    sampler = _SAMPLERS[bound](loglike,
-                               ptform,
-                               npdim,
-                               live_points,
-                               sample,
-                               update_interval,
-                               first_update,
-                               rstate,
-                               queue_size,
-                               pool,
-                               use_pool,
-                               kwargs,
-                               ncdim=ncdim)
+    sampler = _SAMPLERS[bound](loglike, ptform, npdim,
+                               live_points, sample, update_interval,
+                               first_update, rstate, queue_size, pool,
+                               use_pool, kwargs, ncdim=ncdim)
 
     return sampler
 
 
-def DynamicNestedSampler(loglikelihood,
-                         prior_transform,
-                         ndim,
-                         nlive=None,
-                         bound='multi',
-                         sample='auto',
-                         periodic=None,
-                         reflective=None,
-                         update_interval=None,
-                         first_update=None,
-                         npdim=None,
-                         rstate=None,
-                         queue_size=None,
-                         pool=None,
-                         use_pool=None,
-                         logl_args=None,
-                         logl_kwargs=None,
-                         ptform_args=None,
-                         ptform_kwargs=None,
-                         gradient=None,
-                         grad_args=None,
-                         grad_kwargs=None,
+def DynamicNestedSampler(loglikelihood, prior_transform, ndim,
+                         bound='multi', sample='auto',
+                         periodic=None, reflective=None,
+                         update_interval=None, first_update=None,
+                         npdim=None, rstate=None, queue_size=None, pool=None,
+                         use_pool=None, logl_args=None, logl_kwargs=None,
+                         ptform_args=None, ptform_kwargs=None,
+                         gradient=None, grad_args=None, grad_kwargs=None,
                          compute_jac=False,
-                         enlarge=None,
-                         bootstrap=None,
-                         walks=None,
-                         facc=0.5,
-                         slices=None,
-                         fmove=0.9,
-                         max_move=100,
-                         update_func=None,
-                         ncdim=None,
-                         save_history=False,
-                         history_filename=None):
+                         enlarge=None, bootstrap=0,
+                         vol_dec=0.5, vol_check=2.0,
+                         walks=25, facc=0.5,
+                         slices=5, fmove=0.9, max_move=100,
+                         update_func=None, ncdim=None, **kwargs):
     """
     Initializes and returns a sampler object for Dynamic Nested Sampling.
 
@@ -643,12 +621,13 @@ def DynamicNestedSampler(loglikelihood,
         (`'multi'`), balls centered on each live point (`'balls'`), and
         cubes centered on each live point (`'cubes'`). Default is `'multi'`.
 
-    sample : {`'auto'`, `'unif'`, `'rwalk'`,
+    sample : {`'auto'`, `'unif'`, `'rwalk'`, `'rstagger'`,
               `'slice'`, `'rslice'`, `'hslice'`}, optional
         Method used to sample uniformly within the likelihood constraint,
         conditioned on the provided bounds. Unique methods available are:
         uniform sampling within the bounds(`'unif'`),
         random walks with fixed proposals (`'rwalk'`),
+        random walks with variable ("staggering") proposals (`'rstagger'`),
         multivariate slice sampling along preferred orientations (`'slice'`),
         "random" slice sampling along all orientations (`'rslice'`),
         "Hamiltonian" slices along random trajectories (`'hslice'`), and
@@ -659,8 +638,8 @@ def DynamicNestedSampler(loglikelihood,
         When `ndim < 10`, this defaults to `'unif'`.
         When `10 <= ndim <= 20`, this defaults to `'rwalk'`.
         When `ndim > 20`, this defaults to `'hslice'` if a `gradient` is
-        provided and `'rslice'` otherwise. `'slice'`
-        is provided as alternative for `'rslice'`.
+        provided and `'slice'` otherwise. `'rstagger'` and `'rslice'`
+        are provided as alternatives for `'rwalk'` and `'slice'`, respectively.
         Default is `'auto'`.
 
     periodic : iterable, optional
@@ -684,7 +663,7 @@ def DynamicNestedSampler(loglikelihood,
         call. Larger update intervals larger can be more efficient
         when the likelihood function is quick to evaluate. Default behavior
         is to target a roughly constant change in prior volume, with
-        `1.5` for `'unif'`, `0.15 * walks` for `'rwalk'`.
+        `1.5` for `'unif'`, `0.15 * walks` for `'rwalk'` and `'rstagger'`,
         `0.9 * ndim * slices` for `'slice'`, `2.0 * slices` for `'rslice'`,
         and `25.0 * slices` for `'hslice'`.
 
@@ -702,8 +681,8 @@ def DynamicNestedSampler(loglikelihood,
         upon multiple independently distributed parameters, some of which may
         be nuisance parameters.
 
-    rstate : `~numpy.random.Generator`, optional
-        `~numpy.random.Generator` instance. If not given, the
+    rstate : `~numpy.random.RandomState`, optional
+        `~numpy.random.RandomState` instance. If not given, the
          global random state of the `~numpy.random` module will be used.
 
     queue_size : int, optional
@@ -771,8 +750,18 @@ def DynamicNestedSampler(loglikelihood,
         Compute this many bootstrapped realizations of the bounding
         objects. Use the maximum distance found to the set of points left
         out during each iteration to enlarge the resulting volumes. Can lead
-        to unstable bounding ellipsoids. Default is `None` (no bootstrap unless
-        the sampler is uniform). If bootstrap=0 then bootstrap is disabled.
+        to unstable bounding ellipsoids. Default is `0` (no bootstrap).
+
+    vol_dec : float, optional
+        For the `'multi'` bounding option, the required fractional reduction
+        in volume after splitting an ellipsoid in order to to accept the split.
+        Default is `0.5`.
+
+    vol_check : float, optional
+        For the `'multi'` bounding option, the factor used when checking if
+        the volume of the original bounding ellipsoid is large enough to
+        warrant `> 2` splits via `ell.vol > vol_check * nlive * pointvol`.
+        Default is `2.0`.
 
     walks : int, optional
         For the `'rwalk'` sampling option, the minimum number of steps
@@ -826,26 +815,21 @@ def DynamicNestedSampler(loglikelihood,
     if ncdim is None:
         ncdim = npdim
 
-    nlive = nlive or 500
-
     # Bounding method.
     if bound not in _SAMPLERS:
         raise ValueError("Unknown bounding method: '{0}'".format(bound))
 
     # Sampling method.
     if sample == 'auto':
-        sample = _get_auto_sample(ndim, gradient)
-
-    walks, slices = _get_walks_slices(walks, slices, sample, ndim)
-
-    if ncdim != npdim and sample in ['slice', 'hslice', 'rslice']:
-        raise ValueError('ncdim unsupported for slice sampling')
-
-    update_interval_ratio = _get_update_interval_ratio(update_interval, sample,
-                                                       bound, ndim, 1, slices,
-                                                       walks)
-
-    kwargs = {}
+        if npdim < 10:
+            sample = 'unif'
+        elif 10 <= npdim <= 20:
+            sample = 'rwalk'
+        else:
+            if gradient is None:
+                sample = 'slice'
+            else:
+                sample = 'hslice'
 
     # Custom sampling function.
     if sample not in _SAMPLING and not callable(sample):
@@ -860,10 +844,36 @@ def DynamicNestedSampler(loglikelihood,
     kwargs['cite'] = (_CITES['default'] + "\n" + _CITES['dynamic'] + "\n" +
                       _CITES[bound] + "\n" + _CITES[sample])
 
-    nonbounded = get_nonbounded(npdim, periodic, reflective)
+    # Gather boundary conditions.
+    if periodic is not None and reflective is not None:
+        if np.intersect1d(periodic, reflective) != 0:
+            raise ValueError("You have specified a parameter as both "
+                             "periodic and reflective.")
+    nonbounded = np.ones(npdim, dtype='bool')
+    if periodic is not None:
+        nonbounded[periodic] = False
+    if reflective is not None:
+        nonbounded[reflective] = False
     kwargs['nonbounded'] = nonbounded
     kwargs['periodic'] = periodic
     kwargs['reflective'] = reflective
+
+    # Update interval for bounds.
+    if update_interval is None:
+        if sample == 'unif':
+            update_interval = 1.5
+        elif sample == 'rwalk' or sample == 'rstagger':
+            update_interval = 0.15 * walks
+        elif sample == 'slice':
+            update_interval = 0.9 * npdim * slices
+        elif sample == 'rslice':
+            update_interval = 2.0 * slices
+        elif sample == 'hslice':
+            update_interval = 25.0 * slices
+        else:
+            raise ValueError("Unknown sampling method: '{0}'".format(sample))
+    if bound == 'none':
+        update_interval = sys.maxsize  # no need to update with no bounds
 
     # Keyword arguments controlling the first update.
     if first_update is None:
@@ -871,7 +881,7 @@ def DynamicNestedSampler(loglikelihood,
 
     # Random state.
     if rstate is None:
-        rstate = get_random_generator()
+        rstate = np.random
 
     # Log-likelihood.
     if logl_args is None:
@@ -892,9 +902,14 @@ def DynamicNestedSampler(loglikelihood,
         grad_kwargs = {}
 
     # Bounding distribution modifications.
-    enlarge, bootstrap = get_enlarge_bootstrap(sample, enlarge, bootstrap)
-    kwargs['enlarge'] = enlarge
-    kwargs['bootstrap'] = bootstrap
+    if enlarge is not None:
+        kwargs['enlarge'] = enlarge
+    if bootstrap is not None:
+        kwargs['bootstrap'] = bootstrap
+    if vol_dec is not None:
+        kwargs['vol_dec'] = vol_dec
+    if vol_check is not None:
+        kwargs['vol_check'] = vol_check
 
     # Sampling.
     if walks is not None:
@@ -909,54 +924,53 @@ def DynamicNestedSampler(loglikelihood,
         kwargs['max_move'] = max_move
 
     # Set up parallel (or serial) evaluation.
-    queue_size = _parse_pool_queue(pool, queue_size)[1]
+    if queue_size is not None and queue_size < 1:
+        raise ValueError("The queue must contain at least one element!")
+    elif (queue_size == 1) or (pool is None and queue_size is None):
+        queue_size = 1
+    elif pool is not None:
+        if queue_size is None:
+            try:
+                queue_size = pool.size
+            except:
+                raise ValueError("Cannot initialize `queue_size` because "
+                                 "`pool.size` has not been provided. Please "
+                                 "define `pool.size` or specify `queue_size` "
+                                 "explicitly.")
+    else:
+        raise ValueError("`queue_size > 1` but no `pool` provided.")
     if use_pool is None:
         use_pool = dict()
 
     # Wrap functions.
-    ptform = _function_wrapper(prior_transform,
-                               ptform_args,
-                               ptform_kwargs,
+    ptform = _function_wrapper(prior_transform, ptform_args, ptform_kwargs,
                                name='prior_transform')
-
-    if use_pool.get('loglikelihood', True):
-        pool_logl = pool
-    else:
-        pool_logl = None
-    loglike = LogLikelihood(_function_wrapper(loglikelihood,
-                                              logl_args,
-                                              logl_kwargs,
-                                              name='loglikelihood'),
-                            ndim,
-                            pool=pool_logl,
-                            history_filename=history_filename
-                            or 'dynesty_logl_history.h5',
-                            save=save_history)
+    loglike = _function_wrapper(loglikelihood, logl_args, logl_kwargs,
+                                name='loglikelihood')
 
     # Add in gradient.
     if gradient is not None:
-        grad = _function_wrapper(gradient,
-                                 grad_args,
-                                 grad_kwargs,
+        grad = _function_wrapper(gradient, grad_args, grad_kwargs,
                                  name='gradient')
         kwargs['grad'] = grad
         kwargs['compute_jac'] = compute_jac
 
     # Initialize our nested sampler.
-    sampler = DynamicSampler(loglike, ptform, npdim, bound, sample,
-                             update_interval_ratio, first_update, rstate,
-                             queue_size, pool, use_pool, ncdim, nlive, kwargs)
+    sampler = DynamicSampler(loglike, ptform, npdim,
+                             bound, sample, update_interval, first_update,
+                             rstate, queue_size, pool, use_pool, ncdim, kwargs)
 
     return sampler
 
 
-class _function_wrapper:
+class _function_wrapper(object):
     """
     A hack to make functions pickleable when `args` or `kwargs` are
     also included. Based on the implementation in
     `emcee <http://dan.iel.fm/emcee/>`_.
 
     """
+
     def __init__(self, func, args, kwargs, name='input'):
         self.func = func
         self.args = args
@@ -966,7 +980,8 @@ class _function_wrapper:
     def __call__(self, x):
         try:
             return self.func(x, *self.args, **self.kwargs)
-        except:  # noqa
+        except:
+            import traceback
             print("Exception while calling {0} function:".format(self.name))
             print("  params:", x)
             print("  args:", self.args)

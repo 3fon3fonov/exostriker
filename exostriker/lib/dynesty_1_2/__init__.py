@@ -6,5 +6,4 @@ from . import bounding
 from . import utils
 
 
-__version__ = "1.2 beta"
-print("using Dynesty = %s"%__version__)
+__version__ = "1.0.2"

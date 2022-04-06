@@ -27,15 +27,17 @@ from pathos import multiprocessing
 #from emcee.utils import MPIPool
 import celerite
 from celerite import terms
+import dill
 
 try:
     import dynesty
 
-    if float(dynesty.__version__[0:3])<=1.1:
-        print("Your dynesty is version<=1.1, switching to the internally imported github version==1.2!")
+    if float(dynesty.__version__[0:3])<=1.4: # a fix is needed.....
+#        print("Your dynesty is version<=1.1, switching to the internally imported github version==1.2!")
         import dynesty_1_2 as dynesty        
-        import dynesty_patch
-        dynesty.results =  dynesty_patch
+    import dynesty_patch
+    dynesty.results =  dynesty_patch
+
 
 except:
     print("dynesty not found, switching to the internally imported github version==1.2!")

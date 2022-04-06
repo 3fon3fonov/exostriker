@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 """
 Bounding classes used when proposing new live points, along with a number of
 useful helper functions. Bounding objects include:
@@ -21,31 +22,40 @@ useful helper functions. Bounding objects include:
 
 """
 
+from __future__ import (print_function, division)
+from six.moves import range
+
 import warnings
 import math
 import numpy as np
 from numpy import linalg
-from numpy import cov as mle_cov
+from scipy import special
 from scipy import spatial
 from scipy import cluster
 from scipy import linalg as lalg
-from scipy.special import logsumexp, gammaln
-from .utils import unitcheck, get_seed_sequence, get_random_generator
+from numpy import cov as mle_cov
+from scipy.special import logsumexp
+from .utils import unitcheck
 
-__all__ = [
-    "UnitCube", "Ellipsoid", "MultiEllipsoid", "RadFriends", "SupFriends",
-    "logvol_prefactor", "randsphere", "bounding_ellipsoid",
-    "bounding_ellipsoids", "_bounding_ellipsoids",
-    "_ellipsoid_bootstrap_expand", "_friends_bootstrap_radius",
-    "_friends_leaveoneout_radius"
-]
+__all__ = ["UnitCube", "Ellipsoid", "MultiEllipsoid",
+           "RadFriends", "SupFriends",
+           "vol_prefactor", "logvol_prefactor", "randsphere",
+           "bounding_ellipsoid", "bounding_ellipsoids",
+           "_bounding_ellipsoids", "_ellipsoid_bootstrap_expand",
+           "_ellipsoids_bootstrap_expand", "_friends_bootstrap_radius",
+           "_friends_leaveoneout_radius"]
 
 SQRTEPS = math.sqrt(float(np.finfo(np.float64).eps))
 
-from scipy.cluster.vq import kmeans2
+# Try and import k-means clustering (used with 'multi').
+try:
+    from scipy.cluster.vq import kmeans2
+    HAVE_KMEANS = True
+except ImportError:
+    HAVE_KMEANS = False
 
 
-class UnitCube:
+class UnitCube(object):
     """
     An N-dimensional unit cube.
 
@@ -55,6 +65,7 @@ class UnitCube:
         The number of dimensions of the unit cube.
 
     """
+
     def __init__(self, ndim):
         self.n = ndim  # dimension
         self.vol = 1.  # volume
@@ -67,6 +78,9 @@ class UnitCube:
 
     def randoffset(self, rstate=None):
         """Draw a random offset from the center of the unit cube."""
+
+        if rstate is None:
+            rstate = np.random
 
         return self.sample(rstate=rstate) - 0.5
 
@@ -81,7 +95,10 @@ class UnitCube:
 
         """
 
-        return rstate.uniform(size=self.n)
+        if rstate is None:
+            rstate = np.random
+
+        return rstate.rand(self.n)
 
     def samples(self, nsamples, rstate=None):
         """
@@ -94,17 +111,21 @@ class UnitCube:
 
         """
 
+        if rstate is None:
+            rstate = np.random
+
         xs = np.array([self.sample(rstate=rstate) for i in range(nsamples)])
 
         return xs
 
-    def update(self, points, rstate=None, bootstrap=0, pool=None):
+    def update(self, points, pointvol=0., rstate=None, bootstrap=0,
+               pool=None):
         """Filler function."""
 
         pass
 
 
-class Ellipsoid:
+class Ellipsoid(object):
     """
     An N-dimensional ellipsoid defined by::
 
@@ -122,14 +143,14 @@ class Ellipsoid:
         Covariance matrix describing the axes.
 
     """
-    def __init__(self, ctr, cov, am=None, axes=None):
+
+    def __init__(self, ctr, cov):
         self.n = len(ctr)  # dimension
-        self.ctr = np.asarray(ctr)  # center coordinates
-        self.cov = np.asarray(cov)  # covariance matrix
-        if axes is None:
-            self.axes = lalg.cholesky(cov, lower=True)  # transformation axes
-        else:
-            self.axes = axes
+        self.ctr = np.array(ctr)  # center coordinates
+        self.cov = np.array(cov)  # covariance matrix
+        self.am = lalg.pinvh(cov)  # precision matrix (inverse of covariance)
+        self.axes = lalg.cholesky(cov, lower=True)  # transformation axes
+
 
         # The eigenvalues (l) of `a` are (a^-2, b^-2, ...) where
         # (a, b, ...) are the lengths of principle axes.
@@ -137,18 +158,13 @@ class Ellipsoid:
         l, v = lalg.eigh(self.cov)
         if np.all((l > 0.) & (np.isfinite(l))):
             self.axlens = np.sqrt(l)
-            # Volume of ellipsoid is the volume of an n-sphere
+            # Volume of ellipsoid is the volume of an n-sphere 
             # is a product of squares of eigen values
-            self.logvol = logvol_prefactor(self.n) + 0.5 * np.log(l).sum()
+            self.logvol = logvol_prefactor(self.n) + 0.5*np.log(l).sum()
         else:
             raise ValueError("The input precision matrix defining the "
                              "ellipsoid {0} is apparently singular with "
                              "l={1} and v={2}.".format(self.cov, l, v))
-        if am is None:
-            self.am = v @ np.diag(1. / l) @ v.T
-            # precision matrix (inverse of covariance)
-        else:
-            self.am = am
 
         # Scaled eigenvectors are the principle axes, where `paxes[:,i]` is the
         # i-th axis. Multiplying this matrix by a vector will transform a
@@ -158,43 +174,16 @@ class Ellipsoid:
         # Amount by which volume was increased after initialization (i.e.
         # cumulative factor from `scale_to_vol`).
         self.expand = 1.
-        self.funit = 1
 
     def scale_to_logvol(self, logvol):
-        """Scale ellipsoid to a target volume."""
+        """Scale ellipoid to a target volume."""
 
-        logf = (logvol - self.logvol)
-        # log of the maxium axis length of the ellipsoid
-        max_log_axlen = np.log(np.sqrt(self.n) / 2)
-        log_axlen = np.log(self.axlens)
-        if log_axlen.max() < max_log_axlen - logf / self.n:
-            # we are safe to inflate the ellipsoid isothropically
-            # without hitting boundaries
-            f = np.exp(logf / self.n)
-            self.cov *= f**2
-            self.am *= 1. / f**2
-            self.axlens *= f
-            self.axes *= f
-        else:
-            logfax = np.zeros(self.n)
-            curlogf = logf  # how much we have left to inflate
-            curn = self.n  # how many dimensions left
-            l, v = lalg.eigh(self.cov)
-
-            # here we start from largest and go to smallest
-            for curi in np.argsort(l)[::-1]:
-                delta = max(
-                    min(max_log_axlen - log_axlen[curi], curlogf / curn), 0)
-                logfax[curi] = delta
-                curlogf -= delta
-                curn -= 1
-            fax = np.exp(logfax)  # linear inflation of each dimension
-            l1 = l * fax**2  # eigen values are squares of axes
-            self.cov = v @ np.diag(l1) @ v.T
-            self.am = v @ np.diag(1 / l1) @ v.T
-            self.axlens *= fax
-            self.axes = lalg.cholesky(self.cov, lower=True)
-            # I don't quite know how to scale axes, so I rerun cholesky
+        f = np.exp((logvol - self.logvol) / self.n)  # linear factor
+        self.expand *= f
+        self.cov *= f**2
+        self.am *= f**-2
+        self.axlens *= f
+        self.axes *= f
         self.logvol = logvol
 
     def major_axis_endpoints(self):
@@ -213,14 +202,6 @@ class Ellipsoid:
 
         return np.sqrt(np.dot(np.dot(d, self.am), d))
 
-    def distance_many(self, x):
-        """Compute the normalized distance to `x` from the center of the
-        ellipsoid."""
-
-        d = x - self.ctr[None, :]
-
-        return np.sqrt(np.einsum('ij,jk,ik->i', d, self.am, d))
-
     def contains(self, x):
         """Checks if ellipsoid contains `x`."""
 
@@ -228,6 +209,9 @@ class Ellipsoid:
 
     def randoffset(self, rstate=None):
         """Return a random offset from the center of the ellipsoid."""
+
+        if rstate is None:
+            rstate = np.random
 
         return np.dot(self.axes, randsphere(self.n, rstate=rstate))
 
@@ -242,6 +226,9 @@ class Ellipsoid:
 
         """
 
+        if rstate is None:
+            rstate = np.random
+
         return self.ctr + self.randoffset(rstate=rstate)
 
     def samples(self, nsamples, rstate=None):
@@ -255,6 +242,9 @@ class Ellipsoid:
 
         """
 
+        if rstate is None:
+            rstate = np.random
+
         xs = np.array([self.sample(rstate=rstate) for i in range(nsamples)])
 
         return xs
@@ -263,17 +253,16 @@ class Ellipsoid:
         """Using `ndraws` Monte Carlo draws, estimate the fraction of
         overlap between the ellipsoid and the unit cube."""
 
+        if rstate is None:
+            rstate = np.random
+
         samples = [self.sample(rstate=rstate) for i in range(ndraws)]
         nin = sum([unitcheck(x) for x in samples])
 
         return 1. * nin / ndraws
 
-    def update(self,
-               points,
-               rstate=None,
-               bootstrap=0,
-               pool=None,
-               mc_integrate=False):
+    def update(self, points, pointvol=0., rstate=None, bootstrap=0,
+               pool=None, mc_integrate=False):
         """
         Update the ellipsoid to bound the collection of points.
 
@@ -282,8 +271,11 @@ class Ellipsoid:
         points : `~numpy.ndarray` with shape (npoints, ndim)
             The set of points to bound.
 
-        rstate : `~numpy.random.Generator`, optional
-            `~numpy.random.Generator` instance.
+        pointvol : float, optional
+            The minimum volume associated with each point. Default is `0.`.
+
+        rstate : `~numpy.random.RandomState`, optional
+            `~numpy.random.RandomState` instance.
 
         bootstrap : int, optional
             The number of bootstrapped realizations of the ellipsoid. The
@@ -301,8 +293,11 @@ class Ellipsoid:
 
         """
 
+        if rstate is None:
+            rstate = np.random
+
         # Compute new bounding ellipsoid.
-        ell = bounding_ellipsoid(points)
+        ell = bounding_ellipsoid(points, pointvol=pointvol)
         self.n = ell.n
         self.ctr = ell.ctr
         self.cov = ell.cov
@@ -321,10 +316,9 @@ class Ellipsoid:
                 M = map
             else:
                 M = pool.map
-            multis = [False for it in range(bootstrap)]
             ps = [points for it in range(bootstrap)]
-            seeds = get_seed_sequence(rstate, bootstrap)
-            args = zip(multis, ps, seeds)
+            pvs = [pointvol for it in range(bootstrap)]
+            args = zip(ps, pvs)
             expands = list(M(_ellipsoid_bootstrap_expand, args))
 
             # Conservatively set the expansion factor to be the maximum
@@ -333,16 +327,16 @@ class Ellipsoid:
 
             # If our ellipsoid is over-constrained, expand it.
             if expand > 1.:
-                lv = self.logvol + self.n * np.log(expand)
+                lv = self.logvol + self.n *  np.log( expand)
                 self.scale_to_logvol(lv)
 
         # Estimate the fractional overlap with the unit cube using
         # Monte Carlo integration.
         if mc_integrate:
-            self.funit = self.unitcube_overlap(rstate=rstate)
+            self.funit = self.unitcube_overlap()
 
 
-class MultiEllipsoid:
+class MultiEllipsoid(object):
     """
     A collection of M N-dimensional ellipsoids.
 
@@ -361,12 +355,16 @@ class MultiEllipsoid:
         initialize :class:`MultiEllipsoid` if :data:`ctrs` also provided.
 
     """
+
     def __init__(self, ells=None, ctrs=None, covs=None):
         if ells is not None:
             # Try to initialize quantities using provided `Ellipsoid` objects.
             if (ctrs is None) and (covs is None):
                 self.nells = len(ells)
                 self.ells = ells
+                self.ctrs = np.array([ell.ctr for ell in self.ells])
+                self.covs = np.array([ell.cov for ell in self.ells])
+                self.ams = np.array([ell.am for ell in self.ells])
             else:
                 raise ValueError("You cannot specific both `ells` and "
                                  "(`ctrs`, `covs`)!")
@@ -377,38 +375,26 @@ class MultiEllipsoid:
                                  "(`ctrs`, `covs`).")
             else:
                 self.nells = len(ctrs)
-                self.ells = [
-                    Ellipsoid(ctrs[i], covs[i]) for i in range(self.nells)
-                ]
-        self.__update_arrays()
+                self.ctrs = np.array(ctrs)
+                self.covs = np.array(covs)
+                self.ells = [Ellipsoid(ctrs[i], covs[i])
+                             for i in range(self.nells)]
+                self.ams = np.array([ell.am for ell in self.ells])
 
         # Compute quantities.
+        self.logvols = np.array([ell.logvol for ell in self.ells])
         self.expands = np.ones(self.nells)
         self.logvol_tot = logsumexp(self.logvols)
         self.expand_tot = 1.
-        self.funit = 1
-
-    def __update_arrays(self):
-        """
-        Update internal arrays to ensure that in sync with ells
-        """
-        self.ctrs = np.array([ell.ctr for ell in self.ells])
-        self.covs = np.array([ell.cov for ell in self.ells])
-        self.ams = np.array([ell.am for ell in self.ells])
-        self.logvols = np.array([ell.logvol for ell in self.ells])
 
     def scale_to_logvol(self, logvols):
         """Scale ellipoids to a corresponding set of
-        target volumes.
-        """
-        for i in range(self.nells):
-            self.ells[i].scale_to_logvol(logvols[i])
+        target volumes."""
 
-        # IMPORTANT We must also update arrays ams, covs
-        self.__update_arrays()
-
-        self.expands = np.array(
-            [self.ells[i].expand for i in range(self.nells)])
+        [self.ells[i].scale_to_logvol(logvols[i]) for i in range(self.nells)]
+        self.logvols = np.array(logvols)
+        self.expands = np.array([self.ells[i].expand
+                                 for i in range(self.nells)])
         logvol_tot = logsumexp(logvols)
         self.expand_tot *= np.exp(logvol_tot - self.logvol_tot)
         self.logvol_tot = logvol_tot
@@ -420,13 +406,13 @@ class MultiEllipsoid:
 
     def within(self, x, j=None):
         """Checks which ellipsoid(s) `x` falls within, skipping the `j`-th
-        ellipsoid if need be."""
+        ellipsoid."""
 
-        delt = x[None, :] - self.ctrs
-        mask = np.einsum('ai,aij,aj->a', delt, self.ams, delt) < 1
-        if j is not None:
-            mask[j] = False
-        return np.nonzero(mask)[0]
+        # Loop through distance calculations if there aren't too many.
+        idxs = np.where([self.ells[i].contains(x) if i != j else True
+                         for i in range(self.nells)])[0]
+
+        return idxs
 
     def overlap(self, x, j=None):
         """Checks how many ellipsoid(s) `x` falls within, skipping the `j`-th
@@ -438,8 +424,8 @@ class MultiEllipsoid:
 
     def contains(self, x):
         """Checks if the set of ellipsoids contains `x`."""
-        delt = x[None, :] - self.ctrs
-        return np.any(np.einsum('ai,aij,aj->a', delt, self.ams, delt) < 1)
+
+        return self.overlap(x) > 0
 
     def sample(self, rstate=None, return_q=False):
         """
@@ -458,6 +444,9 @@ class MultiEllipsoid:
 
         """
 
+        if rstate is None:
+            rstate = np.random
+
         # If there is only one ellipsoid, sample from it.
         if self.nells == 1:
             x = self.ells[0].sample(rstate=rstate)
@@ -468,30 +457,30 @@ class MultiEllipsoid:
             else:
                 return x, idx
 
-        probs = np.exp(self.logvols - self.logvol_tot)
-        while True:
-            # Select an ellipsoid at random proportional to its volume.
-            idx = rand_choice(probs, rstate)
+        # Select an ellipsoid at random proportional to its volume.
+        idx = rstate.choice(self.nells, p=np.exp(self.logvols-self.logvol_tot))
 
-            # Select a point from the chosen ellipsoid.
-            x = self.ells[idx].sample(rstate=rstate)
+        # Select a point from the chosen ellipsoid.
+        x = self.ells[idx].sample(rstate=rstate)
 
-            # Check how many ellipsoids the point lies within
-            delts = (x[None, :] - self.ctrs)
-            q = (np.einsum('ai,aij,aj->a', delts, self.ams, delts) < 1).sum()
+        # Check how many ellipsoids the point lies within, passing over
+        # the `idx`-th ellipsoid `x` was sampled from.
+        q = self.overlap(x, j=idx) + 1
 
-            assert q > 0  # Should never fail
+        if return_q:
+            # If `q` is being returned, assume the user wants to
+            # explicitly apply the `1. / q` acceptance criterion to
+            # properly sample from the union of ellipsoids.
+            return x, idx, q
+        else:
+            # If `q` is not being returned, assume the user wants this
+            # done internally.
+            while rstate.rand() > (1. / q):
+                idx = rstate.choice(self.nells, p=np.exp(self.logvols-self.logvol_tot))
+                x = self.ells[idx].sample(rstate=rstate)
+                q = self.overlap(x, j=idx) + 1
 
-            if return_q:
-                # If `q` is being returned, assume the user wants to
-                # explicitly apply the `1. / q` acceptance criterion to
-                # properly sample from the union of ellipsoids.
-                return x, idx, q
-            else:
-                # If `q` is not being returned, assume the user wants this
-                # done internally so we repeat the loop if needed
-                if q == 1 or rstate.uniform() < (1. / q):
-                    return x, idx
+            return x, idx
 
     def samples(self, nsamples, rstate=None):
         """
@@ -505,24 +494,28 @@ class MultiEllipsoid:
 
         """
 
-        xs = np.array([self.sample(rstate=rstate)[0] for i in range(nsamples)])
+        if rstate is None:
+            rstate = np.random
+
+        xs = np.array([self.sample(rstate=rstate)[0]
+                       for i in range(nsamples)])
 
         return xs
 
-    def monte_carlo_logvol(self,
-                           ndraws=10000,
-                           rstate=None,
-                           return_overlap=True):
+    def monte_carlo_logvol(self, ndraws=10000, rstate=None,
+                        return_overlap=True):
         """Using `ndraws` Monte Carlo draws, estimate the log volume of the
         *union* of ellipsoids. If `return_overlap=True`, also returns the
         estimated fractional overlap with the unit cube."""
 
+        if rstate is None:
+            rstate = np.random
+
         # Estimate volume using Monte Carlo integration.
-        samples = [
-            self.sample(rstate=rstate, return_q=True) for i in range(ndraws)
-        ]
+        samples = [self.sample(rstate=rstate, return_q=True)
+                   for i in range(ndraws)]
         qsum = sum([q for (x, idx, q) in samples])
-        logvol = np.log(ndraws * 1. / qsum) + self.logvol_tot
+        logvol = np.log( ndraws *1. /qsum ) +  self.logvol_tot
 
         if return_overlap:
             # Estimate the fractional amount of overlap with the
@@ -533,12 +526,8 @@ class MultiEllipsoid:
         else:
             return logvol
 
-    def update(self,
-               points,
-               rstate=None,
-               bootstrap=0,
-               pool=None,
-               mc_integrate=False):
+    def update(self, points, pointvol=0., vol_dec=0.5, vol_check=2.,
+               rstate=None, bootstrap=0, pool=None, mc_integrate=False):
         """
         Update the set of ellipsoids to bound the collection of points.
 
@@ -547,8 +536,22 @@ class MultiEllipsoid:
         points : `~numpy.ndarray` with shape (npoints, ndim)
             The set of points to bound.
 
-        rstate : `~numpy.random.Generator`, optional
-            `~numpy.random.Generator` instance.
+        pointvol : float, optional
+            The minimum volume associated with each point. Default is `0.`.
+
+        vol_dec : float, optional
+            The required fractional reduction in volume after splitting
+            an ellipsoid in order to to accept the split.
+            Default is `0.5`.
+
+        vol_check : float, optional
+            The factor used when checking if the volume of the original
+            bounding ellipsoid is large enough to warrant `> 2` splits
+            via `ell.vol > vol_check * nlive * pointvol`.
+            Default is `2.0`.
+
+        rstate : `~numpy.random.RandomState`, optional
+            `~numpy.random.RandomState` instance.
 
         bootstrap : int, optional
             The number of bootstrapped realizations of the ellipsoids. The
@@ -566,26 +569,37 @@ class MultiEllipsoid:
 
         """
 
+        if rstate is None:
+            rstate = np.random
+
+        if not HAVE_KMEANS:
+            raise ValueError("scipy.cluster.vq.kmeans2 is required "
+                             "to compute ellipsoid decompositions.")
+
         npoints, ndim = points.shape
-        if npoints == 1:
-            raise RuntimeError('Cannot compute the bounding ellipsoid of '
-                               'a single point.')
 
         # Calculate the bounding ellipsoid for the points, possibly
         # enlarged to a minimum volume.
-        firstell = bounding_ellipsoid(points)
+        firstell = bounding_ellipsoid(points, pointvol=pointvol)
 
-        # Recursively split the bounding ellipsoid
-        ells = _bounding_ellipsoids(points, firstell)
+        # Recursively split the bounding ellipsoid using `vol_check`
+        # until the volume of each split no longer decreases by a
+        # factor of `vol_dec`.
+        ells = _bounding_ellipsoids(points, firstell, pointvol=pointvol,
+                                    vol_dec=vol_dec, vol_check=vol_check)
+
+        # Sanity check: all points must be contained in some ellipsoid
+        if not all(any(ell.contains(p) for ell in ells) for p in points):
+            # refuse to update
+            raise RuntimeError('Rejecting invalid MultiEllipsoid region')
 
         # Update the set of ellipsoids.
         self.nells = len(ells)
         self.ells = ells
-        self.__update_arrays()
-        # Sanity check: all points must be contained in some ellipsoid
-        if not all(self.contains(p) for p in points):
-            # refuse to update
-            raise RuntimeError('Rejecting invalid MultiEllipsoid region')
+        self.ctrs = np.array([ell.ctr for ell in self.ells])
+        self.covs = np.array([ell.cov for ell in self.ells])
+        self.ams = np.array([ell.am for ell in self.ells])
+        self.logvols = np.array([ell.logvol for ell in self.ells])
         self.logvol_tot = logsumexp(self.logvols)
 
         # Compute expansion factor.
@@ -602,11 +616,12 @@ class MultiEllipsoid:
                 M = map
             else:
                 M = pool.map
-            multis = [True for it in range(bootstrap)]
             ps = [points for it in range(bootstrap)]
-            seeds = get_seed_sequence(rstate, bootstrap)
-            args = zip(multis, ps, seeds)
-            expands = list(M(_ellipsoid_bootstrap_expand, args))
+            pvs = [pointvol for it in range(bootstrap)]
+            vds = [vol_dec for it in range(bootstrap)]
+            vcs = [vol_check for it in range(bootstrap)]
+            args = zip(ps, pvs, vds, vcs)
+            expands = list(M(_ellipsoids_bootstrap_expand, args))
 
             # Conservatively set the expansion factor to be the maximum
             # factor derived from our set of bootstraps.
@@ -614,17 +629,16 @@ class MultiEllipsoid:
 
             # If our ellipsoids are overly constrained, expand them.
             if expand > 1.:
-                lvs = self.logvols + ndim * np.log(expand)
+                lvs = self.logvols + ndim * np.log( expand)
                 self.scale_to_logvol(lvs)
 
         # Estimate the volume and fractional overlap with the unit cube
         # using Monte Carlo integration.
         if mc_integrate:
-            self.logvol_tot, self.funit = self.monte_carlo_logvol(
-                rstate=rstate, return_overlap=True)
+            self.logvol, self.funit = self.monte_carlo_logvol(return_overlap=True)
 
 
-class RadFriends:
+class RadFriends(object):
     """
     A collection of N-balls of identical size centered on each live point.
 
@@ -637,6 +651,7 @@ class RadFriends:
         Covariance structure (correlation and size) of each ball.
 
     """
+
     def __init__(self, ndim, cov=None):
         self.n = ndim
 
@@ -648,16 +663,15 @@ class RadFriends:
         self.axes_inv = lalg.pinvh(self.axes)
 
         detsign, detln = linalg.slogdet(self.am)
-        assert detsign > 0
+        # TODO check for finiteness
         self.logvol_ball = (logvol_prefactor(self.n) - 0.5 * detln)
         self.expand = 1.
-        self.funit = 1
 
     def scale_to_logvol(self, logvol):
         """Scale ball to encompass a target volume."""
 
-        f = np.exp((logvol - self.logvol_ball) * (1.0 / self.n))
-        # linear factor
+        f = np.exp((logvol - self.logvol_ball) * (1.0 / self.n))  # linear factor
+        self.expand *= f
         self.cov *= f**2
         self.am /= f**2
         self.axes *= f
@@ -668,8 +682,8 @@ class RadFriends:
         """Check which balls `x` falls within."""
 
         # Execute a brute-force search over all balls.
-        idxs = np.where(
-            lalg.norm(np.dot(ctrs - x, self.axes_inv), axis=1) <= 1.)[0]
+        idxs = np.where(lalg.norm(np.dot(ctrs - x, self.axes_inv), axis=1)
+                        <= 1.)[0]
 
         return idxs
 
@@ -699,6 +713,9 @@ class RadFriends:
 
         """
 
+        if rstate is None:
+            rstate = np.random
+
         nctrs = len(ctrs)  # number of balls
 
         # If there is only one ball, sample from it.
@@ -712,7 +729,7 @@ class RadFriends:
                 return x
 
         # Select a ball at random.
-        idx = rstate.integers(nctrs)
+        idx = rstate.randint(nctrs)
 
         # Select a point from the chosen ball.
         ds = randsphere(self.n, rstate=rstate)
@@ -731,8 +748,8 @@ class RadFriends:
         else:
             # If `q` is not being returned, assume the user wants this
             # done internally.
-            while rstate.uniform() > (1. / q):
-                idx = rstate.integers(nctrs)
+            while rstate.rand() > (1. / q):
+                idx = rstate.randint(nctrs)
                 ds = randsphere(self.n, rstate=rstate)
                 dx = np.dot(ds, self.axes)
                 x = ctrs[idx] + dx
@@ -751,27 +768,28 @@ class RadFriends:
 
         """
 
-        xs = np.array(
-            [self.sample(ctrs, rstate=rstate) for i in range(nsamples)])
+        if rstate is None:
+            rstate = np.random
+
+        xs = np.array([self.sample(ctrs, rstate=rstate)
+                       for i in range(nsamples)])
 
         return xs
 
-    def monte_carlo_logvol(self,
-                           ctrs,
-                           ndraws=10000,
-                           rstate=None,
-                           return_overlap=True):
+    def monte_carlo_logvol(self, ctrs, ndraws=10000, rstate=None,
+                        return_overlap=True):
         """Using `ndraws` Monte Carlo draws, estimate the log volume of the
         *union* of balls. If `return_overlap=True`, also returns the
         estimated fractional overlap with the unit cube."""
 
+        if rstate is None:
+            rstate = np.random
+
         # Estimate volume using Monte Carlo integration.
-        samples = [
-            self.sample(ctrs, rstate=rstate, return_q=True)
-            for i in range(ndraws)
-        ]
+        samples = [self.sample(ctrs, rstate=rstate, return_q=True)
+                   for i in range(ndraws)]
         qsum = sum([q for (x, q) in samples])
-        logvol = np.log(1. * ndraws / qsum * len(ctrs)) + self.logvol_ball
+        logvol = np.log(1. * ndraws / qsum * len(ctrs) ) + self.logvol_ball
 
         if return_overlap:
             # Estimate the fractional amount of overlap with the
@@ -782,13 +800,8 @@ class RadFriends:
         else:
             return logvol
 
-    def update(self,
-               points,
-               rstate=None,
-               bootstrap=0,
-               pool=None,
-               mc_integrate=False,
-               use_clustering=True):
+    def update(self, points, pointvol=0., rstate=None, bootstrap=0,
+               pool=None, mc_integrate=False, use_clustering=True):
         """
         Update the radii of our balls.
 
@@ -797,8 +810,11 @@ class RadFriends:
         points : `~numpy.ndarray` with shape (npoints, ndim)
             The set of points to bound.
 
-        rstate : `~numpy.random.Generator`, optional
-            `~numpy.random.Generator` instance.
+        pointvol : float, optional
+            The minimum volume associated with each point. Default is `0.`.
+
+        rstate : `~numpy.random.RandomState`, optional
+            `~numpy.random.RandomState` instance.
 
         bootstrap : int, optional
             The number of bootstrapped realizations of the ellipsoids. The
@@ -819,6 +835,9 @@ class RadFriends:
             modes. Default is `True`.
 
         """
+
+        if rstate is None:
+            rstate = np.random
 
         # If possible, compute bootstraps in parallel using a pool.
         if pool is None:
@@ -845,8 +864,7 @@ class RadFriends:
             # Bootstrap radius using the set of live points.
             ps = [points_t for it in range(bootstrap)]
             ftypes = ['balls' for it in range(bootstrap)]
-            seeds = get_seed_sequence(rstate, bootstrap)
-            args = zip(ps, ftypes, seeds)
+            args = zip(ps, ftypes)
             radii = list(M(_friends_bootstrap_radius, args))
 
         # Conservatively set radius to be maximum of the set.
@@ -860,16 +878,21 @@ class RadFriends:
 
         # Compute volume.
         detsign, detln = linalg.slogdet(self.am)
-        assert detsign > 0
+        # TODO check finite
         self.logvol_ball = (logvol_prefactor(self.n) - 0.5 * detln)
         self.expand = 1.
+
+        # Expand our ball to encompass a minimum volume.
+        if pointvol > 0.:
+            lv =  np.log(pointvol)
+            if self.logvol_ball < lv:
+                self.scale_to_logvol(lv)
 
         # Estimate the volume and fractional overlap with the unit cube
         # using Monte Carlo integration.
         if mc_integrate:
-            self.funit = self.monte_carlo_logvol(points,
-                                                 return_overlap=True,
-                                                 rstate=rstate)[1]
+            self.logvol, self.funit = self.monte_carlo_logvol(points,
+                                                        return_overlap=True)
 
     def _get_covariance_from_all_points(self, points):
         """Compute covariance using all points."""
@@ -880,16 +903,14 @@ class RadFriends:
         """Compute covariance from re-centered clusters."""
 
         # Compute pairwise distances.
-        distances = spatial.distance.pdist(points,
-                                           metric='mahalanobis',
+        distances = spatial.distance.pdist(points, metric='mahalanobis',
                                            VI=self.am)
 
         # Identify conglomerates of points by constructing a linkage matrix.
         linkages = cluster.hierarchy.single(distances)
 
         # Cut when linkage between clusters exceed the radius.
-        clusteridxs = cluster.hierarchy.fcluster(linkages,
-                                                 1.0,
+        clusteridxs = cluster.hierarchy.fcluster(linkages, 1.0,
                                                  criterion='distance')
         nclusters = np.max(clusteridxs)
         if nclusters == 1:
@@ -906,7 +927,7 @@ class RadFriends:
             return self._get_covariance_from_all_points(overlapped_points)
 
 
-class SupFriends:
+class SupFriends(object):
     """
     A collection of N-cubes of identical size centered on each live point.
 
@@ -919,6 +940,7 @@ class SupFriends:
         Covariance structure (correlation and size) of each cube.
 
     """
+
     def __init__(self, ndim, cov=None):
         self.n = ndim
 
@@ -930,16 +952,14 @@ class SupFriends:
         self.axes_inv = lalg.pinvh(self.axes)
 
         detsign, detln = linalg.slogdet(self.am)
-        assert detsign > 0
         self.logvol_cube = self.n * np.log(2.) - 0.5 * detln
         self.expand = 1.
-        self.funit = 1
 
     def scale_to_logvol(self, logvol):
         """Scale cube to encompass a target volume."""
 
-        f = np.exp((logvol - self.logvol_cube) * (1.0 / self.n))
-        # linear factor
+        f = np.exp((logvol - self.logvol_cube) * (1.0 / self.n))  # linear factor
+        self.expand *= f
         self.cov *= f**2
         self.am /= f**2
         self.axes *= f
@@ -950,8 +970,8 @@ class SupFriends:
         """Checks which cubes `x` falls within."""
 
         # Execute a brute-force search over all cubes.
-        idxs = np.where(
-            np.max(np.abs(np.dot(ctrs - x, self.axes_inv)), axis=1) <= 1.)[0]
+        idxs = np.where(np.max(np.abs(np.dot(ctrs - x, self.axes_inv)), axis=1)
+                        <= 1.)[0]
 
         return idxs
 
@@ -982,11 +1002,14 @@ class SupFriends:
 
         """
 
+        if rstate is None:
+            rstate = np.random
+
         nctrs = len(ctrs)  # number of cubes
 
         # If there is only one cube, sample from it.
         if nctrs == 1:
-            ds = (2. * rstate.uniform(size=self.n) - 1.)
+            ds = (2. * rstate.rand(self.n) - 1.)
             dx = np.dot(ds, self.axes)
             x = ctrs[0] + dx
             if return_q:
@@ -995,10 +1018,10 @@ class SupFriends:
                 return x
 
         # Select a cube at random.
-        idx = rstate.integers(nctrs)
+        idx = rstate.randint(nctrs)
 
         # Select a point from the chosen cube.
-        ds = (2. * rstate.uniform(size=self.n) - 1.)
+        ds = (2. * rstate.rand(self.n) - 1.)
         dx = np.dot(ds, self.axes)
         x = ctrs[idx] + dx
 
@@ -1014,9 +1037,9 @@ class SupFriends:
         else:
             # If `q` is not being returned, assume the user wants this
             # done internally.
-            while rstate.uniform() > (1. / q):
-                idx = rstate.integers(nctrs)
-                ds = (2. * rstate.uniform(size=self.n) - 1.)
+            while rstate.rand() > (1. / q):
+                idx = rstate.randint(nctrs)
+                ds = (2. * rstate.rand(self.n) - 1.)
                 dx = np.dot(ds, self.axes)
                 x = ctrs[idx] + dx
                 q = self.overlap(x, ctrs)
@@ -1034,25 +1057,26 @@ class SupFriends:
 
         """
 
-        xs = np.array(
-            [self.sample(ctrs, rstate=rstate) for i in range(nsamples)])
+        if rstate is None:
+            rstate = np.random
+
+        xs = np.array([self.sample(ctrs, rstate=rstate)
+                       for i in range(nsamples)])
 
         return xs
 
-    def monte_carlo_logvol(self,
-                           ctrs,
-                           ndraws=10000,
-                           rstate=None,
-                           return_overlap=False):
+    def monte_carlo_logvol(self, ctrs, ndraws=10000, rstate=None,
+                        return_overlap=False):
         """Using `ndraws` Monte Carlo draws, estimate the log volume of the
         *union* of cubes. If `return_overlap=True`, also returns the
         estimated fractional overlap with the unit cube."""
 
+        if rstate is None:
+            rstate = np.random
+
         # Estimate the volume using Monte Carlo integration.
-        samples = [
-            self.sample(ctrs, rstate=rstate, return_q=True)
-            for i in range(ndraws)
-        ]
+        samples = [self.sample(ctrs, rstate=rstate, return_q=True)
+                   for i in range(ndraws)]
         qsum = sum([q for (x, q) in samples])
         logvol = np.log(1. * ndraws / qsum * len(ctrs)) + self.logvol_cube
 
@@ -1065,13 +1089,8 @@ class SupFriends:
         else:
             return logvol
 
-    def update(self,
-               points,
-               rstate=None,
-               bootstrap=0,
-               pool=None,
-               mc_integrate=False,
-               use_clustering=True):
+    def update(self, points, pointvol=0., rstate=None, bootstrap=0,
+               pool=None, mc_integrate=False, use_clustering=True):
         """
         Update the half-side-lengths of our cubes.
 
@@ -1080,8 +1099,11 @@ class SupFriends:
         points : `~numpy.ndarray` with shape (npoints, ndim)
             The set of points to bound.
 
-        rstate : `~numpy.random.Generator`, optional
-            `~numpy.random.Generator` instance.
+        pointvol : float, optional
+            The minimum volume associated with each point. Default is `0.`.
+
+        rstate : `~numpy.random.RandomState`, optional
+            `~numpy.random.RandomState` instance.
 
         bootstrap : int, optional
             The number of bootstrapped realizations of the ellipsoids. The
@@ -1102,6 +1124,9 @@ class SupFriends:
             modes. Default is `True`.
 
         """
+
+        if rstate is None:
+            rstate = np.random
 
         # If possible, compute bootstraps in parallel using a pool.
         if pool is None:
@@ -1128,8 +1153,7 @@ class SupFriends:
             # Bootstrap radius using the set of live points.
             ps = [points_t for it in range(bootstrap)]
             ftypes = ['cubes' for it in range(bootstrap)]
-            seeds = get_seed_sequence(rstate, bootstrap)
-            args = zip(ps, ftypes, seeds)
+            args = zip(ps, ftypes)
             hsides = list(M(_friends_bootstrap_radius, args))
 
         # Conservatively set half-side-length to be maximum of the set.
@@ -1145,12 +1169,17 @@ class SupFriends:
         self.logvol_cube = (self.n * np.log(2.) - 0.5 * detln)
         self.expand = 1.
 
+        # Expand our cube to encompass a minimum volume.
+        if pointvol > 0.:
+            lv = np.log(pointvol)
+            if self.logvol_cube < lv:
+                self.scale_to_logvol(lv)
+
         # Estimate the volume and fractional overlap with the unit cube
         # using Monte Carlo integration.
         if mc_integrate:
-            self.funit = self.monte_carlo_logvol(points,
-                                                 return_overlap=True,
-                                                 rstate=rstate)[1]
+            self.logvol, self.funit = self.monte_carlo_logvol(points,
+                                                        return_overlap=True)
 
     def _get_covariance_from_all_points(self, points):
         """Compute covariance using all points."""
@@ -1161,16 +1190,14 @@ class SupFriends:
         """Compute covariance from re-centered clusters."""
 
         # Compute pairwise distances.
-        distances = spatial.distance.pdist(points,
-                                           metric='mahalanobis',
+        distances = spatial.distance.pdist(points, metric='mahalanobis',
                                            VI=self.am)
 
         # Identify conglomerates of points by constructing a linkage matrix.
         linkages = cluster.hierarchy.single(distances)
 
         # Cut when linkage between clusters exceed the radius.
-        clusteridxs = cluster.hierarchy.fcluster(linkages,
-                                                 1.0,
+        clusteridxs = cluster.hierarchy.fcluster(linkages, 1.0,
                                                  criterion='distance')
         nclusters = np.max(clusteridxs)
         if nclusters == 1:
@@ -1191,6 +1218,22 @@ class SupFriends:
 # HELPER FUNCTIONS
 ##################
 
+def vol_prefactor(n, p=2.):
+    """
+    Returns the volume constant for an `n`-dimensional sphere with an
+    :math:`L^p` norm. The constant is defined as::
+
+        f = (2. * Gamma(1./p + 1))**n / Gamma(n/p + 1.)
+
+    By default the `p=2.` norm is used (i.e. the standard Euclidean norm).
+
+    """
+
+    p *= 1.  # convert to float in case user inputs an integer
+    f = (2 * special.gamma(1./p + 1.))**n / special.gamma(n/p + 1)
+
+    return f
+
 
 def logvol_prefactor(n, p=2.):
     """
@@ -1204,7 +1247,8 @@ def logvol_prefactor(n, p=2.):
     """
 
     p *= 1.  # convert to float in case user inputs an integer
-    lnf = (n * np.log(2.) + n * gammaln(1. / p + 1.) - gammaln(n / p + 1))
+    lnf = (n * np.log(2.) + n * special.gammaln(1./p + 1.) -
+           special.gammaln(n/p + 1))
 
     return lnf
 
@@ -1212,103 +1256,61 @@ def logvol_prefactor(n, p=2.):
 def randsphere(n, rstate=None):
     """Draw a point uniformly within an `n`-dimensional unit sphere."""
 
-    z = rstate.standard_normal(size=n)  # initial n-dim vector
-    xhat = z * (rstate.uniform()**(1. / n) / lalg.norm(z))  # scale
+    if rstate is None:
+        rstate = np.random
+
+    z = rstate.randn(n)  # initial n-dim vector
+    zhat = z / lalg.norm(z)  # normalize
+    xhat = zhat * rstate.rand()**(1./n)  # scale
+
     return xhat
 
-
-def rand_choice(pb, rstate):
-    """ Optimized version of numpy's random.choice
-    Return an index of a point selected with the probability pb
-    The pb must sum to 1
-    """
-    p1 = np.cumsum(pb)
-    xr = rstate.uniform()
-    return min(np.searchsorted(p1, xr), len(pb) - 1)
-
-
-def improve_covar_mat(covar0, ntries=100, max_condition_number=1e12):
+def improve_covar_mat(covar0, ntries=100, max_condition_number=1e14):
     """
     Given the covariance matrix improve it, if it is not invertable
     or eigen values are negative or condition number that is above the limit
     Returns:
-    a tuple with three elements
-    1) a boolean flag if a matrix is 'good', so it didn't need adjustments
-    2) updated matrix
-    3) its inverse
+    updated matrix and its inverse
     """
     ndim = covar0.shape[0]
     covar = np.array(covar0)
     coeffmin = 1e-10
     # this will a starting point for the modification
     # of the form (1-coeff)*M + (coeff)*E
-    eig_mult = 10  # we want the condition number to be at least that much
-    # smaller than the max_condition_number
-
-    # here we are trying to check if we compute cholesky transformation
-    # and all eigenvals > 0 and condition number is good
-    # if the only problem are the eigenvalues we just increase the lowest ones
-    # if we are getting linalg exceptions we use add diag matrices
-
+    
     for trial in range(ntries):
-        failed = 0
+        failed = False
         try:
             # Check if matrix is invertible.
-            eigval, eigvec = lalg.eigh(covar, check_finite=False)
-            # compute eigenvalues/vectors
-            maxval = eigval.max()
-            minval = eigval.min()
-            # Check if eigen values are good
-            if np.isfinite(eigval).all():
-                if maxval <= 0:
-                    # no positive eigvalues
-                    # not much to fix
-                    failed = 2
-                else:
-                    if minval < maxval / max_condition_number:
-                        # some eigen values are too small
-                        failed = 1
-                    else:
-                        # eigen values are all right
-                        # checking if cholesky works
-                        axes = lalg.cholesky(covar,
-                                             lower=True,
-                                             check_finite=False)
-                        # if we are here we are done
-                        break
-            else:
-                # complete failure
-                failed = 2
-        except lalg.LinAlgError:
-            # There is some kind of massive failure
-            # we suppress the off-diagonal elements
-            failed = 2
-        if failed > 0:
-            if failed == 1:
-                eigval_fix = np.maximum(
-                    eigval, eig_mult * maxval / max_condition_number)
-                covar = eigvec @ np.diag(eigval_fix) @ eigvec.T
-            else:
-                coeff = coeffmin * (1. / coeffmin)**(trial * 1. / (ntries - 1))
-                # this starts at coeffmin when trial=0 and ends at 1
-                # when trial == ntries-1
-                covar = (1. - coeff) * covar + coeff * np.eye(ndim)
+            am = lalg.pinvh(covar)
+            l, v = lalg.eigh(covar)  # compute eigenvalues/vectors
 
-    if failed > 0:
+            # Check if direct Cholesky decomposition exists.
+            lalg.cholesky(covar, lower=True)
+
+            # Check if everything worked.
+            if np.all((l > 0) & np.isfinite(l)) and l.max() < l.min() * max_condition_number:
+                break
+            else:
+                failed = True
+        except lalg.LinAlgError:
+            # If the matrix remains singular/unstable,
+            # suppress the off-diagonal elements
+            failed = True
+        if failed:
+            coeff = coeffmin * (1./coeffmin)**(trial*1./(ntries-1))
+            # this starts at coeffmin when trial=0 and ends at 1
+            # when trial == ntries-1
+            covar = (1. - coeff) * covar + coeff * np.eye(ndim)
+    if failed:
         warnings.warn("Failed to guarantee the ellipsoid axes will be "
                       "non-singular. Defaulting to a sphere.")
         covar = np.eye(ndim)  # default to identity
         am = lalg.pinvh(covar)
-        axes = lalg.cholesky(covar, lower=True)
-    else:
-        # invert the matrix using eigen decomposition
-        am = eigvec @ np.diag(1. / eigval) @ eigvec.T
-    good_mat = trial == 0
-    # if True it means no adjustments were necessary
-    return good_mat, covar, am, axes
+    return covar, am
 
 
-def bounding_ellipsoid(points):
+def bounding_ellipsoid(points, pointvol=0.):
     """
     Calculate the bounding ellipsoid containing a collection of points.
 
@@ -1316,6 +1318,11 @@ def bounding_ellipsoid(points):
     ----------
     points : `~numpy.ndarray` with shape (npoints, ndim)
         A set of coordinates.
+
+    pointvol : float, optional
+        The minimum volume occupied by a single point. When provided,
+        used to set a minimum bound on the ellipsoid volume
+        as `npoints * pointvol`. Default is `0.`.
 
     Returns
     -------
@@ -1326,66 +1333,83 @@ def bounding_ellipsoid(points):
 
     npoints, ndim = points.shape
 
+    # Check for valid `pointvol` value if provided.
+    if pointvol < 0.:
+        raise ValueError("You must specify a non-negative value "
+                         "for `pointvol`.")
+
+    # If there is only a single point, return an n-sphere with volume
+    # `pointvol` centered at the point.
     if npoints == 1:
-        raise ValueError("Cannot compute a bounding ellipsoid of a "
-                         "single point.")
+        if pointvol > 0.:
+            ctr = points[0]
+            r = np.exp((np.log(pointvol) - logvol_prefactor(ndim)) / ndim)
+            covar = r**2 * np.identity(ndim)
+            return Ellipsoid(ctr, covar)
+        else:
+            raise ValueError("Cannot compute a bounding ellipsoid to a "
+                             "single point if `pointvol` is not specified.")
 
     # Calculate covariance of points.
     ctr = np.mean(points, axis=0)
-    covar = mle_cov(points, rowvar=False)
-    delta = points - ctr
+    covar0 = mle_cov(points, rowvar=False)
 
     # When ndim = 1, `np.cov` returns a 0-d array. Make it a 1x1 2-d array.
     if ndim == 1:
-        covar = np.atleast_2d(covar)
+        covar0 = np.atleast_2d(covar0)
 
+    # throughtout the code covar, am will be our current covariance
+    # and precision matrices
+    covar, am = improve_covar_mat(covar0)
+    
+    # Calculate expansion factor necessary to bound each point.
+    # Points should obey `(x-v)^T A (x-v) <= 1`, so we calculate this for
+    # each point and then scale A up or down to make the
+    # "outermost" point obey `(x-v)^T A (x-v) = 1`. This can be done
+    # quickly using `einsum` and `tensordot` to iterate over all points.
+    delta = points - ctr
+    f = np.einsum('...i, ...i', np.tensordot(delta, am, axes=1), delta)
+    fmax = np.max(f)
+    
+    # Due to round-off errors, we actually scale the ellipsoid so the
+    # outermost point obeys `(x-v)^T A (x-v) < 1 - (a bit) < 1`.
+
+    
     ROUND_DELTA = 1e-3
     # numerical experiments show that round off errors can reach large
     # values if the matrix is poorly conditioned
     # Note that likely the delta here must be related to maximum
     # condition number parameter in improve_covar_mat()
-    #
+    # 
     one_minus_a_bit = 1. - ROUND_DELTA
+    if fmax > one_minus_a_bit:
+        covar *= fmax / one_minus_a_bit
 
-    for i in range(2):
-        # If the matrix needs improvement
-        # we improve the matrix twice, first before rescaling
-        # and second after rescaling. If matrix is okay, we do
-        # the loop once
-        good_mat, covar, am, axes = improve_covar_mat(covar)
-
-        # Calculate expansion factor necessary to bound each point.
-        # Points should obey `(x-v)^T A (x-v) <= 1`, so we calculate this for
-        # each point and then scale A up or down to make the
-        # "outermost" point obey `(x-v)^T A (x-v) = 1`.
-
-        fmax = np.einsum('ij,jk,ik->i', delta, am, delta).max()
-
-        # Due to round-off errors, we actually scale the ellipsoid so the
-        # outermost point obeys `(x-v)^T A (x-v) < 1 - (a bit) < 1`.
-        # in the first iteration we just try to adjust the matrix
-        # if it didn't work again, we bail out
-        if i == 0 and fmax > one_minus_a_bit:
-            mult = fmax / one_minus_a_bit
-            # IMPORTANT that we need to update the cov, its inverse and axes
-            # as those are used directly
-            covar *= mult
-            am /= mult
-            axes *= np.sqrt(mult)
-        if i == 1 and fmax >= 1:
-            raise RuntimeError(
-                "Failed to initialize the ellipsoid to contain all the points")
-        if good_mat:
-            # I only need to run through the loop twice if the matrix
-            # is problematic
-            break
+    # Repeat the ellipsoid check above just in case this modification makes
+    # us numerically unstable again. Just to be **ultra safe**.
+    covar, am = improve_covar_mat(covar)
+    
+    # this is a final check
+    # if this fails the ellipsoid is still broken
+    # in the sense that it does not include the points 
+    fmax1 = np.einsum('...i, ...i', np.tensordot(delta, am, axes=1), delta).max()
+    if fmax1 >=1:
+        raise RuntimeError("Failed to initialize the ellipsoid to contain all the points")
+        
     # Initialize our ellipsoid with *safe* covariance matrix.
-    ell = Ellipsoid(ctr, covar, am=am, axes=axes)
+    ell = Ellipsoid(ctr, covar)
+
+    # Expand our ellipsoid to encompass a minimum volume.
+    if pointvol > 0.:
+        minvol = npoints * pointvol
+        if ell.logvol < np.log(minvol):
+            ell.scale_to_logvol(np.log(minvol))
 
     return ell
 
 
-def _bounding_ellipsoids(points, ell):
+def _bounding_ellipsoids(points, ell, pointvol=0., vol_dec=0.5,
+                         vol_check=2.):
     """
     Internal method used to compute a set of bounding ellipsoids when a
     bounding ellipsoid for the entire set has already been calculated.
@@ -1397,6 +1421,21 @@ def _bounding_ellipsoids(points, ell):
 
     ell : Ellipsoid
         The bounding ellipsoid containing :data:`points`.
+
+    pointvol : float, optional
+        Volume represented by a single point. When provided,
+        used to set a minimum bound on the ellipsoid volume
+        as `npoints * pointvol`. Default is `0.`.
+
+    vol_dec : float, optional
+        The required fractional reduction in volume after splitting an
+        ellipsoid in order to to accept the split. Default is `0.5`.
+
+    vol_check : float, optional
+        The factor used to when checking whether the volume of the
+        original bounding ellipsoid is large enough to warrant more
+        trial splits via `ell.vol > vol_check * npoints * pointvol`.
+        Default is `2.0`.
 
     Returns
     -------
@@ -1417,63 +1456,55 @@ def _bounding_ellipsoids(points, ell):
     # Split points into two clusters using k-means clustering with k=2.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        k2_res = kmeans2(points,
-                         k=start_ctrs,
-                         iter=10,
-                         minit='matrix',
+        k2_res = kmeans2(points, k=start_ctrs, iter=10, minit='matrix',
                          check_finite=False)
     labels = k2_res[1]  # cluster identifier ; shape is (npoints,)
 
     # Get points in each cluster.
     points_k = [points[labels == k, :] for k in (0, 1)]
 
-    # If either cluster has less than 2*ndim points, the bounding ellipsoid
-    # will be poorly-constrained. Reject the split and simply return the
+    # If either cluster has less than ndim+1 points, the bounding ellipsoid
+    # will be ill-constrained. Reject the split and simply return the
     # original ellipsoid bounding all the points.
     if points_k[0].shape[0] < 2 * ndim or points_k[1].shape[0] < 2 * ndim:
         return [ell]
 
     # Bounding ellipsoid for each cluster, possibly enlarged
     # to a minimum volume.
-    ells = [bounding_ellipsoid(points_j) for points_j in points_k]
+    ells = [bounding_ellipsoid(points_j, pointvol=pointvol)
+            for points_j in points_k]
 
-    # If the total volume decreased significantly, we accept
+    # If the total volume decreased by a factor of `vol_dec`, we accept
     # the split into subsets. We then recursively split each subset.
-    # The condition for hte volume decrease is motivated by the BIC values
-    # assuming that the number of parameter of the ellipsoid is X (it is
-    # Ndim*(Ndim+3)/2, the number of points is N
-    # then the BIC of the bounding ellipsoid model is
-    # N * log(V0) + X * ln(N)
-    # where V0 is the volume of the ellipsoid
-    # if we have many (k) ellipsoids with total volume V1
-    # then BIC is N*log(V1) + X *k *ln(N)
-    # from that we can get the volume decrease condition
-    # V1/V0 < exp(-(k-1)*X*ln(N)/N)
-    # The choice of BIC is motivated by Xmeans algo from Pelleg 2000
-    # See also Feroz2008
+    if np.logaddexp(ells[0].logvol, ells[1].logvol) < np.log(vol_dec)+ ell.logvol:
+        return (_bounding_ellipsoids(points_k[0], ells[0],
+                                     pointvol=pointvol, vol_dec=vol_dec,
+                                     vol_check=vol_check) +
+                _bounding_ellipsoids(points_k[1], ells[1],
+                                     pointvol=pointvol, vol_dec=vol_dec,
+                                     vol_check=vol_check))
 
-    nparam = (ndim * (ndim + 3)) // 2
-    vol_dec1 = np.exp(-nparam * np.log(npoints) / npoints)
+    # Otherwise, see if the total ellipsoid volume is larger than the
+    # minimum volume by a factor of `vol_check`. If it is, this indicates
+    # that there may be more than 2 clusters and we should try to
+    # subdivide further.
+    if ell.logvol > np.log(vol_check * npoints * pointvol):
+        out = (_bounding_ellipsoids(points_k[0], ells[0],
+                                    pointvol=pointvol, vol_dec=vol_dec,
+                                    vol_check=vol_check) +
+               _bounding_ellipsoids(points_k[1], ells[1],
+                                    pointvol=pointvol, vol_dec=vol_dec,
+                                    vol_check=vol_check))
 
-    if np.logaddexp(ells[0].logvol,
-                    ells[1].logvol) < np.log(vol_dec1) + ell.logvol:
-        return (_bounding_ellipsoids(points_k[0], ells[0]) +
-                _bounding_ellipsoids(points_k[1], ells[1]))
-
-    # here if the split didn't succeed, we still try to split
-    out = (_bounding_ellipsoids(points_k[0], ells[0]) +
-           _bounding_ellipsoids(points_k[1], ells[1]))
-    vol_dec2 = np.exp(-nparam * (len(out) - 1) * np.log(npoints) / npoints)
-
-    # Only accept the split if the volume decreased significantly
-    if logsumexp([e.logvol for e in out]) < np.log(vol_dec2) + ell.logvol:
-        return out
+        # Only accept the split if the volume decreased significantly.
+        if logsumexp([e.logvol for e in out]) <np.log( vol_dec) + ell.logvol:
+            return out
 
     # Otherwise, we are happy with the single bounding ellipsoid.
     return [ell]
 
 
-def bounding_ellipsoids(points):
+def bounding_ellipsoids(points, pointvol=0., vol_dec=0.5, vol_check=2.):
     """
     Calculate a set of ellipsoids that bound the collection of points.
 
@@ -1481,6 +1512,21 @@ def bounding_ellipsoids(points):
     ----------
     points : `~numpy.ndarray` with shape (npoints, ndim)
         A set of coordinates.
+
+    pointvol : float, optional
+        Volume represented by a single point. When provided,
+        used to set a minimum bound on the ellipsoid volume
+        as `npoints * pointvol`. Default is `0.`.
+
+    vol_dec : float, optional
+        The required fractional reduction in volume after splitting an
+        ellipsoid in order to to accept the split. Default is `0.5`.
+
+    vol_check : float, optional
+        The factor used to when checking whether the volume of the
+        original bounding ellipsoid is large enough to warrant more
+        trial splits via `ell.vol > vol_check * npoints * pointvol`.
+        Default is `2.0`.
 
     Returns
     -------
@@ -1490,70 +1536,82 @@ def bounding_ellipsoids(points):
 
     """
 
+    if not HAVE_KMEANS:
+        raise ValueError("scipy.cluster.vq.kmeans2 is required to compute "
+                         "ellipsoid decompositions.")  # pragma: no cover
+
     # Calculate the bounding ellipsoid for the points possibly
     # enlarged to a minimum volume.
-    ell = bounding_ellipsoid(points)
+    ell = bounding_ellipsoid(points, pointvol=pointvol)
 
-    # Recursively split the bounding ellipsoid
-    ells = _bounding_ellipsoids(points, ell)
+    # Recursively split the bounding ellipsoid until the volume of each
+    # split no longer decreases by a factor of `vol_dec`.
+    ells = _bounding_ellipsoids(points, ell, pointvol=pointvol,
+                                vol_dec=vol_dec, vol_check=vol_check)
 
     return MultiEllipsoid(ells=ells)
 
 
-def _bootstrap_points(points, rseed):
-    """
-    Select the bootstrap set from points.
-    Return:
-    Tuple with selected, and not-selected points
-    """
-    rstate = get_random_generator(rseed)
-    npoints, ndim = points.shape
-
-    # Resampling.
-    idxs = rstate.integers(npoints, size=npoints)
-    idx_in = np.unique(idxs)  # selected objects
-    sel_in = np.zeros(npoints, dtype=bool)
-    sel_in[idx_in] = True
-    # in the crazy case of not having selected more than one
-    # point I just arbitrary add points to have at least two in idx_in
-    # and at least 1 in idx_out
-    n_in = sel_in.sum()
-    if n_in < 2:
-        sel_in[:2] = True
-    if n_in > npoints - 1:
-        sel_in[0] = False
-    points_in, points_out = points[sel_in], points[~sel_in]
-    return points_in, points_out
-
-
 def _ellipsoid_bootstrap_expand(args):
     """Internal method used to compute the expansion factor for a bounding
-    ellipsoid or ellipsoids based on bootstrapping.
-    The argument is a tuple:
-    multi: boolean flag if we are doing multiell or single ell decomposition
-    points: 2d array of points
-    rseed: seed to initialize the random generator
-    """
+    ellipsoid based on bootstrapping."""
 
     # Unzipping.
-    multi, points, rseed = args
+    points, pointvol = args
+    rstate = np.random
 
-    points_in, points_out = _bootstrap_points(points, rseed)
+    # Resampling.
+    npoints, ndim = points.shape
+    idxs = rstate.randint(npoints, size=npoints)  # resample
+    idx_in = np.unique(idxs)  # selected objects
+    sel = np.ones(npoints, dtype='bool')
+    sel[idx_in] = False
+    idx_out = np.arange(npoints)[sel]  # "missing" objects
+    if len(idx_out) < 2:  # edge case
+        idx_out = np.append(idx_out, [0, 1])
+    points_in, points_out = points[idx_in], points[idx_out]
 
     # Compute bounding ellipsoid.
-    ell = bounding_ellipsoid(points_in)
+    ell = bounding_ellipsoid(points_in, pointvol=pointvol)
 
-    if not multi:
-        # Compute normalized distances to missing points.
-        dists = ell.distance_many(points_out)
-    else:
-        ells = _bounding_ellipsoids(points_in, ell)
-        # Compute normalized distances to missing points.
-        dists = np.min(np.array([el.distance_many(points_out) for el in ells]),
-                       axis=0)
+    # Compute normalized distances to missing points.
+    dists = [ell.distance(p) for p in points_out]
 
     # Compute expansion factor.
-    expand = max(1., np.max(dists))
+    expand = max(1., max(dists))
+
+    return expand
+
+
+def _ellipsoids_bootstrap_expand(args):
+    """Internal method used to compute the expansion factor(s) for a collection
+    of bounding ellipsoids using bootstrapping."""
+
+    # Unzipping.
+    points, pointvol, vol_dec, vol_check = args
+    rstate = np.random
+
+    # Resampling.
+    npoints, ndim = points.shape
+    idxs = rstate.randint(npoints, size=npoints)  # resample
+    idx_in = np.unique(idxs)  # selected objects
+    sel = np.ones(npoints, dtype='bool')
+    sel[idx_in] = False
+    idx_out = np.where(sel)[0]  # "missing" objects
+    if len(idx_out) < 2:  # edge case
+        idx_out = np.append(idx_out, [0, 1])
+    points_in, points_out = points[idx_in], points[idx_out]
+
+    # Compute bounding ellipsoids.
+    ell = bounding_ellipsoid(points_in, pointvol=pointvol)
+    ells = _bounding_ellipsoids(points_in, ell, pointvol=pointvol,
+                                vol_dec=vol_dec, vol_check=vol_check)
+
+    # Compute normalized distances to missing points.
+    dists = [min([el.distance(p) for el in ells]) for p in points_out]
+
+    # Compute expansion factor.
+    expand = max(1., max(dists))
 
     return expand
 
@@ -1564,9 +1622,19 @@ def _friends_bootstrap_radius(args):
     bootstrapping."""
 
     # Unzipping.
-    points, ftype, rseed = args
+    points, ftype = args
+    rstate = np.random
 
-    points_in, points_out = _bootstrap_points(points, rseed)
+    # Resampling.
+    npoints, ndim = points.shape
+    idxs = rstate.randint(npoints, size=npoints)  # resample
+    idx_in = np.unique(idxs)  # selected objects
+    sel = np.ones(npoints, dtype='bool')
+    sel[idx_in] = False
+    idx_out = np.where(sel)[0]  # "missing" objects
+    if len(idx_out) < 2:  # edge case
+        idx_out = np.append(idx_out, [0, 1])
+    points_in, points_out = points[idx_in], points[idx_out]
 
     # Construct KDTree to enable quick nearest-neighbor lookup for
     # our resampled objects.
