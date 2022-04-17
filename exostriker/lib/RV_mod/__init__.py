@@ -3784,6 +3784,14 @@ class signal_fit(object):
 
        dirname, basename = os.path.split(path)
 
+       HARPS_RVBank_data = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0 )
+       num_cols,num_rows = HARPS_RVBank_data.shape 
+      # print(num_rows, num_cols)
+    #   return
+       if num_cols !=50:
+           print("Not a HARPS_RVBank file!") 
+           return                   
+
        BJD = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
       # indices = np.where(BJD > 2457161.5)
 
