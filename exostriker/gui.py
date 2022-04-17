@@ -8974,18 +8974,41 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 self.update_act_file_buttons()
 
     def save_DataInspector_data(self):
+        global fit, pdi 
 
-        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save to data (ascii) file', '%s_%s.dat'%(self.RVBank_window.target_name,self.RVBank_window.data_name), 'All (*.*);;', options=QtWidgets.QFileDialog.DontUseNativeDialog)
-        
-        if str(output_file[0]) != '':
-            f = open(output_file[0], 'w')
-            for i in range(len(self.RVBank_window.x_data)):
-                f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f} \n'.format(
-                        float(self.RVBank_window.x_data[i]), 
-                        float(self.RVBank_window.y_data[i]), 
-                        float(self.RVBank_window.e_y_data[i]),  
-                        width = 14, precision = 7 ))
-            f.close()
+        if self.RVBank == True:
+            print("Exporting data for %s"%self.RVBank_window.target_name)
+            pdi_data_name = self.RVBank_window.data_name
+            pdi_target_name = self.RVBank_window.target_name
+        else:
+            path = self.datafiles_window.listview.model().filePath(self.datafiles_window.listview.currentIndex()) 
+            pdi_data_name = path
+            pdi_target_name = path
+
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save to data (ascii) file', '%s_%s.dat'%(pdi_target_name,pdi_data_name), 'All (*.*);;', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+
+        try:         
+            x_pdi = pdi.plotItem.items[3].opts["x"]
+            y_pdi = pdi.plotItem.items[3].opts["y"]
+            e_pdi = pdi.plotItem.items[3].opts["top"]
+            
+            if len(x_pdi)==0:
+                print("Exporting an empty file makes no sense.1")
+                return
+
+            if str(output_file[0]) != '':
+                f = open(output_file[0], 'w')
+                for i in range(len(x_pdi)):
+                    f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f}  {2:{width}.{precision}f} \n'.format(
+                            float(x_pdi[i]), 
+                            float(y_pdi[i]), 
+                            float(e_pdi[i]),   
+                            width = 14, precision = 7 ))
+                f.close()
+
+        except:
+            print("Exporting an empty file makes no sense.2")
+            return
 
         return
 
@@ -9056,7 +9079,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 return
              
         
-        
+        fit.pdi = pdi
 
         pdi.addLine(x=None, y=np.mean(y), pen=pg.mkPen('#ff9933', width=0.8),name="zero")
 
