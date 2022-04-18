@@ -3792,12 +3792,13 @@ class signal_fit(object):
            print("Not a HARPS_RVBank file!") 
            return                   
 
-       BJD = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+       BJD = np.genfromtxt("%s"%(path), skip_header=0, unpack=True, skip_footer=0, usecols = [0])
       # indices = np.where(BJD > 2457161.5)
 
        fo = open(path, "r")
        lines = fo.readlines()
        fo.close()
+
 
        name1 = '%s_pre.dat'%basename[:-4]
        name2 = '%s_post.dat'%basename[:-4]
@@ -3811,6 +3812,9 @@ class signal_fit(object):
        for i in range(len(lines)):
 
            line = lines[i].split()
+           if len(line) == 0:
+               continue
+
            if float(line[0]) <= 2457161.5:
                out1.write(lines[i])
            elif float(line[0]) > 2457161.5:
