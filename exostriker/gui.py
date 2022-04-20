@@ -2251,11 +2251,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         import pyqtgraph.exporters
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2,pe0,pe1
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2,pe0,pe1,p_ttv_00,p_ttv_01
 
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev]
-        zzz_str = ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12','p13','p14','p15','p16','p17','p18','p19','p20','pe','pdi','pcor','p_mlp','p_ttv','p_ttv_oc','p_per_ev','pe2']
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p_ttv_00,p_ttv_01]
+        zzz_str = ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12','p13','p14','p15','p16','p17','p18','p19','p20','pe','pdi','pcor','p_mlp','p_ttv','p_ttv_oc','p_per_ev','pe2',',p_ttv_00','p_ttv_01']
         for i in range(len(zzz)):
 
             # create an exporter instance, as an argument give it
@@ -2278,7 +2278,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_font_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2,pe0,pe1
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2,pe0,pe1,p_ttv_00,p_ttv_01
 
         zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,pe0,pe1]
 
@@ -2342,6 +2342,21 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         return
 
+        zzz5 = [p_ttv_00,p_ttv_01]
+        for i in range(len(zzz5)):
+
+            zzz5[i].getAxis('left').setWidth(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+            zzz5[i].getAxis("left").tickFont = self.plot_font
+            zzz5[i].getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+            zzz5[i].getAxis("bottom").tickFont = self.plot_font
+           # zzz4[i].getAxis("left").setStyle(tickTextOffset=20)        
+          #  zzz4[i].getAxis("bottom").setStyle(tickTextOffset=20)        
+            
+            zzz5[i].setLabel('bottom', '%s'%zzz5[i].getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            zzz5[i].setLabel('left', '%s'%zzz5[i].getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+
+        return
+ 
 
     def initialize_plots(self):
 
@@ -2439,6 +2454,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         
         self.initialize_RV_subplots()
         self.initialize_tra_subplots()
+        self.initialize_TTV_subplots()
         self.initialize_RV_phase_subplots()               
 
 
@@ -2686,6 +2702,83 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         ll.setContentsMargins(0., 0., 0., 0.)                                                
         return
 
+
+    def initialize_TTV_subplots(self):
+
+        global p_ttv_oc, p_ttv_00,p_ttv_01
+
+        o_c_label = "o-c [d]"    
+       
+        l = pg.GraphicsLayout()                                                             
+        p_ttv_oc.setCentralItem(l)                                                                                                                        
+
+        p_ttv_00 = l.addPlot(0, 0, colspan=3)                                                                
+        p_ttv_00.hideAxis('bottom')                                                              
+        p_ttv_01 = l.addPlot(1, 0, colspan=1)                                                                
+        p_ttv_01.setXLink(p_ttv_00)                 
+
+
+        #for i in (1, 2):
+        l.layout.setRowMinimumHeight(0, 220)                                                    
+        l.layout.setRowMinimumHeight(1, 30)         
+        l.layout.setRowMaximumHeight(1, 150)                                                                                               
+        p_ttv_00.showAxis('top') 
+        p_ttv_00.showAxis('right') 
+        p_ttv_01.showAxis('top') 
+        p_ttv_01.showAxis('right') 
+ 
+        p_ttv_00.ctrlMenu.actions()[-4].setVisible(False) #removes the submenu "Avarage" junk       
+        p_ttv_01.ctrlMenu.actions()[-4].setVisible(False) #removes the submenu "Avarage" junk       
+
+
+        p_ttv_00.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
+        p_ttv_00.getAxis("left").tickFont = self.plot_font
+        #p00.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+        p_ttv_00.getAxis("bottom").tickFont = self.plot_font
+        #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p_ttv_00.setLabel('left', '%s'%p_ttv_oc.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p_ttv_00.getAxis('right').setWidth(0)
+        p_ttv_00.getAxis('top').setHeight(0)
+
+        p_ttv_00.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+
+        #p00.getViewBox().setAspectLocked(lock=False, ratio=2)
+
+        p_ttv_00.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p_ttv_00.getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p_ttv_00.getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p_ttv_00.getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        #p00.getAxis('bottom').enableAutoSIPrefix(enable=False)
+
+
+        p_ttv_01.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
+        p_ttv_01.getAxis("left").tickFont = self.plot_font
+        p_ttv_01.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
+        p_ttv_01.getAxis("bottom").tickFont = self.plot_font
+
+        #p_ttv_01.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p_ttv_01.setLabel('left', o_c_label, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p_ttv_01.getAxis('right').setWidth(0)
+        p_ttv_01.getAxis('top').setHeight(0)
+
+        p_ttv_01.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+        p_ttv_01.setLabel('bottom', '%s'%p_ttv_oc.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+
+
+        p_ttv_01.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p_ttv_01.getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p_ttv_01.getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p_ttv_01.getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+        p_ttv_01.getAxis('bottom').enableAutoSIPrefix(enable=False)
+
+
+        ax0 = p_ttv_00.getAxis('bottom')      #get handle to x-axis 0
+        ax0.setStyle(showValues=False)
+
+        l.layout.setSpacing(0.)                                                             
+        l.setContentsMargins(0., 0., 0., 0.)                                                
+ 
+        return
 
 
     def initialize_phase_subplots(self):
@@ -4284,19 +4377,34 @@ Polyfit coefficients:
 
 #### TTV plots ################
 
+
+    def update_ttv_pl_index(self, o_c = False):
+
+        if o_c == True:
+            pl_ind = self.ttv_o_c_comboBox_pl.currentIndex()
+            self.ttv_comboBox_pl.setCurrentIndex(pl_ind)
+        else:
+            pl_ind = self.ttv_comboBox_pl.currentIndex()
+            print(pl_ind)
+            self.ttv_o_c_comboBox_pl.setCurrentIndex(pl_ind)
+
+
+
+
+        self.update_ttv_plots()
+
     def update_ttv_plots(self): 
-        global fit, p_ttv, p_ttv_oc, colors
+        global fit, p_ttv, p_ttv_oc,p_ttv_00,p_ttv_01, colors
         
         self.check_ttv_symbol_sizes()
 
         pl_ind     = self.ttv_comboBox_pl.currentIndex()
-        pl_ind_o_c = self.ttv_o_c_comboBox_pl.currentIndex()
 
 
         p_ttv.plot(clear=True,) 
         p_ttv_oc.plot(clear=True,)
-
-        #self.colors_ttv.setStyleSheet("color: %s;"%fit.ttv_colors[0])
+        p_ttv_00.plot(clear=True,)
+        p_ttv_01.plot(clear=True,)
  
         ttv_files = fit.ttv_data_sets
 
@@ -4446,34 +4554,57 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if self.ttv_plot_cross_hair.isChecked():
                 self.cross_hair(p_ttv,log=False)
 
+            #######################################
+            #p_ttv_00.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
 
-            p_ttv_oc.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
+            model_curve_oc = p_ttv_00.plot(model_N_transits,ttv_model_,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True, viewRect=True )
 
-            p_ttv_oc.plot(t, flux_o_c,
+            model_curve_oc.setZValue(self.ttv_model_z.value())
+
+            p_ttv_00.plot(t, ttv_data,
             pen=None,  
             symbol=fit.pyqt_symbols_ttv[j],
             symbolPen={'color': fit.ttv_colors[j], 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_ttv[j],enableAutoRange=True,viewRect=True,
             symbolBrush=fit.ttv_colors[j] )
 
-            err_ = pg.ErrorBarItem(x=t, y=flux_o_c, symbol=fit.pyqt_symbols_ttv[j],
+            err_ = pg.ErrorBarItem(x=t, y=ttv_data, symbol=fit.pyqt_symbols_ttv[j],
            # height=flux_err,
             top=flux_err,
             bottom=flux_err,
             beam=0.0, pen=fit.ttv_colors[j])
 
-            p_ttv_oc.addItem(err_)
+            p_ttv_00.addItem(err_)
+
+            #######################################
+            p_ttv_01.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
+
+            p_ttv_01.plot(t, flux_o_c,
+            pen=None,  
+            symbol=fit.pyqt_symbols_ttv[j],
+            symbolPen={'color': fit.ttv_colors[j], 'width': 1.1},
+            symbolSize=fit.pyqt_symbols_size_ttv[j],enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.ttv_colors[j] )
+
+            err_oc = pg.ErrorBarItem(x=t, y=flux_o_c, symbol=fit.pyqt_symbols_ttv[j],
+            #height=flux_err,
+            top=flux_err,
+            bottom=flux_err,
+            beam=0.0, pen=fit.ttv_colors[j])
+
+            p_ttv_01.addItem(err_oc)
 
 
             if self.ttv_o_c_plot_cross_hair.isChecked():
-                self.cross_hair(p_ttv_oc,log=False)  
-                
-
-
+                #self.cross_hair(p_ttv_oc,log=False)  
+                self.cross_hair(p_ttv_00,log=False)  
+                self.cross_hair(p_ttv_01,log=False)  
 
         if self.ttv_plot_autorange.isChecked():
             p_ttv.autoRange()           
             p_ttv_oc.autoRange()  
+
+
 
 
 #    def get_ttv_plot_color(self):
@@ -5109,6 +5240,45 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.plot_energy()
 
 
+
+    def change_nbody_plot_opt_tab(self):
+ 
+        if self.tabWidget_3.currentIndex() ==  0:
+            self.param_tabs.setCurrentWidget(self.plot_options_tabs)
+            self.plot_opt_tab.setCurrentWidget(self.tab_149)
+            self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_150)
+        elif self.tabWidget_3.currentIndex() ==  1:
+            self.param_tabs.setCurrentWidget(self.plot_options_tabs)
+            self.plot_opt_tab.setCurrentWidget(self.tab_149)
+            self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_151)
+        elif self.tabWidget_3.currentIndex() ==  2:
+            self.param_tabs.setCurrentWidget(self.plot_options_tabs)
+            self.plot_opt_tab.setCurrentWidget(self.tab_149)
+            self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_152) 
+        elif self.tabWidget_3.currentIndex() ==  3:
+            self.param_tabs.setCurrentWidget(self.plot_options_tabs)
+            self.plot_opt_tab.setCurrentWidget(self.tab_149)
+            self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_153) 
+        elif self.tabWidget_3.currentIndex() ==  4:
+            self.param_tabs.setCurrentWidget(self.plot_options_tabs)
+            self.plot_opt_tab.setCurrentWidget(self.tab_149)
+            self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_154) 
+
+
+    def change_nbody_plot_opt_tab_res(self):
+ 
+        if self.tabWidget_6.currentIndex() ==  0:
+            self.param_tabs.setCurrentWidget(self.plot_options_tabs)
+            self.plot_opt_tab.setCurrentWidget(self.tab_149)
+            self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_125)
+        elif self.tabWidget_6.currentIndex() ==  1:
+            self.param_tabs.setCurrentWidget(self.plot_options_tabs)
+            self.plot_opt_tab.setCurrentWidget(self.tab_149)
+            self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_187)
+        elif self.tabWidget_6.currentIndex() ==  2:
+            self.param_tabs.setCurrentWidget(self.plot_options_tabs)
+            self.plot_opt_tab.setCurrentWidget(self.tab_149)
+            self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_plot_opt_res_angles) 
 
 
 ################ Extra Plots (work in progress) ######################
@@ -7605,7 +7775,7 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False, es_version='0.69'):
+    def print_info_credits(self, image=False, es_version='0.70'):
  
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
@@ -10478,7 +10648,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        es_version = "0.69"
+        es_version = "0.70"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -10498,8 +10668,6 @@ Please install via 'pip install ttvfast'.
         self.safe_to_init = True
 #        self.installEventFilter(self)
 
-
-        
         self.param_bounds_gui  = gui_groups.param_bounds_gui(self)
         self.offset_bounds_gui = gui_groups.offset_bounds_gui(self)
         self.jitter_bounds_gui = gui_groups.jitter_bounds_gui(self)
@@ -10932,8 +11100,8 @@ Please install via 'pip install ttvfast'.
         self.ttv_data_planet_10.valueChanged.connect(self.ttv_dataset_to_planet)
 
         self.ttv_pl_combo()
-        self.ttv_comboBox_pl.activated.connect(self.update_ttv_plots)
-        self.ttv_o_c_comboBox_pl.activated.connect(self.update_ttv_plots)
+        self.ttv_comboBox_pl.activated.connect(lambda: self.update_ttv_pl_index(o_c =False))
+        self.ttv_o_c_comboBox_pl.activated.connect(lambda: self.update_ttv_pl_index(o_c =True))
 
         self.ttv_plot_cross_hair.stateChanged.connect(self.update_ttv_plots)
         self.ttv_o_c_plot_cross_hair.stateChanged.connect(self.update_ttv_plots)
@@ -11426,6 +11594,8 @@ Please install via 'pip install ttvfast'.
         self.kep_model_to_kill.valueChanged.connect(self.check_settings)
         self.points_to_draw_model.valueChanged.connect(self.check_settings)
         
+
+
         
         
         self.mute_boxes()
@@ -11456,7 +11626,8 @@ Please install via 'pip install ttvfast'.
 
         self.plot_opt_tab.tabBarClicked.connect(self.check_cornerplot_samples)
         #self.cornerplot_plot_tab.isVisible.connect(self.check_cornerplot_samples)
-        
+        self.tabWidget_3.tabBarDoubleClicked.connect(self.change_nbody_plot_opt_tab)        
+        self.tabWidget_6.tabBarDoubleClicked.connect(self.change_nbody_plot_opt_tab_res)        
 
         self.count_cpus()
         
