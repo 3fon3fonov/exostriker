@@ -4548,7 +4548,6 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             p_ttv.addItem(err_)
 
             model_curve = p_ttv.plot(model_N_transits,ttv_model_,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True, viewRect=True )
-
             model_curve.setZValue(self.ttv_model_z.value())
 
             if self.ttv_plot_cross_hair.isChecked():
@@ -4558,7 +4557,6 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             #p_ttv_00.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
 
             model_curve_oc = p_ttv_00.plot(model_N_transits,ttv_model_,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True, viewRect=True )
-
             model_curve_oc.setZValue(self.ttv_model_z.value())
 
             p_ttv_00.plot(t, ttv_data,
@@ -4578,6 +4576,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
             #######################################
             p_ttv_01.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
+
+            model_curve_oc = p_ttv_01.plot(model_N_transits,np.zeros(len(ttv_model_)) ,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True, viewRect=True )
+            model_curve_oc.setZValue(self.ttv_model_z.value())
+
 
             p_ttv_01.plot(t, flux_o_c,
             pen=None,  
@@ -9158,9 +9160,9 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save to data (ascii) file', '%s_%s.dat'%(pdi_target_name,pdi_data_name), 'All (*.*);;', options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
         try:         
-            x_pdi = pdi.plotItem.items[3].opts["x"]
-            y_pdi = pdi.plotItem.items[3].opts["y"]
-            e_pdi = pdi.plotItem.items[3].opts["top"]
+            x_pdi = dill.copy(pdi.plotItem.items[3].opts["x"])
+            y_pdi = dill.copy(pdi.plotItem.items[3].opts["y"])
+            e_pdi = dill.copy(pdi.plotItem.items[3].opts["top"])
             
             if len(x_pdi)==0:
                 print("Exporting an empty file makes no sense.1")
@@ -9249,7 +9251,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 return
              
         
-        fit.pdi = pdi
+        #fit.pdi = pdi
 
         pdi.addLine(x=None, y=np.mean(y), pen=pg.mkPen('#ff9933', width=0.8),name="zero")
 
