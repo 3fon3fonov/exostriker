@@ -10072,19 +10072,18 @@ Please install via 'pip install ttvfast'.
  
 
 ################################## System #######################################
-
-
+ 
     def set_Win_widget_Style(self, widget):
-        QtWidgets.QApplication.setStyle(QtGui.QStyleFactory.create('Windows'))
+        QtWidgets.QApplication.setStyle(QtWidgets.QStyleFactory.create('Windows'))
     def set_Fus_widget_Style(self, widget):
-        QtWidgets.QApplication.setStyle(QtGui.QStyleFactory.create('Fusion'))
+        QtWidgets.QApplication.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
     def set_Mac_widget_Style(self, widget):
         if sys.platform != "darwin":
             self.tabWidget_helper.setCurrentWidget(self.tab_info)
             print("\n 'Macintosh' window style is only available on MAC OS !!!\n")
             return
         else:
-            QtWidgets.QApplication.setStyle(QtGui.QStyleFactory.create('Macintosh'))
+            QtWidgets.QApplication.setStyle(QtWidgets.QStyleFactory.create('Macintosh'))
 
 
     def set_widget_font(self, widget):
