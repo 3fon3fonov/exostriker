@@ -2430,7 +2430,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def initialize_RV_phase_subplots(self):
 
-        global pe,pe0,pe1
+        global pe,pe0,pe1,legend_RV_phased
         
         l = pg.GraphicsLayout()                                                             
         pe.setCentralItem(l)            
@@ -2445,7 +2445,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         pe1 = l.addPlot(1, 0, colspan=1)                                                                
         pe1.setXLink(pe0)                 
 
-
+        legend_RV_phased = pe0.addLegend()
 
         #for i in (1, 2):
         l.layout.setRowMinimumHeight(0, 220)                                                    
@@ -2512,7 +2512,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def initialize_RV_subplots(self):
 
-        global p1,p00,p01
+        global p1,p00,p01,legend_RV
 
         if qso_mode:
             o_c_label = "o-c [mag.]"
@@ -2520,13 +2520,15 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             o_c_label = "o-c [m/s]"    
        
         l = pg.GraphicsLayout()                                                             
-        p1.setCentralItem(l)                                                                                                                        
+        p1.setCentralItem(l)            
+                                                                                                      
 
         p00 = l.addPlot(0, 0, colspan=3)                                                                
         p00.hideAxis('bottom')                                                              
         p01 = l.addPlot(1, 0, colspan=1)                                                                
         p01.setXLink(p00)                 
 
+        legend_RV = p00.addLegend()
 
         #for i in (1, 2):
         l.layout.setRowMinimumHeight(0, 220)                                                    
@@ -2594,7 +2596,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def initialize_tra_subplots(self):
 
-        global p3,p30,p31
+        global p3,p30,p31,legend_tra
         
         ll = pg.GraphicsLayout()                                                             
         p3.setCentralItem(ll)                                                                                                                        
@@ -2602,7 +2604,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p30 = ll.addPlot(0, 0, colspan=3)                                                               
         p30.hideAxis('bottom')                                                              
         p31 = ll.addPlot(1, 0, colspan=1)                                                               
-        p31.setXLink(p30)                                                                     
+        p31.setXLink(p30)           
+
+        legend_tra = p30.addLegend()                                                          
          
         ll.layout.setRowMinimumHeight(0, 220)                                                    
         ll.layout.setRowMinimumHeight(1, 30)         
@@ -2670,7 +2674,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def initialize_TTV_subplots(self):
 
-        global p_ttv_oc, p_ttv_00,p_ttv_01
+        global p_ttv_oc, p_ttv_00,p_ttv_01,legend_ttv
 
         o_c_label = "o-c [d]"    
        
@@ -2680,7 +2684,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p_ttv_00 = l.addPlot(0, 0, colspan=3)                                                                
         p_ttv_00.hideAxis('bottom')                                                              
         p_ttv_01 = l.addPlot(1, 0, colspan=1)                                                                
-        p_ttv_01.setXLink(p_ttv_00)                 
+        p_ttv_01.setXLink(p_ttv_00)      
+
+        legend_ttv = p_ttv_00.addLegend()                                                                     
 
 
         #for i in (1, 2):
@@ -3500,9 +3506,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         p1.plot(clear=True,)
         p2.plot(clear=True,)
 
-
-
-
         self.check_RV_symbol_sizes()
         self.jitter_color_button.setStyleSheet("color: %s;"%colors_RV_jitter[0])
 
@@ -3533,7 +3536,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
 
     def update_RV_plot_with_o_c(self):
-        global fit, p1,p2,p00,p01
+        global fit, p1,p2,p00,p01,legend_RV
  
 
         #p1.scene().removeItem(-1)
@@ -3545,6 +3548,13 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         else:
             p00.plot(clear=False,)
             p01.plot(clear=False,)
+
+        if self.RV_legend.isChecked()==True:
+            legend_RV.clear()
+            legend_RV.setVisible(True)
+        else:
+            legend_RV.setVisible(False)
+
  
         #fit.p1 = p1
         self.check_RV_symbol_sizes()
@@ -3598,8 +3608,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
 , 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
-            )
+            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]),
+            name=fit.filelist.files[i].name)
 
             err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
                                    y=fit.fit_results.rv_model.rvs[fit.fit_results.idset==i],symbol='o', 
@@ -3856,7 +3866,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
 #### Transit plots ################ 
     def update_transit_plots(self): 
-        global fit, p3, p4, colors
+        global fit, p3, p4, colors,legend_tra
 
         p3.plot(clear=True,)
         p4.plot(clear=True,)
@@ -3872,6 +3882,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p30.plot(clear=False,)
             p31.plot(clear=False,)            
             
+        if self.tra_legend.isChecked()==True:
+            legend_tra.clear()
+            legend_tra.setVisible(True)
+        else:
+            legend_tra.setVisible(False)
+
         #p30.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
 
 
@@ -3986,7 +4002,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 symbol=fit.pyqt_symbols_tra[j],
                 symbolPen={'color': fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]), 'width': 1.1},
                 symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
-                symbolBrush=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]) ) 
+                symbolBrush=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]),name=fit.tra_data_sets[j][-1] ) 
                 
                 err_ = pg.ErrorBarItem(x=t, y=flux, symbol = fit.pyqt_symbols_tra[j],
                                       # height=flux_err, 
@@ -4359,7 +4375,7 @@ Polyfit coefficients:
         self.update_ttv_plots()
 
     def update_ttv_plots(self): 
-        global fit, p_ttv, p_ttv_oc,p_ttv_00,p_ttv_01, colors
+        global fit, p_ttv, p_ttv_oc,p_ttv_00,p_ttv_01, colors,legend_ttv
         
         self.check_ttv_symbol_sizes()
 
@@ -4372,6 +4388,12 @@ Polyfit coefficients:
         p_ttv_01.plot(clear=True,)
  
         ttv_files = fit.ttv_data_sets
+
+        if self.ttv_legend.isChecked()==True:
+            legend_ttv.clear()
+            legend_ttv.setVisible(True)
+        else:
+            legend_ttv.setVisible(False)
 
         fit.prepare_for_mcmc()
         #times = [float(fit.epoch),fit.time_step_model,float(fit.epoch)+400.0]
@@ -4529,7 +4551,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             symbol=fit.pyqt_symbols_ttv[j],
             symbolPen={'color': fit.ttv_colors[j], 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_ttv[j],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.ttv_colors[j] )
+            symbolBrush=fit.ttv_colors[j],name=fit.ttv_data_sets[j][-1] )
 
             err_ = pg.ErrorBarItem(x=t, y=ttv_data, symbol=fit.pyqt_symbols_ttv[j],
            # height=flux_err,
@@ -5403,13 +5425,20 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
     def phase_plots(self, ind, offset = 0):
-        global fit, colors,pe0,pe1
+        global fit, colors,pe0,pe1,legend_RV_phased
 
        # pe.plot(clear=True,)
         pe0.plot(clear=True,)
         pe0.setLogMode(False,False)
         pe1.plot(clear=True,)
         pe1.setLogMode(False,False)
+
+
+        if self.RV_legend.isChecked()==True:
+            legend_RV_phased.clear()
+            legend_RV_phased.setVisible(True)
+        else:
+            legend_RV_phased.setVisible(False)
 
         ######## TBF #############
         if self.radioButton_transit.isChecked():
@@ -5476,16 +5505,14 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             symbol=fit.pyqt_symbols_rvs[i],
             symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
-            )
+            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), name=fit.filelist.files[i].name)
 
             pe1.plot((time_phase[ph_data[3]==i]),rv_data_o_c[ph_data[3]==i],
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
             symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
-            )
+            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]) )
 
 
             err_ = pg.ErrorBarItem(x=(time_phase[ph_data[3]==i]), y=rv_data[ph_data[3]==i],
@@ -11078,6 +11105,7 @@ Please install via 'pip install ttvfast'.
 
         self.ttv_subtract_mean.stateChanged.connect(self.update_ttv_plots)
         self.ttv_plot_autorange.stateChanged.connect(self.update_ttv_plots)
+        self.ttv_legend.stateChanged.connect(self.update_ttv_plots)
 
         ############################################################
 
@@ -11274,7 +11302,10 @@ Please install via 'pip install ttvfast'.
         self.tra_xaxis_offset.valueChanged.connect(self.update_transit_plots)
         self.tra_plot_add_o_c.stateChanged.connect(self.update_transit_plots)                
 
-        self.plot_transit_GP_model.stateChanged.connect(self.update_transit_plots)        
+        self.plot_transit_GP_model.stateChanged.connect(self.update_transit_plots) 
+
+        self.tra_legend.stateChanged.connect(self.update_transit_plots) 
+       
 
         ############### RV plotting controll ####################      
         self.rv_model_width.valueChanged.connect(self.update_RV_plots)
@@ -11287,7 +11318,7 @@ Please install via 'pip install ttvfast'.
 
         self.plot_RV_GP_model.stateChanged.connect(self.update_RV_plots)
 
-
+        self.RV_legend.stateChanged.connect(self.update_RV_plots)
 
 
         ############### RV GLS plotting controll ####################
