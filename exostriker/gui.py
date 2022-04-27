@@ -2280,11 +2280,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2,pe0,pe1,p_ttv_00,p_ttv_01
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,pe0,pe1]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2]
 
 
         for i in range(len(zzz)):
-
 
             zzz[i].getAxis('left').setWidth(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
             zzz[i].getAxis("left").tickFont = self.plot_font
@@ -2297,22 +2296,20 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             zzz[i].setLabel('bottom', '%s'%zzz[i].getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
             zzz[i].setLabel('left', '%s'%zzz[i].getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
 
-
-        zzz2 = [p00,p30]
+        zzz2 = [p00,p30,pe0,p_ttv_00]
         for i in range(len(zzz2)):
-
 
             zzz2[i].getAxis('left').setWidth(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
             zzz2[i].getAxis("left").tickFont = self.plot_font
           #  zzz2[i].getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
           #  zzz2[i].getAxis("bottom").tickFont = self.plot_font
-           # zzz[i].getAxis("left").setStyle(tickTextOffset=20)        
+          #  zzz[i].getAxis("left").setStyle(tickTextOffset=20)        
           #  zzz[i].getAxis("bottom").setStyle(tickTextOffset=20)        
             
-           # zzz2[i].setLabel('bottom', '%s'%zzz2[i].getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+          #  zzz2[i].setLabel('bottom', '%s'%zzz2[i].getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
             zzz2[i].setLabel('left', '%s'%zzz2[i].getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
 
-        zzz3 = [p01,p31]
+        zzz3 = [p01,p31,pe1,p_ttv_01]
         for i in range(len(zzz3)):
 
             zzz3[i].getAxis('left').setWidth(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
@@ -2320,41 +2317,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             zzz3[i].getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
             zzz3[i].getAxis("bottom").tickFont = self.plot_font
            # zzz3[i].getAxis("left").setStyle(tickTextOffset=20)        
-          #  zzz3[i].getAxis("bottom").setStyle(tickTextOffset=20)        
+           # zzz3[i].getAxis("bottom").setStyle(tickTextOffset=20)        
             
             zzz3[i].setLabel('bottom', '%s'%zzz3[i].getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
             zzz3[i].setLabel('left', '%s'%zzz3[i].getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-
-        return
-
-        zzz4 = [pe0,pe1]
-        for i in range(len(zzz4)):
-
-            zzz4[i].getAxis('left').setWidth(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-            zzz4[i].getAxis("left").tickFont = self.plot_font
-            zzz4[i].getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-            zzz4[i].getAxis("bottom").tickFont = self.plot_font
-           # zzz4[i].getAxis("left").setStyle(tickTextOffset=20)        
-          #  zzz4[i].getAxis("bottom").setStyle(tickTextOffset=20)        
-            
-            zzz4[i].setLabel('bottom', '%s'%zzz4[i].getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-            zzz4[i].setLabel('left', '%s'%zzz4[i].getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-
-        return
-
-        zzz5 = [p_ttv_00,p_ttv_01]
-        for i in range(len(zzz5)):
-
-            zzz5[i].getAxis('left').setWidth(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-            zzz5[i].getAxis("left").tickFont = self.plot_font
-            zzz5[i].getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-            zzz5[i].getAxis("bottom").tickFont = self.plot_font
-           # zzz4[i].getAxis("left").setStyle(tickTextOffset=20)        
-          #  zzz4[i].getAxis("bottom").setStyle(tickTextOffset=20)        
-            
-            zzz5[i].setLabel('bottom', '%s'%zzz5[i].getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-            zzz5[i].setLabel('left', '%s'%zzz5[i].getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-
+ 
         return
  
 
@@ -2479,6 +2446,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         pe1.setXLink(pe0)                 
 
 
+
         #for i in (1, 2):
         l.layout.setRowMinimumHeight(0, 220)                                                    
         l.layout.setRowMinimumHeight(1, 30)         
@@ -2539,9 +2507,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         l.layout.setSpacing(0.)                                                             
         l.setContentsMargins(0., 0., 0., 0.)                                                
 
-
-        #fit.p1 = p1
-        #fit.pe = pe
+ 
         return
 
     def initialize_RV_subplots(self):
@@ -2623,8 +2589,6 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         l.setContentsMargins(0., 0., 0., 0.)                                                
 
 
-        #fit.p1 = p1
-        #fit.pe = pe
         return
 
 
@@ -2642,8 +2606,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
          
         ll.layout.setRowMinimumHeight(0, 220)                                                    
         ll.layout.setRowMinimumHeight(1, 30)         
-        #ll.layout.setRowMaximumHeight(1, 150)                                                                                               
-          
+        ll.layout.setRowMaximumHeight(1, 150)                                                                                               
+ 
+
         p30.showAxis('top') 
         p30.showAxis('right') 
         p31.showAxis('top') 
@@ -5438,7 +5403,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
     def phase_plots(self, ind, offset = 0):
-        global fit, colors
+        global fit, colors,pe0,pe1
 
        # pe.plot(clear=True,)
         pe0.plot(clear=True,)
@@ -5500,7 +5465,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
 
         model_curve = pe0.plot(model_time_phase,ph_model, pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()+1},
-        enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'})   
+        enableAutoRange=True,viewRect=True)   
  
         model_curve.setZValue(self.RV_model_z.value())
 
