@@ -30,7 +30,7 @@ import gls as gls
 
 TAU= 2.0*np.pi
 
-
+matplotlib.rcParams['axes.formatter.useoffset'] = False
 
 def check_for_missing_instances(fit,fit_new):
     
@@ -1295,6 +1295,8 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                             plot_datapoints=cornerplot_opt["plot_datapoints"], 
                             kwargs=kwargs)
 
+    #axes = fig.axes()
+  #  axes.ticklabel_format(style='plain') 
 
     if type_plot == 'mcmc':
         fig.savefig(obj.mcmc_corner_plot_file)
