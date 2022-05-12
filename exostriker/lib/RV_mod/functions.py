@@ -433,10 +433,36 @@ def get_transit_times(tr_res, p, t0, precise = False, verbose=False):
     return [tr_index, tr_t0]
 
 
+############################ density ###########################################
+def get_density(m_p, r_p, d_m_p=None, d_r_p=None):
+    """
+    # m_p in Sol
+    # r_p in Sol
 
+    Warning! You must do:  rho = get_density(pl_mass_kg*1000.0, pl_radii_m*100.0) to get
+    rho in [g cm^-3]
+    """
+                              
+    solarrad2m = 6.957e8
+    solarmass2kg = 1.9891e30
 
+    r_p = r_p*solarrad2m
+    m_p = m_p*solarmass2kg
+    const =  (4.0/3.0) * np.pi   
+ 
+    volume =  const * (r_p ** 3.0)
+    rho = m_p/volume
 
-####################### mass_semimajor ###########################################
+    if d_m_p != None:
+        d_m_p = d_m_p*solarmass2kg
+        d_r_p = d_r_p*solarrad2m
+        delta_rho = np.sqrt( (d_m_p**2*r_p**2) + (9*d_r_p**2 * m_p**2)   ) / (const*r_p**4)
+    else:
+        delta_rho = 0.0        
+ 
+    return rho,delta_rho
+
+####################### mass_semimajor #########################################
 def get_mass_a(obj, mass_type="J"):
     '''Calculates the actual masses and Jacobi semimajor axes of a
        system for using the parameters P, K and e from a Kepler fit.
