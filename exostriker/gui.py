@@ -5500,12 +5500,20 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         for i in range(max(ph_data[3])+1):
 
+            if len(fit.filelist.files) != 0:
+                rv_filename = fit.filelist.files[i].name
+            else:
+                rv_filename = ''
+                pe0.plot(clear=True,)
+                pe1.plot(clear=True,)
+                return
+
             pe0.plot((time_phase[ph_data[3]==i]),rv_data[ph_data[3]==i],
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
             symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), name=fit.filelist.files[i].name)
+            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), name=rv_filename)
 
             pe1.plot((time_phase[ph_data[3]==i]),rv_data_o_c[ph_data[3]==i],
             pen=None, #{'color': colors[i], 'width': 1.1},
