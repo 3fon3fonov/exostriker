@@ -76,17 +76,32 @@ Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.
 Python3.8+ is strongly recommended!!! The Exo-Striker works with Python3.6,3.7 and even Python2, but you will likely have problems with some dependencies, which you may have to solve.
 If your system Python3 is 3.6 or 3.7, it is recommended to not upgrade the python3, but to install python3.8 alongside your system python3. E.g., [see these instructions](https://linuxize.com/post/how-to-install-python-3-8-on-ubuntu-18-04/)
 
+* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Let's assume, you have python3.8, then it is recommended to install pip3.8:
 
 $ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py   
 $ python3.8 get-pip.py    
 
 
-Then there are few ways to install/start the Exo-Striker:
+Then to install the Exo-Striker:
 
-$ pip3.8 install git+https://github.com/3fon3fonov/exostriker   
+$ pip3.8 install git+https://github.com/3fon3fonov/exostriker  --user  #(for user installation -- recommended!)
 
-or git clone:
+Then just run:
+
+$ exostriker
+
+WARNING! if you install with:
+
+$ sudo pip3.8 install git+https://github.com/3fon3fonov/exostriker
+
+then every time you should run:
+
+$ sudo exostriker 
+
+
+* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Alternativly, you can do a "git clone":
 
 $ git clone https://github.com/3fon3fonov/exostriker   
 $ cd exostriker   
@@ -96,16 +111,31 @@ However, please read the [Installation instructions](README_for_installation),
 because some problems may occur depending on your OS system.   
 
 
+* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Finally, you can run the Exo-striker after a "git clone":
+
+$ git clone https://github.com/3fon3fonov/exostriker   
+$ cd exostriker   
+$ python3.8 exostriker_gui.py  
+
+However, you must have all the needed dependencies in the setup.py installed 
+IMHO this is somewhat more flexible, since one can have multiple "exostriker" 
+directories dedicated to different projects. I usually do, "exostriker-GJ436", 
+"exostriker-GJ876", etc., and I store all datafiles, sessions, plots, drafts, etc.,
+inside these directories.
+ 
+
+
 
 **Usage**
 
 * To load the GUI, on a bash shell type: 
 
-$ exostriker (in case of pip3.8 install)
+$ exostriker (in case of pip3.8 install, see above)
 
 * or just do:
 
-$ python3.8 exostriker_gui.py (inside of the git clone directory)
+$ python3.8 exostriker_gui.py (inside of the git clone directory, see above)
  
 
 
