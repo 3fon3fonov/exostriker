@@ -74,12 +74,12 @@ Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.
 
  
 Python3.8+ is strongly recommended!!! The Exo-Striker works with Python3.6,3.7 and even Python2, but you will likely have problems with some dependencies, which you may have to solve.
-If your system Python3 is 3.6 or 3.7, it is recommended to not upgrade the python3, but to install python3.8 alongside your system python3. E.g., [see these instructions]{https://linuxize.com/post/how-to-install-python-3-8-on-ubuntu-18-04/)
+If your system Python3 is 3.6 or 3.7, it is recommended to not upgrade the python3, but to install python3.8 alongside your system python3. E.g., [see these instructions](https://linuxize.com/post/how-to-install-python-3-8-on-ubuntu-18-04/)
 
-Let's assume, you have python3.8, then you should install pip3.8.
+Let's assume, you have python3.8, then it is recommended to install pip3.8:
 
-$ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-$ python3.8 get-pip.py
+$ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py   
+$ python3.8 get-pip.py    
 
 
 Then there are few ways to install/start the Exo-Striker:
