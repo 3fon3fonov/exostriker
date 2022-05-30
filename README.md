@@ -15,7 +15,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 **Developer**
 
 * Trifon Trifonov, MPIA Heidelberg.
-* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler, Grigorii Smirnov-Pinchukov, Stephan Stock, Jonas Kemmer, and Harry Psarakis.
+* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler, Grigorii Smirnov-Pinchukov, Stephan Stock, Jonas Kemmer, Harry Psarakis, and Desislava Antonova.
 
 **What works**:
 
@@ -72,28 +72,40 @@ Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.
 
 **Installation**
 
-$ pip install git+https://github.com/3fon3fonov/exostriker   
+ 
+Python3.8+ is strongly recommended!!! The Exo-Striker works with Python3.6,3.7 and even Python2, but you will likely have problems with some dependencies, which you may have to solve.
+If your system Python3 is 3.6 or 3.7, it is recommended to not upgrade the python3, but to install python3.8 alongside your system python3. E.g., [see these instructions]{https://linuxize.com/post/how-to-install-python-3-8-on-ubuntu-18-04/)
+
+Let's assume, you have python3.8, then you should install pip3.8.
+
+$ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+$ python3.8 get-pip.py
+
+
+Then there are few ways to install/start the Exo-Striker:
+
+$ pip3.8 install git+https://github.com/3fon3fonov/exostriker   
 
 or git clone:
 
 $ git clone https://github.com/3fon3fonov/exostriker   
 $ cd exostriker   
-$ python setup.py install   
+$ python3.8 setup.py install   
 
 However, please read the [Installation instructions](README_for_installation),
 because some problems may occur depending on your OS system.   
 
-Python3.6+ is strongly recommended. 
+
 
 **Usage**
 
 * To load the GUI, on a bash shell type: 
 
-$ exostriker (in case of pip install)
+$ exostriker (in case of pip3.8 install)
 
 * or just do:
 
-$ python exostriker_gui.py (inside of the git clone directory)
+$ python3.8 exostriker_gui.py (inside of the git clone directory)
  
 
 
