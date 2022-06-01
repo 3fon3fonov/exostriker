@@ -28,6 +28,8 @@ from pathos import multiprocessing
 import celerite
 from celerite import terms
 import dill
+dill.settings['fmode']
+
 
 try:
     import dynesty

@@ -123,6 +123,8 @@ except (ImportError, KeyError) as e:
 #    import pickle
 import dill
 dill._dill._reverse_typemap['ObjectType'] = object
+dill.settings['fmode']
+
 #os.system("taskset -p %s" %os.getpid())
 os.environ["OPENBLAS_MAIN_FREE"] = "1"
 #os.environ["QT_QPA_PLATFORM"] = "offscreen"
@@ -2399,10 +2401,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             zzz[i].getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
             zzz[i].getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
             zzz[i].getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
-            zzz[i].getAxis('left').setWidth(50)
+           # zzz[i].getAxis('left').setWidth(50)
             zzz[i].getAxis('right').setWidth(10)
             zzz[i].getAxis('top').setHeight(10)
-            zzz[i].getAxis('bottom').setHeight(50)
+           # zzz[i].getAxis('bottom').setHeight(50)
                         
             zzz[i].setLabel('bottom', '%s'%xaxis[i], units='%s'%xunit[i],  **{'font-size':self.plot_font.pointSize()})
             zzz[i].setLabel('left',   '%s'%yaxis[i], units='%s'%yunit[i],  **{'font-size':self.plot_font.pointSize()})       
@@ -4830,10 +4832,19 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                      
             x = fit.evol_e[e_ind][0:last_stable]*np.cos(np.radians(dom))
             y = fit.evol_e[e_ind][0:last_stable]*np.sin(np.radians(dom)) 
-            p17.setLabel('bottom', '<html><head/><body><p>e%s cos(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
-            p17.setLabel('left', '<html><head/><body><p>e%s sin(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
-            p17.getViewBox().setAspectLocked(True)
+            p17.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub> cos(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p17.setLabel('left', '<html><head/><body><p>e<sub>%s</sub> sin(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
 
+
+            if self.domega_esin_ecos_exe_out.isChecked():
+
+                x = fit.evol_e[pl1_ind][0:last_stable]*fit.evol_e[pl2_ind][0:last_stable]*np.cos(np.radians(dom))
+                y = fit.evol_e[pl1_ind][0:last_stable]*fit.evol_e[pl2_ind][0:last_stable]*np.sin(np.radians(dom)) 
+                p17.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub>e<sub>%s</sub> cos(&Delta;&omega;) </p></body></html>'%(pl1_ind+1,pl2_ind+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
+                p17.setLabel('left',   '<html><head/><body><p>e<sub>%s</sub>e<sub>%s</sub> sin(&Delta;&omega;) </p></body></html>'%(pl1_ind+1,pl2_ind+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
+
+
+            p17.getViewBox().setAspectLocked(True)
             p17.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
 
         else:
@@ -5007,8 +5018,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                      
             x = fit.evol_e[e_ind][0:last_stable]*np.cos(np.radians(theta[tet_n]))
             y = fit.evol_e[e_ind][0:last_stable]*np.sin(np.radians(theta[tet_n])) 
-            p18.setLabel('bottom', '<html><head/><body><p>e%s cos(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
-            p18.setLabel('left', '<html><head/><body><p>e%s sin(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p18.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub> cos(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p18.setLabel('left',   '<html><head/><body><p>e<sub>%s</sub> sin(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
             p18.getViewBox().setAspectLocked(True)
 
             p18.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
@@ -11249,7 +11260,10 @@ Please install via 'pip install ttvfast'.
         self.radioButton_dom_180_fold.toggled.connect(self.plot_delta_omega)
 
         self.domega_esin_ecos.stateChanged.connect(self.plot_delta_omega)
-        self.domega_esin_ecos_e_in.toggled.connect(self.plot_delta_omega)
+        #self.domega_esin_ecos_e_in.toggled.connect(self.plot_delta_omega)
+
+        self.buttonGroup_ei_eo_sincos.buttonClicked.connect(self.plot_delta_omega)
+
 
         self.Dom_plot_line.toggled.connect(self.plot_delta_omega)
         self.Dom_plot_dot.toggled.connect(self.plot_delta_omega)
