@@ -462,6 +462,81 @@ def get_density(m_p, r_p, d_m_p=None, d_r_p=None):
  
     return rho,delta_rho
 
+
+
+####################### mass_semimajor #########################################
+def get_mass_a_samples(K, P, ecc, incl, m_s, mass_type="J"):
+    '''Calculates the actual masses and Jacobi semimajor axes of a
+       system for using the parameters P, K and e from a Kepler fit.
+       The output of the semi-major axis is in AU.
+       if mass_type="J" the mass is in Jupiter masses (deafault)
+       if mass_type="E" the mass is in Erath masses (deafault)
+       else, e.g.,        mass_type="" mass is in Solar units.
+    '''
+    THIRD = 1.0/3.0
+    PI    = 3.14159265358979e0
+    TWOPI = 2.0*PI
+    GMSUN = 1.32712497e20
+    AU=1.49597892e11
+    
+    mass = np.zeros(10)
+    ap    = np.zeros(9)
+    pl_mass = np.zeros(9)
+    mpold = pl_mass
+
+#*******G is set to be unit, and s, m, kg as unit of time, length and mass
+#*****  and there is a reason for that! later I might correct for that.
+    mtotal = m_s
+    f = 5e-6
+
+    #mass[0] = m_s
+
+
+    for i in range(len(K)):
+
+        T = P[i]*86400.0
+
+        # we need innitial guess for each planet mass
+        dm =2      
+        mass[i+1] = abs(K[i])*(T*m_s**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-ecc[i]**2.0)/abs(np.sin(np.radians(incl[i])))
+        #mpold[i] = mass[i+1]
+        # This is a simple iteration to solve for mp
+        mass[0] = m_s
+        mpold[i] = 0
+
+        while (dm >= f):
+ 
+            if i == 0:
+                mtotal = m_s
+                mass[i+1] = abs(K[i])*(T*(m_s + mpold[i])**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-ecc[i]**2.0)/abs(np.sin(np.radians(incl[i])))
+            else:
+                mtotal = m_s
+                for j in range(i):
+                    mtotal = mtotal + mass[j+1]
+                mass[i+1] = abs(K[i])*(T*(mtotal + mpold[i])**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-ecc[i]**2.0)/abs(np.sin(np.radians(incl[i])))
+
+            #dm = (mpold[i] - mass[i+1])
+            dm = abs((mass[i+1] - mpold[i])/mass[i+1] )
+
+            mpold[i] =  mass[i+1]
+ 
+
+        ap[i] = (GMSUN*(mtotal + mass[i+1])*(T/TWOPI)**2)**THIRD
+ 
+    for i in range(len(K)):
+
+        ap[i] = ap[i]/AU # to be in AU
+        if mass_type=="J":
+            pl_mass[i] = mass[i+1]*1047.70266835 # to be in Jup. masses
+        elif  mass_type=="E":
+            pl_mass[i] = mass[i+1]*1047.70266835 * 317.82838 # to be in Earth. masses
+        else:
+            pl_mass[i] = mass[i+1]
+            
+            
+        # I have seen that 1 Sol Mass = 1047.92612 Jup. masses???
+    return pl_mass,ap
+
 ####################### mass_semimajor #########################################
 def get_mass_a(obj, mass_type="J"):
     '''Calculates the actual masses and Jacobi semimajor axes of a
@@ -984,30 +1059,33 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             else:
                 samp_best_fit_par.append((Ma_[np.argmax(ln)] + omega_[np.argmax(ln)])%360.0 )            
         
-    if mod_labels['mass']:
+
+    if mod_labels['mass'] or mod_labels['semimajor']:
         
         m_s   = np.random.normal(loc=obj.stellar_mass,      scale=obj.stellar_mass_err,      size=len(ss))
-        
+        K,P, ecc, esinw, ecosw, incl,masses,semimajor = [],[],[],[],[],[],[],[]
+
         for i in range(obj.npl):
             let = letters[i]
             
+
             if not 'K$_%s$'%let in labels or not 'P$_%s$'%let in labels:
                 continue
             
-            K   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'K$_%s$'%let]])
-            P   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'P$_%s$'%let]])
+            K.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'K$_%s$'%let]]))
+            P.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'P$_%s$'%let]]))
                         
             if obj.hkl == True and '$e sin(\omega_%s)$'%let in labels and '$e cos(\omega_%s)$'%let in labels:
  
-                esinw = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == '$e sin(\omega_%s)$'%let]]) 
-                ecosw = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == '$e cos(\omega_%s)$'%let]]) 
+                esinw.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == '$e sin(\omega_%s)$'%let]]))
+                ecosw.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == '$e cos(\omega_%s)$'%let]]))
                 
-                ecc = np.sqrt(esinw**2 + ecosw**2)
+                ecc.append(np.sqrt(esinw[i]**2 + ecosw[i]**2))
             elif obj.hkl == False and 'e$_%s$'%let in labels:
-                ecc = np.array(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'e$_%s$'%let]]), dtype=np.float64) 
+                ecc.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'e$_%s$'%let]]))
 
             else:
-                ecc = np.array([0]*len(K), dtype=np.float64) 
+                ecc.append([0]*len(K[i]))
                 print("Warning, no eccentricity samples found for planet %s ! Assuming ecc = 0"%str(i+1))
 
             if mod_labels['use_Me']:
@@ -1022,51 +1100,62 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
             
             if 'i$_%s$'%let in labels:
-                incl   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]])
+                incl.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]]))
                 samp_labels.append(r'm$_%s$ %s'%(let,mass_lab))
             else:
-                incl = np.array([90]*len(K))
-                samp_labels.append(r'm $\sin i_%s$ %s'%(let,mass_lab))
-
+                incl.append([obj.i[i]]*len(K[i]))
+                if obj.i[i] == 90.0:
+                    samp_labels.append(r'm $\sin i_%s$ %s'%(let,mass_lab))
+                else:
+                    samp_labels.append(r'm$_%s$ %s'%(let,mass_lab))
  
-            samp.append(np.array(get_mass(K,P, ecc, incl, m_s) * M_fact))
-            
-            if mod_labels['mean']:
-                samp_best_fit_par.append(get_mass(np.mean(K),np.mean(P),np.mean(ecc), np.mean(incl), np.mean(m_s)) * M_fact)
-            elif mod_labels['median']:
-                samp_best_fit_par.append(get_mass(np.median(K),np.median(P),np.median(ecc), np.median(incl), np.median(m_s)) *M_fact)
-            elif mod_labels['best_gui']:
-                samp_best_fit_par.append(obj.masses[i]*M_fact)                
-            else:
-                samp_best_fit_par.append(get_mass(K[np.argmax(ln)],P[np.argmax(ln)], ecc[np.argmax(ln)], incl[np.argmax(ln)], obj.stellar_mass)*M_fact)
-    
-    
-    if mod_labels['semimajor']:
-        
-        if len(m_s) == 0:
-            m_s   = np.random.normal(loc=obj.stellar_mass,      scale=obj.stellar_mass_err,      size=len(samples[:,0]))
-            
-        
-        for i in range(obj.npl):
-            let = letters[i]
-            
-            if not 'P$_%s$'%let in labels:
-                continue            
-            
-            P   = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'P$_%s$'%let]])
-    
-            samp.append(np.array(P_to_a(P,m_s)))
-            samp_labels.append(r'a$_%s$ [au]'%let)
-    
-    
-            if mod_labels['mean']:
-                samp_best_fit_par.append(P_to_a(np.mean(P),np.mean(m_s)))
-            elif mod_labels['median']:
-                samp_best_fit_par.append(P_to_a(np.median(P),np.median(m_s)))
-            elif mod_labels['best_gui']:
-                samp_best_fit_par.append(obj.semimajor[i])  
-            else:
-                samp_best_fit_par.append(P_to_a(P[np.argmax(ln)],obj.stellar_mass))
+        K = np.transpose(K)
+        P = np.transpose(P)
+        ecc = np.transpose(ecc)
+        incl = np.transpose(incl)
+
+        for k in range(len(m_s)):
+
+            m_a = get_mass_a_samples(np.array(K[k]),np.array(P[k]), np.array(ecc[k]), np.array(incl[k]), m_s[k], mass_type="J")
+            masses.append(m_a[0])
+            semimajor.append(m_a[1])
+
+        masses = np.transpose(masses)     
+        semimajor = np.transpose(semimajor)     
+ 
+ 
+        if mod_labels['mass']:
+            for i in range(obj.npl):
+                samp.append(np.array(masses[i] * M_fact))
+
+                if mod_labels['mean']:
+                    samp_best_fit_par.append( np.mean(masses[i]) * M_fact)
+                elif mod_labels['median']:
+                    samp_best_fit_par.append( np.median(masses[i]) * M_fact)
+                elif mod_labels['best_gui']:
+                    samp_best_fit_par.append(obj.masses[i]*M_fact)                
+                else:
+                    samp_best_fit_par.append(masses[i][np.argmax(ln)]*M_fact)
+
+
+        if mod_labels['semimajor']:
+
+            for i in range(obj.npl):
+                samp.append(np.array(semimajor[i]))
+                let = letters[i]
+                samp_labels.append(r'a$_%s$ [au]'%let)
+
+                if mod_labels['mean']:
+                    samp_best_fit_par.append(np.mean(semimajor[i]))
+                elif mod_labels['median']:
+                    samp_best_fit_par.append(np.median(semimajor[i]))
+                elif mod_labels['best_gui']:
+                    samp_best_fit_par.append(obj.semimajor[i])                
+                else:
+                    samp_best_fit_par.append(semimajor[i][np.argmax(ln)])
+
+
+
                 
                 
     if mod_labels['radius']:

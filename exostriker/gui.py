@@ -8322,10 +8322,12 @@ will be highly appreciated!
         self.update_use()
         self.update_gui_params()
         self.update_errors() 
+        self.update_a_mass()  
         self.update_plots() 
         self.plot_evol_all()
         self.update_labels()
         
+
         self.update_params()
         self.update_RV_file_buttons() 
         
@@ -8337,6 +8339,7 @@ will be highly appreciated!
  
         self.set_gui_use_GP()
         self.check_use_tra_GP()
+        
 
 
         #self.init_fit()
