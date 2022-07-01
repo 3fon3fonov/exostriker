@@ -7788,7 +7788,7 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False, es_version='0.70'):
+    def print_info_credits(self, image=False, es_version='0.71'):
  
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
@@ -10663,7 +10663,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        es_version = "0.70"
+        es_version = "0.71"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -11003,6 +11003,7 @@ Please install via 'pip install ttvfast'.
 
         self.RVBank_window.list.clicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
         self.RVBank_window.list_opt.clicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
+        self.RVBank_window.radio_group.buttonClicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
 
         self.dataInspector_HARPS_RVBank.clicked.connect(self.RVBank_window.show)
 

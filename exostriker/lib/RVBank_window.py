@@ -56,6 +56,8 @@ class RVBank_window(QtWidgets.QDialog):
 
         self.readme_button.clicked.connect(self.info)
 
+        #self.radio_group.buttonClicked.connect(self.final_output)
+        #self.button2.toggled.connect(self.final_output)
 ########  Targets ##############
         self.list = QtWidgets.QListView(self)
         vLayout.addLayout(hLayout)
@@ -75,7 +77,8 @@ class RVBank_window(QtWidgets.QDialog):
         self.list.clicked.connect(self.on_clicked)
         self.list_opt.clicked.connect(self.on_clicked_opt)
 
-
+        #self.list.setSelectionRectVisible(True)
+        #print(self.list.isSelectionRectVisible())
 
         url = "http://www2.mpia.de/homes/trifonov/%s_RVs/%s_harps_all-data_v1.dat"%(targets_HARPS[0],targets_HARPS[0])
         self.path = url
@@ -117,7 +120,6 @@ class RVBank_window(QtWidgets.QDialog):
         self.model.clear()
         self.model_opt.clear()
 
-
         if self.button1.isChecked():
             targets    = targets_HARPS
             data_files = data_files_HARPS
@@ -126,7 +128,6 @@ class RVBank_window(QtWidgets.QDialog):
             targets    = targets_HIRES
             data_files = data_files_HIRES
             data_files_ind = data_files_ind_HIRES
-
 
         for code in targets:
             item = QtGui.QStandardItem(code)
@@ -147,18 +148,43 @@ class RVBank_window(QtWidgets.QDialog):
 
 
 
+#####################################
+#        self.list.selectionModel().currentChanged.connect(self.on_row_changed)
+#
+#    def on_row_changed(self, current, previous):
+#        self._INDEX = current.row()
+#        print('Row %d selected' % current.row())
+#####################################
+
 
 
     def filterClicked(self):
+
         filter_text = str(self.lineEdit.text()).lower()
+        valid_row = []
         for row in range(self.model.rowCount()):
             if filter_text in str(self.model.item(row).text()).lower():
                 self.list.setRowHidden(row, False)
+                valid_row.append(row)
             else:
                 self.list.setRowHidden(row, True)
 
+        try:
+            ix = self.model.index(valid_row[0], 0)
+        except:
+            ix = self.model.index(0, 0)   
+         
+        sm = self.list.selectionModel()
+        sm.select(ix, QtCore.QItemSelectionModel.Select)
+        
+#        index = self.model.indexFromItem(self.model.item(valid_row[-1]))
+ 
+        #self.on_clicked(ix)
+        self.row = ix.row()
+        self.final_output()
 
     def on_clicked(self, index):
+
         self.row = index.row()
         self.final_output()
 
