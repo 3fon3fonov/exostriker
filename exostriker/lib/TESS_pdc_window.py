@@ -30,7 +30,7 @@ class pdc(QtWidgets.QDialog):
 
         self.radio_group=QtWidgets.QButtonGroup(self.widget) # Number group
         self.button1  = QtWidgets.QRadioButton('SAP FLUX', self)
-        self.button2  = QtWidgets.QRadioButton('PDCSAP FLUX"', self)
+        self.button2  = QtWidgets.QRadioButton('PDCSAP FLUX', self)
  
 
 
