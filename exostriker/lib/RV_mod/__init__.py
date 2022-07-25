@@ -1074,11 +1074,17 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
 #            ppp+='%f\n%d\n'%(par[i + len(vel_files)],0)
 
+######## Ugly fix with many limitations! incilation of planet 1 is given to all. TBD in fortran!!!! #############
+        if copl_incl == True:
+            incl_c = par[len(vel_files)*2 +7*i+5]
+            for i in range(npl):
+                par[len(vel_files)*2 +7*i+5] = incl_c 
+                #print(i,incl_c)              
+##################################################
 
         # if mixed fitting is requested
         ppp+='%d\n'%npl
         if mix_fit[0] == True and program == '%s/lib/fr/loglik_dyn+'%cwd:
-
             for i in range(npl):
                 ppp+='%d\n'%mix_fit[1][i]
 
@@ -1459,6 +1465,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
     for j in range(len(flags)):
         par[flags[j]]   = pp[j]
         e_par[flags[j]] = [errors[j][0],errors[j][1]]
+
   
       
     if (rtg[1]):
@@ -2433,6 +2440,13 @@ def run_mcmc(obj, **kwargs):
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)
 
     #obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
+
+
+    if obj.copl_incl == True:
+        incl_c = par[len(vel_files)*2 +7*0+5]
+        for i in range(npl):
+            par[len(vel_files)*2 +7*i+5] = incl_c 
+            obj.i[i] = incl_c
 
     obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps,tra_gps, rtg, mix_fit, new_par_errors,mod,opt)
 
@@ -3920,6 +3934,12 @@ class signal_fit(object):
     def overwrite_params(self,params, save=True): # overwrite use flags with new ones, but optionally save the old ones so we can return to the later
         oldparams=self.params
         self.params=params
+
+        if self.copl_incl == True:
+            incl_c = self.params.planet_params[(7*0)+5]
+            for i in range(self.npl):
+                self.params.update_inclination(i,incl_c)
+
         if (save): # save old flags, if requested
             return oldparams
         else:

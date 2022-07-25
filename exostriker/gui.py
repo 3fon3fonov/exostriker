@@ -9407,7 +9407,6 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 ###########################  GUI events #############################
 
 
-
     def mute_boxes(self):
         global fit
 
@@ -9554,6 +9553,24 @@ Please install via 'pip install ttvfast'.
         #self.mute_boxes_dyn()
 
 
+        print(self.force_copl_incl.isChecked())
+        if self.force_copl_incl.isChecked()==True and self.radioButton_Dynamical.isChecked():
+            incl_flag = False
+            Dom_flag = False     
+            
+            for i in range(9):
+                self.param_gui[7*i + 5].setEnabled(incl_flag)
+                self.use_param_gui[7*i + 5].setEnabled(incl_flag)
+                self.param_gui[7*i + 6].setEnabled(Dom_flag)
+                self.use_param_gui[7*i + 6].setEnabled(Dom_flag)
+                self.param_gui_wd[i].setEnabled(om_flag)
+                self.use_param_gui_wd[i].setEnabled(om_flag)
+                print(incl_flag,Dom_flag,)
+
+            self.param_gui[7*0 + 5].setEnabled(True)
+            self.use_param_gui[7*0 + 5].setEnabled(True)
+
+
     ### NOT used anymore 
     def mute_boxes_dyn(self):
                 
@@ -9592,7 +9609,7 @@ Please install via 'pip install ttvfast'.
                     self.use_param_gui[7*i + 4].setEnabled(ma_flag)
                     self.param_gui_tr[3*i].setEnabled(t0_flag)
                     self.use_param_gui_tr[3*i].setEnabled(t0_flag)                
-                        
+                              
 
         for i in range(9):
             self.param_gui[7*i + 5].setEnabled(incl_flag)
@@ -9601,8 +9618,10 @@ Please install via 'pip install ttvfast'.
             self.use_param_gui[7*i + 6].setEnabled(Dom_flag)
             self.param_gui_wd[i].setEnabled(om_flag)
             self.use_param_gui_wd[i].setEnabled(om_flag)
-            
-            
+ 
+
+
+     
 
     def keyPressEvent(self, event):
         global fit
@@ -10624,6 +10643,7 @@ Please install via 'pip install ttvfast'.
     def set_force_copl_incl(self):
         global fit   
         fit.copl_incl = self.force_copl_incl.isChecked()
+        self.mute_boxes()
 
     #def update_inspector(self):
    #     self.tree_view_tab.listview.clicked.connect(self.plot_data_inspect)
