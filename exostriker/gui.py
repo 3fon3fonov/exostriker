@@ -7788,7 +7788,7 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False, es_version='0.71'):
+    def print_info_credits(self, image=False, es_version='0.72'):
  
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
@@ -9552,8 +9552,6 @@ Please install via 'pip install ttvfast'.
 
         #self.mute_boxes_dyn()
 
-
-        print(self.force_copl_incl.isChecked())
         if self.force_copl_incl.isChecked()==True and self.radioButton_Dynamical.isChecked():
             incl_flag = False
             Dom_flag = False     
@@ -9565,7 +9563,6 @@ Please install via 'pip install ttvfast'.
                 self.use_param_gui[7*i + 6].setEnabled(Dom_flag)
                 self.param_gui_wd[i].setEnabled(om_flag)
                 self.use_param_gui_wd[i].setEnabled(om_flag)
-                print(incl_flag,Dom_flag,)
 
             self.param_gui[7*0 + 5].setEnabled(True)
             self.use_param_gui[7*0 + 5].setEnabled(True)
@@ -10683,7 +10680,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        es_version = "0.71"
+        es_version = "0.72"
 
         #self.loading_screen= LoadingScreen()   
  
