@@ -1438,6 +1438,12 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     obj.par_for_mcmc = pp
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)
 
+    if obj.copl_incl == True:
+        incl_c = par[len(vel_files)*2 +7*0+5]
+        for i in range(npl):
+            par[len(vel_files)*2 +7*i+5] = incl_c 
+            obj.i[i] = incl_c
+
     obj.overwrite_params(newparams)
 
     obj.correct_elements()
@@ -2148,6 +2154,13 @@ def run_nestsamp(obj, **kwargs):
 
 
     newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)
+
+
+    if obj.copl_incl == True:
+        incl_c = par[len(vel_files)*2 +7*0+5]
+        for i in range(npl):
+            par[len(vel_files)*2 +7*i+5] = incl_c 
+            obj.i[i] = incl_c
 
     #obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
 
