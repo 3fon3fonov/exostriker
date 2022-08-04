@@ -8305,10 +8305,11 @@ will be highly appreciated!
             
 
         self.check_type_fit()
-        self.mute_boxes()
+
         
         self.update_settings()
         self.update_bounds()
+        self.mute_boxes()
 
         #self.init_fit()
 
@@ -10323,6 +10324,7 @@ Please install via 'pip install ttvfast'.
         self.dyn_model_to_kill.setValue(fit.dyn_model_to_kill)
         self.kep_model_to_kill.setValue(fit.kep_model_to_kill)
         self.master_timeout.setValue(fit.master_timeout)    
+        self.force_copl_incl.setChecked(fit.copl_incl)
         
         
     def check_settings(self):
