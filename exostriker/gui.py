@@ -7788,7 +7788,7 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False, es_version='0.72'):
+    def print_info_credits(self, image=False, es_version='0.73'):
  
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
@@ -10680,7 +10680,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        es_version = "0.72"
+        es_version = "0.73"
 
         #self.loading_screen= LoadingScreen()   
  

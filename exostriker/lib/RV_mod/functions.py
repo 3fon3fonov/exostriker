@@ -1103,7 +1103,10 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 incl.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]]))
                 samp_labels.append(r'm$_%s$ %s'%(let,mass_lab))
             else:
-                incl.append([obj.i[i]]*len(K[i]))
+                if obj.copl_incl == True:
+                    incl.append(incl[0])     
+                else:
+                    incl.append([obj.i[i]]*len(K[i]))
                 if obj.i[i] == 90.0:
                     samp_labels.append(r'm $\sin i_%s$ %s'%(let,mass_lab))
                 else:
