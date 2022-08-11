@@ -347,7 +347,7 @@ def get_mass(K, P, ecc, i, Stellar_mass):
     GMSUN = 1.32712497e20
     msini = (T/(2.0*np.pi*GMSUN))**THIRD * K * Stellar_mass**(2./3) * np.sqrt(1.0-ecc**2.0)
     
-    msini = msini/np.sin(np.radians(i))*1047.70266835 
+    msini = msini/np.sin(np.radians(i))*1047.348644
     
     return msini  
 
@@ -527,9 +527,9 @@ def get_mass_a_samples(K, P, ecc, incl, m_s, mass_type="J"):
 
         ap[i] = ap[i]/AU # to be in AU
         if mass_type=="J":
-            pl_mass[i] = mass[i+1]*1047.70266835 # to be in Jup. masses
+            pl_mass[i] = mass[i+1]*1047.348644 # to be in Jup. masses
         elif  mass_type=="E":
-            pl_mass[i] = mass[i+1]*1047.70266835 * 317.82838 # to be in Earth. masses
+            pl_mass[i] = mass[i+1]*1047.348644 * 317.82838 # to be in Earth. masses
         else:
             pl_mass[i] = mass[i+1]
             
@@ -593,9 +593,9 @@ def get_mass_a(obj, mass_type="J"):
 
         ap[i] = ap[i]/AU # to be in AU
         if mass_type=="J":
-            pl_mass[i] = mass[i+1]*1047.70266835 # to be in Jup. masses
+            pl_mass[i] = mass[i+1]*1047.348644 # to be in Jup. masses
         elif  mass_type=="E":
-            pl_mass[i] = mass[i+1]*1047.70266835 * 317.82838 # to be in Earth. masses
+            pl_mass[i] = mass[i+1]*1047.348644 * 317.82838 # to be in Earth. masses
         else:
             pl_mass[i] = mass[i+1]
             
@@ -1095,7 +1095,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 M_fact = 1
                 mass_lab = r'[M$_{\rm Jup.}$]'
             elif mod_labels['use_Ms']:
-                M_fact = 1.0/1047.0
+                M_fact = 1.0/1047.348644
                 mass_lab = r'[M$_\odot$]'
 
             
@@ -1495,7 +1495,7 @@ def get_xyz(obj):
 
     for i in range(obj.npl):
 
-        pl_mass_in_st = float(obj.fit_results.mass[i])/ 1047.70266835
+        pl_mass_in_st = float(obj.fit_results.mass[i])/ 1047.348644
 
         pl_mass = pl_mass_in_st * (4*np.pi*np.pi)/(365.25*365.25)
         q = (1.0 - obj.params.planet_params[2 + i*7])*float(obj.fit_results.a[i])
@@ -1522,7 +1522,7 @@ def get_xyz(obj):
 
 def get_Hill_satb(obj):
 
-    st_mass = float(obj.params.stellar_mass)* 1047.70266835
+    st_mass = float(obj.params.stellar_mass)* 1047.348644
 
     if obj.fit_results.mass == 0 or len(np.atleast_1d(obj.fit_results.mass)) <=1:
         return False
@@ -1541,7 +1541,7 @@ def get_Hill_satb(obj):
 
 def get_AMD_stab(obj):
 
-    st_mass = float(obj.params.stellar_mass)* 1047.70266835
+    st_mass = float(obj.params.stellar_mass)* 1047.348644
 
     AMD_stable = True
 
@@ -3790,7 +3790,7 @@ def mass_a_from_Kepler_fit(a,npl,m0):
     for i in range(npl):
 
         ap[i] = ap[i]/AU # to be in AU
-        pl_mass[i] = mass[i+1]*1047.70266835 # to be in Jup. masses
+        pl_mass[i] = mass[i+1]*1047.348644 # to be in Jup. masses
         # I have seen that 1 Sol Mass = 1047.92612 Jup. masses???
     return pl_mass,ap
 
@@ -3851,7 +3851,7 @@ pl.in
 
 
     for j in range(obj.npl):
-        getin_file.write(b'%s \n'%bytes(str(obj.fit_results.mass[j]/1047.70266835).encode()))
+        getin_file.write(b'%s \n'%bytes(str(obj.fit_results.mass[j]/1047.348644).encode()))
         getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.fit_results.a[j]).encode()),
                                                  bytes(str(obj.params.planet_params[7*j + 2]).encode()),
                                                  bytes(str(obj.params.planet_params[7*j + 5]).encode()),
@@ -3980,7 +3980,7 @@ pl.in
 
     for j in range(9):
         if obj.pl_arb_use[j] == True:
-            getin_file.write(b'%s \n'%bytes(str(obj.mass_arb[j]/1047.70266835).encode()))
+            getin_file.write(b'%s \n'%bytes(str(obj.mass_arb[j]/1047.348644).encode()))
             getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.a_arb[j]).encode()),
                                                  bytes(str(obj.e_arb[j]).encode()),
                                                  bytes(str(obj.i_arb[j]).encode()),

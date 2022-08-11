@@ -492,7 +492,7 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, hkl, fit_results=
                                             Ma_],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
         else:
             pl_mass = float(fit_results.mass[i])
-        pl_params = [pl_mass/1047.70266835,
+        pl_params = [pl_mass/1047.348644,
                                             par[len(vel_files)*2 +7*i+1],
                                             ecc_,
                                             par[len(vel_files)*2 +7*i+5],
@@ -554,7 +554,7 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
                                             Ma_],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
         else:
             pl_mass = float(fit_results.mass[i])
-        pl_params = [pl_mass/1047.70266835,
+        pl_params = [pl_mass/1047.348644,
                                             par[len(vel_files)*2 +7*i+1],
                                             ecc_,
                                             par[len(vel_files)*2 +7*i+5],
@@ -1195,7 +1195,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
             alpha    = ap_in/ap_out
             gamma    = pl_mass_in/pl_mass_out
-            epsilon  = (pl_mass_in + pl_mass_out)/(stmass* 1047.70266835)
+            epsilon  = (pl_mass_in + pl_mass_out)/(stmass*1047.348644)
 
             AMD = gamma*np.sqrt(alpha)*(1.-np.sqrt(1.- par[len(vel_files)*2 +7*i+2]**2)) + 1.- np.sqrt(1.- par[len(vel_files)*2 + 7*(i+1) +2]**2)
 
@@ -1206,7 +1206,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
  
 
     #print(rv_loglik, tr_loglik, rv_loglik+tr_loglik)
-
+    #print(rv_loglik, tr_loglik, ttv_loglik)
     if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
         return -np.inf
     return rv_loglik + tr_loglik + ttv_loglik
@@ -1644,7 +1644,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
  
         ttv_loglik = ttvs_loglik(obj.parameters,vel_files, obj.ttv_data_sets,obj.npl,obj.params.stellar_mass,obj.ttv_times,obj.hkl,
                                  fit_results=obj.fit_results, return_model = False)
- 
+        #print(obj.fit_results.mass, obj.ttv_times, obj.parameters, obj.loglik, ttv_loglik)
+
         if rtg[1]:
             get_RV_gps_model(obj, get_lnl=True)
 
@@ -4336,7 +4337,7 @@ class signal_fit(object):
             mtotal = mtotal-dm # the last part of the sum was mpold, now we want mass[m+1]
             ap[i] = (GMSUN*mtotal*(T/TAU)**2)**THIRD
         # 1 047.92612 = solar mass / jupiter mass, to get output in correct units
-        self.masses = mass[1:]*1047.92612
+        self.masses = mass[1:]*1047.348644
         self.semimajor = ap/AU
         return
 
@@ -5524,7 +5525,7 @@ pl.in
 
 
         for j in range(self.npl):
-            getin_file.write(b'%s \n'%bytes(str(self.fit_results.mass[j]/1047.70266835).encode()))
+            getin_file.write(b'%s \n'%bytes(str(self.fit_results.mass[j]/1047.348644).encode()))
             getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(self.fit_results.a[j]).encode()),
                                                      bytes(str(self.params.planet_params[7*j + 2]).encode()),
                                                      bytes(str(self.params.planet_params[7*j + 5]).encode()),

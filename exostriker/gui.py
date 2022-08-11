@@ -8309,7 +8309,9 @@ will be highly appreciated!
         
         self.update_settings()
         self.update_bounds()
-        self.mute_boxes()
+
+        self.set_type_fit_options()
+        #self.mute_boxes()
 
         #self.init_fit()
 
