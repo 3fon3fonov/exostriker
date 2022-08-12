@@ -31,7 +31,7 @@ c*************************************************************************
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
 
-      version = "0.06"
+      version = "0.07"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -659,12 +659,12 @@ c     &               + dlog(dsqrt(twopi))
 
       rms = dsqrt(rms/dble(ndata))
 
-      write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
-      write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
+
 
       if(writeflag_best_par.gt.0) then
 
-
+        write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
+        write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
 
         write (*,*) 'Best-fit K [m/s], P [days], e, w [deg], 
      &                M0 [deg], i[deg], cap0m[deg] and their errors'
@@ -762,6 +762,10 @@ c           write(*,*) (j_mass(i),i=1,npl+1)
            
            write (*,*) 'semi-major axes in Jacobi'
            write (*,*)  (ap(i)/1.49597892d11,i=1,npl)
+
+       else
+           write(*,*) 'loglik, reduced chi^2, chi^2, rms:'
+           write(*,*) loglik, chisq/dble(ndata-mfit),chisq, rms
       
        endif
  

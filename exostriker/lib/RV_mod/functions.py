@@ -107,7 +107,7 @@ def check_fortran_routines(path='./'):
         result2, flag2 = run_command_with_timeout('gfortran -O3 %s/source/latest_f/kepfit_LM.f -o %s/lib/fr/chi2_kep'%(path,path), 15,output=True)
         result2, flag2 = run_command_with_timeout('%s/lib/fr/chi2_kep -version'%path, 1,output=True)
 
-    version_dyn_loglik= "0.09"
+    version_dyn_loglik= "0.10"
     result3, flag3 = run_command_with_timeout('%s/lib/fr/loglik_dyn -version'%path, 1,output=True)
     if flag3 == -1 or str(result3[0][0]) != version_dyn_loglik:
         print("New source code available: Updating N-body Simplex")   
@@ -121,9 +121,9 @@ def check_fortran_routines(path='./'):
         result4, flag4 = run_command_with_timeout('gfortran -O3 %s/source/latest_f/dynfit_LM.f -o %s/lib/fr/chi2_dyn'%(path,path), 15,output=True)
         result4, flag4 = run_command_with_timeout('%s/lib/fr/chi2_dyn -version'%path, 1,output=True)
 
-    version_dyn_loglik_= "0.06"
+    version_dyn_loglik_plus = "0.07"
     result5, flag5 = run_command_with_timeout('%s/lib/fr/loglik_dyn+ -version'%path, 1,output=True)
-    if flag5 == -1 or str(result5[0][0]) != version_dyn_loglik_:
+    if flag5 == -1 or str(result5[0][0]) != version_dyn_loglik_plus:
         print("New source code available: Updating Mixed Simplex")
         result5, flag5 = run_command_with_timeout('gfortran -O3 %s/source/latest_f/dynfit_amoeba+.f -o %s/lib/fr/loglik_dyn+'%(path,path), 15,output=True)
         result5, flag5 = run_command_with_timeout('%s/lib/fr/loglik_dyn+ -version'%path, 1,output=True)
