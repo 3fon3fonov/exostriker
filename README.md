@@ -31,6 +31,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty") 
 * TTVs extraction.
 * TTVs and/or joint TTVs + RVs analysis.
+* Relative astrometry fitting.
 * GP modeling (via "celerite").
 * Linear models for detrending ground-based transit photometry.
 * Activity index signal search via GLS periodogram.
@@ -57,7 +58,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ "REBOUND" is planned to be included). 
 * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
-* Combined modeling with Astrometry (work in progress).
+* Combined modeling with Astrometry (As of Ver 0.75 this is possible, but is still work in progress).
 
 
 

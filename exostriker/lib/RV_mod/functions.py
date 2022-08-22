@@ -1781,7 +1781,7 @@ def export_RV_data(obj, idset_ts, file="RV_data.txt",  jitter=False, o_c=False,
     print('Done!')
     return
 
-def export_RV_model(obj, file="RV_model.txt", width = 10, precision = 4):
+def export_RV_model(obj, file="RV_model.txt", width = 10, precision = 4,print_data=False):
 
     if len(obj.fit_results.rv_model.jd)==0:
         return
@@ -1803,6 +1803,11 @@ def export_RV_model(obj, file="RV_model.txt", width = 10, precision = 4):
     for i in range(len(JD)):
         f.write('{0:{width}.{precision}f}  {1:{width}.{precision}f} \n'.format(float(JD[i]), float(y_model[i]), width = width, precision = precision) )
     f.close()
+
+    if print_data:
+        print('{0:{width}.{precision}f}  {1:{width}.{precision}f} \n'.format(float(JD[i]), float(y_model[i]), width = width, precision = precision) )
+
+    
     print('Done!')
     return
 

@@ -12,7 +12,7 @@ sys.path.append('./lib/RV_mod/')
 #import gls as gls
 #import prior_functions as pr
 import emcee
-
+import astrometry_ES as astrometry_ES
 
 import numpy as np
 #import matplotlib.pyplot as plt
@@ -528,6 +528,84 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, hkl, fit_results=
     return calc_model
 
 
+def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_results = False , return_model = False):
+
+
+ 
+    loglik_ast = 0
+    calc_data   = {kx: [] for kx in range(10)}
+    calc_model  = {kx: [] for kx in range(10)}
+    for i in range(npl):
+        
+        if hkl == True:
+            ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
+            om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
+            Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
+            # reject e > 0 
+            if ecc_ >= 1.0: 
+                return -np.inf  
+        else:
+            ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]         
+
+        t0 = transit_tperi(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,times[0])[0] #%par[len(vel_files)*2 +7*i+1] 
+    
+        if fit_results == False:
+            pl_mass,pl_a = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*i],
+                                            par[len(vel_files)*2 +7*i+1],
+                                            ecc_,
+                                            om_,
+                                            Ma_],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
+        else:
+            pl_mass = float(fit_results.mass[i])
+            pl_a    = float(fit_results.a[i])
+
+       # pl_params = [par[len(vel_files)*2 +7*i+1],
+#                                            ecc_,
+ #                                           om_,
+#                                            par[len(vel_files)*2 +7*i+5],
+#                                            par[len(vel_files)*2 +7*i+6],
+#                                            t0,pl_a]
+
+
+        for x in range(10):
+            if len(ast_files[x]) == 0 or ast_files[x][6] == False:
+                continue
+            else:
+
+                results = astrometry_ES.final(ast_files[x][1],ast_files[x][2],0,
+                                              ast_files[x][3],ast_files[x][4],0, 
+                                                par[len(vel_files)*2 +7*i+1],
+                                                ecc_,
+                                                np.radians(om_),
+                                                np.radians(par[len(vel_files)*2 +7*i+5]),
+                                                np.radians(par[len(vel_files)*2 +7*i+6]),
+                                                t0,pl_a,
+                                                ast_files[x][0])
+
+                loglik_ast = loglik_ast + results[0]
+ 
+                #calc_data[x] = np.array(results[1],results[2]))
+
+        if return_model == True:
+            times = np.linspace(min(ast_files[0][0]),max(ast_files[0][0])+1000,1000)
+           # print(times)
+            ast_x_model, ast_y_model = astrometry_ES.coords(par[len(vel_files)*2 +7*i+1], ecc_, om_, np.radians(par[len(vel_files)*2 +7*i+5]),
+                                                    np.radians(par[len(vel_files)*2 +7*i+6]),
+                                                    t0,pl_a,times) 
+            ast_x_, ast_y_ = astrometry_ES.coords(par[len(vel_files)*2 +7*i+1], ecc_, om_, np.radians(par[len(vel_files)*2 +7*i+5]),
+                                                    np.radians(par[len(vel_files)*2 +7*i+6]),
+                                                    t0,pl_a,ast_files[0][0]) 
+
+            calc_data[i] = np.array([ast_x_, ast_y_])         
+            calc_model[i] = np.array([ast_x_model, ast_y_model])
+
+ 
+
+    if return_model == True:
+        return [loglik_ast, calc_data,calc_model]
+    else:
+        return loglik_ast
+
 
 
 def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results = False , return_model = False):
@@ -975,6 +1053,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     tr_loglik = 0
     gp_tr_loglik = 0
     ttv_loglik = 0
+    astr_loglik = 0
 
     dt = opt["dt"]
     eps = opt["eps"]
@@ -984,7 +1063,9 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     cwd = opt["cwd"]
     gr_flag = opt["gr_flag"]
     ttv_files = opt["TTV_files"]
+    ast_files = opt["AST_files"]
     ttv_times = opt["TTV_times"]
+    ast_times = opt["AST_times"]
     get_TTVs  = opt["get_TTVs"]
     
     N_transit_files = len([x for x in range(20) if len(tr_files[x]) != 0])
@@ -1170,8 +1251,14 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         else:
             tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,get_TTVs,opt,fit_results=fit_results )
 
-    if(opt["TTV"]):
 
+    if(opt["AST"]):
+        if(rtg[0])==False:
+            astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)
+        else:
+            astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=fit_results, return_model = False)
+
+    if(opt["TTV"]):
         if(rtg[0])==False:
             ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,hkl,fit_results=False, return_model = False)
         else:
@@ -1202,14 +1289,14 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             AMD_Hill = gamma*np.sqrt(alpha) + 1. - (1.+gamma)**1.5 * np.sqrt(alpha/(gamma+alpha) * (1.+(3.**(4./3.)*epsilon**(2./3.)*gamma)/((1.+gamma)**2)))
  
             if AMD >= AMD_Hill:
-                return (rv_loglik + tr_loglik + ttv_loglik)* 2.0*np.exp(1.0 - AMD_Hill/AMD)
+                return (rv_loglik + tr_loglik + ttv_loglik  + astr_loglik)* 2.0*np.exp(1.0 - AMD_Hill/AMD)
  
 
     #print(rv_loglik, tr_loglik, rv_loglik+tr_loglik)
     #print(rv_loglik, tr_loglik, ttv_loglik)
     if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
         return -np.inf
-    return rv_loglik + tr_loglik + ttv_loglik
+    return rv_loglik + tr_loglik + ttv_loglik +  astr_loglik
 
 
 def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=False, save_sampler=False, **kwargs):
@@ -1236,6 +1323,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     tr_params = obj.tr_params
 
     ttv_files = obj.ttv_data_sets
+    ast_files = obj.ast_data_sets
 
     npl = obj.npl
     epoch = obj.epoch
@@ -1289,7 +1377,9 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "cwd":obj.cwd, 
            "gr_flag":obj.gr_flag,
            "TTV":obj.type_fit["TTV"],
+           "AST":obj.type_fit["AST"],
            "TTV_files":ttv_files, 
+           "AST_files":ast_files, 
            "TTV_times":obj.ttv_times,
            "AMD_stab":obj.optim_AMD_stab, 
            "Nbody_stab":obj.optim_Nbody_stab,
@@ -1473,6 +1563,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         e_par[flags[j]] = [errors[j][0],errors[j][1]]
 
   
+#    obj.ast_times[0] = obj.epoch
       
     if (rtg[1]):
         if obj.gp_kernel == 'RotKernel':
@@ -1554,7 +1645,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
 
 
-    if obj.type_fit["RV"] == True and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == False:
+    if obj.type_fit["RV"] == True and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == False and obj.type_fit["AST"] == False:
 
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
         if rtg[1]:
@@ -1651,9 +1742,30 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
         obj.loglik     =   obj.loglik +  ttv_loglik
 
+    elif obj.type_fit["RV"] == True and obj.type_fit["AST"] == True:
+        
+        obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
+
+        astr_loglik2 = ast_loglik(obj.parameters,vel_files, obj.ast_data_sets,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
+
+        #astr_loglik = ast_loglik(par,           vel_files, ast_files,            npl,                 stmass,    ttv_times,    hkl, fit_results=False, return_model = False)
+        #print(astr_loglik2, obj.fit_results.mass, obj.ttv_times, obj.parameters, obj.loglik)
+
+        if rtg[1]:
+            get_RV_gps_model(obj, get_lnl=True)
+
+        obj.loglik     =   obj.loglik +  astr_loglik2
+
+
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == True:
         ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass,obj.ttv_times,obj.hkl,fit_results=False, return_model = False)
         obj.loglik     =  ttv_loglik
+
+
+    elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["AST"] == True:
+        astr_loglik = ast_loglik(par,vel_files,obj.ast_data_sets,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)
+        obj.loglik     =  astr_loglik
+        #print(obj.fit_results.mass, obj.ttv_times, obj.parameters, obj.loglik, astr_loglik)
 
 
 
@@ -1842,6 +1954,7 @@ def run_nestsamp(obj, **kwargs):
     tr_params = obj.tr_params
 
     ttv_files = obj.ttv_data_sets
+    ast_files = obj.ast_data_sets
 
     npl = obj.npl
     epoch = obj.epoch
@@ -1895,7 +2008,9 @@ def run_nestsamp(obj, **kwargs):
            "gr_flag":obj.gr_flag,
            "ns_samp_method":obj.ns_samp_method,
            "TTV":obj.type_fit["TTV"],
+           "AST":obj.type_fit["AST"],
            "TTV_files":ttv_files,
+           "AST_files":ast_files,
            "TTV_times":obj.ttv_times,
            "AMD_stab":obj.NS_AMD_stab, 
            "Nbody_stab":obj.NS_Nbody_stab,
@@ -2262,6 +2377,7 @@ def run_mcmc(obj, **kwargs):
     tr_params = obj.tr_params
 
     ttv_files = obj.ttv_data_sets
+    ast_files = obj.ast_data_sets
 
     npl = obj.npl
     epoch = obj.epoch
@@ -2315,7 +2431,9 @@ def run_mcmc(obj, **kwargs):
            "cwd":obj.cwd,
            "gr_flag":obj.gr_flag,
            "TTV":obj.type_fit["TTV"],
+           "AST":obj.type_fit["AST"],
            "TTV_files":ttv_files,
+           "AST_files":ast_files,
            "TTV_times":obj.ttv_times,
            "AMD_stab":obj.mcmc_AMD_stab, 
            "Nbody_stab":obj.mcmc_Nbody_stab,
@@ -2601,7 +2719,7 @@ class signal_fit(object):
         self.init_orb_evol_arb()
  
 
-        self.type_fit = {"RV": True,"Transit": False,"TTV":False}
+        self.type_fit = {"RV": True,"Transit": False,"TTV":False , "AST":False}
 
         self.gr_flag = False
         self.hkl = False
@@ -2611,6 +2729,7 @@ class signal_fit(object):
                            
                            
         self.ttv_data_sets = {k: [] for k in range(10)}
+        self.ast_data_sets = {k: [] for k in range(10)}
         self.act_data_sets = {k: [] for k in range(20)}
         self.tra_data_sets = {k: [] for k in range(20)}
         self.rv_data_sets  = {k: [] for k in range(20)}
@@ -2679,17 +2798,19 @@ class signal_fit(object):
         self.pyqt_symbols_act = {k: 'o' for k in range(20)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
         self.pyqt_symbols_tra = {k: 'o' for k in range(20)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
         self.pyqt_symbols_ttv = {k: 'o' for k in range(20)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
-
+        self.pyqt_symbols_ast = {k: 'o' for k in range(20)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
 
         self.pyqt_symbols_size_rvs = {k: 6 for k in range(20)} #[6,6,6,6,6,6,6,6,6,6] #
         self.pyqt_symbols_size_act = {k: 4 for k in range(20)} #[4,4,4,4,4,4,4,4,4,4] #
         self.pyqt_symbols_size_tra = {k: 2 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #
         self.pyqt_symbols_size_ttv = {k: 4 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #
+        self.pyqt_symbols_size_ast = {k: 4 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #
 
         self.pyqt_color_alpha_rvs = {k: 255 for k in range(20)} #[6,6,6,6,6,6,6,6,6,6] #
         self.pyqt_color_alpha_act = {k: 255 for k in range(20)} #[4,4,4,4,4,4,4,4,4,4] #
         self.pyqt_color_alpha_tra = {k: 255 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #
         self.pyqt_color_alpha_ttv = {k: 255 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #        
+        self.pyqt_color_alpha_ast = {k: 255 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #        
 
         self.act_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
         self.tra_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
@@ -2697,6 +2818,7 @@ class signal_fit(object):
 
         self.gls_colors = ['#ff0000',  '#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#000000']
         self.ttv_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
+        self.ast_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
 
         self.init_sciPy_minimizer()
         self.init_ld_model()
@@ -3064,6 +3186,11 @@ class signal_fit(object):
         self.epoch_ttv_end = 2459000.0
         self.ttv_dt = 0.02
         self.ttv_times = [self.epoch_ttv,self.ttv_dt,self.epoch_ttv_end] 
+
+        self.epoch_ast = 2458000.0
+        self.epoch_ast_end = 2459000.0
+        self.ast_dt = 0.02
+        self.ast_times = [self.epoch_ttv,self.ttv_dt,self.epoch_ttv_end] 
     
     def init_TTV_set(self):
         
@@ -3605,6 +3732,45 @@ class signal_fit(object):
 
     def remove_ttv_dataset(self, ttv_idset):
         self.ttv_data_sets[ttv_idset] = []
+        return
+
+############################ Ast datasets ##########################################
+    def add_ast_dataset(self, name, path, ast_idset = 0, planet = 0, use = False):
+ 
+        try:
+            ast_BJD_        = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+            ast_data_x_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+            ast_data_x_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+            ast_data_y_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [3])
+            ast_data_y_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [4])
+
+
+            if len(ast_BJD_) != len(ast_data_x_) != len(ast_data_x_sig_) != len(ast_data_y_) != len(ast_data_y_sig_):
+                print("Something is wrong with your Astromtry data file! Please provide an Astromtry data file that contains: BJD  x  x_sigma  y  y_sigma ")
+                return
+
+            ast_BJD         = ast_BJD_[       np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
+            ast_data_x      = ast_data_x_[    np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
+            ast_data_x_sig  = ast_data_x_sig_[np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
+            ast_data_y      = ast_data_y_[    np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
+            ast_data_y_sig  = ast_data_y_sig_[np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
+
+            if len(ast_BJD) == 0:
+                print("Something is wrong with your Astromtry data file! Perhaps some not all entries are numeric? Please provide a Astromtry data file that contains: BJD  x  x_sigma  y  y_sigma")
+                return
+        except:
+            print("Something is wrong with your Astromtry data file! Please provide a Astromtry data file that contains: BJD  x  x_sigma  y  y_sigma")
+            return
+
+        ast_file_name = file_from_path(path)
+        ast_data_set = np.array([ast_BJD,ast_data_x,ast_data_x_sig,ast_data_y,ast_data_y_sig, planet, use, ast_file_name])
+
+        self.ast_data_sets[ast_idset] = ast_data_set
+        return
+
+
+    def remove_ast_dataset(self, ast_idset):
+        self.ast_data_sets[ast_idset] = []
         return
 
 ############################ transit datasets ##########################################
@@ -4706,7 +4872,7 @@ class signal_fit(object):
     def quick_overwrite_use_and_fit(self,useflags,minimize_loglik=False, fileinput=False, filename='Kep_input', outputfiles=[1,1,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500, model_min=0):
         oldflags=self.overwrite_use(useflags,save=True)
         
-        if self.type_fit["Transit"] == True or self.type_fit["TTV"] == True:
+        if self.type_fit["Transit"] == True or self.type_fit["TTV"] == True or self.type_fit["AST"] == True:
             minimize_fortran = False
         else:
             minimize_fortran = True
@@ -4721,7 +4887,7 @@ class signal_fit(object):
     def quick_overwrite_params_and_fit(self,params,minimize_loglik=True, fileinput=False, filename='Kep_input',outputfiles=[1,1,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False):
         oldparams=self.overwrite_params(params,save=True)
         
-        if self.type_fit["Transit"] == True or self.type_fit["TTV"] == True:
+        if self.type_fit["Transit"] == True or self.type_fit["TTV"] == True or self.type_fit["AST"] == True:
             minimize_fortran = False
         else:
             minimize_fortran = True        

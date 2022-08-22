@@ -2412,3 +2412,24 @@ def use_ttv_data_to_planet(self):
             ]
    
     return use_ttv_data_to_planet
+
+
+
+def ast_data_to_planet(self): 
+    
+    ast_data_to_planet = [
+            self.ast_data_planet_1,self.ast_data_planet_2,self.ast_data_planet_3,self.ast_data_planet_4,self.ast_data_planet_5,
+            self.ast_data_planet_6,self.ast_data_planet_7,self.ast_data_planet_8,self.ast_data_planet_9,self.ast_data_planet_10,
+            ]
+   
+    return ast_data_to_planet
+
+
+def use_ast_data_to_planet(self): 
+    
+    use_ast_data_to_planet = [
+            self.use_ast_data_1,self.use_ast_data_2,self.use_ast_data_3,self.use_ast_data_4,self.use_ast_data_5,
+            self.use_ast_data_6,self.use_ast_data_7,self.use_ast_data_8,self.use_ast_data_9,self.use_ast_data_10,
+            ]
+   
+    return use_ast_data_to_planet
