@@ -158,6 +158,7 @@ class ActivityWindow(QtWidgets.QWidget, Ui_ActivityWindow):
 
     def init_data(self):
 
+        print(self.parent.act_data)
         self.t      = self.parent.act_data[0]
         self.flux   = self.parent.act_data[4]
         self.flux_err = self.parent.act_data[2]

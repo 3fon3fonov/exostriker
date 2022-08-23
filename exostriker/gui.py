@@ -6321,7 +6321,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def apply_rv_data_options(self):
         global fit
         but_ind = self.buttonGroup_apply_rv_data_options.checkedId()
-        
+        #print(but_ind)
+        #if self.bin_rv_data[but_ind-1][1].isChecked():
         rv.bin_rv_data(fit, file_n = but_ind-1, bin_size = self.bin_rv_data[but_ind-1][0].value(), bin_tf = self.bin_rv_data[but_ind-1][1].isChecked())
 
 
@@ -6338,33 +6339,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
         self.update_veiw()
-
-
-#    def apply_act_data_options_old(self):
-#        global fit
-#        but_ind = self.buttonGroup_apply_act_data_options.checkedId()
-
-#        if   self.act_sigma_clip[but_ind-1][1].isChecked() == True  and self.act_remove_mean[but_ind-1].isChecked() == False:
-#            rv.sigma_clip(fit, type = 'act', sigma_clip = self.act_sigma_clip[but_ind-1][0].value(), 
-#                          remove_mean = False, file_n = but_ind-1)
-#        elif self.act_sigma_clip[but_ind-1][1].isChecked() == True  and self.act_remove_mean[but_ind-1].isChecked() == True:
-#            rv.sigma_clip(fit, type = 'act', sigma_clip = self.act_sigma_clip[but_ind-1][0].value(), 
-#                          remove_mean =  True, file_n = but_ind-1)
-#        elif self.act_sigma_clip[but_ind-1][1].isChecked() == False and self.act_remove_mean[but_ind-1].isChecked()  == True:
-#            rv.sigma_clip(fit, type = 'act', sigma_clip = None, 
-#                          remove_mean =  True, file_n = but_ind-1)
-#        elif self.act_sigma_clip[but_ind-1][1].isChecked() == False and self.act_remove_mean[but_ind-1].isChecked() == False:
-#            rv.sigma_clip(fit, type = 'act', sigma_clip = None, 
-#                          remove_mean =  False, file_n = but_ind-1)
-#        else:
-#            return
-
-#        self.tabWidget_helper.setCurrentWidget(self.tab_info)
-#        self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
-#        self.update_activity_gls_plots(but_ind-1)
-#     #   self.update_activity_data_plots(but_ind-1)
-
-
+ 
 
     def apply_act_data_options(self):
         global fit
@@ -8976,7 +8951,7 @@ will be highly appreciated!
        # self.update_params()
        # self.update_RV_file_buttons()
        # self.update_tra_file_buttons()
-        self.update_act_file_buttons()
+        #self.update_act_file_buttons()
 
        # self.fit_dispatcher(init=True)
         self.init_plot_corr()
@@ -9777,7 +9752,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 #act_data_set = np.array([act_JD,act_data,act_data_sig,act_file_name])
                 act_data_o_c = act_data            
                 act_data_set = np.array([act_JD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, act_file_name])
- 
+
                 for i in range(10):
                     if len(fit.act_data_sets[i]) == 0:
                         fit.act_data_sets[i]      = act_data_set
@@ -11257,6 +11232,8 @@ Please install via 'pip install ttvfast'.
         global fit
  
         but_ind = self.buttonGroup_options_act.checkedId()
+        
+        print(but_ind-1)
         
         if len(fit.act_data_sets[but_ind-1]) != 0:
             self.act_data = dill.copy(fit.act_data_sets_init[but_ind-1])

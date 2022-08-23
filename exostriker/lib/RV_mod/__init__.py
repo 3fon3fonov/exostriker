@@ -4038,8 +4038,10 @@ class signal_fit(object):
            act_data = act_data - np.mean(act_data)
 
            act_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [act_ind+1])
-           act_data_set = np.array([BJD,act_data,act_data_sig,data_set_name[i]])
-           
+           #act_data_set = np.array([BJD,act_data,act_data_sig,data_set_name[i]])
+           act_data_o_c = act_data                       
+           act_data_set = np.array([BJD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, data_set_name[i]])
+
 
            self.act_data_sets[i] = act_data_set
            self.act_data_sets_init[i] = act_data_set
@@ -4056,7 +4058,9 @@ class signal_fit(object):
 
            act_data_sig = act_data*0.01
            i = i +1
-           act_data_set = np.array([BJD,act_data,act_data_sig,data_set_name[i]])
+           #act_data_set = np.array([BJD,act_data,act_data_sig,data_set_name[i]])
+           act_data_o_c = act_data                       
+           act_data_set = np.array([BJD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, data_set_name[i]])
 
            self.act_data_sets[i] = act_data_set
            self.act_data_sets_init[i] = act_data_set
