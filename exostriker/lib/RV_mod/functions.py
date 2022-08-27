@@ -57,6 +57,11 @@ def check_for_missing_instances(fit,fit_new):
         except:
             pass
 
+    if len(fit_new.type_fit) != 4:
+        try:
+            fit_new.type_fit = dill.copy(fit.type_fit)
+        except:
+            pass        
 
 
     if len(fit_new.tra_colors) <= 11:

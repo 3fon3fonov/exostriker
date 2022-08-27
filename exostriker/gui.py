@@ -7706,7 +7706,7 @@ Transit duration: %s d
 
         if z <= 0:
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-            "Not possible to model planets if there are no ast data loaded. Please add your ast data first. Okay?", QtWidgets.QMessageBox.Ok)      
+            "Not possible to model planets if there are no Astrometry data loaded. Please add your Astrometry data first. Okay?", QtWidgets.QMessageBox.Ok)      
             #self.button_fit.setEnabled(True)
             self.mute_buttons(trigger=True)
             return 
