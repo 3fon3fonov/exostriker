@@ -7408,6 +7408,7 @@ Transit duration: %s d
             self.statusBar().showMessage('Minimizing Transit parameters.... SciPy in action, please be patient. ')       
            
         self.check_ttv_params()
+        self.check_ast_params()
         self.set_tra_ld()
         self.check_bounds()
         self.check_priors_nr()
@@ -7587,6 +7588,7 @@ Transit duration: %s d
             self.statusBar().showMessage('Minimizing TTV parameters.... SciPy in action, please be patient. ')
 
         self.check_ttv_params()
+        self.check_ast_params()
         self.set_tra_ld()
         self.check_bounds()
         self.check_priors_nr()   
@@ -9087,6 +9089,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             return
 
         self.check_ttv_params()
+        self.check_ast_params()
         self.set_tra_ld()
         self.check_bounds()
         self.check_priors_nr() 
@@ -9326,6 +9329,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             return
 
         self.check_ttv_params()
+        self.check_ast_params()
         self.set_tra_ld()
         self.check_bounds()
         self.check_priors_nr() 
