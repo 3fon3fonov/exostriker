@@ -568,7 +568,7 @@ def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_result
 
 
         for x in range(10):
-            if len(ast_files[x]) == 0 or ast_files[x][6] == False:
+            if len(ast_files[x]) == 0 or ast_files[x][6] == False or ast_files[x][5] != i+1:
                 continue
             else:
 
@@ -581,7 +581,6 @@ def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_result
                                                 np.radians(par[len(vel_files)*2 +7*i+6]),
                                                 t0,pl_a,
                                                 ast_files[x][0])
-
                 loglik_ast = loglik_ast + results[0]
  
                 #calc_data[x] = np.array(results[1],results[2]))

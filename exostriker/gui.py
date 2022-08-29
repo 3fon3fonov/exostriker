@@ -4857,46 +4857,22 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
                # print("TEst", rv.ast_loglik(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = False))   
 
+                if ast_loglik == None:
+                    print("Something went wrong when calculating astr. lnL....")
+                    continue
+
+                if isinstance(ast_loglik, float):
+                    return
 
                 fit.ast_results = dill.copy(ast_loglik)
 
-#                if ast_loglik == None:
-#                    print("""
-#Failed to plot! Perhaps the number of computed transits is smaler than the number of the observed transits.
-#There is no good fix for that at the moment.... Maybe adjust the epoch and try again.
-#                          """)
-#                    continue
+                ast_model_x = ast_loglik[2][pl_ind][0] 
+                ast_model_y = ast_loglik[2][pl_ind][1]
+            else:
+                ast_model_x = np.zeros(5)
+                ast_model_y = np.zeros(5)
                 
-#                if isinstance(ast_loglik, float):
-#                    return
  
-
-#            else:
- 
-
-
-#            if self.ast_o_c.isChecked():   
- 
-
-  
-#            else:
-#                ast_data = flux         
-#                ast_model_ = ast_model         
-
-           # if self.ast_model_interpolate.isChecked():
-
-          #      ind_ast_inter = self.comboBox_ast_model_interpolate.currentIndex()
-#
-          #      func_interpol = interp1d(model_N_transits, ast_model_, kind=ast_interpol_opt[ind_ast_inter])
-          #      model_N_transits = np.linspace(min(model_N_transits),max(model_N_transits), num=int(self.ast_model_interpolate_points.value()), endpoint=True)
-          #      ast_model_ = func_interpol(model_N_transits) 
-
-
-
-           # print(ast_loglik[2][0][0], ast_loglik[2][0][1])
- 
-
-            #p_ast.plot(ast_loglik[1][0][0], ast_loglik[1][0][1],
             p_ast.plot(x_axis, y_axis,
             pen=None,
             symbol=fit.pyqt_symbols_ast[j],
@@ -4915,7 +4891,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
             p_ast.addItem(err_)
 
-            model_curve = p_ast.plot(ast_loglik[2][0][0], ast_loglik[2][0][1], pen={'color':  fit.ast_colors[-1], 'width': self.ast_model_width.value()}, enableAutoRange=True, viewRect=True )
+            model_curve = p_ast.plot(ast_model_x, ast_model_y, pen={'color':  fit.ast_colors[-1], 'width': self.ast_model_width.value()}, enableAutoRange=True, viewRect=True )
             model_curve.setZValue(self.ast_model_z.value())
 
             if self.ast_plot_cross_hair.isChecked():
@@ -4924,7 +4900,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             #######################################
  
 
-            model_curve_oc = p_ast_00.plot(ast_loglik[2][0][0], ast_loglik[2][0][1], pen={'color':  fit.ast_colors[-1], 'width': self.ast_model_width.value()+1}, enableAutoRange=True, viewRect=True )
+            model_curve_oc = p_ast_00.plot(ast_model_x, ast_model_y, pen={'color':  fit.ast_colors[-1], 'width': self.ast_model_width.value()+1}, enableAutoRange=True, viewRect=True )
             model_curve_oc.setZValue(self.ast_model_z.value())
 
             p_ast_00.plot(x_axis, y_axis,
@@ -7760,7 +7736,7 @@ Transit duration: %s d
 
         if fit.type_fit["AST"] == True:
             fit.epoch_ast = self.Epoch_ast.value()
-            fit.ast_dt = self.time_step_model_ast.value() 
+            #fit.ast_dt = self.time_step_model_ast.value() 
             fit.epoch_ast_end = self.Epoch_ast_end.value()
         else:
             fit.epoch_ast = self.Epoch.value()
