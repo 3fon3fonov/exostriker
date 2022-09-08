@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # coding: utf-8
 
 # In[1]:
@@ -70,7 +70,7 @@ def calc_E(e,M,n=30):
 # In[4]:
 
 
-def coords(P,e,om,i,Om,T0,a,t):
+def ast_coords(P,e,om,i,Om,T0,a,t):
     
     #calculating thiele constants
     const=thiele(a,om,Om,i)
@@ -79,7 +79,7 @@ def coords(P,e,om,i,Om,T0,a,t):
     M=2*np.pi*((t-T0)%P)/P
     E=calc_E(e,M)
 
-    #calculating elliptical rectangular coords from E and e
+    #calculating elliptical rectangular ast_coords from E and e
     X=np.cos(E)-e
     Y=(1-e**2)**0.5 *np.sin(E)
 
@@ -129,9 +129,9 @@ def loglikelihood_am(model,data,err,s): #s=jitter
 
 
 #reminder: the data,errors and the times must be given in arrays
-def final(x_data,x_err,s_x,y_data,y_err,s_y,P,e,om,i,Om,T0,a,t):
+def final_ast(x_data,x_err,s_x,y_data,y_err,s_y,P,e,om,i,Om,T0,a,t):
     
-    x_mod,y_mod=coords(P,e,om,i,Om,T0,a,t)
+    x_mod,y_mod=ast_coords(P,e,om,i,Om,T0,a,t)
     #calculating the likelihoods for both dimensions
     L_x=loglikelihood_am(x_mod,x_data,x_err,s_x)
     L_y=loglikelihood_am(y_mod,y_data,y_err,s_y)
@@ -158,7 +158,7 @@ def final(x_data,x_err,s_x,y_data,y_err,s_y,P,e,om,i,Om,T0,a,t):
 
 # #model example
 #t=np.linspace(0,365,10000)
-#model_am = coords(365,0,0,math.radians(45),0,0,1,t)
+#model_am = ast_coords(365,0,0,math.radians(45),0,0,1,t)
 
 #plt.plot(model_am[0],model_am[1], 'r-')
 #plt.plot(data_am[1],data_am[2], '*')

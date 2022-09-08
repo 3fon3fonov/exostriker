@@ -12,7 +12,7 @@ sys.path.append('./lib/RV_mod/')
 #import gls as gls
 #import prior_functions as pr
 import emcee
-import astrometry_ES as astrometry_ES
+
 
 import numpy as np
 #import matplotlib.pyplot as plt
@@ -107,6 +107,8 @@ from .functions import *
 from .errors import Error, InputError, FittingError
 from .kernel import kernel, rvmodel, summary
 from .rv_files import rvfile, rvfile_list
+
+from .astrometry_ES import * 
 
 TAU= 2.0*np.pi
 DEFAULT_STELLAR_MASS=1.0
@@ -572,7 +574,7 @@ def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_result
                 continue
             else:
 
-                results = astrometry_ES.final(ast_files[x][1],ast_files[x][2],0,
+                results = final_ast(ast_files[x][1],ast_files[x][2],0,
                                               ast_files[x][3],ast_files[x][4],0, 
                                                 par[len(vel_files)*2 +7*i+1],
                                                 ecc_,
@@ -588,10 +590,10 @@ def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_result
         if return_model == True:
             times = np.linspace(min(ast_files[0][0]),max(ast_files[0][0])+1000,1000)
            # print(times)
-            ast_x_model, ast_y_model = astrometry_ES.coords(par[len(vel_files)*2 +7*i+1], ecc_, om_, np.radians(par[len(vel_files)*2 +7*i+5]),
+            ast_x_model, ast_y_model = ast_coords(par[len(vel_files)*2 +7*i+1], ecc_, om_, np.radians(par[len(vel_files)*2 +7*i+5]),
                                                     np.radians(par[len(vel_files)*2 +7*i+6]),
                                                     t0,pl_a,times) 
-            ast_x_, ast_y_ = astrometry_ES.coords(par[len(vel_files)*2 +7*i+1], ecc_, om_, np.radians(par[len(vel_files)*2 +7*i+5]),
+            ast_x_, ast_y_ = ast_coords(par[len(vel_files)*2 +7*i+1], ecc_, om_, np.radians(par[len(vel_files)*2 +7*i+5]),
                                                     np.radians(par[len(vel_files)*2 +7*i+6]),
                                                     t0,pl_a,ast_files[0][0]) 
 
