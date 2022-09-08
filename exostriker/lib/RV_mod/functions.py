@@ -3231,7 +3231,7 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
         return text
     else:
 
-        table_file = open(file_name, 'w')
+        table_file = open("%s/%s"%(path,file_name), 'w')
         table_file.write(text)
         table_file.close()
         print("Done")
@@ -3611,7 +3611,8 @@ def latex_prior_table(obj, width = 10, precision = 2,  file_name='prior_table.te
         return text
     else:
 
-        table_file = open(file_name, 'w')
+        table_file = open("%s/%s"%(path,file_name), 'w')
+       # table_file = open(file_name, 'w')
         table_file.write(text)
         table_file.close()
         print("Done")
