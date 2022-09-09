@@ -148,6 +148,12 @@ class show_param_boxes(QtWidgets.QDialog):
         self.spin_label_pad  = QtWidgets.QSpinBox(self)
         self.spin_label_pad.setPrefix('label pad = ')        
 
+        self.quantiles  = QtWidgets.QDoubleSpinBox(self)
+        self.quantiles.setPrefix('quantiles = ')  
+        self.quantiles.setMaximum(100.1)
+        self.quantiles.setMinimum(0.0)
+        self.quantiles.setSingleStep(0.1) 
+
         if len(self.parent.lables_cornerplot)!=0:
             self.radio_median.setChecked(bool(self.parent.lables_cornerplot["median"]))
             self.radio_mean.setChecked(self.parent.lables_cornerplot["mean"])
@@ -240,6 +246,11 @@ class show_param_boxes(QtWidgets.QDialog):
             self.spin_bins.setValue(self.cornerplot_opt["bins"])
             self.spin_label_pad.setValue(self.cornerplot_opt["labelpad"])
 
+            if self.cornerplot_opt["quantiles"] == None:
+                self.quantiles.setValue(100.1)            
+            else:
+                self.quantiles.setValue(self.cornerplot_opt["quantiles"])
+
             
             #print(self.OrigLabels)            
         else:
@@ -308,7 +319,7 @@ class show_param_boxes(QtWidgets.QDialog):
         self.layout.addWidget(self.radio_best_samp,4,l+3)
         self.layout.addWidget(self.radio_best_gui, 5,l+3)  
         self.layout.addWidget(self.radio_no_cross, 6,l+3)  
-        self.layout.addWidget(self.truth_color_button, 10,l+3)  
+        self.layout.addWidget(self.truth_color_button, 11,l+3)  
         
         
  
@@ -325,8 +336,10 @@ class show_param_boxes(QtWidgets.QDialog):
         
         self.layout.addWidget(self.check_reverse, 8,l+4) 
         self.layout.addWidget(self.spin_label_pad, 9,l+4)
-          
-        self.layout.addWidget(self.samp_color_button, 10,l+4)       
+        self.layout.addWidget(self.quantiles, 10,l+4)          
+
+
+        self.layout.addWidget(self.samp_color_button, 11,l+4)       
 
         try: 
             if "max. time" in self.OrigLabels:
@@ -383,7 +396,12 @@ class show_param_boxes(QtWidgets.QDialog):
         self.cornerplot_opt["bins"]            = self.spin_bins.value()
         self.cornerplot_opt["labelpad"]        = self.spin_label_pad.value()
         self.cornerplot_opt["stab_threshold"]   = self.spin_max_stab_time.value()
-          
+
+        if float(self.quantiles.value()) > 100.0:
+            self.cornerplot_opt["quantiles"]        = None   
+        else:     
+            self.cornerplot_opt["quantiles"]        = self.quantiles.value()     
+
         
         results["cornerplot"] = self.cornerplot_opt
         results["OrigLabels"] = self.OrigLabels

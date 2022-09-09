@@ -1218,7 +1218,12 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
  
     verbose = True
     level = (100.0-68.3)/2.0
-    
+    quantiles = None
+    if cornerplot_opt["quantiles"] != None:
+        level_q = (100.0-cornerplot_opt["quantiles"])/2.0
+        quantiles = [level_q/100.0, 1.0-level_q/100.0]
+
+
     if verbose:
         print("   ")
         print("   ")
@@ -1300,9 +1305,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         samples_stab = np.transpose(samples_stab)
         samples_ = np.transpose(samples_) 
 
-
-
-
+        
 
         if N_samp > len(samp_best_fit_par):
         
@@ -1313,7 +1316,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                             reverse=cornerplot_opt["reverse"], 
                             upper=cornerplot_opt["upper"],
                             labels=samp_labels, 
-                            quantiles=[level/100.0, 1.0-level/100.0],
+                            quantiles=quantiles,
                             levels=(0.6827, 0.9545,0.9973), 
                             smooth=cornerplot_opt["smooth"],
                             smooth1d=cornerplot_opt["smooth1d"],
@@ -1343,7 +1346,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                                 reverse=cornerplot_opt["reverse"], 
                                 upper=cornerplot_opt["upper"],
                                 labels=samp_labels, 
-                                quantiles=[level/100.0, 1.0-level/100.0],
+                                quantiles=quantiles,
                                 levels=(0.6827, 0.9545,0.9973), 
                                 smooth=cornerplot_opt["smooth"],
                                 smooth1d=cornerplot_opt["smooth1d"],
@@ -1369,7 +1372,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                         reverse=cornerplot_opt["reverse"], 
                         upper=cornerplot_opt["upper"],
                         labels=samp_labels, 
-                        quantiles=[level/100.0, 1.0-level/100.0],
+                        quantiles=quantiles,
                         levels=(0.6827, 0.9545,0.9973), 
                         smooth=cornerplot_opt["smooth"],
                         smooth1d=cornerplot_opt["smooth1d"],
@@ -1400,7 +1403,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                             reverse=cornerplot_opt["reverse"], 
                             upper=cornerplot_opt["upper"],
                             labels=samp_labels, 
-                            quantiles=[level/100.0, 1.0-level/100.0],
+                            quantiles=quantiles,
                             levels=(0.6827, 0.9545,0.9973), 
                             smooth=cornerplot_opt["smooth"],
                             smooth1d=cornerplot_opt["smooth1d"],
