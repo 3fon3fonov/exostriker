@@ -2360,9 +2360,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_font_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2,pe0,pe1,p_ttv_00,p_ttv_01, p_ast,p_ast_o_c, p_ast_00,p_ast_01
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2,pe0,pe1,p_ttv_00,p_ttv_01, p_ast,p_ast_oc, p_ast_00,p_ast_01
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,p_ast,p_ast_o_c]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,p_ast,p_ast_oc]
 
 
         for i in range(len(zzz)):
