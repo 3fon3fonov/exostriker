@@ -1,16 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 Demonstration of some of the shader programs included with pyqtgraph that can be 
 used to affect the appearance of a surface.
 """
 
-
-
-## Add path to library (just for examples; you do not need this)
-import initExample
-
 import numpy as np
-from pyqtgraph.Qt import QtCore, QtGui
+
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 

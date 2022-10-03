@@ -1,17 +1,17 @@
-# -*- coding: utf-8 -*-
-import sys, re, traceback, subprocess
 import pickle
+import re
+import subprocess
+import sys
+import traceback
 
-from ..Qt import QtCore, QtGui, QT_LIB
 from .. import exceptionHandling as exceptionHandling
 from .. import getConfigOption
 from ..functions import SignalBlock
-import importlib
-ui_template = importlib.import_module(
-    f'.template_{QT_LIB.lower()}', package=__package__)
+from ..Qt import QtCore, QtGui, QtWidgets
+from . import template_generic as ui_template
 
 
-class ConsoleWidget(QtGui.QWidget):
+class ConsoleWidget(QtWidgets.QWidget):
     """
     Widget displaying console output and accepting command input.
     Implements:
@@ -33,7 +33,7 @@ class ConsoleWidget(QtGui.QWidget):
     
     def __init__(self, parent=None, namespace=None, historyFile=None, text=None, editor=None):
         """
-        ==============  ============================================================================
+        ==============  =============================================================================
         **Arguments:**
         namespace       dictionary containing the initial variables present in the default namespace
         historyFile     optional file for storing command history
@@ -44,7 +44,7 @@ class ConsoleWidget(QtGui.QWidget):
                             editorCommand --loadfile {fileName} --gotoline {lineNum}
         ==============  =============================================================================
         """
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         if namespace is None:
             namespace = {}
         namespace['__console__'] = self

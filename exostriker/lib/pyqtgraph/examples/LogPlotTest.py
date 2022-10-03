@@ -1,13 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 Simple logarithmic plotting test
 """
 
-import initExample ## Add path to library (just for examples; you do not need this)
-
-
-from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
+
 import pyqtgraph as pg
 
 app = pg.mkQApp("Log Plot Example")

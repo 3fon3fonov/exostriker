@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Demonstrates common image analysis tools.
 
@@ -6,12 +5,11 @@ Many of the features demonstrated here are already provided by the ImageView
 widget, but here we present a lower-level approach that provides finer control
 over the user interface.
 """
-import initExample ## Add path to library (just for examples; you do not need this)
 
-import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
 
+import pyqtgraph as pg
+from pyqtgraph.Qt import QtGui
 
 # Interpret image data as row-major instead of col-major
 pg.setConfigOptions(imageAxisOrder='row-major')
@@ -106,7 +104,7 @@ def imageHoverEvent(event):
     val = data[i, j]
     ppos = img.mapToParent(pos)
     x, y = ppos.x(), ppos.y()
-    p1.setTitle("pos: (%0.1f, %0.1f)  pixel: (%d, %d)  value: %g" % (x, y, i, j, val))
+    p1.setTitle("pos: (%0.1f, %0.1f)  pixel: (%d, %d)  value: %.3g" % (x, y, i, j, val))
 
 # Monkey-patch the image to use our custom hover function. 
 # This is generally discouraged (you should subclass ImageItem instead),

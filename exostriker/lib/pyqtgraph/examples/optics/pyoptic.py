@@ -1,10 +1,14 @@
-# -*- coding: utf-8 -*-
-from math import atan2, asin, sin, cos, degrees, sqrt, hypot
-import pyqtgraph as pg
-from pyqtgraph.Qt import QtGui, QtCore
+import csv
+import gzip
+import os
+from math import asin, atan2, cos, degrees, hypot, sin, sqrt
+
 import numpy as np
-import csv, gzip, os
+
+import pyqtgraph as pg
 from pyqtgraph import Point
+from pyqtgraph.Qt import QtCore, QtGui
+
 
 class GlassDB:
     """
@@ -344,7 +348,7 @@ class CircularSolid(pg.GraphicsObject, ParamObj):
         return self.path
     
     def paint(self, p, *args):
-        p.setRenderHints(p.renderHints() | p.Antialiasing)
+        p.setRenderHints(p.renderHints() | p.RenderHint.Antialiasing)
         p.setPen(self.pen)
         p.fillPath(self.path, self.brush)
         p.drawPath(self.path)
@@ -512,8 +516,8 @@ class Ray(pg.GraphicsObject, ParamObj):
         
     def paint(self, p, *args):
         #p.setPen(pg.mkPen((255,0,0, 150)))
-        p.setRenderHints(p.renderHints() | p.Antialiasing)
-        p.setCompositionMode(p.CompositionMode_Plus)
+        p.setRenderHints(p.renderHints() | p.RenderHint.Antialiasing)
+        p.setCompositionMode(p.CompositionMode.CompositionMode_Plus)
         p.setPen(wlPen(self['wl']))
         p.drawPath(self.path)
         
@@ -555,4 +559,3 @@ class Tracer(QtCore.QObject):
             
     def trace(self):
         trace(self.rays, self.optics)
-

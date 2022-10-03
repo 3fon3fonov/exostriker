@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-import initExample ## Add path to library (just for examples; you do not need this)
+from time import perf_counter
+
+import numpy as np
 
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
-import numpy as np
 
 app = pg.mkQApp()
 plt = pg.PlotWidget()
@@ -18,7 +17,7 @@ plt.show()
 plt.enableAutoRange(False, False)
 
 def plot():
-    start = pg.ptime.time()
+    start = perf_counter()
     n = 15
     pts = 100
     x = np.linspace(0, 0.8, pts)
@@ -30,19 +29,13 @@ def plot():
             ## we need here. This overhead adds up quickly and makes a big
             ## difference in speed.
             
-            #plt.plot(x=x+i, y=y+j)
             plt.addItem(pg.PlotCurveItem(x=x+i, y=y+j))
             
-            #path = pg.arrayToQPath(x+i, y+j)
-            #item = QtGui.QGraphicsPathItem(path)
-            #item.setPen(pg.mkPen('w'))
-            #plt.addItem(item)
-            
-    dt = pg.ptime.time() - start
-    print("Create plots took: %0.3fms" % (dt*1000))
+    dt = perf_counter() - start
+    print(f"Create plots took: {dt * 1000:.3f} ms")
 
 ## Plot and clear 5 times, printing the time it took
-for i in range(5):
+for _ in range(5):
     plt.clear()
     plot()
     app.processEvents()
@@ -54,37 +47,33 @@ for i in range(5):
 
 def fastPlot():
     ## Different approach:  generate a single item with all data points.
-    ## This runs about 20x faster.
-    start = pg.ptime.time()
+    ## This runs many times faster.
+    start = perf_counter()
     n = 15
     pts = 100
     x = np.linspace(0, 0.8, pts)
     y = np.random.random(size=pts)*0.8
-    xdata = np.empty((n, n, pts))
-    xdata[:] = x.reshape(1,1,pts) + np.arange(n).reshape(n,1,1)
-    ydata = np.empty((n, n, pts))
-    ydata[:] = y.reshape(1,1,pts) + np.arange(n).reshape(1,n,1)
-    conn = np.ones((n*n,pts))
-    conn[:,-1] = False # make sure plots are disconnected
-    path = pg.arrayToQPath(xdata.flatten(), ydata.flatten(), conn.flatten())
-    item = QtGui.QGraphicsPathItem(path)
-    item.setPen(pg.mkPen('w'))
+    shape = (n, n, pts)
+    xdata = np.empty(shape)
+    xdata[:] = x + np.arange(shape[1]).reshape((1,-1,1))
+    ydata = np.empty(shape)
+    ydata[:] = y + np.arange(shape[0]).reshape((-1,1,1))
+    conn = np.ones(shape, dtype=bool)
+    conn[...,-1] = False # make sure plots are disconnected
+    item = pg.PlotCurveItem()
+    item.setData(xdata.ravel(), ydata.ravel(), connect=conn.ravel())
     plt.addItem(item)
     
-    dt = pg.ptime.time() - start
+    dt = perf_counter() - start
     print("Create plots took: %0.3fms" % (dt*1000))
 
 
 ## Plot and clear 5 times, printing the time it took
-if hasattr(pg, 'arrayToQPath'):
-    for i in range(5):
-        plt.clear()
-        fastPlot()
-        app.processEvents()
-else:
-    print("Skipping fast tests--arrayToQPath function is missing.")
-
-plt.autoRange()
+for _ in range(5):
+    plt.clear()
+    fastPlot()
+    app.processEvents()
+    plt.autoRange()
 
 if __name__ == '__main__':
     pg.exec()

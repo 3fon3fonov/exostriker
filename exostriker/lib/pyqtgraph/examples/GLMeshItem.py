@@ -1,13 +1,8 @@
-# -*- coding: utf-8 -*-
 """
 Simple examples demonstrating the use of GLMeshItem.
-
 """
 
-## Add path to library (just for examples; you do not need this)
-import initExample
 
-from pyqtgraph.Qt import QtCore, QtGui
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 
@@ -22,7 +17,6 @@ g.scale(2,2,1)
 w.addItem(g)
 
 import numpy as np
-
 
 ## Example 1:
 ## Array of vertex positions and array of vertex indexes defining faces

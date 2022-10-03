@@ -5,18 +5,22 @@ import gui_groups
 def qso_mode(self):
  
 
+    self.setWindowTitle("The QSO-Striker: Modeling the variability of quasar light-curves.")
+
     self.param_tabs.removeTab(5)
     self.param_tabs.removeTab(2)
     self.param_tabs.setTabText(0,"Sine param.")
 
-    self.plot_tabs.removeTab(5)
+    self.plot_tabs.removeTab(6)
 
 
     self.tab_ts_RV.removeTab(1)
 
+    self.plot_tabs.removeTab(3)
     self.plot_tabs.removeTab(2)
     self.plot_tabs.removeTab(1)
 
+    self.tabWidget_data_section.removeTab(3)
     self.tabWidget_data_section.removeTab(2)
     self.tabWidget_data_section.removeTab(1)
     self.tabWidget_data_section.setTabText(1,"Test data")
@@ -82,6 +86,8 @@ def qso_mode(self):
     self.radioButton_ttv.setHidden(True)
     self.radioButton_ttv_RV.setHidden(True)
     self.radioButton_hkl.setHidden(True)
+    self.radioButton_ast.setHidden(True)
+    self.radioButton_ast_RV.setHidden(True)
 
     self.radioButton_Keplerian.setHidden(True)
     self.radioButton_Dynamical.setHidden(True)
@@ -676,7 +682,8 @@ def qso_mode(self):
     self.tabWidget_8.removeTab(2)
     self.tabWidget_8.removeTab(1)
 
-    self.plot_opt_tab.removeTab(8)
+    self.plot_opt_tab.removeTab(9)
+    self.plot_opt_tab.removeTab(5)
     self.plot_opt_tab.removeTab(4)
     self.plot_opt_tab.removeTab(3)
     self.plot_opt_tab.removeTab(2)
@@ -684,7 +691,9 @@ def qso_mode(self):
 
     self.plot_opt_tab.setTabText(0,"Data")
     self.plot_opt_tab.setTabText(1,"GP")
+    self.plot_opt_tab.setTabText(2,"Test data")
 
+    self.label_109.setText("Test data symbol size global") 
 
     self.RV_plot_cross_hair.setText("Plot crosshair") 
     self.RV_o_c_plot_cross_hair.setText("o-c Plot crosshair") 
@@ -828,6 +837,18 @@ def qso_mode(self):
 
     self.label_K.setText("Ampl. [mag.]") 
     self.label_Ma.setText("Phase [deg]") 
+
+    self.label_K_minmax_1.setText("Ampl. [mag.]") 
+    self.label_K_minmax_2.setText("Ampl. [mag.]") 
+    self.label_K_minmax_3.setText("Ampl. [mag.]") 
+
+    self.label_K_minmax_10.setText("Ampl. [mag.]") 
+    self.label_K_minmax_11.setText("Ampl. [mag.]") 
+    self.label_K_minmax_12.setText("Ampl. [mag.]") 
+    self.label_K_minmax_19.setText("Ampl. [mag.]") 
+    self.label_K_minmax_20.setText("Ampl. [mag.]") 
+    self.label_K_minmax_21.setText("Ampl. [mag.]") 
+
 
     self.button_orb_evol.setVisible(False)
 

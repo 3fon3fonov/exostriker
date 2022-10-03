@@ -2460,7 +2460,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                  '<html><head/><body><p>&omega; [deg] </p></body></html>','a [au]',
                  '<html><head/><body><p>&Delta;&omega; [deg] </p></body></html>',
                  '<html><head/><body><p>&theta; [deg] </p></body></html>',
-                 'i [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.','Power''au','au']
+                 'i [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.','Power','au','au']
         else:
 
             yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','Power','Power','SDE','SDE','Power','Power','a [au]','e',
@@ -2468,11 +2468,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                  '<html><head/><body><p>&Delta;&omega; [deg] </p></body></html>',
                  '<html><head/><body><p>&theta; [deg] </p></body></html>',
                  'i [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.','Power','au','au']
-        xunit = ['' ,'','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
-        yunit = ['' ,'' , '','','','','','','','','','','','','','','','','','','','','','','','','','','','']
-
+        xunit = ['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
+        yunit = ['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
+ 
         zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,p_ast,p_ast_oc]
-
+ 
 
         for i in range(len(zzz)):
 
@@ -8364,7 +8364,7 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False, es_version='0.75'):
+    def print_info_credits(self, image=False, es_version='0.76'):
  
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
@@ -8372,10 +8372,15 @@ in https://github.com/3fon3fonov/exostriker
         #self.dialog.setGeometry(300, 300, 800, 800)
         #self.dialog_credits.acceptRichText(True)
         
+        if qso_mode:
+            String_es = "QSO"
+        else:
+            String_es = "Exo"            
+
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The Exo-Striker' (ver. %s) \n developed by Trifon Trifonov"%es_version
+        text = "You are using 'The %s-Striker' (ver. %s) \n developed by Trifon Trifonov"%(String_es,es_version)
         
         self.dialog_credits.text.append(text)
 
@@ -8387,30 +8392,31 @@ in https://github.com/3fon3fonov/exostriker
         
         text = "* " + "<a href='https://github.com/mzechmeister/python'>GLS and MLP periogograms</a>"
         self.dialog_credits.text.append(text)
-        
-        text = "* " + "<a href='https://github.com/lkreidberg/batman'>batman-package</a>" 
-        self.dialog_credits.text.append(text)
-        
-        text = "* " + "<a href='https://github.com/hippke/tls'>transitleastsquares</a>" 
-        self.dialog_credits.text.append(text)
-
-        text = "* " + "<a href='https://github.com/hippke/wotan'>wotan</a>" 
-        self.dialog_credits.text.append(text)        
-
+ 
         text = "* " + "<a href='https://github.com/dfm/emcee'>emcee</a>" 
         self.dialog_credits.text.append(text) 
-        
-        text = "* " + "<a href='https://dynesty.readthedocs.io/en/latest/'>dynesty</a>" 
-        self.dialog_credits.text.append(text)
-        
+
         text = "* " + "<a href='https://github.com/dfm/celerite'>celerite</a>" 
         self.dialog_credits.text.append(text)
+                
+        text = "* " + "<a href='https://dynesty.readthedocs.io/en/latest/'>dynesty</a>" 
+        self.dialog_credits.text.append(text)
+               
+        if qso_mode == False:
+            text = "* " + "<a href='https://github.com/lkreidberg/batman'>batman-package</a>" 
+            self.dialog_credits.text.append(text)
         
-        text = "* " + "<a href='https://github.com/mindriot101/ttvfast-python'>ttvfast-python</a>" 
-        self.dialog_credits.text.append(text)
+            text = "* " + "<a href='https://github.com/hippke/tls'>transitleastsquares</a>" 
+            self.dialog_credits.text.append(text)
 
-        text = "* " + "<a href='https://www.boulder.swri.edu/~hal/swift.html'>swift</a>" 
-        self.dialog_credits.text.append(text)
+            text = "* " + "<a href='https://github.com/hippke/wotan'>wotan</a>" 
+            self.dialog_credits.text.append(text)        
+
+            text = "* " + "<a href='https://github.com/mindriot101/ttvfast-python'>ttvfast-python</a>" 
+            self.dialog_credits.text.append(text)
+
+            text = "* " + "<a href='https://www.boulder.swri.edu/~hal/swift.html'>swift</a>" 
+            self.dialog_credits.text.append(text)
 
         text = "* " + "<a href='https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor'>megasolid idiom</a>" 
         self.dialog_credits.text.append(text)  
@@ -8434,7 +8440,12 @@ will be highly appreciated!
 """
         self.dialog_credits.text.append(text)
         self.dialog_credits.text.setReadOnly(True)
-        self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(./lib/UI/33_striker.png) 0 0 0 0 stretch stretch;} ")
+
+        if qso_mode:
+            self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(./lib/UI/33_striker_qso.png) 0 0 0 0 stretch stretch;} ")
+        else:
+            self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(./lib/UI/33_striker.png) 0 0 0 0 stretch stretch;} ")
+
         #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
         self.dialog_credits.show()
 
@@ -11403,7 +11414,11 @@ Please install via 'pip install ttvfast'.
             return super(Exo_striker, self).eventFilter(obj, event)
 
 
-
+    def get_credits(self):
+        if qso_mode:
+            webbrowser.open('https://github.com/3fon3fonov/QSO-Striker')
+        else:
+            webbrowser.open('https://github.com/3fon3fonov/exostriker')
 
     def count_cpus(self):
 
@@ -11421,7 +11436,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        es_version = "0.75"
+        es_version = "0.76"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -12060,7 +12075,10 @@ Please install via 'pip install ttvfast'.
         self.copy_ses.clicked.connect(self.cop_ses)
         self.remove_ses.clicked.connect(self.rem_ses)
 
-        self.actionvisit_TRIFON_on_GitHub.triggered.connect(lambda: webbrowser.open('https://github.com/3fon3fonov/exostriker'))
+        if qso_mode:
+            self.actionvisit_TRIFON_on_GitHub.setText("&The QSO-Striker on GitHub")
+
+        self.actionvisit_TRIFON_on_GitHub.triggered.connect(self.get_credits)
         self.actionCredits.triggered.connect(lambda: self.print_info_credits(es_version = es_version))
         self.actionConfidence_Intervals_Table.triggered.connect(lambda: self.print_chi_table())
 
@@ -12215,6 +12233,7 @@ Please install via 'pip install ttvfast'.
        
         self.comboBox_act_data_gls.activated.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex())) 
         self.comboBox_act_data.activated.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex())) 
+        self.act_data_size.valueChanged.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex())) 
        
         self.comboBox_corr_1.activated.connect(self.update_correlations_data_plots) 
         self.comboBox_corr_2.activated.connect(self.update_correlations_data_plots) 

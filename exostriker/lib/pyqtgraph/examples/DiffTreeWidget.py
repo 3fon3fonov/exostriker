@@ -1,16 +1,12 @@
-# -*- coding: utf-8 -*-
 
 """
 Simple use of DiffTreeWidget to display differences between structures of 
 nested dicts, lists, and arrays.
 """
 
-import initExample ## Add path to library (just for examples; you do not need this)
-
-import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
 
+import pyqtgraph as pg
 
 app = pg.mkQApp("DiffTreeWidget Example")
 A = {

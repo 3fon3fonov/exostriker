@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-from ..Qt import QtGui, QtCore
+from .. import debug
+from .. import functions as fn
+from ..Qt import QtCore, QtGui
 from .GraphicsObject import GraphicsObject
 from .InfiniteLine import InfiniteLine
-from .. import functions as fn
-from .. import debug as debug
 
 __all__ = ['LinearRegionItem']
 
@@ -270,7 +269,7 @@ class LinearRegionItem(GraphicsObject):
         return br
         
     def paint(self, p, *args):
-        profiler = debug.Profiler()
+        profiler = debug.Profiler()  # noqa: profiler does prints on GC
         p.setBrush(self.currentBrush)
         p.setPen(fn.mkPen(None))
         p.drawRect(self.boundingRect())

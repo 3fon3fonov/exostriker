@@ -1,5 +1,12 @@
+from ..Parameter import registerParameterItemType, registerParameterType
 from .action import ActionParameter, ActionParameterItem
-from .basetypes import WidgetParameterItem, SimpleParameter, GroupParameter, GroupParameterItem
+from .actiongroup import ActionGroup, ActionGroupParameterItem
+from .basetypes import (
+    GroupParameter,
+    GroupParameterItem,
+    SimpleParameter,
+    WidgetParameterItem,
+)
 from .bool import BoolParameterItem
 from .calendar import CalendarParameter, CalendarParameterItem
 from .checklist import ChecklistParameter, ChecklistParameterItem
@@ -15,14 +22,15 @@ from .qtenum import QtEnumParameter
 from .slider import SliderParameter, SliderParameterItem
 from .str import StrParameterItem
 from .text import TextParameter, TextParameterItem
-from ..Parameter import registerParameterType, registerParameterItemType
 
 registerParameterItemType('bool',  BoolParameterItem,    SimpleParameter, override=True)
 registerParameterItemType('float', NumericParameterItem, SimpleParameter, override=True)
 registerParameterItemType('int',   NumericParameterItem, SimpleParameter, override=True)
 registerParameterItemType('str',   StrParameterItem,     SimpleParameter, override=True)
 
-registerParameterType('group', GroupParameter, override=True)
+registerParameterType('group',         GroupParameter, override=True)
+# Keep actiongroup private for now, mainly useful for Interactor but not externally
+registerParameterType('_actiongroup',  ActionGroup,    override=True)
 
 registerParameterType('action',    ActionParameter,      override=True)
 registerParameterType('calendar',  CalendarParameter,    override=True)

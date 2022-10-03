@@ -3,14 +3,12 @@ Demonstrates the usage of DateAxisItem to display properly-formatted
 timestamps on x-axis which automatically adapt to current zoom level.
 
 """
-import initExample ## Add path to library (just for examples; you do not need this)
 
 import time
-from datetime import datetime, timedelta
 
 import numpy as np
+
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtGui
 
 app = pg.mkQApp("DateAxisItem Example")
 

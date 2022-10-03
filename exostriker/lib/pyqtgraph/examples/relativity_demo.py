@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 Special relativity simulation 
-
-
-
 """
-import initExample ## Add path to library (just for examples; you do not need this)
-import pyqtgraph as pg
+
 from relativity import RelativityGUI
+
+import pyqtgraph as pg
 
 pg.mkQApp()
 win = RelativityGUI()

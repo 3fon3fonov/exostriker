@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
-from ..Qt import QtCore, QtGui
+from ..Qt import QtCore, QtWidgets
 
-class CmdInput(QtGui.QLineEdit):
+
+class CmdInput(QtWidgets.QLineEdit):
     
     sigExecuteCmd = QtCore.Signal(object)
     
     def __init__(self, parent):
-        QtGui.QLineEdit.__init__(self, parent)
+        QtWidgets.QLineEdit.__init__(self, parent)
         self.history = [""]
         self.ptr = 0
     
@@ -21,7 +21,7 @@ class CmdInput(QtGui.QLineEdit):
                 self.setHistory(self.ptr-1)
                 ev.accept()
                 return
-        elif ev.key() == QtCore.Qt.Key.Key_Return:
+        elif ev.key() in (QtCore.Qt.Key.Key_Return, QtCore.Qt.Key.Key_Enter):
             self.execCmd()
         else:
             super().keyPressEvent(ev)

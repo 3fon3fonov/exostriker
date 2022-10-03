@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Demonstrates adding a custom context menu to a GraphicsItem
 and extending the context menu of a ViewBox.
@@ -8,11 +7,10 @@ own context menu, and for the menus of its parent items to be automatically
 displayed as well. 
 
 """
-import initExample ## Add path to library (just for examples; you do not need this)
+
 
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
-import numpy as np
+from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 
 win = pg.GraphicsLayoutWidget(show=True)
 win.setWindowTitle('pyqtgraph example: context menu')
@@ -67,7 +65,7 @@ class MenuBox(pg.GraphicsObject):
     
     # On right-click, raise the context menu
     def mouseClickEvent(self, ev):
-        if ev.button() == QtCore.Qt.RightButton:
+        if ev.button() == QtCore.Qt.MouseButton.RightButton:
             if self.raiseContextMenu(ev):
                 ev.accept()
 
@@ -79,14 +77,14 @@ class MenuBox(pg.GraphicsObject):
         menu = self.scene().addParentContextMenus(self, menu, ev)
         
         pos = ev.screenPos()
-        menu.popup(QtCore.QPoint(pos.x(), pos.y()))
+        menu.popup(QtCore.QPoint(int(pos.x()), int(pos.y())))
         return True
 
     # This method will be called when this item's _children_ want to raise
     # a context menu that includes their parents' menus.
     def getContextMenus(self, event=None):
         if self.menu is None:
-            self.menu = QtGui.QMenu()
+            self.menu = QtWidgets.QMenu()
             self.menu.setTitle(self.name+ " options..")
             
             green = QtGui.QAction("Turn green", self.menu)
@@ -99,9 +97,9 @@ class MenuBox(pg.GraphicsObject):
             self.menu.addAction(blue)
             self.menu.green = blue
             
-            alpha = QtGui.QWidgetAction(self.menu)
-            alphaSlider = QtGui.QSlider()
-            alphaSlider.setOrientation(QtCore.Qt.Horizontal)
+            alpha = QtWidgets.QWidgetAction(self.menu)
+            alphaSlider = QtWidgets.QSlider()
+            alphaSlider.setOrientation(QtCore.Qt.Orientation.Horizontal)
             alphaSlider.setMaximum(255)
             alphaSlider.setValue(255)
             alphaSlider.valueChanged.connect(self.setAlpha)

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 This example demonstrates a very basic use of flowcharts: filter data,
 displaying both the input and output of the filter. The behavior of
@@ -10,23 +9,22 @@ Basic steps are:
   - flowchart connects data to the first plot, where it is displayed
   - add a gaussian filter to lowpass the data, then display it in the second plot.
 """
-import initExample ## Add path to library (just for examples; you do not need this)
 
-
-from pyqtgraph.flowchart import Flowchart
-from pyqtgraph.Qt import QtGui, QtCore
-import pyqtgraph as pg
 import numpy as np
+
+import pyqtgraph as pg
 import pyqtgraph.metaarray as metaarray
+from pyqtgraph.flowchart import Flowchart
+from pyqtgraph.Qt import QtWidgets
 
 app = pg.mkQApp("Flowchart Example")
 
 ## Create main window with grid layout
-win = QtGui.QMainWindow()
+win = QtWidgets.QMainWindow()
 win.setWindowTitle('pyqtgraph example: Flowchart')
-cw = QtGui.QWidget()
+cw = QtWidgets.QWidget()
 win.setCentralWidget(cw)
-layout = QtGui.QGridLayout()
+layout = QtWidgets.QGridLayout()
 cw.setLayout(layout)
 
 ## Create flowchart, define input/output terminals

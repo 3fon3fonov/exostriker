@@ -1,17 +1,21 @@
-# -*- coding: utf-8 -*-
 import weakref
-from ..Qt import QtGui
-from .Container import *
-from .DockDrop import *
+
+from ..Qt import QT_LIB, QtWidgets
+from .Container import Container, HContainer, TContainer, VContainer
 from .Dock import Dock
+from .DockDrop import DockDrop
 
 
-class DockArea(Container, QtGui.QWidget, DockDrop):
+class DockArea(Container, QtWidgets.QWidget, DockDrop):
     def __init__(self, parent=None, temporary=False, home=None):
         Container.__init__(self, self)
-        QtGui.QWidget.__init__(self, parent=parent)
-        DockDrop.__init__(self, allowedAreas=['left', 'right', 'top', 'bottom'])
-        self.layout = QtGui.QVBoxLayout()
+        allowedAreas=['left', 'right', 'top', 'bottom']
+        if QT_LIB.startswith('PyQt'):
+            QtWidgets.QWidget.__init__(self, parent=parent, allowedAreas=allowedAreas)
+        else:
+            QtWidgets.QWidget.__init__(self, parent=parent)
+            DockDrop.__init__(self, allowedAreas=allowedAreas)
+        self.layout = QtWidgets.QVBoxLayout()
         self.layout.setContentsMargins(0,0,0,0)
         self.layout.setSpacing(0)
         self.setLayout(self.layout)
@@ -129,6 +133,8 @@ class DockArea(Container, QtGui.QWidget, DockDrop):
             new = HContainer(self)
         elif typ == 'tab':
             new = TContainer(self)
+        else:
+            raise ValueError("typ must be one of 'vertical', 'horizontal', or 'tab'")
         return new
         
     def addContainer(self, typ, obj):
@@ -259,7 +265,6 @@ class DockArea(Container, QtGui.QWidget, DockDrop):
 
     def buildFromState(self, state, docks, root, depth=0, missing='error'):
         typ, contents, state = state
-        pfx = "  " * depth
         if typ == 'dock':
             try:
                 obj = docks[contents]
@@ -278,7 +283,6 @@ class DockArea(Container, QtGui.QWidget, DockDrop):
             obj = self.makeContainer(typ)
             
         root.insert(obj, 'after')
-        #print pfx+"Add:", obj, " -> ", root
         
         if typ != 'dock':
             for o in contents:
@@ -363,10 +367,10 @@ class DockArea(Container, QtGui.QWidget, DockDrop):
 
 
 
-class TempAreaWindow(QtGui.QWidget):
+class TempAreaWindow(QtWidgets.QWidget):
     def __init__(self, area, **kwargs):
-        QtGui.QWidget.__init__(self, **kwargs)
-        self.layout = QtGui.QGridLayout()
+        QtWidgets.QWidget.__init__(self, **kwargs)
+        self.layout = QtWidgets.QGridLayout()
         self.setLayout(self.layout)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.dockarea = area

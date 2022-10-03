@@ -1,5 +1,7 @@
-from ..Qt import QtGui, QtCore, QT_LIB
+from ..Qt import QtWidgets, QtCore, QT_LIB
 import matplotlib
+
+ 
 
 if QT_LIB != 'PyQt5':
     if QT_LIB == 'PySide':
@@ -24,7 +26,7 @@ matplotlib.rcParams['axes.formatter.limits'] = [-9, 9]
 #matplotlib.rcParams['axes.grid'] = True
 
  
-class MatplotlibWidget(QtGui.QWidget):
+class MatplotlibWidget(QtWidgets.QWidget):
     """
     Implements a Matplotlib figure inside a QWidget.
     Use getFigure() and redraw() to interact with matplotlib.
@@ -38,13 +40,13 @@ class MatplotlibWidget(QtGui.QWidget):
     """
     
     def __init__(self, size=(8.0, 6.0), dpi=125):
-        QtGui.QWidget.__init__(self)
+        QtWidgets.QWidget.__init__(self)
         self.fig = Figure(size, dpi=dpi)
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(self)
         self.toolbar = NavigationToolbar(self.canvas, self)
         
-        self.vbox = QtGui.QVBoxLayout()
+        self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.addWidget(self.toolbar)
         self.vbox.addWidget(self.canvas)
         

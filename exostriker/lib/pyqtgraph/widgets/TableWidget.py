@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 import numpy as np
-from ..Qt import QtGui, QtCore
-from .. import metaarray
+
+from ..Qt import QtCore, QtGui, QtWidgets
 
 translate = QtCore.QCoreApplication.translate
 
@@ -26,7 +25,7 @@ def _defersort(fn):
     return defersort
 
 
-class TableWidget(QtGui.QTableWidget):
+class TableWidget(QtWidgets.QTableWidget):
     """Extends QTableWidget with some useful functions for automatic data handling
     and copy / export context menu. Can automatically format and display a variety
     of data types (see :func:`setData() <pyqtgraph.TableWidget.setData>` for more
@@ -49,13 +48,13 @@ class TableWidget(QtGui.QTableWidget):
         ===================== =================================================
         """
         
-        QtGui.QTableWidget.__init__(self, *args)
+        QtWidgets.QTableWidget.__init__(self, *args)
         
         self.itemClass = TableWidgetItem
         
         self.setVerticalScrollMode(self.ScrollMode.ScrollPerPixel)
-        self.setSelectionMode(QtGui.QAbstractItemView.SelectionMode.ContiguousSelection)
-        self.setSizePolicy(QtGui.QSizePolicy.Policy.Preferred, QtGui.QSizePolicy.Policy.Preferred)
+        self.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ContiguousSelection)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
         self.clear()
         
         kwds.setdefault('sortable', True)
@@ -73,7 +72,7 @@ class TableWidget(QtGui.QTableWidget):
         
         self.itemChanged.connect(self.handleItemChanged)
         
-        self.contextMenu = QtGui.QMenu()
+        self.contextMenu = QtWidgets.QMenu()
         self.contextMenu.addAction(translate("TableWidget", 'Copy Selection')).triggered.connect(self.copySel)
         self.contextMenu.addAction(translate("TableWidget", 'Copy All')).triggered.connect(self.copyAll)
         self.contextMenu.addAction(translate("TableWidget", 'Save Selection')).triggered.connect(self.saveSel)
@@ -81,7 +80,7 @@ class TableWidget(QtGui.QTableWidget):
         
     def clear(self):
         """Clear all contents from the table."""
-        QtGui.QTableWidget.clear(self)
+        QtWidgets.QTableWidget.clear(self)
         self.verticalHeadersSet = False
         self.horizontalHeadersSet = False
         self.items = []
@@ -335,11 +334,11 @@ class TableWidget(QtGui.QTableWidget):
 
     def copySel(self):
         """Copy selected data to clipboard."""
-        QtGui.QApplication.clipboard().setText(self.serialize(useSelection=True))
+        QtWidgets.QApplication.clipboard().setText(self.serialize(useSelection=True))
 
     def copyAll(self):
         """Copy all data to clipboard."""
-        QtGui.QApplication.clipboard().setText(self.serialize(useSelection=False))
+        QtWidgets.QApplication.clipboard().setText(self.serialize(useSelection=False))
 
     def saveSel(self):
         """Save selected data to file."""
@@ -350,15 +349,13 @@ class TableWidget(QtGui.QTableWidget):
         self.save(self.serialize(useSelection=False))
 
     def save(self, data):
-        fileName = QtGui.QFileDialog.getSaveFileName(
+        fileName, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
             f"{translate('TableWidget', 'Save As')}...",
             "",
             f"{translate('TableWidget', 'Tab-separated values')} (*.tsv)"
         )
-        if isinstance(fileName, tuple):
-            fileName = fileName[0]  # Qt4/5 API difference
-        if fileName == '':
+        if not fileName:
             return
         with open(fileName, 'w') as fd:
             fd.write(data)
@@ -377,9 +374,9 @@ class TableWidget(QtGui.QTableWidget):
         item.itemChanged()
 
 
-class TableWidgetItem(QtGui.QTableWidgetItem):
+class TableWidgetItem(QtWidgets.QTableWidgetItem):
     def __init__(self, val, index, format=None):
-        QtGui.QTableWidgetItem.__init__(self, '')
+        QtWidgets.QTableWidgetItem.__init__(self, '')
         self._blockValueChange = False
         self._format = None
         self._defaultFormat = '%0.3g'
@@ -481,32 +478,3 @@ class TableWidgetItem(QtGui.QTableWidgetItem):
             return self.value < other.value
         else:
             return self.text() < other.text()
-
-
-if __name__ == '__main__':
-    app = QtGui.QApplication([])
-    win = QtGui.QMainWindow()
-    t = TableWidget()
-    win.setCentralWidget(t)
-    win.resize(800,600)
-    win.show()
-    
-    ll = [[1,2,3,4,5]] * 20
-    ld = [{'x': 1, 'y': 2, 'z': 3}] * 20
-    dl = {'x': list(range(20)), 'y': list(range(20)), 'z': list(range(20))}
-    
-    a = np.ones((20, 5))
-    ra = np.ones((20,), dtype=[('x', int), ('y', int), ('z', int)])
-    
-    t.setData(ll)
-    
-    ma = metaarray.MetaArray(np.ones((20, 3)), info=[
-        {'values': np.linspace(1, 5, 20)}, 
-        {'cols': [
-            {'name': 'x'},
-            {'name': 'y'},
-            {'name': 'z'},
-        ]}
-    ])
-    t.setData(ma)
-    

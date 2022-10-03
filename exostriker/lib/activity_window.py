@@ -158,7 +158,7 @@ class ActivityWindow(QtWidgets.QWidget, Ui_ActivityWindow):
 
     def init_data(self):
 
-        print(self.parent.act_data)
+        #print(self.parent.act_data)
         self.t      = self.parent.act_data[0]
         self.flux   = self.parent.act_data[4]
         self.flux_err = self.parent.act_data[2]
@@ -258,7 +258,7 @@ class ActivityWindow(QtWidgets.QWidget, Ui_ActivityWindow):
                 
                 
             
-            print(filter_freq)
+            #print(filter_freq)
             
             sos = signal.butter(int(self.ui.filter_order.value()), filter_freq, 
                                 str(self.ui.comboBox_sliders.currentText()), analog = True, # fs=fs_, 

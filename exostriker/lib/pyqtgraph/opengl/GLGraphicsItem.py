@@ -1,8 +1,8 @@
-from OpenGL.GL import *
+from OpenGL.GL import *  # noqa
 from OpenGL import GL
-from ..Qt import QtCore
-from .. import Transform3D
 
+from .. import Transform3D
+from ..Qt import QtCore
 
 GLOptions = {
     'opaque': {
@@ -135,9 +135,12 @@ class GLGraphicsItem(QtCore.QObject):
         
     def setTransform(self, tr):
         """Set the local transform for this object.
-        Must be a :class:`Transform3D <pyqtgraph.Transform3D>` instance. This transform
-        determines how the local coordinate system of the item is mapped to the coordinate
-        system of its parent."""
+
+        Parameters
+        ----------
+        tr : pyqtgraph.Transform3D
+            Tranformation from the local coordinate system to the parent's.
+        """
         self.__transform = Transform3D(tr)
         self.update()
         

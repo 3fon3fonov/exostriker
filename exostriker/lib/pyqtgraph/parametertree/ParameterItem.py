@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-from ..Qt import QtGui, QtCore
+from ..Qt import QtCore, QtGui, QtWidgets
 
 translate = QtCore.QCoreApplication.translate
 
-class ParameterItem(QtGui.QTreeWidgetItem):
+class ParameterItem(QtWidgets.QTreeWidgetItem):
     """
     Abstract ParameterTree item. 
     Used to represent the state of a Parameter from within a ParameterTree.
@@ -15,9 +14,9 @@ class ParameterItem(QtGui.QTreeWidgetItem):
     
     For more ParameterItem types, see ParameterTree.parameterTypes module.
     """
-    
+
     def __init__(self, param, depth=0):
-        QtGui.QTreeWidgetItem.__init__(self, [param.title(), ''])
+        QtWidgets.QTreeWidgetItem.__init__(self, [param.title(), ''])
 
         self.param = param
         self.param.registerItem(self)  ## let parameter know this item is connected to it (for debugging)
@@ -109,7 +108,7 @@ class ParameterItem(QtGui.QTreeWidgetItem):
             return
         
         ## Generate context menu for renaming/removing parameter
-        self.contextMenu = QtGui.QMenu() # Put in global name space to prevent garbage collection
+        self.contextMenu = QtWidgets.QMenu() # Put in global name space to prevent garbage collection
         self.contextMenu.addSeparator()
         if opts.get('renamable', False):
             self.contextMenu.addAction(translate("ParameterItem", 'Rename')).triggered.connect(self.editName)
@@ -159,7 +158,12 @@ class ParameterItem(QtGui.QTreeWidgetItem):
 
     def titleChanged(self):
         # called when the user-visble title has changed (either opts['title'], or name if title is None)
-        self.setText(0, self.param.title())
+
+        title = self.param.title()
+        # This makes sure that items without a title or the title 'params' remain invisible
+        if not title or title == 'params':
+            return
+        self.setText(0, title)
         fm = QtGui.QFontMetrics(self.font(0))
         textFlags = QtCore.Qt.TextFlag.TextSingleLine
         size = fm.size(textFlags, self.text(0))

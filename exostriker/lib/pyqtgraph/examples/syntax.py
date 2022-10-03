@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 # based on https://github.com/art1415926535/PyQt5-syntax-highlighting
 
-from pyqtgraph.Qt import QtCore, QtGui
+from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 
 QRegExp = QtCore.QRegExp
 
@@ -24,7 +23,7 @@ def format(color, style=''):
     _format = QTextCharFormat()
     _format.setForeground(_color)
     if 'bold' in style:
-        _format.setFontWeight(QFont.Bold)
+        _format.setFontWeight(QFont.Weight.Bold)
     if 'italic' in style:
         _format.setFontItalic(True)
 
@@ -185,7 +184,7 @@ class PythonHighlighter(QSyntaxHighlighter):
 
     @property
     def styles(self):
-        app = QtGui.QApplication.instance()
+        app = QtWidgets.QApplication.instance()
         return DARK_STYLES if app.property('darkMode') else LIGHT_STYLES
 
     def highlightBlock(self, text):

@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
 """
 Very simple example demonstrating RemoteGraphicsView.
 
 This allows graphics to be rendered in a child process and displayed in the 
 parent, which can improve CPU usage on multi-core processors.
 """
-import initExample ## Add path to library (just for examples; you do not need this)
 
-from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 from pyqtgraph.widgets.RemoteGraphicsView import RemoteGraphicsView
+
 app = pg.mkQApp()
 
 ## Create the widget

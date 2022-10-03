@@ -1,10 +1,12 @@
 #!/usr/bin/python
 
-import initExample ## Add path to library (just for examples; you do not need this)
-from pyqtgraph.Qt import QtGui, QtCore
+from time import perf_counter
+
 import numpy as np
+
 import pyqtgraph as pg
-from pyqtgraph.ptime import time
+from pyqtgraph.Qt import QtCore
+
 app = pg.mkQApp("Infinite Line Performance")
 
 p = pg.plot()
@@ -20,7 +22,7 @@ for i in range(100):
 
 data = np.random.normal(size=(50, 5000))
 ptr = 0
-lastTime = time()
+lastTime = perf_counter()
 fps = None
 
 
@@ -28,7 +30,7 @@ def update():
     global curve, data, ptr, p, lastTime, fps
     curve.setData(data[ptr % 10])
     ptr += 1
-    now = time()
+    now = perf_counter()
     dt = now - lastTime
     lastTime = now
     if fps is None:

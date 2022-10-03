@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 This example demonstrates the use of RemoteGraphicsView to improve performance in
 applications with heavy load. It works by starting a second process to handle 
@@ -11,11 +10,12 @@ between the two cases. IF you have a multi-core CPU, it should be obvious that t
 remote case is much faster.
 """
 
-import initExample ## Add path to library (just for examples; you do not need this)
-from pyqtgraph.Qt import QtGui, QtCore
-import pyqtgraph as pg
-import pyqtgraph.widgets.RemoteGraphicsView
+from time import perf_counter
+
 import numpy as np
+
+import pyqtgraph as pg
+from pyqtgraph.Qt import QtCore, QtWidgets
 
 app = pg.mkQApp()
 
@@ -26,10 +26,10 @@ view.setWindowTitle('pyqtgraph example: RemoteSpeedTest')
 
 app.aboutToQuit.connect(view.close)
 
-label = QtGui.QLabel()
-rcheck = QtGui.QCheckBox('plot remote')
+label = QtWidgets.QLabel()
+rcheck = QtWidgets.QCheckBox('plot remote')
 rcheck.setChecked(True)
-lcheck = QtGui.QCheckBox('plot local')
+lcheck = QtWidgets.QCheckBox('plot local')
 lplt = pg.PlotWidget()
 layout = pg.LayoutWidget()
 layout.addWidget(rcheck)
@@ -45,7 +45,7 @@ rplt = view.pg.PlotItem()
 rplt._setProxyOptions(deferGetattr=True)  ## speeds up access to rplt.plot
 view.setCentralItem(rplt)
 
-lastUpdate = pg.ptime.time()
+lastUpdate = perf_counter()
 avgFps = 0.0
 
 def update():
@@ -62,7 +62,7 @@ def update():
     if lcheck.isChecked():
         lplt.plot(data, clear=True)
         
-    now = pg.ptime.time()
+    now = perf_counter()
     fps = 1.0 / (now - lastUpdate)
     lastUpdate = now
     avgFps = avgFps * 0.8 + fps * 0.2

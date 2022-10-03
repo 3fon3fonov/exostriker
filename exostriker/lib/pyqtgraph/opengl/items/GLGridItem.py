@@ -1,15 +1,15 @@
+from OpenGL.GL import *  # noqa
 import numpy as np
 
-from OpenGL.GL import *
-from .. GLGraphicsItem import GLGraphicsItem
 from ... import QtGui
 from ... import functions as fn
+from ..GLGraphicsItem import GLGraphicsItem
 
 __all__ = ['GLGridItem']
 
 class GLGridItem(GLGraphicsItem):
     """
-    **Bases:** :class:`GLGraphicsItem <pyqtgraph.opengl.GLGraphicsItem>`
+    **Bases:** :class:`GLGraphicsItem <pyqtgraph.opengl.GLGraphicsItem.GLGraphicsItem>`
     
     Displays a wire-frame grid. 
     """

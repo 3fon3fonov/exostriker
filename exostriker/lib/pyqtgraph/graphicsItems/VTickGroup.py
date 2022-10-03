@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
 if __name__ == '__main__':
-    import os, sys
+    import os
+    import sys
     path = os.path.abspath(os.path.dirname(__file__))
     sys.path.insert(0, os.path.join(path, '..', '..'))
 
-from ..Qt import QtGui
 from .. import functions as fn
+from ..Qt import QtGui, QtWidgets
 from .UIGraphicsItem import UIGraphicsItem
 
 __all__ = ['VTickGroup']
@@ -39,7 +39,7 @@ class VTickGroup(UIGraphicsItem):
         if pen is None:
             pen = (200, 200, 200)
             
-        self.path = QtGui.QGraphicsPathItem()
+        self.path = QtWidgets.QGraphicsPathItem()
         
         self.ticks = []
         self.xvals = []
@@ -79,7 +79,6 @@ class VTickGroup(UIGraphicsItem):
             
     def rebuildTicks(self):
         self.path = QtGui.QPainterPath()
-        yrange = self.yRange()
         for x in self.xvals:
             self.path.moveTo(x, 0.)
             self.path.lineTo(x, 1.)

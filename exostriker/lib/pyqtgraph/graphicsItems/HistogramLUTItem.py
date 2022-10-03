@@ -1,26 +1,23 @@
-# -*- coding: utf-8 -*-
 """
 GraphicsWidget displaying an image histogram along with gradient editor. Can be used to
 adjust the appearance of images.
 """
 
 
-from ..Qt import QtGui, QtCore
-from .. import functions as fn
-from .GraphicsWidget import GraphicsWidget
-from .ViewBox import *
-from .GradientEditorItem import *
-from .LinearRegionItem import *
-from .PlotDataItem import *
-from .PlotCurveItem import *
-from .AxisItem import *
-from .GridItem import *
-from ..Point import Point
-from .. import functions as fn
-import numpy as np
-from .. import debug as debug
-
 import weakref
+
+import numpy as np
+
+from .. import debug as debug
+from .. import functions as fn
+from ..Point import Point
+from ..Qt import QtCore, QtGui, QtWidgets
+from .AxisItem import *
+from .GradientEditorItem import *
+from .GraphicsWidget import GraphicsWidget
+from .LinearRegionItem import *
+from .PlotCurveItem import *
+from .ViewBox import *
 
 __all__ = ['HistogramLUTItem']
 
@@ -67,11 +64,11 @@ class HistogramLUTItem(GraphicsWidget):
 
     Attributes
     ----------
-    sigLookupTableChanged : signal
+    sigLookupTableChanged : QtCore.Signal
         Emits the HistogramLUTItem itself when the gradient changes
-    sigLevelsChanged : signal
+    sigLevelsChanged : QtCore.Signal
         Emits the HistogramLUTItem itself while the movable region is changing
-    sigLevelChangeFinished : signal
+    sigLevelChangeFinished : QtCore.Signal
         Emits the HistogramLUTItem itself when the movable region is finished changing
 
     See Also
@@ -102,7 +99,7 @@ class HistogramLUTItem(GraphicsWidget):
         elif orientation == 'horizontal' and gradientPosition not in {'top', 'bottom'}:
             self.gradientPosition = 'bottom'
 
-        self.layout = QtGui.QGraphicsGridLayout()
+        self.layout = QtWidgets.QGraphicsGridLayout()
         self.setLayout(self.layout)
         self.layout.setContentsMargins(1, 1, 1, 1)
         self.layout.setSpacing(0)
@@ -198,7 +195,7 @@ class HistogramLUTItem(GraphicsWidget):
         level : float, optional
             Set the fill level. See :meth:`PlotCurveItem.setFillLevel
             <pyqtgraph.PlotCurveItem.setFillLevel>`. Only used if ``fill`` is True.
-        color : color, optional
+        color : color_like, optional
             Color to use for the fill when the histogram ``levelMode == "mono"``. See
             :meth:`PlotCurveItem.setBrush <pyqtgraph.PlotCurveItem.setBrush>`.
         """
@@ -257,13 +254,20 @@ class HistogramLUTItem(GraphicsWidget):
                 p.drawLine(gradRect.topRight(), gradRect.bottomRight())
 
     def setHistogramRange(self, mn, mx, padding=0.1):
-        """Set the Y range on the histogram plot. This disables auto-scaling."""
+        """Set the X/Y range on the histogram plot, depending on the orientation. This disables auto-scaling."""
         if self.orientation == 'vertical':
             self.vb.enableAutoRange(self.vb.YAxis, False)
             self.vb.setYRange(mn, mx, padding)
         else:
             self.vb.enableAutoRange(self.vb.XAxis, False)
             self.vb.setXRange(mn, mx, padding)
+
+    def getHistogramRange(self):
+        """Returns range on the histogram plot."""
+        if self.orientation == 'vertical':
+            return self.vb.viewRange()[1]
+        else:
+            return self.vb.viewRange()[0]
 
     def autoHistogramRange(self):
         """Enable auto-scaling on the histogram plot."""
@@ -433,7 +437,8 @@ class HistogramLUTItem(GraphicsWidget):
 
         # force this because calling self.setLevels might not set the imageItem
         # levels if there was no change to the region item
-        self.imageItem().setLevels(self.getLevels())
+        if self.imageItem() is not None:
+            self.imageItem().setLevels(self.getLevels())
 
         self.imageChanged()
         self.update()

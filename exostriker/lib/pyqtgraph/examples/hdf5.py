@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 In this example we create a subclass of PlotCurveItem for displaying a very large 
 data set from an HDF5 file that does not fit in memory. 
@@ -12,13 +11,14 @@ A more clever implementation of this class would employ some kind of caching
 to avoid re-reading the entire visible waveform at every update.
 """
 
-import initExample ## Add path to library (just for examples; you do not need this)
+import os
+import sys
 
-import sys, os
-import numpy as np
 import h5py
+import numpy as np
+
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
+from pyqtgraph.Qt import QtWidgets
 
 pg.mkQApp()
 
@@ -51,9 +51,9 @@ class HDF5Plot(pg.PlotCurveItem):
             return  # no ViewBox yet
         
         # Determine what data range must be read from HDF5
-        xrange = vb.viewRange()[0]
-        start = max(0,int(xrange[0])-1)
-        stop = min(len(self.hdf5), int(xrange[1]+2))
+        range_ = vb.viewRange()[0]
+        start = max(0,int(range_[0])-1)
+        stop = min(len(self.hdf5), int(range_[1]+2))
         
         # Decide by how much we should downsample 
         ds = int((stop-start) / self.limit) + 1
@@ -129,7 +129,7 @@ if len(sys.argv) > 1:
 else:
     fileName = 'test.hdf5'
     if not os.path.isfile(fileName):
-        size, ok = QtGui.QInputDialog.getDouble(None, "Create HDF5 Dataset?", "This demo requires a large HDF5 array. To generate a file, enter the array size (in GB) and press OK.", 2.0)
+        size, ok = QtWidgets.QInputDialog.getDouble(None, "Create HDF5 Dataset?", "This demo requires a large HDF5 array. To generate a file, enter the array size (in GB) and press OK.", 2.0)
         if not ok:
             sys.exit(0)
         else:

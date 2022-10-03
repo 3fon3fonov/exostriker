@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tests the speed of image updates for an ImageItem and RawImageWidget.
 The speed will generally depend on the type of data being shown, whether
@@ -6,22 +5,18 @@ it is being scaled and/or converted by lookup table, and whether OpenGL
 is used by the view widget
 """
 
-## Add path to library (just for examples; you do not need this)
-import initExample
-
 import argparse
 import sys
+from time import perf_counter
 
 import numpy as np
 
 import pyqtgraph as pg
-import pyqtgraph.ptime as ptime
-from pyqtgraph.Qt import QtGui, QtCore, QT_LIB
+from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 
 pg.setConfigOption('imageAxisOrder', 'row-major')
 
-import importlib
-ui_template = importlib.import_module(f'VideoTemplate_{QT_LIB.lower()}')
+import VideoTemplate_generic as ui_template
 
 try:
     import cupy as cp
@@ -62,7 +57,7 @@ if RawImageGLWidget is not None:
 
 app = pg.mkQApp("Video Speed Test Example")
 
-win = QtGui.QMainWindow()
+win = QtWidgets.QMainWindow()
 win.setWindowTitle('pyqtgraph example: VideoSpeedTest')
 ui = ui_template.Ui_MainWindow()
 ui.setupUi(win)
@@ -247,7 +242,7 @@ ui.numbaCheck.toggled.connect(noticeNumbaCheck)
 
 
 ptr = 0
-lastTime = ptime.time()
+lastTime = perf_counter()
 fps = None
 def update():
     global ui, ptr, lastTime, fps, LUT, img
@@ -281,7 +276,7 @@ def update():
         #img.setImage(data[ptr%data.shape[0]], autoRange=False)
 
     ptr += 1
-    now = ptime.time()
+    now = perf_counter()
     dt = now - lastTime
     lastTime = now
     if fps is None:

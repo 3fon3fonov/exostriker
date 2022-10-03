@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Simple example of loading UI template created with Qt Designer.
 
@@ -7,12 +6,12 @@ possible to pre-compile the .ui file using pyuic (see VideoSpeedTest and
 ScatterPlotSpeedTest examples; these .ui files have been compiled with the
 tools/rebuildUi.py script).
 """
-import initExample ## Add path to library (just for examples; you do not need this)
+
+import os
+
+import numpy as np
 
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
-import numpy as np
-import os
 
 pg.mkQApp()
 

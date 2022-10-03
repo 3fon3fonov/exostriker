@@ -1,23 +1,22 @@
-# -*- coding: utf-8 -*-
 """
 Displays an interactive Koch fractal
 """
-import initExample ## Add path to library (just for examples; you do not need this)
 
 from functools import reduce
-import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
+
 import numpy as np
+
+import pyqtgraph as pg
 
 app = pg.mkQApp("Fractal Example")
 
 # Set up UI widgets
-win = pg.QtGui.QWidget()
+win = pg.QtWidgets.QWidget()
 win.setWindowTitle('pyqtgraph example: fractal demo')
-layout = pg.QtGui.QGridLayout()
+layout = pg.QtWidgets.QGridLayout()
 win.setLayout(layout)
 layout.setContentsMargins(0, 0, 0, 0)
-depthLabel = pg.QtGui.QLabel('fractal depth:')
+depthLabel = pg.QtWidgets.QLabel('fractal depth:')
 layout.addWidget(depthLabel, 0, 0)
 depthSpin = pg.SpinBox(value=5, step=1, bounds=[1, 10], delay=0, int=True)
 depthSpin.resize(100, 20)
@@ -56,7 +55,7 @@ def update():
         p2 = pts[i+1]
         v2 = p2 - p1
         t = p1 - pts[0]
-        r = v1.angle(v2)
+        r = v2.angle(v1)
         s = v2.length() / l1
         trs.append(pg.SRTTransform({'pos': t, 'scale': (s, s), 'angle': r}))
 

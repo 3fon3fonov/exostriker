@@ -1,21 +1,22 @@
-from collections import OrderedDict
 from argparse import Namespace
+from collections import OrderedDict
 
-
-examples = OrderedDict([
+# Avoid clash with module name
+examples_ = OrderedDict([
     ('Command-line usage', 'CLIexample.py'),
     ('Basic Plotting', Namespace(filename='Plotting.py', recommended=True)),
     ('ImageView', 'ImageView.py'),
     ('ParameterTree', 'parametertree.py'),
+    ('Parameter-Function Interaction', 'InteractiveParameter.py'),
     ('Crosshair / Mouse interaction', 'crosshair.py'),
     ('Data Slicing', 'DataSlicing.py'),
     ('Plot Customization', 'customPlot.py'),
     ('Timestamps on x axis', 'DateAxisItem.py'),
     ('Image Analysis', 'imageAnalysis.py'),
-    ('Color Maps', 'colorMaps.py'),
-    ('Color Gradient Plots', 'ColorGradientPlots.py'),
+    ('Matrix Display', 'MatrixDisplayExample.py'),
     ('ViewBox Features', Namespace(filename='ViewBoxFeatures.py', recommended=True)),
     ('Dock widgets', 'dockarea.py'),
+    ('Rich Jupyter Console',  Namespace(filename='jupyter_console_example.py', recommended=True)),
     ('Console', 'ConsoleWidget.py'),
     ('Histograms', 'histogram.py'),
     ('Beeswarm plot', 'beeswarm.py'),
@@ -24,11 +25,17 @@ examples = OrderedDict([
     ('Remote Plotting', 'RemoteSpeedTest.py'),
     ('Scrolling plots', 'scrollingPlots.py'),
     ('HDF5 big data', 'hdf5.py'),
+    ('Glow', 'glow.py'),
     ('Demos', OrderedDict([
         ('Optics', 'optics_demos.py'),
         ('Special relativity', 'relativity_demo.py'),
         ('Verlet chain', 'verlet_chain_demo.py'),
         ('Koch Fractal', 'fractal.py'),
+    ])),
+    ('Colors', OrderedDict([
+        ('Color Maps', 'colorMaps.py'),
+        ('Color Map Linearization', 'colorMapsLinearized.py'),
+        ('Color Gradient Plots', 'ColorGradientPlots.py')
     ])),
     ('GraphicsItems', OrderedDict([
         ('Scatter Plot', 'ScatterPlot.py'),
@@ -69,6 +76,10 @@ examples = OrderedDict([
         ('Line Plot', 'GLLinePlotItem.py'),
         ('Mesh', 'GLMeshItem.py'),
         ('Image', 'GLImageItem.py'),
+        ('Text', 'GLTextItem.py'),
+        ('BarGraph', 'GLBarGraphItem.py'),
+        ('Painter', 'GLPainterItem.py'),
+        ('Gradient Legend', 'GLGradientLegendItem.py')
     ])),
     ('Widgets', OrderedDict([
         ('PlotWidget', 'PlotWidget.py'),
@@ -100,10 +111,8 @@ others = dict([
     ('ScaleBar', 'ScaleBar.py'),
     ('ViewBox', 'ViewBox.py'),
     ('GradientEditor', 'GradientEditor.py'),
-    ('GLBarGraphItem', 'GLBarGraphItem.py'),
     ('GLViewWidget', 'GLViewWidget.py'),
     ('DiffTreeWidget', 'DiffTreeWidget.py'),
-    ('MultiPlotWidget', 'MultiPlotWidget.py'),
     ('RemoteGraphicsView', 'RemoteGraphicsView.py'),
     ('contextMenu', 'contextMenu.py'),
     ('designerExample', 'designerExample.py'),

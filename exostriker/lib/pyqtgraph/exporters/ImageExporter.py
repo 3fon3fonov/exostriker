@@ -1,9 +1,11 @@
-from .Exporter import Exporter
+import sys
+
+import numpy as np
+
+from .. import functions as fn
 from ..parametertree import Parameter
 from ..Qt import QtCore, QtGui, QtWidgets
-from .. import functions as fn
-import numpy as np
-import sys
+from .Exporter import Exporter
 
 translate = QtCore.QCoreApplication.translate
 __all__ = ['ImageExporter']
@@ -15,7 +17,7 @@ class ImageExporter(Exporter):
     def __init__(self, item):
         Exporter.__init__(self, item)
         tr = self.getTargetRect()
-        if isinstance(item, QtGui.QGraphicsItem):
+        if isinstance(item, QtWidgets.QGraphicsItem):
             scene = item.scene()
         else:
             scene = item
@@ -76,7 +78,6 @@ class ImageExporter(Exporter):
 
         self.png = QtGui.QImage(w, h, QtGui.QImage.Format.Format_ARGB32)
         self.png.fill(self.params['background'])
-
         
         ## set resolution of image:
         origTargetRect = self.getTargetRect()
@@ -85,8 +86,6 @@ class ImageExporter(Exporter):
         #self.png.setDotsPerMeterY(self.png.dotsPerMeterY() * resolutionScale)
         
         painter = QtGui.QPainter(self.png)
- 
-        #self.png.width()
         #dtr = painter.deviceTransform()
         try:
             self.setExportMode(True, {
@@ -95,8 +94,6 @@ class ImageExporter(Exporter):
                 'painter': painter,
                 'resolutionScale': resolutionScale})
             painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing, self.params['antialias'])
-            #painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform, True)
-
             self.getScene().render(painter, QtCore.QRectF(targetRect), QtCore.QRectF(sourceRect))
         finally:
             self.setExportMode(False)

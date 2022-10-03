@@ -1,13 +1,14 @@
-# -*- coding: utf-8 -*-
-from ..Qt import QtCore, QtGui, QtWidgets
-from OpenGL.GL import *
-import OpenGL.GL.framebufferobjects as glfbo
+from OpenGL.GL import *  # noqa
+import OpenGL.GL.framebufferobjects as glfbo  # noqa
+from math import cos, radians, sin, tan
+
 import numpy as np
+
 from .. import Vector
 from .. import functions as fn
 from .. import getConfigOption
-import warnings
-from math import cos, sin, tan, radians
+from ..Qt import QtCore, QtGui, QtWidgets
+
 ##Vector = QtGui.QVector3D
 
 
@@ -153,7 +154,7 @@ class GLViewWidget(QtWidgets.QOpenGLWidget):
     def setProjection(self, region=None):
         m = self.projectionMatrix(region)
         glMatrixMode(GL_PROJECTION)
-        glLoadMatrixf(m.data())
+        glLoadMatrixf(np.array(m.data(), dtype=np.float32))
 
     def projectionMatrix(self, region=None):
         if region is None:
@@ -181,7 +182,7 @@ class GLViewWidget(QtWidgets.QOpenGLWidget):
     def setModelview(self):
         m = self.viewMatrix()
         glMatrixMode(GL_MODELVIEW)
-        glLoadMatrixf(m.data())
+        glLoadMatrixf(np.array(m.data(), dtype=np.float32))
         
     def viewMatrix(self):
         tr = QtGui.QMatrix4x4()
@@ -265,8 +266,7 @@ class GLViewWidget(QtWidgets.QOpenGLWidget):
                 glPushMatrix()
                 try:
                     tr = i.transform()
-                    a = np.array(tr.copyDataTo()).reshape((4,4))
-                    glMultMatrixf(a.transpose())
+                    glMultMatrixf(np.array(tr.data(), dtype=np.float32))
                     self.drawItemTree(i, useItemNames=useItemNames)
                 finally:
                     glMatrixMode(GL_MODELVIEW)
@@ -376,18 +376,7 @@ class GLViewWidget(QtWidgets.QOpenGLWidget):
         
         Distances are scaled roughly such that a value of 1.0 moves
         by one pixel on screen.
-        
-        Prior to version 0.11, *relative* was expected to be either True (x-aligned) or
-        False (global). These values are deprecated but still recognized.
         """
-        # for backward compatibility:
-        if isinstance(relative, bool):
-            warnings.warn(
-                "'relative' as a boolean is deprecated, and will not be recognized in 0.13. "
-                "Acceptable values are 'global', 'view', or 'view-upright'",
-                DeprecationWarning, stacklevel=2
-            )    
-        relative = {True: "view-upright", False: "global"}.get(relative, relative)
         if relative == 'global':
             self.opts['center'] += QtGui.QVector3D(dx, dy, dz)
         elif relative == 'view-upright':

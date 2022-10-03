@@ -1,21 +1,18 @@
-# -*- coding: utf-8 -*-
 """
-Demonstrate use of GLLinePlotItem to draw cross-sections of a surface.
+This example demonstrates the use of GLBarGraphItem.
 
 """
-## Add path to library (just for examples; you do not need this)
-import initExample
 
-from pyqtgraph.Qt import QtCore, QtGui
-import pyqtgraph.opengl as gl
-import pyqtgraph as pg
 import numpy as np
+
+import pyqtgraph as pg
+import pyqtgraph.opengl as gl
 
 app = pg.mkQApp("GLBarGraphItem Example")
 w = gl.GLViewWidget()
-w.opts['distance'] = 40
 w.show()
 w.setWindowTitle('pyqtgraph example: GLBarGraphItem')
+w.setCameraPosition(distance=40)
 
 gx = gl.GLGridItem()
 gx.rotate(90, 0, 1, 0)

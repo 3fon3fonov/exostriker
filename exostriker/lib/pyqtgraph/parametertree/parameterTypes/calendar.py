@@ -1,4 +1,4 @@
-from ...Qt import QtWidgets, QtCore
+from ...Qt import QtCore, QtWidgets
 from ..Parameter import Parameter
 from .basetypes import WidgetParameterItem
 
@@ -51,5 +51,6 @@ class CalendarParameter(Parameter):
     def saveState(self, filter=None):
         state = super().saveState(filter)
         fmt = self._interpretFormat()
-        state['value'] = state['value'].toString(fmt)
+        if state['value'] is not None:
+            state['value'] = state['value'].toString(fmt)
         return state

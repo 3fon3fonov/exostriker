@@ -1,13 +1,11 @@
-# -*- coding: utf-8 -*-
 """
 Using ProgressDialog to show progress updates in a nested process.
 
 """
-import initExample ## Add path to library (just for examples; you do not need this)
 
 import time
+
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
 
 app = pg.mkQApp("Progress Dialog Example")
 
@@ -49,5 +47,3 @@ with pg.ProgressDialog("Doing a multi-stage process..", maximum=5, nested=True, 
         if dlg1.wasCanceled():
             print("Canceled process")
             break
-
-

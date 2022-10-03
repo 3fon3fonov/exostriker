@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 This example demonstrates the use of ImageView with 3-color image stacks.
 ImageView is a high-level widget for displaying and analyzing 2D and 3D data.
@@ -11,12 +10,11 @@ ImageView provides:
   4. Tools for very basic analysis of image data (see ROI and Norm buttons)
 
 """
-## Add path to library (just for examples; you do not need this)
-import initExample
 
 import numpy as np
-from pyqtgraph.Qt import QtCore, QtGui
+
 import pyqtgraph as pg
+from pyqtgraph.Qt import QtWidgets
 
 # Interpret image data as row-major instead of col-major
 pg.setConfigOptions(imageAxisOrder='row-major')
@@ -24,12 +22,13 @@ pg.setConfigOptions(imageAxisOrder='row-major')
 app = pg.mkQApp("ImageView Example")
 
 ## Create window with ImageView widget
-win = QtGui.QMainWindow()
+win = QtWidgets.QMainWindow()
 win.resize(800,800)
-imv = pg.ImageView()
+imv = pg.ImageView(discreteTimeLine=True)
 win.setCentralWidget(imv)
 win.show()
 win.setWindowTitle('pyqtgraph example: ImageView')
+imv.setHistogramLabel("Histogram label goes here")
 
 ## Create random 3D data set with time varying signals
 dataRed = np.ones((100, 200, 200)) * np.linspace(90, 150, 100)[:, np.newaxis, np.newaxis]
@@ -44,8 +43,9 @@ data = np.concatenate(
 )
 
 
-## Display the data and assign each frame a time value from 1.0 to 3.0
+# Display the data and assign each frame a time value from 1.0 to 3.0
 imv.setImage(data, xvals=np.linspace(1., 3., data.shape[0]))
+imv.play(10)
 
 ## Set a custom color map
 colors = [

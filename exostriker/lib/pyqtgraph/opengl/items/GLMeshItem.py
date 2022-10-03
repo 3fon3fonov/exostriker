@@ -1,17 +1,16 @@
-from OpenGL.GL import *
-from .. GLGraphicsItem import GLGraphicsItem
-from .. MeshData import MeshData
-from ...Qt import QtGui
-from .. import shaders
+from OpenGL.GL import *  # noqa
 import numpy as np
 
-
+from ...Qt import QtGui
+from .. import shaders
+from ..GLGraphicsItem import GLGraphicsItem
+from ..MeshData import MeshData
 
 __all__ = ['GLMeshItem']
 
 class GLMeshItem(GLGraphicsItem):
     """
-    **Bases:** :class:`GLGraphicsItem <pyqtgraph.opengl.GLGraphicsItem>`
+    **Bases:** :class:`GLGraphicsItem <pyqtgraph.opengl.GLGraphicsItem.GLGraphicsItem>`
     
     Displays a 3D triangle mesh. 
     """
