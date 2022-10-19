@@ -7744,6 +7744,7 @@ Transit duration: %s d
             fit.epoch_ast_end = self.Epoch.value()+1000          
         
         fit.ast_times = [fit.epoch_ast,fit.ast_dt,fit.epoch_ast_end]
+        #print(fit.ast_times)
 
 
 

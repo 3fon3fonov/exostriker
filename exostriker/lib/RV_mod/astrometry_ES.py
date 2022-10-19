@@ -19,8 +19,7 @@ def thiele(a,omega,Omega,i):
     F=a*(-np.sin(omega)*np.cos(Omega)-np.cos(omega)*np.sin(Omega)*np.cos(i))
     G=a*(-np.sin(omega)*np.sin(Omega)+np.cos(omega)*np.cos(Omega)*np.cos(i))
     return A,B,F,G
-
-
+ 
 # in the following i constructed 2 methods for calculating E, the first one is better we can talk about it
 
 # In[10]:
@@ -74,9 +73,10 @@ def ast_coords(P,e,om,i,Om,T0,a,t):
     
     #calculating thiele constants
     const=thiele(a,om,Om,i)
-    
+ 
+    M =2.0*np.pi*( ((t)-T0)/P % 1.)   
     #calculating E
-    M=2*np.pi*((t-T0)%P)/P
+    #M=2*np.pi*((t-T0)%P)/P
     E=calc_E(e,M)
 
     #calculating elliptical rectangular ast_coords from E and e
@@ -86,7 +86,9 @@ def ast_coords(P,e,om,i,Om,T0,a,t):
     #with thiele, X,Y, we can calculate the final position x,y for a time t
     x=const[0]*X+const[2]*Y
     y=const[1]*X+const[3]*Y
-    
+ 
+
+    #y = -y
     return x,y
 
 
@@ -96,7 +98,7 @@ def ast_coords(P,e,om,i,Om,T0,a,t):
 #data given for X or Y
 def residual(model,data):
     #residuals
-    res=model-data
+    res=data-model
     return res
 
 
@@ -109,19 +111,37 @@ def loglikelihood_am(model,data,err,s): #s=jitter
     
     #term 2 and term 3 are summation
     
-    term_2=0.5*sum(np.log(err**2 +s**2))
+    term_2=-0.5*sum(np.log(err**2 +s**2))
     #residual function from before just calculates the diff between model and obs
-    res=residual(model,data)
-    term_3=0.5*sum((res**2) /(err**2 +s**2))
+    res=data-model
+    term_3=-0.5*sum((res**2) /(err**2 +s**2))
+
+
+
         
         
-    ln_L=term_1-(term_2+term_3)
+    ln_L=term_1+(term_2+term_3)
     
     return ln_L
+
         
-        
-        
-        
+def loglikelihood_am2(model,data,err,s): #s=jitter
+
+
+    sig2i   = 1./(err**2.0 + s**2.0)
+    res=data-model 
+    chisq  = res*res*sig2i
+
+    ln_L = -0.5*( np.sum( (chisq**2  + np.log(err**2 +s**2) + len(data)*np.log(np.sqrt(2*np.pi)))))
+    
+    return ln_L
+
+ 
+    #print(np.sqrt(data[2]**2.0 + par[39]**2.0),np.sqrt(data[4]**2.0 + par[39]**2.0))
+
+#    loglik_y = -0.5*(np.sum( ((data[3] - dat[1])**2.0) * sig2i_y - np.log(sig2i_y / 2./ np.pi) ))
+
+ 
         
 
 
@@ -136,6 +156,7 @@ def final_ast(x_data,x_err,s_x,y_data,y_err,s_y,P,e,om,i,Om,T0,a,t):
     L_x=loglikelihood_am(x_mod,x_data,x_err,s_x)
     L_y=loglikelihood_am(y_mod,y_data,y_err,s_y)
     #adding them togther because its allowed
+
     L=L_x+L_y
     
     return L,x_mod,y_mod

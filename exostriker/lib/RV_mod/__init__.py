@@ -550,7 +550,9 @@ def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_result
             ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]         
 
         t0 = transit_tperi(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,times[0])[0] #%par[len(vel_files)*2 +7*i+1] 
-    
+
+        #t0    = times[0]  - ((np.radians(Ma_)/2.0*np.pi)*par[len(vel_files)*2 + 7*i])
+        #print(t0,t0_o, times[0])
         if fit_results == False:
             pl_mass,pl_a = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*i],
                                             par[len(vel_files)*2 +7*i+1],
@@ -561,6 +563,8 @@ def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_result
             pl_mass = float(fit_results.mass[i])
             pl_a    = float(fit_results.a[i])
 
+        #pl_a = pl_a*1000.0
+        #print(t0)
        # pl_params = [par[len(vel_files)*2 +7*i+1],
 #                                            ecc_,
  #                                           om_,
@@ -588,11 +592,13 @@ def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_result
                 #calc_data[x] = np.array(results[1],results[2]))
 
         if return_model == True:
-            times = np.linspace(min(ast_files[0][0]),max(ast_files[0][0])+1000,1000)
-           # print(times)
+            #times2 = np.linspace(min(ast_files[0][0]),max(ast_files[0][0]),1000)
+            times2 = np.linspace(times[0],times[2],1000)
+           # print(pl_mass,pl_a)
+
             ast_x_model, ast_y_model = ast_coords(par[len(vel_files)*2 +7*i+1], ecc_, om_, np.radians(par[len(vel_files)*2 +7*i+5]),
                                                     np.radians(par[len(vel_files)*2 +7*i+6]),
-                                                    t0,pl_a,times) 
+                                                    t0,pl_a,times2) 
             ast_x_, ast_y_ = ast_coords(par[len(vel_files)*2 +7*i+1], ecc_, om_, np.radians(par[len(vel_files)*2 +7*i+5]),
                                                     np.radians(par[len(vel_files)*2 +7*i+6]),
                                                     t0,pl_a,ast_files[0][0]) 
@@ -2053,6 +2059,25 @@ def run_nestsamp(obj, **kwargs):
                 u_trans[j] = trans_loguni(p[j],priors[1][j,0],priors[1][j,1])
             else:
                 u_trans[j] = trans_uni(p[j],bb[j][0],bb[j][1])
+ 
+        return u_trans
+
+    def prior_transform2(p):
+
+        u_trans = np.zeros(len(p))
+        for j in range(len(p)):
+
+ 
+            
+            if priors[0][j,2] == True:
+                u_trans[j] = trans_norm(p[j],priors[0][j,0],priors[0][j,1])
+            elif priors[1][j,2] == True:
+                u_trans[j] = trans_loguni(p[j],priors[1][j,0],priors[1][j,1])
+#            else:
+
+            lim_trans = trans_uni(p[j],bb[j][0],bb[j][1])
+            u_trans[j] = u_trans[j] + lim_trans
+
         return u_trans
 
 
