@@ -1,0 +1,4 @@
+python3.8 -m PyQt5.uic.pyuic -x es.ui -o ../es.py
+python3.8 -m PyQt5.uic.pyuic -x tdt.ui -o ../tdt.py
+python3.8 -m PyQt5.uic.pyuic -x act.ui -o ../act.py
+
