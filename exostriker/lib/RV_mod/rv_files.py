@@ -185,10 +185,10 @@ class rvfile_list(object): # this will store a list of rvfile objects
        
 
         # saving sorted arrays to appropriate object attributes        
-        self.time = x #np.concatenate((self.time,x))
-        self.rvs = y#np.concatenate((self.rvs,y))
-        self.rv_err = y_error#np.concatenate((self.rv_err,y_error))
-        self.idset = data_set
+        self.time = np.concatenate((self.time,x))
+        self.rvs = np.concatenate((self.rvs,y))
+        self.rv_err = np.concatenate((self.rv_err,y_error))
+        #self.idset = data_set
         
         dataset_ind = np.concatenate((self.idset,data_set)) #there is a problem with np.concatenate() it always returns floats not integers
         self.idset = dataset_ind.astype(int) # this is a quick fix
