@@ -3753,9 +3753,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                                        brush = pg.mkColor(244,140,66,128))
             p00.addItem(pfill) 
             
-            
-#        if len(fit.fit_results.rv_model.rv_err) != len(fit.filelist.idset) or len(fit.fit_results.rv_model.rv_err) ==0 :
-#            return
 
         if self.jitter_to_plots.isChecked() and not self.split_jitter.isChecked():
             error_list = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.fit_results.idset)
@@ -3764,7 +3761,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             error_list2 = self.add_jitter(fit.fit_results.rv_model.rv_err, fit.fit_results.idset)
         else:
             error_list = fit.fit_results.rv_model.rv_err
-
+ 
 
         for i in range(max(fit.fit_results.idset)+1):
             p00.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],fit.fit_results.rv_model.rvs[fit.fit_results.idset==i], 
@@ -6449,9 +6446,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 rv_JD        = rv_JD_in[      np.isfinite(rv_JD_in) & np.isfinite(rv_data_in) & np.isfinite(rv_data_sig_in)]
                 rv_data      = rv_data_in[    np.isfinite(rv_JD_in) & np.isfinite(rv_data_in) & np.isfinite(rv_data_sig_in)]
                 rv_data_sig  = rv_data_sig_in[np.isfinite(rv_JD_in) & np.isfinite(rv_data_in) & np.isfinite(rv_data_sig_in)]
-                
-                #print(len(rv_JD_in),len(rv_JD),len(rv_data_in),len(rv_data),len(rv_data_sig_in),len(rv_data_sig))
-                
+                               
                 if len(rv_JD_in) ==0 or len(rv_JD_in) != len(rv_JD):
                     print("Something is wrong with your %s file! Perhaps some not all entries are numeric? Please provide a valid %s file that contains: BJD RV [m/s] sigma_RV [m/s] "%(self.data_str,self.data_str))
                     return
@@ -8365,7 +8360,7 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False, es_version='0.76'):
+    def print_info_credits(self, image=False, es_version='0.77'):
  
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
@@ -11437,7 +11432,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        es_version = "0.76"
+        es_version = "0.77"
 
         #self.loading_screen= LoadingScreen()   
  

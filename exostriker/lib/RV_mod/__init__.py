@@ -3955,7 +3955,8 @@ class signal_fit(object):
             self.params.update_jitter(self.filelist.ndset-1,jitter)
             self.use.update_use_offset(self.filelist.ndset-1,useoffset)
             self.use.update_use_jitter(self.filelist.ndset-1,usejitter)
-            self.filelist.read_rvfiles(self.params.offsets,justthenewone=True)
+#            self.filelist.read_rvfiles(self.params.offsets,justthenewone=True)
+            self.filelist.read_rvfile(path, self.filelist.ndset,justthenewone=True)
             if self.epoch < 1:
                 self.update_epoch(self.filelist.first_observation())
                 

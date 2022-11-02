@@ -136,6 +136,7 @@ class rvfile_list(object): # this will store a list of rvfile objects
         return flag
          
     def remove_datafile(self,number): # add another data file to the list
+
         if not (number<self.ndset):
             warnings=Warning_log(['Dataset index outside of range'], 'Removing a dataset %d'%number)
             warnings.print_warning_log()
@@ -173,6 +174,33 @@ class rvfile_list(object): # this will store a list of rvfile objects
     #    data_set =       
    
 
+
+    def read_rvfile(self,path,  ndset,justthenewone=False):
+
+        x       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+        y       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+        y_error = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+ 
+        data_set = np.array([ndset-1]*len(x))
+       
+
+        # saving sorted arrays to appropriate object attributes        
+        self.time = x #np.concatenate((self.time,x))
+        self.rvs = y#np.concatenate((self.rvs,y))
+        self.rv_err = y_error#np.concatenate((self.rv_err,y_error))
+        self.idset = data_set
+        
+        dataset_ind = np.concatenate((self.idset,data_set)) #there is a problem with np.concatenate() it always returns floats not integers
+        self.idset = dataset_ind.astype(int) # this is a quick fix
+        #print(self.idset)
+
+        #sorting data by time
+        ind_sort = np.argsort(self.time)
+        self.time = self.time[ind_sort]
+        self.rvs = self.rvs[ind_sort]
+        self.rv_err = self.rv_err[ind_sort]
+        self.idset = self.idset[ind_sort]
+        return 
 
     def read_rvfiles(self,offsets,justthenewone=False):
         i = 0
