@@ -14,7 +14,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 
 **Documentation, Instructions, and Tutorials**
 
-* (Work in progress) documentation is available at [https://exostriker-manual.readthedocs.io](https://exostriker-manual.readthedocs.io)).
+* (Work in progress) documentation is available at [https://exostriker-manual.readthedocs.io](https://exostriker-manual.readthedocs.io/en/latest/).
 
 **Developer**
 
