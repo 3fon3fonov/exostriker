@@ -3086,9 +3086,7 @@ class signal_fit(object):
         self.lamb_str       = {k: r'$\lambda_%s$'%chr(98+k) for k in range(9)}
 
         ######## derived #####################
-        self.t_peri = {k: 0.0 for k in range(9)}
-
- 
+        self.t_peri = {k: 0.0 for k in range(9)} 
 
     def init_omega_dot(self) :
 
