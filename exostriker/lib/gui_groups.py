@@ -429,6 +429,150 @@ def jitter_bounds_gui_tra(self):
 
 
 
+################### h = e sin(w) ########################
+
+def h_bounds_gui(self):
+
+    h_bounds_gui = [
+    [self.h_min_1,self.h_max_1], [self.h_min_2,self.h_max_2], 
+    [self.h_min_3,self.h_max_3], [self.h_min_4,self.h_max_4], 
+    [self.h_min_5,self.h_max_5], [self.h_min_6,self.h_max_6], 
+    [self.h_min_7,self.h_max_7], [self.h_min_8,self.h_max_8], 
+    [self.h_min_9,self.h_max_9] 
+    ]  
+    return h_bounds_gui
+
+
+def h_norm_pr_gui(self):
+
+    h_norm_pr_gui = [
+    [self.h_mean_1,self.h_sigma_1,self.use_h_norm_pr_1], 
+    [self.h_mean_2,self.h_sigma_2,self.use_h_norm_pr_2], 
+    [self.h_mean_3,self.h_sigma_3,self.use_h_norm_pr_3], 
+    [self.h_mean_4,self.h_sigma_4,self.use_h_norm_pr_4], 
+    [self.h_mean_5,self.h_sigma_5,self.use_h_norm_pr_5], 
+    [self.h_mean_6,self.h_sigma_6,self.use_h_norm_pr_6], 
+    [self.h_mean_7,self.h_sigma_7,self.use_h_norm_pr_7], 
+    [self.h_mean_8,self.h_sigma_8,self.use_h_norm_pr_8], 
+    [self.h_mean_9,self.h_sigma_9,self.use_h_norm_pr_9]
+    ]
+
+    return h_norm_pr_gui
+
+def h_jeff_pr_gui(self):
+
+    h_jeff_pr_gui = [
+    [self.h_alpha_1,self.h_beta_1,self.use_h_jeff_pr_1], 
+    [self.h_alpha_2,self.h_beta_2,self.use_h_jeff_pr_2], 
+    [self.h_alpha_3,self.h_beta_3,self.use_h_jeff_pr_3], 
+    [self.h_alpha_4,self.h_beta_4,self.use_h_jeff_pr_4], 
+    [self.h_alpha_5,self.h_beta_5,self.use_h_jeff_pr_5], 
+    [self.h_alpha_6,self.h_beta_6,self.use_h_jeff_pr_6], 
+    [self.h_alpha_7,self.h_beta_7,self.use_h_jeff_pr_7], 
+    [self.h_alpha_8,self.h_beta_8,self.use_h_jeff_pr_8], 
+    [self.h_alpha_9,self.h_beta_9,self.use_h_jeff_pr_9]
+    ]
+
+    return h_jeff_pr_gui
+
+
+
+################### k = e cos(w) ########################
+
+def k_bounds_gui(self):
+
+    k_bounds_gui = [
+    [self.k_min_1,self.k_max_1], [self.k_min_2,self.k_max_2], 
+    [self.k_min_3,self.k_max_3], [self.k_min_4,self.k_max_4], 
+    [self.k_min_5,self.k_max_5], [self.k_min_6,self.k_max_6], 
+    [self.k_min_7,self.k_max_7], [self.k_min_8,self.k_max_8], 
+    [self.k_min_9,self.k_max_9] 
+    ]  
+    return k_bounds_gui
+
+
+def k_norm_pr_gui(self):
+
+    k_norm_pr_gui = [
+    [self.k_mean_1,self.k_sigma_1,self.use_k_norm_pr_1], 
+    [self.k_mean_2,self.k_sigma_2,self.use_k_norm_pr_2], 
+    [self.k_mean_3,self.k_sigma_3,self.use_k_norm_pr_3], 
+    [self.k_mean_4,self.k_sigma_4,self.use_k_norm_pr_4], 
+    [self.k_mean_5,self.k_sigma_5,self.use_k_norm_pr_5], 
+    [self.k_mean_6,self.k_sigma_6,self.use_k_norm_pr_6], 
+    [self.k_mean_7,self.k_sigma_7,self.use_k_norm_pr_7], 
+    [self.k_mean_8,self.k_sigma_8,self.use_k_norm_pr_8], 
+    [self.k_mean_9,self.k_sigma_9,self.use_k_norm_pr_9]
+    ]
+
+    return k_norm_pr_gui
+
+def k_jeff_pr_gui(self):
+
+    k_jeff_pr_gui = [
+    [self.k_alpha_1,self.k_beta_1,self.use_k_jeff_pr_1], 
+    [self.k_alpha_2,self.k_beta_2,self.use_k_jeff_pr_2], 
+    [self.k_alpha_3,self.k_beta_3,self.use_k_jeff_pr_3], 
+    [self.k_alpha_4,self.k_beta_4,self.use_k_jeff_pr_4], 
+    [self.k_alpha_5,self.k_beta_5,self.use_k_jeff_pr_5], 
+    [self.k_alpha_6,self.k_beta_6,self.use_k_jeff_pr_6], 
+    [self.k_alpha_7,self.k_beta_7,self.use_k_jeff_pr_7], 
+    [self.k_alpha_8,self.k_beta_8,self.use_k_jeff_pr_8], 
+    [self.k_alpha_9,self.k_beta_9,self.use_k_jeff_pr_9]
+    ]
+
+    return k_jeff_pr_gui
+
+
+
+################### lambda = M0 + w ########################
+
+def lambda_bounds_gui(self):
+
+    lambda_bounds_gui = [
+    [self.lambda_min_1,self.lambda_max_1], [self.lambda_min_2,self.lambda_max_2], 
+    [self.lambda_min_3,self.lambda_max_3], [self.lambda_min_4,self.lambda_max_4], 
+    [self.lambda_min_5,self.lambda_max_5], [self.lambda_min_6,self.lambda_max_6], 
+    [self.lambda_min_7,self.lambda_max_7], [self.lambda_min_8,self.lambda_max_8], 
+    [self.lambda_min_9,self.lambda_max_9] 
+    ]  
+    return lambda_bounds_gui
+
+
+def lambda_norm_pr_gui(self):
+
+    lambda_norm_pr_gui = [
+    [self.lambda_mean_1,self.lambda_sigma_1,self.use_lambda_norm_pr_1], 
+    [self.lambda_mean_2,self.lambda_sigma_2,self.use_lambda_norm_pr_2], 
+    [self.lambda_mean_3,self.lambda_sigma_3,self.use_lambda_norm_pr_3], 
+    [self.lambda_mean_4,self.lambda_sigma_4,self.use_lambda_norm_pr_4], 
+    [self.lambda_mean_5,self.lambda_sigma_5,self.use_lambda_norm_pr_5], 
+    [self.lambda_mean_6,self.lambda_sigma_6,self.use_lambda_norm_pr_6], 
+    [self.lambda_mean_7,self.lambda_sigma_7,self.use_lambda_norm_pr_7], 
+    [self.lambda_mean_8,self.lambda_sigma_8,self.use_lambda_norm_pr_8], 
+    [self.lambda_mean_9,self.lambda_sigma_9,self.use_lambda_norm_pr_9]
+    ]
+
+    return lambda_norm_pr_gui
+
+def lambda_jeff_pr_gui(self):
+
+    lambda_jeff_pr_gui = [
+    [self.lambda_alpha_1,self.lambda_beta_1,self.use_lambda_jeff_pr_1], 
+    [self.lambda_alpha_2,self.lambda_beta_2,self.use_lambda_jeff_pr_2], 
+    [self.lambda_alpha_3,self.lambda_beta_3,self.use_lambda_jeff_pr_3], 
+    [self.lambda_alpha_4,self.lambda_beta_4,self.use_lambda_jeff_pr_4], 
+    [self.lambda_alpha_5,self.lambda_beta_5,self.use_lambda_jeff_pr_5], 
+    [self.lambda_alpha_6,self.lambda_beta_6,self.use_lambda_jeff_pr_6], 
+    [self.lambda_alpha_7,self.lambda_beta_7,self.use_lambda_jeff_pr_7], 
+    [self.lambda_alpha_8,self.lambda_beta_8,self.use_lambda_jeff_pr_8], 
+    [self.lambda_alpha_9,self.lambda_beta_9,self.use_lambda_jeff_pr_9]
+    ]
+
+    return lambda_jeff_pr_gui
+
+
+
 ################### OmDot ########################
 
 def om_dot_bounds_gui(self):

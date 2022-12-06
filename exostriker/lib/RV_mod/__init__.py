@@ -2704,6 +2704,7 @@ class signal_fit(object):
         
         self.use_planet = [0,0,0,0,0,0,0,0,0]
 
+        self.ses_notes = ''
 
         ########## new stuff ##########
         self.init_pl_params()

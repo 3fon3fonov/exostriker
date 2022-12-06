@@ -1067,6 +1067,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(9): 
             for z in range(2):
                 self.om_dot_bounds_gui[i][z].setValue(fit.omega_dot_bounds[i][z])
+                self.h_bounds_gui[i][z].setValue(fit.e_sinw_bound[i][z])
+                self.k_bounds_gui[i][z].setValue(fit.e_cosw_bound[i][z])
+                self.lambda_bounds_gui[i][z].setValue(fit.lamb_bound[i][z])
 
         for i in range(10): 
             for z in range(2):
@@ -1207,8 +1210,14 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(9): 
             for z in range(2):
                 self.om_dot_norm_pr_gui[i][z].setValue(fit.omega_dot_norm_pr[i][z])
-            self.om_dot_norm_pr_gui[i][2].setChecked(fit.omega_dot_norm_pr[i][2])
+                self.h_norm_pr_gui[i][z].setValue(fit.e_sinw_norm_pr[i][z])
+                self.k_norm_pr_gui[i][z].setValue(fit.e_cosw_norm_pr[i][z])
+                self.lambda_norm_pr_gui[i][z].setValue(fit.lamb_norm_pr[i][z])
 
+            self.om_dot_norm_pr_gui[i][2].setChecked(fit.omega_dot_norm_pr[i][2])
+            self.h_norm_pr_gui[i][2].setChecked(fit.e_sinw_norm_pr[i][2])
+            self.k_norm_pr_gui[i][2].setChecked(fit.e_cosw_norm_pr[i][2])
+            self.lambda_norm_pr_gui[i][2].setChecked(fit.lamb_norm_pr[i][2])
 
         self.lin_trend_mean.setValue(fit.rv_lintr_norm_pr[0][0])
         self.lin_trend_sigma.setValue(fit.rv_lintr_norm_pr[0][1])
@@ -1340,8 +1349,14 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(9): 
             for z in range(2):
                 self.om_dot_jeff_pr_gui[i][z].setValue(fit.omega_dot_jeff_pr[i][z])
-            self.om_dot_jeff_pr_gui[i][2].setChecked(fit.omega_dot_jeff_pr[i][2])
+                self.h_jeff_pr_gui[i][z].setValue(fit.e_sinw_jeff_pr[i][z])
+                self.k_jeff_pr_gui[i][z].setValue(fit.e_cosw_jeff_pr[i][z])
+                self.lambda_jeff_pr_gui[i][z].setValue(fit.lamb_jeff_pr[i][z])
 
+            self.om_dot_jeff_pr_gui[i][2].setChecked(fit.omega_dot_jeff_pr[i][2])
+            self.h_jeff_pr_gui[i][2].setChecked(fit.e_sinw_jeff_pr[i][2])
+            self.k_jeff_pr_gui[i][2].setChecked(fit.e_cosw_jeff_pr[i][2])
+            self.lambda_jeff_pr_gui[i][2].setChecked(fit.lamb_jeff_pr[i][2])
 
         self.lin_trend_jeff_alpha.setValue(fit.rv_lintr_jeff_pr[0][0])
         self.lin_trend_jeff_beta.setValue(fit.rv_lintr_jeff_pr[0][1])
@@ -1464,6 +1479,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(9): 
             for z in range(2):
                 fit.omega_dot_bounds[i][z] = self.om_dot_bounds_gui[i][z].value()
+                fit.e_sinw_bound[i][z] = self.h_bounds_gui[i][z].value()
+                fit.e_cosw_bound[i][z] = self.k_bounds_gui[i][z].value()
+                fit.lamb_bound[i][z] = self.lambda_bounds_gui[i][z].value()
+ 
 
         fit.rv_lintr_bounds[0]  = [self.lin_trend_min.value(),self.lin_trend_max.value()]
         fit.rv_quadtr_bounds[0] = [self.quad_trend_min.value(),self.quad_trend_max.value()]
@@ -1648,16 +1667,18 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.rvoff_norm_pr[i][2] = self.offset_nr_priors_gui[i][2].isChecked()
             fit.jitt_norm_pr[i][2]  = self.jitter_nr_priors_gui[i][2].isChecked()
 
-        om_nr_priors_gui = [
-        [self.omega_dot_mean_1.value(),self.omega_dot_sigma_1.value(),self.use_omega_dot_norm_pr_1.isChecked()], [self.omega_dot_mean_2.value(),self.omega_dot_sigma_2.value(),self.use_omega_dot_norm_pr_2.isChecked()], 
-        [self.omega_dot_mean_3.value(),self.omega_dot_sigma_3.value(),self.use_omega_dot_norm_pr_3.isChecked()], [self.omega_dot_mean_4.value(),self.omega_dot_sigma_4.value(),self.use_omega_dot_norm_pr_4.isChecked()], 
-        [self.omega_dot_mean_5.value(),self.omega_dot_sigma_5.value(),self.use_omega_dot_norm_pr_5.isChecked()], [self.omega_dot_mean_6.value(),self.omega_dot_sigma_6.value(),self.use_omega_dot_norm_pr_6.isChecked()], 
-        [self.omega_dot_mean_7.value(),self.omega_dot_sigma_7.value(),self.use_omega_dot_norm_pr_7.isChecked()], [self.omega_dot_mean_8.value(),self.omega_dot_sigma_8.value(),self.use_omega_dot_norm_pr_8.isChecked()], 
-        [self.omega_dot_mean_9.value(),self.omega_dot_sigma_9.value(),self.use_omega_dot_norm_pr_9.isChecked()]
-        ]
-
         for i in range(9): 
-            fit.omega_dot_norm_pr[i] = om_nr_priors_gui[i]
+            for z in range(2):
+                fit.omega_dot_norm_pr[i][z] = self.om_dot_norm_pr_gui[i][z].value()
+                fit.e_sinw_norm_pr[i][z] = self.h_norm_pr_gui[i][z].value()
+                fit.e_cosw_norm_pr[i][z] = self.k_norm_pr_gui[i][z].value()
+                fit.lamb_norm_pr[i][z] = self.lambda_norm_pr_gui[i][z].value()
+
+            fit.omega_dot_norm_pr[i][2] = self.om_dot_norm_pr_gui[i][2].isChecked()
+            fit.e_sinw_norm_pr[i][2] = self.h_norm_pr_gui[i][2].isChecked()
+            fit.e_cosw_norm_pr[i][2] = self.k_norm_pr_gui[i][2].isChecked()
+            fit.lamb_norm_pr[i][2] = self.lambda_norm_pr_gui[i][2].isChecked()
+
 
         fit.rv_lintr_norm_pr[0]  = [self.lin_trend_mean.value(),self.lin_trend_sigma.value(),self.use_lin_tr_nr_pr.isChecked()]
         fit.rv_quadtr_norm_pr[0]  = [self.quad_trend_mean.value(),self.quad_trend_sigma.value(),self.use_quad_tr_nr_pr.isChecked()]
@@ -1781,17 +1802,19 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.rvoff_jeff_pr[i][2] = self.offset_jeff_priors_gui[i][2].isChecked()
             fit.jitt_jeff_pr[i][2]  = self.jitter_jeff_priors_gui[i][2].isChecked()
 
-        om_dot_jeff_priors_gui = [
-        [self.omega_dot_alpha_1.value(),self.omega_dot_beta_1.value(),self.use_omega_dot_jeff_pr_1.isChecked()], [self.omega_dot_alpha_2.value(),self.omega_dot_beta_2.value(),self.use_omega_dot_jeff_pr_2.isChecked()], 
-        [self.omega_dot_alpha_3.value(),self.omega_dot_beta_3.value(),self.use_omega_dot_jeff_pr_3.isChecked()], [self.omega_dot_alpha_4.value(),self.omega_dot_beta_4.value(),self.use_omega_dot_jeff_pr_4.isChecked()], 
-        [self.omega_dot_alpha_5.value(),self.omega_dot_beta_5.value(),self.use_omega_dot_jeff_pr_5.isChecked()], [self.omega_dot_alpha_6.value(),self.omega_dot_beta_6.value(),self.use_omega_dot_jeff_pr_6.isChecked()], 
-        [self.omega_dot_alpha_7.value(),self.omega_dot_beta_7.value(),self.use_omega_dot_jeff_pr_7.isChecked()], [self.omega_dot_alpha_8.value(),self.omega_dot_beta_8.value(),self.use_omega_dot_jeff_pr_8.isChecked()], 
-        [self.omega_dot_alpha_9.value(),self.omega_dot_beta_9.value(),self.use_omega_dot_jeff_pr_9.isChecked()]    
-        ]  
-    
-    
+
         for i in range(9): 
-            fit.omega_dot_jeff_pr[i] = om_dot_jeff_priors_gui[i]   
+            for z in range(2):
+                fit.omega_dot_jeff_pr[i][z] = self.om_dot_jeff_pr_gui[i][z].value()
+                fit.e_sinw_jeff_pr[i][z] = self.h_jeff_pr_gui[i][z].value()
+                fit.e_cosw_jeff_pr[i][z] = self.k_jeff_pr_gui[i][z].value()
+                fit.lamb_jeff_pr[i][z] = self.lambda_jeff_pr_gui[i][z].value()
+
+            fit.omega_dot_jeff_pr[i][2] = self.om_dot_jeff_pr_gui[i][2].isChecked()
+            fit.e_sinw_jeff_pr[i][2] = self.h_jeff_pr_gui[i][2].isChecked()
+            fit.e_cosw_jeff_pr[i][2] = self.k_jeff_pr_gui[i][2].isChecked()
+            fit.lamb_jeff_pr[i][2] = self.lambda_jeff_pr_gui[i][2].isChecked()
+
     
  
         fit.rv_lintr_jeff_pr[0]   = [self.lin_trend_jeff_alpha.value(),self.lin_trend_jeff_beta.value(),self.use_lin_tr_jeff_pr.isChecked()]
@@ -8360,7 +8383,7 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False, es_version='0.77'):
+    def print_info_credits(self, image=False, es_version='0.78'):
  
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
@@ -8807,6 +8830,9 @@ will be highly appreciated!
     def save_last_session(self,session_name):
         global fit
 
+
+        fit.ses_notes = self.text_editor.editor.toPlainText()
+
         if str(session_name) != '':
             file_pi = open(session_name, 'wb')
             dill.dump(fit, file_pi) #,protocol=2
@@ -8948,6 +8974,8 @@ will be highly appreciated!
         self.update_GUI_St_params()
 
         self.jupiter_push_vars()
+
+        self.text_editor.editor.setText(fit.ses_notes)
         
         if not ind == None:
             ses_list[ind] = fit 
@@ -11432,7 +11460,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        es_version = "0.77"
+        es_version = "0.78"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -11478,8 +11506,17 @@ Please install via 'pip install ttvfast'.
         self.om_dot_norm_pr_gui = gui_groups.om_dot_norm_pr_gui(self)
         self.om_dot_jeff_pr_gui = gui_groups.om_dot_jeff_pr_gui(self)
 
+        self.h_bounds_gui = gui_groups.h_bounds_gui(self)
+        self.h_norm_pr_gui = gui_groups.h_norm_pr_gui(self)
+        self.h_jeff_pr_gui = gui_groups.h_jeff_pr_gui(self)
 
+        self.k_bounds_gui = gui_groups.k_bounds_gui(self)
+        self.k_norm_pr_gui = gui_groups.k_norm_pr_gui(self)
+        self.k_jeff_pr_gui = gui_groups.k_jeff_pr_gui(self)
 
+        self.lambda_bounds_gui = gui_groups.lambda_bounds_gui(self)
+        self.lambda_norm_pr_gui = gui_groups.lambda_norm_pr_gui(self)
+        self.lambda_jeff_pr_gui = gui_groups.lambda_jeff_pr_gui(self)
         
         self.param_gui_tr      = gui_groups.param_gui_tr(self)
         self.use_param_gui_tr  = gui_groups.use_param_gui_tr(self)
