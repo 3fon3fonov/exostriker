@@ -12,6 +12,12 @@ import numpy as np
 import sys, os, traceback 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
+#import collections 
+#if sys.version_info.major == 3 and sys.version_info.minor >= 10:
+#    from collections.abc import MutableMapping
+#else:
+#    from collections import MutableMapping
+
 #sys.path.insert(0, './lib') 
 es_path = os.path.dirname(os.path.abspath(__file__))
 lib_path = os.path.join(es_path, 'lib')
@@ -33,6 +39,7 @@ if QtCore.QT_VERSION >= 0x50501:
         traceback.print_exception(type_, value, traceback_)
         QtCore.qFatal('')
 sys.excepthook = excepthook
+
 
 
 if not sys.warnoptions:
