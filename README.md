@@ -74,7 +74,6 @@ Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.
 
 
 **Installation**
-
  
 Python3.8+ is strongly recommended!!! The Exo-Striker works with Python3.6,3.7 and even Python2, but you will likely have problems with some dependencies, which you may have to solve.
 If your system Python3 is 3.6 or 3.7, it is recommended to not upgrade the python3, but to install python3.8 alongside your system python3. E.g., [see these instructions for Python3.8](https://linuxize.com/post/how-to-install-python-3-8-on-ubuntu-18-04/)
@@ -86,9 +85,9 @@ For Ubuntu 20.04+ you may also need python-dev to install some of the dependenci
 if during installation you get something like:
 
 
-$ 20 | #include "Python.h"
-$    |          ^~~~~~~~~~
-$  compilation terminated.
+$ 20 | #include "Python.h"   
+$    |          ^~~~~~~~~~   
+$  compilation terminated.   
 
 
 You may have to do:
@@ -97,6 +96,8 @@ $ sudo apt-get install python3.8-dev
 
 and try again.
 
+appart of Python3.8/3.9 make sure you have 'gcc', 'gfortran', and 'csh',
+which will be needed for compiling some of the important binaries!
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   
