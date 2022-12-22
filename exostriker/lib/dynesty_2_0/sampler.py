@@ -13,7 +13,7 @@ import copy
 import numpy as np
 from .results import Results, print_fn
 from .bounding import UnitCube
-from .sampling import sample_unif
+from .sampling import sample_unif, SamplerArgument
 from .utils import (get_seed_sequence, get_print_func, progress_integration,
                     IteratorResult, RunRecord, get_neff_from_logwt,
                     compute_integrals, DelayTimer)
@@ -68,21 +68,35 @@ class Sampler:
 
     """
 
-    def __init__(self, loglikelihood, prior_transform, npdim, live_points,
-                 update_interval, first_update, rstate, queue_size, pool,
-                 use_pool, ncdim):
+    def __init__(self,
+                 loglikelihood,
+                 prior_transform,
+                 npdim,
+                 live_points,
+                 update_interval,
+                 first_update,
+                 rstate,
+                 queue_size,
+                 pool,
+                 use_pool,
+                 ncdim,
+                 blob=False):
 
         # distributions
         self.loglikelihood = loglikelihood
         self.prior_transform = prior_transform
         self.npdim = npdim
         self.ncdim = ncdim
-
+        self.blob = blob
         # live points
-        self.live_u, self.live_v, self.live_logl = live_points
+        self.live_u, self.live_v, self.live_logl = live_points[:3]
+        if blob:
+            self.live_blobs = live_points[3]
+        else:
+            self.live_blobs = None
         self.nlive = len(self.live_u)
-        self.live_bound = np.zeros(self.nlive, dtype='int')
-        self.live_it = np.zeros(self.nlive, dtype='int')
+        self.live_bound = np.zeros(self.nlive, dtype=int)
+        self.live_it = np.zeros(self.nlive, dtype=int)
 
         # bounding updates
         self.update_interval = update_interval
@@ -133,6 +147,9 @@ class Sampler:
         # results
         self.saved_run = RunRecord()
 
+    def save(self, fname):
+        raise RuntimeError('Should be overriden')
+
     def propose_point(self, *args):
         raise RuntimeError('Should be overriden')
 
@@ -163,7 +180,7 @@ class Sampler:
         """Re-initialize the sampler."""
 
         # live points
-        self.live_u = self.rstate.uniform(size=(self.nlive, self.npdim))
+        self.live_u = self.rstate.random(size=(self.nlive, self.npdim))
         if self.use_pool_ptform:
             # Use the pool to compute the prior transform.
             self.live_v = np.array(
@@ -172,10 +189,11 @@ class Sampler:
             # Compute the prior transform using the default `map` function.
             self.live_v = np.array(
                 list(map(self.prior_transform, np.asarray(self.live_u))))
-        self.live_logl = self.loglikelihood.map(np.asarray(self.live_v))
+        self.live_logl = np.array(
+            [_.val for _ in self.loglikelihood.map(np.asarray(self.live_v))])
 
-        self.live_bound = np.zeros(self.nlive, dtype='int')
-        self.live_it = np.zeros(self.nlive, dtype='int')
+        self.live_bound = np.zeros(self.nlive, dtype=int)
+        self.live_it = np.zeros(self.nlive, dtype=int)
 
         # parallelism
         self.queue = []
@@ -202,9 +220,9 @@ class Sampler:
         d = {}
         for k in [
                 'nc', 'v', 'id', 'it', 'u', 'logwt', 'logl', 'logvol', 'logz',
-                'logzvar', 'h'
+                'logzvar', 'h', 'blob'
         ]:
-            d[k] = np.array(self.saved_run.D[k])
+            d[k] = np.array(self.saved_run[k])
 
         # Add all saved samples to the results.
         if self.save_samples:
@@ -212,7 +230,7 @@ class Sampler:
                 warnings.simplefilter("ignore")
                 results = [('nlive', self.nlive), ('niter', self.it - 1),
                            ('ncall', d['nc']), ('eff', self.eff),
-                           ('samples', d['v'])]
+                           ('samples', d['v']), ('blob', d['blob'])]
                 for k in ['id', 'it', 'u']:
                     results.append(('samples_' + k, d[k]))
                 for k in ['logwt', 'logl', 'logvol', 'logz']:
@@ -225,13 +243,12 @@ class Sampler:
         # Add any saved bounds (and ancillary quantities) to the results.
         if self.save_bounds:
             results.append(('bound', copy.deepcopy(self.bound)))
-            results.append(('bound_iter',
-                            np.array(self.saved_run.D['bounditer'],
-                                     dtype='int')))
+            results.append(
+                ('bound_iter', np.array(self.saved_run['bounditer'],
+                                        dtype=int)))
             results.append(('samples_bound',
-                            np.array(self.saved_run.D['boundidx'],
-                                     dtype='int')))
-            results.append(('scale', np.array(self.saved_run.D['scale'])))
+                            np.array(self.saved_run['boundidx'], dtype=int)))
+            results.append(('scale', np.array(self.saved_run['scale'])))
 
         return Results(results)
 
@@ -244,7 +261,7 @@ class Sampler:
         `1` if there is only one non-zero element in `wts`.
 
         """
-        logwt = self.saved_run.D['logwt']
+        logwt = self.saved_run['logwt']
         if len(logwt) == 0 or np.isneginf(np.max(logwt)):
             # If there are no saved weights, or its -inf return 0.
             return 0
@@ -283,10 +300,6 @@ class Sampler:
     def _fill_queue(self, loglstar):
         """Sequentially add new live point proposals to the queue."""
 
-        # Add/zip arguments to submit to the queue.
-        point_queue = []
-        axes_queue = []
-
         # All the samplers should have have a starting point
         # satisfying a strict logl>loglstar criterion
         # The slice sampler will just fail if it's not the case
@@ -302,35 +315,50 @@ class Sampler:
                     'excessively around the very peak of the posterior')
         else:
             args = ()
-        while self.nqueue < self.queue_size:
-            if self._beyond_unit_bound(loglstar):
-                # Propose points using the provided sampling/bounding options.
+        if self._beyond_unit_bound(loglstar):
+            # Add/zip arguments to submit to the queue.
+            point_queue = []
+            axes_queue = []
+            # Propose points using the provided sampling/bounding options.
+            evolve_point = self.evolve_point
+            while self.nqueue < self.queue_size:
                 point, axes = self.propose_point(*args)
-                evolve_point = self.evolve_point
-            else:
-                # Propose/evaluate points directly from the unit cube.
-                point = self.rstate.uniform(size=self.npdim)
-                axes = np.identity(self.ncdim)
-                evolve_point = sample_unif
-            point_queue.append(point)
-            axes_queue.append(axes)
-            self.nqueue += 1
-        loglstars = [loglstar for i in range(self.queue_size)]
-        scales = [self.scale for i in range(self.queue_size)]
-        ptforms = [self.prior_transform for i in range(self.queue_size)]
-        logls = [self.loglikelihood for i in range(self.queue_size)]
-        kwargs = [self.kwargs for i in range(self.queue_size)]
-        seeds = get_seed_sequence(self.rstate, self.queue_size)
-        args = zip(point_queue, loglstars, axes_queue, scales, ptforms, logls,
-                   seeds, kwargs)
+                point_queue.append(point)
+                axes_queue.append(axes)
+                self.nqueue += 1
+        else:
+            # Propose/evaluate points directly from the unit cube.
+            point_queue = self.rstate.random(size=(self.queue_size -
+                                                   self.nqueue, self.npdim))
+            axes_queue = np.identity(
+                self.ncdim)[None, :, :] + np.zeros(self.queue_size -
+                                                   self.nqueue)[:, None, None]
+            evolve_point = sample_unif
+            self.nqueue = self.queue_size
+        if self.queue_size > 1:
+            seeds = get_seed_sequence(self.rstate, self.queue_size)
+        else:
+            seeds = [self.rstate]
 
         if self.use_pool_evolve:
             # Use the pool to propose ("evolve") a new live point.
-            self.queue = list(self.M(evolve_point, args))
+            mapper = self.M
         else:
             # Propose ("evolve") a new live point using the default `map`
             # function.
-            self.queue = list(map(evolve_point, args))
+            mapper = map
+        args = []
+        for i in range(self.queue_size):
+            args.append(
+                SamplerArgument(u=point_queue[i],
+                                loglstar=loglstar,
+                                axes=axes_queue[i],
+                                scale=self.scale,
+                                prior_transform=self.prior_transform,
+                                loglikelihood=self.loglikelihood,
+                                rseed=seeds[i],
+                                kwargs=self.kwargs))
+        self.queue = list(mapper(evolve_point, args))
 
     def _get_point_value(self, loglstar):
         """Grab the first live point proposal in the queue."""
@@ -399,29 +427,27 @@ class Sampler:
         else:
             self.added_live = True
 
+        logz = self.saved_run['logz'][-1]
+        logzvar = self.saved_run['logzvar'][-1]
+        h = self.saved_run['h'][-1]
+        loglstar = self.saved_run['logl'][-1]
+        logvol = self.saved_run['logvol'][-1]
         # After N samples have been taken out, the remaining volume is
         # `e^(-N / nlive)`. The remaining points are distributed uniformly
         # within the remaining volume so that the expected volume enclosed
         # by the `i`-th worst likelihood is
         # `e^(-N / nlive) * (nlive + 1 - i) / (nlive + 1)`.
-        logvols = self.saved_run.D['logvol'][-1]
-        logvols += np.log(1. - (np.arange(self.nlive) + 1.) /
-                          (self.nlive + 1.))
-        logvols_pad = np.concatenate(
-            ([self.saved_run.D['logvol'][-1]], logvols))
+        logvols = np.log(1. - (np.arange(self.nlive) + 1.) / (self.nlive + 1.))
 
         # Defining change in `logvol` used in `logzvar` approximation.
-        dlvs = logvols_pad[:-1] - logvols_pad[1:]
+        dlvs = -np.diff(logvols, prepend=0)
+        logvols += logvol
 
         # Sorting remaining live points.
         lsort_idx = np.argsort(self.live_logl)
         loglmax = max(self.live_logl)
 
         # Grabbing relevant values from the last dead point.
-        logz = self.saved_run.D['logz'][-1]
-        logzvar = self.saved_run.D['logzvar'][-1]
-        h = self.saved_run.D['h'][-1]
-        loglstar = self.saved_run.D['logl'][-1]
         if self._beyond_unit_bound(loglstar):
             bounditer = self.nbound - 1
         else:
@@ -439,6 +465,10 @@ class Sampler:
             # updated in place
             ustar = self.live_u[idx].copy()
             vstar = self.live_v[idx].copy()
+            if self.blob:
+                old_blob = self.live_blobs[idx].copy()
+            else:
+                old_blob = None
             loglstar_new = self.live_logl[idx]
             boundidx = self.live_bound[idx]
             point_it = self.live_it[idx]
@@ -447,26 +477,30 @@ class Sampler:
              h) = progress_integration(loglstar, loglstar_new, logz, logzvar,
                                        logvol, dlv, h)
             loglstar = loglstar_new
-            logz_remain = loglmax + logvol  # remaining ln(evidence)
-            delta_logz = np.logaddexp(logz, logz_remain) - logz  # dlogz
+            delta_logz = np.logaddexp(0, loglmax + logvol - logz)
 
             # Save results.
             if self.save_samples:
                 self.saved_run.append(
-                    dict(id=idx,
-                         u=ustar,
-                         v=vstar,
-                         logl=loglstar,
-                         logvol=logvol,
-                         logwt=logwt,
-                         logz=logz,
-                         logzvar=logzvar,
-                         h=h,
-                         nc=1,
-                         boundidx=boundidx,
-                         it=point_it,
-                         bounditer=bounditer,
-                         scale=self.scale))
+                    dict(
+                        id=idx,
+                        u=ustar,
+                        v=vstar,
+                        logl=loglstar,
+                        logvol=logvol,
+                        logwt=logwt,
+                        logz=logz,
+                        logzvar=logzvar,
+                        h=h,
+                        nc=1,  # this is technically a lie
+                        # as we didn't call the likelihood even once
+                        # however because we lose track of ncs if we start from points
+                        # that are not sampled from unit cube it can lead to sum(nc)!=ncall
+                        boundidx=boundidx,
+                        it=point_it,
+                        bounditer=bounditer,
+                        scale=self.scale,
+                        blob=old_blob))
             self.eff = 100. * (self.it + i) / self.ncall  # efficiency
 
             # Return our new "dead" point and ancillary quantities.
@@ -480,6 +514,7 @@ class Sampler:
                                  logzvar=logzvar,
                                  h=h,
                                  nc=1,
+                                 blob=old_blob,
                                  worst_it=point_it,
                                  boundidx=boundidx,
                                  bounditer=bounditer,
@@ -498,7 +533,7 @@ class Sampler:
                         'logzvar', 'h', 'nc', 'boundidx', 'it', 'bounditer',
                         'scale'
                 ]:
-                    del self.saved_run.D[k][-self.nlive:]
+                    del self.saved_run[k][-self.nlive:]
         else:
             raise ValueError("No live points were added to the "
                              "list of samples!")
@@ -623,7 +658,7 @@ class Sampler:
         self.save_bounds = save_bounds
         ncall = 0
         # Check whether we're starting fresh or continuing a previous run.
-        if self.it == 1 or len(self.saved_run.D['logl']) == 0:
+        if self.it == 1 or len(self.saved_run['logl']) == 0:
             # Initialize values for nested sampling loop.
             h = 0.  # information, initially *0.*
             logz = -1.e300  # ln(evidence), initially *0.*
@@ -646,14 +681,13 @@ class Sampler:
                 self._remove_live_points()
 
             # Get final state from previous run.
-            h = self.saved_run.D['h'][-1]  # information
-            logz = self.saved_run.D['logz'][-1]  # ln(evidence)
-            logzvar = self.saved_run.D['logzvar'][-1]  # var[ln(evidence)]
-            logvol = self.saved_run.D['logvol'][-1]  # ln(volume)
+            h, logz, logzvar, logvol = [
+                self.saved_run[_][-1]
+                for _ in ['h', 'logz', 'logzvar', 'logvol']
+            ]
             loglstar = np.min(self.live_logl)  # ln(likelihood)
-            delta_logz = np.logaddexp(
-                logz,
-                np.max(self.live_logl) + logvol) - logz  # log-evidence ratio
+            delta_logz = np.logaddexp(0,
+                                      np.max(self.live_logl) + logvol - logz)
 
         stop_iterations = False
         # The main nested sampling loop.
@@ -670,8 +704,8 @@ class Sampler:
 
             # Stopping criterion 3: estimated (fractional) remaining evidence
             # lies below some threshold set by `dlogz`.
-            logz_remain = np.max(self.live_logl) + logvol
-            delta_logz = np.logaddexp(logz, logz_remain) - logz
+            delta_logz = np.logaddexp(0,
+                                      np.max(self.live_logl) + logvol - logz)
             if dlogz is not None and delta_logz < dlogz:
                 stop_iterations = True
 
@@ -733,6 +767,10 @@ class Sampler:
             ustar = self.live_u[worst].copy()  # unit cube position
             vstar = self.live_v[worst].copy()  # transformed position
             loglstar_new = self.live_logl[worst]  # new likelihood
+            if self.blob:
+                old_blob = self.live_blobs[worst].copy()
+            else:
+                old_blob = None
 
             # Sample a new live point from within the likelihood constraint
             # `logl > loglstar` using the bounding distribution and sampling
@@ -741,7 +779,10 @@ class Sampler:
             ncall += nc
             self.ncall += nc
             self.since_update += nc
-
+            if self.blob:
+                new_blob = logl.blob
+            else:
+                new_blob = None
             (logwt, logz, logzvar,
              h) = progress_integration(loglstar, loglstar_new, logz, logzvar,
                                        logvol, self.dlv, h)
@@ -768,7 +809,8 @@ class Sampler:
                          nc=nc,
                          it=worst_it,
                          bounditer=bounditer,
-                         scale=self.scale))
+                         scale=self.scale,
+                         blob=old_blob))
 
             # Update the live point (previously our "worst" point).
             self.live_u[worst] = u
@@ -776,7 +818,8 @@ class Sampler:
             self.live_logl[worst] = logl
             self.live_bound[worst] = bounditer
             self.live_it[worst] = self.it
-
+            if self.blob:
+                self.live_blobs[worst] = new_blob
             # Compute our sampling efficiency.
             self.eff = 100. * self.it / self.ncall
 
@@ -794,6 +837,7 @@ class Sampler:
                                  logzvar=logzvar,
                                  h=h,
                                  nc=nc,
+                                 blob=old_blob,
                                  worst_it=worst_it,
                                  boundidx=boundidx,
                                  bounditer=bounditer,
@@ -867,6 +911,14 @@ class Sampler:
             Whether or not to save past bounding distributions used to bound
             the live points internally. Default is *True*.
 
+        checkpoint_file: string, optional
+            if not None The state of the sampler will be saved into this
+            file every checkpoint_every seconds
+
+        checkpoint_every: float, optional
+            The number of seconds between checkpoints that will save
+            the internal state of the sampler. The sampler will also be
+            saved in the end of the run irrespective of checkpoint_every.
         """
 
         # Check for deprecated options
@@ -884,6 +936,12 @@ class Sampler:
                 dlogz = 1e-3 * (self.nlive - 1.) + 0.01
             else:
                 dlogz = 0.01
+        if resume and self.added_live:
+            warnings.warn('You are resuming a finished static run. '
+                          'This will not do anything')
+            # TODO I should create a separate STATE Enum
+            # here like to rely on that rather than added_live
+            return
 
         # Run the main nested sampling loop.
         pbar, print_func = get_print_func(print_func, print_progress)
@@ -899,6 +957,7 @@ class Sampler:
                                 save_bounds=save_bounds,
                                 save_samples=True,
                                 n_effective=n_effective,
+                                resume=resume,
                                 add_live=add_live)):
                 ncall += results.nc
 
@@ -931,12 +990,11 @@ class Sampler:
 
             # Here we recompute the integrals using the full run
             new_logwt, new_logz, new_logzvar, new_h = compute_integrals(
-                logl=self.saved_run.D['logl'],
-                logvol=self.saved_run.D['logvol'])
-            self.saved_run.D['logwt'] = new_logwt.tolist()
-            self.saved_run.D['logz'] = new_logz.tolist()
-            self.saved_run.D['logzvar'] = new_logzvar.tolist()
-            self.saved_run.D['h'] = new_h.tolist()
+                logl=self.saved_run['logl'], logvol=self.saved_run['logvol'])
+            self.saved_run['logwt'] = new_logwt.tolist()
+            self.saved_run['logz'] = new_logz.tolist()
+            self.saved_run['logzvar'] = new_logzvar.tolist()
+            self.saved_run['h'] = new_h.tolist()
             if checkpoint_file is not None:
                 # I don't check the time timer here
                 self.save(checkpoint_file)

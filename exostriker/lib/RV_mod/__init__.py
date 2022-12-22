@@ -34,16 +34,16 @@ dill.settings['fmode']
 try:
     import dynesty
 
-    if float(dynesty.__version__[0:3])<=1.4: # a fix is needed.....
+    if float(dynesty.__version__[0:3])<=2.1: # a fix is needed.....
 #        print("Your dynesty is version<=1.1, switching to the internally imported github version==1.2!")
-        import dynesty_1_2 as dynesty        
+        import dynesty_2_0 as dynesty        
    # import dynesty_patch
    # dynesty.results =  dynesty_patch
 
 
 except:
-    print("dynesty not found, switching to the internally imported github version==1.2!")
-    import dynesty_1_2 as dynesty
+    print("dynesty not found, switching to the internally imported github version==2.0!")
+    import dynesty_2_0 as dynesty
     import dynesty_patch
     dynesty.results =  dynesty_patch
 
@@ -551,6 +551,9 @@ def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_result
 
         t0 = transit_tperi(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,times[0])[0] #%par[len(vel_files)*2 +7*i+1] 
 
+        om_ = (om_ -180.0)%360.0
+        Ma_ = (Ma_ + 180.0)%360.0
+    
         #t0    = times[0]  - ((np.radians(Ma_)/2.0*np.pi)*par[len(vel_files)*2 + 7*i])
         #print(t0,t0_o, times[0])
         if fit_results == False:

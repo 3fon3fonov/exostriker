@@ -8,6 +8,7 @@ Functions for proposing new live points used by
 
 """
 
+from collections import namedtuple
 import warnings
 import numpy as np
 from numpy import linalg
@@ -19,6 +20,11 @@ __all__ = [
     "sample_unif", "sample_rwalk", "sample_slice", "sample_rslice",
     "sample_hslice"
 ]
+
+SamplerArgument = namedtuple('SamplerArgument', [
+    'u', 'loglstar', 'axes', 'scale', 'prior_transform', 'loglikelihood',
+    'rseed', 'kwargs'
+])
 
 
 def sample_unif(args):
@@ -76,16 +82,14 @@ def sample_unif(args):
     """
 
     # Unzipping.
-    (u, loglstar, axes, scale, prior_transform, loglikelihood, rseed,
-     kwargs) = args
 
     # Evaluate.
-    v = prior_transform(np.asarray(u))
-    logl = loglikelihood(np.asarray(v))
+    v = args.prior_transform(np.asarray(args.u))
+    logl = args.loglikelihood(np.asarray(v))
     nc = 1
     blob = None
 
-    return u, v, logl, nc, blob
+    return args.u, v, logl, nc, blob
 
 
 def sample_rwalk(args):
@@ -141,11 +145,10 @@ def sample_rwalk(args):
     """
 
     # Unzipping.
-    (u, loglstar, axes, scale, prior_transform, loglikelihood, rseed,
-     kwargs) = args
-    rstate = get_random_generator(rseed)
-    return generic_random_walk(u, loglstar, axes, scale, prior_transform,
-                               loglikelihood, rstate, kwargs)
+    rstate = get_random_generator(args.rseed)
+    return generic_random_walk(args.u, args.loglstar, args.axes, args.scale,
+                               args.prior_transform, args.loglikelihood,
+                               rstate, args.kwargs)
 
 
 def generic_random_walk(u, loglstar, axes, scale, prior_transform,
@@ -414,10 +417,8 @@ def generic_slice_step(u, direction, nonperiodic, loglstar, loglikelihood,
             nexpand += 1
         if nexpand > nexpand_threshold:
             expansion_warning = True
-            warnings.warn(
-                str.format(
-                    'The slice sample interval was expanded more '
-                    'than {0} times', nexpand_threshold))
+            warnings.warn('The slice sample interval was expanded more '
+                          f'than {nexpand_threshold} times')
 
     else:
         # "Stepping out" the left and right bounds.
@@ -468,16 +469,14 @@ def generic_slice_step(u, direction, nonperiodic, loglstar, loglikelihood,
                 raise RuntimeError("Slice sampler has failed to find "
                                    "a valid point. Some useful "
                                    "output quantities:\n"
-                                   "u: {0}\n"
-                                   "nstep_left: {1}\n"
-                                   "nstep_right: {2}\n"
-                                   "nstep_hat: {3}\n"
-                                   "u_prop: {4}\n"
-                                   "loglstar: {5}\n"
-                                   "logl_prop: {6}\n"
-                                   "direction: {7}\n".format(
-                                       u, nstep_l, nstep_r, nstep_hat, u_prop,
-                                       loglstar, logl_prop, direction))
+                                   f"u: {u}\n"
+                                   f"nstep_left: {nstep_l}\n"
+                                   f"nstep_right: {nstep_r}\n"
+                                   f"nstep_hat: {nstep_hat}\n"
+                                   f"u_prop: {u_prop}\n"
+                                   f"loglstar: {loglstar}\n"
+                                   f"logl_prop: {logl_prop}\n"
+                                   f"direction: {direction}\n")
     v_prop = prior_transform(u_prop)
     return u_prop, v_prop, logl_prop, nc, nexpand, ncontract, expansion_warning
 
@@ -536,9 +535,10 @@ def sample_slice(args):
     """
 
     # Unzipping.
-    (u, loglstar, axes, scale, prior_transform, loglikelihood, rseed,
-     kwargs) = args
-    rstate = get_random_generator(rseed)
+    (u, loglstar, axes, scale, prior_transform, loglikelihood,
+     kwargs) = (args.u, args.loglstar, args.axes, args.scale,
+                args.prior_transform, args.loglikelihood, args.kwargs)
+    rstate = get_random_generator(args.rseed)
     # Periodicity.
     nonperiodic = kwargs.get('nonperiodic', None)
     doubling = kwargs.get('slice_doubling', False)
@@ -554,7 +554,7 @@ def sample_slice(args):
     axes = scale * axes.T  # scale based on past tuning
     expansion_warning_set = False
     # Slice sampling loop.
-    for it in range(slices):
+    for _ in range(slices):
 
         # Shuffle axis update order.
         idxs = np.arange(n)
@@ -642,9 +642,10 @@ def sample_rslice(args):
     """
 
     # Unzipping.
-    (u, loglstar, axes, scale, prior_transform, loglikelihood, rseed,
-     kwargs) = args
-    rstate = get_random_generator(rseed)
+    (u, loglstar, axes, scale, prior_transform, loglikelihood,
+     kwargs) = (args.u, args.loglstar, args.axes, args.scale,
+                args.prior_transform, args.loglikelihood, args.kwargs)
+    rstate = get_random_generator(args.rseed)
     # Periodicity.
     nonperiodic = kwargs.get('nonperiodic', None)
     doubling = kwargs.get('slice_doubling', False)
@@ -659,7 +660,7 @@ def sample_rslice(args):
     expansion_warning_set = False
 
     # Slice sampling loop.
-    for it in range(slices):
+    for _ in range(slices):
 
         # Propose a direction on the unit n-sphere.
         drhat = rstate.standard_normal(size=n)
@@ -748,9 +749,11 @@ def sample_hslice(args):
     """
 
     # Unzipping.
-    (u, loglstar, axes, scale, prior_transform, loglikelihood, rseed,
-     kwargs) = args
-    rstate = get_random_generator(rseed)
+    (u, loglstar, axes, scale, prior_transform, loglikelihood,
+     kwargs) = (args.u, args.loglstar, args.axes, args.scale,
+                args.prior_transform, args.loglikelihood, args.kwargs)
+    rstate = get_random_generator(args.rseed)
+
     # Periodicity.
     nonperiodic = kwargs.get('nonperiodic', None)
 
@@ -768,7 +771,7 @@ def sample_hslice(args):
     ncontract = 0
 
     # Slice sampling loop.
-    for it in range(slices):
+    for _ in range(slices):
         # Define the left, "inner", and right "nodes" for a given chord.
         # We will plan to slice sampling using these chords.
         nodes_l, nodes_m, nodes_r = [], [], []
@@ -826,7 +829,7 @@ def sample_hslice(args):
                         logl_out = logl_r
                     # Check if we could compute gradients assuming we
                     # terminated with the current `u_out`.
-                    if np.isfinite(logl_out):
+                    if np.isfinite(float(logl_out)):
                         reverse = False
                     else:
                         reverse = True
@@ -862,7 +865,7 @@ def sample_hslice(args):
                     u_r_r[i] += 1e-10
                     if unitcheck(u_r_r, nonperiodic):
                         v_r_r = prior_transform(np.asarray(u_r_r))
-                        logl_r_r = loglikelihood(np.asarray(v_r_r))
+                        logl_r_r = loglikelihood(np.asarray(v_r_r)).val
                     else:
                         logl_r_r = -np.inf
                         reverse = True  # can't compute gradient
@@ -871,7 +874,7 @@ def sample_hslice(args):
                     u_r_l[i] -= 1e-10
                     if unitcheck(u_r_l, nonperiodic):
                         v_r_l = prior_transform(np.asarray(u_r_l))
-                        logl_r_l = loglikelihood(np.asarray(v_r_l))
+                        logl_r_l = loglikelihood(np.asarray(v_r_l)).val
                     else:
                         logl_r_l = -np.inf
                         reverse = True  # can't compute gradient
@@ -965,7 +968,7 @@ def sample_hslice(args):
                         logl_out = logl_l
                     # Check if we could compute gradients assuming we
                     # terminated with the current `u_out`.
-                    if np.isfinite(logl_out):
+                    if np.isfinite(float(logl_out)):
                         reverse = False
                     else:
                         reverse = True
@@ -1001,7 +1004,7 @@ def sample_hslice(args):
                     u_l_r[i] += 1e-10
                     if unitcheck(u_l_r, nonperiodic):
                         v_l_r = prior_transform(np.asarray(u_l_r))
-                        logl_l_r = loglikelihood(np.asarray(v_l_r))
+                        logl_l_r = loglikelihood(np.asarray(v_l_r)).val
                     else:
                         logl_l_r = -np.inf
                         reverse = True  # can't compute gradient
@@ -1010,7 +1013,7 @@ def sample_hslice(args):
                     u_l_l[i] -= 1e-10
                     if unitcheck(u_l_l, nonperiodic):
                         v_l_l = prior_transform(np.asarray(u_l_l))
-                        logl_l_l = loglikelihood(np.asarray(v_l_l))
+                        logl_l_l = loglikelihood(np.asarray(v_l_l)).val
                     else:
                         logl_l_l = -np.inf
                         reverse = True  # can't compute gradient
@@ -1075,7 +1078,7 @@ def sample_hslice(args):
         nodes_l, nodes_m, nodes_r = (np.array(nodes_l), np.array(nodes_m),
                                      np.array(nodes_r))
         Nchords = len(nodes_l)
-        axlen = np.zeros(Nchords, dtype='float')
+        axlen = np.zeros(Nchords, dtype=float)
         for i, (nl, nr) in enumerate(zip(nodes_l, nodes_r)):
             axlen[i] = linalg.norm(nr - nl)
 
@@ -1087,11 +1090,8 @@ def sample_hslice(args):
             if np.any(axlen < 1e-5 * axlen_init):
                 raise RuntimeError("Hamiltonian slice sampling appears to be "
                                    "stuck! Some useful output quantities:\n"
-                                   "u: {0}\n"
-                                   "u_left: {1}\n"
-                                   "u_right: {2}\n"
-                                   "loglstar: {3}.".format(
-                                       u, u_l, u_r, loglstar))
+                                   f"u: {u}\n u_left: {u_l}\n"
+                                   f"u_right: {u_r}\n loglstar: {loglstar}.")
 
             # Select chord.
             axprob = axlen / np.sum(axlen)
@@ -1124,18 +1124,14 @@ def sample_hslice(args):
                     nodes_r[idx] = u_prop
                     axlen[idx] *= rprop
                 else:
-                    raise RuntimeError("Slice sampler has failed to find "
-                                       "a valid point. Some useful "
-                                       "output quantities:\n"
-                                       "u: {0}\n"
-                                       "u_left: {1}\n"
-                                       "u_right: {2}\n"
-                                       "u_hat: {3}\n"
-                                       "u_prop: {4}\n"
-                                       "loglstar: {5}\n"
-                                       "logl_prop: {6}.".format(
-                                           u, u_l, u_r, u_hat, u_prop,
-                                           loglstar, logl_prop))
+                    raise RuntimeError(
+                        "Slice sampler has failed to find "
+                        "a valid point. Some useful "
+                        "output quantities:\n"
+                        f"u: {u}\n u_left: {u_l}\n"
+                        f"u_right: {u_r}\n u_hat: {u_hat}\n"
+                        f"u_prop: {u_prop}\n loglstar: {loglstar}\n"
+                        f"logl_prop: {logl_prop}")
 
     blob = {'nmove': nmove, 'nreflect': nreflect, 'ncontract': ncontract}
 

@@ -15,6 +15,7 @@ import sys
 import warnings
 import math
 import copy
+from enum import Enum
 import numpy as np
 from scipy.special import logsumexp
 from .nestedsamplers import (UnitCubeSampler, SingleEllipsoidSampler,
@@ -43,7 +44,8 @@ _SAMPLERS = {
 _LOWL_VAL = -1e300
 
 
-class DynamicSamplerStatesEnum:
+class DynamicSamplerStatesEnum(Enum):
+    """ """
     INIT = 1  # after the constructor
     LIVEPOINTSINIT = 2  # after generating livepoints
     INBASE = 3  # during base runs
@@ -130,15 +132,14 @@ def weight_function(results, args=None, return_weights=False):
     pfrac = args.get('pfrac', 0.8)
     if not 0. <= pfrac <= 1.:
         raise ValueError(
-            "The provided `pfrac` {0} is not between 0. and 1.".format(pfrac))
+            f"The provided `pfrac` {pfrac} is not between 0. and 1.")
     maxfrac = args.get('maxfrac', 0.8)
     if not 0. <= maxfrac <= 1.:
         raise ValueError(
-            "The provided `maxfrac` {0} is not between 0. and 1.".format(
-                maxfrac))
+            f"The provided `maxfrac` {maxfrac} is not between 0. and 1.")
     lpad = args.get('pad', 1)
     if lpad < 0:
-        raise ValueError("`lpad` {0} is less than zero.".format(lpad))
+        raise ValueError(f"`lpad` {lpad} is less than zero.")
 
     zweight, pweight = compute_weights(results)
 
@@ -187,14 +188,16 @@ def _get_update_interval_ratio(update_interval, sample, bound, ndim, nlive,
         elif sample == 'hslice':
             update_interval_frac = 25.0 * slices
         else:
-            raise ValueError("Unknown sampling method: '{0}'".format(sample))
+            update_interval_frac = np.inf
+            warnings.warn(
+                "No update_interval set with unknown sampling method: "
+                f"'{sample}'. Defaulting to no updates.")
     elif isinstance(update_interval, float):
         update_interval_frac = update_interval
     elif isinstance(update_interval, int):
         update_interval_frac = update_interval * 1. / nlive
     else:
-        raise RuntimeError(
-            str.format('Strange update_interval value {}', update_interval))
+        raise RuntimeError(f'Strange update_interval value {update_interval}')
     if bound == 'none':
         update_interval_frac = np.inf
     return update_interval_frac
@@ -275,29 +278,28 @@ def stopping_function(results,
     pfrac = args.get('pfrac', 1.0)
     if not 0. <= pfrac <= 1.:
         raise ValueError(
-            "The provided `pfrac` {0} is not between 0. and 1.".format(pfrac))
+            f"The provided `pfrac` {pfrac} is not between 0. and 1.")
     evid_thresh = args.get('evid_thresh', 0.1)
     if pfrac < 1. and evid_thresh < 0.:
-        raise ValueError("The provided `evid_thresh` {0} is not non-negative "
-                         "even though `1. - pfrac` is {1}.".format(
-                             evid_thresh, 1. - pfrac))
+        raise ValueError(
+            f"The provided `evid_thresh` {evid_thresh} is not non-negative "
+            f"even though `pfrac` is {pfrac}.")
     target_n_effective = args.get('target_n_effective', 10000)
 
     if pfrac > 0. and target_n_effective < 0.:
         raise ValueError(
-            "The provided `target_n_effective` {0} is not non-negative "
-            "even though `pfrac` is {1}.".format(target_n_effective, pfrac))
+            f"The provided `target_n_effective` {target_n_effective} " +
+            f"is not non-negative even though `pfrac` is {pfrac}")
     n_mc = args.get('n_mc', 0)
     if n_mc < 0:
-        raise ValueError("The number of realizations {0} must be greater "
-                         "or equal to zero.".format(n_mc))
+        raise ValueError(f"The number of realizations {n_mc} must be greater "
+                         "or equal to zero.")
     if n_mc > 0 and n_mc < 20:
         warnings.warn("Using a small number of realizations might result in "
                       "excessively noisy stopping value estimates.")
     error = args.get('error', 'jitter')
     if error not in {'jitter', 'resample'}:
-        raise ValueError(
-            "The chosen `'error'` option {0} is not valid.".format(error))
+        raise ValueError(f"The chosen `'error'` option {error} is not valid.")
     approx = args.get('approx', True)
 
     if n_mc > 1:
@@ -328,51 +330,73 @@ def stopping_function(results,
         return stop <= 1.
 
 
-def initialize_live_points(live_points,
-                           prior_transform,
-                           loglikelihood,
-                           M,
-                           nlive=None,
-                           npdim=None,
-                           rstate=None,
-                           use_pool_ptform=None):
+def _initialize_live_points(live_points,
+                            prior_transform,
+                            loglikelihood,
+                            M,
+                            nlive=None,
+                            npdim=None,
+                            rstate=None,
+                            blob=False,
+                            use_pool_ptform=None):
     """
     Initialize the first set of live points before starting the sampling
 
-    Parameters:
+    Parameters
+    ----------
     live_points: tuple of arrays or None
-        This can be either none or tuple of 3 arrays (u, v, logl), i.e.
-        point location in cube coordinates, point location in original
-        coordinates, and logl values
+        This can be either none or
+        tuple of 3 arrays (u, v, logl) or
+        tuple of 4 arrays (u, v, logl, blobs), i.e.
+        points location in cube coordinates,
+        point slocation in original coordinates,
+        logl values and optionally blobs associated
+
     prior_transform: function
+
     log_likelihood: function
+
     M: function
         The function supporting parallel calls like M(func, list)
+
     nlive: int
         Number of live-points
+
     npdim: int
         Number of dimensions
+
     rstate: :class: numpy.random.RandomGenerator
+
+    blob: bool
+        If true we also keep track of blobs returned by likelihood
+
     use_pool_ptform: bool or None
         The flag to perform prior transform using multiprocessing pool or not
 
-    Returns:
-    (live_u, live_v, live_logl): tuple
-        The tuple of arrays. The first is in unit cube coordinates, the second
-        is in the original coordinates and the last are the logl values
+    Returns
+    -------
+    (live_u, live_v, live_logl, blobs): tuple
+        The tuple of arrays.
+        The first is in unit cube coordinates.
+        The second is in the original coordinates.
+        The third are the log-likelihood valuess.
+        The fourth are the array of blobs (or None)
     """
     if live_points is None:
         # If no live points are provided, propose them by randomly
         # sampling from the unit cube.
         n_attempts = 100
-        for attempt in range(n_attempts):
-            live_u = rstate.uniform(size=(nlive, npdim))
+        for _ in range(n_attempts):
+            live_u = rstate.random(size=(nlive, npdim))
             if use_pool_ptform:
-                live_v = np.array(list(M(prior_transform, np.asarray(live_u))))
+                live_v = M(prior_transform, np.asarray(live_u))
             else:
-                live_v = np.array(
-                    list(map(prior_transform, np.asarray(live_u))))
-            live_logl = np.array(loglikelihood.map(np.asarray(live_v)))
+                live_v = map(prior_transform, np.asarray(live_u))
+            live_v = np.array(list(live_v))
+            live_logl = loglikelihood.map(np.asarray(live_v))
+            if blob:
+                live_blobs = np.array([_.blob for _ in live_logl])
+            live_logl = np.array([_.val for _ in live_logl])
 
             # Convert all `-np.inf` log-likelihoods to finite large
             # numbers. Necessary to keep estimators in our sampler from
@@ -382,10 +406,10 @@ def initialize_live_points(live_points,
                     if np.sign(logl) < 0:
                         live_logl[i] = _LOWL_VAL
                     else:
-                        raise ValueError("The log-likelihood ({0}) of live "
-                                         "point {1} located at u={2} v={3} "
-                                         " is invalid.".format(
-                                             logl, i, live_u[i], live_v[i]))
+                        raise ValueError(
+                            f"The log-likelihood ({logl}) of live "
+                            f"point {i} located at u={live_u[i]} "
+                            f"v={live_v[i]} is invalid.")
 
             # Check to make sure there is at least one finite
             # log-likelihood value within the initial set of live
@@ -394,18 +418,18 @@ def initialize_live_points(live_points,
                 break
         else:
             # If we found nothing after many attempts, raise the alarm.
-            raise RuntimeError(
-                str.format(
-                    "After {0} attempts, not a single "
-                    "live "
-                    "point had a valid log-likelihood! Please "
-                    "check your prior transform and/or "
-                    "log-likelihood.", n_attempts))
+            raise RuntimeError(f"After {n_attempts} attempts, not a single "
+                               "live "
+                               "point had a valid log-likelihood! Please "
+                               "check your prior transform and/or "
+                               "log-likelihood.")
     else:
         # If live points were provided, convert the log-likelihoods and
         # then run a quick safety check.
-        live_u, live_v, live_logl = live_points
-
+        live_u, live_v, live_logl = live_points[:3]
+        if blob:
+            live_blobs = live_points[3]
+        live_logl = np.asarray(live_logl)
         for i, logl in enumerate(live_logl):
             if not np.isfinite(logl):
                 if np.sign(logl) < 0:
@@ -415,7 +439,7 @@ def initialize_live_points(live_points,
                                      "point {1} located at u={2} v={3} "
                                      " is invalid.".format(
                                          logl, i, live_u[i], live_v[i]))
-        if all(live_logl == _LOWL_VAL):
+        if np.all(live_logl == _LOWL_VAL):
             raise ValueError("Not a single provided live point has a "
                              "valid log-likelihood!")
     if (np.ptp(live_logl) == 0):
@@ -424,7 +448,329 @@ def initialize_live_points(live_points,
             'You likely have a plateau in the likelihood. '
             'Nested sampling is *NOT* guaranteed to work in this case',
             RuntimeWarning)
-    return (live_u, live_v, live_logl)
+    if not blob:
+        live_blobs = None
+    return (live_u, live_v, live_logl, live_blobs)
+
+
+def _configure_batch_sampler(main_sampler,
+                             nlive_new,
+                             update_interval,
+                             logl_bounds=None,
+                             save_bounds=None):
+    """
+    This is a utility method that construct a new internal
+    sampler that will sample one batch.
+    Since the setting up requires us coming up with a set of
+    of starting live points we also prepare the first list points
+    that will be yielded by the "master" sampler (but those are
+    yielded just for printing).
+
+    This method should not modify the parent sampler at all other
+    than using the parent's random number generator
+
+    Parameters
+    ----------
+    main_sampler: DynamicNestedSampler
+        The parent sampler that we'll use to initialize a new sampler
+
+    nlive_new: integer
+        The number of live-points in the new sampler
+
+    update_interval : int
+        Only update the bounding distribution
+        every `update_interval`-th likelihood call. Note that
+        here it must be integer
+
+    logl_bounds: tuple
+        Tuple of bounds in loglikelihood for the batch
+
+    save_bounds: bool
+        If true bounds will be preserved
+
+    Returns
+    -------
+    batch_sampler: Sampler
+        The sampler that will actually execute the batch.
+        It will also have a first_points attribute with the list
+        of IteratorResultShorts
+    ncall: integer
+        Number of likelihood calls throughout
+    niter: integer
+        Number of iterations
+    logl_min: float
+        actually used logl_min as we may modify logl_bound
+    logl_max: float
+        actually used logl_max
+    """
+
+    # Things to consider in this method
+    # Because we are not yielding samples from this method directly, we
+    # are not expecting that the .save() will save a state
+    # before or in the middle of running this method
+
+    # Counters of calls and iterations throughout.
+    ncall = 0
+    niter = 0
+
+    # Grab results from saved run.
+    saved_u = np.array(main_sampler.saved_run['u'])
+    saved_v = np.array(main_sampler.saved_run['v'])
+    saved_logl = np.array(main_sampler.saved_run['logl'])
+    saved_logvol = np.array(main_sampler.saved_run['logvol'])
+    saved_scale = np.array(main_sampler.saved_run['scale'])
+    saved_blobs = np.array(main_sampler.saved_run['blob'])
+    first_points = []
+
+    # This will be a list of first points yielded from
+    # this batch before we start proper sampling
+    batch_sampler = _SAMPLERS[main_sampler.bounding](
+        main_sampler.loglikelihood,
+        main_sampler.prior_transform,
+        main_sampler.npdim,
+        main_sampler.live_init,  # this is not used at all
+        # as we replace the starting points
+        main_sampler.method,
+        update_interval,
+        main_sampler.first_update,
+        main_sampler.rstate,
+        main_sampler.queue_size,
+        main_sampler.pool,
+        main_sampler.use_pool,
+        ncdim=main_sampler.ncdim,
+        kwargs=main_sampler.kwargs,
+        blob=main_sampler.blob)
+    batch_sampler.save_bounds = save_bounds
+
+    # Initialize ln(likelihood) bounds.
+    if logl_bounds is None:
+        # the reason we set logl_max to not the highest logl
+        # is because the last few points are always added in the end
+        # without sampling through add_live_points()
+        # so here I pick up the first point where the volume is
+        # Vmin*nlive where Vmin is the smallest volume previously seen.
+        logl_max_pos = np.nonzero(
+            saved_logvol < (saved_logvol[-1] + np.log(nlive_new)))[0]
+        if len(logl_max_pos) > 0:
+            logl_max_pos = logl_max_pos[-1]
+        else:
+            logl_max_pos = len(saved_logl) - 1
+        logl_min, logl_max = -np.inf, saved_logl[logl_max_pos]
+    else:
+        logl_min, logl_max = logl_bounds
+    # IMPORTANT we update these in the process
+
+    # Check whether the lower bound encompasses all previous saved
+    # samples.
+    psel = np.all(logl_min <= saved_logl)
+    if psel:
+        # If the lower bound encompasses all saved samples, we want
+        # to propose a new set of points from the unit cube.
+        (live_u, live_v, live_logl, live_blobs) = _initialize_live_points(
+            None,
+            main_sampler.prior_transform,
+            main_sampler.loglikelihood,
+            main_sampler.M,
+            nlive=nlive_new,
+            npdim=main_sampler.npdim,
+            rstate=main_sampler.rstate,
+            blob=main_sampler.blob,
+            use_pool_ptform=main_sampler.use_pool_ptform)
+
+        live_bound = np.zeros(nlive_new, dtype=int)
+        live_it = np.zeros(nlive_new, dtype=int)
+        live_nc = np.ones(nlive_new, dtype=int)
+        # we should have evaluated the function once per point
+
+        ncall += nlive_new
+        # Return live points in generator format.
+        for i in range(nlive_new):
+            # TODO is the self.eff the right efficiency to use here
+            # check worst_it
+            first_points.append(
+                IteratorResultShort(worst=-i - 1,
+                                    ustar=live_u[i],
+                                    vstar=live_v[i],
+                                    loglstar=live_logl[i],
+                                    nc=1,
+                                    worst_it=live_it[i] + main_sampler.it,
+                                    boundidx=0,
+                                    bounditer=0,
+                                    eff=main_sampler.eff))
+    else:
+        # If the lower bound doesn't encompass all base samples,
+        # we need to create a uniform sample from the prior subject
+        # to the likelihood boundary constraint
+
+        subset0 = np.nonzero(saved_logl > logl_min)[0]
+
+        if len(subset0) == 0:
+            raise RuntimeError('Could not find live points in the '
+                               'required logl interval. Please report!\n'
+                               f'Diagnostics. logl_min: {logl_min} '
+                               f'logl_bounds: {logl_bounds} '
+                               f'saved_loglmax: {saved_logl.max()}')
+
+        # Also if we don't have enough live points above the boundary
+        # we simply go down to collect our nlive_new points
+        if len(subset0) < nlive_new:
+            if len(saved_logl) < nlive_new:
+                # It means we don't even have nlive_new points
+                # in our base runs so we just take everything
+                subset0 = np.arange(len(saved_logl))
+            else:
+                # otherwise we just move the boundary down
+                # to collect our nlive_new points
+                subset0 = np.arange(subset0[-1] - nlive_new + 1,
+                                    subset0[-1] + 1)
+            # IMPORTANT We have to update the lower bound for sampling
+            # otherwise some of our live points do not satisfy it
+
+            # we want our points to be strictly above the logl_min
+            if subset0[0] > 0:
+                logl_min = saved_logl[subset0[0] - 1]
+            else:
+                logl_min = -np.inf
+
+        live_scale = saved_scale[subset0[0]]
+        # set the scale based on the lowest point
+
+        # we are weighting each point by X_i to ensure
+        # uniformyish sampling within boundary volume
+        # It doesn't have to be super uniform as we'll sample
+        # again, but still
+        cur_log_uniwt = saved_logvol[subset0]
+        cur_uniwt = np.exp(cur_log_uniwt - cur_log_uniwt.max())
+        cur_uniwt = cur_uniwt / cur_uniwt.sum()
+        # I normalize in linear space rather then using logsumexp
+        # because cur_uniwt.sum() needs to be 1 for random.choice
+
+        # we are now randomly sampling with weights
+        # notice that since we are sampling without
+        # replacement we aren't guaranteed to be able
+        # to get nlive_new points
+        # so we get min(nlive_new,subset.sum())
+        # in that case the sample technically won't be
+        # uniform
+        n_pos_weight = (cur_uniwt > 0).sum()
+
+        subset = main_sampler.rstate.choice(subset0,
+                                            size=min(nlive_new, n_pos_weight),
+                                            p=cur_uniwt,
+                                            replace=False)
+        # subset will now have indices of selected points from
+        # saved_* arrays
+        cur_nlive = len(subset)
+        if cur_nlive == 1:
+            raise RuntimeError('Only one live point is selected\n' +
+                               'Please report the error on github!' +
+                               f'Diagnostics nlive_new: {nlive_new} ' +
+                               f'cur_nlive: {cur_nlive}' +
+                               f'n_pos_weight: {n_pos_weight}' +
+                               f'cur_wt: {cur_uniwt}')
+        # We are doing copies here, because live_* stuff is
+        # updated in place
+        live_u = saved_u[subset, :].copy()
+        live_v = saved_v[subset, :].copy()
+        live_logl = saved_logl[subset].copy()
+        live_blobs = saved_blobs[subset].copy()
+
+        # Hack the internal sampler by overwriting the live points
+        # and scale factor.
+        batch_sampler.nlive = cur_nlive
+        batch_sampler.live_u = live_u
+        batch_sampler.live_v = live_v
+        batch_sampler.live_logl = live_logl
+        batch_sampler.scale = live_scale
+        batch_sampler.live_blobs = live_blobs
+        # Trigger an update of the internal bounding distribution based
+        # on the "new" set of live points.
+
+        bound = batch_sampler.update()
+        if save_bounds:
+            batch_sampler.bound.append(copy.deepcopy(bound))
+        batch_sampler.nbound += 1
+        batch_sampler.since_update = 0
+        batch_sampler.logl_first_update = logl_min
+        live_u = np.empty((nlive_new, main_sampler.npdim))
+        live_v = np.empty((nlive_new, saved_v.shape[1]))
+        live_logl = np.empty(nlive_new)
+        live_bound = np.zeros(nlive_new, dtype=int)
+        live_it = np.zeros(nlive_new, dtype=int)
+
+        live_nc = np.empty(nlive_new, dtype=int)
+        if main_sampler.blob:
+            live_blobs = []
+        else:
+            live_blobs = None
+
+        # Sample a new batch of `nlive_new` live points using the
+        # internal sampler given the `logl_min` constraint.
+        for i in range(nlive_new):
+            newpt = batch_sampler._new_point(logl_min)
+            (live_u[i], live_v[i], live_logl[i], live_nc[i]) = newpt
+            if main_sampler.blob:
+                blob = newpt[2].blob
+                live_blobs.append(blob)
+            else:
+                blob = None
+
+            ncall += live_nc[i]
+
+            # Return live points in generator format.
+            # these won't be saved but just used for printing
+            first_points.append(
+                IteratorResultShort(
+                    worst=-i - 1,
+                    ustar=live_u[i],
+                    vstar=live_v[i],
+                    loglstar=live_logl[i],
+                    nc=live_nc[i],
+                    worst_it=live_it[i] + main_sampler.it,
+                    boundidx=live_bound[i],
+                    bounditer=live_bound[i],
+                    eff=main_sampler.eff,
+                ))
+    niter += nlive_new
+    # Overwrite the previous set of live points in our internal sampler
+    # with the new batch of points we just generated.
+    batch_sampler.nlive = nlive_new
+
+    # All the arrays are newly created in this function
+    # We don't need to worry about them being parts of other arrays
+    batch_sampler.live_u = live_u
+    batch_sampler.live_v = live_v
+    batch_sampler.live_logl = live_logl
+    batch_sampler.live_bound = live_bound
+    batch_sampler.live_blobs = live_blobs
+    batch_sampler.live_it = live_it
+
+    # Trigger an update of the internal bounding distribution
+    if not psel:
+        bound = batch_sampler.update()
+        if save_bounds:
+            batch_sampler.bound.append(copy.deepcopy(bound))
+        batch_sampler.nbound += 1
+        batch_sampler.since_update = 0
+        batch_sampler.logl_first_update = logl_min
+
+    # Figure out where the new run would would join the previous run
+    if logl_min == -np.inf:
+        vol_idx = 0
+    else:
+        vol_idx = np.argmin(np.abs(saved_logl - logl_min)) + 1
+
+    # truncate information in the saver of the internal sampler
+    # to make it look like we are just continuing
+    for k in batch_sampler.saved_run.keys():
+        batch_sampler.saved_run[k] = main_sampler.saved_run[k][:vol_idx]
+
+    batch_sampler.dlv = math.log((nlive_new + 1.) / nlive_new)
+
+    batch_sampler.first_points = first_points
+    # We save these points in the object to ensure we can
+    # resume from an interrupted run
+    return batch_sampler, ncall, niter, logl_min, logl_max
 
 
 class DynamicSampler:
@@ -498,7 +844,7 @@ class DynamicSampler:
         self.prior_transform = prior_transform
         self.npdim = npdim
         self.ncdim = ncdim
-
+        self.blob = kwargs.get('blob') or False
         # bounding/sampling
         self.bounding = bound
         self.method = method
@@ -549,9 +895,10 @@ class DynamicSampler:
 
         self.saved_run = RunRecord(dynamic=True)
         self.base_run = RunRecord(dynamic=True)
-        self.new_run = RunRecord(dynamic=True)
+        self.new_run = None
 
-        self.new_logl_min, self.new_logl_max = -np.inf, np.inf  # logl bounds
+        self.new_logl_min, self.new_logl_max = -np.inf, np.inf
+        # logl bounds of latest "new" run
 
         # these are set-up during sampling
         self.live_u = None
@@ -561,6 +908,9 @@ class DynamicSampler:
         self.live_logl = None
         self.live_init = None
         self.nlive_init = None
+        self.batch_sampler = None
+
+        self.live_blobs = None
 
     def __setstate__(self, state):
         self.__dict__ = state
@@ -638,7 +988,7 @@ class DynamicSampler:
 
         self.saved_run = RunRecord(dynamic=True)
         self.base_run = RunRecord(dynamic=True)
-        self.new_run = RunRecord(dynamic=True)
+        self.new_run = None
         self.new_logl_min, self.new_logl_max = -np.inf, np.inf
 
     @property
@@ -648,9 +998,10 @@ class DynamicSampler:
         d = {}
         for k in [
                 'nc', 'v', 'id', 'batch', 'it', 'u', 'n', 'logwt', 'logl',
-                'logvol', 'logz', 'logzvar', 'h', 'batch_nlive', 'batch_bounds'
+                'logvol', 'logz', 'logzvar', 'h', 'batch_nlive',
+                'batch_bounds', 'blob'
         ]:
-            d[k] = np.array(self.saved_run.D[k])
+            d[k] = np.array(self.saved_run[k])
 
         # Add all saved samples (and ancillary quantities) to the results.
         with warnings.catch_warnings():
@@ -661,7 +1012,7 @@ class DynamicSampler:
                 results.append(('samples_' + k, d[k]))
             for k in [
                     'logwt', 'logl', 'logvol', 'logz', 'batch_nlive',
-                    'batch_bounds'
+                    'batch_bounds', 'blob'
             ]:
                 results.append((k, d[k]))
             results.append(('logzerr', np.sqrt(d['logzvar'])))
@@ -671,10 +1022,10 @@ class DynamicSampler:
         if self.sampler.save_bounds:
             results.append(('bound', copy.deepcopy(self.bound)))
             results.append(
-                ('bound_iter', np.array(self.saved_run.D['bounditer'])))
+                ('bound_iter', np.array(self.saved_run['bounditer'])))
             results.append(
-                ('samples_bound', np.array(self.saved_run.D['boundidx'])))
-            results.append(('scale', np.array(self.saved_run.D['scale'])))
+                ('samples_bound', np.array(self.saved_run['boundidx'])))
+            results.append(('scale', np.array(self.saved_run['scale'])))
 
         return Results(results)
 
@@ -687,7 +1038,7 @@ class DynamicSampler:
         `1` if there is only one non-zero element in `wts`.
 
         """
-        logwt = self.saved_run.D['logwt']
+        logwt = self.saved_run['logwt']
         if len(logwt) == 0 or np.isneginf(np.max(logwt)):
             # If there are no saved weights, or its -inf return 0.
             return 0
@@ -767,7 +1118,9 @@ class DynamicSampler:
         n_effective: int, optional
             This option is deprecated and will be removed in a future release.
 
-        live_points : list of 3 `~numpy.ndarray` each with shape (nlive, ndim)
+        live_points: list of 3 `~numpy.ndarray` each with shape (nlive, ndim)
+            and optionally list of blobs associated with these likelihood calls
+            (if blob=True in the sampler)
             A set of live points used to initialize the nested sampling run.
             Contains `live_u`, the coordinates on the unit cube, `live_v`, the
             transformed variables, and `live_logl`, the associated
@@ -852,24 +1205,31 @@ class DynamicSampler:
             # Reset saved results to avoid any possible conflicts.
             self.reset()
 
-            self.live_u, self.live_v, self.live_logl = initialize_live_points(
-                live_points,
-                self.prior_transform,
-                self.loglikelihood,
-                self.M,
-                nlive=nlive,
-                npdim=self.npdim,
-                rstate=self.rstate,
-                use_pool_ptform=self.use_pool_ptform)
-
+            (self.live_u, self.live_v, self.live_logl,
+             blobs) = _initialize_live_points(
+                 live_points,
+                 self.prior_transform,
+                 self.loglikelihood,
+                 self.M,
+                 nlive=nlive,
+                 npdim=self.npdim,
+                 rstate=self.rstate,
+                 blob=self.blob,
+                 use_pool_ptform=self.use_pool_ptform)
+            if self.blob:
+                self.live_blobs = blobs
+            else:
+                self.live_blobs = None
             self.nlive_init = len(self.live_u)
 
             # (Re-)bundle live points.
-            live_points = [self.live_u, self.live_v, self.live_logl]
+            live_points = [
+                self.live_u, self.live_v, self.live_logl, self.live_blobs
+            ]
             self.live_init = [np.array(_) for _ in live_points]
             self.ncall += self.nlive_init
-            self.live_bound = np.zeros(self.nlive_init, dtype='int')
-            self.live_it = np.zeros(self.nlive_init, dtype='int')
+            self.live_bound = np.zeros(self.nlive_init, dtype=int)
+            self.live_it = np.zeros(self.nlive_init, dtype=int)
 
             bounding = self.bounding
 
@@ -887,115 +1247,121 @@ class DynamicSampler:
                                                self.pool,
                                                self.use_pool,
                                                ncdim=self.ncdim,
-                                               kwargs=self.kwargs)
+                                               kwargs=self.kwargs,
+                                               blob=self.blob)
             self.bound = self.sampler.bound
             self.internal_state = DynamicSamplerStatesEnum.LIVEPOINTSINIT
-        # Run the sampler internally as a generator.
-        for i in range(1):
-            for it, results in enumerate(
-                    self.sampler.sample(maxiter=maxiter,
-                                        save_samples=save_samples,
-                                        maxcall=maxcall,
-                                        dlogz=dlogz)):
-                # Grab results.
+            # Run the sampler internally as a generator.
+        for it, results in enumerate(
+                self.sampler.sample(maxiter=maxiter,
+                                    save_samples=save_samples,
+                                    maxcall=maxcall,
+                                    logl_max=logl_max,
+                                    dlogz=dlogz,
+                                    resume=resume)):
+            # Grab results.
 
-                # Save our base run (which we will use later).
-                add_info = dict(id=results.worst,
-                                u=results.ustar,
-                                v=results.vstar,
-                                logl=results.loglstar,
-                                logvol=results.logvol,
-                                logwt=results.logwt,
-                                logz=results.logz,
-                                logzvar=results.logzvar,
-                                h=results.h,
-                                nc=results.nc,
-                                it=results.worst_it,
-                                n=self.nlive_init,
-                                boundidx=results.boundidx,
-                                bounditer=results.bounditer,
-                                scale=self.sampler.scale)
+            # Save our base run (which we will use later).
+            add_info = dict(id=results.worst,
+                            u=results.ustar,
+                            v=results.vstar,
+                            logl=results.loglstar,
+                            logvol=results.logvol,
+                            logwt=results.logwt,
+                            logz=results.logz,
+                            logzvar=results.logzvar,
+                            h=results.h,
+                            nc=results.nc,
+                            it=results.worst_it,
+                            n=self.nlive_init,
+                            blob=results.blob,
+                            boundidx=results.boundidx,
+                            bounditer=results.bounditer,
+                            scale=self.sampler.scale)
 
-                self.base_run.append(add_info)
-                self.saved_run.append(add_info)
+            self.base_run.append(add_info)
+            self.saved_run.append(add_info)
 
-                # Increment relevant counters.
-                self.ncall += results.nc
-                self.eff = 100. * self.it / self.ncall
-                self.it += 1
-                self.internal_state = DynamicSamplerStatesEnum.INBASE
-                yield IteratorResult(worst=results.worst,
-                                     ustar=results.ustar,
-                                     vstar=results.vstar,
-                                     loglstar=results.loglstar,
-                                     logvol=results.logvol,
-                                     logwt=results.logwt,
-                                     logz=results.logz,
-                                     logzvar=results.logzvar,
-                                     h=results.h,
-                                     nc=results.nc,
-                                     worst_it=results.worst_it,
-                                     boundidx=results.boundidx,
-                                     bounditer=results.bounditer,
-                                     eff=self.eff,
-                                     delta_logz=results.delta_logz)
-            self.internal_state = DynamicSamplerStatesEnum.INBASEADDLIVE
-            for it, results in enumerate(self.sampler.add_live_points()):
-                # Grab results.
+            # Increment relevant counters.
+            self.ncall += results.nc
+            self.eff = 100. * self.it / self.ncall
+            self.it += 1
+            self.internal_state = DynamicSamplerStatesEnum.INBASE
+            yield IteratorResult(worst=results.worst,
+                                 ustar=results.ustar,
+                                 vstar=results.vstar,
+                                 loglstar=results.loglstar,
+                                 logvol=results.logvol,
+                                 logwt=results.logwt,
+                                 logz=results.logz,
+                                 logzvar=results.logzvar,
+                                 h=results.h,
+                                 nc=results.nc,
+                                 blob=results.blob,
+                                 worst_it=results.worst_it,
+                                 boundidx=results.boundidx,
+                                 bounditer=results.bounditer,
+                                 eff=self.eff,
+                                 delta_logz=results.delta_logz)
+        self.internal_state = DynamicSamplerStatesEnum.INBASEADDLIVE
+        for it, results in enumerate(self.sampler.add_live_points()):
+            # Grab results.
 
-                add_info = dict(id=results.worst,
-                                u=results.ustar,
-                                v=results.vstar,
-                                logl=results.loglstar,
-                                logvol=results.logvol,
-                                logwt=results.logwt,
-                                logz=results.logz,
-                                logzvar=results.logzvar,
-                                h=results.h,
-                                nc=results.nc,
-                                it=results.worst_it,
-                                n=self.nlive_init - it,
-                                boundidx=results.boundidx,
-                                bounditer=results.bounditer,
-                                scale=self.sampler.scale)
+            add_info = dict(id=results.worst,
+                            u=results.ustar,
+                            v=results.vstar,
+                            logl=results.loglstar,
+                            logvol=results.logvol,
+                            logwt=results.logwt,
+                            logz=results.logz,
+                            logzvar=results.logzvar,
+                            h=results.h,
+                            blob=results.blob,
+                            nc=results.nc,
+                            it=results.worst_it,
+                            n=self.nlive_init - it,
+                            boundidx=results.boundidx,
+                            bounditer=results.bounditer,
+                            scale=self.sampler.scale)
 
-                self.base_run.append(add_info)
-                self.saved_run.append(add_info)
+            self.base_run.append(add_info)
+            self.saved_run.append(add_info)
 
-                # Increment relevant counters.
-                self.eff = 100. * self.it / self.ncall
-                self.it += 1
-                yield IteratorResult(worst=results.worst,
-                                     ustar=results.ustar,
-                                     vstar=results.vstar,
-                                     loglstar=results.loglstar,
-                                     logvol=results.logvol,
-                                     logwt=results.logwt,
-                                     logz=results.logz,
-                                     logzvar=results.logzvar,
-                                     h=results.h,
-                                     nc=results.nc,
-                                     worst_it=results.worst_it,
-                                     boundidx=results.boundidx,
-                                     bounditer=results.bounditer,
-                                     eff=self.eff,
-                                     delta_logz=results.delta_logz)
+            # Increment relevant counters.
+            self.eff = 100. * self.it / self.ncall
+            self.it += 1
+            yield IteratorResult(worst=results.worst,
+                                 ustar=results.ustar,
+                                 vstar=results.vstar,
+                                 loglstar=results.loglstar,
+                                 logvol=results.logvol,
+                                 logwt=results.logwt,
+                                 logz=results.logz,
+                                 logzvar=results.logzvar,
+                                 h=results.h,
+                                 blob=results.blob,
+                                 nc=results.nc,
+                                 worst_it=results.worst_it,
+                                 boundidx=results.boundidx,
+                                 bounditer=results.bounditer,
+                                 eff=self.eff,
+                                 delta_logz=results.delta_logz)
         new_vals = {}
         (new_vals['logwt'], new_vals['logz'], new_vals['logzvar'],
-         new_vals['h']) = compute_integrals(logl=self.saved_run.D['logl'],
-                                            logvol=self.saved_run.D['logvol'])
+         new_vals['h']) = compute_integrals(logl=self.saved_run['logl'],
+                                            logvol=self.saved_run['logvol'])
         for curk in ['logwt', 'logz', 'logzvar', 'h']:
-            self.saved_run.D[curk] = new_vals[curk].tolist()
-            self.base_run.D[curk] = new_vals[curk].tolist()
+            self.saved_run[curk] = new_vals[curk].tolist()
+            self.base_run[curk] = new_vals[curk].tolist()
+
+        self.saved_run['batch'] = np.zeros(len(self.saved_run['id']),
+                                           dtype=int)  # batch
+
+        self.saved_run['batch_nlive'].append(self.nlive_init)  # initial nlive
+        self.saved_run['batch_bounds'].append(
+            (-np.inf, np.inf))  # initial bounds
 
         self.base = True  # baseline run complete
-        self.saved_run.D['batch'] = np.zeros(len(self.saved_run.D['id']),
-                                             dtype='int')  # batch
-
-        self.saved_run.D['batch_nlive'].append(
-            self.nlive_init)  # initial nlive
-        self.saved_run.D['batch_bounds'].append(
-            (-np.inf, np.inf))  # initial bounds
         self.internal_state = DynamicSamplerStatesEnum.BASE_DONE
 
     def sample_batch(self,
@@ -1086,335 +1452,143 @@ class DynamicSampler:
         maxcall = maxcall or sys.maxsize
         maxiter = maxiter or sys.maxsize
 
-        maxiter_left = maxiter  # how many iterations we have left
         nlive_new = nlive_new or self.nlive0
 
         if nlive_new <= 2 * self.ncdim:
             warnings.warn("Beware: `nlive_batch <= 2 * ndim`!")
 
-        # Grab results from saved run.
-        saved_u = np.array(self.saved_run.D['u'])
-        saved_v = np.array(self.saved_run.D['v'])
-        saved_logl = np.array(self.saved_run.D['logl'])
-        saved_logvol = np.array(self.saved_run.D['logvol'])
-        saved_scale = np.array(self.saved_run.D['scale'])
-        nblive = self.nlive_init
-
-        update_interval = self.__get_update_interval(update_interval,
-                                                     nlive_new)
+        # In the following code we are carefully trying to store everything
+        # in attributes of batch_sampler rather than have individual
+        # variables as otherwise we can't resume properly
         if not resume:
-            first_points = []
-            # This will be a list of first points yielded from
-            # this batch before we start proper sampling
-            batch_sampler = _SAMPLERS[self.bounding](self.loglikelihood,
-                                                     self.prior_transform,
-                                                     self.npdim,
-                                                     self.live_init,
-                                                     self.method,
-                                                     update_interval,
-                                                     self.first_update,
-                                                     self.rstate,
-                                                     self.queue_size,
-                                                     self.pool,
-                                                     self.use_pool,
-                                                     ncdim=self.ncdim,
-                                                     kwargs=self.kwargs)
+            update_interval = self.__get_update_interval(
+                update_interval, nlive_new)
+            (batch_sampler, ncall, niter, logl_min,
+             logl_max) = _configure_batch_sampler(
+                 self,
+                 nlive_new,
+                 update_interval=update_interval,
+                 logl_bounds=logl_bounds,
+                 save_bounds=save_bounds)
             self.batch_sampler = batch_sampler
-            batch_sampler.save_bounds = save_bounds
+            self.bound = self.batch_sampler.bound
+            self.new_logl_min, self.new_logl_max = logl_min, logl_max
             # Reset "new" results.
             self.new_run = RunRecord(dynamic=True)
-
-            # Initialize ln(likelihood) bounds.
-            if logl_bounds is None:
-                logl_min, logl_max = -np.inf, max(saved_logl[:-nblive])
-            else:
-                logl_min, logl_max = logl_bounds
-            self.new_logl_min, self.new_logl_max = logl_min, logl_max
-
-            # Check whether the lower bound encompasses all previous saved
-            # samples.
-            psel = np.all(logl_min <= saved_logl)
-            if psel:
-                # If the lower bound encompasses all saved samples, we want
-                # to propose a new set of points from the unit cube.
-                live_u, live_v, live_logl = initialize_live_points(
-                    None,
-                    self.prior_transform,
-                    self.loglikelihood,
-                    self.M,
-                    nlive=nlive_new,
-                    npdim=self.npdim,
-                    rstate=self.rstate,
-                    use_pool_ptform=self.use_pool_ptform)
-
-                live_bound = np.zeros(nlive_new, dtype='int')
-                live_it = np.zeros(nlive_new, dtype='int') + self.it
-                live_nc = np.ones(nlive_new, dtype='int')
-                self.ncall += nlive_new
-                # Return live points in generator format.
-                for i in range(nlive_new):
-                    first_points.append(
-                        IteratorResultShort(worst=-i - 1,
-                                            ustar=live_u[i],
-                                            vstar=live_v[i],
-                                            loglstar=live_logl[i],
-                                            nc=live_nc[i],
-                                            worst_it=live_it[i],
-                                            boundidx=0,
-                                            bounditer=0,
-                                            eff=self.eff))
-            else:
-                # If the lower bound doesn't encompass all base samples,
-                # we need to create a uniform sample from the prior subject
-                # to the likelihood boundary constraint
-
-                subset0 = np.nonzero(saved_logl > logl_min)[0]
-
-                if len(subset0) == 0:
-                    raise RuntimeError(
-                        'Could not find live points in the '
-                        'required logl interval. Please report!\n'
-                        'Diagnostics. logl_min: %s ' % str(logl_min),
-                        'logl_bounds: %s ' % str(logl_bounds),
-                        'saved_loglmax: %s' % str(saved_logl.max()))
-
-                # Also if we don't have enough live points above the boundary
-                # we simply go down to collect our nblive points
-                if len(subset0) < nblive:
-                    if subset0[-1] < nblive:
-                        # It means we don't even have nblive points
-                        # in our base runs so we just take everything
-                        subset0 = np.arange(len(saved_logl))
-                    else:
-                        # otherwise we just move the boundary down
-                        # to collect our nblive points
-                        subset0 = np.arange(subset0[-1] - nblive + 1,
-                                            subset0[-1] + 1)
-                    # IMPORTANT We have to update the lower bound for sampling
-                    # otherwise some of our live points do not satisfy it
-
-                    logl_min = saved_logl[subset0[0]]
-                    self.new_logl_min = logl_min
-
-                live_scale = saved_scale[subset0[0]]
-                # set the scale based on the lowest point
-
-                # we are weighting each point by X_i to ensure
-                # uniformyish sampling within boundary volume
-                # It doesn't have to be super uniform as we'll sample
-                # again, but still
-                cur_log_uniwt = saved_logvol[subset0]
-                cur_uniwt = np.exp(cur_log_uniwt - cur_log_uniwt.max())
-                cur_uniwt = cur_uniwt / cur_uniwt.sum()
-                # I normalize in linear space rather then using logsumexp
-                # because cur_uniwt.sum() needs to be 1 for random.choice
-
-                # we are now randomly sampling with weights
-                # notice that since we are sampling without
-                # replacement we aren't guaranteed to be able
-                # to get nblive points
-                # so we get min(nblive,subset.sum())
-                # in that case the sample technically won't be
-                # uniform
-                n_pos_weight = (cur_uniwt > 0).sum()
-
-                subset = self.rstate.choice(subset0,
-                                            size=min(nblive, n_pos_weight),
-                                            p=cur_uniwt,
-                                            replace=False)
-                # subset will now have indices of selected points from
-                # saved_* arrays
-                cur_nblive = len(subset)
-                if cur_nblive == 1:
-                    raise RuntimeError('Only one live point is selected\n' +
-                                       'Please report the error on github!' +
-                                       'Diagnostics nblive: %d ' % (nblive) +
-                                       'cur_nblive: %d' % (cur_nblive) +
-                                       'n_pos_weight: %d' % (n_pos_weight) +
-                                       'cur_wt: %s' % str(cur_uniwt))
-                # We are doing copies here, because live_* stuff is
-                # updated in place
-                live_u = saved_u[subset, :].copy()
-                live_v = saved_v[subset, :].copy()
-                live_logl = saved_logl[subset].copy()
-                # Hack the internal sampler by overwriting the live points
-                # and scale factor.
-                batch_sampler.nlive = cur_nblive
-                batch_sampler.live_u = live_u
-                batch_sampler.live_v = live_v
-                batch_sampler.live_logl = live_logl
-                batch_sampler.scale = live_scale
-
-                # Trigger an update of the internal bounding distribution based
-                # on the "new" set of live points.
-
-                bound = batch_sampler.update()
-                if save_bounds:
-                    batch_sampler.bound.append(copy.deepcopy(bound))
-                batch_sampler.nbound += 1
-                batch_sampler.since_update = 0
-                batch_sampler.logl_first_update = logl_min
-                # Sample a new batch of `nlive_new` live points using the
-                # internal sampler given the `logl_min` constraint.
-                live_u = np.empty((nlive_new, self.npdim))
-                live_v = np.empty((nlive_new, saved_v.shape[1]))
-                live_logl = np.empty(nlive_new)
-                live_bound = np.zeros(nlive_new, dtype='int')
-
-                live_it = np.empty(nlive_new, dtype='int')
-                live_nc = np.empty(nlive_new, dtype='int')
-                for i in range(nlive_new):
-                    (live_u[i], live_v[i], live_logl[i],
-                     live_nc[i]) = batch_sampler._new_point(logl_min)
-                    live_it[i] = self.it
-                    self.ncall += live_nc[i]
-                    # Return live points in generator format.
-                    first_points.append(
-                        IteratorResultShort(worst=-i - 1,
-                                            ustar=live_u[i],
-                                            vstar=live_v[i],
-                                            loglstar=live_logl[i],
-                                            nc=live_nc[i],
-                                            worst_it=live_it[i],
-                                            boundidx=live_bound[i],
-                                            bounditer=live_bound[i],
-                                            eff=self.eff))
-            maxiter_left -= nlive_new
-            # Overwrite the previous set of live points in our internal sampler
-            # with the new batch of points we just generated.
-            batch_sampler.nlive = nlive_new
-
-            # All the arrays are newly created in this function
-            # We don't need to worry about them being parts of other arrays
-            batch_sampler.live_u = live_u
-            batch_sampler.live_v = live_v
-            batch_sampler.live_logl = live_logl
-            batch_sampler.live_bound = live_bound
-            batch_sampler.live_it = live_it
-            batch_sampler.it = self.it + 1
-            # Trigger an update of the internal bounding distribution (again).
-            if not psel:
-                bound = batch_sampler.update()
-                if save_bounds:
-                    batch_sampler.bound.append(copy.deepcopy(bound))
-                batch_sampler.nbound += 1
-                batch_sampler.since_update = 0
-                batch_sampler.logl_first_update = logl_min
-
-            # Copy over bound reference.
-            self.bound = batch_sampler.bound
-
-            # Update internal ln(prior volume)-based quantities
-            if self.new_logl_min == -np.inf:
-                vol_idx = 0
-            else:
-                vol_idx = np.argmin(
-                    np.abs(
-                        np.asarray(self.saved_run.D['logl']) -
-                        self.new_logl_min)) + 1
-
-            # truncate information in the saver of the internal sampler
-            for k in batch_sampler.saved_run.D.keys():
-                batch_sampler.saved_run.D[k] = self.saved_run.D[k][:vol_idx]
-
-            batch_sampler.dlv = math.log((nlive_new + 1.) / nlive_new)
-
-            # Tell the sampler *not* to try and remove the previous addition of
-            # live points. All the hacks above make the internal results
-            # garbage anyways.
-            batch_sampler.added_live = False
-
-            # Run the sampler internally as a generator until we hit
-            # the lower likelihood threshold. Afterwards, we add in our
-            # remaining live points *as if* we had terminated the run.
-            # This allows us to
-            # sample past the original bounds "for free".
-            batch_sampler.first_points = first_points
-            # We save these points in the object to ensure we can
-            # resume from an interrupted run
+            self.ncall += ncall
+            batch_sampler.it0 = self.it
+            it0 = self.it
+            # The tricky thing here is that we have here two sets of
+            # iterations.
+            # We have iterations of the batch_sampler and a parent
+            # sampler and we need to make sure we translate one to another
+            maxcall_left = maxcall - ncall
+            maxiter_left = maxiter - niter
         else:
             batch_sampler = self.batch_sampler
+            it0 = batch_sampler.it0
             logl_min, logl_max = self.new_logl_min, self.new_logl_max
-            live_nc = np.zeros(nlive_new, dtype='int')
-            first_points = batch_sampler.first_points
-            # TODO FIX whether live_nc should be restored
-        for i in range(len(first_points)):
-            yield first_points.pop(0)
+            maxcall_left = maxcall
+            maxiter_left = maxiter
+            # I have decided that maxcall/maxiter_left will not be preserved
+            # if interrupted and resumed
 
-        for i in range(1):
-            iterated_batch = False
-            # To identify if the loop below was executed or not
-            for it, results in enumerate(
-                    batch_sampler.sample(dlogz=dlogz,
-                                         logl_max=logl_max,
-                                         maxiter=maxiter_left,
-                                         maxcall=maxcall - sum(live_nc),
-                                         save_samples=True,
-                                         save_bounds=save_bounds,
-                                         resume=resume)):
-                # Save results.
-                D = dict(id=results.worst,
-                         u=results.ustar,
-                         v=results.vstar,
-                         logl=results.loglstar,
-                         nc=results.nc,
-                         it=results.worst_it,
-                         n=nlive_new,
-                         boundidx=results.boundidx,
-                         bounditer=results.bounditer,
-                         scale=batch_sampler.scale)
-                self.new_run.append(D)
+        for i in range(len(batch_sampler.first_points)):
+            yield batch_sampler.first_points.pop(0)
+            # these yields are just for printing
+            # we are not actually storing those in new_run
+            # because we're not sampling yet, we've just
+            # set up nlive_new points above our logl_min boundary
+            # The reason why I'm popping the items is to ensure if we
+            # are interrupted and then resume we don't start again
 
-                # Increment relevant counters.
-                self.ncall += results.nc
-                self.eff = 100. * self.it / self.ncall
-                self.it += 1
-                maxiter_left -= 1
-                iterated_batch = True
-                self.internal_state = DynamicSamplerStatesEnum.INBATCH
+        iterated_batch = False
+        # To identify if the loop below was executed or not
 
-                yield IteratorResultShort(worst=results.worst,
-                                          ustar=results.ustar,
-                                          vstar=results.vstar,
-                                          loglstar=results.loglstar,
-                                          nc=results.nc,
-                                          worst_it=results.worst_it,
-                                          boundidx=results.boundidx,
-                                          bounditer=results.bounditer,
-                                          eff=self.eff)
-            if (iterated_batch and results.loglstar < logl_max
-                    and np.isfinite(logl_max)) and maxiter_left > 0:
-                warnings.warn('Warning. The maximum likelihood not reached '
-                              'in the batch. '
-                              'You may not have enough livepoints')
-            self.internal_state = DynamicSamplerStatesEnum.INBATCHADDLIVE
+        for it, results in enumerate(
+                batch_sampler.sample(dlogz=dlogz,
+                                     logl_max=logl_max,
+                                     maxiter=maxiter_left,
+                                     maxcall=maxcall_left,
+                                     save_samples=True,
+                                     save_bounds=save_bounds,
+                                     resume=resume)):
+            # Save results.
+            D = dict(id=results.worst,
+                     u=results.ustar,
+                     v=results.vstar,
+                     logl=results.loglstar,
+                     nc=results.nc,
+                     it=results.worst_it + it0,
+                     blob=results.blob,
+                     n=nlive_new,
+                     boundidx=results.boundidx,
+                     bounditer=results.bounditer,
+                     scale=batch_sampler.scale)
+            self.new_run.append(D)
+            # Increment relevant counters.
+            self.ncall += results.nc
+            self.eff = 100. * self.it / self.ncall
+            self.it += 1
+            maxiter_left -= 1
+            maxcall_left -= results.nc
+            iterated_batch = True
+            self.internal_state = DynamicSamplerStatesEnum.INBATCH
 
-            for it, results in enumerate(batch_sampler.add_live_points()):
-                # Save results.
-                D = dict(id=results.worst,
-                         u=results.ustar,
-                         v=results.vstar,
-                         logl=results.loglstar,
-                         nc=live_nc[results.worst],
-                         it=results.worst_it,
-                         n=nlive_new - it,
-                         boundidx=results.boundidx,
-                         bounditer=results.bounditer,
-                         scale=batch_sampler.scale)
-                self.new_run.append(D)
+            # These yields will be just for printing
+            yield IteratorResultShort(worst=results.worst,
+                                      ustar=results.ustar,
+                                      vstar=results.vstar,
+                                      loglstar=results.loglstar,
+                                      nc=results.nc,
+                                      worst_it=results.worst_it + it0,
+                                      boundidx=results.boundidx,
+                                      bounditer=results.bounditer,
+                                      eff=self.eff)
+        if iterated_batch and results.loglstar < logl_max and np.isfinite(
+                logl_max) and maxiter_left > 0 and maxcall_left > 0:
+            warnings.warn('Warning. The maximum likelihood not reached '
+                          'in the batch. '
+                          'You may not have enough livepoints and/or have '
+                          'highly multi-modal distribution')
+        self.internal_state = DynamicSamplerStatesEnum.INBATCHADDLIVE
 
-                # Increment relevant counters.
-                self.eff = 100. * self.it / self.ncall
-                self.it += 1
-                yield IteratorResultShort(worst=results.worst,
-                                          ustar=results.ustar,
-                                          vstar=results.vstar,
-                                          loglstar=results.loglstar,
-                                          nc=live_nc[results.worst],
-                                          worst_it=results.worst_it,
-                                          boundidx=results.boundidx,
-                                          bounditer=results.bounditer,
-                                          eff=self.eff)
+        if not iterated_batch and len(batch_sampler.saved_run['logl']) == 0:
+            # This is a special case *if* we only sampled the initial
+            # livepoints but never did sample after
+            batch_sampler.saved_run['logvol'] = [-np.inf]
+            batch_sampler.saved_run['logl'] = [logl_min]
+            batch_sampler.saved_run['logz'] = [-1e100]
+            batch_sampler.saved_run['logzvar'] = [0]
+            batch_sampler.saved_run['h'] = [0]
+        for it, results in enumerate(batch_sampler.add_live_points()):
+            # Save results.
+            D = dict(id=results.worst,
+                     u=results.ustar,
+                     v=results.vstar,
+                     logl=results.loglstar,
+                     nc=results.nc,
+                     it=results.worst_it + it0,
+                     n=nlive_new - it,
+                     blob=results.blob,
+                     boundidx=results.boundidx,
+                     bounditer=results.bounditer,
+                     scale=batch_sampler.scale)
+            self.new_run.append(D)
+
+            # Increment relevant counters.
+            self.eff = 100. * self.it / self.ncall
+            self.it += 1
+            # These yields will be just for printing
+            yield IteratorResultShort(worst=results.worst,
+                                      ustar=results.ustar,
+                                      vstar=results.vstar,
+                                      loglstar=results.loglstar,
+                                      nc=results.nc,
+                                      worst_it=results.worst_it + it0,
+                                      boundidx=results.boundidx,
+                                      bounditer=results.bounditer,
+                                      eff=self.eff)
         del self.batch_sampler
 
     def combine_runs(self):
@@ -1422,7 +1596,7 @@ class DynamicSampler:
         "stepping through" both runs simultaneously."""
 
         # Make sure we have a run to add.
-        if len(self.new_run.D['id']) == 0:
+        if len(self.new_run['id']) == 0:
             raise ValueError("No new samples are currently saved.")
 
         # Grab results from saved run.
@@ -1431,20 +1605,20 @@ class DynamicSampler:
 
         for k in [
                 'id', 'u', 'v', 'logl', 'nc', 'boundidx', 'it', 'bounditer',
-                'n', 'scale'
+                'n', 'scale', 'blob'
         ]:
-            saved_d[k] = np.array(self.saved_run.D[k])
-            new_d[k] = np.array(self.new_run.D[k])
+            saved_d[k] = np.array(self.saved_run[k])
+            new_d[k] = np.array(self.new_run[k])
 
-        saved_d['batch'] = np.array(self.saved_run.D['batch'])
+        saved_d['batch'] = np.array(self.saved_run['batch'])
         nsaved = len(saved_d['n'])
 
         new_d['id'] = new_d['id'] + max(saved_d['id']) + 1
         nnew = len(new_d['n'])
         llmin, llmax = self.new_logl_min, self.new_logl_max
 
-        old_batch_bounds = self.saved_run.D['batch_bounds']
-        old_batch_nlive = self.saved_run.D['batch_nlive']
+        old_batch_bounds = self.saved_run['batch_bounds']
+        old_batch_nlive = self.saved_run['batch_nlive']
         # Reset saved results.
         del self.saved_run
         self.saved_run = RunRecord(dynamic=True)
@@ -1458,7 +1632,7 @@ class DynamicSampler:
         # a combined run.
         ntot = nsaved + nnew
         logvol = 0.
-        for i in range(ntot):
+        for _ in range(ntot):
             if logl_s > self.new_logl_min:
                 # If our saved samples are past the lower log-likelihood
                 # bound, both runs are now "active" and should be used.
@@ -1484,7 +1658,7 @@ class DynamicSampler:
 
             for k in [
                     'id', 'u', 'v', 'logl', 'nc', 'boundidx', 'it',
-                    'bounditer', 'scale'
+                    'bounditer', 'scale', 'blob'
             ]:
                 add_info[k] = add_source[k][add_idx]
             self.saved_run.append(add_info)
@@ -1492,8 +1666,8 @@ class DynamicSampler:
             # Save the number of live points and expected ln(volume).
             logvol -= math.log((nlive + 1.) / nlive)
 
-            self.saved_run.D['n'].append(nlive)
-            self.saved_run.D['logvol'].append(logvol)
+            self.saved_run['n'].append(nlive)
+            self.saved_run['logvol'].append(logvol)
 
             # Attempt to step along our samples. If we're out of samples,
             # set values to defaults.
@@ -1510,29 +1684,29 @@ class DynamicSampler:
                 logl_n = np.inf
                 nlive_n = 0
         # ensure that we correctly merged
-        assert self.saved_run.D['logl'][0] == min(new_d['logl'][0],
-                                                  saved_d['logl'][0])
-        assert self.saved_run.D['logl'][-1] == max(new_d['logl'][-1],
-                                                   saved_d['logl'][-1])
+
+        assert self.saved_run['logl'][0] == min(new_d['logl'][0],
+                                                saved_d['logl'][0])
+        assert self.saved_run['logl'][-1] == max(new_d['logl'][-1],
+                                                 saved_d['logl'][-1])
 
         new_logwt, new_logz, new_logzvar, new_h = compute_integrals(
-            logl=self.saved_run.D['logl'], logvol=self.saved_run.D['logvol'])
-        self.saved_run.D['logwt'].extend(new_logwt.tolist())
-        self.saved_run.D['logz'].extend(new_logz.tolist())
-        self.saved_run.D['logzvar'].extend(new_logzvar.tolist())
-        self.saved_run.D['h'].extend(new_h.tolist())
+            logl=self.saved_run['logl'], logvol=self.saved_run['logvol'])
+        self.saved_run['logwt'].extend(new_logwt.tolist())
+        self.saved_run['logz'].extend(new_logz.tolist())
+        self.saved_run['logzvar'].extend(new_logzvar.tolist())
+        self.saved_run['h'].extend(new_h.tolist())
 
         # Reset results.
-        self.new_run = RunRecord(dynamic=True)
+        self.new_run = None
         self.new_logl_min, self.new_logl_max = -np.inf, np.inf
 
         # Increment batch counter.
         self.batch += 1
 
         # Saved batch quantities.
-        self.saved_run.D['batch_nlive'] = old_batch_nlive + [(max(new_d['n']))]
-        self.saved_run.D['batch_bounds'] = old_batch_bounds + [(
-            (llmin, llmax))]
+        self.saved_run['batch_nlive'] = old_batch_nlive + [(max(new_d['n']))]
+        self.saved_run['batch_bounds'] = old_batch_bounds + [((llmin, llmax))]
 
     def run_nested(self,
                    nlive_init=None,
@@ -1678,7 +1852,9 @@ class DynamicSampler:
             A function that prints out the current state of the sampler.
             If not provided, the default :meth:`results.print_fn` is used.
 
-        live_points : list of 3 `~numpy.ndarray` each with shape (nlive, ndim)
+        live_points: list of 3 `~numpy.ndarray` each with shape (nlive, ndim)
+            and optionally list of blobs associated with these likelihood calls
+            (if blob=True in the sampler)
             A set of live points used to initialize the nested sampling run.
             Contains `live_u`, the coordinates on the unit cube, `live_v`, the
             transformed variables, and `live_logl`, the associated
@@ -1686,7 +1862,8 @@ class DynamicSampler:
             set of live points will be drawn from the unit `npdim`-cube.
             **WARNING: It is crucial that the initial set of live points have
             been sampled from the prior. Failure to provide a set of valid
-            live points will result in biased results.**
+            live points will lead to incorrect results.**
+
         resume: bool, optional
             If resume is set to true, we will try to resume a previously
             interrupted run
@@ -1746,6 +1923,7 @@ class DynamicSampler:
 
         # Run the main dynamic nested sampling loop.
         ncall = self.ncall
+
         niter = self.it - 1
         logl_bounds = (-np.inf, np.inf)
         maxcall_init = min(maxcall_init, maxcall)  # set max calls
@@ -1797,7 +1975,7 @@ class DynamicSampler:
                                                     rstate=self.rstate,
                                                     M=M,
                                                     return_vals=True)
-                    stop_post, stop_evid, stop_val = stop_vals
+                    stop_val = stop_vals[2]
                 else:
                     stop = False
                     stop_val = np.nan
@@ -1839,6 +2017,10 @@ class DynamicSampler:
                 else:
                     # We didn't run a single batch but now we're done!
                     break
+            if checkpoint_file is not None:
+                # In the very end I save the checkpoint no matter
+                # the timing
+                self.save(checkpoint_file)
         finally:
             if pbar is not None:
                 pbar.close()
@@ -1931,7 +2113,8 @@ class DynamicSampler:
             file every checkpoint_every seconds
         checkpoint_every: float, optional
             The number of seconds between checkpoints that will save
-            the internal state of the sampler
+            the internal state of the sampler. The sampler will also be
+            saved in the end of the run irrespective of checkpoint_every.
         """
 
         # Initialize values.
@@ -1957,7 +2140,7 @@ class DynamicSampler:
         else:
             logl_min, logl_max = logl_bounds
         # For printing as well, we just display old logz,logzerr here
-        logz, logzvar = res.logz[-1], res.logzerr[-1]**2
+        logz, logzvar = res['logz'][-1], res['logzerr'][-1]**2
 
         # If we have either likelihood calls or iterations remaining,
         # add our new batch of live points.
@@ -1979,7 +2162,8 @@ class DynamicSampler:
                                                      resume=resume):
                     if resume:
                         # only one resume iteration, after that
-                        # we switch to normal
+                        # we switch to normal, although currently
+                        # resume is not used anywhere after
                         resume = False
                     if cur_results.worst >= 0:
                         ncall += cur_results.nc
@@ -1990,6 +2174,7 @@ class DynamicSampler:
                                              ustar=cur_results.ustar,
                                              vstar=cur_results.vstar,
                                              loglstar=cur_results.loglstar,
+                                             blob=None,
                                              logvol=np.nan,
                                              logwt=np.nan,
                                              logz=logz,
@@ -2014,6 +2199,9 @@ class DynamicSampler:
                     if (checkpoint_file is not None and self.internal_state !=
                             DynamicSamplerStatesEnum.INBATCHADDLIVE
                             and timer.is_time()):
+                        # we do not save the state if we are finishing the
+                        # batch run and we are just adding live-points in
+                        # the end
                         self.save(checkpoint_file)
             finally:
                 if pbar is not None:

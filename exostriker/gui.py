@@ -8390,8 +8390,9 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
-    def print_info_credits(self, image=False, es_version='0.78'):
+    def print_info_credits(self, image=False):
  
+        
         #self.dialog.statusBar().showMessage('Ready')
         self.dialog_credits.setFixedSize(900, 900)
         self.dialog_credits.setWindowTitle('Credits')  
@@ -8406,7 +8407,7 @@ in https://github.com/3fon3fonov/exostriker
         text = ''
         self.dialog_credits.text.setText(text) 
         
-        text = "You are using 'The %s-Striker' (ver. %s) \n developed by Trifon Trifonov"%(String_es,es_version)
+        text = "You are using 'The %s-Striker' (ver. %s) \n developed by Trifon Trifonov"%(String_es,self.es_version)
         
         self.dialog_credits.text.append(text)
 
@@ -11467,7 +11468,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        es_version = "0.78"
+        self.es_version = "0.79"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -12119,7 +12120,7 @@ Please install via 'pip install ttvfast'.
             self.actionvisit_TRIFON_on_GitHub.setText("&The QSO-Striker on GitHub")
 
         self.actionvisit_TRIFON_on_GitHub.triggered.connect(self.get_credits)
-        self.actionCredits.triggered.connect(lambda: self.print_info_credits(es_version = es_version))
+        self.actionCredits.triggered.connect(self.print_info_credits)
         self.actionConfidence_Intervals_Table.triggered.connect(lambda: self.print_chi_table())
 
         ############### Orb. Evol. plotting ####################
@@ -12534,7 +12535,7 @@ Please install via 'pip install ttvfast'.
         print("""You are running a development version of the %s-Striker (ver. %s). 
               
 This version is almost full, but there are still some parts of the tool, which are in a 'Work in progress' state. Please, 'git pull' regularly to be up to date with the newest version.
-"""%(self.QSO_str,es_version))
+"""%(self.QSO_str,self.es_version))
 
         if sys.version_info[0] == 2:
             print("""
