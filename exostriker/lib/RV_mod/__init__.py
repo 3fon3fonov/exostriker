@@ -34,7 +34,7 @@ dill.settings['fmode']
 try:
     import dynesty
 
-    if float(dynesty.__version__[0:3])<=2.1: # a fix is needed.....
+    if float(dynesty.__version__[0:3])<=3.1: # a fix is needed.....
 #        print("Your dynesty is version<=1.1, switching to the internally imported github version==1.2!")
         import dynesty_2_0 as dynesty        
    # import dynesty_patch
