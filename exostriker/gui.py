@@ -66,6 +66,8 @@ from multiprocessing import cpu_count
 #from doublespinbox import DoubleSpinBox
 from Jupyter_emb import ConsoleWidget_embed
 
+from exochat import ChatWidget
+
 from stdout_pipe import MyDialog, DebugDialog
 from print_info_window import print_info
 from symbols_window import show_symbols
@@ -100,6 +102,13 @@ try:
     ttvfast_not_found = False 
 except (ImportError, KeyError) as e:
     ttvfast_not_found = True
+    pass
+
+try:
+    import openai as openai
+    openai_not_found = False 
+except (ImportError, KeyError) as e:
+    openai_not_found = True
     pass
 
 try:
@@ -287,7 +296,7 @@ colors_MLP_alias = ['#666699']
 colors_RV_jitter = ['#000000']
                     
                
-symbols = ['o','t','t1','t2','t3','s','p','h','star','+','d'] 
+symbols = ['o','t','t1','t2','t3','s','p','h','star','+','d','o','t','t1','t2','t3','s','p','h','star','+','d'] 
 ttv_interpol_opt = ['linear', 'nearest', 'nearest-up', 'zero', 'slinear', 'quadratic', 'cubic'] #, 'previous', ‘next’.
 
 
@@ -367,7 +376,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             zz=zz+1
 
 
-        for i in range(10): 
+        for i in range(20): 
             self.rvs_data_gui[i].setValue(fit.params.offsets[i]) 
             self.rvs_data_jitter_gui[i].setValue(fit.params.jitters[i])
 
@@ -458,7 +467,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         fit.sort_by_period(reverse=False)
         fit.hack_around_rv_params()
 
-        for i in range(10):
+        for i in range(20):
             fit.params.offsets[i] = self.rvs_data_gui[i].value()
             fit.params.jitters[i] = self.rvs_data_jitter_gui[i].value()
  
@@ -795,11 +804,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             zz = zz +1
 
 
-        for i in range(10):
+        for i in range(20):
             self.data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.offset_errors[i])))
             self.data_errors_jitter_gui[i].setText("+/- %.3f"%max(np.abs(fit.param_errors.jitter_errors[i])))
 
-        for i in range(10):
+        for i in range(20):
             self.tra_data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_off_err[i])))
             self.tra_data_errors_jitter_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_jitt_err[i])))
 
@@ -871,7 +880,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.use_param_gui_tr[i*3+2].setChecked(bool(fit.pl_a_use [i]) )
  
 
-        for i in range(10): 
+        for i in range(20): 
             #use_data_gui[i].setChecked(bool(fit.use.use_offsets[i])) # attention, TBF
             self.use_data_jitter_gui[i].setChecked(bool(fit.use.use_jitters[i]))
             self.use_data_offset_gui[i].setChecked(bool(fit.use.use_offsets[i])) 
@@ -986,7 +995,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.pl_rad_use[i] = self.use_param_gui_tr[i*3+1].isChecked()  
             fit.pl_a_use[i] = self.use_param_gui_tr[i*3+2].isChecked()  
 
-        for i in range(10): 
+        for i in range(20): 
             fit.use.use_jitters[i] = int(self.use_data_jitter_gui[i].isChecked())
             fit.use.use_offsets[i] = int(self.use_data_offset_gui[i].isChecked())   
 
@@ -1078,7 +1087,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.k_bounds_gui[i][z].setValue(fit.e_cosw_bound[i][z])
                 self.lambda_bounds_gui[i][z].setValue(fit.lamb_bound[i][z])
 
-        for i in range(10): 
+        for i in range(20): 
             for z in range(2):
                 self.offset_bounds_gui[i][z].setValue(fit.rvoff_bounds[i][z])
                 self.jitter_bounds_gui[i][z].setValue(fit.jitt_bounds[i][z])
@@ -1235,7 +1244,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.use_quad_tr_nr_pr.setChecked(fit.rv_quadtr_norm_pr[0][2])
  
  
-        for i in range(10): 
+        for i in range(20): 
             for z in range(2):
 
                  self.offset_nr_priors_gui[i][z].setValue(fit.rvoff_norm_pr[i][z])
@@ -1374,7 +1383,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.use_quad_tr_jeff_pr.setChecked(fit.rv_quadtr_jeff_pr[0][2]) 
  
 
-        for i in range(10): 
+        for i in range(20): 
             for z in range(2):
 
                  self.offset_jeff_priors_gui[i][z].setValue(fit.rvoff_jeff_pr[i][z])
@@ -1478,7 +1487,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 fit.pl_a_bound[i][z]   =   self.param_bounds_gui[10*i + 9][z].value()
                 fit.K_bound[i][z] = self.param_bounds_gui[10*i + 0][z].value()
 
-        for i in range(10): 
+        for i in range(20): 
             for z in range(2):
                 fit.rvoff_bounds[i][z] = self.offset_bounds_gui[i][z].value()
                 fit.jitt_bounds[i][z]  = self.jitter_bounds_gui[i][z].value()
@@ -1666,7 +1675,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.pl_a_norm_pr[i][2]   =   self.param_nr_priors_gui[10*i + 9][2].isChecked()
  
 
-        for i in range(10): 
+        for i in range(20): 
             for z in range(2):
 
                 fit.rvoff_norm_pr[i][z] = self.offset_nr_priors_gui[i][z].value()
@@ -1801,7 +1810,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.pl_a_jeff_pr[i][2]   =   self.param_jeff_priors_gui[10*i + 9][2].isChecked()
 
 
-        for i in range(10): 
+        for i in range(20): 
             for z in range(2):
 
                 fit.rvoff_jeff_pr[i][z] = self.offset_jeff_priors_gui[i][z].value()
@@ -1965,6 +1974,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_add_RV_data.setId(self.Button_RV_data_8,8)
         self.buttonGroup_add_RV_data.setId(self.Button_RV_data_9,9)
         self.buttonGroup_add_RV_data.setId(self.Button_RV_data_10,10)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_11,11)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_12,12)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_13,13)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_14,14)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_15,15)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_16,16)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_17,17)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_18,18)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_19,19)
+        self.buttonGroup_add_RV_data.setId(self.Button_RV_data_20,20)
 
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data1,1)
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data2,2)
@@ -1976,6 +1995,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data8,8)
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data9,9)
         self.buttonGroup_remove_RV_data.setId(self.remove_rv_data10,10)
+        self.buttonGroup_remove_RV_data.setId(self.remove_rv_data11,11)
+        self.buttonGroup_remove_RV_data.setId(self.remove_rv_data12,12)
+        self.buttonGroup_remove_RV_data.setId(self.remove_rv_data13,13)
+        self.buttonGroup_remove_RV_data.setId(self.remove_rv_data14,14)
+        self.buttonGroup_remove_RV_data.setId(self.remove_rv_data15,15)
+        self.buttonGroup_remove_RV_data.setId(self.remove_rv_data16,16)
+        self.buttonGroup_remove_RV_data.setId(self.remove_rv_data17,17)
+        self.buttonGroup_remove_RV_data.setId(self.remove_rv_data18,18)
+        self.buttonGroup_remove_RV_data.setId(self.remove_rv_data19,19)
+        self.buttonGroup_remove_RV_data.setId(self.remove_rv_data20,20)
         
         self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_1,1)
         self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_2,2)
@@ -1987,6 +2016,18 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_8,8)
         self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_9,9)
         self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_10,10)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_11,11)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_12,12)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_13,13)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_14,14)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_15,15)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_16,16)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_17,17)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_18,18)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_19,19)
+        self.buttonGroup_apply_rv_data_options.setId(self.Button_apply_rv_options_20,20)
+
+
 
         self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_1,1)
         self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_2,2)
@@ -1998,6 +2039,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_8,8)
         self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_9,9)
         self.buttonGroup_apply_act_data_options.setId(self.Button_apply_act_options_10,10)
+
+
 
         self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_1,1)
         self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_2,2)
@@ -2190,6 +2233,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_9,9)
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_10,10)
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_11,11)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_12,12)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_13,13)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_14,14)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_15,15)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_16,16)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_17,17)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_18,18)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_19,19)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_20,20)
+        self.buttonGroup_color_picker.setId(self.rv_pushButton_color_21,21)
         
         self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_1,1)
         self.buttonGroup_color_picker_tra.setId(self.trans_pushButton_color_2,2)
@@ -2249,6 +2302,18 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_8,8)
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_9,9)
         self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_10,10)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_11,11)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_12a,12)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_13a,13)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_14a,14)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_15a,15)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_16,16)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_17,17)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_18,18)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_19,19)
+        self.buttonGroup_symbol_picker.setId(self.rv_pushButton_symbol_20,20)
+
+
         
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_1,1)
         self.buttonGroup_symbol_picker_tra.setId(self.trans_pushButton_symbol_2,2)
@@ -3550,7 +3615,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
             
         model_curve = p1.plot(fit.fit_results.model_jd,y_model, 
-        pen={'color': fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        pen={'color': fit.rvs_colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
         model_curve.setZValue(self.RV_model_z.value()) 
@@ -3576,10 +3641,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p1.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],fit.fit_results.rv_model.rvs[fit.fit_results.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
 , 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
             )
 
             err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
@@ -3587,7 +3652,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.fit_results.idset==i],
             bottom=error_list[fit.fit_results.idset==i],
-            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
 
             p1.addItem(err1)
 
@@ -3643,7 +3708,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
 
         model_curve_o_c = p2.plot(fit.fit_results.model_jd,y_model_o_c, 
-        pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        pen={'color':  fit.rvs_colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
         
@@ -3655,16 +3720,16 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p2.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],data_o_c[fit.fit_results.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
+            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
             )
             err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
                                    y=data_o_c[fit.fit_results.idset==i],symbol='o', 
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.fit_results.idset==i],
             bottom=error_list[fit.fit_results.idset==i],
-            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
 
             p2.addItem(err2)
 
@@ -3771,7 +3836,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
           
             
         model_curve = p00.plot(fit.fit_results.model_jd,y_model, 
-        pen={'color': fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        pen={'color': fit.rvs_colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
         model_curve.setZValue(self.RV_model_z.value()) 
@@ -3797,10 +3862,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p00.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],fit.fit_results.rv_model.rvs[fit.fit_results.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
 , 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]),
+            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]),
             name=fit.filelist.files[i].name)
 
             err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
@@ -3808,7 +3873,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.fit_results.idset==i],
             bottom=error_list[fit.fit_results.idset==i],
-            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
 
             p00.addItem(err1)
 
@@ -3854,7 +3919,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             label = "RV [m/s]" 
 
         model_curve_o_c = p01.plot(fit.fit_results.model_jd,y_model_o_c, 
-        pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        pen={'color':  fit.rvs_colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'%s'%label, 'bottom':'JD'}) 
         
         
@@ -3866,16 +3931,16 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p01.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],data_o_c[fit.fit_results.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
+            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
             )
             err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
                                    y=data_o_c[fit.fit_results.idset==i],symbol='o', 
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.fit_results.idset==i],
             bottom=error_list[fit.fit_results.idset==i],
-            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
 
             p01.addItem(err2)
 
@@ -3925,7 +3990,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
             
         model_curve = p1.plot(fit.fit_results.model_jd,y_model, 
-        pen={'color': fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        pen={'color': fit.rvs_colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
         model_curve.setZValue(self.RV_model_z.value()) 
@@ -3954,10 +4019,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p1.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],fit.fit_results.rv_model.rvs[fit.fit_results.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
 , 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
             )
 
             err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
@@ -3965,7 +4030,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.fit_results.idset==i],
             bottom=error_list[fit.fit_results.idset==i],
-            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
 
             p1.addItem(err1)
 
@@ -4012,7 +4077,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
 
         model_curve_o_c = p00.plot(fit.fit_results.model_jd,y_model_o_c, 
-        pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        pen={'color':  fit.rvs_colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
         
@@ -4024,16 +4089,16 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p2.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],data_o_c[fit.fit_results.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
+            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
             )
             err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
                                    y=data_o_c[fit.fit_results.idset==i],symbol='o', 
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.fit_results.idset==i],
             bottom=error_list[fit.fit_results.idset==i],
-            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
 
             p00.addItem(err2)
 
@@ -5759,7 +5824,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         pe.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
 
-        model_curve = pe.plot(model_time_phase,ph_model, pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()+1},
+        model_curve = pe.plot(model_time_phase,ph_model, pen={'color':  fit.rvs_colors[-1], 'width': self.rv_model_width.value()+1},
         enableAutoRange=True,viewRect=True, labels =  {'left':'RV', 'bottom':'JD'})   
  
         model_curve.setZValue(self.RV_model_z.value())
@@ -5769,16 +5834,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             pe.plot((ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1],rv_data[ph_data[3]==i],
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
+            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
             )
 
             err_ = pg.ErrorBarItem(x=(ph_data[0][ph_data[3]==i]-offset)%fit.params.planet_params[7*(ind-1)+1], y=rv_data[ph_data[3]==i],
             symbol=fit.pyqt_symbols_rvs[i], 
             top=error_list[ph_data[3]==i],
             bottom=error_list[ph_data[3]==i],
-            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])) 
+            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])) 
 
             pe.addItem(err_)
 
@@ -5869,7 +5934,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             time_phase = ((time_phase)/max(time_phase)) -0.5 # - fit.params.planet_params[7*(ind-1)+1]/2.0) /fit.params.planet_params[7*(ind-1)+1]
  
 
-        model_curve = pe0.plot(model_time_phase,ph_model, pen={'color':  fit.colors[-1], 'width': self.rv_model_width.value()+1},
+        model_curve = pe0.plot(model_time_phase,ph_model, pen={'color':  fit.rvs_colors[-1], 'width': self.rv_model_width.value()+1},
         enableAutoRange=True,viewRect=True)   
  
         model_curve.setZValue(self.RV_model_z.value())
@@ -5887,23 +5952,23 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             pe0.plot((time_phase[ph_data[3]==i]),rv_data[ph_data[3]==i],
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
+            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), name=rv_filename)
+            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), name=rv_filename)
 
             pe1.plot((time_phase[ph_data[3]==i]),rv_data_o_c[ph_data[3]==i],
             pen=None, #{'color': colors[i], 'width': 1.1},
             symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
+            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
             symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]) )
+            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]) )
 
 
             err_ = pg.ErrorBarItem(x=(time_phase[ph_data[3]==i]), y=rv_data[ph_data[3]==i],
             symbol=fit.pyqt_symbols_rvs[i], 
             top=error_list[ph_data[3]==i],
             bottom=error_list[ph_data[3]==i],
-            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])) 
+            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])) 
 
             pe0.addItem(err_)
 
@@ -5911,7 +5976,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             symbol=fit.pyqt_symbols_rvs[i], 
             top=error_list[ph_data[3]==i],
             bottom=error_list[ph_data[3]==i],
-            beam=0.0, pen=fit.colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])) 
+            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])) 
 
             pe1.addItem(err_o_c)
 
@@ -6546,10 +6611,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         font.setBold(False)
         #font.setWeight(75)
 
-        for i in range(10):
+        for i in range(20):
             if i < fit.filelist.ndset:
-                self.buttonGroup_add_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-                self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_add_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.rvs_colors[i])
+                self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.rvs_colors[i])
                 font.setPointSize(9)
                 self.buttonGroup_add_RV_data.button(i+1).setText(fit.filelist.files[i].name) 
                 self.buttonGroup_add_RV_data.button(i+1).setFont(font)
@@ -7461,7 +7526,7 @@ Transit duration: %s d
                 fit.use.use_planet_params[i*7+4] = False 
                 fit.use.use_planet_params[i*7+5] = False 
                 fit.use.use_planet_params[i*7+6] = False 
-            for i in range(10): 
+            for i in range(20): 
                 fit.use.use_jitters[i] = False
                 fit.use.use_offsets[i] = False   
             for i in range(20): 
@@ -7483,7 +7548,7 @@ Transit duration: %s d
                 fit.use.use_planet_params[i*7+4] = dill.copy(old_rv_use[i*7+4])  
                 fit.use.use_planet_params[i*7+5] = dill.copy(old_rv_use[i*7+5])  
                 fit.use.use_planet_params[i*7+6] = dill.copy(old_rv_use[i*7+6]) 
-            for i in range(10): 
+            for i in range(20): 
                 fit.use.use_jitters[i] =  dill.copy(old_rvjitt_use[i]) 
                 fit.use.use_offsets[i] =  dill.copy(old_rvoff_use[i]) 
             for i in range(20):  
@@ -7974,10 +8039,10 @@ Transit duration: %s d
         global fit
 
         if self.amoeba_radio_button.isChecked():
-            for i in range(10):     
+            for i in range(20):     
                 self.use_data_jitter_gui[i].setEnabled(True)
         else:
-            for i in range(10):     
+            for i in range(20):     
                 self.use_data_jitter_gui[i].setEnabled(False)
                 
   
@@ -10076,6 +10141,15 @@ Please install via 'pip install ttvfast'.
 
         ######### TESTS!!!!!!!!!!!###########
 
+        if self.radioButton_RV.isChecked():
+            self.label.setEnabled(True)
+            self.amoeba_radio_button.setEnabled(True)
+            self.lm_radio_button.setEnabled(True)
+        else:
+            self.label.setEnabled(False)
+            self.amoeba_radio_button.setChecked(True)
+            self.amoeba_radio_button.setEnabled(False)
+            self.lm_radio_button.setEnabled(False)
 
         if self.radioButton_transit_RV.isChecked():
          
@@ -10344,12 +10418,12 @@ Please install via 'pip install ttvfast'.
         font.setBold(False)
         #font.setWeight(75)
 
-        for i in range(11):
-            self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-            self.buttonGroup_color_picker.button(i+1).setText("%s"%fit.colors[i])
+        for i in range(21):
+            self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%fit.rvs_colors[i])
+            self.buttonGroup_color_picker.button(i+1).setText("%s"%fit.rvs_colors[i])
             self.buttonGroup_color_picker.button(i+1).setFont(font)
-        for i in range(10):    
-            self.buttonGroup_symbol_picker.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])  
+        for i in range(20):    
+            self.buttonGroup_symbol_picker.button(i+1).setStyleSheet("color: %s;"%fit.rvs_colors[i])  
             self.buttonGroup_symbol_picker.button(i+1).setText(fit.pyqt_symbols_rvs[i]) 
             self.buttonGroup_symbol_picker.button(i+1).setFont(font)
             
@@ -10370,7 +10444,7 @@ Please install via 'pip install ttvfast'.
         #colorz = QtWidgets.QColorDialog.getColor()
 
         if colorz.isValid():
-            fit.colors[but_ind-1]=colorz.name()   #[0]+"B3"+colorz.name()[1:]
+            fit.rvs_colors[but_ind-1]=colorz.name()   #[0]+"B3"+colorz.name()[1:]
             self.update_color_picker()
             self.update_act_file_buttons()
             self.update_RV_file_buttons() 
@@ -10563,6 +10637,16 @@ Please install via 'pip install ttvfast'.
         fit.pyqt_symbols_size_rvs[7] = self.rv_data_size_8.value()
         fit.pyqt_symbols_size_rvs[8] = self.rv_data_size_9.value()
         fit.pyqt_symbols_size_rvs[9] = self.rv_data_size_10.value()
+        fit.pyqt_symbols_size_rvs[10] = self.rv_data_size_11.value()
+        fit.pyqt_symbols_size_rvs[11] = self.rv_data_size_12.value()
+        fit.pyqt_symbols_size_rvs[12] = self.rv_data_size_13.value()
+        fit.pyqt_symbols_size_rvs[13] = self.rv_data_size_14.value()
+        fit.pyqt_symbols_size_rvs[14] = self.rv_data_size_15.value()
+        fit.pyqt_symbols_size_rvs[15] = self.rv_data_size_16.value()
+        fit.pyqt_symbols_size_rvs[16] = self.rv_data_size_17.value()
+        fit.pyqt_symbols_size_rvs[17] = self.rv_data_size_18.value()
+        fit.pyqt_symbols_size_rvs[18] = self.rv_data_size_19.value()
+        fit.pyqt_symbols_size_rvs[19] = self.rv_data_size_20.value()
 
         fit.pyqt_color_alpha_rvs[0] = self.rv_data_alpha_1.value()
         fit.pyqt_color_alpha_rvs[1] = self.rv_data_alpha_2.value()
@@ -10574,7 +10658,16 @@ Please install via 'pip install ttvfast'.
         fit.pyqt_color_alpha_rvs[7] = self.rv_data_alpha_8.value()
         fit.pyqt_color_alpha_rvs[8] = self.rv_data_alpha_9.value()
         fit.pyqt_color_alpha_rvs[9] = self.rv_data_alpha_10.value()
-
+        fit.pyqt_color_alpha_rvs[10] = self.rv_data_alpha_11.value()
+        fit.pyqt_color_alpha_rvs[11] = self.rv_data_alpha_12.value()
+        fit.pyqt_color_alpha_rvs[12] = self.rv_data_alpha_13.value()
+        fit.pyqt_color_alpha_rvs[13] = self.rv_data_alpha_14.value()
+        fit.pyqt_color_alpha_rvs[14] = self.rv_data_alpha_15.value()
+        fit.pyqt_color_alpha_rvs[15] = self.rv_data_alpha_16.value()
+        fit.pyqt_color_alpha_rvs[16] = self.rv_data_alpha_17.value()
+        fit.pyqt_color_alpha_rvs[17] = self.rv_data_alpha_18.value()
+        fit.pyqt_color_alpha_rvs[18] = self.rv_data_alpha_19.value()
+        fit.pyqt_color_alpha_rvs[19] = self.rv_data_alpha_20.value()
 
     ### Transit ###
 
@@ -10968,6 +11061,16 @@ Please install via 'pip install ttvfast'.
         self.Button_RV_data_8.setEnabled(trigger) 
         self.Button_RV_data_9.setEnabled(trigger) 
         self.Button_RV_data_10.setEnabled(trigger) 
+        self.Button_RV_data_11.setEnabled(trigger) 
+        self.Button_RV_data_12.setEnabled(trigger) 
+        self.Button_RV_data_13.setEnabled(trigger) 
+        self.Button_RV_data_14.setEnabled(trigger) 
+        self.Button_RV_data_15.setEnabled(trigger) 
+        self.Button_RV_data_16.setEnabled(trigger) 
+        self.Button_RV_data_17.setEnabled(trigger) 
+        self.Button_RV_data_18.setEnabled(trigger) 
+        self.Button_RV_data_19.setEnabled(trigger) 
+        self.Button_RV_data_20.setEnabled(trigger) 
         
         self.remove_rv_data1.setEnabled(trigger) 
         self.remove_rv_data2.setEnabled(trigger) 
@@ -10979,7 +11082,16 @@ Please install via 'pip install ttvfast'.
         self.remove_rv_data8.setEnabled(trigger) 
         self.remove_rv_data9.setEnabled(trigger) 
         self.remove_rv_data10.setEnabled(trigger) 
-
+        self.remove_rv_data11.setEnabled(trigger) 
+        self.remove_rv_data12.setEnabled(trigger) 
+        self.remove_rv_data13.setEnabled(trigger) 
+        self.remove_rv_data14.setEnabled(trigger) 
+        self.remove_rv_data15.setEnabled(trigger) 
+        self.remove_rv_data16.setEnabled(trigger) 
+        self.remove_rv_data17.setEnabled(trigger) 
+        self.remove_rv_data18.setEnabled(trigger) 
+        self.remove_rv_data19.setEnabled(trigger) 
+        self.remove_rv_data20.setEnabled(trigger) 
 
         self.Button_transit_data_1.setEnabled(trigger) 
         self.Button_transit_data_2.setEnabled(trigger) 
@@ -11468,7 +11580,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        self.es_version = "0.79"
+        self.es_version = "0.80"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -11794,6 +11906,13 @@ Please install via 'pip install ttvfast'.
             self.terminal_embeded.addTab(self.term_emb, "Bash shell")
 
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")
+
+        if openai_not_found != True:
+            self.chat_widget = ChatWidget()
+            self.terminal_embeded.addTab(self.chat_widget, "Exo-Striker ChatBoot (GPT-3)")
+        else:
+            print("You do not have openAI installed, so You cannot use the GPT-3 chatboot Try $ pip install openai")
+
 
         self.text_editor = text_editor_es.MainWindow()
         self.calculator = calc.Calculator()

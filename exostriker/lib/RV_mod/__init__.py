@@ -2848,8 +2848,8 @@ class signal_fit(object):
         self.pyqt_color_alpha_ast = {k: 255 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #        
 
         self.act_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
-        self.tra_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
-        self.rvs_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699']
+        self.tra_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#0066ff', '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
+        self.rvs_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699', '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
 
         self.gls_colors = ['#ff0000',  '#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#000000']
         self.ttv_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
@@ -3106,24 +3106,24 @@ class signal_fit(object):
 
     def init_RV_jitter(self) :
 
-        self.jitt      = {k: 0.0 for k in range(10)}
-        self.jitt_err  = {k: np.array([0.0,0.0]) for k in range(10)}
-        self.jitt_use  = {k: True for k in range(10)}
-        self.jitt_str  = {k: r'RV jitt$_%s$'%str(k+1) for k in range(10)}
-        self.jitt_bounds  = {k: np.array([0.0,10000.0] )for k in range(10)}
-        self.jitt_norm_pr = {k: np.array([1.0,5.0, False] )for k in range(10)}
-        self.jitt_jeff_pr = {k: np.array([1.0,5.0, False] )for k in range(10)}
+        self.jitt      = {k: 0.0 for k in range(20)}
+        self.jitt_err  = {k: np.array([0.0,0.0]) for k in range(20)}
+        self.jitt_use  = {k: True for k in range(20)}
+        self.jitt_str  = {k: r'RV jitt$_%s$'%str(k+1) for k in range(20)}
+        self.jitt_bounds  = {k: np.array([0.0,10000.0] )for k in range(20)}
+        self.jitt_norm_pr = {k: np.array([1.0,5.0, False] )for k in range(20)}
+        self.jitt_jeff_pr = {k: np.array([1.0,5.0, False] )for k in range(20)}
 
 
     def init_RV_offset(self) :
 
-        self.rvoff      = {k: 0.0 for k in range(10)}
-        self.rvoff_err  = {k: np.array([0.0,0.0])  for k in range(10)}
-        self.rvoff_use  = {k: True for k in range(10)}
-        self.rvoff_str  = {k: r'RV off$_%s$'%str(k+1) for k in range(10)}
-        self.rvoff_bounds  = {k: np.array([-1000000.0,1000000.0] )for k in range(10)}
-        self.rvoff_norm_pr = {k: np.array([0.0,100.0, False] )for k in range(10)}
-        self.rvoff_jeff_pr = {k: np.array([0.0,100.0, False] )for k in range(10)}
+        self.rvoff      = {k: 0.0 for k in range(20)}
+        self.rvoff_err  = {k: np.array([0.0,0.0])  for k in range(20)}
+        self.rvoff_use  = {k: True for k in range(20)}
+        self.rvoff_str  = {k: r'RV off$_%s$'%str(k+1) for k in range(20)}
+        self.rvoff_bounds  = {k: np.array([-1000000.0,1000000.0] )for k in range(20)}
+        self.rvoff_norm_pr = {k: np.array([0.0,100.0, False] )for k in range(20)}
+        self.rvoff_jeff_pr = {k: np.array([0.0,100.0, False] )for k in range(20)}
 
 
     def init_tra_jitter(self) :
@@ -3325,8 +3325,8 @@ class signal_fit(object):
         self.GP_double_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_double_sho_params))}
         self.GP_double_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_double_sho_params))}
 
-        self.gp_model_curve = {k: 0.0 for k in range(10)}
-        self.gp_model_data  = {k: 0.0 for k in range(10)}
+        self.gp_model_curve = {k: 0.0 for k in range(20)}
+        self.gp_model_data  = {k: 0.0 for k in range(20)}
 
         self.gp_kernels = ['SHOKernel','RotKernel','Matern32','dSHOKernel','RealTerm']
         self.gp_kernel = self.gp_kernels[0]

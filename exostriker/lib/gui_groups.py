@@ -145,13 +145,15 @@ def err_a_sol(self):
 
 
 
-###########################################################################
+###########################  RV data #########################################
 
 
 def rvs_data_gui(self):
     rvs_data_gui = [
             self.Data1,self.Data2,self.Data3,self.Data4,self.Data5,
-            self.Data6,self.Data7,self.Data8,self.Data9,self.Data10
+            self.Data6,self.Data7,self.Data8,self.Data9,self.Data10,
+            self.Data11,self.Data12,self.Data13,self.Data14,self.Data15,
+            self.Data16,self.Data17,self.Data18,self.Data19,self.Data20
             ]
     return rvs_data_gui
 
@@ -160,25 +162,30 @@ def rvs_data_gui(self):
 def rvs_data_jitter_gui(self):
     rvs_data_jitter_gui = [
             self.jitter_Data1,self.jitter_Data2,self.jitter_Data3,self.jitter_Data4,self.jitter_Data5,
-            self.jitter_Data6,self.jitter_Data7,self.jitter_Data8,self.jitter_Data9,self.jitter_Data10
+            self.jitter_Data6,self.jitter_Data7,self.jitter_Data8,self.jitter_Data9,self.jitter_Data10,
+            self.jitter_Data11,self.jitter_Data12,self.jitter_Data13,self.jitter_Data14,self.jitter_Data15,
+            self.jitter_Data16,self.jitter_Data17,self.jitter_Data18,self.jitter_Data19,self.jitter_Data20
             ]
     return rvs_data_jitter_gui
 
 
 def use_data_offset_gui(self):
 
-    use_data_offset_gui = [self.use_offset_Data1,self.use_offset_Data2,self.use_offset_Data3,self.use_offset_Data4,
-                           self.use_offset_Data5,self.use_offset_Data6,self.use_offset_Data7,self.use_offset_Data8,
-                           self.use_offset_Data9,self.use_offset_Data10]
-    
+    use_data_offset_gui = [self.use_offset_Data1,self.use_offset_Data2,self.use_offset_Data3,self.use_offset_Data4, self.use_offset_Data5,
+                           self.use_offset_Data6,self.use_offset_Data7,self.use_offset_Data8,self.use_offset_Data9,self.use_offset_Data10,
+                           self.use_offset_Data11,self.use_offset_Data12,self.use_offset_Data13,self.use_offset_Data14, self.use_offset_Data15,
+                           self.use_offset_Data16,self.use_offset_Data17,self.use_offset_Data18,self.use_offset_Data19,self.use_offset_Data20
+                           ] 
     return use_data_offset_gui
 
 
 def use_data_jitter_gui(self):
 
     use_data_jitter_gui = [self.use_jitter_Data1,self.use_jitter_Data2,self.use_jitter_Data3,self.use_jitter_Data4,self.use_jitter_Data5,
-                           self.use_jitter_Data6,self.use_jitter_Data7,self.use_jitter_Data8,self.use_jitter_Data9,self.use_jitter_Data10]
-    
+                           self.use_jitter_Data6,self.use_jitter_Data7,self.use_jitter_Data8,self.use_jitter_Data9,self.use_jitter_Data10,
+                           self.use_jitter_Data11,self.use_jitter_Data12,self.use_jitter_Data13,self.use_jitter_Data14,self.use_jitter_Data15,
+                           self.use_jitter_Data16,self.use_jitter_Data17,self.use_jitter_Data18,self.use_jitter_Data19,self.use_jitter_Data20
+                           ]
     return use_data_jitter_gui
 
 
@@ -186,9 +193,10 @@ def data_errors_gui(self):
 
     data_errors_gui = [
             self.err_Data1,self.err_Data2,self.err_Data3,self.err_Data4,self.err_Data5,
-            self.err_Data6,self.err_Data7,self.err_Data8,self.err_Data9,self.err_Data10
+            self.err_Data6,self.err_Data7,self.err_Data8,self.err_Data9,self.err_Data10,
+            self.err_Data11,self.err_Data12,self.err_Data13,self.err_Data14,self.err_Data15,
+            self.err_Data16,self.err_Data17,self.err_Data18,self.err_Data19,self.err_Data20
             ]
-    
     return data_errors_gui
 
 
@@ -196,7 +204,9 @@ def data_errors_jitter_gui(self):
 
     data_errors_jitter_gui = [
             self.err_jitter_Data1,self.err_jitter_Data2,self.err_jitter_Data3,self.err_jitter_Data4,self.err_jitter_Data5,
-            self.err_jitter_Data6,self.err_jitter_Data7,self.err_jitter_Data8,self.err_jitter_Data9,self.err_jitter_Data10
+            self.err_jitter_Data6,self.err_jitter_Data7,self.err_jitter_Data8,self.err_jitter_Data9,self.err_jitter_Data10,
+            self.err_jitter_Data11,self.err_jitter_Data12,self.err_jitter_Data13,self.err_jitter_Data14,self.err_jitter_Data15,
+            self.err_jitter_Data16,self.err_jitter_Data17,self.err_jitter_Data18,self.err_jitter_Data19,self.err_jitter_Data20
             ]
 
     return data_errors_jitter_gui
@@ -374,7 +384,9 @@ def offset_bounds_gui(self):
     
     offset_bounds_gui = [
     [self.Data1_min,self.Data1_max], [self.Data2_min,self.Data2_max], [self.Data3_min,self.Data3_max], [self.Data4_min,self.Data4_max], [self.Data5_min,self.Data5_max],   
-    [self.Data6_min,self.Data6_max], [self.Data7_min,self.Data7_max], [self.Data8_min,self.Data8_max], [self.Data9_min,self.Data9_max], [self.Data10_min,self.Data10_max]
+    [self.Data6_min,self.Data6_max], [self.Data7_min,self.Data7_max], [self.Data8_min,self.Data8_max], [self.Data9_min,self.Data9_max], [self.Data10_min,self.Data10_max],
+    [self.Data11_min,self.Data11_max], [self.Data12_min,self.Data12_max], [self.Data13_min,self.Data13_max], [self.Data14_min,self.Data14_max], [self.Data15_min,self.Data15_max],   
+    [self.Data16_min,self.Data16_max], [self.Data17_min,self.Data17_max], [self.Data18_min,self.Data18_max], [self.Data19_min,self.Data19_max], [self.Data20_min,self.Data20_max]
     ]
     
     return offset_bounds_gui
@@ -385,7 +397,9 @@ def jitter_bounds_gui(self):
       
     jitter_bounds_gui = [
     [self.jitter1_min,self.jitter1_max], [self.jitter2_min,self.jitter2_max], [self.jitter3_min,self.jitter3_max], [self.jitter4_min,self.jitter4_max], [self.jitter5_min,self.jitter5_max],   
-    [self.jitter6_min,self.jitter6_max], [self.jitter7_min,self.jitter7_max], [self.jitter8_min,self.jitter8_max], [self.jitter9_min,self.jitter9_max], [self.jitter10_min,self.Data10_max]   
+    [self.jitter6_min,self.jitter6_max], [self.jitter7_min,self.jitter7_max], [self.jitter8_min,self.jitter8_max], [self.jitter9_min,self.jitter9_max], [self.jitter10_min,self.Data10_max],
+    [self.jitter11_min,self.jitter11_max], [self.jitter12_min,self.jitter12_max], [self.jitter13_min,self.jitter13_max], [self.jitter14_min,self.jitter14_max], [self.jitter15_min,self.jitter15_max],   
+    [self.jitter16_min,self.jitter16_max], [self.jitter17_min,self.jitter17_max], [self.jitter18_min,self.jitter18_max], [self.jitter19_min,self.jitter19_max], [self.jitter20_min,self.Data20_max]
     ]  
     
     return jitter_bounds_gui
@@ -1303,7 +1317,17 @@ def offset_nr_priors_gui(self):
         [self.RV_Data_mean_7,self.RV_Data_sigma_7,self.use_rvoff_nr_7], 
         [self.RV_Data_mean_8,self.RV_Data_sigma_8,self.use_rvoff_nr_8], 
         [self.RV_Data_mean_9,self.RV_Data_sigma_9,self.use_rvoff_nr_9], 
-        [self.RV_Data_mean_10,self.RV_Data_sigma_10,self.use_rvoff_nr_10]
+        [self.RV_Data_mean_10,self.RV_Data_sigma_10,self.use_rvoff_nr_10],
+        [self.RV_Data_mean_11,self.RV_Data_sigma_11,self.use_rvoff_nr_11],
+        [self.RV_Data_mean_12,self.RV_Data_sigma_12,self.use_rvoff_nr_12],
+        [self.RV_Data_mean_13,self.RV_Data_sigma_13,self.use_rvoff_nr_13],
+        [self.RV_Data_mean_14,self.RV_Data_sigma_14,self.use_rvoff_nr_14],
+        [self.RV_Data_mean_15,self.RV_Data_sigma_15,self.use_rvoff_nr_15],
+        [self.RV_Data_mean_16,self.RV_Data_sigma_16,self.use_rvoff_nr_16],
+        [self.RV_Data_mean_17,self.RV_Data_sigma_17,self.use_rvoff_nr_17],
+        [self.RV_Data_mean_18,self.RV_Data_sigma_18,self.use_rvoff_nr_18],
+        [self.RV_Data_mean_19,self.RV_Data_sigma_19,self.use_rvoff_nr_19],
+        [self.RV_Data_mean_20,self.RV_Data_sigma_20,self.use_rvoff_nr_20]
         ]
         
         return offset_nr_priors_gui
@@ -1322,7 +1346,17 @@ def jitter_nr_priors_gui(self):
         [self.RV_jitter_mean_7,self.RV_jitter_sigma_7,self.use_rvjitt_nr_7], 
         [self.RV_jitter_mean_8,self.RV_jitter_sigma_8,self.use_rvjitt_nr_8], 
         [self.RV_jitter_mean_9,self.RV_jitter_sigma_9,self.use_rvjitt_nr_9], 
-        [self.RV_jitter_mean_10,self.RV_jitter_sigma_10,self.use_rvjitt_nr_10]
+        [self.RV_jitter_mean_10,self.RV_jitter_sigma_10,self.use_rvjitt_nr_10],
+        [self.RV_jitter_mean_11,self.RV_jitter_sigma_11,self.use_rvjitt_nr_11],
+        [self.RV_jitter_mean_12,self.RV_jitter_sigma_12,self.use_rvjitt_nr_12],
+        [self.RV_jitter_mean_13,self.RV_jitter_sigma_13,self.use_rvjitt_nr_13],
+        [self.RV_jitter_mean_14,self.RV_jitter_sigma_14,self.use_rvjitt_nr_14],
+        [self.RV_jitter_mean_15,self.RV_jitter_sigma_15,self.use_rvjitt_nr_15],
+        [self.RV_jitter_mean_16,self.RV_jitter_sigma_16,self.use_rvjitt_nr_16],
+        [self.RV_jitter_mean_17,self.RV_jitter_sigma_17,self.use_rvjitt_nr_17],
+        [self.RV_jitter_mean_18,self.RV_jitter_sigma_18,self.use_rvjitt_nr_18],
+        [self.RV_jitter_mean_19,self.RV_jitter_sigma_19,self.use_rvjitt_nr_19],
+        [self.RV_jitter_mean_20,self.RV_jitter_sigma_20,self.use_rvjitt_nr_20]
         ]
         
         return jitter_nr_priors_gui
@@ -1352,9 +1386,6 @@ def offset_nr_priors_gui_tra(self):
         [self.tra_Data_mean_18,self.tra_Data_sigma_18,self.use_traoff_nr_18], 
         [self.tra_Data_mean_19,self.tra_Data_sigma_19,self.use_traoff_nr_19], 
         [self.tra_Data_mean_20,self.tra_Data_sigma_20,self.use_traoff_nr_20]
-
-
-
         ]
         
         return offset_nr_priors_gui_tra
@@ -1482,7 +1513,17 @@ def offset_jeff_priors_gui(self):
         [self.RV_Data_jeff_alpha_7,self.RV_Data_jeff_beta_7,self.use_rvoff_jeff_7], 
         [self.RV_Data_jeff_alpha_8,self.RV_Data_jeff_beta_8,self.use_rvoff_jeff_8], 
         [self.RV_Data_jeff_alpha_9,self.RV_Data_jeff_beta_9,self.use_rvoff_jeff_9], 
-        [self.RV_Data_jeff_alpha_10,self.RV_Data_jeff_beta_10,self.use_rvoff_jeff_10]
+        [self.RV_Data_jeff_alpha_10,self.RV_Data_jeff_beta_10,self.use_rvoff_jeff_10],
+        [self.RV_Data_jeff_alpha_11,self.RV_Data_jeff_beta_11,self.use_rvoff_jeff_11],
+        [self.RV_Data_jeff_alpha_12,self.RV_Data_jeff_beta_12,self.use_rvoff_jeff_12],
+        [self.RV_Data_jeff_alpha_13,self.RV_Data_jeff_beta_13,self.use_rvoff_jeff_13],
+        [self.RV_Data_jeff_alpha_14,self.RV_Data_jeff_beta_14,self.use_rvoff_jeff_14],
+        [self.RV_Data_jeff_alpha_15,self.RV_Data_jeff_beta_15,self.use_rvoff_jeff_15],
+        [self.RV_Data_jeff_alpha_16,self.RV_Data_jeff_beta_16,self.use_rvoff_jeff_16],
+        [self.RV_Data_jeff_alpha_17,self.RV_Data_jeff_beta_17,self.use_rvoff_jeff_17],
+        [self.RV_Data_jeff_alpha_18,self.RV_Data_jeff_beta_18,self.use_rvoff_jeff_18],
+        [self.RV_Data_jeff_alpha_19,self.RV_Data_jeff_beta_19,self.use_rvoff_jeff_19],
+        [self.RV_Data_jeff_alpha_20,self.RV_Data_jeff_beta_20,self.use_rvoff_jeff_20]
         ]
         
         return offset_jeff_priors_gui
@@ -1501,7 +1542,17 @@ def jitter_jeff_priors_gui(self):
         [self.RV_jitter_jeff_alpha_7,self.RV_jitter_jeff_beta_7,self.use_rvjitt_jeff_7], 
         [self.RV_jitter_jeff_alpha_8,self.RV_jitter_jeff_beta_8,self.use_rvjitt_jeff_8], 
         [self.RV_jitter_jeff_alpha_9,self.RV_jitter_jeff_beta_9,self.use_rvjitt_jeff_9], 
-        [self.RV_jitter_jeff_alpha_10,self.RV_jitter_jeff_beta_10,self.use_rvjitt_jeff_10]
+        [self.RV_jitter_jeff_alpha_10,self.RV_jitter_jeff_beta_10,self.use_rvjitt_jeff_10],
+        [self.RV_jitter_jeff_alpha_11,self.RV_jitter_jeff_beta_11,self.use_rvjitt_jeff_11],
+        [self.RV_jitter_jeff_alpha_12,self.RV_jitter_jeff_beta_12,self.use_rvjitt_jeff_12],
+        [self.RV_jitter_jeff_alpha_13,self.RV_jitter_jeff_beta_13,self.use_rvjitt_jeff_13],
+        [self.RV_jitter_jeff_alpha_14,self.RV_jitter_jeff_beta_14,self.use_rvjitt_jeff_14],
+        [self.RV_jitter_jeff_alpha_15,self.RV_jitter_jeff_beta_15,self.use_rvjitt_jeff_15],
+        [self.RV_jitter_jeff_alpha_16,self.RV_jitter_jeff_beta_16,self.use_rvjitt_jeff_16],
+        [self.RV_jitter_jeff_alpha_17,self.RV_jitter_jeff_beta_17,self.use_rvjitt_jeff_17],
+        [self.RV_jitter_jeff_alpha_19,self.RV_jitter_jeff_beta_18,self.use_rvjitt_jeff_18],
+        [self.RV_jitter_jeff_alpha_19,self.RV_jitter_jeff_beta_19,self.use_rvjitt_jeff_19],
+        [self.RV_jitter_jeff_alpha_20,self.RV_jitter_jeff_beta_20,self.use_rvjitt_jeff_20]
         ]
         
         return jitter_jeff_priors_gui
@@ -2405,9 +2456,13 @@ def bin_rv_data(self):
             [self.RV_bin_data_3,self.use_RV_bin_data_3],[self.RV_bin_data_4,self.use_RV_bin_data_4],
             [self.RV_bin_data_5,self.use_RV_bin_data_5],[self.RV_bin_data_6,self.use_RV_bin_data_6],
             [self.RV_bin_data_7,self.use_RV_bin_data_7],[self.RV_bin_data_8,self.use_RV_bin_data_8],
-            [self.RV_bin_data_9,self.use_RV_bin_data_9],[self.RV_bin_data_10,self.use_RV_bin_data_10]
+            [self.RV_bin_data_9,self.use_RV_bin_data_9],[self.RV_bin_data_10,self.use_RV_bin_data_10],
+            [self.RV_bin_data_11,self.use_RV_bin_data_11],[self.RV_bin_data_12,self.use_RV_bin_data_12],
+            [self.RV_bin_data_13,self.use_RV_bin_data_13],[self.RV_bin_data_14,self.use_RV_bin_data_14],
+            [self.RV_bin_data_15,self.use_RV_bin_data_15],[self.RV_bin_data_16,self.use_RV_bin_data_16],
+            [self.RV_bin_data_17,self.use_RV_bin_data_17],[self.RV_bin_data_18,self.use_RV_bin_data_18],
+            [self.RV_bin_data_19,self.use_RV_bin_data_19],[self.RV_bin_data_20,self.use_RV_bin_data_20]
             ]
- 
     return bin_rv_data
 
 
@@ -2418,9 +2473,13 @@ def add_rv_error(self):
             [self.inflate_RV_sigma_3,self.use_inflate_RV_sigma_3],[self.inflate_RV_sigma_4,self.use_inflate_RV_sigma_4],
             [self.inflate_RV_sigma_5,self.use_inflate_RV_sigma_5],[self.inflate_RV_sigma_6,self.use_inflate_RV_sigma_6],
             [self.inflate_RV_sigma_7,self.use_inflate_RV_sigma_7],[self.inflate_RV_sigma_8,self.use_inflate_RV_sigma_8],
-            [self.inflate_RV_sigma_9,self.use_inflate_RV_sigma_9],[self.inflate_RV_sigma_10,self.use_inflate_RV_sigma_10]
+            [self.inflate_RV_sigma_9,self.use_inflate_RV_sigma_9],[self.inflate_RV_sigma_10,self.use_inflate_RV_sigma_10],
+            [self.inflate_RV_sigma_11,self.use_inflate_RV_sigma_11],[self.inflate_RV_sigma_12,self.use_inflate_RV_sigma_12],
+            [self.inflate_RV_sigma_13,self.use_inflate_RV_sigma_13],[self.inflate_RV_sigma_14,self.use_inflate_RV_sigma_14],
+            [self.inflate_RV_sigma_15,self.use_inflate_RV_sigma_15],[self.inflate_RV_sigma_16,self.use_inflate_RV_sigma_16],
+            [self.inflate_RV_sigma_17,self.use_inflate_RV_sigma_17],[self.inflate_RV_sigma_18,self.use_inflate_RV_sigma_18],
+            [self.inflate_RV_sigma_19,self.use_inflate_RV_sigma_19],[self.inflate_RV_sigma_20,self.use_inflate_RV_sigma_20]
             ]
- 
     return add_rv_error
 
 
@@ -2430,10 +2489,15 @@ def rv_sigma_clip(self):
             [self.RV_sigma_clip_3,self.use_RV_sigma_clip_3],[self.RV_sigma_clip_4,self.use_RV_sigma_clip_4],
             [self.RV_sigma_clip_5,self.use_RV_sigma_clip_5],[self.RV_sigma_clip_6,self.use_RV_sigma_clip_6],
             [self.RV_sigma_clip_7,self.use_RV_sigma_clip_7],[self.RV_sigma_clip_8,self.use_RV_sigma_clip_8],
-            [self.RV_sigma_clip_9,self.use_RV_sigma_clip_9],[self.RV_sigma_clip_10,self.use_RV_sigma_clip_10]
+            [self.RV_sigma_clip_9,self.use_RV_sigma_clip_9],[self.RV_sigma_clip_10,self.use_RV_sigma_clip_10],
+            [self.RV_sigma_clip_11,self.use_RV_sigma_clip_11],[self.RV_sigma_clip_12,self.use_RV_sigma_clip_12],
+            [self.RV_sigma_clip_13,self.use_RV_sigma_clip_13],[self.RV_sigma_clip_14,self.use_RV_sigma_clip_14],
+            [self.RV_sigma_clip_15,self.use_RV_sigma_clip_15],[self.RV_sigma_clip_16,self.use_RV_sigma_clip_16],
+            [self.RV_sigma_clip_17,self.use_RV_sigma_clip_17],[self.RV_sigma_clip_18,self.use_RV_sigma_clip_18],
+            [self.RV_sigma_clip_19,self.use_RV_sigma_clip_19],[self.RV_sigma_clip_20,self.use_RV_sigma_clip_20]
             ]
- 
     return rv_sigma_clip
+
 
 def act_sigma_clip(self): 
     act_sigma_clip = [
@@ -2443,7 +2507,6 @@ def act_sigma_clip(self):
             [self.act_sigma_clip_7,self.use_act_sigma_clip_7],[self.act_sigma_clip_8,self.use_act_sigma_clip_8],
             [self.act_sigma_clip_9,self.use_act_sigma_clip_9],[self.act_sigma_clip_10,self.use_act_sigma_clip_10]
             ]
- 
     return act_sigma_clip
 
 def act_remove_mean(self): 
@@ -2453,7 +2516,6 @@ def act_remove_mean(self):
              self.act_remove_mean_7,self.act_remove_mean_8,self.act_remove_mean_9,
              self.act_remove_mean_10
             ]
- 
     return act_remove_mean
 
 

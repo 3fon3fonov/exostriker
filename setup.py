@@ -28,6 +28,7 @@ if sys.version_info >= (3,7):
     "dynesty>=1.1",
     "ttvfast>=0.3.0",
     "wotan>=1.7",
+    "openai"
 #    "wrapt>=1.12.1"
 ]
 else:
@@ -54,7 +55,7 @@ else:
 
 setup(
 name='exostriker',  
-version='0.78',
+version='0.80',
 scripts=['scripts/exostriker'],
 author="Trifon Trifonov",
 author_email="trifonov@mpia.de",
