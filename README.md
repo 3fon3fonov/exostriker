@@ -19,7 +19,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 **Developer**
 
 * Trifon Trifonov, MPIA Heidelberg.
-* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler, Grigorii Smirnov-Pinchukov, Stephan Stock, Jonas Kemmer, Harry Psarakis, and Desislava Antonova.
+* with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler, Grigorii Smirnov-Pinchukov, Stephan Stock, Jonas Kemmer, Harry Psarakis, Tom Schiwy, and Desislava Antonova.
 
 **What works**:
 
@@ -50,6 +50,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
 * Integrated Bash-shell (Linux only).
 * Integrated Jupyter shell.
+* Integrated AI Boot (via openai GPT-3 -- ChatGPT).
 * Importable as a standard python library (i.e., "import exostriker").
 * Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
 * Direct import of TESS & K2 *lc.fits, and CHEOPS *SCI_COR*.fits files.
