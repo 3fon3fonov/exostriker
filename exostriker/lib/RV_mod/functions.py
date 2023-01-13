@@ -63,6 +63,14 @@ def check_for_missing_instances(fit,fit_new):
         except:
             pass        
 
+    if len(fit_new.rvoff_bounds) <= 11:
+        fit_new.rvoff_bounds = dill.copy(fit.rvoff_bounds)    
+        fit_new.jitt_bounds = dill.copy(fit.jitt_bounds)    
+        fit_new.rvoff_norm_pr = dill.copy(fit.rvoff_norm_pr)    
+        fit_new.jitt_norm_pr = dill.copy(fit.jitt_norm_pr)    
+        fit_new.rvoff_jeff_pr = dill.copy(fit.rvoff_jeff_pr)    
+        fit_new.jitt_jeff_pr = dill.copy(fit.jitt_jeff_pr)   
+        fit_new.rvs_colors = dill.copy(fit.rvs_colors)   
 
     if len(fit_new.tra_colors) <= 11:
         fit_new.tra_colors = dill.copy(fit.tra_colors)    
@@ -1424,10 +1432,17 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     #axes = fig.axes()
   #  axes.ticklabel_format(style='plain') 
 
+    for ax in fig.get_axes():
+          #ax.tick_params(axis='both', which='major', labelsize=14)
+          #ax.tick_params(axis='both', which='minor', labelsize=12)    
+          ax.tick_params(axis='both', labelsize=16)
+          ax.xaxis.label.set_size(16)
+          ax.yaxis.label.set_size(16)\
+
     if type_plot == 'mcmc':
-        fig.savefig(obj.mcmc_corner_plot_file)
+        fig.savefig(obj.mcmc_corner_plot_file, bbox_inches='tight')
     if type_plot == 'nest':
-        fig.savefig(obj.nest_corner_plot_file)
+        fig.savefig(obj.nest_corner_plot_file, bbox_inches='tight')
 
     ### to avoid memory leak in loops!
     fig.clf()

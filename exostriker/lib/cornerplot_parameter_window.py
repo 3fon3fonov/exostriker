@@ -145,8 +145,11 @@ class show_param_boxes(QtWidgets.QDialog):
         self.spin_bins  = QtWidgets.QSpinBox(self)
         self.spin_bins.setSuffix(' bins')
         
-        self.spin_label_pad  = QtWidgets.QSpinBox(self)
+        self.spin_label_pad  = QtWidgets.QDoubleSpinBox(self)
         self.spin_label_pad.setPrefix('label pad = ')        
+        self.spin_label_pad.setMaximum(1.0)
+        self.spin_label_pad.setMinimum(0.0)
+        self.spin_label_pad.setSingleStep(0.05) 
 
         self.quantiles  = QtWidgets.QDoubleSpinBox(self)
         self.quantiles.setPrefix('quantiles = ')  
