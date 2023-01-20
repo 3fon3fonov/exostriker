@@ -71,6 +71,8 @@ def check_for_missing_instances(fit,fit_new):
         fit_new.rvoff_jeff_pr = dill.copy(fit.rvoff_jeff_pr)    
         fit_new.jitt_jeff_pr = dill.copy(fit.jitt_jeff_pr)   
         fit_new.rvs_colors = dill.copy(fit.rvs_colors)   
+        fit_new.pyqt_symbols_rvs  = dill.copy(fit.pyqt_symbols_rvs) 
+
 
     if len(fit_new.tra_colors) <= 11:
         fit_new.tra_colors = dill.copy(fit.tra_colors)    
