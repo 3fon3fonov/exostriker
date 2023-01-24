@@ -4026,10 +4026,6 @@ class signal_fit(object):
        lines = fo.readlines()
        fo.close()
 
-#2459437.5 - 2459450.5
-#2459514.5 - 2459541.5
-#2459358.5 - 2459368.5
-#2459402.5 - 2459442.5
 
        seasons = [[2459358.5,2459368.5],[2459402.5,2459450.5],[2459514.5,2459541.5],[2459541.5001,2460442.5]]
 
@@ -4040,6 +4036,7 @@ class signal_fit(object):
 
            name_file.append('%s_S_%s.dat'%(basename[:-5],z+1))
            path_file.append('datafiles/%s'%name_file[z])
+
 
            out1 = open('%s'%path_file[z], 'w')
 
@@ -4057,10 +4054,16 @@ class signal_fit(object):
 
            if split == True and os.stat(path_file[z]).st_size != 0:
                self.add_dataset(name_file[z],path_file[z],offset,jitter,useoffset=True,usejitter=True)
+               self.rvoff_bounds[len(self.filelist.files)-1] = [-100.0,100.0]
+               self.rvoff_norm_pr[len(self.filelist.files)-1] = [0.0,10.0,True]
+               self.jitt_bounds[len(self.filelist.files)-1] = [0.0,10.0]
+               #self.jitt_norm_pr[len(self.filelist.files)-1] = [0.0,10.0,True]
+
            elif split == False and z == 0:
                self.add_dataset(name,path,offset,jitter,useoffset=True,usejitter=True)
-
- 
+               self.rvoff_bounds[len(self.filelist.files)-1] = [-100.0,100.0]
+               self.rvoff_norm_pr[len(self.filelist.files)-1] = [0.0,10.0,True]
+               self.jitt_bounds[len(self.filelist.files)-1] = [0.0,10.0] 
 
     def add_RVbank_dataset(self, name, path, offset=0, jitter= 0, split = False):
 

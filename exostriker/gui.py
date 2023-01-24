@@ -6407,7 +6407,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             fit.type_fit["Transit"] = False
             self.check_type_fit()
             self.mute_boxes()
-
+            self.update_bounds()
             self.init_fit()
             self.update_use_from_input_file()
             self.update_use()
