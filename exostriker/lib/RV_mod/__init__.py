@@ -4007,7 +4007,58 @@ class signal_fit(object):
         return
 
 
+    def add_MAROONX_dataset(self, name, path, offset=0, jitter= 0, split = False):
 
+       dirname, basename = os.path.split(path)
+
+#       MAROONX_data = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0 )
+#       num_cols,num_rows = MAROONX_data.shape 
+      # print(num_rows, num_cols)
+    #   return
+#       if num_cols !=50:
+#           print("Not a MAROON-X file!") 
+#           return                   
+
+       BJD = np.genfromtxt("%s"%(path), skip_header=0, unpack=True, skip_footer=0, usecols = [0])
+      # indices = np.where(BJD > 2457161.5)
+
+       fo = open(path, "r")
+       lines = fo.readlines()
+       fo.close()
+
+#2459437.5 - 2459450.5
+#2459514.5 - 2459541.5
+#2459358.5 - 2459368.5
+#2459402.5 - 2459442.5
+
+       seasons = [[2459358.5,2459368.5],[2459402.5,2459450.5],[2459514.5,2459541.5],[2459541.5001,2460442.5]]
+
+       name_file = []
+       path_file = []
+
+       for z in range(len(seasons)):
+
+           name_file.append('%s_S_%s.dat'%(basename[:-5],z+1))
+           path_file.append('datafiles/%s'%name_file[z])
+
+           out1 = open('%s'%path_file[z], 'w')
+
+           for i in range(len(lines)):
+
+               line = lines[i].split()
+               if len(line) == 0:
+                   continue
+               if seasons[z][0] <= float(line[0]) <= seasons[z][1]:
+                   out1.write(lines[i])
+ 
+
+           out1.close()
+ 
+
+           if split == True and os.stat(path_file[z]).st_size != 0:
+               self.add_dataset(name_file[z],path_file[z],offset,jitter,useoffset=True,usejitter=True)
+           elif split == False and z == 0:
+               self.add_dataset(name,path,offset,jitter,useoffset=True,usejitter=True)
 
  
 

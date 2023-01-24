@@ -6385,6 +6385,38 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.update_RV_file_buttons()
             self.update_act_file_buttons()
 
+    def showDialog_MAROONX_input_file(self):
+        global fit, ses_list
+
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open MAROON-X data', '', 'All (*.*);;Data (*.csv)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+
+        if str(input_files[0]) != '':
+
+            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+                                            "Do you want to split the %s to files with different offsets (if applicable)?"%self.data_str,
+                                            QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)  
+
+            if choice == QtWidgets.QMessageBox.No:
+                fit.add_MAROONX_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = False)
+            elif choice == QtWidgets.QMessageBox.Yes:            
+                fit.add_MAROONX_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = True)
+            else:
+                return
+
+            fit.type_fit["RV"] = True
+            fit.type_fit["Transit"] = False
+            self.check_type_fit()
+            self.mute_boxes()
+
+            self.init_fit()
+            self.update_use_from_input_file()
+            self.update_use()
+            self.update_params()
+            self.update_RV_file_buttons()
+            self.update_act_file_buttons()
+
+
+
 
     def apply_rv_data_options(self):
         global fit
@@ -11580,7 +11612,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        self.es_version = "0.80"
+        self.es_version = "0.81"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -12491,6 +12523,8 @@ Please install via 'pip install ttvfast'.
 
         self.actionopen_RVmod_init_file.triggered.connect(self.showDialog_fortran_input_file)
         self.actionOpen_RVbank_file.triggered.connect(self.showDialog_RVbank_input_file)
+        self.actionOpen_MAROONX_file.triggered.connect(self.showDialog_MAROONX_input_file)
+
 
         self.jupiter_push_vars()
 
