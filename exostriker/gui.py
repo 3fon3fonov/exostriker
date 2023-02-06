@@ -66,7 +66,7 @@ from multiprocessing import cpu_count
 #from doublespinbox import DoubleSpinBox
 from Jupyter_emb import ConsoleWidget_embed
 
-from exochat import ChatWidget
+
 
 from stdout_pipe import MyDialog, DebugDialog
 from print_info_window import print_info
@@ -107,6 +107,7 @@ except (ImportError, KeyError) as e:
 try:
     import openai as openai
     openai_not_found = False 
+    from exochat import ChatWidget
 except (ImportError, KeyError) as e:
     openai_not_found = True
     pass
