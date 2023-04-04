@@ -772,12 +772,15 @@ c           write(*,*) (j_mass(i),i=1,npl+1)
  
  
       if(writeflag_fit.gt.0) then 
-          dt = ((t_max- t0) + model_max )/dble(nt - 1)
-
+          dt = ((t_max- t0) + model_max+model_min )/dble(nt - 1)
+ 
           do i = 1,nt
-
-             x(i) = (i-1)*dt*8.64d4
+	          x(i) = ((i-1)*dt*8.64d4)*(-1)
+c-model_min*8.64d4
+c          do i = 1,nt
+c             x(i) = (i-1)*dt*8.64d4
           enddo
+
           call RVKEP (x,a,ymod,dyda,ma,nt,epsil,deltat,hkl)
           do i = 1,nt
              write(*,*) t0 + x(i)/8.64d4, 
@@ -1103,7 +1106,6 @@ c Initialize initial time and times for first output and first dump
         time = 0.d0
         tstop = t(ndata)
     
-
         iub = 20
         iuj = 30
         iud = 40
@@ -1124,13 +1126,13 @@ c---------here is the big loop--------------------------
 
         nd = 1
 c------output the first ymod if time of dataset begins from 0
-        if (t(1).lt.1.d-10) then
+        if (abs(t(1)).lt.1.d-10) then
            mtotal = 0.d0
            do i = 1,nbod
               mtotal = mass(i) + mtotal
            enddo
            do i = 2,nbod     
-               j = 7*(i-2)         
+c               j = 7*(i-2)         
 c              ymod(nd) = ymod(nd) + mass(i)/mtotal*vyh(i)*a(ma)
 c              ymod(nd) = ymod(nd) + mass(i)/mtotal*vzh(i)*dsin(a(j+6))
               ymod(nd) = ymod(nd) + mass(i)/mtotal*vzh(i)              
@@ -1139,7 +1141,7 @@ c              ymod(nd) = ymod(nd) + mass(i)/mtotal*vzh(i)*dsin(a(j+6))
            nd = nd + 1
         endif
 c-------loop-----
-        do while( time.le.tstop )
+        do while( time.le.tstop)
            h = dt
            flag = 0        ! flag for controling output
            do i = 1,ndata    
@@ -1172,6 +1174,7 @@ c     &            dsin(a(j+6))
            endif
 
            time = time + h
+
          
 c           if(btest(iflgchk,4))  then    ! bit 4 is set
 c              call discard(t,dt,nbod,ntp,mass,xh,yh,zh,vxh,vyh,vzh,

@@ -58,21 +58,6 @@ class GLViewWidget(QtWidgets.QOpenGLWidget):
         self.keyTimer = QtCore.QTimer()
         self.keyTimer.timeout.connect(self.evalKeyState)
 
-    def _updateScreen(self, screen):
-        self._updatePixelRatio()
-        if screen is not None:
-            screen.physicalDotsPerInchChanged.connect(self._updatePixelRatio)
-            screen.logicalDotsPerInchChanged.connect(self._updatePixelRatio)
-    
-    def _updatePixelRatio(self):
-        event = QtGui.QResizeEvent(self.size(), self.size())
-        self.resizeEvent(event)
-    
-    def showEvent(self, event):
-        window = self.window().windowHandle()
-        window.screenChanged.connect(self._updateScreen)
-        self._updateScreen(window.screen())
-        
     def deviceWidth(self):
         dpr = self.devicePixelRatioF()
         return int(self.width() * dpr)
@@ -433,12 +418,10 @@ class GLViewWidget(QtWidgets.QOpenGLWidget):
         xDist = dist * 2. * tan(0.5 * radians(self.opts['fov']))
         return xDist / self.width()
         
-    def mousePressEvent(self, ev):
-        lpos = ev.position() if hasattr(ev, 'position') else ev.localPos()
-        self.mousePos = lpos
-        
     def mouseMoveEvent(self, ev):
         lpos = ev.position() if hasattr(ev, 'position') else ev.localPos()
+        if not hasattr(self, 'mousePos'):
+            self.mousePos = lpos
         diff = lpos - self.mousePos
         self.mousePos = lpos
         

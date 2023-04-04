@@ -1,7 +1,6 @@
 from ..Qt import QtCore, QtGui, QtWidgets
 
 HAVE_OPENGL = hasattr(QtWidgets, 'QOpenGLWidget')
-import itertools
 import math
 import sys
 import warnings
@@ -40,40 +39,25 @@ _have_native_drawlines_array = Qt.QT_LIB.startswith('PySide') and have_native_dr
 
 class LineSegments:
     def __init__(self):
-        self.use_sip_array = (
-            Qt.QT_LIB.startswith('PyQt') and
-            hasattr(Qt.sip, 'array') and
-            (
-                (0x60301 <= QtCore.PYQT_VERSION) or
-                (0x50f07 <= QtCore.PYQT_VERSION < 0x60000)
-            )
-        )
-        self.use_native_drawlines = Qt.QT_LIB.startswith('PySide') and _have_native_drawlines_array
-        self.alloc(0)
+        use_array = None
 
-    def alloc(self, size):
-        if self.use_sip_array:
-            self.objs = Qt.sip.array(QtCore.QLineF, size)
-            vp = Qt.sip.voidptr(self.objs, len(self.objs)*4*8)
-            self.arr = np.frombuffer(vp, dtype=np.float64).reshape((-1, 4))
-        elif self.use_native_drawlines:
-            self.arr = np.empty((size, 4), dtype=np.float64)
-            self.objs = Qt.compat.wrapinstance(self.arr.ctypes.data, QtCore.QLineF)
-        else:
-            self.arr = np.empty((size, 4), dtype=np.float64)
-            self.objs = list(map(Qt.compat.wrapinstance,
-                itertools.count(self.arr.ctypes.data, self.arr.strides[0]),
-                itertools.repeat(QtCore.QLineF, self.arr.shape[0])))
+        # "use_native_drawlines" is pending the following issue and code review
+        # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-1924
+        # https://codereview.qt-project.org/c/pyside/pyside-setup/+/415702
+        self.use_native_drawlines = Qt.QT_LIB.startswith('PySide') and _have_native_drawlines_array
+        if self.use_native_drawlines:
+            use_array = True
+
+        self.array = Qt.internals.PrimitiveArray(QtCore.QLineF, 4, use_array=use_array)
 
     def get(self, size):
-        if size != self.arr.shape[0]:
-            self.alloc(size)
-        return self.objs, self.arr
+        self.array.resize(size)
+        return self.array.instances(), self.array.ndarray()
 
     def arrayToLineSegments(self, x, y, connect, finiteCheck):
         # analogue of arrayToQPath taking the same parameters
         if len(x) < 2:
-            return []
+            return [],
 
         connect_array = None
         if isinstance(connect, np.ndarray):
@@ -282,6 +266,8 @@ class PlotCurveItem(GraphicsObject):
         ## If an orthogonal range is specified, mask the data now
         if orthoRange is not None:
             mask = (d2 >= orthoRange[0]) * (d2 <= orthoRange[1])
+            if self.opts.get("stepMode", None) == "center":
+                mask = mask[:-1]  # len(y) == len(x) - 1 when stepMode is center
             d = d[mask]
             #d2 = d2[mask]
 
@@ -295,13 +281,13 @@ class PlotCurveItem(GraphicsObject):
             with warnings.catch_warnings(): 
                 # All-NaN data is acceptable; Explicit numpy warning is not needed.
                 warnings.simplefilter("ignore")
-                b = (np.nanmin(d), np.nanmax(d))
+                b = ( float(np.nanmin(d)), float(np.nanmax(d)) ) # enforce float format for bounds, even if data format is different
             if math.isinf(b[0]) or math.isinf(b[1]):
                 mask = np.isfinite(d)
                 d = d[mask]
                 if len(d) == 0:
                     return (None, None)
-                b = (d.min(), d.max())
+                b = ( float(d.min()), float(d.max()) ) # enforce float format for bounds, even if data format is different
 
         elif frac <= 0.0:
             raise Exception("Value for parameter 'frac' must be > 0. (got %s)" % str(frac))
@@ -311,11 +297,14 @@ class PlotCurveItem(GraphicsObject):
             d = d[mask]
             if len(d) == 0:
                 return (None, None)
-            b = np.percentile(d, [50 * (1 - frac), 50 * (1 + frac)])
+            b = np.percentile(d, [50 * (1 - frac), 50 * (1 + frac)]) # percentile result is always float64 or larger
 
         ## adjust for fill level
         if ax == 1 and self.opts['fillLevel'] not in [None, 'enclosed']:
-            b = (min(b[0], self.opts['fillLevel']), max(b[1], self.opts['fillLevel']))
+            b = ( 
+                float( min(b[0], self.opts['fillLevel']) ), 
+                float( max(b[1], self.opts['fillLevel']) )
+            ) # enforce float format for bounds, even if data format is different
 
         ## Add pen width only if it is non-cosmetic.
         pen = self.opts['pen']

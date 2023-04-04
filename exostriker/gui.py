@@ -11613,7 +11613,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        self.es_version = "0.81"
+        self.es_version = "0.82"
 
         #self.loading_screen= LoadingScreen()   
  

@@ -2,13 +2,13 @@ from .. import functions as fn
 from .. import getConfigOption
 from ..Point import Point
 from ..Qt import QtCore, QtWidgets
-from .GraphicsObject import *
-from .GraphicsWidgetAnchor import *
+from .GraphicsObject import GraphicsObject
+from .GraphicsWidgetAnchor import GraphicsWidgetAnchor
 from .TextItem import TextItem
 
 __all__ = ['ScaleBar']
 
-class ScaleBar(GraphicsObject, GraphicsWidgetAnchor):
+class ScaleBar(GraphicsWidgetAnchor, GraphicsObject):
     """
     Displays a rectangular bar to indicate the relative scale of objects on the view.
     """
