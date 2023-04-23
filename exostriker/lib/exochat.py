@@ -134,8 +134,15 @@ class ChatWidget(QWidget):
             self.conversation.append(f"{response['choices'][0]['text']}\n")
             self.conversation.setTextColor(self.blackColor)
 
-        except:
-            self.conversation.append(f"Your Exo-Striker ChatBoot does not work! Mostlikely you: \n \n  * Have not provided, or you do not have a valid openai API key. You can obtain an API key from https://beta.openai.com. Then add your API key as a single line in the 'openai_api_key.txt' empty file in the 'exostriker' root directory and try again! \n \n * You do not have an internet! \n The Exo-Striker ChatBoot is a clone of Chat GPT, which requres an internet connection. \n \n * Or... maybe OpenAI is busy... " )    
+#        except openai.error.RateLimitError: 
+#            self.conversation.append(f"openai.error.RateLimitError: You exceeded your current quota, please check your plan and billing details.")
+#        except openai.error.AuthenticationError: 
+#            self.conversation.append(f"openai.error.AuthenticationError: Incorrect API key provided.")
+ 
+        except Exception as e:
+            self.conversation.append(f"Your Exo-Striker ChatBoot does not work! Mostlikely you: \n \n  * Have not provided, or you do not have a valid openai API key. You can obtain an API key from https://beta.openai.com. Then add your API key as a single pressing the 'option' button, and try again! \n \n * You do not have an internet! \n The Exo-Striker ChatBoot is a clone of Chat GPT, which requres an internet connection. \n \n * Or... maybe OpenAI is busy... \n" )    
+
+            self.conversation.append(f"The exact error was: \n %s\n"%e)            
         
         # Scroll to the bottom of the conversation
         self.conversation.verticalScrollBar().setValue(self.conversation.verticalScrollBar().maximum())
@@ -145,5 +152,4 @@ if __name__ == "__main__":
     chat = ChatWidget()
     chat.show()
     sys.exit(app.exec_())
-
 

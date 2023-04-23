@@ -3882,8 +3882,10 @@ pl.in
 
 
     for j in range(obj.npl):
-        getin_file.write(b'%s \n'%bytes(str(obj.fit_results.mass[j]/1047.348644).encode()))
-        getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.fit_results.a[j]).encode()),
+        #getin_file.write(b'%s \n'%bytes(str(obj.fit_results.mass[j]/1047.348644).encode()))
+        getin_file.write(b'%s \n'%bytes(str(obj.masses[j]/1047.348644).encode()))
+#        getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.fit_results.a[j]).encode()),
+        getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.semimajor[j]).encode()),
                                                  bytes(str(obj.params.planet_params[7*j + 2]).encode()),
                                                  bytes(str(obj.params.planet_params[7*j + 5]).encode()),
                                                  bytes(str(obj.params.planet_params[7*j + 3]).encode()),
