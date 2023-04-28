@@ -31,7 +31,7 @@ c*************************************************************************
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar,sini
 
-      version = "0.07"
+      version = "0.08"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -748,7 +748,7 @@ c     &                2.d0*PI/a(i+2)**2*dsqrt(covar(i+2,i+2))/8.64d4,
 
           do j = 1,npl+1
 
-	        j_mass(j) = mass(j)/1.2667d17 
+	        j_mass(j) = mass(j)/1.26686534d17 
 c	  s_mass(j) = mass(j)/1.32712497d20 
  
 c          swift_mass(j) = (mass(j)/1.32712497d20)*
@@ -902,7 +902,7 @@ c                    write(*,*) a(7*(i-1)+j)
       
       implicit none
       real*8 PI,TWOPI,GMSUN,AU
-      parameter (GMSUN=1.32712497d26,AU=1.49597892d11)
+      parameter (GMSUN=1.32712440018d26,AU=1.49597892d11)
       parameter (PI=3.14159265358979d0)
       parameter (TWOPI=2.0d0*PI)
       integer npl,nbod,ndata,ma,i,j,NPLMAX,na,ndset,NDSMAX,idset
@@ -1056,7 +1056,7 @@ c two-Kepler fit.
         real*8 a(ma),mass(NPLMAX),ap(NPLMAX),mpold(NPLMAX),mtotal
 	parameter (THIRD=1.d0/3.d0)
         parameter (PI=3.14159265358979d0,TWOPI=2.d0*PI)
-	parameter (GMSUN=1.32712497d20,MSUN=1.32712497d20)
+	parameter (GMSUN=1.32712440018d20,MSUN=1.32712440018d20)
 
 c*******G is set to be unit, and s, m, kg as unit of time, length and mass
 c*******expectively.        
@@ -1114,7 +1114,7 @@ c      include 'swift_loglik_Jakub.inc'
       real*8 SMASSYR,MSUN,PI
       parameter (PI=3.14159265358979d0)
       parameter (SMASSYR=4.d0*PI*PI)
-      parameter (MSUN=1.32712497d20)
+      parameter (MSUN=1.32712440018d20)
 
       integer nbod,NPLMAX,i,j
       parameter (NPLMAX=20)

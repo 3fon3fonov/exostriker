@@ -44,6 +44,8 @@ def check_for_missing_instances(fit,fit_new):
         if iii not in fit_new.fit_results.__dict__: 
             fit_new.fit_results.__dict__[iii] = dill.copy(fit.fit_results.__dict__[iii])
         
+    #fit.mass_semimajor = dill.copy(fit.mass_semimajor)
+
 
     if len(np.atleast_1d(fit_new.ns_sampler))!=0:
         try:
@@ -108,35 +110,35 @@ def check_fortran_routines(path='./'):
         print("Installation DONE!")
 
 
-    version_kep_loglik= "0.07"
+    version_kep_loglik= "0.08"
     result1, flag1 = run_command_with_timeout('%s/lib/fr/loglik_kep -version'%path, 1,output=True)
     if flag1 == -1 or str(result1[0][0]) != version_kep_loglik:
         print("New source code available: Updating Keplerian Simplex")
         result1, flag1 = run_command_with_timeout('gfortran -O3 %s/source/latest_f/kepfit_amoeba.f -o %s/lib/fr/loglik_kep'%(path,path), 15,output=True)
         result1, flag1 = run_command_with_timeout('%s/lib/fr/loglik_kep -version'%path, 1,output=True)
 
-    version_kep_LM= "0.07"
+    version_kep_LM= "0.08"
     result2, flag2 = run_command_with_timeout('%s/lib/fr/chi2_kep -version'%path, 1,output=True)
     if flag2 == -1 or str(result2[0][0]) != version_kep_LM:
         print("New source code available: Updating Keplerian L-M") 
         result2, flag2 = run_command_with_timeout('gfortran -O3 %s/source/latest_f/kepfit_LM.f -o %s/lib/fr/chi2_kep'%(path,path), 15,output=True)
         result2, flag2 = run_command_with_timeout('%s/lib/fr/chi2_kep -version'%path, 1,output=True)
 
-    version_dyn_loglik= "0.10"
+    version_dyn_loglik= "0.11"
     result3, flag3 = run_command_with_timeout('%s/lib/fr/loglik_dyn -version'%path, 1,output=True)
     if flag3 == -1 or str(result3[0][0]) != version_dyn_loglik:
         print("New source code available: Updating N-body Simplex")   
         result3, flag3 = run_command_with_timeout('gfortran -O3 %s/source/latest_f/dynfit_amoeba.f -o %s/lib/fr/loglik_dyn'%(path,path),15,output=True)
         result3, flag3 = run_command_with_timeout('%s/lib/fr/loglik_dyn -version'%path, 1,output=True)
 
-    version_dyn_LM= "0.07"
+    version_dyn_LM= "0.08"
     result4, flag4 = run_command_with_timeout('%s/lib/fr/chi2_dyn -version'%path, 1,output=True)
     if flag4 == -1 or str(result4[0][0]) != version_dyn_LM:
         print("New source code available: Updating N-body L-M")
         result4, flag4 = run_command_with_timeout('gfortran -O3 %s/source/latest_f/dynfit_LM.f -o %s/lib/fr/chi2_dyn'%(path,path), 15,output=True)
         result4, flag4 = run_command_with_timeout('%s/lib/fr/chi2_dyn -version'%path, 1,output=True)
 
-    version_dyn_loglik_plus = "0.07"
+    version_dyn_loglik_plus = "0.08"
     result5, flag5 = run_command_with_timeout('%s/lib/fr/loglik_dyn+ -version'%path, 1,output=True)
     if flag5 == -1 or str(result5[0][0]) != version_dyn_loglik_plus:
         print("New source code available: Updating Mixed Simplex")
@@ -318,7 +320,7 @@ def mass_to_K(P,ecc,incl, pl_mass,Stellar_mass):
     -------
     '''
     THIRD = 1.0/3.0
-    GMSUN = 1.32712497e20
+    GMSUN = 1.32712440018e20
     AU=1.49597892e11
 
     T = P*86400.0  
@@ -359,10 +361,10 @@ def get_mass(K, P, ecc, i, Stellar_mass):
     T = P*86400.0 
     THIRD = 1.0/3.0
  
-    GMSUN = 1.32712497e20
+    GMSUN = 1.32712440018e20
     msini = (T/(2.0*np.pi*GMSUN))**THIRD * K * Stellar_mass**(2./3) * np.sqrt(1.0-ecc**2.0)
     
-    msini = msini/np.sin(np.radians(i))*1047.348644
+    msini = msini/np.sin(np.radians(i))*1047.5654817267318
     
     return msini  
 
@@ -384,14 +386,14 @@ def get_gravity(m_p, r_p):
 
 
 def a_to_P(a,m0):
-    GMSUN = 1.32712497e20
+    GMSUN = 1.32712440018e20
     AU=1.49597892e11
     T = np.sqrt( (a*AU)**3.0 * (2.0*np.pi)**2.0 /(GMSUN*(m0)))
     T = T /86400.0
     return T
 
 def P_to_a(P,m0):
-    GMSUN = 1.32712497e20
+    GMSUN = 1.32712440018e20
     AU=1.49597892e11
     P = P * 86400.0
     a = ((P**2.0 * (GMSUN*(m0)))/(4.0*(np.pi)**2.0))**(1.0/3.0)
@@ -491,7 +493,7 @@ def get_mass_a_samples(K, P, ecc, incl, m_s, mass_type="J"):
     THIRD = 1.0/3.0
     PI    = 3.14159265358979e0
     TWOPI = 2.0*PI
-    GMSUN = 1.32712497e20
+    GMSUN = 1.32712440018e20
     AU=1.49597892e11
     
     mass = np.zeros(10)
@@ -542,9 +544,9 @@ def get_mass_a_samples(K, P, ecc, incl, m_s, mass_type="J"):
 
         ap[i] = ap[i]/AU # to be in AU
         if mass_type=="J":
-            pl_mass[i] = mass[i+1]*1047.348644 # to be in Jup. masses
+            pl_mass[i] = mass[i+1]*1047.5654817267318 # to be in Jup. masses
         elif  mass_type=="E":
-            pl_mass[i] = mass[i+1]*1047.348644 * 317.82838 # to be in Earth. masses
+            pl_mass[i] = mass[i+1]*1047.5654817267318 * 317.82838 # to be in Earth. masses
         else:
             pl_mass[i] = mass[i+1]
             
@@ -564,7 +566,7 @@ def get_mass_a(obj, mass_type="J"):
     THIRD = 1.0/3.0
     PI    = 3.14159265358979e0
     TWOPI = 2.0*PI
-    GMSUN = 1.32712497e20
+    GMSUN = 1.32712440018e20
     AU=1.49597892e11
     
     mass = np.zeros(10)
@@ -608,9 +610,9 @@ def get_mass_a(obj, mass_type="J"):
 
         ap[i] = ap[i]/AU # to be in AU
         if mass_type=="J":
-            pl_mass[i] = mass[i+1]*1047.348644 # to be in Jup. masses
+            pl_mass[i] = mass[i+1]*1047.5654817267318 # to be in Jup. masses
         elif  mass_type=="E":
-            pl_mass[i] = mass[i+1]*1047.348644 * 317.82838 # to be in Earth. masses
+            pl_mass[i] = mass[i+1]*1047.5654817267318 * 317.82838 # to be in Earth. masses
         else:
             pl_mass[i] = mass[i+1]
             
@@ -1110,7 +1112,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 M_fact = 1
                 mass_lab = r'[M$_{\rm Jup.}$]'
             elif mod_labels['use_Ms']:
-                M_fact = 1.0/1047.348644
+                M_fact = 1.0/1047.5654817267318
                 mass_lab = r'[M$_\odot$]'
 
             
@@ -1520,7 +1522,7 @@ def get_xyz(obj):
 
     for i in range(obj.npl):
 
-        pl_mass_in_st = float(obj.fit_results.mass[i])/ 1047.348644
+        pl_mass_in_st = float(obj.fit_results.mass[i])/ 1047.5654817267318
 
         pl_mass = pl_mass_in_st * (4*np.pi*np.pi)/(365.25*365.25)
         q = (1.0 - obj.params.planet_params[2 + i*7])*float(obj.fit_results.a[i])
@@ -1547,7 +1549,7 @@ def get_xyz(obj):
 
 def get_Hill_satb(obj):
 
-    st_mass = float(obj.params.stellar_mass)* 1047.348644
+    st_mass = float(obj.params.stellar_mass)* 1047.5654817267318
 
     if obj.fit_results.mass == 0 or len(np.atleast_1d(obj.fit_results.mass)) <=1:
         return False
@@ -1566,7 +1568,7 @@ def get_Hill_satb(obj):
 
 def get_AMD_stab(obj):
 
-    st_mass = float(obj.params.stellar_mass)* 1047.348644
+    st_mass = float(obj.params.stellar_mass)* 1047.5654817267318
 
     AMD_stable = True
 
@@ -3776,7 +3778,7 @@ def mass_a_from_Kepler_fit(a,npl,m0):
     THIRD = 1.0/3.0
     PI    = 3.14159265358979e0
     TWOPI = 2.0*PI
-    GMSUN = 1.32712497e20
+    GMSUN = 1.32712440018e20
     AU=1.49597892e11
     incl = 90.0
     sini = np.sin(PI*(incl/180.0))
@@ -3821,7 +3823,7 @@ def mass_a_from_Kepler_fit(a,npl,m0):
     for i in range(npl):
 
         ap[i] = ap[i]/AU # to be in AU
-        pl_mass[i] = mass[i+1]*1047.348644 # to be in Jup. masses
+        pl_mass[i] = mass[i+1]*1047.5654817267318 # to be in Jup. masses
         # I have seen that 1 Sol Mass = 1047.92612 Jup. masses???
     return pl_mass,ap
 
@@ -3883,7 +3885,7 @@ pl.in
 
     for j in range(obj.npl):
         #getin_file.write(b'%s \n'%bytes(str(obj.fit_results.mass[j]/1047.348644).encode()))
-        getin_file.write(b'%s \n'%bytes(str(obj.masses[j]/1047.348644).encode()))
+        getin_file.write(b'%s \n'%bytes(str(obj.masses[j]/1047.5654817267318).encode()))
 #        getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.fit_results.a[j]).encode()),
         getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.semimajor[j]).encode()),
                                                  bytes(str(obj.params.planet_params[7*j + 2]).encode()),
@@ -4013,7 +4015,7 @@ pl.in
 
     for j in range(9):
         if obj.pl_arb_use[j] == True:
-            getin_file.write(b'%s \n'%bytes(str(obj.mass_arb[j]/1047.348644).encode()))
+            getin_file.write(b'%s \n'%bytes(str(obj.mass_arb[j]/1047.5654817267318).encode()))
             getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.a_arb[j]).encode()),
                                                  bytes(str(obj.e_arb[j]).encode()),
                                                  bytes(str(obj.i_arb[j]).encode()),

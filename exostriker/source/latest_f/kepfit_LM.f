@@ -29,7 +29,7 @@ ccc   The final version will be available in the Python RVMod lib.
       common /DSBLK/ npl,ndset,idsmax,idset,gr_flag
 
 
-      version = "0.07"
+      version = "0.08"
        
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -163,7 +163,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if (writeflag_best_par.gt.0) then
 
          do j = 1,npl+1
-	      j_mass(j) = mass(j)/1.2667d17 
+	      j_mass(j) = mass(j)/1.26686534d17 
 c             s_mass(j) = mass(j)/1.32712497d20 
  
 c              swift_mass(j) = (mass(j)/1.32712497d20)*((4.d0*PI*PI)
@@ -811,7 +811,7 @@ c Fill in the symmetric side.
         real*8 a(ma),mass(NPLMAX),ap(NPLMAX),mpold(NPLMAX),mtotal
 	parameter (THIRD=1.d0/3.d0)
         parameter (PI=3.14159265358979d0,TWOPI=2.d0*PI)
-	parameter (GMSUN=1.32712497d20,MSUN=1.32712497d20)
+	parameter (GMSUN=1.32712440018d20,MSUN=1.32712440018d20)
 
 c*******G is set to be unit, and s, m, kg as unit of time, length and mass
 c*******expectively.        
@@ -886,7 +886,7 @@ c*******expectively.
       	real*8 mass, corr,THIRD,gmi,dt,prec_frac
         parameter (PI=3.14159265358979d0)
         parameter (c = 299792458.0d0)
-	    parameter (GMSUN=1.32712497d20, AU=1.49597892d13)
+	    parameter (GMSUN=1.32712440018d20, AU=1.49597892d13)
         parameter (THIRD=1.d0/3.d0)
  
                

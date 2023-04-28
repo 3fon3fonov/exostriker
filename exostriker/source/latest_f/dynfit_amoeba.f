@@ -27,7 +27,7 @@ c*************************************************************************
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar, sini
 
-      version = "0.10"
+      version = "0.11"
 
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -750,7 +750,7 @@ c          enddo
 
           do j = 1,npl+1
 
-            j_mass(j) = mass(j)/1.2667d17 
+            j_mass(j) = mass(j)/1.26686534d17
 c        s_mass(j) = mass(j)/1.32712497d20 
  
 c          swift_mass(j) = (mass(j)/1.32712497d20)*
@@ -918,7 +918,7 @@ c two-Kepler fit.
         real*8 a(ma),mass(NPLMAX),ap(NPLMAX),mpold(NPLMAX),mtotal
         parameter (THIRD=1.d0/3.d0)
         parameter (PI=3.14159265358979d0,TWOPI=2.d0*PI)
-        parameter (GMSUN=1.32712497d20,MSUN=1.32712497d20)
+        parameter (GMSUN=1.32712440018d20,MSUN=1.32712440018d20)
 
 c*******G is set to be unit, and s, m, kg as unit of time, length and mass
 c*******expectively.        
@@ -937,7 +937,7 @@ c*******expectively.
 101        continue
            if (i.eq.0) then
              mtotal = m0
-             mass(i+2) = abs(a(7*i+1))*(a(7*i+2)*(m0 + mpold(i+1))**2/
+             mass(i+2) = dabs(a(7*i+1))*(a(7*i+2)*(m0 + mpold(i+1))**2/
      &               (TWOPI*GMSUN))**THIRD*dsqrt(1.d0-ecc**2)
      &               /dabs(dsin(a(7*i+6)))
            else
@@ -945,7 +945,7 @@ c*******expectively.
               do j = 0, i-1
                  mtotal = mtotal + mass(j+2)
               enddo
-              mass(i+2) = abs(a(7*i+1))*(a(7*i+2)*(mtotal
+              mass(i+2) = dabs(a(7*i+1))*(a(7*i+2)*(mtotal
      &                  +mpold(i+1))**2/(TWOPI*GMSUN))**THIRD
      &                  *dsqrt(1.d0-ecc**2)/dabs(dsin(a(7*i+6)))
            endif
@@ -983,7 +983,7 @@ c      include 'swift.inc'
       real*8 SMASSYR,MSUN,PI,eps,THIRD
       parameter (PI=3.14159265358979d0,eps=1.d-7)
       parameter (SMASSYR=4.d0*PI*PI)
-      parameter (MSUN=1.32712497d20)
+      parameter (MSUN=1.32712440018d20)
       parameter (THIRD=1.d0/3.d0)
 
       integer nbod,NPLMAX,i,j,hkl

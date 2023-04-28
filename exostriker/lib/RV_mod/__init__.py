@@ -494,7 +494,7 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, hkl, fit_results=
                                             Ma_],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
         else:
             pl_mass = float(fit_results.mass[i])
-        pl_params = [pl_mass/1047.348644,
+        pl_params = [pl_mass/1047.5654817267318,
                                             par[len(vel_files)*2 +7*i+1],
                                             ecc_,
                                             par[len(vel_files)*2 +7*i+5],
@@ -642,7 +642,7 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
                                             Ma_],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
         else:
             pl_mass = float(fit_results.mass[i])
-        pl_params = [pl_mass/1047.348644,
+        pl_params = [pl_mass/1047.5654817267318,
                                             par[len(vel_files)*2 +7*i+1],
                                             ecc_,
                                             par[len(vel_files)*2 +7*i+5],
@@ -1294,7 +1294,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
             alpha    = ap_in/ap_out
             gamma    = pl_mass_in/pl_mass_out
-            epsilon  = (pl_mass_in + pl_mass_out)/(stmass*1047.348644)
+            epsilon  = (pl_mass_in + pl_mass_out)/(stmass*1047.5654817267318)
 
             AMD = gamma*np.sqrt(alpha)*(1.-np.sqrt(1.- par[len(vel_files)*2 +7*i+2]**2)) + 1.- np.sqrt(1.- par[len(vel_files)*2 + 7*(i+1) +2]**2)
 
@@ -4565,29 +4565,96 @@ class signal_fit(object):
 
         return
 
-    def mass_semimajor(self): # calculates planet masses (in Jupiter masses) and orbit semimajor axes (in astronomical units)
+
+    def mass_semimajor2(self, mass_type="J"): # calculates planet masses (in Jupiter masses) and orbit semimajor axes (in astronomical units)
         # declaring some constants which will be useful here
         THIRD = 1.0/3.0
-        GMSUN = 1.32712497e20
+        GMSUN = 1.32712440018e20
         AU=1.49597892e11
+
         # arrays for storing mass and semimajor information
         mass  = np.zeros(self.npl+1)
         ap    = np.zeros(self.npl)
         mtotal = self.params.stellar_mass
         mass[0] = self.params.stellar_mass
-        f = 5e-6 # iteration step
+
+        pl_mass = np.zeros(self.npl)
+        mpold = pl_mass
+        f = 5e-5 # iteration step
+
+
+        for i in range(self.npl):
+
+            T = self.params.planet_params[7*i+1]*86400.0
+
+            # we need innitial guess for each planet mass
+            dm = 2
+
+            mass[i+1] = abs(self.params.planet_params[7*i])*(T*(self.params.stellar_mass)**2.0/(TAU*GMSUN))**THIRD * np.sqrt(1.0-self.params.planet_params[7*i+2]**2.0)/abs(np.sin(np.radians(self.params.planet_params[7*i+5])))
+
+            # mtotal is the sum of the stellar mass and masses of all planets computed so far, plus the current estimate for the mass of the planet we want to compute, we increase it as we go along
+           # mtotal = mtotal + mass[i+1]
+           # mpold = mass[i+1] # we need to keep track of the current estimate for the planet mass, to check if the new one is higher or not
+
+            mass[0] = mtotal
+            mpold[i] = 0
+            while (dm >= f):
+ 
+                if i == 0:
+                    mtotal = self.params.stellar_mass
+                    mass[i+1] = abs(self.params.planet_params[7*i])*(T*(self.params.stellar_mass + mpold[i])**2.0/(TAU*GMSUN))**THIRD * np.sqrt(1.0-self.params.planet_params[7*i+2]**2.0)/abs(np.sin(np.radians(self.params.planet_params[7*i+5])))
+                else:
+                    mtotal = self.params.stellar_mass
+                    for j in range(i):
+                        mtotal = mtotal + mass[j+1]
+                    mass[i+1] = abs(self.params.planet_params[7*i])*(T*(mtotal + mpold[i])**2.0/(TAU*GMSUN))**THIRD * np.sqrt(1.0-self.params.planet_params[7*i+2]**2.0)/abs(np.sin(np.radians(self.params.planet_params[7*i+5])))
+
+ 
+                dm = abs((mass[i+1] - mpold[i])/mass[i+1] )
+                mpold[i] =  mass[i+1]
+
+
+            ap[i] = (GMSUN*(mtotal + mass[i+1])*(T/2.0*np.pi)**2)**THIRD
+
+
+
+            ap[i] = ap[i]/AU # to be in AU
+            if mass_type=="J":
+                pl_mass[i] = mass[i+1]*1047.5654817267318 # to be in Jup. masses
+            elif  mass_type=="E":
+                pl_mass[i] = mass[i+1]*1047.5654817267318 * 317.82838 # to be in Earth. masses
+            else:
+                pl_mass[i] = mass[i+1]
+
+        self.masses = pl_mass
+        self.semimajor = ap
+
+        return
+
+    def mass_semimajor(self): # calculates planet masses (in Jupiter masses) and orbit semimajor axes (in astronomical units)
+        # declaring some constants which will be useful here
+        THIRD = 1.0/3.0
+        GMSUN = 1.32712440018e20
+        AU=1.49597892e11
+
+        # arrays for storing mass and semimajor information
+        mass  = np.zeros(self.npl+1)
+        ap    = np.zeros(self.npl)
+        mtotal = self.params.stellar_mass
+        mass[0] = self.params.stellar_mass
+        f = 5e-5 # iteration step
         for i in range(self.npl):
             T = self.params.planet_params[7*i+1]*86400.0
             dm = 0
             # we need innitial guess for each planet mass
-            mass[i+1] = abs(self.params.planet_params[7*i])*(T*(self.params.stellar_mass)**2.0/(TAU*GMSUN))**THIRD * np.sqrt(1.0-self.params.planet_params[7*i+2]**2.0)/abs(np.sin(self.params.planet_params[7*i+5]))
+            mass[i+1] = abs(self.params.planet_params[7*i])*(T*(self.params.stellar_mass)**2.0/(TAU*GMSUN))**THIRD * np.sqrt(1.0-self.params.planet_params[7*i+2]**2.0)/abs(np.sin(np.radians(self.params.planet_params[7*i+5])))
             # mtotal is the sum of the stellar mass and masses of all planets computed so far, plus the current estimate for the mass of the planet we want to compute, we increase it as we go along
             mtotal = mtotal + mass[i+1]
             mpold = mass[i+1] # we need to keep track of the current estimate for the planet mass, to check if the new one is higher or not
 
             # This is a simple iteration to solve for planet mass
             while (dm <= 0): # if the new estimate for planet mass is lower than the old one, we finish an iteration
-                mass[i+1] = abs(self.params.planet_params[7*i])*(T*mtotal**2.0/(TAU*GMSUN))**THIRD * np.sqrt(1.0-self.params.planet_params[7*i+2]**2.0)/abs(np.sin(self.params.planet_params[7*i+5])) # this will become the planet mass at the last run of the loop,until then it is only used for comparison in the while condition, whereas mpold is the estimate for planet mass.
+                mass[i+1] = abs(self.params.planet_params[7*i])*(T*mtotal**2.0/(TAU*GMSUN))**THIRD * np.sqrt(1.0-self.params.planet_params[7*i+2]**2.0)/abs(np.sin(np.radians(self.params.planet_params[7*i+5]))) # this will become the planet mass at the last run of the loop,until then it is only used for comparison in the while condition, whereas mpold is the estimate for planet mass.
                 dm = (mpold - mass[i+1])
                 mpold =  mpold + f
                 mtotal = mtotal + f
@@ -4595,8 +4662,9 @@ class signal_fit(object):
             mtotal = mtotal-dm # the last part of the sum was mpold, now we want mass[m+1]
             ap[i] = (GMSUN*mtotal*(T/TAU)**2)**THIRD
         # 1 047.92612 = solar mass / jupiter mass, to get output in correct units
-        self.masses = mass[1:]*1047.348644
+        self.masses = mass[1:]*1047.5654817267318
         self.semimajor = ap/AU
+	#print(mtotal,mpold,dm,THIRD,GMSUN,AU,self.npl)
         return
 
     def print_info(self, short_errors=True,show=True):
@@ -5783,7 +5851,7 @@ pl.in
 
 
         for j in range(self.npl):
-            getin_file.write(b'%s \n'%bytes(str(self.fit_results.mass[j]/1047.348644).encode()))
+            getin_file.write(b'%s \n'%bytes(str(self.fit_results.mass[j]/1047.5654817267318).encode()))
             getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(self.fit_results.a[j]).encode()),
                                                      bytes(str(self.params.planet_params[7*j + 2]).encode()),
                                                      bytes(str(self.params.planet_params[7*j + 5]).encode()),
