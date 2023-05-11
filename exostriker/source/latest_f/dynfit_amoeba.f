@@ -27,7 +27,7 @@ c*************************************************************************
       common /DSBLK/ npl,ndset,idsmax,idset
       common mstar, sini
 
-      version = "0.11"
+      version = "0.12"
 
       CALL getarg(1, version_input)     
       if(version_input.eq.'-version') then
@@ -774,11 +774,14 @@ c           write(*,*) (j_mass(i),i=1,npl+1)
       if(writeflag_fit.gt.0) then 
           dt = ((t_max- t0) + model_max+model_min )/dble(nt - 1)
  
-          do i = 1,nt
-	          x(i) = ((i-1)*dt*8.64d4)*(-1)
+c          do i = 1,nt
+c	          x(i) = ((i-1)*dt*8.64d4)*(-1)
 c-model_min*8.64d4
 c          do i = 1,nt
 c             x(i) = (i-1)*dt*8.64d4
+c          enddo
+          do i = 1,nt
+             x(i) = (i-1)*dt*8.64d4
           enddo
 
           call RVKEP (x,a,ymod,dyda,ma,nt,epsil,deltat,hkl)

@@ -124,7 +124,7 @@ def check_fortran_routines(path='./'):
         result2, flag2 = run_command_with_timeout('gfortran -O3 %s/source/latest_f/kepfit_LM.f -o %s/lib/fr/chi2_kep'%(path,path), 15,output=True)
         result2, flag2 = run_command_with_timeout('%s/lib/fr/chi2_kep -version'%path, 1,output=True)
 
-    version_dyn_loglik= "0.11"
+    version_dyn_loglik= "0.12"
     result3, flag3 = run_command_with_timeout('%s/lib/fr/loglik_dyn -version'%path, 1,output=True)
     if flag3 == -1 or str(result3[0][0]) != version_dyn_loglik:
         print("New source code available: Updating N-body Simplex")   
