@@ -2702,10 +2702,10 @@ class signal_fit(object):
         self.mod_dynamical=False
         self.epoch=0.0
         self.npl=0
-        self.use=use_flags([False]*10,[False]*10,[False]*70,False,False)
-        self.params=parameters([0.0]*10,[0.0]*10,[0.0]*70,0.0,DEFAULT_STELLAR_MASS)
-        self.param_errors=parameter_errors([0.0]*10,[0.0]*10,[0.0]*70,0.0,0.0)
-        self.bounds = parameter_bounds([0.0,0.0]*10,[0.0,0.0]*10,[0.0,0.0]*70,[0.0,0.0],[0.0,0.0]*4,[0.0,0.0])
+        self.use=use_flags([False]*20,[False]*20,[False]*70,False,False)
+        self.params=parameters([0.0]*20,[0.0]*20,[0.0]*70,0.0,DEFAULT_STELLAR_MASS)
+        self.param_errors=parameter_errors([0.0]*20,[0.0]*20,[0.0]*70,0.0,0.0)
+        self.bounds = parameter_bounds([0.0,0.0]*20,[0.0,0.0]*20,[0.0,0.0]*70,[0.0,0.0],[0.0,0.0]*4,[0.0,0.0])
         
         self.use_planet = [0,0,0,0,0,0,0,0,0]
 

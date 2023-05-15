@@ -8910,6 +8910,9 @@ will be highly appreciated!
                 fit_new = dill.load(file_pi) #, encoding='latin1'
                 file_pi.close()     
 
+
+            #print(fit.bounds.GP_params_bounds, fit.bounds.planet_params_bounds, fit.bounds.jitter_bounds, fit.bounds.stellar_mass_bounds, fit.bounds.linear_trend_bounds)
+
             fit_new = rv.check_for_missing_instances(fit,fit_new)
             #self.check_for_missing_instances(fit_new)
 

@@ -63,7 +63,9 @@ def check_for_missing_instances(fit,fit_new):
         try:
             fit_new.type_fit = dill.copy(fit.type_fit)
         except:
-            pass        
+            pass       
+
+    fit_new.bounds  = dill.copy(fit.bounds) 
 
     if len(fit_new.rvoff_bounds) <= 11:
         fit_new.rvoff_bounds = dill.copy(fit.rvoff_bounds)    
