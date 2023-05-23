@@ -42,7 +42,7 @@ class show_chat_opt(QtWidgets.QDialog):
         self.max_tokens_box  = QtWidgets.QSpinBox(self)
         self.max_tokens_box.setMaximum(8096)
         self.max_tokens_box.setMinimum(10)
-        self.max_tokens_box.setValue(float(sett_init["openAI"]["max_tokens"])) 
+        self.max_tokens_box.setValue(int(sett_init["openAI"]["max_tokens"])) 
         self.max_tokens_box.setSingleStep(10) 
 
         self.top_p_box  = QtWidgets.QDoubleSpinBox(self)

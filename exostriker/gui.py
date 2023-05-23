@@ -1210,18 +1210,17 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.param_nr_priors_gui[10*i + 7][z].setValue(fit.t0_norm_pr[i][z])
                 self.param_nr_priors_gui[10*i + 8][z].setValue(fit.pl_rad_norm_pr[i][z])
                 self.param_nr_priors_gui[10*i + 9][z].setValue(fit.pl_a_norm_pr[i][z])
-                
-
-            self.param_nr_priors_gui[10*i + 0][2].setChecked(fit.K_norm_pr[i][2])
-            self.param_nr_priors_gui[10*i + 1][2].setChecked(fit.P_norm_pr[i][2])
-            self.param_nr_priors_gui[10*i + 2][2].setChecked(fit.e_norm_pr[i][2])
-            self.param_nr_priors_gui[10*i + 3][2].setChecked(fit.w_norm_pr[i][2])
-            self.param_nr_priors_gui[10*i + 4][2].setChecked(fit.M0_norm_pr[i][2])
-            self.param_nr_priors_gui[10*i + 5][2].setChecked(fit.i_norm_pr[i][2])
-            self.param_nr_priors_gui[10*i + 6][2].setChecked(fit.Node_norm_pr[i][2])
-            self.param_nr_priors_gui[10*i + 7][2].setChecked(fit.t0_norm_pr[i][2])
-            self.param_nr_priors_gui[10*i + 8][2].setChecked(fit.pl_rad_norm_pr[i][2])
-            self.param_nr_priors_gui[10*i + 9][2].setChecked(fit.pl_a_norm_pr[i][2])
+               	    
+            self.param_nr_priors_gui[10*i + 0][2].setChecked(int(fit.K_norm_pr[i][2]))
+            self.param_nr_priors_gui[10*i + 1][2].setChecked(int(fit.P_norm_pr[i][2]))
+            self.param_nr_priors_gui[10*i + 2][2].setChecked(int(fit.e_norm_pr[i][2]))
+            self.param_nr_priors_gui[10*i + 3][2].setChecked(int(fit.w_norm_pr[i][2]))
+            self.param_nr_priors_gui[10*i + 4][2].setChecked(int(fit.M0_norm_pr[i][2]))
+            self.param_nr_priors_gui[10*i + 5][2].setChecked(int(fit.i_norm_pr[i][2]))
+            self.param_nr_priors_gui[10*i + 6][2].setChecked(int(fit.Node_norm_pr[i][2]))
+            self.param_nr_priors_gui[10*i + 7][2].setChecked(int(fit.t0_norm_pr[i][2]))
+            self.param_nr_priors_gui[10*i + 8][2].setChecked(int(fit.pl_rad_norm_pr[i][2]))
+            self.param_nr_priors_gui[10*i + 9][2].setChecked(int(fit.pl_a_norm_pr[i][2]))
  
 
         for i in range(9): 
@@ -1231,18 +1230,18 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.k_norm_pr_gui[i][z].setValue(fit.e_cosw_norm_pr[i][z])
                 self.lambda_norm_pr_gui[i][z].setValue(fit.lamb_norm_pr[i][z])
 
-            self.om_dot_norm_pr_gui[i][2].setChecked(fit.omega_dot_norm_pr[i][2])
-            self.h_norm_pr_gui[i][2].setChecked(fit.e_sinw_norm_pr[i][2])
-            self.k_norm_pr_gui[i][2].setChecked(fit.e_cosw_norm_pr[i][2])
-            self.lambda_norm_pr_gui[i][2].setChecked(fit.lamb_norm_pr[i][2])
+            self.om_dot_norm_pr_gui[i][2].setChecked(int(fit.omega_dot_norm_pr[i][2]))
+            self.h_norm_pr_gui[i][2].setChecked(int(fit.e_sinw_norm_pr[i][2]))
+            self.k_norm_pr_gui[i][2].setChecked(int(fit.e_cosw_norm_pr[i][2]))
+            self.lambda_norm_pr_gui[i][2].setChecked(int(fit.lamb_norm_pr[i][2]))
 
         self.lin_trend_mean.setValue(fit.rv_lintr_norm_pr[0][0])
         self.lin_trend_sigma.setValue(fit.rv_lintr_norm_pr[0][1])
-        self.use_lin_tr_nr_pr.setChecked(fit.rv_lintr_norm_pr[0][2])
+        self.use_lin_tr_nr_pr.setChecked(int(fit.rv_lintr_norm_pr[0][2]))
  
         self.quad_trend_mean.setValue(fit.rv_quadtr_norm_pr[0][0])
         self.quad_trend_sigma.setValue(fit.rv_quadtr_norm_pr[0][1])
-        self.use_quad_tr_nr_pr.setChecked(fit.rv_quadtr_norm_pr[0][2])
+        self.use_quad_tr_nr_pr.setChecked(int(fit.rv_quadtr_norm_pr[0][2]))
  
  
         for i in range(20): 
@@ -1252,8 +1251,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                  self.jitter_nr_priors_gui[i][z].setValue(fit.jitt_norm_pr[i][z])
                  
                  
-            self.offset_nr_priors_gui[i][2].setChecked(fit.rvoff_norm_pr[i][2])
-            self.jitter_nr_priors_gui[i][2].setChecked(fit.jitt_norm_pr[i][2])
+            self.offset_nr_priors_gui[i][2].setChecked(int(fit.rvoff_norm_pr[i][2]))
+            self.jitter_nr_priors_gui[i][2].setChecked(int(fit.jitt_norm_pr[i][2]))
 
         for i in range(20): 
             for z in range(2):
@@ -1263,10 +1262,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                  self.tra_lin_trend_nr_priors_gui[i][z].setValue(fit.tra_lintr_norm_pr[i][z])
                  self.tra_quad_trend_nr_priors_gui[i][z].setValue(fit.tra_quadtr_norm_pr[i][z])  
  
-            self.offset_nr_priors_gui_tra[i][2].setChecked(fit.tra_off_norm_pr[i][2])
-            self.jitter_nr_priors_gui_tra[i][2].setChecked(fit.tra_jitt_norm_pr[i][2])
-            self.tra_lin_trend_nr_priors_gui[i][2].setChecked(fit.tra_lintr_norm_pr[i][2])
-            self.tra_quad_trend_nr_priors_gui[i][2].setChecked(fit.tra_quadtr_norm_pr[i][2])
+            self.offset_nr_priors_gui_tra[i][2].setChecked(int(fit.tra_off_norm_pr[i][2]))
+            self.jitter_nr_priors_gui_tra[i][2].setChecked(int(fit.tra_jitt_norm_pr[i][2]))
+            self.tra_lin_trend_nr_priors_gui[i][2].setChecked(int(fit.tra_lintr_norm_pr[i][2]))
+            self.tra_quad_trend_nr_priors_gui[i][2].setChecked(int(fit.tra_quadtr_norm_pr[i][2]))
 
 
         self.update_RV_GP_priors_nr()
@@ -1278,28 +1277,28 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(4): 
             for z in range(2):
                 self.GP_rot_nr_priors_gui[i][z].setValue(fit.GP_rot_norm_pr[i][z])
-            self.GP_rot_nr_priors_gui[i][2].setChecked(fit.GP_rot_norm_pr[i][2])
+            self.GP_rot_nr_priors_gui[i][2].setChecked(int(fit.GP_rot_norm_pr[i][2]))
     
         for i in range(3): 
             for z in range(2):
                 self.GP_sho_nr_priors_gui[i][z].setValue(fit.GP_sho_norm_pr[i][z])
-            self.GP_sho_nr_priors_gui[i][2].setChecked(fit.GP_sho_norm_pr[i][2])
+            self.GP_sho_nr_priors_gui[i][2].setChecked(int(fit.GP_sho_norm_pr[i][2]))
  
         for i in range(3): 
             for z in range(2):
                 self.GP_mat_nr_priors_gui[i][z].setValue(fit.GP_mat_norm_pr[i][z])
-            self.GP_mat_nr_priors_gui[i][2].setChecked(fit.GP_mat_norm_pr[i][2])   
+            self.GP_mat_nr_priors_gui[i][2].setChecked(int(fit.GP_mat_norm_pr[i][2]))   
 
         for i in range(2): 
             for z in range(2):
                 self.GP_drw_nr_priors_gui[i][z].setValue(fit.GP_drw_norm_pr[i][z])
-            self.GP_drw_nr_priors_gui[i][2].setChecked(fit.GP_drw_norm_pr[i][2])   
+            self.GP_drw_nr_priors_gui[i][2].setChecked(int(fit.GP_drw_norm_pr[i][2]))  
 
 
         for i in range(5): 
             for z in range(2):
                 self.GP_double_sho_nr_priors_gui[i][z].setValue(fit.GP_double_sho_norm_pr[i][z])
-            self.GP_double_sho_nr_priors_gui[i][2].setChecked(fit.GP_double_sho_norm_pr[i][2])         
+            self.GP_double_sho_nr_priors_gui[i][2].setChecked(int(fit.GP_double_sho_norm_pr[i][2])     )    
             
     def update_tra_GP_priors_nr(self):
         global fit
@@ -1307,27 +1306,27 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(4): 
             for z in range(2):
                 self.tra_GP_rot_nr_priors_gui[i][z].setValue(fit.tra_GP_rot_norm_pr[i][z])
-            self.tra_GP_rot_nr_priors_gui[i][2].setChecked(fit.tra_GP_rot_norm_pr[i][2])
+            self.tra_GP_rot_nr_priors_gui[i][2].setChecked(int(fit.tra_GP_rot_norm_pr[i][2]))
     
         for i in range(3): 
             for z in range(2):
                 self.tra_GP_sho_nr_priors_gui[i][z].setValue(fit.tra_GP_sho_norm_pr[i][z])
-            self.tra_GP_sho_nr_priors_gui[i][2].setChecked(fit.tra_GP_sho_norm_pr[i][2])
+            self.tra_GP_sho_nr_priors_gui[i][2].setChecked(int(fit.tra_GP_sho_norm_pr[i][2]))
  
         for i in range(3): 
             for z in range(2):
                 self.tra_GP_mat_nr_priors_gui[i][z].setValue(fit.tra_GP_mat_norm_pr[i][z])
-            self.tra_GP_mat_nr_priors_gui[i][2].setChecked(fit.tra_GP_mat_norm_pr[i][2])       
+            self.tra_GP_mat_nr_priors_gui[i][2].setChecked(int(fit.tra_GP_mat_norm_pr[i][2]))       
 
         for i in range(2): 
             for z in range(2):
                 self.tra_GP_drw_nr_priors_gui[i][z].setValue(fit.tra_GP_drw_norm_pr[i][z])
-            self.tra_GP_drw_nr_priors_gui[i][2].setChecked(fit.tra_GP_drw_norm_pr[i][2])  
+            self.tra_GP_drw_nr_priors_gui[i][2].setChecked(int(fit.tra_GP_drw_norm_pr[i][2]))  
             
         for i in range(5): 
             for z in range(2):
                 self.tra_GP_double_sho_nr_priors_gui[i][z].setValue(fit.tra_GP_double_sho_norm_pr[i][z])
-            self.tra_GP_double_sho_nr_priors_gui[i][2].setChecked(fit.tra_GP_double_sho_norm_pr[i][2])            
+            self.tra_GP_double_sho_nr_priors_gui[i][2].setChecked(int(fit.tra_GP_double_sho_norm_pr[i][2])  )          
 
 
 
@@ -1351,16 +1350,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.param_jeff_priors_gui[10*i + 8][z].setValue(fit.pl_rad_jeff_pr[i][z])
                 self.param_jeff_priors_gui[10*i + 9][z].setValue(fit.pl_a_jeff_pr[i][z])
                 
-            self.param_jeff_priors_gui[10*i + 0][2].setChecked(fit.K_jeff_pr[i][2])
-            self.param_jeff_priors_gui[10*i + 1][2].setChecked(fit.P_jeff_pr[i][2])
-            self.param_jeff_priors_gui[10*i + 2][2].setChecked(fit.e_jeff_pr[i][2])
-            self.param_jeff_priors_gui[10*i + 3][2].setChecked(fit.w_jeff_pr[i][2])
-            self.param_jeff_priors_gui[10*i + 4][2].setChecked(fit.M0_jeff_pr[i][2])
-            self.param_jeff_priors_gui[10*i + 5][2].setChecked(fit.i_jeff_pr[i][2])
-            self.param_jeff_priors_gui[10*i + 6][2].setChecked(fit.Node_jeff_pr[i][2])
-            self.param_jeff_priors_gui[10*i + 7][2].setChecked(fit.t0_jeff_pr[i][2])
-            self.param_jeff_priors_gui[10*i + 8][2].setChecked(fit.pl_rad_jeff_pr[i][2])
-            self.param_jeff_priors_gui[10*i + 9][2].setChecked(fit.pl_a_jeff_pr[i][2])
+            self.param_jeff_priors_gui[10*i + 0][2].setChecked(int(fit.K_jeff_pr[i][2]))
+            self.param_jeff_priors_gui[10*i + 1][2].setChecked(int(fit.P_jeff_pr[i][2]))
+            self.param_jeff_priors_gui[10*i + 2][2].setChecked(int(fit.e_jeff_pr[i][2]))
+            self.param_jeff_priors_gui[10*i + 3][2].setChecked(int(fit.w_jeff_pr[i][2]))
+            self.param_jeff_priors_gui[10*i + 4][2].setChecked(int(fit.M0_jeff_pr[i][2]))
+            self.param_jeff_priors_gui[10*i + 5][2].setChecked(int(fit.i_jeff_pr[i][2]))
+            self.param_jeff_priors_gui[10*i + 6][2].setChecked(int(fit.Node_jeff_pr[i][2]))
+            self.param_jeff_priors_gui[10*i + 7][2].setChecked(int(fit.t0_jeff_pr[i][2]))
+            self.param_jeff_priors_gui[10*i + 8][2].setChecked(int(fit.pl_rad_jeff_pr[i][2]))
+            self.param_jeff_priors_gui[10*i + 9][2].setChecked(int(fit.pl_a_jeff_pr[i][2]))
  
 
         for i in range(9): 
@@ -1370,18 +1369,18 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.k_jeff_pr_gui[i][z].setValue(fit.e_cosw_jeff_pr[i][z])
                 self.lambda_jeff_pr_gui[i][z].setValue(fit.lamb_jeff_pr[i][z])
 
-            self.om_dot_jeff_pr_gui[i][2].setChecked(fit.omega_dot_jeff_pr[i][2])
-            self.h_jeff_pr_gui[i][2].setChecked(fit.e_sinw_jeff_pr[i][2])
-            self.k_jeff_pr_gui[i][2].setChecked(fit.e_cosw_jeff_pr[i][2])
-            self.lambda_jeff_pr_gui[i][2].setChecked(fit.lamb_jeff_pr[i][2])
+            self.om_dot_jeff_pr_gui[i][2].setChecked(int(fit.omega_dot_jeff_pr[i][2]))
+            self.h_jeff_pr_gui[i][2].setChecked(int(fit.e_sinw_jeff_pr[i][2]))
+            self.k_jeff_pr_gui[i][2].setChecked(int(fit.e_cosw_jeff_pr[i][2]))
+            self.lambda_jeff_pr_gui[i][2].setChecked(int(fit.lamb_jeff_pr[i][2]))
 
         self.lin_trend_jeff_alpha.setValue(fit.rv_lintr_jeff_pr[0][0])
         self.lin_trend_jeff_beta.setValue(fit.rv_lintr_jeff_pr[0][1])
-        self.use_lin_tr_jeff_pr.setChecked(fit.rv_lintr_jeff_pr[0][2])
+        self.use_lin_tr_jeff_pr.setChecked(int(fit.rv_lintr_jeff_pr[0][2]))
 
         self.quad_trend_jeff_alpha.setValue(fit.rv_quadtr_jeff_pr[0][0])
         self.quad_trend_jeff_beta.setValue(fit.rv_quadtr_jeff_pr[0][1])
-        self.use_quad_tr_jeff_pr.setChecked(fit.rv_quadtr_jeff_pr[0][2]) 
+        self.use_quad_tr_jeff_pr.setChecked(int(fit.rv_quadtr_jeff_pr[0][2]) )
  
 
         for i in range(20): 
@@ -1390,8 +1389,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                  self.offset_jeff_priors_gui[i][z].setValue(fit.rvoff_jeff_pr[i][z])
                  self.jitter_jeff_priors_gui[i][z].setValue(fit.jitt_jeff_pr[i][z])      
                  
-            self.offset_jeff_priors_gui[i][2].setChecked(fit.rvoff_jeff_pr[i][2])
-            self.jitter_jeff_priors_gui[i][2].setChecked(fit.jitt_jeff_pr[i][2])
+            self.offset_jeff_priors_gui[i][2].setChecked(int(fit.rvoff_jeff_pr[i][2]))
+            self.jitter_jeff_priors_gui[i][2].setChecked(int(fit.jitt_jeff_pr[i][2]))
 
 
         for i in range(20): 
@@ -1403,10 +1402,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                  self.tra_quad_trend_jeff_priors_gui[i][z].setValue(fit.tra_quadtr_jeff_pr[i][z])                 
                  
  
-            self.offset_jeff_priors_gui_tra[i][2].setChecked(fit.tra_off_jeff_pr[i][2])
-            self.jitter_jeff_priors_gui_tra[i][2].setChecked(fit.tra_jitt_jeff_pr[i][2])    
-            self.tra_lin_trend_jeff_priors_gui[i][2].setChecked(fit.tra_lintr_jeff_pr[i][2])
-            self.tra_quad_trend_jeff_priors_gui[i][2].setChecked(fit.tra_quadtr_jeff_pr[i][2])
+            self.offset_jeff_priors_gui_tra[i][2].setChecked(int(fit.tra_off_jeff_pr[i][2]))
+            self.jitter_jeff_priors_gui_tra[i][2].setChecked(int(fit.tra_jitt_jeff_pr[i][2]))
+            self.tra_lin_trend_jeff_priors_gui[i][2].setChecked(int(fit.tra_lintr_jeff_pr[i][2]))
+            self.tra_quad_trend_jeff_priors_gui[i][2].setChecked(int(fit.tra_quadtr_jeff_pr[i][2]))
 
             
 
@@ -1419,27 +1418,27 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(4): 
             for z in range(2):
                 self.GP_rot_jeff_priors_gui[i][z].setValue(fit.GP_rot_jeff_pr[i][z])
-            self.GP_rot_jeff_priors_gui[i][2].setChecked(fit.GP_rot_jeff_pr[i][2])
+            self.GP_rot_jeff_priors_gui[i][2].setChecked(int(fit.GP_rot_jeff_pr[i][2]))
     
         for i in range(3): 
             for z in range(2):
                 self.GP_sho_jeff_priors_gui[i][z].setValue(fit.GP_sho_jeff_pr[i][z])
-            self.GP_sho_jeff_priors_gui[i][2].setChecked(fit.GP_sho_jeff_pr[i][2])
+            self.GP_sho_jeff_priors_gui[i][2].setChecked(int(fit.GP_sho_jeff_pr[i][2]))
  
         for i in range(3): 
             for z in range(2):
                 self.GP_mat_jeff_priors_gui[i][z].setValue(fit.GP_mat_jeff_pr[i][z])
-            self.GP_mat_jeff_priors_gui[i][2].setChecked(fit.GP_mat_jeff_pr[i][2])            
+            self.GP_mat_jeff_priors_gui[i][2].setChecked(int(fit.GP_mat_jeff_pr[i][2]))            
 
         for i in range(2): 
             for z in range(2):
                 self.GP_drw_jeff_priors_gui[i][z].setValue(fit.GP_drw_jeff_pr[i][z])
-            self.GP_drw_jeff_priors_gui[i][2].setChecked(fit.GP_drw_jeff_pr[i][2])  
+            self.GP_drw_jeff_priors_gui[i][2].setChecked(int(fit.GP_drw_jeff_pr[i][2]))  
 
         for i in range(5): 
             for z in range(2):
                 self.GP_double_sho_jeff_priors_gui[i][z].setValue(fit.GP_double_sho_jeff_pr[i][z])
-            self.GP_double_sho_jeff_priors_gui[i][2].setChecked(fit.GP_double_sho_jeff_pr[i][2])
+            self.GP_double_sho_jeff_priors_gui[i][2].setChecked(int(fit.GP_double_sho_jeff_pr[i][2]))
  
             
     def update_tra_GP_priors_jeff(self):
@@ -1448,27 +1447,27 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(4): 
             for z in range(2):
                 self.tra_GP_rot_jeff_priors_gui[i][z].setValue(fit.tra_GP_rot_jeff_pr[i][z])
-            self.tra_GP_rot_jeff_priors_gui[i][2].setChecked(fit.tra_GP_rot_jeff_pr[i][2])
+            self.tra_GP_rot_jeff_priors_gui[i][2].setChecked(int(fit.tra_GP_rot_jeff_pr[i][2]))
     
         for i in range(3): 
             for z in range(2):
                 self.tra_GP_sho_jeff_priors_gui[i][z].setValue(fit.tra_GP_sho_jeff_pr[i][z])
-            self.tra_GP_sho_jeff_priors_gui[i][2].setChecked(fit.tra_GP_sho_jeff_pr[i][2])
+            self.tra_GP_sho_jeff_priors_gui[i][2].setChecked(int(fit.tra_GP_sho_jeff_pr[i][2]))
  
         for i in range(3): 
             for z in range(2):
                 self.tra_GP_mat_jeff_priors_gui[i][z].setValue(fit.tra_GP_mat_jeff_pr[i][z])
-            self.tra_GP_mat_jeff_priors_gui[i][2].setChecked(fit.tra_GP_mat_jeff_pr[i][2])
+            self.tra_GP_mat_jeff_priors_gui[i][2].setChecked(int(fit.tra_GP_mat_jeff_pr[i][2]))
 
         for i in range(2): 
             for z in range(2):
                 self.tra_GP_drw_jeff_priors_gui[i][z].setValue(fit.tra_GP_drw_jeff_pr[i][z])
-            self.tra_GP_drw_jeff_priors_gui[i][2].setChecked(fit.tra_GP_drw_jeff_pr[i][2])
+            self.tra_GP_drw_jeff_priors_gui[i][2].setChecked(int(fit.tra_GP_drw_jeff_pr[i][2]))
 
         for i in range(5): 
             for z in range(2):
                 self.tra_GP_double_sho_jeff_priors_gui[i][z].setValue(fit.tra_GP_double_sho_jeff_pr[i][z])
-            self.tra_GP_double_sho_jeff_priors_gui[i][2].setChecked(fit.tra_GP_double_sho_jeff_pr[i][2])
+            self.tra_GP_double_sho_jeff_priors_gui[i][2].setChecked(int(fit.tra_GP_double_sho_jeff_pr[i][2]))
 
     def check_bounds(self):
         global fit
