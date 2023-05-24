@@ -6,7 +6,7 @@ import sys, os
 #sys.path.insert(0, '../lib')
 import numpy as np
 import jac2astrocen
-import corner
+import corner_ES as corner
 
 import matplotlib
 matplotlib.pyplot.switch_backend('Agg')

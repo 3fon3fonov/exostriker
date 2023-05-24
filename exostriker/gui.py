@@ -12002,9 +12002,9 @@ Please install via 'pip install ttvfast'.
                     'pathos', 
                     'emcee',
                     'celerite', 
-                    'corner',
+                    #'corner',
                     'transitleastsquares',
-                    'dynesty', 
+                   # 'dynesty', 
                     'ttvfast',
                     'wotan'] 
                 

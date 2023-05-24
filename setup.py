@@ -21,7 +21,7 @@ if sys.version_info >= (3,7):
     "qtconsole",
     "pathos>=0.2.5",
     "emcee>=3.0.2",
-    "corner>=2.1.0",
+#    "corner>=2.1.0",
     "celerite>=0.3.1",
     "batman-package>=2.4.8",
     "transitleastsquares==1.0.24",
@@ -44,11 +44,11 @@ else:
     "qtconsole",
     "pathos>=0.2.5",
     "emcee>=3.0.2",
-    "corner>=2.1.0",
+#    "corner>=2.1.0",
     "celerite>=0.3.1",
     "batman-package>=2.4.8",
     "transitleastsquares==1.0.24",
-    "dynesty>=1.0.1",
+#    "dynesty>=1.0.1",
     "ttvfast>=0.3.0",
     "wotan>=1.7"]
 
