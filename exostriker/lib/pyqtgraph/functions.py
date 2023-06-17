@@ -546,7 +546,7 @@ def colorDistance(colors, metric='CIE76'):
         The `N-1` sequential distances between `N` colors.
     """
     metric = metric.upper()
-    if len(colors) < 1: return np.array([], dtype=np.float)
+    if len(colors) < 1: return np.array([], dtype=float)
     if metric == 'CIE76':
         dist = []
         lab1 = None
@@ -1531,8 +1531,8 @@ def makeARGB(data, lut=None, levels=None, scale=None, useRGBA=False, maskNans=Tr
     # apply nan mask through alpha channel
     if nanMask is not None:
         alpha = True
-        # Workaround for https://github.com/cupy/cupy/issues/4693
-        if xp == cp:
+        # Workaround for https://github.com/cupy/cupy/issues/4693, fixed in cupy 10.0.0
+        if xp == cp and tuple(map(int, cp.__version__.split("."))) < (10, 0):
             imgData[nanMask, :, dst_order[3]] = 0
         else:
             imgData[nanMask, dst_order[3]] = 0

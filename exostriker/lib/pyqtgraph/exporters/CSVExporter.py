@@ -93,7 +93,10 @@ class CSVExporter(Exporter):
 
     def export(self, fileName=None):
         if not isinstance(self.item, PlotItem):
-            raise TypeError("Must have a PlotItem selected for CSV export.")
+            #raise TypeError("Must have a PlotItem selected for CSV export.")
+            print("Must have a PlotItem selected for CSV export.")     
+            return       
+
 
         if fileName is None:
             self.fileSaveDialog(filter=["*.csv", "*.tsv"])

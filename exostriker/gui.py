@@ -11,6 +11,7 @@ import numpy as np
 
 import sys, os, traceback 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
+import json
 
 #import collections 
 #if sys.version_info.major == 3 and sys.version_info.minor >= 10:
@@ -11012,13 +11013,30 @@ Please install via 'pip install ttvfast'.
             self.plot_font.setPointSize(font.pointSize())
           
         self.update_font_plots()   
-          
-        #print(self.plot_font.pointSize())
-            
+
+
+     ###### Update settings json ########
+        Plot_settings = './lib/ES_settings.json'
+
+        with open(Plot_settings, "r") as jsonFile:
+            sett = json.load(jsonFile)
+
+        sett["fonts"]["plot_font"] = str(font.pointSize())
+
+        with open(Plot_settings, "w") as jsonFile:
+            json.dump(sett, jsonFile)
+
+         
     def initialize_font_plot(self): #not working as I want!
 
+        Plot_settings = './lib/ES_settings.json'
+        with open(Plot_settings, "r") as jsonFile:
+            sett = json.load(jsonFile)
+ 
+
+
         self.plot_font = QtGui.QFont()
-        self.plot_font.setPointSize(9)
+        self.plot_font.setPointSize(int(sett["fonts"]["plot_font"]))
         self.plot_font.setBold(False)
               
 
@@ -11615,7 +11633,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        self.es_version = "0.83"
+        self.es_version = "0.84"
 
         #self.loading_screen= LoadingScreen()   
  
