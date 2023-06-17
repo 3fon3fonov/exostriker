@@ -10996,17 +10996,32 @@ Please install via 'pip install ttvfast'.
 
     def set_widget_font(self, widget):
         #QtWidgets.QFontDialog.setOption(QtWidgets.QFontDialog.DontUseNativeDialog, True)
-        font, ok = QtWidgets.QFontDialog.getFont()
+        font, ok = QtWidgets.QFontDialog.getFont(self.gui_font)
 
         if ok:
-            QtWidgets.QApplication.setFont(font)
+            self.gui_font = font
+
+            QtWidgets.QApplication.setFont(self.gui_font)
 
             for topLevel in QtWidgets.QApplication.allWidgets():
-                topLevel.setFont(font)
+                topLevel.setFont(self.gui_font)
+
+     ###### Update settings json ########
+        GUI_settings = './lib/ES_settings.json'
+
+        with open(GUI_settings, "r") as jsonFile:
+            sett = json.load(jsonFile)
+
+        sett["GUI_fonts"]["gui_font"] = str(font.pointSize())
+
+        with open(GUI_settings, "w") as jsonFile:
+            json.dump(sett, jsonFile)
+
+
  
     def set_plot_font(self):
         #QtWidgets.QFontDialog.setOption(QtWidgets.QFontDialog.DontUseNativeDialog, True)
-        font, ok = QtWidgets.QFontDialog.getFont()
+        font, ok = QtWidgets.QFontDialog.getFont(self.plot_font)
 
         if ok:
             self.plot_font.setFamily(font.family())
@@ -11032,13 +11047,24 @@ Please install via 'pip install ttvfast'.
         Plot_settings = './lib/ES_settings.json'
         with open(Plot_settings, "r") as jsonFile:
             sett = json.load(jsonFile)
- 
-
 
         self.plot_font = QtGui.QFont()
         self.plot_font.setPointSize(int(sett["fonts"]["plot_font"]))
         self.plot_font.setBold(False)
               
+
+    def initialize_font_GUI(self): #not working as I want!
+
+        Plot_settings = './lib/ES_settings.json'
+        with open(Plot_settings, "r") as jsonFile:
+            sett = json.load(jsonFile)
+
+        self.gui_font = QtGui.QFont()
+        self.gui_font.setPointSize(int(sett["GUI_fonts"]["gui_font"]))
+        self.gui_font.setBold(False)
+              
+        for topLevel in QtWidgets.QApplication.allWidgets():
+            topLevel.setFont(self.gui_font)
 
 
     def closeEvent(self, event):
@@ -11648,6 +11674,7 @@ Please install via 'pip install ttvfast'.
 
 
         self.initialize_font_plot()
+        self.initialize_font_GUI()
 
         #self.check_fortran_routines()
         self.safe_to_init = True
