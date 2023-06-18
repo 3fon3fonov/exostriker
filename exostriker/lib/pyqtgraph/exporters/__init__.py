@@ -6,7 +6,7 @@ from .ImageExporter import *
 from .Matplotlib_ES import *
 from .PrintExporter import *
 from .SVGExporter import *
-
+from .PDFExporter import *
 
 def listExporters():
     return Exporter.Exporters[:]
