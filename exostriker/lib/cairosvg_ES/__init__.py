@@ -6,6 +6,7 @@ CairoSVG - A simple SVG converter based on Cairo.
 import os
 import sys
 from pathlib import Path
+sys.path.append('./lib/cairosvg_ES/')
 
 if hasattr(sys, 'frozen'):
     if hasattr(sys, '_MEIPASS'):
