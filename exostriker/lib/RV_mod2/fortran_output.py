@@ -36,7 +36,6 @@ class fortran_output(object):
     model=[]    
     jd=[]
     o_c=[]
-    rv_model=[]
     rv_obs=[]
     rv_error=[]
     data_set=[]
@@ -61,16 +60,17 @@ class fortran_output(object):
 
             indices=np.arange(min(list(map(len,a)))) # we will be deleting some of them as we go along
             self.jd,wrong_indices=convert_array_to_float(a[0],save_wrong_lines=True) 
-            self.rv_model,wrong_indices=convert_array_to_float(a[1],save_wrong_lines=True) 
+            indices=[item for item in indices if item not in wrong_indices] # set substraction to exclude indices where thins went wrong
             self.rv_obs,wrong_indices=convert_array_to_float(a[2],save_wrong_lines=True) 
+            indices=[item for item in indices if item not in wrong_indices] # set substraction to exclude indices where thins went wrong
             self.o_c,wrong_indices=convert_array_to_float(a[3],save_wrong_lines=True) 
+            indices=[item for item in indices if item not in wrong_indices] # set substraction to exclude indices where thins went wrong
             self.rv_error,wrong_indices=convert_array_to_float(a[4],save_wrong_lines=True) 
+            indices=[item for item in indices if item not in wrong_indices] # set substraction to exclude indices where thins went wrong
             self.data_set,wrong_indices=convert_array_to_int(a[5],save_wrong_lines=True) 
-
             indices=[item for item in indices if item not in wrong_indices] # set substraction to exclude indices where thins went wrong
             # and now we filter out wrong lines
             self.jd=self.jd[indices]
-            self.rv_model=self.rv_model[indices]
             self.rv_obs=self.rv_obs[indices]
             self.o_c=self.o_c[indices]
             self.rv_error=self.rv_error[indices]
@@ -263,7 +263,7 @@ class fortran_output(object):
             self.wrms = 0
         
  
-        results = kernel(self.generate_summary(), self.jd, self.rv_model, self.rv_obs, self.rv_error,self.o_c, self.model, 
+        results = kernel(self.generate_summary(), self.jd, self.rv_obs, self.rv_error,self.o_c, self.model, 
                          self.JD_model, self.npl,self.semiM,self.masses,self.data_set,self.stat_array_saved,
                          self.reduced_chi2,self.chi2,self.rms,self.wrms,self.loglik, self.mfit,self.omega_dot,
                          self.omega_dot_err,self.rv_quadtr,self.rv_quadtr_err) 

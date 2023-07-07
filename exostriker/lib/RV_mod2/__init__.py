@@ -2785,7 +2785,6 @@ class signal_fit(object):
         self.fit_results=kernel(summary(parameters(0.0,0.0,0.0,0.0,DEFAULT_STELLAR_MASS),parameter_errors([0],[0],[0],0,0)),
         self.filelist.time,
         self.filelist.rvs,
-        self.filelist.rvs,
         self.filelist.rv_err,
         np.zeros(len(self.filelist.time)),
         np.zeros(len(self.filelist.time)),
