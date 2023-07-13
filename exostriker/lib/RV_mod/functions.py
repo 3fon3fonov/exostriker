@@ -2167,25 +2167,27 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 def run_detection_rate(obj,options):
 
     from tqdm import tqdm
-    power_levels = np.array([0.1,0.01,0.01])
 
-
-    results = {"P":[],"K":[],"M0":[],'gls':[],'pos_peaks':[]}
+    results = {"P":[],"K":[],"M0":[],'gls':[],'power':[],'peaks':[],'input':options}
     
 
-    for P in tqdm(range(options['Pmin'],options['Pmax'],options['Pstep'])): 
-        for K in tqdm(range(options['Kmin'],options['Kmax'],options['Kstep'])): 
-            for M0 in tqdm(range(options['M0min'],options['M0max'],options['M0step'])): 
+    for P in tqdm(options['P']): 
+        for K in tqdm(options['K']): 
+            for M0 in tqdm(options['M0']): 
                 obj2 = dill.copy(inject_signal(obj, K=K,P=P,M0=M0))
-                obj2 = run_gls(obj2)
-
-                text_peaks, pos_peaks = identify_power_peaks(1/obj2.gls.freq, obj2.gls.power, power_level = power_levels, sig_level = obj2.gls.powerLevel(np.array(power_levels)) )
+                
+                if options['gls_o-c']:
+                    RV_per = gls.Gls((obj2.fit_results.rv_model.jd, obj2.fit_results.rv_model.o_c, obj2.fit_results.rv_model.rv_err), fast=True, verbose=False, norm="ZK",ofac=options['gls_ofac'], fbeg=1/options['gls_Pmax'], fend=1/options['gls_Pmin']) 
+                else:
+                    RV_per = gls.Gls((obj2.fit_results.rv_model.jd, obj2.fit_results.rv_model.rvs, obj2.fit_results.rv_model.rv_err), fast=True, verbose=False, norm="ZK",ofac=options['gls_ofac'], fbeg=1/options['gls_Pmax'], fend=1/options['gls_Pmin']) 
+                text_peaks, pos_peaks = identify_power_peaks(1/RV_per.freq, RV_per.power, power_level = options['power_levels'], sig_level = RV_per.powerLevel(np.array(options['power_levels'])) )
 
                 results["P"].append(P)
                 results["K"].append(K)                
                 results["M0"].append(M0)
-                results["gls"].append(dill.copy(obj2.gls.powerLevel(np.array(power_levels))))
-                results["pos_peaks"].append(dill.copy(pos_peaks))
+                results["gls"].append(dill.copy(RV_per.powerLevel(np.array(options['power_levels']))))
+                results["peaks"].append(dill.copy(pos_peaks[0][0:10]))
+                results["power"].append(dill.copy(pos_peaks[1][0:10]))
 
     return results
 
