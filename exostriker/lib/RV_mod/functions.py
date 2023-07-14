@@ -2188,7 +2188,19 @@ def run_detection_rate(obj2,options):
 
                 RV_per = gls.Gls((obj2.fit_results.rv_model.jd, new_RVs, obj2.fit_results.rv_model.rv_err), fast=True, verbose=False, norm="ZK",ofac=options['gls_ofac'], fbeg=1/options['gls_Pmax'], fend=1/options['gls_Pmin']) 
 
+<<<<<<< HEAD
 
+=======
+    for P in tqdm(options['P']): 
+        for K in tqdm(options['K']): 
+            for M0 in tqdm(options['M0']): 
+                obj2 = dill.copy(inject_signal(obj, K=K,P=P,M0=M0))
+                
+                if options['gls_o-c']:
+                    RV_per = gls.Gls((obj2.fit_results.rv_model.jd, obj2.fit_results.rv_model.o_c, obj2.fit_results.rv_model.rv_err), fast=True, verbose=False, norm="ZK",ofac=options['gls_ofac'], fbeg=1/options['gls_Pmax'], fend=1/options['gls_Pmin']) 
+                else:
+                    RV_per = gls.Gls((obj2.fit_results.rv_model.jd, obj2.fit_results.rv_model.rvs, obj2.fit_results.rv_model.rv_err), fast=True, verbose=False, norm="ZK",ofac=options['gls_ofac'], fbeg=1/options['gls_Pmax'], fend=1/options['gls_Pmin']) 
+>>>>>>> 8a1be4dcfd5b6a2d930ea67e00d628e2031c1ce2
                 text_peaks, pos_peaks = identify_power_peaks(1/RV_per.freq, RV_per.power, power_level = options['power_levels'], sig_level = RV_per.powerLevel(np.array(options['power_levels'])) )
 
                 results["P"].append(P)
