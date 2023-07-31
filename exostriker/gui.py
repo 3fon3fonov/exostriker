@@ -12798,9 +12798,9 @@ def main():
     width, height = screen_resolution.width(), screen_resolution.height()
     #print(width, height)
     if height < 920:
-        window.setMinimumWidth(width*0.6)
-        window.setMinimumHeight(height*0.6)
-        window.resize(width*0.8, height*0.8)
+        window.setMinimumWidth(int(width*0.6))
+        window.setMinimumHeight(int(height*0.6))
+        window.resize(int(width*0.8), int(height*0.8))
     else:
         pass
     
