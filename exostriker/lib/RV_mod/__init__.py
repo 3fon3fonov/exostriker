@@ -3672,7 +3672,7 @@ class signal_fit(object):
         rv_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
  
             
-        rv_data_set = np.array([rv_JD,rv_data,rv_data_sig,[rv_idset]*len(rv_JD)])
+        rv_data_set = np.array([rv_JD,rv_data,rv_data_sig,[rv_idset]*len(rv_JD)],dtype=object)
  
         ####### for now ###########
         self.rv_data_sets[max(self.filelist.idset)] =  rv_data_set
@@ -3717,7 +3717,7 @@ class signal_fit(object):
         act_data_o_c = act_data            
         act_file_name = file_from_path(path)
 
-        act_data_set = np.array([act_JD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, act_file_name])
+        act_data_set = np.array([act_JD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, act_file_name],dtype=object)
  
         self.act_data_sets[act_idset]      = act_data_set
         self.act_data_sets_init[act_idset] = dill.copy(self.act_data_sets[act_idset])
@@ -3758,7 +3758,7 @@ class signal_fit(object):
             return
 
         ttv_file_name = file_from_path(path)
-        ttv_data_set = np.array([ttv_N,ttv_data,ttv_data_sig,planet,use,ttv_file_name])
+        ttv_data_set = np.array([ttv_N,ttv_data,ttv_data_sig,planet,use,ttv_file_name],dtype=object)
 
         self.ttv_data_sets[ttv_idset] = ttv_data_set
         return
@@ -3797,7 +3797,7 @@ class signal_fit(object):
             return
 
         ast_file_name = file_from_path(path)
-        ast_data_set = np.array([ast_BJD,ast_data_x,ast_data_x_sig,ast_data_y,ast_data_y_sig, planet, use, ast_file_name])
+        ast_data_set = np.array([ast_BJD,ast_data_x,ast_data_x_sig,ast_data_y,ast_data_y_sig, planet, use, ast_file_name],dtype=object)
 
         self.ast_data_sets[ast_idset] = ast_data_set
         return
