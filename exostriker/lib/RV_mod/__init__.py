@@ -799,7 +799,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                     m[i] = batman.TransitModel(tr_params, t_)
                     tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.17, t_ <= tran_t0+0.17))
                     flux_model_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
-
+                    #print(tran_t0)
 
             elif get_TTVs[0] == True:
                 
@@ -1037,9 +1037,9 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
                 l +=1
 
-        rich_model = np.array([t_rich,flux_model_rich])
-        sep_data = np.array([t, flux,flux_err,flux_model, flux_o_c, flux_o_c_gp,tra_gp_model])
-        all_data = np.array([t_all, flux_all,flux_err_all,flux_model_all, flux_o_c_all, flux_o_c_gp_all,tra_gp_model_all])
+        rich_model = np.array([t_rich,flux_model_rich],dtype=object)
+        sep_data = np.array([t, flux,flux_err,flux_model, flux_o_c, flux_o_c_gp,tra_gp_model],dtype=object)
+        all_data = np.array([t_all, flux_all,flux_err_all,flux_model_all, flux_o_c_all, flux_o_c_gp_all,tra_gp_model_all],dtype=object)
 
         tr_chi     = np.sum((flux_o_c_gp_all)**2 * sig2i_all ) # - np.log(sig2i / 2./ np.pi)
         tr_chi_red = tr_chi/len(flux_o_c_gp_all)
@@ -1050,7 +1050,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
         tr_stat = [tr_chi,tr_chi_red,tr_rms,tr_wrms, tr_Ndata]
 
-        return np.array([tr_loglik, sep_data, all_data,rich_model,tr_stat])
+        return np.array([tr_loglik, sep_data, all_data,rich_model,tr_stat],dtype=object)
     else:
         return tr_loglik
 
@@ -3908,7 +3908,7 @@ class signal_fit(object):
         tra_file_name = file_from_path(path)
 
 
-        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_airmass,tra_data_o_c,tra_data,tra_data_sig,tra_data_o_c, 1.0, True, False, tra_file_name])
+        tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_airmass,tra_data_o_c,tra_data,tra_data_sig,tra_data_o_c, 1.0, True, False, tra_file_name],dtype=object)
         
         #self.tra_data_set2 = {1:tra_JD,2: tra_data,3:tra_data_sig,4: tra_data_o_c,5:tra_data_o_c,6:tra_file_name }
 
@@ -4129,7 +4129,7 @@ class signal_fit(object):
            act_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [act_ind+1])
            #act_data_set = np.array([BJD,act_data,act_data_sig,data_set_name[i]])
            act_data_o_c = act_data                       
-           act_data_set = np.array([BJD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, data_set_name[i]])
+           act_data_set = np.array([BJD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, data_set_name[i]],dtype=object)
 
 
            self.act_data_sets[i] = act_data_set
@@ -4149,7 +4149,7 @@ class signal_fit(object):
            i = i +1
            #act_data_set = np.array([BJD,act_data,act_data_sig,data_set_name[i]])
            act_data_o_c = act_data                       
-           act_data_set = np.array([BJD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, data_set_name[i]])
+           act_data_set = np.array([BJD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, data_set_name[i]],dtype=object)
 
            self.act_data_sets[i] = act_data_set
            self.act_data_sets_init[i] = act_data_set
