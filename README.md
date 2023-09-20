@@ -1,5 +1,5 @@
 
-**T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations: **The Exo-Striker** 
+# Transit and Radial velocity Interactive Fitting tool for Orbital analysis and N-body simulations: The Exo-Striker
 
 <p align="center">
   <img width="400" src="./exostriker/source/png/33_striker.png">
@@ -12,16 +12,16 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 </p>
 
 
-#### Documentation, Instructions, and Tutorials
+### Documentation, Instructions, and Tutorials
 
 * (Work in progress) documentation is available at [https://exostriker-manual.readthedocs.io](https://exostriker-manual.readthedocs.io/en/latest/).
 
-#### Developer
+### Developer
 
 * Trifon Trifonov, MPIA Heidelberg.
 * with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler, Grigorii Smirnov-Pinchukov, Stephan Stock, Jonas Kemmer, Harry Psarakis, Tom Schiwy, and Desislava Antonova.
 
-#### Features
+### Features
 
 - [x] RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
 - [x] Transit signal search (via "TLS").
@@ -71,7 +71,7 @@ A wish-list with your favorite tools and methods to be implemented is also welco
 Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.    
 
 
-#### Installation
+### Installation
  
 Python3.8+ is strongly recommended!!! The Exo-Striker works with Python3.6,3.7 and even Python2, but you will likely have problems with some dependencies, which you may have to solve.
 If your system Python3 is 3.6 or 3.7, it is recommended to not upgrade the python3, but to install python3.8 alongside your system python3. E.g., [see these instructions for Python3.8](https://linuxize.com/post/how-to-install-python-3-8-on-ubuntu-18-04/)
@@ -81,14 +81,14 @@ Python3.10 is now supported! Please note that the ES with Python3.8 and Python3.
 
 For Ubuntu 20.04+ you may also need python-dev to install some of the dependencies. E.g. 
 if during installation you get something like:
-```
+```sh
 $ 20 | #include "Python.h"   
 $    |          ^~~~~~~~~~   
 $  compilation terminated.
 ```  
 You may have to do:
 ```sh
-sudo apt-get install python3.8-dev
+$ sudo apt-get install python3.8-dev
 ```
 and try again.
 
@@ -99,8 +99,8 @@ which will be needed for compiling some of the important binaries!
 
 Let's assume, you have python3.8, then it is recommended to install pip3.8:
 ```sh
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py   
-python3.8 get-pip.py    
+$ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py   
+$ python3.8 get-pip.py    
 ```
 Then to install the Exo-Striker:
 ```sh
@@ -108,15 +108,15 @@ pip3.8 install git+https://github.com/3fon3fonov/exostriker  --user  #(for user 
 ```
 Then just run:
 ```sh
-exostriker
+$ exostriker
 ```
 WARNING! if you install with:
 ```sh
-sudo pip3.8 install git+https://github.com/3fon3fonov/exostriker
+$ sudo pip3.8 install git+https://github.com/3fon3fonov/exostriker
 ```
 then every time you should run:
 ```sh
-sudo exostriker 
+$ sudo exostriker 
 ```
 
 --- 
@@ -124,9 +124,9 @@ sudo exostriker
 Alternativly, you can do a "git clone":
 
 ```sh
-git clone https://github.com/3fon3fonov/exostriker   
-cd exostriker   
-python3.8 setup.py install   
+$ git clone https://github.com/3fon3fonov/exostriker   
+$ cd exostriker   
+$ python3.8 setup.py install   
 ```
 
 However, please read the [Installation instructions](README_for_installation),
@@ -138,9 +138,9 @@ because some problems may occur depending on your OS system.
 Finally, you can run the Exo-striker after a "git clone":
 
 ```sh
-git clone https://github.com/3fon3fonov/exostriker   
-cd exostriker   
-python3.8 exostriker_gui.py  
+$ git clone https://github.com/3fon3fonov/exostriker   
+$ cd exostriker   
+$ python3.8 exostriker_gui.py  
 ```
 
 However, you must have all the needed dependencies in the setup.py installed 
@@ -149,15 +149,16 @@ directories dedicated to different projects. I usually do, "exostriker-GJ436",
 "exostriker-GJ876", etc., and I store all datafiles, sessions, plots, drafts, etc.,
 inside these directories.
  
-#### Usage
+### Usage
 
 To load the GUI, on a bash shell type: 
 ```sh
-exostriker (in case of pip3.8 install, see above)
+$ exostriker (in case of pip3.8 install, see above)
 ```
 or just do
 ```sh
-python3.8 exostriker_gui.py #(inside of the git clone directory, see above)
+$ python3.8 exostriker_gui.py
+# (inside of the git clone directory, see above)
 ``` 
 If you want to use the library on the Python shell/script:
 ```
@@ -178,7 +179,7 @@ Remember! Every button/action of the GUI is a wrapper of a convenient Python rou
 A manual is planned but not available at the moment.)
 
 
-#### Credit
+### Credit
 
 If you made the use of The Exo-Striker for your paper, I would appreciate it if you give credit to it.
 As it is unlikely that I will find time to write a refereed paper on The Exo-Striker soon, please cite the tool with its ASCL ID ascl:1906.004 (see https://ascl.net/1906.004).    
@@ -238,7 +239,7 @@ http://www.stefanom.org/systemic/
 
 
 
-#### Scientific papers which one way or another made the use of the Exo-Striker (to my knowledge):
+### Scientific papers which one way or another made the use of the Exo-Striker (to my knowledge):
 
  
 [Check in ADS](https://ui.adsabs.harvard.edu/abs/2019ascl.soft06004T/citations)
