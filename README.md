@@ -12,54 +12,51 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 </p>
 
 
-**Documentation, Instructions, and Tutorials**
+#### Documentation, Instructions, and Tutorials
 
 * (Work in progress) documentation is available at [https://exostriker-manual.readthedocs.io](https://exostriker-manual.readthedocs.io/en/latest/).
 
-**Developer**
+#### Developer
 
 * Trifon Trifonov, MPIA Heidelberg.
 * with contributions by Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler, Grigorii Smirnov-Pinchukov, Stephan Stock, Jonas Kemmer, Harry Psarakis, Tom Schiwy, and Desislava Antonova.
 
-**What works**:
+#### Features
 
-* RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
-* Transit signal search (via "TLS").
-* Interactive transit photometry detrending (via "wotan"), interactive outlier removal, and more.
-* Keplerian and Dynamical modeling of RV & Transit photometry exoplanet data.
-* Joint RVs + Transit + GPs best-fit optimization (internal Fortran Simplex and L-M minimizers, or many more via "SciPyOp").
-* Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty") 
-* TTVs extraction.
-* TTVs and/or joint TTVs + RVs analysis.
-* Relative astrometry fitting.
-* GP modeling (via "celerite").
-* Linear models for detrending ground-based transit photometry.
-* Activity index signal search via GLS periodogram.
-* RVs vs. Activity time-series correlation analysis/plots.
-* RV auto-fit (RV automated planet-finder algorithm).
-* Fit for apsidal orbital precession, or apply General Relativity (GR) precession. 
-* Instant online access to the "RVBank" database (over 212 000 RVs and activity indices of about 3000 HARPS stars & over 64 000 RVs and activity indices of about 1700 HIRES stars !!!).
-* Instant AMD stability check for multiple planetary systems (including during optimization or MCMC/Nested Sampling).
-* Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.
-* Fully interactive, super-fast, high-quality, exportable plots.
-* Handy "cornerplot" GUI control.
-* Import/Export of work sessions and multi-sessions. 
-* Export plots to a matplotlib window for further customization.
-* Export ready to use LaTeX tables with best-fit parameters, errors, and statistics. 
-* Handy text-editor and calculator tools.
-* Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
-* Integrated Bash-shell (Linux only).
-* Integrated Jupyter shell.
-* Integrated AI Boot (via openai GPT-3 -- ChatGPT).
-* Importable as a standard python library (i.e., "import exostriker").
-* Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
-* Direct import of TESS & K2 *lc.fits, and CHEOPS *SCI_COR*.fits files.
-
-**What is to be implemented**:
-
-* Larger arsenal of N-body/dynamical simulation/analysis tools (+ "REBOUND" is planned to be included). 
-* Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
-* Combined modeling with Astrometry (As of Ver 0.75 this is possible, but is still work in progress).
+- [x] RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
+- [x] Transit signal search (via "TLS").
+- [x] Interactive transit photometry detrending (via "wotan"), interactive outlier removal, and more.
+- [x] Keplerian and Dynamical modeling of RV & Transit photometry exoplanet data.
+- [x] Joint RVs + Transit + GPs best-fit optimization (internal Fortran Simplex and L-M minimizers, or many more via "SciPyOp").
+- [x] Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty") 
+- [x] TTVs extraction.
+- [x] TTVs and/or joint TTVs + RVs analysis.
+- [x] Relative astrometry fitting.
+- [x] GP modeling (via "celerite").
+- [x] Linear models for detrending ground-based transit photometry.
+- [x] Activity index signal search via GLS periodogram.
+- [x] RVs vs. Activity time-series correlation analysis/plots.
+- [x] RV auto-fit (RV automated planet-finder algorithm).
+- [x] Fit for apsidal orbital precession, or apply General Relativity (GR) precession. 
+- [x] Instant online access to the "RVBank" database (over 212 000 RVs and activity indices of about 3000 HARPS stars & over 64 000 RVs and activity indices of about 1700 HIRES stars !!!).
+- [x] Instant AMD stability check for multiple planetary systems (including during optimization or MCMC/Nested Sampling).
+- [x] Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.
+- [x] Fully interactive, super-fast, high-quality, exportable plots.
+- [x] Handy "cornerplot" GUI control.
+- [x] Import/Export of work sessions and multi-sessions. 
+- [x] Export plots to a matplotlib window for further customization.
+- [x] Export ready to use LaTeX tables with best-fit parameters, errors, and statistics. 
+- [x] Handy text-editor and calculator tools.
+- [x] Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
+- [x] Integrated Bash-shell (Linux only).
+- [x] Integrated Jupyter shell.
+- [x] Integrated AI Boot (via openai GPT-3 -- ChatGPT).
+- [x] Importable as a standard python library (i.e., "import exostriker").
+- [x] Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
+- [x] Direct import of TESS & K2 *lc.fits, and CHEOPS *SCI_COR*.fits files.
+- [ ] Larger arsenal of N-body/dynamical simulation/analysis tools (+ "REBOUND" is planned to be included). 
+- [ ] Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
+- [ ] Combined modeling with Astrometry (As of Ver 0.75 this is possible, but is still work in progress).
 
 
 Please keep in mind that this software is developed mostly for my needs and fun. I hope, however, that you may find it capable of solving your scientific problems, too. At the moment, there is NO documentation,
