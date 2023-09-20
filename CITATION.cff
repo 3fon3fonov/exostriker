@@ -8,14 +8,15 @@ message: >-
 type: software
 date-released: 2019-06-01
 authors:
-  - given-names: Trifon
-    family-names: Trifonov
+  - family-names: Trifonov
+    given-names: Trifon
     email: trifonov@mpia.de
     orcid: 'https://orcid.org/0000-0002-0236-775X'
 identifiers:
-  - type: url
-    value: 'https://ascl.net/1906.004'
-    description: ascl
+ - type: 'ascl-id'
+   value: '1906.004'
+ - type: 'bibcode'
+   value: '2019ascl.soft06004T'
 repository-code: 'https://github.com/3fon3fonov/exostriker'
 abstract: >-
   The Exo-Striker analyzes exoplanet orbitals, performs
