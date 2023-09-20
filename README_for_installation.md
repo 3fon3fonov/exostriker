@@ -24,109 +24,86 @@ The instructions below will install the following dependencies:
 
 
 Also, please only use Python 3 for installing the Exo-Striker! The tool works with Python 2, 
-but since Python 2 is no longer maintained (since Jan 1, 2020), I do not assist in case of problems.    
+but since Python 2 is no longer maintained (since Jan 1, 2020), I do not provide support in case of problems.    
 
 (see below comments on Linux, Mac OS, and Windows 10 installations)
 
-
-
-
-Currently there are three ways to install/run the Exo-Striker:    
-
-#######################################################    
-*  The simplest way to "git clone":    
-
+### Installation and use
+#### Through the GUI
+Enter
+```sh
 $ git clone https://github.com/3fon3fonov/exostriker  
-
-and then:    
-
+```
+and then
+```sh
 $ cd exostriker  
 $ python3 exostriker_gui.py    
-
-Generally, you do not need to install anything if you already have all the required dependencies for the tool to run. For the dependency list, see the "setup.py" file. The Exo-Striker will automatically compile the Fortran77 code for you at the first start of the program and will keep you updated if the source code was updated (if you regularly "git pull").    
+```
+Generally, you do not need to install anything if you already have all the required dependencies for the tool to run. For the dependency list, see the `setup.py` file. The Exo-Striker will automatically compile the Fortran77 code for you at the first start of the program and will keep you updated if the source code was updated (if you regularly `git pull`).
  
-#######################################################    
-*  The second way to install the tool from the source:    
-
+#### From the source
+```sh
 $ git clone https://github.com/3fon3fonov/exostriker     
-
-and then:    
-
+```
+and then
+```sh
 $ cd exostriker    
 $ python3 setup.py install    
-
+```
 This will install the tool in your system.     
-Then, open a terminal and:     
-
+Then, open a terminal and type    
+```sh
 $ exostriker    
+```
+This should start the Exo-Striker.
 
-Should start the Exo-Striker  
-
-#######################################################    
-*  and last, you can try pip install:    
-
+#### From pip
+```sh
 $ pip install git+https://github.com/3fon3fonov/exostriker    
-
+```
 This will install the tool in your system.    
-Then, open a terminal and:     
-
+Then, open a terminal and run
+```sh
 $ exostriker
+```
+This should start the Exo-Striker.
 
-Should start the Exo-Striker  
-
-#######################################################     
+#### Troubleshoot     
 
 If you still cannot boot the tool after a 'successful' installation, please try:
-
+```sh
 $ python3 exostriker_gui.py -debug 
-
+```
 or 
+```sh
+$ exostriker -debug
+# (depending on how you use the tool)
+```
 
-$ exostriker -debug 
-
-(depending on how you use the tool)
-
-Then, copy the output error, and please open a 'GitHub' issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
+Then, copy the output error, and please open a GitHub issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
 'stdout/stderr' tab of the tool. If you use this tool, and you find a bug or a problem, please report it!    
 
-#######################################################
+### Some OS related comments
 
-
-
-
-Some OS related comments:
-
-
-##############################  LINUX  #########################################
+#### Linux
 
 The above instructions usually work without any problem on Linux OS.
- 
- 
 For full functionality on Linux, you will also need to install:
 
 * rxvt (optional, better bash shell)
  
+#### macOS
  
+You will need to install **homebrew**, which requires sudo privileges. 
+According to https://brew.sh/, to install "homebrew", it should be as simple as
 
-################################  MAC OS  ######################################
- 
-You will need to install "homebrew", which requires ``sudo'' privileges. 
-According to 
-
-https://brew.sh/
-
-To install "homebrew", it should be as simple as this:
-
-
+```sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-
-try it out in bash shell terminal.
-
-
-If you have MAC OS 10.14+ it is likely to have problems with the numpy headers.
-
-if you see an error like this during the installations (mostly during the "batman-package" build)
-
+```
+in bash shell terminal.
+If you have MAC OS 10.14+, it is likely to have problems with the numpy headers.
+If you see an error like this during the installations (mostly during the "batman-package" build):
+```
 ...
 ...
     c_src/_nonlinear_ld.c:21:10: fatal error: 'numpy/arrayobject.h' file not found
@@ -136,17 +113,14 @@ if you see an error like this during the installations (mostly during the "batma
     error: command 'clang' failed with exit status 1
 ...
 ...
+```
 Please do the following:
-
+```sh
 export CFLAGS="-I /usr/local/lib/pythonX.X/site-packages/numpy/core/include $CFLAGS"
-
-(Where X is your Python version, e.g., 3.6, 3.7 to 3.8)
-
-and then re-run your Exo-Striker installation (via pip or setup.py).
+```
+(where X is your Python version, e.g., 3.6, 3.7 to 3.8), and then re-run your Exo-Striker installation (via pip or setup.py).
  
-
-################################  WINDOWS 10  ######################################
-
+#### Windows 10
 
 Installation on Windows 10 works troughs the "Windows Subsystem for Linux".
 Please follow this guide:
@@ -161,9 +135,7 @@ Follow these instructions:
 
 https://seanthegeek.net/234/graphical-linux-applications-bash-ubuntu-windows/
 
-
 These two tutorials worked for me, but there might be other options too. 
-
 
 In case there is a problem of the appearance of the GUI the problem could be 
 your DPI setup. On high DPI displays with Windows display scaling activated (>100%),
@@ -177,7 +149,7 @@ with `sudo apt install x11-xserver-utils` for xrdb to be available.
 
 Launch the Exo-Striker and check the scaling.
 If text is clipping, the DPI needs to be set lower, if everything is too small,
-the dpi needs to be higher. Remember always to reload the configuration with `xrdb ~/.Xresources`.
+the DPI needs to be higher. Remember to always reload the configuration with `xrdb ~/.Xresources`.
 For the configuration to automatically load at startup,
 add the xrdb command to your ~/.bashrc, after the `export DISPLAY=:0.0`.
 
@@ -190,48 +162,32 @@ Windows python path, I would appreciate it if you share your experience and some
 For now, the recommended WINDOWS 10 installation option of the Exo-Striker is via the "Windows 
 Subsystem for Linux" as pointed above.
  
- 
- 
-################################################################################
-########################### Some known problems   ##############################
-################################################################################
- 
- 
- See issues:
- 
- https://github.com/3fon3fonov/exostriker/issues
- 
-################################## Finally #####################################
+### Some known problems
+See the issues: https://github.com/3fon3fonov/exostriker/issues
 
-To load the GUI 
+### And finally..
 
+To load the GUI:
+```sh
 $ python3 exostriker_gui.py 
- 
- 
- 
-If you want to use the library on the Python shell/script
-
-In [1]: import exostriker
-
-
-
-or e.g. to load the RV routines:
-
-In [1]: import exostriker.lib.RV_mod as rv    
-In [2]: fit = rv.signal_fit(name="hip5364") #creates the "fit" object that contains everything.    
-In [3]: fit.add_dataset("hip5364-Lick","./datafiles/hip5364.vels",0.0.10.0) # add the data file, initial offset and jitter   
-In [4]: fit.add_planet(K=50,P=400,e=0,w=0,M0=0,i=90,cap=0)   # planet 1    
-In [5]: fit.add_planet(K=50,P=700,e=0,w=0,M0=180,i=90,cap=0) # planet 2    
-In [6]: fit.fitting() #optimize the parameters    
-
-In [7]: fit.run_mcmc() # run MCMC, etc...    
- 
+``` 
+If you want to use the library on the Python shell/script:
+```py
+import exostriker
+```
+or, e.g., to load the RV routines:
+```py
+import exostriker.lib.RV_mod as rv    
+fit = rv.signal_fit(name="hip5364") #creates the "fit" object that contains everything.    
+fit.add_dataset("hip5364-Lick","./datafiles/hip5364.vels",0.0.10.0) # add the data file, initial offset and jitter   
+fit.add_planet(K=50,P=400,e=0,w=0,M0=0,i=90,cap=0)   # planet 1    
+fit.add_planet(K=50,P=700,e=0,w=0,M0=180,i=90,cap=0) # planet 2    
+fit.fitting() #optimize the parameters    
+fit.run_mcmc() # run MCMC, etc...    
+```
 (However, one must be familiar with the functions... A manual on RVmod is planned, but not available at the moment.)
 
-
-
-
-Some comments:
+### Comments
 
 * All Fortran and python codes in this version need serious clean-up from junk.
 
