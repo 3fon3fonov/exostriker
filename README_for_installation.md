@@ -203,12 +203,7 @@ for work in progress issues.
 * There is NO manual page at the moment.... This takes time, and at the moment I do
 not have such! The GUI however, is, I believe, very intuitive, and with a trial and error one can figure out how everything works. 
 
-
-
-
- 
-
-Some credits:
+### Some credits
 
 * Some of the dynamical RV fitting routines are done by 
 Xianyu Tan (the University of Hong Kong, now in Oxford) during
@@ -267,6 +262,3 @@ https://www.boulder.swri.edu/~hal/swift.html
 * Additionally, the Exo-Striker uses many "standard" Python libraries like 
 "PyQt5", "matplotlib", "numpy", "scipy", "dill", "Jupyter", "qtconsole",
 and more.
-
-
-
