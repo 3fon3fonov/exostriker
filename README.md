@@ -101,7 +101,8 @@ $ python3.8 get-pip.py
 ```
 Then, to install the Exo-Striker:
 ```sh
-pip3.8 install git+https://github.com/3fon3fonov/exostriker  --user  #(for user installation -- recommended!)
+$ pip3.8 install git+https://github.com/3fon3fonov/exostriker --user
+# (for user installation -- recommended!)
 ```
 Then just run
 ```sh
