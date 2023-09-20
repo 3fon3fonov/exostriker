@@ -172,33 +172,33 @@ As it is unlikely that I will find time to write a refereed paper on The Exo-Str
 The Exo-Striker relies on many open-source packages. If you had made use of some of them while working with the tool, you should acknowledge them too (it is your responsibility to find the correct references in the literature):    
 
 
-* The interactive plotting is done with a custom version of `pyqtgraph`: http://www.pyqtgraph.org/
+* The interactive plotting is done with a custom version of pyqtgraph: http://www.pyqtgraph.org/
 
 * "GLS" and "MLP" periodograms are taken from Mathias Zechmeister's repo: https://github.com/mzechmeister/python
 
 * "TLS" and "wotan" are taken from: https://github.com/hippke/tls , https://github.com/hippke/wotan
 
-* The transit modeling is done with `batman`: https://github.com/lkreidberg/batman
+* The transit modeling is done with batman: https://github.com/lkreidberg/batman
 
-* MCMC sampling is done with `emcee`: https://github.com/dfm/emcee
+* MCMC sampling is done with emcee: https://github.com/dfm/emcee
 
-* Nested Sampling is done with `dynesty`: https://github.com/joshspeagle/dynesty
+* Nested Sampling is done with dynesty: https://github.com/joshspeagle/dynesty
 
-* TTV models are adopted from `TTVfast-python`: https://github.com/mindriot101/ttvfast-python
+* TTV models are adopted from TTVfast-python: https://github.com/mindriot101/ttvfast-python
 
 * The "Text editor" used in the tool is a hack between "Megasolid Idiom" and "PyEdit2": https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor , https://github.com/Axel-Erfurt/PyEdit2
 
-* N-body tests are performed using a custom version of the `Swift` N-body library,
+* N-body tests are performed using a custom version of the Swift N-body library,
 modified by Man Hoi Lee (HKU) and Trifon Trifonov (MPIA): https://www.boulder.swri.edu/~hal/swift.html
 
 * Additionally, the Exo-Striker uses many "standard" Python libraries like:
-`PyQt5`,
-`matplotlib`,
-`numpy`,
-`scipy`,
-`dill`,
-`Jupyter`,
-`qtconsole`
+PyQt5,
+matplotlib,
+numpy,
+scipy,
+dill,
+Jupyter,
+qtconsole
 and more.
 
 * The Exo-Striker project was inspired by the Systemic project: http://www.stefanom.org/systemic/
