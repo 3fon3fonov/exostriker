@@ -1,0 +1,12 @@
+python test_cleaned_array.py
+python test_duration_grid.py
+python test_FAP.py
+python test_period_grid.py
+python test_resample.py
+python test_validation.py
+python test_synthetic.py
+python test_transit_depth_min.py
+python test_stats_gap.py
+python test_uncertainties.py
+python test_shapes.py
+python test_multi_planet.py

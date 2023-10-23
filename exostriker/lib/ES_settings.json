@@ -1,0 +1,1 @@
+{"openAI": {"model": "text-davinci-003", "temperature": "0.9", "max_tokens": "150", "top_p": "1", "frequency_penalty": "0", "presence_penalty": "0.6", "api_key": ""}, "fonts": {"plot_font": "11"}, "GUI_fonts": {"gui_font": "8"}}

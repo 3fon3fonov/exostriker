@@ -1,0 +1,28 @@
+exostriker/lib/ES_settings_dev.json
+exostriker/stability/mvs/*
+exostriker/stability/mvs_gr/*
+exostriker/stability/symba/*
+exostriker/datafiles/*
+exostriker/autosave/auto_save.ses
+exostriker/mcmc_samples
+exostriker/exported_plots
+ 
+*.pyc
+*.whl
+*.tar.gz
+
+exostriker/lib/libswift.a
+source/swift_j/libswift.a
+@make
+
+git-push
+requests
+
+/docs/build
+
+# Setuptools distribution folder.
+/dist/
+
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info
+/*.egg

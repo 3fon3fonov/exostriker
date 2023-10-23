@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "exostriker"
+version = "0.85"
+authors = [
+    { name="Trifon Trifonov", email="trifonov@mpia.de" },
+    { name="Matheus J. Castro", email="matheusdejesuscastro@gmail.com" },
+
+]
+description="This is the 'Transit and Radial velocity Interactive Fitting tool for Orbital analysis and N-body simulations: The Exo-Striker'"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers=[
+ "Programming Language :: Python :: 3",
+ "License :: MIT License",
+ "Operating System :: OS Independent",
+]
+license = {file = "LICENSE"}
+dependencies = [
+    "numpy >= 1.21",
+    "scipy >= 1.2.1",
+    "matplotlib >= 3.3.1",
+    "formlayout == 1.2.0",
+    "PyQt5 >= 5.15.4",
+    "jupyter",
+    "jupyter-client",
+    "ipykernel",
+    "qtconsole",
+    "pathos >= 0.2.5",
+    "emcee >= 3.0.2",
+    "celerite >= 0.3.1",
+    "batman-package >= 2.4.8",
+    "ttvfast >= 0.3.0",
+    "wotan >= 1.7",
+    "openai",
+    "desktop_file",
+    "pywin32 ; sys_platform == 'win32'"
+]
+
+[project.scripts]
+exostriker = "exostriker.gui:main"
+exostriker-desktop-create = "exostriker.desktop_entry:create"
+exostriker-desktop-remove = "exostriker.desktop_entry:remove"
+
+[project.urls]
+"Homepage" = "https://github.com/3fon3fonov/exostriker"
+"Bug Tracker" = "https://github.com/3fon3fonov/exostriker/issues"
+
