@@ -677,6 +677,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.param_gui_om[i].setValue(fit.e_cosw[i])
                 self.param_gui_ma[i].setValue(fit.lamb[i])
 
+        self.update_use()
         self.update_params()
         self.update_gui_params() 
 
