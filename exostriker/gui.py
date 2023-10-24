@@ -369,11 +369,19 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.param_gui_P[i].setValue(fit.P[i])
             self.param_gui_K[i].setValue(fit.K[i])
-            self.param_gui_e[i].setValue(fit.e[i])
-            self.param_gui_om[i].setValue(fit.w[i])
-            self.param_gui_ma[i].setValue(fit.M0[i])
             self.param_gui_incl[i].setValue(fit.i[i])
             self.param_gui_Omega[i].setValue(fit.Node[i])
+
+            if fit.hkl == True:
+
+                self.param_gui_e[i].setValue(fit.e_sinw[i])
+                self.param_gui_om[i].setValue(fit.e_cosw[i])
+                self.param_gui_ma[i].setValue(fit.lamb[i])
+            else:
+                self.param_gui_e[i].setValue(fit.e[i])
+                self.param_gui_om[i].setValue(fit.w[i])
+                self.param_gui_ma[i].setValue(fit.M0[i])
+
 
  
             self.param_gui_wd[i].setValue(fit.omega_dot[i])
@@ -458,11 +466,28 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
             fit.P[i] = self.param_gui_P[i].value()
             fit.K[i] = self.param_gui_K[i].value()
-            fit.e[i] = self.param_gui_e[i].value()
-            fit.M0[i] = self.param_gui_ma[i].value()
-            fit.w[i] = self.param_gui_om[i].value()
             fit.i[i] = self.param_gui_incl[i].value()
             fit.Node[i] = self.param_gui_Omega[i].value()
+
+            if fit.hkl == True:
+                fit.e_sinw[i]  = self.param_gui_e[i].value()
+                fit.e_cosw[i]  = self.param_gui_om[i].value()
+                fit.lamb[i]    = self.param_gui_ma[i].value()
+
+                fit.e[i]   = np.sqrt(fit.e_sinw[i]**2 + fit.e_cosw[i]**2)
+                fit.w[i]   = np.degrees(np.arctan2(np.radians(fit.e_sinw[i]),np.radians(fit.e_cosw[i])))
+                fit.M0[i]  = (fit.lamb[i] - fit.w[i])%360.0
+            else:
+
+                fit.e[i] = self.param_gui_e[i].value()
+                fit.w[i] = self.param_gui_om[i].value()
+                fit.M0[i] = self.param_gui_ma[i].value()
+
+                fit.e_sinw[i] = fit.e[i]*np.sin(np.radians(fit.w[i]))
+                fit.e_cosw[i] = fit.e[i]*np.cos(np.radians(fit.w[i]))
+                fit.lamb[i]   = (fit.w[i] + fit.M0[i])%360.0
+
+ 
 
             fit.omega_dot[i] = self.param_gui_wd[i].value()
 
@@ -627,9 +652,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.param_gui_e[i].setValue(fit.e[i])
                 self.param_gui_om[i].setValue(fit.w[i])
                 self.param_gui_ma[i].setValue(fit.M0[i])
-
-
-
+ 
 
         elif self.radioButton_hkl.isChecked():
 
@@ -795,12 +818,20 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
             self.param_errors_gui_P[i].setText("+/- %.3f"%max(np.abs(fit.P_err[i])))
             self.param_errors_gui_K[i].setText("+/- %.3f"%max(np.abs(fit.K_err[i])))
-            self.param_errors_gui_e[i].setText("+/- %.3f"%max(np.abs(fit.e_err[i])))
-            self.param_errors_gui_om[i].setText("+/- %.3f"%max(np.abs(fit.w_err[i])))
-            self.param_errors_gui_ma[i].setText("+/- %.3f"%max(np.abs(fit.M0_err[i])))
+
+            if fit.hkl == True:
+                self.param_errors_gui_e[i].setText("+/- %.3f"%max(np.abs(fit.e_sinw_err[i])))
+                self.param_errors_gui_om[i].setText("+/- %.3f"%max(np.abs(fit.e_cosw_err[i])))
+                self.param_errors_gui_ma[i].setText("+/- %.3f"%max(np.abs(fit.lamb_err[i])))
+            else:
+
+                self.param_errors_gui_e[i].setText("+/- %.3f"%max(np.abs(fit.e_err[i])))
+                self.param_errors_gui_om[i].setText("+/- %.3f"%max(np.abs(fit.w_err[i])))
+                self.param_errors_gui_ma[i].setText("+/- %.3f"%max(np.abs(fit.M0_err[i])))
+ 
             self.param_errors_gui_incl[i].setText("+/- %.3f"%max(np.abs(fit.i_err[i])))
             self.param_errors_gui_Omega[i].setText("+/- %.3f"%max(np.abs(fit.Node_err[i])))
-
+ 
             self.param_errors_gui_wd[i].setText("+/- %.3f"%max(np.abs(fit.omega_dot_err[i])))
 
             self.err_t0[i].setText("+/- %.3f"%max(np.abs(fit.t0_err[i])))
@@ -875,11 +906,17 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             #self.use_param_gui[i].setChecked(bool(fit.use.use_planet_params[i]))
             self.use_param_gui_K[i].setChecked(bool(fit.K_use[i]))
             self.use_param_gui_P[i].setChecked(bool(fit.P_use[i]))
-            self.use_param_gui_e[i].setChecked(bool(fit.e_use[i]))
-            self.use_param_gui_om[i].setChecked(bool(fit.w_use[i]))
-            self.use_param_gui_ma[i].setChecked(bool(fit.M0_use[i]))
             self.use_param_gui_incl[i].setChecked(bool(fit.i_use[i]))
             self.use_param_gui_Omega[i].setChecked(bool(fit.Node_use[i]))
+
+            if fit.hkl == True:
+                self.use_param_gui_e[i].setChecked(bool(fit.e_sinw_use[i]))
+                self.use_param_gui_om[i].setChecked(bool(fit.e_cosw_use[i]))
+                self.use_param_gui_ma[i].setChecked(bool(fit.lamb_use[i]))
+            else:
+                self.use_param_gui_e[i].setChecked(bool(fit.e_use[i]))
+                self.use_param_gui_om[i].setChecked(bool(fit.w_use[i]))
+                self.use_param_gui_ma[i].setChecked(bool(fit.M0_use[i]))
 
 
             self.use_param_gui_wd[i].setChecked(bool(fit.omega_dot_use[i]))           
@@ -998,12 +1035,17 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
             fit.P_use[i] = int(self.use_param_gui_P[i].isChecked())
             fit.K_use[i] = int(self.use_param_gui_K[i].isChecked())
-            fit.e_use[i] = int(self.use_param_gui_e[i].isChecked())
-            fit.w_use[i] = int(self.use_param_gui_om[i].isChecked())
-            fit.M0_use[i] = int(self.use_param_gui_ma[i].isChecked())
             fit.i_use[i] = int(self.use_param_gui_incl[i].isChecked())
             fit.Node_use[i] = int(self.use_param_gui_Omega[i].isChecked()) 
 
+            if fit.hkl == True:
+                fit.e_sinw_use[i] = int(self.use_param_gui_e[i].isChecked())
+                fit.e_cosw_use[i] = int(self.use_param_gui_om[i].isChecked())
+                fit.lamb_use[i] = int(self.use_param_gui_ma[i].isChecked())
+            else:
+                fit.e_use[i] = int(self.use_param_gui_e[i].isChecked())
+                fit.w_use[i] = int(self.use_param_gui_om[i].isChecked())
+                fit.M0_use[i] = int(self.use_param_gui_ma[i].isChecked())
 
             fit.omega_dot_use[i] = int(self.use_param_gui_wd[i].isChecked())
 

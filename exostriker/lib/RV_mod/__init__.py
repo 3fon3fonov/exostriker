@@ -1550,11 +1550,28 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
         obj.K[i]  = par[len(vel_files)*2 + 7*i]
         obj.P[i]  = par[len(vel_files)*2 + 7*i+1]
-        obj.e[i]  = par[len(vel_files)*2 + 7*i+2]
-        obj.w[i]  = par[len(vel_files)*2 + 7*i+3]
-        obj.M0[i] = par[len(vel_files)*2 + 7*i+4]
         obj.i[i]  = par[len(vel_files)*2 + 7*i+5]
         obj.Node[i] = par[len(vel_files)*2 + 7*i+6]
+ 
+        if obj.hkl == True:
+
+            obj.e_sinw[i]  = par[len(vel_files)*2 + 7*i+2]
+            obj.e_cosw[i]  = par[len(vel_files)*2 + 7*i+3]
+            obj.lamb[i]    = par[len(vel_files)*2 + 7*i+4]
+
+            obj.e[i]   = np.sqrt(obj.e_sinw[i]**2 + obj.e_cosw[i]**2)
+            obj.w[i]   = np.degrees(np.arctan2(np.radians(obj.e_sinw[i]),np.radians(obj.e_cosw[i])))
+            obj.M0[i]  = (obj.lamb[i] - obj.w[i])%360.0
+            
+
+        else:
+
+            obj.e[i]  = par[len(vel_files)*2 + 7*i+2]
+            obj.w[i]  = par[len(vel_files)*2 + 7*i+3]
+            obj.M0[i] = par[len(vel_files)*2 + 7*i+4]
+            obj.e_sinw[i] = obj.e[i]*np.sin(np.radians(obj.w[i]))
+            obj.e_cosw[i] = obj.e[i]*np.cos(np.radians(obj.w[i]))
+            obj.lamb[i]   = (obj.w[i] + obj.M0[i])%360.0
  
 
         obj.t_peri[i] = transit_tperi(obj.P[i],obj.e[i], obj.w[i], obj.M0[i] ,obj.epoch)[0]
@@ -1690,7 +1707,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
         if rtg[1]:
             get_RV_gps_model(obj, get_lnl=True)
-
+ 
 
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == True:
 
@@ -1826,13 +1843,35 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
         obj.P_err[i] = e_par[len(vel_files)*2 + 7*i]
         obj.K_err[i] = e_par[len(vel_files)*2 + 7*i+1]
-        obj.e_err[i] = e_par[len(vel_files)*2 + 7*i+2]
-        obj.w_err[i] = e_par[len(vel_files)*2 + 7*i+3]
-        obj.M0_err[i] = e_par[len(vel_files)*2 + 7*i+4]
         obj.i_err[i] = e_par[len(vel_files)*2 + 7*i+5]
         obj.Node_err[i] = e_par[len(vel_files)*2 + 7*i+6]
 
+        obj.e_err[i] = e_par[len(vel_files)*2 + 7*i+2]
+        obj.w_err[i] = e_par[len(vel_files)*2 + 7*i+3]
+        obj.M0_err[i] = e_par[len(vel_files)*2 + 7*i+4]
  
+        if obj.hkl == True:
+
+            obj.e_sinw_err[i]  = e_par[len(vel_files)*2 + 7*i+2]
+            obj.e_cosw_err[i]  = e_par[len(vel_files)*2 + 7*i+3]
+            obj.lamb_err[i]    = e_par[len(vel_files)*2 + 7*i+4]
+
+            obj.e_err[i]   = 0 #np.sqrt(obj.e_sinw[i]**2 + obj.e_cosw[i]**2)
+            obj.w_err[i]   = 0 # np.degrees(np.arctan2(np.radians(obj.e_sinw[i]),np.radians(obj.e_cosw[i])))
+            obj.M0_err[i]  = 0 #(obj.lamb[i] - obj.w[i])%360.0
+
+        else:
+
+            obj.e_err[i] = e_par[len(vel_files)*2 + 7*i+2]
+            obj.w_err[i] = e_par[len(vel_files)*2 + 7*i+3]
+            obj.M0_err[i] = e_par[len(vel_files)*2 + 7*i+4]
+
+            obj.e_sinw_err[i] = 0 #obj.e[i]*np.sin(np.radians(obj.w[i]))
+            obj.e_cosw_err[i] = 0 #obj.e[i]*np.cos(np.radians(obj.w[i]))
+            obj.lamb_err[i]   = 0 #(obj.w[i] + obj.M0[i])%360.0
+
+
+
 
     obj.rv_lintr_err = e_par[len(vel_files)*2  +7*npl]
     obj.rv_quadtr_err = e_par[len(vel_files)*2  +7*npl +1]     
@@ -4376,17 +4415,50 @@ class signal_fit(object):
 
                 self.P[i] = self.fit_results.P[i][0]
                 self.K[i] = self.fit_results.K[i][0]
-                self.e[i] = self.fit_results.e[i][0]
-                self.w[i] = self.fit_results.w[i][0]
-                self.M0[i] = self.fit_results.M0[i][0]
+ 
+
+                if self.hkl == True:
+                    self.e_sinw[i]  = self.fit_results.e[i][0]
+                    self.e_cosw[i]  = self.fit_results.w[i][0]
+                    self.lamb[i]    =  self.M0[i] = self.fit_results.M0[i][0]
+
+                    self.e[i]   = np.sqrt(self.e_sinw[i]**2 + self.e_cosw[i]**2)
+                    self.w[i]   = np.degrees(np.arctan2(np.radians(self.e_sinw[i]),np.radians(self.e_cosw[i])))
+                    self.M0[i]  = (self.lamb[i] - self.w[i])%360.0
+                else:
+
+                    self.e[i] = self.fit_results.e[i][0]
+                    self.w[i] = self.fit_results.w[i][0]
+                    self.M0[i] = self.fit_results.M0[i][0]
+
+                    self.e_sinw[i] = self.e[i]*np.sin(np.radians(self.w[i]))
+                    self.e_cosw[i] = self.e[i]*np.cos(np.radians(self.w[i]))
+                    self.lamb[i]   = (self.w[i] + self.M0[i])%360.0
+
+
                 self.i[i] = self.fit_results.incl[i][0]
                 self.Node[i] = self.fit_results.cap0m[i][0]
 
                 self.P_err[i] = np.array([self.fit_results.P[i][1],self.fit_results.P[i][1]])
                 self.K_err[i] = np.array([self.fit_results.K[i][1],self.fit_results.K[i][1]])
-                self.e_err[i] = np.array([self.fit_results.e[i][1],self.fit_results.e[i][1]])
-                self.w_err[i] = np.array([self.fit_results.w[i][1],self.fit_results.w[i][1]])
-                self.M0_err[i] = np.array([self.fit_results.M0[i][1],self.fit_results.M0[i][1]])
+
+                if self.hkl == True:
+                    self.e_sinw_err[i] = np.array([self.fit_results.e[i][1],self.fit_results.e[i][1]])
+                    self.e_cosw_err[i] = np.array([self.fit_results.w[i][1],self.fit_results.w[i][1]])
+                    self.lamb_err[i] = np.array([self.fit_results.M0[i][1],self.fit_results.M0[i][1]])
+
+                    self.e_err[i] = np.array([0,0]) # np.array([self.fit_results.e[i][1],self.fit_results.e[i][1]])
+                    self.w_err[i] = np.array([0,0]) # np.array([self.fit_results.w[i][1],self.fit_results.w[i][1]])
+                    self.M0_err[i] = np.array([0,0]) # np.array([self.fit_results.M0[i][1],self.fit_results.M0[i][1]])
+                else:
+                    self.e_err[i] = np.array([self.fit_results.e[i][1],self.fit_results.e[i][1]])
+                    self.w_err[i] = np.array([self.fit_results.w[i][1],self.fit_results.w[i][1]])
+                    self.M0_err[i] = np.array([self.fit_results.M0[i][1],self.fit_results.M0[i][1]])
+
+                    self.e_sinw_err[i] = np.array([0,0]) # np.array([self.fit_results.e[i][1],self.fit_results.e[i][1]])
+                    self.e_cosw_err[i] = np.array([0,0]) # np.array([self.fit_results.w[i][1],self.fit_results.w[i][1]])
+                    self.lamb_err[i] = np.array([0,0]) # np.array([self.fit_results.M0[i][1],self.fit_results.M0[i][1]])
+
                 self.i_err[i] = np.array([self.fit_results.incl[i][1],self.fit_results.incl[i][1]])
                 self.Node_err[i] = np.array([self.fit_results.cap0m[i][1],self.fit_results.cap0m[i][1]])
 
@@ -4635,7 +4707,6 @@ class signal_fit(object):
         return
 
 
-
 #### prep. #########
     def prepare_for_mcmc(self, rtg=[True,False,False,False], customdatasetlabels=[]):
         '''Prepare bounds and par array needed for the MCMC'''
@@ -4698,9 +4769,16 @@ class signal_fit(object):
  
             par.append(self.K[i]) #
             par.append(self.P[i]) #
-            par.append(self.e[i]) #
-            par.append(self.w[i]) #
-            par.append(self.M0[i]) #
+
+            if self.hkl == True:
+                par.append(self.e_sinw[i]) #
+                par.append(self.e_cosw[i]) #
+                par.append(self.lamb[i]) #
+            else:
+                par.append(self.e[i]) #
+                par.append(self.w[i]) #
+                par.append(self.M0[i]) #
+
             par.append(self.i[i]) #
             par.append(self.Node[i]) #
 
@@ -4712,15 +4790,24 @@ class signal_fit(object):
                 flag.append(self.K_use[i])                
 
             flag.append(self.P_use[i]) #
-            flag.append(self.e_use[i]) #
-            flag.append(self.w_use[i]) #
+
+            if self.hkl == True:
+                flag.append(self.e_sinw_use[i]) #
+                flag.append(self.e_cosw_use[i]) #
+            else:
+                flag.append(self.e_use[i]) #
+                flag.append(self.w_use[i]) #
 
             if rtg == [False,False,True,True]:
                 flag.append(False) #
             elif rtg == [False,False,True,False]:
                 flag.append(False) #
             else:
-                flag.append(self.M0_use[i])
+                if self.hkl == True:
+                    flag.append(self.lamb_use[i])
+                else:
+                    flag.append(self.M0_use[i])
+
             flag.append(self.i_use[i])
 
             if rtg == [False,False,True,True]:
@@ -4743,23 +4830,8 @@ class signal_fit(object):
             prior_jeff.append(self.P_jeff_pr[i])
 
 
-            if self.hkl == False:
-                par_str.append(self.e_str[i])
-                par_str.append(self.w_str[i])
-                par_str.append(self.M0_str[i])
+            if self.hkl == True:
 
-                bounds.append(self.e_bound[i])
-                bounds.append(self.w_bound[i])
-                bounds.append(self.M0_bound[i])
-
-                prior_nr.append(self.e_norm_pr[i])
-                prior_nr.append(self.w_norm_pr[i])
-                prior_nr.append(self.M0_norm_pr[i])
-
-                prior_jeff.append(self.e_jeff_pr[i])
-                prior_jeff.append(self.w_jeff_pr[i])
-                prior_jeff.append(self.M0_jeff_pr[i])
-            else:
                 par_str.append(self.e_sinw_str[i])
                 par_str.append(self.e_cosw_str[i])
                 par_str.append(self.lamb_str[i])
@@ -4776,7 +4848,22 @@ class signal_fit(object):
                 prior_jeff.append(self.e_cosw_jeff_pr[i])
                 prior_jeff.append(self.lamb_jeff_pr[i])
 
+            else:
+                par_str.append(self.e_str[i])
+                par_str.append(self.w_str[i])
+                par_str.append(self.M0_str[i])
 
+                bounds.append(self.e_bound[i])
+                bounds.append(self.w_bound[i])
+                bounds.append(self.M0_bound[i])
+
+                prior_nr.append(self.e_norm_pr[i])
+                prior_nr.append(self.w_norm_pr[i])
+                prior_nr.append(self.M0_norm_pr[i])
+
+                prior_jeff.append(self.e_jeff_pr[i])
+                prior_jeff.append(self.w_jeff_pr[i])
+                prior_jeff.append(self.M0_jeff_pr[i])
 
             par_str.append(self.i_str[i])
             par_str.append(self.Node_str[i] )
