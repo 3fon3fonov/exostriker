@@ -1,9 +1,9 @@
 ## Instalation
 
-There are many options to run Exo-Striker. We strongly recommend you to use an Anaconda environment, but it is not mandatory.  
+There are many options to run Exo-Striker. We strongly recommend that you use an Anaconda environment, but it is not mandatory.  
 You can install it from pip or run directly the source code from the repository.  
 
-All the methods listed below work in Linux, Windows or MacOS if you have python and gfortran installed.
+All the methods listed below work in Linux, Windows or MacOS if you have `python` and `gfortran` installed.
 
 ### Getting the pip version
 You can easily get the pip version by typing in the terminal:
@@ -14,7 +14,7 @@ pip install exostriker
 
 ### Cloning from GitHub
 
-Or you can directly clone from the GitHub page with:
+Or you can directly clone from the GitHub page with
 
 ```bash
 git clone https://github.com/3fon3fonov/exostriker.git
@@ -31,7 +31,7 @@ python3 -m build
 pip install .
 ```
 
-### Adding the PATH (for non Anaconda installations)
+### Adding the PATH (for non-Anaconda installations)
 If you do not use Anaconda, you need to add the path of the pip scripts into the system path variable if you have not already done so.  
 **This step is not necessary if you are running without installation.**
 
@@ -42,7 +42,7 @@ For Linux users, you can add the following line in the end of the file `~/.bashr
 export PATH="${PATH}:/home/USER/.local/bin/"
 ```
 
-For different Linux distributions and Python installations, the locale of the executables can slightly change. If this does not work out, you can try differents paths such as `/usr/local/bin` and others.
+For different Linux distributions and Python installations, the locale of the executables can slightly change. If this does not work out, you can try different paths such as `/usr/local/bin` and others.
 
 
 #### Windows
@@ -58,12 +58,12 @@ Or:
 C:\Users\USERNAME\AppData\Local\Programs\Python\Python311\Scripts
 ```
 
-**Be aware of different Python versions, the path will change also. Always verify if the current path exists.**
+**Be aware of different Python versions, the path will change too. Always verify if the current path exists.**
 
 ### Step-by-Step for Windows
 Obs: this step-by-step guide was made using a fresh new install of Windows 10.
 
-- Python: Go to [Python Windows Releases](https://www.python.org/downloads/windows/) and download an stable release by clicking on it and downloading the *Windows installer (64-bit) Recommended*. After downloading, exectue the files and follow the installation process.
+- Python: Go to [Python Windows Releases](https://www.python.org/downloads/windows/) and download an stable release by clicking on it and downloading the *Windows installer (64-bit) Recommended*. After downloading, execute the files and follow the installation process.
     - Add the Python folder to the path.
         - Open the menu and search for *path*, click in *Edit the system environment variables*, at the bottom right click in *Environment Variables...*, in the tab *System variables* (attention: not the *User variables for Username*), look for the variable *Path* and click on *Edit*. Add two new lines:
             - `C:\Users\USERNAME\AppData\Local\Programs\Python\Python311`
@@ -74,8 +74,8 @@ Obs: this step-by-step guide was made using a fresh new install of Windows 10.
     - Choose the x64 MCF **with** all the libraries;
     - After downloading, decompress the file and move the `mingw64` folder to `C:\Program Files\`;
     - Now add the folder `bin` of the `mingw64` folder to the path:
-         - Use the sames steps as before but now add the line: `C:\Program Files\mingw64\bin`.
-- Microsoft Visual C++ for the package TTVFast: [Download](https://visualstudio.microsoft.com/visual-cpp-build-tools/) it and install the *Microsft Build Tools*, in the installation process, check the box for the *Desktop development with C++* (6.52 GB) and then click to install.
+         - Use the same steps as before but now add the line: `C:\Program Files\mingw64\bin`.
+- Microsoft Visual C++ for the package TTVFast: [Download](https://visualstudio.microsoft.com/visual-cpp-build-tools/) it and install the *Microsoft Build Tools*, in the installation process, check the box for the *Desktop development with C++* (6.52 GB) and then click to install.
 - Exostriker: In CMD type `pip install exostriker` or follow the above steps to install it.
 
 ## Execution
