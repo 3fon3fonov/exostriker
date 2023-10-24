@@ -1,264 +1,104 @@
-To install the Exo-Striker, first please make sure that you have:
+## Instalation
 
-* csh
-* gfortran
-* pip
+There are many options to run Exo-Striker. We strongly recommend you to use an Anaconda environment, but it is not mandatory.  
+You can install it from pip or run directly the source code from the repository.  
 
+All the methods listed below work in Linux, Windows or MacOS if you have python and gfortran installed.
 
-The instructions below will install the following dependencies: 
+### Getting the pip version
+You can easily get the pip version by typing in the terminal:
 
-* numpy
-* scipy
-* matplotlib
-* PyQt5
-* jupyter
-* pathos
-* emcee  
-* celerite
-* qtconsole
-* dynesty
-* wotan 
-* corner
-* transitleastsquares
-* ttvfast-python
-
-
-Also, please only use Python 3 for installing the Exo-Striker! The tool works with Python 2, 
-but since Python 2 is no longer maintained (since Jan 1, 2020), I do not provide support in case of problems.    
-
-(see below comments on Linux, Mac OS, and Windows 10 installations)
-
-### Installation and use
-#### Through the GUI
-Enter
-```sh
-$ git clone https://github.com/3fon3fonov/exostriker  
-```
-and then
-```sh
-$ cd exostriker  
-$ python3 exostriker_gui.py    
-```
-Generally, you do not need to install anything if you already have all the required dependencies for the tool to run. For the dependency list, see the `setup.py` file. The Exo-Striker will automatically compile the Fortran77 code for you at the first start of the program and will keep you updated if the source code was updated (if you regularly `git pull`).
- 
-#### From the source
-```sh
-$ git clone https://github.com/3fon3fonov/exostriker     
-```
-and then
-```sh
-$ cd exostriker    
-$ python3 setup.py install    
-```
-This will install the tool in your system.     
-Then, open a terminal and type    
-```sh
-$ exostriker    
-```
-This should start the Exo-Striker.
-
-#### From pip
-```sh
-$ pip install git+https://github.com/3fon3fonov/exostriker    
-```
-This will install the tool in your system.    
-Then, open a terminal and run
-```sh
-$ exostriker
-```
-This should start the Exo-Striker.
-
-#### Troubleshoot     
-
-If you still cannot boot the tool after a 'successful' installation, please try:
-```sh
-$ python3 exostriker_gui.py -debug 
-```
-or 
-```sh
-$ exostriker -debug
-# (depending on how you use the tool)
+```bash
+pip install exostriker
 ```
 
-Then, copy the output error, and please open a GitHub issue. Otherwise, all possible problems/bugs/crashes will be displayed on the 
-'stdout/stderr' tab of the tool. If you use this tool, and you find a bug or a problem, please report it!    
+### Cloning from GitHub
 
-### Some OS related comments
+Or you can directly clone from the GitHub page with:
+
+```bash
+git clone https://github.com/3fon3fonov/exostriker.git
+```
+
+After cloning, you can install it with pip or run without any installation at all (see the Execution section).  
+
+To build the package and install it with pip from the source, type:  
+
+```bash
+pip install build
+cd exostriker
+python3 -m build
+pip install .
+```
+
+### Adding the PATH (for non Anaconda installations)
+If you do not use Anaconda, you need to add the path of the pip scripts into the system path variable if you have not already done so.  
+**This step is not necessary if you are running without installation.**
 
 #### Linux
+For Linux users, you can add the following line in the end of the file `~/.bashrc`, changing `USER` to your own user.
 
-The above instructions usually work without any problem on Linux OS.
-For full functionality on Linux, you will also need to install:
-
-* rxvt (optional, better bash shell)
- 
-#### macOS
- 
-You will need to install **homebrew**, which requires sudo privileges. 
-According to https://brew.sh/, to install "homebrew", it should be as simple as
-
-```sh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+```bash
+export PATH="${PATH}:/home/USER/.local/bin/"
 ```
-in bash shell terminal.
-If you have MAC OS 10.14+, it is likely to have problems with the numpy headers.
-If you see an error like this during the installations (mostly during the "batman-package" build):
+
+For different Linux distributions and Python installations, the locale of the executables can slightly change. If this does not work out, you can try differents paths such as `/usr/local/bin` and others.
+
+
+#### Windows
+For Windows users, you need to open the menu and search for *path*, click in *Edit the system environment variables*, at the bottom right click in *Environment Variables...*, in the tab *System variables* (attention: not the *User variables for Username*), look for the variable *Path* and click on *Edit*. Add a new line with one of the followings (check the python location first):
+
+```bash
+C:\Users\Windows\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\Scripts
 ```
-...
-...
-    c_src/_nonlinear_ld.c:21:10: fatal error: 'numpy/arrayobject.h' file not found
-    #include "numpy/arrayobject.h"
-             ^~~~~~~~~~~~~~~~~~~~~
-    1 error generated.
-    error: command 'clang' failed with exit status 1
-...
-...
+
+Or:
+
+```bash
+C:\Users\USERNAME\AppData\Local\Programs\Python\Python311\Scripts
 ```
-Please do the following:
-```sh
-export CFLAGS="-I /usr/local/lib/pythonX.X/site-packages/numpy/core/include $CFLAGS"
+
+**Be aware of different Python versions, the path will change also. Always verify if the current path exists.**
+
+### Step-by-Step for Windows
+Obs: this step-by-step guide was made using a fresh new install of Windows 10.
+
+- Python: Go to [Python Windows Releases](https://www.python.org/downloads/windows/) and download an stable release by clicking on it and downloading the *Windows installer (64-bit) Recommended*. After downloading, exectue the files and follow the installation process.
+    - Add the Python folder to the path.
+        - Open the menu and search for *path*, click in *Edit the system environment variables*, at the bottom right click in *Environment Variables...*, in the tab *System variables* (attention: not the *User variables for Username*), look for the variable *Path* and click on *Edit*. Add two new lines:
+            - `C:\Users\USERNAME\AppData\Local\Programs\Python\Python311`
+            - `C:\Users\USERNAME\AppData\Local\Programs\Python\Python311\Scripts`
+            - Change `USERNAME` with your username and `Python311` to the actual version that you installed.
+    - Go to the python folder (ex: `C:\Users\USERNAME\AppData\Local\Programs\Python\Python311`) and create a copy of the `python.exe` file in the same location with the name `python3.11.exe`
+- Gfortran: Download the *x64* version of [Winlibs](https://winlibs.com).
+    - Choose the x64 MCF **with** all the libraries;
+    - After downloading, decompress the file and move the `mingw64` folder to `C:\Program Files\`;
+    - Now add the folder `bin` of the `mingw64` folder to the path:
+         - Use the sames steps as before but now add the line: `C:\Program Files\mingw64\bin`.
+- Microsoft Visual C++ for the package TTVFast: [Download](https://visualstudio.microsoft.com/visual-cpp-build-tools/) it and install the *Microsft Build Tools*, in the installation process, check the box for the *Desktop development with C++* (6.52 GB) and then click to install.
+- Exostriker: In CMD type `pip install exostriker` or follow the above steps to install it.
+
+## Execution
+
+### With Installation
+You can create menu entries for Exo-Striker by typing in the terminal or cmd:  
+
+```bash
+exostriker-desktop-create
 ```
-(where X is your Python version, e.g., 3.6, 3.7 to 3.8), and then re-run your Exo-Striker installation (via pip or setup.py).
- 
-#### Windows 10
 
-Installation on Windows 10 works troughs the "Windows Subsystem for Linux".
-Please follow this guide:
+Then, search in the menu for *Exostriker*, and in Windows, a Desktop link will also be created.  
+But, if you do not want to create menu entries, just type `exostriker` or `python -m exostriker` in the terminal or cmd to launch it.
 
-https://docs.microsoft.com/en-us/windows/wsl/install-win10
+### Without Installation
+Simply execute the file `gui.py` and it will power the GUI.
 
-This way you will be able to run all Linux native programs on your WINDOWS 10 
-bash shell, which is very useful in general!
+## Uninstall
+If you did not install with pip (both directly or by cloning), you can just erase the *exostriker* folder.  
 
-To make The Exo-Striker work, however, you also will need an XServer installed.
-Follow these instructions:
+Otherwise, first remove the menu entries (if you have added it) and then uninstall:
 
-https://seanthegeek.net/234/graphical-linux-applications-bash-ubuntu-windows/
-
-These two tutorials worked for me, but there might be other options too. 
-
-In case there is a problem of the appearance of the GUI the problem could be 
-your DPI setup. On high DPI displays with Windows display scaling activated (>100%),
-the X-server DPI has to be set, otherwise, the Exo-Striker will not display correctly (text clipping).
-Edit the file `.Xresources` in the home directory of the WSL installation,
-for example with `nano ~/.Xresources`.
-Add the line `Xft.dpi: 100` and save & close with Ctrl+O Ctrl+X,
-then reload the X configuration with `xrdb ~/.Xresources`.
-On Ubuntu WSL you might need to install `x11-xserver-utils`
-with `sudo apt install x11-xserver-utils` for xrdb to be available.
-
-Launch the Exo-Striker and check the scaling.
-If text is clipping, the DPI needs to be set lower, if everything is too small,
-the DPI needs to be higher. Remember to always reload the configuration with `xrdb ~/.Xresources`.
-For the configuration to automatically load at startup,
-add the xrdb command to your ~/.bashrc, after the `export DISPLAY=:0.0`.
-
-
-Running the tool via the official Windows 10 python3 installation should generally work too,
-it was never tried! If you want to experiment, and you successfully install the tool under the official
-Windows python path, I would appreciate it if you share your experience and some instructions.
-
-
-For now, the recommended WINDOWS 10 installation option of the Exo-Striker is via the "Windows 
-Subsystem for Linux" as pointed above.
- 
-### Some known problems
-See the issues: https://github.com/3fon3fonov/exostriker/issues
-
-### And finally..
-
-To load the GUI:
-```sh
-$ python3 exostriker_gui.py 
-``` 
-If you want to use the library on the Python shell/script:
-```py
-import exostriker
+```bash
+exostriker-desktop-remove
+pip uninstall exostriker
 ```
-or, e.g., to load the RV routines:
-```py
-import exostriker.lib.RV_mod as rv    
-fit = rv.signal_fit(name="hip5364") #creates the "fit" object that contains everything.    
-fit.add_dataset("hip5364-Lick","./datafiles/hip5364.vels",0.0.10.0) # add the data file, initial offset and jitter   
-fit.add_planet(K=50,P=400,e=0,w=0,M0=0,i=90,cap=0)   # planet 1    
-fit.add_planet(K=50,P=700,e=0,w=0,M0=180,i=90,cap=0) # planet 2    
-fit.fitting() #optimize the parameters    
-fit.run_mcmc() # run MCMC, etc...    
-```
-(However, one must be familiar with the functions... A manual on RVmod is planned, but not available at the moment.)
-
-### Comments
-
-* All Fortran and python codes in this version need serious clean-up from junk.
-
-* All Fortran codes are planned to be translated with f2py into python-importable libraries.
-
-* Don't ever run MCMC runs (or Nest. Samp.) directly in the embedded Jupyter shell! This will freeze the GUI until is the MCMC done!
-This is not a bug, simply the jupyter shell needs its thread and this is not done, yet. Hopefully, this will be fixed soon.
-Please use the GUI navigation. 
-
-* AT this point other bugs may occur! Please see: https://github.com/3fon3fonov/exostriker/issues
-for work in progress issues.
-
-* There is NO manual page at the moment.... This takes time, and at the moment I do
-not have such! The GUI however, is, I believe, very intuitive, and with a trial and error one can figure out how everything works. 
-
-### Some credits
-
-* Some of the dynamical RV fitting routines are done by 
-Xianyu Tan (the University of Hong Kong, now in Oxford) during
-his Master studies with Man Hoi Lee (HKU). 
-
-* Some of the Keplerian RV fitting routines and other N-body codes are initially written by Man Hoi Lee. 
-
-* Jakub Morawski (Warsaw University) worked on the "RVmod" library as my intern student in the summer of 2018. His numerous contributions 
-during the early stages of this project are highly appreciated.
-
-* Grigorii Smirnov-Pinchukov helped to make the setup.py installer
-
-* The AMD stability check function was donated by Stefan Dreizler (IAG, Germany). 
-
-
-* The interactive plotting is done with a custom version of the "pyqtgraph": 
-
-http://www.pyqtgraph.org/
-
-* "GLS" and "MLP" periodograms are taken from Mathias Zechmeister's repo: 
-
-https://github.com/mzechmeister/python
-
-* "TLS" is taken from: 
-
-https://github.com/hippke/tls
-
-* The transit modeling is done with "batman":
- 
-https://github.com/lkreidberg/batman
-
-* MCMC sampling is done with "emcee": 
-
-https://github.com/dfm/emcee
-
-* Nested Sampling is done with "dynesty": 
-
-https://github.com/joshspeagle/dynesty
-
-* TTV models are adopted from "TTVfast-python":
-
-https://github.com/mindriot101/ttvfast-python
-
-* The "Text editor" used in the tool is a hack between "Megasolid Idiom" 
-and "PyEdit2":
-
-https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor
-
-https://github.com/Axel-Erfurt/PyEdit2'
-
-* N-body tests are performed using a custom version of the "Swift" N-body library,
-modified by Man Hoi Lee (HKU) and Trifon Trifonov (MPIA).
-
-https://www.boulder.swri.edu/~hal/swift.html
-
-* Additionally, the Exo-Striker uses many "standard" Python libraries like 
-"PyQt5", "matplotlib", "numpy", "scipy", "dill", "Jupyter", "qtconsole",
-and more.
