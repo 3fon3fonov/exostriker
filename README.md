@@ -65,66 +65,12 @@ Just open an "Issue" on the GitHub, or send a PM to [trifonov@mpia.de](mailto:tr
 
 
 ### Installation
- 
-Python 3.8+ is strongly recommended!!! The Exo-Striker works with Python 3.6, 3.7 and even Python 2, but you will likely have problems with some dependencies, which you may have to solve.
-If your Python version is 3.6 or 3.7, it is recommended to not upgrade the `python3`, but to install `python3.8` alongside your system `python3` (see the instructions for [Python 3.8](https://linuxize.com/post/how-to-install-python-3-8-on-ubuntu-18-04/), or for [Python 3.9](https://linuxize.com/post/how-to-install-python-3-9-on-ubuntu-20-04/)). 
 
-Python 3.10 is now supported! Please note that the ES with Python 3.8 and Python 3.9 will not be supported starting from July 1st 2023. 
+Python 3.11+ is strongly recommended!!! The Exo-Striker works with older Python3 versions, and even Python2, but you will likely have problems with some dependencies, which you may have to solve. If your system Python3 is 3.10 and below, it is recommended to not upgrade the python3, but to install python3.10 alongside your system python3.
 
-For Ubuntu 20.04+ you may also need `python-dev` to install some of the dependencies. For example, if during installation you get something like
-```sh
-$ 20 | #include "Python.h"   
-$    |          ^~~~~~~~~~   
-$  compilation terminated.
-```
-, you may have to do
-```sh
-$ sudo apt-get install python3.8-dev
-```
-and try again.
+Appart of Python 3.10/3.11 make sure you have `gcc`, `gfortran`, and `csh`, which will be needed for compiling some of the important binaries!
 
-Apart from Python 3.8/3.9, make sure you have `gcc`, `gfortran`, and `csh`, which will be needed for compiling some of the important binaries!
-
-#### Installation through pip
-
-Assuming you have Python 3.8, then it is recommended to start by installing `pip3.8`:
-```sh
-$ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py   
-$ python3.8 get-pip.py    
-```
-Then, to install the Exo-Striker:
-```sh
-$ pip3.8 install git+https://github.com/3fon3fonov/exostriker --user
-# (for user installation -- recommended!)
-```
-Then just run
-```sh
-$ exostriker
-```
-**WARNING!** if you install with
-```sh
-$ sudo pip3.8 install git+https://github.com/3fon3fonov/exostriker
-```
-, then every time you should run
-```sh
-$ sudo exostriker 
-```
-
-#### Installation through git
-
-Alternatively, you can clone the repository through `git`:
-```sh
-$ git clone https://github.com/3fon3fonov/exostriker   
-$ cd exostriker   
-$ python3.8 setup.py install   
-```
-However, please read the [Installation instructions](README_for_installation),
-because some problems may occur depending on your OS system. Finally, you can run the Exo-striker by
-```sh
-$ python3.8 exostriker_gui.py  
-```
-The last command requires that all the dependencies, specified in `setup.py`, are installed. This is somewhat more flexible IMHO, since one can have multiple "exostriker" directories dedicated to different projects. I usually go with: "exostriker-GJ436", "exostriker-GJ876" etc.; and I store all datafiles, sessions, plots, drafts etc.
-inside these directories.
+See [README_install.md](README_install.md) for further instructions.
  
 ### Usage
 
@@ -135,7 +81,7 @@ $ exostriker
 ```
 or just do
 ```sh
-$ python3.8 exostriker_gui.py
+$ python3.11 exostriker_gui.py
 # (inside of the git clone directory, see above)
 ``` 
 If you want to use the library on the Python shell/script:
