@@ -58,13 +58,6 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 - [ ] Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
 - [ ] Combined modeling with Astrometry (As of Ver 0.75 this is possible, but is still work in progress).
 
-
-Please keep in mind that this software is developed mostly for my needs and fun. I hope, however, that you may find it capable of solving your scientific problems too. At the moment, there is NO documentation,
-but as you will find, the GUI is self-explanatory. The import as a Python library indeed needs documentation, but I plan to write such after approx. Ver. 0.8, when
-most of the functions and classes will be firmly defined and will start optimizing the software core. 
-If you need the Exo-Striker as a library, you can check the [Notebook_and_script_examples](https://github.com/3fon3fonov/exostriker/tree/exostriker-ready/Notebook_and_script_examples),
-or you can drop me a line at trifonov@mpia.de for further instructions. 
-
 Feedback and help in further development will be highly appreciated!
 A wish-list with your favorite tools and methods to be implemented is also welcome!    
 
