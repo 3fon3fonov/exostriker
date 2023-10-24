@@ -61,7 +61,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 Feedback and help in further development will be highly appreciated!
 A wish-list with your favorite tools and methods to be implemented is also welcome!    
 
-Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.    
+Just open an "Issue" on the GitHub, or send a PM to [trifonov@mpia.de](mailto:trifonov@mpia.de).
 
 
 ### Installation
