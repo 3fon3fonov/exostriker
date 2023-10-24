@@ -5,7 +5,7 @@
   <img width="400" src="./exostriker/source/png/33_striker.png">
 </p>
  
-The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and models the RV stellar reflex motion caused by dynamically interacting planets in multi-planetary systems. It offers a broad range of tools for detailed analysis of transit and Doppler data, including power spectrum analysis for Doppler and transit data; Keplerian and dynamical modeling of multi-planet systems; MCMC and nested sampling; Gaussian Processes modeling; and a long-term stability check of multi-planet systems. The Exo-Striker can also perform Mean Motion Resonance (MMR) analysis, create fast fully interactive plots, and export ready-to-use LaTeX tables with best-fit parameters, errors, and statistics. It combines Fortran efficiency and Python flexibility and is cross-platform compatible (MAC OS, Linux, Windows). 
+The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and models the RV stellar reflex motion caused by dynamically interacting planets in multi-planetary systems. It offers a broad range of tools for detailed analysis of transit and Doppler data, including power spectrum analysis for Doppler and transit data; Keplerian and dynamical modeling of multi-planet systems; MCMC and nested sampling; Gaussian Processes modeling; and a long-term stability check of multi-planet systems. The Exo-Striker can also perform Mean Motion Resonance (MMR) analysis, create fast fully interactive plots, and export ready-to-use LaTeX tables with best-fit parameters, errors, and statistics. It combines Fortran efficiency and Python flexibility and is cross-platform compatible (MAC OS, Linux, Windows).
 
  <p align="center">
   <img width="800" src="./exostriker/source/png/ES_new.gif">
@@ -45,7 +45,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 - [x] Handy "cornerplot" GUI control.
 - [x] Import/Export of work sessions and multi-sessions. 
 - [x] Export plots to a matplotlib window for further customization.
-- [x] Export ready to use LaTeX tables with best-fit parameters, errors, and statistics. 
+- [x] Export ready-to-use LaTeX tables with best-fit parameters, errors, and statistics. 
 - [x] Handy text-editor and calculator tools.
 - [x] Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
 - [x] Integrated Bash-shell (Linux only).
