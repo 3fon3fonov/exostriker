@@ -12,6 +12,7 @@ import matplotlib
 matplotlib.pyplot.switch_backend('Agg')
 
 import re
+import subprocess
 from subprocess import PIPE, Popen
 import signal
 import platform
