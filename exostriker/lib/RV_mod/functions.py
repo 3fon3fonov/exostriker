@@ -2416,9 +2416,15 @@ def run_command_with_timeout(args, secs, output=False, pipe=False): # set output
    # print(args)
     if not (pipe):
         text=tempfile.TemporaryFile() # because PIPE usually has too low capacity
-        proc = Popen(args, shell=True, preexec_fn=os.setsid, stdout=text, stderr=text)
+        if 'win' in sys.platform:
+            proc = Popen(args, shell=True, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP, stdout=text, stderr=text)
+        else:
+            proc = Popen(args, shell=True, preexec_fn=os.setsid, stdout=text, stderr=text)
     else:
-        proc = Popen(args, shell=True, preexec_fn=os.setsid, stdout=PIPE, stderr=PIPE)
+        if 'win' in sys.platform:
+            proc = Popen(args, shell=True, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP, stdout=PIPE, stderr=PIPE)
+        else:
+            proc = Popen(args, shell=True, preexec_fn=os.setsid, stdout=PIPE, stderr=PIPE)
    # print(proc)
     proc_thread = Thread(target=proc.wait)
     proc_thread.start()
