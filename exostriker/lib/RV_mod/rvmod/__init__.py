@@ -458,13 +458,13 @@ class Rvfit:
         vers = str(sys.version_info.major) + "." + str(sys.version_info.minor)
 
         # Recursive Flag only on linux
-        recur = "" if "win" in sys.platform else "-frecursive"
+        recur = "" if "win" in sys.platform[0:3] else "-frecursive"
 
         # Compile it using the Numpy F2PY
         os.system("python{} -m numpy.f2py -c --opt=\"-O3 {}\" -m rvmod_for rvmod_for.f95".format(vers, recur))
 
         # If Windows, move the created DLL
-        if "win" in sys.platform:
+        if "win" in sys.platform[0:3]:
             lib_path = path.joinpath("rvmod_for", ".libs")
             fls = os.listdir(lib_path)
             for fl in fls:
@@ -503,7 +503,7 @@ class Rvfit:
         execs = []
         for names in os.listdir():
             if "rvmod_for" in names:
-                if (".so" in names and "linux" in sys.platform) or (".pyd" in names and "win" in sys.platform):
+                if (".so" in names and "linux" in sys.platform) or (".pyd" in names and "win" in sys.platform[0:3]):
                     execs.append(names)
         # If there is no other executable, call the compile function, otherwise rename them
         if execs is not []:
