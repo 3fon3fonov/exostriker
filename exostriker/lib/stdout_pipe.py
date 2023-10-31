@@ -7,7 +7,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import logging
 logger = logging.getLogger(__name__)
 
-from dynesty import __version__ as dynesty_version
+#from dynesty import __version__ as dynesty_version
 
 #sys.stdout = sys.__stdout__
 #sys.stderr = sys.__stderr__
