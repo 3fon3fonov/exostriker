@@ -4,7 +4,7 @@ set SWIFT_DIR=
 set FORTRAN=gfortran
 # set FFLAGS='-auto -O3 -xW -c'
 set FFLAGS='-O3 -c'
-set PRECOMP=/usr/bin/cpp-11
+set PRECOMP=/usr/bin/cpp
 set CPPFLAGS='-D_OPEN_POSITION -D_RECUR_SUB'
 
 # To Profile the code:
