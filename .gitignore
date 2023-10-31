@@ -1,10 +1,9 @@
 exostriker/lib/ES_settings_dev.json
-exostriker/stability/mvs/*
-exostriker/stability/mvs_gr/*
-exostriker/stability/symba/*
+#exostriker/stability/mvs/*
+#exostriker/stability/mvs_gr/*
+#exostriker/stability/symba/*
 #exostriker/datafiles/*
 exostriker/autosave/auto_save.ses
-exostriker/mcmc_samples
 exostriker/exported_plots
  
 *.pyc
