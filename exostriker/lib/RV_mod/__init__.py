@@ -28,22 +28,22 @@ import dill
 dill.settings['fmode']
 
 
-try:
-    import dynesty
-
-    if float(dynesty.__version__[0:3])<=3.1: # a fix is needed.....
-        import dynesty_2_0 as dynesty        
-   # import dynesty_patch
-   # dynesty.results =  dynesty_patch
-
-
-except:
-    print("dynesty not found, switching to the internally imported github version==2.0!")
-    import dynesty_2_0 as dynesty
-    import dynesty_patch
-    dynesty.results =  dynesty_patch
-
+#try:
+#    import dynesty
+#    if float(dynesty.__version__[0:3])<=3.1: # a fix is needed.....
+#        import dynesty_2_0 as dynesty        
  
+#except:
+#    print("dynesty not found, switching to the internally imported github version==2.0!")
+#    import dynesty_2_0 as dynesty
+#    import dynesty_patch
+#    dynesty.results =  dynesty_patch
+
+import dynesty_2_0 as dynesty
+import dynesty_patch
+dynesty.results =  dynesty_patch 
+
+
 import scipy.optimize as op
 from scipy import stats
 
