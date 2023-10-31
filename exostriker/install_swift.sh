@@ -13,7 +13,6 @@ cp libswift.a ../../lib/;
 cd ../../;
 
 
-
 echo " " 
 echo " " 
 echo "Compiling Symba/mvs and other N-body routines for a first time!"
