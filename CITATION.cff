@@ -1,0 +1,40 @@
+cff-version: 1.2.0
+title: >-
+  The Exo-Striker: Transit and radial velocity interactive fitting tool
+  for orbital analysis and N-body simulations
+message: >-
+  If you made the use of The Exo-Striker, I would appreciate it if you
+  give credit.
+type: software
+date-released: 2019-06-01
+authors:
+  - family-names: Trifonov
+    given-names: Trifon
+    email: trifonov@mpia.de
+    orcid: 'https://orcid.org/0000-0002-0236-775X'
+identifiers:
+ - type: 'ascl-id'
+   value: '1906.004'
+ - type: 'bibcode'
+   value: '2019ascl.soft06004T'
+repository-code: 'https://github.com/3fon3fonov/exostriker'
+abstract: >-
+  The Exo-Striker analyzes exoplanet orbitals, performs
+  N-body simulations, and models the RV stellar reflex
+  motion caused by dynamically interacting planets in
+  multi-planetary systems. It offers a broad range of tools
+  for detailed analysis of transit and Doppler data,
+  including power spectrum analysis for Doppler and transit
+  data; Keplerian and dynamical modeling of multi-planet
+  systems; MCMC and nested sampling; Gaussian Processes
+  modeling; and a long-term stability check of multi-planet
+  systems. The Exo-Striker can also analyze Mean Motion
+  Resonance (MMR) analysis, create fast fully interactive
+  plots, and export ready-to-use LaTeX tables with best-fit
+  parameters, errors, and statistics. It combines Fortran
+  efficiency and Python flexibility and is cross-platform
+  compatible (MAC OS, Linux, Windows). The tool relies on a
+  number of open-source packages, including RVmod engine,
+  emcee (ascl:1303.002), batman (ascl:1510.002), celerite
+  (ascl:1709.008), and dynesty (ascl:1809.013).
+license: MIT
