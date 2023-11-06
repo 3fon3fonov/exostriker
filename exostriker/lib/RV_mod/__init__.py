@@ -3968,8 +3968,12 @@ class signal_fit(object):
 
     def add_dataset(self,name,path,offset,jitter,useoffset=True,usejitter=True, index =None):
 
+
+
         if index == None:
-            index = int(max(self.idset))
+            empt_rvs_files = min([x for x in range(20) if len(self.rv_data_sets[x]) == 0], default=0) 
+            index = int(empt_rvs_files)
+
         self.add_rv_dataset(name, path, rv_idset = int(index))
 
         self.rvoff_use[index] = True
