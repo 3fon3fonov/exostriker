@@ -503,7 +503,7 @@ class Rvfit:
         execs = []
         for names in os.listdir():
             if "rvmod_for" in names:
-                if (".so" in names and "linux" in sys.platform) or (".pyd" in names and "win" in sys.platform[0:3]):
+                if (".so" in names and "linux" in sys.platform) or (".so" in names and "darwin" in sys.platform) or (".pyd" in names and "win" in sys.platform[0:3]):
                     execs.append(names)
         # If there is no other executable, call the compile function, otherwise rename them
         if execs is not []:
