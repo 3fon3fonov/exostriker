@@ -3702,7 +3702,7 @@ class signal_fit(object):
             act_JD_       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
             act_data_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
             act_data_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-
+ 
             if len(act_JD_) != len(act_data_) != len(act_data_sig_):
                 print("Something is wrong with your activity data file! Please provide a valid activity data file that contains: BJD  y  sigma_y")
                 return
@@ -3710,7 +3710,7 @@ class signal_fit(object):
             act_data      = act_data_[    np.isfinite(act_JD_) & np.isfinite(act_data_) & np.isfinite(act_data_sig_)]
             act_data_sig  = act_data_sig_[np.isfinite(act_JD_) & np.isfinite(act_data_) & np.isfinite(act_data_sig_)]
 
-            if len(act_JD) <= 3:
+            if len(act_JD) <= 1:
                 print("Something is wrong with your activity data file! Perhaps some not all entries are numeric? Please provide a valid activity data file that contains: BJD  y  sigma_y")
                 return
         except:
@@ -4097,27 +4097,29 @@ class signal_fit(object):
 
        dirname, basename = os.path.split(path)
 
-       HARPS_RVBank_data = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0 )
+       HARPS_RVBank_data = np.genfromtxt("%s"%(path),skip_header=1, unpack=True,skip_footer=0 )
        num_cols,num_rows = HARPS_RVBank_data.shape 
-      # print(num_rows, num_cols)
+     #  print(num_rows, num_cols)
     #   return
-       if num_cols !=50:
-           print("Not a HARPS_RVBank file!") 
+       if num_cols !=57:
+           print("Not a HARPS_RVBank ver02 file!") 
            return                   
 
-       BJD = np.genfromtxt("%s"%(path), skip_header=0, unpack=True, skip_footer=0, usecols = [0])
+       BJD = np.genfromtxt("%s"%(path), skip_header=1, unpack=True, skip_footer=0, usecols = [3])
       # indices = np.where(BJD > 2457161.5)
 
        fo = open(path, "r")
-       lines = fo.readlines()
+       lines = fo.readlines()[1:]
        fo.close()
 
-
+       name0 = '%s_all.dat'%basename[:-4]
        name1 = '%s_pre.dat'%basename[:-4]
        name2 = '%s_post.dat'%basename[:-4]
+       path0 = 'datafiles/%s'%name0
        path1 = 'datafiles/%s'%name1
        path2 = 'datafiles/%s'%name2
 
+       out0 = open('%s'%path0, 'w')
        out1 = open('%s'%path1, 'w')
        out2 = open('%s'%path2, 'w')
 
@@ -4128,11 +4130,14 @@ class signal_fit(object):
            if len(line) == 0:
                continue
 
-           if float(line[0]) <= 2457161.5:
-               out1.write(lines[i])
-           elif float(line[0]) > 2457161.5:
-               out2.write(lines[i])
+           out0.write(" ".join(line[3:]) + "\n")
 
+           if float(line[3]) <= 2457161.5:
+               out1.write(" ".join(line[3:]) + "\n")
+           elif float(line[3]) > 2457161.5:
+               out2.write(" ".join(line[3:]) + "\n")
+
+       out0.close()
        out1.close()
        out2.close()
 
@@ -4142,18 +4147,18 @@ class signal_fit(object):
            if len(BJD[BJD > 2457161.5]) !=0:
                self.add_dataset(name2,path2,offset,jitter,useoffset=True,usejitter=True)
        else:
-           self.add_dataset(name,path,offset,jitter,useoffset=True,usejitter=True)
+           self.add_dataset(name0,path0,offset,jitter,useoffset=True,usejitter=True)
        
-       data_set_name = ['CRX','dLW','H alpha','NaD I','NaD II','BIS','Contrast','FWHM']
+       data_set_name = ['CRX-%s'%basename[:-4],'dLW-%s'%basename[:-4],'Halpha-%s'%basename[:-4],'NaDI-%s'%basename[:-4],'NaDII-%s'%basename[:-4],'BIS-%s'%basename[:-4],'Contrast-%s'%basename[:-4],'FWHM-%s'%basename[:-4],"RHKp-%s"%basename[:-4]]
 
 
        for i in range(5):
 
-           act_ind = 11 + (2*i)
-           act_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [act_ind])
+           act_ind = 3+ 11 + (2*i)
+           act_data     = np.genfromtxt("%s"%(path),skip_header=1, unpack=True,skip_footer=0, usecols = [act_ind])
            act_data = act_data - np.mean(act_data)
 
-           act_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [act_ind+1])
+           act_data_sig = np.genfromtxt("%s"%(path),skip_header=1, unpack=True,skip_footer=0, usecols = [act_ind+1])
            #act_data_set = np.array([BJD,act_data,act_data_sig,data_set_name[i]])
            act_data_o_c = act_data                       
            act_data_set = np.array([BJD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, data_set_name[i]],dtype=object)
@@ -4165,8 +4170,8 @@ class signal_fit(object):
        #z = 0
        for ii in range(3):
 
-           act_ind = 22 + ii
-           act_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [act_ind])
+           act_ind = 3+ 22 + ii
+           act_data     = np.genfromtxt("%s"%(path),skip_header=1, unpack=True,skip_footer=0, usecols = [act_ind])
            act_data = act_data - np.mean(act_data)
            if ii == 1:
                act_data = act_data * 1000.0
@@ -4180,6 +4185,24 @@ class signal_fit(object):
 
            self.act_data_sets[i] = act_data_set
            self.act_data_sets_init[i] = act_data_set
+
+       for ii in range(1):
+
+           act_ind = 53 + (2*ii)
+           act_data     = np.genfromtxt("%s"%(path),skip_header=1, unpack=True,skip_footer=0, usecols = [act_ind])
+           act_data = act_data - np.mean(act_data)
+           act_data_sig = np.genfromtxt("%s"%(path),skip_header=1, unpack=True,skip_footer=0, usecols = [act_ind+1])
+
+           i = i +1
+           #act_data_set = np.array([BJD,act_data,act_data_sig,data_set_name[i]])
+           act_data_o_c = act_data                       
+           act_data_set = np.array([BJD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, data_set_name[i]],dtype=object)
+
+           self.act_data_sets[i] = act_data_set
+
+
+           self.act_data_sets[i] = act_data_set
+           self.act_data_sets_init[i] = act_data_set    
 
     def BIC(self):
         if len(self.fit_results.jd) != 0:
