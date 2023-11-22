@@ -316,7 +316,7 @@ class MainWindow(QMainWindow):
         path, _ = QFileDialog.getOpenFileName(self, "Open file", "", "HTML documents (*.html);Text documents (*.txt);All files (*.*)")
 
         try:
-            with open(path, 'rU') as f:
+            with open(path, 'r') as f:
                 text = f.read()
 
         except Exception as e:

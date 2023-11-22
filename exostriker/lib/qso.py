@@ -7,7 +7,7 @@ def qso_mode(self):
 
     self.setWindowTitle("The QSO-Striker: Modeling the variability of quasar light-curves.")
 
-    self.param_tabs.removeTab(5)
+    self.param_tabs.removeTab(4)
     self.param_tabs.removeTab(2)
     self.param_tabs.setTabText(0,"Sine param.")
 
@@ -42,8 +42,12 @@ def qso_mode(self):
     self.label_36.setText("Jitter max.")
 
 
+    self.data_insp_load_data.setText("Load to Data")
+
 
     self.use_mix_fitting.setVisible(False)
+    self.label.setVisible(False)
+    self.label_2.setVisible(False)
     self.label_134.setVisible(False)
     self.label_133.setVisible(False)
     self.mix_pl_1.setVisible(False)
@@ -746,9 +750,9 @@ def qso_mode(self):
     self.incl2.setVisible(False) 
     self.incl3.setVisible(False) 
 
-    self.err_i1.setVisible(False) 
-    self.err_i2.setVisible(False) 
-    self.err_i3.setVisible(False) 
+    self.err_incl1.setVisible(False) 
+    self.err_incl2.setVisible(False) 
+    self.err_incl3.setVisible(False) 
 
     self.use_incl1.setVisible(False) 
     self.use_incl2.setVisible(False) 
@@ -758,9 +762,9 @@ def qso_mode(self):
     self.Omega2.setVisible(False) 
     self.Omega3.setVisible(False) 
 
-    self.err_Om1.setVisible(False) 
-    self.err_Om2.setVisible(False) 
-    self.err_Om3.setVisible(False) 
+    self.err_Omega1.setVisible(False) 
+    self.err_Omega2.setVisible(False) 
+    self.err_Omega3.setVisible(False) 
 
     self.use_Omega1.setVisible(False) 
     self.use_Omega2.setVisible(False) 
@@ -807,7 +811,7 @@ def qso_mode(self):
 
     self.label_19.setText("[mag./day]") 
     self.label_353.setText("[mag./day]") 
-    self.label_393.setText("<html><head/><body><p>Quad. add to &sigma; [mag.]</p></body></html>") 
+   # self.label_393.setText("<html><head/><body><p>Quad. add to &sigma; [mag.]</p></body></html>") 
 
     self.label_auto_fit_N_planets.setText("Maximum number of signals to look for") 
 
