@@ -11,7 +11,7 @@ elif sys.version_info[0] == 2:
     from urllib2 import urlopen
 
 import ssl
-ssl.create_default_https_context = ssl._create_unverified_context
+ssl._create_default_https_context = ssl._create_unverified_context
 
 #font = QtGui.QFont()
 #font.setPointSize(8)
