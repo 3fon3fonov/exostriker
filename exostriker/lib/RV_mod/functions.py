@@ -2992,7 +2992,7 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
 
             for i in range(obj.ndset):
                 text = text + '''{0:{width}s}'''.format("RV$_{\\rm off}$ %s [m\,s$^{-1}$]"%(i+1), width = 30)
-                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.rv_off[i]), float(max(np.abs(obj.rvoff_err[i]))), width = width, precision = precision)
+                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.rvoff[i]), float(max(np.abs(obj.rvoff_err[i]))), width = width, precision = precision)
                 text = text + '''\\\\
         '''
             for i in range(obj.ndset):
@@ -3251,7 +3251,7 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
 
             for i in range(obj.ndset):
                 text = text + '''{0:{width}s}'''.format("RV$_{\\rm off}$ %s [m\,s$^{-1}$]"%(i+1), width = 30)
-                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.rv_off[i]), obj.rvoff_err[i][0], obj.rvoff_err[i][1], width = width, width2 = 0, precision = precision)
+                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.rvoff[i]), obj.rvoff_err[i][0], obj.rvoff_err[i][1], width = width, width2 = 0, precision = precision)
                 text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
         '''
             for i in range(obj.ndset):
