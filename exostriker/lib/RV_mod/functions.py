@@ -4044,7 +4044,7 @@ pl.in
 
         if integrator=='symba':
             result, flag = run_command_with_timeout('%s << EOF \nparam.in \npl.in \n%s \nEOF'%(os.path.join(Path(symba_dir),'follow_symba2'),int(k+2)),timeout_sec)
-            if "win" in sys.platform:
+            if "win" in sys.platform[0:3]:
                 result, flag = run_command_with_timeout('ren follow_symba.out pl_%s.out'%(k+1),timeout_sec)
             else:
                 result, flag = run_command_with_timeout('mv follow_symba.out pl_%s.out'%(k+1),timeout_sec)
@@ -4052,7 +4052,7 @@ pl.in
         elif integrator=='mvs' or integrator=='mvs_gr':
 
             result, flag = run_command_with_timeout('%s << EOF \nparam.in \npl.in \n-%s \nEOF'%(os.path.join(Path(mvs_dir),'follow2'),int(k+2)),timeout_sec)
-            if "win" in sys.platform: 
+            if "win" in sys.platform[0:3]: 
                 result, flag = run_command_with_timeout('ren follow2.out pl_%s.out'%(k+1),timeout_sec)
             else:
                 result, flag = run_command_with_timeout('mv follow2.out pl_%s.out'%(k+1),timeout_sec)
@@ -4073,7 +4073,7 @@ pl.in
     os.chdir('..')
     if remove_stab_save_dir == True:
 
-        if "win" in sys.platform:
+        if "win" in sys.platform[0:3]:
             os.system("rd -r %s"%stab_save_dir)
         else:
             os.system("rm -r %s"%stab_save_dir)
