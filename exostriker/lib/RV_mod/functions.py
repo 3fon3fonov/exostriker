@@ -2417,12 +2417,12 @@ def run_command_with_timeout(args, secs, output=False, pipe=False): # set output
    # print(args)
     if not (pipe):
         text=tempfile.TemporaryFile() # because PIPE usually has too low capacity
-        if 'win' in sys.platform:
+        if 'win' in sys.platform[0:3]:
             proc = Popen(args, shell=True, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP, stdout=text, stderr=text)
         else:
             proc = Popen(args, shell=True, preexec_fn=os.setsid, stdout=text, stderr=text)
     else:
-        if 'win' in sys.platform:
+        if 'win' in sys.platform[0:3]:
             proc = Popen(args, shell=True, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP, stdout=PIPE, stderr=PIPE)
         else:
             proc = Popen(args, shell=True, preexec_fn=os.setsid, stdout=PIPE, stderr=PIPE)
