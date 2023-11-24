@@ -3953,6 +3953,17 @@ def mass_a_from_Kepler_fit(a,npl,m0):
 
 
 
+def check_swift(path='./'):
+
+    lib_dir = PureWindowsPath(".\\lib")
+    root_dir = PureWindowsPath(".\\")
+
+
+    if not os.path.exists('%s'%os.path.join(Path(lib_dir),'libswift.a')):
+        print("Installing the swift N-body lib for a first time!")
+        result6, flag6 = run_command_with_timeout('%s'%os.path.join(Path(root_dir),'install_swift.sh'), 600,output=True)
+        #print(result6)
+        print("Installation DONE!")
 
 def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = 'run', remove_stab_save_dir = True, integrator='symba' ):
 

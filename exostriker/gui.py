@@ -12926,6 +12926,7 @@ Please install via 'pip install ttvfast'.
         self.tabWidget_6.tabBarDoubleClicked.connect(self.change_nbody_plot_opt_tab_res)        
 
         self.count_cpus()
+        rv.check_swift()
 
 
         self.data_str = "RV data"     
