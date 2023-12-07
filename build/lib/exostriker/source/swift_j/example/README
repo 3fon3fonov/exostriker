@@ -1,0 +1,5 @@
+The input files are for the CHO data for 4 giant planets with 1 test particle
+(Pluto). The param.in file uses a dt of 1 year (365.25 days) and goes
+for 1 Myr.
+
+

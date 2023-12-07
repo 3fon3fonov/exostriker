@@ -1,0 +1,18 @@
+This directory contains a test to help determine which precompiler
+flags to set.  As in the main SWIFT directory, edit the @make file and
+set the following variables:
+
+     FORTRAN   which is the command on your machine to run the Fortran 
+                 compliler
+     FFLAGS    which are the flags you use for your Fortran. Here you
+                 do not include the flag that stops fortran from
+                 trying to link the program.  (In addition for SyMBA
+                 users, the flags must be set so that recursion will
+                 work on your machine.)  
+
+Then type `@make'.  This will try to compile the 4 fortran programs in
+this directory.  These programs contain the various ways in which
+fotran compilers handle different situations.  @make will tell you
+which CCPFLAGS to use.  We think that the output of @make is self
+explanatory.
+
