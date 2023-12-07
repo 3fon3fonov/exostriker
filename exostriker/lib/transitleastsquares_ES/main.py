@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 from os import path
-import multiprocessing
+#import multiprocessing
+from pathos import multiprocessing
 import numpy
 import sys
 import warnings
