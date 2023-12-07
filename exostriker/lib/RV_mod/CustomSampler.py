@@ -5,8 +5,8 @@ __author__ = 'Trifon Trifonov, Jakub Morawski'
 
 import sys 
 import numpy as np
-import emcee
-
+#import emcee
+import emcee_ES as emcee
 
 
 class CustomSampler(emcee.EnsembleSampler):

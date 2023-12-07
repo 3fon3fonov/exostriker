@@ -10,8 +10,8 @@ import sys, os
 #sys.path.insert(0, '../lib')
 #sys.path.append('./lib/RV_mod/')
 #import prior_functions as pr
-import emcee
-
+#import emcee
+import emcee_ES as emcee
 
 import numpy as np
 #import matplotlib.pyplot as plt
