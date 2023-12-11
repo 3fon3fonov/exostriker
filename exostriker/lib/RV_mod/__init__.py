@@ -1001,7 +1001,8 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
         return tr_loglik
 
  
-
+#from threadpoolctl import threadpool_limits
+#@threadpool_limits.wrap(limits=1, user_api='blas')
 def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, tra_gps, rtg, mix_fit, opt, outputfiles = [1,1,0], amoeba_starts=0, prior=0, eps='1.0E-8',dt=864000, when_to_kill=10, npoints=5000, model_max = 100, model_min =0):
 
     rv_loglik = 0

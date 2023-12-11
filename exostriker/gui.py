@@ -4298,12 +4298,14 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             flux_model_ex       = np.array(transit_model_rich[1], dtype=float)
         elif self.use_rich_tra_model.isChecked() and fit.tra_doGP == True:
             print("Not yet possible to plot 'rich transit model' with a GP model")
-            t_model        = np.concatenate([transit_results_sep[0][x] for x in range(20) if len(transit_results_sep[0][x]) != 0])
-            flux_model_ex  = np.concatenate([transit_results_sep[3][x] for x in range(20) if len(transit_results_sep[3][x]) != 0])
+            t_model        = np.concatenate([np.array(transit_results_sep[0][x], dtype=float) for x in range(20) if len(transit_results_sep[0][x]) != 0])
+            flux_model_ex  = np.concatenate([np.array(transit_results_sep[3][x], dtype=float) for x in range(20) if len(transit_results_sep[3][x]) != 0])
 
         else:
-            t_model        = np.concatenate([transit_results_sep[0][x] for x in range(20) if len(transit_results_sep[0][x]) != 0])
-            flux_model_ex  = np.concatenate([transit_results_sep[3][x] for x in range(20) if len(transit_results_sep[3][x]) != 0])
+            t_model        = np.concatenate([np.array(transit_results_sep[0][x], dtype=float) for x in range(20) if len(transit_results_sep[0][x]) != 0])
+            flux_model_ex  = np.concatenate([np.array(transit_results_sep[3][x], dtype=float) for x in range(20) if len(transit_results_sep[3][x]) != 0])
+
+
 
 
         for j in range(20):
@@ -4311,18 +4313,20 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             if len(transit_results_sep[0][j]) == 0:
                 continue
 
-            t            = np.array(transit_results_sep[0][j])
-            flux         = np.array(transit_results_sep[1][j])
-            flux_err     = np.array(transit_results_sep[2][j])
-            flux_model   = np.array(transit_results_sep[3][j])
+            t            = np.array(transit_results_sep[0][j], dtype=float)
+            flux         = np.array(transit_results_sep[1][j], dtype=float)
+            flux_err     = np.array(transit_results_sep[2][j], dtype=float)
+            flux_model   = np.array(transit_results_sep[3][j], dtype=float)
             
             if fit.tra_doGP == True:
                 if self.plot_transit_GP_model.isChecked():
-                    tr_o_c       = np.array(transit_results_sep[5][j])                
+                    tr_o_c       = np.array(transit_results_sep[5][j], dtype=float)                
                 else:
-                    tr_o_c       = np.array(transit_results_sep[4][j])
+                    tr_o_c       = np.array(transit_results_sep[4][j], dtype=float)
             else:
-                tr_o_c       = np.array(transit_results_sep[4][j])
+                tr_o_c       = np.array(transit_results_sep[4][j], dtype=float)
+    
+                
 
 #        elif fit.doGP == True and self.plot_RV_GP_model.isChecked() ==  True and len(fit.fit_results.rv_model.o_c)==len(fit.gp_model_data[0]):
 #            data_o_c = fit.fit_results.rv_model.o_c - fit.gp_model_data[0]
@@ -4331,7 +4335,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 #            data_o_c = fit.fit_results.rv_model.o_c
 #            y_model_o_c = np.zeros(len(fit.fit_results.model))
 
- 
+            #print(t)
+           # print(flux)
             ############### Phase signal TBD this should not be here! ####################################
 
             if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True and fit.npl > 0:
@@ -4461,12 +4466,15 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             t_model = model_time_phase[sort2] + tra_offset_xaxis
             flux_model_ex    = flux_model_ex[sort2] 
 
+
+
+
         if fit.tra_doGP == True:
-            y_model =  transit_results_all[6] #fit.tra_gp_model_curve[0]
+            y_model =  np.array(transit_results_all[6], dtype=float)   #fit.tra_gp_model_curve[0]
             if self.plot_transit_GP_model.isChecked():
                 y_model_o_c = np.zeros(len(flux_model_ex))       
             else:
-                y_model_o_c = transit_results_all[6] - transit_results_all[3]  #fit.tra_gp_model_curve[0]
+                y_model_o_c = np.array(transit_results_all[6], dtype=float)   - np.array(transit_results_all[3], dtype=float)    #fit.tra_gp_model_curve[0]
         else:
             y_model = flux_model_ex 
             y_model_o_c = np.zeros(len(flux_model_ex))
