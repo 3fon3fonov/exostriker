@@ -461,7 +461,7 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, hkl, fit_results=
                                             om_,
                                             Ma_],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
         else:
-            pl_mass = float(fit_results.jup_mass[i])
+            pl_mass = float(fit_results.mass[i])
         pl_params = [pl_mass/1047.5654817267318,
                                             par[len(vel_files)*2 +7*i+1],
                                             ecc_,
