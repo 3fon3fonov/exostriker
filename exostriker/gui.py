@@ -10029,7 +10029,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
                 #act_data_set = np.array([act_JD,act_data,act_data_sig,act_file_name])
                 act_data_o_c = act_data            
-                act_data_set = np.array([act_JD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, act_file_name])
+                act_data_set = np.array([act_JD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, act_file_name],dtype=object)
 
                 for i in range(10):
                     if len(fit.act_data_sets[i]) == 0:
