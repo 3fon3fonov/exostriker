@@ -1142,6 +1142,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                                [par[len(vel_files)*2 +7*i+3], 0],
                                [par[len(vel_files)*2 +7*i+4], 0]])
 
+        
         re.init_args(rvs_files, array_npl, epoch, hkl,
                      get_RV=outputfiles[0], get_best_par=outputfiles[1], get_fit_model=outputfiles[2],
                      rv_jitt=rv_jit, rv_ofset=rv_off,
@@ -1151,7 +1152,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                      rv_model_npoints=npoints, rv_model_max=model_max, rv_model_min=model_min,
                      rv_gr_flag=int(gr_flag), stellar_mass=stmass,
                      ndset=None, ndata=None, nplanet=None,
-                     dyn_planets=None)
+                     dyn_planets=None,coplar_inc=int(copl_incl))
 
         if program == '%s/lib/fr/loglik_kep'%cwd:
             re.run_amoeba("kep")         
@@ -1553,7 +1554,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.P[i]  = par[len(vel_files)*2 + 7*i+1]
         obj.i[i]  = par[len(vel_files)*2 + 7*i+5]
         obj.Node[i] = par[len(vel_files)*2 + 7*i+6]
- 
+
         if obj.hkl == True:
 
             obj.e_sinw[i]  = par[len(vel_files)*2 + 7*i+2]
@@ -1706,6 +1707,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
     if obj.type_fit["RV"] == True and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == False and obj.type_fit["AST"] == False:
 
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
+
         if rtg[1]:
             get_RV_gps_model(obj, get_lnl=True)
  
@@ -4467,6 +4469,7 @@ class signal_fit(object):
                 self.i[i] = self.fit_results.incl[i][0]
                 self.Node[i] = self.fit_results.cap0m[i][0]
 
+
                 self.P_err[i] = np.array([self.fit_results.P[i][1],self.fit_results.P[i][1]])
                 self.K_err[i] = np.array([self.fit_results.K[i][1],self.fit_results.K[i][1]])
 
@@ -4604,7 +4607,7 @@ class signal_fit(object):
                          rv_model_npoints=self.model_npoints, rv_model_max=self.model_max, rv_model_min=self.model_min,
                          rv_gr_flag=int(self.gr_flag), stellar_mass=self.params.stellar_mass,
                          ndset=self.ndset, ndata=None, nplanet=None,
-                         dyn_planets=None)
+                         dyn_planets=None,coplar_inc=int(self.copl_incl))
 
         program = '%s/lib/fr/%s_%s' % (self.cwd, minimized_value, mod)
         if minimize_fortran == True and doGP ==False:
@@ -4621,6 +4624,7 @@ class signal_fit(object):
             create_args()
             flag = re.run_amoeba(mod)
 
+ 
         if flag==1: # or self.rtg[0] == True
 
             self.fit_results = re

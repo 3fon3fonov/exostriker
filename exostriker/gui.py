@@ -8249,6 +8249,7 @@ Transit duration: %s d
 
         #for i in range(fit.npl):
 
+        self.update_gui_params()
 
         for i in range(9):
 
@@ -8267,7 +8268,6 @@ Transit duration: %s d
           
             
             self.update_params()
-
 
         if auto_fit:
             self.update_labels()

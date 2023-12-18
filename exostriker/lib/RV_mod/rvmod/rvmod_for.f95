@@ -595,12 +595,27 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
                 a(ii) = p(1, j)
             endif
         enddo
+ 
+     
     enddo
+
+!    do ii = 1, ma
+!        if (ia(ii)/=0) then
+!            j = j + 1
+!            write(*,*) a(ii), p(1, j)
+!        endif
+!    enddo
+!     do ii = 1, ma
+! 
+!             write(*,*) a(ii) 
+! 
+!    enddo
 
     j = 0
     loglik = 0.0d0
     chisq = 0.0d0
     rms = 0.0d0
+    
 
     call io_write_bestfitpa_ewcop_fin_dynamo (a, covar, t, ys, ndata, ts, &
             ma, mfit, t0, t_max, sigs, chisq, rms, loglik, writeflag_RV, &
@@ -818,11 +833,13 @@ subroutine compute_abs_loglik_dyn(ndata, x, y, a2, ma, mfit, ts, &
             a3(i) = a(i)
         endif
     enddo
+     
 
     loglik = 0.d0
 
     call RVKEP_dynamo (x, a3, y2, ma, ndata, epsil, deltat, hkl, &
             dynamical_planets, ts, coplar_inc)
+
 
     do i = 1, ndata
         idset = ts(i)
@@ -949,8 +966,13 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
                 ar(i + 6) = array_npl(j, 6, 1)
                 iar(i + 6) = int(array_npl(j, 6, 2))
             else
-                ar(i + 6) = array_npl(1, 6, 1)
-                iar(i + 6) = int(array_npl(1, 6, 2))
+                if (i.eq.0)  then
+                    ar(i + 6) = array_npl(1, 6, 1)
+                    iar(i + 6) = int(array_npl(1, 6, 2))
+                else
+                    ar(i + 6) = array_npl(1, 6, 1)
+                    iar(i + 6) = 0    
+                end if            
             end if
 
             ar(i + 7) = array_npl(j, 7, 1)
@@ -1474,6 +1496,10 @@ SUBROUTINE amoeba_dyn(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
         write (*, *) 'ITMAX exceeded in amoeba'
         return
     endif
+    
+    
+    
+    
     iter = iter + 2
     ytry = amotry_dyn(p, y, psum, mp, np, ndim, funk, ihi, -1.0d0, ndata, x, z, &
             ma, ts, sig, a, ia, epsil, deltat, hkl, npl, dynamical_planets, coplar_inc)
@@ -1556,6 +1582,7 @@ FUNCTION amotry_dyn(p, y, psum, mp, np, ndim, funk, ihi, fac, ndata, x, z, &
     enddo
     call funk(ndata, x, z, ptry, ma, ndim, ts, sig, loglik, &
             a, ia, epsil, deltat, hkl, dynamical_planets, coplar_inc)
+           
 
     ytry = loglik
     if (ytry<y(ihi)) then
@@ -1714,6 +1741,14 @@ subroutine io_write_bestfitpa_ewcop_fin_dynamo (a, covar, t, ys, &
     rms = 0.d0
     twopi = 2.0d0 * PI
 
+
+    if (coplar_inc /= 0) then
+        do i = 2, npl
+             j = 7 * (i - 1)
+             a(j + 6) = a(6)
+        enddo
+    endif
+
     call RVKEP_dynamo(t, a, ymod, ma, ndata, epsil, deltat, hkl, &
             dynamical_planets, ts, coplar_inc)
 
@@ -1807,6 +1842,7 @@ subroutine io_write_bestfitpa_ewcop_fin_dynamo (a, covar, t, ys, &
                 best_we = dsqrt(covar(i + 4, i + 4))
             endif
 
+!            write(*,*)"incl1", dmod(a(i + 6) * 180.d0 / PI, 180.d0)
             bestpar_1(j, :, 1) = (/ a(i + 1), a(i + 2) / 8.64d4, a(i + 3), &
                     best_w, a(i + 5) * 180.d0 / PI, &
                     dmod(a(i + 6) * 180.d0 / PI, 180.d0), &
@@ -1853,7 +1889,10 @@ subroutine io_write_bestfitpa_ewcop_fin_dynamo (a, covar, t, ys, &
         do i = 1, nt
             x(i) = (i - 1) * dt * 8.64d4
         enddo
-
+        do i = 1, npl
+            j = 7 * (i - 1)
+!            write(*,*)"incl", j, a(j+6)
+        enddo
         call RVKEP_dynamo (x, a, ymod, ma, nt, epsil, deltat, hkl, &
                 dynamical_planets, ts, coplar_inc)
         do i = 1, nt
@@ -2431,6 +2470,7 @@ subroutine RVKEP_dynamo (t, a, ymod, ma, ndata, epsil, dt, hkl, &
         enddo
     endif
 
+
     ymod(:) = 0.d0
     ymod_kep(:) = 0.d0
 
@@ -2444,6 +2484,7 @@ subroutine RVKEP_dynamo (t, a, ymod, ma, ndata, epsil, dt, hkl, &
             call RVKEP_dynamoplus(t(i), a_kep, ymod_kep(i), &
                 dyda_kep, ma - na, ts(i), k)
         enddo
+
 
         !get ymod first
         if(d/=0) then
@@ -2551,6 +2592,7 @@ subroutine RVKEP_ewcop_fin (t, a, ymod, dyda, ma, ndata, epsil, &
              a(j + 6) = a(6)
         enddo
     endif
+     
 
     if (npl/=0) then
         !get ymod first
