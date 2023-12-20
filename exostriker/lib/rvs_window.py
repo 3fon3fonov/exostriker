@@ -178,7 +178,7 @@ class RvsWindow(QtWidgets.QWidget, Ui_Rvs_dataWindow):
     def add_bjd(self):
 
         self.t      = self.t + self.ui.extra_BJD.value()
-        self.ui.radio_remove_median.setChecked(True)
+        self.ui.radio_no_remove.setChecked(True)
         #self.plot()
         self.worker_options()
  
@@ -186,7 +186,7 @@ class RvsWindow(QtWidgets.QWidget, Ui_Rvs_dataWindow):
 
     def bin_data(self):
  
-        self.ui.radio_remove_median.setChecked(True)
+        self.ui.radio_no_remove.setChecked(True)
         
         self.ui.try_button.setText("Working!!!")
         t_, flux_, flux_err_, ind = rv.bin_data(self.t,self.flux,self.flux_err, self.flux_idset, bin_size =self.ui.bin_data.value())
@@ -203,7 +203,7 @@ class RvsWindow(QtWidgets.QWidget, Ui_Rvs_dataWindow):
 
     def sigma_clip_func(self):
  
-        self.ui.radio_remove_median.setChecked(True)
+        self.ui.radio_no_remove.setChecked(True)
         
         self.ui.try_button.setText("Working!!!")
         t_, flux_, flux_err_, ind = rv.sigma_clip_rvs(self.t,self.flux,self.flux_err, self.flux_idset, sigma_clip =self.ui.rvs_sigma_clip.value())
@@ -222,7 +222,7 @@ class RvsWindow(QtWidgets.QWidget, Ui_Rvs_dataWindow):
 
     def reset_data(self):
  
-        self.ui.radio_remove_median.setChecked(True)
+        self.ui.radio_no_remove.setChecked(True)
         self.t = []
         self.worker_options()
         
@@ -231,8 +231,12 @@ class RvsWindow(QtWidgets.QWidget, Ui_Rvs_dataWindow):
 
     def calculate(self):
 
+        if self.ui.radio_no_remove.isChecked():
+
+            flatten_lc1 = 0 #np.median(self.flux)
+            trend_lc1 = np.ones(len(self.flux)) 
         
-        if self.ui.radio_remove_median.isChecked():
+        elif self.ui.radio_remove_median.isChecked():
 
             flatten_lc1 = np.median(self.flux)
             trend_lc1 = np.ones(len(self.flux))*np.median(self.flux)
@@ -540,7 +544,7 @@ class RvsWindow(QtWidgets.QWidget, Ui_Rvs_dataWindow):
                 self.flux_idset_store[self.parent.rvs_data_index]         = self.flux_idset
                 
 
-                self.ui.radio_remove_median.setChecked(True)
+                self.ui.radio_no_remove.setChecked(True)
                 #QtWidgets.QMainWindow.closeEvent(self, event)
                 self.close()
             else:
