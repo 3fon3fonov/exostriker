@@ -1115,10 +1115,10 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
 
 ######## Ugly fix with many limitations! incilation of planet 1 is given to all. TBD in fortran!!!! #############
-        if copl_incl == True:
-            incl_c = par[len(vel_files)*2 +7*i+5]
-            for i in range(npl):
-                par[len(vel_files)*2 +7*i+5] = incl_c 
+#        if copl_incl == True:
+#            incl_c = par[len(vel_files)*2 +7*i+5]
+#            for i in range(npl):
+#                par[len(vel_files)*2 +7*i+5] = incl_c 
 
 
         array_npl = []
@@ -1543,9 +1543,9 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.jitt[i] = par[i+ len(vel_files)]
 
 
-        if obj.copl_incl == True:
-            incl_c = par[len(vel_files)*2 +7*0+5]
-            obj.i[i] = incl_c
+#        if obj.copl_incl == True:
+#            incl_c = par[len(vel_files)*2 +7*0+5]
+#            obj.i[i] = incl_c
  
 
     for i in range(obj.npl):
@@ -1833,9 +1833,9 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.jitt_err[i] = e_par[i+ len(vel_files)]
 
 
-        if obj.copl_incl == True:
-            incl_err = e_par[len(vel_files)*2 +7*0+5]
-            obj.i_err[i] = incl_err
+#        if obj.copl_incl == True:
+#            incl_err = e_par[len(vel_files)*2 +7*0+5]
+#            obj.i_err[i] = incl_err
  
 
 
