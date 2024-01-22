@@ -11,7 +11,11 @@ from .. import functions as fn
 from ..parametertree import Parameter
 from ..Qt import QtCore, QtGui, QtSvg, QtWidgets
 from .Exporter import Exporter
-import cairosvg_ES as cairosvg
+
+try:
+    import cairosvg_ES as cairosvg
+except Exception as e:
+    print("Cairo lib not found:", str(e))
 
 
 translate = QtCore.QCoreApplication.translate

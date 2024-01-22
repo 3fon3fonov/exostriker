@@ -892,9 +892,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         if fit.type_fit["RV"] == True and len(fit.fit_results.a) != 0:
             for i in range(9):
-                self.param_a_gui[i].setText("%.3f"%(fit.fit_results.a[i])) 
-                self.param_mass_gui[i].setText("%.3f"%(fit.fit_results.mass[i])) 
-                self.param_t_peri_gui[i].setText("%.3f"%(fit.t_peri[i]))
+                self.param_a_gui[i].setText("%.5f"%(fit.fit_results.a[i])) 
+                self.param_mass_gui[i].setText("%.5f"%(fit.fit_results.mass[i])) 
+                self.param_t_peri_gui[i].setText("%.4f"%(fit.t_peri[i]))
  
 
 
@@ -11835,7 +11835,7 @@ Please install via 'pip install ttvfast'.
     def __init__(self):
         global fit 
         
-        self.es_version = "0.86"
+        self.es_version = "0.87"
 
         #self.loading_screen= LoadingScreen()   
  
