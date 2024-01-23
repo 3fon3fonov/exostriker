@@ -629,7 +629,7 @@ class Rvfit:
                          "reduced_chi22": res[5][7], "epoch": res[5][8],
                          "jup_mass": res[5][9:9 + (len(res[5]) - 9) // 2],
                          "jacobi_major_ax": res[5][9 + (len(res[5]) - 9) // 2:],
-                         "fit": res[6]}
+                         "fit": res[6],"model_data":res[0]}
 
         # All variables below saves specific results of Fortran run
         self.res = self.res_dict.copy()
@@ -725,6 +725,7 @@ class Rvfit:
             self.planet_params[0:self.npl * 7] = np.array(self.arguments[17])[:, :7, 0].reshape(self.npl * 7)
             self.planet_params_errors[0:self.npl * 7, :] = 0
 
+        self.model_data = self.res_dict["model_data"].copy().T
         self.fit = self.res_dict["fit"].copy()
         self.model_jd = self.res_dict["fit"].copy().T[0]
         self.model = self.res_dict["fit"].copy().T[1]

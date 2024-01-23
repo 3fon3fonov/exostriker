@@ -49,7 +49,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     real(8) files_param(ndset_in, 4)
     real(8) array_npl(npl_in, 17, 2)
     real(8) final_params(6)
-    real(8) res_array(ndata, 6)
+    real(8) res_array(ndata, 6+npl_in)
     real(8) fit_return(4), fit_array(nt, 2+npl_in)
     real(8) bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
     real(8) bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
@@ -193,7 +193,8 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
             res_array(i, :) = (/ x0 + x(i), ymod(i), &
                     y_in(i) + a(6 * npl + 2 * ndset + 1) * x(i) + &
                             a(6 * npl + 2 * ndset + 2) * x(i)**2, &
-                    dy, sig(i), dfloat(idset) /)
+                    dy, sig(i), dfloat(idset) , &
+                            (ymod_pl(j,i), j=1,npl)/)  
         endif
 
         sig2i = 1.d0 / (sig(i)**2 + a(6 * npl + ndset + idset)**2)
@@ -309,7 +310,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
     real(8) files_param(ndset_in, 4)
     real(8) array_npl(npl_in, 17, 2)
     real(8) final_params(6)
-    real(8) res_array(ndata, 6)
+    real(8) res_array(ndata, 6+npl_in)
     real(8) fit_return(4), fit_array(nt, 2+npl_in)
     real(8) bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
     real(8) bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
@@ -413,7 +414,8 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
             res_array(i, :) = (/ x0 + x(i), ymod(i), &
                     y_in(i) + a(6 * npl + ndset + 1) * x(i) + &
                             a(6 * npl + ndset + 2) * x(i)**2, &
-                    dy, sig(i), dfloat(idset) /)
+                    dy, sig(i), dfloat(idset) , &
+                            (ymod_pl(j,i), j=1,npl)/)  
         endif
     enddo
 
@@ -522,7 +524,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
     real(8) files_param(ndset_in, 4)
     real(8) array_npl(npl_in, 17, 2)
     real(8) final_params(6)
-    real(8) res_array(ndata, 6)
+    real(8) res_array(ndata, 6+npl_in)
     real(8) fit_return(4), fit_array(nt, 2+npl_in)
     real(8) bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
     real(8) bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
@@ -671,7 +673,7 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
     real(8) files_param(ndset_in, 4)
     real(8) array_npl(npl_in, 17, 2)
     real(8) final_params(6)
-    real(8) res_array(ndata, 6)
+    real(8) res_array(ndata, 6+npl_in)
     real(8) fit_return(4), fit_array(nt, 2+npl_in)
     real(8) bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
     real(8) bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
@@ -1738,7 +1740,7 @@ subroutine io_write_bestfitpa_ewcop_fin_dynamo (a, covar, t, ys, &
     
     parameter (AU = 1.49597892d11, day = 86400.d0)
 
-    real(8) res_array(ndata, 6)
+    real(8) res_array(ndata, 6+npl)
     real(8) fit_return(4), fit_array(nt, 2+npl)
     real(8) bestpar_1(npl, 17, 2), bestpar_2(ndset, 2)
     real(8) bestpar_3(ndset, 2), bestpar_4(9 + 2 * npl)
@@ -1824,7 +1826,8 @@ subroutine io_write_bestfitpa_ewcop_fin_dynamo (a, covar, t, ys, &
             res_array(i, :) = (/ t0 + t(i) / 8.64d4, ymod(i), ys(i)&
                     + a(7 * npl + 2 * ndset + 1) * (t(i) / 8.64d4)&
                     + a(7 * npl + 2 * ndset + 2) * (t(i) / 8.64d4)**2, &
-                    ys(i) - ymod(i), sigs(i), dfloat(ts(i)) /)
+                    ys(i) - ymod(i), sigs(i), dfloat(ts(i)), &
+                            (ymod_pl(j,i), j=1,npl)/)  
         endif
 
         sig2i = 1.d0 / (sigs(i)**2 + a(7 * npl + ndset + idset)**2)
@@ -1941,7 +1944,7 @@ subroutine io_write_bestfitpa_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
     parameter (AU = 1.49597892d11, day = 86400.d0)
     real(8) wdot(NPLMAX), u_wdot(NPLMAX), best_w, best_we
     real(8) ymod_pl(npl, 20000)     
-    real(8) res_array(ndata, 6)
+    real(8) res_array(ndata, 6 + npl)
     real(8) fit_return(4), fit_array(nt, 2 + npl)
     real(8) bestpar_1(npl, 17, 2), bestpar_2(ndset, 2)
     real(8) bestpar_3(ndset, 2), bestpar_4(9 + 2 * npl)
@@ -2022,7 +2025,8 @@ subroutine io_write_bestfitpa_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
             res_array(i, :) = (/ t0 + t(i) / 8.64d4, ymod(i), ys(i)&
                     + a(7 * npl + ndset + 1) * (t(i) / 8.64d4)&
                     + a(7 * npl + ndset + 2) * (t(i) / 8.64d4)**2, &
-                    ys(i) - ymod(i), sigs(i), dfloat(ts(i)) /)
+                    ys(i) - ymod(i), sigs(i), dfloat(ts(i)), &
+                            (ymod_pl(j,i), j=1,npl)/)  
         endif
 
         sig2i = 1.d0 / (sigs(i)**2 + jitter(idset)**2)

@@ -2479,7 +2479,67 @@ def run_command_with_timeout_old(args, secs, output=False, pipe=False): # set ou
 
 
 
+
+
 def phase_RV_planet_signal(obj,planet):
+
+    if obj.npl ==0 or len(obj.fit_results.rv_model.jd) ==0:
+        return
+    else:
+
+        copied_obj = dill.copy(obj)
+
+        if(copied_obj.mod_dynamical):
+            copied_obj.mod_dynamical = False
+
+        index = planet - 1
+        #print(index)
+ 
+
+
+        ############ phase fold fix for sparse model ######
+        model_time_phase = np.array( (copied_obj.fit_results.model_jd -copied_obj.fit_results.model_jd[0] + (copied_obj.fit_results.model_jd[0] - copied_obj.epoch) )%copied_obj.P[index] )
+
+        model_shift = copied_obj.P[index] - (copied_obj.fit_results.rv_model.jd[0] - copied_obj.epoch )%copied_obj.P[index]
+
+        model_time_phase = (model_time_phase + model_shift)% copied_obj.P[index]
+
+        sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])
+        model_time_phase  = model_time_phase[sort]
+
+        phased_model      = copied_obj.fit_results.res['fit'].T[2+index][sort]
+
+        ############ phase data ######
+        data_time_phase = np.array( (copied_obj.fit_results.rv_model.jd  - copied_obj.fit_results.rv_model.jd[0])% copied_obj.P[index] )
+
+        sort = sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])
+        data_time_phase      = data_time_phase[sort]
+        phased_data          = copied_obj.fit_results.model_data[6+index][sort] + copied_obj.fit_results.rv_model.o_c[sort]  
+        
+        phased_data_o_c      = obj.fit_results.rv_model.o_c[sort]#  - copied_obj.fit_results.rv_model.rvs[sort]
+        phased_data_err      = copied_obj.fit_results.rv_model.rv_err[sort]
+        phased_data_idset    = copied_obj.fit_results.idset[sort]
+
+
+        if copied_obj.doGP == True:
+            phased_data = phased_data - copied_obj.gp_model_data[0][sort]
+            phased_data_o_c = phased_data_o_c - copied_obj.gp_model_data[0][sort]
+
+        model = [model_time_phase,  phased_model]
+        data  = [data_time_phase,  phased_data, phased_data_err, phased_data_idset,phased_data_o_c]
+
+
+        del copied_obj
+
+        #####################
+        obj.ph_data[planet-1] = data
+        obj.ph_model[planet-1] = model
+
+        return data, model
+
+
+
+def phase_RV_planet_signal_old(obj,planet):
 
     if obj.npl ==0 or len(obj.fit_results.rv_model.jd) ==0:
         return
