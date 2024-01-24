@@ -190,11 +190,13 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
         dy = y_in(i) - ymod(i)
 
         if (writeflag_RV>0) then
-            res_array(i, :) = (/ x0 + x(i), ymod(i), &
+
+            res_array(i, :) = (/ x0 + x(i), &
                     y_in(i) + a(6 * npl + 2 * ndset + 1) * x(i) + &
                             a(6 * npl + 2 * ndset + 2) * x(i)**2, &
-                    dy, sig(i), dfloat(idset) , &
-                            (ymod_pl(j,i), j=1,npl)/)  
+                     sig(i),  dfloat(idset) , dy, ymod(i), &
+                            (ymod_pl(j,i), j=1,npl)/)                              
+                            
         endif
 
         sig2i = 1.d0 / (sig(i)**2 + a(6 * npl + ndset + idset)**2)
@@ -411,11 +413,13 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
         dy = y_in(i) - ymod(i)
         rms = rms + (dy)**2
         if (writeflag_RV>0) then
-            res_array(i, :) = (/ x0 + x(i), ymod(i), &
+
+                                                       
+            res_array(i, :) = (/ x0 + x(i),  &
                     y_in(i) + a(6 * npl + ndset + 1) * x(i) + &
                             a(6 * npl + ndset + 2) * x(i)**2, &
-                    dy, sig(i), dfloat(idset) , &
-                            (ymod_pl(j,i), j=1,npl)/)  
+                     sig(i),  dfloat(idset), dy ,ymod(i),  &
+                            (ymod_pl(j,i), j=1,npl)/)                                
         endif
     enddo
 
@@ -1823,11 +1827,13 @@ subroutine io_write_bestfitpa_ewcop_fin_dynamo (a, covar, t, ys, &
                 - a(7 * npl + 2 * ndset + 2) * (t(i) / 8.64d4)**2
 
         if (writeflag_RV>0) then
-            res_array(i, :) = (/ t0 + t(i) / 8.64d4, ymod(i), ys(i)&
+ 
+            res_array(i, :) = (/ t0 + t(i) / 8.64d4,  ys(i)&
                     + a(7 * npl + 2 * ndset + 1) * (t(i) / 8.64d4)&
                     + a(7 * npl + 2 * ndset + 2) * (t(i) / 8.64d4)**2, &
-                    ys(i) - ymod(i), sigs(i), dfloat(ts(i)), &
-                            (ymod_pl(j,i), j=1,npl)/)  
+                    sigs(i), dfloat(ts(i)), ys(i) - ymod(i), ymod(i), &
+                            (ymod_pl(j,i), j=1,npl)/)                              
+                            
         endif
 
         sig2i = 1.d0 / (sigs(i)**2 + a(7 * npl + ndset + idset)**2)
@@ -2022,11 +2028,13 @@ subroutine io_write_bestfitpa_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
                 - a(7 * npl + ndset + 2) * (t(i) / 86400.d0)**2
 
         if (writeflag_RV>0) then
-            res_array(i, :) = (/ t0 + t(i) / 8.64d4, ymod(i), ys(i)&
+
+            res_array(i, :) = (/ t0 + t(i) / 8.64d4,  ys(i)&
                     + a(7 * npl + ndset + 1) * (t(i) / 8.64d4)&
                     + a(7 * npl + ndset + 2) * (t(i) / 8.64d4)**2, &
-                    ys(i) - ymod(i), sigs(i), dfloat(ts(i)), &
-                            (ymod_pl(j,i), j=1,npl)/)  
+                     sigs(i), dfloat(ts(i)), ys(i) - ymod(i), ymod(i), &
+                            (ymod_pl(j,i), j=1,npl)/)                              
+                            
         endif
 
         sig2i = 1.d0 / (sigs(i)**2 + jitter(idset)**2)

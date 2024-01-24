@@ -613,8 +613,8 @@ class Rvfit:
     # Internal subroutine. Take the output of Fortran and format it as a dict
     def __create_dict(self, res):
         self.res_dict.clear()
-        self.res_dict = {"jd": res[0].T[0], "model_rvs": res[0].T[1], "rvs": res[0].T[2],
-                         "o_c": res[0].T[3], "rv_err": res[0].T[4], "idset": res[0].T[5]-1,
+        self.res_dict = {"jd": res[0].T[0], "model_rvs": res[0].T[5], "rvs": res[0].T[1],
+                         "o_c": res[0].T[4], "rv_err": res[0].T[2], "idset": res[0].T[3]-1,
                          "loglik": res[1][0], "reduced_chi2": res[1][1],
                          "chi2": res[1][2], "rms": res[1][3],
                          "K": res[2][:, 0], "P": res[2][:, 1], "e": res[2][:, 2],

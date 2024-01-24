@@ -1698,7 +1698,38 @@ def get_rv_scatter(obj, print_output=False,use_kb2011=False):
     return [A, delta_A]
 
 
-def export_RV_data(obj, idset_ts, file="RV_data.txt",  jitter=False, o_c=False,
+
+
+
+def export_RV_data(obj, file='RV_data.txt', delimiter=' ',  print_data=False,  header = True, width = 10, precision = 3):
+
+    if len(obj.fit_results.model_data[5])==0:
+        return
+    
+    if header == True:
+        head = "{}       ,   {},   {},    {},    {},    {},  ".format("BJD", "rvs","rvs_sigma","idset","o_c","model_rvs")
+        for i in range(obj.npl):
+            head = head + "model pl_{},    ".format(i+1) 
+        if obj.doGP == True:
+            head = head + "{},   {},   {},   ".format("GP model mu", "GP model var","GP model std")   
+
+    else:
+        head = " "
+    
+    if obj.doGP == True:
+        RV_data = np.concatenate((obj.fit_results.model_data, np.array(obj.gp_model_data)))
+    else:
+        RV_data = obj.fit_results.model_data 
+    
+    np.savetxt(file, RV_data.T, delimiter=delimiter, fmt='%'+'%s.%sf'%(int(width), int(precision)), header=head)
+    
+ 
+    
+    return
+    
+
+
+def export_RV_data_old(obj, idset_ts, file="RV_data.txt",  jitter=False, o_c=False,
                    print_data=False, remove_offset = False, width = 10, precision = 3):
 
     if len(obj.filelist.idset)==0:
@@ -1739,8 +1770,38 @@ def export_RV_data(obj, idset_ts, file="RV_data.txt",  jitter=False, o_c=False,
     f.close()
     print('Done!')
     return
+    
+    
+    
 
-def export_RV_model(obj, file="RV_model.txt", width = 10, precision = 4,print_data=False):
+def export_RV_model(obj, file='RV_model.txt', delimiter=' ',  print_data=False,  header = True, width = 10, precision = 3):
+
+    if len(obj.fit_results.model_data[5])==0:
+        return
+    
+    if header == True:
+        head = "{}       ,   {},    ".format("BJD", "RV model")
+        for i in range(obj.npl):
+            head = head + "model pl_{},    ".format(i+1) 
+        if obj.doGP == True:
+            head = head + "{},   {},   {},   ".format("GP model mu", "GP model var","GP model std")   
+
+    else:
+        head = " "
+    
+    if obj.doGP == True:
+        RV_data = np.concatenate((obj.fit_results.fit.T, np.array(obj.gp_model_curve)))
+    else:
+        RV_data = obj.fit_results.fit.T
+    
+    np.savetxt(file, RV_data.T, delimiter=delimiter, fmt='%'+'%s.%sf'%(int(width), int(precision)), header=head)
+    
+    
+    return    
+    
+    
+
+def export_RV_model_old(obj, file="RV_model.txt", width = 10, precision = 4,print_data=False):
 
     if len(obj.fit_results.rv_model.jd)==0:
         return
