@@ -7188,7 +7188,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             for i in range(9):
                 if not bool(fit.use_planet[i]):
                     continue
-                rv.phase_RV_planet_signal(fit,i+1)
+                try:
+                    rv.phase_RV_planet_signal(fit,i+1)
+                except:
+                    print("Old session (pre Ver. 0.86)? You are using the old phased plot version!")
+                    rv.phase_RV_planet_signal_old(fit,i+1)  
         
         fit.init_fit = False            
         
@@ -7591,7 +7595,11 @@ Transit duration: %s d
                 if not bool(fit.use_planet[i]):
                     continue
             #for i in range(fit.npl):
-                rv.phase_RV_planet_signal(fit,i+1) 
+                try:
+                    rv.phase_RV_planet_signal(fit,i+1)
+                except:
+                    print("Old session (pre Ver. 0.86)? You are using the old phased plot version!")
+                    rv.phase_RV_planet_signal_old(fit,i+1)  
            # self.run_gls()
           #  self.run_gls_o_c()
             self.update_plots()  
@@ -7730,7 +7738,11 @@ Transit duration: %s d
                 if not bool(fit.use_planet[i]):
                     continue
            # for i in range(fit.npl):
-                rv.phase_RV_planet_signal(fit,i+1) 
+                try:
+                    rv.phase_RV_planet_signal(fit,i+1)
+                except:
+                    print("Old session (pre Ver. 0.86)? You are using the old phased plot version!")
+                    rv.phase_RV_planet_signal_old(fit,i+1)  
            # self.run_gls()
            # self.run_gls_o_c()
         self.update_plots()
@@ -7876,7 +7888,11 @@ Transit duration: %s d
 
                 if not bool(fit.use_planet[i]):
                     continue
-                rv.phase_RV_planet_signal(fit,i+1) 
+                try:
+                    rv.phase_RV_planet_signal(fit,i+1)
+                except:
+                    print("Old session (pre Ver. 0.86)? You are using the old phased plot version!")
+                    rv.phase_RV_planet_signal_old(fit,i+1)  
            # self.run_gls()
            # self.run_gls_o_c()
         self.update_plots()
@@ -8255,7 +8271,11 @@ Transit duration: %s d
 
             if not bool(fit.use_planet[i]):
                 continue
-            rv.phase_RV_planet_signal(fit,i+1)
+            try:
+                rv.phase_RV_planet_signal(fit,i+1)
+            except:
+                print("Old session (pre Ver. 0.86)? You are using the old phased plot version!")
+                rv.phase_RV_planet_signal_old(fit,i+1)  
              
 
         if self.reset_errors_at_init.isChecked() == False and fit.init_fit == True:
