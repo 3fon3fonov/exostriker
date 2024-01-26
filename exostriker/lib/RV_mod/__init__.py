@@ -4912,7 +4912,7 @@ class signal_fit(object):
 
 
         par.append(self.rv_lintr)
-        flag.append(self.rv_lintr_use)
+        #flag.append(self.rv_lintr_use)
         par_str.append(self.rv_lintr_str[0])
         bounds.append(self.rv_lintr_bounds[0])
         prior_nr.append(self.rv_lintr_norm_pr[0])
@@ -4920,7 +4920,7 @@ class signal_fit(object):
 
 
         par.append(self.rv_quadtr)
-        flag.append(self.rv_quadtr_use)
+        #flag.append(self.rv_quadtr_use)
         par_str.append(self.rv_quadtr_str[0])
         bounds.append(self.rv_quadtr_bounds[0])
         prior_nr.append(self.rv_quadtr_norm_pr[0])
