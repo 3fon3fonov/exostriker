@@ -5057,51 +5057,73 @@ class signal_fit(object):
 
 
 
-        if rtg[3] == True and self.type_fit['Transit'] == True:
+        if rtg[3] == True:
             if self.tra_gp_kernel == 'RotKernel':
                 for i in range(4):
                     par.append(self.tra_GP_rot_params[i])
-                    flag.append(self.tra_GP_rot_use[i])
                     par_str.append(self.tra_GP_rot_str[i])
                     bounds.append(self.tra_GP_rot_bounds[i])
                     prior_nr.append(self.tra_GP_rot_norm_pr[i])
                     prior_jeff.append(self.tra_GP_rot_jeff_pr[i])
+                    
+                    if self.type_fit['Transit'] == True:
+                        flag.append(self.tra_GP_rot_use[i])  
+                    else:
+                        flag.append(False)                  
 
             elif self.tra_gp_kernel == 'SHOKernel':
                 for i in range(3):
                     par.append(self.tra_GP_sho_params[i])
-                    flag.append(self.tra_GP_sho_use[i])
                     par_str.append(self.tra_GP_sho_str[i])
                     bounds.append(self.tra_GP_sho_bounds[i])
                     prior_nr.append(self.tra_GP_sho_norm_pr[i])
                     prior_jeff.append(self.tra_GP_sho_jeff_pr[i])
+                    
+                    if self.type_fit['Transit'] == True:
+                        flag.append(self.tra_GP_sho_use[i])
+                    else:
+                        flag.append(False)     
 
             elif self.tra_gp_kernel == 'Matern32':
                 for i in range(3):
                     par.append(self.tra_GP_mat_params[i])
-                    flag.append(self.tra_GP_mat_use[i])
                     par_str.append(self.tra_GP_mat_str[i])
                     bounds.append(self.tra_GP_mat_bounds[i])
                     prior_nr.append(self.tra_GP_mat_norm_pr[i])
                     prior_jeff.append(self.tra_GP_mat_jeff_pr[i])
 
+                    if self.type_fit['Transit'] == True:
+                        flag.append(self.tra_GP_mat_use[i])
+                    else:
+                        flag.append(False)   
+
+
             elif self.tra_gp_kernel == 'RealTerm':
                 for i in range(2):
                     par.append(self.tra_GP_drw_params[i])
-                    flag.append(self.tra_GP_drw_use[i])
                     par_str.append(self.tra_GP_drw_str[i])
                     bounds.append(self.tra_GP_drw_bounds[i])
                     prior_nr.append(self.tra_GP_drw_norm_pr[i])
                     prior_jeff.append(self.tra_GP_drw_jeff_pr[i])
 
+                    if self.type_fit['Transit'] == True:
+                        flag.append(self.tra_GP_drw_use[i])
+                    else:
+                        flag.append(False) 
+
             elif self.tra_gp_kernel == 'dSHOKernel':
                 for i in range(6):
                     par.append(self.tra_GP_double_sho_params[i])
-                    flag.append(self.tra_GP_double_sho_use[i])
                     par_str.append(self.tra_GP_double_sho_str[i])
                     bounds.append(self.tra_GP_double_sho_bounds[i])
                     prior_nr.append(self.tra_GP_double_sho_norm_pr[i])
                     prior_jeff.append(self.tra_GP_double_sho_jeff_pr[i])
+
+                    if self.type_fit['Transit'] == True:
+                        flag.append(self.tra_GP_double_sho_use[i])
+                    else:
+                        flag.append(False) 
+
 
         for i in range(20):
             if len(self.tra_data_sets[i]) != 0:
