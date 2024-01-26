@@ -9313,7 +9313,7 @@ will be highly appreciated!
         self.update_use()
 
         if self.radioButton_RV.isChecked():
-            fit.rtg = [True,self.do_RV_GP.isChecked(), False, self.do_tra_GP.isChecked()]
+            fit.rtg = [True,self.do_RV_GP.isChecked(), False, False]
         elif self.radioButton_transit.isChecked():
             fit.rtg = [False, False, True, self.do_tra_GP.isChecked()]
         elif self.radioButton_transit_RV.isChecked():
@@ -9556,7 +9556,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.update_use()
 
         if self.radioButton_RV.isChecked():
-            fit.rtg = [True,self.do_RV_GP.isChecked(), False, self.do_tra_GP.isChecked()]
+            fit.rtg = [True,self.do_RV_GP.isChecked(), False, False]
         elif self.radioButton_transit.isChecked():
             fit.rtg = [False, False, True, self.do_tra_GP.isChecked()]
         elif self.radioButton_transit_RV.isChecked():
@@ -10264,7 +10264,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
         self.check_settings()
 
         if self.radioButton_RV.isChecked():
-            fit.rtg = [True,self.do_RV_GP.isChecked(),False, self.do_tra_GP.isChecked()]
+            fit.rtg = [True,self.do_RV_GP.isChecked(),False, False]
             if(init):
                 self.worker_RV_fitting(ff=0,m_ln=True, init = init )
             else:
