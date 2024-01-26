@@ -5141,7 +5141,7 @@ class signal_fit(object):
             par_str.append(self.omega_dot_str[i]) #
             bounds.append(self.omega_dot_bounds[i])
             prior_nr.append(self.omega_dot_norm_pr[i])
-            prior_jeff.append(self.omega_dot_jeff_pr[i]
+            prior_jeff.append(self.omega_dot_jeff_pr[i])
 
 
 
