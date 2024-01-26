@@ -5057,7 +5057,7 @@ class signal_fit(object):
 
 
 
-        if rtg[3] == True: # and self.type_fit['Transit'] == True:
+        if rtg[3] == True and self.type_fit['Transit'] == True:
             if self.tra_gp_kernel == 'RotKernel':
                 for i in range(4):
                     par.append(self.tra_GP_rot_params[i])
@@ -5132,8 +5132,6 @@ class signal_fit(object):
                 else:
                     flag.append(False) #
 
-
-        #for i  in range(self.npl):
         for i in range(9):
             if not bool(self.use_planet[i]):
                 continue
@@ -5143,8 +5141,7 @@ class signal_fit(object):
             par_str.append(self.omega_dot_str[i]) #
             bounds.append(self.omega_dot_bounds[i])
             prior_nr.append(self.omega_dot_norm_pr[i])
-            prior_jeff.append(self.omega_dot_jeff_pr[i])
-
+            prior_jeff.append(self.omega_dot_jeff_pr[i]
 
 
 
