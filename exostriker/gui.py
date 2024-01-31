@@ -650,8 +650,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.param_gui_ma[i].setRange(0.0,360.0)
                 #param_gui[i*3+1].singleStep(0.001)
                 self.param_gui_e[i].setValue(fit.e[i])
-                self.param_gui_om[i].setValue(fit.w[i])
-                self.param_gui_ma[i].setValue(fit.M0[i])
+                self.param_gui_om[i].setValue(fit.w[i]%360.0)
+                self.param_gui_ma[i].setValue(fit.M0[i]%360.0)
  
 
         elif self.radioButton_hkl.isChecked():
