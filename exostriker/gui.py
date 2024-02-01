@@ -836,8 +836,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.param_errors_gui_wd[i].setText("+/- %.3f"%max(np.abs(fit.omega_dot_err[i])))
 
             self.err_t0[i].setText("+/- %.3f"%max(np.abs(fit.t0_err[i])))
-            self.err_pl_rad[i].setText("+/- %.3f"%max(np.abs(fit.pl_a_err[i])))
-            self.err_a_sol[i].setText("+/- %.3f"%max(np.abs(fit.pl_rad_err[i])))
+            self.err_pl_rad[i].setText("+/- %.3f"%max(np.abs(fit.pl_rad_err[i])))
+            self.err_a_sol[i].setText("+/- %.3f"%max(np.abs(fit.pl_a_err[i])))
 
  
 

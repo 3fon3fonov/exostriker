@@ -1839,13 +1839,12 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
  
 
 
-
-
+ 
     for i in range(obj.npl):
 
 
-        obj.P_err[i] = e_par[len(vel_files)*2 + 7*i]
-        obj.K_err[i] = e_par[len(vel_files)*2 + 7*i+1]
+        obj.K_err[i] = e_par[len(vel_files)*2 + 7*i]
+        obj.P_err[i] = e_par[len(vel_files)*2 + 7*i+1]
         obj.i_err[i] = e_par[len(vel_files)*2 + 7*i+5]
         obj.Node_err[i] = e_par[len(vel_files)*2 + 7*i+6]
 

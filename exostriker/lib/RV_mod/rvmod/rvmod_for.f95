@@ -294,7 +294,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
     real(8) rms, mass(NPLMAX), ap(NPLMAX)
     real(8) j_mass(NPLMAX)
     real(8) chisq, alamda, ochisq, dchisq, epsil, deltat
-    real(8) x0, xmax, loglik, dy
+    real(8) x0, loglik, dy
     real(8) dt, t_max, incl(NPLMAX), cap0m(NPLMAX)
     real(8) st_mass, jitt(NDSMAX), epoch
     real(8) ymod(20000), dyda(MMAX), best_w, best_we
@@ -4800,6 +4800,8 @@ subroutine bs_int_pl(nbod, ntp, mass, j2rp2, j4rp4, x, h0, y, eps)
 
     save lt, alt
     d(:) = 0.d0
+    
+    varma = 0.d0
 
     !...  Executable code
     n = 6 * (nbod + ntp)
