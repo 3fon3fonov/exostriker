@@ -45,7 +45,6 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     real(8) t_stop, t_init
     real(4) when_to_kill, model_max, model_min
 
-
     integer dynamical_planets(npl_in)
     real(8) data_array(ndata, 4)
     real(8) files_param(ndset_in, 4)
@@ -292,11 +291,12 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
     real(8) PI
     parameter (PI = 3.14159265358979d0)
     integer npl, ndset, idset, ndata, ma, mfit, i, j, NDSMAX, NPLMAX, MMAX
-    integer writeflag_best_par
+    integer writeflag_best_par,  nt
     integer writeflag_RV, writeflag_fit, amoebastarts
     integer ndset_in, npl_in, gr_flag_in, coplar_inc
     parameter (NDSMAX = 20, NPLMAX = 20, MMAX = 200)
-    integer idsmax(NDSMAX), ia(MMAX), nt, ts(20000), hkl, gr_flag
+    integer idsmax(NDSMAX), ia(MMAX), ts(20000), hkl, gr_flag
+    
     real(8) x(20000), y(20000), sig(20000), y_in(20000)
     real(8) a(MMAX), covar(MMAX, MMAX), alpha(MMAX, MMAX)
     real(8) rms, mass(NPLMAX), ap(NPLMAX)
@@ -793,10 +793,10 @@ subroutine compute_abs_loglik_kep(ndata, x, y, a2, dyda, ma, mfit, ts, &
     real(8) loglik, PI, TWOPI
     parameter (PI = 3.14159265358979d0)
     parameter (TWOPI = 2.0 * PI)
-    integer ndata, i, j, ma, ts(20000), ia(MMAX), idsmax(NDSMAX), hkl
-    real(8) dy, sig(20000), dyda(MMAX), x(20000), y(20000)
-    real(8) a(MMAX), a2(mfit), a3(MMAX), sig2i, y_in(20000),&
-            y2(20000), y2_pl(npl,20000)
+    integer ndata, i, j, ma, ts(ndata), ia(MMAX), idsmax(NDSMAX), hkl
+    real(8) dy, sig(ndata), dyda(MMAX), x(ndata), y(ndata)
+    real(8) a(MMAX), a2(mfit), a3(MMAX), sig2i, y_in(ndata),&
+            y2(ndata), y2_pl(10,ndata)
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
@@ -898,7 +898,7 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
     parameter(PI = 3.14159265358979d0)
     real(8) ar(MMAX), incl(NPLMAX), cap0m(NPLMAX)
     integer iar(MMAX), u_off(NDSMAX), u_jit(NDSMAX), hkl
-    integer idsmax(NDSMAX), ts(20000), u_incl, u_cap0m, mfit
+    integer idsmax(NDSMAX), ts(ndata), u_incl, u_cap0m, mfit
     real(8) jitt(NDSMAX), t0, t_max, epoch
     real(8) off(NDSMAX)
     integer i, j, gr_flag
@@ -1266,11 +1266,13 @@ end
 
 subroutine prepare_for_amoeba_kep(p, mp, np, y, a, ia, ma, mfit, funk, &
         ndata, x, z, dyda, ts, sig, hkl)
-    integer MMAX, NDSMAX, ma, ts(20000), ndata, mp, np, mfit
+!    implicit none
+    integer ndata
+    integer MMAX, NDSMAX, ma, ts(ndata), mp, np, mfit
     parameter(MMAX = 200, NDSMAX = 20)
     REAL(8) p(mp, np), y(mp), a(MMAX), a2(mfit), fr, frjitt
-    real(8) x(20000), z(20000)
-    real(8) dyda(MMAX), sig(20000), loglik
+    real(8) x(ndata), z(ndata)
+    real(8) dyda(MMAX), sig(ndata), loglik
     parameter(fr = 0.05, frjitt = 0.05)
     INTEGER i, j, k, ia(MMAX), idsmax(NDSMAX), hkl, gr_flag
     external funk
@@ -1314,13 +1316,14 @@ end
 
 SUBROUTINE amoeba_kep(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
         dyda, ma, ts, sig, a, ia, ytry, hkl)
-    implicit none
-    INTEGER iter, mp, ndim, np, NMAX, ITMAX, MMAX, ma, ts(20000), ndata
-    REAL(8) ftol, p(mp, np), y(mp), x(20000), z(20000)
+!    implicit none
+    integer ndata    
+    integer iter, mp, ndim, np, NMAX, ITMAX, MMAX, ma, ts(ndata)
+    REAL(8) ftol, p(mp, np), y(mp), x(ndata), z(ndata)
     PARAMETER (NMAX = 20, ITMAX = 200000, MMAX = 200)
-    real(8) dyda(MMAX), sig(20000), loglik, a(MMAX)
+    real(8) dyda(MMAX), sig(ndata), loglik, a(MMAX)
     EXTERNAL funk
-    INTEGER i, ihi, ilo, inhi, j, m, n, ia(MMAX), hkl
+    integer i, ihi, ilo, inhi, j, m, n, ia(MMAX), hkl
     REAL(8) rtol, summ, swap, ysave, ytry, psum(ndim), amotry_kep
     iter = 0
 1   do n = 1, ndim
@@ -1404,7 +1407,7 @@ subroutine prepare_for_amoeba_dyn(p, mp, np, y, a, ia, ma, mfit, funk, &
     real(8) x(20000), z(20000)
     real(8) sig(20000), loglik, epsil, deltat
     parameter(fr = 0.01, frjitt = 0.05)
-    INTEGER i, j, k, ia(MMAX), idsmax(NDSMAX), gr_flag, coplar_inc
+    integer i, j, k, ia(MMAX), idsmax(NDSMAX), gr_flag, coplar_inc
     integer dynamical_planets(npl)
     external funk
 
@@ -1478,12 +1481,12 @@ end
 SUBROUTINE amoeba_dyn(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
         ma, ts, sig, a, ia, epsil, deltat, hkl, npl, dynamical_planets, coplar_inc)
     implicit none
-    INTEGER iter, mp, ndim, np, NMAX, ITMAX, MMAX, ma, ts(20000), ndata
+    integer iter, mp, ndim, np, NMAX, ITMAX, MMAX, ma, ts(20000), ndata
     REAL(8) ftol, p(mp, np), y(mp), x(20000), z(20000)
     PARAMETER (NMAX = 20, ITMAX = 50000, MMAX = 200)
     real(8) sig(20000), loglik, a(MMAX), deltat
     EXTERNAL funk
-    INTEGER i, ihi, ilo, inhi, j, m, n, ia(MMAX), hkl, npl
+    integer i, ihi, ilo, inhi, j, m, n, ia(MMAX), hkl, npl
     integer dynamical_planets(npl), coplar_inc
     REAL(8) rtol, summ, swap, ysave, ytry, psum(ndim), amotry_dyn, epsil
     iter = 0
@@ -1566,12 +1569,12 @@ END
 FUNCTION amotry_kep(p, y, psum, mp, np, ndim, funk, ihi, fac, ndata, x, z, &
         dyda, ma, ts, sig, a, ia, hkl)
     implicit none
-    INTEGER ihi, mp, ndim, np, NMAX, MMAX, ma, ts(20000), ndata
+    integer ihi, mp, ndim, np, NMAX, MMAX, ma, ts(20000), ndata
     PARAMETER (NMAX = 20, MMAX = 200)
     REAL(8) amotry_kep, fac, p(mp, np), psum(np), y(mp), x(20000), z(20000)
     real(8) dyda(MMAX), sig(20000), loglik
     EXTERNAL funk
-    INTEGER j, ia(MMAX), hkl
+    integer j, ia(MMAX), hkl
     REAL(8) fac1, fac2, ytry, ptry(ndim), a(MMAX)
     fac1 = (1.0d0 - fac) / ndim
     fac2 = fac1 - fac
@@ -1597,13 +1600,13 @@ END
 FUNCTION amotry_dyn(p, y, psum, mp, np, ndim, funk, ihi, fac, ndata, x, z, &
         ma, ts, sig, a, ia, epsil, deltat, hkl, npl, dynamical_planets, coplar_inc)
     implicit none
-    INTEGER ihi, mp, ndim, np, NMAX, MMAX, ma, ts(20000), ndata
+    integer ihi, mp, ndim, np, NMAX, MMAX, ma, ts(20000), ndata
     PARAMETER (NMAX = 20, MMAX = 200)
     REAL(8) amotry_dyn, fac, p(mp, np), psum(np), y(mp), x(20000), z(20000), &
             epsil, deltat
     real(8) sig(20000), loglik
     EXTERNAL funk
-    INTEGER j, ia(MMAX), hkl, npl
+    integer j, ia(MMAX), hkl, npl
     REAL(8) fac1, fac2, ytry, ptry(ndim), a(MMAX)
     integer dynamical_planets(npl), coplar_inc
     fac1 = (1.0d0 - fac) / ndim
@@ -2142,7 +2145,7 @@ subroutine RVKEP_keplm (x, a, y, y_pl, dyda, ma, ts, hkl)
     integer npl, ndset, idset, ma, i, j, NDSMAX, ts, hkl, gr_flag
     parameter (NDSMAX = 20)
     integer idsmax(NDSMAX)
-    real(8) x, y, a(ma), dyda(ma), mass(10), ap(10), y_pl(npl)
+    real(8) x, y, a(ma), dyda(ma), mass(10), ap(10), y_pl(10)
     real(8) cosw, sinw, capm, cape, cose, sine, cosf, sinf, fac1, fac2, fac3
     real(8) orbel_ehybrid, omega(10), capmm(10), ecc(10)
     real(8) wm, sinwm, coswm, sin2wm, cos2wm, sin3wm, cos3wm, omegad(10)
@@ -3098,7 +3101,8 @@ end
 subroutine MRQMIN_dynamo (x, y, sig, ndata, a, ia, ma, ts, covar, alpha, &
         nca, chisq, funcs, alamda, loglik, jitt, hkl)
     implicit none
-    integer ma, nca, ndata, ia(ma), MMAX, NDSMAX, ts(20000)
+    integer ma, nca, ndata, ia(ma), MMAX, NDSMAX 
+    integer ts(ndata)    
     real(8) alamda, chisq, a(ma), alpha(nca, nca), covar(nca, nca), &
             sig(ndata), x(ndata), y(ndata), loglik
     external funcs
@@ -3272,7 +3276,7 @@ subroutine MRQCOF_dynamo (x, y, sig, ndata, a, ia, ma, ts, alpha, &
     implicit none
     integer npl, ndset, idset, ma, nalp, ndata, ia(ma), NDSMAX, MMAX
     parameter (NDSMAX = 20, MMAX = 200)
-    integer idsmax(NDSMAX), ts(20000), hkl, gr_flag
+    integer idsmax(NDSMAX), ts(ndata), hkl, gr_flag
     real(8) chisq, a(ma), alpha(nalp, nalp), beta(ma), sig(ndata), &
             x(ndata), y(ndata), loglik, TWOPI, jitt(NDSMAX)
     parameter (TWOPI = 2.d0 * 3.14159265358979d0)
