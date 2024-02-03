@@ -96,6 +96,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
 
     i = 0
     dloglikk = 10.d0
+    loglikk = 0.d0
 !    t_init = time()
     
     call cpu_time(t_init)    
