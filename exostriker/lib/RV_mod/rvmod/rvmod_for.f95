@@ -62,7 +62,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
 !f2py intent(out) bestpar_1, bestpar_2, bestpar_3, bestpar_4
 !f2py depend(ndset_in) files_array,files_param
 !f2py depend(npl_in) array_npl, dynamical_planets
-!f2py depend(ndata) data_array
+!f2py depend(ndata) data_array,fit_array
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
@@ -331,7 +331,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
 !f2py intent(out) bestpar_1, bestpar_2, bestpar_3, bestpar_4
 !f2py depend(ndset_in) files_array,files_param
 !f2py depend(npl_in) array_npl, dynamical_planets
-!f2py depend(ndata) data_array
+!f2py depend(ndata) data_array,fit_array
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
@@ -551,7 +551,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
 !f2py intent(out) bestpar_1, bestpar_2, bestpar_3, bestpar_4
 !f2py depend(ndset_in) files_array,files_param
 !f2py depend(npl_in) array_npl, dynamical_planets
-!f2py depend(ndata) data_array
+!f2py depend(ndata) data_array,fit_array
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     common mstar, sini
@@ -703,7 +703,7 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
 !f2py intent(out) bestpar_1, bestpar_2, bestpar_3, bestpar_4
 !f2py depend(ndset_in) files_array,files_param
 !f2py depend(npl_in) array_npl, dynamical_planets
-!f2py depend(ndata) data_array
+!f2py depend(ndata) data_array,fit_array
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     common mstar, sini
