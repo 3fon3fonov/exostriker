@@ -1248,6 +1248,9 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             if AMD >= AMD_Hill:
                 return (rv_loglik + tr_loglik + ttv_loglik  + astr_loglik)* 2.0*np.exp(1.0 - AMD_Hill/AMD)
  
+ 
+    del re
+    
     if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
         return -np.inf
     return rv_loglik + tr_loglik + ttv_loglik +  astr_loglik
@@ -2807,7 +2810,7 @@ class signal_fit(object):
 
         self.ndset = 0
 
-
+        del re
 
         ########## new stuff ##########
         self.init_pl_params()
@@ -2874,7 +2877,7 @@ class signal_fit(object):
  
         # in this case we need to create a new kernel, but we will only give it this information which is needed for plotting
 
-        self.fit_results = Rvfit()
+        self.fit_results = dill.copy(Rvfit())
         self.loglik=0.0
         self.rms=0.0
         self.chi2=0.0
@@ -4637,6 +4640,8 @@ class signal_fit(object):
 #            self.correct_elements() #because amoeba might make things wrong here
  
 
+        del re
+        
         if (return_flag):
             return flag
         else:

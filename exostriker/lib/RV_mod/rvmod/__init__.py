@@ -463,7 +463,7 @@ class Rvfit:
          
 
         # Compile it using the Numpy F2PY
-        os.system("python{} -m numpy.f2py -c --opt=\"-O3 {}\" -m rvmod_for rvmod_for.f95".format(vers, recur))
+        os.system("python{} -m numpy.f2py -c --opt=\"-O3 -std=f95 {}\" -m rvmod_for rvmod_for.f95".format(vers, recur))
 
         # If Windows, move the created DLL
         if "win" in sys.platform[0:3]:

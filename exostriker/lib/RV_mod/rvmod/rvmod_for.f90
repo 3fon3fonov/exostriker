@@ -23,7 +23,6 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     integer npl, ndset, idset, ndata, ma, mfit, i, j, NDSMAX, NPLMAX, MMAX
     integer writeflag_best_par, hkl, gr_flag
     integer writeflag_RV, writeflag_fit, amoebastarts
-    integer ndset_in, npl_in, gr_flag_in, coplar_inc    
     parameter (NDSMAX = 20, NPLMAX = 20, MMAX = 200)
     integer idsmax(NDSMAX), ia(MMAX), nt, ts(20000), ii, iter
     real(8) x(20000), y(20000), sig(20000), y_in(20000)
@@ -38,14 +37,13 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     real(8) ymod_pl(npl_in,20000) 
     real(8) loglikk, ologlikk, dloglikk, best_w, best_we
     external rvkep_kepamo, compute_abs_loglik_kep
-    character(80) version
-!    character(80) version_input, version
+    character(80) version_input, version
     real(8) wdot(NPLMAX), u_wdot(NPLMAX)
 
     real(8) t_stop, t_init
     real(4) when_to_kill, model_max, model_min
 
-
+    integer ndset_in, npl_in, gr_flag_in, coplar_inc
     integer dynamical_planets(npl_in)
     real(8) data_array(ndata, 4)
     real(8) files_param(ndset_in, 4)
@@ -79,11 +77,11 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
 
     version = "1.05"
 
-!    CALL getarg(1, version_input)
-!    if(version_input=='-version') then
-!        write(*, *) version
-!        return
-!    endif
+    CALL getarg(1, version_input)
+    if(version_input=='-version') then
+        write(*, *) version
+        return
+    endif
 
     twopi = 2.d0 * PI
     ftol = 0.000001d0
@@ -96,12 +94,9 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
 
     i = 0
     dloglikk = 10.d0
-!    t_init = time()
-    
-    call cpu_time(t_init)    
-    
+    t_init = time()
     do while (dabs(dloglikk)>=0.000001d0)
-        if (i.eq.amoebastarts) then
+        if (i==amoebastarts) then
             i = 0
             exit
         endif
@@ -115,9 +110,8 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
                 compute_abs_loglik_kep, &
                 iter, ndata, x, y, dyda, ma, ts, sig, a, ia, loglikk, hkl)
 
-        call cpu_time(t_stop)    
-!        t_stop = time() - t_init
-        if ((t_stop-t_init)>=when_to_kill) then
+        t_stop = time() - t_init
+        if (t_stop>=when_to_kill) then
             write(*, *) 'Max. time=', when_to_kill, 'sec ', &
                     'exceeded t_stop =', t_stop, 'sec '
             exit
@@ -128,7 +122,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
 
         j = 0
         do ii = 1, ma
-            if (ia(ii).ne.0) then
+            if (ia(ii)/=0) then
                 j = j + 1
                 a(ii) = p(1, j)
             endif
@@ -139,7 +133,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     chisq = 0.d0
     loglik = 0.d0
 
-    if (hkl.eq.0) then
+    if (hkl==0) then
         do i = 1, npl
             j = 6 * (i - 1)
 
@@ -200,7 +194,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
             res_array(i, :) = (/ x0 + x(i), &
                     y_in(i) + a(6 * npl + 2 * ndset + 1) * x(i) + &
                             a(6 * npl + 2 * ndset + 2) * x(i)**2, &
-                     sig(i),  dble(idset) , dy, ymod(i), &
+                     sig(i),  dfloat(idset) , dy, ymod(i), &
                             (ymod_pl(j,i), j=1,npl)/)                              
                             
         endif
@@ -226,7 +220,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
         do j = 1, npl
             i = 6 * (j - 1)
 
-            if (hkl.eq.0) then
+            if (hkl==0) then
                 best_w = a(i + 4) * 180.d0 / PI
                 best_we = dsqrt(covar(i + 4, i + 4)) * 180.d0 / PI
             else
@@ -256,7 +250,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
                 dsqrt(covar(6 * npl + ndset + 1, 6 * npl + ndset + 1)), &
                 a(6 * npl + 2 * ndset + 2), &
                 dsqrt(covar(6 * npl + ndset + 2, 6 * npl + ndset + 2)), &
-                dble(ndata), dble(mfit), rms, &
+                dfloat(ndata), dfloat(mfit), rms, &
                 chisq / dble(ndata - mfit), x0, (j_mass(i + 1), i = 1, npl), &
                 (ap(i) / 1.49597892d11, i = 1, npl) /)
     endif
@@ -293,7 +287,6 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
     integer npl, ndset, idset, ndata, ma, mfit, i, j, NDSMAX, NPLMAX, MMAX
     integer writeflag_best_par
     integer writeflag_RV, writeflag_fit, amoebastarts
-    integer ndset_in, npl_in, gr_flag_in, coplar_inc
     parameter (NDSMAX = 20, NPLMAX = 20, MMAX = 200)
     integer idsmax(NDSMAX), ia(MMAX), nt, ts(20000), hkl, gr_flag
     real(8) x(20000), y(20000), sig(20000), y_in(20000)
@@ -311,9 +304,9 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
     real(8) wdot(NPLMAX), u_wdot(NPLMAX)
 
     external rvkep_keplm
-    character(80) version
-!    character(80) version_input, version
+    character(80) version_input, version
 
+    integer ndset_in, npl_in, gr_flag_in, coplar_inc
     integer dynamical_planets(npl_in)
     real(8) data_array(ndata, 4)
     real(8) files_param(ndset_in, 4)
@@ -345,11 +338,11 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
 
     version = "1.05"
 
-!    CALL getarg(1, version_input)
-!    if(version_input=='-version') then
-!        write(*, *) version
-!        return
-!    endif
+    CALL getarg(1, version_input)
+    if(version_input=='-version') then
+        write(*, *) version
+        return
+    endif
 
     loglik = 0.d0
 
@@ -359,7 +352,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
             array_npl, &
             final_params, coplar_inc)
     ! Hack to make it compatible with the loglik code
-    if (amoebastarts.eq.0) then
+    if (amoebastarts==0) then
         alamda = -1.d0
         mfit = 0
         do j = 1, ma
@@ -376,9 +369,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
         i = 0
         dchisq = 10.d0
         ochisq = chisq
-!        t_init = time()
-        
-        call cpu_time(t_init)            
+        t_init = time()
         do while ((chisq>=ochisq).or.(dchisq<-1.d-2))
             i = i + 1
             ochisq = chisq
@@ -386,13 +377,12 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
                     chisq, rvkep_keplm, alamda, loglik, jitt, hkl)
 
             dchisq = chisq - ochisq
-            if (i.eq.10) then
+            if (i==10) then
                 i = 0
             endif
 
-!            t_stop = time() - t_init
-            call cpu_time(t_stop)     
-            if ((t_stop-t_init)>=when_to_kill) then
+            t_stop = time() - t_init
+            if (t_stop>=when_to_kill) then
                 write(*, *) 'Max. time=', when_to_kill, 'sec ', &
                         'exceeded t_stop =', t_stop, 'sec '
                 exit
@@ -428,7 +418,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
             res_array(i, :) = (/ x0 + x(i),  &
                     y_in(i) + a(6 * npl + ndset + 1) * x(i) + &
                             a(6 * npl + ndset + 2) * x(i)**2, &
-                     sig(i),  dble(idset), dy ,ymod(i),  &
+                     sig(i),  dfloat(idset), dy ,ymod(i),  &
                             (ymod_pl(j,i), j=1,npl)/)                                
         endif
     enddo
@@ -446,7 +436,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
         do j = 1, npl
             i = 6 * (j - 1)
 
-            if (hkl.eq.0) then
+            if (hkl==0) then
                 best_w = a(i + 4) * 180.d0 / PI
                 best_we = dsqrt(covar(i + 4, i + 4)) * 180.d0 / PI
             else
@@ -476,7 +466,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
                 dsqrt(covar(6 * npl + ndset + 1, 6 * npl + ndset + 1)), &
                 a(6 * npl + ndset + 2), &
                 dsqrt(covar(6 * npl + ndset + 2, 6 * npl + ndset + 2)), &
-                dble(ndata), dble(mfit), rms, &
+                dfloat(ndata), dfloat(mfit), rms, &
                 chisq / dble(ndata - mfit), x0, (j_mass(i + 1), i = 1, npl), &
                 (ap(i) / 1.49597892d11, i = 1, npl) /)
     endif
@@ -530,8 +520,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
     real(8) incl(NPLMAX), cap0m(NPLMAX)
 
     external rvkep_dynamo, compute_abs_loglik_dyn
-    character(80) version
-!    character(80) version_input, version
+    character(80) version_input, version
 
     integer ndset_in, npl_in, gr_flag_in, gr_flag, coplar_inc
     integer dynamical_planets(npl_in)
@@ -564,11 +553,11 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
 
     version = "1.05"
 
-!    CALL getarg(1, version_input)
-!    if(version_input=='-version') then
-!        write(*, *) version
-!        return
-!    endif
+    CALL getarg(1, version_input)
+    if(version_input=='-version') then
+        write(*, *) version
+        return
+    endif
 
     loglikk = 0
     ftol = 0.001d0
@@ -581,11 +570,9 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
 
     i = 0
     dloglikk = 10.d0
-!    t_init = time()
-    call cpu_time(t_init)         
-    
+    t_init = time()
     do while (dabs(dloglikk)>=0.000001d0)
-        if (i.eq.amoebastarts) then
+        if (i==amoebastarts) then
             i = 0
             exit
         endif
@@ -601,9 +588,8 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
                 iter, ndata, t, ys, ma, ts, sigs, a, ia, epsil, deltat, hkl, &
                 npl, dynamical_planets, coplar_inc)
 
-!        t_stop = time() - t_init
-        call cpu_time(t_stop)     
-        if ((t_stop-t_init)>=when_to_kill) then
+        t_stop = time() - t_init
+        if (t_stop>=when_to_kill) then
             write(*, *) 'Max. time=', when_to_kill, 'sec ', &
                     'exceeded t_stop =', t_stop, 'sec '
             exit
@@ -614,7 +600,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
 
         j = 0
         do ii = 1, ma
-            if (ia(ii).ne.0) then
+            if (ia(ii)/=0) then
                 j = j + 1
                 a(ii) = p(1, j)
             endif
@@ -624,7 +610,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
     enddo
 
 !    do ii = 1, ma
-!        if (ia(ii).ne.0) then
+!        if (ia(ii)/=0) then
 !            j = j + 1
 !            write(*,*) a(ii), p(1, j)
 !        endif
@@ -641,7 +627,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
     rms = 0.0d0
     
 
-    call io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, ndata, ts, &
+    call io_write_bestfitpa_ewcop_fin_dynamo (a, covar, t, ys, ndata, ts, &
             ma, mfit, t0, t_max, sigs, chisq, rms, loglik, writeflag_RV, &
             writeflag_best_par, writeflag_fit, epsil, deltat, &
             nt, model_max, model_min, hkl, wdot, u_wdot, &
@@ -683,8 +669,8 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
     real(4) when_to_kill, model_max, model_min
 
     external rvkep_ewcop_fin
-    character(80) version
-!    character(80) version_input, version
+    character(80) version_input, version
+
     integer ndset_in, npl_in, gr_flag_in, coplar_inc
     integer dynamical_planets(npl_in)
     real(8) data_array(ndata, 4)
@@ -717,11 +703,11 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
 
     version = "1.05"
 
-!    CALL getarg(1, version_input)
-!    if(version_input=='-version') then
-!        write(*, *) version
-!        return
-!    endif
+    CALL getarg(1, version_input)
+    if(version_input=='-version') then
+        write(*, *) version
+        return
+    endif
 
     loglik = 0.d0
     rms = 0.d0
@@ -740,10 +726,9 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
     i = 0
     dchisq = 10.d0
     ochisq = chisq
-!    t_init = time()
-    call cpu_time(t_init)         
+    t_init = time()
     do while ((chisq>=ochisq).or.(dchisq<-1d-5))
-        if (i.eq.amoebastarts) then
+        if (i==amoebastarts) then
             exit
         endif
         i = i + 1
@@ -753,14 +738,13 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
 
         dchisq = chisq - ochisq
 
-        if ((i.eq.200).or.(alamda>=1d6)) then
+        if ((i==200).or.(alamda>=1d6)) then
             i = 0
             exit
         endif
 
-!        t_stop = time() - t_init
-        call cpu_time(t_stop)     
-        if ((t_stop-t_init)>=when_to_kill) then
+        t_stop = time() - t_init
+        if (t_stop>=when_to_kill) then
             write(*, *) 'Max. time=', when_to_kill, 'sec ', &
                     'exceeded t_stop =', t_stop, 'sec '
             exit
@@ -773,7 +757,7 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
     call MRQMIN_dynlm (t, ts, ys, sigs, ndata, a, ia, ma, covar, alpha, MMAX, &
             chisq, rvkep_ewcop_fin, alamda, loglik, jitt, epsil, deltat, hkl, coplar_inc)
 
-    call io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
+    call io_write_bestfitpa_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
              ma, mfit, t0, t_max, sigs, chisq, rms, writeflag_RV, &
              writeflag_best_par, writeflag_fit, jitt, epsil, deltat, &
              nt, model_max, model_min, hkl, wdot, u_wdot, &
@@ -802,7 +786,7 @@ subroutine compute_abs_loglik_kep(ndata, x, y, a2, dyda, ma, mfit, ts, &
     loglik = 0.d0
     j = 0
     do i = 1, ma
-        if (ia(i).ne.0) then
+        if (ia(i)/=0) then
             j = j + 1
             a3(i) = a2(j)
         else
@@ -852,7 +836,7 @@ subroutine compute_abs_loglik_dyn(ndata, x, y, a2, ma, mfit, ts, &
 
     j = 0
     do i = 1, ma
-        if (ia(i).ne.0) then
+        if (ia(i)/=0) then
             j = j + 1
             a3(i) = a2(j)
         else
@@ -927,16 +911,16 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
 
     ndsetmode = 0
     arr_pos = 0
-    if (mode.eq."amoeba") then
+    if (mode=="amoeba") then
         ndsetmode = 2 * ndset
         arr_pos = 6
-    elseif (mode.eq."lm") then
+    elseif (mode=="lm") then
         ndsetmode = ndset
         arr_pos = 6
-    elseif (mode.eq."amoeba_dyn") then
+    elseif (mode=="amoeba_dyn") then
         ndsetmode = 2 * ndset
         arr_pos = 7
-    elseif (mode.eq."lm_dyn") then
+    elseif (mode=="lm_dyn") then
         ndsetmode = ndset
         arr_pos = 7
     endif
@@ -944,7 +928,7 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
     do i = 1, ndset
         ar(arr_pos * npl + i) = off(i)
         iar(arr_pos * npl + i) = u_off(i)
-        if (mode.eq."amoeba" .or. mode.eq."amoeba_dyn") then
+        if (mode=="amoeba" .or. mode=="amoeba_dyn") then
             ar(arr_pos * npl + ndset + i) = jitt(i)
             iar(arr_pos * npl + ndset + i) = u_jit(i)
         endif
@@ -961,7 +945,7 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
         iar(i + 1) = int(array_npl(j, 1, 2))
         ar(i + 2) = array_npl(j, 2, 1)
         iar(i + 2) = int(array_npl(j, 2, 2))
-        if (hkl.eq.0) then
+        if (hkl==0) then
             ar(i + 3) = array_npl(j, 3, 1)
             iar(i + 3) = int(array_npl(j, 3, 2))
             ar(i + 4) = array_npl(j, 4, 1)
@@ -977,7 +961,7 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
             iar(i + 5) = int(array_npl(j, 17, 2))
         endif
 
-        if (mode.eq."amoeba" .or. mode.eq."lm") then
+        if (mode=="amoeba" .or. mode=="lm") then
             incl(j) = array_npl(j, 6, 1)
             u_incl = int(array_npl(j, 6, 2))
             cap0m(j) = array_npl(j, 7, 1)
@@ -987,8 +971,8 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
 
             wdot(i) = 0
             u_wdot(i) = 0
-        elseif (mode.eq."amoeba_dyn".or.mode.eq."lm_dyn") then
-            if (coplar_inc.eq.0) then
+        elseif (mode=="amoeba_dyn" .or. mode=="lm_dyn") then
+            if (coplar_inc == 0) then
                 ar(i + 6) = array_npl(j, 6, 1)
                 iar(i + 6) = int(array_npl(j, 6, 2))
             else
@@ -998,8 +982,8 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
                 else
                     ar(i + 6) = array_npl(1, 6, 1)
                     iar(i + 6) = 0    
-                endif            
-            endif
+                end if            
+            end if
 
             ar(i + 7) = array_npl(j, 7, 1)
             iar(i + 7) = int(array_npl(j, 7, 2))
@@ -1011,7 +995,7 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
             cap0m(j) = 0
             u_cap0m = 0
 
-            if (mode.eq."amoeba_dyn".or. mode.eq."lm_dyn") then
+            if (mode=="amoeba_dyn".or. mode=="lm_dyn") then
                 ar(i + 2) = ar(i + 2) * 8.64d4 !second as unit
             endif
         endif
@@ -1027,7 +1011,7 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
     epoch = final_params(5)
     t_max = t(ndata)
 
-    if (epoch.eq.0) then
+    if (epoch==0) then
         t0 = t(1)
     else
         t0 = epoch
@@ -1035,26 +1019,26 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
 
     do j = 1, npl
         i = arr_pos * (j - 1)
-        if (hkl.eq.0) then
+        if (hkl==0) then
             ar(i + 4) = ar(i + 4) * PI / 180.d0
         endif
         ar(i + 5) = ar(i + 5) * PI / 180.d0
         ar(i + 6) = ar(i + 6) * PI / 180.d0
-        if (mode.eq."amoeba_dyn".or.mode.eq."lm_dyn") then
+        if (mode=="amoeba_dyn" .or. mode=="lm_dyn") then
             ar(i + 7) = ar(i + 7) * PI / 180.d0
         endif
     enddo
 
     do i = 1, ndata
         t(i) = (t(i) - t0)             ! time unit is day
-        if (mode.eq."amoeba_dyn".or.mode.eq."lm_dyn") then
+        if (mode=="amoeba_dyn" .or. mode=="lm_dyn") then
             t(i) = t(i) * 8.64d4          ! time unit is second
         endif
     enddo
 
     mfit = 0
     do j = 1, ma
-        if (iar(j).ne.0) mfit = mfit + 1
+        if (iar(j)/=0) mfit = mfit + 1
     enddo
     return
 end
@@ -1081,7 +1065,7 @@ subroutine RVKEP_kepamo (x, a, y, y_pl, dyda, ma, ts, hkl)
         a2(i) = a(i)
     enddo
 
-    if (hkl.eq.0) then
+    if (hkl==0) then
 
         do i = 1, npl
             j = 6 * (i - 1)
@@ -1114,7 +1098,7 @@ subroutine RVKEP_kepamo (x, a, y, y_pl, dyda, ma, ts, hkl)
             omega(i) = a2(j + 4)
             capmm(i) = a2(j + 5)
 
-            if(gr_flag.ne.0) call MA_J_kepamo (a, ma, npl, 1.0d0, &
+            if(gr_flag/=0) call MA_J_kepamo (a, ma, npl, 1.0d0, &
                     mass, ap, hkl, gr_flag)
 
             omegad(i) = a(j + 6)
@@ -1143,7 +1127,7 @@ subroutine RVKEP_kepamo (x, a, y, y_pl, dyda, ma, ts, hkl)
         enddo
     endif
 
-    if (hkl.eq.0) then
+    if (hkl==0) then
         do j = 1, npl
             i = 6 * (j - 1)
             cosw = dcos(omega(j) + omegad(j) * x / 365.25d0)
@@ -1278,17 +1262,17 @@ subroutine prepare_for_amoeba_kep(p, mp, np, y, a, ia, ma, mfit, funk, &
 
     k = 0
     do j = 1, ma
-        if(ia(j).ne.0) then
+        if(ia(j)/=0) then
             k = k + 1
             p(1, k) = a(j)
             do i = 2, mfit + 1
-                if (k.eq.(i - 1)) then
+                if (k==(i - 1)) then
                     if (j>(6 * npl + ndset)) then
                         p(i, k) = (1 + frjitt) * (p(1, k) + 0.1)
                     else
-                        if (mod(j, 5).eq.2) then
+                        if (mod(j, 5)==2) then
                             p(i, k) = (1 + fr) * (p(1, k) + 0.1)
-                        else if (mod(j, 5).eq.3) then
+                        else if (mod(j, 5)==3) then
                             p(i, k) = (1 + frjitt) * (p(1, k) + 0.1)
                         else
                             p(i, k) = (1 + fr) * (p(1, k) + 0.1)
@@ -1343,7 +1327,7 @@ SUBROUTINE amoeba_kep(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
             inhi = ihi
             ihi = i
         else if(y(i)>y(inhi)) then
-            if(i.ne.ihi) inhi = i
+            if(i/=ihi) inhi = i
         endif
     enddo
     rtol = 2.d0 * abs(y(ihi) - y(ilo)) / (abs(y(ihi)) + abs(y(ilo)))
@@ -1375,7 +1359,7 @@ SUBROUTINE amoeba_kep(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
 
         if (ytry>=ysave) then
             do i = 1, ndim + 1
-                if(i.ne.ilo)then
+                if(i/=ilo)then
                     do j = 1, ndim
                         psum(j) = 0.5d0 * (p(i, j) + p(ilo, j))
                         p(i, j) = psum(j)
@@ -1411,22 +1395,22 @@ subroutine prepare_for_amoeba_dyn(p, mp, np, y, a, ia, ma, mfit, funk, &
 
     k = 0
     do j = 1, ma
-        if(ia(j).ne.0) then
+        if(ia(j)/=0) then
             k = k + 1
             p(1, k) = a(j)
             do i = 2, mfit + 1
-                if (hkl.eq.0) then
-                    if (k.eq.(i - 1)) then
+                if (hkl==0) then
+                    if (k==(i - 1)) then
                         if (j>(7 * npl + ndset)) then
                             p(i, k) = (1 + frjitt) * (p(1, k) + 0.1)
                         else
-                            if (mod(j, 7).eq.2) then
+                            if (mod(j, 7)==2) then
                                 p(i, k) = (1 + fr) * (p(1, k) + 0.1)
-                            else if (mod(j, 7).eq.3) then
+                            else if (mod(j, 7)==3) then
                                 p(i, k) = (1 + frjitt) * (p(1, k) + 0.1)
-                            else if (mod(j, 7).eq.6) then
+                            else if (mod(j, 7)==6) then
                                 p(i, k) = (1 + 0.2) * (p(1, k) + 0.1)
-                            else if (mod(j, 7).eq.7) then
+                            else if (mod(j, 7)==7) then
                                 p(i, k) = (1 + 0.4) * (p(1, k) + 0.1)
                             else
                                 p(i, k) = (1 + fr) * (p(1, k) + 0.1)
@@ -1436,19 +1420,19 @@ subroutine prepare_for_amoeba_dyn(p, mp, np, y, a, ia, ma, mfit, funk, &
                         p(i, k) = p(1, k)
                     endif
                 else
-                    if (k.eq.(i - 1)) then
+                    if (k==(i - 1)) then
                         if (j>(7 * npl + ndset)) then
                             p(i, k) = (1 + frjitt) * (p(1, k) + 0.1)
                         else
-                            if (mod(j, 7).eq.2) then
+                            if (mod(j, 7)==2) then
                                 p(i, k) = (1 + fr) * (p(1, k) + 0.1)
-                            else if (mod(j, 7).eq.3) then
+                            else if (mod(j, 7)==3) then
                                 p(i, k) = (1 + frjitt) * (p(1, k) + 0.0001)
-                            else if (mod(j, 7).eq.4) then
+                            else if (mod(j, 7)==4) then
                                 p(i, k) = (1 + frjitt) * (p(1, k) + 0.0001)
-                            else if (mod(j, 7).eq.6) then
+                            else if (mod(j, 7)==6) then
                                 p(i, k) = (1 + 0.2) * (p(1, k) + 0.1)
-                            else if (mod(j, 7).eq.7) then
+                            else if (mod(j, 7)==7) then
                                 p(i, k) = (1 + 0.4) * (p(1, k) + 0.1)
                             else
                                 p(i, k) = (1 + fr) * (p(1, k) + 0.1)
@@ -1507,7 +1491,7 @@ SUBROUTINE amoeba_dyn(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
             inhi = ihi
             ihi = i
         else if(y(i)>y(inhi)) then
-            if(i.ne.ihi) inhi = i
+            if(i/=ihi) inhi = i
         endif
     enddo
     rtol = 2.d0 * abs(y(ihi) - y(ilo)) / (abs(y(ihi)) + abs(y(ilo)))
@@ -1542,7 +1526,7 @@ SUBROUTINE amoeba_dyn(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
                 ma, ts, sig, a, ia, epsil, deltat, hkl, npl, dynamical_planets, coplar_inc)
         if (ytry>=ysave) then
             do i = 1, ndim + 1
-                if(i.ne.ilo)then
+                if(i/=ilo)then
                     do j = 1, ndim
                         psum(j) = 0.5d0 * (p(i, j) + p(ilo, j))
                         p(i, j) = psum(j)
@@ -1665,7 +1649,7 @@ subroutine MA_J_kepamo (a, ma, npl, m0, mass, ap, hkl, gr_flag)
     enddo
 
     do i = 0, npl - 1
-        if (hkl.eq.0) then
+        if (hkl==0) then
             ecc = a(6 * i + 3)
         else
             ecc = dsqrt(a(6 * i + 3)**2 + a(6 * i + 4)**2)    !! only for h, k
@@ -1675,7 +1659,7 @@ subroutine MA_J_kepamo (a, ma, npl, m0, mass, ap, hkl, gr_flag)
         mpold(i + 1) = 0.d0
         dm = 10.d0
         do while (dm>0)
-            if (i.eq.0) then
+            if (i==0) then
                 mtotal = m0
                 mass(i + 2) = a(6 * i + 1) * (TWOPI / mm(i + 1) * (m0 + mpold(i + 1))**2 / &
                         (TWOPI * GMSUN))**THIRD * &
@@ -1702,7 +1686,7 @@ subroutine MA_J_kepamo (a, ma, npl, m0, mass, ap, hkl, gr_flag)
         mass(i) = mass(i) * MSUN
     enddo
 
-    if(gr_flag.ne.0) then
+    if(gr_flag/=0) then
         do i = 1, npl
             j = 6 * (i - 1)
             call gr_corr(ap(i), a(j + 3), mass(1), corr)
@@ -1729,7 +1713,7 @@ subroutine gr_corr(a, e, gmi, corr)
     return
 end
 
-subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
+subroutine io_write_bestfitpa_ewcop_fin_dynamo (a, covar, t, ys, &
         ndata, ts, ma, mfit, t0, t_max, sigs, chisq, rms, loglik, &
         writeflag_RV, writeflag_best_par, writeflag_fit, epsil, &
         deltat, nt, model_max, model_min, hkl, wdot, u_wdot, &
@@ -1773,7 +1757,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
     twopi = 2.0d0 * PI
 
 
-    if (coplar_inc.ne.0) then
+    if (coplar_inc /= 0) then
         do i = 2, npl
              j = 7 * (i - 1)
              a(j + 6) = a(6)
@@ -1786,7 +1770,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
     do i = 1, npl
         j = 7 * (i - 1)
 
-        if (hkl.eq.0) then
+        if (hkl==0) then
             !a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
             if (a(j + 2)<0.d0) then  !if P<0, set P>0
                 a(j + 2) = dabs(a(j + 2))
@@ -1847,7 +1831,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
             res_array(i, :) = (/ t0 + t(i) / 8.64d4,  ys(i)&
                     + a(7 * npl + 2 * ndset + 1) * (t(i) / 8.64d4)&
                     + a(7 * npl + 2 * ndset + 2) * (t(i) / 8.64d4)**2, &
-                    sigs(i), dble(ts(i)), ys(i) - ymod(i), ymod(i), &
+                    sigs(i), dfloat(ts(i)), ys(i) - ymod(i), ymod(i), &
                             (ymod_pl(j,i), j=1,npl)/)                              
                             
         endif
@@ -1868,7 +1852,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
         do j = 1, npl
             i = 7 * (j - 1)
 
-            if (hkl.eq.0) then
+            if (hkl==0) then
                 best_w = a(i + 4) * 180.d0 / PI
                 best_we = dsqrt(covar(i + 4, i + 4)) * 180.d0 / PI
             else
@@ -1912,7 +1896,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
                 dsqrt(covar(7 * npl + 2 * ndset + 1, 7 * npl + 2 * ndset + 1)), &
                 a(7 * npl + 2 * ndset + 2), &
                 dsqrt(covar(7 * npl + 2 * ndset + 2, 7 * npl + 2 * ndset + 2)), &
-                dble(ndata), dble(mfit), rms, &
+                dfloat(ndata), dfloat(mfit), rms, &
                 chisq / dble(ndata - mfit), t0, (j_mass(i + 1), i = 1, npl), &
                 (ap(i) / 1.49597892d11, i = 1, npl) /)
     endif
@@ -1942,7 +1926,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
     return
 end
 
-subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
+subroutine io_write_bestfitpa_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
              ma, mfit, t0, t_max, sigs, chisq, rms, writeflag_RV, &
              writeflag_best_par, writeflag_fit, jitter, epsil, deltat, &
              nt, model_max, model_min, hkl, wdot, u_wdot, &
@@ -1987,7 +1971,7 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
     do i = 1, npl
         j = 7 * (i - 1)
 
-        if (hkl.eq.0) then
+        if (hkl==0) then
             !a(j+2) = 2.d0*PI/(a(j+2)*8.64d4)
             if (a(j + 2)<0.d0) then  ! if P<0, set P>0
                 a(j + 2) = abs(a(j + 2))
@@ -2048,7 +2032,7 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
             res_array(i, :) = (/ t0 + t(i) / 8.64d4,  ys(i)&
                     + a(7 * npl + ndset + 1) * (t(i) / 8.64d4)&
                     + a(7 * npl + ndset + 2) * (t(i) / 8.64d4)**2, &
-                     sigs(i), dble(ts(i)), ys(i) - ymod(i), ymod(i), &
+                     sigs(i), dfloat(ts(i)), ys(i) - ymod(i), ymod(i), &
                             (ymod_pl(j,i), j=1,npl)/)                              
                             
         endif
@@ -2069,7 +2053,7 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
         do j = 1, npl
             i = 7 * (j - 1)
 
-            if (hkl.eq.0) then
+            if (hkl==0) then
                 best_w = a(i + 4) * 180.d0 / PI
                 best_we = dsqrt(covar(i + 4, i + 4)) * 180.d0 / PI
             else
@@ -2107,7 +2091,7 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
                 dsqrt(covar(7 * npl + ndset + 1, 7 * npl + ndset + 1)), &
                 a(7 * npl + ndset + 2), &
                 dsqrt(covar(7 * npl + ndset + 2, 7 * npl + ndset + 2)), &
-                dble(ndata), dble(mfit), rms, &
+                dfloat(ndata), dfloat(mfit), rms, &
                 chisq / dble(ndata - mfit), t0, (j_mass(i + 1), i = 1, npl), &
                 (ap(i) / 1.49597892d11, i = 1, npl) /)
     endif
@@ -2150,7 +2134,7 @@ subroutine RVKEP_keplm (x, a, y, y_pl, dyda, ma, ts, hkl)
 
     y = 0.d0
 
-    if (hkl.eq.0) then
+    if (hkl==0) then
 
         do i = 1, npl
             j = 6 * (i - 1)
@@ -2183,7 +2167,7 @@ subroutine RVKEP_keplm (x, a, y, y_pl, dyda, ma, ts, hkl)
             omega(i) = a(j + 4)
             capmm(i) = a(j + 5)
 
-            if(gr_flag.ne.0) call MA_J_keplm (a, ma, npl, 1.0d0, &
+            if(gr_flag/=0) call MA_J_keplm (a, ma, npl, 1.0d0, &
                     mass, ap, hkl, gr_flag)
 
             omegad(i) = a(j + 6)
@@ -2211,7 +2195,7 @@ subroutine RVKEP_keplm (x, a, y, y_pl, dyda, ma, ts, hkl)
             if(capmm(i)>0.d0)capmm(i) = dmod(capmm(i), 2.d0 * PI)
         enddo
     endif
-    if (hkl.eq.0) then
+    if (hkl==0) then
         do j = 1, npl
 
             i = 6 * (j - 1)
@@ -2408,7 +2392,7 @@ subroutine split_parameters(a, a_kep, a_dyn, dynamical_planets, k, d)
     d = 0
 
     do i = 1, npl
-        if (dynamical_planets(i).eq.1.d0) then
+        if (dynamical_planets(i)==1.d0) then
             do j = 1, 7
                 a_dyn(7 * d + j) = a(7 * (i - 1) + j)
             enddo
@@ -2456,7 +2440,7 @@ subroutine RVKEP_dynamo (t, a, ymod, ymod_pl, ma, ndata, epsil, dt, hkl, &
         a2(i) = a(i)
     enddo
 
-    if (hkl.eq.0) then
+    if (hkl==0) then
 
         do i = 1, npl
             j = 7 * (i - 1)
@@ -2513,7 +2497,7 @@ subroutine RVKEP_dynamo (t, a, ymod, ymod_pl, ma, ndata, epsil, dt, hkl, &
         enddo
     endif
 
-    if (coplar_inc.ne.0) then
+    if (coplar_inc /= 0) then
         do i = 2, npl
             j = 7 * (i - 1)
             a2(j + 6) = a2(6)
@@ -2524,7 +2508,7 @@ subroutine RVKEP_dynamo (t, a, ymod, ymod_pl, ma, ndata, epsil, dt, hkl, &
     ymod(:) = 0.d0
     ymod_kep(:) = 0.d0
 
-    if (npl.ne.0) then
+    if (npl/=0) then
         call split_parameters(a2, a_kep, a_dyn, dynamical_planets, k, d)
 
         nbod = d + 1
@@ -2537,7 +2521,7 @@ subroutine RVKEP_dynamo (t, a, ymod, ymod_pl, ma, ndata, epsil, dt, hkl, &
 
 
         !get ymod first
-        if(d.ne.0) then
+        if(d/=0) then
             call MA_J_cop_fin (a_dyn, na, d, mstar, mass, ap, hkl)
             call GENINIT_J3_ewcop (nbod, ap, a_dyn, &
                     mass, xj, yj, zj, vxj, vyj, vzj, rpl, rhill, hkl)
@@ -2580,7 +2564,7 @@ subroutine RVKEP_ewcop_fin (t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, &
     nbod = npl + 1
     na = 7 * npl
 
-    if (hkl.eq.0) then
+    if (hkl==0) then
 
         do i = 1, npl
             j = 7 * (i - 1)
@@ -2637,7 +2621,7 @@ subroutine RVKEP_ewcop_fin (t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, &
         enddo
     endif
 
-    if (coplar_inc.ne.0) then
+    if (coplar_inc /= 0) then
         do i = 2, npl
              j = 7 * (i - 1)
              a(j + 6) = a(6)
@@ -2645,7 +2629,7 @@ subroutine RVKEP_ewcop_fin (t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, &
     endif
      
 
-    if (npl.ne.0) then
+    if (npl/=0) then
         !get ymod first
         call MA_J_cop_fin (a, ma, npl, mstar, mass, ap, hkl)
 
@@ -2688,7 +2672,7 @@ subroutine RVKEP_ewcop_fin (t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, &
             enddo
 
             ! get ah of back
-            if (mod(i, 7).ne.44) then
+            if (mod(i, 7)/=44) then
                 ah(i) = a(i) - ahh(i)
 
                 call MA_J_cop_fin (ah, ma, npl, mstar, mass, ap, hkl)
@@ -2764,7 +2748,7 @@ subroutine MA_J_keplm (a, ma, npl, m0, mass, ap, hkl, gr_flag)
     enddo
 
     do i = 0, npl - 1
-        if (hkl.eq.0) then
+        if (hkl==0) then
             ecc = a(6 * i + 3)
         else
             ecc = dsqrt(a(6 * i + 3)**2 + a(6 * i + 4)**2) !only for h, k
@@ -2773,7 +2757,7 @@ subroutine MA_J_keplm (a, ma, npl, m0, mass, ap, hkl, gr_flag)
         mass(1) = m0
         mpold(i + 1) = 0.d0
         1010      continue
-        if (i.eq.0) then
+        if (i==0) then
             mtotal = m0
             mass(i + 2) = a(6 * i + 1) * (TWOPI / mm(i + 1) * (m0 + mpold(i + 1))**2 / &
                     (TWOPI * GMSUN))**THIRD * &
@@ -2800,7 +2784,7 @@ subroutine MA_J_keplm (a, ma, npl, m0, mass, ap, hkl, gr_flag)
         mass(i) = mass(i) * MSUN
     enddo
 
-    if(gr_flag.ne.0) then
+    if(gr_flag/=0) then
         do i = 1, npl
             j = 6 * (i - 1)
             call gr_corr(ap(i), a(j + 3), mass(1), corr)
@@ -2826,7 +2810,7 @@ subroutine MA_J_cop_fin (a, ma, npl, m0, mass, ap, hkl)
     !*******G is set to be unit, and s, m, kg as unit of time, length and mass expectively.
 
     do i = 0, npl - 1
-        if (hkl.eq.0) then
+        if (hkl==0) then
             ecc = a(7 * i + 3)
         else
             ecc = dsqrt(a(7 * i + 3)**2 + a(7 * i + 4)**2) !only for h, k
@@ -2835,7 +2819,7 @@ subroutine MA_J_cop_fin (a, ma, npl, m0, mass, ap, hkl)
         mass(1) = m0
         mpold(i + 1) = 0.d0
         101        continue
-        if (i.eq.0) then
+        if (i==0) then
             mtotal = m0
             mass(i + 2) = dabs(a(7 * i + 1)) * (a(7 * i + 2) * (m0 + mpold(i + 1))**2 / &
                     (TWOPI * GMSUN))**THIRD * dsqrt(1.d0 - ecc**2)&
@@ -2903,7 +2887,7 @@ subroutine GENINIT_J3_ewcop (nbod, ap, a, &
 
     do i = 2, nbod
         j = 7 * (i - 2)
-        if (hkl.eq.0) then
+        if (hkl==0) then
             ecc = a(j + 3)
             omega = a(j + 4)
             capm = a(j + 5)
@@ -3005,7 +2989,7 @@ subroutine integrate_cop_fin(ymod, ymod_pl, t, nbod, ndata, mass, &
         call bs_step2(nbod, mass, j2rp2, j4rp4, &
                 xh, yh, zh, vxh, vyh, vzh, h, eps)
 
-        if (flag.eq.1) then
+        if (flag==1) then
             mtotal = 0.d0
             do i = 1, nbod
                 mtotal = mtotal + mass(i)
@@ -3110,7 +3094,7 @@ subroutine MRQMIN_dynamo (x, y, sig, ndata, a, ia, ma, ts, covar, alpha, &
     if (alamda<0.d0) then
         mfit = 0
         do j = 1, ma
-            if (ia(j).ne.0) mfit = mfit + 1
+            if (ia(j)/=0) mfit = mfit + 1
         enddo
         alamda = 0.001d0
 
@@ -3136,7 +3120,7 @@ subroutine MRQMIN_dynamo (x, y, sig, ndata, a, ia, ma, ts, covar, alpha, &
     call GAUSSJ_dynamo (covar, mfit, nca, da, 1, 1)
 
     ! Evaluate covariance matrix once converged.
-    if (alamda.eq.0.d0) then
+    if (alamda==0.d0) then
         call COVSRT (covar, nca, ma, ia, mfit)
         call COVSRT (alpha, nca, ma, ia, mfit)
         return
@@ -3144,7 +3128,7 @@ subroutine MRQMIN_dynamo (x, y, sig, ndata, a, ia, ma, ts, covar, alpha, &
 
     j = 0
     do l = 1, ma
-        if (ia(l).ne.0) then
+        if (ia(l)/=0) then
             j = j + 1
             atry(l) = a(l) + da(j)
         endif
@@ -3197,7 +3181,7 @@ subroutine MRQMIN_dynlm (x, ts, y, sig, ndata, a, ia, ma, covar, alpha, &
     if (alamda<0.d0) then
         mfit = 0
         do j = 1, ma
-            if (ia(j).ne.0) mfit = mfit + 1
+            if (ia(j)/=0) mfit = mfit + 1
         enddo
         alamda = 0.001d0
 
@@ -3224,7 +3208,7 @@ subroutine MRQMIN_dynlm (x, ts, y, sig, ndata, a, ia, ma, covar, alpha, &
     call GAUSSJ_dynlm (covar, mfit, nca, da, 1, 1)
 
     ! Evaluate covariance matrix once converged.
-    if (alamda.eq.0.d0) then
+    if (alamda==0.d0) then
         call COVSRT (covar, nca, ma, ia, mfit)
         call COVSRT (alpha, nca, ma, ia, mfit)
         return
@@ -3232,7 +3216,7 @@ subroutine MRQMIN_dynlm (x, ts, y, sig, ndata, a, ia, ma, covar, alpha, &
 
     j = 0
     do l = 1, ma
-        if (ia(l).ne.0) then
+        if (ia(l)/=0) then
             j = j + 1
             atry(l) = a(l) + da(j)
 
@@ -3283,7 +3267,7 @@ subroutine MRQCOF_dynamo (x, y, sig, ndata, a, ia, ma, ts, alpha, &
 
     mfit = 0
     do j = 1, ma
-        if (ia(j).ne.0) mfit = mfit + 1
+        if (ia(j)/=0) mfit = mfit + 1
     enddo
 
     ! Initialize (symmetric) alpha and beta.
@@ -3306,12 +3290,12 @@ subroutine MRQCOF_dynamo (x, y, sig, ndata, a, ia, ma, ts, alpha, &
         j = 0
 
         do l = 1, ma
-            if (ia(l).ne.0) then
+            if (ia(l)/=0) then
                 j = j + 1
                 wt = dyda(l) * sig2i
                 k = 0
                 do m = 1, l
-                    if (ia(m).ne.0) then
+                    if (ia(m)/=0) then
                         k = k + 1
                         alpha(j, k) = alpha(j, k) + wt * dyda(m)
                     endif
@@ -3357,7 +3341,7 @@ subroutine MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, nalp, &
 
     mfit = 0
     do j = 1, ma
-        if (ia(j).ne.0) mfit = mfit + 1
+        if (ia(j)/=0) mfit = mfit + 1
     enddo
 
     ! Initialize (symmetric) alpha and beta.
@@ -3391,12 +3375,12 @@ subroutine MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, nalp, &
         dy = y(i) - ymod(i)
         j = 0
         do l = 1, ma
-            if (ia(l).ne.0) then
+            if (ia(l)/=0) then
                 j = j + 1
                 wt = dyda(i, l) * sig2i
                 k = 0
                 do m = 1, l
-                    if (ia(m).ne.0) then
+                    if (ia(m)/=0) then
                         k = k + 1
                         alpha(j, k) = alpha(j, k) + wt * dyda(i, m)
                     endif
@@ -3445,9 +3429,9 @@ subroutine GAUSSJ_dynamo (a, n, np, b, m, mp)
         !Search for a pivot element.
         big = 0.d0
         do j = 1, n
-            if (ipiv(j).ne.1) then
+            if (ipiv(j)/=1) then
                 do k = 1, n
-                    if (ipiv(k).eq.0) then
+                    if (ipiv(k)==0) then
                         if (dabs(a(j, k))>=big) then
                             big = dabs(a(j, k))
                             irow = j
@@ -3460,7 +3444,7 @@ subroutine GAUSSJ_dynamo (a, n, np, b, m, mp)
         ipiv(icol) = ipiv(icol) + 1
 
         !Interchange rows to put the pivot element on the diagonal.
-        if (irow.ne.icol) then
+        if (irow/=icol) then
             do l = 1, n
                 dum = a(irow, l)
                 a(irow, l) = a(icol, l)
@@ -3482,7 +3466,7 @@ subroutine GAUSSJ_dynamo (a, n, np, b, m, mp)
 
         !Reduce the rows, except for the pivot one.
         do ll = 1, n
-            if (ll.ne.icol) then
+            if (ll/=icol) then
                 dum = a(ll, icol)
                 a(ll, icol) = 0.d0
                 do l = 1, n
@@ -3496,7 +3480,7 @@ subroutine GAUSSJ_dynamo (a, n, np, b, m, mp)
     enddo
     ! Unscramble the solution in view of the column interchanges.
     do l = n, 1, -1
-        if (indxr(l).ne.indxc(l)) then
+        if (indxr(l)/=indxc(l)) then
             do k = 1, n
                 dum = a(k, indxr(l))
                 a(k, indxr(l)) = a(k, indxc(l))
@@ -3533,9 +3517,9 @@ subroutine GAUSSJ_dynlm (a, n, np, b, m, mp)
         !Search for a pivot element.
         big = 0.d0
         do j = 1, n
-            if (ipiv(j).ne.1) then
+            if (ipiv(j)/=1) then
                 do k = 1, n
-                    if (ipiv(k).eq.0) then
+                    if (ipiv(k)==0) then
                         if (dabs(a(j, k))>=big) then
                             big = dabs(a(j, k))
                             irow = j
@@ -3548,7 +3532,7 @@ subroutine GAUSSJ_dynlm (a, n, np, b, m, mp)
         ipiv(icol) = ipiv(icol) + 1
 
         !Interchange rows to put the pivot element on the diagonal.
-        if (irow.ne.icol) then
+        if (irow/=icol) then
             do l = 1, n
                 dum = a(irow, l)
                 a(irow, l) = a(icol, l)
@@ -3564,7 +3548,7 @@ subroutine GAUSSJ_dynlm (a, n, np, b, m, mp)
         indxr(i) = irow
         indxc(i) = icol
 
-        if (a(icol, icol).ne.0.d0) then
+        if (a(icol, icol)/=0.d0) then
             !Divide pivot row by the pivot element.
             pivinv = 1.d0 / a(icol, icol)
 
@@ -3579,7 +3563,7 @@ subroutine GAUSSJ_dynlm (a, n, np, b, m, mp)
 
         !Reduce the rows, except for the pivot one.
         do ll = 1, n
-            if (ll.ne.icol) then
+            if (ll/=icol) then
                 dum = a(ll, icol)
                 a(ll, icol) = 0.d0
                 do l = 1, n
@@ -3593,7 +3577,7 @@ subroutine GAUSSJ_dynlm (a, n, np, b, m, mp)
     enddo
     ! Unscramble the solution in view of the column interchanges.
     do l = n, 1, -1
-        if (indxr(l).ne.indxc(l)) then
+        if (indxr(l)/=indxc(l)) then
             do k = 1, n
                 dum = a(k, indxr(l))
                 a(k, indxr(l)) = a(k, indxc(l))
@@ -3624,7 +3608,7 @@ subroutine COVSRT (covar, npc, ma, ia, mfit)
 
     k = mfit
     do j = ma, 1, -1
-        if (ia(j).ne.0) then
+        if (ia(j)/=0) then
             do i = 1, ma
                 swap = covar(i, k)
                 covar(i, k) = covar(i, j)
@@ -3703,7 +3687,7 @@ subroutine orbel_el2xv(gm, ialpha, a, e, inc, capom, omega, capm, &
     !...    check for inconsistencies between ialpha and e
     em1 = e - 1.d0
     if(&
-            ((ialpha.eq.0) .and. (abs(em1)>TINY))  .or.&
+            ((ialpha==0) .and. (abs(em1)>TINY))  .or.&
                     ((ialpha<0) .and. (e>1.0d0))  .or.&
                     ((ialpha>0) .and. (e<1.0d0)))  then
         e = 0.0
@@ -3726,7 +3710,7 @@ subroutine orbel_el2xv(gm, ialpha, a, e, inc, capom, omega, capm, &
     d23 = cp * si
 
     ! Get the other quantities depending on orbit type ( i.e. IALPHA)
-    if (ialpha .eq. -1) then
+    if (ialpha == -1) then
         cape = orbel_ehybrid(e, capm)
         call orbel_scget(cape, scap, ccap)
         sqe = dsqrt(1.d0 - e * e)
@@ -3738,7 +3722,7 @@ subroutine orbel_el2xv(gm, ialpha, a, e, inc, capom, omega, capm, &
         vfac2 = ri * sqgma * sqe * ccap
     endif
 
-    if (ialpha .eq. +1) then
+    if (ialpha == +1) then
         capf = orbel_fhybrid(e, capm)
         call orbel_schget(capf, shcap, chcap)
         sqe = dsqrt(e * e - 1.d0)
@@ -3750,7 +3734,7 @@ subroutine orbel_el2xv(gm, ialpha, a, e, inc, capom, omega, capm, &
         vfac2 = ri * sqgma * sqe * chcap
     endif
 
-    if (ialpha .eq. 0) then
+    if (ialpha == 0) then
         zpara = orbel_zget(capm)
         sqgma = dsqrt(2.d0 * gm * a)
         xfac1 = a * (1.d0 - zpara * zpara)
@@ -3875,7 +3859,7 @@ real(8) function orbel_ehie(e, m)
 
     orbel_ehie = m + x
 
-    if (iflag.eq.1) then
+    if (iflag==1) then
         orbel_ehie = TWOPI - orbel_ehie
         m = TWOPI - m
     endif
@@ -4197,7 +4181,7 @@ subroutine tu4_getaccb(nbod, mass, j2rp2, j4rp4, xb, yb, zb, axb, ayb, azb)
         enddo
     enddo
 
-    if(j2rp2.ne.0.0d0) then
+    if(j2rp2/=0.0d0) then
         call obl_acc(nbod, mass, j2rp2, j4rp4, xh, yh, zh, irh, &
                 aoblx, aobly, aoblz)
         do i = 1, nbod
@@ -4528,7 +4512,7 @@ real(8) function orbel_zget(q)
         orbel_zget = tmp - 1.d0 / tmp
     endif
 
-    if(iflag .eq.1) then
+    if(iflag ==1) then
         orbel_zget = -orbel_zget
         q = -q
     endif
@@ -4653,7 +4637,7 @@ real(8) function orbel_flon(e, capn)
 
     ! Abnormal return here - we've gone thru the loop
     ! IMAX times without convergence
-    if(iflag .eq. 1) then
+    if(iflag == 1) then
         orbel_flon = -orbel_flon
         capn = -capn
     endif
@@ -4664,7 +4648,7 @@ real(8) function orbel_flon(e, capn)
     return
 
     !  Normal return here, but check if capn was originally negative
-100 if(iflag .eq. 1) then
+100 if(iflag == 1) then
         orbel_flon = -orbel_flon
         capn = -capn
     endif
@@ -4847,7 +4831,7 @@ subroutine bs_int_pl(nbod, ntp, mass, j2rp2, j4rp4, x, h0, y, eps)
             varm = 0.d0
             m1 = min0(m - 1, 6)
             !calculation of d(k)=(h(m-k)/h(m))**2 for equation (6)
-            if(m1.ne.0) then
+            if(m1/=0) then
                 do k = 1, m1
                     mmk = m - k
                     flt = alt(mmk)
@@ -4886,12 +4870,12 @@ subroutine bs_int_pl(nbod, ntp, mass, j2rp2, j4rp4, x, h0, y, eps)
                 c = yb !equation (6b)
                 tp(ii - 11) = yb !equation (6a)
 
-                if(m1.ne.0) then
+                if(m1/=0) then
                     do k = 1, m1
                         b1 = d(k) * dta
                         den = b1 - c
                         dtn = dta
-                        if(den.ne.0.d0) then
+                        if(den/=0.d0) then
                             b = (c - dta) / den
                             dtn = c * b !equation (6c)
                             c = b1 * b !equation (6d)
