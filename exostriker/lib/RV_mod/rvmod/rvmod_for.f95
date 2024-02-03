@@ -839,14 +839,15 @@ subroutine compute_abs_loglik_dyn(ndata, x, y, a2, ma, mfit, ts, &
         coplar_inc)
 
     implicit none
-    integer MMAX, npl, ndset, NDSMAX, idset, mfit, hkl, gr_flag
+    integer MMAX, npl, ndset, NDSMAX, idset, mfit, hkl, gr_flag,ndata
     parameter (MMAX = 200, NDSMAX = 20)
     real(8) twopi, loglik
     parameter (twopi = 6.28318530717958d0)
-    integer ndata, i, j, ma, ts(20000), ia(MMAX), idsmax(NDSMAX)
-    real(8) dy, sig(20000), x(20000), y(20000), y_pl(npl,20000)
-    real(8) a(MMAX), a2(mfit), a3(MMAX), sig2i, y_in(20000), &
-            y2(20000), epsil, deltat
+    integer  i, j, ma, ts(20000), ia(MMAX), idsmax(NDSMAX)
+    
+    real(8) dy, sig(ndata), x(ndata), y(ndata), y_pl(npl,ndata)
+    real(8) a(MMAX), a2(mfit), a3(MMAX), sig2i, y_in(ndata), &
+            y2(ndata), epsil, deltat
     integer dynamical_planets(npl), coplar_inc
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
@@ -1743,7 +1744,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
         fit_array, coplar_inc)
     implicit none
     real(8) PI
-    integer MMAX, NDSMAX, NPLMAX
+    integer MMAX, NDSMAX, NPLMAX,ndata
     parameter (PI = 3.14159265358979d0, MMAX = 200, NDSMAX = 20, NPLMAX = 20)
     real(8) a(MMAX), t(20000), ymod(20000), ys(20000)
     real(8) covar(MMAX, MMAX), AU, day
@@ -1752,7 +1753,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
             writeflag_best_par, writeflag_fit, hkl
     real(8) t0, dt, t_max, chisq, loglik, dy, sig2i, twopi
     real(8) x(20000), sigs(20000)
-    integer i, j, npl, ndset, ndata, idset, mfit, ma, idsmax(NDSMAX)
+    integer i, j, npl, ndset,  idset, mfit, ma, idsmax(NDSMAX)
     real(8) xj(NPLMAX), yj(NPLMAX), zj(NPLMAX), vxj(NPLMAX), vyj(NPLMAX)&
             , vzj(NPLMAX)
     real(8) rpl(NPLMAX), rhill(NPLMAX), deltat, epsil
@@ -2448,7 +2449,7 @@ subroutine RVKEP_dynamo (t, a, ymod, ymod_pl, ma, ndata, epsil, dt, hkl, &
     real(8) rpl(NPLMAX), rhill(NPLMAX)
     real(8) sini(NPLMAX)
     integer hkl, idset, nbod, gr_flag, coplar_inc
-    integer dynamical_planets(npl), k, d, ts(20000)
+    integer dynamical_planets(npl), k, d, ts(ndata)
     real(8) a_kep(ma), a_dyn(ma), ymod_kep(ndata), dyda_kep(ma)
 
     integer idsmax(NDSMAX)
