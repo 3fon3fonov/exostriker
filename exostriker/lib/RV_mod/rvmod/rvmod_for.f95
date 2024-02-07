@@ -1089,7 +1089,8 @@ subroutine RVKEP_kepamo (x, a, y, y_pl, dyda, ma, ts, hkl)
     real(8) :: x, y, a(ma), a2(ma), dyda(ma), mass(10), ap(10)
     real(8) :: cosw, sinw, capm, cape, cose, sine, cosf, sinf, fac1, fac2, fac3
     real(8) :: orbel_ehybrid, omega(10), capmm(10), ecc(10)
-    real(8) :: wm, sinwm, coswm, sin2wm, cos2wm, sin3wm, cos3wm, omegad(10)
+    real(8) :: wm, sinwm, coswm, sin2wm, cos2wm
+    real(8) :: sin3wm, cos3wm, omegad(10)
     real(8) :: y_pl(npl)
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
@@ -1159,6 +1160,13 @@ subroutine RVKEP_kepamo (x, a, y, y_pl, dyda, ma, ts, hkl)
 
             if(capmm(i)<0.d0)capmm(i) = dmod(capmm(i) + 2.d0 * PI, 2.d0 * PI)
             if(capmm(i)>0.d0)capmm(i) = dmod(capmm(i), 2.d0 * PI)
+
+!!!
+            if(gr_flag.ne.0) call MA_J_kepamo (a, ma, npl, 1.0d0, &
+                    mass, ap, hkl, gr_flag)            
+            omegad(i) = a(j + 6)
+!!!
+
         enddo
     endif
 
@@ -3207,7 +3215,7 @@ end
 ! From Numerical Recipes.
 subroutine MRQMIN_dynlm (x, ts, y, sig, ndata, a, ia, ma, covar, alpha, &
         nca, chisq, funcs, alamda, loglik, jitt, epsil, deltat, hkl, coplar_inc)
-    implicit none
+!    implicit none
     integer ::  ma, nca, ndata, ia(ma), MMAX, NDSMAX, ts(ndata)
     parameter (MMAX = 200, NDSMAX = 20)
     integer ::  npl, ndset, idset, idsmax(NDSMAX), hkl, gr_flag
@@ -3296,7 +3304,7 @@ end
 ! From Numerical Recipes.
 subroutine MRQCOF_dynamo (x, y, sig, ndata, a, ia, ma, ts, alpha, &
         beta, nalp, chisq, funcs, loglik, jitt, hkl)
-    implicit none
+!    implicit none
     integer ::  npl, ndset, idset, ma, nalp, ndata, ia(ma), NDSMAX, MMAX
     parameter (NDSMAX = 20, MMAX = 200)
     integer ::  idsmax(NDSMAX), ts(ndata), hkl, gr_flag
@@ -3368,7 +3376,7 @@ end
 ! From Numerical Recipes.
 subroutine MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, nalp, &
         chisq, funcs, loglik, jitt, epsil, deltat, hkl, coplar_inc)
-    implicit none
+!    implicit none
     integer ::  npl, ndset, idset, ma, nalp, ndata, ia(ma), NDSMAX, MMAX
     parameter (NDSMAX = 20, MMAX = 200)
     integer ::  idsmax(NDSMAX), ts(ndata), hkl
@@ -3453,7 +3461,7 @@ end
 ! GAUSSJ solves linear equation by Gauss-Jordan elimination.
 ! From Numerical Recipes.
 subroutine GAUSSJ_dynamo (a, n, np, b, m, mp)
-    implicit none
+!    implicit none
     integer ::  m, mp, n, np, NMAX
     real(8) :: a(np, np), b(np, mp)
     parameter (NMAX = 50)
@@ -3543,7 +3551,7 @@ end
 ! GAUSSJ solves linear equation by Gauss-Jordan elimination.
 ! From Numerical Recipes.
 subroutine GAUSSJ_dynlm (a, n, np, b, m, mp)
-    implicit none
+!    implicit none
     integer ::  m, mp, n, np, NMAX
     real(8) :: a(np, np), b(np, mp)
     parameter (NMAX = 51)
@@ -3637,7 +3645,7 @@ end
 ! return zero covariances.)
 ! From Numerical Recipes.
 subroutine COVSRT (covar, npc, ma, ia, mfit)
-    implicit none
+!    implicit none
     integer ::  ma, mfit, npc, ia(ma)
     real(8) :: covar(npc, npc)
     integer ::  i, j, k
