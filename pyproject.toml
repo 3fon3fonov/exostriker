@@ -12,7 +12,7 @@ authors = [
 ]
 description="This is the 'Transit and Radial velocity Interactive Fitting tool for Orbital analysis and N-body simulations: The Exo-Striker'"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.8"
 classifiers=[
  "Programming Language :: Python :: 3",
  "License :: MIT License",
