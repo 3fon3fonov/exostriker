@@ -1773,7 +1773,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
     real(8) :: t0, dt, t_max, chisq, loglik, dy, sig2i, twopi
     real(8) :: x(20000), sigs(20000)
     integer :: i, j, npl, ndset,  idset, mfit, ma, idsmax(NDSMAX)
-    real(8) :: xj(NPLMAX), yj(NPLMAX),  zj(NPLMAX), 
+    real(8) :: xj(NPLMAX), yj(NPLMAX),  zj(NPLMAX) 
     real(8) :: vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
     real(8) :: rpl(NPLMAX), rhill(NPLMAX), deltat, epsil
     real(8) :: j_mass(NPLMAX)
@@ -2167,7 +2167,7 @@ subroutine RVKEP_keplm (x, a, y, y_pl, dyda, ma, ts, hkl)
     parameter (NDSMAX = 20)
     integer :: idsmax(NDSMAX)
     real(8) :: x, y, a(ma), dyda(ma), mass(10), ap(10), y_pl(10)
-    real(8) :: cosw, sinw, capm, cape, cose, sine, cosf, 
+    real(8) :: cosw, sinw, capm, cape, cose, sine, cosf
     real(8) :: sinf, fac1, fac2, fac3
     real(8) :: orbel_ehybrid, omega(10), capmm(10), ecc(10)
     real(8) :: wm, sinwm, coswm, sin2wm, cos2wm, sin3wm, cos3wm, omegad(10)
