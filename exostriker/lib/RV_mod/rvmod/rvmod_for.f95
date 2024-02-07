@@ -1620,15 +1620,15 @@ END
 FUNCTION amotry_dyn(p, y, psum, mp, np, ndim, funk, ihi, fac, ndata, x, z, &
         ma, ts, sig, a, ia, epsil, deltat, hkl, npl, dynamical_planets, coplar_inc)
     implicit none
-    integer ihi, mp, ndim, np, NMAX, MMAX, ma, ts(20000), ndata
+    integer ::  ihi, mp, ndim, np, NMAX, MMAX, ma, ts(20000), ndata
     PARAMETER (NMAX = 20, MMAX = 200)
-    REAL(8) amotry_dyn, fac, p(mp, np), psum(np), y(mp), x(20000), z(20000), &
+    REAL(8) :: amotry_dyn, fac, p(mp, np), psum(np), y(mp), x(20000), z(20000), &
             epsil, deltat
-    real(8) sig(20000), loglik
+    real(8) :: sig(20000), loglik
     EXTERNAL funk
-    integer j, ia(MMAX), hkl, npl
-    REAL(8) fac1, fac2, ytry, ptry(ndim), a(MMAX)
-    integer dynamical_planets(npl), coplar_inc
+    integer ::  j, ia(MMAX), hkl, npl
+    REAL(8) :: fac1, fac2, ytry, ptry(ndim), a(MMAX)
+    integer :: dynamical_planets(npl), coplar_inc
     fac1 = (1.0d0 - fac) / ndim
     fac2 = fac1 - fac
     do j = 1, ndim
@@ -1762,32 +1762,32 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
         bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
         fit_array, coplar_inc)
     implicit none
-    real(8) PI
-    integer MMAX, NDSMAX, NPLMAX,ndata
+    real(8) :: PI
+    integer :: MMAX, NDSMAX, NPLMAX,ndata
     parameter (PI = 3.14159265358979d0, MMAX = 200, NDSMAX = 20, NPLMAX = 10)
-    real(8) a(MMAX), t(20000), ymod(20000), ys(20000)
-    real(8) covar(MMAX, MMAX), AU, day
-    real(8) rms, mstar, sini(NPLMAX), mass(NPLMAX), ap(NPLMAX)
-    integer ts(20000), nbod, nt, writeflag_RV, gr_flag, &
-            writeflag_best_par, writeflag_fit, hkl
-    real(8) t0, dt, t_max, chisq, loglik, dy, sig2i, twopi
-    real(8) x(20000), sigs(20000)
-    integer i, j, npl, ndset,  idset, mfit, ma, idsmax(NDSMAX)
-    real(8) xj(NPLMAX), yj(NPLMAX), zj(NPLMAX), vxj(NPLMAX), vyj(NPLMAX)&
-            , vzj(NPLMAX)
-    real(8) rpl(NPLMAX), rhill(NPLMAX), deltat, epsil
-    real(8) j_mass(NPLMAX)
-    real(4) model_max, model_min
-    real(8) wdot(NPLMAX), u_wdot(NPLMAX), best_w, best_we
-    integer dynamical_planets(npl), coplar_inc
-    real(8) ymod_pl(npl,20000)     
+    real(8) :: a(MMAX), t(20000), ymod(20000), ys(20000)
+    real(8) :: covar(MMAX, MMAX), AU, day
+    real(8) :: rms, mstar, sini(NPLMAX), mass(NPLMAX), ap(NPLMAX)
+    integer :: ts(20000), nbod, nt, writeflag_RV, gr_flag
+    integer :: writeflag_best_par, writeflag_fit, hkl
+    real(8) :: t0, dt, t_max, chisq, loglik, dy, sig2i, twopi
+    real(8) :: x(20000), sigs(20000)
+    integer :: i, j, npl, ndset,  idset, mfit, ma, idsmax(NDSMAX)
+    real(8) :: xj(NPLMAX), yj(NPLMAX),  zj(NPLMAX), 
+    real(8) :: vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
+    real(8) :: rpl(NPLMAX), rhill(NPLMAX), deltat, epsil
+    real(8) :: j_mass(NPLMAX)
+    real(4) :: model_max, model_min
+    real(8) :: wdot(NPLMAX), u_wdot(NPLMAX), best_w, best_we
+    integer :: dynamical_planets(npl), coplar_inc
+    real(8) :: ymod_pl(npl,20000)     
     
     parameter (AU = 1.49597892d11, day = 86400.d0)
 
-    real(8) res_array(ndata, 6+npl)
-    real(8) fit_return(4), fit_array(nt, 2+npl)
-    real(8) bestpar_1(npl, 17, 2), bestpar_2(ndset, 2)
-    real(8) bestpar_3(ndset, 2), bestpar_4(9 + 2 * npl)
+    real(8) :: res_array(ndata, 6+npl)
+    real(8) :: fit_return(4), fit_array(nt, 2+npl)
+    real(8) :: bestpar_1(npl, 17, 2), bestpar_2(ndset, 2)
+    real(8) :: bestpar_3(ndset, 2), bestpar_4(9 + 2 * npl)
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     common mstar, sini
@@ -1974,26 +1974,26 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
              bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
              fit_array, coplar_inc)
     implicit none
-    real(8) PI
-    integer MMAX, NDSMAX, NPLMAX
+    real(8) :: PI
+    integer :: MMAX, NDSMAX, NPLMAX
     parameter (PI = 3.14159265358979d0, MMAX = 200, NDSMAX = 20, NPLMAX = 10)
-    real(8) a(MMAX), t(20000), ymod(20000), ys(20000)
-    real(8) covar(MMAX, MMAX), dyda(20000, MMAX), AU, day, loglik, dy, twopi
-    real(8) rms, mstar, sini, mass(NPLMAX), ap(NPLMAX)
-    integer ts(20000), nbod, nt, writeflag_RV, gr_flag, &
-            writeflag_best_par, writeflag_fit, coplar_inc
-    real(8) t0, dt, t_max, chisq, deltat, epsil, sig2i
-    real(8) x(20000), sigs(20000), jitter(NDSMAX)
-    integer i, j, npl, ndset, ndata, idset, mfit, ma, idsmax(NDSMAX), hkl
-    real(8) j_mass(NPLMAX)
-    real(4) model_max, model_min
+    real(8) :: a(MMAX), t(20000), ymod(20000), ys(20000)
+    real(8) :: covar(MMAX, MMAX), dyda(20000, MMAX), AU, day, loglik, dy, twopi
+    real(8) :: rms, mstar, sini, mass(NPLMAX), ap(NPLMAX)
+    integer :: ts(20000), nbod, nt, writeflag_RV, gr_flag
+    integer :: writeflag_best_par, writeflag_fit, coplar_inc
+    real(8) :: t0, dt, t_max, chisq, deltat, epsil, sig2i
+    real(8) :: x(20000), sigs(20000), jitter(NDSMAX)
+    integer :: i, j, npl, ndset, ndata, idset, mfit, ma, idsmax(NDSMAX), hkl
+    real(8) :: j_mass(NPLMAX)
+    real(4) :: model_max, model_min
     parameter (AU = 1.49597892d11, day = 86400.d0)
-    real(8) wdot(NPLMAX), u_wdot(NPLMAX), best_w, best_we
-    real(8) ymod_pl(npl, 20000)     
-    real(8) res_array(ndata, 6 + npl)
-    real(8) fit_return(4), fit_array(nt, 2 + npl)
-    real(8) bestpar_1(npl, 17, 2), bestpar_2(ndset, 2)
-    real(8) bestpar_3(ndset, 2), bestpar_4(9 + 2 * npl)
+    real(8) :: wdot(NPLMAX), u_wdot(NPLMAX), best_w, best_we
+    real(8) :: ymod_pl(npl, 20000)     
+    real(8) :: res_array(ndata, 6 + npl)
+    real(8) :: fit_return(4), fit_array(nt, 2 + npl)
+    real(8) :: bestpar_1(npl, 17, 2), bestpar_2(ndset, 2)
+    real(8) :: bestpar_3(ndset, 2), bestpar_4(9 + 2 * npl)
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     common mstar, sini
@@ -2159,16 +2159,18 @@ end
 
 subroutine RVKEP_keplm (x, a, y, y_pl, dyda, ma, ts, hkl)
     implicit none
-    real(8) PI, TWOPI
+    real(8) :: PI, TWOPI
     parameter (PI = 3.14159265358979d0)
     parameter (TWOPI = 2.0d0 * PI)
-    integer npl, ndset, idset, ma, i, j, NDSMAX, ts, hkl, gr_flag
+    integer :: npl, ndset, idset, ma, i, j, NDSMAX, ts
+    integer :: hkl, gr_flag
     parameter (NDSMAX = 20)
-    integer idsmax(NDSMAX)
-    real(8) x, y, a(ma), dyda(ma), mass(10), ap(10), y_pl(10)
-    real(8) cosw, sinw, capm, cape, cose, sine, cosf, sinf, fac1, fac2, fac3
-    real(8) orbel_ehybrid, omega(10), capmm(10), ecc(10)
-    real(8) wm, sinwm, coswm, sin2wm, cos2wm, sin3wm, cos3wm, omegad(10)
+    integer :: idsmax(NDSMAX)
+    real(8) :: x, y, a(ma), dyda(ma), mass(10), ap(10), y_pl(10)
+    real(8) :: cosw, sinw, capm, cape, cose, sine, cosf, 
+    real(8) :: sinf, fac1, fac2, fac3
+    real(8) :: orbel_ehybrid, omega(10), capmm(10), ecc(10)
+    real(8) :: wm, sinwm, coswm, sin2wm, cos2wm, sin3wm, cos3wm, omegad(10)
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
@@ -2359,15 +2361,15 @@ end
 
 subroutine RVKEP_dynamoplus (x, a, y, y_pl, dyda, ma, ts, k)
     implicit none
-    real(8) PI, TWOPI
+    real(8) :: PI, TWOPI
     parameter (PI = 3.14159265358979d0)
     parameter (TWOPI = 2.0d0 * PI)
-    integer npl, ndset, idset, ma, i, j, NDSMAX, ts, k
+    integer :: npl, ndset, idset, ma, i, j, NDSMAX, ts, k
     parameter (NDSMAX = 20)
-    integer idsmax(NDSMAX), gr_flag
-    real(8) x, y, a(ma), dyda(ma), y_pl(npl)
-    real(8) cosw, sinw, capm, cape, cose, sine, cosf, sinf, fac1, fac2, fac3
-    real(8) orbel_ehybrid
+    integer :: idsmax(NDSMAX), gr_flag
+    real(8) :: x, y, a(ma), dyda(ma), y_pl(npl)
+    real(8) :: cosw, sinw, capm, cape, cose, sine, cosf, sinf, fac1, fac2, fac3
+    real(8) :: orbel_ehybrid
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
@@ -2418,13 +2420,13 @@ end
 
 subroutine split_parameters(a, a_kep, a_dyn, dynamical_planets, k, d)
     implicit none
-    integer MMAX, NPLMAX, NDSMAX
+    integer :: MMAX, NPLMAX, NDSMAX
     parameter (MMAX = 200, NPLMAX = 10, NDSMAX = 20)
-    real(8) a(MMAX), a_kep(MMAX), a_dyn(MMAX), PI
+    real(8) :: a(MMAX), a_kep(MMAX), a_dyn(MMAX), PI
     parameter (PI = 3.14159265358979d0)
-    integer dynamical_planets(NPLMAX), i, j, k, d
-    integer npl, ndset, idset, gr_flag
-    integer idsmax(NDSMAX)
+    integer :: dynamical_planets(NPLMAX), i, j, k, d
+    integer :: npl, ndset, idset, gr_flag
+    integer :: idsmax(NDSMAX)
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
@@ -2454,24 +2456,24 @@ end
 subroutine RVKEP_dynamo (t, a, ymod, ymod_pl, ma, ndata, epsil, dt, hkl, &
         dynamical_planets, ts, coplar_inc)
     implicit none
-    real(8) PI, TWOPI, eps, dt
+    real(8) :: PI, TWOPI, eps, dt
     parameter (PI = 3.14159265358979d0, eps = 1.d-6)
     parameter (TWOPI = 2.0d0 * PI)
-    integer npl, ma, i, j, NPLMAX, na, ndset, NDSMAX, ndata
+    integer :: npl, ma, i, j, NPLMAX, na, ndset, NDSMAX, ndata
     parameter (NPLMAX = 10, NDSMAX = 20)
-    real(8) t(ndata), ymod(ndata), ymod_pl(npl,ndata), a(ma)
-    real(8) mstar, ap(NPLMAX), mass(NPLMAX), epsil, a2(ma)
-    real(8) xh(NPLMAX), yh(NPLMAX), zh(NPLMAX), vxh(NPLMAX), vyh(NPLMAX)&
-            , vzh(NPLMAX)
-    real(8) xj(NPLMAX), yj(NPLMAX), zj(NPLMAX), vxj(NPLMAX), vyj(NPLMAX)&
-            , vzj(NPLMAX)
-    real(8) rpl(NPLMAX), rhill(NPLMAX)
-    real(8) sini(NPLMAX)
-    integer hkl, idset, nbod, gr_flag, coplar_inc
-    integer dynamical_planets(npl), k, d, ts(ndata)
-    real(8) a_kep(ma), a_dyn(ma), ymod_kep(ndata), dyda_kep(ma)
+    real(8) :: t(ndata), ymod(ndata), ymod_pl(npl,ndata), a(ma)
+    real(8) :: mstar, ap(NPLMAX), mass(NPLMAX), epsil, a2(ma)
+    real(8) :: xh(NPLMAX), yh(NPLMAX), zh(NPLMAX) 
+    real(8) :: vxh(NPLMAX), vyh(NPLMAX), vzh(NPLMAX)
+    real(8) :: xj(NPLMAX), yj(NPLMAX), zj(NPLMAX) 
+    real(8) :: vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
+    real(8) :: rpl(NPLMAX), rhill(NPLMAX)
+    real(8) :: sini(NPLMAX)
+    integer :: hkl, idset, nbod, gr_flag, coplar_inc
+    integer :: dynamical_planets(npl), k, d, ts(ndata)
+    real(8) :: a_kep(ma), a_dyn(ma), ymod_kep(ndata), dyda_kep(ma)
 
-    integer idsmax(NDSMAX)
+    integer :: idsmax(NDSMAX)
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     common mstar, sini
@@ -2581,22 +2583,23 @@ end
 subroutine RVKEP_ewcop_fin (t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, &
         deltat, hkl, coplar_inc)
     implicit none
-    real(8) PI, TWOPI, eps, epsil, deltat
+    real(8) :: PI, TWOPI, eps, epsil, deltat
     parameter (PI = 3.14159265358979d0, eps = 1.d-6)
     parameter (TWOPI = 2.0d0 * PI)
-    integer npl, ma, i, j, NPLMAX, MMAX, na, ndset, NDSMAX, idset, ndata, nbod
+    integer :: npl, ma, i, j, NPLMAX, MMAX, na, ndset, NDSMAX, idset, ndata, nbod
     parameter (NPLMAX = 10, NDSMAX = 20, MMAX = 200)
-    real(8) t(ndata), ymod(ndata), ymod_pl(npl,ndata), a(ma), dyda(20000, MMAX)
-    real(8) mstar, ap(NPLMAX), mass(NPLMAX)
-    real(8) xh(NPLMAX), yh(NPLMAX), zh(NPLMAX), vxh(NPLMAX), vyh(NPLMAX)&
-            , vzh(NPLMAX)
-    real(8) xj(NPLMAX), yj(NPLMAX), zj(NPLMAX), vxj(NPLMAX), vyj(NPLMAX)&
-            , vzj(NPLMAX)
-    real(8) rpl(NPLMAX), rhill(NPLMAX)
-    real(8) ah(ma), ahh(ma), ymodhb(ndata), ymodha(ndata)
-    real(8) ymodha_pl(npl,ndata), ymodhb_pl(npl,ndata)
-    real(8) sini, factor
-    integer idsmax(NDSMAX), hkl, gr_flag, coplar_inc
+    real(8) :: t(ndata), ymod(ndata), ymod_pl(npl,ndata)
+    real(8) :: a(ma), dyda(20000, MMAX)
+    real(8) :: mstar, ap(NPLMAX), mass(NPLMAX)
+    real(8) :: xh(NPLMAX), yh(NPLMAX), zh(NPLMAX)
+    real(8) :: vxh(NPLMAX), vyh(NPLMAX), vzh(NPLMAX)
+    real(8) :: xj(NPLMAX), yj(NPLMAX), zj(NPLMAX) 
+    real(8) :: vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
+    real(8) :: rpl(NPLMAX), rhill(NPLMAX)
+    real(8) :: ah(ma), ahh(ma), ymodhb(ndata), ymodha(ndata)
+    real(8) :: ymodha_pl(npl,ndata), ymodhb_pl(npl,ndata)
+    real(8) :: sini, factor
+    integer :: idsmax(NDSMAX), hkl, gr_flag, coplar_inc
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     common mstar, sini
@@ -2771,11 +2774,11 @@ end
 
 subroutine MA_J_keplm (a, ma, npl, m0, mass, ap, hkl, gr_flag)
     implicit none
-    real(8) m0, PI, TWOPI, THIRD, GMSUN, dm, MSUN
-    integer npl, ma, i, j, NPLMAX, hkl, gr_flag
+    real(8) :: m0, PI, TWOPI, THIRD, GMSUN, dm, MSUN
+    integer :: npl, ma, i, j, NPLMAX, hkl, gr_flag
     parameter (NPLMAX = 10)
-    real(8) mm(NPLMAX), ecc, corr
-    real(8) a(ma), mass(NPLMAX), ap(NPLMAX), mpold(NPLMAX), mtotal
+    real(8) :: mm(NPLMAX), ecc, corr
+    real(8) :: a(ma), mass(NPLMAX), ap(NPLMAX), mpold(NPLMAX), mtotal
     parameter (THIRD = 1.d0 / 3.d0)
     parameter (PI = 3.14159265358979d0, TWOPI = 2.d0 * PI)
     parameter (GMSUN = 1.32712440018d20, MSUN = 1.32712440018d20)
@@ -2839,10 +2842,10 @@ end
 ! two-Kepler fit.
 subroutine MA_J_cop_fin (a, ma, npl, m0, mass, ap, hkl)
     implicit none
-    real(8) m0, PI, TWOPI, THIRD, GMSUN, dm, MSUN, ecc
-    integer npl, ma, i, j, NPLMAX, hkl
+    real(8) :: m0, PI, TWOPI, THIRD, GMSUN, dm, MSUN, ecc
+    integer :: npl, ma, i, j, NPLMAX, hkl
     parameter (NPLMAX = 10)
-    real(8) a(ma), mass(NPLMAX), ap(NPLMAX), mpold(NPLMAX), mtotal
+    real(8) :: a(ma), mass(NPLMAX), ap(NPLMAX), mpold(NPLMAX), mtotal
     parameter (THIRD = 1.d0 / 3.d0)
     parameter (PI = 3.14159265358979d0, TWOPI = 2.d0 * PI)
     parameter (GMSUN = 1.32712440018d20, MSUN = 1.32712440018d20)
@@ -2894,21 +2897,21 @@ end
 ! Last modified by Man Hoi Lee, Aug 16, 2003.
 subroutine GENINIT_J3_ewcop (nbod, ap, a, &
         mass, xj, yj, zj, vxj, vyj, vzj, rpl, rhill, hkl)
-    real(8) SMASSYR, MSUN, PI, eps, THIRD
+    real(8) :: SMASSYR, MSUN, PI, eps, THIRD
     parameter (PI = 3.14159265358979d0, eps = 1.d-7)
     parameter (SMASSYR = 4.d0 * PI * PI)
     parameter (MSUN = 1.32712440018d20)
     parameter (THIRD = 1.d0 / 3.d0)
 
-    integer nbod, NPLMAX, i, j, hkl
+    integer ::  nbod, NPLMAX, i, j, hkl
     parameter (NPLMAX = 10)
-    real(8) mass(NPLMAX), ecc
-    real(8) xj(NPLMAX), yj(NPLMAX), zj(NPLMAX)
-    real(8) vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
-    real(8) rpl(NPLMAX), rhill(NPLMAX)
-    real(8) frho3, ap(NPLMAX), a(NPLMAX)
-    real(8) gm, inc, capom, omega, capm
-    integer ialpha
+    real(8) :: mass(NPLMAX), ecc
+    real(8) :: xj(NPLMAX), yj(NPLMAX), zj(NPLMAX)
+    real(8) :: vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
+    real(8) :: rpl(NPLMAX), rhill(NPLMAX)
+    real(8) :: frho3, ap(NPLMAX), a(NPLMAX)
+    real(8) :: gm, inc, capom, omega, capm
+    integer ::  ialpha
 
     ! SET F/RHO^(1/3) FOR RADIUS (RHO IN G/CM^3) TO 1.D0 FOR NOW.
     frho3 = 1.d0
@@ -2958,22 +2961,22 @@ subroutine integrate_cop_fin(ymod, ymod_pl, t, nbod, ndata, mass, &
 
     include 'rvmod.inc'
 
-    integer IO_NBITS
+    integer ::  IO_NBITS
     parameter(IO_NBITS = 6)
-    real(8) mass(NPLMAX), j2rp2, j4rp4
-    real(8) xh(NPLMAX), yh(NPLMAX), zh(NPLMAX)
-    real(8) vxh(NPLMAX), vyh(NPLMAX), vzh(NPLMAX)
+    real(8) :: mass(NPLMAX), j2rp2, j4rp4
+    real(8) :: xh(NPLMAX), yh(NPLMAX), zh(NPLMAX)
+    real(8) :: vxh(NPLMAX), vyh(NPLMAX), vzh(NPLMAX)
 
-    integer i1st
-    integer nbod, ntp, nleft
-    integer iub, iuj, iud, iue
+    integer ::  i1st
+    integer ::  nbod, ntp, nleft
+    integer ::  iub, iuj, iud, iue
 
-    real(8) tstop, dt
-    real(8) time
+    real(8) :: tstop, dt
+    real(8) :: time
 
-    integer ndata, i, j, nd, flag
-    real(8) ymod(ndata), ymod_pl(nbod-1,ndata), t(ndata)
-    real(8) h, eps, mtotal
+    integer ::  ndata, i, j, nd, flag
+    real(8) :: ymod(ndata), ymod_pl(nbod-1,ndata), t(ndata)
+    real(8) :: h, eps, mtotal
 
     ntp = 0
     ! Prompt and read name of planet data file
@@ -3053,18 +3056,18 @@ subroutine bs_step2(nbod, mass, j2rp2, j4rp4, &
     include 'bs.inc'
 
     !...  Inputs Only:
-    integer nbod
-    real(8) mass(nbod), dt, j2rp2, j4rp4
+    integer ::  nbod
+    real(8) :: mass(nbod), dt, j2rp2, j4rp4
 
     !...  Inputs and Outputs:
-    real(8) xh(nbod), yh(nbod), zh(nbod)
-    real(8) vxh(nbod), vyh(nbod), vzh(nbod)
+    real(8) :: xh(nbod), yh(nbod), zh(nbod)
+    real(8) :: vxh(nbod), vyh(nbod), vzh(nbod)
 
     !...  Internals
-    integer i, ntpi
-    real(8) xb(NPLMAX), yb(NPLMAX), zb(NPLMAX), eps
-    real(8) vxb(NPLMAX), vyb(NPLMAX), vzb(NPLMAX)
-    real(8) ybs(6, (NTPMAX + NPLMAX)), tfake, dttmp, msys
+    integer ::  i, ntpi
+    real(8) :: xb(NPLMAX), yb(NPLMAX), zb(NPLMAX), eps
+    real(8) :: vxb(NPLMAX), vyb(NPLMAX), vzb(NPLMAX)
+    real(8) :: ybs(6, (NTPMAX + NPLMAX)), tfake, dttmp, msys
 
     !...  Executable code
 
@@ -3121,13 +3124,13 @@ end
 subroutine MRQMIN_dynamo (x, y, sig, ndata, a, ia, ma, ts, covar, alpha, &
         nca, chisq, funcs, alamda, loglik, jitt, hkl)
     implicit none
-    integer ma, nca, ndata, ia(ma), MMAX, NDSMAX 
-    integer ts(ndata)    
+    integer ::  ma, nca, ndata, ia(ma), MMAX, NDSMAX 
+    integer ::  ts(ndata)    
     real(8) alamda, chisq, a(ma), alpha(nca, nca), covar(nca, nca), &
             sig(ndata), x(ndata), y(ndata), loglik
     external funcs
     parameter (MMAX = 200, NDSMAX = 20)
-    integer j, k, l, mfit, hkl
+    integer ::  j, k, l, mfit, hkl
     real(8) ochisq, atry(MMAX), beta(MMAX), da(MMAX), jitt(NDSMAX)
     save ochisq, atry, beta, da, mfit
 
@@ -3205,15 +3208,15 @@ end
 subroutine MRQMIN_dynlm (x, ts, y, sig, ndata, a, ia, ma, covar, alpha, &
         nca, chisq, funcs, alamda, loglik, jitt, epsil, deltat, hkl, coplar_inc)
     implicit none
-    integer ma, nca, ndata, ia(ma), MMAX, NDSMAX, ts(ndata)
+    integer ::  ma, nca, ndata, ia(ma), MMAX, NDSMAX, ts(ndata)
     parameter (MMAX = 200, NDSMAX = 20)
-    integer npl, ndset, idset, idsmax(NDSMAX), hkl, gr_flag
-    real(8) alamda, chisq, a(ma), alpha(nca, nca), covar(nca, nca), &
+    integer ::  npl, ndset, idset, idsmax(NDSMAX), hkl, gr_flag
+    real(8) :: alamda, chisq, a(ma), alpha(nca, nca), covar(nca, nca), &
             sig(ndata), x(ndata), y(ndata), loglik, jitt(NDSMAX)
     external funcs
 
-    integer j, k, l, mfit, coplar_inc
-    real(8) ochisq, atry(MMAX), beta(MMAX), da(MMAX), epsil, deltat
+    integer ::  j, k, l, mfit, coplar_inc
+    real(8) :: ochisq, atry(MMAX), beta(MMAX), da(MMAX), epsil, deltat
     save ochisq, atry, beta, da, mfit
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
@@ -3294,15 +3297,15 @@ end
 subroutine MRQCOF_dynamo (x, y, sig, ndata, a, ia, ma, ts, alpha, &
         beta, nalp, chisq, funcs, loglik, jitt, hkl)
     implicit none
-    integer npl, ndset, idset, ma, nalp, ndata, ia(ma), NDSMAX, MMAX
+    integer ::  npl, ndset, idset, ma, nalp, ndata, ia(ma), NDSMAX, MMAX
     parameter (NDSMAX = 20, MMAX = 200)
-    integer idsmax(NDSMAX), ts(ndata), hkl, gr_flag
-    real(8) chisq, a(ma), alpha(nalp, nalp), beta(ma), sig(ndata), &
+    integer ::  idsmax(NDSMAX), ts(ndata), hkl, gr_flag
+    real(8) :: chisq, a(ma), alpha(nalp, nalp), beta(ma), sig(ndata), &
             x(ndata), y(ndata), loglik, TWOPI, jitt(NDSMAX)
     parameter (TWOPI = 2.d0 * 3.14159265358979d0)
     external funcs
-    integer mfit, i, j, k, l, m
-    real(8) dy, sig2i, wt, ymod,ymod_pl(npl), dyda(MMAX)
+    integer ::  mfit, i, j, k, l, m
+    real(8) :: dy, sig2i, wt, ymod,ymod_pl(npl), dyda(MMAX)
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
@@ -3366,16 +3369,16 @@ end
 subroutine MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, nalp, &
         chisq, funcs, loglik, jitt, epsil, deltat, hkl, coplar_inc)
     implicit none
-    integer npl, ndset, idset, ma, nalp, ndata, ia(ma), NDSMAX, MMAX
+    integer ::  npl, ndset, idset, ma, nalp, ndata, ia(ma), NDSMAX, MMAX
     parameter (NDSMAX = 20, MMAX = 200)
-    integer idsmax(NDSMAX), ts(ndata), hkl
-    real(8) chisq, a(ma), alpha(nalp, nalp), beta(ma), sig(ndata), &
+    integer ::  idsmax(NDSMAX), ts(ndata), hkl
+    real(8) :: chisq, a(ma), alpha(nalp, nalp), beta(ma), sig(ndata), &
             x(ndata), y(ndata), loglik, TWOPI, epsil, deltat
     parameter (TWOPI = 2.d0 * 3.14159265358979d0)
     external funcs
-    integer mfit, i, j, k, l, m, gr_flag, coplar_inc
-    real(8) dy, sig2i, wt, ymod(ndata)
-    real(8) ymod_pl(npl,ndata), dyda(20000, MMAX), jitt(NDSMAX)
+    integer ::  mfit, i, j, k, l, m, gr_flag, coplar_inc
+    real(8) :: dy, sig2i, wt, ymod(ndata)
+    real(8) :: ymod_pl(npl,ndata), dyda(20000, MMAX), jitt(NDSMAX)
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     save dyda
@@ -3451,12 +3454,12 @@ end
 ! From Numerical Recipes.
 subroutine GAUSSJ_dynamo (a, n, np, b, m, mp)
     implicit none
-    integer m, mp, n, np, NMAX
-    real(8) a(np, np), b(np, mp)
+    integer ::  m, mp, n, np, NMAX
+    real(8) :: a(np, np), b(np, mp)
     parameter (NMAX = 50)
-    integer i, icol, irow, j, k, l, ll, kkk, &
+    integer ::  i, icol, irow, j, k, l, ll, kkk, &
             indxc(NMAX), indxr(NMAX), ipiv(NMAX)
-    real(8) big, dum, pivinv
+    real(8) :: big, dum, pivinv
 
     icol = 0
     irow = 0
@@ -3541,11 +3544,11 @@ end
 ! From Numerical Recipes.
 subroutine GAUSSJ_dynlm (a, n, np, b, m, mp)
     implicit none
-    integer m, mp, n, np, NMAX
-    real(8) a(np, np), b(np, mp)
+    integer ::  m, mp, n, np, NMAX
+    real(8) :: a(np, np), b(np, mp)
     parameter (NMAX = 51)
-    integer i, icol, irow, j, k, l, ll, indxc(NMAX), indxr(NMAX), ipiv(NMAX)
-    real(8) big, dum, pivinv
+    integer ::  i, icol, irow, j, k, l, ll, indxc(NMAX), indxr(NMAX), ipiv(NMAX)
+    real(8) :: big, dum, pivinv
 
     icol = 0
     irow = 0
@@ -3635,10 +3638,10 @@ end
 ! From Numerical Recipes.
 subroutine COVSRT (covar, npc, ma, ia, mfit)
     implicit none
-    integer ma, mfit, npc, ia(ma)
-    real(8) covar(npc, npc)
-    integer i, j, k
-    real(8) swap
+    integer ::  ma, mfit, npc, ia(ma)
+    real(8) :: covar(npc, npc)
+    integer ::  i, j, k
+    real(8) :: swap
 
     do i = mfit + 1, ma
         do j = 1, i
@@ -3699,19 +3702,19 @@ subroutine orbel_el2xv(gm, ialpha, a, e, inc, capom, omega, capm, &
     include 'rvmod.inc'
 
     !...  Inputs Only:
-    integer ialpha
-    real(8) gm, a, e, inc, capom, omega, capm
+    integer ::  ialpha
+    real(8) :: gm, a, e, inc, capom, omega, capm
 
     !...  Outputs:
-    real(8) x, y, z, vx, vy, vz
+    real(8) :: x, y, z, vx, vy, vz
 
     !...  Internals:
-    real(8) cape, capf, zpara, em1
-    real(8) sp, cp, so, co, si, ci
-    real(8) d11, d12, d13, d21, d22, d23
-    real(8) scap, ccap, shcap, chcap
-    real(8) sqe, sqgma, xfac1, xfac2, ri, vfac1, vfac2
-    real(8) orbel_ehybrid, orbel_fhybrid, orbel_zget
+    real(8) :: cape, capf, zpara, em1
+    real(8) :: sp, cp, so, co, si, ci
+    real(8) :: d11, d12, d13, d21, d22, d23
+    real(8) :: scap, ccap, shcap, chcap
+    real(8) :: sqe, sqgma, xfac1, xfac2, ri, vfac1, vfac2
+    real(8) :: orbel_ehybrid, orbel_fhybrid, orbel_zget
 
     vfac1 = 0
     vfac2 = 0
@@ -3861,11 +3864,11 @@ real(8) function orbel_ehie(e, m)
     include 'rvmod.inc'
 
     !...  Inputs Only:
-    real(8) e, m
+    real(8) :: e, m
 
     !...  Internals:
-    integer iflag, nper, niter, NMAX
-    real(8) dx, x, sa, ca, esa, eca, f, fp
+    integer ::  iflag, nper, niter, NMAX
+    real(8) :: dx, x, sa, ca, esa, eca, f, fp
 
     parameter (NMAX = 3)
     !...  Executable code
@@ -3931,10 +3934,10 @@ real(8) function orbel_fhybrid(e, n)
     include 'rvmod.inc'
 
     !...  Inputs Only:
-    real(8) e, n
+    real(8) :: e, n
     !...  Internals:
-    real(8) abn
-    real(8) orbel_flon, orbel_fget
+    real(8) :: abn
+    real(8) :: orbel_flon, orbel_fget
 
     !...  Executable code
     abn = n
@@ -3972,15 +3975,15 @@ subroutine orbel_scget(angle, sx, cx)
     include 'rvmod.inc'
 
     !...  Inputs Only:
-    real(8) angle
+    real(8) :: angle
 
     !...  Output:
-    real(8) sx, cx
+    real(8) :: sx, cx
 
     !... Internals:
-    integer nper
-    real(8) x
-    real(8) PI3BY2
+    integer ::  nper
+    real(8) :: x
+    real(8) :: PI3BY2
     parameter(PI3BY2 = 1.5d0 * PI)
 
     !...  Executable code
@@ -4024,11 +4027,11 @@ real(8) function orbel_eget(e, m)
     include 'rvmod.inc'
 
     !...  Inputs Only:
-    real(8) e, m
+    real(8) :: e, m
 
     !...  Internals:
-    real(8) x, sm, cm, sx, cx
-    real(8) es, ec, f, fp, fpp, fppp, dx
+    real(8) :: x, sm, cm, sx, cx
+    real(8) :: es, ec, f, fp, fpp, fppp, dx
 
     !...  Executable code
     ! Function to solve Kepler's eqn for E (here called
@@ -4097,11 +4100,11 @@ real(8) function orbel_esolmd(e, m)
     include 'rvmod.inc'
 
     !...  Inputs Only:
-    real(8) e, m
+    real(8) :: e, m
 
     !...  Internals:
-    real(8) x, sm, cm, sx, cx
-    real(8) es, ec, f, fp, fpp, fppp, dx
+    real(8) :: x, sm, cm, sx, cx
+    real(8) :: es, ec, f, fp, fpp, fppp, dx
 
     !...  Executable code
     !...    Function to solve Kepler's eqn for E (here called
@@ -4149,19 +4152,19 @@ subroutine tu4_getaccb(nbod, mass, j2rp2, j4rp4, xb, yb, zb, axb, ayb, azb)
     include 'rvmod.inc'
 
     !...  Inputs Only:
-    integer nbod
-    real(8) mass(nbod), j2rp2, j4rp4
-    real(8) xb(nbod), yb(nbod), zb(nbod)
+    integer ::  nbod
+    real(8) :: mass(nbod), j2rp2, j4rp4
+    real(8) :: xb(nbod), yb(nbod), zb(nbod)
 
     !...  Output
-    real(8) axb(nbod), ayb(nbod), azb(nbod)
+    real(8) :: axb(nbod), ayb(nbod), azb(nbod)
 
     !...  Internals
-    real(8) xx, yy, zz, rr2, fac, mi, mj
-    real(8) axx, ayy, azz, fac1
-    real(8) xh(NPLMAX), yh(NPLMAX), zh(NPLMAX), irh(NPLMAX)
-    real(8) aoblx(NPLMAX), aobly(NPLMAX), aoblz(NPLMAX)
-    integer i, j
+    real(8) :: xx, yy, zz, rr2, fac, mi, mj
+    real(8) :: axx, ayy, azz, fac1
+    real(8) :: xh(NPLMAX), yh(NPLMAX), zh(NPLMAX), irh(NPLMAX)
+    real(8) :: aoblx(NPLMAX), aobly(NPLMAX), aoblz(NPLMAX)
+    integer ::  i, j
 
     !...  executable code
     xh(1) = 0.0d0
@@ -4261,18 +4264,18 @@ subroutine coord_h2b(nbod, mass, xh, yh, zh, vxh, vyh, vzh, &
     include 'rvmod.inc'
 
     !...  Inputs:
-    integer nbod
-    real(8) mass(NPLMAX)
-    real(8) xh(NPLMAX), yh(NPLMAX), zh(NPLMAX)
-    real(8) vxh(NPLMAX), vyh(NPLMAX), vzh(NPLMAX)
+    integer ::  nbod
+    real(8) :: mass(NPLMAX)
+    real(8) :: xh(NPLMAX), yh(NPLMAX), zh(NPLMAX)
+    real(8) :: vxh(NPLMAX), vyh(NPLMAX), vzh(NPLMAX)
 
     !...  Outputs:
-    real(8) xb(NPLMAX), yb(NPLMAX), zb(NPLMAX)
-    real(8) vxb(NPLMAX), vyb(NPLMAX), vzb(NPLMAX)
+    real(8) :: xb(NPLMAX), yb(NPLMAX), zb(NPLMAX)
+    real(8) :: vxb(NPLMAX), vyb(NPLMAX), vzb(NPLMAX)
 
     !...  Internals:
-    real(8) msys, xtmp, ytmp, ztmp, vxtmp, vytmp, vztmp
-    integer n
+    real(8) :: msys, xtmp, ytmp, ztmp, vxtmp, vytmp, vztmp
+    integer ::  n
 
     !...  Executable code
     msys = mass(1)
@@ -4343,18 +4346,18 @@ subroutine coord_b2h(nbod, xb, yb, zb, vxb, vyb, vzb, &
     include 'rvmod.inc'
 
     !...  Inputs:
-    integer nbod
-    real(8) xb(NPLMAX), yb(NPLMAX), zb(NPLMAX)
-    real(8) vxb(NPLMAX), vyb(NPLMAX), vzb(NPLMAX)
+    integer ::  nbod
+    real(8) :: xb(NPLMAX), yb(NPLMAX), zb(NPLMAX)
+    real(8) :: vxb(NPLMAX), vyb(NPLMAX), vzb(NPLMAX)
 
     !...  Outputs:
-    real(8) xh(NPLMAX), yh(NPLMAX), zh(NPLMAX)
-    real(8) vxh(NPLMAX), vyh(NPLMAX), vzh(NPLMAX)
+    real(8) :: xh(NPLMAX), yh(NPLMAX), zh(NPLMAX)
+    real(8) :: vxh(NPLMAX), vyh(NPLMAX), vzh(NPLMAX)
     
    
 
     !...  Internals:
-    integer n
+    integer ::  n
 
     !...  Executable code
     do n = 1, nbod
@@ -4404,18 +4407,18 @@ subroutine obl_acc(nbod, mass, j2rp2, j4rp4, xh, yh, zh, irh, &
     include 'rvmod.inc'
 
     !...  Inputs Only:
-    integer nbod
-    real(8) j2rp2, j4rp4
-    real(8) mass(NPLMAX)
-    real(8) xh(NPLMAX), yh(NPLMAX), zh(NPLMAX), irh(NPLMAX)
+    integer ::  nbod
+    real(8) :: j2rp2, j4rp4
+    real(8) :: mass(NPLMAX)
+    real(8) :: xh(NPLMAX), yh(NPLMAX), zh(NPLMAX), irh(NPLMAX)
 
     !...  Output
-    real(8) aoblx(NPLMAX), aobly(NPLMAX), aoblz(NPLMAX)
+    real(8) :: aoblx(NPLMAX), aobly(NPLMAX), aoblz(NPLMAX)
 
     !...  Internals
-    integer n
-    real(8) rinv2, t0, t1, t2, t3
-    real(8) fac1, fac2
+    integer ::  n
+    real(8) :: rinv2, t0, t1, t2, t3
+    real(8) :: fac1, fac2
 
     !...  executable code
     ! First get the bary acc. of each "planet" due to central oblate "sun"
@@ -4469,12 +4472,12 @@ real(8) function orbel_fget(e, capn)
     include 'rvmod.inc'
 
     !...  Inputs Only:
-    real(8) e, capn
+    real(8) :: e, capn
 
     !...  Internals:
-    integer i, IMAX
-    real(8) tmp, x, shx, chx
-    real(8) esh, ech, f, fp, fpp, fppp, dx
+    integer ::  i, IMAX
+    real(8) :: tmp, x, shx, chx
+    real(8) :: esh, ech, f, fp, fpp, fppp, dx
     PARAMETER (IMAX = 10)
 
     !...  Executable code
@@ -4534,11 +4537,11 @@ real(8) function orbel_zget(q)
     include 'rvmod.inc'
 
     !...  Inputs Only:
-    real(8) q
+    real(8) :: q
 
     !...  Internals:
-    integer iflag
-    real(8) x, tmp
+    integer ::  iflag
+    real(8) :: x, tmp
 
     !...  Executable code
     iflag = 0
@@ -4587,10 +4590,10 @@ subroutine orbel_schget(angle, shx, chx)
     include 'rvmod.inc'
 
     !...  Inputs Only:
-    real(8) angle
+    real(8) :: angle
 
     !...  Output:
-    real(8) shx, chx
+    real(8) :: shx, chx
 
     !----
     !...  Executable code
@@ -4621,16 +4624,16 @@ real(8) function orbel_flon(e, capn)
     include 'rvmod.inc'
 
     !...  Inputs Only:
-    real(8) e, capn
+    real(8) :: e, capn
 
     !...  Internals:
-    integer iflag, i, IMAX
-    real(8) a, b, sq, biga, bigb
-    real(8) x, x2
-    real(8) f, fp, dx
-    real(8) diff
-    real(8) a0, a1, a3, a5, a7, a9, a11
-    real(8) b1, b3, b5, b7, b9, b11
+    integer ::  iflag, i, IMAX
+    real(8) :: a, b, sq, biga, bigb
+    real(8) :: x, x2
+    real(8) :: f, fp, dx
+    real(8) :: diff
+    real(8) :: a0, a1, a3, a5, a7, a9, a11
+    real(8) :: b1, b3, b5, b7, b9, b11
     PARAMETER (IMAX = 10)
     PARAMETER (a11 = 156.d0, a9 = 17160.d0, a7 = 1235520.d0)
     PARAMETER (a5 = 51891840.d0, a3 = 1037836800.d0)
@@ -4726,19 +4729,19 @@ subroutine coord_j2h(nbod, mass, xj, yj, zj, vxj, vyj, vzj, &
     include 'rvmod.inc'
 
     !...  Inputs:
-    integer nbod
-    real(8) mass(NPLMAX)
-    real(8) xj(NPLMAX), yj(NPLMAX), zj(NPLMAX)
-    real(8) vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
+    integer ::  nbod
+    real(8) :: mass(NPLMAX)
+    real(8) :: xj(NPLMAX), yj(NPLMAX), zj(NPLMAX)
+    real(8) :: vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
 
     !...  Outputs:
-    real(8) xh(NPLMAX), yh(NPLMAX), zh(NPLMAX)
-    real(8) vxh(NPLMAX), vyh(NPLMAX), vzh(NPLMAX)
+    real(8) :: xh(NPLMAX), yh(NPLMAX), zh(NPLMAX)
+    real(8) :: vxh(NPLMAX), vyh(NPLMAX), vzh(NPLMAX)
 
     !...  Internals:
-    integer n
-    real(8) sumx, sumy, sumz, sumvx, sumvy, sumvz
-    real(8) eta(NPLMAX)
+    integer ::  n
+    real(8) :: sumx, sumy, sumz, sumvx, sumvy, sumvz
+    real(8) :: eta(NPLMAX)
 
     !...  Executable code
     ! First calc. the array eta(*) then convert to jacobi coords
@@ -4825,17 +4828,17 @@ subroutine bs_int_pl(nbod, ntp, mass, j2rp2, j4rp4, x, h0, y, eps)
     include 'bs.inc'
 
     !...  Inputs Only:
-    integer nbod, ntp
-    real(8) mass(nbod), h0, eps, j2rp2, j4rp4
+    integer ::  nbod, ntp
+    real(8) :: mass(nbod), h0, eps, j2rp2, j4rp4
 
     !...  Input & Output
-    real(8) x, y(N6DBS)
+    real(8) :: x, y(N6DBS)
 
     !...  Internals
-    real(8) tp(NTEMP), dy(N6DBS), d(6), alt(10), lt(10)
-    integer idiv, i, ii, m, l, m1, k, mmk, i1, i1max, ik, n
-    real(8) xa, xb, varm, fl, h, hd, flt, eta2, dta, yb, c, b1
-    real(8) den, dtn, b, var, varma
+    real(8) :: tp(NTEMP), dy(N6DBS), d(6), alt(10), lt(10)
+    integer ::  idiv, i, ii, m, l, m1, k, mmk, i1, i1max, ik, n
+    real(8) :: xa, xb, varm, fl, h, hd, flt, eta2, dta, yb, c, b1
+    real(8) :: den, dtn, b, var, varma
     logical lbreak
 
     data lt/1, 2, 3, 4, 6, 8, 12, 16, 24, 32/
@@ -4987,18 +4990,18 @@ subroutine bs_der_pl(nbod, mass, j2rp2, j4rp4, ybs, dy)
     include 'bs.inc'
 
     !...  Inputs Only:
-    integer nbod
-    real(8) mass(nbod), j2rp2, j4rp4
-    real(8) ybs(6, (NTPMAX + NPLMAX))
+    integer ::  nbod
+    real(8) :: mass(nbod), j2rp2, j4rp4
+    real(8) :: ybs(6, (NTPMAX + NPLMAX))
 
     !...  Output
-    real(8) dy(6, (NTPMAX + NPLMAX))
+    real(8) :: dy(6, (NTPMAX + NPLMAX))
 
     !...  Internals
-    integer i
-    real(8) xb(NPLMAX), yb(NPLMAX), zb(NPLMAX)
-    real(8) vxb(NPLMAX), vyb(NPLMAX), vzb(NPLMAX)
-    real(8) axb(NPLMAX), ayb(NPLMAX), azb(NPLMAX)
+    integer ::  i
+    real(8) :: xb(NPLMAX), yb(NPLMAX), zb(NPLMAX)
+    real(8) :: vxb(NPLMAX), vyb(NPLMAX), vzb(NPLMAX)
+    real(8) :: axb(NPLMAX), ayb(NPLMAX), azb(NPLMAX)
 
     !...  Executable code
     !...  move things so that I can deal with it
