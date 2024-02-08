@@ -459,11 +459,11 @@ class Rvfit:
 
         # Recursive Flag only on linux
         #recur = "" if "win" in sys.platform[0:3] else "-frecursive"
-        recur = "-fmax-stack-var-size=2147483646" if "win" in sys.platform[0:3] else "-fmax-stack-var-size=2147483646"        
-         
+#        recur = "-fmax-stack-var-size=2147483646" if "win" in sys.platform[0:3] else "-fmax-stack-var-size=2147483646"        
+        recur = "-frecursive" if "win" in sys.platform[0:3] else "-frecursive"                 
 
         # Compile it using the Numpy F2PY
-        os.system("python{} -m numpy.f2py -c --opt=\"-O3 -std=f95 {}\" -m rvmod_for rvmod_for.f95".format(vers, recur))
+        os.system("python{} -m numpy.f2py -c --opt=\"-O3 -std=legacy {}\" -m rvmod_for rvmod_for.f95".format(vers, recur))
 
         # If Windows, move the created DLL
         if "win" in sys.platform[0:3]:

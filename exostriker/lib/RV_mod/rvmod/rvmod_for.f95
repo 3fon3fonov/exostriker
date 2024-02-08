@@ -720,7 +720,7 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
 !f2py intent(out) bestpar_1, bestpar_2, bestpar_3, bestpar_4
 !f2py depend(ndset_in) files_array,files_param
 !f2py depend(npl_in) array_npl, dynamical_planets
-!f2py depend(ndata) data_array
+!f2py depend(ndata) data_array,fit_array
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     common mstar, sini
@@ -1161,12 +1161,9 @@ subroutine RVKEP_kepamo (x, a, y, y_pl, dyda, ma, ts, hkl)
             if(capmm(i)<0.d0)capmm(i) = dmod(capmm(i) + 2.d0 * PI, 2.d0 * PI)
             if(capmm(i)>0.d0)capmm(i) = dmod(capmm(i), 2.d0 * PI)
 
-!!!
             if(gr_flag.ne.0) call MA_J_kepamo (a, ma, npl, 1.0d0, &
                     mass, ap, hkl, gr_flag)            
             omegad(i) = a(j + 6)
-!!!
-
         enddo
     endif
 
@@ -1997,7 +1994,7 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
     real(4) :: model_max, model_min
     parameter (AU = 1.49597892d11, day = 86400.d0)
     real(8) :: wdot(NPLMAX), u_wdot(NPLMAX), best_w, best_we
-    real(8) :: ymod_pl(npl, ndata),ymod_pl2(npl,nt)    
+    real(8) :: ymod_pl(npl, 20000)     
     real(8) :: res_array(ndata, 6 + npl)
     real(8) :: fit_return(4), fit_array(nt, 2 + npl)
     real(8) :: bestpar_1(npl, 17, 2), bestpar_2(ndset, 2)
@@ -2149,7 +2146,7 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
         do i = 1, nt
             x(i) = (i - 1) * dt * 8.64d4
         enddo
-        call RVKEP_ewcop_fin (x, a, ymod, ymod_pl2, dyda, ma, nt, epsil, deltat,&
+        call RVKEP_ewcop_fin (x, a, ymod, ymod_pl, dyda, ma, nt, epsil, deltat,&
          hkl, coplar_inc)
         do i = 1, nt
 !            write(*,*) i,ymod(i), a(7 * npl * ndset + 1), & 
@@ -2158,7 +2155,7 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
             fit_array(i, :) = (/ t0 + x(i) / 8.64d4, &
                     ymod(i) + a(7 * npl + ndset + 1) * (x(i) / 8.64d4)&
                             + a(7 * npl + ndset + 2) * (x(i) / 8.64d4)**2, &
-                            (ymod_pl2(j,i), j=1,npl)/)
+                            (ymod_pl(j,i), j=1,npl)/)
 
         enddo
     endif
@@ -3215,7 +3212,7 @@ end
 ! From Numerical Recipes.
 subroutine MRQMIN_dynlm (x, ts, y, sig, ndata, a, ia, ma, covar, alpha, &
         nca, chisq, funcs, alamda, loglik, jitt, epsil, deltat, hkl, coplar_inc)
-!    implicit none
+    implicit none
     integer ::  ma, nca, ndata, ia(ma), MMAX, NDSMAX, ts(ndata)
     parameter (MMAX = 200, NDSMAX = 20)
     integer ::  npl, ndset, idset, idsmax(NDSMAX), hkl, gr_flag
@@ -3304,7 +3301,7 @@ end
 ! From Numerical Recipes.
 subroutine MRQCOF_dynamo (x, y, sig, ndata, a, ia, ma, ts, alpha, &
         beta, nalp, chisq, funcs, loglik, jitt, hkl)
-!    implicit none
+    implicit none
     integer ::  npl, ndset, idset, ma, nalp, ndata, ia(ma), NDSMAX, MMAX
     parameter (NDSMAX = 20, MMAX = 200)
     integer ::  idsmax(NDSMAX), ts(ndata), hkl, gr_flag
@@ -3376,7 +3373,7 @@ end
 ! From Numerical Recipes.
 subroutine MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, nalp, &
         chisq, funcs, loglik, jitt, epsil, deltat, hkl, coplar_inc)
-!    implicit none
+    implicit none
     integer ::  npl, ndset, idset, ma, nalp, ndata, ia(ma), NDSMAX, MMAX
     parameter (NDSMAX = 20, MMAX = 200)
     integer ::  idsmax(NDSMAX), ts(ndata), hkl
@@ -3461,7 +3458,7 @@ end
 ! GAUSSJ solves linear equation by Gauss-Jordan elimination.
 ! From Numerical Recipes.
 subroutine GAUSSJ_dynamo (a, n, np, b, m, mp)
-!    implicit none
+    implicit none
     integer ::  m, mp, n, np, NMAX
     real(8) :: a(np, np), b(np, mp)
     parameter (NMAX = 50)
@@ -3551,7 +3548,7 @@ end
 ! GAUSSJ solves linear equation by Gauss-Jordan elimination.
 ! From Numerical Recipes.
 subroutine GAUSSJ_dynlm (a, n, np, b, m, mp)
-!    implicit none
+    implicit none
     integer ::  m, mp, n, np, NMAX
     real(8) :: a(np, np), b(np, mp)
     parameter (NMAX = 51)
@@ -3645,7 +3642,7 @@ end
 ! return zero covariances.)
 ! From Numerical Recipes.
 subroutine COVSRT (covar, npc, ma, ia, mfit)
-!    implicit none
+    implicit none
     integer ::  ma, mfit, npc, ia(ma)
     real(8) :: covar(npc, npc)
     integer ::  i, j, k
