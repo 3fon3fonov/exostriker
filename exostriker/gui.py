@@ -4526,7 +4526,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         
         self.initialize_corr_y = {k: [] for k in range(20)}
         z = 0 
-
+ 
         if fit.ndset != 0:
 
            # for i in range(max(fit.fit_results.idset)+1):
@@ -4543,7 +4543,6 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                                                       fit.fit_results.rv_model.rv_err[fit.fit_results.idset==i]])  
                 z +=1
 
-            #for i in range(max(fit.fit_results.idset)+1):
 
             for i in range(len(fit.rv_data_sets)):
                 if len(fit.rv_data_sets[i]) == 0:
@@ -4556,9 +4555,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                                                       fit.fit_results.rv_model.o_c[fit.fit_results.idset==i], 
                                                       fit.fit_results.rv_model.rv_err[fit.fit_results.idset==i]]) 
                 z +=1                          
-
-
-        for i in range(0,10,1):         
+ 
+            
+        for i in range(0,20,1):         
             if len(fit.act_data_sets[i]) != 0: 
                 self.comboBox_corr_1.addItem('act. data %s'%(i+1),i+1)
                 self.comboBox_corr_2.addItem('act. data %s'%(i+1),i+1)
@@ -4575,10 +4574,18 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         ind2 = self.comboBox_corr_2.currentIndex()
  
         p6.plot(clear=True,)  
+                
         
         self.color_corr.setStyleSheet("color: %s;"%colors[0]) 
 
         #p6.autoRange()     
+ 
+        
+        if ind1 == -1 and ind2 == -1:
+        
+            text_err = pg.TextItem('No Data!',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
+            p6.addItem(text_err, ignoreBounds=True)   
+            return        
         
         if not ind1 == None and not ind2 == None:
 
@@ -4660,12 +4667,11 @@ Polyfit coefficients:
 
     def corr_plot_x_labels(self):
         global fit
-        
+
         text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
-        
+ 
         if okPressed and text != '':
             p6.setLabel('bottom', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
- 
         else:
             return
     
@@ -4776,7 +4782,7 @@ Polyfit coefficients:
             self.ttv_comboBox_pl.setCurrentIndex(pl_ind)
         else:
             pl_ind = self.ttv_comboBox_pl.currentIndex()
-            print(pl_ind)
+            #print(pl_ind)
             self.ttv_o_c_comboBox_pl.setCurrentIndex(pl_ind)
 
         self.update_ttv_plots()

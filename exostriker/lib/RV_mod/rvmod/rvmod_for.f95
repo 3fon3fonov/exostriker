@@ -56,7 +56,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     real(8) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
     real(8) :: bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
     character(80) :: version
-    character(20) mode
+    character(20) :: mode
 
     external rvkep_kepamo, compute_abs_loglik_kep
 
@@ -333,7 +333,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
     real(8) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
     real(8) :: bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
     character(80) :: version
-    character(20) mode
+    character(20) :: mode
 
 
     external rvkep_keplm
@@ -399,14 +399,20 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
         call cpu_time(t_init)            
         do while ((chisq>=ochisq).or.(dchisq<-1.d-2))
             i = i + 1
+!            write(*,*) alamda
             ochisq = chisq
             call MRQMIN_dynamo (x, y, sig, ndata, a, ia, ma, ts, covar, alpha, MMAX, &
                     chisq, rvkep_keplm, alamda, loglik, jitt, hkl)
 
             dchisq = chisq - ochisq
-            if (i.eq.10) then
+!            if (i.eq.10) then
+!                i = 0
+!            endif
+            if ((i.eq.200).or.(alamda>=1d6)) then
                 i = 0
+                exit
             endif
+
 
 !            t_stop = time() - t_init
             call cpu_time(t_stop)     
@@ -548,7 +554,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
     real(8) :: incl(NPLMAX), cap0m(NPLMAX)
 
     external rvkep_dynamo, compute_abs_loglik_dyn
-    character(80) version
+    character(80) :: version
 !    character(80) version_input, version
 
     integer :: ndset_in, npl_in, gr_flag_in, gr_flag, coplar_inc
@@ -766,6 +772,7 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
         endif
         i = i + 1
         ochisq = chisq
+!        write(*,*) alamda        
         call MRQMIN_dynlm (t, ts, ys, sigs, ndata, a, ia, ma, covar, alpha, &
                 MMAX, chisq, rvkep_ewcop_fin, alamda, loglik, jitt, epsil, deltat, hkl, coplar_inc)
 
@@ -1785,8 +1792,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
     real(4) :: model_max, model_min
     real(8) :: wdot(NPLMAX), u_wdot(NPLMAX), best_w, best_we
     integer :: dynamical_planets(npl), coplar_inc
-    real(8), allocatable :: ymod_pl(:,:)     
-    
+    real(8) :: ymod_pl(npl,20000)     
     
     parameter (AU = 1.49597892d11, day = 86400.d0)
 
@@ -1798,8 +1804,6 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     common mstar, sini
 
-    allocate(ymod_pl(npl,nt))
-    
     nbod = npl + 1
     rms = 0.d0
     twopi = 2.0d0 * PI
@@ -1997,19 +2001,15 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
     real(4) :: model_max, model_min
     parameter (AU = 1.49597892d11, day = 86400.d0)
     real(8) :: wdot(NPLMAX), u_wdot(NPLMAX), best_w, best_we
-
+    real(8) :: ymod_pl(npl, 20000)     
     real(8) :: res_array(ndata, 6 + npl)
     real(8) :: fit_return(4), fit_array(nt, 2 + npl)
     real(8) :: bestpar_1(npl, 17, 2), bestpar_2(ndset, 2)
     real(8) :: bestpar_3(ndset, 2), bestpar_4(9 + 2 * npl)
 
-    real(8), allocatable :: ymod_pl(:,:)     
-        
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     common mstar, sini
     save dyda
-
-    allocate(ymod_pl(npl, nt)) 
 
     nbod = npl + 1
     rms = 0.d0
@@ -3138,12 +3138,12 @@ subroutine MRQMIN_dynamo (x, y, sig, ndata, a, ia, ma, ts, covar, alpha, &
     implicit none
     integer ::  ma, nca, ndata, ia(ma), MMAX, NDSMAX 
     integer ::  ts(ndata)    
-    real(8) alamda, chisq, a(ma), alpha(nca, nca), covar(nca, nca), &
+    real(8) :: alamda, chisq, a(ma), alpha(nca, nca), covar(nca, nca), &
             sig(ndata), x(ndata), y(ndata), loglik
     external funcs
     parameter (MMAX = 200, NDSMAX = 20)
     integer ::  j, k, l, mfit, hkl
-    real(8) ochisq, atry(MMAX), beta(MMAX), da(MMAX), jitt(NDSMAX)
+    real(8) :: ochisq, atry(MMAX), beta(MMAX), da(MMAX), jitt(NDSMAX)
     save ochisq, atry, beta, da, mfit
 
     ! Initialization.
