@@ -1,5 +1,5 @@
 import sys #,os
-from PyQt6 import QtWidgets,QtGui 
+from PyQt5 import QtWidgets,QtGui 
 
  
 class pdc(QtWidgets.QDialog):

@@ -67,7 +67,6 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
 !f2py depend(ndset_in) files_array,files_param
 !f2py depend(npl_in) array_npl, dynamical_planets
 !f2py depend(ndata) data_array
-!f2py depend(dt) fit_array
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
@@ -346,7 +345,6 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
 !f2py depend(ndset_in) files_array,files_param
 !f2py depend(npl_in) array_npl, dynamical_planets
 !f2py depend(ndata) data_array
-!f2py depend(dt) fit_array
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
@@ -576,9 +574,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
 !f2py intent(out) bestpar_1, bestpar_2, bestpar_3, bestpar_4
 !f2py depend(ndset_in) files_array,files_param
 !f2py depend(npl_in) array_npl, dynamical_planets
-!f2py depend(ndata) data_array
-!f2py depend(dt) fit_array
-
+!f2py depend(ndata) data_array,fit_array
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     common mstar, sini
@@ -730,8 +726,7 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
 !f2py intent(out) bestpar_1, bestpar_2, bestpar_3, bestpar_4
 !f2py depend(ndset_in) files_array,files_param
 !f2py depend(npl_in) array_npl, dynamical_planets
-!f2py depend(ndata) data_array
-!f2py depend(dt) fit_array
+!f2py depend(ndata) data_array,fit_array
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     common mstar, sini
@@ -1301,10 +1296,10 @@ end
 
 subroutine prepare_for_amoeba_kep(p, mp, np, y, a, ia, ma, mfit, funk, &
         ndata, x, z, dyda, ts, sig, hkl)
-    implicit none
-    integer :: ndata, MMAX, NDSMAX, ma, ts(ndata), mp, np
-    integer :: mfit,idset,ndset,npl
-    parameter(MMAX = 200, NDSMAX = 20) 
+!    implicit none
+    integer :: ndata
+    integer :: MMAX, NDSMAX, ma, ts(ndata), mp, np, mfit
+    parameter(MMAX = 200, NDSMAX = 20)
     REAL(8) :: p(mp, np), y(mp), a(MMAX), a2(mfit), fr, frjitt
     real(8) :: x(ndata), z(ndata)
     real(8) :: dyda(MMAX), sig(ndata), loglik
@@ -1351,7 +1346,7 @@ end
 
 SUBROUTINE amoeba_kep(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
         dyda, ma, ts, sig, a, ia, ytry, hkl)
-    implicit none
+!    implicit none
     integer :: ndata    
     integer :: iter, mp, ndim, np, NMAX, ITMAX, MMAX, ma, ts(ndata)
     REAL(8) :: ftol, p(mp, np), y(mp), x(ndata), z(ndata)
@@ -1436,13 +1431,11 @@ END
 
 subroutine prepare_for_amoeba_dyn(p, mp, np, y, a, ia, ma, mfit, funk, &
         ndata, x, z, ts, sig, epsil, deltat, hkl, dynamical_planets, coplar_inc)
-    implicit none        
-    integer :: MMAX, NDSMAX, ma, ndset,  npl, ndata, idset
-    integer :: mp, np, mfit, hkl, ts(ndata)
+    integer :: MMAX, NDSMAX, ma, ts(20000), ndata, mp, np, mfit, hkl
     parameter(MMAX = 200, NDSMAX = 20)
     REAL(8) :: p(mp, np), y(mp), a(MMAX), a2(mfit), fr, frjitt
-    real(8) :: x(ndata), z(ndata)
-    real(8) :: sig(ndata), loglik, epsil, deltat
+    real(8) :: x(20000), z(20000)
+    real(8) :: sig(20000), loglik, epsil, deltat
     parameter(fr = 0.01, frjitt = 0.05)
     integer :: i, j, k, ia(MMAX), idsmax(NDSMAX), gr_flag, coplar_inc
     integer :: dynamical_planets(npl)
@@ -2916,7 +2909,6 @@ end
 ! Last modified by Man Hoi Lee, Aug 16, 2003.
 subroutine GENINIT_J3_ewcop (nbod, ap, a, &
         mass, xj, yj, zj, vxj, vyj, vzj, rpl, rhill, hkl)
-    implicit none                
     real(8) :: SMASSYR, MSUN, PI, eps, THIRD
     parameter (PI = 3.14159265358979d0, eps = 1.d-7)
     parameter (SMASSYR = 4.d0 * PI * PI)
@@ -2978,7 +2970,7 @@ end
 
 subroutine integrate_cop_fin(ymod, ymod_pl, t, nbod, ndata, mass, &
         xh, yh, zh, vxh, vyh, vzh, eps, dt)
- 
+
     include 'rvmod.inc'
 
     integer ::  IO_NBITS
