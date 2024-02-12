@@ -1,4 +1,4 @@
-from PyQt6 import QtWidgets,QtGui 
+from PyQt5 import QtWidgets,QtGui 
 import sys, os
 import json
  

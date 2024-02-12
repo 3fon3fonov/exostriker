@@ -1,5 +1,5 @@
 import sys
-from PyQt6 import QtWidgets,QtGui,QtCore
+from PyQt5 import QtWidgets,QtGui,QtCore
 import io
 import numpy as np
 from print_info_window import print_info

@@ -1,5 +1,5 @@
 import sys, traceback 
-from PyQt6 import QtCore #, QtWidgets
+from PyQt5 import QtCore #, QtWidgets
 #import subprocess
 #import os
 

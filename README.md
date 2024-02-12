@@ -64,9 +64,9 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 
 
 Feedback and help in further development will be highly appreciated!
-A wish-list with your favorite tools and methods to be implemented is also welcome!
+A wish-list with your favorite tools and methods to be implemented is also welcome!    
 
-Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.
+Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.    
 
 
 **Installation**
@@ -101,10 +101,10 @@ In [1]: import exostriker
 
 * or e.g., to load the RV routines:
 
-In [1]: import exostriker.lib.RV_mod as rv
+In [1]: import exostriker.lib.RV_mod as rv    
     
     
-* Remember! Every button/action of the GUI is a wrapper of a convenient Python routine. Thus scripting is very easy:
+* Remember! Every button/action of the GUI is a wrapper of a convenient Python routine. Thus scripting is very easy:    
 
 <p align="center">
   <img width="500" src="./exostriker/source/png/ES_terminal.png">
@@ -167,7 +167,7 @@ modified by Man Hoi Lee (HKU) and Trifon Trifonov (MPIA).
 https://www.boulder.swri.edu/~hal/swift.html
 
 * Additionally, the Exo-Striker uses many "standard" Python libraries like 
-"PyQt5/PyQt6", "matplotlib", "numpy", "scipy", "dill", "Jupyter", "qtconsole",
+"PyQt5", "matplotlib", "numpy", "scipy", "dill", "Jupyter", "qtconsole",
 and more.
 
 * The Exo-Striker project was inspired by the Systemic project.

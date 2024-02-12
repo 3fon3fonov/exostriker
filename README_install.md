@@ -9,7 +9,7 @@ All the methods listed below work in Linux, Windows or MacOS if you have python 
 You can easily get the pip version by typing in the terminal:
 
 ```bash
-pip install exostriker (NOT WORKING AT THIS MOMENT! See below for installation!)
+pip install exostriker
 ```
 
 ### Cloning from GitHub
