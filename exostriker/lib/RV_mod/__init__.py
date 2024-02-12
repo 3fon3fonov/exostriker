@@ -27,6 +27,7 @@ from celerite import terms
 import dill
 dill.settings['fmode']
 
+import gc
 
 #try:
 #    import dynesty
@@ -1160,6 +1161,8 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             re.run_amoeba("dyn")
 
         rv_loglik = float(re.loglik)
+         
+        del re
 
     else:
         rv_loglik = 0
@@ -1248,8 +1251,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             if AMD >= AMD_Hill:
                 return (rv_loglik + tr_loglik + ttv_loglik  + astr_loglik)* 2.0*np.exp(1.0 - AMD_Hill/AMD)
  
- 
-    del re
+
     
     if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
         return -np.inf
@@ -4547,7 +4549,7 @@ class signal_fit(object):
             mod='kep'
 
         hkl = int(self.hkl)
-
+#        from .rvmod import Rvfit
         re = Rvfit()
  
         def create_args():
@@ -4629,7 +4631,7 @@ class signal_fit(object):
  
         if flag==1: # or self.rtg[0] == True
 
-            self.fit_results = re
+            self.fit_results = dill.copy(re)
             self.stat_saved=self.fit_results.stat_array_saved
 
             self.model_saved=bool(outputfiles[2])
@@ -4640,8 +4642,9 @@ class signal_fit(object):
 #            self.correct_elements() #because amoeba might make things wrong here
  
 
-        del re
-        
+#        del re, Rvfit
+#        gc.collect()
+
         if (return_flag):
             return flag
         else:

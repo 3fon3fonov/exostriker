@@ -3,8 +3,8 @@
 
 import sys
 
-from PyQt5.QtCore import QRegExp
-from PyQt5.QtGui import QColor, QTextCharFormat, QFont, QSyntaxHighlighter
+from PyQt6.QtCore import QRegularExpression as QRegExp
+from PyQt6.QtGui import QColor, QTextCharFormat, QFont, QSyntaxHighlighter
 
 quote = "%s%s%s" % (chr(39), chr(39), chr(39))
 dquote = "%s%s%s" % (chr(34), chr(34), chr(34))
@@ -18,12 +18,12 @@ def format(color, style=''):
     _format = QTextCharFormat()
     _format.setForeground(_color)
     if 'bold' in style:
-        _format.setFontWeight(QFont.Bold)
+        _format.setFontWeight(QFont.Weight.Bold)
     if 'italic' in style:
         _format.setFontItalic(True)
     if 'italicbold' in style:
         _format.setFontItalic(True)
-        _format.setFontWeight(QFont.Bold)
+        _format.setFontWeight(QFont.Weight.Bold)
     return _format
 
 mybrawn = ("#7E5916")
@@ -132,8 +132,24 @@ class Highlighter(QSyntaxHighlighter):
         self.rules = [(QRegExp(pat), index, fmt)
             for (pat, index, fmt) in rules]
 
-
     def highlightBlock(self, text):
+        # Apply syntax highlighting to the given block of text.
+
+        # Do other syntax formatting
+        for expression, nth, format in self.rules:
+            match = expression.match(text)
+
+            while match.hasMatch():
+                # Get the index of the nth match
+                index = match.capturedStart(nth)
+                length = len(match.captured(nth))
+                self.setFormat(index, length, format)
+                match = expression.match(text, index + length)
+
+        self.setCurrentBlockState(0)
+
+
+    def highlightBlock_old(self, text):
 
 #        Apply syntax highlighting to the given block of text.
 

@@ -535,7 +535,7 @@ class Rvfit:
 
     # Run the amoeba code in Fortran
     # The options for mtype defines the type of run between Keplerian and N-body
-    def run_amoeba(self, mtype, auto_update=False):
+    def run_amoeba(self, mtype, auto_update=True):
         if mtype == "kep":
             try:
                 res = rvmod_for.kepfit_amoeba(*self.arguments)
@@ -557,7 +557,7 @@ class Rvfit:
 
     # Run the Levenberg-Marquardt code in Fortran
     # The options for mtype defines the type of run between Keplerian and N-body
-    def run_lm(self, mtype, auto_update=False):
+    def run_lm(self, mtype, auto_update=True):
         if mtype == "kep":
             try:
                 res = rvmod_for.kepfit_lm(*self.arguments)

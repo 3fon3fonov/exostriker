@@ -1,5 +1,5 @@
 import sys #,os
-from PyQt5 import QtWidgets,QtGui,QtCore
+from PyQt6 import QtWidgets,QtGui,QtCore
 
 
 font = QtGui.QFont()
