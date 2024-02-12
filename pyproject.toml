@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "exostriker"
-version = "0.87"
+version = "0.88"
 authors = [
     { name="Trifon Trifonov", email="trifonov@mpia.de" },
     { name="Matheus J. Castro", email="matheusdejesuscastro@gmail.com" },

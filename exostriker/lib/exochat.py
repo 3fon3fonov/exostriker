@@ -4,10 +4,10 @@ import sys, os
 import json
  
 
-from PyQt5.QtCore import Qt, QTextStream, QIODevice
-from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
+from PyQt6.QtCore import Qt, QTextStream, QIODevice
+from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
                              QTextEdit, QLineEdit, QPushButton)
-from PyQt5.QtGui import QColor,QIcon
+from PyQt6.QtGui import QColor,QIcon
 
 from exochat_opt import show_chat_opt
 

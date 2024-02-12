@@ -10,7 +10,7 @@ import numpy as np
 #mpl.use('Qt5Agg')
 
 import sys, os, traceback 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from PyQt6 import QtCore, QtGui, QtWidgets, uic
 import json
 
 #import collections 
@@ -2016,8 +2016,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     def initialize_color_dialog(self):
 
         self.colorDialog = QtWidgets.QColorDialog()
-        self.colorDialog.setOption(QtWidgets.QColorDialog.ShowAlphaChannel, True)
-        self.colorDialog.setOption(QtWidgets.QColorDialog.DontUseNativeDialog, True)
+        self.colorDialog.setOption(QtWidgets.QColorDialog.ColorDialogOption.ShowAlphaChannel, True)
+        self.colorDialog.setOption(QtWidgets.QColorDialog.ColorDialogOption.DontUseNativeDialog, True)
         #elf.colorDialog.setOptions(QtWidgets.QColorDialog.DontUseNativeDialog |QtWidgets.QColorDialog.NoButtons |QtWidgets.QColorDialog.ShowAlphaChannel)
 
     def initialize_buttons(self):
@@ -3644,7 +3644,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 
                 
             if fit.gls.norm == 'ZK':
-                [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
+                [p7.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
  
             text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls.freq, fit.gls.power, power_level = power_levels, sig_level = fit.gls.powerLevel(np.array(power_levels)) )   
 
@@ -3685,7 +3685,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 p8.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()})                
                 
             if fit.gls_o_c.norm == 'ZK':
-                [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]            
+                [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]            
 
             text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls_o_c.freq, fit.gls_o_c.power, power_level = power_levels, sig_level = fit.gls_o_c.powerLevel(np.array(power_levels)) )
 
@@ -4728,7 +4728,7 @@ Polyfit coefficients:
                 p11.plot(act_per.freq, act_per.power,pen=fit.act_colors[ind],symbol=None )
                 p11.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
 
-            [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
+            [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
   
             text_peaks, pos_peaks = self.identify_power_peaks(1/act_per.freq, act_per.power, power_level = power_levels, sig_level = act_per.powerLevel(np.array(power_levels)) )    
 
@@ -6139,7 +6139,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 pe2.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
     
             if fit.gls.norm == 'ZK':
-                [pe2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
+                [pe2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
 
 
             text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls.freq, fit.gls.power, power_level = power_levels, sig_level = fit.gls.powerLevel(np.array(power_levels)) )           
@@ -6169,7 +6169,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     
     
             if fit.gls.norm == 'ZK':
-                [pe2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]
+                [pe2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]
 
             text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls_o_c.freq, fit.gls_o_c.power, power_level = power_levels, sig_level = fit.gls_o_c.powerLevel(np.array(power_levels)) )           
             self.label_peaks(pe2, pos_peaks, GLS = True, o_c = True)
@@ -6440,7 +6440,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def showDialog_fortran_input_file(self):
         global fit, ses_list
  
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.init)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.init)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
         
         if str(input_files[0]) != '':
             fit_new=rv.signal_fit(str(input_files[0]), 'RVmod session',readinputfile=True)
@@ -6460,17 +6460,17 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def showDialog_RVbank_input_file(self):
         global fit, ses_list
 
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open RVBank data', '', 'All (*.*);;Data (*.csv)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open RVBank data', '', 'All (*.*);;Data (*.csv)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
 
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Do you want to split the %s to pre- and post- (if applicable)?"%self.data_str,
-                                            QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)  
+                                            QtWidgets.QMessageBox.StandardButton.No | QtWidgets.QMessageBox.StandardButton.Yes)  
 
-            if choice == QtWidgets.QMessageBox.No:
+            if choice == QtWidgets.QMessageBox.StandardButton.No:
                 fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = False)
-            elif choice == QtWidgets.QMessageBox.Yes:            
+            elif choice == QtWidgets.QMessageBox.StandardButton.Yes:            
                 fit.add_RVbank_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = True)
             else:
                 return
@@ -6490,17 +6490,17 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def showDialog_MAROONX_input_file(self):
         global fit, ses_list
 
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open MAROON-X data', '', 'All (*.*);;Data (*.csv)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open MAROON-X data', '', 'All (*.*);;Data (*.csv)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
 
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Do you want to split the %s to files with different offsets (if applicable)?"%self.data_str,
-                                            QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)  
+                                            QtWidgets.QMessageBox.StandardButton.No | QtWidgets.QMessageBox.StandardButton.Yes)  
 
-            if choice == QtWidgets.QMessageBox.No:
+            if choice == QtWidgets.QMessageBox.StandardButton.No:
                 fit.add_MAROONX_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = False)
-            elif choice == QtWidgets.QMessageBox.Yes:            
+            elif choice == QtWidgets.QMessageBox.StandardButton.Yes:            
                 fit.add_MAROONX_dataset(self.file_from_path(input_files[0]), str(input_files[0]), split = True)
             else:
                 return
@@ -6691,7 +6691,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_add_RV_data.checkedId()   
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open %s'%self.data_str, '', 'All (*.*);;Data (*.vels)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open %s'%self.data_str, '', 'All (*.*);;Data (*.vels)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
 
@@ -6804,7 +6804,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_transit_data.checkedId()   
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'All (*.*);;Data (*.tran)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'All (*.*);;Data (*.tran)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
             
@@ -6897,7 +6897,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_activity_data.checkedId()   
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'All (*.*);;Data (*.act)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'All (*.*);;Data (*.act)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
 
         if str(input_files[0]) != '':
 
@@ -6952,7 +6952,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_ttv_data.checkedId()   
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open TTV data', '', 'All (*.*);;Data (*.ttv)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open TTV data', '', 'All (*.*);;Data (*.ttv)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
         
         
         planet_N     = self.ttv_data_to_planet[but_ind-1].value()
@@ -7058,7 +7058,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_ast_data.checkedId()   
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Astrometry data', '', 'All (*.*);;Data (*.ast)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Astrometry data', '', 'All (*.*);;Data (*.ast)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
         
         
         planet_N     = self.ast_data_to_planet[but_ind-1].value()
@@ -7270,7 +7270,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         
         #if z <= 0:
         #    choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-        #    "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.Ok)      
+        #    "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
         #    self.calc_TLS.setEnabled(True)         
         #    return   
 
@@ -7367,7 +7367,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 p_mlp.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
 
             if fit.mlp.norm == 'dlnL':
-                [p_mlp.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for fap in np.array(power_levels)]
+                [p_mlp.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for fap in np.array(power_levels)]
  
 #            text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels, sig_level = fit.mlp.powerLevel(np.array(power_levels)) )   
             text_peaks, pos_peaks = self.identify_power_peaks(1/fit.mlp.freq, fit.mlp.power, power_level = power_levels_gui, sig_level =np.array(power_levels) )   
@@ -7417,7 +7417,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         if z <= 0:
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.Ok)
+            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)
             self.calc_TLS.setEnabled(True)
             return   
 
@@ -7502,7 +7502,7 @@ Transit duration: %s d
 #0.99     7.0
 #0.999    8.3
 #0.9999   9.1
-            [p9.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(SDE_levels)]
+            [p9.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(SDE_levels)]
 
             text_peaks, pos_peaks = self.identify_power_peaks(fit.tls.periods,fit.tls.power,  sig_level = SDE_levels   )
 
@@ -7551,7 +7551,7 @@ Transit duration: %s d
 #0.99     7.0
 #0.999    8.3
 #0.9999   9.1
-            [p10.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.DotLine)) for ii,fap in enumerate(SDE_levels)]
+            [p10.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(SDE_levels)]
    
             text_peaks, pos_peaks = self.identify_power_peaks(fit.tls_o_c.periods,fit.tls_o_c.power,  sig_level = SDE_levels )
  
@@ -7638,7 +7638,7 @@ Transit duration: %s d
         
         if z <= 0:
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.Ok)      
+            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
            # self.button_fit.setEnabled(True)
             self.mute_buttons(trigger=True)
             self.update_transit_plots()
@@ -7648,7 +7648,7 @@ Transit duration: %s d
         if fit.type_fit["RV"] == True:
              if fit.ndset <= 0:
                  choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-                 "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.Ok)      
+                 "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.StandardButton.Ok)      
                  #self.button_fit.setEnabled(True)   
                  self.mute_buttons(trigger=True)
                  return   
@@ -7775,14 +7775,14 @@ Transit duration: %s d
             else:
                 z=z+1
                 if fit.ttv_data_sets[i][3] > fit.npl and fit.ttv_data_sets[i][4] == True:
-                    choice = QtWidgets.QMessageBox.information(self, 'Warning!',"TTV dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ttv_data_sets[i][3]), QtWidgets.QMessageBox.Ok)      
+                    choice = QtWidgets.QMessageBox.information(self, 'Warning!',"TTV dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ttv_data_sets[i][3]), QtWidgets.QMessageBox.StandardButton.Ok)      
                     #self.button_fit.setEnabled(True)
                     self.mute_buttons(trigger=True)
                     return 
 
         if z <= 0:
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-            "Not possible to model planets if there are no TTV data loaded. Please add your TTV data first. Okay?", QtWidgets.QMessageBox.Ok)      
+            "Not possible to model planets if there are no TTV data loaded. Please add your TTV data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
             #self.button_fit.setEnabled(True)
             self.mute_buttons(trigger=True)
             return 
@@ -7790,7 +7790,7 @@ Transit duration: %s d
         if fit.type_fit["RV"] == True:
              if fit.ndset <= 0:
                  choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-                 "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.Ok)
+                 "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.StandardButton.Ok)
                  #self.button_fit.setEnabled(True)
                  self.mute_buttons(trigger=True)
 
@@ -7924,14 +7924,14 @@ Transit duration: %s d
             else:
                 z=z+1
                 if fit.ast_data_sets[i][5] > fit.npl and fit.ast_data_sets[i][6] == True:
-                    choice = QtWidgets.QMessageBox.information(self, 'Warning!',"Astrometry dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ast_data_sets[i][5]), QtWidgets.QMessageBox.Ok)      
+                    choice = QtWidgets.QMessageBox.information(self, 'Warning!',"Astrometry dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ast_data_sets[i][5]), QtWidgets.QMessageBox.StandardButton.Ok)      
                     #self.button_fit.setEnabled(True)
                     self.mute_buttons(trigger=True)
                     return 
 
         if z <= 0:
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-            "Not possible to model planets if there are no Astrometry data loaded. Please add your Astrometry data first. Okay?", QtWidgets.QMessageBox.Ok)      
+            "Not possible to model planets if there are no Astrometry data loaded. Please add your Astrometry data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
             #self.button_fit.setEnabled(True)
             self.mute_buttons(trigger=True)
             return 
@@ -7939,7 +7939,7 @@ Transit duration: %s d
         if fit.type_fit["RV"] == True:
              if fit.ndset <= 0:
                  choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-                 "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.Ok)
+                 "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.StandardButton.Ok)
                  #self.button_fit.setEnabled(True)
                  self.mute_buttons(trigger=True)
 
@@ -8005,13 +8005,13 @@ Transit duration: %s d
         # check if any fits where performed, and tus planets present
         if len(np.atleast_1d(npl_to_fit)) == 1 and npl_to_fit[0] <= 0:
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-            "Not possible to integrate a fit that does not exist. First perform an orbital fitting and then test the orbital stability. Okay?", QtWidgets.QMessageBox.Ok)      
+            "Not possible to integrate a fit that does not exist. First perform an orbital fitting and then test the orbital stability. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
             self.button_orb_evol.setEnabled(True)         
             return        
 
         if fit.npl < 2:
             choice = QtWidgets.QMessageBox.information(self, 'Warning!'," With less than two planets this makes no sense. Okay?",
-                                            QtWidgets.QMessageBox.Ok) 
+                                            QtWidgets.QMessageBox.StandardButton.Ok) 
             self.button_orb_evol.setEnabled(True)                    
             return
         
@@ -8047,7 +8047,7 @@ Transit duration: %s d
 
         if fit.npl_arb < 2:
             choice = QtWidgets.QMessageBox.information(self, 'Warning!'," With less than two planets this makes no sense. Okay?",
-                                            QtWidgets.QMessageBox.Ok) 
+                                            QtWidgets.QMessageBox.StandardButton.Ok) 
             self.run_orb_evol_arbitary.setEnabled(True)                    
             return
  
@@ -8136,10 +8136,12 @@ Transit duration: %s d
         
         #self.button_fit.setEnabled(False)
         
+        
+        print(self.data_str)
         # check if RV data is present
         if fit.ndset <= 0:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.Ok)      
+             "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.StandardButton.Ok)      
              #self.button_fit.setEnabled(True)
              self.mute_buttons(trigger=True)
              return   
@@ -8660,7 +8662,7 @@ in https://github.com/3fon3fonov/exostriker
         text = "* " + "<a href='https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor'>megasolid idiom</a>" 
         self.dialog_credits.text.append(text)  
 
-        text = "(And many 'standard' Python libraries like \n PyQt5, matplotlib, numpy, scipy, pathos, \n jupyter, qtconsole) \n" 
+        text = "(And many 'standard' Python libraries like \n PyQt6, matplotlib, numpy, scipy, pathos, \n jupyter, qtconsole) \n" 
         self.dialog_credits.text.append(text)   
 
 
@@ -8695,7 +8697,7 @@ will be highly appreciated!
         # check if RV data is present
         if fit.ndset <= 0:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.Ok)      
+             "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.StandardButton.Ok)      
              #self.mute_buttons(trigger=True)       
              return        
 
@@ -8704,7 +8706,7 @@ will be highly appreciated!
         # the first one on the data GLS
         if fit.gls.power.max() <= fit.gls.powerLevel(self.auto_fit_FAP_level.value()):
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "No significant power on the GLS. Therefore no planets to fit OK?", QtWidgets.QMessageBox.Ok)      
+             "No significant power on the GLS. Therefore no planets to fit OK?", QtWidgets.QMessageBox.StandardButton.Ok)      
              #self.mute_buttons(trigger=True)                                                          
              return
         
@@ -8845,14 +8847,14 @@ will be highly appreciated!
         if fit.npl != 0:        
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Planets already exist. Do you want to overwrite the analysis?",
-                                            QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)  
+                                            QtWidgets.QMessageBox.StandardButton.No | QtWidgets.QMessageBox.StandardButton.Yes)  
 
-            if choice == QtWidgets.QMessageBox.No:
+            if choice == QtWidgets.QMessageBox.StandardButton.No:
                 #self.button_auto_fit.setEnabled(True)
                 self.mute_buttons(trigger=True)
 
                 return
-            elif choice == QtWidgets.QMessageBox.Yes:
+            elif choice == QtWidgets.QMessageBox.StandardButton.Yes:
                 #for j in range(fit.npl):
                 for j in range(9):
 
@@ -8987,7 +8989,7 @@ will be highly appreciated!
 
     def jupiter_push_vars(self):
         global fit
-        self.console_widget.push_vars({'fit':fit})
+       # self.console_widget.push_vars({'fit':fit})
         
         #self.console_widget.push_vars({'pg':pg})    
 
@@ -9027,11 +9029,11 @@ will be highly appreciated!
         
         choice = QtWidgets.QMessageBox.information(self, 'Warning!',
         "Do you really want to remove Session %s"%(ses_list[ind].name),
-                                            QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)  
+                                            QtWidgets.QMessageBox.StandardButton.No | QtWidgets.QMessageBox.StandardButton.Yes)  
          
-        if choice == QtWidgets.QMessageBox.No:
+        if choice == QtWidgets.QMessageBox.StandardButton.No:
             return
-        elif choice == QtWidgets.QMessageBox.Yes: # and ind <=0:
+        elif choice == QtWidgets.QMessageBox.StandardButton.Yes: # and ind <=0:
             if len(ses_list)==1:
                 ses_list.pop(0)         
                 self.new_session()
@@ -9075,7 +9077,7 @@ will be highly appreciated!
     def open_session(self):
         global fit,ses_list
 
-        input_file = QtWidgets.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.ses)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        input_file = QtWidgets.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.ses)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
 
         if str(input_file[0]) != '':
 
@@ -9108,7 +9110,7 @@ will be highly appreciated!
     def save_session(self):
         global fit
         
-        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save session', '%s.ses'%fit.name, 'Data (*.ses)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save session', '%s.ses'%fit.name, 'Data (*.ses)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
 
 
         if str(output_file[0]) != '':
@@ -9131,7 +9133,7 @@ will be highly appreciated!
     def open_sessions(self):
         global fit, ses_list
 
-        input_file = QtWidgets.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.mses)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        input_file = QtWidgets.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.mses)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
 
         if str(input_file[0]) != '':
 
@@ -9148,13 +9150,13 @@ will be highly appreciated!
 
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Do you want to overwrite the current sessions? If you choose 'No' will add the session, 'Cancel' will exit",
-                                            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)  
+                                            QtWidgets.QMessageBox.StandardButton.Cancel | QtWidgets.QMessageBox.StandardButton.No | QtWidgets.QMessageBox.StandardButton.Yes)  
 
-            if choice == QtWidgets.QMessageBox.No:
+            if choice == QtWidgets.QMessageBox.StandardButton.No:
                 ses_list = ses_list + fit2
-            elif choice == QtWidgets.QMessageBox.Yes:
+            elif choice == QtWidgets.QMessageBox.StandardButton.Yes:
                 ses_list = fit2
-            elif choice == QtWidgets.QMessageBox.Cancel:
+            elif choice == QtWidgets.QMessageBox.StandardButton.Cancel:
                 return
 
 
@@ -9165,7 +9167,7 @@ will be highly appreciated!
     def save_sessions(self):
         global fit, ses_list
 
-        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save multi-session', 'my_sessions.mses', 'Data (*.mses)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save multi-session', 'my_sessions.mses', 'Data (*.mses)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
 
         if str(output_file[0]) != '':
             file_pi = open(output_file[0], 'wb')
@@ -9345,7 +9347,7 @@ will be highly appreciated!
         # check if RV data is present
         if fit.type_fit["RV"] == True and fit.ndset <= 0:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to run Nested Sampling if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.Ok)      
+             "Not possible to run Nested Sampling if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.StandardButton.Ok)      
             # self.button_nest_samp.setEnabled(True)  
              self.statusBar().showMessage('') 
              return
@@ -9356,7 +9358,7 @@ will be highly appreciated!
 
         if fit.type_fit["Transit"] == True  and ntran_data == 0:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to run Nested Sampling if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.Ok)
+             "Not possible to run Nested Sampling if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)
            #  self.button_nest_samp.setEnabled(True)  
              self.statusBar().showMessage('') 
 
@@ -9368,7 +9370,7 @@ will be highly appreciated!
 
         if fit.type_fit["TTV"] == True  and nttv_data == 0:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to run Nested Sampling if there are no TTV data loaded. Please add your TTV data first. Okay?", QtWidgets.QMessageBox.Ok)      
+             "Not possible to run Nested Sampling if there are no TTV data loaded. Please add your TTV data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
              #self.button_nest_samp.setEnabled(True)  
              self.statusBar().showMessage('') 
 
@@ -9381,9 +9383,9 @@ This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?
 
 Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY open! Make sure your priors are 'reasonable' for your science case; otherwise, the Nested Sampling run may take forever!
 """,
-                                            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)       
+                                            QtWidgets.QMessageBox.StandardButton.Cancel | QtWidgets.QMessageBox.StandardButton.Ok)       
 
-        if choice == QtWidgets.QMessageBox.Cancel:
+        if choice == QtWidgets.QMessageBox.StandardButton.Cancel:
             self.statusBar().showMessage('') 
            # self.button_nest_samp.setEnabled(True)
             return
@@ -9434,7 +9436,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def change_nest_samples_file_name(self):
         global fit
         
-        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'path and name of the nested samples', '', '', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'path and name of the nested samples', '', '', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
 
         if output_file[0] != '':
             fit.nest_sample_file = output_file[0] 
@@ -9588,7 +9590,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         # check if RV data is present
         if fit.type_fit["RV"] == True and fit.ndset <= 0:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to run MCMC if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.Ok)      
+             "Not possible to run MCMC if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.StandardButton.Ok)      
              #self.button_MCMC.setEnabled(True)  
              self.statusBar().showMessage('') 
 
@@ -9600,7 +9602,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
         if fit.type_fit["Transit"] == True  and ntran_data == 0:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to run MCMC if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.Ok)      
+             "Not possible to run MCMC if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
              self.button_MCMC.setEnabled(True)  
              self.statusBar().showMessage('') 
 
@@ -9612,21 +9614,32 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
         if fit.type_fit["TTV"] == True  and nttv_data == 0:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to run MCMC if there are no TTV data loaded. Please add your TTV data first. Okay?", QtWidgets.QMessageBox.Ok)      
+             "Not possible to run MCMC if there are no TTV data loaded. Please add your TTV data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
              self.button_MCMC.setEnabled(True)  
              self.statusBar().showMessage('') 
 
              return
 
-        choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-"""This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?
-                                            """,
-                                            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
+#        choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+#"""This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?
+#                                            """,
+#                                            QtWidgets.QMessageBox.StandardButton.Cancel | QtWidgets.QMessageBox.StandardButton.Ok)
+#
+#        if choice == QtWidgets.QMessageBox.StandardButton.Cancel:
+#            self.statusBar().showMessage('') 
+#            self.button_MCMC.setEnabled(True)
+#            return
 
-        if choice == QtWidgets.QMessageBox.Cancel:
+        choice = QtWidgets.QMessageBox.question(self, 'Warning!',
+                                       """This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?
+                                       """,
+                                       QtWidgets.QMessageBox.StandardButton.Cancel | QtWidgets.QMessageBox.StandardButton.Ok)
+
+        if choice == QtWidgets.QMessageBox.StandardButton.Cancel:
             self.statusBar().showMessage('') 
             self.button_MCMC.setEnabled(True)
             return
+
 
         self.check_ttv_params()
         self.check_ast_params()
@@ -9677,7 +9690,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def change_mcmc_samples_file_name(self):
         global fit
         
-        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'path and name of the mcmc samples', '', '', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'path and name of the mcmc samples', '', '', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
         
         if output_file[0] != '':
             fit.mcmc_sample_file = output_file[0] 
@@ -9753,11 +9766,11 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         if isinstance(fit.mcmc_sampler, rv.CustomSampler):
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Are you sure you want to remove the MCMC samples?",
-                                             QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)
+                                             QtWidgets.QMessageBox.StandardButton.No | QtWidgets.QMessageBox.StandardButton.Yes)
 
-            if choice == QtWidgets.QMessageBox.No:
+            if choice == QtWidgets.QMessageBox.StandardButton.No:
                 return   
-            elif choice == QtWidgets.QMessageBox.Yes:
+            elif choice == QtWidgets.QMessageBox.StandardButton.Yes:
                 del fit.mcmc_sampler
                 fit.mcmc_sampler = []
                 self.check_cornerplot_samples()
@@ -9766,7 +9779,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 return   
         else:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "MCMC samples not found.", QtWidgets.QMessageBox.Ok)            
+             "MCMC samples not found.", QtWidgets.QMessageBox.StandardButton.Ok)            
 
  
     def remove_ns_samples_from_fit(self):
@@ -9777,11 +9790,11 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Are you sure you want to remove the NS samples?",
-                                             QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)
+                                             QtWidgets.QMessageBox.StandardButton.No | QtWidgets.QMessageBox.StandardButton.Yes)
 
-            if choice == QtWidgets.QMessageBox.No:
+            if choice == QtWidgets.QMessageBox.StandardButton.No:
                 return   
-            elif choice == QtWidgets.QMessageBox.Yes:
+            elif choice == QtWidgets.QMessageBox.StandardButton.Yes:
                 del fit.ns_sampler
                 fit.ns_sampler = []
                 self.check_cornerplot_samples()
@@ -9790,7 +9803,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 return   
         else:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "NS samples not found.", QtWidgets.QMessageBox.Ok)             
+             "NS samples not found.", QtWidgets.QMessageBox.StandardButton.Ok)             
 
     def check_cornerplot_samples(self):
         global fit  
@@ -9832,13 +9845,13 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
         if type_plot == "mcmc":
             if isinstance(fit.mcmc_sampler, rv.CustomSampler)==False:
-                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "MCMC samples not found.", QtWidgets.QMessageBox.Ok)
+                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "MCMC samples not found.", QtWidgets.QMessageBox.StandardButton.Ok)
                 return   
        
         if type_plot == "nest": 
             if len(np.atleast_1d(fit.ns_sampler))==0:
             #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler)==False and isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler)==False:
-                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtWidgets.QMessageBox.Ok)
+                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtWidgets.QMessageBox.StandardButton.Ok)
                 return   
   
 
@@ -9860,7 +9873,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
      #   if not os.path.exists(samp_file):
      #        choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-     #        "%s file not found. Generate one and try again?"%type_samp, QtWidgets.QMessageBox.Ok)
+     #        "%s file not found. Generate one and try again?"%type_samp, QtWidgets.QMessageBox.StandardButton.Ok)
      #        self.button_make_mcmc_cornerplot.setEnabled(True)
      #        self.button_make_nest_cornerplot.setEnabled(True)
      #        self.statusBar().showMessage('')
@@ -9886,7 +9899,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def change_corner_plot_file_name(self, type_plot = "mcmc"):
         global fit
         
-        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'path and name of the corener plot', '', 'All (*.*);;Data (*.pdf);;Data (*.png)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'path and name of the corener plot', '', 'All (*.*);;Data (*.pdf);;Data (*.png)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
         if output_file[0] != '':
             if type_plot == "mcmc":
                 fit.mcmc_corner_plot_file = output_file[0] 
@@ -10077,7 +10090,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             pdi_data_name = path
             pdi_target_name = path
 
-        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save to data (ascii) file', '%s_%s.dat'%(pdi_target_name,pdi_data_name), 'All (*.*);;', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save to data (ascii) file', '%s_%s.dat'%(pdi_target_name,pdi_data_name), 'All (*.*);;', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
 
         try:         
             x_pdi = dill.copy(pdi.plotItem.items[3].opts["x"])
@@ -11058,7 +11071,7 @@ Please install via 'pip install ttvfast'.
         #p.save(filename[0], 'jpg')        
         #label.setPixmap(p)        # just for fun :)
         img, _ = QtWidgets.QFileDialog.getSaveFileName(self,"Save image",
-                                            filter="PNG(*.png);; JPEG(*.jpg)", options=QtWidgets.QFileDialog.DontUseNativeDialog)
+                                            filter="PNG(*.png);; JPEG(*.jpg)", options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
         if img[-3:] == "png":
             p.save(img, "png")
         elif img[-3:] == "jpg":
@@ -11255,16 +11268,16 @@ Please install via 'pip install ttvfast'.
     def closeEvent(self, event):
         choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Do you want to save the session before you Quit?",
-                                            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Yes)
+                                            QtWidgets.QMessageBox.StandardButton.Cancel | QtWidgets.QMessageBox.StandardButton.No | QtWidgets.QMessageBox.StandardButton.Yes)
 
-        if choice == QtWidgets.QMessageBox.No:
+        if choice == QtWidgets.QMessageBox.StandardButton.No:
 
             if sys.platform[0:5] == "linux":
                 self.term_emb.close()
             self.removeEventFilter(self)
             event.accept()
 
-        elif choice == QtWidgets.QMessageBox.Yes:
+        elif choice == QtWidgets.QMessageBox.StandardButton.Yes:
             self.save_session()
             if sys.platform[0:5] == "linux":
                 self.term_emb.close()
@@ -11272,7 +11285,7 @@ Please install via 'pip install ttvfast'.
             self.removeEventFilter(self)
             event.accept()
 
-        elif choice == QtWidgets.QMessageBox.Cancel:
+        elif choice == QtWidgets.QMessageBox.StandardButton.Cancel:
             event.ignore()
 
 
@@ -11600,14 +11613,14 @@ Please install via 'pip install ttvfast'.
         
         if type_plot == "mcmc":
             if isinstance(fit.mcmc_sampler, rv.CustomSampler)==False:
-                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "MCMC samples not found.", QtWidgets.QMessageBox.Ok)
+                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "MCMC samples not found.", QtWidgets.QMessageBox.StandardButton.Ok)
                 return   
        
         if type_plot == "nest": 
             #if len(fit.ns_sampler)==0:
             if len(np.atleast_1d(fit.ns_sampler))==0:
             #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler)==False and isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler)==False:
-                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtWidgets.QMessageBox.Ok)
+                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtWidgets.QMessageBox.StandardButton.Ok)
                 return   
  
          
@@ -11741,7 +11754,7 @@ Please install via 'pip install ttvfast'.
 
     def get_error_msg(self, msg):
         global fit  
-        choice = QtWidgets.QMessageBox.information(self, 'Warning!', "%s"%str(msg), QtWidgets.QMessageBox.Ok)
+        choice = QtWidgets.QMessageBox.information(self, 'Warning!', "%s"%str(msg), QtWidgets.QMessageBox.StandardButton.Ok)
         #return 
         
     def init_plot_corr(self):
@@ -11862,8 +11875,9 @@ Please install via 'pip install ttvfast'.
 
     def __init__(self):
         global fit 
-        
-        self.es_version = "0.87"
+        super().__init__()
+    
+        self.es_version = "0.88"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -12204,14 +12218,14 @@ Please install via 'pip install ttvfast'.
                                 })        
         #self.console_widget.execute_command("%matplotlib")
         
-        #self.console_widget = ConsoleWidget_embed(font_size = 10)
+        self.console_widget = ConsoleWidget_embed(font_size = 10)
         
         self.terminal_embeded.addTab(self.console_widget, "Jupyter")
         
         ###################### Console #############################
         
        
-       # self.terminal_embeded.addTab(self.tree_view_tab, "tree")
+        #self.terminal_embeded.addTab(self.tree_view_tab, "tree")
       
         
         if sys.platform[0:5] == "linux":
@@ -12228,34 +12242,33 @@ Please install via 'pip install ttvfast'.
 
 
         self.text_editor = text_editor_es.MainWindow()
-        self.calculator = calc.Calculator()
- 
         self.gridLayout_text_editor.addWidget(self.text_editor)
+        self.calculator = calc.Calculator()
         self.gridLayout_calculator.addWidget(self.calculator)
         
         #################### data inspector ########################
         self.inspector_file = ""
-        self.RVBank = False
-        self.datafiles_window = datafiles_window()
-        self.RVBank_window = RVBank_window() 
-        #self.tree_view_tab = Widget_tree()        
-       # self.gridLayout_file_tree.setRowStretch(0, 6)
+ #       self.RVBank = False
+#        self.datafiles_window = datafiles_window()
+ #       self.RVBank_window = RVBank_window() 
+      #  self.tree_view_tab = Widget_tree()        
+        #self.gridLayout_file_tree.setRowStretch(0, 6)
         #self.gridLayout_file_tree.setRowStretch(1, 4)
-        #self.gridLayout_file_tree.addWidget(self.tree_view_tab)
+     #   self.gridLayout_file_tree.addWidget(self.tree_view_tab)
 
 
-        self.export_DataInspector_data.clicked.connect(self.save_DataInspector_data)
-        self.data_insp_load_data.clicked.connect(self.load_data_inspect)
-        self.datafiles_window.listview.clicked.connect(self.plot_data_inspect)
-
-        self.dataInspector_thisComputer.clicked.connect(self.datafiles_window.show)
+#        self.export_DataInspector_data.clicked.connect(self.save_DataInspector_data)
+#        self.data_insp_load_data.clicked.connect(self.load_data_inspect)
+#        self.datafiles_window.listview.clicked.connect(self.plot_data_inspect)
+#
+#        self.dataInspector_thisComputer.clicked.connect(self.datafiles_window.show)
         #self.dataInspector_HARPS_RVBank.clicked.connect(lambda: self.get_error_msg("Still work in progress! <br><br>However, you can inspect the online version of the <a href='http://www.mpia.de/homes/trifonov/HARPS_RVBank.html'>HARPS RVBank</a> and download HARPS data products. Then in the Exo-Striker use:<br><br>File --> Open RVBank file --> <br>(and then load the downoladed .dat file) <br><br>This will load you target's HARPS NZP corrected RVs and all the activity index data. <br><br>If you made use of the HARPS RVBank, please do not forget to cite <a href='https://ui.adsabs.harvard.edu/abs/2020arXiv200105942T/abstract'>Trifonov et al. (2020)</a>"))
 
-        self.RVBank_window.list.clicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
-        self.RVBank_window.list_opt.clicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
-        self.RVBank_window.radio_group.buttonClicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
+   #     self.RVBank_window.list.clicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
+  #      self.RVBank_window.list_opt.clicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
+  #      self.RVBank_window.radio_group.buttonClicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
 
-        self.dataInspector_HARPS_RVBank.clicked.connect(self.RVBank_window.show)
+ #       self.dataInspector_HARPS_RVBank.clicked.connect(self.RVBank_window.show)
 
 
 
@@ -12272,7 +12285,7 @@ Please install via 'pip install ttvfast'.
                     'numpy', 
                     'scipy', 
                     'matplotlib',
-                    'pyqt5',  
+                    'pyqt6',  
                     'qtconsole',
                     'jupyter-client',
                     'ipykernel',
@@ -12322,6 +12335,8 @@ Please install via 'pip install ttvfast'.
         
         self.dialog_more_info = print_info(self)
 
+
+
         self.More_info.clicked.connect(self.print_more_stat)
 
 #        self.buttonGroup_apply_rv_data_options.buttonClicked.connect(self.apply_rv_data_options)
@@ -12337,7 +12352,7 @@ Please install via 'pip install ttvfast'.
         self.buttonGroup_activity_data.buttonClicked.connect(self.showDialog_act_input_file)
         self.buttonGroup_remove_activity_data.buttonClicked.connect(self.remove_act_file)     
 
- 
+
 
         ############### TTV plotting controll ####################     
  
@@ -12441,7 +12456,7 @@ Please install via 'pip install ttvfast'.
         self.buttonGroup_adopt_mcmc_as_par.buttonClicked.connect(self.check_mcmc_params)
         self.buttonGroup_adopt_nest_as_par.buttonClicked.connect(self.check_nested_params)
       
-    
+
        # self.button_nest_samp.clicked.connect(lambda: self.run_nest_samp())
         self.button_nest_samp.clicked.connect(self.worker_nest)
         
@@ -12614,7 +12629,7 @@ Please install via 'pip install ttvfast'.
         #self.comboBox_MMR_which_pl_2.activated.connect(self.theta_combo)
         self.comboBox_MMR_which_pl_2.activated.connect(self.plot_theta)
         
-        
+
       #  self.insp_data_size.valueChanged.connect(self.update_inspector)
         
         ############### transit plotting controll ####################      
@@ -12814,6 +12829,7 @@ Please install via 'pip install ttvfast'.
         self.jupiter_push_vars()
 
         self.update_color_picker()
+
         self.buttonGroup_color_picker.buttonClicked.connect(self.get_color)
         self.update_color_picker_tra()
         self.buttonGroup_color_picker_tra.buttonClicked.connect(self.get_color_tra)
@@ -12824,13 +12840,14 @@ Please install via 'pip install ttvfast'.
 
         self.tess_pdc_dialog = pdc(self)
         self.dialog_symbols = show_symbols(self)
+
         self.buttonGroup_symbol_picker.buttonClicked.connect(self.get_symbol) 
         self.buttonGroup_symbol_picker_tra.buttonClicked.connect(self.get_symbol_tra)
         self.buttonGroup_symbol_picker_ttv.buttonClicked.connect(self.get_symbol_ttv)
         self.buttonGroup_symbol_picker_ast.buttonClicked.connect(self.get_symbol_ast)        
         
         self.lables_cornerplot = []
-        self.dialog_select_param_cornerplot = show_param_boxes(self)
+        #self.dialog_select_param_cornerplot = show_param_boxes(self)
 
         ###########  GP control ##########
 
@@ -12854,8 +12871,6 @@ Please install via 'pip install ttvfast'.
         #### Activity detrend   ####
         self.buttonGroup_options_act.buttonClicked.connect(self.activity_data_options)
         self.ActivityWindow = ActivityWindow(self)
-       
-        
 
         ####### LD models #############
  
@@ -13027,13 +13042,15 @@ class LoadingScreen(QtWidgets.QWidget):
 def main():
 
     app = QtWidgets.QApplication(sys.argv)
+    
+#    print(app)
     app.setStyle('Fusion') #The available styles depend on your platform but are usually 'Fusion', 'Windows', 'WindowsVista' (Windows only) and 'Macintosh' (Mac only). 
 
 
     window = Exo_striker()
-    
 
-    screen_resolution = app.desktop().screenGeometry()
+
+    screen_resolution = app.primaryScreen().geometry()
     width, height = screen_resolution.width(), screen_resolution.height()
     #print(width, height)
     if height < 920:
@@ -13045,12 +13062,12 @@ def main():
     
 #    window.installEventFilter(window)
 
-   
+
 
     window.show()
 
-    sys.exit(app.exec_())
-
+#    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == '__main__':
     main() 
 

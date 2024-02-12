@@ -1,5 +1,5 @@
 import sys #,os
-from PyQt5 import QtWidgets,QtGui 
+from PyQt6 import QtWidgets,QtGui 
 import numpy as np
  
 class show_param_boxes(QtWidgets.QDialog):

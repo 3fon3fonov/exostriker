@@ -1,11 +1,11 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 class DoubleSpinBox(QtWidgets.QDoubleSpinBox):
     minimize_signal = QtCore.pyqtSignal()
 
     def __init__(self, *args, **kwargs):
         super(DoubleSpinBox, self).__init__(*args, **kwargs)
-        self.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
+        self.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.DefaultContextMenu)
 
     def contextMenuEvent(self, event):
         QtCore.QTimer.singleShot(0, self.add_actions)
