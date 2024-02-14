@@ -10,8 +10,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
         model_max, model_min, gr_flag_in, &
         st_mass, writeflag_best_par, writeflag_RV, &
         writeflag_fit, &
-        ndset_in, &
-        ndata, data_array, files_param, &
+        ndset_in, ndata, data_array, files_param, &
         npl_in, array_npl, &
         final_params, &
         res_array, fit_return, &
@@ -20,43 +19,56 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     implicit none
 
 
-    integer :: writeflag_best_par, hkl, gr_flag, nt 
-    integer :: writeflag_RV, writeflag_fit, amoebastarts
-    integer :: ndset_in, npl_in, gr_flag_in, coplar_inc  
+    integer, intent(in) :: epsil, deltat, amoebastarts,npl_in
+    integer, intent(in) :: writeflag_best_par, writeflag_RV
+    integer, intent(in) :: writeflag_fit, gr_flag_in, ndset_in
+    integer, intent(in) :: coplar_inc, ndata, nt
        
-    integer :: npl, ndset, idset, ndata, ma, mfit, i, j, NDSMAX, NPLMAX, MMAX      
+    real(4), intent(in) :: when_to_kill, model_max, model_min    
+
+    real(8), intent(in) :: st_mass
+
+    integer :: hkl, gr_flag
+ 
+       
+    integer :: npl, ndset, idset,  ma, mfit, i, j, NDSMAX, NPLMAX, MMAX      
     parameter (NDSMAX = 20, NPLMAX = 10, MMAX = 200)
     
-    integer :: idsmax(NDSMAX), ia(MMAX), ii, iter, ts(20000)
-    real(8) :: x(20000), y(20000), sig(20000), y_in(20000)
+    integer :: ii, iter, idsmax(NDSMAX), ia(MMAX) 
+    
+    integer, allocatable, dimension(:) :: ts
+    real(8), allocatable, dimension(:) :: x, y, sig, y_in, ymod
+    
+!    real(8) :: y(20000), sig(20000), y_in(20000)
     real(8) :: a(MMAX), covar(MMAX, MMAX)
     real(8) :: rms, mass(NPLMAX), ap(NPLMAX)
-    real(8) :: j_mass(NPLMAX), chisq, epsil, deltat
+    real(8) :: j_mass(NPLMAX), chisq
     real(8) :: x0, incl(NPLMAX), cap0m(NPLMAX)
     real(8) :: dt, t_max, loglik, dy, sig2i
-    real(8) :: st_mass, epoch, ftol, jitt(NDSMAX)
-    real(8) :: ymod(20000), dyda(MMAX), p(MMAX + 1, MMAX), yamoeba(MMAX + 1)
+    real(8) :: epoch, ftol, jitt(NDSMAX)
+    real(8) :: dyda(MMAX), p(MMAX + 1, MMAX), yamoeba(MMAX + 1)
     real(8) :: ymod_pl(npl_in,ndata),ymod_pl2(npl_in,nt) 
     real(8) :: loglikk, ologlikk, dloglikk, best_w, best_we
 
 !    character(80) version_input, version
     real(8) :: wdot(NPLMAX), u_wdot(NPLMAX)
 
-    real(8) :: t_stop, t_init
+    real(4) :: t_stop, t_init
     real(8) :: PI, twopi    
-    real(4) :: when_to_kill, model_max, model_min
-
-    integer :: dynamical_planets(npl_in)
-    real(8) :: data_array(ndata, 4)
-    real(8) :: files_param(ndset_in, 4)
-    real(8) :: array_npl(npl_in, 17, 2)
-    real(8) :: final_params(6)
-    real(8) :: res_array(ndata, 6+npl_in)
-    real(8) :: fit_return(4), fit_array(nt, 2+npl_in)
-    real(8) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
-    real(8) :: bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
+      
+    integer, intent(in) :: dynamical_planets(npl_in)
+    
+    real(8), intent(in) :: data_array(ndata, 4)
+    real(8), intent(in) :: files_param(ndset_in, 4)
+    real(8), intent(in) :: array_npl(npl_in, 17, 2)
+    real(8), intent(in) :: final_params(6)
+    real(8), intent(out) :: res_array(ndata, 6+npl_in)
+    real(8), intent(out) :: fit_return(4), fit_array(nt, 2+npl_in)
+    real(8), intent(out) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
+    real(8), intent(out) :: bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
     character(80) :: version
     character(20) :: mode
+    
 
     external rvkep_kepamo, compute_abs_loglik_kep
 
@@ -70,17 +82,22 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
 !f2py depend(dt) fit_array
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
-
+    
+    allocate(x(20000),y(20000),sig(20000),y_in(20000),ts(20000),ymod(20000))
+!    allocate( t_stop,t_init)
+    
+    t_stop = 0
+    t_init = 0
     gr_flag = gr_flag_in
     ndset = ndset_in
     npl = npl_in
     mode = "amoeba"
-    epsil = 0
-    deltat = 0
+ 
     rms = 0
     covar(:, :) = 0
-    dynamical_planets(:) = 0
-    coplar_inc = 0
+!    dynamical_planets(:) = 0
+!    coplar_inc = 0
+
 
     version = "1.05"
 
@@ -93,6 +110,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     PI = 3.14159265358979d0
     twopi = 2.d0 * PI
     ftol = 0.000001d0
+ 
 
     call io_read_data(ndata, x, ts, y, sig, jitt, epoch, &
             x0, t_max, a, ia, ma, mfit, incl, cap0m, wdot, u_wdot, hkl, mode, &
@@ -124,11 +142,21 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
 
         call cpu_time(t_stop)    
 !        t_stop = time() - t_init
+
+!        write(*,*) t_stop-t_init
         if ((t_stop-t_init)>=when_to_kill) then
             write(*, *) 'Max. time=', when_to_kill, 'sec ', &
-                    'exceeded t_stop =', t_stop, 'sec '
+                    'exceeded t_stop =', t_stop-t_init, 'sec '
             exit
         endif
+        
+!        CALL SECOND(t_stop)
+!        if (t_stop.ge.when_to_kill) then
+!           write(*,*) 'Max. time=',when_to_kill, 'sec ', &
+!             'exceeded t_stop =', t_stop, 'sec ' 
+!           exit
+!        endif         
+        
 
         loglikk = yamoeba(1)
         dloglikk = ologlikk - loglikk
@@ -282,6 +310,11 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     endif
 end
 
+
+
+
+
+
 subroutine kepfit_lm(epsil, deltat, amoebastarts, &
         when_to_kill, nt, &
         model_max, model_min, gr_flag_in, &
@@ -296,48 +329,70 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
         fit_array, dynamical_planets, coplar_inc)
     implicit none
  
-  
 
-    integer :: writeflag_best_par, hkl, gr_flag, nt 
-    integer :: writeflag_RV, writeflag_fit, amoebastarts
-    integer :: ndset_in, npl_in, gr_flag_in, coplar_inc  
+
+    integer, intent(in) :: epsil, deltat, amoebastarts,npl_in
+    integer, intent(in) :: writeflag_best_par, writeflag_RV
+    integer, intent(in) :: writeflag_fit, gr_flag_in, ndset_in
+    integer, intent(in) :: coplar_inc, ndata, nt
        
-    integer :: npl, ndset, idset, ndata, ma, mfit, i, j, NDSMAX, NPLMAX, MMAX      
+    real(4), intent(in) :: when_to_kill, model_max, model_min    
+
+    real(8), intent(in) :: st_mass
+
+    integer :: hkl, gr_flag
+ 
+       
+    integer :: npl, ndset, idset,  ma, mfit, i, j, NDSMAX, NPLMAX, MMAX      
     parameter (NDSMAX = 20, NPLMAX = 10, MMAX = 200)
     
-    integer :: idsmax(NDSMAX), ia(MMAX), ts(20000)
-    real(8) :: x(20000), y(20000), sig(20000), y_in(20000)
+    integer :: ii, iter, idsmax(NDSMAX), ia(MMAX) 
+    
+    integer, allocatable, dimension(:) :: ts
+    real(8), allocatable, dimension(:) :: x, y, sig, y_in, ymod
+
+    real(8), allocatable, dimension(:,:) :: ymod_pl,ymod_pl2
+     
+
     real(8) :: a(MMAX), covar(MMAX, MMAX), alpha(MMAX, MMAX)
     real(8) :: rms, mass(NPLMAX), ap(NPLMAX)
-    real(8) :: j_mass(NPLMAX), chisq, epsil, deltat
+    real(8) :: j_mass(NPLMAX), chisq
     real(8) :: x0, incl(NPLMAX), cap0m(NPLMAX)
-    real(8) :: dt, t_max, loglik, dy
-    real(8) :: st_mass, epoch, jitt(NDSMAX)
-    real(8) :: ymod(20000), dyda(MMAX)
-    real(8) :: ymod_pl(npl_in,20000) 
-    real(8) :: best_w, best_we
+    real(8) :: dt, t_max, loglik, dy, sig2i
+    real(8) :: epoch, ftol, jitt(NDSMAX)
+    real(8) :: dyda(MMAX), p(MMAX + 1, MMAX), yamoeba(MMAX + 1)
+    real(8) ::  best_w, best_we
 
 !    character(80) version_input, version
     real(8) :: wdot(NPLMAX), u_wdot(NPLMAX)
 
-    real(8) :: t_stop, t_init
-    real(8) :: PI, twopi, alamda, ochisq, dchisq    
-    real(4) :: when_to_kill, model_max, model_min
-
-    integer :: dynamical_planets(npl_in)
-    real(8) :: data_array(ndata, 4)
-    real(8) :: files_param(ndset_in, 4)
-    real(8) :: array_npl(npl_in, 17, 2)
-    real(8) :: final_params(6)
-    real(8) :: res_array(ndata, 6+npl_in)
-    real(8) :: fit_return(4), fit_array(nt, 2+npl_in)
-    real(8) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
-    real(8) :: bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
+    real(4) :: t_stop, t_init
+    real(8) :: PI, twopi, alamda, ochisq, dchisq      
+      
+    integer, intent(in) :: dynamical_planets(npl_in)
+    
+    real(8), intent(in) :: data_array(ndata, 4)
+    real(8), intent(in) :: files_param(ndset_in, 4)
+    real(8), intent(in) :: array_npl(npl_in, 17, 2)
+    real(8), intent(in) :: final_params(6)
+    real(8), intent(out) :: res_array(ndata, 6+npl_in)
+    real(8), intent(out) :: fit_return(4), fit_array(nt, 2+npl_in)
+    real(8), intent(out) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
+    real(8), intent(out) :: bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
     character(80) :: version
-    character(20) :: mode
-
+    character(20) :: mode  
 
     external rvkep_keplm
+
+    common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
+    
+    allocate(x(20000),y(20000),sig(20000),y_in(20000),ts(20000),ymod(20000))
+    allocate(ymod_pl(npl_in,20000), ymod_pl2(npl_in,20000)) 
+ 
+ 
+
+
+
 
 !f2py intent(in) ndset_in, npl_in, ndata
 !f2py intent(in) dynamical_planets
@@ -348,7 +403,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
 !f2py depend(ndata) data_array
 !f2py depend(dt) fit_array
 
-    common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
+
 
 
     PI = 3.14159265358979d0
@@ -358,10 +413,10 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
     ndset = ndset_in
     npl = npl_in
     mode = "lm"
-    epsil = 0
-    deltat = 0
-    dynamical_planets(:) = 0
-    coplar_inc = 0
+!    epsil = 0
+!    deltat = 0
+!    dynamical_planets(:) = 0
+!    coplar_inc = 0
 
     version = "1.05"
 
@@ -523,7 +578,9 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
     endif
 end
 
-subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
+
+
+subroutine dynfit_amoeba__2(epsil, deltat, amoebastarts, &
         when_to_kill, nt, &
         model_max, model_min, gr_flag_in, &
         st_mass, writeflag_best_par, writeflag_RV, &
@@ -570,6 +627,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
     real(8) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
     real(8) :: bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
     character(20) :: mode
+    
 !f2py intent(in) ndset_in, npl_in, ndata
 !f2py intent(in) dynamical_planets
 !f2py intent(out) res_array, fit_return, fit_array
@@ -606,6 +664,8 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
             data_array, files_param, &
             array_npl, &
             final_params, coplar_inc)
+            
+                    
 
     i = 0
     dloglikk = 10.d0
@@ -667,9 +727,10 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
     loglik = 0.0d0
     chisq = 0.0d0
     rms = 0.0d0
-    
+     
 
-    call io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, ndata, ts, &
+
+    call io_write_bf_ewcop_fin_dynamo(a, covar, t, ys, ndata, ts, &
             ma, mfit, t0, t_max, sigs, chisq, rms, loglik, writeflag_RV, &
             writeflag_best_par, writeflag_fit, epsil, deltat, &
             nt, model_max, model_min, hkl, wdot, u_wdot, &
@@ -677,7 +738,200 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
             res_array, fit_return, &
             bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
             fit_array, coplar_inc)
+return            
 end
+
+
+
+
+
+subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
+        when_to_kill, nt, &
+        model_max, model_min, gr_flag_in, &
+        st_mass, writeflag_best_par, writeflag_RV, &
+        writeflag_fit, &
+        ndset_in, &
+        ndata, data_array, files_param, &
+        npl_in, array_npl, &
+        final_params, &
+        res_array, fit_return, &
+        bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
+        fit_array, dynamical_planets, coplar_inc)
+    implicit none
+    
+
+    integer, intent(in) :: amoebastarts,npl_in
+    integer, intent(in) :: writeflag_best_par, writeflag_RV
+    integer, intent(in) :: writeflag_fit, gr_flag_in, ndset_in
+    integer, intent(in) :: coplar_inc, ndata, nt
+       
+    real(4), intent(in) :: when_to_kill, model_max, model_min    
+
+    real(8), intent(in) :: st_mass, epsil, deltat
+
+    integer :: hkl, gr_flag
+ 
+       
+    integer :: npl, ndset, idset,  ma, mfit, i, j, NDSMAX, NPLMAX, MMAX      
+    parameter (NDSMAX = 20, NPLMAX = 10, MMAX = 200)
+    
+    integer :: ii, iter, idsmax(NDSMAX), ia(MMAX),nbod,ts(20000)
+    
+!    integer, allocatable, dimension(:) :: ts
+!    real(8), allocatable, dimension(:) :: x, t, ys, sigs, y_in, ymod
+!    real(8), allocatable, dimension(:,:) :: ymod_pl,ymod_pl2
+
+    real(8) :: t(20000),y(20000),ys(20000), sigs(20000)        
+!    real(8) ::  x(20000), y_in(20000), ymod(20000)     
+    real(8) :: a(MMAX), covar(MMAX, MMAX)
+    real(8) :: rms, mass(NPLMAX), ap(NPLMAX)
+    real(8) :: j_mass(NPLMAX), chisq
+    real(8) :: x0, incl(NPLMAX), cap0m(NPLMAX)
+    real(8) :: dt, t_max, loglik, dy, sig2i
+    real(8) :: epoch, ftol, jitt(NDSMAX)
+    real(8) :: dyda(MMAX), p(MMAX + 1, MMAX), yamoeba(MMAX + 1)
+
+    real(8) :: loglikk, ologlikk, dloglikk, best_w, best_we, t0
+!    real(8) :: xj(NPLMAX), yj(NPLMAX),  zj(NPLMAX) 
+!    real(8) :: vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
+!    real(8) :: rpl(NPLMAX), rhill(NPLMAX) 
+    
+!    character(80) version_input, version
+    real(8) :: wdot(NPLMAX), u_wdot(NPLMAX)
+
+    real(4) :: t_stop, t_init
+    real(8) :: PI, twopi    
+      
+    integer, intent(in) :: dynamical_planets(npl_in)
+    
+    real(8), intent(in) :: data_array(ndata, 4)
+    real(8), intent(in) :: files_param(ndset_in, 4)
+    real(8), intent(in) :: array_npl(npl_in, 17, 2)
+    real(8), intent(in) :: final_params(6)
+    real(8), intent(out) :: res_array(ndata, 6+npl_in)
+    real(8), intent(out) :: fit_return(4), fit_array(nt, 2+npl_in)
+    real(8), intent(out) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
+    real(8), intent(out) :: bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
+    character(80) :: version
+    character(20) :: mode
+        
+ 
+    real(8) :: mstar, sini(NPLMAX)  
+!    character(80) version_input, version
+
+ 
+    external RVKEP_dynamo, compute_abs_loglik_dyn 
+    common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
+    common mstar, sini
+     
+!f2py intent(in) ndset_in, npl_in, ndata
+!f2py intent(in) dynamical_planets
+!f2py intent(out) res_array, fit_return, fit_array
+!f2py intent(out) bestpar_1, bestpar_2, bestpar_3, bestpar_4
+!f2py depend(ndset_in) files_array,files_param
+!f2py depend(npl_in) array_npl, dynamical_planets
+!f2py depend(ndata) data_array
+
+
+!    allocate(x(20000),t(20000),ys(20000),sigs(20000))
+!    allocate(y_in(20000), ymod(20000))
+!    allocate(ymod_pl(npl_in,20000), ymod_pl2(npl_in,20000)) 
+
+
+    gr_flag = gr_flag_in
+    ndset = ndset_in
+    npl = npl_in
+    mode = "amoeba_dyn"
+    mstar = st_mass
+    covar(:, :) = 0
+    PI = 3.14159265358979d0
+    version = "1.05"
+
+!    CALL getarg(1, version_input)
+!    if(version_input=='-version') then
+!        write(*, *) version
+!        return
+!    endif
+
+    loglikk = 0
+    ftol = 0.001d0
+
+    call io_read_data (ndata, t, ts, ys, sigs, jitt, &
+            epoch, t0, t_max, a, ia, ma, mfit, incl, cap0m, wdot, u_wdot, hkl, mode, &
+            data_array, files_param, &
+            array_npl, &
+            final_params, coplar_inc)
+
+    i = 0
+    dloglikk = 10.d0
+!    t_init = time()
+    call cpu_time(t_init)         
+  
+
+    
+    do while (dabs(dloglikk)>=0.000001d0)
+        if (i.eq.amoebastarts) then
+            i = 0
+            exit
+        endif
+        i = i + 1
+        ologlikk = loglikk
+
+        call prepare_for_amoeba_dyn(p, MMAX + 1, MMAX, yamoeba, a, ia, ma, &
+                mfit, compute_abs_loglik_dyn, ndata, t, ys, &
+                ts, sigs, epsil, deltat, hkl, dynamical_planets, coplar_inc)
+
+        call amoeba_dyn(p, yamoeba, MMAX + 1, MMAX, mfit, ftol, &
+                compute_abs_loglik_dyn, &
+                iter, ndata, t, ys, ma, ts, sigs, a, ia, epsil, deltat, hkl, &
+                npl, dynamical_planets, coplar_inc)
+
+!        t_stop = time() - t_init
+        call cpu_time(t_stop)     
+        if ((t_stop-t_init)>=when_to_kill) then
+            write(*, *) 'Max. time=', when_to_kill, 'sec ', &
+                    'exceeded t_stop =', t_stop, 'sec '
+            exit
+        endif
+
+        loglikk = yamoeba(1)
+        dloglikk = ologlikk - loglikk
+
+        j = 0
+        do ii = 1, ma
+            if (ia(ii).ne.0) then
+                j = j + 1
+                a(ii) = p(1, j)
+            endif
+        enddo
+ 
+     
+    enddo
+
+ 
+    j = 0
+    loglik = 0.0d0
+    chisq = 0.0d0
+    rms = 0.0d0
+    
+
+    call io_write_bf_ewcop_fin_dynamo(a, covar, t, ys, ndata, ts, &
+            ma, mfit, t0, t_max, sigs, chisq, rms, loglik, writeflag_RV, &
+            writeflag_best_par, writeflag_fit, epsil, deltat, &
+            nt, model_max, model_min, hkl, wdot, u_wdot, &
+            dynamical_planets, &
+            res_array, fit_return, &
+            bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
+            fit_array, coplar_inc)
+
+ 
+return
+end
+
+ 
+
+
+
 
 subroutine dynfit_lm(epsil, deltat, amoebastarts, &
         when_to_kill, nt, &
@@ -810,6 +1064,7 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
              res_array, fit_return, &
              bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
              fit_array, coplar_inc)
+return
 end
 end
 
@@ -953,6 +1208,8 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
     ys(1:ndata) = data_array(:, 2)
     sigs(1:ndata) = data_array(:, 3)
     ts(1:ndata) = int(data_array(:, 4))
+    
+!    write(*,*) ts
 
     if (npl>NPLMAX) stop ' KEPFIT: npl > NPLMAX.'
 
@@ -2426,6 +2683,7 @@ subroutine RVKEP_dynamoplus (x, a, y, y_pl, dyda, ma, ts, k)
         dyda(7 * npl + i) = 0.d0
     enddo
 
+!    write(*,*) ts, npl
     dyda(7 * npl + ts) = 1.d0
 
     dyda(7 * npl + ndset + 1) = x

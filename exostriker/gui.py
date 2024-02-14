@@ -35,11 +35,11 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 #sys.excepthook = exception_hook
 
 
-if QtCore.QT_VERSION >= 0x50501:
-    def excepthook(type_, value, traceback_):
-        traceback.print_exception(type_, value, traceback_)
-        QtCore.qFatal('')
-sys.excepthook = excepthook
+#if QtCore.QT_VERSION >= 0x50501:
+#    def excepthook(type_, value, traceback_):
+#        traceback.print_exception(type_, value, traceback_)
+#        QtCore.qFatal('')
+#sys.excepthook = excepthook
 
 
 
@@ -153,6 +153,11 @@ os.environ["QT_SCREEN_SCALE_FACTORS"] = "1"
 os.environ["QT_SCALE_FACTOR"] = "1"
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "0"
 os.environ["QT_DEVICE_PIXEL_RATIO"] = "1"
+os.environ["QT_NO_FT_CACHE"] = "1"
+os.environ["PYDEVD_DISABLE_FILE_VALIDATION"] = "1"
+
+
+
 #os.environ["QT_LOGGING_RULES"] = '*.debug=false'
 #os.system("export QT_LOGGING_RULES")
 
@@ -306,6 +311,8 @@ ttv_interpol_opt = ['linear', 'nearest', 'nearest-up', 'zero', 'slinear', 'quadr
 
 
 QtWidgets.QApplication.processEvents()
+
+
 
 
 class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -3576,7 +3583,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit
 
         colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
-        fit.gls_colors[0]=colorz.name()   
+        fit.gls_colors[0]=dill.copy(colorz.name())   
 
         self.update_RV_GLS_plots() 
 
@@ -3585,7 +3592,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit
         
         colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
-        fit.gls_colors[1]=colorz.name()   
+        fit.gls_colors[1]=dill.copy(colorz.name())   
          
         self.update_RV_o_c_GLS_plots()  
         
@@ -3593,7 +3600,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit
 
         colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
-        colors_GLS_alias[0]=colorz.name()   
+        colors_GLS_alias[0]=dill.copy(colorz.name()) 
 
         self.update_RV_GLS_plots() 
         self.update_RV_o_c_GLS_plots() 
@@ -3602,7 +3609,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit
 
         colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
-        colors_MLP_alias[0]=colorz.name()   
+        colors_MLP_alias[0]=dill.copy(colorz.name()) 
 
         self.update_RV_MLP_plots() 
 
@@ -3610,7 +3617,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         global fit
 
         colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
-        colors_RV_jitter[0]=colorz.name()   
+        colors_RV_jitter[0]=dill.copy(colorz.name())   
 
         self.update_RV_plots() 
         self.update_extra_plots()
@@ -3621,7 +3628,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
         p7.plot(clear=True,)
 
-        self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])
+        self.colors_gls.setStyleSheet("color: %s;"%dill.copy(fit.gls_colors[0]))
         self.colors_alias_gls.setStyleSheet("color: %s;"%colors_GLS_alias[0])
 
                           
@@ -3633,13 +3640,13 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             ######################## GLS ##############################
             if self.radioButton_RV_GLS_period.isChecked():
                 p7.setLogMode(True,False)        
-                p7.plot(1/fit.gls.freq, fit.gls.power,pen={'color': fit.gls_colors[0], 'width': gls_model_width},symbol=None ) 
+                p7.plot(1/fit.gls.freq, fit.gls.power,pen={'color': dill.copy(fit.gls_colors[0]), 'width': gls_model_width},symbol=None ) 
 
                 p7.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})    
                 
             else:
                 p7.setLogMode(False,False)        
-                p7.plot(fit.gls.freq, fit.gls.power,pen={'color': fit.gls_colors[0], 'width': self.gls_model_width.value()},symbol=None )                
+                p7.plot(fit.gls.freq, fit.gls.power,pen={'color': dill.copy(fit.gls_colors[0]), 'width': self.gls_model_width.value()},symbol=None )                
                 p7.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
                 
                 
@@ -3665,7 +3672,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
  
         p8.plot(clear=True,)  
 
-        self.colors_gls_o_c.setStyleSheet("color: %s;"%fit.gls_colors[1]) 
+        self.colors_gls_o_c.setStyleSheet("color: %s;"%dill.copy(fit.gls_colors[1])) 
         gls_o_c_model_width = float(self.gls_o_c_model_width.value())
         
         power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
@@ -3676,12 +3683,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             ######################## GLS o-c ##############################
             if self.radioButton_RV_o_c_GLS_period.isChecked():
                 p8.setLogMode(True,False)        
-                p8.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen={'color': fit.gls_colors[1], 'width': gls_o_c_model_width},symbol=None ) 
+                p8.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen={'color': dill.copy(fit.gls_colors[1]), 'width': gls_o_c_model_width},symbol=None ) 
                 p8.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})
  
             else:
                 p8.setLogMode(False,False)        
-                p8.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen={'color': fit.gls_colors[1], 'width': gls_o_c_model_width},symbol=None )   
+                p8.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen={'color': dill.copy(fit.gls_colors[1]), 'width': gls_o_c_model_width},symbol=None )   
                 p8.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()})                
                 
             if fit.gls_o_c.norm == 'ZK':
@@ -3736,7 +3743,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
             
         model_curve = p1.plot(fit.fit_results.model_jd,y_model, 
-        pen={'color': fit.rvs_colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        pen={'color': dill.copy(fit.rvs_colors[-1]), 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
         model_curve.setZValue(self.RV_model_z.value()) 
@@ -3766,11 +3773,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
             p1.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],fit.fit_results.rv_model.rvs[fit.fit_results.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
-            symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbol=dill.copy(fit.pyqt_symbols_rvs[i]),
+            symbolPen={'color': dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i]))
 , 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbolSize=dill.copy(fit.pyqt_symbols_size_rvs[i]),enableAutoRange=True,viewRect=True,
+            symbolBrush=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i]))
             )
 
             err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
@@ -3778,7 +3785,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.fit_results.idset==i],
             bottom=error_list[fit.fit_results.idset==i],
-            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+            beam=0.0, pen=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i])))  
 
             p1.addItem(err1)
 
@@ -3834,7 +3841,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
 
         model_curve_o_c = p2.plot(fit.fit_results.model_jd,y_model_o_c, 
-        pen={'color':  fit.rvs_colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        pen={'color':  dill.copy(fit.rvs_colors[-1]), 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
         
@@ -3850,17 +3857,17 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
             p2.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],data_o_c[fit.fit_results.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
-            symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbol=dill.copy(fit.pyqt_symbols_rvs[i]),
+            symbolPen={'color': dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i])), 'width': 1.1},
+            symbolSize=dill.copy(fit.pyqt_symbols_size_rvs[i]),enableAutoRange=True,viewRect=True,
+            symbolBrush=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i]))
             )
             err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
                                    y=data_o_c[fit.fit_results.idset==i],symbol='o', 
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.fit_results.idset==i],
             bottom=error_list[fit.fit_results.idset==i],
-            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+            beam=0.0, pen=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i])))  
 
             p2.addItem(err2)
 
@@ -3967,7 +3974,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
           
             
         model_curve = p00.plot(fit.fit_results.model_jd,y_model, 
-        pen={'color': fit.rvs_colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        pen={'color': dill.copy(fit.rvs_colors[-1]), 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
         model_curve.setZValue(self.RV_model_z.value()) 
@@ -3994,11 +4001,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 continue
             p00.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],fit.fit_results.rv_model.rvs[fit.fit_results.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
-            symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbol=dill.copy(fit.pyqt_symbols_rvs[i]),
+            symbolPen={'color': dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i]))
 , 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]),
+            symbolSize=dill.copy(fit.pyqt_symbols_size_rvs[i]),enableAutoRange=True,viewRect=True,
+            symbolBrush=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i])),
 #            name=fit.filelist.files[i].name)
             name=fit.rv_data_sets[i][4])
 
@@ -4007,7 +4014,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.fit_results.idset==i],
             bottom=error_list[fit.fit_results.idset==i],
-            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+            beam=0.0, pen=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i])))  
 
             p00.addItem(err1)
 
@@ -4053,7 +4060,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             label = "RV [m/s]" 
 
         model_curve_o_c = p01.plot(fit.fit_results.model_jd,y_model_o_c, 
-        pen={'color':  fit.rvs_colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        pen={'color':  dill.copy(fit.rvs_colors[-1]), 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'%s'%label, 'bottom':'JD'}) 
         
         
@@ -4066,17 +4073,17 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         #for i in range(max(fit.fit_results.idset)+1):
             p01.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],data_o_c[fit.fit_results.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
-            symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbol=dill.copy(fit.pyqt_symbols_rvs[i]),
+            symbolPen={'color': dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i])), 'width': 1.1},
+            symbolSize=dill.copy(fit.pyqt_symbols_size_rvs[i]),enableAutoRange=True,viewRect=True,
+            symbolBrush=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i]))
             )
             err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
                                    y=data_o_c[fit.fit_results.idset==i],symbol='o', 
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.fit_results.idset==i],
             bottom=error_list[fit.fit_results.idset==i],
-            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+            beam=0.0, pen=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i])))  
 
             p01.addItem(err2)
 
@@ -4126,7 +4133,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
             
         model_curve = p1.plot(fit.fit_results.model_jd,y_model, 
-        pen={'color': fit.rvs_colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        pen={'color': dill.copy(fit.rvs_colors[-1]), 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
         model_curve.setZValue(self.RV_model_z.value()) 
@@ -4154,11 +4161,11 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         for i in range(max(fit.fit_results.idset)+1):
             p1.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],fit.fit_results.rv_model.rvs[fit.fit_results.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
-            symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbol=dill.copy(fit.pyqt_symbols_rvs[i]),
+            symbolPen={'color': dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i]))
 , 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbolSize=dill.copy(fit.pyqt_symbols_size_rvs[i]),enableAutoRange=True,viewRect=True,
+            symbolBrush=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i]))
             )
 
             err1 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
@@ -4166,7 +4173,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.fit_results.idset==i],
             bottom=error_list[fit.fit_results.idset==i],
-            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+            beam=0.0, pen=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i])))  
 
             p1.addItem(err1)
 
@@ -4213,7 +4220,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
 
         model_curve_o_c = p00.plot(fit.fit_results.model_jd,y_model_o_c, 
-        pen={'color':  fit.rvs_colors[-1], 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
+        pen={'color':  dill.copy(fit.rvs_colors[-1]), 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
         
         
@@ -4224,17 +4231,17 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         for i in range(max(fit.fit_results.idset)+1):
             p2.plot(fit.fit_results.rv_model.jd[fit.fit_results.idset==i],data_o_c[fit.fit_results.idset==i], 
             pen=None, #{'color': colors[i], 'width': 1.1},
-            symbol=fit.pyqt_symbols_rvs[i],
-            symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])
+            symbol=dill.copy(fit.pyqt_symbols_rvs[i]),
+            symbolPen={'color': dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i])), 'width': 1.1},
+            symbolSize=dill.copy(fit.pyqt_symbols_size_rvs[i]),enableAutoRange=True,viewRect=True,
+            symbolBrush=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i]))
             )
             err2 = pg.ErrorBarItem(x=fit.fit_results.rv_model.jd[fit.fit_results.idset==i], 
                                    y=data_o_c[fit.fit_results.idset==i],symbol='o', 
             #height=error_list[fit.filelist.idset==i],
             top=error_list[fit.fit_results.idset==i],
             bottom=error_list[fit.fit_results.idset==i],
-            beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]))  
+            beam=0.0, pen=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i])))  
 
             p00.addItem(err2)
 
@@ -4397,47 +4404,47 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
                 p30.plot(t, flux,
                 pen=None,
-                symbol=fit.pyqt_symbols_tra[j],
-                symbolPen={'color': fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]), 'width': 1.1},
-                symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
-                symbolBrush=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]),name=fit.tra_data_sets[j][-1] ) 
+                symbol=dill.copy(fit.pyqt_symbols_tra[j]),
+                symbolPen={'color': fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])), 'width': 1.1},
+                symbolSize=dill.copy(fit.pyqt_symbols_size_tra[j]),enableAutoRange=True,viewRect=True,
+                symbolBrush=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])),name=fit.tra_data_sets[j][-1] ) 
                 
-                err_ = pg.ErrorBarItem(x=t, y=flux, symbol = fit.pyqt_symbols_tra[j],
+                err_ = pg.ErrorBarItem(x=t, y=flux, symbol = dill.copy(fit.pyqt_symbols_tra[j]),
                                       # height=flux_err, 
                                        top=flux_err, 
                                        bottom=flux_err,
-                                       beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]))
+                                       beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])))
 
                 p30.addItem(err_)
 
                 p31.plot(t, tr_o_c,
                 pen=None,
-                symbol=fit.pyqt_symbols_tra[j],
-                symbolPen={'color': fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]), 'width': 1.1},
-                symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
-                symbolBrush=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]) )
+                symbol=dill.copy(fit.pyqt_symbols_tra[j]),
+                symbolPen={'color': fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])), 'width': 1.1},
+                symbolSize=dill.copy(fit.pyqt_symbols_size_tra[j]),enableAutoRange=True,viewRect=True,
+                symbolBrush=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])) )
 
-                err_ = pg.ErrorBarItem(x=t, y=tr_o_c, symbol=fit.pyqt_symbols_tra[j],
+                err_ = pg.ErrorBarItem(x=t, y=tr_o_c, symbol=dill.copy(fit.pyqt_symbols_tra[j]),
                # height=flux_err,
                 top=flux_err,
                 bottom=flux_err,
-                beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]))
+                beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])))
                 p31.addItem(err_)
 
             else:
 
                 p3.plot(t, flux,
                 pen=None,
-                symbol=fit.pyqt_symbols_tra[j],
-                symbolPen={'color': fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]), 'width': 1.1},
-                symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
-                symbolBrush=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]) ) 
+                symbol=dill.copy(fit.pyqt_symbols_tra[j]),
+                symbolPen={'color': fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])), 'width': 1.1},
+                symbolSize=dill.copy(fit.pyqt_symbols_size_tra[j]),enableAutoRange=True,viewRect=True,
+                symbolBrush=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])) ) 
                 
-                err_ = pg.ErrorBarItem(x=t, y=flux, symbol = fit.pyqt_symbols_tra[j],
+                err_ = pg.ErrorBarItem(x=t, y=flux, symbol = dill.copy(fit.pyqt_symbols_tra[j]),
                                       # height=flux_err, 
                                        top=flux_err, 
                                        bottom=flux_err,
-                                       beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]))
+                                       beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])))
 
                 p3.addItem(err_)
 
@@ -4446,16 +4453,16 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
             p4.plot(t, tr_o_c,
             pen=None,
-            symbol=fit.pyqt_symbols_tra[j],
-            symbolPen={'color': fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]), 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_tra[j],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]) )
+            symbol=dill.copy(fit.pyqt_symbols_tra[j]),
+            symbolPen={'color': fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])), 'width': 1.1},
+            symbolSize=dill.copy(fit.pyqt_symbols_size_tra[j]),enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])) )
 
-            err_ = pg.ErrorBarItem(x=t, y=tr_o_c, symbol=fit.pyqt_symbols_tra[j],
+            err_ = pg.ErrorBarItem(x=t, y=tr_o_c, symbol=dill.copy(fit.pyqt_symbols_tra[j]),
            # height=flux_err,
             top=flux_err,
             bottom=flux_err,
-            beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(fit.pyqt_color_alpha_tra[j]))
+            beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])))
             p4.addItem(err_)
 
         if self.plot_phase_pholded_tran.isChecked() and fit.tra_doGP != True and fit.npl > 0:
@@ -4720,12 +4727,12 @@ Polyfit coefficients:
             ######################## GLS ##############################
             if self.radioButton_act_GLS_period.isChecked():
                 p11.setLogMode(True,False)        
-                p11.plot(1/act_per.freq, act_per.power,pen=fit.act_colors[ind],symbol=None ) 
+                p11.plot(1/act_per.freq, act_per.power,pen=dill.copy(fit.act_colors[ind]),symbol=None ) 
                 p11.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
 
             else:
                 p11.setLogMode(False,False)        
-                p11.plot(act_per.freq, act_per.power,pen=fit.act_colors[ind],symbol=None )
+                p11.plot(act_per.freq, act_per.power,pen=dill.copy(fit.act_colors[ind]),symbol=None )
                 p11.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
 
             [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
@@ -4752,7 +4759,7 @@ Polyfit coefficients:
            # height=fit.act_data_sets[ind][2], beam=0.0, pen=fit.colors[ind])  
             top=fit.act_data_sets[ind][2],
             bottom=fit.act_data_sets[ind][2],
-            beam=0.0, pen=fit.act_colors[ind])
+            beam=0.0, pen=dill.copy(fit.act_colors[ind]))
 
 
             p5.addItem(err1)      
@@ -4760,7 +4767,7 @@ Polyfit coefficients:
 
             p5.plot(fit.act_data_sets[ind][0],fit.act_data_sets[ind][1], pen=None,symbol='o',
             symbolSize=self.act_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.act_colors[ind]
+            symbolBrush=dill.copy(fit.act_colors[ind])
             )
 
             p5.setLabel('left', 'y', units='',  **{'font-size':self.plot_font.pointSize()})
@@ -4937,16 +4944,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
             p_ttv.plot(t, ttv_data,
             pen=None,
-            symbol=fit.pyqt_symbols_ttv[j],
-            symbolPen={'color': fit.ttv_colors[j], 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_ttv[j],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.ttv_colors[j] ) 
+            symbol=dill.copy(fit.pyqt_symbols_ttv[j]),
+            symbolPen={'color': dill.copy(fit.ttv_colors[j]), 'width': 1.1},
+            symbolSize=dill.copy(fit.pyqt_symbols_size_ttv[j]),enableAutoRange=True,viewRect=True,
+            symbolBrush=dill.copy(fit.ttv_colors[j]) ) 
             
-            err_ = pg.ErrorBarItem(x=t, y=ttv_data, symbol=fit.pyqt_symbols_ttv[j],
+            err_ = pg.ErrorBarItem(x=t, y=ttv_data, symbol=dill.copy(fit.pyqt_symbols_ttv[j]),
                                   # height=flux_err, 
                                    top=flux_err, 
                                    bottom=flux_err,
-                                   beam=0.0, pen=fit.ttv_colors[j])
+                                   beam=0.0, pen=dill.copy(fit.ttv_colors[j]))
 
             p_ttv.addItem(err_)
 
@@ -4964,16 +4971,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
             p_ttv_00.plot(t, ttv_data,
             pen=None,  
-            symbol=fit.pyqt_symbols_ttv[j],
-            symbolPen={'color': fit.ttv_colors[j], 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_ttv[j],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.ttv_colors[j],name=fit.ttv_data_sets[j][-1] )
+            symbol=dill.copy(fit.pyqt_symbols_ttv[j]),
+            symbolPen={'color': dill.copy(fit.ttv_colors[j]), 'width': 1.1},
+            symbolSize=dill.copy(fit.pyqt_symbols_size_ttv[j]),enableAutoRange=True,viewRect=True,
+            symbolBrush=dill.copy(fit.ttv_colors[j]),name=fit.ttv_data_sets[j][-1] )
 
-            err_ = pg.ErrorBarItem(x=t, y=ttv_data, symbol=fit.pyqt_symbols_ttv[j],
+            err_ = pg.ErrorBarItem(x=t, y=ttv_data, symbol=dill.copy(fit.pyqt_symbols_ttv[j]),
            # height=flux_err,
             top=flux_err,
             bottom=flux_err,
-            beam=0.0, pen=fit.ttv_colors[j])
+            beam=0.0, pen=dill.copy(fit.ttv_colors[j]))
 
             p_ttv_00.addItem(err_)
 
@@ -4986,16 +4993,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
             p_ttv_01.plot(t, flux_o_c,
             pen=None,  
-            symbol=fit.pyqt_symbols_ttv[j],
-            symbolPen={'color': fit.ttv_colors[j], 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_ttv[j],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.ttv_colors[j] )
+            symbol=dill.copy(fit.pyqt_symbols_ttv[j]),
+            symbolPen={'color': dill.copy(fit.ttv_colors[j]), 'width': 1.1},
+            symbolSize=dill.copy(fit.pyqt_symbols_size_ttv[j]),enableAutoRange=True,viewRect=True,
+            symbolBrush=dill.copy(fit.ttv_colors[j]) )
 
-            err_oc = pg.ErrorBarItem(x=t, y=flux_o_c, symbol=fit.pyqt_symbols_ttv[j],
+            err_oc = pg.ErrorBarItem(x=t, y=flux_o_c, symbol=dill.copy(fit.pyqt_symbols_ttv[j]),
             #height=flux_err,
             top=flux_err,
             bottom=flux_err,
-            beam=0.0, pen=fit.ttv_colors[j])
+            beam=0.0, pen=dill.copy(fit.ttv_colors[j]))
 
             p_ttv_01.addItem(err_oc)
 
@@ -5136,19 +5143,19 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
             p_ast.plot(x_axis, y_axis,
             pen=None,
-            symbol=fit.pyqt_symbols_ast[j],
-            symbolPen={'color': fit.ast_colors[j], 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_ast[j],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.ast_colors[j] ) 
+            symbol=dill.copy(fit.pyqt_symbols_ast[j]),
+            symbolPen={'color': dill.copy(fit.ast_colors[j]), 'width': 1.1},
+            symbolSize=dill.copy(fit.pyqt_symbols_size_ast[j]),enableAutoRange=True,viewRect=True,
+            symbolBrush=dill.copy(fit.ast_colors[j]) ) 
             
 
-            err_ = pg.ErrorBarItem(x=x_axis, y=y_axis, symbol=fit.pyqt_symbols_ast[j],
+            err_ = pg.ErrorBarItem(x=x_axis, y=y_axis, symbol=dill.copy(fit.pyqt_symbols_ast[j]),
                                   # height=flux_err, 
                                    top=y_axis_err, 
                                    bottom=y_axis_err,
                                    left=y_axis_err,
                                    right=y_axis_err,
-                                   beam=0.0, pen=fit.ast_colors[j])
+                                   beam=0.0, pen=dill.copy(fit.ast_colors[j]))
 
             p_ast.addItem(err_)
 
@@ -5166,18 +5173,18 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
             p_ast_00.plot(x_axis, y_axis,
             pen=None,  
-            symbol=fit.pyqt_symbols_ast[j],
-            symbolPen={'color': fit.ast_colors[j], 'width': 1.1},
-            symbolSize=fit.pyqt_symbols_size_ast[j],enableAutoRange=True,viewRect=True,
-            symbolBrush=fit.ast_colors[j],name=fit.ast_data_sets[j][-1] )
+            symbol=dill.copy(fit.pyqt_symbols_ast[j]),
+            symbolPen={'color': dill.copy(fit.ast_colors[j]), 'width': 1.1},
+            symbolSize=dill.copy(fit.pyqt_symbols_size_ast[j]),enableAutoRange=True,viewRect=True,
+            symbolBrush=dill.copy(fit.ast_colors[j]),name=fit.ast_data_sets[j][-1] )
 
-            err_ = pg.ErrorBarItem(x=x_axis, y=y_axis, symbol=fit.pyqt_symbols_ast[j],
+            err_ = pg.ErrorBarItem(x=x_axis, y=y_axis, symbol=dill.copy(fit.pyqt_symbols_ast[j]),
                                   # height=flux_err, 
                                    top=y_axis_err, 
                                    bottom=y_axis_err,
                                    left=y_axis_err,
                                    right=y_axis_err,
-                                   beam=0.0, pen=fit.ast_colors[j])
+                                   beam=0.0, pen=dill.copy(fit.ast_colors[j]))
 
             p_ast_00.addItem(err_)
 
@@ -5190,16 +5197,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 #            p_ast_01.plot(t, flux_o_c,
 #            pen=None,  
-#            symbol=fit.pyqt_symbols_ast[j],
-#            symbolPen={'color': fit.ast_colors[j], 'width': 1.1},
-#            symbolSize=fit.pyqt_symbols_size_ast[j],enableAutoRange=True,viewRect=True,
-#            symbolBrush=fit.ast_colors[j] )
+#            symbol=dill.copy(fit.pyqt_symbols_ast[j]),
+#            symbolPen={'color': dill.copy(fit.ast_colors[j]), 'width': 1.1},
+#            symbolSize=dill.copy(fit.pyqt_symbols_size_ast[j]),enableAutoRange=True,viewRect=True,
+#            symbolBrush=dill.copy(fit.ast_colors[j]) )
 
-#            err_oc = pg.ErrorBarItem(x=t, y=flux_o_c, symbol=fit.pyqt_symbols_ast[j],
+#            err_oc = pg.ErrorBarItem(x=t, y=flux_o_c, symbol=dill.copy(fit.pyqt_symbols_ast[j]),
             #height=flux_err,
 #            top=flux_err,
 #            bottom=flux_err,
-#            beam=0.0, pen=fit.ast_colors[j])
+#            beam=0.0, pen=dill.copy(fit.ast_colors[j]))
 
 #            p_ast_01.addItem(err_oc)
 
@@ -5322,7 +5329,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         symbol=Prat_plot_dot,
         symbolPen={'color': colors_per_rat[0], 'width': 1.1},
         symbolSize=1,enableAutoRange=True,viewRect=True,
-        symbolBrush=fit.colors[0]
+        symbolBrush=dill.copy(fit.colors[0])
         )  
 
         if self.orb_evol_auto_range_per_evol.isChecked():
@@ -5464,7 +5471,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         symbol=Dom_plot_dot,
         symbolPen={'color': colors_delta_om[0], 'width': 1.1},
         symbolSize=1,enableAutoRange=True,viewRect=True,
-        symbolBrush=fit.colors[0]
+        symbolBrush=dill.copy(fit.colors[0])
         )  
 
 
@@ -5640,7 +5647,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         symbol=theta_plot_dot,
         symbolPen={'color': colors_theta[0], 'width': 1.1},
         symbolSize=1,enableAutoRange=True,viewRect=True,
-        symbolBrush=fit.colors[0]
+        symbolBrush=dill.copy(fit.colors[0])
         )  
                
     def get_theta_color(self):
@@ -5687,7 +5694,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         if self.plot_i.isChecked():
             for i in range(npl):
-                p19.plot(fit.evol_T[i], fit.evol_i[i] ,pen=fit.colors[i],symbol=None )    
+                p19.plot(fit.evol_T[i], fit.evol_i[i] ,pen=dill.copy(fit.colors[i]),symbol=None )    
             p19.setLabel('left', 'i [deg]', units='',  **{'font-size':self.plot_font.pointSize()})    
     
         elif self.plot_Om.isChecked():
@@ -5700,9 +5707,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
                 p19.plot(fit.evol_T[i], Om_evol ,pen=None, #{'color': colors[i], 'width': 1.1},
                 symbol='o',
-                symbolPen={'color': fit.colors[i], 'width': 1.1},
+                symbolPen={'color': dill.copy(fit.colors[i]), 'width': 1.1},
                 symbolSize=1,enableAutoRange=True,viewRect=True,
-                symbolBrush=fit.colors[i]
+                symbolBrush=dill.copy(fit.colors[i])
                 )
                 
             p19.setLabel('left', '<html><head/><body><p>&Omega; [deg] </p></body></html>', units='',  **{'font-size':self.plot_font.pointSize()}) 
@@ -5720,19 +5727,19 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         if self.radioButton_energy.isChecked():
  
-            p20.plot(fit.evol_T_energy, fit.evol_energy ,pen=fit.colors[0],symbol=None )    
+            p20.plot(fit.evol_T_energy, fit.evol_energy ,pen=dill.copy(fit.colors[0]),symbol=None )    
             p20.setLabel('left', 'Energy', units='',  **{'font-size':self.plot_font.pointSize()})    
     
         elif self.radioButton_lx.isChecked():
-            p20.plot(fit.evol_T_energy, fit.evol_momentum['lx'] ,pen=fit.colors[0],symbol=None )    
+            p20.plot(fit.evol_T_energy, fit.evol_momentum['lx'] ,pen=dill.copy(fit.colors[0]),symbol=None )    
             p20.setLabel('left', 'Momentum lx', units='',  **{'font-size':self.plot_font.pointSize()})    
 
         elif self.radioButton_ly.isChecked():
-            p20.plot(fit.evol_T_energy, fit.evol_momentum['ly'] ,pen=fit.colors[0],symbol=None )    
+            p20.plot(fit.evol_T_energy, fit.evol_momentum['ly'] ,pen=dill.copy(fit.colors[0]),symbol=None )    
             p20.setLabel('left', 'Momentum ly', units='',  **{'font-size':self.plot_font.pointSize()}) 
             
         elif self.radioButton_lz.isChecked():
-            p20.plot(fit.evol_T_energy, fit.evol_momentum['lz'] ,pen=fit.colors[0],symbol=None )    
+            p20.plot(fit.evol_T_energy, fit.evol_momentum['lz'] ,pen=dill.copy(fit.colors[0]),symbol=None )    
             p20.setLabel('left', 'Momentum lz', units='',  **{'font-size':self.plot_font.pointSize()})                    
  
     
@@ -5753,7 +5760,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         for i in range(npl):
 
             if self.a_plot_line.isChecked():
-                a_plot_pen={'color':fit.colors[i], 'width':self.a_line_size.value()}
+                a_plot_pen={'color':dill.copy(fit.colors[i]), 'width':self.a_line_size.value()}
             else:
                 a_plot_pen=None
 
@@ -5764,9 +5771,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
             p13.plot(fit.evol_T[i], fit.evol_a[i],pen=a_plot_pen,  
         symbol=a_plot_dot,
-        symbolPen={'color': fit.colors[i], 'width': self.a_dot_size.value()},
+        symbolPen={'color': dill.copy(fit.colors[i]), 'width': self.a_dot_size.value()},
         symbolSize=1,enableAutoRange=True,viewRect=True,
-        symbolBrush=fit.colors[i]
+        symbolBrush=dill.copy(fit.colors[i])
         )    
 
         if self.orb_evol_auto_range_a.isChecked():
@@ -5792,7 +5799,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
 
         for i in range(npl):
-            p14.plot(fit.evol_T[i], fit.evol_e[i] ,pen=fit.colors[i],symbol=None )  
+            p14.plot(fit.evol_T[i], fit.evol_e[i] ,pen=dill.copy(fit.colors[i]),symbol=None )  
 
         if self.orb_evol_auto_range_e.isChecked():
             p14.autoRange()   
@@ -5816,9 +5823,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
             p15.plot(fit.evol_T[i], fit.evol_p[i] ,pen=None, #{'color': colors[i], 'width': 1.1},
         symbol='o',
-        symbolPen={'color': fit.colors[i], 'width': 1.1},
+        symbolPen={'color': dill.copy(fit.colors[i]), 'width': 1.1},
         symbolSize=1,enableAutoRange=True,viewRect=True,
-        symbolBrush=fit.colors[i]
+        symbolBrush=dill.copy(fit.colors[i])
         )    
             
         if self.orb_evol_auto_range_p.isChecked():
@@ -6024,7 +6031,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             time_phase = ((time_phase)/max(time_phase)) -0.5 # - fit.params.planet_params[7*(ind-1)+1]/2.0) /fit.params.planet_params[7*(ind-1)+1]
  
 
-        model_curve = pe0.plot(model_time_phase,ph_model, pen={'color':  fit.rvs_colors[-1], 'width': self.rv_model_width.value()+1},
+        model_curve = pe0.plot(model_time_phase,ph_model, pen={'color':  dill.copy(fit.rvs_colors[-1]), 'width': self.rv_model_width.value()+1},
         enableAutoRange=True,viewRect=True)   
  
         model_curve.setZValue(self.RV_model_z.value())
@@ -6050,39 +6057,39 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
                 pe0.plot((time_phase[ph_data[3]==i]),rv_data[ph_data[3]==i],
                 pen=None, #{'color': colors[i], 'width': 1.1},
-                symbol=fit.pyqt_symbols_rvs[i],
-                symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
-                symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-                symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), name=rv_filename)
+                symbol=dill.copy(fit.pyqt_symbols_rvs[i]),
+                symbolPen={'color': dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i])), 'width': 1.1},
+                symbolSize=dill.copy(fit.pyqt_symbols_size_rvs[i]),enableAutoRange=True,viewRect=True,
+                symbolBrush=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i])), name=rv_filename)
 
                 pe1.plot((time_phase[ph_data[3]==i]),rv_data_o_c[ph_data[3]==i],
                 pen=None, #{'color': colors[i], 'width': 1.1},
-                symbol=fit.pyqt_symbols_rvs[i],
-                symbolPen={'color': fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]), 'width': 1.1},
-                symbolSize=fit.pyqt_symbols_size_rvs[i],enableAutoRange=True,viewRect=True,
-                symbolBrush=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i]) )
+                symbol=dill.copy(fit.pyqt_symbols_rvs[i]),
+                symbolPen={'color': dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i])), 'width': 1.1},
+                symbolSize=dill.copy(fit.pyqt_symbols_size_rvs[i]),enableAutoRange=True,viewRect=True,
+                symbolBrush=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i])) )
 
 
                 err_ = pg.ErrorBarItem(x=(time_phase[ph_data[3]==i]), y=rv_data[ph_data[3]==i],
-                symbol=fit.pyqt_symbols_rvs[i], 
+                symbol=dill.copy(fit.pyqt_symbols_rvs[i]), 
                 top=error_list[ph_data[3]==i],
                 bottom=error_list[ph_data[3]==i],
-                beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])) 
+                beam=0.0, pen=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i]))) 
 
                 pe0.addItem(err_)
 
                 err_o_c = pg.ErrorBarItem(x=(time_phase[ph_data[3]==i]), y=rv_data_o_c[ph_data[3]==i],
-                symbol=fit.pyqt_symbols_rvs[i], 
+                symbol=dill.copy(fit.pyqt_symbols_rvs[i]), 
                 top=error_list[ph_data[3]==i],
                 bottom=error_list[ph_data[3]==i],
-                beam=0.0, pen=fit.rvs_colors[i]+"%02x"%int(fit.pyqt_color_alpha_rvs[i])) 
+                beam=0.0, pen=dill.copy(fit.rvs_colors[i])+"%02x"%int(dill.copy(fit.pyqt_color_alpha_rvs[i]))) 
 
                 pe1.addItem(err_o_c)
 
                 if self.jitter_to_plots.isChecked() and self.split_jitter.isChecked():
      
                     err_2 = pg.ErrorBarItem(x=(time_phase[ph_data[3]==i]), y=rv_data[ph_data[3]==i],
-                    symbol=fit.pyqt_symbols_rvs[i], 
+                    symbol=dill.copy(fit.pyqt_symbols_rvs[i]), 
                     top=error_list2[ph_data[3]==i],
                     bottom=error_list2[ph_data[3]==i],
                     beam=0.0, pen=colors_RV_jitter[0])  
@@ -6090,7 +6097,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                     pe0.addItem(err_2) 
 
                     err_2_o_c = pg.ErrorBarItem(x=(time_phase[ph_data[3]==i]), y=rv_data_o_c[ph_data[3]==i],
-                    symbol=fit.pyqt_symbols_rvs[i], 
+                    symbol=dill.copy(fit.pyqt_symbols_rvs[i]), 
                     top=error_list2[ph_data[3]==i],
                     bottom=error_list2[ph_data[3]==i],
                     beam=0.0, pen=colors_RV_jitter[0])  
@@ -6781,8 +6788,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         for i in range(20):
             if len(fit.rv_data_sets[i]) !=0:
-                self.buttonGroup_add_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.rvs_colors[i])
-                self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("color: %s;"%fit.rvs_colors[i])
+                self.buttonGroup_add_RV_data.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.rvs_colors[i]))
+                self.buttonGroup_remove_RV_data.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.rvs_colors[i]))
                 font.setPointSize(9)
                 #self.buttonGroup_add_RV_data.button(i+1).setText(fit.filelist.files[i].name) 
                 self.buttonGroup_add_RV_data.button(i+1).setText(fit.rv_data_sets[i][4]) 
@@ -6931,8 +6938,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         for i in range(20):
             if len(fit.act_data_sets[i]) != 0:
-                self.buttonGroup_activity_data.button(i+1).setStyleSheet("color: %s;"%fit.act_colors[i])
-                self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("color: %s;"%fit.act_colors[i])
+                self.buttonGroup_activity_data.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.act_colors[i]))
+                self.buttonGroup_remove_activity_data.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.act_colors[i]))
                 self.buttonGroup_activity_data.button(i+1).setText(fit.act_data_sets[i][-1])
 
             else:
@@ -7000,8 +7007,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         for i in range(10):
             if len(fit.ttv_data_sets[i]) != 0:
-                self.buttonGroup_ttv_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-                self.buttonGroup_remove_ttv_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_ttv_data.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.colors[i]))
+                self.buttonGroup_remove_ttv_data.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.colors[i]))
                 self.buttonGroup_ttv_data.button(i+1).setText(fit.ttv_data_sets[i][5])
                 #self.ttv_data_to_planet[i].setValue(fit.ttv_data_sets[i][3])
                 #self.use_ttv_data_to_planet[i].setChecked(bool(fit.ttv_data_sets[i][4]))
@@ -7108,8 +7115,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         for i in range(10):
             if len(fit.ast_data_sets[i]) != 0:
-                self.buttonGroup_ast_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
-                self.buttonGroup_remove_ast_data.button(i+1).setStyleSheet("color: %s;"%fit.colors[i])
+                self.buttonGroup_ast_data.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.colors[i]))
+                self.buttonGroup_remove_ast_data.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.colors[i]))
                 self.buttonGroup_ast_data.button(i+1).setText(fit.ast_data_sets[i][7])
                 #self.ast_data_to_planet[i].setValue(fit.ast_data_sets[i][3])
                 #self.use_ast_data_to_planet[i].setChecked(bool(fit.ast_data_sets[i][4]))
@@ -7338,7 +7345,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
         p_mlp.plot(clear=True,)
 
-        self.colors_gls.setStyleSheet("color: %s;"%fit.gls_colors[0])
+        self.colors_gls.setStyleSheet("color: %s;"%dill.copy(fit.gls_colors[0]))
         self.colors_alias_mlp.setStyleSheet("color: %s;"%colors_MLP_alias[0])
 
         power_levels_gui = np.array([self.mlp_fap1.value(),self.mlp_fap2.value(),self.mlp_fap3.value()])
@@ -7359,11 +7366,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             ######################## GLS ##############################
             if self.radioButton_RV_MLP_period.isChecked():
                 p_mlp.setLogMode(True,False)        
-                p_mlp.plot(1/fit.mlp.freq, fit.mlp.power,pen={'color': fit.gls_colors[0], 'width': gls_model_width},symbol=None ) 
+                p_mlp.plot(1/fit.mlp.freq, fit.mlp.power,pen={'color': dill.copy(fit.gls_colors[0]), 'width': self.gls_model_width.value()},symbol=None ) 
                 p_mlp.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})    
             else:
                 p_mlp.setLogMode(False,False)        
-                p_mlp.plot(fit.mlp.freq, fit.mlp.power,pen={'color': fit.gls_colors[0], 'width': self.gls_model_width.value()},symbol=None )                
+                p_mlp.plot(fit.mlp.freq, fit.mlp.power,pen={'color': dill.copy(fit.gls_colors[0]), 'width': self.gls_model_width.value()},symbol=None )                
                 p_mlp.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
 
             if fit.mlp.norm == 'dlnL':
@@ -8135,9 +8142,7 @@ Transit duration: %s d
         global fit  
         
         #self.button_fit.setEnabled(False)
-        
-        
-        print(self.data_str)
+ 
         # check if RV data is present
         if fit.ndset <= 0:
              choice = QtWidgets.QMessageBox.information(self, 'Warning!',
@@ -8170,22 +8175,22 @@ Transit duration: %s d
             doGP=self.do_RV_GP.isChecked()
             fit.init_fit= False  
        
-    
         if self.radioButton_fortran77.isChecked() and not self.do_RV_GP.isChecked():
             self.statusBar().showMessage('Minimizing parameters....')    
              # Pass the function to execute
             worker2 = Worker(lambda:  self.optimize_fit(ff=ff,  minimize_fortran=True, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
  
+            #worker2 = Worker(lambda:  fit.fitting(outputfiles=[1,1,1], doGP=False,   minimize_fortran=True,  fortran_kill=30, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value()))
+ 
+ 
         else:    
               
             self.check_scipy_min()
             
-
             self.statusBar().showMessage('Minimizing parameters using SciPyOp (might be slow)....')
             worker2 = Worker(lambda:  self.optimize_fit(ff=0, doGP=self.do_RV_GP.isChecked(),  gp_kernel_id=-1, minimize_fortran=False, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
             self.tabWidget_helper.setCurrentWidget(self.tab_info)
-            
-            
+                   
         worker2.signals.finished.connect(self.worker_RV_fitting_complete)
         
         # worker.signals.result.connect(self.print_output)
@@ -8226,9 +8231,9 @@ Transit duration: %s d
             self.update_params()
  
   
-        old_err1 = dill.copy(fit.param_errors.planet_params_errors)
-        old_err2 = dill.copy(fit.param_errors.offset_errors)
-        old_err3 = dill.copy(fit.param_errors.jitter_errors)
+       # old_err1 = dill.copy(fit.param_errors.planet_params_errors)
+       # old_err2 = dill.copy(fit.param_errors.offset_errors)
+      #  old_err3 = dill.copy(fit.param_errors.jitter_errors)
         old_err4 = dill.copy(fit.param_errors.GP_params_errors)
  
     
@@ -8288,9 +8293,9 @@ Transit duration: %s d
 
         if self.reset_errors_at_init.isChecked() == False and fit.init_fit == True:
             print("Warning: 'Reset the errors to 0 when Initialize' is set to 'False', thus errors are not overwritten!")
-            fit.param_errors.planet_params_errors = dill.copy(old_err1)
-            fit.param_errors.offset_errors = dill.copy(old_err2)
-            fit.param_errors.jitter_errors = dill.copy(old_err3)
+        #    fit.param_errors.planet_params_errors = dill.copy(old_err1)
+        #    fit.param_errors.offset_errors = dill.copy(old_err2)
+        #    fit.param_errors.jitter_errors = dill.copy(old_err3)
             fit.param_errors.GP_params_errors = dill.copy(old_err4)
             
           
@@ -10196,15 +10201,15 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         pdi.plot(x,y,
         pen=None, #{'color': colors[i], 'width': 1.1},
         symbol='o',
-        symbolPen={'color': fit.colors[0], 'width': 1.1},
+        symbolPen={'color': dill.copy(fit.colors[0]), 'width': 1.1},
         symbolSize=symbolsize,enableAutoRange=True,viewRect=True,
-        symbolBrush=fit.colors[0]
+        symbolBrush=dill.copy(fit.colors[0])
         )
 
         err_ = pg.ErrorBarItem(x=x, y=y, symbol='o', 
         top = y_err, bottom = y_err,
         #height=y_err, 
-        beam=0.0, pen=fit.colors[0])   
+        beam=0.0, pen=dill.copy(fit.colors[0]))   
      
         pdi.addItem(err_)
         pdi.autoRange()
@@ -10651,12 +10656,12 @@ Please install via 'pip install ttvfast'.
         #font.setWeight(75)
 
         for i in range(21):
-            self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%fit.rvs_colors[i])
-            self.buttonGroup_color_picker.button(i+1).setText("%s"%fit.rvs_colors[i])
+            self.buttonGroup_color_picker.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.rvs_colors[i]))
+            self.buttonGroup_color_picker.button(i+1).setText("%s"%dill.copy(fit.rvs_colors[i]))
             self.buttonGroup_color_picker.button(i+1).setFont(font)
         for i in range(20):    
-            self.buttonGroup_symbol_picker.button(i+1).setStyleSheet("color: %s;"%fit.rvs_colors[i])  
-            self.buttonGroup_symbol_picker.button(i+1).setText(fit.pyqt_symbols_rvs[i]) 
+            self.buttonGroup_symbol_picker.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.rvs_colors[i]))  
+            self.buttonGroup_symbol_picker.button(i+1).setText(dill.copy(fit.pyqt_symbols_rvs[i])) 
             self.buttonGroup_symbol_picker.button(i+1).setFont(font)
             
           
@@ -10676,7 +10681,7 @@ Please install via 'pip install ttvfast'.
         #colorz = QtWidgets.QColorDialog.getColor()
 
         if colorz.isValid():
-            fit.rvs_colors[but_ind-1]=colorz.name()   #[0]+"B3"+colorz.name()[1:]
+            fit.rvs_colors[but_ind-1]=dill.copy(colorz.name())   #[0]+"B3"+colorz.name()[1:]
             self.update_color_picker()
             self.update_act_file_buttons()
             self.update_RV_file_buttons() 
@@ -10708,7 +10713,7 @@ Please install via 'pip install ttvfast'.
             self.buttonGroup_color_picker_tra.button(i+1).setFont(font)
         for i in range(20):
             self.buttonGroup_symbol_picker_tra.button(i+1).setStyleSheet("color: %s;"%fit.tra_colors[i])
-            self.buttonGroup_symbol_picker_tra.button(i+1).setText(fit.pyqt_symbols_tra[i])
+            self.buttonGroup_symbol_picker_tra.button(i+1).setText(dill.copy(fit.pyqt_symbols_tra[i]))
             self.buttonGroup_symbol_picker_tra.button(i+1).setFont(font)
 
     def get_color_tra(self):
@@ -10748,11 +10753,11 @@ Please install via 'pip install ttvfast'.
         #font.setWeight(75)
 
         for i in range(11):
-            self.buttonGroup_color_picker_ttv.button(i+1).setStyleSheet("color: %s;"%fit.ttv_colors[i])
+            self.buttonGroup_color_picker_ttv.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.ttv_colors[i]))
             self.buttonGroup_color_picker_ttv.button(i+1).setFont(font)
         for i in range(10):
-            self.buttonGroup_symbol_picker_ttv.button(i+1).setStyleSheet("color: %s;"%fit.ttv_colors[i])
-            self.buttonGroup_symbol_picker_ttv.button(i+1).setText(fit.pyqt_symbols_ttv[i])
+            self.buttonGroup_symbol_picker_ttv.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.ttv_colors[i]))
+            self.buttonGroup_symbol_picker_ttv.button(i+1).setText(dill.copy(fit.pyqt_symbols_ttv[i]))
             self.buttonGroup_symbol_picker_ttv.button(i+1).setFont(font)
 
     def get_color_ttv(self):
@@ -10793,11 +10798,11 @@ Please install via 'pip install ttvfast'.
         #font.setWeight(75)
 
         for i in range(11):
-            self.buttonGroup_color_picker_ast.button(i+1).setStyleSheet("color: %s;"%fit.ast_colors[i])
+            self.buttonGroup_color_picker_ast.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.ast_colors[i]))
             self.buttonGroup_color_picker_ast.button(i+1).setFont(font)
         for i in range(10):
-            self.buttonGroup_symbol_picker_ast.button(i+1).setStyleSheet("color: %s;"%fit.ast_colors[i])
-            self.buttonGroup_symbol_picker_ast.button(i+1).setText(fit.pyqt_symbols_ast[i])
+            self.buttonGroup_symbol_picker_ast.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.ast_colors[i]))
+            self.buttonGroup_symbol_picker_ast.button(i+1).setText(dill.copy(dill.copy(fit.pyqt_symbols_ast[i])))
             self.buttonGroup_symbol_picker_ast.button(i+1).setFont(font)
 
     def get_color_ast(self):
@@ -10839,7 +10844,7 @@ Please install via 'pip install ttvfast'.
         but_n = self.dialog_symbols.get_radio()
             
         if but_n != None:
-            fit.pyqt_symbols_rvs[but_ind-1] = symbols[but_n-1]
+            fit.pyqt_symbols_rvs[but_ind-1] = dill.copy(symbols[but_n-1])
             self.update_color_picker()
             self.update_act_file_buttons()      
             self.update_RV_file_buttons() 
@@ -10859,47 +10864,47 @@ Please install via 'pip install ttvfast'.
         global fit
        
        # for i in range(10):
-        fit.pyqt_symbols_size_rvs[0] = self.rv_data_size_1.value()
-        fit.pyqt_symbols_size_rvs[1] = self.rv_data_size_2.value()
-        fit.pyqt_symbols_size_rvs[2] = self.rv_data_size_3.value()
-        fit.pyqt_symbols_size_rvs[3] = self.rv_data_size_4.value()
-        fit.pyqt_symbols_size_rvs[4] = self.rv_data_size_5.value()
-        fit.pyqt_symbols_size_rvs[5] = self.rv_data_size_6.value()
-        fit.pyqt_symbols_size_rvs[6] = self.rv_data_size_7.value()
-        fit.pyqt_symbols_size_rvs[7] = self.rv_data_size_8.value()
-        fit.pyqt_symbols_size_rvs[8] = self.rv_data_size_9.value()
-        fit.pyqt_symbols_size_rvs[9] = self.rv_data_size_10.value()
-        fit.pyqt_symbols_size_rvs[10] = self.rv_data_size_11.value()
-        fit.pyqt_symbols_size_rvs[11] = self.rv_data_size_12.value()
-        fit.pyqt_symbols_size_rvs[12] = self.rv_data_size_13.value()
-        fit.pyqt_symbols_size_rvs[13] = self.rv_data_size_14.value()
-        fit.pyqt_symbols_size_rvs[14] = self.rv_data_size_15.value()
-        fit.pyqt_symbols_size_rvs[15] = self.rv_data_size_16.value()
-        fit.pyqt_symbols_size_rvs[16] = self.rv_data_size_17.value()
-        fit.pyqt_symbols_size_rvs[17] = self.rv_data_size_18.value()
-        fit.pyqt_symbols_size_rvs[18] = self.rv_data_size_19.value()
-        fit.pyqt_symbols_size_rvs[19] = self.rv_data_size_20.value()
+        fit.pyqt_symbols_size_rvs[0] = dill.copy(self.rv_data_size_1.value())
+        fit.pyqt_symbols_size_rvs[1] = dill.copy(self.rv_data_size_2.value())
+        fit.pyqt_symbols_size_rvs[2] = dill.copy(self.rv_data_size_3.value())
+        fit.pyqt_symbols_size_rvs[3] = dill.copy(self.rv_data_size_4.value())
+        fit.pyqt_symbols_size_rvs[4] = dill.copy(self.rv_data_size_5.value())
+        fit.pyqt_symbols_size_rvs[5] = dill.copy(self.rv_data_size_6.value())
+        fit.pyqt_symbols_size_rvs[6] = dill.copy(self.rv_data_size_7.value())
+        fit.pyqt_symbols_size_rvs[7] = dill.copy(self.rv_data_size_8.value())
+        fit.pyqt_symbols_size_rvs[8] = dill.copy(self.rv_data_size_9.value())
+        fit.pyqt_symbols_size_rvs[9] = dill.copy(self.rv_data_size_10.value())
+        fit.pyqt_symbols_size_rvs[10] = dill.copy(self.rv_data_size_11.value())
+        fit.pyqt_symbols_size_rvs[11] = dill.copy(self.rv_data_size_12.value())
+        fit.pyqt_symbols_size_rvs[12] = dill.copy(self.rv_data_size_13.value())
+        fit.pyqt_symbols_size_rvs[13] = dill.copy(self.rv_data_size_14.value())
+        fit.pyqt_symbols_size_rvs[14] = dill.copy(self.rv_data_size_15.value())
+        fit.pyqt_symbols_size_rvs[15] = dill.copy(self.rv_data_size_16.value())
+        fit.pyqt_symbols_size_rvs[16] = dill.copy(self.rv_data_size_17.value())
+        fit.pyqt_symbols_size_rvs[17] = dill.copy(self.rv_data_size_18.value())
+        fit.pyqt_symbols_size_rvs[18] = dill.copy(self.rv_data_size_19.value())
+        fit.pyqt_symbols_size_rvs[19] = dill.copy(self.rv_data_size_20.value())
 
-        fit.pyqt_color_alpha_rvs[0] = self.rv_data_alpha_1.value()
-        fit.pyqt_color_alpha_rvs[1] = self.rv_data_alpha_2.value()
-        fit.pyqt_color_alpha_rvs[2] = self.rv_data_alpha_3.value()
-        fit.pyqt_color_alpha_rvs[3] = self.rv_data_alpha_4.value()
-        fit.pyqt_color_alpha_rvs[4] = self.rv_data_alpha_5.value()
-        fit.pyqt_color_alpha_rvs[5] = self.rv_data_alpha_6.value()
-        fit.pyqt_color_alpha_rvs[6] = self.rv_data_alpha_7.value()
-        fit.pyqt_color_alpha_rvs[7] = self.rv_data_alpha_8.value()
-        fit.pyqt_color_alpha_rvs[8] = self.rv_data_alpha_9.value()
-        fit.pyqt_color_alpha_rvs[9] = self.rv_data_alpha_10.value()
-        fit.pyqt_color_alpha_rvs[10] = self.rv_data_alpha_11.value()
-        fit.pyqt_color_alpha_rvs[11] = self.rv_data_alpha_12.value()
-        fit.pyqt_color_alpha_rvs[12] = self.rv_data_alpha_13.value()
-        fit.pyqt_color_alpha_rvs[13] = self.rv_data_alpha_14.value()
-        fit.pyqt_color_alpha_rvs[14] = self.rv_data_alpha_15.value()
-        fit.pyqt_color_alpha_rvs[15] = self.rv_data_alpha_16.value()
-        fit.pyqt_color_alpha_rvs[16] = self.rv_data_alpha_17.value()
-        fit.pyqt_color_alpha_rvs[17] = self.rv_data_alpha_18.value()
-        fit.pyqt_color_alpha_rvs[18] = self.rv_data_alpha_19.value()
-        fit.pyqt_color_alpha_rvs[19] = self.rv_data_alpha_20.value()
+        fit.pyqt_color_alpha_rvs[0] = dill.copy(self.rv_data_alpha_1.value())
+        fit.pyqt_color_alpha_rvs[1] = dill.copy(self.rv_data_alpha_2.value())
+        fit.pyqt_color_alpha_rvs[2] = dill.copy(self.rv_data_alpha_3.value())
+        fit.pyqt_color_alpha_rvs[3] = dill.copy(self.rv_data_alpha_4.value())
+        fit.pyqt_color_alpha_rvs[4] = dill.copy(self.rv_data_alpha_5.value())
+        fit.pyqt_color_alpha_rvs[5] = dill.copy(self.rv_data_alpha_6.value())
+        fit.pyqt_color_alpha_rvs[6] = dill.copy(self.rv_data_alpha_7.value())
+        fit.pyqt_color_alpha_rvs[7] = dill.copy(self.rv_data_alpha_8.value())
+        fit.pyqt_color_alpha_rvs[8] = dill.copy(self.rv_data_alpha_9.value())
+        fit.pyqt_color_alpha_rvs[9] = dill.copy(self.rv_data_alpha_10.value())
+        fit.pyqt_color_alpha_rvs[10] = dill.copy(self.rv_data_alpha_11.value())
+        fit.pyqt_color_alpha_rvs[11] = dill.copy(self.rv_data_alpha_12.value())
+        fit.pyqt_color_alpha_rvs[12] = dill.copy(self.rv_data_alpha_13.value())
+        fit.pyqt_color_alpha_rvs[13] = dill.copy(self.rv_data_alpha_14.value())
+        fit.pyqt_color_alpha_rvs[14] = dill.copy(self.rv_data_alpha_15.value())
+        fit.pyqt_color_alpha_rvs[15] = dill.copy(self.rv_data_alpha_16.value())
+        fit.pyqt_color_alpha_rvs[16] = dill.copy(self.rv_data_alpha_17.value())
+        fit.pyqt_color_alpha_rvs[17] = dill.copy(self.rv_data_alpha_18.value())
+        fit.pyqt_color_alpha_rvs[18] = dill.copy(self.rv_data_alpha_19.value())
+        fit.pyqt_color_alpha_rvs[19] = dill.copy(self.rv_data_alpha_20.value())
 
     ### Transit ###
 
@@ -10930,47 +10935,47 @@ Please install via 'pip install ttvfast'.
         global fit
        
        # for i in range(10):
-        fit.pyqt_symbols_size_tra[0] = self.trans_data_size_1.value()
-        fit.pyqt_symbols_size_tra[1] = self.trans_data_size_2.value()
-        fit.pyqt_symbols_size_tra[2] = self.trans_data_size_3.value()
-        fit.pyqt_symbols_size_tra[3] = self.trans_data_size_4.value()
-        fit.pyqt_symbols_size_tra[4] = self.trans_data_size_5.value()
-        fit.pyqt_symbols_size_tra[5] = self.trans_data_size_6.value()
-        fit.pyqt_symbols_size_tra[6] = self.trans_data_size_7.value()
-        fit.pyqt_symbols_size_tra[7] = self.trans_data_size_8.value()
-        fit.pyqt_symbols_size_tra[8] = self.trans_data_size_9.value()
-        fit.pyqt_symbols_size_tra[9] = self.trans_data_size_10.value()
-        fit.pyqt_symbols_size_tra[10] = self.trans_data_size_11.value()
-        fit.pyqt_symbols_size_tra[11] = self.trans_data_size_12.value()
-        fit.pyqt_symbols_size_tra[12] = self.trans_data_size_13.value()
-        fit.pyqt_symbols_size_tra[13] = self.trans_data_size_14.value()
-        fit.pyqt_symbols_size_tra[14] = self.trans_data_size_15.value()
-        fit.pyqt_symbols_size_tra[15] = self.trans_data_size_16.value()
-        fit.pyqt_symbols_size_tra[16] = self.trans_data_size_17.value()
-        fit.pyqt_symbols_size_tra[17] = self.trans_data_size_18.value()
-        fit.pyqt_symbols_size_tra[18] = self.trans_data_size_19.value()
-        fit.pyqt_symbols_size_tra[19] = self.trans_data_size_20.value()
+        fit.pyqt_symbols_size_tra[0] = dill.copy(self.trans_data_size_1.value())
+        fit.pyqt_symbols_size_tra[1] = dill.copy(self.trans_data_size_2.value())
+        fit.pyqt_symbols_size_tra[2] = dill.copy(self.trans_data_size_3.value())
+        fit.pyqt_symbols_size_tra[3] = dill.copy(self.trans_data_size_4.value())
+        fit.pyqt_symbols_size_tra[4] = dill.copy(self.trans_data_size_5.value())
+        fit.pyqt_symbols_size_tra[5] = dill.copy(self.trans_data_size_6.value())
+        fit.pyqt_symbols_size_tra[6] = dill.copy(self.trans_data_size_7.value())
+        fit.pyqt_symbols_size_tra[7] = dill.copy(self.trans_data_size_8.value())
+        fit.pyqt_symbols_size_tra[8] = dill.copy(self.trans_data_size_9.value())
+        fit.pyqt_symbols_size_tra[9] = dill.copy(self.trans_data_size_10.value())
+        fit.pyqt_symbols_size_tra[10] = dill.copy(self.trans_data_size_11.value())
+        fit.pyqt_symbols_size_tra[11] = dill.copy(self.trans_data_size_12.value())
+        fit.pyqt_symbols_size_tra[12] = dill.copy(self.trans_data_size_13.value())
+        fit.pyqt_symbols_size_tra[13] = dill.copy(self.trans_data_size_14.value())
+        fit.pyqt_symbols_size_tra[14] = dill.copy(self.trans_data_size_15.value())
+        fit.pyqt_symbols_size_tra[15] = dill.copy(self.trans_data_size_16.value())
+        fit.pyqt_symbols_size_tra[16] = dill.copy(self.trans_data_size_17.value())
+        fit.pyqt_symbols_size_tra[17] = dill.copy(self.trans_data_size_18.value())
+        fit.pyqt_symbols_size_tra[18] = dill.copy(self.trans_data_size_19.value())
+        fit.pyqt_symbols_size_tra[19] = dill.copy(self.trans_data_size_20.value())
 
-        fit.pyqt_color_alpha_tra[0] = self.trans_data_alpha_1.value()
-        fit.pyqt_color_alpha_tra[1] = self.trans_data_alpha_2.value()
-        fit.pyqt_color_alpha_tra[2] = self.trans_data_alpha_3.value()
-        fit.pyqt_color_alpha_tra[3] = self.trans_data_alpha_4.value()
-        fit.pyqt_color_alpha_tra[4] = self.trans_data_alpha_5.value()
-        fit.pyqt_color_alpha_tra[5] = self.trans_data_alpha_6.value()
-        fit.pyqt_color_alpha_tra[6] = self.trans_data_alpha_7.value()
-        fit.pyqt_color_alpha_tra[7] = self.trans_data_alpha_8.value()
-        fit.pyqt_color_alpha_tra[8] = self.trans_data_alpha_9.value()
-        fit.pyqt_color_alpha_tra[9] = self.trans_data_alpha_10.value()
-        fit.pyqt_color_alpha_tra[10] = self.trans_data_alpha_11.value()
-        fit.pyqt_color_alpha_tra[11] = self.trans_data_alpha_12.value()
-        fit.pyqt_color_alpha_tra[12] = self.trans_data_alpha_13.value()
-        fit.pyqt_color_alpha_tra[13] = self.trans_data_alpha_14.value()
-        fit.pyqt_color_alpha_tra[14] = self.trans_data_alpha_15.value()
-        fit.pyqt_color_alpha_tra[15] = self.trans_data_alpha_16.value()
-        fit.pyqt_color_alpha_tra[16] = self.trans_data_alpha_17.value()
-        fit.pyqt_color_alpha_tra[17] = self.trans_data_alpha_18.value()
-        fit.pyqt_color_alpha_tra[18] = self.trans_data_alpha_19.value()
-        fit.pyqt_color_alpha_tra[19] = self.trans_data_alpha_20.value()
+        fit.pyqt_color_alpha_tra[0] = dill.copy(self.trans_data_alpha_1.value())
+        fit.pyqt_color_alpha_tra[1] = dill.copy(self.trans_data_alpha_2.value())
+        fit.pyqt_color_alpha_tra[2] = dill.copy(self.trans_data_alpha_3.value())
+        fit.pyqt_color_alpha_tra[3] = dill.copy(self.trans_data_alpha_4.value())
+        fit.pyqt_color_alpha_tra[4] = dill.copy(self.trans_data_alpha_5.value())
+        fit.pyqt_color_alpha_tra[5] = dill.copy(self.trans_data_alpha_6.value())
+        fit.pyqt_color_alpha_tra[6] = dill.copy(self.trans_data_alpha_7.value())
+        fit.pyqt_color_alpha_tra[7] = dill.copy(self.trans_data_alpha_8.value())
+        fit.pyqt_color_alpha_tra[8] = dill.copy(self.trans_data_alpha_9.value())
+        fit.pyqt_color_alpha_tra[9] = dill.copy(self.trans_data_alpha_10.value())
+        fit.pyqt_color_alpha_tra[10] = dill.copy(self.trans_data_alpha_11.value())
+        fit.pyqt_color_alpha_tra[11] = dill.copy(self.trans_data_alpha_12.value())
+        fit.pyqt_color_alpha_tra[12] = dill.copy(self.trans_data_alpha_13.value())
+        fit.pyqt_color_alpha_tra[13] = dill.copy(self.trans_data_alpha_14.value())
+        fit.pyqt_color_alpha_tra[14] = dill.copy(self.trans_data_alpha_15.value())
+        fit.pyqt_color_alpha_tra[15] = dill.copy(self.trans_data_alpha_16.value())
+        fit.pyqt_color_alpha_tra[16] = dill.copy(self.trans_data_alpha_17.value())
+        fit.pyqt_color_alpha_tra[17] = dill.copy(self.trans_data_alpha_18.value())
+        fit.pyqt_color_alpha_tra[18] = dill.copy(self.trans_data_alpha_19.value())
+        fit.pyqt_color_alpha_tra[19] = dill.copy(self.trans_data_alpha_20.value())
 
 
     ### TTV ####
@@ -10982,7 +10987,7 @@ Please install via 'pip install ttvfast'.
         but_n = self.dialog_symbols.get_radio()
             
         if but_n != None:
-            fit.pyqt_symbols_ttv[but_ind-1] = symbols[but_n-1]
+            fit.pyqt_symbols_ttv[but_ind-1] = dill.copy(symbols[but_n-1])
             self.update_color_picker_ttv()
         #    self.update_act_file_buttons()      
         #    self.update_RV_file_buttons() 
@@ -11001,16 +11006,16 @@ Please install via 'pip install ttvfast'.
         global fit
        
        # for i in range(10):
-        fit.pyqt_symbols_size_ttv[0] = self.ttv_data_size_1.value()
-        fit.pyqt_symbols_size_ttv[1] = self.ttv_data_size_2.value()
-        fit.pyqt_symbols_size_ttv[2] = self.ttv_data_size_3.value()
-        fit.pyqt_symbols_size_ttv[3] = self.ttv_data_size_4.value()
-        fit.pyqt_symbols_size_ttv[4] = self.ttv_data_size_5.value()
-        fit.pyqt_symbols_size_ttv[5] = self.ttv_data_size_6.value()
-        fit.pyqt_symbols_size_ttv[6] = self.ttv_data_size_7.value()
-        fit.pyqt_symbols_size_ttv[7] = self.ttv_data_size_8.value()
-        fit.pyqt_symbols_size_ttv[8] = self.ttv_data_size_9.value()
-        fit.pyqt_symbols_size_ttv[9] = self.ttv_data_size_10.value()
+        fit.pyqt_symbols_size_ttv[0] = dill.copy(self.ttv_data_size_1.value())
+        fit.pyqt_symbols_size_ttv[1] = dill.copy(self.ttv_data_size_2.value())
+        fit.pyqt_symbols_size_ttv[2] = dill.copy(self.ttv_data_size_3.value())
+        fit.pyqt_symbols_size_ttv[3] = dill.copy(self.ttv_data_size_4.value())
+        fit.pyqt_symbols_size_ttv[4] = dill.copy(self.ttv_data_size_5.value())
+        fit.pyqt_symbols_size_ttv[5] = dill.copy(self.ttv_data_size_6.value())
+        fit.pyqt_symbols_size_ttv[6] = dill.copy(self.ttv_data_size_7.value())
+        fit.pyqt_symbols_size_ttv[7] = dill.copy(self.ttv_data_size_8.value())
+        fit.pyqt_symbols_size_ttv[8] = dill.copy(self.ttv_data_size_9.value())
+        fit.pyqt_symbols_size_ttv[9] = dill.copy(self.ttv_data_size_10.value())
 
  
     ### AST ####
@@ -11022,7 +11027,7 @@ Please install via 'pip install ttvfast'.
         but_n = self.dialog_symbols.get_radio()
             
         if but_n != None:
-            fit.pyqt_symbols_ast[but_ind-1] = symbols[but_n-1]
+            fit.pyqt_symbols_ast[but_ind-1] = dill.copy(symbols[but_n-1])
             self.update_color_picker_ast()
         #    self.update_act_file_buttons()      
         #    self.update_RV_file_buttons() 
@@ -11041,17 +11046,26 @@ Please install via 'pip install ttvfast'.
         global fit
        
        # for i in range(10):
-        fit.pyqt_symbols_size_ast[0] = self.ast_data_size_1.value()
-        fit.pyqt_symbols_size_ast[1] = self.ast_data_size_2.value()
-        fit.pyqt_symbols_size_ast[2] = self.ast_data_size_3.value()
-        fit.pyqt_symbols_size_ast[3] = self.ast_data_size_4.value()
-        fit.pyqt_symbols_size_ast[4] = self.ast_data_size_5.value()
-        fit.pyqt_symbols_size_ast[5] = self.ast_data_size_6.value()
-        fit.pyqt_symbols_size_ast[6] = self.ast_data_size_7.value()
-        fit.pyqt_symbols_size_ast[7] = self.ast_data_size_8.value()
-        fit.pyqt_symbols_size_ast[8] = self.ast_data_size_9.value()
-        fit.pyqt_symbols_size_ast[9] = self.ast_data_size_10.value()
-
+        fit.pyqt_symbols_size_ast[0] = dill.copy(self.ast_data_size_1.value())
+        fit.pyqt_symbols_size_ast[1] = dill.copy(self.ast_data_size_2.value())
+        fit.pyqt_symbols_size_ast[2] = dill.copy(self.ast_data_size_3.value())
+        fit.pyqt_symbols_size_ast[3] = dill.copy(self.ast_data_size_4.value())
+        fit.pyqt_symbols_size_ast[4] = dill.copy(self.ast_data_size_5.value())
+        fit.pyqt_symbols_size_ast[5] = dill.copy(self.ast_data_size_6.value())
+        fit.pyqt_symbols_size_ast[6] = dill.copy(self.ast_data_size_7.value())
+        fit.pyqt_symbols_size_ast[7] = dill.copy(self.ast_data_size_8.value())
+        fit.pyqt_symbols_size_ast[8] = dill.copy(self.ast_data_size_9.value())
+        fit.pyqt_symbols_size_ast[9] = dill.copy(self.ast_data_size_10.value())
+#        fit.pyqt_symbols_size_ast[10] = dill.copy(self.ast_data_size_11.value())
+#        fit.pyqt_symbols_size_ast[11] = dill.copy(self.ast_data_size_12.value())
+#        fit.pyqt_symbols_size_ast[12] = dill.copy(self.ast_data_size_13.value())
+#        fit.pyqt_symbols_size_ast[13] = dill.copy(self.ast_data_size_14.value())
+#        fit.pyqt_symbols_size_ast[14] = dill.copy(self.ast_data_size_15.value())
+#        fit.pyqt_symbols_size_ast[15] = dill.copy(self.ast_data_size_16.value())
+#        fit.pyqt_symbols_size_ast[16] = dill.copy(self.ast_data_size_17.value())
+#        fit.pyqt_symbols_size_ast[17] = dill.copy(self.ast_data_size_18.value())
+#        fit.pyqt_symbols_size_ast[18] = dill.copy(self.ast_data_size_19.value())
+#        fit.pyqt_symbols_size_ast[19] = dill.copy(self.ast_data_size_20.value())
  
 ################################## View Actions #######################################
 
@@ -11302,7 +11316,7 @@ Please install via 'pip install ttvfast'.
         
         self.safe_to_init = trigger
         
-        self.button_init_fit.setEnabled(trigger)        
+        self.button_init_fit.setEnabled(trigger)                
         self.button_MCMC.setEnabled(trigger) 
         self.button_nest_samp.setEnabled(trigger) 
         self.button_auto_fit.setEnabled(trigger) 
@@ -12248,27 +12262,27 @@ Please install via 'pip install ttvfast'.
         
         #################### data inspector ########################
         self.inspector_file = ""
- #       self.RVBank = False
-#        self.datafiles_window = datafiles_window()
- #       self.RVBank_window = RVBank_window() 
-      #  self.tree_view_tab = Widget_tree()        
-        #self.gridLayout_file_tree.setRowStretch(0, 6)
+        self.RVBank = False
+        self.datafiles_window = datafiles_window()
+        self.RVBank_window = RVBank_window() 
+        #self.tree_view_tab = Widget_tree()        
+       # self.gridLayout_file_tree.setRowStretch(0, 6)
         #self.gridLayout_file_tree.setRowStretch(1, 4)
-     #   self.gridLayout_file_tree.addWidget(self.tree_view_tab)
+        #self.gridLayout_file_tree.addWidget(self.tree_view_tab)
 
 
-#        self.export_DataInspector_data.clicked.connect(self.save_DataInspector_data)
-#        self.data_insp_load_data.clicked.connect(self.load_data_inspect)
-#        self.datafiles_window.listview.clicked.connect(self.plot_data_inspect)
-#
-#        self.dataInspector_thisComputer.clicked.connect(self.datafiles_window.show)
+        self.export_DataInspector_data.clicked.connect(self.save_DataInspector_data)
+        self.data_insp_load_data.clicked.connect(self.load_data_inspect)
+        self.datafiles_window.listview.clicked.connect(self.plot_data_inspect)
+
+        self.dataInspector_thisComputer.clicked.connect(self.datafiles_window.show)
         #self.dataInspector_HARPS_RVBank.clicked.connect(lambda: self.get_error_msg("Still work in progress! <br><br>However, you can inspect the online version of the <a href='http://www.mpia.de/homes/trifonov/HARPS_RVBank.html'>HARPS RVBank</a> and download HARPS data products. Then in the Exo-Striker use:<br><br>File --> Open RVBank file --> <br>(and then load the downoladed .dat file) <br><br>This will load you target's HARPS NZP corrected RVs and all the activity index data. <br><br>If you made use of the HARPS RVBank, please do not forget to cite <a href='https://ui.adsabs.harvard.edu/abs/2020arXiv200105942T/abstract'>Trifonov et al. (2020)</a>"))
 
-   #     self.RVBank_window.list.clicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
-  #      self.RVBank_window.list_opt.clicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
-  #      self.RVBank_window.radio_group.buttonClicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
+        self.RVBank_window.list.clicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
+        self.RVBank_window.list_opt.clicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
+        self.RVBank_window.radio_group.buttonClicked.connect(lambda: self.plot_data_inspect(0,RVBank = True))
 
- #       self.dataInspector_HARPS_RVBank.clicked.connect(self.RVBank_window.show)
+        self.dataInspector_HARPS_RVBank.clicked.connect(self.RVBank_window.show)
 
 
 
@@ -12928,7 +12942,7 @@ Please install via 'pip install ttvfast'.
 
 
         self.threadpool = QtCore.QThreadPool()
-        self.threadpool.setMaxThreadCount(cpu_count())
+        self.threadpool.setMaxThreadCount(int(cpu_count()/2))
 
 
         self.select_session(-1)
@@ -12999,12 +13013,42 @@ It seems that you started the '%s-Striker' with Python 2. Please consider Python
 
 
         print("""Here you can get some more information from the tool's workflow, stdout/strerr, and piped results.""")
+       
+       
         #self.use_K1.setStyleSheet("color: red")
 
-
-
+        #f = open("loooog","w")
+        #for j in vars(self):
+        #    f.write(j)
+        #    f.write('\n')
+        #f.close()  
+       # print(vars(self), sep='\n')
  
+ 
+ 
+class CustomStyle2(QtWidgets.QProxyStyle):
+    def drawControl(self, element, option, painter, widget=None):
+        if element == QtWidgets.QStyle.ControlElement.CE_PushButtonLabel and not option.state & QtWidgets.QStyle.State_Enabled:
+            color = QtCore.Qt.red
+            option.palette.setColor(option.palette.ColorGroup.Disabled, option.palette.ColorRole.Text, color)
+        super().drawControl(element, option, painter, widget)
+        
+class CustomStyle3(QtWidgets.QProxyStyle):
+    def drawControl(self, element, option, painter, widget=None):
+        if element == QtWidgets.QStyle.ControlElement.CE_PushButtonLabel and not option.state & QtWidgets.QStyle.State_Enabled:
+            color = QtCore.Qt.red
+            option.palette.setColor(option.palette.ColorGroup.Disabled, option.palette.ColorRole.Text, color)
+        elif element == QtWidgets.QStyle.ControlElement.CE_RadioButtonLabel and not option.state & QtWidgets.QStyle.State_Enabled:
+            color = QtCore.Qt.red
+            option.palette.setColor(option.palette.ColorGroup.Disabled, option.palette.ColorRole.Text, color)
+        super().drawControl(element, option, painter, widget)        
 
+class CustomStyle(QtWidgets.QProxyStyle):
+    def drawControl(self, element, option, painter, widget=None):
+        if element in [self.CE_PushButtonLabel, self.CE_RadioButtonLabel] and not option.state & self.State_Enabled:
+            color = QtCore.Qt.red
+            option.palette.setColor(option.palette.ColorGroup.Disabled, option.palette.ColorRole.Text, color)
+        super().drawControl(element, option, painter, widget)
 
 
 class LoadingScreen(QtWidgets.QWidget):
@@ -13039,13 +13083,14 @@ class LoadingScreen(QtWidgets.QWidget):
 
 
 
+
 def main():
 
     app = QtWidgets.QApplication(sys.argv)
     
 #    print(app)
-    app.setStyle('Fusion') #The available styles depend on your platform but are usually 'Fusion', 'Windows', 'WindowsVista' (Windows only) and 'Macintosh' (Mac only). 
-
+#    app.setStyle('Fusion') #The available styles depend on your platform but are usually 'Fusion', 'Windows', 'WindowsVista' (Windows only) and 'Macintosh' (Mac only). 
+    app.setStyle(CustomStyle())
 
     window = Exo_striker()
 
@@ -13066,8 +13111,8 @@ def main():
 
     window.show()
 
-#    sys.exit(app.exec_())
-    sys.exit(app.exec())
+    sys.exit(app.exec_())
+#    sys.exit(app.exec())
 if __name__ == '__main__':
     main() 
 

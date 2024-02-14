@@ -113,7 +113,7 @@ class Highlighter(QSyntaxHighlighter):
             (r'\bdef\b\s*(\w+)', 1, STYLES['defclass']), ### (r'\bdef\b\s*(\w+)', 1, STYLES['defclass']),
 
             # 'self.' followed by an word
-            (r'\bself\b)', 1, STYLES['selfnext']), ### (r'\bself.\b\s*(\w+)', 1, STYLES['selfnext']),
+            #(r'\bself\b)', 1, STYLES['selfnext']), ### (r'\bself.\b\s*(\w+)', 1, STYLES['selfnext']), 
 
             # 'Q' followed by an word
             (r'\b[Q.]\b\s*(\w+)', 1, STYLES['Qnext']),

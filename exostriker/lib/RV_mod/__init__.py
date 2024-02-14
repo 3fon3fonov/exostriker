@@ -1101,7 +1101,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 ###################################################################
     if(rtg[0]):
 
-        re = Rvfit()
+        rvmod = Rvfit()
 
         rv_off = []
         rv_jit = []
@@ -1144,7 +1144,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                                [par[len(vel_files)*2 +7*i+4], 0]])
 
         
-        re.init_args(rvs_files, array_npl, epoch, hkl,
+        rvmod.init_args(rvs_files, array_npl, epoch, hkl,
                      get_RV=outputfiles[0], get_best_par=outputfiles[1], get_fit_model=outputfiles[2],
                      rv_jitt=rv_jit, rv_ofset=rv_off,
                      lin_trend_in=[par[len(vel_files) * 2 + 7 * npl], 0],
@@ -1156,49 +1156,50 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                      dyn_planets=None,coplar_inc=int(copl_incl))
 
         if program == '%s/lib/fr/loglik_kep'%cwd:
-            re.run_amoeba("kep")         
+            rvmod.run_amoeba("kep")         
         elif program == '%s/lib/fr/loglik_dyn'%cwd:
-            re.run_amoeba("dyn")
+            rvmod.run_amoeba("dyn")
 
-        rv_loglik = float(re.loglik)
+        rv_loglik = float(rvmod.loglik)
          
-        del re
+        if(rtg[1]):
 
+            gp_rv_loglik = 0
+
+            param_vect = []
+
+            if opt["RV_GP_kernel"] == "dSHOKernel":
+               # print(len(gps.get_parameter_vector()))
+                for j in range(len(gps.get_parameter_vector())-1):
+                    if opt["link_RV_GP"][j]==True and rtg[3] == True:
+                        param_vect.append(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + j])
+                    else:
+                        param_vect.append(par[len(vel_files)*2  +7*npl +2 +j])
+
+                gps = init_dSHOKernel(param_vect)
+
+            else:
+
+                for j in range(len(gps.get_parameter_vector())):
+                    if opt["link_RV_GP"][j]==True and rtg[3] == True:
+                        param_vect.append(np.log(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + j]))
+                    else:
+                        param_vect.append(np.log(par[len(vel_files)*2  +7*npl +2 +j]))
+         
+
+                gps.set_parameter_vector(np.array(param_vect))
+
+            errors_with_jitt = np.array([np.sqrt(rvmod.rv_err[i]**2 + par[int(ii) + len(vel_files)]**2)  for i,ii in enumerate(rvmod.idset)])
+            gps.compute(rvmod.jd,yerr=errors_with_jitt)
+            gp_rv_loglik = gp_rv_loglik + gps.log_likelihood(rvmod.o_c)
+
+            rv_loglik =  gp_rv_loglik
+        
+         
+        
     else:
         rv_loglik = 0
 
-    if(rtg[1]):
-
-        gp_rv_loglik = 0
-
-        param_vect = []
-
-        if opt["RV_GP_kernel"] == "dSHOKernel":
-           # print(len(gps.get_parameter_vector()))
-            for j in range(len(gps.get_parameter_vector())-1):
-                if opt["link_RV_GP"][j]==True and rtg[3] == True:
-                    param_vect.append(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + j])
-                else:
-                    param_vect.append(par[len(vel_files)*2  +7*npl +2 +j])
-
-            gps = init_dSHOKernel(param_vect)
-
-        else:
-
-            for j in range(len(gps.get_parameter_vector())):
-                if opt["link_RV_GP"][j]==True and rtg[3] == True:
-                    param_vect.append(np.log(par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*2 + 2 + j]))
-                else:
-                    param_vect.append(np.log(par[len(vel_files)*2  +7*npl +2 +j]))
-     
-
-            gps.set_parameter_vector(np.array(param_vect))
-
-        errors_with_jitt = np.array([np.sqrt(re.rv_err[i]**2 + par[int(ii) + len(vel_files)]**2)  for i,ii in enumerate(re.idset)])
-        gps.compute(re.jd,yerr=errors_with_jitt)
-        gp_rv_loglik = gp_rv_loglik + gps.log_likelihood(re.o_c)
-
-        rv_loglik =  gp_rv_loglik
 
 ###################################################################
  
@@ -1209,20 +1210,20 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         elif rtg[0] ==False:      
             tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,get_TTVs,opt,fit_results=False )
         else:
-            tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,get_TTVs,opt,fit_results=re )
+            tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,get_TTVs,opt,fit_results=rvmod )
 
 
     if(opt["AST"]):
         if(rtg[0])==False:
             astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)
         else:
-            astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=re, return_model = False)
+            astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)
 
     if(opt["TTV"]):
         if(rtg[0])==False:
             ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,hkl,fit_results=False, return_model = False)
         else:
-            ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,hkl,fit_results=re, return_model = False)
+            ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,hkl,fit_results=rvmod, return_model = False)
  
     if opt["AMD_stab"] == True and npl >=2:
                
@@ -1252,12 +1253,35 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                 return (rv_loglik + tr_loglik + ttv_loglik  + astr_loglik)* 2.0*np.exp(1.0 - AMD_Hill/AMD)
  
 
-    
+
+    if rtg[0]:
+        del rvmod
+            
     if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
         return -np.inf
     return rv_loglik + tr_loglik + ttv_loglik +  astr_loglik
 
 
+def run_Fort(obj,mod,minimize_loglik=True):
+
+
+    import threading
+ 
+    start_time = time.time()
+
+    if(minimize_loglik):
+        t1 = threading.Thread(target=lambda:obj.rvmod.run_amoeba(mod))
+    else:
+        t1 = threading.Thread(target=lambda:obj.rvmod.run_lm(mod))
+
+    t1.start()
+    t1.join()
+
+    print("--- %s seconds ---" % (time.time() - start_time))
+    obj.flag = 1
+    return obj
+    
+    
 def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=False, save_sampler=False, **kwargs):
 
     start_time = time.time()
@@ -2609,11 +2633,13 @@ def run_mcmc(obj, **kwargs):
 
     #from schwimmbad import MPIPool
 
-    #with MPIPool() as pool:
+   # with MPIPool() as pool:
 
-   #     if not pool.is_master():
+  #      if not pool.is_master():
    #         pool.wait()
    #         sys.exit(0)
+
+
 
     ndim, nwalkers = len(pp), len(pp)*obj.nwalkers_fact
 
@@ -2789,7 +2815,7 @@ class signal_fit(object):
     def __init__(self, inputfile='init.init', name='session'):
 
         #### Old stuff; some these must be replaced! ####
-        re = Rvfit()
+        self.rvmod = dill.copy(Rvfit())
 
         # saving the name for the inputfile and the information that it has not yet been processed
         self.name = name # for example the name of a host star of the planetary system
@@ -2802,7 +2828,7 @@ class signal_fit(object):
         self.npl=0
         self.use=use_flags([False]*20,[False]*20,[False]*70,False,False)
         self.params=PlanetParamsWrap([0.0]*20,[0.0]*20,[0.0]*70,0.0,1.0)
-        self.param_errors=PlanetParamsErrorsWrap(re.offset_errors, re.jitter_errors, re.planet_params_errors,
+        self.param_errors=PlanetParamsErrorsWrap(self.rvmod.offset_errors, self.rvmod.jitter_errors, self.rvmod.planet_params_errors,
                                                  [0.0, 0.0], 0.0)
         self.bounds = parameter_bounds([0.0,0.0]*20,[0.0,0.0]*20,[0.0,0.0]*70,[0.0,0.0],[0.0,0.0]*4,[0.0,0.0])
         
@@ -2812,7 +2838,7 @@ class signal_fit(object):
 
         self.ndset = 0
 
-        del re
+        #del re
 
         ########## new stuff ##########
         self.init_pl_params()
@@ -4550,7 +4576,7 @@ class signal_fit(object):
 
         hkl = int(self.hkl)
 #        from .rvmod import Rvfit
-        re = Rvfit()
+        #rvmod = Rvfit()
  
         def create_args():
             rv_off = []
@@ -4602,7 +4628,7 @@ class signal_fit(object):
  
             rvs_files = np.array([jd, rvs, sig, ids]).T
  
-            re.init_args(rvs_files, array_npl, self.epoch, hkl,
+            self.rvmod.init_args(rvs_files, array_npl, self.epoch, hkl,
                          get_RV=outputfiles[0], get_best_par=outputfiles[1], get_fit_model=outputfiles[2],
                          rv_jitt=rv_jit, rv_ofset=rv_off, npl_pos = self.use_planet,
                          lin_trend_in=[self.rv_lintr,int(self.rv_lintr_use)],
@@ -4618,20 +4644,18 @@ class signal_fit(object):
 
             create_args()
 
-            if(minimize_loglik):
-                flag = re.run_amoeba(mod)
-            else:
-                flag = re.run_lm(mod)
+
+            self = run_Fort(self,mod,minimize_loglik=minimize_loglik)
 
         else:
             self = run_SciPyOp(self, kernel_id=kernel_id)
             create_args()
-            flag = re.run_amoeba(mod)
+            flag = self.rvmod.run_amoeba(mod)
 
  
-        if flag==1: # or self.rtg[0] == True
+        if self.flag==1: # or self.rtg[0] == True
 
-            self.fit_results = dill.copy(re)
+            self.fit_results = dill.copy(self.rvmod)
             self.stat_saved=self.fit_results.stat_array_saved
 
             self.model_saved=bool(outputfiles[2])
@@ -4646,7 +4670,7 @@ class signal_fit(object):
 #        gc.collect()
 
         if (return_flag):
-            return flag
+            return self.flag
         else:
             return
 

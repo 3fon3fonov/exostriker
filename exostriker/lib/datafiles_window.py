@@ -29,11 +29,11 @@ class datafiles_window(QtWidgets.QDialog):
         
         path = QtCore.QDir.homePath()
         
-        self.dirModel = QtWidgets.QFileSystemModel()
+        self.dirModel = QtGui.QFileSystemModel()
         self.dirModel.setRootPath(path) #QDir.currentPath())
         self.dirModel.setFilter(QtCore.QDir.NoDotAndDotDot | QtCore.QDir.AllDirs)
 
-        self.fileModel = QtWidgets.QFileSystemModel()
+        self.fileModel = QtGui.QFileSystemModel()
         self.fileModel.setFilter(QtCore.QDir.NoDotAndDotDot |  QtCore.QDir.Files)
 
         filter = ['*.vels', '*.act','*.tran','*.dat']
