@@ -13025,30 +13025,14 @@ It seems that you started the '%s-Striker' with Python 2. Please consider Python
        # print(vars(self), sep='\n')
  
  
- 
-class CustomStyle2(QtWidgets.QProxyStyle):
-    def drawControl(self, element, option, painter, widget=None):
-        if element == QtWidgets.QStyle.ControlElement.CE_PushButtonLabel and not option.state & QtWidgets.QStyle.State_Enabled:
-            color = QtCore.Qt.red
-            option.palette.setColor(option.palette.ColorGroup.Disabled, option.palette.ColorRole.Text, color)
-        super().drawControl(element, option, painter, widget)
-        
-class CustomStyle3(QtWidgets.QProxyStyle):
-    def drawControl(self, element, option, painter, widget=None):
-        if element == QtWidgets.QStyle.ControlElement.CE_PushButtonLabel and not option.state & QtWidgets.QStyle.State_Enabled:
-            color = QtCore.Qt.red
-            option.palette.setColor(option.palette.ColorGroup.Disabled, option.palette.ColorRole.Text, color)
-        elif element == QtWidgets.QStyle.ControlElement.CE_RadioButtonLabel and not option.state & QtWidgets.QStyle.State_Enabled:
-            color = QtCore.Qt.red
-            option.palette.setColor(option.palette.ColorGroup.Disabled, option.palette.ColorRole.Text, color)
-        super().drawControl(element, option, painter, widget)        
+  
 
-class CustomStyle(QtWidgets.QProxyStyle):
-    def drawControl(self, element, option, painter, widget=None):
-        if element in [self.CE_PushButtonLabel, self.CE_RadioButtonLabel] and not option.state & self.State_Enabled:
-            color = QtCore.Qt.red
-            option.palette.setColor(option.palette.ColorGroup.Disabled, option.palette.ColorRole.Text, color)
-        super().drawControl(element, option, painter, widget)
+#class CustomStyle(QtWidgets.QProxyStyle):
+#    def drawControl(self, element, option, painter, widget=None):
+#        if element in [self.CE_PushButtonLabel, self.CE_RadioButtonLabel] and not option.state & self.State_Enabled:
+#            color = QtCore.Qt.red
+#            option.palette.setColor(option.palette.ColorGroup.Disabled, option.palette.ColorRole.Text, color)
+#        super().drawControl(element, option, painter, widget)
 
 
 class LoadingScreen(QtWidgets.QWidget):
@@ -13089,8 +13073,8 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     
 #    print(app)
-#    app.setStyle('Fusion') #The available styles depend on your platform but are usually 'Fusion', 'Windows', 'WindowsVista' (Windows only) and 'Macintosh' (Mac only). 
-    app.setStyle(CustomStyle())
+    app.setStyle('Fusion') #The available styles depend on your platform but are usually 'Fusion', 'Windows', 'WindowsVista' (Windows only) and 'Macintosh' (Mac only). 
+#    app.setStyle(CustomStyle())
 
     window = Exo_striker()
 
