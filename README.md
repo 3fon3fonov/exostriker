@@ -1,113 +1,101 @@
 
-**T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations: **The Exo-Striker** 
+# Transit and Radial velocity Interactive Fitting tool for Orbital analysis and N-body simulations: The Exo-Striker
 
 <p align="center">
   <img width="400" src="./exostriker/source/png/33_striker.png">
 </p>
  
-The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and models the RV stellar reflex motion caused by dynamically interacting planets in multi-planetary systems. It offers a broad range of tools for detailed analysis of transit and Doppler data, including power spectrum analysis for Doppler and transit data; Keplerian and dynamical modeling of multi-planet systems; MCMC and nested sampling; Gaussian Processes modeling; and a long-term stability check of multi-planet systems. The Exo-Striker can also perform Mean Motion Resonance (MMR) analysis, create fast fully interactive plots, and export ready-to-use LaTeX tables with best-fit parameters, errors, and statistics. It combines Fortran efficiency and Python flexibility and is cross-platform compatible (MAC OS, Linux, Windows). 
+The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and models the RV stellar reflex motion caused by dynamically interacting planets in multi-planetary systems. It offers a broad range of tools for detailed analysis of transit and Doppler data, including power spectrum analysis for Doppler and transit data; Keplerian and dynamical modeling of multi-planet systems; MCMC and nested sampling; Gaussian Processes modeling; and a long-term stability check of multi-planet systems. The Exo-Striker can also perform Mean Motion Resonance (MMR) analysis, create fast fully interactive plots, and export ready-to-use LaTeX tables with best-fit parameters, errors, and statistics. It combines Fortran efficiency and Python flexibility and is cross-platform compatible (MAC OS, Linux, Windows).
 
  <p align="center">
   <img width="800" src="./exostriker/source/png/ES_new.gif">
 </p>
 
 
-**Documentation, Instructions, and Tutorials**
+### Documentation, Instructions, and Tutorials
 
-* (Work in progress) documentation is available at [https://exostriker-manual.readthedocs.io](https://exostriker-manual.readthedocs.io/en/latest/).
+* Documentation is available at [https://exostriker-manual.readthedocs.io](https://exostriker-manual.readthedocs.io/en/latest/). (Work in progress)
 
-**Developer**
+### Developer
 
 * Trifon Trifonov, MPIA Heidelberg.
-* with contributions by Matheus J. Castro, Jakub Morawski, Mathias Zechmeister, Man Hoi Lee, Stefan Dreizler, Grigorii Smirnov-Pinchukov, Stephan Stock, Jonas Kemmer, Harry Psarakis, Tom Schiwy, and Desislava Antonova.
+* With contributions by: Mathias Zechmeister, Jakub Morawski, Man Hoi Lee, Stefan Dreizler, Grigorii Smirnov-Pinchukov, Stephan Stock, Jonas Kemmer, Harry Psarakis, Tom Schiwy, and Desislava Antonova.
 
-**What works**:
+### Features
 
-* RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
-* Transit signal search (via "TLS").
-* Interactive transit photometry detrending (via "wotan").
-* Keplerian and Dynamical modeling of RV & Transit photometry exoplanet data.
-* Joint RVs + Transit + GPs best-fit optimization (internal Fortran Simplex and L-M minimizers, or many more via "SciPyOp").
-* Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty") 
-* TTVs extraction.
-* TTVs and/or joint TTVs + RVs analysis.
-* Relative astrometry fitting.
-* GP modeling (via "celerite").
-* Linear models for detrending ground-based transit photometry.
-* Activity index signal search via GLS periodogram.
-* RVs vs. Activity time-series correlation analysis/plots.
-* RV auto-fit (RV automated planet-finder algorithm).
-* Interactive data binning, cliping, outlier removal, etc.
-* Fit for apsidal orbital precession, or apply General Relativity (GR) precession. 
-* Instant online access to the "RVBank" database (over 212 000 RVs and activity indices of about 3000 HARPS stars & over 64 000 RVs and activity indices of about 1700 HIRES stars !!!).
-* Instant AMD stability check for multiple planetary systems (including during optimization or MCMC/Nested Sampling).
-* Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.
-* Fully interactive, super-fast, high-quality, exportable plots.
-* Handy "cornerplot" GUI control.
-* Import/Export of work sessions and multi-sessions. 
-* Export plots to a matplotlib window for further customization.
-* Export ready to use LaTeX tables with best-fit parameters, errors, and statistics. 
-* Handy text-editor and calculator tools.
-* Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
-* Integrated Bash-shell (Linux only).
-* Integrated Jupyter shell.
-* Integrated AI Boot (via openai GPT-3 -- ChatGPT).
-* Importable as a standard python library (i.e., "import exostriker").
-* Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
-* Direct import of TESS & K2 *lc.fits, and CHEOPS *SCI_COR*.fits files.
-
-**What is to be implemented**:
-
-* Larger arsenal of N-body/dynamical simulation/analysis tools (+ "REBOUND" is planned to be included). 
-* Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
-* Combined modeling with Astrometry (As of Ver 0.75 this is possible, but is still work in progress).
-
+- [x] RV signal and alias search: via GLS periodogram & maximum lnL periodogram (MLP).
+- [x] Transit signal search (via "TLS").
+- [x] Interactive transit photometry detrending (via "wotan"), interactive outlier removal, and more.
+- [x] Keplerian and Dynamical modeling of RV & Transit photometry exoplanet data.
+- [x] Joint RVs + Transit + GPs best-fit optimization (internal Fortran Simplex and L-M minimizers, or many more via "SciPyOp").
+- [x] Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty") 
+- [x] TTVs extraction.
+- [x] TTVs and/or joint TTVs + RVs analysis.
+- [x] Relative astrometry fitting.
+- [x] GP modeling (via "celerite").
+- [x] Linear models for detrending ground-based transit photometry.
+- [x] Activity index signal search via GLS periodogram.
+- [x] RVs vs. Activity time-series correlation analysis/plots.
+- [x] RV auto-fit (RV automated planet-finder algorithm).
+- [x] Fit for apsidal orbital precession, or apply General Relativity (GR) precession. 
+- [x] Instant online access to the "RVBank" database (over 212 000 RVs and activity indices of about 3000 HARPS stars & over 64 000 RVs and activity indices of about 1700 HIRES stars !!!).
+- [x] Instant AMD stability check for multiple planetary systems (including during optimization or MCMC/Nested Sampling).
+- [x] Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.
+- [x] Fully interactive, super-fast, high-quality, exportable plots.
+- [x] Handy "cornerplot" GUI control.
+- [x] Import/Export of work sessions and multi-sessions. 
+- [x] Export plots to a matplotlib window for further customization.
+- [x] Export ready-to-use LaTeX tables with best-fit parameters, errors, and statistics. 
+- [x] Handy text-editor and calculator tools.
+- [x] Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
+- [x] Integrated Bash-shell (Linux only).
+- [x] Integrated Jupyter shell.
+- [x] Integrated AI Boot (via openai GPT-3 -- ChatGPT).
+- [x] Importable as a standard python library (i.e., "import exostriker").
+- [x] Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
+- [x] Direct import of TESS & K2 *lc.fits, and CHEOPS *SCI_COR*.fits files.
+- [ ] Larger arsenal of N-body/dynamical simulation/analysis tools (+ "REBOUND" is planned to be included). 
+- [ ] Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
+- [ ] Combined modeling with Astrometry (As of Ver 0.75 this is possible, but is still work in progress).
 
 Feedback and help in further development will be highly appreciated!
 A wish-list with your favorite tools and methods to be implemented is also welcome!    
 
-Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.    
+Just open an "Issue" on the GitHub, or send a PM to [trifonov@mpia.de](mailto:trifonov@mpia.de).
 
 
-**Installation**
+### Installation
+
+Python 3.11+ is strongly recommended!!! The Exo-Striker works with older Python3 versions, and even Python2, but you will likely have problems with some dependencies, which you may have to solve. If your system Python3 is 3.10 and below, it is recommended to not upgrade the python3, but to install python3.10 alongside your system python3.
+
+Appart of Python 3.10/3.11 make sure you have `gcc`, `gfortran`, and `csh`, which will be needed for compiling some of the important binaries!
+
+See [README_install.md](README_install.md) for further instructions.
  
-Python3.11+ is strongly recommended!!! The Exo-Striker works with older Python3 versions, and even Python2, but you will likely have problems with some dependencies, which you may have to solve.
-If your system Python3 is 3.10 and below, it is recommended to not upgrade the python3, but to install python3.10 alongside your system python3. 
+### Usage
 
-
-Appart of Python3.10/3.11 make sure you have 'gcc', 'gfortran', and 'csh',
-which will be needed for compiling some of the important binaries!
-
-
-**See README_install.md** for further instructions.
-
-
-
-**Usage**
-
-* To load the GUI, on a bash shell type: 
-
-$ exostriker (in case of pip3.8 install, see above)
-
-* or just do:
-
-$ python3.11 exostriker_gui.py (inside of the git clone directory, see above)
- 
-
-
-* If you want to use the library on the Python shell/script
-
-In [1]: import exostriker
-
-* or e.g., to load the RV routines:
-
-In [1]: import exostriker.lib.RV_mod as rv    
-    
-    
-* Remember! Every button/action of the GUI is a wrapper of a convenient Python routine. Thus scripting is very easy:    
+To load the GUI, type the following command in bash:
+```sh
+$ exostriker
+# (in case of pip3.8 install, see above)
+```
+or just do
+```sh
+$ python3.11 exostriker_gui.py
+# (inside of the git clone directory, see above)
+``` 
+If you want to use the library on the Python shell/script:
+```py
+import exostriker
+```
+or, for example, to load the RV routines:
+```py
+import exostriker.lib.RV_mod as rv    
+``` 
+Remember! Every button/action of the GUI is a wrapper of a convenient Python routine. This makes scripting very easy:    
 
 <p align="center">
-  <img width="500" src="./exostriker/source/png/ES_terminal.png">
+  <img width="400" src="./exostriker/source/png/ES_terminal.png">
 </p>
 
  
@@ -115,69 +103,45 @@ In [1]: import exostriker.lib.RV_mod as rv
 A manual is planned but not available at the moment.)
 
 
-**Credit**
+### Credit
 
-If you made the use of The Exo-Striker for your paper, I would appreciate it if you give credit to it.
+If you made use of The Exo-Striker for your paper, I would appreciate it if you give credit to it.
 As it is unlikely that I will find time to write a refereed paper on The Exo-Striker soon, please cite the tool with its ASCL ID ascl:1906.004 (see https://ascl.net/1906.004).    
  
-The Exo-Striker relies on many open-source packages, which if you had made the use of (some of) them while working with the tool, 
-you should acknowledge too. (It is your responsibility to find the correct references in the literature):    
+The Exo-Striker relies on many open-source packages. If you had made use of some of them while working with the tool, you should acknowledge them too (it is your responsibility to find the correct references in the literature):    
 
 
-* The interactive plotting is done with a custom version of the "pyqtgraph": 
+* The interactive plotting is done with a custom version of pyqtgraph: http://www.pyqtgraph.org/
 
-http://www.pyqtgraph.org/
+* "GLS" and "MLP" periodograms are taken from Mathias Zechmeister's repo: https://github.com/mzechmeister/python
 
-* "GLS" and "MLP" periodograms are taken from Mathias Zechmeister's repo: 
+* "TLS" and "wotan" are taken from: https://github.com/hippke/tls , https://github.com/hippke/wotan
 
-https://github.com/mzechmeister/python
+* The transit modeling is done with batman: https://github.com/lkreidberg/batman
 
-* "TLS" and "wotan" are taken from: 
+* MCMC sampling is done with emcee: https://github.com/dfm/emcee
 
-https://github.com/hippke/tls
+* Nested Sampling is done with dynesty: https://github.com/joshspeagle/dynesty
 
-https://github.com/hippke/wotan
+* TTV models are adopted from TTVfast-python: https://github.com/mindriot101/ttvfast-python
 
-* The transit modeling is done with "batman":
- 
-https://github.com/lkreidberg/batman
+* The "Text editor" used in the tool is a hack between "Megasolid Idiom" and "PyEdit2": https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor , https://github.com/Axel-Erfurt/PyEdit2
 
-* MCMC sampling is done with "emcee": 
+* N-body tests are performed using a custom version of the Swift N-body library,
+modified by Man Hoi Lee (HKU) and Trifon Trifonov (MPIA): https://www.boulder.swri.edu/~hal/swift.html
 
-https://github.com/dfm/emcee
-
-* Nested Sampling is done with "dynesty": 
-
-https://github.com/joshspeagle/dynesty
-
-* TTV models are adopted from "TTVfast-python":
-
-https://github.com/mindriot101/ttvfast-python
-
-* The "Text editor" used in the tool is a hack between "Megasolid Idiom" 
-and "PyEdit2":
-
-https://github.com/mfitzp/15-minute-apps/tree/master/wordprocessor
-
-https://github.com/Axel-Erfurt/PyEdit2
-
-* N-body tests are performed using a custom version of the "Swift" N-body library,
-modified by Man Hoi Lee (HKU) and Trifon Trifonov (MPIA).
-
-https://www.boulder.swri.edu/~hal/swift.html
-
-* Additionally, the Exo-Striker uses many "standard" Python libraries like 
-"PyQt5", "matplotlib", "numpy", "scipy", "dill", "Jupyter", "qtconsole",
+* Additionally, the Exo-Striker uses many "standard" Python libraries like:
+PyQt5,
+matplotlib,
+numpy,
+scipy,
+dill,
+Jupyter,
+qtconsole
 and more.
 
-* The Exo-Striker project was inspired by the Systemic project.
+* The Exo-Striker project was inspired by the Systemic project: http://www.stefanom.org/systemic/
 
-http://www.stefanom.org/systemic/
-
-
-
-**Scientific papers which one way or another made the use of the Exo-Striker (to my knowledge):**
-
+### Scientific papers which one way or another made the use of the Exo-Striker (to my knowledge):
  
-[Check in ADS](https://ui.adsabs.harvard.edu/abs/2019ascl.soft06004T/citations)
-
+[Check in ADS.](https://ui.adsabs.harvard.edu/abs/2019ascl.soft06004T/citations)
