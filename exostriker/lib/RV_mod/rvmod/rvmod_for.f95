@@ -800,7 +800,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
     real(8) :: wdot(NPLMAX), u_wdot(NPLMAX)
 
     real(4) :: t_stop, t_init
-    real(8) :: PI, twopi    
+    real(8) :: PI    
       
     integer, intent(in) :: dynamical_planets(npl_in)
     
@@ -946,38 +946,74 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
         bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
         fit_array, dynamical_planets, coplar_inc)
     implicit none
-    real(8) :: PI
-    parameter (PI = 3.14159265358979d0)
-    integer :: npl, ndset, idset, ndata, ma, mfit, i, NDSMAX, NPLMAX, MMAX
-    real(8) :: sini, mstar
-    integer :: writeflag_best_par, nt, hkl, gr_flag
-    integer :: writeflag_RV, writeflag_fit, amoebastarts
-    parameter (NDSMAX = 20, NPLMAX = 10, MMAX = 200)
-    integer :: idsmax(NDSMAX), ia(MMAX), ts(20000)
-    real(8) :: t(20000), ys(20000), sigs(20000)
-    real(8) :: a(MMAX), covar(MMAX, MMAX), alpha(MMAX, MMAX)
-    real(8) :: chisq, alamda, ochisq, dchisq, loglik, epsil, deltat
-    real(8) :: jitt(NDSMAX), t0, t_max, epoch, st_mass
-    real(8) :: rms
-    real(8) :: wdot(NPLMAX), u_wdot(NPLMAX)
-    real(8) :: incl(NPLMAX), cap0m(NPLMAX)
-    real(8) :: t_stop, t_init
-    real(4) :: when_to_kill, model_max, model_min
+    
 
-    external rvkep_ewcop_fin
-    character(80) :: version
+
+    integer, intent(in) :: amoebastarts,npl_in
+    integer, intent(in) :: writeflag_best_par, writeflag_RV
+    integer, intent(in) :: writeflag_fit, gr_flag_in, ndset_in
+    integer, intent(in) :: coplar_inc, ndata, nt
+       
+    real(4), intent(in) :: when_to_kill, model_max, model_min    
+
+    real(8), intent(in) :: st_mass, epsil, deltat
+
+    integer :: hkl, gr_flag
+ 
+       
+    integer :: npl, ndset, idset,  ma, mfit, i, j, NDSMAX, NPLMAX, MMAX      
+    parameter (NDSMAX = 20, NPLMAX = 10, MMAX = 200)
+    
+    integer :: ii, iter, idsmax(NDSMAX), ia(MMAX),nbod,ts(20000)
+    
+!    integer, allocatable, dimension(:) :: ts
+!    real(8), allocatable, dimension(:) :: x, t, ys, sigs, y_in, ymod
+!    real(8), allocatable, dimension(:,:) :: ymod_pl,ymod_pl2
+
+    real(8) :: t(20000),y(20000),ys(20000), sigs(20000)        
+!    real(8) ::  x(20000), y_in(20000), ymod(20000)     
+    real(8) :: a(MMAX), covar(MMAX, MMAX)
+    real(8) :: rms, mass(NPLMAX), ap(NPLMAX)
+    real(8) :: j_mass(NPLMAX), chisq,alamda, ochisq, dchisq
+    real(8) :: x0, incl(NPLMAX), cap0m(NPLMAX)
+    real(8) :: dt, t_max, loglik, dy, sig2i
+    real(8) :: epoch, ftol, jitt(NDSMAX), alpha(MMAX, MMAX)
+    real(8) :: dyda(MMAX), p(MMAX + 1, MMAX), yamoeba(MMAX + 1)
+
+    real(8) ::  best_w, best_we, t0
+!    real(8) :: xj(NPLMAX), yj(NPLMAX),  zj(NPLMAX) 
+!    real(8) :: vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
+!    real(8) :: rpl(NPLMAX), rhill(NPLMAX) 
+    
 !    character(80) version_input, version
-    integer :: ndset_in, npl_in, gr_flag_in, coplar_inc
-    integer :: dynamical_planets(npl_in)
-    real(8) :: data_array(ndata, 4)
-    real(8) :: files_param(ndset_in, 4)
-    real(8) :: array_npl(npl_in, 17, 2)
-    real(8) :: final_params(6)
-    real(8) :: res_array(ndata, 6+npl_in)
-    real(8) :: fit_return(4), fit_array(nt, 2+npl_in)
-    real(8) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
-    real(8) :: bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
+    real(8) :: wdot(NPLMAX), u_wdot(NPLMAX)
+
+    real(4) :: t_stop, t_init
+    real(8) :: PI    
+      
+    integer, intent(in) :: dynamical_planets(npl_in)
+    
+    real(8), intent(in) :: data_array(ndata, 4)
+    real(8), intent(in) :: files_param(ndset_in, 4)
+    real(8), intent(in) :: array_npl(npl_in, 17, 2)
+    real(8), intent(in) :: final_params(6)
+    real(8), intent(out) :: res_array(ndata, 6+npl_in)
+    real(8), intent(out) :: fit_return(4), fit_array(nt, 2+npl_in)
+    real(8), intent(out) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
+    real(8), intent(out) :: bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
+    character(80) :: version
     character(20) :: mode
+        
+ 
+    real(8) :: mstar, sini(NPLMAX)  
+!    character(80) version_input, version
+
+    external rvkep_ewcop_fin 
+    common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
+    common mstar, sini    
+ 
+ 
+ 
 !f2py intent(in) ndset_in, npl_in, ndata
 !f2py intent(in) dynamical_planets
 !f2py intent(out) res_array, fit_return, fit_array
@@ -986,17 +1022,15 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
 !f2py depend(npl_in) array_npl, dynamical_planets
 !f2py depend(ndata) data_array
 !f2py depend(dt) fit_array
-
-    common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
-    common mstar, sini
-
+ 
+    PI = 3.14159265358979d0
     gr_flag = gr_flag_in
     ndset = ndset_in
     npl = npl_in
     mode = "lm_dyn"
     mstar = st_mass
     covar(:, :) = 0
-    dynamical_planets(:) = 0
+!    dynamical_planets(:) = 0
 
     version = "1.05"
 

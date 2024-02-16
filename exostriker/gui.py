@@ -12861,7 +12861,7 @@ Please install via 'pip install ttvfast'.
         self.buttonGroup_symbol_picker_ast.buttonClicked.connect(self.get_symbol_ast)        
         
         self.lables_cornerplot = []
-        #self.dialog_select_param_cornerplot = show_param_boxes(self)
+        self.dialog_select_param_cornerplot = show_param_boxes(self)
 
         ###########  GP control ##########
 
