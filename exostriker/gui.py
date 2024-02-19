@@ -1175,8 +1175,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 
         self.update_RV_GP_bounds()
         self.update_tra_GP_bounds()
-                
-
+                          
+        self.update_ld_bounds()
+        
         self.update_nr_prior()
         self.update_jeff_prior()
 
@@ -1339,6 +1340,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         self.update_RV_GP_priors_nr()
         self.update_tra_GP_priors_nr()
+        self.update_ld_priors_nr()
 
     def update_RV_GP_priors_nr(self):
         global fit
@@ -1480,6 +1482,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         self.update_RV_GP_priors_jeff()
         self.update_tra_GP_priors_jeff()
+        self.update_ld_priors_jeff()
 
     def update_RV_GP_priors_jeff(self):
         global fit
@@ -1661,6 +1664,21 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 fit.ld_u_nonlin_bound[i][3][z] = self.ld_u4_bounds_gui[i][z].value()
 
 
+    def update_ld_bounds(self):
+        global fit
+
+        for i in range(20): 
+            for z in range(2):    
+                self.ld_u1_bounds_gui[i][z].setValue(fit.ld_u_lin_bound[i][0][z])
+
+                self.ld_u1_bounds_gui[i][z].setValue(fit.ld_u_quad_bound[i][0][z])
+                self.ld_u2_bounds_gui[i][z].setValue(fit.ld_u_quad_bound[i][1][z])
+                
+                self.ld_u1_bounds_gui[i][z].setValue(fit.ld_u_nonlin_bound[i][0][z])
+                self.ld_u2_bounds_gui[i][z].setValue(fit.ld_u_nonlin_bound[i][1][z])
+                self.ld_u3_bounds_gui[i][z].setValue(fit.ld_u_nonlin_bound[i][2][z])
+                self.ld_u4_bounds_gui[i][z].setValue(fit.ld_u_nonlin_bound[i][3][z])
+
     def check_ld_priors_nr(self):
         global fit
 
@@ -1685,6 +1703,32 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.ld_u_nonlin_norm_pr[i][1][2] = self.ld_u2_norm_pr_gui[i][2].isChecked()
             fit.ld_u_nonlin_norm_pr[i][2][2] = self.ld_u3_norm_pr_gui[i][2].isChecked()
             fit.ld_u_nonlin_norm_pr[i][3][2] = self.ld_u4_norm_pr_gui[i][2].isChecked()
+
+
+    def update_ld_priors_nr(self):
+        global fit
+
+        for i in range(20): 
+            for z in range(2):    
+                self.ld_u1_norm_pr_gui[i][z].setValue(fit.ld_u_lin_norm_pr[i][0][z])
+
+                self.ld_u1_norm_pr_gui[i][z].setValue(fit.ld_u_quad_norm_pr[i][0][z])
+                self.ld_u2_norm_pr_gui[i][z].setValue(fit.ld_u_quad_norm_pr[i][1][z])
+                
+                self.ld_u1_norm_pr_gui[i][z].setValue(fit.ld_u_nonlin_norm_pr[i][0][z])
+                self.ld_u2_norm_pr_gui[i][z].setValue(fit.ld_u_nonlin_norm_pr[i][1][z])
+                self.ld_u3_norm_pr_gui[i][z].setValue(fit.ld_u_nonlin_norm_pr[i][2][z])
+                self.ld_u4_norm_pr_gui[i][z].setValue(fit.ld_u_nonlin_norm_pr[i][3][z])
+
+            self.ld_u1_norm_pr_gui[i][2].setChecked(int(fit.ld_u_lin_norm_pr[i][0][2]))
+
+            self.ld_u1_norm_pr_gui[i][2].setChecked(int(fit.ld_u_quad_norm_pr[i][0][2]))
+            self.ld_u2_norm_pr_gui[i][2].setChecked(int(fit.ld_u_quad_norm_pr[i][1][2]))
+            
+            self.ld_u1_norm_pr_gui[i][2].setChecked(int(fit.ld_u_nonlin_norm_pr[i][0][2]))
+            self.ld_u2_norm_pr_gui[i][2].setChecked(int(fit.ld_u_nonlin_norm_pr[i][1][2]))
+            self.ld_u3_norm_pr_gui[i][2].setChecked(int(fit.ld_u_nonlin_norm_pr[i][2][2]))
+            self.ld_u4_norm_pr_gui[i][2].setChecked(int(fit.ld_u_nonlin_norm_pr[i][3][2]))
 
 
 
@@ -1712,6 +1756,35 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.ld_u_nonlin_jeff_pr[i][1][2] = self.ld_u2_jeff_pr_gui[i][2].isChecked()
             fit.ld_u_nonlin_jeff_pr[i][2][2] = self.ld_u3_jeff_pr_gui[i][2].isChecked()
             fit.ld_u_nonlin_jeff_pr[i][3][2] = self.ld_u4_jeff_pr_gui[i][2].isChecked()
+
+
+
+   
+    def update_ld_priors_jeff(self):
+        global fit
+
+        for i in range(20): 
+            for z in range(2):    
+                self.ld_u1_jeff_pr_gui[i][z].setValue(fit.ld_u_lin_jeff_pr[i][0][z])
+
+                self.ld_u1_jeff_pr_gui[i][z].setValue(fit.ld_u_quad_jeff_pr[i][0][z])
+                self.ld_u2_jeff_pr_gui[i][z].setValue(fit.ld_u_quad_jeff_pr[i][1][z])
+                
+                self.ld_u1_jeff_pr_gui[i][z].setValue(fit.ld_u_nonlin_jeff_pr[i][0][z])
+                self.ld_u2_jeff_pr_gui[i][z].setValue(fit.ld_u_nonlin_jeff_pr[i][1][z])
+                self.ld_u3_jeff_pr_gui[i][z].setValue(fit.ld_u_nonlin_jeff_pr[i][2][z])
+                self.ld_u4_jeff_pr_gui[i][z].setValue(fit.ld_u_nonlin_jeff_pr[i][3][z])
+
+            self.ld_u1_jeff_pr_gui[i][2].setChecked(int(fit.ld_u_lin_jeff_pr[i][0][2]))
+
+            self.ld_u1_jeff_pr_gui[i][2].setChecked(int(fit.ld_u_quad_jeff_pr[i][0][2]))
+            self.ld_u2_jeff_pr_gui[i][2].setChecked(int(fit.ld_u_quad_jeff_pr[i][1][2]))
+            
+            self.ld_u1_jeff_pr_gui[i][2].setChecked(int(fit.ld_u_nonlin_jeff_pr[i][0][2]))
+            self.ld_u2_jeff_pr_gui[i][2].setChecked(int(fit.ld_u_nonlin_jeff_pr[i][1][2]))
+            self.ld_u3_jeff_pr_gui[i][2].setChecked(int(fit.ld_u_nonlin_jeff_pr[i][2][2]))
+            self.ld_u4_jeff_pr_gui[i][2].setChecked(int(fit.ld_u_nonlin_jeff_pr[i][3][2]))
+                        
 
 
 
@@ -2717,10 +2790,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         p16.getViewBox().setAspectLocked(True)
 
-
-       
-
-        
+     
         self.initialize_RV_subplots()
         self.initialize_tra_subplots()
         self.initialize_TTV_subplots()
@@ -6859,7 +6929,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         but_ind = self.buttonGroup_remove_transit_data.checkedId()   
         fit.remove_transit_dataset(but_ind -1)
        # self.init_fit()         
-      #  self.update_use_from_input_file()   
+        self.update_use_from_input_file()   
       #  self.update_use()
       #  self.update_gui_params()
      #   self.update_params()
@@ -8861,6 +8931,7 @@ will be highly appreciated!
                 return
             elif choice == QtWidgets.QMessageBox.StandardButton.Yes:
                 #for j in range(fit.npl):
+                #fit.npl = 0
                 for j in range(9):
 
                     if not bool(fit.use_planet[j]):

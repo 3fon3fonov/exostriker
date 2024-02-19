@@ -3945,6 +3945,10 @@ class signal_fit(object):
 
         tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_airmass,tra_data_o_c,tra_data,tra_data_sig,tra_data_o_c, 1.0, True, False, tra_file_name],dtype=object)
         
+
+        self.tra_off_use[tra_idset] = True
+        self.tra_jitt_use[tra_idset] = True     
+
  
         self.tra_data_sets[tra_idset] = tra_data_set
         self.tra_data_sets_init[tra_idset] = dill.copy(self.tra_data_sets[tra_idset])
@@ -3956,6 +3960,10 @@ class signal_fit(object):
 
         self.tra_data_sets[tra_idset] = []
         self.tra_data_sets_init[tra_idset] = []
+
+        self.tra_off_use[tra_idset] = False
+        self.tra_jitt_use[tra_idset] = False     
+
 
         return
 
@@ -4018,7 +4026,7 @@ class signal_fit(object):
         return
 
 
-    def remove_planet(self,planet):
+    def remove_planet_old(self,planet):
         if not (planet<self.npl):
             warnings=Warning_log(['Planet index outside of range.'],'Removing planet %d'%planet)
             warnings.print_warning_log()
@@ -4036,6 +4044,24 @@ class signal_fit(object):
             self.use_planet[planet] = 0
             self.npl=self.npl-1
         return
+
+
+    def remove_planet(self,planet):
+ 
+
+        self.P_use[planet] = False
+        self.K_use[planet] = False
+        self.e_use[planet] = False
+        self.w_use[planet] = False
+        self.M0_use[planet] = False
+        self.i_use[planet] = False
+        self.Node_use[planet] = False
+
+        self.use_planet[planet] = 0
+        if not self.npl <= 0:
+            self.npl=self.npl-1
+        return
+
 
 
     def remove_dataset(self,number):
@@ -5201,6 +5227,8 @@ class signal_fit(object):
         for i in range(20):
             if len(self.tra_data_sets[i]) == 0 or self.ld_gr[i] != i:
                 continue
+          #  elif self.npl==0:
+          #      continue
             else:
                 if self.ld_m[i] == "linear":
                     par.append(self.ld_u_lin[i][0])
