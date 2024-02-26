@@ -722,9 +722,9 @@ def add_mcmc_samples(obj,sampler):
                       "truth_color":'r',
                       "title_kwargs":{"fontsize": 12},
                       "scale_hist":True,
-                      "fill_contours":False,
-                      "no_fill_contours":True,
-                      "plot_datapoints":True,
+                      "fill_contours":True,
+                      "no_fill_contours":False,
+                      "plot_datapoints":False,
                       "stab_color":"r",
                       "stab_threshold":100000
                       }
@@ -771,9 +771,9 @@ def add_ns_samples(obj,sampler):
                       "truth_color":'r',
                       "title_kwargs":{"fontsize": 12},
                       "scale_hist":True,
-                      "fill_contours":False,
-                      "no_fill_contours":True,
-                      "plot_datapoints":True,
+                      "fill_contours":True,
+                      "no_fill_contours":False,
+                      "plot_datapoints":False,
                       "stab_color":"r",
                       "stab_threshold":100000
                       }

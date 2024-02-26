@@ -215,12 +215,11 @@ if '-last' in sys.argv:
         fit_ses = dill.load(file_pi)
         file_pi.close()   
 
-        fit = rv.check_for_missing_instances(fit,fit_ses)
-        #fit=rv.signal_fit(name='session')    
-       # fit = fit_ses 
-        ses_list = [fit_ses] 
-        fit.init_pl_arb()
-
+        fit_sesN = rv.check_for_missing_instances(fit,fit_ses)
+ 
+        fit_sesN.init_pl_arb()
+        ses_list = [fit_sesN] 
+        
         start_arg_ses = True
         
     except (ImportError, KeyError, AttributeError) as e:
@@ -235,10 +234,11 @@ elif arguments != 0 and sys.argv[1] == '-ses' and os.path.exists(sys.argv[2]):
         fit_ses = dill.load(file_pi)
         file_pi.close()   
         #fit = fit_ses 
-        fit = rv.check_for_missing_instances(fit,fit_ses)
-        ses_list = [fit_ses] 
-        fit.init_pl_arb()
+        fit_sesN = rv.check_for_missing_instances(fit,fit_ses)
 
+        fit_sesN.init_pl_arb()
+        ses_list = [fit_sesN] 
+        
         start_arg_ses = True  
     except (ImportError, KeyError, AttributeError) as e:
         print("You have entered non-RVmod session. %s cannot be recognaized"%sys.argv[2])
@@ -252,9 +252,10 @@ elif arguments != 0 and sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
         fit_ses = dill.load(file_pi)
         file_pi.close()
         ses_list = fit_ses
-        fit = rv.check_for_missing_instances(fit,ses_list[0])
+        fit_sesN = rv.check_for_missing_instances(fit,ses_list[0])
         #fit = ses_list[0]
-        fit.init_pl_arb()
+        fit_sesN.init_pl_arb()
+        
 
         start_arg_ses = True  
     except (ImportError, KeyError, TypeError, AttributeError) as e:
@@ -263,18 +264,18 @@ elif arguments != 0 and sys.argv[1] == '-mses' and os.path.exists(sys.argv[2]):
         ses_list = [fit]
         start_arg_ses = False
 
-elif  arguments != 0 and sys.argv[1] == '-rv_init' and os.path.exists(sys.argv[2]):
-    try:
+#elif  arguments != 0 and sys.argv[1] == '-rv_init' and os.path.exists(sys.argv[2]):
+#    try:
         
-        fit=rv.signal_fit(str(sys.argv[2]), 'RVmod session',readinputfile=True)
-        fit.init_pl_arb()
-        ses_list = [fit]
-        start_arg_ses = True
-    except (ImportError, KeyError, TypeError, AttributeError) as e:
-        print("You have entered non-RVmod .init file. %s cannot be recognaized"%sys.argv[2])
-        fit=rv.signal_fit(name='session')
-        ses_list = [fit]
-        start_arg_ses = False
+#        fit=rv.signal_fit(str(sys.argv[2]), 'RVmod session',readinputfile=True)
+#        fit.init_pl_arb()
+#        ses_list = [fit]
+#        start_arg_ses = True
+#    except (ImportError, KeyError, TypeError, AttributeError) as e:
+#        print("You have entered non-RVmod .init file. %s cannot be recognaized"%sys.argv[2])
+#        fit=rv.signal_fit(name='session')
+#        ses_list = [fit]
+#        start_arg_ses = False
 
 elif arguments != 0 and sys.argv[1] == '-rvbank' and os.path.exists(sys.argv[2]):
     try:
@@ -9065,7 +9066,7 @@ will be highly appreciated!
 
     def jupiter_push_vars(self):
         global fit
-       # self.console_widget.push_vars({'fit':fit})
+        self.console_widget.push_vars({'fit':fit})
         
         #self.console_widget.push_vars({'pg':pg})    
 
@@ -9176,9 +9177,8 @@ will be highly appreciated!
 
             ses_list.append(fit_new)
 
-
             #self.check_settings()
-            rv.check_temp_RV_file(fit_new)
+            #rv.check_temp_RV_file(fit_new)
             self.session_list()
             self.select_session(-1)
 
@@ -9339,7 +9339,7 @@ will be highly appreciated!
         self.update_GUI_mcmc_params()
         self.update_GUI_ns_params()
         self.update_GUI_St_params()
-
+        self.check_cornerplot_samples()
         self.jupiter_push_vars()
 
         self.text_editor.editor.setText(fit.ses_notes)
@@ -9631,6 +9631,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             
 
         self.save_last_session("autosave/auto_save.ses")
+        self.check_cornerplot_samples()        
         self.mute_buttons(trigger=True)
 
     def worker_mcmc(self):
@@ -9839,7 +9840,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def remove_mcmc_samples_from_fit(self):
         global fit  
         
-        if isinstance(fit.mcmc_sampler, rv.CustomSampler):
+        #if isinstance(fit.mcmc_sampler, rv.CustomSampler):
+        if len(np.atleast_1d(fit.mcmc_sampler))!=0:          
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                                             "Are you sure you want to remove the MCMC samples?",
                                              QtWidgets.QMessageBox.StandardButton.No | QtWidgets.QMessageBox.StandardButton.Yes)
@@ -9885,7 +9887,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         global fit  
       
        # import dynesty
-        if isinstance(fit.mcmc_sampler, rv.CustomSampler):
+        #if isinstance(fit.mcmc_sampler, rv.CustomSampler):
+        if len(np.atleast_1d(fit.mcmc_sampler))!=0:        
             MCMC_SAMP_LED = './lib/UI/green_led.png'
             MCMC_SAMP_TXT = "MCMC samples available" 
         else:
@@ -9920,7 +9923,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
 
         if type_plot == "mcmc":
-            if isinstance(fit.mcmc_sampler, rv.CustomSampler)==False:
+           # if isinstance(fit.mcmc_sampler, rv.CustomSampler)==False:
+            if len(np.atleast_1d(fit.mcmc_sampler))==0:            
                 choice = QtWidgets.QMessageBox.information(self, 'Warning!', "MCMC samples not found.", QtWidgets.QMessageBox.StandardButton.Ok)
                 return   
        
@@ -11697,7 +11701,8 @@ Please install via 'pip install ttvfast'.
         global fit
         
         if type_plot == "mcmc":
-            if isinstance(fit.mcmc_sampler, rv.CustomSampler)==False:
+            #if isinstance(fit.mcmc_sampler, rv.CustomSampler)==False:
+            if len(np.atleast_1d(fit.mcmc_sampler))==0:            
                 choice = QtWidgets.QMessageBox.information(self, 'Warning!', "MCMC samples not found.", QtWidgets.QMessageBox.StandardButton.Ok)
                 return   
        
@@ -11864,7 +11869,7 @@ Please install via 'pip install ttvfast'.
         corr1_ind = self.comboBox_samp_corr_1.currentIndex()
         corr2_ind = self.comboBox_samp_corr_2.currentIndex()
  
-        if corr1_ind ==-1 or corr2_ind ==-1 or len(fit.e_for_mcmc) ==0 or not isinstance(fit.mcmc_sampler, rv.CustomSampler):
+        if corr1_ind ==-1 or corr2_ind ==-1 or len(fit.e_for_mcmc) ==0 or not len(np.atleast_1d(fit.mcmc_sampler))==0: #
             return
         #else:
        #     last_stable = min(len(fit.evol_p[pl1_ind]),len(fit.evol_p[pl2_ind]))
@@ -11948,7 +11953,8 @@ Please install via 'pip install ttvfast'.
     def count_cpus(self):
 
         self.mlp_N_threads.setValue(cpu_count())
-        self.N_threads.setValue(cpu_count())
+        #self.N_threads.setValue(cpu_count()) # somewhat slower with N cpus with Pathos multithreading....
+        self.N_threads.setValue(1)        
         self.nest_N_threads.setValue(cpu_count())
 
  
@@ -13056,7 +13062,7 @@ Please install via 'pip install ttvfast'.
         self.err_St_vsini_input.valueChanged.connect(lambda: self.update_St_params(ind=10))
 
 
-        self.plot_opt_tab.tabBarClicked.connect(self.check_cornerplot_samples)
+        #self.plot_opt_tab.tabBarClicked.connect(self.check_cornerplot_samples)
         #self.cornerplot_plot_tab.isVisible.connect(self.check_cornerplot_samples)
         self.tabWidget_3.tabBarDoubleClicked.connect(self.change_nbody_plot_opt_tab)        
         self.tabWidget_6.tabBarDoubleClicked.connect(self.change_nbody_plot_opt_tab_res)        
