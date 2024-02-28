@@ -1163,9 +1163,15 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     verbose = True
     level = (100.0-68.3)/2.0
     quantiles = None
+    title_quantiles = None    
+    level_q = (100.0-cornerplot_opt["quantiles"])/2.0    
+    
     if cornerplot_opt["quantiles"] != None:
-        level_q = (100.0-cornerplot_opt["quantiles"])/2.0
-        quantiles = [level_q/100.0, 1.0-level_q/100.0]
+        quantiles = [level_q/100.0, 0.5, 1.0-level_q/100.0]
+
+    if cornerplot_opt["show_titles"] != None:
+        title_quantiles = [level_q/100.0, 0.5, 1.0-level_q/100.0]    
+ 
 
 
     if verbose:
@@ -1206,6 +1212,9 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
     if mod_labels['none']==True:
         best_fit_par = None
+        
+        
+
 
 
     if "max. time" in labels:
@@ -1261,6 +1270,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                             upper=cornerplot_opt["upper"],
                             labels=samp_labels,
                             quantiles=quantiles,
+                            title_quantiles=title_quantiles,
                             levels=(0.6827, 0.9545,0.9973),
                             smooth=cornerplot_opt["smooth"],
                             smooth1d=cornerplot_opt["smooth1d"],
@@ -1291,6 +1301,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                                 upper=cornerplot_opt["upper"],
                                 labels=samp_labels,
                                 quantiles=quantiles,
+                                title_quantiles=title_quantiles,
                                 levels=(0.6827, 0.9545,0.9973),
                                 smooth=cornerplot_opt["smooth"],
                                 smooth1d=cornerplot_opt["smooth1d"],
@@ -1317,6 +1328,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                         upper=cornerplot_opt["upper"],
                         labels=samp_labels,
                         quantiles=quantiles,
+                        title_quantiles=title_quantiles,
                         levels=(0.6827, 0.9545,0.9973),
                         smooth=cornerplot_opt["smooth"],
                         smooth1d=cornerplot_opt["smooth1d"],
@@ -1348,6 +1360,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                             upper=cornerplot_opt["upper"],
                             labels=samp_labels,
                             quantiles=quantiles,
+                            title_quantiles=title_quantiles,
                             levels=(0.6827, 0.9545,0.9973),
                             smooth=cornerplot_opt["smooth"],
                             smooth1d=cornerplot_opt["smooth1d"],

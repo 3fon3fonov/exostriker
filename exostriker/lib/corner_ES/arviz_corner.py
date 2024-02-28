@@ -23,7 +23,6 @@ try:
             for var_name, selection, _ in plotters
         ]
 
-
 except ImportError:
     from arviz.labels import BaseLabeller
     from arviz.sel_utils import xarray_to_ndarray, xarray_var_iter
@@ -46,8 +45,9 @@ def arviz_corner(
     *,
     # Original corner parameters
     range=None,
+    axes_scale="linear",
     weights=None,
-    color="k",
+    color=None,
     hist_bin_factor=1,
     smooth=None,
     smooth1d=None,
@@ -77,7 +77,7 @@ def arviz_corner(
     divergences=False,
     divergences_kwargs=None,
     labeller=None,
-    **hist2d_kwargs
+    **hist2d_kwargs,
 ):
     is_np = False
     if isinstance(data, np.ndarray):
@@ -137,6 +137,7 @@ def arviz_corner(
         samples,
         bins=bins,
         range=range,
+        axes_scale=axes_scale,
         weights=weights,
         color=color,
         hist_bin_factor=hist_bin_factor,
@@ -175,6 +176,11 @@ def arviz_corner(
             diverging_mask = np.squeeze(diverging_mask)
             if divergences_kwargs is None:
                 divergences_kwargs = {"color": "C1", "ms": 1}
-            overplot_points(fig, samples[diverging_mask], **divergences_kwargs)
+            overplot_points(
+                fig,
+                samples[diverging_mask],
+                reverse=reverse,
+                **divergences_kwargs,
+            )
 
     return fig

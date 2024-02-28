@@ -9179,6 +9179,7 @@ will be highly appreciated!
 
             #self.check_settings()
             #rv.check_temp_RV_file(fit_new)
+
             self.session_list()
             self.select_session(-1)
 
@@ -9305,7 +9306,7 @@ will be highly appreciated!
         self.update_plots() 
         self.plot_evol_all()
         self.update_labels()
-        
+        self.check_cornerplot_samples()          
 
         self.update_params()
         self.update_RV_file_buttons() 
@@ -11869,7 +11870,7 @@ Please install via 'pip install ttvfast'.
         corr1_ind = self.comboBox_samp_corr_1.currentIndex()
         corr2_ind = self.comboBox_samp_corr_2.currentIndex()
  
-        if corr1_ind ==-1 or corr2_ind ==-1 or len(fit.e_for_mcmc) ==0 or not len(np.atleast_1d(fit.mcmc_sampler))==0: #
+        if corr1_ind ==-1 or corr2_ind ==-1 or len(fit.e_for_mcmc) ==0 or len(np.atleast_1d(fit.mcmc_sampler))==0: #
             return
         #else:
        #     last_stable = min(len(fit.evol_p[pl1_ind]),len(fit.evol_p[pl2_ind]))

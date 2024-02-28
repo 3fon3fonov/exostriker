@@ -20,8 +20,9 @@ def corner(
     *,
     # Original corner parameters
     range=None,
+    axes_scale="linear",
     weights=None,
-    color="k",
+    color=None,
     hist_bin_factor=1,
     smooth=None,
     smooth1d=None,
@@ -29,6 +30,7 @@ def corner(
     label_kwargs=None,
     titles=None,
     show_titles=False,
+    title_quantiles=None,
     title_fmt=".2f",
     title_kwargs=None,
     truths=None,
@@ -51,7 +53,7 @@ def corner(
     divergences=False,
     divergences_kwargs=None,
     labeller=None,
-    **hist2d_kwargs
+    **hist2d_kwargs,
 ):
     """
     Make a *sick* corner plot showing the projections of a data set in a
@@ -118,8 +120,14 @@ def corner(
        respectively. If `None` (default), no smoothing is applied.
 
     labels : iterable (ndim,)
-        A list of names for the dimensions. If a ``xs`` is a
-        ``pandas.DataFrame``, labels will default to column names.
+        A list of names for the dimensions.
+
+        .. deprecated:: 2.2.1
+            If a ``xs`` is a ``pandas.DataFrame`` *and* ArviZ is installed,
+            labels will default to column names.
+            This behavior will be removed in version 3;
+            either use ArviZ data structures instead or pass
+            ``labels=dataframe.columns`` manually.
 
     label_kwargs : dict
         Any extra keyword arguments to send to the `set_xlabel` and
@@ -135,6 +143,11 @@ def corner(
         Displays a title above each 1-D histogram showing the 0.5 quantile
         with the upper and lower errors supplied by the quantiles argument.
 
+    title_quantiles : iterable
+        A list of 3 fractional quantiles to show as the the upper and lower
+        errors. If `None` (default), inherit the values from quantiles, unless
+        quantiles is `None`, in which case it defaults to [0.16,0.5,0.84]
+
     title_fmt : string
         The format string for the quantiles given in titles. If you explicitly
         set ``show_titles=True`` and ``title_fmt=None``, the labels will be
@@ -149,6 +162,10 @@ def corner(
         giving the fraction of samples to include in bounds, e.g.,
         [(0.,10.), (1.,5), 0.999, etc.].
         If a fraction, the bounds are chosen to be equal-tailed.
+
+    axes_scale : str or iterable (ndim,)
+        Scale (``"linear"``, ``"log"``) to use for each data dimension. If only
+        one scale is specified, use that for all dimensions.
 
     truths : iterable (ndim,)
         A list of reference values to indicate on the plots.  Individual
@@ -189,7 +206,7 @@ def corner(
     top_ticks : bool
         If true, label the top ticks of each axis
 
-    fig : matplotlib.Figure
+    fig : `~matplotlib.figure.Figure`
         Overplot onto the provided figure object, which must either have no
         axes yet, or ``ndim * ndim`` axes already present.  If not set, the
         plot will be drawn on a newly created figure.
@@ -198,8 +215,13 @@ def corner(
         Any extra keyword arguments to send to the 1-D histogram plots.
 
     **hist2d_kwargs
-        Any remaining keyword arguments are sent to :func:`corner.hist2d` to
+        Any remaining keyword arguments are sent to :func:`.hist2d` to
         generate the 2-D histogram plots.
+
+    Returns
+    -------
+    fig : `~matplotlib.figure.Figure`
+        The ``matplotlib`` figure instance for the corner plot.
 
     """
     if arviz_corner is None:
@@ -227,6 +249,7 @@ def corner(
             data,
             bins=bins,
             range=range,
+            axes_scale=axes_scale,
             weights=weights,
             color=color,
             hist_bin_factor=hist_bin_factor,
@@ -236,6 +259,7 @@ def corner(
             label_kwargs=label_kwargs,
             titles=titles,
             show_titles=show_titles,
+            title_quantiles=title_quantiles,
             title_fmt=title_fmt,
             title_kwargs=title_kwargs,
             truths=truths,
@@ -257,6 +281,7 @@ def corner(
         data,
         bins=bins,
         range=range,
+        axes_scale=axes_scale,
         weights=weights,
         color=color,
         hist_bin_factor=hist_bin_factor,
@@ -266,6 +291,7 @@ def corner(
         label_kwargs=label_kwargs,
         titles=titles,
         show_titles=show_titles,
+        title_quantiles=title_quantiles,
         title_fmt=title_fmt,
         title_kwargs=title_kwargs,
         truths=truths,
