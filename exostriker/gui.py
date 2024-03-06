@@ -10090,9 +10090,17 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 
                 act_JD       = self.RVBank_window.x_data
 
-                act_data     = np.concatenate((
-                self.RVBank_window.y_data[act_JD <= 2457161.5]- np.mean(self.RVBank_window.y_data[act_JD <= 2457161.5]),  
-                self.RVBank_window.y_data[act_JD > 2457161.5] - np.mean(self.RVBank_window.y_data[act_JD  > 2457161.5])))
+                if self.RVBank_window.data_index != 53:
+                    act_data     = np.concatenate((
+                #self.RVBank_window.y_data[act_JD <= 2457161.5]- np.mean(self.RVBank_window.y_data[act_JD <= 2457161.5]),  
+                #self.RVBank_window.y_data[act_JD > 2457161.5] - np.mean(self.RVBank_window.y_data[act_JD  > 2457161.5])))
+                self.RVBank_window.y_data[act_JD <= 2457161.5]- np.average(self.RVBank_window.y_data[act_JD <= 2457161.5], axis=1, weights=1.0/abs(self.RVBank_window.e_y_data[act_JD <= 2457161.5])),  
+                self.RVBank_window.y_data[act_JD > 2457161.5] - np.average(self.RVBank_window.y_data[act_JD  > 2457161.5], axis=1, weights=1.0/abs(self.RVBank_window.e_y_data[act_JD > 2457161.5]))))
+ 
+                
+                else:
+                    act_data = self.RVBank_window.y_data                    
+
 
                 act_data_sig = self.RVBank_window.e_y_data
 

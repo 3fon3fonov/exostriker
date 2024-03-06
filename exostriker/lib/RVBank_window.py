@@ -205,7 +205,7 @@ class RVBank_window(QtWidgets.QDialog):
         
         if self.button1.isChecked():
 
-            self.type_data = "HARPS"
+            self.type_data = "HARPS" 
             self.data_index = data_files_ind_HARPS[row_opt]
             self.data_name = data_files_HARPS[row_opt]
             
@@ -218,6 +218,7 @@ class RVBank_window(QtWidgets.QDialog):
                 return
             
             self.x_data = np.atleast_1d(np.genfromtxt(io.BytesIO(self.resp),usecols=[3]))
+            
             if self.data_index <22+3 or self.data_index==53:
                 self.y_data = np.atleast_1d(np.genfromtxt(io.BytesIO(self.resp),usecols=[self.data_index]))
                 self.e_y_data = np.atleast_1d(np.genfromtxt(io.BytesIO(self.resp),usecols=[self.data_index+1]))
@@ -227,6 +228,10 @@ class RVBank_window(QtWidgets.QDialog):
             else:
                 self.y_data = np.atleast_1d(np.genfromtxt(io.BytesIO(self.resp),usecols=[self.data_index]))
                 self.e_y_data = np.atleast_1d(np.array([np.mean(self.y_data)*0.01]*len(self.y_data)))
+                
+            #print(self.data_index)
+           # print(self.y_data)
+           # print(self.e_y_data)
  
             self.path = url
             self.target_name = targets_HARPS[row]
