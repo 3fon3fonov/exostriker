@@ -7345,6 +7345,14 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             resid = True
         else:
             resid = False
+ 
+        if self.mls_o_c_GP.isChecked():
+            resid_GP = True
+        else:
+            resid_GP = False           
+            
+     
+            
         
         #if z <= 0:
         #    choice = QtWidgets.QMessageBox.information(self, 'Warning!',
@@ -7353,7 +7361,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         #    return   
 
         self.statusBar().showMessage('Running MLP .... This might take some time!')                 
-        worker_mlp_wk = Worker(lambda:  self.mlp_search(resid = resid) )# Any other args, kwargs are passed to the run  
+        worker_mlp_wk = Worker(lambda:  self.mlp_search(resid = resid, resid_GP=resid_GP) )# Any other args, kwargs are passed to the run  
  
         worker_mlp_wk.signals.finished.connect(lambda:  self.worker_mlp_complete(resid = resid))
 
@@ -7366,7 +7374,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
 
-    def mlp_search(self, resid = False):
+    def mlp_search(self, resid = False, resid_GP = False):
         global fit
 
         #omega = 1/ np.logspace(np.log10(self.mlp_min_period.value()), np.log10(self.mlp_max_period.value()), num=int(self.mlp_n_omega.value()))
@@ -7384,10 +7392,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             rv_files_for_mlp = []
             for i in range(fit.ndset):
                 
-                if resid == True:
+                if resid == True and resid_GP == False:
                     typ = (fit.fit_results.rv_model.jd[fit.fit_results.idset==i],
                        fit.fit_results.rv_model.o_c[fit.fit_results.idset==i], 
                        fit.fit_results.rv_model.rv_err[fit.fit_results.idset==i])
+                       
+                elif resid_GP == True:
+                    typ = (fit.fit_results.rv_model.jd[fit.fit_results.idset==i],
+                       fit.fit_results.rv_model.o_c[fit.fit_results.idset==i] - fit.gp_model_data[0][fit.fit_results.idset==i]  , 
+                       fit.fit_results.rv_model.rv_err[fit.fit_results.idset==i])                                  
+ 
                 else:
                     typ = (fit.fit_results.rv_model.jd[fit.fit_results.idset==i],
                        fit.fit_results.rv_model.rvs[fit.fit_results.idset==i], 
