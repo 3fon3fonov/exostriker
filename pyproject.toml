@@ -15,7 +15,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 classifiers=[
  "Programming Language :: Python :: 3",
- "License :: MIT License",
+ "License :: OSI Approved :: MIT License",
  "Operating System :: OS Independent",
 ]
 license = {file = "LICENSE"}
@@ -46,6 +46,7 @@ exostriker-desktop-create = "exostriker.desktop_entry:create"
 exostriker-desktop-remove = "exostriker.desktop_entry:remove"
 
 [project.urls]
-"Homepage" = "https://github.com/3fon3fonov/exostriker"
+"homepage" = "https://exostriker-manual.readthedocs.io/"
+"repository" = "https://github.com/3fon3fonov/exostriker"
 "Bug Tracker" = "https://github.com/3fon3fonov/exostriker/issues"
 
