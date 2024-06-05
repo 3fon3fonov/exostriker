@@ -8,8 +8,13 @@ All the methods listed below work in Linux, Windows or MacOS if you have python 
 ### Getting the pip version
 You can easily get the pip version by typing in the terminal:
 
-```bash
-pip install exostriker (NOT WORKING AT THIS MOMENT! See below for installation!)
+```
+pip install exostriker
+```
+or for e.g., python3.10
+
+```
+python3.10 -m pip install exostriker
 ```
 
 ### Cloning from GitHub
