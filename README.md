@@ -37,19 +37,19 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Activity index signal search via GLS periodogram.
 * RVs vs. Activity time-series correlation analysis/plots.
 * RV auto-fit (RV automated planet-finder algorithm).
-* Interactive data binning, cliping, outlier removal, etc.
+* Interactive data binning, clipping, outlier removal, etc.
 * Fit for apsidal orbital precession, or apply General Relativity (GR) precession. 
-* Instant online access to the "RVBank" database (over 212 000 RVs and activity indices of about 3000 HARPS stars & over 64 000 RVs and activity indices of about 1700 HIRES stars !!!).
+* Instant online access to the "RVBank" database (over 212,000 RVs and activity indices of about 3000 HARPS stars & over 64,000 RVs and activity indices of about 1700 HIRES stars !!!).
 * Instant AMD stability check for multiple planetary systems (including during optimization or MCMC/Nested Sampling).
 * Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.
 * Fully interactive, super-fast, high-quality, exportable plots.
 * Handy "cornerplot" GUI control.
 * Import/Export of work sessions and multi-sessions. 
 * Export plots to a matplotlib window for further customization.
-* Export ready to use LaTeX tables with best-fit parameters, errors, and statistics. 
-* Handy text-editor and calculator tools.
+* Export ready-to-use LaTeX tables with best-fit parameters, errors, and statistics. 
+* Handy text editor and calculator tools.
 * Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
-* Integrated Bash-shell (Linux only).
+* Integrated Bash shell (Linux only).
 * Integrated Jupyter shell.
 * Integrated AI Boot (via openai GPT-3 -- ChatGPT).
 * Importable as a standard python library (i.e., "import exostriker").
@@ -60,13 +60,13 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ "REBOUND" is planned to be included). 
 * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
-* Combined modeling with Astrometry (As of Ver 0.75 this is possible, but is still work in progress).
+* Combined modeling with Astrometry (As of Ver 0.75, this is possible, but is still a work in progress).
 
 
 Feedback and help in further development will be highly appreciated!
-A wish-list with your favorite tools and methods to be implemented is also welcome!
+A wish list with your favorite tools and methods to be implemented is also welcome!
 
-Just open an "Issue" on the GitHub, or send a PM to trifonov@mpia.de.
+Just open an "Issue" on GitHub or send a PM to trifonov@mpia.de.
 
 
 **Installation**
@@ -75,7 +75,7 @@ Python3.11+ is strongly recommended!!! The Exo-Striker works with older Python3 
 If your system Python3 is 3.10 and below, it is recommended to not upgrade the python3, but to install python3.10 alongside your system python3. 
 
 
-Appart of Python3.10/3.11 make sure you have 'gcc', 'gfortran', and 'csh',
+Apart from Python3.10/3.11 make sure you have 'gcc', 'gfortran', and 'csh',
 which will be needed for compiling some of the important binaries!
 
 
@@ -87,11 +87,11 @@ which will be needed for compiling some of the important binaries!
 
 * To load the GUI, on a bash shell type: 
 
-$ exostriker (in case of pip3.8 install, see above)
+$ exostriker (in case of system-wide install, see above)
 
 * or just do:
 
-$ python3.11 exostriker_gui.py (inside of the git clone directory, see above)
+$ python3.11 -m exostriker (inside of the git clone directory, see above, and also README_for_installation.md)
  
 
 
@@ -117,10 +117,10 @@ A manual is planned but not available at the moment.)
 
 **Credit**
 
-If you made the use of The Exo-Striker for your paper, I would appreciate it if you give credit to it.
+If you made use of The Exo-Striker for your paper, I would appreciate it if you gave credit to it.
 As it is unlikely that I will find time to write a refereed paper on The Exo-Striker soon, please cite the tool with its ASCL ID ascl:1906.004 (see https://ascl.net/1906.004).    
  
-The Exo-Striker relies on many open-source packages, which if you had made the use of (some of) them while working with the tool, 
+The Exo-Striker relies on many open-source packages, which if you had made use of (some of) them while working with the tool, 
 you should acknowledge too. (It is your responsibility to find the correct references in the literature):    
 
 
@@ -176,7 +176,7 @@ http://www.stefanom.org/systemic/
 
 
 
-**Scientific papers which one way or another made the use of the Exo-Striker (to my knowledge):**
+**Scientific papers which one way or another made use of the Exo-Striker (to my knowledge):**
 
  
 [Check in ADS](https://ui.adsabs.harvard.edu/abs/2019ascl.soft06004T/citations)
