@@ -11991,7 +11991,7 @@ Please install via 'pip install ttvfast'.
         global fit 
         super().__init__()
     
-        self.es_version = "0.88"
+        self.es_version = "0.89"
 
         #self.loading_screen= LoadingScreen()   
  
