@@ -1,1 +1,1 @@
-from exostriker import gui
+from exostriker import gui, lib
