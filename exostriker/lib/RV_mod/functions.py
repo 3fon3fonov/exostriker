@@ -2453,7 +2453,7 @@ def gen_RV_curve(obj,x=None):
     obj2 = dill.copy(obj)
 
     if len(x) > 3:
-        f  = open('datafiles/RV_curve', 'wb') # open the file
+        f  = open('%s/datafiles/RV_curve'%es_path, 'wb') # open the file
 
         for j in range(len(x)):
             #print(fit_new.rv_data_sets[i][0][j])
@@ -2462,10 +2462,10 @@ def gen_RV_curve(obj,x=None):
 
         f.close()
 
-        obj2.add_dataset("RV_curve", "datafiles/RV_curve",0.0,0.0)  # the last two entries are initial offset and jitter
+        obj2.add_dataset("RV_curve", "%s/datafiles/RV_curve"%es_path,0.0,0.0)  # the last two entries are initial offset and jitter
 
 
-    os.system("rm datafiles/RV_curve")
+    os.system("rm %s/datafiles/RV_curve"%es_path)
     obj2.fitting(outputfiles=[0,1,0], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, print_stat=False)
     jd        = obj2.fit_results.rv_model.jd
 #    rvs       = obj2.fit_results.rv_model.rvs
@@ -4090,23 +4090,142 @@ def mass_a_from_Kepler_fit(a,npl,m0):
 def check_swift(path='./'):
 
     lib_dir = PureWindowsPath(".\\lib")
-    root_dir = PureWindowsPath(".\\")
+    root_dir = PureWindowsPath(path)
 
 
     if not os.path.exists('%s'%os.path.join(Path(lib_dir),'libswift.a')):
         print("Installing the swift N-body lib for a first time!")
-        result6, flag6 = run_command_with_timeout('%s'%os.path.join(Path(root_dir),'install_swift.sh'), 600,output=True)
-        #print(result6)
+        result6, flag6 = run_command_with_timeout('%s'%os.path.join(Path(root_dir),'install_swift.sh %s'%Path(root_dir)), 600,output=True)
+        print('%s'%os.path.join(Path(root_dir),'install_swift.sh %s'%Path(root_dir)))
         print("Installation DONE!")
 
-def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = 'run', remove_stab_save_dir = True, integrator='symba' ):
 
 
-    stab_dir = PureWindowsPath(".\\stability")
-    mvs_dir = PureWindowsPath("..\\mvs")
-    mvsgr_dir = PureWindowsPath("..\\mvs_gr")
-    symba_dir = PureWindowsPath("..\\symba")
-    root_dir = PureWindowsPath("..\\..")
+def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = 'run', path = './', remove_stab_save_dir = True, integrator='symba' ):
+
+    import swift
+
+    iuflg = 1
+    mstar0 = obj.params.stellar_mass
+    nbod = obj.npl
+    frho3 = 1.0
+    
+    max_time = float(timemax)*365.25
+    
+    t0 = 0.00
+    tstop = max_time
+    dt = timestep
+    dtout = max_time/1e4
+    dtdump = max_time/1e3
+    lflg = [0, 1, 1, 1, 1, 0] #F T T T T F
+    rmin = 0.0001 #0.0001 50.0 50.0 -1. T
+    rmax = 50.0
+    rmaxu = 50.0
+    qmin = -1.
+    lclose = "T"
+    outfile = "bin.dat"
+    fopenstat = "unknown"
+
+    mtiny = 1e-40
+    ll = 1000    
+    
+    planets_params = []
+    
+    for j in range(9):
+        if not bool(obj.use_planet[j]):
+            continue
+        
+        planets_params.append([[
+            obj.masses[j] / 1047.5654817267318,
+            obj.semimajor[j],
+            obj.e[j],
+            obj.i[j],
+            obj.w[j],
+            obj.Node[j],
+            obj.M0[j],
+        ]])
+        
+        #getin_file.write(b'%s \n'%bytes(str(obj.masses[j]/1047.5654817267318).encode()))
+        #getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.semimajor[j]).encode()),
+        #                                         bytes(str(obj.e[j]).encode()),
+        #                                         bytes(str(obj.i[j]).encode()),
+        #                                         bytes(str(obj.w[j]).encode()),
+        #                                         bytes(str(obj.Node[j]).encode()),
+        #                                         bytes(str(obj.M0[j]).encode() )) )    
+    
+    #planets_params = [
+    #[0.010956056701692769, 1.286350183286512, 0.12495909431420299, 90.0, 8.761185986070139, 0.0, 236.93745955638647],
+    #[0.01207470374287773, 4.267216547236886, 0.19126053191013156, 90.0, 10.005317383453992, 0.0, 221.47361992077785]]
+
+    #print("results")
+    res = swift.geninit_j3_in_days(iuflg, mstar0, nbod, frho3, planets_params)
+ 
+    coordinates = res[1]
+ 
+    if integrator=='symba':
+        res = swift.swift_symba5_j(t0, tstop, dt, dtout, dtdump, lflg,
+                                    rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat,
+                                    nbod+1, coordinates, mtiny, (tstop-t0)/(dtdump-t0))
+    elif integrator=='mvs':                                    
+        res = swift.swift_mvs_j(t0, tstop, dt, dtout, dtdump, lflg,
+                                 rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat,
+                                 nbod+1, coordinates, (tstop-t0)/(dtdump-t0))
+    elif integrator=='mvs_gr':                                 
+        res = swift.swift_mvs_j_gr(t0, tstop, dt, dtout, dtdump, lflg,
+                                   rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat,
+                                   nbod+1, coordinates, ll, (tstop-t0)/(dtdump-t0))
+                                   
+
+
+    #nbody = 2
+
+   # res = swift.follow_symba2(t0, tstop, dt, dtout, dtdump, lflg,
+   #                           rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat,
+   #                           nbod, coordinates, nbod, (tstop-t0)/dtout+1)
+
+    print(res)
+
+    for k in range(obj.npl):
+    
+        nbody = k+2
+    
+        res = swift.follow_symba2(t0, tstop, dt, dtout, dtdump, lflg,
+                              rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat,
+                              nbod+1, coordinates, nbody, (tstop-t0)/dtout+1)
+
+   
+        obj.evol_T[k] = res[:, 0] /  365.25 #np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.25
+        obj.evol_a[k] = res[:, 2]  # np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [2])
+        obj.evol_e[k] = res[:, 3]  # np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [3])
+        obj.evol_p[k] = res[:, 6]  # np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [6])
+        obj.evol_M[k] = res[:, 7]  # np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [7])
+
+        obj.evol_i[k]  = res[:, 4]  # np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [4])
+        obj.evol_Om[k] = res[:, 5]  # np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [5])
+
+        obj.evol_Per[k] = a_to_P(obj.evol_a[k],obj.params.stellar_mass)
+    
+    #@print(os.getcwd())
+    try:
+        os.system("rm /home/trifonov/git/exostriker/bin.dat")    
+        os.system("rm /home/trifonov/git/exostriker/mass.bin.dat")       
+        os.system("rm /home/trifonov/git/exostriker/discard_mass.dat")           
+        os.system("rm /home/trifonov/git/exostriker/follow_symba.out")             
+    except:
+        pass 
+    return obj   
+    
+
+def run_stability_old2(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, 
+stab_save_dir = 'run', path = './', remove_stab_save_dir = True, 
+integrator='symba' ):
+
+
+    stab_dir = PureWindowsPath("%s\\stability"%path)
+    mvs_dir = PureWindowsPath("%s\\stability\\mvs"%path)
+    mvsgr_dir = PureWindowsPath("%s\\stability\\mvs_gr"%path)
+    symba_dir = PureWindowsPath("%s\\stability\\symba"%path)
+    root_dir = PureWindowsPath("%s\\stability\\.."%path)
  
     os.chdir('%s'%Path(stab_dir))
     os.system("mkdir %s"%stab_save_dir)
@@ -4114,10 +4233,10 @@ def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_sav
 
 
     print("running stability with: %s"%integrator)
-    ##### crate the param.in file (change only the "t_max" and the "dt" for now) ######
+    ##### crate the param.in file (change only the "t_max" and the "dt" for now)  
     param_file = open('param.in', 'wb')
 
-    max_time = float(timemax)*365.25 # make it is days
+    max_time = float(timemax)*365.25 # make it is days 
 
     param_file.write(b"""0.0d0 %s %s
 %s %s

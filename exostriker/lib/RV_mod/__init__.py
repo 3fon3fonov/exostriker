@@ -2020,8 +2020,8 @@ def run_nestsamp_bg(obj):
    # elif sys.version_info[0] == 3:
     #    os.system("python3 ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
 
-    os.system("python%s.%s ./lib/run_ns_from_ses.py -ses ./%s.ses %s"%(
-        sys.version_info[0],sys.version_info[1],target_name,target_name))
+    os.system("python%s.%s %s/lib/run_ns_from_ses.py -ses ./%s.ses %s"%(
+        sys.version_info[0],sys.version_info[1],es_path,target_name,target_name))
 
     file_ses2 = open("%s_out.ses"%target_name, 'rb')
     obj = dill.load(file_ses2)
@@ -2483,8 +2483,8 @@ def run_mcmc_bg(obj):
   #      os.system("python3 ./lib/run_mcmc_from_ses.py -ses ./%s.ses %s"%(target_name,target_name))
 
     #if sys.version_info[0] == 2:
-    os.system("python%s.%s ./lib/run_mcmc_from_ses.py -ses ./%s.ses %s"%(
-        sys.version_info[0],sys.version_info[1],target_name,target_name))
+    os.system("python%s.%s %s/lib/run_mcmc_from_ses.py -ses ./%s.ses %s"%(
+        sys.version_info[0],sys.version_info[1],es_path,target_name,target_name))
  
     file_ses2 = open("%s_out.ses"%target_name, 'rb')
     obj = dill.load(file_ses2)
@@ -4122,7 +4122,7 @@ class signal_fit(object):
        for z in range(len(seasons)):
 
            name_file.append('%s_S_%s.dat'%(basename[:-5],z+1))
-           path_file.append('datafiles/%s'%name_file[z])
+           path_file.append('%s/datafiles/%s'%(es_path,name_file[z]))
 
 
            out1 = open('%s'%path_file[z], 'w')
@@ -4174,9 +4174,9 @@ class signal_fit(object):
        name0 = '%s_all.dat'%basename[:-4]
        name1 = '%s_pre.dat'%basename[:-4]
        name2 = '%s_post.dat'%basename[:-4]
-       path0 = 'datafiles/%s'%name0
-       path1 = 'datafiles/%s'%name1
-       path2 = 'datafiles/%s'%name2
+       path0 = '%s/datafiles/%s'%(es_path,name0)
+       path1 = '%s/datafiles/%s'%(es_path,name1)
+       path2 = '%s/datafiles/%s'%(es_path,name2)
 
        out0 = open('%s'%path0, 'w')
        out1 = open('%s'%path1, 'w')

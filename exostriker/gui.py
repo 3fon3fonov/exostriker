@@ -21,11 +21,16 @@ import json
 
 #sys.path.insert(0, './lib') 
 es_path = os.path.dirname(os.path.abspath(__file__))
+print(es_path)
 lib_path = os.path.join(es_path, 'lib')
 
 sys.path.insert(0,lib_path)
  
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+#os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+
+
+
 
 #sys._excepthook = sys.excepthook
 #def exception_hook(exctype, value, traceback):
@@ -211,7 +216,7 @@ else:
 
 if '-last' in sys.argv:
     try:
-        file_pi = open("autosave/auto_save.ses", 'rb')
+        file_pi = open("%s/autosave/auto_save.ses"%es_path, 'rb')
         fit_ses = dill.load(file_pi)
         file_pi.close()   
 
@@ -346,11 +351,11 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         amd = rv.get_AMD_stab(fit)
 
         if fit.npl >1 and amd == True:
-            AMD_LED = './lib/UI/green_led.png'
+            AMD_LED = '%s/lib/UI/green_led.png'%es_path
         elif fit.npl >1 and amd == False:
-            AMD_LED = './lib/UI/red_led.png' 
+            AMD_LED = '%s/lib/UI/red_led.png'%es_path
         else:
-            AMD_LED = './lib/UI/grey_led.png'
+            AMD_LED = '%s/lib/UI/grey_led.png'%es_path
 
         self.AMD_led.setPixmap(QtGui.QPixmap(AMD_LED))
 
@@ -7703,7 +7708,7 @@ Transit duration: %s d
             self.update_plots()  
         self.jupiter_push_vars() 
 
-        self.save_last_session("autosave/auto_save.ses")
+        self.save_last_session("%s/autosave/auto_save.ses"%es_path)
         self.mute_buttons(trigger=True)
 
 
@@ -7846,7 +7851,7 @@ Transit duration: %s d
         self.update_plots()
         self.jupiter_push_vars()
         
-        self.save_last_session("autosave/auto_save.ses")
+        self.save_last_session("%s/autosave/auto_save.ses"%ses_path)
         self.mute_buttons(trigger=True)
 
 
@@ -7951,7 +7956,7 @@ Transit duration: %s d
         self.button_orb_evol.setEnabled(True)       
         self.statusBar().showMessage('')      
 
-        self.save_last_session("autosave/auto_save.ses")
+        self.save_last_session("%s/autosave/auto_save.ses"%es_path)
 
  
 
@@ -7996,7 +8001,7 @@ Transit duration: %s d
         self.update_plots()
         self.jupiter_push_vars()
         
-        self.save_last_session("autosave/auto_save.ses")
+        self.save_last_session("%s/autosave/auto_save.ses"%es_path)
         self.mute_buttons(trigger=True)
  
     def worker_ast_fitting(self, ff=1, auto_fit = False ):
@@ -8219,7 +8224,7 @@ Transit duration: %s d
         self.run_gls()
         self.run_gls_o_c()
 
-        self.save_last_session("autosave/auto_save.ses")
+        self.save_last_session("%s/autosave/auto_save.ses"%es_path)
         self.mute_buttons(trigger=True)
 #        print("--- %s seconds ---" % (time.time() - start_time))     
 
@@ -8773,9 +8778,9 @@ will be highly appreciated!
         self.dialog_credits.text.setReadOnly(True)
 
         if qso_mode:
-            self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(./lib/UI/33_striker_qso.png) 0 0 0 0 stretch stretch;} ")
+            self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(%s/lib/UI/33_striker_qso.png) 0 0 0 0 stretch stretch;} "%es_path)
         else:
-            self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(./lib/UI/33_striker.png) 0 0 0 0 stretch stretch;} ")
+            self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(%s/lib/UI/33_striker.png) 0 0 0 0 stretch stretch;} "%es_path)
 
         #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
         self.dialog_credits.show()
@@ -9399,7 +9404,7 @@ will be highly appreciated!
         else:
             self.jupiter_push_vars()
 
-        self.save_last_session("autosave/auto_save.ses")
+        self.save_last_session("%s/autosave/auto_save.ses"%es_path)
         self.check_cornerplot_samples()
         self.mute_buttons(trigger=True)
 
@@ -9645,7 +9650,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             
             
 
-        self.save_last_session("autosave/auto_save.ses")
+        self.save_last_session("%s/autosave/auto_save.ses"%es_path)
         self.check_cornerplot_samples()        
         self.mute_buttons(trigger=True)
 
@@ -9904,19 +9909,19 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
        # import dynesty
         #if isinstance(fit.mcmc_sampler, rv.CustomSampler):
         if len(np.atleast_1d(fit.mcmc_sampler))!=0:        
-            MCMC_SAMP_LED = './lib/UI/green_led.png'
+            MCMC_SAMP_LED = '%s/lib/UI/green_led.png'%es_path
             MCMC_SAMP_TXT = "MCMC samples available" 
         else:
-            MCMC_SAMP_LED = './lib/UI/red_led.png' 
+            MCMC_SAMP_LED = '%s/lib/UI/red_led.png'%es_path 
             MCMC_SAMP_TXT = "No MCMC samples available" 
 #dynesty.nestedsamplers.UnitCubeSampler
         #if len(fit.ns_sampler)!=0:
         if len(np.atleast_1d(fit.ns_sampler))!=0:
         #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
-            NS_SAMP_LED = './lib/UI/green_led.png'
+            NS_SAMP_LED = '%s/lib/UI/green_led.png'%es_path
             NS_SAMP_TXT = "NS samples available" 
         else:
-            NS_SAMP_LED = './lib/UI/red_led.png' 
+            NS_SAMP_LED = '%s/lib/UI/red_led.png'%es_path 
             NS_SAMP_TXT = "No NS samples available" 
             
         self.mcmc_samples_led.setPixmap(QtGui.QPixmap(MCMC_SAMP_LED)) 
@@ -10065,8 +10070,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
  
                 name1 = '%s_pre.dat'%self.RVBank_window.target_name
                 name2 = '%s_post.dat'%self.RVBank_window.target_name
-                path1 = 'datafiles/%s'%name1
-                path2 = 'datafiles/%s'%name2
+                path1 = '%s/datafiles/%s'%(es_path,name1)
+                path2 = '%s/datafiles/%s'%(es_path,name2)
         
                 out1 = open('%s'%path1, 'w')
                 out2 = open('%s'%path2, 'w')
@@ -10141,7 +10146,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
  
     
                 name1 = '%s.dat'%self.RVBank_window.target_name
-                path1 = 'datafiles/%s'%name1
+                path1 = '%s/datafiles/%s'%(es_path,name1)
                 out1 = open('%s'%path1, 'w')
 
                 for i in range(len(BJD)):
@@ -11317,7 +11322,7 @@ Please install via 'pip install ttvfast'.
                 topLevel.setFont(self.gui_font)
 
      ###### Update settings json ########
-        GUI_settings = './lib/ES_settings.json'
+        GUI_settings = '%s/lib/ES_settings.json'%es_path
 
         with open(GUI_settings, "r") as jsonFile:
             sett = json.load(jsonFile)
@@ -11341,7 +11346,7 @@ Please install via 'pip install ttvfast'.
 
 
      ###### Update settings json ########
-        Plot_settings = './lib/ES_settings.json'
+        Plot_settings = '%s/lib/ES_settings.json'%es_path
 
         with open(Plot_settings, "r") as jsonFile:
             sett = json.load(jsonFile)
@@ -11354,7 +11359,7 @@ Please install via 'pip install ttvfast'.
          
     def initialize_font_plot(self): #not working as I want!
 
-        Plot_settings = './lib/ES_settings.json'
+        Plot_settings = '%s/lib/ES_settings.json'%es_path
         with open(Plot_settings, "r") as jsonFile:
             sett = json.load(jsonFile)
 
@@ -11365,7 +11370,7 @@ Please install via 'pip install ttvfast'.
 
     def initialize_font_GUI(self): #not working as I want!
 
-        Plot_settings = './lib/ES_settings.json'
+        Plot_settings = '%s/lib/ES_settings.json'%es_path
         with open(Plot_settings, "r") as jsonFile:
             sett = json.load(jsonFile)
 
@@ -12294,7 +12299,7 @@ Please install via 'pip install ttvfast'.
         self.initialize_color_dialog()
         #Hill_LED = './lib/UI/grey_led.png'
         #self.Hill_led.setPixmap(QtGui.QPixmap(Hill_LED))
-        AMD_LED = './lib/UI/grey_led.png'
+        AMD_LED = '%s/lib/UI/grey_led.png'%es_path
         self.AMD_led.setPixmap(QtGui.QPixmap(AMD_LED))
         
         self.check_type_fit()
@@ -12348,11 +12353,11 @@ Please install via 'pip install ttvfast'.
 
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")
 
-        if openai_not_found != True:
-            self.chat_widget = ChatWidget()
-            self.terminal_embeded.addTab(self.chat_widget, "Exo-Striker ChatBoot (GPT-3)")
-        else:
-            print("You do not have openAI installed, so You cannot use the GPT-3 chatboot Try $ pip install openai")
+        #if openai_not_found != True:
+        #    self.chat_widget = ChatWidget()
+            #self.terminal_embeded.addTab(self.chat_widget, "Exo-Striker ChatBoot (GPT-3)")
+        #else:
+        #    print("You do not have openAI installed, so You cannot use the GPT-3 chatboot Try $ pip install openai")
 
 
         self.text_editor = text_editor_es.MainWindow()
@@ -12833,7 +12838,7 @@ Please install via 'pip install ttvfast'.
         self.use_ns_maxcall.stateChanged.connect(self.check_ns_samp_opt_combo)
         self.ns_use_stop.stateChanged.connect(self.check_ns_samp_opt_combo)
 
-        self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
+        self.setWindowIcon(QtGui.QIcon('%s/lib/UI/33_striker.png'%es_path))
 
         self.radioButton_act_GLS_period.toggled.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
        
@@ -13091,7 +13096,7 @@ Please install via 'pip install ttvfast'.
         self.tabWidget_6.tabBarDoubleClicked.connect(self.change_nbody_plot_opt_tab_res)        
 
         self.count_cpus()
-        rv.check_swift()
+        rv.check_swift(path=es_path)
 
 
         self.data_str = "RV data"     
@@ -13146,7 +13151,7 @@ class LoadingScreen(QtWidgets.QWidget):
 
         self.label_animation.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Ignored)
         # self.label_animation.setStyleSheet("""{ background-image: url('./Icons/Pulse-1s-100px.gif');}""")
-        self.movie= QtGui.QMovie('./lib/UI/33_striker.png')
+        self.movie= QtGui.QMovie('%s/lib/UI/33_striker.png'%es_path)
         self.label_animation.setMovie(self.movie)
         # self.label_animation.setPixmap(QtGui.QPixmap("./Icons/Pulse-1s-100px.gif"))
  
