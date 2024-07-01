@@ -252,7 +252,8 @@ class RVBank_window(QtWidgets.QDialog):
             
             #print(self.data_index,self.data_name)
 
-            url = "http://www2.mpia.de/homes/trifonov/HIRES/%s_RVs/%s.dat"%(targets_HIRES[row],targets_HIRES[row])
+            #url = "http://www2.mpia.de/homes/trifonov/HIRES/%s_RVs/%s.dat"%(targets_HIRES[row],targets_HIRES[row])
+            url = "https://exo-restart.com/wp-content/uploads/Stellar_parameters/HIRES/%s_RVs/%s.dat"%(targets_HIRES[row],targets_HIRES[row])                
             #resp = urlopen(url).read() 
             
             self.try_connection(url)
