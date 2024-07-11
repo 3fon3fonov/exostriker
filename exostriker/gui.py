@@ -364,8 +364,6 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.radioButton_ewm.setChecked(True)
 
-
-
     def update_gui_params(self):
         global fit
 
@@ -377,20 +375,19 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.param_gui_P[i].setValue(fit.P[i])
             self.param_gui_K[i].setValue(fit.K[i])
-            self.param_gui_incl[i].setValue(fit.i[i])
-            self.param_gui_Omega[i].setValue(fit.Node[i])
+            self.param_gui_incl[i].setValue(fit.i[i]%360)
+            self.param_gui_Omega[i].setValue(fit.Node[i]%360)
 
             if fit.hkl == True:
 
                 self.param_gui_e[i].setValue(fit.e_sinw[i])
                 self.param_gui_om[i].setValue(fit.e_cosw[i])
-                self.param_gui_ma[i].setValue(fit.lamb[i])
+                self.param_gui_ma[i].setValue(fit.lamb[i]%360)
             else:
                 self.param_gui_e[i].setValue(fit.e[i])
-                self.param_gui_om[i].setValue(fit.w[i])
-                self.param_gui_ma[i].setValue(fit.M0[i])
-
-
+                self.param_gui_om[i].setValue(fit.w[i]%360)
+                self.param_gui_ma[i].setValue(fit.M0[i]%360)
+ 
  
             self.param_gui_wd[i].setValue(fit.omega_dot[i])
  
