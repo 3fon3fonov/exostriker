@@ -1822,6 +1822,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                                  fit_results=obj.fit_results, return_model = False)
         #print(obj.fit_results.mass, obj.ttv_times, obj.parameters, obj.loglik, ttv_loglik)
 
+
+        print(obj.loglik +  ttv_loglik,obj.loglik, ttv_loglik)
         if rtg[1]:
             get_RV_gps_model(obj, get_lnl=True)
 
