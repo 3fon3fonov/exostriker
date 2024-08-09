@@ -753,7 +753,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                     tr_params.t0  = float(tran_t0)
 
                     m[i] = batman.TransitModel(tr_params, t_)
-                    tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.05, t_ <= tran_t0+0.05))
+                    tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.2, t_ <= tran_t0+0.2))
                     flux_model_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
 
 
@@ -765,7 +765,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                     tr_params.t0  = float(tran_t0)
 
                     m[i] = batman.TransitModel(tr_params, t_)
-                    tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.17, t_ <= tran_t0+0.17))
+                    tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.2, t_ <= tran_t0+0.2))
                     flux_model_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]    
             else:
                 m[i] = batman.TransitModel(tr_params, t_)
@@ -939,7 +939,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
                     
                     m[i] = batman.TransitModel(tr_params, t_rich)
-                    tr_ind = np.where(np.logical_and(t_rich >= tran_t0-0.05, t_rich <= tran_t0+0.05))
+                    tr_ind = np.where(np.logical_and(t_rich >= tran_t0-0.2, t_rich <= tran_t0+0.2))
                     flux_model_rich[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
                     
             elif get_TTVs[0] == True:
@@ -950,7 +950,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                     tr_params.t0  = float(tran_t0)
 
                     m[i] = batman.TransitModel(tr_params, t_rich)
-                    tr_ind = np.where(np.logical_and(t_rich >= tran_t0-0.17, t_rich <= tran_t0+0.17))
+                    tr_ind = np.where(np.logical_and(t_rich >= tran_t0-0.2, t_rich <= tran_t0+0.2))
                     flux_model_rich[tr_ind] = m[i].light_curve(tr_params)[tr_ind]  
                     
             else:
