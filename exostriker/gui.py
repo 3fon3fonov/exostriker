@@ -10103,26 +10103,22 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
                 if self.RVBank_window.data_index != 53:
                     act_data     = np.concatenate((
-                #self.RVBank_window.y_data[act_JD <= 2457161.5]- np.mean(self.RVBank_window.y_data[act_JD <= 2457161.5]),  
-                #self.RVBank_window.y_data[act_JD > 2457161.5] - np.mean(self.RVBank_window.y_data[act_JD  > 2457161.5])))
-                self.RVBank_window.y_data[act_JD <= 2457161.5]- np.average(self.RVBank_window.y_data[act_JD <= 2457161.5], axis=1, weights=1.0/abs(self.RVBank_window.e_y_data[act_JD <= 2457161.5])),  
-                self.RVBank_window.y_data[act_JD > 2457161.5] - np.average(self.RVBank_window.y_data[act_JD  > 2457161.5], axis=1, weights=1.0/abs(self.RVBank_window.e_y_data[act_JD > 2457161.5]))))
+                self.RVBank_window.y_data[act_JD <= 2457161.5]- np.average(self.RVBank_window.y_data[act_JD <= 2457161.5], weights=1.0/abs(self.RVBank_window.e_y_data[act_JD <= 2457161.5])),  
+                self.RVBank_window.y_data[act_JD > 2457161.5] - np.average(self.RVBank_window.y_data[act_JD  > 2457161.5], weights=1.0/abs(self.RVBank_window.e_y_data[act_JD > 2457161.5]))))
  
                 
                 else:
                     act_data = self.RVBank_window.y_data                    
 
-
                 act_data_sig = self.RVBank_window.e_y_data
 
                 act_file_name = self.RVBank_window.data_name
-               # act_data_set = np.array([act_JD,act_data,act_data_sig,act_file_name])
-                act_data_o_c = act_data            
+                act_data_o_c = dill.copy(act_data)            
                 act_data_set = np.array([act_JD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, act_file_name],dtype=object) 
 
                 for i in range(20):
                     if len(fit.act_data_sets[i]) == 0:
-                        fit.act_data_sets[i]      = act_data_set
+                        fit.act_data_sets[i]      = dill.copy(act_data_set)
                         fit.act_data_sets_init[i] = dill.copy(fit.act_data_sets[i])
                         break
 
@@ -10167,12 +10163,12 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 act_file_name = self.RVBank_window.data_name
 
                 #act_data_set = np.array([act_JD,act_data,act_data_sig,act_file_name])
-                act_data_o_c = act_data            
+                act_data_o_c = dill.copy(act_data)            
                 act_data_set = np.array([act_JD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, act_file_name],dtype=object)
 
                 for i in range(10):
                     if len(fit.act_data_sets[i]) == 0:
-                        fit.act_data_sets[i]      = act_data_set
+                        fit.act_data_sets[i]      = dill.copy(act_data_set)
                         fit.act_data_sets_init[i] = dill.copy(fit.act_data_sets[i])
                         break
 
