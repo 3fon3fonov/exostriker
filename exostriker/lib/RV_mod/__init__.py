@@ -1017,6 +1017,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     eps = opt["eps"]
     when_to_kill = opt["when_to_kill"]
     copl_incl = opt["copl_incl"]
+    jit_flag = opt["jit_flag"]    
     hkl = opt["hkl"]
     cwd = opt["cwd"]
     gr_flag = opt["gr_flag"]
@@ -1153,7 +1154,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                      rv_model_npoints=npoints, rv_model_max=model_max, rv_model_min=model_min,
                      rv_gr_flag=int(gr_flag), stellar_mass=stmass,
                      ndset=None, ndata=None, nplanet=None,
-                     dyn_planets=None,coplar_inc=int(copl_incl))
+                     dyn_planets=None,coplar_inc=int(copl_incl),jit_flag = int(jit_flag))
 
         if program == '%s/lib/fr/loglik_kep'%cwd:
             rvmod.run_amoeba("kep")         
@@ -1370,6 +1371,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "dt":obj.time_step_model*86400.0,
            "when_to_kill":when_to_kill,
            "copl_incl":obj.copl_incl,
+           "jit_flag":obj.jit_flag,
            "hkl":obj.hkl,
            "cwd":obj.cwd, 
            "gr_flag":obj.gr_flag,
@@ -2133,6 +2135,7 @@ def run_nestsamp(obj, **kwargs):
            "dt":obj.time_step_model*86400.0,
            "when_to_kill":when_to_kill,
            "copl_incl":obj.copl_incl,
+           "jit_flag":obj.jit_flag,
            "hkl":obj.hkl,
            "cwd":obj.cwd, 
            "gr_flag":obj.gr_flag,
@@ -2591,6 +2594,7 @@ def run_mcmc(obj, **kwargs):
            "dt":obj.time_step_model*86400.0,
            "when_to_kill":when_to_kill,
            "copl_incl":obj.copl_incl,
+           "jit_flag":obj.jit_flag,
            "hkl":obj.hkl,
            "cwd":obj.cwd,
            "gr_flag":obj.gr_flag,
@@ -2890,6 +2894,7 @@ class signal_fit(object):
         self.gr_flag = False
         self.hkl = False
         self.copl_incl = False
+        self.jit_flag = False
         self.rtg = [True,False,False,False]
         self.link_RV_GP = [False,False,False,False,False,False]
                            
@@ -4665,7 +4670,7 @@ class signal_fit(object):
                          rv_model_npoints=self.model_npoints, rv_model_max=self.model_max, rv_model_min=self.model_min,
                          rv_gr_flag=int(self.gr_flag), stellar_mass=self.params.stellar_mass,
                          ndset=self.ndset, ndata=None, nplanet=None,
-                         dyn_planets=None,coplar_inc=int(self.copl_incl))
+                         dyn_planets=None,coplar_inc=int(self.copl_incl),jit_flag = int(self.jit_flag))
 
         program = '%s/lib/fr/%s_%s' % (self.cwd, minimized_value, mod)
         if minimize_fortran == True and doGP ==False:

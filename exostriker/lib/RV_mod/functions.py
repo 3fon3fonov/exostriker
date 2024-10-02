@@ -2555,7 +2555,7 @@ def run_command_with_timeout_old(args, secs, output=False, pipe=False): # set ou
 
 
 
-def phase_RV_planet_signal(obj,planet):
+def phase_RV_planet_signal(obj,index):
 
     if obj.npl ==0 or len(obj.fit_results.rv_model.jd) ==0:
         return
@@ -2566,29 +2566,30 @@ def phase_RV_planet_signal(obj,planet):
         if(copied_obj.mod_dynamical):
             copied_obj.mod_dynamical = False
 
-        index = planet - 1
-        #print(index)
+        #index = planet - 1
  
-
+        sorted_periods = sorted([k for k, v in copied_obj.P.items() if copied_obj.use_planet[k]], key=copied_obj.P.get) 
 
         ############ phase fold fix for sparse model ######
         model_time_phase = np.array( (copied_obj.fit_results.model_jd -copied_obj.fit_results.model_jd[0] + (copied_obj.fit_results.model_jd[0] - copied_obj.epoch) )%copied_obj.P[index] )
 
         model_shift = copied_obj.P[index] - (copied_obj.fit_results.rv_model.jd[0] - copied_obj.epoch )%copied_obj.P[index]
 
-        model_time_phase = (model_time_phase + model_shift)% copied_obj.P[index]
+        model_time_phase = (model_time_phase + model_shift)%copied_obj.P[index]
 
         sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])
         model_time_phase  = model_time_phase[sort]
 
-        phased_model      = copied_obj.fit_results.res['fit'].T[2+index][sort]
+
+
+        phased_model      = copied_obj.fit_results.res['fit'].T[2+sorted_periods[index]][sort]
 
         ############ phase data ######
-        data_time_phase = np.array( (copied_obj.fit_results.rv_model.jd  - copied_obj.fit_results.rv_model.jd[0])% copied_obj.P[index] )
+        data_time_phase = np.array( (copied_obj.fit_results.rv_model.jd  - copied_obj.fit_results.rv_model.jd[0])%copied_obj.P[index] )
 
         sort = sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])
         data_time_phase      = data_time_phase[sort]
-        phased_data          = copied_obj.fit_results.model_data[6+index][sort] + copied_obj.fit_results.rv_model.o_c[sort]  
+        phased_data          = copied_obj.fit_results.model_data[6+sorted_periods[index]][sort] + copied_obj.fit_results.rv_model.o_c[sort]  
         
         phased_data_o_c      = obj.fit_results.rv_model.o_c[sort]#  - copied_obj.fit_results.rv_model.rvs[sort]
         phased_data_err      = copied_obj.fit_results.rv_model.rv_err[sort]
@@ -2606,8 +2607,8 @@ def phase_RV_planet_signal(obj,planet):
         del copied_obj
 
         #####################
-        obj.ph_data[planet-1] = data
-        obj.ph_model[planet-1] = model
+        obj.ph_data[index] = data
+        obj.ph_model[index] = model
 
         return data, model
 

@@ -28,7 +28,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
 
     real(8), intent(in) :: st_mass
 
-    integer :: hkl, gr_flag
+    integer :: hkl, gr_flag, jit_flag
  
        
     integer :: npl, ndset, idset,  ma, mfit, i, j, NDSMAX, NPLMAX, MMAX      
@@ -54,14 +54,14 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     real(8) :: wdot(NPLMAX), u_wdot(NPLMAX)
 
     real(4) :: t_stop, t_init
-    real(8) :: PI, twopi    
+    real(8) :: PI, twopi, fixed_jitt    
       
     integer, intent(in) :: dynamical_planets(npl_in)
     
     real(8), intent(in) :: data_array(ndata, 4)
     real(8), intent(in) :: files_param(ndset_in, 4)
     real(8), intent(in) :: array_npl(npl_in, 17, 2)
-    real(8), intent(in) :: final_params(6)
+    real(8), intent(in) :: final_params(7)
     real(8), intent(out) :: res_array(ndata, 6+npl_in)
     real(8), intent(out) :: fit_return(4), fit_array(nt, 2+npl_in)
     real(8), intent(out) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
@@ -116,8 +116,9 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
             x0, t_max, a, ia, ma, mfit, incl, cap0m, wdot, u_wdot, hkl, mode, &
             data_array, files_param, &
             array_npl, &
-            final_params, coplar_inc)
-
+            final_params, coplar_inc,jit_flag)
+    
+    
     i = 0
     dloglikk = 10.d0
     loglikk = 0.d0
@@ -135,10 +136,12 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
         ologlikk = loglikk
 
         call prepare_for_amoeba_kep(p, MMAX + 1, MMAX, yamoeba, a, ia, ma, &
-                mfit, compute_abs_loglik_kep, ndata, x, y, dyda, ts, sig, hkl)
+                mfit, compute_abs_loglik_kep, ndata, x, y, dyda, &
+                ts, sig, hkl,jit_flag)
         call amoeba_kep(p, yamoeba, MMAX + 1, MMAX, mfit, ftol, &
                 compute_abs_loglik_kep, &
-                iter, ndata, x, y, dyda, ma, ts, sig, a, ia, loglikk, hkl)
+                iter, ndata, x, y, dyda, ma, ts, sig, a, ia, &
+                loglikk, hkl,jit_flag)
 
         call cpu_time(t_stop)    
 !        t_stop = time() - t_init
@@ -217,9 +220,18 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
             if (a(j + 6)>2.d0 * PI) a(j + 6) = dmod(a(j + 6), 2.d0 * PI)
         enddo
     endif
-
+ 
+    if (jit_flag.ne.0) then  
+        fixed_jitt = a(6 * npl + ndset + 1)
+        do i = 2, ndset
+            a(6 * npl + ndset + i) = fixed_jitt
+        enddo
+    endif 
+ 
+ 
     do i = 1, ndata
         idset = ts(i)
+ 
         call RVKEP_kepamo (x(i), a, ymod(i), ymod_pl(:,i), dyda, ma, idset, hkl)
 
         y_in(i) = y(i) - a(6 * npl + idset) - a(6 * npl + 2 * ndset + 1) * x(i) - &
@@ -285,6 +297,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
             bestpar_2(j, :) = (/ a(i), dsqrt(covar(i, i)) /)
 
             bestpar_3(j, :) = (/ a(6 * npl + ndset + j), 0.d0 /)
+            
         enddo
 
         bestpar_4 = (/ a(6 * npl + 2 * ndset + 1), &
@@ -334,13 +347,13 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
     integer, intent(in) :: epsil, deltat, amoebastarts,npl_in
     integer, intent(in) :: writeflag_best_par, writeflag_RV
     integer, intent(in) :: writeflag_fit, gr_flag_in, ndset_in
-    integer, intent(in) :: coplar_inc, ndata, nt
+    integer, intent(in) :: coplar_inc, ndata, nt 
        
     real(4), intent(in) :: when_to_kill, model_max, model_min    
 
     real(8), intent(in) :: st_mass
 
-    integer :: hkl, gr_flag
+    integer :: hkl, gr_flag, jit_flag
  
        
     integer :: npl, ndset, idset,  ma, mfit, i, j, NDSMAX, NPLMAX, MMAX      
@@ -374,7 +387,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
     real(8), intent(in) :: data_array(ndata, 4)
     real(8), intent(in) :: files_param(ndset_in, 4)
     real(8), intent(in) :: array_npl(npl_in, 17, 2)
-    real(8), intent(in) :: final_params(6)
+    real(8), intent(in) :: final_params(7)
     real(8), intent(out) :: res_array(ndata, 6+npl_in)
     real(8), intent(out) :: fit_return(4), fit_array(nt, 2+npl_in)
     real(8), intent(out) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
@@ -390,9 +403,6 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
     allocate(ymod_pl(npl_in,20000), ymod_pl2(npl_in,20000)) 
  
  
-
-
-
 
 !f2py intent(in) ndset_in, npl_in, ndata
 !f2py intent(in) dynamical_planets
@@ -432,7 +442,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
             x0, t_max, a, ia, ma, mfit, incl, cap0m, wdot, u_wdot, hkl, mode, &
             data_array, files_param, &
             array_npl, &
-            final_params, coplar_inc)
+            final_params, coplar_inc,jit_flag)
     ! Hack to make it compatible with the loglik code
     if (amoebastarts.eq.0) then
         alamda = -1.d0
@@ -578,170 +588,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
     endif
 end
 
-
-
-subroutine dynfit_amoeba__2(epsil, deltat, amoebastarts, &
-        when_to_kill, nt, &
-        model_max, model_min, gr_flag_in, &
-        st_mass, writeflag_best_par, writeflag_RV, &
-        writeflag_fit, &
-        ndset_in, &
-        ndata, data_array, files_param, &
-        npl_in, array_npl, &
-        final_params, &
-        res_array, fit_return, &
-        bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
-        fit_array, dynamical_planets, coplar_inc)
-    implicit none
-    real(8) :: PI
-    parameter (PI = 3.14159265358979d0)
-    integer :: npl, ndset, idset, ndata, ma, mfit, i, j, NDSMAX, NPLMAX, MMAX
-    parameter (NDSMAX = 20, NPLMAX = 10, MMAX = 200)
-    integer :: idsmax(NDSMAX), ia(MMAX), ts(20000), nt, iter, ii
-    integer :: writeflag_best_par, hkl
-    integer :: writeflag_RV, writeflag_fit, amoebastarts
-    real(8) :: mstar, sini(NPLMAX), loglik, ftol
-    real(8) :: t(20000), ys(20000), sigs(20000)
-    real(8) :: a(MMAX), covar(MMAX, MMAX)
-    real(8) :: chisq, p(MMAX + 1, MMAX)
-    real(8) :: yamoeba(MMAX + 1), loglikk, ologlikk, dloglikk
-    real(8) :: t0, t_max, epoch, epsil, deltat, st_mass
-    real(8) :: rms, jitt(NDSMAX)
-    real(8) :: t_stop, t_init
-    real(4) :: when_to_kill, model_max, model_min
-    real(8) :: wdot(NPLMAX), u_wdot(NPLMAX)
-    real(8) :: incl(NPLMAX), cap0m(NPLMAX)
-
-    external rvkep_dynamo, compute_abs_loglik_dyn
-    character(80) :: version
-!    character(80) version_input, version
-
-    integer :: ndset_in, npl_in, gr_flag_in, gr_flag, coplar_inc
-    integer :: dynamical_planets(npl_in)
-    real(8) :: data_array(ndata, 4)
-    real(8) :: files_param(ndset_in, 4)
-    real(8) :: array_npl(npl_in, 17, 2)
-    real(8) :: final_params(6)
-    real(8) :: res_array(ndata, 6+npl_in)
-    real(8) :: fit_return(4), fit_array(nt, 2+npl_in)
-    real(8) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
-    real(8) :: bestpar_3(ndset_in, 2), bestpar_4(9 + 2 * npl_in)
-    character(20) :: mode
-    
-!f2py intent(in) ndset_in, npl_in, ndata
-!f2py intent(in) dynamical_planets
-!f2py intent(out) res_array, fit_return, fit_array
-!f2py intent(out) bestpar_1, bestpar_2, bestpar_3, bestpar_4
-!f2py depend(ndset_in) files_array,files_param
-!f2py depend(npl_in) array_npl, dynamical_planets
-!f2py depend(ndata) data_array
-!f2py depend(dt) fit_array
-
-
-    common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
-    common mstar, sini
-
-    gr_flag = gr_flag_in
-    ndset = ndset_in
-    npl = npl_in
-    mode = "amoeba_dyn"
-    mstar = st_mass
-    covar(:, :) = 0
-
-    version = "1.05"
-
-!    CALL getarg(1, version_input)
-!    if(version_input=='-version') then
-!        write(*, *) version
-!        return
-!    endif
-
-    loglikk = 0
-    ftol = 0.001d0
-
-    call io_read_data (ndata, t, ts, ys, sigs, jitt, &
-            epoch, t0, t_max, a, ia, ma, mfit, incl, cap0m, wdot, u_wdot, hkl, mode, &
-            data_array, files_param, &
-            array_npl, &
-            final_params, coplar_inc)
-            
-                    
-
-    i = 0
-    dloglikk = 10.d0
-!    t_init = time()
-    call cpu_time(t_init)         
-    
-    do while (dabs(dloglikk)>=0.000001d0)
-        if (i.eq.amoebastarts) then
-            i = 0
-            exit
-        endif
-        i = i + 1
-        ologlikk = loglikk
-
-        call prepare_for_amoeba_dyn(p, MMAX + 1, MMAX, yamoeba, a, ia, ma, &
-                mfit, compute_abs_loglik_dyn, ndata, t, ys, &
-                ts, sigs, epsil, deltat, hkl, dynamical_planets, coplar_inc)
-
-        call amoeba_dyn(p, yamoeba, MMAX + 1, MMAX, mfit, ftol, &
-                compute_abs_loglik_dyn, &
-                iter, ndata, t, ys, ma, ts, sigs, a, ia, epsil, deltat, hkl, &
-                npl, dynamical_planets, coplar_inc)
-
-!        t_stop = time() - t_init
-        call cpu_time(t_stop)     
-        if ((t_stop-t_init)>=when_to_kill) then
-            write(*, *) 'Max. time=', when_to_kill, 'sec ', &
-                    'exceeded t_stop =', t_stop, 'sec '
-            exit
-        endif
-
-        loglikk = yamoeba(1)
-        dloglikk = ologlikk - loglikk
-
-        j = 0
-        do ii = 1, ma
-            if (ia(ii).ne.0) then
-                j = j + 1
-                a(ii) = p(1, j)
-            endif
-        enddo
  
-     
-    enddo
-
-!    do ii = 1, ma
-!        if (ia(ii).ne.0) then
-!            j = j + 1
-!            write(*,*) a(ii), p(1, j)
-!        endif
-!    enddo
-!     do ii = 1, ma
-! 
-!             write(*,*) a(ii) 
-! 
-!    enddo
-
-    j = 0
-    loglik = 0.0d0
-    chisq = 0.0d0
-    rms = 0.0d0
-     
-
-
-    call io_write_bf_ewcop_fin_dynamo(a, covar, t, ys, ndata, ts, &
-            ma, mfit, t0, t_max, sigs, chisq, rms, loglik, writeflag_RV, &
-            writeflag_best_par, writeflag_fit, epsil, deltat, &
-            nt, model_max, model_min, hkl, wdot, u_wdot, &
-            dynamical_planets, &
-            res_array, fit_return, &
-            bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
-            fit_array, coplar_inc)
-return            
-end
-
-
 
 
 
@@ -763,13 +610,13 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
     integer, intent(in) :: amoebastarts,npl_in
     integer, intent(in) :: writeflag_best_par, writeflag_RV
     integer, intent(in) :: writeflag_fit, gr_flag_in, ndset_in
-    integer, intent(in) :: coplar_inc, ndata, nt
+    integer, intent(in) :: coplar_inc, ndata, nt 
        
     real(4), intent(in) :: when_to_kill, model_max, model_min    
 
     real(8), intent(in) :: st_mass, epsil, deltat
 
-    integer :: hkl, gr_flag
+    integer :: hkl, gr_flag, jit_flag
  
        
     integer :: npl, ndset, idset,  ma, mfit, i, j, NDSMAX, NPLMAX, MMAX      
@@ -807,7 +654,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
     real(8), intent(in) :: data_array(ndata, 4)
     real(8), intent(in) :: files_param(ndset_in, 4)
     real(8), intent(in) :: array_npl(npl_in, 17, 2)
-    real(8), intent(in) :: final_params(6)
+    real(8), intent(in) :: final_params(7)
     real(8), intent(out) :: res_array(ndata, 6+npl_in)
     real(8), intent(out) :: fit_return(4), fit_array(nt, 2+npl_in)
     real(8), intent(out) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
@@ -857,10 +704,11 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
     ftol = 0.001d0
 
     call io_read_data (ndata, t, ts, ys, sigs, jitt, &
-            epoch, t0, t_max, a, ia, ma, mfit, incl, cap0m, wdot, u_wdot, hkl, mode, &
+            epoch, t0, t_max, a, ia, ma, mfit, incl, cap0m, & 
+            wdot, u_wdot, hkl, mode, &
             data_array, files_param, &
             array_npl, &
-            final_params, coplar_inc)
+            final_params, coplar_inc,jit_flag)
 
     i = 0
     dloglikk = 10.d0
@@ -879,12 +727,13 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
 
         call prepare_for_amoeba_dyn(p, MMAX + 1, MMAX, yamoeba, a, ia, ma, &
                 mfit, compute_abs_loglik_dyn, ndata, t, ys, &
-                ts, sigs, epsil, deltat, hkl, dynamical_planets, coplar_inc)
+                ts, sigs, epsil, deltat, hkl, & 
+                dynamical_planets, coplar_inc, jit_flag)
 
         call amoeba_dyn(p, yamoeba, MMAX + 1, MMAX, mfit, ftol, &
                 compute_abs_loglik_dyn, &
                 iter, ndata, t, ys, ma, ts, sigs, a, ia, epsil, deltat, hkl, &
-                npl, dynamical_planets, coplar_inc)
+                npl, dynamical_planets, coplar_inc, jit_flag)
 
 !        t_stop = time() - t_init
         call cpu_time(t_stop)     
@@ -922,7 +771,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
             dynamical_planets, &
             res_array, fit_return, &
             bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
-            fit_array, coplar_inc)
+            fit_array, coplar_inc,jit_flag)
 
  
 return
@@ -958,7 +807,7 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
 
     real(8), intent(in) :: st_mass, epsil, deltat
 
-    integer :: hkl, gr_flag
+    integer :: hkl, gr_flag, jit_flag
  
        
     integer :: npl, ndset, idset,  ma, mfit, i, j, NDSMAX, NPLMAX, MMAX      
@@ -996,7 +845,7 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
     real(8), intent(in) :: data_array(ndata, 4)
     real(8), intent(in) :: files_param(ndset_in, 4)
     real(8), intent(in) :: array_npl(npl_in, 17, 2)
-    real(8), intent(in) :: final_params(6)
+    real(8), intent(in) :: final_params(7)
     real(8), intent(out) :: res_array(ndata, 6+npl_in)
     real(8), intent(out) :: fit_return(4), fit_array(nt, 2+npl_in)
     real(8), intent(out) :: bestpar_1(npl_in, 17, 2), bestpar_2(ndset_in, 2)
@@ -1047,7 +896,9 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
             epoch, t0, t_max, a, ia, ma, mfit, incl, cap0m, wdot, u_wdot, hkl, mode, &
             data_array, files_param, &
             array_npl, &
-            final_params, coplar_inc)
+            final_params, coplar_inc,jit_flag)
+            
+            
 
     !*****set alamda to be negtive for initializing******
     alamda = -1.d0
@@ -1097,18 +948,18 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
              nt, model_max, model_min, hkl, wdot, u_wdot, &
              res_array, fit_return, &
              bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
-             fit_array, coplar_inc)
+             fit_array, coplar_inc,jit_flag)
 return
 end
 end
 
 subroutine compute_abs_loglik_kep(ndata, x, y, a2, dyda, ma, mfit, ts, &
-        sig, loglik, a, ia, hkl)
+        sig, loglik, a, ia, hkl,jit_flag)
     implicit none
 
-    integer :: MMAX, NDSMAX, npl, ndset, idset, mfit, gr_flag
+    integer :: MMAX, NDSMAX, npl, ndset, idset, mfit, gr_flag, jit_flag
     parameter (MMAX = 200, NDSMAX = 20)
-    real(8) :: loglik, PI, TWOPI
+    real(8) :: loglik, PI, TWOPI, fixed_jitt
     parameter (PI = 3.14159265358979d0)
     parameter (TWOPI = 2.0 * PI)
     integer :: ndata, i, j, ma, ts(ndata), ia(MMAX), idsmax(NDSMAX), hkl
@@ -1127,10 +978,20 @@ subroutine compute_abs_loglik_kep(ndata, x, y, a2, dyda, ma, mfit, ts, &
         else
             a3(i) = a(i)
         endif
+               
+        
     enddo
-
+ 
+    if (jit_flag.ne.0) then  
+        fixed_jitt = a3(6 * npl + ndset + 1)
+        do i = 2, ndset
+            a3(6 * npl + ndset + i) = fixed_jitt
+        enddo
+    endif
+  
     do i = 1, ndata
         idset = ts(i)
+        
         call RVKEP_kepamo (x(i), a3, y2(i), y2_pl(:,i), dyda, ma, idset, hkl)
         y_in(i) = y(i) - a3(6 * npl + idset) - &
                 a3(6 * npl + 2 * ndset + 1) * x(i)&
@@ -1154,19 +1015,19 @@ end
 
 subroutine compute_abs_loglik_dyn(ndata, x, y, a2, ma, mfit, ts, &
         sig, loglik, a, ia, epsil, deltat, hkl, dynamical_planets, &
-        coplar_inc)
+        coplar_inc,jit_flag)
 
     implicit none
     integer :: MMAX, npl, ndset, NDSMAX, idset, mfit, hkl, gr_flag,ndata
     parameter (MMAX = 200, NDSMAX = 20)
-    real(8) :: twopi, loglik
+    real(8) :: twopi, loglik, fixed_jitt
     parameter (twopi = 6.28318530717958d0)
     integer  :: i, j, ma, ts(20000), ia(MMAX), idsmax(NDSMAX)
     
     real(8) :: dy, sig(ndata), x(ndata), y(ndata), y_pl(npl,ndata)
     real(8) :: a(MMAX), a2(mfit), a3(MMAX), sig2i, y_in(ndata)
     real(8) :: y2(ndata), epsil, deltat
-    integer dynamical_planets(npl), coplar_inc
+    integer dynamical_planets(npl), coplar_inc,jit_flag
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
@@ -1180,7 +1041,13 @@ subroutine compute_abs_loglik_dyn(ndata, x, y, a2, ma, mfit, ts, &
         endif
     enddo
      
-
+    if (jit_flag.ne.0) then  
+        fixed_jitt = a3(7 * npl + ndset + 1)
+        do i = 2, ndset
+            a3(7 * npl + ndset + i) = fixed_jitt
+        enddo
+    endif
+    
     loglik = 0.d0
 
     call RVKEP_dynamo (x, a3, y2, y_pl, ma, ndata, epsil, deltat, hkl, &
@@ -1209,7 +1076,7 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
         ar, iar, ma, mfit, incl, cap0m, wdot, u_wdot, hkl, mode, &
         data_array, files_param, &
         array_npl, &
-        final_params, coplar_inc)
+        final_params, coplar_inc,jit_flag)
     implicit none
     integer :: ndset, idset, ndata, NDSMAX, NPLMAX, MMAX, npl, ma
     real(8) :: t(ndata), ys(ndata), sigs(ndata), PI
@@ -1226,12 +1093,16 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
     real(8) :: data_array(ndata, 4)
     real(8) :: files_param(ndset, 4)
     real(8) :: array_npl(npl, 17, 2)
-    real(8) :: final_params(6)
+    real(8) :: final_params(7)
     character(20) :: mode
-    integer :: ndsetmode, arr_pos, coplar_inc
+    integer :: ndsetmode, arr_pos, coplar_inc, jit_flag
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
+    hkl = int(final_params(6))
+    jit_flag = int(final_params(7))
+    
+    
     if (ndset>NDSMAX) stop ' KEPFIT: ndset > NDSMAX.'
 
     off(1:ndset) = files_param(:, 1)
@@ -1264,16 +1135,30 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
     endif
 
     do i = 1, ndset
+!        i = arr_pos * (j - 1)
         ar(arr_pos * npl + i) = off(i)
         iar(arr_pos * npl + i) = u_off(i)
+        
         if (mode.eq."amoeba" .or. mode.eq."amoeba_dyn") then
-            ar(arr_pos * npl + ndset + i) = jitt(i)
-            iar(arr_pos * npl + ndset + i) = u_jit(i)
+        
+            if (jit_flag.eq.0) then
+                ar(arr_pos * npl + ndset + i) = jitt(i)
+                iar(arr_pos * npl + ndset + i) = u_jit(i)
+            else
+                if (i.eq.1)  then
+                    ar(arr_pos * npl + ndset + i) = jitt(i)
+                    iar(arr_pos * npl + ndset + i) = u_jit(i)
+                else
+                    ar(arr_pos * npl + ndset + i) = jitt(1)
+                    iar(arr_pos * npl + ndset + i) = 0                      
+                endif            
+            endif       
+
         endif
     enddo
 
     ma = arr_pos * npl + ndsetmode + 2
-    hkl = int(final_params(6))
+
 
     do j = 1, npl
         i = arr_pos * (j - 1)
@@ -1378,7 +1263,7 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
     do j = 1, ma
         if (iar(j).ne.0) mfit = mfit + 1
     enddo
-    return
+    return   
 end
 
 subroutine RVKEP_kepamo (x, a, y, y_pl, dyda, ma, ts, hkl)
@@ -1591,10 +1476,10 @@ end
 
 
 subroutine prepare_for_amoeba_kep(p, mp, np, y, a, ia, ma, mfit, funk, &
-        ndata, x, z, dyda, ts, sig, hkl)
+        ndata, x, z, dyda, ts, sig, hkl,jit_flag)
     implicit none
     integer :: ndata, MMAX, NDSMAX, ma, ts(ndata), mp, np
-    integer :: mfit,idset,ndset,npl
+    integer :: mfit,idset,ndset,npl,jit_flag
     parameter(MMAX = 200, NDSMAX = 20) 
     REAL(8) :: p(mp, np), y(mp), a(MMAX), a2(mfit), fr, frjitt
     real(8) :: x(ndata), z(ndata)
@@ -1634,22 +1519,22 @@ subroutine prepare_for_amoeba_kep(p, mp, np, y, a, ia, ma, mfit, funk, &
             a2(j) = p(i, j)
         enddo
         call funk(ndata, x, z, a2, dyda, ma, mfit, ts, sig, loglik, &
-                a, ia, hkl)
+                a, ia, hkl,jit_flag)
         y(i) = loglik
     enddo
     return
 end
 
 SUBROUTINE amoeba_kep(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
-        dyda, ma, ts, sig, a, ia, ytry, hkl)
+        dyda, ma, ts, sig, a, ia, ytry, hkl,jit_flag)
     implicit none
-    integer :: ndata    
+    integer :: ndata 
     integer :: iter, mp, ndim, np, NMAX, ITMAX, MMAX, ma, ts(ndata)
     REAL(8) :: ftol, p(mp, np), y(mp), x(ndata), z(ndata)
     PARAMETER (NMAX = 20, ITMAX = 200000, MMAX = 200)
     real(8) :: dyda(MMAX), sig(ndata), loglik, a(MMAX)
     EXTERNAL funk
-    integer :: i, ihi, ilo, inhi, j, m, n, ia(MMAX), hkl
+    integer :: i, ihi, ilo, inhi, j, m, n, ia(MMAX), hkl, jit_flag
     REAL(8) :: rtol, summ, swap, ysave, ytry, psum(ndim), amotry_kep
     iter = 0
 1   do n = 1, ndim
@@ -1694,14 +1579,14 @@ SUBROUTINE amoeba_kep(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
     endif
     iter = iter + 2
     ytry = amotry_kep(p, y, psum, mp, np, ndim, funk, ihi, -1.0d0, ndata, x, z, &
-            dyda, ma, ts, sig, a, ia, hkl)
+            dyda, ma, ts, sig, a, ia, hkl,jit_flag)
     if (ytry<=y(ilo)) then
         ytry = amotry_kep(p, y, psum, mp, np, ndim, funk, ihi, 2.0d0, ndata, x, z, &
-                dyda, ma, ts, sig, a, ia, hkl)
+                dyda, ma, ts, sig, a, ia, hkl,jit_flag)
     else if (ytry>=y(inhi)) then
         ysave = y(ihi)
         ytry = amotry_kep(p, y, psum, mp, np, ndim, funk, ihi, 0.5d0, ndata, x, z, &
-                dyda, ma, ts, sig, a, ia, hkl)
+                dyda, ma, ts, sig, a, ia, hkl,jit_flag)
 
         if (ytry>=ysave) then
             do i = 1, ndim + 1
@@ -1711,7 +1596,7 @@ SUBROUTINE amoeba_kep(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
                         p(i, j) = psum(j)
                     enddo
                     call funk(ndata, x, z, psum, dyda, ma, ndim, ts, sig, loglik, &
-                            a, ia, hkl)
+                            a, ia, hkl,jit_flag)
                     y(i) = loglik
                 endif
             enddo
@@ -1726,7 +1611,8 @@ END
 !(C) Copr. 1986-92 Numerical Recipes Software 0=M,173+9.
 
 subroutine prepare_for_amoeba_dyn(p, mp, np, y, a, ia, ma, mfit, funk, &
-        ndata, x, z, ts, sig, epsil, deltat, hkl, dynamical_planets, coplar_inc)
+        ndata, x, z, ts, sig, epsil, deltat, hkl, & 
+        dynamical_planets, coplar_inc, jit_flag)
     implicit none        
     integer :: MMAX, NDSMAX, ma, ndset,  npl, ndata, idset
     integer :: mp, np, mfit, hkl, ts(ndata)
@@ -1736,7 +1622,7 @@ subroutine prepare_for_amoeba_dyn(p, mp, np, y, a, ia, ma, mfit, funk, &
     real(8) :: sig(ndata), loglik, epsil, deltat
     parameter(fr = 0.01, frjitt = 0.05)
     integer :: i, j, k, ia(MMAX), idsmax(NDSMAX), gr_flag, coplar_inc
-    integer :: dynamical_planets(npl)
+    integer :: dynamical_planets(npl), jit_flag
     external funk
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
@@ -1799,7 +1685,8 @@ subroutine prepare_for_amoeba_dyn(p, mp, np, y, a, ia, ma, mfit, funk, &
             a2(j) = p(i, j)
         enddo
         call funk(ndata, x, z, a2, ma, mfit, ts, sig, loglik, &
-                a, ia, epsil, deltat, hkl, dynamical_planets, coplar_inc)
+                a, ia, epsil, deltat, hkl, & 
+                dynamical_planets, coplar_inc, jit_flag)
         y(i) = loglik
     enddo
 
@@ -1807,14 +1694,15 @@ subroutine prepare_for_amoeba_dyn(p, mp, np, y, a, ia, ma, mfit, funk, &
 end
 
 SUBROUTINE amoeba_dyn(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
-        ma, ts, sig, a, ia, epsil, deltat, hkl, npl, dynamical_planets, coplar_inc)
+        ma, ts, sig, a, ia, epsil, deltat, hkl, npl, &
+        dynamical_planets, coplar_inc, jit_flag)
     implicit none
     integer :: iter, mp, ndim, np, NMAX, ITMAX, MMAX, ma, ts(20000), ndata
     REAL(8) :: ftol, p(mp, np), y(mp), x(20000), z(20000)
     PARAMETER (NMAX = 20, ITMAX = 50000, MMAX = 200)
     real(8) :: sig(20000), loglik, a(MMAX), deltat
     EXTERNAL funk
-    integer :: i, ihi, ilo, inhi, j, m, n, ia(MMAX), hkl, npl
+    integer :: i, ihi, ilo, inhi, j, m, n, ia(MMAX), hkl, npl, jit_flag
     integer :: dynamical_planets(npl), coplar_inc
     REAL(8) :: rtol, summ, swap, ysave, ytry, psum(ndim), amotry_dyn, epsil
     iter = 0
@@ -1864,14 +1752,17 @@ SUBROUTINE amoeba_dyn(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
     
     iter = iter + 2
     ytry = amotry_dyn(p, y, psum, mp, np, ndim, funk, ihi, -1.0d0, ndata, x, z, &
-            ma, ts, sig, a, ia, epsil, deltat, hkl, npl, dynamical_planets, coplar_inc)
+            ma, ts, sig, a, ia, epsil, deltat, hkl, npl, &
+            dynamical_planets, coplar_inc,jit_flag)
     if (ytry<=y(ilo)) then
         ytry = amotry_dyn(p, y, psum, mp, np, ndim, funk, ihi, 2.0d0, ndata, x, z, &
-                ma, ts, sig, a, ia, epsil, deltat, hkl, npl, dynamical_planets, coplar_inc)
+                ma, ts, sig, a, ia, epsil, deltat, hkl, npl, & 
+                dynamical_planets, coplar_inc, jit_flag)
     else if (ytry>=y(inhi)) then
         ysave = y(ihi)
         ytry = amotry_dyn(p, y, psum, mp, np, ndim, funk, ihi, 0.5d0, ndata, x, z, &
-                ma, ts, sig, a, ia, epsil, deltat, hkl, npl, dynamical_planets, coplar_inc)
+                ma, ts, sig, a, ia, epsil, deltat, hkl, npl, & 
+                dynamical_planets, coplar_inc, jit_flag)
         if (ytry>=ysave) then
             do i = 1, ndim + 1
                 if(i.ne.ilo)then
@@ -1880,7 +1771,8 @@ SUBROUTINE amoeba_dyn(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
                         p(i, j) = psum(j)
                     enddo
                     call funk(ndata, x, z, psum, ma, ndim, ts, sig, loglik, &
-                            a, ia, epsil, deltat, hkl, dynamical_planets, coplar_inc)
+                            a, ia, epsil, deltat, hkl, &
+                            dynamical_planets, coplar_inc, jit_flag)
                     y(i) = loglik
                 endif
             enddo
@@ -1895,14 +1787,14 @@ END
 !  (C) Copr. 1986-92 Numerical Recipes Software 0=M,173+9.
 
 FUNCTION amotry_kep(p, y, psum, mp, np, ndim, funk, ihi, fac, ndata, x, z, &
-        dyda, ma, ts, sig, a, ia, hkl)
+        dyda, ma, ts, sig, a, ia, hkl, jit_flag)
     implicit none
     integer :: ihi, mp, ndim, np, NMAX, MMAX, ma, ts(20000), ndata
     PARAMETER (NMAX = 20, MMAX = 200)
     REAL(8) :: amotry_kep, fac, p(mp, np), psum(np), y(mp), x(20000), z(20000)
     real(8) :: dyda(MMAX), sig(20000), loglik
     EXTERNAL funk
-    integer :: j, ia(MMAX), hkl
+    integer :: j, ia(MMAX), hkl, jit_flag
     REAL(8) :: fac1, fac2, ytry, ptry(ndim), a(MMAX)
     
     fac1 = (1.0d0 - fac) / ndim
@@ -1912,7 +1804,7 @@ FUNCTION amotry_kep(p, y, psum, mp, np, ndim, funk, ihi, fac, ndata, x, z, &
         ptry(j) = psum(j) * fac1 - p(ihi, j) * fac2
     enddo
     call funk(ndata, x, z, ptry, dyda, ma, ndim, ts, sig, loglik, &
-            a, ia, hkl)
+            a, ia, hkl,jit_flag)
 
     ytry = loglik
     if (ytry<y(ihi)) then
@@ -1928,7 +1820,8 @@ END
 !  (C) Copr. 1986-92 Numerical Recipes Software 0=M,173+9.
 
 FUNCTION amotry_dyn(p, y, psum, mp, np, ndim, funk, ihi, fac, ndata, x, z, &
-        ma, ts, sig, a, ia, epsil, deltat, hkl, npl, dynamical_planets, coplar_inc)
+        ma, ts, sig, a, ia, epsil, deltat, hkl, npl, &
+        dynamical_planets, coplar_inc, jit_flag)
     implicit none
     integer ::  ihi, mp, ndim, np, NMAX, MMAX, ma, ts(20000), ndata
     PARAMETER (NMAX = 20, MMAX = 200)
@@ -1936,7 +1829,7 @@ FUNCTION amotry_dyn(p, y, psum, mp, np, ndim, funk, ihi, fac, ndata, x, z, &
             epsil, deltat
     real(8) :: sig(20000), loglik
     EXTERNAL funk
-    integer ::  j, ia(MMAX), hkl, npl
+    integer ::  j, ia(MMAX), hkl, npl, jit_flag
     REAL(8) :: fac1, fac2, ytry, ptry(ndim), a(MMAX)
     integer :: dynamical_planets(npl), coplar_inc
     fac1 = (1.0d0 - fac) / ndim
@@ -1944,8 +1837,10 @@ FUNCTION amotry_dyn(p, y, psum, mp, np, ndim, funk, ihi, fac, ndata, x, z, &
     do j = 1, ndim
         ptry(j) = psum(j) * fac1 - p(ihi, j) * fac2
     enddo
+    
     call funk(ndata, x, z, ptry, ma, ndim, ts, sig, loglik, &
-            a, ia, epsil, deltat, hkl, dynamical_planets, coplar_inc)
+            a, ia, epsil, deltat, hkl, &
+            dynamical_planets, coplar_inc, jit_flag)
            
 
     ytry = loglik
@@ -2070,7 +1965,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
         dynamical_planets, &
         res_array, fit_return, &
         bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
-        fit_array, coplar_inc)
+        fit_array, coplar_inc,jit_flag)
     implicit none
     real(8) :: PI
     integer :: MMAX, NDSMAX, NPLMAX,ndata
@@ -2089,8 +1984,8 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
     real(8) :: j_mass(NPLMAX)
     real(4) :: model_max, model_min
     real(8) :: wdot(NPLMAX), u_wdot(NPLMAX), best_w, best_we
-    integer :: dynamical_planets(npl), coplar_inc
-    real(8) :: ymod_pl(npl,20000)     
+    integer :: dynamical_planets(npl), coplar_inc, jit_flag
+    real(8) :: ymod_pl(npl,20000), fixed_jitt     
     
     parameter (AU = 1.49597892d11, day = 86400.d0)
 
@@ -2113,6 +2008,13 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
              a(j + 6) = a(6)
         enddo
     endif
+
+    if (jit_flag.ne.0) then  
+        fixed_jitt = a(7 * npl + ndset + 1)
+        do i = 2, ndset
+            a(7 * npl + ndset + i) = fixed_jitt
+        enddo
+    endif 
 
     call RVKEP_dynamo(t, a, ymod, ymod_pl, ma, ndata, epsil, deltat, hkl, &
             dynamical_planets, ts, coplar_inc)
@@ -2168,6 +2070,8 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
             if (a(j + 7)>2.d0 * PI) a(j + 7) = dmod(a(j + 7), 2.d0 * PI)
         endif
     enddo
+
+ 
 
     do i = 1, ndata
         idset = ts(i)
@@ -2257,15 +2161,11 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
         do i = 1, nt
             x(i) = (i - 1) * dt * 8.64d4
         enddo
-        do i = 1, npl
-            j = 7 * (i - 1)
-!            write(*,*)"incl", j, a(j+6)
-        enddo
+
         call RVKEP_dynamo (x, a, ymod, ymod_pl, ma, nt, epsil, deltat, hkl, &
                 dynamical_planets, ts, coplar_inc)
                 
         do i = 1, nt
-!            write(*,*)(ymod_pl(j,i),j=1,npl)                         
             fit_array(i, :) = (/ t0 + x(i) / 8.64d4, &
                     ymod(i) + a(7 * npl + 2 * ndset + 1) * (x(i) / 8.64d4)&
                             + a(7 * npl + 2 * ndset + 2) * (x(i) / 8.64d4)**2 &
@@ -2282,7 +2182,7 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
              nt, model_max, model_min, hkl, wdot, u_wdot, &
              res_array, fit_return, &
              bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
-             fit_array, coplar_inc)
+             fit_array, coplar_inc,jit_flag)
     implicit none
     real(8) :: PI
     integer :: MMAX, NDSMAX, NPLMAX
@@ -2291,7 +2191,7 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
     real(8) :: covar(MMAX, MMAX), dyda(20000, MMAX), AU, day, loglik, dy, twopi
     real(8) :: rms, mstar, sini, mass(NPLMAX), ap(NPLMAX)
     integer :: ts(20000), nbod, nt, writeflag_RV, gr_flag
-    integer :: writeflag_best_par, writeflag_fit, coplar_inc
+    integer :: writeflag_best_par, writeflag_fit, coplar_inc,jit_flag
     real(8) :: t0, dt, t_max, chisq, deltat, epsil, sig2i
     real(8) :: x(20000), sigs(20000), jitter(NDSMAX)
     integer :: i, j, npl, ndset, ndata, idset, mfit, ma, idsmax(NDSMAX), hkl

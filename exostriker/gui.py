@@ -5972,7 +5972,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 if not bool(fit.use_planet[i]):
                     continue
                 self.comboBox_extra_plot.addItem('pl %s'%(i+1),i+1)
-
+                #self.comboBox_extra_plot.addItem('pl %.3f'%(fit.P[i]),i+1)
+                
                 #self.comboBox_extra_plot.setCurrentIndex(i) 
             self.phase_plots(1)
         self.comboBox_extra_plot.activated.connect(self.handleActivated)   
@@ -7270,10 +7271,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 if not bool(fit.use_planet[i]):
                     continue
                 try:
-                    rv.phase_RV_planet_signal(fit,i+1)
+
+                    rv.phase_RV_planet_signal(fit,i)
                 except:
                     print("Old session (pre Ver. 0.86)? You are using the old phased plot version!")
-                    rv.phase_RV_planet_signal_old(fit,i+1)  
+                    rv.phase_RV_planet_signal_old(fit,i)  
         
         fit.init_fit = False            
         
@@ -7395,6 +7397,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                        fit.fit_results.rv_model.rv_err[fit.fit_results.idset==i])
                        
                 elif resid_GP == True:
+                    
+                    if fit.doGP == False:
+                        print("No GP model used, thus exiting")
+                        return
+                
                     typ = (fit.fit_results.rv_model.jd[fit.fit_results.idset==i],
                        fit.fit_results.rv_model.o_c[fit.fit_results.idset==i] - fit.gp_model_data[0][fit.fit_results.idset==i]  , 
                        fit.fit_results.rv_model.rv_err[fit.fit_results.idset==i])                                  
@@ -7691,10 +7698,10 @@ Transit duration: %s d
                     continue
             #for i in range(fit.npl):
                 try:
-                    rv.phase_RV_planet_signal(fit,i+1)
+                    rv.phase_RV_planet_signal(fit,i)
                 except:
                     print("Old session (pre Ver. 0.86)? You are using the old phased plot version!")
-                    rv.phase_RV_planet_signal_old(fit,i+1)  
+                    rv.phase_RV_planet_signal_old(fit,i)  
            # self.run_gls()
           #  self.run_gls_o_c()
             self.update_plots()  
@@ -7834,10 +7841,10 @@ Transit duration: %s d
                     continue
            # for i in range(fit.npl):
                 try:
-                    rv.phase_RV_planet_signal(fit,i+1)
+                    rv.phase_RV_planet_signal(fit,i)
                 except:
                     print("Old session (pre Ver. 0.86)? You are using the old phased plot version!")
-                    rv.phase_RV_planet_signal_old(fit,i+1)  
+                    rv.phase_RV_planet_signal_old(fit,i)  
            # self.run_gls()
            # self.run_gls_o_c()
         self.update_plots()
@@ -7984,10 +7991,10 @@ Transit duration: %s d
                 if not bool(fit.use_planet[i]):
                     continue
                 try:
-                    rv.phase_RV_planet_signal(fit,i+1)
+                    rv.phase_RV_planet_signal(fit,i)
                 except:
                     print("Old session (pre Ver. 0.86)? You are using the old phased plot version!")
-                    rv.phase_RV_planet_signal_old(fit,i+1)  
+                    rv.phase_RV_planet_signal_old(fit,i)  
            # self.run_gls()
            # self.run_gls_o_c()
         self.update_plots()
@@ -8312,10 +8319,6 @@ Transit duration: %s d
         if not auto_fit:
             self.update_params()
  
-  
-       # old_err1 = dill.copy(fit.param_errors.planet_params_errors)
-       # old_err2 = dill.copy(fit.param_errors.offset_errors)
-      #  old_err3 = dill.copy(fit.param_errors.jitter_errors)
         old_err4 = dill.copy(fit.param_errors.GP_params_errors)
  
     
@@ -8362,16 +8365,18 @@ Transit duration: %s d
 
         self.update_gui_params()
 
+
+        #sorted_periods = sorted([k for k, v in fit.P.items() if fit.use_planet[k]], key=fit.P.get) 
         for i in range(9):
 
             if not bool(fit.use_planet[i]):
                 continue
             try:
-                rv.phase_RV_planet_signal(fit,i+1)
+                #print(fit.P[i], i)
+                rv.phase_RV_planet_signal(fit,i)
             except:
                 print("Old session (pre Ver. 0.86)? You are using the old phased plot version!")
-                rv.phase_RV_planet_signal_old(fit,i+1)  
-             
+                rv.phase_RV_planet_signal_old(fit,i)              
 
         if self.reset_errors_at_init.isChecked() == False and fit.init_fit == True:
             print("Warning: 'Reset the errors to 0 when Initialize' is set to 'False', thus errors are not overwritten!")
@@ -8831,8 +8836,10 @@ will be highly appreciated!
 
             self.update_use_from_input_file()   
             self.update_use()                     
-            self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
-
+            #self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
+            self.optimize_fit(20,m_ln=False,auto_fit = True) # first time -- LM
+            
+            
             #now inspect the residuals
 
             for i in range(1,int(self.auto_fit_N_planets.value())):
@@ -8856,7 +8863,7 @@ will be highly appreciated!
                     self.update_use()
 
                    # fit.sort_by_period(reverse=False)
-                    self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True) 
+                    self.optimize_fit(20,m_ln=False,auto_fit = True) 
                     #self.button_auto_fit.setEnabled(True)     
                     return
                 else:    
@@ -8884,7 +8891,7 @@ will be highly appreciated!
                     self.update_use()
 
                     fit.sort_by_period(reverse=False)
-                    self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)  
+                    self.optimize_fit(20,m_ln=False,auto_fit = True)  
 
                 #else:
                  #   continue
@@ -10632,6 +10639,10 @@ Please install via 'pip install ttvfast'.
 
             self.param_gui_incl[0].setEnabled(True)
             self.use_param_gui_incl[0].setEnabled(True)
+            
+        if self.force_sameRV_jit.isChecked()==True:
+            print("Use only RV jitter boolean for data 1, and mute the rest!")
+        
 
 
     ### NOT used anymore 
@@ -11590,7 +11601,7 @@ Please install via 'pip install ttvfast'.
         self.kep_model_to_kill.setValue(fit.kep_model_to_kill)
         self.master_timeout.setValue(fit.master_timeout)    
         self.force_copl_incl.setChecked(fit.copl_incl)
-        
+        self.force_sameRV_jit.setChecked(fit.jit_flag)       
         
     def check_settings(self):
         
@@ -11939,6 +11950,12 @@ Please install via 'pip install ttvfast'.
         global fit   
         fit.copl_incl = self.force_copl_incl.isChecked()
         self.mute_boxes()
+        
+    def set_force_sameRV_jit(self):
+        global fit   
+        fit.jit_flag = self.force_sameRV_jit.isChecked()
+        self.mute_boxes()        
+
 
     #def update_inspector(self):
    #     self.tree_view_tab.listview.clicked.connect(self.plot_data_inspect)
@@ -11984,7 +12001,7 @@ Please install via 'pip install ttvfast'.
         global fit 
         super().__init__()
     
-        self.es_version = "0.90"
+        self.es_version = "0.91"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -13057,7 +13074,8 @@ Please install via 'pip install ttvfast'.
         self.check_cornerplot_samples()
         
         self.force_copl_incl.stateChanged.connect(self.set_force_copl_incl)
-
+        self.force_sameRV_jit.stateChanged.connect(self.set_force_sameRV_jit)        
+ 
 #        self.set_use_GP()
 #        self.set_gui_use_GP()
 

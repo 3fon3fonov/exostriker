@@ -339,7 +339,7 @@ class Rvfit:
                   ndset=None, ndata=None, nplanet=None,
                   rv_ofset=None, rv_jitt=None,
                   lin_trend_in=None, quad_trend_in=None,
-                  dyn_planets=None, coplar_inc=0, npl_pos=None):
+                  dyn_planets=None, coplar_inc=0, jit_flag=0, npl_pos=None):
 
         self.ind_used = np.unique(np.array(data_array).T[3]).astype(int) if len(data_array) != 0 else [0]
 
@@ -397,10 +397,11 @@ class Rvfit:
         self.stellar_mass = stellar_mass
         self.coplar_inc = coplar_inc
         self.npl_pos = npl_pos
+        self.jit_flag = jit_flag
 
         # Concatenate some of the arguments to be in the right form for Fortran code
         files_param = np.concatenate([rv_ofset, rv_jitt], axis=1)
-        final_params = np.concatenate([lin_trend_in, quad_trend_in, [epoch], [hkl]])
+        final_params = np.concatenate([lin_trend_in, quad_trend_in, [epoch], [hkl],[jit_flag]])
 
         # Create the final multidimensional array accepted in Fortran code
         self.arguments = [dyn_eps, dyn_dt, amoeba_iter, timeout, rv_model_npoints,
@@ -416,7 +417,8 @@ class Rvfit:
         data_array = self.arguments[14]
         planets_param = res[2]
         epoch = self.res_dict["epoch"]
-        hkl = self.arguments[18][-1]
+        hkl = self.arguments[18][-2]
+        jit_flag = self.arguments[18][-1]        
         dyn_eps = self.arguments[0]
         dyn_dt = self.arguments[1]
         amoeba_iter = self.arguments[2]
@@ -441,7 +443,7 @@ class Rvfit:
                        stellar_mass=stellar_mass, get_best_par=get_best_par, get_RV=get_RV,
                        get_fit_model=get_fit_model, rv_ofset=rv_ofset, rv_jitt=rv_jitt,
                        lin_trend_in=lin_trend_in, quad_trend_in=quad_trend_in,
-                       dyn_planets=dyn_planets)
+                       dyn_planets=dyn_planets,jit_flag=jit_flag)
 
     # Compile the Fortran code
     @staticmethod

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "exostriker"
-version = "0.90.3"
+version = "0.91.0"
 authors = [
     { name="Trifon Trifonov", email="trifonov@mpia.de" },
     { name="Matheus J. Castro", email="matheusdejesuscastro@gmail.com" },
@@ -20,7 +20,7 @@ classifiers=[
 ]
 license = {file = "LICENSE"}
 dependencies = [
-    "numpy >= 1.21",
+    "numpy >= 1.21,<2.0",
     "scipy >= 1.2.1",
     "matplotlib >= 3.3.1",
     "formlayout == 1.2.0",
