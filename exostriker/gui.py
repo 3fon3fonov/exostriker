@@ -10109,9 +10109,35 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 act_JD       = self.RVBank_window.x_data
 
                 if self.RVBank_window.data_index != 53:
-                    act_data     = np.concatenate((
-                self.RVBank_window.y_data[act_JD <= 2457161.5]- np.average(self.RVBank_window.y_data[act_JD <= 2457161.5], weights=1.0/abs(self.RVBank_window.e_y_data[act_JD <= 2457161.5])),  
-                self.RVBank_window.y_data[act_JD > 2457161.5] - np.average(self.RVBank_window.y_data[act_JD  > 2457161.5], weights=1.0/abs(self.RVBank_window.e_y_data[act_JD > 2457161.5]))))
+#                    act_data     = np.concatenate((
+#                self.RVBank_window.y_data[act_JD <= 2457161.5]- np.average(self.RVBank_window.y_data[act_JD <= 2457161.5], weights=1.0/abs(self.RVBank_window.e_y_data[act_JD <= 2457161.5])),  
+#                self.RVBank_window.y_data[act_JD > 2457161.5] - np.average(self.RVBank_window.y_data[act_JD  > 2457161.5], weights=1.0/abs(self.RVBank_window.e_y_data[act_JD > 2457161.5]))))
+
+
+                    # Define a small epsilon to avoid division by zero in weights
+                    epsilon = 1e-10
+
+                    # Mask for act_JD <= 2457161.5
+                    mask1 = act_JD <= 2457161.5
+                    if np.any(mask1):
+                        weights1 = 1.0 / (abs(self.RVBank_window.e_y_data[mask1]) + epsilon)
+                        avg1 = np.average(self.RVBank_window.y_data[mask1], weights=weights1)
+                        data1 = self.RVBank_window.y_data[mask1] - avg1
+                    else:
+                        data1 = np.array([])  # If no data, create an empty array
+
+                    # Mask for act_JD > 2457161.5
+                    mask2 = act_JD > 2457161.5
+                    if np.any(mask2):
+                        weights2 = 1.0 / (abs(self.RVBank_window.e_y_data[mask2]) + epsilon)
+                        avg2 = np.average(self.RVBank_window.y_data[mask2], weights=weights2)
+                        data2 = self.RVBank_window.y_data[mask2] - avg2
+                    else:
+                        data2 = np.array([])  # If no data, create an empty array
+
+                    # Concatenate the two parts
+                    act_data = np.concatenate((data1, data2))
+
  
                 
                 else:
