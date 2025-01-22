@@ -1,8 +1,9 @@
 import ctypes
 import itertools
+
 import numpy as np
-from . import QT_LIB, QtCore, QtGui
-from . import compat
+
+from . import QT_LIB, QtCore, QtGui, compat
 
 __all__ = ["get_qpainterpath_element_array"]
 
@@ -174,13 +175,10 @@ class PrimitiveArray:
     def ndarray(self):
         # ndarray views are cheap to recreate each time
         if self.use_sip_array:
-            if sip.SIP_VERSION >= 0x60708:
-                mv = self._siparray
-            else:
-                # sip.array prior to SIP_VERSION 6.7.8 had a buggy buffer protocol
-                # that set the wrong size.
-                # workaround it by going through a sip.voidptr
-                mv = sip.voidptr(self._siparray, self._capa*self._nfields*8)
+            # sip.array prior to SIP_VERSION 6.7.8 had a buggy buffer protocol
+            # that set the wrong size.
+            # workaround it by going through a sip.voidptr
+            mv = sip.voidptr(self._siparray, self._capa*self._nfields*8)
             # note that we perform the slicing by using only _size rows
             nd = np.frombuffer(mv, dtype=np.float64, count=self._size*self._nfields)
             return nd.reshape((-1, self._nfields))

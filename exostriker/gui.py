@@ -394,6 +394,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.param_gui_tr[i*3].setValue(fit.t0[i])
             self.param_gui_tr[i*3+1].setValue(fit.pl_rad[i])
             self.param_gui_tr[i*3+2].setValue(fit.pl_a[i])
+            
+
  
         for i in range(20): 
             self.rvs_data_gui[i].setValue(fit.rvoff[i]) 
@@ -450,6 +452,14 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.nonlin_u3[i].setValue(fit.ld_u_nonlin[i][2])
             self.nonlin_u4[i].setValue(fit.ld_u_nonlin[i][3])
 
+ 
+        
+        self.param_gui_ast[0].setValue(fit.ast_alpha[0])
+        self.param_gui_ast[1].setValue(fit.ast_delta[0])
+        self.param_gui_ast[2].setValue(fit.ast_pi[0])        
+        self.param_gui_ast[3].setValue(fit.ast_mu_alpha[0])        
+        self.param_gui_ast[4].setValue(fit.ast_mu_delta[0])                
+ 
 
         #self.St_mass_input.setValue(fit.params.stellar_mass)  
         #self.St_radius_input.setValue(fit.stellar_radius)  
@@ -513,7 +523,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.tra_lintr[i]   = self.tra_data_lin_trend_gui[i].value()
             fit.tra_quadtr[i]  = self.tra_data_quad_trend_gui[i].value()
             
-            
+
+        self.read_ast()
         self.read_RV_GP()
         self.read_tra_GP()
         self.read_ld()
@@ -627,6 +638,16 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.ld_u_nonlin[i] = [self.nonlin_u1[i].value(),self.nonlin_u2[i].value(),
                                       self.nonlin_u3[i].value(),self.nonlin_u4[i].value()]
 
+    def read_ast(self):
+        global fit
+            
+        fit.ast_alpha[0]    = self.param_gui_ast[0].value()
+        fit.ast_delta[0]    = self.param_gui_ast[1].value()
+        fit.ast_pi[0]       = self.param_gui_ast[2].value()
+        fit.ast_mu_alpha[0] = self.param_gui_ast[3].value()
+        fit.ast_mu_delta[0] = self.param_gui_ast[4].value()
+
+            
 
     def set_hkl(self):
         global fit  
@@ -892,6 +913,15 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.err_nonlin_u3[i].setText("+/- %.3f"%max(np.abs(fit.ld_u_nonlin_err[i][2])))
             self.err_nonlin_u4[i].setText("+/- %.3f"%max(np.abs(fit.ld_u_nonlin_err[i][3])))
 
+
+        self.param_errors_gui_ast[0].setText("+/- %.3f"%max(np.abs(fit.ast_alpha_err[0])))
+        self.param_errors_gui_ast[1].setText("+/- %.3f"%max(np.abs(fit.ast_delta_err[0])))
+        self.param_errors_gui_ast[2].setText("+/- %.3f"%max(np.abs(fit.ast_pi_err[0])))
+        self.param_errors_gui_ast[3].setText("+/- %.3f"%max(np.abs(fit.ast_mu_alpha_err[0])))
+        self.param_errors_gui_ast[4].setText("+/- %.3f"%max(np.abs(fit.ast_mu_delta_err[0])))    
+    
+    
+    
     def update_a_mass(self):
         global fit
 
@@ -904,7 +934,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
 
 
-    def update_use_from_input_file(self):
+    def update_use_from_session(self):
         global fit
  
         
@@ -1006,6 +1036,14 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.use_tra_gp_double_sho_params[i].setChecked(bool(fit.tra_GP_double_sho_use[i]))
 
 
+        self.get_use_astrometry()
+
+        self.use_param_gui_ast[0].setChecked(bool(fit.ast_alpha_use[0]))
+        self.use_param_gui_ast[1].setChecked(bool(fit.ast_delta_use[0]))
+        self.use_param_gui_ast[2].setChecked(bool(fit.ast_pi_use[0]))
+        self.use_param_gui_ast[3].setChecked(bool(fit.ast_mu_alpha_use[0]))
+        self.use_param_gui_ast[4].setChecked(bool(fit.ast_mu_delta_use[0]))        
+ 
 
 
     def update_mixed_fitting(self):
@@ -1077,14 +1115,18 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         fit.rv_lintr_use = int(self.use_RV_lin_trend.isChecked())
         fit.rv_quadtr_use = int(self.use_RV_quad_trend.isChecked())
  
-       
+        self.set_use_astrometry() 
+        
+        self.update_ast_use()
         self.update_RV_GP_use()        
         self.update_tra_GP_use()
         self.update_ld_use()
 
         self.set_ttv_dataset_to_planet()
         self.set_ast_dataset_to_planet()
-
+        self.set_ast_dataset_to_planet_2()
+        
+        
     def update_RV_GP_use(self):
         global fit
 
@@ -1130,9 +1172,19 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.ld_u_nonlin_use[i] = [self.use_nonlin_u1[i].isChecked(),self.use_nonlin_u2[i].isChecked(),
                                       self.use_nonlin_u3[i].isChecked(),self.use_nonlin_u4[i].isChecked()]
 
+    def update_ast_use(self):
+        global fit
+        
+        fit.ast_alpha_use[0]     = self.use_param_gui_ast[0].isChecked()
+        fit.ast_delta_use[0]     = self.use_param_gui_ast[1].isChecked()
+        fit.ast_pi_use[0]        = self.use_param_gui_ast[2].isChecked()
+        fit.ast_mu_alpha_use[0]  = self.use_param_gui_ast[3].isChecked()        
+        fit.ast_mu_delta_use[0]  = self.use_param_gui_ast[4].isChecked()          
+ 
 
     def update_bounds(self):
         global fit
+       
 
         for i in range(9):
             for z in range(2):
@@ -1175,6 +1227,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.update_tra_GP_bounds()
                           
         self.update_ld_bounds()
+        self.update_ast_bounds()       
+        
         
         self.update_nr_prior()
         self.update_jeff_prior()
@@ -1339,7 +1393,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.update_RV_GP_priors_nr()
         self.update_tra_GP_priors_nr()
         self.update_ld_priors_nr()
-
+        self.update_ast_priors_nr()
+        
     def update_RV_GP_priors_nr(self):
         global fit
  
@@ -1481,6 +1536,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.update_RV_GP_priors_jeff()
         self.update_tra_GP_priors_jeff()
         self.update_ld_priors_jeff()
+        self.update_ast_priors_jeff()
+
 
     def update_RV_GP_priors_jeff(self):
         global fit
@@ -1587,7 +1644,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.check_RV_GP_bounds()
         self.check_tra_GP_bounds()
         self.check_ld_bounds()
-
+        self.check_ast_bounds()
 
 
     def check_RV_GP_bounds(self):
@@ -1677,6 +1734,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.ld_u3_bounds_gui[i][z].setValue(fit.ld_u_nonlin_bound[i][2][z])
                 self.ld_u4_bounds_gui[i][z].setValue(fit.ld_u_nonlin_bound[i][3][z])
 
+
     def check_ld_priors_nr(self):
         global fit
 
@@ -1706,13 +1764,17 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     def update_ld_priors_nr(self):
         global fit
 
+
+
         for i in range(20): 
             for z in range(2):    
                 self.ld_u1_norm_pr_gui[i][z].setValue(fit.ld_u_lin_norm_pr[i][0][z])
 
                 self.ld_u1_norm_pr_gui[i][z].setValue(fit.ld_u_quad_norm_pr[i][0][z])
                 self.ld_u2_norm_pr_gui[i][z].setValue(fit.ld_u_quad_norm_pr[i][1][z])
-                
+
+                        
+                        
                 self.ld_u1_norm_pr_gui[i][z].setValue(fit.ld_u_nonlin_norm_pr[i][0][z])
                 self.ld_u2_norm_pr_gui[i][z].setValue(fit.ld_u_nonlin_norm_pr[i][1][z])
                 self.ld_u3_norm_pr_gui[i][z].setValue(fit.ld_u_nonlin_norm_pr[i][2][z])
@@ -1783,8 +1845,94 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.ld_u3_jeff_pr_gui[i][2].setChecked(int(fit.ld_u_nonlin_jeff_pr[i][2][2]))
             self.ld_u4_jeff_pr_gui[i][2].setChecked(int(fit.ld_u_nonlin_jeff_pr[i][3][2]))
                         
+    ########### Astrometry ##########
+    def update_ast_bounds(self):
+        global fit
+
+        for z in range(2):    
+            self.ast_bounds_gui[0][z].setValue(fit.ast_alpha_bound[0][z])
+            self.ast_bounds_gui[1][z].setValue(fit.ast_delta_bound[0][z])
+            self.ast_bounds_gui[2][z].setValue(fit.ast_pi_bound[0][z])
+            self.ast_bounds_gui[3][z].setValue(fit.ast_mu_alpha_bound[0][z])
+            self.ast_bounds_gui[4][z].setValue(fit.ast_mu_delta_bound[0][z])                        
 
 
+    def update_ast_priors_nr(self):
+        global fit
+
+        for z in range(2):    
+            self.ast_norm_pr_gui[0][z].setValue(fit.ast_alpha_norm_pr[0][z])
+            self.ast_norm_pr_gui[1][z].setValue(fit.ast_delta_norm_pr[0][z])
+            self.ast_norm_pr_gui[2][z].setValue(fit.ast_pi_norm_pr[0][z])
+            self.ast_norm_pr_gui[3][z].setValue(fit.ast_mu_alpha_norm_pr[0][z])
+            self.ast_norm_pr_gui[4][z].setValue(fit.ast_mu_delta_norm_pr[0][z])  
+            
+        self.ast_norm_pr_gui[0][2].setChecked(int(fit.ast_alpha_norm_pr[0][2]))
+        self.ast_norm_pr_gui[1][2].setChecked(int(fit.ast_delta_norm_pr[0][2]))
+        self.ast_norm_pr_gui[2][2].setChecked(int(fit.ast_pi_norm_pr[0][2]))
+        self.ast_norm_pr_gui[3][2].setChecked(int(fit.ast_mu_alpha_norm_pr[0][2]))
+        self.ast_norm_pr_gui[4][2].setChecked(int(fit.ast_mu_delta_norm_pr[0][2]))   
+        
+    def update_ast_priors_jeff(self):
+        global fit
+
+        for z in range(2):    
+            self.ast_jeff_pr_gui[0][z].setValue(fit.ast_alpha_jeff_pr[0][z])
+            self.ast_jeff_pr_gui[1][z].setValue(fit.ast_delta_jeff_pr[0][z])
+            self.ast_jeff_pr_gui[2][z].setValue(fit.ast_pi_jeff_pr[0][z])
+            self.ast_jeff_pr_gui[3][z].setValue(fit.ast_mu_alpha_jeff_pr[0][z])
+            self.ast_jeff_pr_gui[4][z].setValue(fit.ast_mu_delta_jeff_pr[0][z])  
+            
+        self.ast_jeff_pr_gui[0][2].setChecked(int(fit.ast_alpha_jeff_pr[0][2]))
+        self.ast_jeff_pr_gui[1][2].setChecked(int(fit.ast_delta_jeff_pr[0][2]))
+        self.ast_jeff_pr_gui[2][2].setChecked(int(fit.ast_pi_jeff_pr[0][2]))
+        self.ast_jeff_pr_gui[3][2].setChecked(int(fit.ast_mu_alpha_jeff_pr[0][2]))
+        self.ast_jeff_pr_gui[4][2].setChecked(int(fit.ast_mu_delta_jeff_pr[0][2]))          
+
+    def check_ast_bounds(self):
+        global fit
+ 
+        for z in range(2):    
+            fit.ast_alpha_bound[0][z] = self.ast_bounds_gui[0][z].value()
+            fit.ast_delta_bound[0][z] = self.ast_bounds_gui[1][z].value() 
+            fit.ast_pi_bound[0][z] = self.ast_bounds_gui[2][z].value()
+            fit.ast_mu_alpha_bound[0][z] = self.ast_bounds_gui[3][z].value()
+            fit.ast_mu_delta_bound[0][z] = self.ast_bounds_gui[4][z].value()
+            
+    def check_ast_priors_nr(self):
+        global fit
+ 
+        for z in range(2):    
+            fit.ast_alpha_norm_pr[0][z]    = self.ast_norm_pr_gui[0][z].value()
+            fit.ast_delta_norm_pr[0][z]    = self.ast_norm_pr_gui[1][z].value() 
+            fit.ast_pi_norm_pr[0][z]       = self.ast_norm_pr_gui[2][z].value()
+            fit.ast_mu_alpha_norm_pr[0][z] = self.ast_norm_pr_gui[3][z].value()
+            fit.ast_mu_delta_norm_pr[0][z] = self.ast_norm_pr_gui[4][z].value()
+                      
+        fit.ast_alpha_norm_pr[0][2]    = self.ast_norm_pr_gui[0][2].isChecked()
+        fit.ast_delta_norm_pr[0][2]    = self.ast_norm_pr_gui[1][2].isChecked() 
+        fit.ast_pi_norm_pr[0][2]       = self.ast_norm_pr_gui[2][2].isChecked()
+        fit.ast_mu_alpha_norm_pr[0][2] = self.ast_norm_pr_gui[3][2].isChecked()
+        fit.ast_mu_delta_norm_pr[0][2] = self.ast_norm_pr_gui[4][2].isChecked()
+                            
+    def check_ast_priors_jeff(self):
+        global fit
+ 
+        for z in range(2):    
+            fit.ast_alpha_jeff_pr[0][z]    = self.ast_jeff_pr_gui[0][z].value()
+            fit.ast_delta_jeff_pr[0][z]    = self.ast_jeff_pr_gui[1][z].value() 
+            fit.ast_pi_jeff_pr[0][z]       = self.ast_jeff_pr_gui[2][z].value()
+            fit.ast_mu_alpha_jeff_pr[0][z] = self.ast_jeff_pr_gui[3][z].value()
+            fit.ast_mu_delta_jeff_pr[0][z] = self.ast_jeff_pr_gui[4][z].value()
+                      
+        fit.ast_alpha_jeff_pr[0][2]    = self.ast_jeff_pr_gui[0][2].isChecked()
+        fit.ast_delta_jeff_pr[0][2]    = self.ast_jeff_pr_gui[1][2].isChecked() 
+        fit.ast_pi_jeff_pr[0][2]       = self.ast_jeff_pr_gui[2][2].isChecked()
+        fit.ast_mu_alpha_jeff_pr[0][2] = self.ast_jeff_pr_gui[3][2].isChecked()
+        fit.ast_mu_delta_jeff_pr[0][2] = self.ast_jeff_pr_gui[4][2].isChecked()
+                                      
+                                    
+    ################################# 
 
     def check_priors_nr(self):
         global fit
@@ -1859,7 +2007,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.check_RV_GP_priors_nr()
         self.check_tra_GP_priors_nr()
         self.check_ld_priors_nr()
-
+        self.check_ast_priors_nr()
 
     def check_RV_GP_priors_nr(self):
         global fit
@@ -1992,7 +2140,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.check_RV_GP_priors_jeff()
         self.check_tra_GP_priors_jeff()
         self.check_ld_priors_jeff()    
-    
+        self.check_ast_priors_jeff()        
 
     def check_RV_GP_priors_jeff(self):
         global fit
@@ -2366,7 +2514,6 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_ast_data.setId(self.Button_ast_data_9,9)
         self.buttonGroup_ast_data.setId(self.Button_ast_data_10,10)
         
-
         self.buttonGroup_remove_ast_data.setId(self.remove_ast_data_1,1)
         self.buttonGroup_remove_ast_data.setId(self.remove_ast_data_2,2)
         self.buttonGroup_remove_ast_data.setId(self.remove_ast_data_3,3)
@@ -2388,6 +2535,15 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_use_ast_data_to_planet.setId(self.use_ast_data_8,8)
         self.buttonGroup_use_ast_data_to_planet.setId(self.use_ast_data_9,9)
         self.buttonGroup_use_ast_data_to_planet.setId(self.use_ast_data_10,10)
+     
+        self.buttonGroup_ast_data_2.setId(self.Button_ast_data_hipp_1,1)
+        self.buttonGroup_ast_data_2.setId(self.Button_ast_data_hipp_2,2)       
+        
+        self.buttonGroup_remove_ast_data_2.setId(self.remove_ast_data_hipp_1,1)
+        self.buttonGroup_remove_ast_data_2.setId(self.remove_ast_data_hipp_2,2)        
+        
+        self.buttonGroup_use_ast_data_to_planet_2.setId(self.use_ast_data_hipp_1,1)
+        self.buttonGroup_use_ast_data_to_planet_2.setId(self.use_ast_data_hipp_2,2)    
         
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_1,1)
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_2,2)
@@ -2621,12 +2777,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         import pyqtgraph.exporters
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2,pe0,pe1,p_ttv_00,p_ttv_01,p_ast, p_ast_00,p_ast_01
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2,pe0,pe1,p_ttv_00,p_ttv_01,p_ast, p_ast_00,p_ast_01,p_ast_hipp
 
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p_ttv_00,p_ttv_01,p_ast, p_ast_00,p_ast_01]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p_ttv_00,p_ttv_01,p_ast, p_ast_00,p_ast_01,p_ast_hipp]
         zzz_str = ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12','p13','p14','p15','p16','p17','p18','p19','p20','pe','pdi','pcor',
-                  'p_mlp','p_ttv','p_ttv_oc','p_per_ev','pe2',',p_ttv_00','p_ttv_01', 'p_ast', 'p_ast_00', 'p_ast_01']
+                  'p_mlp','p_ttv','p_ttv_oc','p_per_ev','pe2',',p_ttv_00','p_ttv_01', 'p_ast', 'p_ast_00', 'p_ast_01','p_ast_hipp']
         for i in range(len(zzz)):
 
             # create an exporter instance, as an argument give it
@@ -2649,9 +2805,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_font_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2,pe0,pe1,p_ttv_00,p_ttv_01, p_ast,p_ast_oc, p_ast_00,p_ast_01
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2,pe0,pe1,p_ttv_00,p_ttv_01, p_ast,p_ast_oc, p_ast_00,p_ast_01,p_ast_hipp
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,p_ast,p_ast_oc]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,p_ast,p_ast_oc,p_ast_hipp]
 
 
         for i in range(len(zzz)):
@@ -2698,7 +2854,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def initialize_plots(self):
 
-        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,p_ast,p_ast_oc
+        global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,p_ast,p_ast_oc,p_ast_hipp
 
         p1  = self.graphicsView_timeseries_RV
         p2  = self.graphicsView_timeseries_RV_o_c
@@ -2739,28 +2895,30 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p_ast = self.graphicsView_timeseries_ast
         p_ast_oc = self.graphicsView_timeseries_ast_o_c
         p_per_ev = self.graphicsView_orb_evol_periods
+        p_ast_hipp = self.graphicsView_timeseries_ast_hipp_gaia
+
 
         xaxis = ['BJD [days]','BJD [days]','BJD [days]','BJD [days]','BJD [days]','x','Period [d]','Period [d]','Period [d]',
                  'Period [d]','Period [d]','Period [d]','t [yr]','t [yr]','t [yr]','a [au]','t [yr]',
-                 't [yr]','t [yr]','t [yr]','','x','x','Period [d]','N transit','N transit','t [yr]','Period [d]','au','au']
+                 't [yr]','t [yr]','t [yr]','','x','x','Period [d]','N transit','N transit','t [yr]','Period [d]','RA [mas]','RA [mas]','RA [mas]']
 
         if qso_mode:
             yaxis = ['flux [mag.]','flux [mag.]','Rel. Flux','Rel. Flux','y','y','Power','Power','SDE','SDE','Power','Power','a [au]','e',
                  '<html><head/><body><p>&omega; [deg] </p></body></html>','a [au]',
                  '<html><head/><body><p>&Delta;&omega; [deg] </p></body></html>',
                  '<html><head/><body><p>&theta; [deg] </p></body></html>',
-                 'i [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.','Power','au','au']
+                 'i [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.','Power','au','au','au']
         else:
 
             yaxis = ['RV [m/s]','RV [m/s]','Rel. Flux','Rel. Flux','y','y','Power','Power','SDE','SDE','Power','Power','a [au]','e',
                  '<html><head/><body><p>&omega; [deg] </p></body></html>','a [au]',
                  '<html><head/><body><p>&Delta;&omega; [deg] </p></body></html>',
                  '<html><head/><body><p>&theta; [deg] </p></body></html>',
-                 'i [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.','Power','au','au']
-        xunit = ['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
-        yunit = ['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
+                 'i [deg]','energy','','y','y','dlnL','BJD [days]','BJD [days]','Period rat.','Power','DEC [mas]','DEC [mas]','DEC [mas]']
+        xunit = ['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
+        yunit = ['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
  
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,p_ast,p_ast_oc]
+        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,p_ast,p_ast_oc,p_ast_hipp]
  
 
         for i in range(len(zzz)):
@@ -2777,8 +2935,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             zzz[i].getAxis('top').setHeight(10)
            # zzz[i].getAxis('bottom').setHeight(50)
                         
-            zzz[i].setLabel('bottom', '%s'%xaxis[i], units='%s'%xunit[i],  **{'font-size':self.plot_font.pointSize()})
-            zzz[i].setLabel('left',   '%s'%yaxis[i], units='%s'%yunit[i],  **{'font-size':self.plot_font.pointSize()})       
+            zzz[i].setLabel('bottom', '%s'%xaxis[i], units='%s'%xunit[i],  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            zzz[i].setLabel('left',   '%s'%yaxis[i], units='%s'%yunit[i],  **{'font-size':'%dpt'%self.plot_font.pointSize()})       
             zzz[i].showAxis('top') 
             zzz[i].showAxis('right') 
             zzz[i].getAxis('bottom').enableAutoSIPrefix(enable=False)
@@ -2809,8 +2967,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         if qso_mode:
             o_c_label = "o-c [mag.]"
         else:
-            o_c_label = "o-c [m/s]"                                                                                                                   
-
+            o_c_label = "o-c [m/s]"   
+            
         pe0 = l.addPlot(0, 0, colspan=3)                                                                
         pe0.hideAxis('bottom')                                                              
         pe1 = l.addPlot(1, 0, colspan=1)                                                                
@@ -3126,7 +3284,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def initialize_ast_subplots(self):
 
-        global p_ast_oc, p_ast_00,p_ast_01,legend_ast
+        global p_ast_oc, p_ast_00,p_ast_01,legend_ast,legend_ast_hipp
 
         o_c_label = "o-c [d]"    
        
@@ -3139,7 +3297,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p_ast_01.setXLink(p_ast_00)      
 
         legend_ast = p_ast_00.addLegend()                                                                     
-
+        legend_ast_hipp = p_ast_hipp.addLegend()                                                                     
 
         #for i in (1, 2):
         l.layout.setRowMinimumHeight(0, 220)                                                    
@@ -3242,7 +3400,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         pe0.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
         
         pe0.setLabel('left', '%s'%p3.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        
+       
         pe0.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
         pe0.getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
         pe0.getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
@@ -3710,12 +3868,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 p7.setLogMode(True,False)        
                 p7.plot(1/fit.gls.freq, fit.gls.power,pen={'color': dill.copy(fit.gls_colors[0]), 'width': gls_model_width},symbol=None ) 
 
-                p7.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})    
+                p7.setLabel('bottom', 'period [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
                 
             else:
                 p7.setLogMode(False,False)        
                 p7.plot(fit.gls.freq, fit.gls.power,pen={'color': dill.copy(fit.gls_colors[0]), 'width': self.gls_model_width.value()},symbol=None )                
-                p7.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
+                p7.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
                 
                 
             if fit.gls.norm == 'ZK':
@@ -3752,12 +3910,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             if self.radioButton_RV_o_c_GLS_period.isChecked():
                 p8.setLogMode(True,False)        
                 p8.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen={'color': dill.copy(fit.gls_colors[1]), 'width': gls_o_c_model_width},symbol=None ) 
-                p8.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})
+                p8.setLabel('bottom', 'period [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
  
             else:
                 p8.setLogMode(False,False)        
                 p8.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen={'color': dill.copy(fit.gls_colors[1]), 'width': gls_o_c_model_width},symbol=None )   
-                p8.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()})                
+                p8.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})                
                 
             if fit.gls_o_c.norm == 'ZK':
                 [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]            
@@ -3783,12 +3941,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p12.setLogMode(True,False)        
             #p12.plot(1/fit.RV_WF_omega, fit.RV_WF_power,pen='k',symbol=None , viewRect=True, enableAutoRange=True)   
             p12.plot(1/fit.gls.WF_omega, fit.gls.WF_power,pen='k',symbol=None , viewRect=True, enableAutoRange=True)   
-            p12.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})
+            p12.setLabel('bottom', 'period [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
         else:
             p12.setLogMode(False,False)        
            # p12.plot(fit.RV_WF_omega, fit.RV_WF_power,pen='k',symbol=None,  viewRect=True, enableAutoRange=True)  
             p12.plot(fit.gls.WF_omega, fit.gls.WF_power,pen='k',symbol=None,  viewRect=True, enableAutoRange=True)   
-            p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()})
+            p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
 
         text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls.WF_omega, fit.gls.WF_power)
 
@@ -4361,7 +4519,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         self.check_tra_symbol_sizes()
 
-        if len([x for x in range(20) if len(fit.tra_data_sets[x]) != 0]) == 0:
+        if len([x for x in range(len(fit.tra_data_sets)) if len(fit.tra_data_sets[x]) != 0]) == 0:
             return
 
         transit_results_sep = fit.transit_results[1]
@@ -4373,17 +4531,17 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             flux_model_ex       = np.array(transit_model_rich[1], dtype=float)
         elif self.use_rich_tra_model.isChecked() and fit.tra_doGP == True:
             print("Not yet possible to plot 'rich transit model' with a GP model")
-            t_model        = np.concatenate([np.array(transit_results_sep[0][x], dtype=float) for x in range(20) if len(transit_results_sep[0][x]) != 0])
-            flux_model_ex  = np.concatenate([np.array(transit_results_sep[3][x], dtype=float) for x in range(20) if len(transit_results_sep[3][x]) != 0])
+            t_model        = np.concatenate([np.array(transit_results_sep[0][x], dtype=float) for x in range(len(fit.tra_data_sets)) if len(transit_results_sep[0][x]) != 0])
+            flux_model_ex  = np.concatenate([np.array(transit_results_sep[3][x], dtype=float) for x in range(len(fit.tra_data_sets)) if len(transit_results_sep[3][x]) != 0])
 
         else:
-            t_model        = np.concatenate([np.array(transit_results_sep[0][x], dtype=float) for x in range(20) if len(transit_results_sep[0][x]) != 0])
-            flux_model_ex  = np.concatenate([np.array(transit_results_sep[3][x], dtype=float) for x in range(20) if len(transit_results_sep[3][x]) != 0])
+            t_model        = np.concatenate([np.array(transit_results_sep[0][x], dtype=float) for x in range(len(fit.tra_data_sets)) if len(transit_results_sep[0][x]) != 0])
+            flux_model_ex  = np.concatenate([np.array(transit_results_sep[3][x], dtype=float) for x in range(len(fit.tra_data_sets)) if len(transit_results_sep[3][x]) != 0])
 
 
 
 
-        for j in range(20):
+        for j in range(len(fit.tra_data_sets)):
 
             if len(transit_results_sep[0][j]) == 0:
                 continue
@@ -4746,7 +4904,7 @@ Polyfit coefficients:
         text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
  
         if okPressed and text != '':
-            p6.setLabel('bottom', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
+            p6.setLabel('bottom', '%s'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
         else:
             return
     
@@ -4759,7 +4917,7 @@ Polyfit coefficients:
         text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p6.setLabel('left', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
+            p6.setLabel('left', '%s'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
 
         else:
             return
@@ -4796,12 +4954,12 @@ Polyfit coefficients:
             if self.radioButton_act_GLS_period.isChecked():
                 p11.setLogMode(True,False)        
                 p11.plot(1/act_per.freq, act_per.power,pen=dill.copy(fit.act_colors[ind]),symbol=None ) 
-                p11.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
+                p11.setLabel('bottom', 'period [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
 
             else:
                 p11.setLogMode(False,False)        
                 p11.plot(act_per.freq, act_per.power,pen=dill.copy(fit.act_colors[ind]),symbol=None )
-                p11.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
+                p11.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
 
             [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
   
@@ -4838,7 +4996,7 @@ Polyfit coefficients:
             symbolBrush=dill.copy(fit.act_colors[ind])
             )
 
-            p5.setLabel('left', 'y', units='',  **{'font-size':self.plot_font.pointSize()})
+            p5.setLabel('left', 'y', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
 
             return
         else:
@@ -5137,6 +5295,15 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.update_ast_plots()
 
     def update_ast_plots(self):
+        
+        self.update_ast_plots_img()
+        
+        if self.use_hipp_gaia_ast.isChecked():
+        
+            self.update_ast_plots_hipp()        
+        
+        
+    def update_ast_plots_img(self):
         global fit, p_ast, p_ast_oc,p_ast_00,p_ast_01, colors,legend_ast
         
         self.check_ast_symbol_sizes()
@@ -5288,7 +5455,246 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             p_ast.autoRange()           
             p_ast_oc.autoRange()  
 
+        
+    def update_ast_plots_hipp(self):
+        global fit, p_ast_hipp, p_ast_oc,p_ast_00,p_ast_01, colors,legend_ast_hipp
+        
+        self.check_ast_symbol_sizes()
+ 
+        pl_ind     = self.ast_comboBox_pl.currentIndex()
+ 
+        p_ast_hipp.plot(clear=True,) 
 
+            
+        ast_files = fit.ast_data_sets_hipp_gaia
+ 
+        if self.ast_legend.isChecked()==True:
+            legend_ast_hipp.clear()
+            legend_ast_hipp.setVisible(True)
+        else:
+            legend_ast_hipp.setVisible(False)
+
+        fit.prepare_for_mcmc()
+        times = fit.ast_times 
+ 
+        vel_files = []
+        for i in range(len(fit.rv_data_sets)):
+            if len(fit.rv_data_sets[i]) == 0:
+                continue
+            vel_files.append(fit.rv_data_sets[i][5]) 
+
+       
+        for j in range(len(ast_files)):
+            
+            if len(ast_files[j]) == 0 or ast_files[j][8] == False or ast_files[j][7] != pl_ind+1:
+                continue
+ 
+
+           # t = np.array(ast_files[j][0])
+           # x_axis = np.array(ast_files[j][1])
+           # x_axis_err = np.array(ast_files[j][2])
+          #  y_axis = np.array(ast_files[j][3])
+          #  y_axis_err = np.array(ast_files[j][4]) 
+            
+            if fit.npl > 0:
+                
+                if fit.rtg[0] == False:
+                    ast_loglik = rv.ast_loglik_hipp(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True)
+                else:
+                    ast_loglik = rv.ast_loglik_hipp(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True)
+
+ 
+                if ast_loglik == None:
+                    print("Something went wrong when calculating astr. lnL....")
+                    continue
+
+                if isinstance(ast_loglik, float):
+                    return
+
+                fit.ast_results = dill.copy(ast_loglik)
+
+
+                if self.ast_o_c_hipp_gaia.isChecked():
+                    x_axis = np.array(ast_loglik[1][pl_ind][1][0] )
+                    x_axis_err = np.array(ast_loglik[1][pl_ind][1][1])
+                    y_axis = np.array(ast_loglik[1][pl_ind][1][2])
+                    y_axis_err = np.array(ast_loglik[1][pl_ind][1][3])
+                else:
+                    x_axis = np.array(ast_loglik[1][pl_ind][0][0] )
+                    x_axis_err = np.array(ast_loglik[1][pl_ind][0][1])
+                    y_axis = np.array(ast_loglik[1][pl_ind][0][2])
+                    y_axis_err = np.array(ast_loglik[1][pl_ind][0][3])                
+               
+                 
+                bjd_dates = np.array(ast_loglik[1][pl_ind][2]) 
+                 
+                ast_model_x   = ast_loglik[2][pl_ind][0] 
+                ast_model_y   = ast_loglik[2][pl_ind][1]
+                ast_model_bjd = ast_loglik[2][pl_ind][2]                
+            else:
+                ast_model_x = np.zeros(5)
+                ast_model_y = np.zeros(5)
+                
+            
+            if self.ast_use_plot_ra_dec.isChecked():
+               
+                p_ast_hipp.invertX(False)
+                p_ast_hipp.getViewBox().setAspectLocked(False)
+                
+                if self.ast_plot_ra.isChecked():
+                    p_ast_hipp.setLabel('left', '<html><head/><body><p>&#916; &#945; cos(&#948;) [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                    p_ast_hipp.setLabel('bottom', '<html><head/><body><p>  BJD [days] </p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})                 
+                    yaxis = x_axis
+                    yaxis_err = x_axis_err
+                    yaxis_model = ast_model_x
+                    
+                elif self.ast_plot_dec.isChecked():
+                    p_ast_hipp.setLabel('left', '<html><head/><body><p>&#948; [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                    p_ast_hipp.setLabel('bottom', '<html><head/><body><p>  BJD [days] </p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})                 
+                    yaxis = y_axis
+                    yaxis_err = y_axis_err                    
+                    yaxis_model = ast_model_y                    
+                
+                p_ast_hipp.plot(bjd_dates, yaxis,
+                pen=None,
+                symbol=dill.copy(fit.pyqt_symbols_ast[j]),
+                symbolPen={'color': dill.copy(fit.ast_colors[j]), 'width': 1.1},
+                symbolSize=dill.copy(fit.pyqt_symbols_size_ast[j]),enableAutoRange=True,viewRect=True,
+                symbolBrush=dill.copy(fit.ast_colors[j]),name=ast_files[j][-1]  )             
+                
+                err_ = pg.ErrorBarItem(x=bjd_dates, y=yaxis, symbol=dill.copy(fit.pyqt_symbols_ast[j]),
+                                      # height=flux_err, 
+                                       top=yaxis_err, 
+                                       bottom=yaxis_err,
+                                       #left=y_axis_err,
+                                      # right=y_axis_err,
+                                       beam=0.0, pen=dill.copy(fit.ast_colors[j]))
+
+                p_ast_hipp.addItem(err_)               
+                
+                
+                model_curve = p_ast_hipp.plot(ast_model_bjd, yaxis_model, pen={'color':  fit.ast_colors[-1], 'width': self.ast_model_width.value()}, enableAutoRange=True, viewRect=True )
+                 
+
+            else:
+
+                p_ast_hipp.setLabel('bottom', '<html><head/><body><p>&#916; &#945; cos(&#948;) [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                p_ast_hipp.setLabel('left',   '<html><head/><body><p>&#948; [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+            
+                p_ast_hipp.invertX(True)
+                p_ast_hipp.getViewBox().setAspectLocked(True)
+
+                p_ast_hipp.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')    
+                            
+                p_ast_hipp.plot(x_axis, y_axis,
+                pen=None,
+                symbol=dill.copy(fit.pyqt_symbols_ast[j]),
+                symbolPen={'color': dill.copy(fit.ast_colors[j]), 'width': 1.1},
+                symbolSize=dill.copy(fit.pyqt_symbols_size_ast[j]),enableAutoRange=True,viewRect=True,
+                symbolBrush=dill.copy(fit.ast_colors[j]),name=ast_files[j][-1]  ) 
+                
+                
+                #x1=x_axis-x_axis_err
+                #y1=y_axis-y_axis_err
+                #x2=x_axis+x_axis_err
+                #y2=y_axis+y_axis_err
+     
+                size=0.05*((max(x_axis)-min(x_axis))/2)
+                norm=1/((x_axis_err**2 +y_axis_err**2)**0.5)
+                x1=x_axis-y_axis_err*norm*size
+                y1=y_axis+x_axis_err*norm*size
+                x2=x_axis+y_axis_err*norm*size
+                y2=y_axis-x_axis_err*norm*size
+                #then plots a line for each measurement in size and angle of the error    
+     
+                # Normalize BJD dates to the range [0, 1]
+                #bjd_min, bjd_max = np.min(bjd_dates), np.max(bjd_dates)
+                #bjd_normalized = (bjd_dates - bjd_min) / (bjd_max - bjd_min)
+                bjd_phased = ((bjd_dates - bjd_dates[0]) % fit.P[ast_files[j][7]]) / fit.P[ast_files[j][7]]  # Normalize to the range [0, 1]
+                ast_model_bjd_phased = (ast_model_bjd % fit.P[ast_files[j][7]]) / fit.P[ast_files[j][7]]  # Normalize to the range [0, 1]            
+                
+                #start_time = time.time()   
+                
+                test1 = True          
+                if test1:
+                    # Create a color map
+                    colors = pg.colormap.get('viridis').getLookupTable()  # Get colormap as a lookup table
+                    positions = np.linspace(0, 1, len(colors))  # Positions for the colormap
+                    cmap = pg.ColorMap(pos=positions, color=colors)  # Create a pyqtgraph ColorMap
+
+                    x_coords = np.vstack((x1, x2)).T  # Shape (N, 2)
+                    y_coords = np.vstack((y1, y2)).T  # Shape (N, 2)
+                    # Create the color gradient for the phased BJD
+                    gradient = pg.ColorMap(pos=positions, color=colors)
+                    pen_colors = [gradient.map(b, mode='qcolor') for b in bjd_phased]  # List of QColor for each line
+
+                    for i in range(len(x_coords)):
+                        p_ast_hipp.plot(
+                            x_coords[i],
+                            y_coords[i],
+                            pen={'color': pen_colors[i], 'width': self.ast_model_width.value()},
+                        )
+                else:
+                    # Plot each line with color based on BJD
+                    for i in range(len(x1)):
+                        # Map normalized BJD to a color
+                        color = cmap.map(bjd_phased[i], mode='qcolor')
+                        
+                        # Plot the line segment with the corresponding color
+                        p_ast_hipp.plot(
+                            np.array([x1[i], x2[i]]),
+                            np.array([y1[i], y2[i]]),
+                            pen={'color': color, 'width': self.ast_model_width.value()},
+                        )
+
+                    # Add a colorbar (gradient legend)
+                    gradient = pg.GradientLegend((10, 200), (0, 0))  # Size and position
+                    gradient.setGradient(pg.colormap.get('viridis').getGradient())  # Match the viridis colormap
+                    gradient.setLabels({
+                        0: f"0 (Start of Phase)",  # Start of the phase
+                        1: f"1 (End of Phase)"     # End of the phase
+                    })
+                #p_ast_hipp.addItem(gradient)
+     
+                #print(" plot1 takes --- %s seconds ---" % (time.time() - start_time))     
+                # Plot the model curve with gradient
+                #start_time = time.time() 
+     
+                if self.ast_model_color_gradient.isChecked():
+
+                
+                    gradient = QtGui.QLinearGradient(QtCore.QPointF(np.min(ast_model_x), 0), QtCore.QPointF(np.max(ast_model_x), 0))
+                    gradient.setColorAt(0, pg.mkColor('blue'))  # Start color
+                    gradient.setColorAt(1, pg.mkColor('yellow'))  # End color
+
+                    # Create a pen with the gradient
+                    pen = QtGui.QPen()
+                    pen.setBrush(gradient)  # Use the gradient as the brush for the pen
+                    pen.setWidthF(self.ast_model_width.value())  # Adjust the line width with a float
+                    pen.setCosmetic(True)  # Match simple pen behavior
+                    # Plot the model curve with the gradient pen
+                    model_curve = p_ast_hipp.plot(ast_model_x, ast_model_y)
+                    model_curve.setPen(pen)
+                     
+                else:
+                                    
+                     model_curve = p_ast_hipp.plot(ast_model_x, ast_model_y, pen={'color':  fit.ast_colors[-1], 'width': self.ast_model_width.value()}, enableAutoRange=True, viewRect=True )
+
+
+
+                #print(" plot2 takes --- %s seconds ---" % (time.time() - start_time))     
+
+
+            model_curve.setZValue(self.ast_model_z.value())
+
+            if self.ast_plot_cross_hair_hipp_gaia.isChecked():
+                self.cross_hair(p_ast_hipp,log=False)
+
+
+
+            #######################################
+ 
+ 
 
     def ast_pl_combo(self):
         global fit
@@ -5420,7 +5826,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p_per_ev.setLabel('bottom', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
+            p_per_ev.setLabel('bottom', '%s'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
  
         else:
             return
@@ -5434,7 +5840,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p_per_ev.setLabel('left', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
+            p_per_ev.setLabel('left', '%s'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
  
         else:
             return
@@ -5511,16 +5917,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                      
             x = fit.evol_e[e_ind][0:last_stable]*np.cos(np.radians(dom))
             y = fit.evol_e[e_ind][0:last_stable]*np.sin(np.radians(dom)) 
-            p17.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub> cos(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
-            p17.setLabel('left', '<html><head/><body><p>e<sub>%s</sub> sin(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p17.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub> cos(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+            p17.setLabel('left', '<html><head/><body><p>e<sub>%s</sub> sin(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
 
 
             if self.domega_esin_ecos_exe_out.isChecked():
 
                 x = fit.evol_e[pl1_ind][0:last_stable]*fit.evol_e[pl2_ind][0:last_stable]*np.cos(np.radians(dom))
                 y = fit.evol_e[pl1_ind][0:last_stable]*fit.evol_e[pl2_ind][0:last_stable]*np.sin(np.radians(dom)) 
-                p17.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub>e<sub>%s</sub> cos(&Delta;&omega;) </p></body></html>'%(pl1_ind+1,pl2_ind+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
-                p17.setLabel('left',   '<html><head/><body><p>e<sub>%s</sub>e<sub>%s</sub> sin(&Delta;&omega;) </p></body></html>'%(pl1_ind+1,pl2_ind+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
+                p17.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub>e<sub>%s</sub> cos(&Delta;&omega;) </p></body></html>'%(pl1_ind+1,pl2_ind+1), units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                p17.setLabel('left',   '<html><head/><body><p>e<sub>%s</sub>e<sub>%s</sub> sin(&Delta;&omega;) </p></body></html>'%(pl1_ind+1,pl2_ind+1), units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
 
 
             p17.getViewBox().setAspectLocked(True)
@@ -5529,8 +5935,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         else:
             x = fit.evol_T[0][0:last_stable]
             y = dom
-            p17.setLabel('bottom', 't [yr]', units='',  **{'font-size':self.plot_font.pointSize()}) 
-            p17.setLabel('left', '<html><head/><body><p>&Delta;&omega; [deg] </p></body></html>', units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p17.setLabel('bottom', 't [yr]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+            p17.setLabel('left', '<html><head/><body><p>&Delta;&omega; [deg] </p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
             p17.getViewBox().setAspectLocked(False)
            
  
@@ -5560,8 +5966,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(HTML special characters accepted!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-           # p17.setLabel('bottom', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
-            p17.setLabel('bottom', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':self.plot_font.pointSize()})  
+           # p17.setLabel('bottom', '%s'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            p17.setLabel('bottom', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})  
         else:
             return
     
@@ -5574,8 +5980,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","(HTML special characters accepted!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            #p17.setLabel('left', '%s'%text, units='',  **{'font-size':self.plot_font.pointSize()})
-            p17.setLabel('left', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':self.plot_font.pointSize()})   
+            #p17.setLabel('left', '%s'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            p17.setLabel('left', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})   
         else:
             return
     
@@ -5697,8 +6103,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                      
             x = fit.evol_e[e_ind][0:last_stable]*np.cos(np.radians(theta[tet_n]))
             y = fit.evol_e[e_ind][0:last_stable]*np.sin(np.radians(theta[tet_n])) 
-            p18.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub> cos(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
-            p18.setLabel('left',   '<html><head/><body><p>e<sub>%s</sub> sin(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p18.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub> cos(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+            p18.setLabel('left',   '<html><head/><body><p>e<sub>%s</sub> sin(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
             p18.getViewBox().setAspectLocked(True)
 
             p18.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
@@ -5706,8 +6112,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         else:
             x = fit.evol_T[0][0:last_stable]
             y = theta[tet_n]
-            p18.setLabel('bottom', 't [yr]', units='',  **{'font-size':self.plot_font.pointSize()}) 
-            p18.setLabel('left', '<html><head/><body><p>&theta;%s [deg] </p></body></html>'%(tet_n+1), units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p18.setLabel('bottom', 't [yr]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+            p18.setLabel('left', '<html><head/><body><p>&theta;%s [deg] </p></body></html>'%(tet_n+1), units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
             p18.getViewBox().setAspectLocked(False)
            
 
@@ -5733,7 +6139,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         
         if okPressed and text != '':
 
-            p18.setLabel('bottom', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':self.plot_font.pointSize()})  
+            p18.setLabel('bottom', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})  
         else:
             return
 
@@ -5743,7 +6149,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(HTML special characters accepted!)", QtWidgets.QLineEdit.Normal, "")
 
         if okPressed and text != '':
-            p18.setLabel('left', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':self.plot_font.pointSize()})  
+            p18.setLabel('left', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})  
         else:
             return
 
@@ -5763,7 +6169,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         if self.plot_i.isChecked():
             for i in range(npl):
                 p19.plot(fit.evol_T[i], fit.evol_i[i] ,pen=dill.copy(fit.colors[i]),symbol=None )    
-            p19.setLabel('left', 'i [deg]', units='',  **{'font-size':self.plot_font.pointSize()})    
+            p19.setLabel('left', 'i [deg]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
     
         elif self.plot_Om.isChecked():
             for i in range(npl):
@@ -5780,7 +6186,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 symbolBrush=dill.copy(fit.colors[i])
                 )
                 
-            p19.setLabel('left', '<html><head/><body><p>&Omega; [deg] </p></body></html>', units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p19.setLabel('left', '<html><head/><body><p>&Omega; [deg] </p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
                 
             Om_evol = 0
  
@@ -5796,19 +6202,19 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         if self.radioButton_energy.isChecked():
  
             p20.plot(fit.evol_T_energy, fit.evol_energy ,pen=dill.copy(fit.colors[0]),symbol=None )    
-            p20.setLabel('left', 'Energy', units='',  **{'font-size':self.plot_font.pointSize()})    
+            p20.setLabel('left', 'Energy', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
     
         elif self.radioButton_lx.isChecked():
             p20.plot(fit.evol_T_energy, fit.evol_momentum['lx'] ,pen=dill.copy(fit.colors[0]),symbol=None )    
-            p20.setLabel('left', 'Momentum lx', units='',  **{'font-size':self.plot_font.pointSize()})    
+            p20.setLabel('left', 'Momentum lx', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
 
         elif self.radioButton_ly.isChecked():
             p20.plot(fit.evol_T_energy, fit.evol_momentum['ly'] ,pen=dill.copy(fit.colors[0]),symbol=None )    
-            p20.setLabel('left', 'Momentum ly', units='',  **{'font-size':self.plot_font.pointSize()}) 
+            p20.setLabel('left', 'Momentum ly', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
             
         elif self.radioButton_lz.isChecked():
             p20.plot(fit.evol_T_energy, fit.evol_momentum['lz'] ,pen=dill.copy(fit.colors[0]),symbol=None )    
-            p20.setLabel('left', 'Momentum lz', units='',  **{'font-size':self.plot_font.pointSize()})                    
+            p20.setLabel('left', 'Momentum lz', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})                    
  
     
     def plot_evol_a(self):
@@ -6179,14 +6585,15 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             label = "RV [m/s]" 
 
         pe0.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)
-#        pe0.setLabel('bottom', 'phase [days]', units='',  **{'font-size':self.plot_font.pointSize()})
-        pe0.setLabel('left',   '%s'%label, units='',  **{'font-size':self.plot_font.pointSize()})  
+#        pe0.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        #pe0.setLabel('left',   '%s'%label, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})  
 
+        pe0.setLabel('left', '%s'%label, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})  
 
         if self.extra_plot_RVphase_norm.isChecked():
-            pe1.setLabel('bottom', 'phase', units='',  **{'font-size':self.plot_font.pointSize()})
+            pe1.setLabel('bottom', 'phase', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
         else:
-            pe1.setLabel('bottom', 'phase [days]', units='',  **{'font-size':self.plot_font.pointSize()})
+            pe1.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
 
         if self.extra_plot_cross_hair.isChecked():
             self.cross_hair(pe0,log=False)   
@@ -6206,13 +6613,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if self.radioButton_RV_GLS_period.isChecked():
                 pe2.setLogMode(True,False)        
                 pe2.plot(1/fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-                pe2.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})    
-                pe2.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
+                pe2.setLabel('bottom', 'period [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
+                pe2.setLabel('left', 'Power', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
             else:
                 pe2.setLogMode(False,False)
                 pe2.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-                pe2.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
-                pe2.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
+                pe2.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                pe2.setLabel('left', 'Power', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
     
             if fit.gls.norm == 'ZK':
                 [pe2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
@@ -6235,13 +6642,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if self.radioButton_RV_o_c_GLS_period.isChecked():
                 pe2.setLogMode(True,False)        
                 pe2.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None ) 
-                pe2.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})    
-                pe2.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
+                pe2.setLabel('bottom', 'period [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
+                pe2.setLabel('left', 'Power', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
             else:
                 pe2.setLogMode(False,False)        
                 pe2.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None )                    
-                pe2.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
-                pe2.setLabel('left', 'Power', units='',  **{'font-size':self.plot_font.pointSize()})    
+                pe2.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                pe2.setLabel('left', 'Power', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
     
     
             if fit.gls.norm == 'ZK':
@@ -6528,7 +6935,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 ses_list.append(fit_new)
 
             self.session_list()
-            self.update_use_from_input_file()
+            self.update_use_from_session()
             self.init_fit()
             self.update_RV_file_buttons()
 
@@ -6557,7 +6964,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.mute_boxes()
 
             self.init_fit()
-            self.update_use_from_input_file()
+            self.update_use_from_session()
             self.update_use()
             self.update_params()
             self.update_RV_file_buttons()
@@ -6587,7 +6994,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.mute_boxes()
             self.update_bounds()
             self.init_fit()
-            self.update_use_from_input_file()
+            self.update_use_from_session()
             self.update_use()
             self.update_params()
             self.update_RV_file_buttons()
@@ -6807,7 +7214,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.mute_boxes()
             
             self.init_fit()
-            self.update_use_from_input_file()
+            self.update_use_from_session()
             self.update_use()
             self.update_params()
             self.update_RV_file_buttons()
@@ -6840,7 +7247,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         self.init_fit()
         #self.update_view()
-        self.update_use_from_input_file()
+        self.update_use_from_session()
         self.update_use()
         
         self.update_gui_params()
@@ -6899,7 +7306,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             else:
                 fit.add_transit_dataset('test', str(input_files[0]),tra_idset =but_ind-1)
 
-            self.update_use_from_input_file()
+            self.update_use_from_session()
             self.update_use()
             self.update_gui_params()
 
@@ -6928,7 +7335,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         but_ind = self.buttonGroup_remove_transit_data.checkedId()   
         fit.remove_transit_dataset(but_ind -1)
        # self.init_fit()         
-        self.update_use_from_input_file()   
+        self.update_use_from_session()   
       #  self.update_use()
       #  self.update_gui_params()
      #   self.update_params()
@@ -6996,7 +7403,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         but_ind = self.buttonGroup_remove_activity_data.checkedId()   
         fit.remove_act_dataset(but_ind -1)
        # self.init_fit()         
-      #  self.update_use_from_input_file()   
+      #  self.update_use_from_session()   
       #  self.update_use()
       #  self.update_gui_params()
      #   self.update_params()
@@ -7038,7 +7445,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
             fit.add_ttv_dataset('test', str(input_files[0]), ttv_idset =but_ind-1, planet =planet_N, use = use_planet_N )
             self.init_fit()
-            #self.update_use_from_input_file()
+            #self.update_use_from_session()
             #self.update_use()
             #self.update_params()
             
@@ -7144,7 +7551,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
             fit.add_ast_dataset('test', str(input_files[0]), ast_idset =but_ind-1, planet =planet_N, use = use_planet_N )
             self.init_fit()
-            #self.update_use_from_input_file()
+            #self.update_use_from_session()
             #self.update_use()
             #self.update_params()
             
@@ -7233,6 +7640,142 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 self.ast_data_to_planet[i].setValue(fit.ast_data_sets[i][5])
                 self.use_ast_data_to_planet[i].setChecked(bool(fit.ast_data_sets[i][6]))
 
+
+################################ Astr. files (Hipp/Gaia) #####################################
+
+    def check_std_ast_solution(self):
+        global fit      
+        
+        for i in range(1): #TBD fixed!!!!
+            #print("TEST",fit.ast_data_sets_hipp_gaia[i]) 
+            if len(fit.ast_data_sets_hipp_gaia[i]) != 0:
+
+                try:
+                    self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp_gaia[i][9]["RAdeg"],fit.ast_data_sets_hipp_gaia[i][9]["e_RA"]))                    
+                    self.ast_std_label_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp_gaia[i][9]["DEdeg"],fit.ast_data_sets_hipp_gaia[i][9]["e_DE"]))                    
+                    self.ast_std_label_pi.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp_gaia[i][9]["Plx"],fit.ast_data_sets_hipp_gaia[i][9]["e_Plx"]))
+                    self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp_gaia[i][9]["pm_RA"],fit.ast_data_sets_hipp_gaia[i][9]["e_pmRA"]))                    
+                    self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp_gaia[i][9]["pm_DE"],fit.ast_data_sets_hipp_gaia[i][9]["e_pmDE"]))             
+                except:
+                    print("No Hipp./Gaia std. solution found in the loaded memory! Make sure the input astrometric file is following the requested format (see READ ME button)")
+
+            else:                       
+                self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                self.ast_std_label_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                self.ast_std_label_pi.setText("%.3f +/- %.3f "%(0.000,0.000))
+                self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                
+                               
+    def showDialog_ast_input_file_2(self):
+        global fit
+
+        but_ind = self.buttonGroup_ast_data_2.checkedId()   
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Astrometry (Hipp/Gaia) data', '', 'All (*.*);;Data (*.ast)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        
+        
+        planet_N     = self.ast_data_to_planet_2[but_ind-1].value()
+        use_planet_N = self.use_ast_data_to_planet_2[but_ind-1].isChecked()
+
+        if str(input_files[0]) != '':
+ 
+            fit.add_ast_dataset_hipp_gaia('test', str(input_files[0]), ast_idset =but_ind-1, planet =planet_N, use = use_planet_N )
+ 
+            
+            self.check_std_ast_solution()
+            
+            self.init_fit()
+            #self.update_use_from_session()
+            #self.update_use()
+            #self.update_params()
+            
+            
+            fit.type_fit["RV"] = False
+            fit.type_fit["Transit"] = False
+            fit.type_fit["TTV"] = False
+            fit.type_fit["AST"] = True
+            self.check_type_fit()
+            self.mute_boxes()
+            
+            self.update_params()
+            self.update_ast_file_buttons_2()
+ 
+            self.plot_tabs.setCurrentWidget(self.tab_timeseries_ast)
+
+
+    def remove_ast_file_2(self):
+        global fit
+
+        but_ind = self.buttonGroup_remove_ast_data_2.checkedId()   
+        fit.remove_ast_dataset_hipp_gaia(but_ind -1)
+       # self.init_fit()
+
+        self.check_std_ast_solution()
+
+        fit.type_fit["RV"] = False
+        fit.type_fit["Transit"] = False
+        fit.type_fit["TTV"] = False
+        fit.type_fit["AST"] = True
+
+        self.check_type_fit()
+        self.mute_boxes()
+        self.update_ast_file_buttons_2()
+ 
+
+    def update_ast_file_buttons_2(self):
+        global fit, colors          
+
+        for i in range(2):
+            if len(fit.ast_data_sets_hipp_gaia[i]) != 0:
+                self.buttonGroup_ast_data_2.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.colors[i]))
+                self.buttonGroup_remove_ast_data_2.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.colors[i]))
+                self.buttonGroup_ast_data_2.button(i+1).setText(fit.ast_data_sets_hipp_gaia[i][10])
+                #self.ast_data_to_planet[i].setValue(fit.ast_data_sets[i][3])
+                #self.use_ast_data_to_planet[i].setChecked(bool(fit.ast_data_sets[i][4]))
+               # print(i, bool(fit.ast_data_sets[i][4]))
+
+            else:
+                self.buttonGroup_ast_data_2.button(i+1).setStyleSheet("")
+                self.buttonGroup_remove_ast_data_2.button(i+1).setStyleSheet("")
+                self.buttonGroup_ast_data_2.button(i+1).setText("data %s"%(i+1))
+               # self.ast_data_to_planet[i].setValue(1)
+                #self.use_ast_data_to_planet[i].setChecked(False)
+                #self.set_ast_dataset_to_planet()
+
+                #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
+        #self.init_correlations_combo()
+
+
+
+    def ast_dataset_to_planet_2(self):
+        
+        for i in range(2):
+            if len(fit.ast_data_sets_hipp_gaia[i]) ==0:
+                continue
+            else:
+                fit.ast_data_sets_hipp_gaia[i][7] = self.ast_data_to_planet_2[i].value()
+
+    def use_ast_dataset_to_planet_2(self):
+
+        for i in range(2):
+            if len(fit.ast_data_sets_hipp_gaia[i]) ==0:
+                continue
+            else:
+                fit.ast_data_sets_hipp_gaia[i][8] = self.use_ast_data_to_planet_2[i].isChecked()
+ 
+ 
+
+    def set_ast_dataset_to_planet_2(self):
+
+        for i in range(2):
+            if len(fit.ast_data_sets_hipp_gaia[i]) ==0:
+                self.ast_data_to_planet_2[i].setValue(1)
+                self.use_ast_data_to_planet_2[i].setChecked(False)
+                continue
+            else:
+                #print(fit.ast_data_sets[i][3],fit.ast_data_sets[i][4])                
+                self.ast_data_to_planet_2[i].setValue(fit.ast_data_sets_hipp_gaia[i][7])
+                self.use_ast_data_to_planet_2[i].setChecked(bool(fit.ast_data_sets_hipp_gaia[i][8]))
 
 ##################################### Various ################################# 
 
@@ -7456,11 +7999,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if self.radioButton_RV_MLP_period.isChecked():
                 p_mlp.setLogMode(True,False)        
                 p_mlp.plot(1/fit.mlp.freq, fit.mlp.power,pen={'color': dill.copy(fit.gls_colors[0]), 'width': self.gls_model_width.value()},symbol=None ) 
-                p_mlp.setLabel('bottom', 'period [d]', units='',  **{'font-size':self.plot_font.pointSize()})    
+                p_mlp.setLabel('bottom', 'period [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
             else:
                 p_mlp.setLogMode(False,False)        
                 p_mlp.plot(fit.mlp.freq, fit.mlp.power,pen={'color': dill.copy(fit.gls_colors[0]), 'width': self.gls_model_width.value()},symbol=None )                
-                p_mlp.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':self.plot_font.pointSize()}) 
+                p_mlp.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
 
             if fit.mlp.norm == 'dlnL':
                 [p_mlp.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for fap in np.array(power_levels)]
@@ -7727,27 +8270,9 @@ Transit duration: %s d
         self.update_use()   
         
         # check if transit data is present
-        z=0
-        for i in range(20):
-            if len(fit.tra_data_sets[i]) != 0:
-                z=z+1
-        
-        if z <= 0:
-            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-            "Not possible to look for planets if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
-           # self.button_fit.setEnabled(True)
+        if self.check_data_and_fit_type(tf="fit") == 0:
             self.mute_buttons(trigger=True)
-            self.update_transit_plots()
-
-            return 
-        
-        if fit.type_fit["RV"] == True:
-             if fit.ndset <= 0:
-                 choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-                 "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.StandardButton.Ok)      
-                 #self.button_fit.setEnabled(True)   
-                 self.mute_buttons(trigger=True)
-                 return   
+            return
 
         if fit.type_fit["RV"] == True :        
             self.statusBar().showMessage('Minimizing Transit + RV parameters.... SciPy in action, please be patient.  ')       
@@ -7862,35 +8387,9 @@ Transit duration: %s d
         self.update_use()   
         self.mute_buttons(trigger=False)
 
-
-        # check if transit data is present
-        z=0
-        for i in range(10):
-            if len(fit.ttv_data_sets[i]) == 0:
-                continue
-            else:
-                z=z+1
-                if fit.ttv_data_sets[i][3] > fit.npl and fit.ttv_data_sets[i][4] == True:
-                    choice = QtWidgets.QMessageBox.information(self, 'Warning!',"TTV dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ttv_data_sets[i][3]), QtWidgets.QMessageBox.StandardButton.Ok)      
-                    #self.button_fit.setEnabled(True)
-                    self.mute_buttons(trigger=True)
-                    return 
-
-        if z <= 0:
-            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-            "Not possible to model planets if there are no TTV data loaded. Please add your TTV data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
-            #self.button_fit.setEnabled(True)
+        if self.check_data_and_fit_type(tf="fit") == 0:
             self.mute_buttons(trigger=True)
-            return 
-
-        if fit.type_fit["RV"] == True:
-             if fit.ndset <= 0:
-                 choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-                 "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.StandardButton.Ok)
-                 #self.button_fit.setEnabled(True)
-                 self.mute_buttons(trigger=True)
-
-                 return
+            return
 
         if fit.type_fit["RV"] == True :
             self.statusBar().showMessage('Minimizing TTV + RV parameters.... SciPy in action, please be patient.  ')
@@ -8011,35 +8510,9 @@ Transit duration: %s d
         self.update_use()   
         self.mute_buttons(trigger=False)
 
-
-        # check if transit data is present
-        z=0
-        for i in range(10):
-            if len(fit.ast_data_sets[i]) == 0:
-                continue
-            else:
-                z=z+1
-                if fit.ast_data_sets[i][5] > fit.npl and fit.ast_data_sets[i][6] == True:
-                    choice = QtWidgets.QMessageBox.information(self, 'Warning!',"Astrometry dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ast_data_sets[i][5]), QtWidgets.QMessageBox.StandardButton.Ok)      
-                    #self.button_fit.setEnabled(True)
-                    self.mute_buttons(trigger=True)
-                    return 
-
-        if z <= 0:
-            choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-            "Not possible to model planets if there are no Astrometry data loaded. Please add your Astrometry data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
-            #self.button_fit.setEnabled(True)
+        if self.check_data_and_fit_type(tf="fit") == 0:
             self.mute_buttons(trigger=True)
-            return 
-
-        if fit.type_fit["RV"] == True:
-             if fit.ndset <= 0:
-                 choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-                 "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.StandardButton.Ok)
-                 #self.button_fit.setEnabled(True)
-                 self.mute_buttons(trigger=True)
-
-                 return
+            return
 
         if fit.type_fit["RV"] == True :
             self.statusBar().showMessage('Minimizing Astrometry + RV parameters.... SciPy in action, please be patient.  ')
@@ -8227,18 +8700,16 @@ Transit duration: %s d
         self.mute_buttons(trigger=True)
 #        print("--- %s seconds ---" % (time.time() - start_time))     
 
-    def worker_RV_fitting(self, ff=20, m_ln=True, auto_fit = False , init = False ):
+    def worker_RV_fitting(self, ff=20, m_ln=True, auto_fit = False, init = False):
         global fit  
         
         #self.button_fit.setEnabled(False)
- 
+
+        self.mute_buttons(trigger=False)
         # check if RV data is present
-        if fit.ndset <= 0:
-             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to look for planets if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.StandardButton.Ok)      
-             #self.button_fit.setEnabled(True)
-             self.mute_buttons(trigger=True)
-             return   
+        if self.check_data_and_fit_type(tf="fit") == 0:
+            self.mute_buttons(trigger=True)
+            return
 
         self.check_model_params()
 
@@ -8636,6 +9107,32 @@ in https://github.com/3fon3fonov/exostriker
 
 
 
+    def print_ast_info_2(self, image=False):
+        #self.dialog.statusBar().showMessage('Ready')
+        self.dialog_ast_help.setFixedSize(800, 800)
+        self.dialog_ast_help.setWindowTitle('Ast. modeling help')  
+        #self.dialog.setGeometry(300, 300, 800, 800)
+        #self.dialog_credits.acceptRichText(True)
+        
+        text = ''
+        self.dialog_ast_help.text.setText(text) 
+        
+        text = """
+This module is experimental and under construction. Atrometry and Atrometry+RV modeling was 
+successfully tested on several exoplanet systems, but you must consider the notes below:
+ 
+* (TBD, Hipparcos/Gaia astrometry)
+
+If something is still unclear, or you are experiencing problems you are welcome to open an "issue" 
+in https://github.com/3fon3fonov/exostriker
+
+"""
+        self.dialog_ast_help.text.append(text)
+        self.dialog_ast_help.text.setReadOnly(True)
+        #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
+        self.dialog_ast_help.show()
+
+
 
     def print_TTV_info(self, image=False):
         #self.dialog.statusBar().showMessage('Ready')
@@ -8834,7 +9331,7 @@ will be highly appreciated!
                 fit.i_use[0]  = False
                 fit.Node_use[0] = False   
 
-            self.update_use_from_input_file()   
+            self.update_use_from_session()   
             self.update_use()                     
             #self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
             self.optimize_fit(20,m_ln=False,auto_fit = True) # first time -- LM
@@ -8859,7 +9356,7 @@ will be highly appreciated!
                         fit.M0_use[j] = True
                         fit.i_use[j]  = False
                         fit.Node_use[j] = False 
-                    self.update_use_from_input_file()   
+                    self.update_use_from_session()   
                     self.update_use()
 
                    # fit.sort_by_period(reverse=False)
@@ -8887,7 +9384,7 @@ will be highly appreciated!
                         fit.M0_use[i] = True
                         fit.i_use[i]  = False
                         fit.Node_use[i] = False  
-                    self.update_use_from_input_file()   
+                    self.update_use_from_session()   
                     self.update_use()
 
                     fit.sort_by_period(reverse=False)
@@ -8921,7 +9418,7 @@ will be highly appreciated!
                     fit.Node_use[i] = False  
 
 
-            self.update_use_from_input_file()
+            self.update_use_from_session()
             self.update_use()
             fit.sort_by_period(reverse=False)
 
@@ -9195,10 +9692,13 @@ will be highly appreciated!
 
             ses_list.append(fit_new)
 
+            self.check_std_ast_solution()
+
             #self.check_settings()
             #rv.check_temp_RV_file(fit_new)
 
             self.session_list()
+            
             self.select_session(-1)
 
 
@@ -9316,7 +9816,7 @@ will be highly appreciated!
             fit = rv.fix_old_to_session_tra(fit)
 
         
-        self.update_use_from_input_file()
+        self.update_use_from_session()
         self.update_use()
         self.update_gui_params()
         self.update_errors() 
@@ -9334,6 +9834,7 @@ will be highly appreciated!
         self.update_ttv_file_buttons()
         self.update_act_file_buttons()
         self.update_ast_file_buttons()
+        self.update_ast_file_buttons_2()        
         self.update_color_picker()
  
         self.set_gui_use_GP()
@@ -9342,7 +9843,7 @@ will be highly appreciated!
 
 
         #self.init_fit()
-        #self.update_use_from_input_file()
+        #self.update_use_from_session()
         #self.update_use()
         #self.update_gui_params()
        # self.update_params()
@@ -9409,6 +9910,95 @@ will be highly appreciated!
 
 
 
+    def check_data_and_fit_type(self, tf = ""):
+        global fit
+        if fit.type_fit["RV"] == True and fit.ndset <= 0:
+             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+             "Not possible to run %s if there are no %s loaded. Please add your %s first. Okay?"%(tf, self.data_str,self.data_str), QtWidgets.QMessageBox.StandardButton.Ok)      
+            # self.button_nest_samp.setEnabled(True)  
+             self.statusBar().showMessage('') 
+             return 0
+
+        ntran_data = 0
+        for i in range(0,len(fit.tra_data_sets),1):
+            ntran_data += len(fit.tra_data_sets[i]) 
+
+        if fit.type_fit["Transit"] == True  and ntran_data == 0:
+             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+             "Not possible to run %s if there are no transit data loaded. Please add your transit data first. Okay?"%tf, QtWidgets.QMessageBox.StandardButton.Ok)
+           #  self.button_nest_samp.setEnabled(True)  
+             self.statusBar().showMessage('') 
+
+             return 0
+
+        nttv_data = 0
+        for i in range(0,10,1):
+            nttv_data += len(fit.ttv_data_sets[i]) 
+
+        if fit.type_fit["TTV"] == True  and nttv_data == 0:
+             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+             "Not possible to run %s if there are no TTV data loaded. Please add your TTV data first. Okay?"%tf, QtWidgets.QMessageBox.StandardButton.Ok)      
+             #self.button_nest_samp.setEnabled(True)  
+             self.statusBar().showMessage('') 
+
+             return 0
+            
+        # check if astrometric data is present
+        if fit.type_fit["AST"] == True:          
+            if self.use_imaging_ast.isChecked():
+                z=0
+                for i in range(10):
+                    if len(fit.ast_data_sets[i]) == 0:
+                        continue
+                    else:
+                        z=z+1
+                        if fit.ast_data_sets[i][5] > fit.npl and fit.ast_data_sets[i][6] == True:
+                            choice = QtWidgets.QMessageBox.information(self, 'Warning!',"Astrometry dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ast_data_sets[i][5]), QtWidgets.QMessageBox.StandardButton.Ok)      
+                            #self.button_fit.setEnabled(True)
+                            self.mute_buttons(trigger=True)
+                            return 0
+
+                if z <= 0:
+                    choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+                    "Not possible to model planets if there are no imaging astrometry data loaded. Please add your astrometry data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
+                    #self.button_fit.setEnabled(True)
+                    self.mute_buttons(trigger=True)
+                    return 0
+                    
+                    
+            if self.use_hipp_gaia_ast.isChecked():
+                z=0
+                for i in range(10):
+                    if len(fit.ast_data_sets_hipp_gaia[i]) == 0:
+                        continue
+                    else:
+                        z=z+1
+                        if fit.ast_data_sets_hipp_gaia[i][7] > fit.npl and fit.ast_data_sets_hipp_gaia[i][8] == True:
+                            choice = QtWidgets.QMessageBox.information(self, 'Warning!',"Astrometry dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ast_data_sets_hipp_gaia[i][7]), QtWidgets.QMessageBox.StandardButton.Ok)      
+                            #self.button_fit.setEnabled(True)
+                            self.mute_buttons(trigger=True)
+                            return 0
+
+                if z <= 0:
+                    choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+                    "Not possible to model planets if there are no Hipparcos/Gaia astrometry data loaded. Please add your astrometry data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
+                    #self.button_fit.setEnabled(True)
+                    self.mute_buttons(trigger=True)
+                    return 0 
+ 
+            if fit.use_ast_hipp_gaia == False and fit.use_ast_imaging == False: 
+            
+                choice = QtWidgets.QMessageBox.information(self, 'Warning!',
+                "Not possible to start astrometry fit if no Astrometry type is selected. Please select your astrometry data type (and load data) first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
+                #self.button_fit.setEnabled(True)
+                self.mute_buttons(trigger=True)
+                return 0    
+                
+        return 1 
+        
+        
+                       
+
     def worker_nest(self):
         global fit  
 
@@ -9440,36 +10030,11 @@ will be highly appreciated!
         #self.button_nest_samp.setEnabled(False)
         self.statusBar().showMessage('Nested Sampling in progress....')
         # check if RV data is present
-        if fit.type_fit["RV"] == True and fit.ndset <= 0:
-             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to run Nested Sampling if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.StandardButton.Ok)      
-            # self.button_nest_samp.setEnabled(True)  
-             self.statusBar().showMessage('') 
-             return
+         
+        
+        if self.check_data_and_fit_type(tf="Nested Sampling") == 0:
+            return
 
-        ntran_data = 0
-        for i in range(0,20,1):
-            ntran_data += len(fit.tra_data_sets[i]) 
-
-        if fit.type_fit["Transit"] == True  and ntran_data == 0:
-             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to run Nested Sampling if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)
-           #  self.button_nest_samp.setEnabled(True)  
-             self.statusBar().showMessage('') 
-
-             return
-
-        nttv_data = 0
-        for i in range(0,10,1):
-            nttv_data += len(fit.ttv_data_sets[i]) 
-
-        if fit.type_fit["TTV"] == True  and nttv_data == 0:
-             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to run Nested Sampling if there are no TTV data loaded. Please add your TTV data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
-             #self.button_nest_samp.setEnabled(True)  
-             self.statusBar().showMessage('') 
-
-             return
 
         choice = QtWidgets.QMessageBox.information(self, 'Warning!',
 """
@@ -9504,14 +10069,21 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.mute_buttons(trigger=False)
 
         # Pass the function to execute
-        worker_n = Worker(self.run_nest) # Any other args, kwargs are passed to the run  
+        self.worker_n = Worker(self.run_nest) # Any other args, kwargs are passed to the run  
         # Execute
-        worker_n.signals.finished.connect(self.worker_nest_complete)
+        self.worker_n.signals.finished.connect(self.worker_nest_complete)
 
         # worker.signals.result.connect(self.print_output)
         #worker.signals.finished.connect(self.thread_complete)
        # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker_n)
+        self.threadpool.start(self.worker_n)
+
+    def stop_nest(self):
+        """Stop the worker process."""
+
+        #if hasattr(self, 'worker_n'):
+        self.worker_n.stop()
+        self.statusBar().showMessage("Stopping Nested Sampling...")
 
     def run_nest(self):
         global fit
@@ -9683,49 +10255,11 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
         #self.button_MCMC.setEnabled(False)
         self.statusBar().showMessage('MCMC in progress....')
-        # check if RV data is present
-        if fit.type_fit["RV"] == True and fit.ndset <= 0:
-             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to run MCMC if there are no %s loaded. Please add your %s first. Okay?"%(self.data_str,self.data_str), QtWidgets.QMessageBox.StandardButton.Ok)      
-             #self.button_MCMC.setEnabled(True)  
-             self.statusBar().showMessage('') 
 
-             return
-
-        ntran_data = 0
-        for i in range(0,20,1):
-            ntran_data += len(fit.tra_data_sets[i]) 
-
-        if fit.type_fit["Transit"] == True  and ntran_data == 0:
-             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to run MCMC if there are no transit data loaded. Please add your transit data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
-             self.button_MCMC.setEnabled(True)  
-             self.statusBar().showMessage('') 
-
-             return
-
-        nttv_data = 0
-        for i in range(0,10,1):
-            nttv_data += len(fit.ttv_data_sets[i]) 
-
-        if fit.type_fit["TTV"] == True  and nttv_data == 0:
-             choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-             "Not possible to run MCMC if there are no TTV data loaded. Please add your TTV data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
-             self.button_MCMC.setEnabled(True)  
-             self.statusBar().showMessage('') 
-
-             return
-
-#        choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-#"""This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?
-#                                            """,
-#                                            QtWidgets.QMessageBox.StandardButton.Cancel | QtWidgets.QMessageBox.StandardButton.Ok)
-#
-#        if choice == QtWidgets.QMessageBox.StandardButton.Cancel:
-#            self.statusBar().showMessage('') 
-#            self.button_MCMC.setEnabled(True)
-#            return
-
+        if self.check_data_and_fit_type(tf="MCMC") == 0:
+            return
+            
+            
         choice = QtWidgets.QMessageBox.question(self, 'Warning!',
                                        """This may take some time. Results are printed in the 'Stdout/Stderr' tab. Okay?
                                        """,
@@ -9924,9 +10458,11 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             NS_SAMP_TXT = "No NS samples available" 
             
         self.mcmc_samples_led.setPixmap(QtGui.QPixmap(MCMC_SAMP_LED)) 
+        self.mcmc_samples_led_2.setPixmap(QtGui.QPixmap(MCMC_SAMP_LED))         
         self.mcmc_cornerplot_samp_indicator.setText(MCMC_SAMP_TXT)
         
         self.ns_samples_led.setPixmap(QtGui.QPixmap(NS_SAMP_LED)) 
+        self.ns_samples_led_2.setPixmap(QtGui.QPixmap(NS_SAMP_LED))         
         self.ns_cornerplot_samp_indicator.setText(NS_SAMP_TXT)        
 
     def worker_cornerplot_complete(self):
@@ -10027,7 +10563,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             if file_extension == '.vels' or file_extension == '.dat':
                 fit.add_dataset(self.file_from_path(path), str(path),0.0,1.0)
                 self.init_fit()
-                self.update_use_from_input_file()
+                self.update_use_from_session()
                 self.update_use()
                 self.update_params()
                 self.update_RV_file_buttons()
@@ -10049,7 +10585,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                         but_ind = i +1
 
                         fit.add_transit_dataset('test', str(path),tra_idset =but_ind-1)
-                        self.update_use_from_input_file()
+                        self.update_use_from_session()
                         self.update_use()
                         self.update_gui_params()
                         self.update_params()
@@ -10099,7 +10635,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 self.init_fit()
                # rv.check_temp_RV_file(fit)
                 #self.update_veiw()
-                self.update_use_from_input_file()
+                self.update_use_from_session()
                 self.update_use()
                 self.update_params()
                 self.update_RV_file_buttons()
@@ -10180,7 +10716,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
                 self.init_fit()
 
-                self.update_use_from_input_file()
+                self.update_use_from_session()
                 self.update_use()
                 self.update_params()
                 self.update_RV_file_buttons()
@@ -10290,8 +10826,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 except (ValueError,Exception) as ex:
                     #print(ex)
                     #pdi.plot(clear=True,)
-                    pdi.setLabel('bottom', 'x', units='',  **{'font-size':self.plot_font.pointSize()})
-                    pdi.setLabel('left',   'y', units='',  **{'font-size':self.plot_font.pointSize()})
+                    pdi.setLabel('bottom', 'x', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+                    pdi.setLabel('left',   'y', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
                     return
             else:
                 print("%s is an empty file"%path)
@@ -10308,8 +10844,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 y     = self.RVBank_window.y_data  
                 y_err = self.RVBank_window.e_y_data 
             except:
-                pdi.setLabel('bottom', 'x', units='',  **{'font-size':self.plot_font.pointSize()})
-                pdi.setLabel('left',   'y', units='',  **{'font-size':self.plot_font.pointSize()})
+                pdi.setLabel('bottom', 'x', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+                pdi.setLabel('left',   'y', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
                 return
              
         
@@ -10342,20 +10878,20 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         filename, file_extension = os.path.splitext(path)  
             
         if file_extension == '.vels':
-            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':self.plot_font.pointSize()})
-            pdi.setLabel('left',   'RV', units='m/s',  **{'font-size':self.plot_font.pointSize()})
+            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            pdi.setLabel('left',   'RV', units='m/s',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
  
         elif file_extension == '.act':
-            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':self.plot_font.pointSize()})
-            pdi.setLabel('left',   'y', units='',  **{'font-size':self.plot_font.pointSize()})
+            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            pdi.setLabel('left',   'y', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
             
         elif file_extension == '.tran':      
-            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':self.plot_font.pointSize()})
-            pdi.setLabel('left',   'flux', units='',  **{'font-size':self.plot_font.pointSize()})
+            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            pdi.setLabel('left',   'flux', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
 
         else:
-            pdi.setLabel('bottom', 'x', units='',  **{'font-size':self.plot_font.pointSize()})
-            pdi.setLabel('left',   'y', units='',  **{'font-size':self.plot_font.pointSize()})
+            pdi.setLabel('bottom', 'x', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            pdi.setLabel('left',   'y', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
 
         self.inspector_file = path
         
@@ -10949,7 +11485,7 @@ Please install via 'pip install ttvfast'.
           #  self.update_RV_file_buttons()
          #   self.update_tra_file_buttons()
             self.update_ast_file_buttons()
-
+            self.update_ast_file_buttons_2()
          #   self.update_RV_plots()
         #    self.update_extra_plots()
         #    self.update_transit_plots()
@@ -11161,7 +11697,7 @@ Please install via 'pip install ttvfast'.
         #    self.update_RV_file_buttons() 
         #    self.update_tra_file_buttons()
             self.update_ast_file_buttons() 
-
+            self.update_ast_file_buttons_2()
         #    self.update_RV_plots() 
         #    self.update_extra_plots()
         #    self.update_transit_plots()
@@ -11588,6 +12124,7 @@ Please install via 'pip install ttvfast'.
         self.Button_ast_data_8.setEnabled(trigger) 
         self.Button_ast_data_9.setEnabled(trigger) 
         self.Button_ast_data_10.setEnabled(trigger) 
+
         
         self.remove_ast_data_1.setEnabled(trigger) 
         self.remove_ast_data_2.setEnabled(trigger) 
@@ -11601,6 +12138,15 @@ Please install via 'pip install ttvfast'.
         self.remove_ast_data_10.setEnabled(trigger)               
         #self.use_Planet1.setEnabled(trigger) 
         
+        self.Button_ast_data_hipp_1.setEnabled(trigger) 
+        self.Button_ast_data_hipp_2.setEnabled(trigger) 
+        self.Button_ast_data_gaia_1.setEnabled(trigger)       
+        self.Button_ast_data_gaia_2.setEnabled(trigger)      
+        
+        self.remove_ast_data_hipp_1.setEnabled(trigger) 
+        self.remove_ast_data_hipp_2.setEnabled(trigger)        
+        self.remove_ast_data_gaia_1.setEnabled(trigger) 
+        self.remove_ast_data_gaia_2.setEnabled(trigger)              
         
     def file_from_path(self, path):
         head, tail = ntpath.split(path)
@@ -11652,7 +12198,7 @@ Please install via 'pip install ttvfast'.
         fit.w_use[fit.npl] = fit.auto_fit_allow_ecc 
         fit.M0_use[fit.npl] = True 
       
-        self.update_use_from_input_file()   
+        self.update_use_from_session()   
         self.update_use() 
         #self.update_params()  
        # self.update_gui_params()
@@ -11674,7 +12220,7 @@ Please install via 'pip install ttvfast'.
         fit.w_use[fit.npl] = fit.auto_fit_allow_ecc 
         fit.M0_use[fit.npl] = True 
      
-        self.update_use_from_input_file()   
+        self.update_use_from_session()   
         self.update_use() 
         #self.update_params()  
        # self.update_gui_params()
@@ -11705,7 +12251,7 @@ Please install via 'pip install ttvfast'.
         fit.w_use[fit.npl] = fit.auto_fit_allow_ecc 
         fit.M0_use[fit.npl] = True 
 
-        self.update_use_from_input_file()
+        self.update_use_from_session()
         self.update_use() 
        # self.update_params()  
         self.update_gui_params()
@@ -11729,6 +12275,18 @@ Please install via 'pip install ttvfast'.
                 self.use_tra_data_GP[j].setChecked(bool(fit.tra_data_sets[j][9]))
         #print("Test",but_ind)       
         return
+
+    def set_use_astrometry(self):
+        global fit
+
+        fit.use_ast_hipp_gaia = self.use_hipp_gaia_ast.isChecked()
+        fit.use_ast_imaging   = self.use_imaging_ast.isChecked() 
+
+    def get_use_astrometry(self):
+        global fit
+
+        self.use_hipp_gaia_ast.setChecked(bool(fit.use_ast_hipp_gaia))
+        self.use_imaging_ast.setChecked(bool(fit.use_ast_imaging))
 
     def set_use_tra_GP_data(self):
         global fit
@@ -11905,40 +12463,74 @@ Please install via 'pip install ttvfast'.
   
         self.comboBox_samp_corr_1.clear()
         self.comboBox_samp_corr_2.clear()
-      
-        for i in range(len(fit.e_for_mcmc)):
-            self.comboBox_samp_corr_1.addItem(fit.e_for_mcmc[i],i)
-            self.comboBox_samp_corr_2.addItem(fit.e_for_mcmc[i],i)
+            
+       # print(self.samp_corr_mcmc.isChecked(), self.samp_corr_ns.isChecked())
+
+        if len(np.atleast_1d(fit.mcmc_sampler))!=0 and self.samp_corr_mcmc.isChecked():       
+         
+            for i in range(len(fit.mcmc_sampler.lbf['OrigLabels'])):
+                self.comboBox_samp_corr_1.addItem(fit.mcmc_sampler.lbf['OrigLabels'][i],i)
+                self.comboBox_samp_corr_2.addItem(fit.mcmc_sampler.lbf['OrigLabels'][i],i)
+                
+        elif len(np.atleast_1d(fit.ns_sampler))!=0 and self.samp_corr_ns.isChecked():       
+         
+            for i in range(len(fit.ns_sampler.lbf['OrigLabels'])):
+                self.comboBox_samp_corr_1.addItem(fit.ns_sampler.lbf['OrigLabels'][i],i)
+                self.comboBox_samp_corr_2.addItem(fit.ns_sampler.lbf['OrigLabels'][i],i)
+
 
             #self.comboBox_pl_2.setItemText(i, '%s'%(ses_list[i].name))
         self.comboBox_samp_corr_1.setCurrentIndex(0)
         self.comboBox_samp_corr_2.setCurrentIndex(0)
-
-
-
+        
+        self.update_plot_corr()
+        
     def update_plot_corr(self):
         global fit,pcor
  
         corr1_ind = self.comboBox_samp_corr_1.currentIndex()
         corr2_ind = self.comboBox_samp_corr_2.currentIndex()
- 
-        if corr1_ind ==-1 or corr2_ind ==-1 or len(fit.e_for_mcmc) ==0 or len(np.atleast_1d(fit.mcmc_sampler))==0: #
-            return
-        #else:
-       #     last_stable = min(len(fit.evol_p[pl1_ind]),len(fit.evol_p[pl2_ind]))
-        
- 
-        pcor.plot(clear=True,)
-        pcor.plot(fit.mcmc_sampler.samples[:,corr1_ind], fit.mcmc_sampler.samples[:,corr2_ind] ,pen=None, #{'color': colors[i], 'width': 1.1},
-        symbol='o',
-        symbolPen={'color': 'b', 'width': 1},
-        symbolSize=1,enableAutoRange=True,viewRect=True,
-        symbolBrush='b'
-        )  
 
-        pcor.setLabel('bottom', '%s'%fit.e_for_mcmc[corr1_ind], units='',  **{'font-size':self.plot_font.pointSize()}) 
-        pcor.setLabel('left', '%s'%fit.e_for_mcmc[corr2_ind], units='',  **{'font-size':self.plot_font.pointSize()}) 
-        
+ 
+        if corr1_ind ==-1 or corr2_ind ==-1: # or len(fit.e_for_mcmc) ==0 or len(np.atleast_1d(fit.mcmc_sampler))==0: #
+            return
+            
+        if len(np.atleast_1d(fit.mcmc_sampler))!=0 and self.samp_corr_mcmc.isChecked():        
+         
+
+            pcor.plot(clear=True,)
+            pcor.plot(fit.mcmc_sampler.samples[:,corr1_ind], fit.mcmc_sampler.samples[:,corr2_ind] ,pen=None, #{'color': colors[i], 'width': 1.1},
+            symbol='o',
+            symbolPen={'color': 'b', 'width': 1},
+            symbolSize=1,enableAutoRange=True,viewRect=True,
+            symbolBrush='b'
+            )  
+
+            pcor.setLabel('bottom', '%s'%fit.mcmc_sampler.lbf['OrigLabels'][corr1_ind], units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+            pcor.setLabel('left', '%s'%fit.mcmc_sampler.lbf['OrigLabels'][corr2_ind], units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+ 
+
+
+        elif len(np.atleast_1d(fit.ns_sampler))!=0 and self.samp_corr_ns.isChecked():            
+ 
+            pcor.plot(clear=True,)
+            pcor.plot(fit.ns_sampler.samples[:,corr1_ind], fit.ns_sampler.samples[:,corr2_ind] ,pen=None, #{'color': colors[i], 'width': 1.1},
+            symbol='o',
+            symbolPen={'color': 'b', 'width': 1},
+            symbolSize=1,enableAutoRange=True,viewRect=True,
+            symbolBrush='b'
+            )  
+
+            #pcor.setLabel('bottom', '%s'%fit.e_for_mcmc[corr1_ind], units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+            #pcor.setLabel('left', '%s'%fit.e_for_mcmc[corr2_ind], units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+            pcor.setLabel('bottom', '%s'%fit.ns_sampler.lbf['OrigLabels'][corr1_ind], units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+            pcor.setLabel('left', '%s'%fit.ns_sampler.lbf['OrigLabels'][corr2_ind], units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+ 
+ 
+        else:
+            return
+
+
 
         ## generate empty curves
         #curves = []
@@ -12027,7 +12619,7 @@ Please install via 'pip install ttvfast'.
         global fit 
         super().__init__()
     
-        self.es_version = "0.91"
+        self.es_version = "0.92"
 
         #self.loading_screen= LoadingScreen()   
  
@@ -12096,6 +12688,16 @@ Please install via 'pip install ttvfast'.
         self.param_gui_wd      = gui_groups.param_gui_wd(self)
         self.use_param_gui_wd  = gui_groups.use_param_gui_wd(self)
         self.param_errors_gui_wd = gui_groups.param_errors_gui_wd(self)
+
+        ########## Astr.############### 
+        self.param_gui_ast      = gui_groups.param_gui_ast(self)
+        self.use_param_gui_ast  = gui_groups.use_param_gui_ast(self)
+        self.param_errors_gui_ast = gui_groups.param_errors_gui_ast(self)
+
+        self.ast_bounds_gui = gui_groups.ast_bounds_gui(self)
+        self.ast_norm_pr_gui = gui_groups.ast_norm_pr_gui(self)
+        self.ast_jeff_pr_gui = gui_groups.ast_jeff_pr_gui(self)
+        ################################
         
         self.om_dot_bounds_gui = gui_groups.om_dot_bounds_gui(self)
         self.om_dot_norm_pr_gui = gui_groups.om_dot_norm_pr_gui(self)
@@ -12119,7 +12721,7 @@ Please install via 'pip install ttvfast'.
         self.err_t0          = gui_groups.err_t0(self)
         self.err_pl_rad      = gui_groups.err_pl_rad(self)
         self.err_a_sol       = gui_groups.err_a_sol(self)
-
+ 
         self.rvs_data_gui      = gui_groups.rvs_data_gui(self)
         self.rvs_data_jitter_gui = gui_groups.rvs_data_jitter_gui(self)
         self.use_data_offset_gui = gui_groups.use_data_offset_gui(self)
@@ -12254,6 +12856,9 @@ Please install via 'pip install ttvfast'.
 
         self.ast_data_to_planet     = gui_groups.ast_data_to_planet(self)
         self.use_ast_data_to_planet = gui_groups.use_ast_data_to_planet(self)
+  
+        self.ast_data_to_planet_2     = gui_groups.ast_data_to_planet_2(self)
+        self.use_ast_data_to_planet_2 = gui_groups.use_ast_data_to_planet_2(self)
 
         self.use_uni_ld_models    = gui_groups.use_uni_ld_models(self)
         self.use_lin_ld_models    = gui_groups.use_lin_ld_models(self)
@@ -12323,7 +12928,9 @@ Please install via 'pip install ttvfast'.
         ########### TEMP ##############
         self.TTV_readme_info.clicked.connect(lambda: self.print_TTV_info()) 
         self.ast_readme_info.clicked.connect(lambda: self.print_ast_info()) 
-
+        self.ast_readme_info_2.clicked.connect(lambda: self.print_ast_info_2()) 
+        
+        
         self.initialize_buttons()
         self.initialize_plots()   
  
@@ -12554,15 +13161,27 @@ Please install via 'pip install ttvfast'.
         self.ast_model_width.valueChanged.connect(self.update_ast_plots)
         self.ast_model_z.valueChanged.connect(self.update_ast_plots)
 
-        self.ast_model_interpolate_points.valueChanged.connect(self.update_ast_plots)
-        self.ast_model_interpolate.stateChanged.connect(self.update_ast_plots)
+        self.ast_data_color_gradient.stateChanged.connect(self.update_ast_plots)
 
-        self.comboBox_ast_model_interpolate.activated.connect(self.update_ast_plots)
+        #self.ast_model_interpolate_points.valueChanged.connect(self.update_ast_plots)
+        #self.ast_model_interpolate.stateChanged.connect(self.update_ast_plots)
+
+        #self.comboBox_ast_model_interpolate.activated.connect(self.update_ast_plots)
+        
+        self.ast_model_color_gradient.stateChanged.connect(self.update_ast_plots)
+
+        self.ast_o_c_hipp_gaia.stateChanged.connect(self.update_ast_plots)
 
         self.buttonGroup_ast_data.buttonClicked.connect(self.showDialog_ast_input_file)
-        self.buttonGroup_remove_ast_data.buttonClicked.connect(self.remove_ast_file)
-        self.buttonGroup_use_ast_data_to_planet.buttonClicked.connect(self.use_ast_dataset_to_planet)
+        self.buttonGroup_ast_data_2.buttonClicked.connect(self.showDialog_ast_input_file_2)        
         
+        
+        self.buttonGroup_remove_ast_data.buttonClicked.connect(self.remove_ast_file)
+        self.buttonGroup_remove_ast_data_2.buttonClicked.connect(self.remove_ast_file_2)        
+        
+        self.buttonGroup_use_ast_data_to_planet.buttonClicked.connect(self.use_ast_dataset_to_planet)
+        self.buttonGroup_use_ast_data_to_planet_2.buttonClicked.connect(self.use_ast_dataset_to_planet_2)
+                
         self.ast_data_planet_1.valueChanged.connect(self.ast_dataset_to_planet)
         self.ast_data_planet_2.valueChanged.connect(self.ast_dataset_to_planet)
         self.ast_data_planet_3.valueChanged.connect(self.ast_dataset_to_planet)
@@ -12574,21 +13193,31 @@ Please install via 'pip install ttvfast'.
         self.ast_data_planet_9.valueChanged.connect(self.ast_dataset_to_planet)
         self.ast_data_planet_10.valueChanged.connect(self.ast_dataset_to_planet)
 
+
+        self.ast_data_planet_hipp_1.valueChanged.connect(self.ast_dataset_to_planet_2)
+        self.ast_data_planet_hipp_2.valueChanged.connect(self.ast_dataset_to_planet_2)
+        self.ast_data_planet_gaia_1.valueChanged.connect(self.ast_dataset_to_planet_2)        
+        self.ast_data_planet_gaia_2.valueChanged.connect(self.ast_dataset_to_planet_2)
+
         self.ast_pl_combo()
         self.ast_comboBox_pl.activated.connect(lambda: self.update_ast_pl_index(o_c =False))
         self.ast_o_c_comboBox_pl.activated.connect(lambda: self.update_ast_pl_index(o_c =True))
 
         self.ast_plot_cross_hair.stateChanged.connect(self.update_ast_plots)
         self.ast_o_c_plot_cross_hair.stateChanged.connect(self.update_ast_plots)
-
+        self.ast_plot_cross_hair_hipp_gaia.stateChanged.connect(self.update_ast_plots)
+        
+        self.ast_use_plot_ra_dec.stateChanged.connect(self.update_ast_plots)         
         self.ast_o_c.stateChanged.connect(self.update_ast_plots) 
 
-        self.ast_apply_mean_period.stateChanged.connect(self.update_ast_plots)
+        self.buttonGroup_use_ast_plot_RA_Dec.buttonClicked.connect(self.update_ast_plots)
+        #self.ast_apply_mean_period.stateChanged.connect(self.update_ast_plots)
 
-        self.ast_subtract_mean.stateChanged.connect(self.update_ast_plots)
+        #self.ast_subtract_mean.stateChanged.connect(self.update_ast_plots)
         self.ast_plot_autorange.stateChanged.connect(self.update_ast_plots)
         self.ast_legend.stateChanged.connect(self.update_ast_plots)
 
+        self.buttonGroup_use_img_hipp_ast.buttonClicked.connect(self.set_use_astrometry)
 
         ############################################################
 
@@ -12629,7 +13258,8 @@ Please install via 'pip install ttvfast'.
         
         self.comboBox_samp_corr_1.activated.connect(self.update_plot_corr)
         self.comboBox_samp_corr_2.activated.connect(self.update_plot_corr)
-        
+        self.buttonGroup_samp_corr.buttonClicked.connect(self.init_plot_corr)
+                
         self.comboBox_phase_pl_tran.activated.connect(self.update_transit_plots)
 
         ########## RV fitting ########################
@@ -13130,6 +13760,8 @@ Please install via 'pip install ttvfast'.
         self.count_cpus()
         rv.check_swift()
 
+
+        self.stop_button.clicked.connect(self.stop_nest)
 
         self.data_str = "RV data"     
         self.QSO_str = "Exo" 

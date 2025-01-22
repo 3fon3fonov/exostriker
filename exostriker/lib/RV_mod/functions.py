@@ -81,12 +81,14 @@ def check_for_missing_instances(fit,fit_new):
         fit_new.pyqt_symbols_rvs  = dill.copy(fit.pyqt_symbols_rvs)
 
 
+
+
     if len(fit_new.tra_colors) <= 11:
         fit_new.tra_colors = dill.copy(fit.tra_colors)
         fit_new.tra_quadtr_jeff_pr = dill.copy(fit.tra_quadtr_jeff_pr)
-        fit_new.tra_jitt_use  = {k: False for k in range(20)}
-        fit_new.tra_off_use  = {k: False for k in range(20)}
-        fit_new.tra_dil_use  = {k: False for k in range(20)}
+        fit_new.tra_jitt_use  = {k: False for k in range(60)}
+        fit_new.tra_off_use  = {k: False for k in range(60)}
+        fit_new.tra_dil_use  = {k: False for k in range(60)}
 
         fit_new.init_tra_jitter()
         fit_new.init_tra_offset()
@@ -292,6 +294,52 @@ def get_mass(K, P, ecc, i, Stellar_mass):
 
     return msini
 
+def calculate_ttv_period(P_in, P_out):
+    """
+    Calculate the TTV period based on the periods of two near-resonant planets.
+    
+    Parameters:
+    P_in (float): Orbital period of the inner planet.
+    P_out (float): Orbital period of the outer planet.
+    
+    Returns:
+    float: TTV period (P_TTV)
+    """
+    # Estimate the resonance order (j) based on the ratio of periods
+    j = round(P_out / P_in)
+
+ 
+    # Calculate the TTV period
+    P_TTV = abs((j - 1) / P_in - j / P_out)**-1
+    
+    return P_TTV
+    
+    
+def a_from_K_in_mas(P,K,e,i,parallax):
+    """
+    Calculate the semi-major axis 'a' given K, parallax, period P, eccentricity e, and inclination i.
+
+    Parameters:
+    K : float
+        Radial velocity amplitude (m/s)
+    parallax : float
+        Parallax in miliarcseconds
+    P : float
+        Orbital period in days
+    e : float
+        Eccentricity
+    i : float
+        Inclination in degerees
+
+    Returns:
+    a : float
+        Semi-major axis in mas
+    """    
+    i = np.radians(i)
+
+    a = (K * P *86400.0 * np.sqrt(1.0-e**2)* parallax) / (2*np.pi*np.sin(i)*1.496e11)
+
+    return a    
 
 def get_gravity(m_p, r_p):
     '''Returns the gravity in
@@ -362,7 +410,7 @@ def get_transit_times(tr_res, p, t0, precise = False, verbose=False):
         for i in tr_index:
             tran_t0 = t0 + p*i
 
-            tr_ind = np.where(np.logical_and(t >= tran_t0-0.07, t <= tran_t0+0.07))
+            tr_ind = np.where(np.logical_and(t >= tran_t0-0.15, t <= tran_t0+0.15))
             minn = np.argmin(f[tr_ind])
             tr_t0.append(t[tr_ind][minn])
 
@@ -2570,6 +2618,8 @@ def phase_RV_planet_signal(obj,index):
  
         sorted_periods = sorted([k for k, v in copied_obj.P.items() if copied_obj.use_planet[k]], key=copied_obj.P.get) 
 
+        rank = sorted_periods.index(index)
+
         ############ phase fold fix for sparse model ######
         model_time_phase = np.array( (copied_obj.fit_results.model_jd -copied_obj.fit_results.model_jd[0] + (copied_obj.fit_results.model_jd[0] - copied_obj.epoch) )%copied_obj.P[index] )
 
@@ -2582,14 +2632,14 @@ def phase_RV_planet_signal(obj,index):
 
 
 
-        phased_model      = copied_obj.fit_results.res['fit'].T[2+sorted_periods[index]][sort]
+        phased_model      = copied_obj.fit_results.res['fit'].T[2+rank][sort]
 
         ############ phase data ######
         data_time_phase = np.array( (copied_obj.fit_results.rv_model.jd  - copied_obj.fit_results.rv_model.jd[0])%copied_obj.P[index] )
 
         sort = sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])
         data_time_phase      = data_time_phase[sort]
-        phased_data          = copied_obj.fit_results.model_data[6+sorted_periods[index]][sort] + copied_obj.fit_results.rv_model.o_c[sort]  
+        phased_data          = copied_obj.fit_results.model_data[6+rank][sort] + copied_obj.fit_results.rv_model.o_c[sort]  
         
         phased_data_o_c      = obj.fit_results.rv_model.o_c[sort]#  - copied_obj.fit_results.rv_model.rvs[sort]
         phased_data_err      = copied_obj.fit_results.rv_model.rv_err[sort]

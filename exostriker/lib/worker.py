@@ -3,6 +3,8 @@ from PyQt6 import QtCore #, QtWidgets
 #import subprocess
 #import os
 
+import threading
+import sys, traceback 
   
 class WorkerSignals(QtCore.QObject):
     '''
@@ -53,15 +55,20 @@ class Worker(QtCore.QRunnable):
         # Add the callback to our kwargs
         self.kwargs['progress_callback'] = self.signals.progress
 
+        # Add a threading.Event to signal stopping
+        self.stop_event = threading.Event()
+
     @QtCore.pyqtSlot()
     def run(self):
         '''
         Initialise the runner function with passed args, kwargs.
         '''
-
-        # Retrieve args/kwargs here; and fire processing using them
         try:
+            # Ensure the function is aware of the stop_event
+            if 'stop_event' in self.kwargs:
+                self.kwargs['stop_event'] = self.stop_event
             result = self.fn()
+            #result = self.fn(*self.args, **self.kwargs)
         except:
             traceback.print_exc()
             exctype, value = sys.exc_info()[:2]
@@ -70,7 +77,18 @@ class Worker(QtCore.QRunnable):
             self.signals.result.emit(result)  # Return the result of the processing
         finally:
             self.signals.finished.emit()  # Done
-            
+
     def stop(self):
-            self.signals.finished.emit()  # Done
-    
+        '''
+        Signal the worker to stop.
+        '''
+        print('TEST!!!')
+        self.stop_event.set()
+        #self.signals.finished.emit()  # Done        
+        
+        
+        
+        
+        
+        
+        

@@ -403,6 +403,81 @@ def param_errors_gui_wd(self):
 ###########################################################################
 
 
+def param_gui_ast(self):
+    
+    param_gui_ast = [
+            self.ast_alpha,
+            self.ast_delta,
+            self.ast_pi,
+            self.ast_mu_alpha,       
+            self.ast_mu_delta
+            ]
+    return param_gui_ast
+
+def use_param_gui_ast(self):
+
+    use_param_gui_ast = [
+            self.use_ast_alpha,
+            self.use_ast_delta,
+            self.use_ast_pi,
+            self.use_ast_mu_alpha,       
+            self.use_ast_mu_delta
+            ]
+    return use_param_gui_ast
+
+def param_errors_gui_ast(self):
+
+    param_errors_gui_ast = [
+            self.err_ast_alpha,
+            self.err_ast_delta,
+            self.err_ast_pi,
+            self.err_ast_mu_alpha,       
+            self.err_ast_mu_delta
+            ]
+    return param_errors_gui_ast
+
+
+
+def ast_bounds_gui(self):
+
+    ast_bounds_gui = [
+    [self.ast_alpha_min,self.ast_alpha_max],
+    [self.ast_delta_min,self.ast_delta_max],
+    [self.ast_pi_min,self.ast_pi_max],
+    [self.ast_mu_alpha_min,self.ast_mu_alpha_max],
+    [self.ast_mu_delta_min,self.ast_mu_delta_max]
+    ]  
+    return ast_bounds_gui
+
+
+
+def ast_norm_pr_gui(self):
+
+    ast_norm_pr_gui = [
+    [self.ast_alpha_mean,self.ast_alpha_sigma,self.use_ast_alpha_nr_pr],
+    [self.ast_delta_mean,self.ast_delta_sigma,self.use_ast_delta_nr_pr],
+    [self.ast_pi_mean,self.ast_pi_sigma,self.use_ast_pi_nr_pr],
+    [self.ast_mu_alpha_mean,self.ast_mu_alpha_sigma,self.use_ast_mu_alpha_nr_pr],
+    [self.ast_mu_delta_mean,self.ast_mu_delta_sigma,self.use_ast_mu_delta_nr_pr]
+    ]
+    return ast_norm_pr_gui
+
+
+
+def ast_jeff_pr_gui(self):
+
+    ast_jeff_pr_gui = [
+    [self.ast_alpha_alpha,self.ast_alpha_beta,self.use_ast_alpha_jeff_pr],
+    [self.ast_delta_alpha,self.ast_delta_beta,self.use_ast_delta_jeff_pr],
+    [self.ast_pi_alpha,self.ast_pi_beta,self.use_ast_pi_jeff_pr],
+    [self.ast_mu_alpha_alpha,self.ast_mu_alpha_beta,self.use_ast_mu_alpha_jeff_pr],
+    [self.ast_mu_delta_alpha,self.ast_mu_delta_beta,self.use_ast_mu_delta_jeff_pr]
+    ]
+    return ast_jeff_pr_gui
+
+
+###########################################################################
+
 
 def param_gui_tr(self):
     
@@ -2922,3 +2997,25 @@ def use_ast_data_to_planet(self):
             ]
    
     return use_ast_data_to_planet
+    
+    
+def ast_data_to_planet_2(self): 
+    
+    ast_data_to_planet_2 = [
+            self.ast_data_planet_hipp_1,self.ast_data_planet_hipp_2
+            ]
+   
+    return ast_data_to_planet_2
+
+
+def use_ast_data_to_planet_2(self): 
+    
+    use_ast_data_to_planet_2 = [
+            self.use_ast_data_hipp_1,self.use_ast_data_hipp_2
+            ]
+   
+    return use_ast_data_to_planet_2
+    
+        
+    
+    

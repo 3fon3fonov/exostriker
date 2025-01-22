@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools<=66.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "exostriker"
-version = "0.91.0"
+version = "0.92.0"
 authors = [
     { name="Trifon Trifonov", email="trifonov@mpia.de" },
     { name="Matheus J. Castro", email="matheusdejesuscastro@gmail.com" },
@@ -25,6 +25,8 @@ dependencies = [
     "matplotlib >= 3.3.1",
     "formlayout == 1.2.0",
     "PyQt6",
+    "astropy",  
+    "Pilow",    
     "jupyter",
     "jupyter-client",
     "ipykernel",

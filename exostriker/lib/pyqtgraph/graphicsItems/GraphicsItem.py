@@ -12,7 +12,7 @@ from .. import functions as fn
 from ..GraphicsScene import GraphicsScene
 from ..Point import Point
 from ..Qt import QtCore, QtWidgets, isQObjectAlive
-from typing import Dict,List,Tuple
+
 
 # Recipe from https://docs.python.org/3.8/library/collections.html#collections.OrderedDict
 # slightly adapted for Python 3.7 compatibility
@@ -280,7 +280,7 @@ class GraphicsItem(object):
         #pv = Point(dti.map(normView)-dti.map(Point(0,0))), Point(dti.map(normOrtho)-dti.map(Point(0,0)))
         pv = Point(dti.map(normView).p2()), Point(dti.map(normOrtho).p2())
         self._pixelVectorCache[1] = pv
-        self._pixelVectorCache[0] = dt
+        self._pixelVectorCache[0] = key
         self._pixelVectorGlobalCache[key] = pv
         return self._pixelVectorCache[1]
     
@@ -493,10 +493,9 @@ class GraphicsItem(object):
 
         ## disconnect from previous view
         if oldView is not None:
-            for signal, slot in [('sigRangeChanged', self.viewRangeChanged),
-                                 ('sigDeviceRangeChanged', self.viewRangeChanged), 
-                                 ('sigTransformChanged', self.viewTransformChanged), 
-                                 ('sigDeviceTransformChanged', self.viewTransformChanged)]:
+            Device = 'Device' if hasattr(oldView, 'sigDeviceRangeChanged') else ''
+            for signal, slot in [(f'sig{Device}RangeChanged', self.viewRangeChanged),
+                                 (f'sig{Device}TransformChanged', self.viewTransformChanged)]:
                 try:
                     getattr(oldView, signal).disconnect(slot)
                 except (TypeError, AttributeError, RuntimeError):
@@ -542,6 +541,7 @@ class GraphicsItem(object):
         
         
 
+    @QtCore.Slot()
     def viewRangeChanged(self):
         """
         Called whenever the view coordinates of the ViewBox containing this item have changed.
@@ -549,10 +549,11 @@ class GraphicsItem(object):
         # when this is called, _cachedView is not invalidated.
         # this means that for functions overriding viewRangeChanged, viewRect() may be stale.
     
+    @QtCore.Slot()
     def viewTransformChanged(self):
         """
         Called whenever the transformation matrix of the view has changed.
-        (eg, the view range has changed or the view was resized)
+        For example, when the view range has changed or the view was resized.
         Invalidates the viewRect cache.
         """
         self._cachedView = None
@@ -608,11 +609,10 @@ class GraphicsItem(object):
     def getContextMenus(self, event):
         return [self.getMenu()] if hasattr(self, "getMenu") else []
 
-
     def generateSvg(
             self,
-            nodes: Dict[str, Element]
-    ) -> Optional[Tuple[Element, List[Element]]]:
+            nodes: dict[str, Element]
+    ) -> Optional[tuple[Element, list[Element]]]:
         """Method to override to manually specify the SVG writer mechanism.
 
         Parameters

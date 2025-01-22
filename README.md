@@ -39,7 +39,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * RV auto-fit (RV automated planet-finder algorithm).
 * Interactive data binning, clipping, outlier removal, etc.
 * Fit for apsidal orbital precession, or apply General Relativity (GR) precession. 
-* Instant online access to the "RVBank" database (over 212,000 RVs and activity indices of about 3000 HARPS stars & over 64,000 RVs and activity indices of about 1700 HIRES stars !!!).
+* Instant online access to the "RVBank" database (over 252,000 RVs and activity indices of about 3000 HARPS stars & over 64,000 RVs and activity indices of about 1700 HIRES stars !!!).
 * Instant AMD stability check for multiple planetary systems (including during optimization or MCMC/Nested Sampling).
 * Long-term stability check of multiple planetary systems using SyMBA, MVS, and MVS with a GR precession.
 * Fully interactive, super-fast, high-quality, exportable plots.
@@ -48,19 +48,21 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Export plots to a matplotlib window for further customization.
 * Export ready-to-use LaTeX tables with best-fit parameters, errors, and statistics. 
 * Handy text editor and calculator tools.
-* Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10.
+* Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10/11.
 * Integrated Bash shell (Linux only).
 * Integrated Jupyter shell.
-* Integrated AI Boot (via openai GPT-3 -- ChatGPT).
+* Integrated AI Boot (via openai GPT-3 -- ChatGPT, but user openAI key must be provided).
 * Importable as a standard python library (i.e., "import exostriker").
 * Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
 * Direct import of TESS & K2 *lc.fits, and CHEOPS *SCI_COR*.fits files.
+* Combined modeling with Hipparcos and Imaging Astrometry (but is still a work in progress to be ready for Gaia).
+
 
 **What is to be implemented**:
 
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ "REBOUND" is planned to be included). 
 * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
-* Combined modeling with Astrometry (As of Ver 0.75, this is possible, but is still a work in progress).
+
 
 
 Feedback and help in further development will be highly appreciated!

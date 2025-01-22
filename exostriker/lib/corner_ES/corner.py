@@ -6,10 +6,10 @@ import logging
 
 import numpy as np
 
-from .core import corner_impl
+from corner.core import corner_impl
 
 try:
-    from .arviz_corner import arviz_corner
+    from corner.arviz_corner import arviz_corner
 except ImportError:
     arviz_corner = None
 
@@ -215,7 +215,7 @@ def corner(
         Any extra keyword arguments to send to the 1-D histogram plots.
 
     **hist2d_kwargs
-        Any remaining keyword arguments are sent to :func:`.hist2d` to
+        Any remaining keyword arguments are sent to :func:`corner.hist2d` to
         generate the 2-D histogram plots.
 
     Returns

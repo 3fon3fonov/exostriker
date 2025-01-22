@@ -21,10 +21,10 @@ class HDF5Exporter(Exporter):
 
     def __init__(self, item):
         Exporter.__init__(self, item)
-        self.params = Parameter(name='params', type='group', children=[
+        self.params = Parameter.create(name='params', type='group', children=[
             {'name': 'Name', 'title': translate("Exporter", 'Name'), 'type': 'str', 'value': 'Export', },
             {'name': 'columnMode', 'title': translate("Exporter", 'columnMode'), 'type': 'list',
-             'limits': ['(x,y) per plot', '(x,y,y,y) for all plots']},
+             'limits': ['(x,y) per plot', '(x,y,y,y) for all plots'], 'value': '(x,y) per plot'},
         ])
         
     def parameters(self):
@@ -32,15 +32,14 @@ class HDF5Exporter(Exporter):
     
     def export(self, fileName=None):
         if not HAVE_HDF5:
-            #raise RuntimeError("This exporter requires the h5py package, "but it was not importable.")
-            print("This exporter requires the h5py package, "
-                               "but it was not importable.")       
-            return
+            raise RuntimeError("This exporter requires the h5py package, "
+                               "but it was not importable.")
+        
         import h5py
 
         if not isinstance(self.item, PlotItem):
-            #raise Exception("Must have a PlotItem selected for HDF5 export.")
-            print("Must have a PlotItem selected for HDF5 export.")        
+            raise Exception("Must have a PlotItem selected for HDF5 export.")
+        
         if fileName is None:
             self.fileSaveDialog(filter=["*.h5", "*.hdf", "*.hd5"])
             return

@@ -282,14 +282,17 @@ class HistogramLUTItem(GraphicsWidget):
         HistogramLUTItem.
         """
         self.imageItem = weakref.ref(img)
-        img.sigImageChanged.connect(self.imageChanged)
+        if hasattr(img, 'sigImageChanged'):
+            img.sigImageChanged.connect(self.imageChanged)
         self._setImageLookupTable()
         self.regionChanged()
         self.imageChanged(autoLevel=True)
 
+    @QtCore.Slot()
     def viewRangeChanged(self):
         self.update()
 
+    @QtCore.Slot()
     def gradientChanged(self):
         if self.imageItem() is not None:
             self._setImageLookupTable()
@@ -318,17 +321,20 @@ class HistogramLUTItem(GraphicsWidget):
             self.lut = self.gradient.getLookupTable(n, alpha=alpha)
         return self.lut
 
+    @QtCore.Slot()
     def regionChanged(self):
         if self.imageItem() is not None:
             self.imageItem().setLevels(self.getLevels())
         self.sigLevelChangeFinished.emit(self)
 
+    @QtCore.Slot()
     def regionChanging(self):
         if self.imageItem() is not None:
             self.imageItem().setLevels(self.getLevels())
         self.update()
         self.sigLevelsChanged.emit(self)
 
+    @QtCore.Slot()
     def imageChanged(self, autoLevel=False, autoRange=False):
         if self.imageItem() is None:
             return
@@ -351,7 +357,7 @@ class HistogramLUTItem(GraphicsWidget):
                 self.region.setRegion([mn, mx])
                 profiler('set region')
             else:
-                mn, mx = self.imageItem().levels
+                mn, mx = self.imageItem().getLevels()
                 self.region.setRegion([mn, mx])
         else:
             # plot one histogram for each channel

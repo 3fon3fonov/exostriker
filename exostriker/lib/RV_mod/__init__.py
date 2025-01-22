@@ -12,7 +12,6 @@ import sys, os
 #import prior_functions as pr
 #import emcee
 import emcee_ES as emcee
-
 import numpy as np
 #import matplotlib.pyplot as plt
 #plt.switch_backend('SVG')
@@ -108,6 +107,7 @@ TAU= 2.0*np.pi
 from . import GP_kernels
 from .rvmod import *
 
+import ExTRA as ex
  
 
 def initiate_RV_gps(obj,  kernel_id=-1):
@@ -300,7 +300,7 @@ def initiate_tansit_gps(obj,  kernel_id=-1):
     tra_gps = celerite.GP(tra_kernel, mean=0.0)
 
 
-    if len([obj.tra_data_sets[j][9] for j in range(20) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True]) ==0:
+    if len([obj.tra_data_sets[j][9] for j in range(60) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True]) ==0:
         print("No transit data ready for GP modeling!!! Reverting to 'GP==False'")
         obj.tra_gps = tra_gps
         obj.tra_doGP = False
@@ -308,8 +308,8 @@ def initiate_tansit_gps(obj,  kernel_id=-1):
         return        
 
     else:
-        y = np.concatenate([obj.tra_data_sets[j][2] for j in range(20) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
-        x = np.concatenate([obj.tra_data_sets[j][0] for j in range(20) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
+        y = np.concatenate([obj.tra_data_sets[j][2] for j in range(60) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
+        x = np.concatenate([obj.tra_data_sets[j][0] for j in range(60) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
         
         
         tra_gps.compute(x, y)
@@ -328,8 +328,8 @@ def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
 
     ############ DATA ####################
 
-    y = np.concatenate([obj.tra_data_sets[j][4] for j in range(20) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
-    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(20) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
+    y = np.concatenate([obj.tra_data_sets[j][4] for j in range(60) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
+    x = np.concatenate([obj.tra_data_sets[j][0] for j in range(60) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
 
    # y_no_gp = np.concatenate([obj.tra_data_sets[j][4] for j in range(10) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] !=True])
 
@@ -376,7 +376,7 @@ def get_transit_ts(obj,  kernel_id=-1):
     tr_files = []
 
 
-    for j in range(20):
+    for j in range(60):
 
         if len(obj.tra_data_sets[j]) == 0:
             continue
@@ -574,6 +574,122 @@ def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_result
         return loglik_ast
 
 
+def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, fit_results = False , return_model = False):
+
+ 
+    loglik_ast_hipp = 0
+    calc_data   = {kx: [] for kx in range(10)}
+    calc_model  = {kx: [] for kx in range(10)}
+    for i in range(npl):
+        
+        if hkl == True:
+            ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
+            om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
+            Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
+            # reject e > 0 
+            if ecc_ >= 1.0: 
+                return -np.inf  
+        else:
+            ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]         
+
+        T0 = transit_tperi(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,times[0])[0] #%par[len(vel_files)*2 +7*i+1] 
+
+        om_ = (om_ - 180.0)%360.0
+        Ma_ = (Ma_ + 180.0)%360.0
+        
+        incl = par[len(vel_files)*2 +7*i+5]
+        Om_ = (par[len(vel_files)*2 +7*i+6] + 180.0)%360.0
+ 
+        for x in range(10):
+            if len(ast_files_hipp[x]) == 0 or ast_files_hipp[x][8] == False or ast_files_hipp[x][7] != i+1:
+                continue
+            else:
+
+                A_6=ast_files_hipp[x][3]*(ast_files_hipp[x][1])
+                A_7=ast_files_hipp[x][4]*(ast_files_hipp[x][1])
+ 
+                hip_ad=np.array([ast_files_hipp[x][3],
+                                 ast_files_hipp[x][4],
+                                 ast_files_hipp[x][2],
+                                 A_6,A_7,
+                                 ast_files_hipp[x][5],
+                                 ast_files_hipp[x][6]])                
+  
+                t_HIP=ex.hip_JD(hip_ad)
+ 
+                #J2016=2457389.0
+                #J1991=2448349.0625
+                
+                #gaia=np.array([par[-6],par[-5],par[-4],par[-3],par[-2]])
+                #hip_standard=np.zeros(5)
+                #correction=np.array([0,0,0,0,0]) 
+                
+                hip_stand = [
+                ast_files_hipp[x][9]["RAdeg"], 
+                ast_files_hipp[x][9]["DEdeg"], 
+                ast_files_hipp[x][9]["Plx"], 
+                ast_files_hipp[x][9]["pm_RA"], 
+                ast_files_hipp[x][9]["pm_DE"], 
+                ]
+                
+                parallax=hip_stand[2]+par[-4] #corrected parallax
+                
+                correction=np.array([par[-6],par[-5],par[-4],par[-3],par[-2]])
+
+                a = a_from_K_in_mas(
+                par[len(vel_files)*2 +7*i+1],
+                par[len(vel_files)*2 +7*i+0],
+                ecc_,
+                incl,
+                parallax)
+
+                results = -1*ex.L_hip(hip_ad,hip_stand,hip_stand, #Data
+                         correction,
+                         par[len(vel_files)*2 +7*i+1], 
+                         ecc_, 
+                         np.radians(om_), 
+                         np.radians(incl),
+                         np.radians(Om_),                         
+                         T0,a,Sepoch=ex.J1991(),s_hip=0)
+
+                loglik_ast_hipp = loglik_ast_hipp + results
+                
+                
+                
+        if return_model == True:
+
+            #### TB fixed!
+            #corrected_stand = hip_stand
+            corrected_stand=ex.stand_correct(hip_stand,correction)
+
+            #times3 = np.linspace(min(t_HIP),min(t_HIP)+par[len(vel_files)*2 +7*i+1]+1,1000)
+            times3 = np.linspace(min(t_HIP),max(t_HIP)+1,1000)
+            orb_params = [par[len(vel_files)*2 +7*i+1], 
+                         ecc_, 
+                         np.radians(om_), 
+                         np.radians(incl),
+                         np.radians(Om_),                         
+                         T0,a]
+ 
+
+            ast_x_model,ast_y_model=ex.orbit(*orb_params,times3)
+            
+            hip_data = ex.hip_2d(hip_ad) #Rotates the HIP measurements into the RA,Dec frame.
+ 
+ 
+            hip_data_res_ =ex.hip_residuals(hip_ad,hip_stand,corrected_stand,orb_params, Sepoch=ex.J1991())
+ 
+            hip_data_res  =ex.res_to_orbit(hip_data_res_,hip_ad,orb_params)
+ 
+            calc_data[i] = np.array([hip_data, hip_data_res ,t_HIP],dtype=object)         
+            calc_model[i] = np.array([ast_x_model,ast_y_model,times3])
+ 
+    
+    if return_model == True:
+        return [loglik_ast_hipp, calc_data, calc_model]
+    else:
+        return loglik_ast_hipp
+
 
 def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results = False , return_model = False):
 
@@ -680,11 +796,11 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
     t_rich  = []
     flux_model_rich  = []
 
-    N_transit_files = len([x for x in range(20) if len(tr_files[x]) != 0])
+    N_transit_files = len([x for x in range(60) if len(tr_files[x]) != 0])
         
     l = 0
 
-    for j in range(20):
+    for j in range(60):
 
         if len(tr_files[j]) == 0:
             flux_model.append([])
@@ -903,7 +1019,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
     if return_model == True:
 
-        t_all = np.concatenate([tr_files[x][0] for x in range(20) if len(tr_files[x]) != 0])
+        t_all = np.concatenate([tr_files[x][0] for x in range(60) if len(tr_files[x]) != 0])
         t_rich =np.linspace(min(t_all),max(t_all),len(t_all)*tra_model_fact)
         flux_model_rich = np.ones(len(t_rich))
 
@@ -973,7 +1089,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 #        flux_model_ = flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8])             
  
         l = 0
-        for j in range(20):
+        for j in range(60):
 
             if len(tr_files[j]) == 0:
                 continue
@@ -1025,13 +1141,14 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     rvs_files = opt["RVS_files"]
     ttv_files = opt["TTV_files"]
     ast_files = opt["AST_files"]
+    ast_files_hipp_gaia = opt["AST_files_hipp"]    
     ttv_times = opt["TTV_times"]
     ast_times = opt["AST_times"]
     get_TTVs  = opt["get_TTVs"]
 #    re = opt["re"]
 
    
-    N_transit_files = len([x for x in range(20) if len(tr_files[x]) != 0])
+    N_transit_files = len([x for x in range(60) if len(tr_files[x]) != 0])
 
     if np.isnan(p).any():
         return -np.inf
@@ -1213,12 +1330,15 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         else:
             tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,get_TTVs,opt,fit_results=rvmod )
 
-
+ 
     if(opt["AST"]):
         if(rtg[0])==False:
             astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)
+            astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,ast_files_hipp_gaia,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)  
         else:
             astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)
+            astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,ast_files_hipp_gaia,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)              
+
 
     if(opt["TTV"]):
         if(rtg[0])==False:
@@ -1258,6 +1378,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     if rtg[0]:
         del rvmod
             
+    #print(   rv_loglik, tr_loglik,ttv_loglik,astr_loglik     )
     if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
         return -np.inf
     return rv_loglik + tr_loglik + ttv_loglik +  astr_loglik
@@ -1292,7 +1413,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     vel_files = [0]*obj.ndset
 
-    N_transit_files = len([x for x in range(20) if len(obj.tra_data_sets[x]) != 0])
+    N_transit_files = len([x for x in range(60) if len(obj.tra_data_sets[x]) != 0])
 
     tr_files = obj.tra_data_sets
     tr_mo    = obj.ld_m
@@ -1319,9 +1440,10 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         ids = np.append(ids, obj.rv_data_sets[z][3]+1, axis = 0)
     final_array = np.array([jd, rvs, sig, ids]).T
 
-    rvs_files = final_array 
-    ttv_files = obj.ttv_data_sets
-    ast_files = obj.ast_data_sets
+    rvs_files  = final_array 
+    ttv_files  = obj.ttv_data_sets
+    ast_files  = obj.ast_data_sets
+    ast_files2 = obj.ast_data_sets_hipp_gaia
 
     npl = obj.npl
     epoch = obj.epoch
@@ -1380,6 +1502,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "RVS_files":rvs_files,
            "TTV_files":ttv_files, 
            "AST_files":ast_files, 
+           "AST_files_hipp":ast_files2,            
            "TTV_times":obj.ttv_times,
            "AST_times":obj.ast_times,
            "AMD_stab":obj.optim_AMD_stab, 
@@ -1558,7 +1681,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, pr_nr, gps, tra_gps, rtg, mix_fit, errors, mod,opt):
 
 
-    N_transit_files = len([x for x in range(20) if len(tr_files[x]) != 0]) 
+    N_transit_files = len([x for x in range(60) if len(tr_files[x]) != 0]) 
     
     get_TTVs = opt["get_TTVs"]
     
@@ -1693,14 +1816,13 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     for i in range(obj.npl):
  
-
         obj.t0[i]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
         obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
         obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
  
+ 
     j = 0
-
-    for i in range(20):
+    for i in range(60):
         if len(obj.tra_data_sets[i]) == 0:
             continue
         else:
@@ -1730,6 +1852,16 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                                   par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 3+ npl]]
  
 
+
+    if obj.type_fit["AST"] and obj.use_ast_hipp_gaia == True: 
+
+        obj.ast_alpha[0]    =    par[-6]
+        obj.ast_delta[0]    =    par[-5]
+        obj.ast_pi[0]       =    par[-4]       
+        obj.ast_mu_alpha[0] =    par[-3]       
+        obj.ast_mu_delta[0] =    par[-2]
+
+    #print(par)
 
 #################### Get the models for plotting ############################
 
@@ -1836,6 +1968,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
 
         astr_loglik2 = ast_loglik(obj.parameters,vel_files, obj.ast_data_sets,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
+        astr_loglik2 = astr_loglik2 + ast_loglik_hipp(obj.parameters,vel_files, obj.ast_data_sets_hipp_gaia,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
 
         #astr_loglik = ast_loglik(par,           vel_files, ast_files,            npl,                 stmass,    ttv_times,    hkl, fit_results=False, return_model = False)
         #print(astr_loglik2, obj.fit_results.mass, obj.ttv_times, obj.parameters, obj.loglik)
@@ -1853,6 +1986,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["AST"] == True:
         astr_loglik = ast_loglik(par,vel_files,obj.ast_data_sets,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)
+        astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,obj.ast_data_sets_hipp_gaia,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)
         obj.loglik     =  astr_loglik
         #print(obj.fit_results.mass, obj.ttv_times, obj.parameters, obj.loglik, astr_loglik)
 
@@ -1923,7 +2057,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     j = 0
 
-    for i in range(20):
+    for i in range(60):
         if len(obj.tra_data_sets[i]) == 0:
             continue
         else:
@@ -1953,7 +2087,13 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
 
 
+    if obj.type_fit["AST"] and obj.use_ast_hipp_gaia == True: 
 
+        obj.ast_alpha_err[0]    =    e_par[-6]
+        obj.ast_delta_err[0]    =    e_par[-5]
+        obj.ast_pi_err[0]       =    e_par[-4]       
+        obj.ast_mu_alpha_err[0] =    e_par[-3]       
+        obj.ast_mu_delta_err[0] =    e_par[-2]
 
    #####################
 
@@ -2055,7 +2195,7 @@ def run_nestsamp(obj, **kwargs):
 
     vel_files = [0]*obj.ndset
 
-    N_transit_files = len([x for x in range(20) if len(obj.tra_data_sets[x]) != 0])
+    N_transit_files = len([x for x in range(60) if len(obj.tra_data_sets[x]) != 0])
 
     tr_files = obj.tra_data_sets
     tr_mo    = obj.ld_m
@@ -2083,10 +2223,12 @@ def run_nestsamp(obj, **kwargs):
 
 
 
-    rvs_files = final_array
-    ttv_files = obj.ttv_data_sets
-    ast_files = obj.ast_data_sets
-
+    rvs_files  = final_array
+    ttv_files  = obj.ttv_data_sets
+    ast_files  = obj.ast_data_sets
+    ast_files2 = obj.ast_data_sets_hipp_gaia
+    
+    
     npl = obj.npl
     epoch = obj.epoch
     stmass = obj.params.stellar_mass
@@ -2145,6 +2287,7 @@ def run_nestsamp(obj, **kwargs):
            "RVS_files":rvs_files,
            "TTV_files":ttv_files,
            "AST_files":ast_files,
+           "AST_files_hipp":ast_files2,                       
            "TTV_times":obj.ttv_times,
            "AST_times":obj.ast_times,
            "AMD_stab":obj.NS_AMD_stab, 
@@ -2175,38 +2318,78 @@ def run_nestsamp(obj, **kwargs):
         u_trans = np.zeros(len(p))
         for j in range(len(p)):
 
-            #if p[j] <= bb[j][0] or p[j] >= bb[j][1]:
-            #    return -np.inf            
             
             #u_trans[j] = trans_uni(p[j],bb[j][0],bb[j][1])
             
             if priors[0][j,2] == True:
-                u_trans[j] = trans_norm(p[j],priors[0][j,0],priors[0][j,1])
+               # u_trans[j] = trans_norm(p[j],priors[0][j,0],priors[0][j,1])
+                u_trans[j] = truncated_trans_norm(p[j],priors[0][j,0],priors[0][j,1],bb[j][0],bb[j][1])                
+                
             elif priors[1][j,2] == True:
-                u_trans[j] = trans_loguni(p[j],priors[1][j,0],priors[1][j,1])
+                #u_trans[j] = trans_loguni(p[j],priors[1][j,0],priors[1][j,1])
+                u_trans[j] = truncated_trans_loguni(p[j],priors[1][j,0],priors[1][j,1],bb[j][0],bb[j][1])                   
+                
             else:
                 u_trans[j] = trans_uni(p[j],bb[j][0],bb[j][1])
+
+            #if p[j] <= bb[j][0] or p[j] >= bb[j][1]:
+            #    u_trans[j] = 0  
  
         return u_trans
 
-    def prior_transform2(p):
 
-        u_trans = np.zeros(len(p))
-        for j in range(len(p)):
-
- 
+    def truncated_trans_norm(p, loc, scale, lower, upper):
+        """
+        Computes the inverse CDF (PPF) of a normal distribution truncated within [lower, upper].
+        
+        Parameters:
+            p (float): Probability value, can be any number.
+            loc (float): Mean of the normal distribution.
+            scale (float): Standard deviation of the normal distribution.
+            lower (float): Lower bound of truncation.
+            upper (float): Upper bound of truncation.
             
-            if priors[0][j,2] == True:
-                u_trans[j] = trans_norm(p[j],priors[0][j,0],priors[0][j,1])
-            elif priors[1][j,2] == True:
-                u_trans[j] = trans_loguni(p[j],priors[1][j,0],priors[1][j,1])
-#            else:
+        Returns:
+            float: Truncated value of the inverse CDF.
+        """
+        # Calculate the CDF of the bounds
+        cdf_lower = stats.norm.cdf(lower, loc=loc, scale=scale)
+        cdf_upper = stats.norm.cdf(upper, loc=loc, scale=scale)
 
-            lim_trans = trans_uni(p[j],bb[j][0],bb[j][1])
-            u_trans[j] = u_trans[j] + lim_trans
+        # Rescale p to the truncated range, clamping if p is out of bounds
+        p_clamped = max(0.0, min(1.0, p))  # Ensure p is within [0, 1]
+        p_truncated = cdf_lower + p_clamped * (cdf_upper - cdf_lower)
 
-        return u_trans
+        # Compute the inverse CDF (PPF) for the truncated range
+        return stats.norm.ppf(p_truncated, loc=loc, scale=scale)
 
+    def truncated_trans_loguni(p, a, b, flat_lower, flat_upper):
+        """
+        Transforms a value `p` to a log-uniform distribution within bounds [a, b],
+        with additional constraints from a flat prior [flat_lower, flat_upper].
+        
+        Parameters:
+            p (float): Input value, can be any number.
+            a (float): Lower bound of the log-uniform distribution (must be positive).
+            b (float): Upper bound of the log-uniform distribution (must be positive).
+            flat_lower (float): Lower bound of the flat prior.
+            flat_upper (float): Upper bound of the flat prior.
+            
+        Returns:
+            float: Transformed value within the combined bounds.
+        """
+        # Ensure bounds for log-uniform are positive
+        if a <= 0 or b <= 0:
+            return (flat_lower + flat_upper) / 2.0  # Default to midpoint of flat prior if log bounds are invalid
+
+        # Clamp p to [0, 1]
+        p_clamped = max(0.0, min(1.0, p))
+        
+        # Transform to log-uniform within [a, b]
+        log_uni_result = np.exp(np.log(a) + p_clamped * (np.log(b) - np.log(a)))
+
+        # Clamp to flat prior bounds [flat_lower, flat_upper]
+        return max(flat_lower, min(flat_upper, log_uni_result))
 
     def trans_norm(p ,mu,sig):
         return stats.norm.ppf(p,loc=mu,scale=sig)
@@ -2217,6 +2400,7 @@ def run_nestsamp(obj, **kwargs):
     def trans_loguni(p,a,b):
         return np.exp(np.log(a) + p*(np.log(b)-np.log(a)))
 
+ 
 
     def partial_func2(pp):
         loglik = model_loglik(pp, mod, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, tra_gps, rtg, mix_fit, opt)
@@ -2516,7 +2700,7 @@ def run_mcmc(obj, **kwargs):
 
     vel_files = [0]*obj.ndset
 
-    N_transit_files = len([x for x in range(20) if len(obj.tra_data_sets[x]) != 0])
+    N_transit_files = len([x for x in range(60) if len(obj.tra_data_sets[x]) != 0])
 
     tr_files = obj.tra_data_sets
     tr_mo    = obj.ld_m
@@ -2542,10 +2726,11 @@ def run_mcmc(obj, **kwargs):
     final_array = np.array([jd, rvs, sig, ids]).T
 
 
-    rvs_files = final_array #np.array([obj.fit_results.jd,obj.fit_results.rvs,obj.fit_results.rv_err,obj.fit_results.idset +1]).T
-    ttv_files = obj.ttv_data_sets
-    ast_files = obj.ast_data_sets
-
+    rvs_files  = final_array #np.array([obj.fit_results.jd,obj.fit_results.rvs,obj.fit_results.rv_err,obj.fit_results.idset +1]).T
+    ttv_files  = obj.ttv_data_sets
+    ast_files  = obj.ast_data_sets
+    ast_files2 = obj.ast_data_sets_hipp_gaia
+    
     npl = obj.npl
     epoch = obj.epoch
     stmass = obj.params.stellar_mass
@@ -2603,6 +2788,7 @@ def run_mcmc(obj, **kwargs):
            "RVS_files":rvs_files,
            "TTV_files":ttv_files,
            "AST_files":ast_files,
+           "AST_files_hipp":ast_files2,                      
            "TTV_times":obj.ttv_times,
            "AST_times":obj.ast_times,
            "AMD_stab":obj.mcmc_AMD_stab, 
@@ -2832,11 +3018,11 @@ class signal_fit(object):
         self.mod_dynamical=False
         self.epoch=0.0
         self.npl=0
-        self.use=use_flags([False]*20,[False]*20,[False]*70,False,False)
-        self.params=PlanetParamsWrap([0.0]*20,[0.0]*20,[0.0]*70,0.0,1.0)
+        self.use=use_flags([False]*60,[False]*60,[False]*70,False,False)
+        self.params=PlanetParamsWrap([0.0]*60,[0.0]*60,[0.0]*70,0.0,1.0)
         self.param_errors=PlanetParamsErrorsWrap(self.rvmod.offset_errors, self.rvmod.jitter_errors, self.rvmod.planet_params_errors,
                                                  [0.0, 0.0], 0.0)
-        self.bounds = parameter_bounds([0.0,0.0]*20,[0.0,0.0]*20,[0.0,0.0]*70,[0.0,0.0],[0.0,0.0]*4,[0.0,0.0])
+        self.bounds = parameter_bounds([0.0,0.0]*60,[0.0,0.0]*60,[0.0,0.0]*70,[0.0,0.0],[0.0,0.0]*4,[0.0,0.0])
         
         self.use_planet = [0,0,0,0,0,0,0,0,0]
 
@@ -2901,13 +3087,13 @@ class signal_fit(object):
                            
         self.ttv_data_sets = {k: [] for k in range(10)}
         self.ast_data_sets = {k: [] for k in range(10)}
-        self.act_data_sets = {k: [] for k in range(20)}
-        self.tra_data_sets = {k: [] for k in range(20)}
-        self.rv_data_sets  = {k: [] for k in range(20)}
-        
-        self.act_data_sets_init = {k: [] for k in range(20)}
-        self.tra_data_sets_init = {k: [] for k in range(20)}
-        self.rv_data_sets_init  = {k: [] for k in range(20)}
+        self.act_data_sets = {k: [] for k in range(60)}
+        self.tra_data_sets = {k: [] for k in range(60)}
+        self.rv_data_sets  = {k: [] for k in range(60)}
+        self.ast_data_sets_hipp_gaia = {k: [] for k in range(10)}               
+        self.act_data_sets_init = {k: [] for k in range(60)}
+        self.tra_data_sets_init = {k: [] for k in range(60)}
+        self.rv_data_sets_init  = {k: [] for k in range(60)}
 
  
         # in this case we need to create a new kernel, but we will only give it this information which is needed for plotting
@@ -2951,29 +3137,29 @@ class signal_fit(object):
 
         self.parameters = []
 
-        self.pyqt_symbols_rvs = {k: 'o' for k in range(20)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
-        self.pyqt_symbols_act = {k: 'o' for k in range(20)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
-        self.pyqt_symbols_tra = {k: 'o' for k in range(20)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
-        self.pyqt_symbols_ttv = {k: 'o' for k in range(20)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
-        self.pyqt_symbols_ast = {k: 'o' for k in range(20)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
+        self.pyqt_symbols_rvs = {k: 'o' for k in range(60)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
+        self.pyqt_symbols_act = {k: 'o' for k in range(60)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
+        self.pyqt_symbols_tra = {k: 'o' for k in range(60)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
+        self.pyqt_symbols_ttv = {k: 'o' for k in range(60)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
+        self.pyqt_symbols_ast = {k: 'o' for k in range(60)} # ['o','t','t1','t2','t3','s','p','h','star','+','d']
 
-        self.pyqt_symbols_size_rvs = {k: 6 for k in range(20)} #[6,6,6,6,6,6,6,6,6,6] #
-        self.pyqt_symbols_size_act = {k: 4 for k in range(20)} #[4,4,4,4,4,4,4,4,4,4] #
-        self.pyqt_symbols_size_tra = {k: 2 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #
-        self.pyqt_symbols_size_ttv = {k: 4 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #
-        self.pyqt_symbols_size_ast = {k: 4 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #
+        self.pyqt_symbols_size_rvs = {k: 6 for k in range(60)} #[6,6,6,6,6,6,6,6,6,6] #
+        self.pyqt_symbols_size_act = {k: 4 for k in range(60)} #[4,4,4,4,4,4,4,4,4,4] #
+        self.pyqt_symbols_size_tra = {k: 2 for k in range(60)} #[2,2,2,2,2,2,2,2,2,2] #
+        self.pyqt_symbols_size_ttv = {k: 4 for k in range(60)} #[2,2,2,2,2,2,2,2,2,2] #
+        self.pyqt_symbols_size_ast = {k: 4 for k in range(60)} #[2,2,2,2,2,2,2,2,2,2] #
 
-        self.pyqt_color_alpha_rvs = {k: 255 for k in range(20)} #[6,6,6,6,6,6,6,6,6,6] #
-        self.pyqt_color_alpha_act = {k: 255 for k in range(20)} #[4,4,4,4,4,4,4,4,4,4] #
-        self.pyqt_color_alpha_tra = {k: 255 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #
-        self.pyqt_color_alpha_ttv = {k: 255 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #        
-        self.pyqt_color_alpha_ast = {k: 255 for k in range(20)} #[2,2,2,2,2,2,2,2,2,2] #        
+        self.pyqt_color_alpha_rvs = {k: 255 for k in range(60)} #[6,6,6,6,6,6,6,6,6,6] #
+        self.pyqt_color_alpha_act = {k: 255 for k in range(60)} #[4,4,4,4,4,4,4,4,4,4] #
+        self.pyqt_color_alpha_tra = {k: 255 for k in range(60)} #[2,2,2,2,2,2,2,2,2,2] #
+        self.pyqt_color_alpha_ttv = {k: 255 for k in range(60)} #[2,2,2,2,2,2,2,2,2,2] #        
+        self.pyqt_color_alpha_ast = {k: 255 for k in range(60)} #[2,2,2,2,2,2,2,2,2,2] #        
 
 
         self.colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#808080']
 
         self.act_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#0066ff', '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
-        self.tra_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#0066ff', '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
+        self.tra_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#0066ff', '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000','#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#0066ff', '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000','#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#0066ff', '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
         self.rvs_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699', '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
 
         self.gls_colors = ['#ff0000',  '#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#ff0000','#000000']
@@ -3009,40 +3195,40 @@ class signal_fit(object):
 
 
         self.ld_models = ["uniform", "linear", "quadratic", "nonlinear"]
-        self.ld_m = ["quadratic"]*20    #limb darkening model
+        self.ld_m = ["quadratic"]*60    #limb darkening model
 
-        self.ld_u = {k: [0.12, 0.35 ] for k in range(20)}
+        self.ld_u = {k: [0.12, 0.35 ] for k in range(60)}
 
-        self.ld_u_lin    = {k: [0.35] for k in range(20)}
-        self.ld_u_quad = {k: [0.12, 0.35 ] for k in range(20)}
-        self.ld_u_nonlin = {k: [0.55,0.12, 0.35,-0.11] for k in range(20)}
+        self.ld_u_lin    = {k: [0.35] for k in range(60)}
+        self.ld_u_quad = {k: [0.12, 0.35 ] for k in range(60)}
+        self.ld_u_nonlin = {k: [0.55,0.12, 0.35,-0.11] for k in range(60)}
 
-        self.ld_u_lin_use    = {k: [False] for k in range(20)}
-        self.ld_u_quad_use   = {k: [False, False] for k in range(20)}
-        self.ld_u_nonlin_use = {k: [False, False,False, False] for k in range(20)}
+        self.ld_u_lin_use    = {k: [False] for k in range(60)}
+        self.ld_u_quad_use   = {k: [False, False] for k in range(60)}
+        self.ld_u_nonlin_use = {k: [False, False,False, False] for k in range(60)}
 
-        self.ld_u_lin_err    = {k: [[0.0,0.0]] for k in range(20)}
-        self.ld_u_quad_err   = {k: [[0.0,0.0], [0.0,0.0]] for k in range(20)}
-        self.ld_u_nonlin_err = {k: [[0.0,0.0], [0.0,0.0],[0.0,0.0], [0.0,0.0]] for k in range(20)}
+        self.ld_u_lin_err    = {k: [[0.0,0.0]] for k in range(60)}
+        self.ld_u_quad_err   = {k: [[0.0,0.0], [0.0,0.0]] for k in range(60)}
+        self.ld_u_nonlin_err = {k: [[0.0,0.0], [0.0,0.0],[0.0,0.0], [0.0,0.0]] for k in range(60)}
 
-        self.ld_u_lin_bound       = {k: np.array([[-1.0,1.0]]) for k in range(20)}
-        self.ld_u_quad_bound      = {k: np.array([[-1.0,1.0],[-1.0,1.0]]) for k in range(20)}
-        self.ld_u_nonlin_bound    = {k: np.array([[-1.0,1.0],[-1.0,1.0],[-1.0,1.0],[-1.0,1.0]]) for k in range(20)}
+        self.ld_u_lin_bound       = {k: np.array([[-1.0,1.0]]) for k in range(60)}
+        self.ld_u_quad_bound      = {k: np.array([[-1.0,1.0],[-1.0,1.0]]) for k in range(60)}
+        self.ld_u_nonlin_bound    = {k: np.array([[-1.0,1.0],[-1.0,1.0],[-1.0,1.0],[-1.0,1.0]]) for k in range(60)}
 
-        self.ld_u_lin_norm_pr     = {k: np.array([[0.1,0.05, False]]) for k in range(20)}
-        self.ld_u_quad_norm_pr    = {k: np.array([[0.0,1.0, False],[0.0,1.0, False]]) for k in range(20)}
-        self.ld_u_nonlin_norm_pr  = {k: np.array([[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False]]) for k in range(20)}
+        self.ld_u_lin_norm_pr     = {k: np.array([[0.1,0.05, False]]) for k in range(60)}
+        self.ld_u_quad_norm_pr    = {k: np.array([[0.0,1.0, False],[0.0,1.0, False]]) for k in range(60)}
+        self.ld_u_nonlin_norm_pr  = {k: np.array([[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False]]) for k in range(60)}
 
-        self.ld_u_lin_jeff_pr     = {k: np.array([[0.1,0.05, False]]) for k in range(20)}
-        self.ld_u_quad_jeff_pr    = {k: np.array([[0.0,1.0, False],[0.0,1.0, False]]) for k in range(20)}
-        self.ld_u_nonlin_jeff_pr  = {k: np.array([[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False]]) for k in range(20)}
+        self.ld_u_lin_jeff_pr     = {k: np.array([[0.1,0.05, False]]) for k in range(60)}
+        self.ld_u_quad_jeff_pr    = {k: np.array([[0.0,1.0, False],[0.0,1.0, False]]) for k in range(60)}
+        self.ld_u_nonlin_jeff_pr  = {k: np.array([[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False],[0.0,1.0, False]]) for k in range(60)}
 
-        self.ld_u_lin_str         = {k: [r'ld-quad-1$_%s$'%str(k+1)] for k in range(20)}
-        self.ld_u_quad_str        = {k: [r'ld-quad-1$_%s$'%str(k+1),r'ld-quad-2$_%s$'%str(k+1)] for k in range(20)}
-        self.ld_u_nonlin_str      = {k: [r'ld-quad-1$_%s$'%str(k+1),r'ld-quad-2$_%s$'%str(k+1),r'ld-quad-3$_%s$'%str(k+1),r'ld-quad-4$_%s$'%str(k+1)] for k in range(20)}
+        self.ld_u_lin_str         = {k: [r'ld-quad-1$_%s$'%str(k+1)] for k in range(60)}
+        self.ld_u_quad_str        = {k: [r'ld-quad-1$_%s$'%str(k+1),r'ld-quad-2$_%s$'%str(k+1)] for k in range(60)}
+        self.ld_u_nonlin_str      = {k: [r'ld-quad-1$_%s$'%str(k+1),r'ld-quad-2$_%s$'%str(k+1),r'ld-quad-3$_%s$'%str(k+1),r'ld-quad-4$_%s$'%str(k+1)] for k in range(60)}
 
-        self.ld_gr     = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
-        self.ld_gr_ind = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        self.ld_gr     = list(range(60))
+        self.ld_gr_ind = [0]* len(self.ld_gr)
 
         ############################################
 
@@ -3075,7 +3261,7 @@ class signal_fit(object):
     def init_pl_params(self):
 
         #### RV #####
-        self.K    = {k: 50.0 for k in range(9)}
+        self.K    = {k: 60.0 for k in range(9)}
         self.P    = {k: 100.0 + 150.0*k for k in range(9)}
         self.e    = {k: 0.0  for k in range(9)}
         self.w    = {k: 0.0 for k in range(9)}
@@ -3169,6 +3355,55 @@ class signal_fit(object):
         self.pl_rad_str  = {k: r'R/$R_\star$ $%s$'%chr(98+k) for k in range(9)}
 
 
+        #### Astrometric #####
+        
+        self.use_ast_hipp_gaia = False
+        self.use_ast_imaging   = False 
+        
+ 
+        self.ast_alpha     = {k: 0.0 for k in range(1)}
+        self.ast_delta      = {k: 0.0 for k in range(1)}
+        self.ast_pi        = {k: 0.0 for k in range(1)}
+        self.ast_mu_alpha  = {k: 0.0 for k in range(1)}        
+        self.ast_mu_delta  = {k: 0.0 for k in range(1)}   
+        
+        self.ast_alpha_use     = {k: False for k in range(1)}
+        self.ast_delta_use      = {k: False for k in range(1)}
+        self.ast_pi_use        = {k: False for k in range(1)}
+        self.ast_mu_alpha_use  = {k: False for k in range(1)}        
+        self.ast_mu_delta_use  = {k: False for k in range(1)}          
+        
+        self.ast_alpha_err     = {k: np.array([0.0,0.0])  for k in range(1)}
+        self.ast_delta_err      = {k: np.array([0.0,0.0])  for k in range(1)}
+        self.ast_pi_err        = {k: np.array([0.0,0.0])  for k in range(1)}
+        self.ast_mu_alpha_err  = {k: np.array([0.0,0.0])  for k in range(1)}        
+        self.ast_mu_delta_err  = {k: np.array([0.0,0.0])  for k in range(1)}          
+                  
+        self.ast_alpha_bound      = {k: np.array([0.0,360.0])  for k in range(1)}
+        self.ast_delta_bound       = {k: np.array([-90.0,90.0])  for k in range(1)}
+        self.ast_pi_bound         = {k: np.array([0.0,10000.0])  for k in range(1)}
+        self.ast_mu_alpha_bound   = {k: np.array([0.0,10000.0])  for k in range(1)}        
+        self.ast_mu_delta_bound   = {k: np.array([-100.0,100.0])  for k in range(1)}          
+                             
+        self.ast_alpha_norm_pr     = {k: np.array([0.0,3.0, False])  for k in range(1)}
+        self.ast_delta_norm_pr      = {k: np.array([0.0,3.0, False])  for k in range(1)}
+        self.ast_pi_norm_pr        = {k: np.array([0.0,100.0, False])  for k in range(1)}
+        self.ast_mu_alpha_norm_pr  = {k: np.array([0.0,100.0, False])  for k in range(1)}        
+        self.ast_mu_delta_norm_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}      
+
+        self.ast_alpha_jeff_pr     = {k: np.array([0.0,3.0, False])  for k in range(1)}
+        self.ast_delta_jeff_pr      = {k: np.array([0.0,3.0, False])  for k in range(1)}
+        self.ast_pi_jeff_pr        = {k: np.array([0.0,100.0, False])  for k in range(1)}
+        self.ast_mu_alpha_jeff_pr  = {k: np.array([0.0,100.0, False])  for k in range(1)}        
+        self.ast_mu_delta_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}    
+          
+        self.ast_alpha_str           = {k: r'$\alpha$' for k in range(1)}
+        self.ast_delta_str           = {k: r'$\delta$' for k in range(1)}
+        self.ast_pi_str              = {k: r'$\pi$' for k in range(1)}
+        self.ast_mu_alpha_str        = {k: r'$\mu\alpha$' for k in range(1)}       
+        self.ast_mu_delta_str        = {k: r'$\mu\delta$' for k in range(1)}   
+
+        
 
     def init_hkl(self) :
 
@@ -3217,58 +3452,58 @@ class signal_fit(object):
 
     def init_RV_jitter(self) :
 
-        self.jitt      = {k: 0.0 for k in range(20)}
-        self.jitt_err  = {k: np.array([0.0,0.0]) for k in range(20)}
-        self.jitt_use  = {k: False for k in range(20)}
-        self.jitt_str  = {k: r'RV jitt$_%s$'%str(k+1) for k in range(20)}
-        self.jitt_bounds  = {k: np.array([0.0,10000.0] )for k in range(20)}
-        self.jitt_norm_pr = {k: np.array([1.0,5.0, False] )for k in range(20)}
-        self.jitt_jeff_pr = {k: np.array([1.0,5.0, False] )for k in range(20)}
+        self.jitt      = {k: 0.0 for k in range(60)}
+        self.jitt_err  = {k: np.array([0.0,0.0]) for k in range(60)}
+        self.jitt_use  = {k: False for k in range(60)}
+        self.jitt_str  = {k: r'RV jitt$_%s$'%str(k+1) for k in range(60)}
+        self.jitt_bounds  = {k: np.array([0.0,10000.0] )for k in range(60)}
+        self.jitt_norm_pr = {k: np.array([1.0,5.0, False] )for k in range(60)}
+        self.jitt_jeff_pr = {k: np.array([1.0,5.0, False] )for k in range(60)}
 
 
     def init_RV_offset(self) :
 
-        self.rvoff      = {k: 0.0 for k in range(20)}
-        self.rvoff_err  = {k: np.array([0.0,0.0])  for k in range(20)}
-        self.rvoff_use  = {k: False for k in range(20)}
-        self.rvoff_str  = {k: r'RV off$_%s$'%str(k+1) for k in range(20)}
-        self.rvoff_bounds  = {k: np.array([-1000000.0,1000000.0] )for k in range(20)}
-        self.rvoff_norm_pr = {k: np.array([0.0,100.0, False] )for k in range(20)}
-        self.rvoff_jeff_pr = {k: np.array([0.0,100.0, False] )for k in range(20)}
+        self.rvoff      = {k: 0.0 for k in range(60)}
+        self.rvoff_err  = {k: np.array([0.0,0.0])  for k in range(60)}
+        self.rvoff_use  = {k: False for k in range(60)}
+        self.rvoff_str  = {k: r'RV off$_%s$'%str(k+1) for k in range(60)}
+        self.rvoff_bounds  = {k: np.array([-1000000.0,1000000.0] )for k in range(60)}
+        self.rvoff_norm_pr = {k: np.array([0.0,100.0, False] )for k in range(60)}
+        self.rvoff_jeff_pr = {k: np.array([0.0,100.0, False] )for k in range(60)}
 
         self.n_rvdata = 0
 
 
     def init_tra_jitter(self) :
 
-        self.tra_jitt      = {k: 0.0 for k in range(20)}
-        self.tra_jitt_err  = {k: np.array([0.0,0.0]) for k in range(20)}
-        self.tra_jitt_use  = {k: False for k in range(20)}
-        self.tra_jitt_str  = {k: r'transit jitt$_%s$'%str(k+1) for k in range(20)}
-        self.tra_jitt_bounds  = {k: np.array([-0.2,0.2] )for k in range(20)}
-        self.tra_jitt_norm_pr = {k: np.array([0.0,0.1, False] )for k in range(20)}
-        self.tra_jitt_jeff_pr = {k: np.array([0.0,0.1, False] )for k in range(20)}
+        self.tra_jitt      = {k: 0.0 for k in range(60)}
+        self.tra_jitt_err  = {k: np.array([0.0,0.0]) for k in range(60)}
+        self.tra_jitt_use  = {k: False for k in range(60)}
+        self.tra_jitt_str  = {k: r'transit jitt$_%s$'%str(k+1) for k in range(60)}
+        self.tra_jitt_bounds  = {k: np.array([-0.2,0.2] )for k in range(60)}
+        self.tra_jitt_norm_pr = {k: np.array([0.0,0.1, False] )for k in range(60)}
+        self.tra_jitt_jeff_pr = {k: np.array([0.0,0.1, False] )for k in range(60)}
 
 
     def init_tra_offset(self) :
 
-        self.tra_off      = {k: 0.0 for k in range(20)}
-        self.tra_off_err  = {k: np.array([0.0,0.0])  for k in range(20)}
-        self.tra_off_use  = {k: False for k in range(20)}
-        self.tra_off_str  = {k: r'transit off$_%s$'%str(k+1) for k in range(20)}
-        self.tra_off_bounds  = {k: np.array([-1.0,2.0] )for k in range(20)}
-        self.tra_off_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
-        self.tra_off_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
+        self.tra_off      = {k: 0.0 for k in range(60)}
+        self.tra_off_err  = {k: np.array([0.0,0.0])  for k in range(60)}
+        self.tra_off_use  = {k: False for k in range(60)}
+        self.tra_off_str  = {k: r'transit off$_%s$'%str(k+1) for k in range(60)}
+        self.tra_off_bounds  = {k: np.array([-1.0,2.0] )for k in range(60)}
+        self.tra_off_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(60)}
+        self.tra_off_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(60)}
 
     def init_tra_dilution(self) :
 
-        self.tra_dil     = {k: 1.0 for k in range(20)}
-        self.tra_dil_err  = {k: np.array([0.0,0.0])  for k in range(20)}
-        self.tra_dil_use  = {k: False for k in range(20)}
-        self.tra_dil_str  = {k: r'tr. data dilution$_%s$'%str(k+1) for k in range(20)}
-        self.tra_dil_bounds  = {k: np.array([0.0,1.0] )for k in range(20)}
-        self.tra_dil_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
-        self.tra_dil_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(20)}
+        self.tra_dil     = {k: 1.0 for k in range(60)}
+        self.tra_dil_err  = {k: np.array([0.0,0.0])  for k in range(60)}
+        self.tra_dil_use  = {k: False for k in range(60)}
+        self.tra_dil_str  = {k: r'tr. data dilution$_%s$'%str(k+1) for k in range(60)}
+        self.tra_dil_bounds  = {k: np.array([0.0,1.0] )for k in range(60)}
+        self.tra_dil_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(60)}
+        self.tra_dil_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(60)}
 
     def init_RV_lintr(self) :
 
@@ -3294,24 +3529,24 @@ class signal_fit(object):
 
     def init_tra_lintr(self) :
 
-        self.tra_lintr      = {k: 0.0 for k in range(20)}
-        self.tra_lintr_err  = {k: np.array([0.0,0.0])  for k in range(20)}
-        self.tra_lintr_use  = {k: False for k in range(20)}
-        self.tra_lintr_str  = {k: r'tra lin.tr$_%s$'%str(k+1) for k in range(20)}
-        self.tra_lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(20)}
-        self.tra_lintr_norm_pr = {k: np.array([0,0.001, False]) for k in range(20)}
-        self.tra_lintr_jeff_pr = {k: np.array([-0.001,0.001, False]) for k in range(20)}
+        self.tra_lintr      = {k: 0.0 for k in range(60)}
+        self.tra_lintr_err  = {k: np.array([0.0,0.0])  for k in range(60)}
+        self.tra_lintr_use  = {k: False for k in range(60)}
+        self.tra_lintr_str  = {k: r'tra lin.tr$_%s$'%str(k+1) for k in range(60)}
+        self.tra_lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(60)}
+        self.tra_lintr_norm_pr = {k: np.array([0,0.001, False]) for k in range(60)}
+        self.tra_lintr_jeff_pr = {k: np.array([-0.001,0.001, False]) for k in range(60)}
 
 
     def init_tra_quadtr(self) :
 
-        self.tra_quadtr      = {k: 0.0 for k in range(20)}
-        self.tra_quadtr_err  = {k: np.array([0.0,0.0])  for k in range(20)}
-        self.tra_quadtr_use  = {k: False for k in range(20)}
-        self.tra_quadtr_str  = {k: r'tra quad.tr$_%s$'%str(k+1) for k in range(20)}
-        self.tra_quadtr_bounds  = {k: np.array([-1.0,1.0]) for k in range(20)}
-        self.tra_quadtr_norm_pr = {k: np.array([0,0.001, False]) for k in range(20)}
-        self.tra_quadtr_jeff_pr = {k: np.array([-0.001,0.001, False]) for k in range(20)}
+        self.tra_quadtr      = {k: 0.0 for k in range(60)}
+        self.tra_quadtr_err  = {k: np.array([0.0,0.0])  for k in range(60)}
+        self.tra_quadtr_use  = {k: False for k in range(60)}
+        self.tra_quadtr_str  = {k: r'tra quad.tr$_%s$'%str(k+1) for k in range(60)}
+        self.tra_quadtr_bounds  = {k: np.array([-1.0,1.0]) for k in range(60)}
+        self.tra_quadtr_norm_pr = {k: np.array([0,0.001, False]) for k in range(60)}
+        self.tra_quadtr_jeff_pr = {k: np.array([-0.001,0.001, False]) for k in range(60)}
 
  
     def init_TTVs(self):
@@ -3356,7 +3591,7 @@ class signal_fit(object):
             self.tra_ttv_err[i]  = {k: np.array([0.0,0.0])  for k in range(len(tran_times[1]))}            
             self.tra_ttv_use[i]  = {k: True for k in range(len(tran_times[1]))} 
             self.tra_ttv_str[i]  = {k: r't$_%s$'%str(tran_times[0][k])  for k in range(len(tran_times[1]))}
-            self.tra_ttv_bounds[i]  = {k: np.array([tran_times[1][k]-0.1,tran_times[1][k]+0.1])  for k in range(len(tran_times[1]))} 
+            self.tra_ttv_bounds[i]  = {k: np.array([tran_times[1][k]-0.2,tran_times[1][k]+0.2])  for k in range(len(tran_times[1]))} 
             self.tra_ttv_norm_pr[i] = {k: np.array([tran_times[1][k],0.1, False])  for k in range(len(tran_times[1]))} 
             self.tra_ttv_jeff_pr[i] = {k: np.array([tran_times[1][k]-0.1,tran_times[1][k]+0.1, False])  for k in range(len(tran_times[1]))}        
 
@@ -3440,8 +3675,8 @@ class signal_fit(object):
         self.GP_double_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_double_sho_params))}
         self.GP_double_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.GP_double_sho_params))}
 
-        self.gp_model_curve = {k: 0.0 for k in range(20)}
-        self.gp_model_data  = {k: 0.0 for k in range(20)}
+        self.gp_model_curve = {k: 0.0 for k in range(60)}
+        self.gp_model_data  = {k: 0.0 for k in range(60)}
 
         self.gp_kernels = ['SHOKernel','RotKernel','Matern32','dSHOKernel','RealTerm']
         self.gp_kernel = self.gp_kernels[0]
@@ -3491,8 +3726,8 @@ class signal_fit(object):
         self.tra_GP_double_sho_norm_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_double_sho_params))}
         self.tra_GP_double_sho_jeff_pr    = {k: np.array([0.0,10.0, False]) for k in range(len(self.tra_GP_double_sho_params))}
 
-        self.tra_gp_model_curve = {k: 0.0 for k in range(20)}
-        self.tra_gp_model_data  = {k: 0.0 for k in range(20)}
+        self.tra_gp_model_curve = {k: 0.0 for k in range(60)}
+        self.tra_gp_model_data  = {k: 0.0 for k in range(60)}
 
         self.tra_gp_kernels = ['SHOKernel','RotKernel','Matern32','dSHOKernel','RealTerm']
         self.tra_gp_kernel = self.gp_kernels[0]
@@ -3716,9 +3951,9 @@ class signal_fit(object):
         self.rv_data_sets_init[rv_idset] = dill.copy(self.rv_data_sets[rv_idset])
 
 
-        self.ndset = len([x for x in range(20) if len(self.rv_data_sets[x]) != 0])
+        self.ndset = len([x for x in range(60) if len(self.rv_data_sets[x]) != 0])
 
-        self.n_rvdata = sum([len(self.rv_data_sets[x][0]) for x in range(20) if len(self.rv_data_sets[x]) != 0])
+        self.n_rvdata = sum([len(self.rv_data_sets[x][0]) for x in range(60) if len(self.rv_data_sets[x]) != 0])
 
         return
 
@@ -3728,8 +3963,8 @@ class signal_fit(object):
         self.rv_data_sets[rv_idset]      = []
         self.rv_data_sets_init[rv_idset] = []
 
-        self.ndset = len([x for x in range(20) if len(self.rv_data_sets[x]) != 0])
-        self.n_rvdata = sum([len(self.rv_data_sets[x][0]) for x in range(20) if len(self.rv_data_sets[x]) != 0])
+        self.ndset = len([x for x in range(60) if len(self.rv_data_sets[x]) != 0])
+        self.n_rvdata = sum([len(self.rv_data_sets[x][0]) for x in range(60) if len(self.rv_data_sets[x]) != 0])
 
         return
 
@@ -3839,7 +4074,7 @@ class signal_fit(object):
             return
 
         ast_file_name = file_from_path(path)
-        ast_data_set = np.array([ast_BJD,ast_data_x,ast_data_x_sig,ast_data_y,ast_data_y_sig, planet, use, ast_file_name])
+        ast_data_set = np.array([ast_BJD,ast_data_x,ast_data_x_sig,ast_data_y,ast_data_y_sig, planet, use, ast_file_name],dtype=object)
 
         self.ast_data_sets[ast_idset] = ast_data_set
         return
@@ -3848,6 +4083,123 @@ class signal_fit(object):
     def remove_ast_dataset(self, ast_idset):
         self.ast_data_sets[ast_idset] = []
         return
+
+############################ Ast datasets Hipp/Gaia ##########################################
+    def add_ast_dataset_hipp_gaia(self, name, path, ast_idset = 0, planet = 0, use = False):
+ 
+# [np.arange(0,len(A8)),frac,A5,A3,A4,A8,A9])
+
+        def read_header_lines(file_path):
+            """
+            Extract all lines starting with '#' from a file.
+
+            Args:
+                file_path (str): Path to the file.
+
+            Returns:
+                list: A list of strings containing the header lines.
+            """
+            header_lines = []
+            with open(file_path, 'r') as file:
+                for line in file:
+                    if line.strip().startswith("#"):
+                        header_lines.append(line.strip("#").strip())  # Remove '#' and extra whitespace
+            return header_lines
+
+
+
+        def parse_hipparcos_data(lines):
+            """
+            Parses the Hipparcos data lines and returns a structured dictionary
+            containing all relevant blocks of headers and values.
+
+            Args:
+                lines (list): List of strings containing headers and data rows.
+
+            Returns:
+                dict: Dictionary mapping all headers to their corresponding values.
+            """
+            combined_data = {}  # Final dictionary to store all parsed data
+            headers = []
+            values = []
+
+            for line in lines:
+                if line.strip() == '':
+                    # End of a block, process it
+                    if headers and values:
+                        block_dict = dict(zip(headers, values))
+                        combined_data.update(block_dict)
+                    headers, values = [], []  # Reset for the next block
+                    continue
+
+                # Split the line into parts
+                parts = line.split()
+                
+                # Check if the line is data (numeric or "---") or headers
+                if all(x.replace('.', '', 1).replace('-', '', 1).isdigit() or x == "---" for x in parts):
+                    values = [float(x) if x.replace('.', '', 1).replace('-', '', 1).isdigit() else x for x in parts]
+                else:
+                    headers = parts
+
+            # Process the last block if not empty
+            if headers and values:
+                block_dict = dict(zip(headers, values))
+                combined_data.update(block_dict)
+
+            return combined_data
+
+                    
+        header = read_header_lines(path)
+        
+        #print(header)
+        hipp_header = parse_hipparcos_data(header)
+
+        #self.header = hipp_header
+
+
+
+ 
+        try:
+        
+            ast_BJD_        = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+            ast_data_x_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+            ast_data_x_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+            ast_data_y_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [3])
+            ast_data_y_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [4])
+            ast_data_z_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [5])
+            ast_data_z_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [6])
+
+            if len(ast_BJD_) != len(ast_data_x_) != len(ast_data_x_sig_) != len(ast_data_y_) != len(ast_data_y_sig_):
+                print("Something is wrong with your Astromtry data file! Please provide an Astromtry data file that contains the ")
+                return
+
+            ast_BJD         = ast_BJD_[       np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
+            ast_data_x      = ast_data_x_[    np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
+            ast_data_x_sig  = ast_data_x_sig_[np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
+            ast_data_y      = ast_data_y_[    np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
+            ast_data_y_sig  = ast_data_y_sig_[np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
+            ast_data_z      = ast_data_z_[    np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
+            ast_data_z_sig  = ast_data_z_sig_[np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
+
+            if len(ast_BJD) == 0:
+                print("Something is wrong with your Astromtry data file! Perhaps some not all entries are numeric? Please provide a Astromtry data file that contains the standard Hipparcos data input")
+                return
+        except:
+            print("Something is wrong with your Astromtry data file! Please provide a Astromtry data file that contains the standard Hipparcos data input")
+            return
+
+
+        ast_file_name = file_from_path(path)
+        ast_data_set = np.array([ast_BJD,ast_data_x,ast_data_x_sig,ast_data_y,ast_data_y_sig,ast_data_z,ast_data_z_sig, planet, use, hipp_header, ast_file_name],dtype=object)
+
+        self.ast_data_sets_hipp_gaia[ast_idset] = ast_data_set
+        return
+
+
+    def remove_ast_dataset_hipp_gaia(self, ast_idset):
+        self.ast_data_sets_hipp_gaia[ast_idset] = []
+        return
+
 
 ############################ transit datasets ##########################################
     def add_transit_dataset(self, name, path, tra_idset = 0, PDC = False):
@@ -4019,7 +4371,7 @@ class signal_fit(object):
 
 
         if index == None:
-            empt_rvs_files = min([x for x in range(20) if len(self.rv_data_sets[x]) == 0], default=0) 
+            empt_rvs_files = min([x for x in range(60) if len(self.rv_data_sets[x]) == 0], default=0) 
             index = int(empt_rvs_files)
 
         self.add_rv_dataset(name, path, rv_idset = int(index))
@@ -4742,62 +5094,62 @@ class signal_fit(object):
             self.overwrite_params(oldparams,save=False)
             return
 
-    def minimize_one_param_K(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500, model_min =0):
-        useflags=use_flags([False]*20,[False]*20,[False]*70,False,False)
+    def minimize_one_param_K(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 600, model_min =0):
+        useflags=use_flags([False]*60,[False]*60,[False]*70,False,False)
         useflags.update_use_K(planet,True)
         self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return
 
-    def minimize_one_param_P(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500, model_min =0):
-        useflags=use_flags([False]*20,[False]*20,[False]*70,False,False)
+    def minimize_one_param_P(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 600, model_min =0):
+        useflags=use_flags([False]*60,[False]*60,[False]*70,False,False)
         useflags.update_use_P(planet,True)
         self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return
 
-    def minimize_one_param_e(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500, model_min =0):
-        useflags=use_flags([False]*20,[False]*20,[False]*70,False,False)
+    def minimize_one_param_e(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 600, model_min =0):
+        useflags=use_flags([False]*60,[False]*60,[False]*70,False,False)
         useflags.update_use_e(planet,True)
         self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return
 
-    def minimize_one_param_w(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500, model_min =0):
-        useflags=use_flags([False]*20,[False]*20,[False]*70,False,False)
+    def minimize_one_param_w(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 600, model_min =0):
+        useflags=use_flags([False]*60,[False]*60,[False]*70,False,False)
         useflags.update_use_w(planet,True)
         self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return
 
-    def minimize_one_param_M0(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500, model_min =0):
-        useflags=use_flags([False]*20,[False]*20,[False]*70,False,False)
+    def minimize_one_param_M0(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 600, model_min =0):
+        useflags=use_flags([False]*60,[False]*60,[False]*70,False,False)
         useflags.update_use_M0(planet,True)
         self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return
 
-    def minimize_one_param_inclination(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500, model_min =0):
-        useflags=use_flags([False]*20,[False]*20,[False]*70,False,False)
+    def minimize_one_param_inclination(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 600, model_min =0):
+        useflags=use_flags([False]*60,[False]*60,[False]*70,False,False)
         useflags.update_use_inclination(planet,True)
         self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return
 
-    def minimize_one_param_lineofnodes(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500, model_min =0):
-        useflags=use_flags([False]*20,[False]*20,[False]*70,False,False)
+    def minimize_one_param_lineofnodes(self,planet,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 600, model_min =0):
+        useflags=use_flags([False]*60,[False]*60,[False]*70,False,False)
         useflags.update_use_lineofnodes(planet,True)
         self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return
 
-    def minimize_one_param_offset(self,dataset,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500, model_min =0):
-        useflags=use_flags([False]*20,[False]*20,[False]*70,False,False)
+    def minimize_one_param_offset(self,dataset,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 600, model_min =0):
+        useflags=use_flags([False]*60,[False]*60,[False]*70,False,False)
         useflags.update_use_offset(dataset,True)
         self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return
 
-    def minimize_one_param_jitter(self,dataset,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500, model_min =0):
-        useflags=use_flags([False]*20,[False]*20,[False]*70,False,False)
+    def minimize_one_param_jitter(self,dataset,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 600, model_min =0):
+        useflags=use_flags([False]*60,[False]*60,[False]*70,False,False)
         useflags.update_use_jitter(dataset,True)
         self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return
 
-    def minimize_one_param_linear_trend(self,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 500, model_min =0):
-        useflags=use_flags([False]*20,[False]*20,[False]*70,False,False)
+    def minimize_one_param_linear_trend(self,minimize_loglik=True, fileinput=False, filename='Kep_input', outputfiles=[1,0,0], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 600, model_min =0):
+        useflags=use_flags([False]*60,[False]*60,[False]*70,False,False)
         useflags.update_use_linear_trend(True)
         self.quick_overwrite_use_and_fit(useflags,minimize_loglik=minimize_loglik, fileinput=fileinput, filename=filename, amoeba_starts=amoeba_starts, outputfiles=outputfiles, eps=eps, dt=dt, timeout_sec=timeout_sec, print_stat=print_stat, fortran_kill=fortran_kill)
         return
@@ -5089,7 +5441,7 @@ class signal_fit(object):
        # if rtg[3] == True: # and self.type_fit['Transit'] == True:
 
 
-        for i in range(20):
+        for i in range(len(self.tra_data_sets)):
             if len(self.tra_data_sets[i]) != 0:
 
                 par.append(self.tra_off[i]) #
@@ -5105,7 +5457,7 @@ class signal_fit(object):
 
 
 
-        for i in range(20):
+        for i in range(len(self.tra_data_sets)):
             if len(self.tra_data_sets[i]) != 0:
                 par.append(self.tra_jitt[i]) #
                 par_str.append(self.tra_jitt_str[i]) #
@@ -5189,7 +5541,7 @@ class signal_fit(object):
                         flag.append(False) 
 
 
-        for i in range(20):
+        for i in range(len(self.tra_data_sets)):
             if len(self.tra_data_sets[i]) != 0:
                 par.append(self.tra_lintr[i]) #
                 par_str.append(self.tra_lintr_str[i]) #
@@ -5204,7 +5556,7 @@ class signal_fit(object):
                     flag.append(False) #
 
 
-        for i in range(20):
+        for i in range(len(self.tra_data_sets)):
             if len(self.tra_data_sets[i]) != 0:
                 par.append(self.tra_quadtr[i]) #
                 par_str.append(self.tra_quadtr_str[i]) #
@@ -5230,8 +5582,8 @@ class signal_fit(object):
             prior_jeff.append(self.omega_dot_jeff_pr[i])
 
 
-
-        for i in range(20):
+        #print(len(self.ld_gr))
+        for i in range(len(self.tra_data_sets)):
             if len(self.tra_data_sets[i]) == 0 or self.ld_gr[i] != i:
                 continue
           #  elif self.npl==0:
@@ -5296,14 +5648,63 @@ class signal_fit(object):
                     prior_nr.append(self.tra_ttv_norm_pr[i][z])
                     prior_jeff.append(self.tra_ttv_jeff_pr[i][z])   
                
+       #### Astr. & Stellar parameters #####
+       
 
+        par.append(self.ast_alpha[0])
+        par_str.append(self.ast_alpha_str[0])
+        bounds.append(self.ast_alpha_bound[0])
+        prior_nr.append(self.ast_alpha_norm_pr[0])
+        prior_jeff.append(self.ast_alpha_jeff_pr[0])
+        
+        par.append(self.ast_delta[0])
+        par_str.append(self.ast_delta_str[0])
+        bounds.append(self.ast_delta_bound[0])
+        prior_nr.append(self.ast_delta_norm_pr[0])
+        prior_jeff.append(self.ast_delta_jeff_pr[0])
+        
+        
+        par.append(self.ast_pi[0])
+        par_str.append(self.ast_pi_str[0])
+        bounds.append(self.ast_pi_bound[0])
+        prior_nr.append(self.ast_pi_norm_pr[0])
+        prior_jeff.append(self.ast_pi_jeff_pr[0])        
+
+        par.append(self.ast_mu_alpha[0])
+        par_str.append(self.ast_mu_alpha_str[0])
+        bounds.append(self.ast_mu_alpha_bound[0])
+        prior_nr.append(self.ast_mu_alpha_norm_pr[0])
+        prior_jeff.append(self.ast_mu_alpha_jeff_pr[0])
+        
+        par.append(self.ast_mu_delta[0])
+        par_str.append(self.ast_mu_delta_str[0])
+        bounds.append(self.ast_mu_delta_bound[0])
+        prior_nr.append(self.ast_mu_delta_norm_pr[0])
+        prior_jeff.append(self.ast_mu_delta_jeff_pr[0])
+        
+                      
+
+        if self.type_fit["AST"] and self.use_ast_hipp_gaia == True: 
+     
+            flag.append(self.ast_alpha_use[0])   
+            flag.append(self.ast_delta_use[0])
+            flag.append(self.ast_pi_use[0])        
+            flag.append(self.ast_mu_alpha_use[0])        
+            flag.append(self.ast_mu_delta_use[0])
+        else:
+            #flag.append(False)   
+            [flag.append(False) for _ in range(5)]        
+         
+         
+         
+                
         par.append(self.params.stellar_mass)
         flag.append(self.use.use_stellar_mass)
         par_str.append(self.st_mass_str[0])
         bounds.append(self.st_mass_bounds[0])
         prior_nr.append(self.st_mass_norm_pr[0])
         prior_jeff.append(self.st_mass_jeff_pr[0])
-
+        
 #        print(par)
 #        print(flag)
 #        print(par_str)
