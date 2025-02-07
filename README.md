@@ -73,12 +73,14 @@ Just open an "Issue" on GitHub or send a PM to trifonov@mpia.de.
 
 **Installation**
  
-Python3.11+ is strongly recommended!!! The Exo-Striker works with older Python3 versions, and even Python2, but you will likely have problems with some dependencies, which you may have to solve.
-If your system Python3 is 3.10 and below, it is recommended to not upgrade the python3, but to install python3.10 alongside your system python3. 
+Python3.10+ is strongly recommended!!! The Exo-Striker works with older Python3 versions, and even Python2, but you will likely have problems with some dependencies, which you may have to solve.
+If your system Python3 is 3.10 and below, it is recommended to not upgrade the python3, but to install python3.1X alongside your system python3. 
 
 
-Apart from Python3.10/3.11 make sure you have 'gcc', 'gfortran', and 'csh',
-which will be needed for compiling some of the important binaries!
+Apart from Python3.10+ make sure you have '**gcc**', '**gfortran**', and '**csh**',
+which will be needed for compiling some of the important binaries! Some systems 
+do not have the **python3.1X-dev** so you make sure you have it, in case the Exo-Striker
+does not want to compile!
 
 
 **See README_install.md** for further instructions.

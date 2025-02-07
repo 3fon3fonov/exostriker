@@ -6,7 +6,7 @@ import logging
 
 import numpy as np
 
-from corner.core import corner_impl
+from .core import corner_impl
 
 try:
     from corner.arviz_corner import arviz_corner
