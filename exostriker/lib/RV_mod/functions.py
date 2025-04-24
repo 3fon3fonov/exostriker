@@ -266,6 +266,62 @@ def mass_to_K(P,ecc,incl, pl_mass,Stellar_mass):
 
     return K
 
+import numpy as np
+
+def get_aR_from_rho(rho, P, rho_e=None, P_e=None):
+    """
+    Calculate the scaled semi-major axis (a/R*) from stellar density and orbital period.
+    
+    Parameters
+    ----------
+    rho : float
+        Stellar density in kg/m^3.
+    P : float
+        Orbital period in days.
+        
+    rho_e : float, optional
+        Uncertainty in stellar density in kg/m^3.
+    P_e : float, optional
+        Uncertainty in orbital period in seconds.
+    
+    Returns
+    -------
+    float or tuple
+        If uncertainties are not provided, returns:
+            aR : float
+                Scaled semi-major axis (a/R*).
+        If uncertainties are provided, returns:
+            aR : float
+                Scaled semi-major axis (a/R*).
+            aR_e : float
+                Uncertainty in scaled semi-major axis.
+    
+    Notes
+    -----
+    The formula used is:
+        a/R* = [ (G * rho * P^2) / (3 * pi) ]^(1/3)
+    where G is the gravitational constant.
+    
+    The uncertainty is estimated using standard error propagation.
+    """
+    G = 6.67408e-11  # gravitational constant in m^3 kg^-1 s^-2
+    P = P*86400.0
+    aR = ((rho * G * P**2) / (3 * np.pi))**(1/3)
+
+    if rho_e is not None and P_e is not None:
+        # Partial derivatives
+        
+        P_e = P_e*86400.0
+        
+        dadrho = (1/3) * ((G * P**2) / (3 * np.pi))**(1/3) * rho**(-2/3)
+        dadP = (2/3) * ((G * rho) / (3 * np.pi))**(1/3) * P**(-1/3)
+
+        # Error propagation
+        aR_e = np.sqrt((dadrho * rho_e)**2 + (dadP * P_e)**2)
+
+        return aR, aR_e
+
+    return aR
 
 
 def get_mass(K, P, ecc, i, Stellar_mass):

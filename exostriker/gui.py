@@ -367,6 +367,12 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             self.radioButton_hkl.setChecked(True)
         else:
             self.radioButton_ewm.setChecked(True)
+            
+        if fit.rho == True:
+            self.radioButton_rho.setChecked(True)
+        else:
+            self.radioButton_aR.setChecked(True)            
+            
 
     def update_gui_params(self):
         global fit
@@ -710,6 +716,34 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.update_use()
         self.update_params()
         self.update_gui_params() 
+
+
+            
+
+    def set_aR(self):
+        global fit  
+
+        if self.radioButton_aR.isChecked():
+            
+            fit.rho = False
+#            fit.hack_around_rv_params()  
+            
+ 
+            self.label_ap.setText("<html><head/><body><p>a<span style='vertical-align:sub;'>pl</span>/R<span style='vertical-align:sub;'>★</span></p></body></html>")
+ 
+
+        elif self.radioButton_rho.isChecked():
+
+            fit.rho = True
+            self.label_ap.setText("<html><head/><body><p>&rho;<span style='vertical-align:sub;'>★</span> [kg/m^3]</p></body></html>")
+
+
+        self.mute_boxes()
+
+        self.update_use()
+        self.update_params()
+        self.update_gui_params() 
+
 
 
     def set_tra_reg(self, ind = 0):
@@ -4599,6 +4633,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 data_time_phase = np.array( (t  - offset)%fit.P[ph_pl_ind] )
                 tra_offset_xaxis = self.tra_xaxis_offset.value()
 
+                if self.extra_plot_Tra_phase_norm.isChecked():
+                    data_time_phase = (data_time_phase/max(data_time_phase)) - 0.5
+
                 sort = np.array(sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])    )
 
                 t      = data_time_phase[sort] + tra_offset_xaxis
@@ -4608,8 +4645,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 tr_o_c        = tr_o_c[sort]
                 flux_model_gp = flux_model_gp[sort]
                 
-                if self.extra_plot_Tra_phase_norm.isChecked():
-                    t = (t/max(t)) - 0.5   
+                #if self.extra_plot_Tra_phase_norm.isChecked():
+               #     t = (t/max(t)) - 0.5   
                              
                 if fit.tra_doGP == True: 
                     flux = flux - flux_model_gp
@@ -4752,6 +4789,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             flux_model_ex    = flux_model_ex[sort2] 
             flux_model_ex_gp    = flux_model_ex_gp[sort2]
             
+   
+                    
             y_model = flux_model_ex             
             
             if fit.tra_doGP == True: 
@@ -11138,7 +11177,9 @@ Please install via 'pip install ttvfast'.
                 t0_flag = True   
                 incl_flag = True
                 Dom_flag = False
-
+            
+                    
+                    
         elif self.radioButton_RV.isChecked():
 
             K_flag = True
@@ -11252,6 +11293,18 @@ Please install via 'pip install ttvfast'.
 
             self.param_gui_incl[0].setEnabled(True)
             self.use_param_gui_incl[0].setEnabled(True)
+            
+            
+        if self.radioButton_transit_RV.isChecked() or self.radioButton_transit.isChecked():
+            
+            if self.radioButton_rho.isChecked():
+                a_sol_flag = False                
+            
+                for i in range(9):
+                    self.param_gui_tr[3*i + 2].setEnabled(False)
+                    self.use_param_gui_tr[3*i + 2].setEnabled(False)            
+                self.param_gui_tr[3*0 + 2].setEnabled(True)
+                self.use_param_gui_tr[3*0 + 2].setEnabled(True)              
             
         if self.force_sameRV_jit.isChecked()==True:
             print("Use only RV jitter boolean for data 1, and mute the rest!")
@@ -12049,6 +12102,9 @@ Please install via 'pip install ttvfast'.
         self.remove_ses.setEnabled(trigger) 
         self.radioButton_ewm.setEnabled(trigger)       
         self.radioButton_hkl.setEnabled(trigger) 
+        self.radioButton_rho.setEnabled(trigger)       
+        self.radioButton_aR.setEnabled(trigger) 
+
         
         self.radioButton_Dynamical.setEnabled(trigger) 
         self.radioButton_Keplerian.setEnabled(trigger) 
@@ -12447,7 +12503,7 @@ Please install via 'pip install ttvfast'.
         fit = dill.copy(self.console_widget.kernel_manager.kernel.shell.user_ns.get('fit'))
  
         self.set_hkl()    
- 
+        self.set_aR()     
         self.update_use()
         self.update_gui_params()
 
@@ -13637,8 +13693,7 @@ Please install via 'pip install ttvfast'.
         self.customize_ns_cornerplot.clicked.connect(lambda: self.get_cornerplot_param(type_plot = "nest"))
 
 
-
-
+        self.radioButton_rho.toggled.connect(self.set_aR)
         self.radioButton_ewm.toggled.connect(self.set_hkl)
 #        self.radioButton_hkl.toggled.connect(self.set_hkl)
         self.radioButton_KP.toggled.connect(self.set_kp_ma)

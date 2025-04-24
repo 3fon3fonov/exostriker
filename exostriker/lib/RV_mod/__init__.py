@@ -486,16 +486,18 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, hkl, fit_results=
     n2              = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == planet_N])
     transits_calc   = np.array([item[2]   for i, item in enumerate(result_rows) if n1[i] == planet_N])    
 
-    #rsky   = np.array([item[3]   for i, item in enumerate(result_rows) if n1[i] == planet_N])[np.where(transits_calc > 0)]
-    #vsky   = np.array([item[4]   for i, item in enumerate(result_rows) if n1[i] == planet_N])[np.where(transits_calc > 0)]
+    rsky   = np.array([item[3]   for i, item in enumerate(result_rows) if n1[i] == planet_N])[np.where(transits_calc > 0)]
+    vsky   = np.array([item[4]   for i, item in enumerate(result_rows) if n1[i] == planet_N])[np.where(transits_calc > 0)]
 
     #print(rsky)
     #print(vsky)
 
-    n2             = n2[np.where(transits_calc > 0)]
-    transits_calc  = transits_calc[np.where(transits_calc > 0)]
+    n2               = n2[np.where(transits_calc > 0)]
+    transits_calc    = transits_calc[np.where(transits_calc > 0)]
+    rsky             = rsky[np.where(transits_calc > 0)]
+    vsky             = vsky[np.where(transits_calc > 0)]
 
-    calc_model = [n2,transits_calc]
+    calc_model = [n2,transits_calc,rsky,vsky]
  
  
     return calc_model
@@ -761,10 +763,13 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
         
             #n2   = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == 0])
             #transits_calc   = np.array([item[2] for i, item in enumerate(result_rows) if n1[i] == 0])
-            n2   = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[x][3])-1])# if ttv_files[0][4] == True])
-        #    n3   = np.array([item[0] for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[0][3])-1])# if ttv_files[0][4] == True])
-            transits_calc   = np.array([item[2] for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[x][3])-1])# if ttv_files[0][4] == True])
-         
+            n2              = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[x][3])-1])# if ttv_files[0][4] == True])
+            transits_calc   = np.array([item[2]   for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[x][3])-1])# if ttv_files[0][4] == True])        
+            rsky            = np.array([item[3]   for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[x][3])-1])
+            vsky            = np.array([item[4]   for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[x][3])-1])
+
+
+ 
             # A bug fix???
             if len(n2) == 0 or max(n2) < max(ttv_files[x][0]):
                 if return_model == True:
@@ -784,12 +789,14 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
         
             n2  = n2[np.where(transits_calc > 0)]
             transits_calc  = transits_calc[np.where(transits_calc > 0)]
-          
+            rsky             = rsky[np.where(transits_calc > 0)]
+            vsky             = vsky[np.where(transits_calc > 0)]      
+                    
         calc_data[x] = [calc_n,calk_tran,ttv_files[x][2]]
-        calc_model[x] = [n2,transits_calc]
+        calc_model[x] = [n2,transits_calc,rsky,vsky]
 
     if return_model == True:
-        return [loglik_ttv, [calc_n,calk_tran],[n2,transits_calc],calc_data,calc_model]
+        return [loglik_ttv, [calc_n,calk_tran],[n2,transits_calc,rsky,vsky],calc_data,calc_model]
     else:
         return loglik_ttv
 
@@ -811,6 +818,10 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
     flux_model_rich  = []
 
     N_transit_files = len([x for x in range(60) if len(tr_files[x]) != 0])
+
+    if opt['rho'] == True:
+        
+        rho = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*0+1]
         
     l = 0
 
@@ -860,6 +871,12 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
         for i in range(npl):
 
+
+            if opt['rho'] == True:
+                tr_params.a   = get_aR_from_rho(rho, par[len(vel_files)*2 +7*i+1])      
+            else:      
+                tr_params.a   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
+
             if hkl == True:
                 tr_params.ecc = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
                 tr_params.w  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
@@ -871,7 +888,6 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
             tr_params.inc = par[len(vel_files)*2 +7*i+5]
 
             tr_params.t0  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
-            tr_params.a   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
             tr_params.rp  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
 
 
@@ -881,9 +897,12 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                 
                 for tran_t0 in t_os[1]:
                     tr_params.t0  = float(tran_t0)
+                    
+                    
+                    
 
                     m[i] = batman.TransitModel(tr_params, t_)
-                    tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.2, t_ <= tran_t0+0.2))
+                    tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.3, t_ <= tran_t0+0.3))
                     flux_model_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
 
 
@@ -895,7 +914,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                     tr_params.t0  = float(tran_t0)
 
                     m[i] = batman.TransitModel(tr_params, t_)
-                    tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.2, t_ <= tran_t0+0.2))
+                    tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.3, t_ <= tran_t0+0.3))
                     flux_model_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]    
             else:
                 m[i] = batman.TransitModel(tr_params, t_)
@@ -1070,7 +1089,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
                     
                     m[i] = batman.TransitModel(tr_params, t_rich)
-                    tr_ind = np.where(np.logical_and(t_rich >= tran_t0-0.2, t_rich <= tran_t0+0.2))
+                    tr_ind = np.where(np.logical_and(t_rich >= tran_t0-0.3, t_rich <= tran_t0+0.3))
                     flux_model_rich[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
                     
             elif get_TTVs[0] == True:
@@ -1081,7 +1100,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                     tr_params.t0  = float(tran_t0)
 
                     m[i] = batman.TransitModel(tr_params, t_rich)
-                    tr_ind = np.where(np.logical_and(t_rich >= tran_t0-0.2, t_rich <= tran_t0+0.2))
+                    tr_ind = np.where(np.logical_and(t_rich >= tran_t0-0.3, t_rich <= tran_t0+0.3))
                     flux_model_rich[tr_ind] = m[i].light_curve(tr_params)[tr_ind]  
                     
             else:
@@ -1170,6 +1189,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
     for j in range(len(flags)):
         par[flags[j]] = p[j]
+        
 
     if (rtg[1]):
         outputfiles = [1,1,0]
@@ -1510,6 +1530,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "copl_incl":obj.copl_incl,
            "jit_flag":obj.jit_flag,
            "hkl":obj.hkl,
+           "rho":obj.rho,                      
            "cwd":obj.cwd, 
            "gr_flag":obj.gr_flag,
            "TTV":obj.type_fit["TTV"],
@@ -1829,11 +1850,26 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         tra_gp_npar = 0
 
 
-    for i in range(obj.npl):
+    if opt['rho'] == True:
+        
+        rho = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*0+1]
+        
+        for i in range(npl):  
+            aR = get_aR_from_rho(rho, par[len(vel_files)*2 +7*i+1])
  
-        obj.t0[i]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
-        obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
-        obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
+            print("Planet %s, aR =%s"%(i+1,aR))
+            obj.t0[i]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+            obj.pl_a[i]   = rho
+            obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
+             
+            
+            
+    else:
+        for i in range(obj.npl):
+     
+            obj.t0[i]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+            obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
+            obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
  
  
     j = 0
@@ -2294,6 +2330,7 @@ def run_nestsamp(obj, **kwargs):
            "copl_incl":obj.copl_incl,
            "jit_flag":obj.jit_flag,
            "hkl":obj.hkl,
+           "rho":obj.rho,                      
            "cwd":obj.cwd, 
            "gr_flag":obj.gr_flag,
            "ns_samp_method":obj.ns_samp_method,
@@ -2788,6 +2825,7 @@ def run_mcmc(obj, **kwargs):
            "copl_incl":obj.copl_incl,
            "jit_flag":obj.jit_flag,
            "hkl":obj.hkl,
+           "rho":obj.rho,           
            "cwd":obj.cwd,
            "gr_flag":obj.gr_flag,
            "TTV":obj.type_fit["TTV"],
@@ -3081,6 +3119,7 @@ class signal_fit(object):
 
         self.gr_flag = False
         self.hkl = False
+        self.rho = False        
         self.copl_incl = False
         self.jit_flag = False
         self.rtg = [True,False,False,False]
