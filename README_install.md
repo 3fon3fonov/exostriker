@@ -12,9 +12,11 @@ It is recommended to use Anaconda, especially for Windows users. For this:
 
 - Then, to activate the environment, type `conda activate exostriker`;
 
-## Windows additional step
+## Additional step
 
-In order to compile the Fortran code of Exostriker when using Anaconda, install the Gfortran directly from the Anaconda repository:
+This is especially necessary for Windows and can also be needed for some new M-chip macOS users.
+
+Depending on the type of GFortran installation, anaconda might not be able to find it. In order to satisfactorily compile the Fortran code of Exostriker when using Anaconda, install the Gfortran directly from the Anaconda repository:
 
 ```bash
 conda install conda-forge::gfortran

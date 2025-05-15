@@ -1,4 +1,4 @@
-__version__ = "0.93.8"
+__version__ = "0.93.9"
 __author__ = "Trifon Trifonov"
 
 from exostriker import gui, lib
