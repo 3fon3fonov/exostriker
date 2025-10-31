@@ -1081,7 +1081,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     samp_labels       = [samp_labels[i] for i in index_to_keep]
     samp_best_fit_par = [samp_best_fit_par[i] for i in index_to_keep]
 
-    letters = ['b','c','d','e','f','g','h'] #... For the planets
+    letters = ['b','c','d','e','f','g','h','i','j',] #... For the planets
 
     if mod_labels['use_lambda']:
 
@@ -1115,6 +1115,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         m_s   = np.random.normal(loc=obj.stellar_mass,      scale=obj.stellar_mass_err,      size=len(ss))
         K,P, ecc, esinw, ecosw, incl,masses,semimajor = [],[],[],[],[],[],[],[]
 
+        z = 0
         for i in range(9):
             if not bool(obj.use_planet[i]):
                 continue
@@ -1122,6 +1123,9 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
 
             if not 'K$_%s$'%let in labels or not 'P$_%s$'%let in labels:
+            
+               # K.append(np.array([0])*len(ss))  
+               # P.append(np.array([0])*len(ss))            
                 continue
 
             K.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'K$_%s$'%let]]))
@@ -1137,7 +1141,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 ecc.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'e$_%s$'%let]]))
 
             else:
-                ecc.append([0]*len(K[i]))
+                ecc.append([0]*len(K[z]))
                 print("Warning, no eccentricity samples found for planet %s ! Assuming ecc = 0"%str(i+1))
 
             if mod_labels['use_Me']:
@@ -1153,17 +1157,21 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
             if 'i$_%s$'%let in labels:
                 incl.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]]))
-                samp_labels.append(r'm$_%s$ %s'%(let,mass_lab))
+                #samp_labels.append(r'm$_%s$ %s'%(let,mass_lab))
             else:
                 if obj.copl_incl == True:
                     incl.append(incl[0])
                 else:
-                    incl.append([obj.i[i]]*len(K[i]))
-                if obj.i[i] == 90.0:
-                    samp_labels.append(r'm $\sin i_%s$ %s'%(let,mass_lab))
-                else:
-                    samp_labels.append(r'm$_%s$ %s'%(let,mass_lab))
-
+                    incl.append([obj.i[i]]*len(K[z]))
+                #if obj.i[i] == 90.0:
+                #    samp_labels.append(r'm $\sin i_%s$ %s'%(let,mass_lab))
+               # else:
+               #     samp_labels.append(r'm$_%s$ %s'%(let,mass_lab))
+                    
+                    
+                    
+                    
+            z = z + 1
         K = np.transpose(K)
         P = np.transpose(P)
         ecc = np.transpose(ecc)
@@ -1178,41 +1186,46 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         masses = np.transpose(masses)
         semimajor = np.transpose(semimajor)
 
-
+        k = 0
         if mod_labels['mass']:
             for i in range(9):
-                if not bool(obj.use_planet[i]):
+                let = letters[i]
+                if not bool(obj.use_planet[i]) and not 'K$_%s$'%let in labels or not 'P$_%s$'%let in labels:
                     continue
-                samp.append(np.array(masses[i] * M_fact))
+                    
+                samp.append(np.array(masses[k] * M_fact))
 
+                samp_labels.append(r'm$_%s$ %s'%(let,mass_lab))
+                
                 if mod_labels['mean']:
-                    samp_best_fit_par.append( np.mean(masses[i]) * M_fact)
+                    samp_best_fit_par.append( np.mean(masses[k]) * M_fact)
                 elif mod_labels['median']:
-                    samp_best_fit_par.append( np.median(masses[i]) * M_fact)
+                    samp_best_fit_par.append( np.median(masses[k]) * M_fact)
                 elif mod_labels['best_gui']:
                     samp_best_fit_par.append(obj.masses[i]*M_fact)
                 else:
-                    samp_best_fit_par.append(masses[i][np.argmax(ln)]*M_fact)
-
-
+                    samp_best_fit_par.append(masses[k][np.argmax(ln)]*M_fact)
+                k = k +1
+        k = 0
         if mod_labels['semimajor']:
 
             for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                samp.append(np.array(semimajor[i]))
                 let = letters[i]
+                if not bool(obj.use_planet[i]) and not 'K$_%s$'%let in labels or not 'P$_%s$'%let in labels:
+                    continue
+                samp.append(np.array(semimajor[k]))
+ 
                 samp_labels.append(r'a$_%s$ [au]'%let)
 
                 if mod_labels['mean']:
-                    samp_best_fit_par.append(np.mean(semimajor[i]))
+                    samp_best_fit_par.append(np.mean(semimajor[k]))
                 elif mod_labels['median']:
-                    samp_best_fit_par.append(np.median(semimajor[i]))
+                    samp_best_fit_par.append(np.median(semimajor[k]))
                 elif mod_labels['best_gui']:
                     samp_best_fit_par.append(obj.semimajor[i])
                 else:
-                    samp_best_fit_par.append(semimajor[i][np.argmax(ln)])
-
+                    samp_best_fit_par.append(semimajor[k][np.argmax(ln)])
+                k = k +1
 
 
 
@@ -1818,6 +1831,133 @@ def get_rv_scatter(obj, print_output=False,use_kb2011=False):
 
 
     return [A, delta_A]
+
+
+
+def export_transit_data(obj, file='transit_data.dat', delimiter=' ',  print_data=False,  header=True, width=10, precision=6):
+    import numpy as np
+
+    if len(obj.transit_results[1]) == 0:
+        return
+
+    transit_results_sep = obj.transit_results[1]
+
+    all_BJD = []
+    all_flux = []
+    all_flux_err = []
+    all_flux_model = []
+    all_o_c = []
+    all_idset = []
+    all_flux_gp = []
+
+    for z in range(len(transit_results_sep[0])):
+        all_BJD.extend(np.array(transit_results_sep[0][z], dtype=float))
+        all_flux.extend(np.array(transit_results_sep[1][z], dtype=float))
+        all_flux_err.extend(np.array(transit_results_sep[2][z], dtype=float))
+        all_flux_model.extend(np.array(transit_results_sep[3][z], dtype=float))
+        all_o_c.extend(np.array(transit_results_sep[4][z], dtype=float))
+        all_idset.extend(np.array([z] * len(transit_results_sep[0][z]), dtype=int))
+        all_flux_gp.extend(np.array(transit_results_sep[6][z], dtype=float))
+
+    # Stack and sort by BJD
+    data = np.vstack((all_BJD, all_flux, all_flux_err, all_flux_model, all_o_c, all_idset, all_flux_gp)).T
+    data = data[data[:, 0].argsort()]
+
+    # Prepare header
+    if header:
+        head_lines = ["# Dataset mapping:"]
+        unique_z = sorted(set(all_idset))
+        for unique_id in unique_z:
+            head_lines.append(f"# {unique_id}: {obj.tra_data_sets[unique_id][-1]}")
+
+        head_lines.append("#" + delimiter.join([
+            f"{'BJD':<{width}}",
+            f"{'flux':<{width}}",
+            f"{'flux_sigma':<{width}}",
+            f"{'flux_model':<{width}}",
+            f"{'o_c':<{width}}",
+            f"{'idset':<{width}}",
+            f"{'flux_gp':<{width}}"
+        ]))
+        head = "\n".join(head_lines)
+    else:
+        head = ""
+
+    # Save to file
+    fmt = []
+    for i in range(data.shape[1]):
+        if i == 5:
+            fmt.append(f'%{width}d')
+        else:
+            fmt.append(f'%{width}.{precision}f')
+    fmt = tuple(fmt)
+
+    np.savetxt(file, data, delimiter=delimiter, fmt=fmt, header=head)
+
+    if print_data:
+        for row in data:
+            formatted_row = []
+            for i, val in enumerate(row):
+                if i == 5:
+                    formatted_row.append(f"{int(val):{width}d}")
+                else:
+                    formatted_row.append(f"{val:.{precision}f}")
+            print(' '.join(formatted_row))
+
+    return data
+
+
+def export_transit_model(obj, file='transit_model.dat', delimiter=' ',  print_data=False,  header=True, width=10, precision=6):
+
+
+    if len(obj.transit_results[3]) == 0:
+        return
+
+    transit_results_rich = obj.transit_results[3]
+
+ 
+    all_BJD = np.array(transit_results_rich[0], dtype=float)
+    all_flux = np.array(transit_results_rich[1], dtype=float)
+
+    # Stack and sort by BJD
+    data = np.vstack((all_BJD, all_flux)).T
+    data = data[data[:, 0].argsort()]
+
+    # Prepare header
+    if header:
+        head_lines = [""]
+        head_lines.append("#" + delimiter.join([
+            f"{'BJD':<{width}}",
+            f"{'flux':<{width}}"
+        ]))
+        head = "\n".join(head_lines)
+    else:
+        head = ""
+
+    # Save to file
+    fmt = []
+    for i in range(data.shape[1]):
+        if i == 5:
+            fmt.append(f'%{width}d')
+        else:
+            fmt.append(f'%{width}.{precision}f')
+    fmt = tuple(fmt)
+
+    np.savetxt(file, data, delimiter=delimiter, fmt=fmt, header=head)
+
+    if print_data:
+        for row in data:
+            formatted_row = []
+            for i, val in enumerate(row):
+                if i == 5:
+                    formatted_row.append(f"{int(val):{width}d}")
+                else:
+                    formatted_row.append(f"{val:.{precision}f}")
+            print(' '.join(formatted_row))
+
+    return data
+ 
+
 
 
 

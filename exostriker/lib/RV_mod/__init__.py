@@ -1050,8 +1050,11 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
             tra_gp_model_all    = np.concatenate([flux_model_all_gp+flux_model_all_, flux_model_all_no_gp])
             flux_o_c_gp_all     = np.concatenate([flux_o_c_gp_all_gp,  flux_o_c_all_no_gp])        
             
-
-    if return_model == True:
+            
+            
+            
+    return_model2 = False
+    if return_model2 == True:
 
         t_all = np.concatenate([tr_files[x][0] for x in range(60) if len(tr_files[x]) != 0])
         t_rich =np.linspace(min(t_all),max(t_all),len(t_all)*tra_model_fact)
@@ -1122,17 +1125,143 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
 #        flux_model_ = flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8])             
  
+#        l = 0
+#        for j in range(60):
+#
+#            if len(tr_files[j]) == 0:
+#                continue
+#            else:
+#                tr_ind = np.where(np.logical_and(t_rich >= min(tr_files[j][0]), t_rich <= max(tr_files[j][0])))
+#
+#                flux_model_rich[tr_ind] =  (flux_model_rich[tr_ind]*tr_files[j][8]  + (1.0 - tr_files[j][8]))
+
+#                l +=1
+                
+
+    if return_model == True:
+
         l = 0
+
         for j in range(60):
 
             if len(tr_files[j]) == 0:
+                t_rich.append([])
+                flux_model_rich.append([])
                 continue
+
+            t_all_ = tr_files[j][0]
+            
+            t_rich_ = np.hstack([np.linspace(t_all_[:-1]-0.3, t_all_[1:]+0.3, tra_model_fact + 1, axis=1)[:, :-1]]).flatten()
+            t_rich_ = np.append(t_rich_, t_all_[-1])             
+ 
+            t_all2  = np.concatenate([tr_files[x][0] for x in range(60) if len(tr_files[x]) != 0])
+            t_rich2 = np.linspace(min(t_all),max(t_all),len(t_all)*tra_model_fact) 
+            
+            #t_rich_ =np.linspace(min(t_all_),max(t_all_),len(t_all_)*tra_model_fact)
+            flux_model_rich_ = np.ones(len(t_rich_))
+            
+            
+
+            m  =  {k: [] for k in range(9)}
+            tr_params.limb_dark = str(tr_model[0][j])
+            
+       
+            if tr_model[0][j] == "linear":
+                tr_params.u = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][j] +  npl]]
+    #            k += 1
+            elif tr_model[0][j] == "quadratic":
+                tr_params.u = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][j] + npl], 
+                               par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][j] + 1+ npl]]
+    #            k += 2
+            elif tr_model[0][j] == "nonlinear":
+                tr_params.u = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][j] + npl], 
+                               par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][j] + 1+ npl],
+                               par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][j] + 2+ npl], 
+                               par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][j] + 3+ npl]]
+    #            k += 4
             else:
-                tr_ind = np.where(np.logical_and(t_rich >= min(tr_files[j][0]), t_rich <= max(tr_files[j][0])))
+                tr_params.u = []       
+ 
 
-                flux_model_rich[tr_ind] =  (flux_model_rich[tr_ind]*tr_files[j][8]  + (1.0 - tr_files[j][8]))
 
-                l +=1
+            for i in range(npl):
+
+                if opt['rho'] == True:
+                    tr_params.a   = get_aR_from_rho(rho, par[len(vel_files)*2 +7*i+1])      
+                else:      
+                    tr_params.a   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
+
+                if hkl == True:
+                    tr_params.ecc = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
+                    tr_params.w  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
+                else:
+                    tr_params.ecc = par[len(vel_files)*2 +7*i+2]
+                    tr_params.w   = par[len(vel_files)*2 +7*i+3]
+
+                tr_params.per = par[len(vel_files)*2 +7*i+1]
+                tr_params.inc = par[len(vel_files)*2 +7*i+5]
+
+                tr_params.t0  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+                tr_params.rp  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
+                
+                
+                if program.endswith("dyn+") or program.endswith("dyn"):
+
+                    t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_rich_)], i,hkl, fit_results=fit_results)
+        
+                    for tran_t0 in t_os[1]:
+                        tr_params.t0  = float(tran_t0)
+
+                        
+                        m[i] = batman.TransitModel(tr_params, t_rich_)
+                        tr_ind = np.where(np.logical_and(t_rich_ >= tran_t0-0.3, t_rich_ <= tran_t0+0.3))
+                        flux_model_rich_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
+                        
+                elif get_TTVs[0] == True:
+                    
+                    t_os = par[get_TTVs[1][i][0]:get_TTVs[1][i][1]]
+                    
+                    for tran_t0 in t_os:
+                        tr_params.t0  = float(tran_t0)
+
+                        m[i] = batman.TransitModel(tr_params, t_rich_)
+                        tr_ind = np.where(np.logical_and(t_rich_ >= tran_t0-0.3, t_rich_ <= tran_t0+0.3))
+                        flux_model_rich_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]  
+                        
+                else:
+                    m[i] = batman.TransitModel(tr_params, t_rich_)
+                    flux_model_rich_ = flux_model_rich_ * m[i].light_curve(tr_params) 
+
+
+
+            if tr_files[j][10] == True:
+                flux_model_rich_ = get_airmass_model(tr_files[j][3],flux_model_rich_,0.0,
+                                                        par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
+                                                        par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])           
+            else:
+                flux_model_rich_ = get_quad_model(t_rich_,flux_model_rich_,0.0,
+                                                        par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
+                                                        par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])
+
+
+
+            flux_model_rich_ = flux_model_rich_*tr_files[j][8]  + (1.0 - tr_files[j][8]) 
+
+            l +=1
+        
+            t_rich.append(t_rich_)
+            flux_model_rich.append(flux_model_rich_)
+
+ 
+ 
+         # Concatenate
+        t_rich = np.concatenate(t_rich)
+        flux_model_rich = np.concatenate(flux_model_rich)
+
+        # Sort
+        sort_idx = np.argsort(t_rich)
+        t_rich = t_rich[sort_idx]
+        flux_model_rich = flux_model_rich[sort_idx]               
 
         rich_model = np.array([t_rich,flux_model_rich],dtype=object)
         sep_data = np.array([t, flux,flux_err,flux_model, flux_o_c, flux_o_c_gp,tra_gp_model],dtype=object)
@@ -1150,7 +1279,6 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
         return np.array([tr_loglik, sep_data, all_data,rich_model,tr_stat],dtype=object)
     else:
         return tr_loglik
-
  
 #from threadpoolctl import threadpool_limits
 #@threadpool_limits.wrap(limits=1, user_api='blas')
@@ -1976,7 +2104,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             if mod.endswith("kep"):
                 Ma_= get_m0(par[len(vel_files)*2 +7*i+1], ecc_, om_ ,par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i], epoch)
                 #Ma_= ma_from_t0(par[len(vel_files)*2 +7*i+1], ecc_, om_, par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*i],epoch)
-
+ 
                 if obj.hkl == True:              
                     par[len(vel_files)*2 +7*i+4] = (Ma_ + om_)%360.0  
                 else:
@@ -1984,6 +2112,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
                 #obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
                 obj.M0[i] = Ma_
+                obj.lamb[i] = (Ma_ + om_)%360.0
 
 
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
@@ -4899,7 +5028,7 @@ class signal_fit(object):
                 if self.hkl == True:
                     self.e_sinw[i]  = self.fit_results.e[i][0]
                     self.e_cosw[i]  = self.fit_results.w[i][0]
-                    self.lamb[i]    =  self.M0[i] = self.fit_results.M0[i][0]
+                    self.lamb[i]    = self.fit_results.M0[i][0]
 
                     self.e[i]   = np.sqrt(self.e_sinw[i]**2 + self.e_cosw[i]**2)
                     self.w[i]   = np.degrees(np.arctan2(np.radians(self.e_sinw[i]),np.radians(self.e_cosw[i])))

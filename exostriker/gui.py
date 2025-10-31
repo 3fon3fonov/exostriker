@@ -2962,12 +2962,29 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         for i in range(len(zzz)):
 
             zzz[i].setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
-
+ 
+                
             #zzz[i].getAxis("bottom").tickFont = self.plot_font
             zzz[i].getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
             zzz[i].getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
             zzz[i].getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
             zzz[i].getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
+
+            pen = pg.mkPen(color='black', width=5)
+
+            #zzz[i].getAxis("bottom").setPen(pen)
+            #zzz[i].getAxis("top").setPen(pen)
+            #zzz[i].getAxis("left").setPen(pen)
+            #zzz[i].getAxis("right").setPen(pen)           
+
+
+            #zzz[i].getAxis("bottom").setTickPen(pen)
+            #zzz[i].getAxis("top").setTickPen(pen)
+            #zzz[i].getAxis("left").setTickPen(pen)
+            #zzz[i].getAxis("right").setTickPen(pen)             
+            
+   
+            
            # zzz[i].getAxis('left').setWidth(50)
             zzz[i].getAxis('right').setWidth(10)
             zzz[i].getAxis('top').setHeight(10)
@@ -3135,6 +3152,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p00.getAxis("right").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
         #p00.getAxis('bottom').enableAutoSIPrefix(enable=False)
 
+        p00.getAxis('bottom').enableAutoSIPrefix(enable=False)
+        p00.getAxis('left').enableAutoSIPrefix(enable=False)        
+         
 
         p01.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
         p01.getAxis("left").tickFont = self.plot_font
@@ -4495,8 +4515,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         model_curve_o_c = p00.plot(fit.fit_results.model_jd,y_model_o_c, 
         pen={'color':  dill.copy(fit.rvs_colors[-1]), 'width': self.rv_model_width.value()},enableAutoRange=True, #symbolPen={'color': 0.5, 'width': 0.1}, symbolSize=1,symbol='o',
         viewRect=True, labels =  {'left':'RV', 'bottom':'JD'}) 
-        
-        
+                
         model_curve_o_c.setZValue(self.RV_model_z.value()) 
 
  
@@ -4560,6 +4579,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             legend_tra.setVisible(True)
         else:
             legend_tra.setVisible(False)
+
+        if fit.type_fit["Transit"] == False:
+            #print("No Transit fit selected.")
+            return
 
         #p30.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
 
@@ -5114,6 +5137,7 @@ Polyfit coefficients:
     def update_ttv_plots(self): 
         global fit, p_ttv, p_ttv_oc,p_ttv_00,p_ttv_01, colors,legend_ttv
         
+
         self.check_ttv_symbol_sizes()
 
         pl_ind     = self.ttv_comboBox_pl.currentIndex()
@@ -5123,6 +5147,12 @@ Polyfit coefficients:
         p_ttv_oc.plot(clear=True,)
         p_ttv_00.plot(clear=True,)
         p_ttv_01.plot(clear=True,)
+
+        
+        if fit.type_fit["TTV"] == False:
+            #print("No TTV fit selected.")
+            return
+         
  
         ttv_files = fit.ttv_data_sets
 
@@ -7458,7 +7488,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
  
         if len([x for x in range(20) if len(fit.tra_data_sets[x]) != 0]) == 0:
-            self.update_transit_plots()
+            if fit.type_fit["Transit"] == True:
+                self.update_transit_plots()
         else:
             self.worker_transit_fitting(ff=0)
 #        self.update_transit_plots()
@@ -7928,7 +7959,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
        # self.run_gls_o_c()
         
         self.update_plots() 
-        self.update_transit_plots() 
+        #self.update_transit_plots() 
         self.plot_evol_all()
 
         self.jupiter_push_vars() 
@@ -11899,6 +11930,23 @@ Please install via 'pip install ttvfast'.
         
         self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
         self.terminal_embeded.setCurrentWidget(self.console_widget)   
+
+    def get_transit_data(self):
+        global fit
+
+        print("TESTTTT")
+        self.console_widget.print_text("rv.export_transit_data(fit, file='transit_data.txt', delimiter=' ',  print_data=False,  header = True, width = 10, precision = 3)", before_prompt=False)          
+        
+        self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
+        self.terminal_embeded.setCurrentWidget(self.console_widget) 
+
+    def get_transit_model(self):
+        global fit
+
+        self.console_widget.print_text("rv.export_transit_model(fit, file='transit_model.txt', width = 10, precision = 4)", before_prompt=False)  
+        self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
+        self.terminal_embeded.setCurrentWidget(self.console_widget)
+
         
         
     def get_orb_evol(self):
@@ -13428,6 +13476,9 @@ Please install via 'pip install ttvfast'.
         self.actionGet_LaTex_table_with_priors.triggered.connect(self.get_latex_prior_table)
         self.actionGet_RV_model.triggered.connect(self.get_RV_model)
         self.actionGet_RV_data.triggered.connect(self.get_RV_data)
+
+        self.actionGet_Transit_model.triggered.connect(self.get_transit_model)
+        self.actionGet_Transit_data.triggered.connect(self.get_transit_data)
 
         self.actionGet_Orb_evol.triggered.connect(self.get_orb_evol)
 

@@ -486,7 +486,19 @@ class Rvfit:
         #         compile_cmd = f'python{vers} -m numpy.f2py -c --opt="-O3 -std=legacy {recur}" -m rvmod_for rvmod_for.f95 --build-dir bdir -I{current_dir}'
         #     result = subprocess.run(compile_cmd, shell=True, capture_output=False, text=True, stdout=sys.stdout, stderr=sys.stderr)
 
-        compile_cmd = f'python{vers} -m numpy.f2py -c --opt="-O3 -std=legacy {recur}" -m rvmod_for{__version__} rvmod_for.f95 -I{current_dir}'
+       # compile_cmd = f'python{vers} -m numpy.f2py -c --opt="-O3 -std=legacy {recur}" -m rvmod_for{__version__} rvmod_for.f95 -I{current_dir}'
+        
+        use_meson = (sys.version_info.major == 3 and sys.version_info.minor >= 12)
+        backend_flag = "--backend=distutils" if use_meson else ""
+
+        compile_cmd = (
+            f'python{vers} -m numpy.f2py -c {backend_flag} '
+            f'--opt="-O3 -std=legacy {recur}" '
+            f'-m rvmod_for{__version__} rvmod_for.f95 -I{current_dir}'
+        )
+        
+        
+        
         result = subprocess.run(compile_cmd, shell=True, capture_output=False, text=True, stdout=sys.stdout,
                                 stderr=sys.stderr)
 
