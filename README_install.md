@@ -110,6 +110,8 @@ Python: Go to [Python Windows Releases](https://www.python.org/downloads/windows
 - Microsoft Visual C++ for the package TTVFast: [Download](https://visualstudio.microsoft.com/visual-cpp-build-tools/) it and install the *Microsft Build Tools*, in the installation process, check the box for the *Desktop development with C++* (6.52 GB) and then click to install.
 - Exostriker: In CMD type `pip install exostriker` or follow the above steps to install it.
 
+**WARNING** if your USERNAME contains a "space", e.g., "Trifon Trifonov", the installation of RVMod will fail!!!! No space allowed as of Version 0.93. TBFixed!
+
 # Execution
 
 ## With Installation
