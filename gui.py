@@ -12550,12 +12550,11 @@ Please install via 'pip install ttvfast'.
         global fit  
         fit = dill.copy(self.console_widget.kernel_manager.kernel.shell.user_ns.get('fit'))
  
-        self.update_use_from_session()   
-        #self.update_use()
-        self.update_gui_params()
         self.set_hkl()    
-        self.set_aR()  
-        #fit.sort_by_period(reverse=False)
+        self.set_aR()     
+        self.update_use()
+        self.update_gui_params()
+
         
     #NOT used anymore#
     def check_for_missing_instances(self,fit_new):

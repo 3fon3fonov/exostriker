@@ -2944,8 +2944,7 @@ def phase_RV_planet_signal_old(obj,planet):
 
 
 
-
-def find_planets(obj,fend=0.75):
+def find_planets(obj,fend=0.75,RV_jitter=False):
 
     power_levels = np.array([0.1,0.01,0.001])
 
@@ -2972,7 +2971,9 @@ def find_planets(obj,fend=0.75):
 
         obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
 
-        run_gls_o_c(obj,fend=fend)
+        run_gls_o_c(obj,fend=fend, RV_jitter=True)#,as_main=True)
+
+        
 
         #now inspect the residuals
 
@@ -2996,19 +2997,17 @@ def find_planets(obj,fend=0.75):
 
 
                     obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=10, timeout_sec= 10)
-                    obj = run_gls_o_c(obj)
+                    obj = run_gls_o_c(obj,fend=fend, RV_jitter=RV_jitter)
                 return obj
 
             else:
                 mean_anomaly_from_gls = np.degrees((((obj.epoch - float(obj.gls_o_c.hpstat["T0"]) )% (obj.gls_o_c.hpstat["P"]) )/ (obj.gls_o_c.hpstat["P"]) ) * 2*np.pi)
 
-                #obj.add_planet(obj.gls_o_c.hpstat["amp"],obj.gls_o_c.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
 
-                obj.add_planet(obj.gls.hpstat["amp"],obj.gls.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0, useK=True,useP=True,usee=obj.auto_fit_allow_ecc,usew=obj.auto_fit_allow_ecc,useM0=True,usei=False, usecap=False)
+                obj.add_planet(obj.gls_o_c.hpstat["amp"],obj.gls_o_c.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0, useK=True,useP=True,usee=obj.auto_fit_allow_ecc,usew=obj.auto_fit_allow_ecc,useM0=True,usei=False, usecap=False)
 
                 obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
-                run_gls_o_c(obj,fend=fend)
-
+                run_gls_o_c(obj,fend=fend, RV_jitter=RV_jitter)
             #else:
              #   continue
 
@@ -3026,25 +3025,33 @@ def find_planets(obj,fend=0.75):
             obj.M0_use[j] = True
             obj.i_use[j]  = False
             obj.Node_use[j] = False
+
         obj.fitting(fileinput=False,outputfiles=[1,1,1], doGP=False,   minimize_fortran=True, fortran_kill=3, timeout_sec= 3)
-        run_gls_o_c(obj,fend=fend)
+        run_gls_o_c(obj,fend=fend,RV_jitter=RV_jitter)
     return obj
 
 
 
 
 
-def run_gls(obj,fend =1.0,fbeg=10000):
+def run_gls(obj,fend =1.0,fbeg=10000, ofac=10, RV_jitter=False):
 
+
+    if RV_jitter:
+        error_list = add_jitter(obj, obj.fit_results.rv_model.rv_err, obj.fit_results.idset)
+    else:
+        error_list = obj.fit_results.rv_model.rv_err
 
     #fbeg = abs(max(obj.fit_results.rv_model.jd)-min(obj.fit_results.rv_model.jd))  * 2.0
-    omega = 1/ np.logspace(np.log10(fend), np.log10(fbeg), num=int(1000))
+    #omega = 1/ np.logspace(np.log10(fend), np.log10(fbeg), num=int(1000))
 
 
 
     if len(obj.fit_results.rv_model.jd) > 5:
-        RV_per = gls.Gls((obj.fit_results.rv_model.jd, obj.fit_results.rv_model.rvs, obj.fit_results.rv_model.rv_err),
-        fast=True,  verbose=False, norm='ZK',ofac=10, fbeg=omega[-1], fend=omega[0],)
+        #RV_per = gls.Gls((obj.fit_results.rv_model.jd, obj.fit_results.rv_model.rvs, obj.fit_results.rv_model.rv_err),
+       # fast=True,  verbose=False, norm='ZK',ofac=10, fbeg=omega[-1], fend=omega[0],)
+
+        RV_per = gls.Gls((obj.fit_results.rv_model.jd, obj.fit_results.rv_model.rvs, error_list), fast=True,  verbose=False, norm='ZK',ofac=ofac, fbeg=1/fbeg, fend=1/fend)  
 
         obj.gls = RV_per
     else:
@@ -3052,15 +3059,26 @@ def run_gls(obj,fend =1.0,fbeg=10000):
 
     return obj
 
-def run_gls_o_c(obj,fend =1.0,fbeg=10000, as_main = False):
+ 
+
+def run_gls_o_c(obj,fend =1.0,fbeg=10000, as_main = False, ofac=10, RV_jitter=False):
 
     #fbeg = abs(max(obj.fit_results.rv_model.jd)-min(obj.fit_results.rv_model.jd))  * 2.0
-    omega = 1/ np.logspace(np.log10(fend), np.log10(fbeg), num=int(1000))
+    #omega = 1/ np.logspace(np.log10(fend), np.log10(fbeg), num=int(1000))
+
+
+    if RV_jitter:
+        error_list = add_jitter(obj, obj.fit_results.rv_model.rv_err, obj.fit_results.idset)
+    else:
+        error_list = obj.fit_results.rv_model.rv_err
 
 
     if len(obj.fit_results.rv_model.jd) > 5:
-        RV_per_res = gls.Gls((obj.fit_results.rv_model.jd, obj.fit_results.rv_model.o_c, obj.fit_results.rv_model.rv_err),
-        fast=True,  verbose=False, norm='ZK', ofac=10, fbeg=omega[-1], fend=omega[0],)
+        #RV_per_res = gls.Gls((obj.fit_results.rv_model.jd, obj.fit_results.rv_model.o_c, obj.fit_results.rv_model.rv_err),
+        #fast=True,  verbose=False, norm='ZK', ofac=10, fbeg=omega[-1], fend=omega[0],)
+
+        RV_per_res = gls.Gls((obj.fit_results.rv_model.jd, obj.fit_results.rv_model.o_c, error_list), fast=True,  verbose=False, norm='ZK',ofac=ofac, fbeg=1/fbeg, fend=1/fend)  
+
 
         if as_main == False:
             obj.gls_o_c = RV_per_res
@@ -4396,18 +4414,43 @@ unknown
 pl.in
 """%(bytes(str(obj.params.stellar_mass).encode()), bytes(str(obj.npl).encode() ) ))
 
+    used_indices = [j for j in range(9) if obj.use_planet[j]]
+
+    # sort those indices by their period from fit.P
+    used_indices.sort(key=lambda j: obj.P[j])
+
+    # optional: mapping from old index j to new planet number (1, 2, 3, ...)
+    planet_number = {j: k + 1 for k, j in enumerate(used_indices)}
+
+    for j in used_indices:
+        # here j is a planet index, ordered from shortest to longest period
+
+        getin_file.write(
+            b'%s \n' % bytes(str(obj.masses[j] / 1047.5654817267318).encode())
+        )
+
+        getin_file.write(
+            b'%s %s %s %s %s %s \n' % (
+                bytes(str(obj.semimajor[j]).encode()),
+                bytes(str(obj.e[j]).encode()),
+                bytes(str(obj.i[j]).encode()),
+                bytes(str(obj.w[j]).encode()),
+                bytes(str(obj.Node[j]).encode()),
+                bytes(str(obj.M0[j]).encode()),
+            )
+        )
 
 
-    for j in range(9):
-        if not bool(obj.use_planet[j]):
-            continue
-        getin_file.write(b'%s \n'%bytes(str(obj.masses[j]/1047.5654817267318).encode()))
-        getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.semimajor[j]).encode()),
-                                                 bytes(str(obj.e[j]).encode()),
-                                                 bytes(str(obj.i[j]).encode()),
-                                                 bytes(str(obj.w[j]).encode()),
-                                                 bytes(str(obj.Node[j]).encode()),
-                                                 bytes(str(obj.M0[j]).encode() )) )
+#    for j in range(9):
+#        if not bool(obj.use_planet[j]):
+#            continue
+#        getin_file.write(b'%s \n'%bytes(str(obj.masses[j]/1047.5654817267318).encode()))
+#        getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.semimajor[j]).encode()),
+#                                                 bytes(str(obj.e[j]).encode()),
+#                                                 bytes(str(obj.i[j]).encode()),
+#                                                 bytes(str(obj.w[j]).encode()),
+#                                                 bytes(str(obj.Node[j]).encode()),
+#                                                 bytes(str(obj.M0[j]).encode() )) )
 
     getin_file.close()
 
