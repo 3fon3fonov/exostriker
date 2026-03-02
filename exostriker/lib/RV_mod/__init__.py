@@ -605,35 +605,16 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
         Om_ = (par[len(vel_files)*2 +7*i+6] + 180.0)%360.0
  
         for x in range(10):
-            if len(ast_files_hipp[x]) == 0 or ast_files_hipp[x][8] == False or ast_files_hipp[x][7] != i+1:
+            if len(ast_files_hipp[x]) == 0 or ast_files_hipp[x][2] == False or ast_files_hipp[x][1] != i+1:
                 continue
             else:
-
-                A_6=ast_files_hipp[x][3]*(ast_files_hipp[x][1])
-                A_7=ast_files_hipp[x][4]*(ast_files_hipp[x][1])
  
-                hip_ad=np.array([ast_files_hipp[x][3],
-                                 ast_files_hipp[x][4],
-                                 ast_files_hipp[x][2],
-                                 A_6,A_7,
-                                 ast_files_hipp[x][5],
-                                 ast_files_hipp[x][6]])                
-  
-                t_HIP=ex.hip_JD(hip_ad)
- 
-                #J2016=2457389.0
-                #J1991=2448349.0625
-                
-                #gaia=np.array([par[-6],par[-5],par[-4],par[-3],par[-2]])
-                #hip_standard=np.zeros(5)
-                #correction=np.array([0,0,0,0,0]) 
-                
                 hip_stand = [
-                ast_files_hipp[x][9]["RAdeg"], 
-                ast_files_hipp[x][9]["DEdeg"], 
-                ast_files_hipp[x][9]["Plx"], 
-                ast_files_hipp[x][9]["pm_RA"], 
-                ast_files_hipp[x][9]["pm_DE"], 
+                ast_files_hipp[x][3]["RAdeg"], 
+                ast_files_hipp[x][3]["DEdeg"], 
+                ast_files_hipp[x][3]["Plx"], 
+                ast_files_hipp[x][3]["pm_RA"], 
+                ast_files_hipp[x][3]["pm_DE"], 
                 ]
                 
                 parallax=hip_stand[2]+par[-4] #corrected parallax
@@ -646,15 +627,15 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
                 ecc_,
                 incl,
                 parallax)
-
-                results = -1*ex.L_hip(hip_ad,hip_stand,hip_stand, #Data
+ 
+                results = -1*ex.L_hip(ast_files_hipp[x][0], 
                          correction,
                          par[len(vel_files)*2 +7*i+1], 
                          ecc_, 
                          np.radians(om_), 
                          np.radians(incl),
                          np.radians(Om_),                         
-                         T0,a,Sepoch=ex.J1991(),s_hip=0)
+                         T0,a)
 
                 loglik_ast_hipp = loglik_ast_hipp + results
                 
@@ -662,11 +643,8 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
                 
         if return_model == True:
 
-            #### TB fixed!
-            #corrected_stand = hip_stand
-            corrected_stand=ex.stand_correct(hip_stand,correction)
+            t_HIP=ex.hip_JD(ast_files_hipp[0][0])
 
-            #times3 = np.linspace(min(t_HIP),min(t_HIP)+par[len(vel_files)*2 +7*i+1]+1,1000)
             times3 = np.linspace(min(t_HIP),max(t_HIP)+1,1000)
             orb_params = [par[len(vel_files)*2 +7*i+1], 
                          ecc_, 
@@ -675,17 +653,26 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
                          np.radians(Om_),                         
                          T0,a]
  
+            fit_residuals=ex.abs_res(
+                ast_files_hipp[0][0][-2],
+                correction,
+                np.zeros(5), 
+                ast_files_hipp[0][0][:5])
+
 
             ast_x_model,ast_y_model=ex.orbit(*orb_params,times3)
+            ast_x ,ast_y = ex.orbit(*orb_params,t_HIP)
+
+            res_hipp_final_=fit_residuals-(
+            ast_files_hipp[0][0][0]*ast_x + 
+            ast_files_hipp[0][0][1]*ast_y)
+ 
+            hipp_data = ex.hip_2d(ast_files_hipp[0][0]) #Rotates the HIP measurements into the RA,Dec frame. 
+ 
+            res_hipp_final = ex.res_to_orbit(res_hipp_final_,ast_files_hipp[0][0],orb_params)             
             
-            hip_data = ex.hip_2d(hip_ad) #Rotates the HIP measurements into the RA,Dec frame.
  
- 
-            hip_data_res_ =ex.hip_residuals(hip_ad,hip_stand,corrected_stand,orb_params, Sepoch=ex.J1991())
- 
-            hip_data_res  =ex.res_to_orbit(hip_data_res_,hip_ad,orb_params)
- 
-            calc_data[i] = np.array([hip_data, hip_data_res ,t_HIP],dtype=object)         
+            calc_data[i] = np.array([hipp_data, res_hipp_final ,t_HIP],dtype=object)         
             calc_model[i] = np.array([ast_x_model,ast_y_model,times3])
  
     
@@ -693,6 +680,166 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
         return [loglik_ast_hipp, calc_data, calc_model]
     else:
         return loglik_ast_hipp
+
+
+
+def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, fit_results = False , return_model = False, model_max=0, model_samp=1000):
+
+ 
+    loglik_ast_gaia = 0
+    calc_data   = {kx: [] for kx in range(10)}
+    calc_model  = {kx: [] for kx in range(10)}
+    
+    for i in range(npl):
+        
+        if hkl == True:
+            ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
+            om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
+            Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
+            # reject e > 0 
+            if ecc_ >= 1.0: 
+                return -np.inf  
+        else:
+            ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]         
+
+        T0 = transit_tperi(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,times[0])[0] #%par[len(vel_files)*2 +7*i+1] 
+
+        om_ = (om_ - 0.0)%360.0
+        Ma_ = (Ma_ + 0.0)%360.0
+        
+        incl = par[len(vel_files)*2 +7*i+5]
+        Om_ = (par[len(vel_files)*2 +7*i+6] + 0.0)%360.0
+ 
+        for x in range(10):
+            if len(ast_files_gaia[x]) == 0 or ast_files_gaia[x][1] == False or ast_files_gaia[x][2] != i+1:
+                continue
+            else:
+
+
+
+
+
+                #Gaia Single Star Solution, stolen from git bh3
+                #the single star solution should always be given in DR4 , as with HIP
+
+                #bh3_ra_deg = 294.8278502411 # Right Ascension from paper Table 2
+                #bh3_dec_deg = 14.9309190720 # Declination from paper Table 2
+                #g_asc=bh3_ra_deg
+                #g_dec=bh3_dec_deg
+                #g_par=1.68 #mas
+                #g_mua=-30.29679
+                #g_mud=-148.62246
+                #g_stand=np.array([g_asc,g_dec,g_par,g_mua,g_mud])               
+ 
+                #print(ast_files_gaia[x][3])
+                
+                g_stand = [
+                ast_files_gaia[x][3]["RAdeg"], 
+                ast_files_gaia[x][3]["DEdeg"], 
+                ast_files_gaia[x][3]["Plx"], 
+                ast_files_gaia[x][3]["pm_RA"], 
+                ast_files_gaia[x][3]["pm_DE"], 
+                ]
+
+                parallax=g_stand[2]+par[-4] #corrected parallax                
+                correction=np.array([par[-6],par[-5],par[-4],par[-3],par[-2]])
+                
+                a = a_from_K_in_mas(
+                par[len(vel_files)*2 +7*i+1],
+                par[len(vel_files)*2 +7*i+0],
+                ecc_,
+                incl,
+                parallax)
+ 
+
+                #print(ast_files_gaia[x][0])    
+                
+                #### TB moved to the read data function and called once 
+                planet_residual=ex.abs_res(ast_files_gaia[x][0][-2],g_stand,
+                np.array([ast_files_gaia[x][3]["RAdeg"],
+                          ast_files_gaia[x][3]["DEdeg"],0,0,0]),ast_files_gaia[x][0])
+
+                res_astrometric=np.copy(ast_files_gaia[x][0])
+                res_astrometric[-2]=planet_residual
+                
+                ############################################################
+                
+                results = -1*ex.L_gaia(
+                         #ast_files_gaia[x][0],
+                         res_astrometric,
+                         correction,
+                         par[len(vel_files)*2 +7*i+1], 
+                         ecc_, 
+                         np.radians(om_), 
+                         np.radians(incl),
+                         np.radians(Om_),                         
+                         T0,
+                         a) #Sepoch=ex.J1991(),s_hip=0)
+
+
+                loglik_ast_gaia = loglik_ast_gaia + results
+                
+                #print(results)
+                
+        if return_model == True:
+ 
+
+            t_gaia=ex.gaia_JD(ast_files_gaia[0][0])         
+
+            times3 = np.linspace(min(t_gaia),max(t_gaia)+model_max,model_samp )
+            orb_params = [par[len(vel_files)*2 +7*i+1], 
+                         ecc_, 
+                         np.radians(om_), 
+                         np.radians(incl),
+                         np.radians(Om_),                         
+                         T0,a]
+                         
+
+            #g_stand=np.array([0,0,0,0,0]) 
+            
+            planet_residual=ex.abs_res(ast_files_gaia[0][0][-2],
+            g_stand,np.array([ast_files_gaia[0][3]["RAdeg"],
+                              ast_files_gaia[0][3]["DEdeg"],0,0,0]),ast_files_gaia[0][0])
+            
+            res_astrometric=np.copy(ast_files_gaia[0][0])
+            res_astrometric[-2]=planet_residual
+
+ 
+            fit_residuals=ex.abs_res(
+                planet_residual,
+                correction,
+                np.zeros(5), 
+                ast_files_gaia[0][0][:5])
+                
+            #print(ast_files_gaia[0][0])
+            ast_x_model,ast_y_model=ex.orbit(*orb_params,times3)
+            ast_x ,ast_y = ex.orbit(*orb_params,t_gaia)
+             
+            #print( planet_residual)
+             
+            res_gaia_final_=fit_residuals-(
+            ast_files_gaia[0][0][0]*ast_x + 
+            ast_files_gaia[0][0][1]*ast_y)
+ 
+            #print(orb_params)
+ 
+ 
+            #hip_data_res  =ex.res_to_orbit_gaia(hip_data_res_,hip_ad,orb_params)
+            
+            
+            gaia_data = ex.hip_2d(res_astrometric) #Rotates the HIP measurements into the RA,Dec frame. 
+            #print(gaia_data)
+            res_gaia_final  =ex.res_to_orbit_gaia(res_gaia_final_,ast_files_gaia[0][0],orb_params) 
+ 
+            calc_data[i] = np.array([gaia_data, res_gaia_final ,t_gaia],dtype=object)         
+            calc_model[i] = np.array([ast_x_model,ast_y_model,times3])
+ 
+    
+    if return_model == True:
+        return [loglik_ast_gaia, calc_data, calc_model]
+    else:
+        return loglik_ast_gaia
+
 
 
 def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results = False , return_model = False):
@@ -812,6 +959,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
     flux_o_c      = []
     flux_o_c_gp   = []
     tra_gp_model  = []
+    tra_ln_model  = []    
     use_gp_model  = []
 
     t_rich  = []
@@ -836,6 +984,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
             flux_o_c.append([])
             flux_o_c_gp.append([])
             tra_gp_model.append([])
+            tra_ln_model.append([])            
             use_gp_model.append([])
             continue
 
@@ -897,10 +1046,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                 
                 for tran_t0 in t_os[1]:
                     tr_params.t0  = float(tran_t0)
-                    
-                    
-                    
-
+  
                     m[i] = batman.TransitModel(tr_params, t_)
                     tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.3, t_ <= tran_t0+0.3))
                     flux_model_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
@@ -922,14 +1068,16 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
 
         if tr_files[j][10] == True:
-            flux_model_ = get_airmass_model(tr_files[j][3],flux_model_,0.0,
+            flux_model_ln_ = get_airmass_model(tr_files[j][3],np.zeros(len(flux_model_)),0.0,
                                                     par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
-                                                    par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])           
+                                                    par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l]) 
+                                                    
+            flux_model_ =   flux_model_ +  flux_model_ln_                                                       
         else:
-            flux_model_ = get_quad_model(t_,flux_model_,0.0,
+            flux_model_ln_ = get_quad_model(t_,np.zeros(len(flux_model_)),0.0,
                                                     par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
                                                     par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])
-
+            flux_model_ =   flux_model_ +  flux_model_ln_                                                       
 
 
         flux_model_ = flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8]) 
@@ -980,6 +1128,12 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
  
             flux_o_c_gp.append(flux_o_c_gp_)
             tra_gp_model.append(flux_model_gp)
+            
+            
+        elif tr_files[j][10] == True:            
+
+            flux_o_c_gp.append(flux_o_c_)
+            tra_gp_model.append(flux_model_ln_)            
         else:
             flux_o_c_gp.append(flux_o_c_)
             tra_gp_model.append(flux_model_)
@@ -1050,93 +1204,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
             tra_gp_model_all    = np.concatenate([flux_model_all_gp+flux_model_all_, flux_model_all_no_gp])
             flux_o_c_gp_all     = np.concatenate([flux_o_c_gp_all_gp,  flux_o_c_all_no_gp])        
             
-            
-            
-            
-    return_model2 = False
-    if return_model2 == True:
-
-        t_all = np.concatenate([tr_files[x][0] for x in range(60) if len(tr_files[x]) != 0])
-        t_rich =np.linspace(min(t_all),max(t_all),len(t_all)*tra_model_fact)
-        flux_model_rich = np.ones(len(t_rich))
-
-        m  =  {k: [] for k in range(9)}
-
-        tr_params.limb_dark = str(tr_model[0][j])
-        tr_params.u = tr_model[1][j]
-
-
-        for i in range(npl):
-
-            if hkl == True:
-                tr_params.ecc = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
-                tr_params.w  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
-            else:
-                tr_params.ecc = par[len(vel_files)*2 +7*i+2]
-                tr_params.w   = par[len(vel_files)*2 +7*i+3]
-
-            tr_params.per = par[len(vel_files)*2 +7*i+1]
-            tr_params.inc = par[len(vel_files)*2 +7*i+5]
-
-            tr_params.t0  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
-            tr_params.a   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
-            tr_params.rp  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
-            
-            
-            if program.endswith("dyn+") or program.endswith("dyn"):
-
-                t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_rich)], i,hkl, fit_results=fit_results)
-    
-                for tran_t0 in t_os[1]:
-                    tr_params.t0  = float(tran_t0)
-
-                    
-                    m[i] = batman.TransitModel(tr_params, t_rich)
-                    tr_ind = np.where(np.logical_and(t_rich >= tran_t0-0.3, t_rich <= tran_t0+0.3))
-                    flux_model_rich[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
-                    
-            elif get_TTVs[0] == True:
-                
-                t_os = par[get_TTVs[1][i][0]:get_TTVs[1][i][1]]
-                
-                for tran_t0 in t_os:
-                    tr_params.t0  = float(tran_t0)
-
-                    m[i] = batman.TransitModel(tr_params, t_rich)
-                    tr_ind = np.where(np.logical_and(t_rich >= tran_t0-0.3, t_rich <= tran_t0+0.3))
-                    flux_model_rich[tr_ind] = m[i].light_curve(tr_params)[tr_ind]  
-                    
-            else:
-                m[i] = batman.TransitModel(tr_params, t_rich)
-                flux_model_rich = flux_model_rich * m[i].light_curve(tr_params) 
-
-
-#        if tr_files[j][10] == True:
-#            np.linspace(min(t_all),max(t_all),len(t_all)*tra_model_fact)
-#            flux_model_rich = get_airmass_model(tr_files[j][3],flux_model_rich,0.0,
-#                                                    par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
-#                                                    par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])           
-#        else:
-#            flux_model_rich = get_quad_model(flux_model_rich,flux_model_rich,0.0,
-#                                                    par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
-#                                                    par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])
-
-
-
-#        flux_model_ = flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8])             
- 
-#        l = 0
-#        for j in range(60):
-#
-#            if len(tr_files[j]) == 0:
-#                continue
-#            else:
-#                tr_ind = np.where(np.logical_and(t_rich >= min(tr_files[j][0]), t_rich <= max(tr_files[j][0])))
-#
-#                flux_model_rich[tr_ind] =  (flux_model_rich[tr_ind]*tr_files[j][8]  + (1.0 - tr_files[j][8]))
-
-#                l +=1
-                
+      
 
     if return_model == True:
 
@@ -1303,10 +1371,13 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     rvs_files = opt["RVS_files"]
     ttv_files = opt["TTV_files"]
     ast_files = opt["AST_files"]
-    ast_files_hipp_gaia = opt["AST_files_hipp"]    
+    ast_files_hipp = opt["AST_files_hipp"]    
+    ast_files_gaia = opt["AST_files_gaia"]        
     ttv_times = opt["TTV_times"]
     ast_times = opt["AST_times"]
     get_TTVs  = opt["get_TTVs"]
+    
+
 #    re = opt["re"]
 
    
@@ -1495,14 +1566,18 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
  
     if(opt["AST"]):
+
         if(rtg[0])==False:
             astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)
-            astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,ast_files_hipp_gaia,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)  
+            astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,ast_files_hipp,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)  
+            astr_loglik = astr_loglik + ast_loglik_gaia(par,vel_files,ast_files_gaia,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)              
         else:
             astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)
-            astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,ast_files_hipp_gaia,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)              
-
-
+            astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,ast_files_hipp,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)              
+            astr_loglik = astr_loglik + ast_loglik_gaia(par,vel_files,ast_files_gaia,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)              
+            #print(astr_loglik)
+            
+            
     if(opt["TTV"]):
         if(rtg[0])==False:
             ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,hkl,fit_results=False, return_model = False)
@@ -1574,6 +1649,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
 #    check_temp_RV_file(obj)
 
+
     vel_files = [0]*obj.ndset
 
     N_transit_files = len([x for x in range(60) if len(obj.tra_data_sets[x]) != 0])
@@ -1606,7 +1682,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     rvs_files  = final_array 
     ttv_files  = obj.ttv_data_sets
     ast_files  = obj.ast_data_sets
-    ast_files2 = obj.ast_data_sets_hipp_gaia
+    ast_files2 = obj.ast_data_sets_hipp
+    ast_files3 = obj.ast_data_sets_gaia
 
     npl = obj.npl
     epoch = obj.epoch
@@ -1666,7 +1743,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "RVS_files":rvs_files,
            "TTV_files":ttv_files, 
            "AST_files":ast_files, 
-           "AST_files_hipp":ast_files2,            
+           "AST_files_hipp":ast_files2, 
+           "AST_files_gaia":ast_files3,                                  
            "TTV_times":obj.ttv_times,
            "AST_times":obj.ast_times,
            "AMD_stab":obj.optim_AMD_stab, 
@@ -1794,10 +1872,12 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 #    print(pp)
 #    print(mod, par,flags, npl,vel_files, tr_files, tr_model, tr_params,  epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, opt )
 
+
+
     ########################### Primary minimizer #########################
     for k in range(n1): # run at least 3 times the minimizer
         #eps = eps/10.0
-       # print('running %s %s %s'%(obj.SciPy_min_use_1, obj.SciPy_min_N_use_1, k))
+        #print('running %s %s %s'%(obj.SciPy_min_use_1, obj.SciPy_min_N_use_1, k))
         result = op.minimize(nll,  pp, args=(mod, par,flags, npl,vel_files, tr_files, tr_model, tr_params,  epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, opt ),
                              method=method1,bounds=fit_bounds, options=options1)
                             #  bounds=bb, tol=None, callback=None, options={'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxiter': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1, 'disp': True})
@@ -1989,16 +2069,13 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             obj.t0[i]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
             obj.pl_a[i]   = rho
             obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
-             
-            
-            
+     
     else:
         for i in range(obj.npl):
      
             obj.t0[i]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
             obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
             obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
- 
  
     j = 0
     for i in range(60):
@@ -2012,8 +2089,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             obj.tra_quadtr[i] =     par[len(vel_files)*2 +7*npl + 2 +rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + j] 
  
             j = j +1
-
-
+ 
 
         if tr_model[0][i] == "linear":
             obj.ld_u_lin[i] = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] +  npl]]
@@ -2039,8 +2115,6 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.ast_pi[0]       =    par[-4]       
         obj.ast_mu_alpha[0] =    par[-3]       
         obj.ast_mu_delta[0] =    par[-2]
-
-    #print(par)
 
 #################### Get the models for plotting ############################
 
@@ -2148,11 +2222,11 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
 
         astr_loglik2 = ast_loglik(obj.parameters,vel_files, obj.ast_data_sets,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
-        astr_loglik2 = astr_loglik2 + ast_loglik_hipp(obj.parameters,vel_files, obj.ast_data_sets_hipp_gaia,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
+        astr_loglik2 = astr_loglik2 + ast_loglik_hipp(obj.parameters,vel_files, obj.ast_data_sets_hipp,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
 
-        #astr_loglik = ast_loglik(par,           vel_files, ast_files,            npl,                 stmass,    ttv_times,    hkl, fit_results=False, return_model = False)
-        #print(astr_loglik2, obj.fit_results.mass, obj.ttv_times, obj.parameters, obj.loglik)
+        astr_loglik2 = astr_loglik2 + ast_loglik_gaia(obj.parameters,vel_files, obj.ast_data_sets_gaia,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
 
+ 
         if rtg[1]:
             get_RV_gps_model(obj, get_lnl=True)
 
@@ -2165,13 +2239,13 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
 
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["AST"] == True:
+
         astr_loglik = ast_loglik(par,vel_files,obj.ast_data_sets,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)
-        astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,obj.ast_data_sets_hipp_gaia,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)
+        astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,obj.ast_data_sets_hipp,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)
+ 
+        astr_loglik = astr_loglik + ast_loglik_gaia(par,vel_files,obj.ast_data_sets_gaia,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)        
         obj.loglik     =  astr_loglik
-        #print(obj.fit_results.mass, obj.ttv_times, obj.parameters, obj.loglik, astr_loglik)
-
-
-
+ 
 ############# Errors here ##############
 
     for i in range(len(vel_files)):
@@ -2406,8 +2480,8 @@ def run_nestsamp(obj, **kwargs):
     rvs_files  = final_array
     ttv_files  = obj.ttv_data_sets
     ast_files  = obj.ast_data_sets
-    ast_files2 = obj.ast_data_sets_hipp_gaia
-    
+    ast_files2 = obj.ast_data_sets_hipp
+    ast_files3 = obj.ast_data_sets_gaia    
     
     npl = obj.npl
     epoch = obj.epoch
@@ -2468,7 +2542,8 @@ def run_nestsamp(obj, **kwargs):
            "RVS_files":rvs_files,
            "TTV_files":ttv_files,
            "AST_files":ast_files,
-           "AST_files_hipp":ast_files2,                       
+           "AST_files_hipp":ast_files2,    
+           "AST_files_gaia":ast_files3,                                
            "TTV_times":obj.ttv_times,
            "AST_times":obj.ast_times,
            "AMD_stab":obj.NS_AMD_stab, 
@@ -2902,8 +2977,9 @@ def run_mcmc(obj, **kwargs):
     rvs_files  = final_array #np.array([obj.fit_results.jd,obj.fit_results.rvs,obj.fit_results.rv_err,obj.fit_results.idset +1]).T
     ttv_files  = obj.ttv_data_sets
     ast_files  = obj.ast_data_sets
-    ast_files2 = obj.ast_data_sets_hipp_gaia
-    
+    ast_files2 = obj.ast_data_sets_hipp
+    ast_files3 = obj.ast_data_sets_gaia
+        
     npl = obj.npl
     epoch = obj.epoch
     stmass = obj.params.stellar_mass
@@ -2962,7 +3038,8 @@ def run_mcmc(obj, **kwargs):
            "RVS_files":rvs_files,
            "TTV_files":ttv_files,
            "AST_files":ast_files,
-           "AST_files_hipp":ast_files2,                      
+           "AST_files_hipp":ast_files2,     
+           "AST_files_gaia":ast_files3,                                 
            "TTV_times":obj.ttv_times,
            "AST_times":obj.ast_times,
            "AMD_stab":obj.mcmc_AMD_stab, 
@@ -3259,7 +3336,8 @@ class signal_fit(object):
         self.act_data_sets = {k: [] for k in range(60)}
         self.tra_data_sets = {k: [] for k in range(60)}
         self.rv_data_sets  = {k: [] for k in range(60)}
-        self.ast_data_sets_hipp_gaia = {k: [] for k in range(10)}               
+        self.ast_data_sets_hipp = {k: [] for k in range(10)}  
+        self.ast_data_sets_gaia = {k: [] for k in range(10)}                       
         self.act_data_sets_init = {k: [] for k in range(60)}
         self.tra_data_sets_init = {k: [] for k in range(60)}
         self.rv_data_sets_init  = {k: [] for k in range(60)}
@@ -3456,7 +3534,7 @@ class signal_fit(object):
         self.Node_use = {k: False for k in range(9)}
         self.w_dot_use= {k: False for k in range(9)}
 
-        self.K_bound    = {k: np.array([0.0,10000.0]) for k in range(9)}
+        self.K_bound    = {k: np.array([0.0,100000.0]) for k in range(9)}
         self.P_bound    = {k: np.array([0.0,100000.0]) for k in range(9)}
         self.e_bound    = {k: np.array([0.0,0.999]) for k in range(9)}
         self.w_bound    = {k: np.array([0.0, 360.0]) for k in range(9)}
@@ -3534,43 +3612,56 @@ class signal_fit(object):
         self.ast_pi        = {k: 0.0 for k in range(1)}
         self.ast_mu_alpha  = {k: 0.0 for k in range(1)}        
         self.ast_mu_delta  = {k: 0.0 for k in range(1)}   
-        
+        self.ast_mu_alpha_dot  = {k: 0.0 for k in range(1)}        
+        self.ast_mu_delta_dot  = {k: 0.0 for k in range(1)}   
+         
         self.ast_alpha_use     = {k: False for k in range(1)}
         self.ast_delta_use      = {k: False for k in range(1)}
         self.ast_pi_use        = {k: False for k in range(1)}
         self.ast_mu_alpha_use  = {k: False for k in range(1)}        
         self.ast_mu_delta_use  = {k: False for k in range(1)}          
+        self.ast_mu_alpha_dot_use  = {k: False for k in range(1)}        
+        self.ast_mu_delta_dot_use  = {k: False for k in range(1)}         
         
         self.ast_alpha_err     = {k: np.array([0.0,0.0])  for k in range(1)}
         self.ast_delta_err      = {k: np.array([0.0,0.0])  for k in range(1)}
         self.ast_pi_err        = {k: np.array([0.0,0.0])  for k in range(1)}
         self.ast_mu_alpha_err  = {k: np.array([0.0,0.0])  for k in range(1)}        
         self.ast_mu_delta_err  = {k: np.array([0.0,0.0])  for k in range(1)}          
+        self.ast_mu_alpha_dot_err  = {k: np.array([0.0,0.0])  for k in range(1)}        
+        self.ast_mu_delta_dot_err  = {k: np.array([0.0,0.0])  for k in range(1)}  
                   
-        self.ast_alpha_bound      = {k: np.array([0.0,360.0])  for k in range(1)}
-        self.ast_delta_bound       = {k: np.array([-90.0,90.0])  for k in range(1)}
-        self.ast_pi_bound         = {k: np.array([0.0,10000.0])  for k in range(1)}
-        self.ast_mu_alpha_bound   = {k: np.array([0.0,10000.0])  for k in range(1)}        
-        self.ast_mu_delta_bound   = {k: np.array([-100.0,100.0])  for k in range(1)}          
+        self.ast_alpha_bound      = {k: np.array([-360,360.0])  for k in range(1)}
+        self.ast_delta_bound       = {k: np.array([-180.0,180.0])  for k in range(1)}
+        self.ast_pi_bound         = {k: np.array([-1000.0,1000.0])  for k in range(1)}
+        self.ast_mu_alpha_bound   = {k: np.array([-1000.0,1000.0])  for k in range(1)}        
+        self.ast_mu_delta_bound   = {k: np.array([-1000.0,1000.0])  for k in range(1)}          
+        self.ast_mu_alpha_dot_bound   = {k: np.array([-1000.0,1000.0])  for k in range(1)}        
+        self.ast_mu_delta_dot_bound   = {k: np.array([-1000.0,1000.0])  for k in range(1)}                                  
                              
-        self.ast_alpha_norm_pr     = {k: np.array([0.0,3.0, False])  for k in range(1)}
-        self.ast_delta_norm_pr      = {k: np.array([0.0,3.0, False])  for k in range(1)}
+        self.ast_alpha_norm_pr     = {k: np.array([0.0,10.0, False])  for k in range(1)}
+        self.ast_delta_norm_pr      = {k: np.array([0.0,10.0, False])  for k in range(1)}
         self.ast_pi_norm_pr        = {k: np.array([0.0,100.0, False])  for k in range(1)}
         self.ast_mu_alpha_norm_pr  = {k: np.array([0.0,100.0, False])  for k in range(1)}        
-        self.ast_mu_delta_norm_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}      
+        self.ast_mu_delta_norm_pr  = {k: np.array([0.0,100.0, False])  for k in range(1)}      
+        self.ast_mu_alpha_dot_norm_pr  = {k: np.array([0.0,100.0, False])  for k in range(1)}        
+        self.ast_mu_delta_dot_norm_pr  = {k: np.array([0.0,100.0, False])  for k in range(1)}  
 
-        self.ast_alpha_jeff_pr     = {k: np.array([0.0,3.0, False])  for k in range(1)}
-        self.ast_delta_jeff_pr      = {k: np.array([0.0,3.0, False])  for k in range(1)}
-        self.ast_pi_jeff_pr        = {k: np.array([0.0,100.0, False])  for k in range(1)}
-        self.ast_mu_alpha_jeff_pr  = {k: np.array([0.0,100.0, False])  for k in range(1)}        
+        self.ast_alpha_jeff_pr     = {k: np.array([-10.0,10.0, False])  for k in range(1)}
+        self.ast_delta_jeff_pr      = {k: np.array([-10.0,10.0, False])  for k in range(1)}
+        self.ast_pi_jeff_pr        = {k: np.array([-100.0,100.0, False])  for k in range(1)}
+        self.ast_mu_alpha_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}        
         self.ast_mu_delta_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}    
+        self.ast_mu_alpha_dot_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}        
+        self.ast_mu_delta_dot_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}   
           
         self.ast_alpha_str           = {k: r'$\alpha$' for k in range(1)}
         self.ast_delta_str           = {k: r'$\delta$' for k in range(1)}
         self.ast_pi_str              = {k: r'$\pi$' for k in range(1)}
         self.ast_mu_alpha_str        = {k: r'$\mu\alpha$' for k in range(1)}       
         self.ast_mu_delta_str        = {k: r'$\mu\delta$' for k in range(1)}   
-
+        self.ast_mu_alpha_dot_str        = {k: r'$\mu\alpha dot$' for k in range(1)}       
+        self.ast_mu_delta_dot_str        = {k: r'$\mu\delta dot$' for k in range(1)}   
         
 
     def init_hkl(self) :
@@ -4252,8 +4343,8 @@ class signal_fit(object):
         self.ast_data_sets[ast_idset] = []
         return
 
-############################ Ast datasets Hipp/Gaia ##########################################
-    def add_ast_dataset_hipp_gaia(self, name, path, ast_idset = 0, planet = 0, use = False):
+############################ Ast datasets Hipp ##########################################
+    def add_ast_dataset_hipp(self, name, path, ast_idset = 0, planet = 0, use = False):
  
 # [np.arange(0,len(A8)),frac,A5,A3,A4,A8,A9])
 
@@ -4327,43 +4418,180 @@ class signal_fit(object):
 
         try:
         
-            ast_BJD_        = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-            ast_data_x_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-            ast_data_x_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-            ast_data_y_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [3])
-            ast_data_y_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [4])
-            ast_data_z_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [5])
-            ast_data_z_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [6])
+            OrbNum_       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
+            HipEpoch_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
+            A5_           = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+            A3_           = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [3])
+            A4_           = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [4])
+            A8_           = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [5])
+            A9_           = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [6])
 
-            if len(ast_BJD_) != len(ast_data_x_) != len(ast_data_x_sig_) != len(ast_data_y_) != len(ast_data_y_sig_):
-                print("Something is wrong with your Astromtry data file! Please provide an Astromtry data file that contains the ")
+            if len(OrbNum_) != len(HipEpoch_) != len(A5_) != len(A3_) != len(A4_):
+                print("1Something is wrong with your Astromtry data file! Please provide an Astromtry data file that contains the ")
                 return
 
-            ast_BJD         = ast_BJD_[       np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
-            ast_data_x      = ast_data_x_[    np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
-            ast_data_x_sig  = ast_data_x_sig_[np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
-            ast_data_y      = ast_data_y_[    np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
-            ast_data_y_sig  = ast_data_y_sig_[np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
-            ast_data_z      = ast_data_z_[    np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
-            ast_data_z_sig  = ast_data_z_sig_[np.isfinite(ast_BJD_) & np.isfinite(ast_data_x_) & np.isfinite(ast_data_y_) & np.isfinite(ast_data_x_sig_) & np.isfinite(ast_data_y_sig_)]
+            OrbNum         = OrbNum_[     np.isfinite(OrbNum_) & np.isfinite(HipEpoch_) & np.isfinite(A3_) & np.isfinite(A5_) & np.isfinite(A4_)]
+            HipEpoch       = HipEpoch_[   np.isfinite(OrbNum_) & np.isfinite(HipEpoch_) & np.isfinite(A3_) & np.isfinite(A5_) & np.isfinite(A4_)]
+            A5             = A5_[         np.isfinite(OrbNum_) & np.isfinite(HipEpoch_) & np.isfinite(A3_) & np.isfinite(A5_) & np.isfinite(A4_)]
+            A3             = A3_[         np.isfinite(OrbNum_) & np.isfinite(HipEpoch_) & np.isfinite(A3_) & np.isfinite(A5_) & np.isfinite(A4_)]
+            A4             = A4_[         np.isfinite(OrbNum_) & np.isfinite(HipEpoch_) & np.isfinite(A3_) & np.isfinite(A5_) & np.isfinite(A4_)]
+            A8             = A8_[         np.isfinite(OrbNum_) & np.isfinite(HipEpoch_) & np.isfinite(A3_) & np.isfinite(A5_) & np.isfinite(A4_)]
+            A9             = A9_[         np.isfinite(OrbNum_) & np.isfinite(HipEpoch_) & np.isfinite(A3_) & np.isfinite(A5_) & np.isfinite(A4_)]
 
-            if len(ast_BJD) == 0:
-                print("Something is wrong with your Astromtry data file! Perhaps some not all entries are numeric? Please provide a Astromtry data file that contains the standard Hipparcos data input")
+            if len(HipEpoch) == 0:
+                print("2Something is wrong with your Astromtry data file! Perhaps some not all entries are numeric? Please provide a Astromtry data file that contains the standard Hipparcos data input")
                 return
         except:
-            print("Something is wrong with your Astromtry data file! Please provide a Astromtry data file that contains the standard Hipparcos data input")
+            print("3Something is wrong with your Astromtry data file! Please provide a Astromtry data file that contains the standard Hipparcos data input")
             return
 
 
-        ast_file_name = file_from_path(path)
-        ast_data_set = np.array([ast_BJD,ast_data_x,ast_data_x_sig,ast_data_y,ast_data_y_sig,ast_data_z,ast_data_z_sig, planet, use, hipp_header, ast_file_name],dtype=object)
 
-        self.ast_data_sets_hipp_gaia[ast_idset] = ast_data_set
+        A6=A3*HipEpoch
+        A7=A4*HipEpoch
+
+        #hip_ad=np.array([A_3,A_4,A_5,A_6,A_7,A_8,A_9])
+        hipp = np.array([A3,A4,A5,A6,A7,A8,A9])
+
+
+        ast_file_name = file_from_path(path)
+        ast_data_set = np.array([hipp, planet, use, hipp_header, ast_file_name],dtype=object)
+        
+        print(planet, use, hipp_header, ast_file_name)
+        
+        print(ast_data_set[1],ast_data_set[2],ast_data_set[3])
+
+        self.ast_data_sets_hipp[ast_idset] = ast_data_set
         return
 
 
-    def remove_ast_dataset_hipp_gaia(self, ast_idset):
-        self.ast_data_sets_hipp_gaia[ast_idset] = []
+    def remove_ast_dataset_hipp(self, ast_idset):
+        self.ast_data_sets_hipp[ast_idset] = []
+        return
+
+
+############################ Ast datasets Gaia ##########################################
+    def add_ast_dataset_gaia(self, name, path, ast_idset = 0, planet = 0, use = False):
+ 
+ 
+ 
+ 
+ 
+# [np.arange(0,len(A8)),frac,A5,A3,A4,A8,A9])
+
+        def read_header_lines(file_path):
+            """
+            Extract all lines starting with '#' from a file.
+
+            Args:
+                file_path (str): Path to the file.
+
+            Returns:
+                list: A list of strings containing the header lines.
+            """
+            header_lines = []
+            with open(file_path, 'r') as file:
+                for line in file:
+                    if line.strip().startswith("#"):
+                        header_lines.append(line.strip("#").strip())  # Remove '#' and extra whitespace
+            return header_lines
+
+
+
+        def parse_hipparcos_data(lines):
+            """
+            Parses the Hipparcos data lines and returns a structured dictionary
+            containing all relevant blocks of headers and values.
+
+            Args:
+                lines (list): List of strings containing headers and data rows.
+
+            Returns:
+                dict: Dictionary mapping all headers to their corresponding values.
+            """
+            combined_data = {}  # Final dictionary to store all parsed data
+            headers = []
+            values = []
+
+            for line in lines:
+                if line.strip() == '':
+                    # End of a block, process it
+                    if headers and values:
+                        block_dict = dict(zip(headers, values))
+                        combined_data.update(block_dict)
+                    headers, values = [], []  # Reset for the next block
+                    continue
+
+                # Split the line into parts
+                parts = line.split()
+                
+                # Check if the line is data (numeric or "---") or headers
+                if all(x.replace('.', '', 1).replace('-', '', 1).isdigit() or x == "---" for x in parts):
+                    values = [float(x) if x.replace('.', '', 1).replace('-', '', 1).isdigit() else x for x in parts]
+                else:
+                    headers = parts
+
+            # Process the last block if not empty
+            if headers and values:
+                block_dict = dict(zip(headers, values))
+                combined_data.update(block_dict)
+
+            return combined_data
+
+                    
+        header = read_header_lines(path)
+         
+        gaia_header = parse_hipparcos_data(header)
+
+        #self.header = hipp_header
+
+
+        try:
+        
+            ast_BJD_          = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+            ast_CentPosal_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [3])
+            ast_e_CentPosal_   = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [4])
+            ast_plxFactal_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [5])
+            ast_ScanPA_        = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [6])
+            ast_outFlag_       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [7])
+            
+
+            if len(ast_BJD_) != len(ast_CentPosal_) != len(ast_e_CentPosal_) != len(ast_plxFactal_) != len(ast_ScanPA_):
+                print("1Something is wrong with your Astromtry data file! Please provide an Astromtry data file that contains the ")
+                return
+
+            ast_BJD         = ast_BJD_[       np.isfinite(ast_BJD_) & np.isfinite(ast_CentPosal_) & np.isfinite(ast_plxFactal_) & np.isfinite(ast_e_CentPosal_) & np.isfinite(ast_ScanPA_)]
+            ast_CentPosal   = ast_CentPosal_[ np.isfinite(ast_BJD_) & np.isfinite(ast_CentPosal_) & np.isfinite(ast_plxFactal_) & np.isfinite(ast_e_CentPosal_) & np.isfinite(ast_ScanPA_)]
+            ast_e_CentPosal = ast_e_CentPosal_[np.isfinite(ast_BJD_) & np.isfinite(ast_CentPosal_) & np.isfinite(ast_plxFactal_) & np.isfinite(ast_e_CentPosal_) & np.isfinite(ast_ScanPA_)]
+            ast_plxFactal   = ast_plxFactal_[  np.isfinite(ast_BJD_) & np.isfinite(ast_CentPosal_) & np.isfinite(ast_plxFactal_) & np.isfinite(ast_e_CentPosal_) & np.isfinite(ast_ScanPA_)]
+            ast_ScanPA      = ast_ScanPA_[     np.isfinite(ast_BJD_) & np.isfinite(ast_CentPosal_) & np.isfinite(ast_plxFactal_) & np.isfinite(ast_e_CentPosal_) & np.isfinite(ast_ScanPA_)]
+            ast_outFlag      = ast_outFlag_[   np.isfinite(ast_BJD_) & np.isfinite(ast_CentPosal_) & np.isfinite(ast_plxFactal_) & np.isfinite(ast_e_CentPosal_) & np.isfinite(ast_ScanPA_)]
+ 
+            if len(ast_BJD) == 0:
+                print("2Something is wrong with your Astromtry data file! Perhaps some not all entries are numeric? Please provide a Astromtry data file that contains the standard Hipparcos data input")
+                return
+        except:
+            print("3Something is wrong with your Astromtry data file! Please provide a Astromtry data file that contains the standard Hipparcos data input")
+            return
+
+        gaia,t_gaia=ex.gaia_init(np.array([
+          ast_BJD,
+          ast_CentPosal,
+          ast_e_CentPosal,
+          ast_plxFactal,
+          ast_ScanPA,
+          ast_outFlag]))
+
+
+        ast_file_name = file_from_path(path)
+        ast_data_set = np.array([gaia, planet, use, gaia_header, ast_file_name],dtype=object)
+
+        self.ast_data_sets_gaia[ast_idset] = ast_data_set
+        return
+
+
+    def remove_ast_dataset_gaia(self, ast_idset):
+        self.ast_data_sets_gaia[ast_idset] = []
         return
 
 

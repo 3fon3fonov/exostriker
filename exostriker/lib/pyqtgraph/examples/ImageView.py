@@ -23,11 +23,11 @@ app = pg.mkQApp("ImageView Example")
 
 ## Create window with ImageView widget
 win = QtWidgets.QMainWindow()
-win.resize(800,800)
+win.resize(1200,1200)
 imv = pg.ImageView(discreteTimeLine=True, levelMode='rgba')
 win.setCentralWidget(imv)
 win.show()
-win.setWindowTitle('pyqtgraph example: ImageView')
+win.setWindowTitle('pyqtgraph example: ImageView TEST')
 imv.setHistogramLabel("Histogram label goes here")
 
 ## Create random 3D data set with time varying signals

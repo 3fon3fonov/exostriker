@@ -42,7 +42,8 @@ def calc_f(E,e):
     return f
 
 #the classic RV model
-def RV_solo(v0,K,P,e,om,T0,t):
+def RV_mod(v0,K,P,e,om,T0,t):
+    """solo RV model"""
     
     M=2*np.pi*((t-T0)%P)/P
     E=calc_E(e,M)

@@ -7,7 +7,8 @@ def qso_mode(self):
 
     self.setWindowTitle("The QSO-Striker: Modeling the variability of quasar light-curves.")
 
-    self.param_tabs.removeTab(4)
+    self.param_tabs.removeTab(5)
+    self.param_tabs.removeTab(3)
     self.param_tabs.removeTab(2)
     self.param_tabs.setTabText(0,"Sine param.")
 
@@ -32,6 +33,7 @@ def qso_mode(self):
     self.tabWidget_34.removeTab(1)
     self.tabWidget_34.setTabText(0,"Model")
     self.model_param_tab.setTabText(0,"Fortran param.")
+    self.model_param_tab.removeTab(1)
 
     self.tabWidget_10.setTabText(0,"Offsets and Jitters")
     self.tabWidget_10.setTabText(1,"Ternds")

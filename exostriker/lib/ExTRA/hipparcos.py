@@ -10,18 +10,28 @@ from .astrometry import *
 #we will be working with the second reduction ONLY
 
 #the first old_residual is the hipparchos_residual given in mas
-def abs_res(old_res,parameter_model,parameter_hipp,hipp_derivation):
+def abs_res(old_res,parameter_fit,parameter,derivation):
     parameter_residual=np.zeros(5)
-    parameter_residual[:2]=np.array((parameter_model[:2]-parameter_hipp[:2]))*(3.6e6)
+
+    parameter_residual[0]=np.array((parameter_fit[0]-parameter[0]))#*3.6e6
     
-    parameter_residual[2:]=np.array((parameter_model[2:]-parameter_hipp[2:]))
+    
+    parameter_residual[1]=np.array((parameter_fit[1]-parameter[1]))#*3.6e6
+
+    #print(parameter_residual)
+
+    
+    
+    parameter_residual[2:]=np.array((parameter_fit[2:]-parameter[2:]))
 
     
     new_res=old_res
     for i in range(5):
-        new_res=new_res-hipp_derivation[i]*parameter_residual[i]
+        new_res=new_res-derivation[i]*parameter_residual[i]
     
     return new_res
+
+    
 
 
 def hip_JD(hip_ad): #finds JD of measurement
@@ -33,7 +43,7 @@ def hip_JD(hip_ad): #finds JD of measurement
     return JD
 
 
-def scanangle_hip(hip_ad): #finds the scanangle between NORTH and RGC(reference great circle) in radians
+def scanangle(hip_ad): #finds the scanangle between EAST and RGC(reference great circle) in radians
 
     A3,A4,A5,A6,A7,A8,A9=hip_ad
     angle=np.arctan2(A4,A3)
@@ -42,6 +52,28 @@ def scanangle_hip(hip_ad): #finds the scanangle between NORTH and RGC(reference 
 
 #the scanangle opens in the direction of RA
 
+
+def hip_with_gaia(hip_ad,hip_stand,gaia_stand,gaia_standardepoch="2017.5"):
+
+
+    GAIA_EPOCH=Time(gaia_standardepoch, format='jyear',scale="tcb").jd
+    HIP_EPOCH=Time("1991.25",format="jyear",scale="tcb").jd
+
+    gaia1991_asc,gaia1991_dec=pos_recalc(gaia_stand,GAIA_EPOCH,HIP_EPOCH)
+
+    gaia1991=np.copy(gaia_stand)
+    gaia1991[0]=gaia1991_asc
+    gaia1991[1]=gaia1991_dec
+
+    new_hip_res=abs_res(hip_ad[-2],gaia1991,hip_stand,hip_ad)
+    
+    new_hip_ad=np.copy(hip_ad)
+
+    new_hip_ad[-2]=new_hip_res
+
+
+
+    return new_hip_ad
 
 
 
@@ -53,7 +85,6 @@ def scanangle_hip(hip_ad): #finds the scanangle between NORTH and RGC(reference 
 def rotation_counterclockwise(x,y,theta):
     x_new=+np.cos(theta)*x-np.sin(theta)*y
     y_new=+np.sin(theta)*x+np.cos(theta)*y
-    #y_new=-1*y_new
     return x_new,y_new
     
     
@@ -80,11 +111,11 @@ def hip_2d(hip_ad): #rotates hip measurement into Dec RA* system
     """
 
     A3,A4,A5,A6,A7,A8,A9=hip_ad
-    scanangle=scanangle_hip(hip_ad)
-    x=rotation_counterclockwise(A8,0,scanangle)[0]
-    y=rotation_counterclockwise(A8,0,scanangle)[1]
-    x_err=rotation_counterclockwise(A9,0,scanangle)[0]
-    y_err=rotation_counterclockwise(A9,0,scanangle)[1]
+    angle=scanangle(hip_ad)
+    x=rotation_counterclockwise(A8,0,angle)[0]
+    y=rotation_counterclockwise(A8,0,angle)[1]
+    x_err=rotation_counterclockwise(A9,0,angle)[0]
+    y_err=rotation_counterclockwise(A9,0,angle)[1]
     #print(np.degrees(scanangle))
     return np.array([x,x_err,y,y_err])
 
@@ -252,6 +283,7 @@ def res_to_orbit(residuals,hip_ad,orbitfit):
     hip_y=res_2D[2]
     hip_y_err=res_2D[3]
 
+    #print(res_2D)
     orb_x,orb_y=orbit(*orbitfit,t)
 
     res_orb_x=hip_x+orb_x

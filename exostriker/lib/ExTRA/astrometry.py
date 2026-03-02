@@ -21,36 +21,75 @@ def thiele(a,omega,Omega,i):
     G=a*(-np.sin(omega)*np.sin(Omega)+np.cos(omega)*np.cos(Omega)*np.cos(i)) 
     return A,B,F,G
 
+#Very first implementation of the Newton Raphson, its a little slower than the new one
+#@jit(nopython=True)
+#def calc_E(e,M,n=30):
+#    """Newton Raphson Algorythm to calculate the eccentric anomaly given the mean anomaly and the eccentricity"""
+#    
+#   
+#    final=np.ones(len(M))
+#    for index, j in enumerate(M):
+#        if e<=0.8:
+#            E=j
+#        if e>0.8:
+#            E=np.pi
+#        values=np.ones(n)
+#        values[0]=E
+#        i=1
+#        while i<n:
+#            values[i]=values[i-1]-(values[i-1]-e*np.sin(values[i-1])-j)/(1-e*np.cos(values[i-1]))
+#            if abs(values[i]-values[i-1])<1e-8:
+#                values[-1]=values[i]
+#                break
+#            i=i+1
+#            if i==n:
+#                return print("error in calculating E")
+#        final[index] = values[-1]
+#    
+#    # final=np.array(final)
+#            
+#    return final
 
 @jit(nopython=True)
 def calc_E(e,M,n=30):
     """Newton Raphson Algorythm to calculate the eccentric anomaly given the mean anomaly and the eccentricity"""
     
    
-    final=np.ones(len(M))
-    for index, j in enumerate(M):
+    final=np.zeros(len(M))
+    for index, manomaly in enumerate(M):
         if e<=0.8:
-            E=j
+            E_0=manomaly
         if e>0.8:
-            E=np.pi
-        values=np.ones(n)
-        values[0]=E
-        i=1
+            E_0=np.pi
+        
+        i=0
         while i<n:
-            values[i]=values[i-1]-(values[i-1]-e*np.sin(values[i-1])-j)/(1-e*np.cos(values[i-1]))
-            if abs(values[i]-values[i-1])<1e-8:
-                values[-1]=values[i]
+            #newton-raphson
+            E_1=E_0-(E_0-e*np.sin(E_0)-manomaly)/(1-e*np.cos(E_0))
+
+
+    
+
+            #accuracy condition
+            if abs(E_1-E_0)<1e-8:
                 break
+            
+
+            #update
+            E_0=E_1
             i=i+1
+
+            #error if more than 30 tries needed
             if i==n:
                 return print("error in calculating E")
-        final[index] = values[-1]
-    
-    # final=np.array(final)
+        final[index] = E_1
             
     return final
 
+
+
 def orbit(P,e,om,i,Om,T0,a,t):
+    """"Given timestamps and Keplerian Elements, computes the positions of an object in orbit"""
     
     
     #calculating thiele constants
@@ -72,7 +111,7 @@ def orbit(P,e,om,i,Om,T0,a,t):
     
     
     
-    #to provide a right handed system and fulfill conventions, x is NORTH and y is EAST
+    
     
     return x,y
 
@@ -145,7 +184,7 @@ def standard_model(asc,dec,parallax,mu_a_star,mu_d,t,earth,Sepoch=2457389.0,tang
     #for gaia it is J2016, or 2456389.0
     
     
-    asc_star=asc*np.cos(np.radians(dec)) #we need the RA* to calculate the final position
+    
     
     p_a,p_d=parallax_factors(asc,dec,earth)
     if tangential:
@@ -155,15 +194,16 @@ def standard_model(asc,dec,parallax,mu_a_star,mu_d,t,earth,Sepoch=2457389.0,tang
         d=mu_d*((t-t0)/365.25)+p_d*parallax
     
     if not tangential:
-        asc_star=asc_star*(3.6e6) #convert to mas
+        asc=asc*(3.6e6) #convert to mas
         dec=dec*(3.6e6) #convert to mas
 
     #t0 is the time for given asc and dec.
     #plugging in t lets us calculate p_a and p_d and therefore the new star position.
 
 
-        a=asc_star+mu_a_star*((t-t0)/365.25)+p_a*parallax
+        a=asc+(mu_a_star*((t-t0)/365.25)+p_a*parallax) / np.cos(np.radians(dec))
         d=dec+mu_d*((t-t0)/365.25)+p_d*parallax
+        
     
     return a,d #in mas
 
@@ -186,21 +226,21 @@ def pos_recalc(standmodel,Epoch0,Epoch1):
     Returns:
     ----------
     asc_final,dec_final : Tuple,floats
-        new coordinates for Epoch1 in [mas]
+        new coordinates for Epoch1 in [deg]
     """
     asc,dec,parallax,mu_a_star,mu_d=standmodel
-    asc_star=asc*np.cos(np.radians(dec))
     
-    asc_star=asc_star*(3.6e6) #convert to mas
+    
+    asc=asc*(3.6e6) #convert to mas
     dec=dec*(3.6e6) #convert to mas
 
 
-    a=asc_star+mu_a_star*((Epoch1-Epoch0)/365.25)
+    a=asc+mu_a_star*((Epoch1-Epoch0)/365.25)*1/np.cos(np.radians(dec))
     d=dec+mu_d*((Epoch1-Epoch0)/365.25)
         
     
     dec_final=d/(3.6e6)
-    asc_final=a/(3.6e6*np.cos(np.radians(dec_final)))
+    asc_final=a/(3.6e6)
         
     return asc_final,dec_final
 
@@ -256,17 +296,13 @@ def stand_correct(stand,correction):
 
     
 
-    
+    new[0]=stand[0]+correction[0]/(np.cos(np.radians((stand[1])))*3.6e6)
     new[1]=stand[1]+correction[1]/(3.6e6)
     new[2]=stand[2]+correction[2]
     new[3]=stand[3]+correction[3]
     new[4]=stand[4]+correction[4]
 
-    stand_star=stand[0]*np.cos(np.radians(new[1]))
-
-    stand_star_shifted=stand_star+correction[0]/3.6e6
-
-    new[0]=stand_star_shifted/(np.cos(np.radians(new[1])))
+    
 
 
     

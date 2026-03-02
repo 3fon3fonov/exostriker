@@ -410,7 +410,9 @@ def param_gui_ast(self):
             self.ast_delta,
             self.ast_pi,
             self.ast_mu_alpha,       
-            self.ast_mu_delta
+            self.ast_mu_delta,
+            self.ast_mu_alpha_dot,       
+            self.ast_mu_delta_dot            
             ]
     return param_gui_ast
 
@@ -421,7 +423,9 @@ def use_param_gui_ast(self):
             self.use_ast_delta,
             self.use_ast_pi,
             self.use_ast_mu_alpha,       
-            self.use_ast_mu_delta
+            self.use_ast_mu_delta,
+            self.use_ast_mu_alpha_dot,       
+            self.use_ast_mu_delta_dot            
             ]
     return use_param_gui_ast
 
@@ -432,7 +436,9 @@ def param_errors_gui_ast(self):
             self.err_ast_delta,
             self.err_ast_pi,
             self.err_ast_mu_alpha,       
-            self.err_ast_mu_delta
+            self.err_ast_mu_delta,
+             self.err_ast_mu_alpha_dot,       
+            self.err_ast_mu_delta_dot           
             ]
     return param_errors_gui_ast
 
@@ -445,7 +451,9 @@ def ast_bounds_gui(self):
     [self.ast_delta_min,self.ast_delta_max],
     [self.ast_pi_min,self.ast_pi_max],
     [self.ast_mu_alpha_min,self.ast_mu_alpha_max],
-    [self.ast_mu_delta_min,self.ast_mu_delta_max]
+    [self.ast_mu_delta_min,self.ast_mu_delta_max],
+    [self.ast_mu_alpha_dot_min,self.ast_mu_alpha_dot_max],
+    [self.ast_mu_delta_dot_min,self.ast_mu_delta_dot_max]    
     ]  
     return ast_bounds_gui
 
@@ -458,7 +466,9 @@ def ast_norm_pr_gui(self):
     [self.ast_delta_mean,self.ast_delta_sigma,self.use_ast_delta_nr_pr],
     [self.ast_pi_mean,self.ast_pi_sigma,self.use_ast_pi_nr_pr],
     [self.ast_mu_alpha_mean,self.ast_mu_alpha_sigma,self.use_ast_mu_alpha_nr_pr],
-    [self.ast_mu_delta_mean,self.ast_mu_delta_sigma,self.use_ast_mu_delta_nr_pr]
+    [self.ast_mu_delta_mean,self.ast_mu_delta_sigma,self.use_ast_mu_delta_nr_pr],
+    [self.ast_mu_alpha_dot_mean,self.ast_mu_alpha_dot_sigma,self.use_ast_mu_alpha_dot_nr_pr],
+    [self.ast_mu_delta_dot_mean,self.ast_mu_delta_dot_sigma,self.use_ast_mu_delta_dot_nr_pr]    
     ]
     return ast_norm_pr_gui
 
@@ -471,7 +481,9 @@ def ast_jeff_pr_gui(self):
     [self.ast_delta_alpha,self.ast_delta_beta,self.use_ast_delta_jeff_pr],
     [self.ast_pi_alpha,self.ast_pi_beta,self.use_ast_pi_jeff_pr],
     [self.ast_mu_alpha_alpha,self.ast_mu_alpha_beta,self.use_ast_mu_alpha_jeff_pr],
-    [self.ast_mu_delta_alpha,self.ast_mu_delta_beta,self.use_ast_mu_delta_jeff_pr]
+    [self.ast_mu_delta_alpha,self.ast_mu_delta_beta,self.use_ast_mu_delta_jeff_pr],
+    [self.ast_mu_alpha_dot_alpha,self.ast_mu_alpha_dot_beta,self.use_ast_mu_alpha_dot_jeff_pr],
+    [self.ast_mu_delta_dot_alpha,self.ast_mu_delta_dot_beta,self.use_ast_mu_delta_dot_jeff_pr]    
     ]
     return ast_jeff_pr_gui
 
@@ -3018,4 +3030,21 @@ def use_ast_data_to_planet_2(self):
     
         
     
+def ast_data_to_planet_3(self): 
+    
+    ast_data_to_planet_3 = [
+            self.ast_data_planet_gaia_1,self.ast_data_planet_gaia_2
+            ]
+   
+    return ast_data_to_planet_3
+
+
+def use_ast_data_to_planet_3(self): 
+    
+    use_ast_data_to_planet_3 = [
+            self.use_ast_data_gaia_1,self.use_ast_data_gaia_2
+            ]
+   
+    return use_ast_data_to_planet_3
+        
     

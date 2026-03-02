@@ -35,7 +35,6 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty") 
 * TTVs extraction.
 * TTVs and/or joint TTVs + RVs analysis.
-* Relative astrometry fitting.
 * GP modeling (via "celerite").
 * Linear models for detrending ground-based transit photometry.
 * Activity index signal search via GLS periodogram.
@@ -59,7 +58,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Importable as a standard python library (i.e., "import exostriker").
 * Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
 * Direct import of TESS & K2 *lc.fits, and CHEOPS *SCI_COR*.fits files.
-* Combined modeling with Hipparcos and Imaging Astrometry (but is still a work in progress to be ready for Gaia).
+* Combined modeling with Hipparcos, DR4 (when available) and Imaging Astrometry.
 
 
 **What is to be implemented**:

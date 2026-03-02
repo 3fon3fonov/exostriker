@@ -373,6 +373,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.radioButton_aR.setChecked(True)            
             
+            
+        self.check_std_ast_solution()   
 
     def update_gui_params(self):
         global fit
@@ -469,7 +471,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.param_gui_ast[2].setValue(fit.ast_pi[0])        
         self.param_gui_ast[3].setValue(fit.ast_mu_alpha[0])        
         self.param_gui_ast[4].setValue(fit.ast_mu_delta[0])                
- 
+        self.param_gui_ast[5].setValue(fit.ast_mu_alpha_dot[0])        
+        self.param_gui_ast[6].setValue(fit.ast_mu_delta_dot[0])     
 
         #self.St_mass_input.setValue(fit.params.stellar_mass)  
         #self.St_radius_input.setValue(fit.stellar_radius)  
@@ -656,7 +659,8 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         fit.ast_pi[0]       = self.param_gui_ast[2].value()
         fit.ast_mu_alpha[0] = self.param_gui_ast[3].value()
         fit.ast_mu_delta[0] = self.param_gui_ast[4].value()
-
+        fit.ast_mu_alpha_dot[0] = self.param_gui_ast[5].value()
+        fit.ast_mu_delta_dot[0] = self.param_gui_ast[6].value()
             
 
     def set_hkl(self):
@@ -957,7 +961,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.param_errors_gui_ast[2].setText("+/- %.3f"%max(np.abs(fit.ast_pi_err[0])))
         self.param_errors_gui_ast[3].setText("+/- %.3f"%max(np.abs(fit.ast_mu_alpha_err[0])))
         self.param_errors_gui_ast[4].setText("+/- %.3f"%max(np.abs(fit.ast_mu_delta_err[0])))    
-    
+        self.param_errors_gui_ast[5].setText("+/- %.3f"%max(np.abs(fit.ast_mu_alpha_dot_err[0])))
+        self.param_errors_gui_ast[6].setText("+/- %.3f"%max(np.abs(fit.ast_mu_delta_dot_err[0])))        
     
     
     def update_a_mass(self):
@@ -1081,7 +1086,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.use_param_gui_ast[2].setChecked(bool(fit.ast_pi_use[0]))
         self.use_param_gui_ast[3].setChecked(bool(fit.ast_mu_alpha_use[0]))
         self.use_param_gui_ast[4].setChecked(bool(fit.ast_mu_delta_use[0]))        
- 
+        self.use_param_gui_ast[5].setChecked(bool(fit.ast_mu_alpha_dot_use[0]))
+        self.use_param_gui_ast[6].setChecked(bool(fit.ast_mu_delta_dot_use[0]))    
 
 
     def update_mixed_fitting(self):
@@ -1163,7 +1169,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.set_ttv_dataset_to_planet()
         self.set_ast_dataset_to_planet()
         self.set_ast_dataset_to_planet_2()
-        
+        self.set_ast_dataset_to_planet_3()        
         
     def update_RV_GP_use(self):
         global fit
@@ -1218,7 +1224,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         fit.ast_pi_use[0]        = self.use_param_gui_ast[2].isChecked()
         fit.ast_mu_alpha_use[0]  = self.use_param_gui_ast[3].isChecked()        
         fit.ast_mu_delta_use[0]  = self.use_param_gui_ast[4].isChecked()          
- 
+        fit.ast_mu_alpha_dot_use[0]  = self.use_param_gui_ast[5].isChecked()        
+        fit.ast_mu_delta_dot_use[0]  = self.use_param_gui_ast[6].isChecked()   
 
     def update_bounds(self):
         global fit
@@ -1893,7 +1900,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.ast_bounds_gui[2][z].setValue(fit.ast_pi_bound[0][z])
             self.ast_bounds_gui[3][z].setValue(fit.ast_mu_alpha_bound[0][z])
             self.ast_bounds_gui[4][z].setValue(fit.ast_mu_delta_bound[0][z])                        
-
+            self.ast_bounds_gui[5][z].setValue(fit.ast_mu_alpha_dot_bound[0][z])
+            self.ast_bounds_gui[6][z].setValue(fit.ast_mu_delta_dot_bound[0][z])   
 
     def update_ast_priors_nr(self):
         global fit
@@ -1904,12 +1912,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.ast_norm_pr_gui[2][z].setValue(fit.ast_pi_norm_pr[0][z])
             self.ast_norm_pr_gui[3][z].setValue(fit.ast_mu_alpha_norm_pr[0][z])
             self.ast_norm_pr_gui[4][z].setValue(fit.ast_mu_delta_norm_pr[0][z])  
+            self.ast_norm_pr_gui[5][z].setValue(fit.ast_mu_alpha_dot_norm_pr[0][z])
+            self.ast_norm_pr_gui[6][z].setValue(fit.ast_mu_delta_dot_norm_pr[0][z])  
             
         self.ast_norm_pr_gui[0][2].setChecked(int(fit.ast_alpha_norm_pr[0][2]))
         self.ast_norm_pr_gui[1][2].setChecked(int(fit.ast_delta_norm_pr[0][2]))
         self.ast_norm_pr_gui[2][2].setChecked(int(fit.ast_pi_norm_pr[0][2]))
         self.ast_norm_pr_gui[3][2].setChecked(int(fit.ast_mu_alpha_norm_pr[0][2]))
         self.ast_norm_pr_gui[4][2].setChecked(int(fit.ast_mu_delta_norm_pr[0][2]))   
+        self.ast_norm_pr_gui[5][2].setChecked(int(fit.ast_mu_alpha_dot_norm_pr[0][2]))
+        self.ast_norm_pr_gui[6][2].setChecked(int(fit.ast_mu_delta_dot_norm_pr[0][2])) 
         
     def update_ast_priors_jeff(self):
         global fit
@@ -1920,12 +1932,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.ast_jeff_pr_gui[2][z].setValue(fit.ast_pi_jeff_pr[0][z])
             self.ast_jeff_pr_gui[3][z].setValue(fit.ast_mu_alpha_jeff_pr[0][z])
             self.ast_jeff_pr_gui[4][z].setValue(fit.ast_mu_delta_jeff_pr[0][z])  
-            
+            self.ast_jeff_pr_gui[5][z].setValue(fit.ast_mu_alpha_dot_jeff_pr[0][z])
+            self.ast_jeff_pr_gui[6][z].setValue(fit.ast_mu_delta_dot_jeff_pr[0][z])  
+                        
         self.ast_jeff_pr_gui[0][2].setChecked(int(fit.ast_alpha_jeff_pr[0][2]))
         self.ast_jeff_pr_gui[1][2].setChecked(int(fit.ast_delta_jeff_pr[0][2]))
         self.ast_jeff_pr_gui[2][2].setChecked(int(fit.ast_pi_jeff_pr[0][2]))
         self.ast_jeff_pr_gui[3][2].setChecked(int(fit.ast_mu_alpha_jeff_pr[0][2]))
         self.ast_jeff_pr_gui[4][2].setChecked(int(fit.ast_mu_delta_jeff_pr[0][2]))          
+        self.ast_jeff_pr_gui[5][2].setChecked(int(fit.ast_mu_alpha_dot_jeff_pr[0][2]))
+        self.ast_jeff_pr_gui[6][2].setChecked(int(fit.ast_mu_delta_dot_jeff_pr[0][2]))  
 
     def check_ast_bounds(self):
         global fit
@@ -1936,6 +1952,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.ast_pi_bound[0][z] = self.ast_bounds_gui[2][z].value()
             fit.ast_mu_alpha_bound[0][z] = self.ast_bounds_gui[3][z].value()
             fit.ast_mu_delta_bound[0][z] = self.ast_bounds_gui[4][z].value()
+            fit.ast_mu_alpha_dot_bound[0][z] = self.ast_bounds_gui[5][z].value()
+            fit.ast_mu_delta_dot_bound[0][z] = self.ast_bounds_gui[6][z].value()
             
     def check_ast_priors_nr(self):
         global fit
@@ -1946,12 +1964,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.ast_pi_norm_pr[0][z]       = self.ast_norm_pr_gui[2][z].value()
             fit.ast_mu_alpha_norm_pr[0][z] = self.ast_norm_pr_gui[3][z].value()
             fit.ast_mu_delta_norm_pr[0][z] = self.ast_norm_pr_gui[4][z].value()
+            fit.ast_mu_alpha_dot_norm_pr[0][z] = self.ast_norm_pr_gui[5][z].value()
+            fit.ast_mu_delta_dot_norm_pr[0][z] = self.ast_norm_pr_gui[6][z].value()
                       
         fit.ast_alpha_norm_pr[0][2]    = self.ast_norm_pr_gui[0][2].isChecked()
         fit.ast_delta_norm_pr[0][2]    = self.ast_norm_pr_gui[1][2].isChecked() 
         fit.ast_pi_norm_pr[0][2]       = self.ast_norm_pr_gui[2][2].isChecked()
         fit.ast_mu_alpha_norm_pr[0][2] = self.ast_norm_pr_gui[3][2].isChecked()
         fit.ast_mu_delta_norm_pr[0][2] = self.ast_norm_pr_gui[4][2].isChecked()
+        fit.ast_mu_alpha_dot_norm_pr[0][2] = self.ast_norm_pr_gui[5][2].isChecked()
+        fit.ast_mu_delta_dot_norm_pr[0][2] = self.ast_norm_pr_gui[6][2].isChecked()
                             
     def check_ast_priors_jeff(self):
         global fit
@@ -1962,13 +1984,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.ast_pi_jeff_pr[0][z]       = self.ast_jeff_pr_gui[2][z].value()
             fit.ast_mu_alpha_jeff_pr[0][z] = self.ast_jeff_pr_gui[3][z].value()
             fit.ast_mu_delta_jeff_pr[0][z] = self.ast_jeff_pr_gui[4][z].value()
-                      
+            fit.ast_mu_alpha_dot_jeff_pr[0][z] = self.ast_jeff_pr_gui[5][z].value()
+            fit.ast_mu_delta_dot_jeff_pr[0][z] = self.ast_jeff_pr_gui[6][z].value()
+                                  
         fit.ast_alpha_jeff_pr[0][2]    = self.ast_jeff_pr_gui[0][2].isChecked()
         fit.ast_delta_jeff_pr[0][2]    = self.ast_jeff_pr_gui[1][2].isChecked() 
         fit.ast_pi_jeff_pr[0][2]       = self.ast_jeff_pr_gui[2][2].isChecked()
         fit.ast_mu_alpha_jeff_pr[0][2] = self.ast_jeff_pr_gui[3][2].isChecked()
         fit.ast_mu_delta_jeff_pr[0][2] = self.ast_jeff_pr_gui[4][2].isChecked()
-                                      
+        fit.ast_mu_alpha_dot_jeff_pr[0][2] = self.ast_jeff_pr_gui[5][2].isChecked()
+        fit.ast_mu_delta_dot_jeff_pr[0][2] = self.ast_jeff_pr_gui[6][2].isChecked()                                    
                                     
     ################################# 
 
@@ -2575,13 +2600,23 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_use_ast_data_to_planet.setId(self.use_ast_data_10,10)
      
         self.buttonGroup_ast_data_2.setId(self.Button_ast_data_hipp_1,1)
-        self.buttonGroup_ast_data_2.setId(self.Button_ast_data_hipp_2,2)       
+        self.buttonGroup_ast_data_2.setId(self.Button_ast_data_hipp_2,2)     
+        
+        self.buttonGroup_ast_data_3.setId(self.Button_ast_data_gaia_1,1)
+        self.buttonGroup_ast_data_3.setId(self.Button_ast_data_gaia_2,2)           
         
         self.buttonGroup_remove_ast_data_2.setId(self.remove_ast_data_hipp_1,1)
         self.buttonGroup_remove_ast_data_2.setId(self.remove_ast_data_hipp_2,2)        
+
+        self.buttonGroup_remove_ast_data_3.setId(self.remove_ast_data_gaia_1,1)
+        self.buttonGroup_remove_ast_data_3.setId(self.remove_ast_data_gaia_2,2)   
         
         self.buttonGroup_use_ast_data_to_planet_2.setId(self.use_ast_data_hipp_1,1)
         self.buttonGroup_use_ast_data_to_planet_2.setId(self.use_ast_data_hipp_2,2)    
+        
+        
+        self.buttonGroup_use_ast_data_to_planet_3.setId(self.use_ast_data_gaia_1,1)
+        self.buttonGroup_use_ast_data_to_planet_3.setId(self.use_ast_data_gaia_2,2)            
         
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_1,1)
         self.buttonGroup_color_picker.setId(self.rv_pushButton_color_2,2)
@@ -5411,7 +5446,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             pl_ind = self.ast_comboBox_pl.currentIndex()
             print(pl_ind)
             self.ast_o_c_comboBox_pl.setCurrentIndex(pl_ind)
-
+            
+        pl_ind = self.ast_comboBox_pl_hipp_gaia.currentIndex()        
+        self.ast_comboBox_pl_hipp_gaia.setCurrentIndex(pl_ind)
         self.update_ast_plots()
 
     def update_ast_plots(self):
@@ -5575,8 +5612,284 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             p_ast.autoRange()           
             p_ast_oc.autoRange()  
 
-        
+   
     def update_ast_plots_hipp(self):
+        global fit, p_ast_hipp, p_ast_oc,p_ast_00,p_ast_01, colors,legend_ast_hipp
+        
+        self.check_ast_symbol_sizes()
+ 
+        pl_ind     = self.ast_comboBox_pl_hipp_gaia.currentIndex()
+        
+        #print(pl_ind)
+ 
+        p_ast_hipp.plot(clear=True,) 
+
+            
+        #ast_files = fit.ast_data_sets_hipp
+        ast_files = fit.ast_data_sets_gaia
+
+ 
+        if self.ast_legend.isChecked()==True:
+            legend_ast_hipp.clear()
+            legend_ast_hipp.setVisible(True)
+        else:
+            legend_ast_hipp.setVisible(False)
+
+        fit.prepare_for_mcmc()
+        times = fit.ast_times 
+ 
+        vel_files = []
+        for i in range(len(fit.rv_data_sets)):
+            if len(fit.rv_data_sets[i]) == 0:
+                continue
+            vel_files.append(fit.rv_data_sets[i][5]) 
+
+       
+        for j in range(len(ast_files)):
+
+            if len(ast_files[j]) == 0 or ast_files[j][2] == False or ast_files[j][1] != pl_ind+1:
+                continue 
+
+          #  t = np.array(ast_files[j][0])
+          #  x_axis = np.array(ast_files[j][1])
+          #  x_axis_err = np.array(ast_files[j][2])
+          #  y_axis = np.array(ast_files[j][3])
+          #  y_axis_err = np.array(ast_files[j][4]) 
+            
+            if fit.npl > 0:
+                
+                if fit.rtg[0] == False:
+                    #ast_loglik = rv.ast_loglik_hipp(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True)
+                    ast_loglik = rv.ast_loglik_gaia(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True, 
+                    model_max=self.ast_model_max_range.value(), model_samp=self.ast_points_to_draw_model.value())                   
+                else:
+                    #ast_loglik = rv.ast_loglik_hipp(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True)
+                    ast_loglik = rv.ast_loglik_gaia(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True, 
+                    model_max=self.ast_model_max_range.value(), model_samp=self.ast_points_to_draw_model.value())
+ 
+                if ast_loglik == None:
+                    print("Something went wrong when calculating astr. lnL....")
+                    continue
+
+                if isinstance(ast_loglik, float):
+                    return
+
+                fit.ast_results = dill.copy(ast_loglik)
+
+
+                if self.ast_o_c_hipp_gaia.isChecked():
+                    x_axis = np.array(ast_loglik[1][pl_ind][1][0] )
+                    x_axis_err = np.array(ast_loglik[1][pl_ind][1][1])
+                    y_axis = np.array(ast_loglik[1][pl_ind][1][2])
+                    y_axis_err = np.array(ast_loglik[1][pl_ind][1][3])
+                else:
+                    x_axis = np.array(ast_loglik[1][pl_ind][0][0] )
+                    x_axis_err = np.array(ast_loglik[1][pl_ind][0][1])
+                    y_axis = np.array(ast_loglik[1][pl_ind][0][2])
+                    y_axis_err = np.array(ast_loglik[1][pl_ind][0][3])                
+               
+                 
+                bjd_dates = np.array(ast_loglik[1][pl_ind][2]) 
+                 
+                ast_model_x   = ast_loglik[2][pl_ind][0] 
+                ast_model_y   = ast_loglik[2][pl_ind][1]
+                ast_model_bjd = ast_loglik[2][pl_ind][2]                
+            else:
+                ast_model_x = np.zeros(5)
+                ast_model_y = np.zeros(5)
+                
+            
+            if self.ast_use_plot_ra_dec.isChecked():
+               
+                p_ast_hipp.invertX(False)
+                p_ast_hipp.getViewBox().setAspectLocked(False)
+                
+                if self.ast_plot_ra.isChecked():
+                    p_ast_hipp.setLabel('left', '<html><head/><body><p>&#916; &#945; cos(&#948;) [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                    p_ast_hipp.setLabel('bottom', '<html><head/><body><p>  BJD [days] </p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})                 
+                    yaxis = x_axis
+                    yaxis_err = x_axis_err
+                    yaxis_model = ast_model_x
+                    
+                elif self.ast_plot_dec.isChecked():
+                    p_ast_hipp.setLabel('left', '<html><head/><body><p>&#948; [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                    p_ast_hipp.setLabel('bottom', '<html><head/><body><p>  BJD [days] </p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})                 
+                    yaxis = y_axis
+                    yaxis_err = y_axis_err                    
+                    yaxis_model = ast_model_y                    
+                
+                p_ast_hipp.plot(bjd_dates, yaxis,
+                pen=None,
+                symbol=dill.copy(fit.pyqt_symbols_ast[j]),
+                symbolPen={'color': dill.copy(fit.ast_colors[j]), 'width': 1.1},
+                symbolSize=dill.copy(fit.pyqt_symbols_size_ast[j]),enableAutoRange=True,viewRect=True,
+                symbolBrush=dill.copy(fit.ast_colors[j]),name=ast_files[j][-1]  )             
+                
+                err_ = pg.ErrorBarItem(x=bjd_dates, y=yaxis, symbol=dill.copy(fit.pyqt_symbols_ast[j]),
+                                      # height=flux_err, 
+                                       top=yaxis_err, 
+                                       bottom=yaxis_err,
+                                       #left=y_axis_err,
+                                      # right=y_axis_err,
+                                       beam=0.0, pen=dill.copy(fit.ast_colors[j]))
+
+                p_ast_hipp.addItem(err_)               
+                
+                
+                model_curve = p_ast_hipp.plot(ast_model_bjd, yaxis_model, pen={'color':  fit.ast_colors[-1], 'width': self.ast_model_width.value()}, enableAutoRange=True, viewRect=True )
+                 
+
+            else:
+
+                p_ast_hipp.setLabel('bottom', '<html><head/><body><p>&#916; &#945; cos(&#948;) [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                p_ast_hipp.setLabel('left',   '<html><head/><body><p>&#948; [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+            
+                p_ast_hipp.invertX(True)
+                p_ast_hipp.getViewBox().setAspectLocked(True)
+
+                p_ast_hipp.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')    
+                            
+
+                
+                if self.ast_absc_size_auto.isChecked():
+                    size=0.05*((max(x_axis)-min(x_axis))/2)
+                else:
+                    size=float(self.ast_absc_size_value.value())
+                
+                norm=1/((x_axis_err**2 +y_axis_err**2)**0.5)
+                x1=x_axis-y_axis_err*norm*size
+                y1=y_axis+x_axis_err*norm*size
+                x2=x_axis+y_axis_err*norm*size
+                y2=y_axis-x_axis_err*norm*size
+                #then plots a line for each measurement in size and angle of the error    
+     
+
+                P = float(fit.P[ast_files[j][1] - 1])
+
+                bjd_phased = (bjd_dates % P)
+                ast_model_bjd_phased = (ast_model_bjd % P)
+
+                # Normalize both with the same reference, 0..P
+                b_norm_data  = np.clip(bjd_phased / P, 0.0, 1.0)
+                b_norm_model = np.clip(ast_model_bjd_phased / P, 0.0, 1.0)
+
+                cmap = pg.colormap.get('viridis')
+
+                
+                #start_time = time.time()   
+                     
+
+ 
+                if self.ast_data_color_gradient.isChecked():
+ 
+                    # Points
+                    point_qcolors = cmap.map(b_norm_data, mode='qcolor')
+                    scatter = pg.ScatterPlotItem(x_axis, y_axis, brush=point_qcolors, pen=None, size=5)
+                    p_ast_hipp.addItem(scatter)
+ 
+
+                    # Error bar endpoints (you already computed x1,y1,x2,y2)
+                    # We will color them by binning b_norm_data
+                    K = 64  # 32, 64, 128 are typical
+                    bin_idx = np.minimum((b_norm_data * K).astype(np.int32), K - 1)
+
+                    # One color per bin
+                    rgba_bins = cmap.map(np.linspace(0.0, 1.0, K), mode='byte')  # (K,4) uint8
+
+                    width_err = 1.0  # or float(self.ast_model_width.value()) if you want
+
+                    for k in range(K):
+                        idx = np.where(bin_idx == k)[0]
+                        if idx.size == 0:
+                            continue
+
+                        x_err = np.column_stack((x1[idx], x2[idx])).reshape(-1)
+                        y_err = np.column_stack((y1[idx], y2[idx])).reshape(-1)
+
+                        pen_k = pg.mkPen(color=rgba_bins[k], width=width_err)
+                        p_ast_hipp.plot(x_err, y_err, connect='pairs', pen=pen_k)
+
+                 
+                else:
+                
+                    p_ast_hipp.plot(x_axis, y_axis,
+                    pen=None, 
+                    symbol=dill.copy(fit.pyqt_symbols_ast[j]),
+                    symbolPen={'color': dill.copy(fit.ast_colors[j]), 'width': 1.1},
+                    symbolSize=dill.copy(fit.pyqt_symbols_size_ast[j]),enableAutoRange=True,viewRect=True,
+                    symbolBrush=dill.copy(fit.ast_colors[j]),name=ast_files[j][-1]  )    
+                
+                    # Error bar endpoints (you already computed x1,y1,x2,y2)
+                    # We will color them by binning b_norm
+                    K = 64  # 32, 64, 128 are typical
+                    bin_idx = np.minimum((b_norm_data * K).astype(np.int32), K - 1)
+                    
+                    width_err = 1.0  # or float(self.ast_model_width.value()) if you want
+
+                    for k in range(K):
+                        idx = np.where(bin_idx == k)[0]
+                        if idx.size == 0:
+                            continue
+
+                        x_err = np.column_stack((x1[idx], x2[idx])).reshape(-1)
+                        y_err = np.column_stack((y1[idx], y2[idx])).reshape(-1)
+
+
+                        pen_k = pg.mkPen(color=fit.ast_colors[j], width=width_err)
+                        p_ast_hipp.plot(x_err, y_err, connect='pairs', pen=pen_k)
+                        
+                        
+
+                if self.ast_model_color_gradient.isChecked():
+
+                    # model segments
+                    x1 = ast_model_x[:-1]
+                    y1 = ast_model_y[:-1]
+                    x2 = ast_model_x[1:]
+                    y2 = ast_model_y[1:]
+
+                    # one phase value per segment
+                    phase_mid = 0.5 * (b_norm_model[:-1] + b_norm_model[1:])
+
+                    K = 64
+                    bin_idx = np.minimum((phase_mid * K).astype(np.int32), K - 1)
+
+                    # one color per bin
+                    rgba_bins = cmap.map(np.linspace(0.0, 1.0, K), mode='byte')
+
+                    width_model = float(self.ast_model_width.value())
+
+                    for k in range(K):
+                        idx = np.where(bin_idx == k)[0]
+                        if idx.size == 0:
+                            continue
+
+                        xx = np.column_stack((x1[idx], x2[idx])).reshape(-1)
+                        yy = np.column_stack((y1[idx], y2[idx])).reshape(-1)
+
+                        pen_k = pg.mkPen(color=rgba_bins[k], width=width_model)
+                        model_curve = p_ast_hipp.plot(xx, yy, connect='pairs', pen=pen_k)
+                     
+                else:
+                                    
+                     model_curve = p_ast_hipp.plot(ast_model_x, ast_model_y, pen={'color':  fit.ast_colors[-1], 'width': self.ast_model_width.value()}, enableAutoRange=True, viewRect=True )
+
+
+                #print(" plot2 takes --- %s seconds ---" % (time.time() - start_time))     
+
+
+
+            model_curve.setZValue(self.ast_model_z.value())
+
+            if self.ast_plot_cross_hair_hipp_gaia.isChecked():
+                self.cross_hair(p_ast_hipp,log=False)
+
+
+
+            #######################################
+
+        
+    def update_ast_plots_hipp2(self):
         global fit, p_ast_hipp, p_ast_oc,p_ast_00,p_ast_01, colors,legend_ast_hipp
         
         self.check_ast_symbol_sizes()
@@ -5586,7 +5899,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         p_ast_hipp.plot(clear=True,) 
 
             
-        ast_files = fit.ast_data_sets_hipp_gaia
+        ast_files = fit.ast_data_sets_hipp
+
  
         if self.ast_legend.isChecked()==True:
             legend_ast_hipp.clear()
@@ -5606,7 +5920,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
        
         for j in range(len(ast_files)):
             
-            if len(ast_files[j]) == 0 or ast_files[j][8] == False or ast_files[j][7] != pl_ind+1:
+            if len(ast_files[j]) == 0 or ast_files[j][2] == False or ast_files[j][1] != pl_ind+1:
                 continue
  
 
@@ -5730,8 +6044,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 # Normalize BJD dates to the range [0, 1]
                 #bjd_min, bjd_max = np.min(bjd_dates), np.max(bjd_dates)
                 #bjd_normalized = (bjd_dates - bjd_min) / (bjd_max - bjd_min)
-                bjd_phased = ((bjd_dates - bjd_dates[0]) % fit.P[ast_files[j][7]]) / fit.P[ast_files[j][7]]  # Normalize to the range [0, 1]
-                ast_model_bjd_phased = (ast_model_bjd % fit.P[ast_files[j][7]]) / fit.P[ast_files[j][7]]  # Normalize to the range [0, 1]            
+                bjd_phased = ((bjd_dates - bjd_dates[0]) % fit.P[ast_files[j][1]]) / fit.P[ast_files[j][1]]  # Normalize to the range [0, 1]
+                ast_model_bjd_phased = (ast_model_bjd % fit.P[ast_files[j][1]]) / fit.P[ast_files[j][1]]  # Normalize to the range [0, 1]            
                 
                 #start_time = time.time()   
                 
@@ -5821,6 +6135,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         self.ast_comboBox_pl.clear()
         self.ast_o_c_comboBox_pl.clear()
+        self.ast_comboBox_pl_hipp_gaia.clear()
+        
         
         for i in range(9):
 
@@ -5828,10 +6144,12 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 continue
             self.ast_comboBox_pl.addItem('Planet %s'%str(i+1),i+1) 
             self.ast_o_c_comboBox_pl.addItem('Planet %s'%str(i+1),i+1) 
-            
+            self.ast_comboBox_pl_hipp_gaia.addItem('Planet %s'%str(i+1),i+1) 
+                        
         self.ast_comboBox_pl.setCurrentIndex(0)
         self.ast_o_c_comboBox_pl.setCurrentIndex(0)
-
+        self.ast_comboBox_pl_hipp_gaia.setCurrentIndex(0)
+        
 ############################# N-Body plots ########################################     
 
 
@@ -6485,6 +6803,21 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.plot_opt_tab.setCurrentWidget(self.tab_149)
             self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_plot_opt_res_angles) 
 
+
+    def change_ast_plot_opt(self):
+ 
+        if self.tabWidget_6.currentIndex() ==  0:
+            self.param_tabs.setCurrentWidget(self.plot_options_tabs)
+            self.plot_opt_tab.setCurrentWidget(self.tab_149)
+            self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_125)
+        elif self.tabWidget_6.currentIndex() ==  1:
+            self.param_tabs.setCurrentWidget(self.plot_options_tabs)
+            self.plot_opt_tab.setCurrentWidget(self.tab_149)
+            self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_187)
+        elif self.tabWidget_6.currentIndex() ==  2:
+            self.param_tabs.setCurrentWidget(self.plot_options_tabs)
+            self.plot_opt_tab.setCurrentWidget(self.tab_149)
+            self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_plot_opt_res_angles) 
 
 ################ Extra Plots (work in progress) ######################
 
@@ -7378,7 +7711,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit, colors
 
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(9)
         font.setBold(False)
         #font.setWeight(75)
 
@@ -7710,6 +8043,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def update_ast_file_buttons(self):
         global fit, colors          
 
+
         for i in range(10):
             if len(fit.ast_data_sets[i]) != 0:
                 self.buttonGroup_ast_data.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.colors[i]))
@@ -7762,30 +8096,51 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 self.use_ast_data_to_planet[i].setChecked(bool(fit.ast_data_sets[i][6]))
 
 
-################################ Astr. files (Hipp/Gaia) #####################################
+################################ Astr. files (Hipp) #####################################
 
     def check_std_ast_solution(self):
         global fit      
         
         for i in range(1): #TBD fixed!!!!
-            #print("TEST",fit.ast_data_sets_hipp_gaia[i]) 
-            if len(fit.ast_data_sets_hipp_gaia[i]) != 0:
 
-                try:
-                    self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp_gaia[i][9]["RAdeg"],fit.ast_data_sets_hipp_gaia[i][9]["e_RA"]))                    
-                    self.ast_std_label_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp_gaia[i][9]["DEdeg"],fit.ast_data_sets_hipp_gaia[i][9]["e_DE"]))                    
-                    self.ast_std_label_pi.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp_gaia[i][9]["Plx"],fit.ast_data_sets_hipp_gaia[i][9]["e_Plx"]))
-                    self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp_gaia[i][9]["pm_RA"],fit.ast_data_sets_hipp_gaia[i][9]["e_pmRA"]))                    
-                    self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp_gaia[i][9]["pm_DE"],fit.ast_data_sets_hipp_gaia[i][9]["e_pmDE"]))             
-                except:
-                    print("No Hipp./Gaia std. solution found in the loaded memory! Make sure the input astrometric file is following the requested format (see READ ME button)")
+            if self.radioButton_gaia_std_sol.isChecked():
+                if len(fit.ast_data_sets_gaia[i]) != 0:
 
-            else:                       
-                self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
-                self.ast_std_label_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
-                self.ast_std_label_pi.setText("%.3f +/- %.3f "%(0.000,0.000))
-                self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
-                self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                    try:
+                        self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][3]["RAdeg"],fit.ast_data_sets_gaia[i][3]["e_RA"]))                    
+                        self.ast_std_label_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][3]["DEdeg"],fit.ast_data_sets_gaia[i][3]["e_DE"]))                    
+                        self.ast_std_label_pi.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][3]["Plx"],fit.ast_data_sets_gaia[i][3]["e_Plx"]))
+                        self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][3]["pm_RA"],fit.ast_data_sets_gaia[i][3]["e_pmRA"]))                    
+                        self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][3]["pm_DE"],fit.ast_data_sets_gaia[i][3]["e_pmDE"]))             
+                    except:
+                        print("No Gaia stdandard solution found in the loaded memory! Make sure the input astrometric file is following the requested format (see READ ME button)")
+
+                else:                       
+                    self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                    self.ast_std_label_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                    self.ast_std_label_pi.setText("%.3f +/- %.3f "%(0.000,0.000))
+                    self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                    self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+ 
+            if self.radioButton_hipp_std_sol.isChecked():
+                if len(fit.ast_data_sets_hipp[i]) != 0:
+
+                    try:
+                        self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp[i][3]["RAdeg"],fit.ast_data_sets_hipp[i][3]["e_RA"]))                    
+                        self.ast_std_label_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp[i][3]["DEdeg"],fit.ast_data_sets_hipp[i][3]["e_DE"]))                    
+                        self.ast_std_label_pi.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp[i][3]["Plx"],fit.ast_data_sets_hipp[i][3]["e_Plx"]))
+                        self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp[i][3]["pm_RA"],fit.ast_data_sets_hipp[i][3]["e_pmRA"]))                    
+                        self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp[i][3]["pm_DE"],fit.ast_data_sets_hipp[i][3]["e_pmDE"]))             
+                    except:
+                        print("No Hipparcos stdandard solution found in the loaded memory! Make sure the input astrometric file is following the requested format (see READ ME button)")
+
+                else:                       
+                    self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                    self.ast_std_label_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                    self.ast_std_label_pi.setText("%.3f +/- %.3f "%(0.000,0.000))
+                    self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                    self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                 
                 
                                
     def showDialog_ast_input_file_2(self):
@@ -7800,11 +8155,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         if str(input_files[0]) != '':
  
-            fit.add_ast_dataset_hipp_gaia('test', str(input_files[0]), ast_idset =but_ind-1, planet =planet_N, use = use_planet_N )
+            fit.add_ast_dataset_hipp('test', str(input_files[0]), ast_idset =but_ind-1, planet =planet_N, use = use_planet_N )
  
             
             self.check_std_ast_solution()
-            
+            print("Test")
             self.init_fit()
             #self.update_use_from_session()
             #self.update_use()
@@ -7828,7 +8183,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_remove_ast_data_2.checkedId()   
-        fit.remove_ast_dataset_hipp_gaia(but_ind -1)
+        fit.remove_ast_dataset_hipp(but_ind -1)
        # self.init_fit()
 
         self.check_std_ast_solution()
@@ -7847,10 +8202,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit, colors          
 
         for i in range(2):
-            if len(fit.ast_data_sets_hipp_gaia[i]) != 0:
+            if len(fit.ast_data_sets_hipp[i]) != 0:
                 self.buttonGroup_ast_data_2.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.colors[i]))
                 self.buttonGroup_remove_ast_data_2.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.colors[i]))
-                self.buttonGroup_ast_data_2.button(i+1).setText(fit.ast_data_sets_hipp_gaia[i][10])
+                self.buttonGroup_ast_data_2.button(i+1).setText(fit.ast_data_sets_hipp[i][4])
                 #self.ast_data_to_planet[i].setValue(fit.ast_data_sets[i][3])
                 #self.use_ast_data_to_planet[i].setChecked(bool(fit.ast_data_sets[i][4]))
                # print(i, bool(fit.ast_data_sets[i][4]))
@@ -7871,32 +8226,169 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def ast_dataset_to_planet_2(self):
         
         for i in range(2):
-            if len(fit.ast_data_sets_hipp_gaia[i]) ==0:
+            if len(fit.ast_data_sets_hipp[i]) ==0:
                 continue
             else:
-                fit.ast_data_sets_hipp_gaia[i][7] = self.ast_data_to_planet_2[i].value()
+                fit.ast_data_sets_hipp[i][1] = self.ast_data_to_planet_2[i].value()
 
     def use_ast_dataset_to_planet_2(self):
 
         for i in range(2):
-            if len(fit.ast_data_sets_hipp_gaia[i]) ==0:
+            if len(fit.ast_data_sets_hipp[i]) ==0:
                 continue
             else:
-                fit.ast_data_sets_hipp_gaia[i][8] = self.use_ast_data_to_planet_2[i].isChecked()
+                fit.ast_data_sets_hipp[i][2] = self.use_ast_data_to_planet_2[i].isChecked()
  
  
 
     def set_ast_dataset_to_planet_2(self):
 
         for i in range(2):
-            if len(fit.ast_data_sets_hipp_gaia[i]) ==0:
+            if len(fit.ast_data_sets_hipp[i]) ==0:
                 self.ast_data_to_planet_2[i].setValue(1)
                 self.use_ast_data_to_planet_2[i].setChecked(False)
                 continue
+            else:                              
+                self.ast_data_to_planet_2[i].setValue(fit.ast_data_sets_hipp[i][1])
+                self.use_ast_data_to_planet_2[i].setChecked(bool(fit.ast_data_sets_hipp[i][2]))
+                
+                
+################################ Astr. files (Gaia) #####################################
+
+    def check_std_ast_solution_gaia(self):
+        global fit      
+        
+        for i in range(1): #TBD fixed!!!!
+            #print("TEST",fit.ast_data_sets_gaia[i]) 
+            if len(fit.ast_data_sets_gaia[i]) != 0:
+
+                try:
+                    self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][9]["RAdeg"],fit.ast_data_sets_gaia[i][9]["e_RA"]))                    
+                    self.ast_std_label_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][9]["DEdeg"],fit.ast_data_sets_gaia[i][9]["e_DE"]))                    
+                    self.ast_std_label_pi.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][9]["Plx"],fit.ast_data_sets_gaia[i][9]["e_Plx"]))
+                    self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][9]["pm_RA"],fit.ast_data_sets_gaia[i][9]["e_pmRA"]))                    
+                    self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][9]["pm_DE"],fit.ast_data_sets_gaia[i][9]["e_pmDE"]))             
+                except:
+                    print("No Hipp./Gaia std. solution found in the loaded memory! Make sure the input astrometric file is following the requested format (see READ ME button)")
+
+            else:                       
+                self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                self.ast_std_label_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                self.ast_std_label_pi.setText("%.3f +/- %.3f "%(0.000,0.000))
+                self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
+                
+                               
+    def showDialog_ast_input_file_3(self):
+        global fit
+
+        but_ind = self.buttonGroup_ast_data_3.checkedId()   
+        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Astrometry (Hipp/Gaia) data', '', 'All (*.*);;Data (*.ast)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        
+        
+        planet_N     = self.ast_data_to_planet_3[but_ind-1].value()
+        use_planet_N = self.use_ast_data_to_planet_3[but_ind-1].isChecked()
+
+        if str(input_files[0]) != '':
+ 
+            fit.add_ast_dataset_gaia('test', str(input_files[0]), ast_idset =but_ind-1, planet =planet_N, use = use_planet_N )
+ 
+            
+            self.check_std_ast_solution()
+            
+            self.init_fit()
+            #self.update_use_from_session()
+            #self.update_use()
+            #self.update_params()
+            
+            
+            fit.type_fit["RV"] = False
+            fit.type_fit["Transit"] = False
+            fit.type_fit["TTV"] = False
+            fit.type_fit["AST"] = True
+            self.check_type_fit()
+            self.mute_boxes()
+            
+            self.update_params()
+            self.update_ast_file_buttons_3()
+ 
+            self.plot_tabs.setCurrentWidget(self.tab_timeseries_ast)
+
+
+    def remove_ast_file_3(self):
+        global fit
+
+        but_ind = self.buttonGroup_remove_ast_data_3.checkedId()   
+        fit.remove_ast_dataset_gaia(but_ind -1)
+       # self.init_fit()
+
+        self.check_std_ast_solution()
+
+        fit.type_fit["RV"] = False
+        fit.type_fit["Transit"] = False
+        fit.type_fit["TTV"] = False
+        fit.type_fit["AST"] = True
+
+        self.check_type_fit()
+        self.mute_boxes()
+        self.update_ast_file_buttons_3()
+ 
+
+    def update_ast_file_buttons_3(self):
+        global fit, colors          
+
+        for i in range(2):
+            if len(fit.ast_data_sets_gaia[i]) != 0:
+                self.buttonGroup_ast_data_3.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.colors[i]))
+                self.buttonGroup_remove_ast_data_3.button(i+1).setStyleSheet("color: %s;"%dill.copy(fit.colors[i]))
+                self.buttonGroup_ast_data_3.button(i+1).setText(fit.ast_data_sets_gaia[i][-1])
+                #self.ast_data_to_planet[i].setValue(fit.ast_data_sets[i][3])
+                #self.use_ast_data_to_planet[i].setChecked(bool(fit.ast_data_sets[i][4]))
+               # print(i, bool(fit.ast_data_sets[i][4]))
+
+            else:
+                self.buttonGroup_ast_data_3.button(i+1).setStyleSheet("")
+                self.buttonGroup_remove_ast_data_3.button(i+1).setStyleSheet("")
+                self.buttonGroup_ast_data_3.button(i+1).setText("data %s"%(i+1))
+               # self.ast_data_to_planet[i].setValue(1)
+                #self.use_ast_data_to_planet[i].setChecked(False)
+                #self.set_ast_dataset_to_planet()
+
+                #"background-color: #333399;""background-color: yellow;" "selection-color: yellow;"  "selection-background-color: blue;")               
+        #self.init_correlations_combo()
+
+
+
+    def ast_dataset_to_planet_3(self):
+        
+        for i in range(2):
+            if len(fit.ast_data_sets_gaia[i]) ==0:
+                continue
+            else:
+                fit.ast_data_sets_gaia[i][1] = self.ast_data_to_planet_3[i].value()
+
+    def use_ast_dataset_to_planet_3(self):
+
+        for i in range(2):
+            if len(fit.ast_data_sets_gaia[i]) ==0:
+                continue
+            else:
+                fit.ast_data_sets_gaia[i][2] = self.use_ast_data_to_planet_3[i].isChecked()
+ 
+ 
+
+    def set_ast_dataset_to_planet_3(self):
+
+        for i in range(2):
+            if len(fit.ast_data_sets_gaia[i]) ==0:
+                self.ast_data_to_planet_3[i].setValue(1)
+                self.use_ast_data_to_planet_3[i].setChecked(False)
+                continue
             else:
                 #print(fit.ast_data_sets[i][3],fit.ast_data_sets[i][4])                
-                self.ast_data_to_planet_2[i].setValue(fit.ast_data_sets_hipp_gaia[i][7])
-                self.use_ast_data_to_planet_2[i].setChecked(bool(fit.ast_data_sets_hipp_gaia[i][8]))
+                self.ast_data_to_planet_3[i].setValue(fit.ast_data_sets_gaia[i][1])
+                self.use_ast_data_to_planet_3[i].setChecked(bool(fit.ast_data_sets_gaia[i][2]))
+                
 
 ##################################### Various ################################# 
 
@@ -9955,7 +10447,8 @@ will be highly appreciated!
         self.update_ttv_file_buttons()
         self.update_act_file_buttons()
         self.update_ast_file_buttons()
-        self.update_ast_file_buttons_2()        
+        self.update_ast_file_buttons_2()    
+        self.update_ast_file_buttons_3()                    
         self.update_color_picker()
  
         self.set_gui_use_GP()
@@ -10088,19 +10581,31 @@ will be highly appreciated!
                     
                     
             if self.use_hipp_gaia_ast.isChecked():
-                z=0
+                z,zz=0,0
                 for i in range(10):
-                    if len(fit.ast_data_sets_hipp_gaia[i]) == 0:
+                    if len(fit.ast_data_sets_hipp[i]) == 0:
                         continue
                     else:
                         z=z+1
-                        if fit.ast_data_sets_hipp_gaia[i][7] > fit.npl and fit.ast_data_sets_hipp_gaia[i][8] == True:
-                            choice = QtWidgets.QMessageBox.information(self, 'Warning!',"Astrometry dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ast_data_sets_hipp_gaia[i][7]), QtWidgets.QMessageBox.StandardButton.Ok)      
+                        if fit.ast_data_sets_hipp[i][1] > fit.npl and fit.ast_data_sets_hipp[i][2] == True:
+                            choice = QtWidgets.QMessageBox.information(self, 'Warning!',"Astrometry dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ast_data_sets_hipp[i][1]), QtWidgets.QMessageBox.StandardButton.Ok)      
                             #self.button_fit.setEnabled(True)
                             self.mute_buttons(trigger=True)
                             return 0
 
-                if z <= 0:
+                for i in range(10):
+                    if len(fit.ast_data_sets_gaia[i]) == 0:
+                        continue
+                    else:
+                        zz=zz+1
+                        if fit.ast_data_sets_gaia[i][1] > fit.npl and fit.ast_data_sets_gaia[i][2] == True:
+                            choice = QtWidgets.QMessageBox.information(self, 'Warning!',"Astrometry dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ast_data_sets_gaia[i][2]), QtWidgets.QMessageBox.StandardButton.Ok)      
+                            #self.button_fit.setEnabled(True)
+                            self.mute_buttons(trigger=True)
+                            return 0
+
+
+                if z <= 0 and zz <= 0 :
                     choice = QtWidgets.QMessageBox.information(self, 'Warning!',
                     "Not possible to model planets if there are no Hipparcos/Gaia astrometry data loaded. Please add your astrometry data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
                     #self.button_fit.setEnabled(True)
@@ -11547,7 +12052,7 @@ Please install via 'pip install ttvfast'.
         global fit
 
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(9)
         font.setBold(False)
         #font.setWeight(75)
 
@@ -11592,7 +12097,7 @@ Please install via 'pip install ttvfast'.
         global fit
 
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(9) 
         font.setBold(False)
         #font.setWeight(75)
 
@@ -13015,6 +13520,8 @@ Please install via 'pip install ttvfast'.
   
         self.ast_data_to_planet_2     = gui_groups.ast_data_to_planet_2(self)
         self.use_ast_data_to_planet_2 = gui_groups.use_ast_data_to_planet_2(self)
+        self.ast_data_to_planet_3     = gui_groups.ast_data_to_planet_3(self)        
+        self.use_ast_data_to_planet_3 = gui_groups.use_ast_data_to_planet_3(self)        
 
         self.use_uni_ld_models    = gui_groups.use_uni_ld_models(self)
         self.use_lin_ld_models    = gui_groups.use_lin_ld_models(self)
@@ -13318,6 +13825,10 @@ Please install via 'pip install ttvfast'.
         self.ast_model_z.valueChanged.connect(self.update_ast_plots)
 
         self.ast_data_color_gradient.stateChanged.connect(self.update_ast_plots)
+        
+        self.ast_absc_size_auto.stateChanged.connect(self.update_ast_plots)
+        self.ast_absc_size_value.valueChanged.connect(self.update_ast_plots)        
+ 
 
         #self.ast_model_interpolate_points.valueChanged.connect(self.update_ast_plots)
         #self.ast_model_interpolate.stateChanged.connect(self.update_ast_plots)
@@ -13330,13 +13841,15 @@ Please install via 'pip install ttvfast'.
 
         self.buttonGroup_ast_data.buttonClicked.connect(self.showDialog_ast_input_file)
         self.buttonGroup_ast_data_2.buttonClicked.connect(self.showDialog_ast_input_file_2)        
-        
+        self.buttonGroup_ast_data_3.buttonClicked.connect(self.showDialog_ast_input_file_3)                
         
         self.buttonGroup_remove_ast_data.buttonClicked.connect(self.remove_ast_file)
         self.buttonGroup_remove_ast_data_2.buttonClicked.connect(self.remove_ast_file_2)        
+        self.buttonGroup_remove_ast_data_3.buttonClicked.connect(self.remove_ast_file_3)        
         
         self.buttonGroup_use_ast_data_to_planet.buttonClicked.connect(self.use_ast_dataset_to_planet)
         self.buttonGroup_use_ast_data_to_planet_2.buttonClicked.connect(self.use_ast_dataset_to_planet_2)
+        self.buttonGroup_use_ast_data_to_planet_3.buttonClicked.connect(self.use_ast_dataset_to_planet_3)
                 
         self.ast_data_planet_1.valueChanged.connect(self.ast_dataset_to_planet)
         self.ast_data_planet_2.valueChanged.connect(self.ast_dataset_to_planet)
@@ -13352,12 +13865,13 @@ Please install via 'pip install ttvfast'.
 
         self.ast_data_planet_hipp_1.valueChanged.connect(self.ast_dataset_to_planet_2)
         self.ast_data_planet_hipp_2.valueChanged.connect(self.ast_dataset_to_planet_2)
-        self.ast_data_planet_gaia_1.valueChanged.connect(self.ast_dataset_to_planet_2)        
-        self.ast_data_planet_gaia_2.valueChanged.connect(self.ast_dataset_to_planet_2)
+        self.ast_data_planet_gaia_1.valueChanged.connect(self.ast_dataset_to_planet_3)        
+        self.ast_data_planet_gaia_2.valueChanged.connect(self.ast_dataset_to_planet_3)
 
         self.ast_pl_combo()
         self.ast_comboBox_pl.activated.connect(lambda: self.update_ast_pl_index(o_c =False))
         self.ast_o_c_comboBox_pl.activated.connect(lambda: self.update_ast_pl_index(o_c =True))
+        self.ast_comboBox_pl_hipp_gaia.activated.connect(lambda: self.update_ast_pl_index(o_c =True))
 
         self.ast_plot_cross_hair.stateChanged.connect(self.update_ast_plots)
         self.ast_o_c_plot_cross_hair.stateChanged.connect(self.update_ast_plots)
@@ -13676,6 +14190,9 @@ Please install via 'pip install ttvfast'.
 
         self.do_RV_GP.stateChanged.connect(self.set_use_RV_GP)
         self.do_tra_GP.stateChanged.connect(self.set_use_tra_GP)
+        
+        
+        self.ast_hipp_gaia_plot_opt.clicked.connect(self.change_ast_plot_opt)
 
 
         ############### Cross hair ####################
@@ -13749,6 +14266,9 @@ Please install via 'pip install ttvfast'.
         self.radioButton_ewm.toggled.connect(self.set_hkl)
 #        self.radioButton_hkl.toggled.connect(self.set_hkl)
         self.radioButton_KP.toggled.connect(self.set_kp_ma)
+ 
+ 
+        self.radioButton_gaia_std_sol.toggled.connect(self.check_std_ast_solution)
 
 
         self.radioButton_RV_WF_period.toggled.connect(self.update_WF_plots)
