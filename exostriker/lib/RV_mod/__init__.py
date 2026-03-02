@@ -714,25 +714,7 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
             if len(ast_files_gaia[x]) == 0 or ast_files_gaia[x][1] == False or ast_files_gaia[x][2] != i+1:
                 continue
             else:
-
-
-
-
-
-                #Gaia Single Star Solution, stolen from git bh3
-                #the single star solution should always be given in DR4 , as with HIP
-
-                #bh3_ra_deg = 294.8278502411 # Right Ascension from paper Table 2
-                #bh3_dec_deg = 14.9309190720 # Declination from paper Table 2
-                #g_asc=bh3_ra_deg
-                #g_dec=bh3_dec_deg
-                #g_par=1.68 #mas
-                #g_mua=-30.29679
-                #g_mud=-148.62246
-                #g_stand=np.array([g_asc,g_dec,g_par,g_mua,g_mud])               
  
-                #print(ast_files_gaia[x][3])
-                
                 g_stand = [
                 ast_files_gaia[x][3]["RAdeg"], 
                 ast_files_gaia[x][3]["DEdeg"], 
@@ -752,7 +734,11 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
                 parallax)
  
 
-                #print(ast_files_gaia[x][0])    
+                #print(a,par[len(vel_files)*2 +7*i+1],
+                #par[len(vel_files)*2 +7*i+0],
+                #ecc_,
+                #incl,
+                #parallax)    
                 
                 #### TB moved to the read data function and called once 
                 planet_residual=ex.abs_res(ast_files_gaia[x][0][-2],g_stand,
@@ -764,6 +750,7 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
                 
                 ############################################################
                 
+              
                 results = -1*ex.L_gaia(
                          #ast_files_gaia[x][0],
                          res_astrometric,
@@ -1553,7 +1540,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         rv_loglik = 0
 
 
-###################################################################
+################################################################ast_loglik_gaia###
  
     if(rtg[2]):
         
@@ -1567,16 +1554,18 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
  
     if(opt["AST"]):
 
+        #start_time = time.time()
+
         if(rtg[0])==False:
-            astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)
+            #astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)
             astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,ast_files_hipp,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)  
             astr_loglik = astr_loglik + ast_loglik_gaia(par,vel_files,ast_files_gaia,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)              
         else:
-            astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)
+           # astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)
             astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,ast_files_hipp,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)              
             astr_loglik = astr_loglik + ast_loglik_gaia(par,vel_files,ast_files_gaia,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)              
             #print(astr_loglik)
-            
+        #print("--- %s DDDq seconds ---" % (time.time() - start_time))              
             
     if(opt["TTV"]):
         if(rtg[0])==False:
@@ -1617,7 +1606,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         del rvmod
             
     #print(   rv_loglik, tr_loglik,ttv_loglik,astr_loglik     )
-    if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any():
+    if np.isnan(rv_loglik).any() or np.isnan(tr_loglik).any() or np.isnan(astr_loglik).any():
         return -np.inf
     return rv_loglik + tr_loglik + ttv_loglik +  astr_loglik
 
@@ -2240,9 +2229,9 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["AST"] == True:
 
-        astr_loglik = ast_loglik(par,vel_files,obj.ast_data_sets,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)
+        astr_loglik = 0
+        #astr_loglik = ast_loglik(par,vel_files,obj.ast_data_sets,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)
         astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,obj.ast_data_sets_hipp,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)
- 
         astr_loglik = astr_loglik + ast_loglik_gaia(par,vel_files,obj.ast_data_sets_gaia,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)        
         obj.loglik     =  astr_loglik
  
