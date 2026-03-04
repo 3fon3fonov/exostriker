@@ -5456,8 +5456,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.update_ast_plots_img()
         
         if self.use_hipp_gaia_ast.isChecked():
-        
-            self.update_ast_plots_hipp()        
+            if self.radioButton_show_gaia.isChecked():
+                self.update_ast_plots_gaia()        
+            else:
+                self.update_ast_plots_hipp()        
+
         
         
     def update_ast_plots_img(self):
@@ -5613,21 +5616,17 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             p_ast_oc.autoRange()  
 
    
-    def update_ast_plots_hipp(self):
+    def update_ast_plots_gaia(self):
         global fit, p_ast_hipp, p_ast_oc,p_ast_00,p_ast_01, colors,legend_ast_hipp
         
         self.check_ast_symbol_sizes()
  
         pl_ind     = self.ast_comboBox_pl_hipp_gaia.currentIndex()
         
-        #print(pl_ind)
  
         p_ast_hipp.plot(clear=True,) 
-
-            
-        #ast_files = fit.ast_data_sets_hipp
-        ast_files = fit.ast_data_sets_gaia
-
+                
+        ast_files = fit.ast_data_sets_gaia 
  
         if self.ast_legend.isChecked()==True:
             legend_ast_hipp.clear()
@@ -5889,7 +5888,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             #######################################
 
         
-    def update_ast_plots_hipp2(self):
+    def update_ast_plots_hipp(self):
         global fit, p_ast_hipp, p_ast_oc,p_ast_00,p_ast_01, colors,legend_ast_hipp
         
         self.check_ast_symbol_sizes()
@@ -6020,20 +6019,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
                 p_ast_hipp.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')    
                             
-                p_ast_hipp.plot(x_axis, y_axis,
-                pen=None,
-                symbol=dill.copy(fit.pyqt_symbols_ast[j]),
-                symbolPen={'color': dill.copy(fit.ast_colors[j]), 'width': 1.1},
-                symbolSize=dill.copy(fit.pyqt_symbols_size_ast[j]),enableAutoRange=True,viewRect=True,
-                symbolBrush=dill.copy(fit.ast_colors[j]),name=ast_files[j][-1]  ) 
+
                 
+                if self.ast_absc_size_auto.isChecked():
+                    size=0.05*((max(x_axis)-min(x_axis))/2)
+                else:
+                    size=float(self.ast_absc_size_value.value())
                 
-                #x1=x_axis-x_axis_err
-                #y1=y_axis-y_axis_err
-                #x2=x_axis+x_axis_err
-                #y2=y_axis+y_axis_err
-     
-                size=0.05*((max(x_axis)-min(x_axis))/2)
                 norm=1/((x_axis_err**2 +y_axis_err**2)**0.5)
                 x1=x_axis-y_axis_err*norm*size
                 y1=y_axis+x_axis_err*norm*size
@@ -6041,89 +6033,126 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 y2=y_axis-x_axis_err*norm*size
                 #then plots a line for each measurement in size and angle of the error    
      
-                # Normalize BJD dates to the range [0, 1]
-                #bjd_min, bjd_max = np.min(bjd_dates), np.max(bjd_dates)
-                #bjd_normalized = (bjd_dates - bjd_min) / (bjd_max - bjd_min)
-                bjd_phased = ((bjd_dates - bjd_dates[0]) % fit.P[ast_files[j][1]]) / fit.P[ast_files[j][1]]  # Normalize to the range [0, 1]
-                ast_model_bjd_phased = (ast_model_bjd % fit.P[ast_files[j][1]]) / fit.P[ast_files[j][1]]  # Normalize to the range [0, 1]            
+
+                P = float(fit.P[ast_files[j][1] - 1])
+
+                bjd_phased = (bjd_dates % P)
+                ast_model_bjd_phased = (ast_model_bjd % P)
+
+                # Normalize both with the same reference, 0..P
+                b_norm_data  = np.clip(bjd_phased / P, 0.0, 1.0)
+                b_norm_model = np.clip(ast_model_bjd_phased / P, 0.0, 1.0)
+
+                cmap = pg.colormap.get('viridis')
+
                 
                 #start_time = time.time()   
-                
-                test1 = True          
-                if test1:
-                    # Create a color map
-                    colors = pg.colormap.get('viridis').getLookupTable()  # Get colormap as a lookup table
-                    positions = np.linspace(0, 1, len(colors))  # Positions for the colormap
-                    cmap = pg.ColorMap(pos=positions, color=colors)  # Create a pyqtgraph ColorMap
+                     
 
-                    x_coords = np.vstack((x1, x2)).T  # Shape (N, 2)
-                    y_coords = np.vstack((y1, y2)).T  # Shape (N, 2)
-                    # Create the color gradient for the phased BJD
-                    gradient = pg.ColorMap(pos=positions, color=colors)
-                    pen_colors = [gradient.map(b, mode='qcolor') for b in bjd_phased]  # List of QColor for each line
+ 
+                if self.ast_data_color_gradient.isChecked():
+ 
+                    # Points
+                    point_qcolors = cmap.map(b_norm_data, mode='qcolor')
+                    scatter = pg.ScatterPlotItem(x_axis, y_axis, brush=point_qcolors, pen=None, size=5)
+                    p_ast_hipp.addItem(scatter)
+ 
 
-                    for i in range(len(x_coords)):
-                        p_ast_hipp.plot(
-                            x_coords[i],
-                            y_coords[i],
-                            pen={'color': pen_colors[i], 'width': self.ast_model_width.value()},
-                        )
+                    # Error bar endpoints (you already computed x1,y1,x2,y2)
+                    # We will color them by binning b_norm_data
+                    K = 64  # 32, 64, 128 are typical
+                    bin_idx = np.minimum((b_norm_data * K).astype(np.int32), K - 1)
+
+                    # One color per bin
+                    rgba_bins = cmap.map(np.linspace(0.0, 1.0, K), mode='byte')  # (K,4) uint8
+
+                    width_err = 1.0  # or float(self.ast_model_width.value()) if you want
+
+                    for k in range(K):
+                        idx = np.where(bin_idx == k)[0]
+                        if idx.size == 0:
+                            continue
+
+                        x_err = np.column_stack((x1[idx], x2[idx])).reshape(-1)
+                        y_err = np.column_stack((y1[idx], y2[idx])).reshape(-1)
+
+                        pen_k = pg.mkPen(color=rgba_bins[k], width=width_err)
+                        p_ast_hipp.plot(x_err, y_err, connect='pairs', pen=pen_k)
+
+                 
                 else:
-                    # Plot each line with color based on BJD
-                    for i in range(len(x1)):
-                        # Map normalized BJD to a color
-                        color = cmap.map(bjd_phased[i], mode='qcolor')
-                        
-                        # Plot the line segment with the corresponding color
-                        p_ast_hipp.plot(
-                            np.array([x1[i], x2[i]]),
-                            np.array([y1[i], y2[i]]),
-                            pen={'color': color, 'width': self.ast_model_width.value()},
-                        )
+                
+                    p_ast_hipp.plot(x_axis, y_axis,
+                    pen=None, 
+                    symbol=dill.copy(fit.pyqt_symbols_ast[j]),
+                    symbolPen={'color': dill.copy(fit.ast_colors[j]), 'width': 1.1},
+                    symbolSize=dill.copy(fit.pyqt_symbols_size_ast[j]),enableAutoRange=True,viewRect=True,
+                    symbolBrush=dill.copy(fit.ast_colors[j]),name=ast_files[j][-1]  )    
+                
+                    # Error bar endpoints (you already computed x1,y1,x2,y2)
+                    # We will color them by binning b_norm
+                    K = 64  # 32, 64, 128 are typical
+                    bin_idx = np.minimum((b_norm_data * K).astype(np.int32), K - 1)
+                    
+                    width_err = 1.0  # or float(self.ast_model_width.value()) if you want
 
-                    # Add a colorbar (gradient legend)
-                    gradient = pg.GradientLegend((10, 200), (0, 0))  # Size and position
-                    gradient.setGradient(pg.colormap.get('viridis').getGradient())  # Match the viridis colormap
-                    gradient.setLabels({
-                        0: f"0 (Start of Phase)",  # Start of the phase
-                        1: f"1 (End of Phase)"     # End of the phase
-                    })
-                #p_ast_hipp.addItem(gradient)
-     
-                #print(" plot1 takes --- %s seconds ---" % (time.time() - start_time))     
-                # Plot the model curve with gradient
-                #start_time = time.time() 
-     
+                    for k in range(K):
+                        idx = np.where(bin_idx == k)[0]
+                        if idx.size == 0:
+                            continue
+
+                        x_err = np.column_stack((x1[idx], x2[idx])).reshape(-1)
+                        y_err = np.column_stack((y1[idx], y2[idx])).reshape(-1)
+
+
+                        pen_k = pg.mkPen(color=fit.ast_colors[j], width=width_err)
+                        p_ast_hipp.plot(x_err, y_err, connect='pairs', pen=pen_k)
+                        
+                        
+
                 if self.ast_model_color_gradient.isChecked():
 
-                
-                    gradient = QtGui.QLinearGradient(QtCore.QPointF(np.min(ast_model_x), 0), QtCore.QPointF(np.max(ast_model_x), 0))
-                    gradient.setColorAt(0, pg.mkColor('blue'))  # Start color
-                    gradient.setColorAt(1, pg.mkColor('yellow'))  # End color
+                    # model segments
+                    x1 = ast_model_x[:-1]
+                    y1 = ast_model_y[:-1]
+                    x2 = ast_model_x[1:]
+                    y2 = ast_model_y[1:]
 
-                    # Create a pen with the gradient
-                    pen = QtGui.QPen()
-                    pen.setBrush(gradient)  # Use the gradient as the brush for the pen
-                    pen.setWidthF(self.ast_model_width.value())  # Adjust the line width with a float
-                    pen.setCosmetic(True)  # Match simple pen behavior
-                    # Plot the model curve with the gradient pen
-                    model_curve = p_ast_hipp.plot(ast_model_x, ast_model_y)
-                    model_curve.setPen(pen)
+                    # one phase value per segment
+                    phase_mid = 0.5 * (b_norm_model[:-1] + b_norm_model[1:])
+
+                    K = 64
+                    bin_idx = np.minimum((phase_mid * K).astype(np.int32), K - 1)
+
+                    # one color per bin
+                    rgba_bins = cmap.map(np.linspace(0.0, 1.0, K), mode='byte')
+
+                    width_model = float(self.ast_model_width.value())
+
+                    for k in range(K):
+                        idx = np.where(bin_idx == k)[0]
+                        if idx.size == 0:
+                            continue
+
+                        xx = np.column_stack((x1[idx], x2[idx])).reshape(-1)
+                        yy = np.column_stack((y1[idx], y2[idx])).reshape(-1)
+
+                        pen_k = pg.mkPen(color=rgba_bins[k], width=width_model)
+                        model_curve = p_ast_hipp.plot(xx, yy, connect='pairs', pen=pen_k)
                      
                 else:
                                     
                      model_curve = p_ast_hipp.plot(ast_model_x, ast_model_y, pen={'color':  fit.ast_colors[-1], 'width': self.ast_model_width.value()}, enableAutoRange=True, viewRect=True )
 
 
-
                 #print(" plot2 takes --- %s seconds ---" % (time.time() - start_time))     
+
 
 
             model_curve.setZValue(self.ast_model_z.value())
 
             if self.ast_plot_cross_hair_hipp_gaia.isChecked():
                 self.cross_hair(p_ast_hipp,log=False)
-
 
 
             #######################################
@@ -6808,16 +6837,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
         if self.tabWidget_6.currentIndex() ==  0:
             self.param_tabs.setCurrentWidget(self.plot_options_tabs)
-            self.plot_opt_tab.setCurrentWidget(self.tab_149)
-            self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_125)
-        elif self.tabWidget_6.currentIndex() ==  1:
-            self.param_tabs.setCurrentWidget(self.plot_options_tabs)
-            self.plot_opt_tab.setCurrentWidget(self.tab_149)
-            self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_187)
-        elif self.tabWidget_6.currentIndex() ==  2:
-            self.param_tabs.setCurrentWidget(self.plot_options_tabs)
-            self.plot_opt_tab.setCurrentWidget(self.tab_149)
-            self.tabWidget_nbody_plot_param.setCurrentWidget(self.tab_plot_opt_res_angles) 
+            self.plot_opt_tab.setCurrentWidget(self.tab_191)
+
+  
 
 ################ Extra Plots (work in progress) ######################
 
@@ -13839,6 +13861,10 @@ Please install via 'pip install ttvfast'.
 
         self.ast_o_c_hipp_gaia.stateChanged.connect(self.update_ast_plots)
 
+        self.radioButton_show_gaia.toggled.connect(self.update_ast_plots)
+
+
+
         self.buttonGroup_ast_data.buttonClicked.connect(self.showDialog_ast_input_file)
         self.buttonGroup_ast_data_2.buttonClicked.connect(self.showDialog_ast_input_file_2)        
         self.buttonGroup_ast_data_3.buttonClicked.connect(self.showDialog_ast_input_file_3)                
@@ -14192,9 +14218,11 @@ Please install via 'pip install ttvfast'.
         self.do_tra_GP.stateChanged.connect(self.set_use_tra_GP)
         
         
-        self.ast_hipp_gaia_plot_opt.clicked.connect(self.change_ast_plot_opt)
-
-
+        self.ast_hipp_gaia_plot_opt_1.clicked.connect(self.change_ast_plot_opt)
+        self.ast_hipp_gaia_plot_opt_2.clicked.connect(self.change_ast_plot_opt)
+        self.ast_hipp_gaia_plot_opt_3.clicked.connect(self.change_ast_plot_opt)
+        
+        
         ############### Cross hair ####################
 
         self.gls_cross_hair.stateChanged.connect(self.update_RV_GLS_plots)

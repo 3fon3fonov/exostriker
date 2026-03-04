@@ -515,7 +515,7 @@ def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_result
             ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
             om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
             Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
-            # reject e > 0 
+
             if ecc_ >= 1.0: 
                 return -np.inf  
         else:
@@ -893,7 +893,9 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
         else:
         
             calc_n     = []
-            calk_tran  = []
+            calc_tran  = []
+            calc_rsky  = []
+            calc_vsky  = []
         
             #n2   = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == 0])
             #transits_calc   = np.array([item[2] for i, item in enumerate(result_rows) if n1[i] == 0])
@@ -916,21 +918,23 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
             for i in range(len(ttv_files[x][1])):
         
                 calc_n.append(n2[int(ttv_files[x][0][i] -1)])
-                calk_tran.append(transits_calc[int(ttv_files[x][0][i])-1])
+                calc_tran.append(transits_calc[int(ttv_files[x][0][i])-1])
+                calc_rsky.append(rsky[int(ttv_files[x][0][i] -1)])
+                calc_vsky.append(vsky[int(ttv_files[x][0][i] -1)])
         
                 sig2i_ttv = 1.0 / (ttv_files[x][2][i])**2
-                loglik_ttv += -0.5*(np.sum(((ttv_files[x][1][i] - calk_tran[i])**2 * sig2i_ttv - np.log(sig2i_ttv / 2./ np.pi))))
+                loglik_ttv += -0.5*(np.sum(((ttv_files[x][1][i] - calc_tran[i])**2 * sig2i_ttv - np.log(sig2i_ttv / 2./ np.pi))))
         
             n2  = n2[np.where(transits_calc > 0)]
             transits_calc  = transits_calc[np.where(transits_calc > 0)]
             rsky             = rsky[np.where(transits_calc > 0)]
             vsky             = vsky[np.where(transits_calc > 0)]      
                     
-        calc_data[x] = [calc_n,calk_tran,ttv_files[x][2]]
+        calc_data[x] = [calc_n,calc_tran,ttv_files[x][2],calc_rsky,calc_vsky]
         calc_model[x] = [n2,transits_calc,rsky,vsky]
 
     if return_model == True:
-        return [loglik_ttv, [calc_n,calk_tran],[n2,transits_calc,rsky,vsky],calc_data,calc_model]
+        return [loglik_ttv, [calc_n,calc_tran],[n2,transits_calc,rsky,vsky],calc_data,calc_model]
     else:
         return loglik_ttv
 
@@ -1030,10 +1034,17 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
             if program.endswith("dyn+") or program.endswith("dyn"):
 
                 t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_)], i, hkl, fit_results=fit_results)
-                
-                for tran_t0 in t_os[1]:
+ 
+                for yy in range(len(t_os[1])):
+                    tran_t0 = t_os[1][yy]
                     tr_params.t0  = float(tran_t0)
-  
+                    
+                    inc,imp_b = inc_from_rsky_vsky(t_os[2][yy],tr_params.a,1.3260)
+                    #inc = np.degrees(np.arccos( (t_os[2][yy]/(1.3260*RSUN_AU)) / tr_params.a ) ) 
+                    tr_params.inc = float(inc)
+                    print(j,yy,inc,tr_params.inc,tr_params.a)
+                    #tr_params.inc = inc
+                    
                     m[i] = batman.TransitModel(tr_params, t_)
                     tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.3, t_ <= tran_t0+0.3))
                     flux_model_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]

@@ -32,6 +32,8 @@ from pathlib import Path, PureWindowsPath
 import gls as gls
 
 TAU= 2.0*np.pi
+RSUN_AU = 0.00465047
+
 
 matplotlib.rcParams['axes.formatter.useoffset'] = False
 
@@ -109,6 +111,14 @@ def check_for_missing_instances(fit,fit_new):
 
 
 
+
+def inc_from_rsky_vsky(rsky_AU, a_over_R, Rstar_Rsun):
+    Rstar_AU = Rstar_Rsun * RSUN_AU
+    b = rsky_AU / Rstar_AU
+    x = b / a_over_R
+    x = np.clip(x, -1.0, 1.0)
+    inc_deg = np.degrees(np.arccos(x))
+    return inc_deg, b
 
 
 def transit_tperi_old(per, ecc, om, ma, epoch):
@@ -306,18 +316,18 @@ def get_aR_from_rho(rho, P, rho_e=None, P_e=None):
     """
     G = 6.67408e-11  # gravitational constant in m^3 kg^-1 s^-2
     P = P*86400.0
-    aR = ((rho * G * P**2) / (3 * np.pi))**(1/3)
+    aR = ((rho * G * P**2.0) / (3.0 * np.pi))**(1.0/3.0)
 
     if rho_e is not None and P_e is not None:
         # Partial derivatives
         
         P_e = P_e*86400.0
         
-        dadrho = (1/3) * ((G * P**2) / (3 * np.pi))**(1/3) * rho**(-2/3)
-        dadP = (2/3) * ((G * rho) / (3 * np.pi))**(1/3) * P**(-1/3)
+        dadrho = (1.0/3.0) * ((G * P**2.0) / (3.0 * np.pi))**(1.0/3.0) * rho**(-2.0/3.0)
+        dadP = (2.0/3.0) * ((G * rho) / (3.0 * np.pi))**(1.0/3.0) * P**(-1.0/3.0)
 
         # Error propagation
-        aR_e = np.sqrt((dadrho * rho_e)**2 + (dadP * P_e)**2)
+        aR_e = np.sqrt((dadrho * rho_e)**2.0 + (dadP * P_e)**2.0)
 
         return aR, aR_e
 
