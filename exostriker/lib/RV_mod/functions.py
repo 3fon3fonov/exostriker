@@ -33,6 +33,18 @@ import gls as gls
 
 TAU= 2.0*np.pi
 RSUN_AU = 0.00465047
+ 
+
+G = 6.67430e-11
+DAY = 86400.0
+AU = 1.49597892e11
+MSUN = 1.9884098709677423e30 #1.98847e30 
+GMSUN = 1.32712440018e20
+
+THIRD = 1.0/3.0
+PI    = 3.14159265358979e0
+TWOPI = 2.0*PI
+
 
 
 matplotlib.rcParams['axes.formatter.useoffset'] = False
@@ -276,7 +288,113 @@ def mass_to_K(P,ecc,incl, pl_mass,Stellar_mass):
 
     return K
 
-import numpy as np
+ 
+def inc_from_rsky_rho_eomega(rsky_AU, rho_kg_m3, P_day, Mstar_Msun, ecc, omega_deg):
+    #if ecc < 0.0 or ecc >= 1.0:
+    #    raise ValueError("ecc must satisfy 0 <= ecc < 1.")
+
+    P_sec = P_day * DAY
+    Mstar_kg = Mstar_Msun * MSUN
+    omega = np.deg2rad(omega_deg)
+
+    # Stellar radius from mean density and stellar mass
+    Rstar_m = (3.0 * Mstar_kg / (4.0 * np.pi * rho_kg_m3))**(1.0/3.0)
+    Rstar_AU = Rstar_m / AU
+
+    # Semi-major axis in units of stellar radii (Kepler + rho)
+    a_over_R = ((G * rho_kg_m3 * P_sec**2) / (3.0 * np.pi))**(1.0/3.0)
+
+    # Impact parameter from TTVFast sky-projected separation at mid-transit
+    b = rsky_AU / Rstar_AU
+
+    # Eccentric correction for transit geometry
+    fac = (1.0 + ecc * np.sin(omega)) / (1.0 - ecc**2)
+
+    cosi = (b * fac) / a_over_R
+    cosi = np.clip(cosi, -1.0, 1.0)
+
+    inc_deg = np.degrees(np.arccos(cosi))
+
+    return inc_deg, b, a_over_R, Rstar_AU
+
+
+def inc_from_rsky_rho(rsky_AU, rho_kg_m3, P_day, Mstar_Msun):
+
+    P_sec = P_day * DAY
+    Mstar = Mstar_Msun * MSUN
+
+    # stellar radius from density
+    Rstar_m = (3.0 * Mstar / (4.0 * np.pi * rho_kg_m3))**(1.0/3.0)
+    Rstar_AU = Rstar_m / AU
+
+    # a/R*
+    a_over_R = ((G * rho_kg_m3 * P_sec**2) / (3.0*np.pi))**(1.0/3.0)
+
+    # impact parameter
+    b = rsky_AU / Rstar_AU
+
+    x = b / a_over_R
+    x = np.clip(x, -1.0, 1.0)
+
+    inc_deg = np.degrees(np.arccos(x))
+
+    return inc_deg, b, a_over_R
+
+
+def get_rho_from_aR(aR, P, aR_e=None, P_e=None):
+    """
+    Calculate stellar density (rho) from scaled semi-major axis (a/R*) and period.
+
+    Parameters
+    ----------
+    aR : float
+        Scaled semi-major axis (a/R*).
+
+    P : float
+        Orbital period in days.
+
+    aR_e : float, optional
+        Uncertainty in a/R*.
+
+    P_e : float, optional
+        Uncertainty in orbital period in days.
+
+    Returns
+    -------
+    float or tuple
+        If uncertainties are not provided:
+            rho : float
+                Stellar density in kg/m^3.
+
+        If uncertainties are provided:
+            rho : float
+            rho_e : float
+                Uncertainty in stellar density.
+    """
+
+    import numpy as np
+
+    G = 6.67408e-11
+
+    P = P * 86400.0
+
+    rho = (3.0 * np.pi / (G * P**2.0)) * aR**3.0
+
+    if aR_e is not None and P_e is not None:
+
+        P_e = P_e * 86400.0
+
+        # derivatives
+        drho_daR = 3.0 * rho / aR
+        drho_dP = -2.0 * rho / P
+
+        rho_e = np.sqrt((drho_daR * aR_e)**2 + (drho_dP * P_e)**2)
+
+        return rho, rho_e
+
+    return rho
+
+
 
 def get_aR_from_rho(rho, P, rho_e=None, P_e=None):
     """
@@ -4313,11 +4431,7 @@ def mass_a_from_Kepler_fit(a,npl,m0):
        system for assumed sin(i) using the parameters P, K and e from a Kepler fit
        The output is now in Mjup and AU
     '''
-    THIRD = 1.0/3.0
-    PI    = 3.14159265358979e0
-    TWOPI = 2.0*PI
-    GMSUN = 1.32712440018e20
-    AU=1.49597892e11
+
     incl = 90.0
     sini = np.sin(PI*(incl/180.0))
     mass  = np.zeros(npl+1)

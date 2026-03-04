@@ -12855,7 +12855,9 @@ Please install via 'pip install ttvfast'.
         self.kep_model_to_kill.setValue(fit.kep_model_to_kill)
         self.master_timeout.setValue(fit.master_timeout)    
         self.force_copl_incl.setChecked(fit.copl_incl)
-        self.force_sameRV_jit.setChecked(fit.jit_flag)       
+        self.force_sameRV_jit.setChecked(fit.jit_flag) 
+        self.use_tdv.setChecked(fit.tdv)
+              
         
     def check_settings(self):
         
@@ -12864,7 +12866,7 @@ Please install via 'pip install ttvfast'.
         fit.dyn_model_to_kill = self.dyn_model_to_kill.value()
         fit.kep_model_to_kill = self.kep_model_to_kill.value()
         fit.master_timeout = self.master_timeout.value()    
-                
+     
         
     def adopt_RV_GLS_param(self):
         global fit   
@@ -13255,7 +13257,13 @@ Please install via 'pip install ttvfast'.
     def set_force_sameRV_jit(self):
         global fit   
         fit.jit_flag = self.force_sameRV_jit.isChecked()
-        self.mute_boxes()        
+        self.mute_boxes()   
+        
+        
+    def set_use_tdv(self):
+        global fit   
+        fit.tdv = self.use_tdv.isChecked()
+        self.mute_boxes()             
 
 
     #def update_inspector(self):
@@ -14438,7 +14446,8 @@ Please install via 'pip install ttvfast'.
         
         self.force_copl_incl.stateChanged.connect(self.set_force_copl_incl)
         self.force_sameRV_jit.stateChanged.connect(self.set_force_sameRV_jit)        
- 
+        self.use_tdv.stateChanged.connect(self.set_use_tdv) 
+                
 #        self.set_use_GP()
 #        self.set_gui_use_GP()
 
@@ -14554,7 +14563,6 @@ def main():
 
     window = Exo_striker()
 
-
     screen_resolution = app.primaryScreen().geometry()
     width, height = screen_resolution.width(), screen_resolution.height()
     #print(width, height)
@@ -14566,8 +14574,6 @@ def main():
         pass
     
 #    window.installEventFilter(window)
-
-
 
     window.show()
 

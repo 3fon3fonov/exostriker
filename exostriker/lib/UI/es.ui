@@ -163503,27 +163503,23 @@
                   <x>10</x>
                   <y>20</y>
                   <width>271</width>
-                  <height>148</height>
+                  <height>174</height>
                  </rect>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_448">
-                 <item row="5" column="1">
-                  <widget class="QRadioButton" name="radioButton_aR">
-                   <property name="text">
-                    <string>Individual a/R★</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                   <attribute name="buttonGroup">
-                    <string notr="true">buttonGroup_use_rho_aR</string>
-                   </attribute>
-                  </widget>
-                 </item>
-                 <item row="2" column="0">
+                 <item row="3" column="0">
                   <widget class="QRadioButton" name="radioButton_ewm_2">
                    <property name="enabled">
                     <bool>false</bool>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <italic>false</italic>
+                     <bold>false</bold>
+                     <stylestrategy>PreferDefault</stylestrategy>
+                     <kerning>true</kerning>
+                    </font>
                    </property>
                    <property name="text">
                     <string>e,ω,Ma</string>
@@ -163533,49 +163529,19 @@
                    </attribute>
                   </widget>
                  </item>
-                 <item row="0" column="0" colspan="2">
-                  <widget class="QCheckBox" name="force_sameRV_jit">
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>15</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>Force same RV jitter for all RV data sets</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="1">
-                  <widget class="QRadioButton" name="radioButton_hkl_2">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="text">
-                    <string>h,k,λ</string>
-                   </property>
-                   <attribute name="buttonGroup">
-                    <string notr="true">buttonGroup_ewm_hkl</string>
-                   </attribute>
-                  </widget>
-                 </item>
-                 <item row="3" column="0">
-                  <widget class="QRadioButton" name="radioButton_plmass">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="text">
-                    <string>Pl. mass.</string>
-                   </property>
-                   <attribute name="buttonGroup">
-                    <string notr="true">buttonGroup_use_plmass</string>
-                   </attribute>
-                  </widget>
-                 </item>
-                 <item row="3" column="1">
+                 <item row="4" column="1">
                   <widget class="QRadioButton" name="radioButton_K">
                    <property name="enabled">
                     <bool>false</bool>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <italic>false</italic>
+                     <bold>false</bold>
+                     <stylestrategy>PreferDefault</stylestrategy>
+                     <kerning>true</kerning>
+                    </font>
                    </property>
                    <property name="text">
                     <string>Semi-amplitude K</string>
@@ -163588,10 +163554,44 @@
                    </attribute>
                   </widget>
                  </item>
-                 <item row="5" column="0">
-                  <widget class="QRadioButton" name="radioButton_rho">
+                 <item row="3" column="1">
+                  <widget class="QRadioButton" name="radioButton_hkl_2">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <italic>false</italic>
+                     <bold>false</bold>
+                     <stylestrategy>PreferDefault</stylestrategy>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
                    <property name="text">
-                    <string>Stellar ρ★</string>
+                    <string>h,k,λ</string>
+                   </property>
+                   <attribute name="buttonGroup">
+                    <string notr="true">buttonGroup_ewm_hkl</string>
+                   </attribute>
+                  </widget>
+                 </item>
+                 <item row="6" column="1">
+                  <widget class="QRadioButton" name="radioButton_aR">
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <italic>false</italic>
+                     <bold>false</bold>
+                     <stylestrategy>PreferDefault</stylestrategy>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Individual a/R★</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
                    </property>
                    <attribute name="buttonGroup">
                     <string notr="true">buttonGroup_use_rho_aR</string>
@@ -163617,7 +163617,7 @@
                    </property>
                    <property name="font">
                     <font>
-                     <pointsize>9</pointsize>
+                     <pointsize>8</pointsize>
                      <italic>false</italic>
                      <bold>false</bold>
                      <stylestrategy>PreferDefault</stylestrategy>
@@ -163629,23 +163629,120 @@
                    </property>
                   </widget>
                  </item>
+                 <item row="6" column="0">
+                  <widget class="QRadioButton" name="radioButton_rho">
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <italic>false</italic>
+                     <bold>false</bold>
+                     <stylestrategy>PreferDefault</stylestrategy>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Stellar ρ★</string>
+                   </property>
+                   <attribute name="buttonGroup">
+                    <string notr="true">buttonGroup_use_rho_aR</string>
+                   </attribute>
+                  </widget>
+                 </item>
                  <item row="4" column="0">
+                  <widget class="QRadioButton" name="radioButton_plmass">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <italic>false</italic>
+                     <bold>false</bold>
+                     <stylestrategy>PreferDefault</stylestrategy>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Pl. mass.</string>
+                   </property>
+                   <attribute name="buttonGroup">
+                    <string notr="true">buttonGroup_use_plmass</string>
+                   </attribute>
+                  </widget>
+                 </item>
+                 <item row="0" column="0" colspan="2">
+                  <widget class="QCheckBox" name="force_sameRV_jit">
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>15</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <italic>false</italic>
+                     <bold>false</bold>
+                     <stylestrategy>PreferDefault</stylestrategy>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Force same RV jitter for all RV data sets</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="1">
+                  <widget class="QRadioButton" name="radioButton_tw">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <italic>false</italic>
+                     <bold>false</bold>
+                     <stylestrategy>PreferDefault</stylestrategy>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>tω</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
                   <widget class="QRadioButton" name="radioButton_Ma">
                    <property name="enabled">
                     <bool>false</bool>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <italic>false</italic>
+                     <bold>false</bold>
+                     <stylestrategy>PreferDefault</stylestrategy>
+                     <kerning>true</kerning>
+                    </font>
                    </property>
                    <property name="text">
                     <string>Ma </string>
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="1">
-                  <widget class="QRadioButton" name="radioButton_tw">
-                   <property name="enabled">
-                    <bool>false</bool>
+                 <item row="2" column="0" colspan="2">
+                  <widget class="QCheckBox" name="use_tdv">
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <italic>false</italic>
+                     <bold>false</bold>
+                     <stylestrategy>PreferDefault</stylestrategy>
+                     <kerning>true</kerning>
+                    </font>
                    </property>
                    <property name="text">
-                    <string>tω</string>
+                    <string>Use photo-dynamical model</string>
                    </property>
                   </widget>
                  </item>

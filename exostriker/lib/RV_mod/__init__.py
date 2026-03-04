@@ -958,10 +958,9 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
     N_transit_files = len([x for x in range(60) if len(tr_files[x]) != 0])
 
-    if opt['rho'] == True:
-        
+    if opt['rho'] == True:   
         rho = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*0+1]
-        
+
     l = 0
 
     for j in range(60):
@@ -1030,6 +1029,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
             tr_params.t0  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
             tr_params.rp  = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
 
+            
 
             if program.endswith("dyn+") or program.endswith("dyn"):
 
@@ -1039,12 +1039,15 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                     tran_t0 = t_os[1][yy]
                     tr_params.t0  = float(tran_t0)
                     
-                    inc,imp_b = inc_from_rsky_vsky(t_os[2][yy],tr_params.a,1.3260)
-                    #inc = np.degrees(np.arccos( (t_os[2][yy]/(1.3260*RSUN_AU)) / tr_params.a ) ) 
-                    tr_params.inc = float(inc)
-                    print(j,yy,inc,tr_params.inc,tr_params.a)
-                    #tr_params.inc = inc
+                    if opt['tdv']:
                     
+                        if opt['rho'] == False: 
+                            rho = get_rho_from_aR(tr_params.a, tr_params.per, aR_e=None, P_e=None)
+                        #inc, imp_b, aR = inc_from_rsky_rho(t_os[2][yy], rho, tr_params.per, stmass)
+                        inc, imp_b, aR, Rstar_AU = inc_from_rsky_rho_eomega(t_os[2][yy], rho, tr_params.per, stmass,tr_params.ecc,tr_params.w)                        
+                        tr_params.inc = float(inc)
+                        tr_params.a   = float(aR)                        
+
                     m[i] = batman.TransitModel(tr_params, t_)
                     tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.3, t_ <= tran_t0+0.3))
                     flux_model_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
@@ -1687,7 +1690,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     npl = obj.npl
     epoch = obj.epoch
-    stmass = obj.params.stellar_mass
+    stmass = obj.stellar_mass
+    stradi = obj.stellar_radius
 
     mix_fit = obj.mixed_fit
 
@@ -1735,7 +1739,9 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "copl_incl":obj.copl_incl,
            "jit_flag":obj.jit_flag,
            "hkl":obj.hkl,
-           "rho":obj.rho,                      
+           "rho":obj.rho, 
+           "tdv":obj.tdv,                      
+           "St_radius":stradi,                     
            "cwd":obj.cwd, 
            "gr_flag":obj.gr_flag,
            "TTV":obj.type_fit["TTV"],
@@ -2485,7 +2491,8 @@ def run_nestsamp(obj, **kwargs):
     
     npl = obj.npl
     epoch = obj.epoch
-    stmass = obj.params.stellar_mass
+    stmass = obj.stellar_mass
+    stradi = obj.stellar_radius
 
     mix_fit = obj.mixed_fit
 
@@ -2533,7 +2540,9 @@ def run_nestsamp(obj, **kwargs):
            "copl_incl":obj.copl_incl,
            "jit_flag":obj.jit_flag,
            "hkl":obj.hkl,
-           "rho":obj.rho,                      
+           "rho":obj.rho,    
+           "tdv":obj.tdv,
+           "St_radius":stradi,                                       
            "cwd":obj.cwd, 
            "gr_flag":obj.gr_flag,
            "ns_samp_method":obj.ns_samp_method,
@@ -2982,7 +2991,8 @@ def run_mcmc(obj, **kwargs):
         
     npl = obj.npl
     epoch = obj.epoch
-    stmass = obj.params.stellar_mass
+    stmass = obj.stellar_mass
+    stradi = obj.stellar_radius
 
     mix_fit = obj.mixed_fit
 
@@ -3030,7 +3040,9 @@ def run_mcmc(obj, **kwargs):
            "copl_incl":obj.copl_incl,
            "jit_flag":obj.jit_flag,
            "hkl":obj.hkl,
-           "rho":obj.rho,           
+           "rho":obj.rho,  
+           "tdv":obj.tdv,           
+           "St_radius":stradi,                                         
            "cwd":obj.cwd,
            "gr_flag":obj.gr_flag,
            "TTV":obj.type_fit["TTV"],
@@ -3325,7 +3337,8 @@ class signal_fit(object):
 
         self.gr_flag = False
         self.hkl = False
-        self.rho = False        
+        self.rho = False 
+        self.tdv = False      
         self.copl_incl = False
         self.jit_flag = False
         self.rtg = [True,False,False,False]
