@@ -1,5 +1,4 @@
-
-#**T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations: 
+<!-- **T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations: -->
 **The Exo-Striker** 
 
 <p align="center">
@@ -66,7 +65,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 **What is to be implemented**:
 
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ "REBOUND" is planned to be included). 
-#* Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
+<!-- * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).-->
 
 
 
