@@ -1,5 +1,6 @@
 
-**T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations: **The Exo-Striker** 
+#**T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations: 
+**The Exo-Striker** 
 
 <p align="center">
   <img width="400" src="./exostriker/source/png/33_striker.png">
@@ -33,8 +34,9 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Keplerian and Dynamical modeling of RV & Transit photometry exoplanet data.
 * Joint RVs + Transit + GPs best-fit optimization (internal Fortran Simplex and L-M minimizers, or many more via "SciPyOp").
 * Joint RVs + Transit + GPs MCMC/Nested Sampling (via "emcee" & "dynesty") 
-* TTVs extraction.
+* TTVs extraction (outside of the GUI, contact me for instructions!).
 * TTVs and/or joint TTVs + RVs analysis.
+* Photodynammical modeling of transit light curves.
 * GP modeling (via "celerite").
 * Linear models for detrending ground-based transit photometry.
 * Activity index signal search via GLS periodogram.
@@ -64,7 +66,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 **What is to be implemented**:
 
 * Larger arsenal of N-body/dynamical simulation/analysis tools (+ "REBOUND" is planned to be included). 
-* Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
+#* Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).
 
 
 

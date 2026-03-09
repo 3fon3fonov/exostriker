@@ -3574,14 +3574,14 @@ class signal_fit(object):
         self.Node_jeff_pr = {k: np.array([0.0, 360.0, False]) for k in range(9)}
         self.w_dot_jeff_pr= {k: np.array([0.0, 360.0, False]) for k in range(9)}
 
-        self.K_str    = {k: r'K$_%s$'%chr(98+k)  for k in range(9)}
-        self.P_str    = {k: r'P$_%s$'%chr(98+k)  for k in range(9)}
+        self.K_str    = {k: r'K$_%s$ [m/s]'%chr(98+k)  for k in range(9)}
+        self.P_str    = {k: r'P$_%s$ [d]'%chr(98+k)  for k in range(9)}
         self.e_str    = {k: r'e$_%s$'%chr(98+k)  for k in range(9)}
-        self.w_str    = {k: r'$\omega_%s$'%chr(98+k)  for k in range(9)}
-        self.M0_str   = {k: r'MA$_%s$'%chr(98+k)  for k in range(9)}
-        self.i_str    = {k: r'i$_%s$'%chr(98+k)  for k in range(9)}
-        self.Node_str = {k: r'$\Omega_%s$'%chr(98+k)  for k in range(9)}
-        self.w_dot_str= {k: r'$\dot{\omega_%s}$'%chr(98+k)  for k in range(9)}
+        self.w_str    = {k: r'$\omega_%s$ [deg]'%chr(98+k)  for k in range(9)}
+        self.M0_str   = {k: r'MA$_%s$ [deg]'%chr(98+k)  for k in range(9)}
+        self.i_str    = {k: r'i$_%s$ [deg]'%chr(98+k)  for k in range(9)}
+        self.Node_str = {k: r'$\Omega_%s$ [deg]'%chr(98+k)  for k in range(9)}
+        self.w_dot_str= {k: r'$\dot{\omega_%s}$ [deg/yr]'%chr(98+k)  for k in range(9)}
 
 
         #### transit #####
@@ -3609,7 +3609,7 @@ class signal_fit(object):
         self.pl_a_jeff_pr     = {k: np.array([10.0,10.0, False]) for k in range(9)}
         self.pl_rad_jeff_pr   = {k: np.array([0.1,0.05, False]) for k in range(9)}
 
-        self.t0_str      = {k: r't0 $%s$'%chr(98+k) for k in range(9)}
+        self.t0_str      = {k: r't0 $%s$ [d]'%chr(98+k) for k in range(9)}
         self.pl_a_str    = {k: r'a/$R_\star$ $%s$'%chr(98+k) for k in range(9)}
         self.pl_rad_str  = {k: r'R/$R_\star$ $%s$'%chr(98+k) for k in range(9)}
 
@@ -3668,13 +3668,13 @@ class signal_fit(object):
         self.ast_mu_alpha_dot_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}        
         self.ast_mu_delta_dot_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}   
           
-        self.ast_alpha_str           = {k: r'$\alpha$' for k in range(1)}
-        self.ast_delta_str           = {k: r'$\delta$' for k in range(1)}
-        self.ast_pi_str              = {k: r'$\pi$' for k in range(1)}
-        self.ast_mu_alpha_str        = {k: r'$\mu\alpha$' for k in range(1)}       
-        self.ast_mu_delta_str        = {k: r'$\mu\delta$' for k in range(1)}   
-        self.ast_mu_alpha_dot_str        = {k: r'$\mu\alpha dot$' for k in range(1)}       
-        self.ast_mu_delta_dot_str        = {k: r'$\mu\delta dot$' for k in range(1)}   
+        self.ast_alpha_str           = {k: r'$\alpha$ [deg]' for k in range(1)}
+        self.ast_delta_str           = {k: r'$\delta$ [deg]' for k in range(1)}
+        self.ast_pi_str              = {k: r'$\pi$ [mas]' for k in range(1)}
+        self.ast_mu_alpha_str        = {k: r'$\mu\alpha$ [mas/yr]' for k in range(1)}       
+        self.ast_mu_delta_str        = {k: r'$\mu\delta$ [mas/yr]' for k in range(1)}   
+        self.ast_mu_alpha_dot_str        = {k: r'$\mu\alpha dot$ [mas/yr]' for k in range(1)}       
+        self.ast_mu_delta_dot_str        = {k: r'$\mu\delta dot$ [mas/yr]' for k in range(1)}   
         
 
     def init_hkl(self) :
@@ -3706,7 +3706,7 @@ class signal_fit(object):
 
         self.e_sinw_str     = {k: r'$e sin(\omega_%s)$'%chr(98+k) for k in range(9)}
         self.e_cosw_str     = {k: r'$e cos(\omega_%s)$'%chr(98+k) for k in range(9)}
-        self.lamb_str       = {k: r'$\lambda_%s$'%chr(98+k) for k in range(9)}
+        self.lamb_str       = {k: r'$\lambda_%s [deg]$'%chr(98+k) for k in range(9)}
 
         ######## derived #####################
         self.t_peri = {k: 0.0 for k in range(9)} 
@@ -3716,7 +3716,7 @@ class signal_fit(object):
         self.omega_dot       = {k: 0.0 for k in range(9)}
         self.omega_dot_err   = {k: np.array([0.0,0.0]) for k in range(9)}
         self.omega_dot_use   = {k: False for k in range(9)}
-        self.omega_dot_str   = {k: r'$\omega_%s dot$'%k for k in range(9)}
+        self.omega_dot_str   = {k: r'$\omega_%s dot$ [deg/yr]'%k for k in range(9)}
         self.omega_dot_bounds  = {k: np.array([0.0,10000.0] )for k in range(9)}
         self.omega_dot_norm_pr = {k: np.array([0.0,50.0, False] )for k in range(9)}
         self.omega_dot_jeff_pr = {k: np.array([0.0,360.0, False] )for k in range(9)}
@@ -3727,7 +3727,7 @@ class signal_fit(object):
         self.jitt      = {k: 0.0 for k in range(60)}
         self.jitt_err  = {k: np.array([0.0,0.0]) for k in range(60)}
         self.jitt_use  = {k: False for k in range(60)}
-        self.jitt_str  = {k: r'RV jitt$_%s$'%str(k+1) for k in range(60)}
+        self.jitt_str  = {k: r'RV jitt$_%s$ [m/s]'%str(k+1) for k in range(60)}
         self.jitt_bounds  = {k: np.array([0.0,10000.0] )for k in range(60)}
         self.jitt_norm_pr = {k: np.array([1.0,5.0, False] )for k in range(60)}
         self.jitt_jeff_pr = {k: np.array([1.0,5.0, False] )for k in range(60)}
@@ -3738,7 +3738,7 @@ class signal_fit(object):
         self.rvoff      = {k: 0.0 for k in range(60)}
         self.rvoff_err  = {k: np.array([0.0,0.0])  for k in range(60)}
         self.rvoff_use  = {k: False for k in range(60)}
-        self.rvoff_str  = {k: r'RV off$_%s$'%str(k+1) for k in range(60)}
+        self.rvoff_str  = {k: r'RV off$_%s$ [m/s]'%str(k+1) for k in range(60)}
         self.rvoff_bounds  = {k: np.array([-1000000.0,1000000.0] )for k in range(60)}
         self.rvoff_norm_pr = {k: np.array([0.0,100.0, False] )for k in range(60)}
         self.rvoff_jeff_pr = {k: np.array([0.0,100.0, False] )for k in range(60)}
@@ -3782,7 +3782,7 @@ class signal_fit(object):
         self.rv_lintr      = 0.0
         self.rv_lintr_err  = [0.0,0.0]
         self.rv_lintr_use  = False
-        self.rv_lintr_str  = {k: r'RV lin.tr' for k in range(1)}
+        self.rv_lintr_str  = {k: r'RV lin.tr [m/s/yr]' for k in range(1)}
         self.rv_lintr_bounds  = {k: np.array([-1.0,1.0]) for k in range(1)}
         self.rv_lintr_norm_pr = {k: np.array([0,0.001, False]) for k in range(1)}
         self.rv_lintr_jeff_pr = {k: np.array([0,0.001, False]) for k in range(1)}
@@ -3793,7 +3793,7 @@ class signal_fit(object):
         self.rv_quadtr      = 0.0
         self.rv_quadtr_err  = [0.0,0.0]
         self.rv_quadtr_use  = False
-        self.rv_quadtr_str  = {k: r'RV quad.tr' for k in range(1)}
+        self.rv_quadtr_str  = {k: r'RV quad.tr [m/s/yr]' for k in range(1)}
         self.rv_quadtr_bounds  = {k: np.array([-1.0,1.0]) for k in range(1)}
         self.rv_quadtr_norm_pr = {k: np.array([0,0.001, False]) for k in range(1)}
         self.rv_quadtr_jeff_pr = {k: np.array([0,0.001, False]) for k in range(1)}
@@ -3862,7 +3862,7 @@ class signal_fit(object):
             self.tra_ttv[i] = tran_times[1]
             self.tra_ttv_err[i]  = {k: np.array([0.0,0.0])  for k in range(len(tran_times[1]))}            
             self.tra_ttv_use[i]  = {k: True for k in range(len(tran_times[1]))} 
-            self.tra_ttv_str[i]  = {k: r't$_%s$'%str(tran_times[0][k])  for k in range(len(tran_times[1]))}
+            self.tra_ttv_str[i]  = {k: r't$_%s$ [bjd]'%str(tran_times[0][k])  for k in range(len(tran_times[1]))}
             self.tra_ttv_bounds[i]  = {k: np.array([tran_times[1][k]-0.2,tran_times[1][k]+0.2])  for k in range(len(tran_times[1]))} 
             self.tra_ttv_norm_pr[i] = {k: np.array([tran_times[1][k],0.1, False])  for k in range(len(tran_times[1]))} 
             self.tra_ttv_jeff_pr[i] = {k: np.array([tran_times[1][k]-0.1,tran_times[1][k]+0.1, False])  for k in range(len(tran_times[1]))}        

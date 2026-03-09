@@ -292,7 +292,7 @@ class show_param_boxes(QtWidgets.QDialog):
            
             self.button.setFixedHeight(20)
             self.text_panel.setFixedHeight(20)
-            self.text_panel.setFixedWidth(200)
+            self.text_panel.setFixedWidth(300)
            
             self.layout.addWidget(self.button, k, l)
             self.layout.addWidget(self.text_panel,k, l+1)
