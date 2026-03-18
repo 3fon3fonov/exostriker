@@ -5658,11 +5658,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if fit.npl > 0:
                 
                 if fit.rtg[0] == False:
-                    #ast_loglik = rv.ast_loglik_hipp(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True)
                     ast_loglik = rv.ast_loglik_gaia(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True, 
                     model_max=self.ast_model_max_range.value(), model_samp=self.ast_points_to_draw_model.value())                   
                 else:
-                    #ast_loglik = rv.ast_loglik_hipp(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True)
                     ast_loglik = rv.ast_loglik_gaia(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True, 
                     model_max=self.ast_model_max_range.value(), model_samp=self.ast_points_to_draw_model.value())
  
@@ -5932,9 +5930,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if fit.npl > 0:
                 
                 if fit.rtg[0] == False:
-                    ast_loglik = rv.ast_loglik_hipp(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True)
+                    ast_loglik = rv.ast_loglik_hipp(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True,
+                    model_max=self.ast_model_max_range.value(), model_samp=self.ast_points_to_draw_model.value())  
                 else:
-                    ast_loglik = rv.ast_loglik_hipp(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True)
+                    ast_loglik = rv.ast_loglik_hipp(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True,
+                    model_max=self.ast_model_max_range.value(), model_samp=self.ast_points_to_draw_model.value())  
 
  
                 if ast_loglik == None:
@@ -9070,7 +9070,7 @@ Transit duration: %s d
         else:
             fit.epoch_ttv = self.Epoch.value()
             fit.ttv_dt = self.time_step_model.value()
-            fit.epoch_ttv_end = self.Epoch.value()+1000          
+            fit.epoch_ttv_end = self.Epoch.value()+8000          
         
         fit.ttv_times = [fit.epoch_ttv,fit.ttv_dt,fit.epoch_ttv_end]
 

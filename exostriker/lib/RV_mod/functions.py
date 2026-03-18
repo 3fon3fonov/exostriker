@@ -6,7 +6,7 @@ import sys, os
 #sys.path.insert(0, '../lib')
 import numpy as np
 import jac2astrocen
-import corner_ES as corner
+import corner_ES as cornerll
 
 import matplotlib
 matplotlib.pyplot.switch_backend('Agg')
@@ -40,10 +40,13 @@ DAY = 86400.0
 AU = 1.49597892e11
 MSUN = 1.9884098709677423e30 #1.98847e30 
 GMSUN = 1.32712440018e20
+REARTH = 6.371e6
+RJUP = 7.1492e7
 
 THIRD = 1.0/3.0
 PI    = 3.14159265358979e0
 TWOPI = 2.0*PI
+
 
 
 
@@ -287,6 +290,118 @@ def mass_to_K(P,ecc,incl, pl_mass,Stellar_mass):
         (Stellar_mass+pl_mass)**(2.0/3.0)) * 1.0/np.sqrt(1.0-ecc**2.0)
 
     return K
+
+
+import numpy as np
+
+ 
+
+def transit_geom_from_rsky_rho_eomega(
+    rsky_AU,
+    rho_kg_m3,
+    P_day,
+    Mstar_Msun,
+    ecc,
+    omega_deg,
+    Rp_over_Rstar=None,
+    Rp_Rearth=None,
+    Rp_Rjup=None,
+):
+    """
+    Compute transit geometry and simple observables from:
+      - sky-projected separation at mid-transit, rsky_AU
+      - stellar density, rho_kg_m3
+      - period, P_day
+      - stellar mass, Mstar_Msun
+      - eccentricity, ecc
+      - argument of periastron, omega_deg
+
+    Returns:
+      inc_deg
+      b
+      a_over_R
+      Rstar_AU
+      depth_relflux
+      T14_day
+      T23_day
+
+    Notes:
+      - depth is geometric, no limb darkening, delta = (Rp/Rstar)^2
+      - durations are in days
+      - for grazing/non-transiting cases, durations are set consistently
+    """
+
+    P_sec = P_day * DAY
+    Mstar_kg = Mstar_Msun * MSUN
+    omega = np.deg2rad(omega_deg)
+
+    # Stellar radius from mean density and stellar mass
+    Rstar_m = (3.0 * Mstar_kg / (4.0 * np.pi * rho_kg_m3)) ** (1.0 / 3.0)
+    Rstar_AU = Rstar_m / AU
+
+    # Semi-major axis in units of stellar radii
+    a_over_R = ((G * rho_kg_m3 * P_sec**2) / (3.0 * np.pi)) ** (1.0 / 3.0)
+
+    # Impact parameter from sky-projected separation at mid-transit
+    b = rsky_AU / Rstar_AU
+
+    # Eccentric correction
+    fac = (1.0 + ecc * np.sin(omega)) / (1.0 - ecc**2)
+
+    cosi = (b * fac) / a_over_R
+    cosi = np.clip(cosi, -1.0, 1.0)
+    inc_deg = np.degrees(np.arccos(cosi))
+    sini = np.sqrt(np.maximum(0.0, 1.0 - cosi**2))
+
+    # Planet radius ratio
+    n_set = sum(x is not None for x in [Rp_over_Rstar, Rp_Rearth, Rp_Rjup])
+    if n_set != 1:
+        raise ValueError("Provide exactly one of Rp_over_Rstar, Rp_Rearth, or Rp_Rjup.")
+
+    if Rp_over_Rstar is not None:
+        k = Rp_over_Rstar
+    elif Rp_Rearth is not None:
+        Rp_m = Rp_Rearth * REARTH
+        k = Rp_m / Rstar_m
+    else:
+        Rp_m = Rp_Rjup * RJUP
+        k = Rp_m / Rstar_m
+
+    # Simple geometric depth
+    depth_relflux = k**2
+
+    # Transit existence checks
+    # Transit if b < 1 + k
+    if b >= (1.0 + k):
+        T14_day = 0.0
+        T23_day = 0.0
+        return inc_deg, b, a_over_R, Rstar_AU, depth_relflux, T14_day, T23_day
+
+    # Common prefactor for eccentric orbit
+    prefac = (P_day / np.pi) * (np.sqrt(1.0 - ecc**2) / (1.0 + ecc * np.sin(omega)))
+
+    denom = a_over_R * sini
+
+    # Numerical guard
+    if denom <= 0.0:
+        T14_day = 0.0
+        T23_day = 0.0
+        return inc_deg, b, a_over_R, Rstar_AU, depth_relflux, T14_day, T23_day
+
+    # T14
+    arg14_num = np.sqrt(np.maximum(0.0, (1.0 + k)**2 - b**2))
+    x14 = np.clip(arg14_num / denom, -1.0, 1.0)
+    T14_day = prefac * np.arcsin(x14)
+
+    # T23, only if full transit exists
+    if b < (1.0 - k):
+        arg23_num = np.sqrt(np.maximum(0.0, (1.0 - k)**2 - b**2))
+        x23 = np.clip(arg23_num / denom, -1.0, 1.0)
+        T23_day = prefac * np.arcsin(x23)
+    else:
+        T23_day = 0.0
+
+    return inc_deg, b, a_over_R, Rstar_AU, depth_relflux, T14_day, T23_day
 
  
 def inc_from_rsky_rho_eomega(rsky_AU, rho_kg_m3, P_day, Mstar_Msun, ecc, omega_deg):

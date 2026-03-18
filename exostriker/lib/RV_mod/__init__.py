@@ -578,7 +578,7 @@ def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_result
         return loglik_ast
 
 
-def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, fit_results = False , return_model = False):
+def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, fit_results = False , return_model = False, model_max=0, model_samp=1000):
 
  
     loglik_ast_hipp = 0
@@ -645,7 +645,7 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
 
             t_HIP=ex.hip_JD(ast_files_hipp[0][0])
 
-            times3 = np.linspace(min(t_HIP),max(t_HIP)+1,1000)
+            times3 = np.linspace(min(t_HIP),max(t_HIP)+model_max, model_samp )
             orb_params = [par[len(vel_files)*2 +7*i+1], 
                          ecc_, 
                          np.radians(om_), 
@@ -952,7 +952,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
     tra_gp_model  = []
     tra_ln_model  = []    
     use_gp_model  = []
-
+    t_os  = []
     t_rich  = []
     flux_model_rich  = []
 
@@ -962,6 +962,13 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
         rho = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*0+1]
 
     l = 0
+
+    if program.endswith("dyn+") or program.endswith("dyn"):
+        #print(epoch,ttv_times[1],ttv_times[2])
+        for i in range(npl):
+            t_os.append(ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],ttv_times[2]], i, hkl, fit_results=fit_results))
+            #print(fit_results)
+
 
     for j in range(60):
 
@@ -1033,21 +1040,22 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
             if program.endswith("dyn+") or program.endswith("dyn"):
 
-                t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_)], i, hkl, fit_results=fit_results)
+                #t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_)], i, hkl, fit_results=fit_results)
  
-                for yy in range(len(t_os[1])):
-                    tran_t0 = t_os[1][yy]
+                for yy in range(len(t_os[i][1])):
+                    tran_t0 = t_os[i][1][yy]
                     tr_params.t0  = float(tran_t0)
+                    #print(j,tran_t0)
                     
                     if opt['tdv']:
                     
                         if opt['rho'] == False: 
                             rho = get_rho_from_aR(tr_params.a, tr_params.per, aR_e=None, P_e=None)
                         #inc, imp_b, aR = inc_from_rsky_rho(t_os[2][yy], rho, tr_params.per, stmass)
-                        inc, imp_b, aR, Rstar_AU = inc_from_rsky_rho_eomega(t_os[2][yy], rho, tr_params.per, stmass,tr_params.ecc,tr_params.w)                        
+                        inc, imp_b, aR, Rstar_AU = inc_from_rsky_rho_eomega(t_os[i][2][yy], rho, tr_params.per, stmass,tr_params.ecc,tr_params.w)                        
                         tr_params.inc = float(inc)
                         tr_params.a   = float(aR)                        
-
+                        #print(i,tran_t0)
                     m[i] = batman.TransitModel(tr_params, t_)
                     tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.3, t_ <= tran_t0+0.3))
                     flux_model_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]
@@ -1059,7 +1067,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                 
                 for tran_t0 in t_os:
                     tr_params.t0  = float(tran_t0)
-
+        
                     m[i] = batman.TransitModel(tr_params, t_)
                     tr_ind = np.where(np.logical_and(t_ >= tran_t0-0.3, t_ <= tran_t0+0.3))
                     flux_model_[tr_ind] = m[i].light_curve(tr_params)[tr_ind]    
@@ -1561,9 +1569,11 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         if N_transit_files == 0:
             tr_loglik = 0
         elif rtg[0] ==False:      
-            tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,get_TTVs,opt,fit_results=False )
+            tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,
+            npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,get_TTVs,opt,fit_results=False )
         else:
-            tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,get_TTVs,opt,fit_results=rvmod )
+            tr_loglik = transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,
+            npl,hkl,rtg,tra_gps,stmass,ttv_times,epoch,get_TTVs,opt,fit_results=rvmod )
 
  
     if(opt["AST"]):
@@ -1579,7 +1589,7 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,ast_files_hipp,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)              
             astr_loglik = astr_loglik + ast_loglik_gaia(par,vel_files,ast_files_gaia,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)              
             #print(astr_loglik)
-        #print("--- %s DDDq seconds ---" % (time.time() - start_time))              
+        #print("--- %s seconds ---" % (time.time() - start_time))              
             
     if(opt["TTV"]):
         if(rtg[0])==False:
@@ -2197,7 +2207,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
         
-        obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, stmass, obj.ttv_times, obj.epoch, get_TTVs, opt, return_model = True, tra_model_fact=obj.tra_model_fact, fit_results=False)
+        obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, stmass, obj.ttv_times, obj.epoch, get_TTVs, opt, return_model = True, tra_model_fact=obj.tra_model_fact, fit_results=obj.fit_results)
         
         if rtg[1]:
             get_RV_gps_model(obj, get_lnl=True)
@@ -3668,8 +3678,8 @@ class signal_fit(object):
         self.ast_mu_alpha_dot_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}        
         self.ast_mu_delta_dot_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}   
           
-        self.ast_alpha_str           = {k: r'$\alpha$ [deg]' for k in range(1)}
-        self.ast_delta_str           = {k: r'$\delta$ [deg]' for k in range(1)}
+        self.ast_alpha_str           = {k: r'$\alpha$ [mas]' for k in range(1)}
+        self.ast_delta_str           = {k: r'$\delta$ [mas]' for k in range(1)}
         self.ast_pi_str              = {k: r'$\pi$ [mas]' for k in range(1)}
         self.ast_mu_alpha_str        = {k: r'$\mu\alpha$ [mas/yr]' for k in range(1)}       
         self.ast_mu_delta_str        = {k: r'$\mu\delta$ [mas/yr]' for k in range(1)}   
