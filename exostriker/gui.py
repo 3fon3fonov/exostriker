@@ -9038,7 +9038,10 @@ Transit duration: %s d
         self.check_priors_nr()   
         self.check_priors_jeff()   
         self.check_scipy_min()
-
+        fit.model_npoints = self.points_to_draw_model.value()
+        fit.model_max = self.model_max_range.value()
+        fit.model_min = self.model_min_range.value()
+        
         worker_ttv = Worker(lambda:  self.ttv_fit(ff=ff ) )# Any other args, kwargs are passed to the run  
  
         worker_ttv.signals.finished.connect(self.worker_ttv_fitting_complete)
