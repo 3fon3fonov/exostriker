@@ -2158,6 +2158,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
         call GENINIT_J3_ewcop (nbod, ap, a, &
                 mass, xj, yj, zj, vxj, vyj, vzj, rpl, rhill, hkl)
 
+        
         do j = 1, npl + 1
             j_mass(j) = mass(j) / 1.26686534d17
         enddo
@@ -3180,6 +3181,9 @@ subroutine GENINIT_J3_ewcop (nbod, ap, a, &
 
         call ORBEL_EL2XV (gm, ialpha, ap(i - 1), ecc, a(j + 6), a(j + 7), &
                 omega, capm, xj(i), yj(i), zj(i), vxj(i), vyj(i), vzj(i))
+        !write(*,*) gm
+        !write(*,*) xj(i), yj(i), zj(i), vxj(i), vyj(i), vzj(i)        
+
     enddo
     return
 end

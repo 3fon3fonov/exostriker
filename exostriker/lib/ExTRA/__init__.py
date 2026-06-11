@@ -1,4 +1,8 @@
 
+
+
+
+
 import numpy as np
 
 
@@ -10,7 +14,8 @@ from .hipparcos import *
 from .astrometry import *
 from .read import *
 from .likeli import *
-
+from .vectorastrometry import *
 from .gaia import *
+from. effects import *
 
-#print("ExTRA  imported correctly")
+print("ExTRA  imported correctly")

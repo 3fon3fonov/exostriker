@@ -437,43 +437,47 @@ def get_transit_ts(obj,  kernel_id=-1):
     return
 
 
-
 def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, hkl, fit_results=False):
 
-    planets = []
+    pl_par = []
     for i in range(npl):
         
         if hkl == True:
             ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
             om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
             Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
+                     
             
-            #om_  = (om_+180.0)%360.0
-            #Ma_  = (Ma_-180.0)%360.0 
-                       
+            # reject e > 0 
+            if ecc_ >= 1.0: 
+                return -np.inf  
         else:
-            ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]        
- 
-            #om_  = (om_+180.0)%360.0
-            #Ma_  = (Ma_-180.0)%360.0  
-       
-        if fit_results == False:
-            pl_mass,ap = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*i],
+            ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]         
+        
+        
+        pl_par.append([par[len(vel_files)*2 + 7*i],
                                             par[len(vel_files)*2 +7*i+1],
                                             ecc_,
                                             om_,
-                                            Ma_],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
-        else:
-            pl_mass = float(fit_results.mass[i])
-        pl_params = [pl_mass/1047.5654817267318,
-                                            par[len(vel_files)*2 +7*i+1],
-                                            ecc_,
+                                            Ma_,
                                             par[len(vel_files)*2 +7*i+5],
-                                            par[len(vel_files)*2 +7*i+6] ,
-                                            #par[len(vel_files)*2 +7*i+3]%360.0,
-                                            om_,
-                                            #par[len(vel_files)*2 +7*i+4]%360.0]
-                                            Ma_]
+                                            par[len(vel_files)*2 +7*i+6]])
+        
+    if fit_results == False:
+        pl_mass,ap = mass_a_from_jacobi_el(pl_par,npl,stellar_mass) ##################
+    else:
+        pl_mass = fit_results.mass
+
+
+    planets = []            
+    for i in range(npl):            
+        pl_params = [pl_mass[i]/1047.5654817267318,
+                                            par[len(vel_files)*2 +7*i+1],
+                                                                pl_par[i][2],
+                                            par[len(vel_files)*2 +7*i+5],
+                                            par[len(vel_files)*2 +7*i+6],
+                                            pl_par[i][3],
+                                            pl_par[i][4]]
 
         planet = ttvfast.models.Planet(*pl_params)
         planets.append(planet)
@@ -501,7 +505,7 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, hkl, fit_results=
  
  
     return calc_model
-
+ 
 
 def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_results = False , return_model = False):
 
@@ -584,6 +588,28 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
     loglik_ast_hipp = 0
     calc_data   = {kx: [] for kx in range(10)}
     calc_model  = {kx: [] for kx in range(10)}
+    
+    pl_params = []
+ 
+    #for x in range(10):
+    if len(ast_files_hipp[0]) == 0:
+        # or ast_files_hipp[x][2] == False 
+        #or ast_files_hipp[x][1] != i+1:
+        return loglik_ast_hipp
+    else:  
+        hip_stand = [
+        ast_files_hipp[0][3]["RAdeg"], 
+        ast_files_hipp[0][3]["DEdeg"], 
+        ast_files_hipp[0][3]["Plx"], 
+        ast_files_hipp[0][3]["pm_RA"], 
+        ast_files_hipp[0][3]["pm_DE"], 
+        ]
+        
+        parallax=hip_stand[2]+par[-4] #corrected parallax
+        
+        correction=np.array([par[-6],par[-5],par[-4],par[-3],par[-2]])   
+  
+    
     for i in range(npl):
         
         if hkl == True:
@@ -604,76 +630,70 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
         incl = par[len(vel_files)*2 +7*i+5]
         Om_ = (par[len(vel_files)*2 +7*i+6] + 180.0)%360.0
  
-        for x in range(10):
-            if len(ast_files_hipp[x]) == 0 or ast_files_hipp[x][2] == False or ast_files_hipp[x][1] != i+1:
-                continue
-            else:
+
  
-                hip_stand = [
-                ast_files_hipp[x][3]["RAdeg"], 
-                ast_files_hipp[x][3]["DEdeg"], 
-                ast_files_hipp[x][3]["Plx"], 
-                ast_files_hipp[x][3]["pm_RA"], 
-                ast_files_hipp[x][3]["pm_DE"], 
-                ]
-                
-                parallax=hip_stand[2]+par[-4] #corrected parallax
-                
-                correction=np.array([par[-6],par[-5],par[-4],par[-3],par[-2]])
+        a = a_from_K_in_mas(
+        par[len(vel_files)*2 +7*i+1],
+        par[len(vel_files)*2 +7*i+0],
+        ecc_,
+        incl,
+        parallax)
+        
 
-                a = a_from_K_in_mas(
-                par[len(vel_files)*2 +7*i+1],
-                par[len(vel_files)*2 +7*i+0],
-                ecc_,
-                incl,
-                parallax)
- 
-                results = -1*ex.L_hip(ast_files_hipp[x][0], 
-                         correction,
-                         par[len(vel_files)*2 +7*i+1], 
-                         ecc_, 
-                         np.radians(om_), 
-                         np.radians(incl),
-                         np.radians(Om_),                         
-                         T0,a)
+        pl_params.append([par[len(vel_files)*2 +7*i+1], 
+                 ecc_, 
+                 np.radians(om_), 
+                 np.radians(incl),
+                 np.radians(Om_),                         
+                 T0,a])
 
-                loglik_ast_hipp = loglik_ast_hipp + results
-                
-                
-                
-        if return_model == True:
-
-            t_HIP=ex.hip_JD(ast_files_hipp[0][0])
-
-            times3 = np.linspace(min(t_HIP),max(t_HIP)+model_max, model_samp )
-            orb_params = [par[len(vel_files)*2 +7*i+1], 
-                         ecc_, 
-                         np.radians(om_), 
-                         np.radians(incl),
-                         np.radians(Om_),                         
-                         T0,a]
- 
-            fit_residuals=ex.abs_res(
-                ast_files_hipp[0][0][-2],
-                correction,
-                np.zeros(5), 
-                ast_files_hipp[0][0][:5])
+    pl_params = np.array(pl_params)
+    
+    for x in range(10):
+        if len(ast_files_hipp[x]) == 0:
+        # or ast_files_hipp[x][2] == False 
+        #or ast_files_hipp[x][1] != i+1:
+            continue
+        else:
 
 
-            ast_x_model,ast_y_model=ex.orbit(*orb_params,times3)
-            ast_x ,ast_y = ex.orbit(*orb_params,t_HIP)
+            results = -1*ex.L_hip(ast_files_hipp[x][0], 
+                     correction,
+                     pl_params)
 
-            res_hipp_final_=fit_residuals-(
-            ast_files_hipp[0][0][0]*ast_x + 
-            ast_files_hipp[0][0][1]*ast_y)
- 
-            hipp_data = ex.hip_2d(ast_files_hipp[0][0]) #Rotates the HIP measurements into the RA,Dec frame. 
- 
-            res_hipp_final = ex.res_to_orbit(res_hipp_final_,ast_files_hipp[0][0],orb_params)             
+            loglik_ast_hipp = loglik_ast_hipp + results
             
- 
-            calc_data[i] = np.array([hipp_data, res_hipp_final ,t_HIP],dtype=object)         
-            calc_model[i] = np.array([ast_x_model,ast_y_model,times3])
+            
+
+    if return_model == True:
+        #for i in range(npl):            
+        t_HIP=ex.hip_JD(ast_files_hipp[0][0])
+
+        times3 = np.linspace(min(t_HIP),max(t_HIP)+model_max, model_samp)
+
+        fit_residuals=ex.abs_res(
+            ast_files_hipp[0][0][-2],
+            correction,
+            np.zeros(5), 
+            ast_files_hipp[0][0][:5])
+
+
+        ast_x_model,ast_y_model=ex.orbit_total(pl_params,times3)
+        ast_x ,ast_y = ex.orbit_total(pl_params,t_HIP)
+
+        res_hipp_final_=fit_residuals-(
+        ast_files_hipp[0][0][0]*ast_x + 
+        ast_files_hipp[0][0][1]*ast_y)
+
+        hipp_data = ex.hip_2d(ast_files_hipp[0][0]) #Rotates the HIP measurements into the RA,Dec frame. 
+
+        res_hipp_final = ex.res_to_orbit(res_hipp_final_,ast_files_hipp[0][0],pl_params)             
+        
+
+        calc_data[0] = np.array([hipp_data, res_hipp_final ,t_HIP],dtype=object)         
+        calc_model[0] = np.array([ast_x_model,ast_y_model,times3])
+            
+    print(loglik_ast_hipp)
  
     
     if return_model == True:
@@ -681,14 +701,153 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
     else:
         return loglik_ast_hipp
 
-
-
+ 
 def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, fit_results = False , return_model = False, model_max=0, model_samp=1000):
+ 
+    loglik_ast_gaia = 0
+    calc_data   = {kx: [] for kx in range(10)}
+    calc_model  = {kx: [] for kx in range(10)}
+    
+    pl_params = []
+
+    if len(ast_files_gaia[0]) == 0:
+        # or ast_files_hipp[x][2] == False 
+        #or ast_files_hipp[x][1] != i+1:
+        return loglik_ast_gaia
+    else:  
+        g_stand = [
+        ast_files_gaia[0][3]["RAdeg"], 
+        ast_files_gaia[0][3]["DEdeg"], 
+        ast_files_gaia[0][3]["Plx"], 
+        ast_files_gaia[0][3]["pm_RA"], 
+        ast_files_gaia[0][3]["pm_DE"], 
+        ]
+        
+        parallax=g_stand[2]+par[-4] #corrected parallax                
+        correction=np.array([par[-6],par[-5],par[-4],par[-3],par[-2]]) 
+ 
+    
+    for i in range(npl):
+        
+        if hkl == True:
+            ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
+            om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
+            Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
+            # reject e > 0 
+            if ecc_ >= 1.0: 
+                return -np.inf  
+        else:
+            ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]         
+
+        T0 = transit_tperi(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,times[0])[0] #%par[len(vel_files)*2 +7*i+1] 
+
+        om_ = (om_ - 180.0)%360.0
+        Ma_ = (Ma_ + 180.0)%360.0
+        
+        incl = par[len(vel_files)*2 +7*i+5]
+        Om_ = (par[len(vel_files)*2 +7*i+6] + 180.0)%360.0
+ 
+
+ 
+        a = a_from_K_in_mas(
+        par[len(vel_files)*2 +7*i+1],
+        par[len(vel_files)*2 +7*i+0],
+        ecc_,
+        incl,
+        parallax)
+        
+
+        pl_params.append([par[len(vel_files)*2 +7*i+1], 
+                 ecc_, 
+                 np.radians(om_), 
+                 np.radians(incl),
+                 np.radians(Om_),                         
+                 T0,a])
+
+    pl_params = np.array(pl_params)
+    
+    for x in range(10):
+        if len(ast_files_gaia[x]) == 0:
+        # or ast_files_hipp[x][2] == False 
+        #or ast_files_hipp[x][1] != i+1:
+            continue
+        else:
+
+            #### TB moved to the read data function and called once 
+            planet_residual=ex.abs_res(ast_files_gaia[x][0][-2],g_stand,
+            np.array([ast_files_gaia[x][3]["RAdeg"],
+                      ast_files_gaia[x][3]["DEdeg"],0,0,0]),ast_files_gaia[x][0])
+
+            res_astrometric=np.copy(ast_files_gaia[x][0])
+            res_astrometric[-2]=planet_residual
+            
+            ############################################################
+            
+            results = -1*ex.L_gaia(res_astrometric, 
+                     correction,
+                     pl_params)
+
+            loglik_ast_gaia = loglik_ast_gaia + results
+            
+            
+
+    if return_model == True:
+        #for i in range(npl):            
+
+        t_gaia=ex.gaia_JD(ast_files_gaia[0][0])    
+            
+        times3 = np.linspace(min(t_gaia),max(t_gaia)+model_max,model_samp )
+            
+        #g_stand=np.array([0,0,0,0,0]) 
+        
+        planet_residual=ex.abs_res(ast_files_gaia[0][0][-2],
+        g_stand,np.array([ast_files_gaia[0][3]["RAdeg"],
+                          ast_files_gaia[0][3]["DEdeg"],0,0,0]),ast_files_gaia[0][0])
+        
+        res_astrometric=np.copy(ast_files_gaia[0][0])
+        res_astrometric[-2]=planet_residual            
+            
+            
+        fit_residuals=ex.abs_res(
+            planet_residual,
+            correction,
+            np.zeros(5), 
+            ast_files_gaia[0][0][:5])
+            
+        #print(ast_files_gaia[0][0])
+        ast_x_model,ast_y_model=ex.orbit_total(pl_params,times3)
+        ast_x ,ast_y = ex.orbit_total(pl_params,t_gaia)
+         
+        #print( planet_residual)
+         
+        res_gaia_final_=fit_residuals-(
+        ast_files_gaia[0][0][0]*ast_x + 
+        ast_files_gaia[0][0][1]*ast_y)
+        
+            
+        gaia_data = ex.hip_2d(res_astrometric) #Rotates the HIP measurements into the RA,Dec frame. 
+        #print(gaia_data)
+        res_gaia_final  =ex.res_to_orbit_gaia(res_gaia_final_,ast_files_gaia[0][0],pl_params) 
+
+        calc_data[0] = np.array([gaia_data, res_gaia_final ,t_gaia],dtype=object)         
+        calc_model[0] = np.array([ast_x_model,ast_y_model,times3])
+        
+    print(loglik_ast_gaia)
+ 
+    
+    if return_model == True:
+        return [loglik_ast_gaia, calc_data, calc_model]
+    else:
+        return loglik_ast_gaia
+
+
+def ast_loglik_gaia_old(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, fit_results = False , return_model = False, model_max=0, model_samp=1000):
 
  
     loglik_ast_gaia = 0
     calc_data   = {kx: [] for kx in range(10)}
     calc_model  = {kx: [] for kx in range(10)}
+    
     
     for i in range(npl):
         
@@ -799,8 +958,8 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
                 ast_files_gaia[0][0][:5])
                 
             #print(ast_files_gaia[0][0])
-            ast_x_model,ast_y_model=ex.orbit(*orb_params,times3)
-            ast_x ,ast_y = ex.orbit(*orb_params,t_gaia)
+            ast_x_model,ast_y_model=ex.orbit(orb_params,times3)
+            ast_x ,ast_y = ex.orbit(orb_params,t_gaia)
              
             #print( planet_residual)
              
@@ -832,58 +991,63 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
 def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results = False , return_model = False):
 
 
-    planets = []
+
+    pl_par = []
     for i in range(npl):
         
         if hkl == True:
             ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
             om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
             Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
-            
-           # om_ = (om_+180.0)%360.0
-           # Ma_ = (Ma_-180.0)%360.0            
+                     
             
             # reject e > 0 
             if ecc_ >= 1.0: 
                 return -np.inf  
         else:
             ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]         
-
-            #om_ = (om_+180.0)%360.0
-            #Ma_ = (Ma_-180.0)%360.0           
         
-        if fit_results == False:
-            pl_mass,ap = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*i],
+        
+        pl_par.append([par[len(vel_files)*2 + 7*i],
                                             par[len(vel_files)*2 +7*i+1],
                                             ecc_,
                                             om_,
-                                            Ma_],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
-        else:
-            pl_mass = float(fit_results.mass[i])
-            #print(pl_mass)
-        pl_params = [pl_mass/1047.5654817267318,
+                                            Ma_,
+                                            par[len(vel_files)*2 +7*i+5],
+                                            par[len(vel_files)*2 +7*i+6]])
+        
+    if fit_results == False:
+        pl_mass,ap = mass_a_from_jacobi_el(pl_par,npl,stellar_mass) ##################
+    else:
+        pl_mass = fit_results.mass
+
+
+    planets = []            
+    for i in range(npl):            
+        pl_params = [pl_mass[i]/1047.5654817267318,
                                             par[len(vel_files)*2 +7*i+1],
-                                            ecc_,
+                                                                pl_par[i][2],
                                             par[len(vel_files)*2 +7*i+5],
                                             par[len(vel_files)*2 +7*i+6],
-                                            om_,
-                                            Ma_]
+                                            pl_par[i][3],
+                                            pl_par[i][4]]
+
         planet = ttvfast.models.Planet(*pl_params)
         planets.append(planet)
 
-    #rv_times  = list(np.linspace(times[0],times[2], 1000)) rv_times=rv_times,
+  
  
     results = ttvfast.ttvfast(planets, stellar_mass, times[0],times[1],times[2], input_flag=0)
     result_rows = list(zip(*results['positions']))
     #result_rows_rv = list(results['rv'])
  
 
-
     n1   = [item[0] for item in result_rows]
 
-    loglik_ttv = 0
-
-
+    loglik_ttv  = 0
+    loglik_tdv1 = 0
+    loglik_tdv2 = 0
+    
     calc_data   = {kx: [] for kx in range(10)}
     calc_model  = {kx: [] for kx in range(10)}
 
@@ -896,17 +1060,26 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
             calc_tran  = []
             calc_rsky  = []
             calc_vsky  = []
-        
+            calc_dept  = []
+            calc_dur   = []    
+                
             #n2   = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == 0])
             #transits_calc   = np.array([item[2] for i, item in enumerate(result_rows) if n1[i] == 0])
             n2              = np.array([item[1]+1 for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[x][3])-1])# if ttv_files[0][4] == True])
             transits_calc   = np.array([item[2]   for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[x][3])-1])# if ttv_files[0][4] == True])        
             rsky            = np.array([item[3]   for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[x][3])-1])
             vsky            = np.array([item[4]   for i, item in enumerate(result_rows) if n1[i] == int(ttv_files[x][3])-1])
-
-
+            
  
-            # A bug fix???
+            if ttv_files[x][-2] == True or ttv_files[x][-1] == True:
+                T14_day, T23_day, depth_uniform, b, Rstar_AU = transit_duration_depth_from_rsky_vsky(
+                rsky,
+                vsky,
+                ttv_files[x][-4],
+                stellar_mass,
+                ttv_files[x][-3])
+                depth_uniform = 1 - depth_uniform 
+ 
             if len(n2) == 0 or max(n2) < max(ttv_files[x][0]):
                 if return_model == True:
                     print("Number of calc. transits:",len(n2))
@@ -924,17 +1097,59 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
         
                 sig2i_ttv = 1.0 / (ttv_files[x][2][i])**2
                 loglik_ttv += -0.5*(np.sum(((ttv_files[x][1][i] - calc_tran[i])**2 * sig2i_ttv - np.log(sig2i_ttv / 2./ np.pi))))
-        
+                
+            if ttv_files[x][-2] == True:    
+                for i in range(len(ttv_files[x][1])):         
+                       
+                    calc_dept.append(depth_uniform[int(ttv_files[x][0][i] -1)])
+     
+                    sig2i_tdv1 = 1.0 / (ttv_files[x][7][i])**2
+                    loglik_tdv1 += -0.5*(np.sum(((ttv_files[x][6][i] - calc_dept[i])**2 * sig2i_tdv1 - np.log(sig2i_tdv1 / 2./ np.pi))))       
+ 
+            if ttv_files[x][-1] == True:    
+                for i in range(len(ttv_files[x][1])):     
+                                 
+                    calc_dur.append(T14_day[int(ttv_files[x][0][i] -1)])
+                    
+                    sig2i_tdv2 = 1.0 / (ttv_files[x][9][i])**2
+                    loglik_tdv2 += -0.5*(np.sum(((ttv_files[x][8][i] - calc_dur[i])**2 * sig2i_tdv2 - np.log(sig2i_tdv2 / 2./ np.pi))))                      
+                                  
+                            
+            #print(loglik_ttv, loglik_tdv1, loglik_tdv2)
+            loglik_ttv  = loglik_ttv + loglik_tdv1+loglik_tdv2     
+
+
+###########################################            
+            testtt = False
+            if testtt:
+                ecc_, om_, Ma_ = par[len(vel_files)*2 +7*1+2], par[len(vel_files)*2 +7*1+3], par[len(vel_files)*2 +7*1+4]         
+                T02 = transit_tperi(par[len(vel_files)*2 +7*1+1],ecc_, om_, Ma_ ,times[0])[1] #%par[len(vel_files)*2 +7*i+1] 
+
+                loglik_test = -0.5*(np.sum(((2460892.081 - T02)**2 * 0.01 - np.log(0.01 / 2./ np.pi))))                                        
+                loglik_ttv  = loglik_ttv + loglik_test
+                print(T02, 2460892.081 - T02,    loglik_test)               
+###########################################
+
+
+
+                  
             n2  = n2[np.where(transits_calc > 0)]
             transits_calc  = transits_calc[np.where(transits_calc > 0)]
             rsky             = rsky[np.where(transits_calc > 0)]
-            vsky             = vsky[np.where(transits_calc > 0)]      
+            vsky             = vsky[np.where(transits_calc > 0)]   
+            
+            if ttv_files[x][-2] == True or ttv_files[x][-1] == True:            
+                depth_uniform    = depth_uniform[np.where(transits_calc > 0)]    
+                T14_day          = T14_day[np.where(transits_calc > 0)]     
+            else:
+                depth_uniform    = np.array([1]*len(n2))  
+                T14_day          = np.array([0]*len(n2))                             
                     
-        calc_data[x] = [calc_n,calc_tran,ttv_files[x][2],calc_rsky,calc_vsky]
-        calc_model[x] = [n2,transits_calc,rsky,vsky]
+        calc_data[x] = [calc_n,calc_tran,ttv_files[x][2],calc_rsky,calc_vsky,calc_dept,calc_dur]
+        calc_model[x] = [n2,transits_calc,rsky,vsky,depth_uniform,T14_day]
 
     if return_model == True:
-        return [loglik_ttv, [calc_n,calc_tran],[n2,transits_calc,rsky,vsky],calc_data,calc_model]
+        return [loglik_ttv, [calc_n,calc_tran],[n2,transits_calc,rsky,vsky,depth_uniform,T14_day],calc_data,calc_model]
     else:
         return loglik_ttv
 
@@ -1485,8 +1700,17 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
         array_npl = []
         
+        
         for i in range(npl): # K,P,e,w,M,i,cap0m for each planet, and information which ones we use
-            array_npl.append([[par[len(vel_files)*2 + 7*i], 0],
+
+            ######### TEST TVRemoved #####
+           # if i == 1:
+           #     KK = 0            
+           # else:
+           #     KK = par[len(vel_files)*2 + 7*i] 
+          #  print(KK)
+            KK = par[len(vel_files)*2 + 7*i] 
+            array_npl.append([[KK, 0],
                                [par[len(vel_files)*2 +7*i+1], 0],
                                [par[len(vel_files)*2 +7*i+2], 0],
                                [par[len(vel_files)*2 +7*i+3], 0],
@@ -2132,9 +2356,21 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         obj.ast_mu_alpha[0] =    par[-3]       
         obj.ast_mu_delta[0] =    par[-2]
 
+
+
+#    if obj.get_TTVs[0] == True:
+#           # for i in range(self.npl):
+#        for i in range(9):
+#            if not bool(obj.use_planet[i]):
+#                continue
+#            #obj.get_TTVs[1][i] = [len(par),len(par)+len(obj.tra_ttv[i])]   
+#            for z in range(len(obj.tra_ttv[i])):
+#            
+#                #obj.tra_ttv[i][z] = 
+#                print(par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar +  npl + z] )
+
 #################### Get the models for plotting ############################
-
-
+ 
 
     if obj.type_fit["RV"] == True and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == False and obj.type_fit["AST"] == False:
 
@@ -4292,8 +4528,179 @@ class signal_fit(object):
 
         return
 
+
+    ############################ TTV datasets ##########################################
+    def add_ttv_dataset(self, name, path, ttv_idset=0, planet=0, use=False, stellar_density=None, Rpl_Rst=None):
+
+        try:
+            # Read the mandatory columns:
+            #
+            # col 0: transit number N
+            # col 1: mid-transit time t0 [BJD]
+            # col 2: uncertainty on t0 [d]
+            #
+            ttv_N_        = np.genfromtxt("%s" % (path), skip_header=0, unpack=True,
+                                          skip_footer=0, usecols=[0])
+            ttv_data_     = np.genfromtxt("%s" % (path), skip_header=0, unpack=True,
+                                          skip_footer=0, usecols=[1])
+            ttv_data_sig_ = np.genfromtxt("%s" % (path), skip_header=0, unpack=True,
+                                          skip_footer=0, usecols=[2])
+
+            # Force scalar inputs to arrays. This prevents problems when the file
+            # contains only one transit.
+            ttv_N_        = np.atleast_1d(ttv_N_)
+            ttv_data_     = np.atleast_1d(ttv_data_)
+            ttv_data_sig_ = np.atleast_1d(ttv_data_sig_)
+
+            if not (len(ttv_N_) == len(ttv_data_) == len(ttv_data_sig_)):
+                print("Something is wrong with your ttv data file! Please provide a ttv data file that contains: N  t_N  sigma_t_N")
+                return
+
+            finite_mask = (np.isfinite(ttv_N_) &
+                           np.isfinite(ttv_data_) &
+                           np.isfinite(ttv_data_sig_))
+
+            ttv_N        = ttv_N_[finite_mask]
+            ttv_data     = ttv_data_[finite_mask]
+            ttv_data_sig = ttv_data_sig_[finite_mask]
+
+            if len(ttv_N) == 0:
+                print("Something is wrong with your ttv data file! Perhaps not all entries are numeric? Please provide a ttv data file that contains: N  t_N  sigma_t_N")
+                return
+
+            # Default TDV/depth arrays for the old 3-column format.
+            # These are filtered with the same finite_mask as the TTV data.
+            tdv_depth_     = np.ones(len(ttv_N_))
+            tdv_depth_sig_ = np.zeros(len(ttv_N_))
+            tdv_dur_       = np.zeros(len(ttv_N_))
+            tdv_dur_sig_   = np.zeros(len(ttv_N_))
+
+            has_tdv_depth = False
+            has_tdv_dur   = False
+
+            # Try to read optional columns:
+            #
+            # col 3: transit depth
+            # col 4: uncertainty on transit depth
+            # col 5: transit duration [d]
+            # col 6: uncertainty on transit duration [d]
+            #
+            # If these columns are absent, keep zeros and flags False.
+            try:
+                tdv_depth_tmp     = np.genfromtxt("%s" % (path), skip_header=0, unpack=True,
+                                                  skip_footer=0, usecols=[3])
+                tdv_depth_sig_tmp = np.genfromtxt("%s" % (path), skip_header=0, unpack=True,
+                                                  skip_footer=0, usecols=[4])
+
+                tdv_depth_tmp     = np.atleast_1d(tdv_depth_tmp)
+                tdv_depth_sig_tmp = np.atleast_1d(tdv_depth_sig_tmp)
+
+                if len(tdv_depth_tmp) == len(ttv_N_) and len(tdv_depth_sig_tmp) == len(ttv_N_):
+                    depth_mask = np.isfinite(tdv_depth_tmp) & np.isfinite(tdv_depth_sig_tmp)
+
+                    if np.any(depth_mask & finite_mask):
+                        tdv_depth_     = tdv_depth_tmp
+                        tdv_depth_sig_ = tdv_depth_sig_tmp
+                        has_tdv_depth  = True
+
+            except:
+                pass
+
+            try:
+                tdv_dur_tmp     = np.genfromtxt("%s" % (path), skip_header=0, unpack=True,
+                                                skip_footer=0, usecols=[5])
+                tdv_dur_sig_tmp = np.genfromtxt("%s" % (path), skip_header=0, unpack=True,
+                                                skip_footer=0, usecols=[6])
+
+                tdv_dur_tmp     = np.atleast_1d(tdv_dur_tmp)
+                tdv_dur_sig_tmp = np.atleast_1d(tdv_dur_sig_tmp)
+
+                if len(tdv_dur_tmp) == len(ttv_N_) and len(tdv_dur_sig_tmp) == len(ttv_N_):
+                    dur_mask = np.isfinite(tdv_dur_tmp) & np.isfinite(tdv_dur_sig_tmp)
+
+                    if np.any(dur_mask & finite_mask):
+                        tdv_dur_     = tdv_dur_tmp
+                        tdv_dur_sig_ = tdv_dur_sig_tmp
+                        has_tdv_dur  = True
+
+            except:
+                pass
+
+            # Apply the same finite TTV mask to the optional arrays.
+            tdv_depth     = tdv_depth_[finite_mask]
+            tdv_depth_sig = tdv_depth_sig_[finite_mask]
+            tdv_dur       = tdv_dur_[finite_mask]
+            tdv_dur_sig   = tdv_dur_sig_[finite_mask]
+
+            # If optional columns exist but contain non-finite values in some rows,
+            # set the flags according to the final valid arrays.
+            if has_tdv_depth:
+                good_depth = np.isfinite(tdv_depth) & np.isfinite(tdv_depth_sig)
+                if not np.any(good_depth):
+                    has_tdv_depth = False
+                    tdv_depth[:] = 1.0
+                    tdv_depth_sig[:] = 0.1
+
+            if has_tdv_dur:
+                good_dur = np.isfinite(tdv_dur) & np.isfinite(tdv_dur_sig)
+                if not np.any(good_dur):
+                    has_tdv_dur = False
+                    tdv_dur[:] = 0.0
+                    tdv_dur_sig[:] = 0.1
+
+        except:
+            print("Something is wrong with your ttv data file! Please provide a ttv data file that contains: N  t_N  sigma_t_N")
+            return
+
+        ttv_file_name = file_from_path(path)
+
+        if stellar_density is None:
+            stellar_density = np.nan
+        else:
+            stellar_density = float(stellar_density)
+
+        if Rpl_Rst is None:
+            Rpl_Rst = np.nan
+        else:
+            Rpl_Rst = float(Rpl_Rst)
+
+        ttv_file_name = file_from_path(path)
+
+        # Backward-compatible structure:
+        #
+        # Old entries are preserved:
+        #   [0] = ttv_N
+        #   [1] = ttv_data
+        #   [2] = ttv_data_sig
+        #   [3] = planet
+        #   [4] = use
+        #   [5] = ttv_file_name
+        #
+        # TDV/depth entries:
+        #   [6]  = transit depth
+        #   [7]  = sigma transit depth
+        #   [8]  = transit duration
+        #   [9]  = sigma transit duration
+        #   [10] = has_tdv_depth
+        #   [11] = has_tdv_dur
+        #
+        # New system/planet metadata:
+        #   [12] = stellar_density
+        #   [13] = aR
+        #
+        ttv_data_set = np.array([ttv_N, ttv_data, ttv_data_sig,
+                                 planet, use, ttv_file_name,
+                                 tdv_depth, tdv_depth_sig,
+                                 tdv_dur, tdv_dur_sig,
+                                 stellar_density, Rpl_Rst, 
+                                 has_tdv_depth, has_tdv_dur], dtype=object)
+
+        self.ttv_data_sets[ttv_idset] = ttv_data_set
+
+        return
+
 ############################ TTV datasets ##########################################
-    def add_ttv_dataset(self, name, path, ttv_idset = 0, planet = 0, use = False):
+    def add_ttv_dataset2(self, name, path, ttv_idset = 0, planet = 0, use = False):
 
 
         try:

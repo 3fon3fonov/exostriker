@@ -168,7 +168,7 @@ def transit_tperi_old(per, ecc, om, ma, epoch):
     return t_peri, t_transit
 
 
-def transit_tperi(per, ecc, om, ma, epoch, primary = True):
+def transit_tperi_old(per, ecc, om, ma, epoch, primary = True):
     """It derives Time of periatron [tp]
     and time of mid transit [t0]
     Parameters
@@ -207,6 +207,79 @@ def transit_tperi(per, ecc, om, ma, epoch, primary = True):
 
 
     return t_peri, t_transit
+    
+ 
+
+def transit_tperi(per, ecc, om, ma, epoch, primary=True):
+    """
+    Estimate time of periastron passage and time of conjunction/transit.
+
+    Parameters
+    ----------
+    per : float
+        Orbital period [days].
+    ecc : float
+        Eccentricity.
+    om : float
+        Argument of periastron [deg].
+    ma : float
+        Mean anomaly at epoch [deg].
+    epoch : float
+        Epoch at which the orbital elements are defined [BJD].
+    primary : bool
+        If True, compute inferior conjunction, approximate primary transit.
+        If False, compute superior conjunction, approximate secondary eclipse.
+
+    Returns
+    -------
+    t_peri, t_transit : floats
+        Time of previous periastron passage and approximate transit/conjunction time.
+    """
+
+    if per <= 0.0:
+        raise ValueError("Orbital period must be positive.")
+
+    if ecc < 0.0 or ecc >= 1.0:
+        raise ValueError("This function is valid only for elliptical orbits, 0 <= ecc < 1.")
+
+    om = np.radians(om % 360.0)
+    ma = np.radians(ma % 360.0)
+
+    # Time of previous periastron passage relative to epoch.
+    t_peri = epoch - (ma / TAU) * per
+
+    # Approximate conjunction geometry for an edge-on orbit.
+    if primary:
+        u_conj = 0.5 * np.pi
+    else:
+        u_conj = 1.5 * np.pi
+
+    # True anomaly at conjunction.
+    f = u_conj - om
+    f = f % TAU
+
+    # Convert true anomaly to eccentric anomaly using quadrant-safe formula.
+    E = 2.0 * np.arctan2(
+        np.sqrt(1.0 - ecc) * np.sin(0.5 * f),
+        np.sqrt(1.0 + ecc) * np.cos(0.5 * f)
+    )
+    E = E % TAU
+
+    # Mean anomaly at conjunction.
+    M_conj = E - ecc * np.sin(E)
+    M_conj = M_conj % TAU
+
+    # Time of conjunction after periastron.
+    t_transit = t_peri + (M_conj / TAU) * per
+
+    # Put the transit time close to the input epoch.
+    while t_transit < epoch - 0.5 * per:
+        t_transit += per
+
+    while t_transit > epoch + 0.5 * per:
+        t_transit -= per
+
+    return t_peri, t_transit    
 
 
 def get_m0(per, ecc, om, t0, epoch):
@@ -292,7 +365,179 @@ def mass_to_K(P,ecc,incl, pl_mass,Stellar_mass):
     return K
 
 
-import numpy as np
+def uniform_disk_depth_from_b_k_vectorized(b, k):
+    """
+    Uniform-disk transit depth for projected separation b and radius ratio k.
+
+    b can be scalar or array.
+    k must be scalar.
+
+    Returns relative flux loss.
+    """
+
+    b = np.asarray(b, dtype=float)
+    z = np.abs(b)
+    k = float(k)
+
+    depth = np.zeros_like(z, dtype=float)
+
+    if k <= 0.0:
+        return depth
+
+    # No overlap
+    no_overlap = z >= 1.0 + k
+
+    # Planet fully inside stellar disk
+    full_planet = z <= 1.0 - k
+    depth[full_planet] = k*k
+
+    # Star fully inside planet disk, mostly irrelevant for exoplanets
+    full_star = z <= k - 1.0
+    depth[full_star] = 1.0
+
+    # Partial overlap
+    partial = ~(no_overlap | full_planet | full_star)
+
+    if np.any(partial):
+
+        zp = z[partial]
+
+        arg1 = (zp*zp + 1.0 - k*k) / (2.0*zp)
+        arg2 = (zp*zp + k*k - 1.0) / (2.0*zp*k)
+
+        arg1 = np.clip(arg1, -1.0, 1.0)
+        arg2 = np.clip(arg2, -1.0, 1.0)
+
+        area = (
+            np.arccos(arg1)
+            + k*k*np.arccos(arg2)
+            - 0.5*np.sqrt(
+                np.maximum(
+                    (-zp + 1.0 + k) *
+                    ( zp + 1.0 - k) *
+                    ( zp - 1.0 + k) *
+                    ( zp + 1.0 + k),
+                    0.0
+                )
+            )
+        )
+
+        depth[partial] = area / np.pi
+
+    return depth 
+
+
+def transit_duration_depth_from_rsky_vsky(
+        rsky_AU,
+        vsky_AU_day,
+        rho_kg_m3,
+        Mstar_Msun,
+        Rp_Rstar):
+    """
+    Estimate transit durations and uniform-disk transit depths from TTVFast
+    rsky and vsky at mid-transit.
+
+    This version accepts either scalars or arrays.
+
+    Input
+    -----
+    rsky_AU : float or ndarray
+        Sky-projected separation at mid-transit [AU].
+
+    vsky_AU_day : float or ndarray
+        Sky-projected relative velocity at mid-transit [AU/day].
+
+    rho_kg_m3 : float
+        Mean stellar density [kg/m^3].
+
+    Mstar_Msun : float
+        Stellar mass [Msun].
+
+    Rp_Rstar : float
+        Planet-to-star radius ratio.
+
+    Output
+    ------
+    T14_day : float or ndarray
+        First-to-fourth contact duration [day].
+
+    T23_day : float or ndarray
+        Second-to-third contact duration [day].
+
+    depth_uniform : float or ndarray
+        Uniform-disk geometric depth.
+
+    b : float or ndarray
+        Impact parameter.
+
+    Rstar_AU : float
+        Stellar radius [AU].
+    """
+
+    scalar_input = np.ndim(rsky_AU) == 0 and np.ndim(vsky_AU_day) == 0
+
+    rsky_AU = np.asarray(rsky_AU, dtype=float)
+    vsky_AU_day = np.asarray(vsky_AU_day, dtype=float)
+
+    rsky_AU, vsky_AU_day = np.broadcast_arrays(rsky_AU, vsky_AU_day)
+
+    Mstar_kg = float(Mstar_Msun) * MSUN
+    rho_kg_m3 = float(rho_kg_m3)
+
+    Rstar_m = (3.0 * Mstar_kg / (4.0 * np.pi * rho_kg_m3))**(1.0/3.0)
+    Rstar_AU = Rstar_m / AU
+
+    k = float(Rp_Rstar)
+
+    vsky_AU_day = np.abs(vsky_AU_day)
+
+    b = rsky_AU / Rstar_AU
+
+    T14_day = np.zeros_like(b, dtype=float)
+    T23_day = np.zeros_like(b, dtype=float)
+    depth_uniform = np.zeros_like(b, dtype=float)
+
+    # Valid velocity
+    valid_v = vsky_AU_day > 0.0
+
+    # Any transit, including grazing
+    has_transit = valid_v & (b < 1.0 + k)
+
+    # Full, non-grazing transit
+    full_transit = has_transit & (b < abs(1.0 - k))
+
+    # T14
+    chord14 = np.zeros_like(b, dtype=float)
+    chord14[has_transit] = (
+        2.0 * Rstar_AU *
+        np.sqrt(np.maximum((1.0 + k)**2 - b[has_transit]**2, 0.0))
+    )
+
+    T14_day[has_transit] = chord14[has_transit] / vsky_AU_day[has_transit]
+
+    # T23
+    chord23 = np.zeros_like(b, dtype=float)
+    chord23[full_transit] = (
+        2.0 * Rstar_AU *
+        np.sqrt(np.maximum((1.0 - k)**2 - b[full_transit]**2, 0.0))
+    )
+
+    T23_day[full_transit] = chord23[full_transit] / vsky_AU_day[full_transit]
+
+    # Uniform-disk depth, including grazing geometry
+    depth_uniform = uniform_disk_depth_from_b_k_vectorized(b, k)
+
+    # No transit should have zero depth
+    depth_uniform[~has_transit] = 0.0
+
+    if scalar_input:
+        return (float(T14_day),
+                float(T23_day),
+                float(depth_uniform),
+                float(b),
+                float(Rstar_AU))
+
+    return T14_day, T23_day, depth_uniform, b, Rstar_AU
 
  
 
@@ -431,6 +676,7 @@ def inc_from_rsky_rho_eomega(rsky_AU, rho_kg_m3, P_day, Mstar_Msun, ecc, omega_d
     inc_deg = np.degrees(np.arccos(cosi))
 
     return inc_deg, b, a_over_R, Rstar_AU
+
 
 
 def inc_from_rsky_rho(rsky_AU, rho_kg_m3, P_day, Mstar_Msun):
@@ -1331,16 +1577,16 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         for i in range(obj.npl):
             let = letters[i]
 
-            if not 'e$_%s$'%let in labels or not '$\omega_%s$'%let in labels:
+            if not 'e$_%s$'%let in labels or not '$\omega_%s$ [deg]'%let in labels:
                 continue
 
-            Ma_    = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'MA$_%s$'%let]])
-            omega_ = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == '$\omega_%s$'%let]])
+            Ma_    = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'MA$_%s [deg]'%let]])
+            omega_ = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == '$\omega_%s$ [deg]'%let]])
 
             lambda_ = np.array(Ma_ + omega_)%360.0
 
             samp.append(lambda_)
-            samp_labels.append(r' $\lambda_%s$'%let)
+            samp_labels.append(r' $\lambda_%s$ [deg]'%let)
 
 
             if mod_labels['mean']:
@@ -1365,14 +1611,14 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             let = letters[i]
 
 
-            if not 'K$_%s$'%let in labels or not 'P$_%s$'%let in labels:
+            if not 'K$_%s$ [m/s]'%let in labels or not 'P$_%s$ [d]'%let in labels:
             
                # K.append(np.array([0])*len(ss))  
                # P.append(np.array([0])*len(ss))            
                 continue
 
-            K.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'K$_%s$'%let]]))
-            P.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'P$_%s$'%let]]))
+            K.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'K$_%s$ [m/s]'%let]]))
+            P.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'P$_%s$ [d]'%let]]))
 
             if obj.hkl == True and '$e sin(\omega_%s)$'%let in labels and '$e cos(\omega_%s)$'%let in labels:
 
@@ -1398,7 +1644,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 mass_lab = r'[M$_\odot$]'
 
 
-            if 'i$_%s$'%let in labels:
+            if 'i$_%s$ [deg]'%let in labels:
                 incl.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]]))
                 #samp_labels.append(r'm$_%s$ %s'%(let,mass_lab))
             else:
@@ -1433,7 +1679,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         if mod_labels['mass']:
             for i in range(9):
                 let = letters[i]
-                if not bool(obj.use_planet[i]) and not 'K$_%s$'%let in labels or not 'P$_%s$'%let in labels:
+                if not bool(obj.use_planet[i]) and not 'K$_%s$ [m/s]'%let in labels or not 'P$_%s$ [d]'%let in labels:
                     continue
                     
                 samp.append(np.array(masses[k] * M_fact))
@@ -1454,7 +1700,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
             for i in range(9):
                 let = letters[i]
-                if not bool(obj.use_planet[i]) and not 'K$_%s$'%let in labels or not 'P$_%s$'%let in labels:
+                if not bool(obj.use_planet[i]) and not 'K$_%s$ [m/s]'%let in labels or not 'P$_%s$ [d]'%let in labels:
                     continue
                 samp.append(np.array(semimajor[k]))
  
@@ -4537,7 +4783,115 @@ def plot_transit_gp(obj, curve=False):
     plt.fill_between(x_model ,mu+std,  mu-std, color=color, alpha=0.3, edgecolor="none")
 
 
+ 
+def mass_a_from_jacobi_el(pl_par, npl, m0):
+    """
+    Computes physical planet masses and Jacobi semimajor axes from RV
+    Keplerian parameters interpreted as Jacobi elements.
 
+    Input
+    -----
+    pl_par : list
+        List of planet parameter lists:
+
+            pl_par[i][0] = K       [m/s]
+            pl_par[i][1] = P       [days]
+            pl_par[i][2] = e
+            pl_par[i][3] = omega   [deg]
+            pl_par[i][4] = M       [deg]
+            pl_par[i][5] = incl    [deg]
+            pl_par[i][6] = Omega   [deg]
+
+    npl : int
+        Number of planets.
+
+    m0 : float
+        Stellar mass in solar masses.
+
+    Output
+    ------
+    pl_mass : ndarray
+        Planet masses in Jupiter masses.
+
+    ap : ndarray
+        Jacobi semimajor axes in AU.
+    """
+
+    pl_mass = np.zeros(npl)
+    ap = np.zeros(npl)
+
+    # cumulative Jacobi inner mass, in solar masses
+    m_inner = float(m0)
+
+    MSUN_TO_MJUP = 1047.5654817267318
+
+    for i in range(npl):
+
+        K = abs(float(pl_par[i][0]))          # m/s
+        P_days = float(pl_par[i][1])         # days
+        e = float(pl_par[i][2])
+        inc = float(pl_par[i][5])            # deg
+
+        P = P_days * 86400.0                 # seconds
+
+        if P <= 0.0:
+            raise ValueError("Planet %d: period must be positive." % (i+1))
+
+        if e < 0.0 or e >= 1.0:
+            raise ValueError("Planet %d: eccentricity must satisfy 0 <= e < 1." % (i+1))
+
+        sini = np.sin(np.radians(inc))
+
+        if np.abs(sini) <= 0.0:
+            raise ValueError("Planet %d: sin(incl) is zero. RV mass is undefined." % (i+1))
+
+        kbar = K * np.sqrt(1.0 - e*e) / np.abs(sini)
+
+        # Jacobi RV mass equation:
+        #
+        # kbar = (2 pi GMSUN / P)^(1/3)
+        #        * mp / (m_inner + mp)^(2/3)
+        #
+        # Here mp and m_inner are both in solar masses.
+        coeff = (TWOPI * GMSUN / P)**THIRD
+
+        def f(mp):
+            return coeff * mp / (m_inner + mp)**(2.0/3.0) - kbar
+
+        # Initial low-mass estimate
+        mp_guess = kbar * m_inner**(2.0/3.0) / coeff
+
+        lo = 0.0
+        hi = max(2.0 * mp_guess, 1.0e-12)
+
+        while f(hi) < 0.0:
+            hi *= 2.0
+
+        # Robust bisection
+        for j in range(100):
+            mid = 0.5 * (lo + hi)
+            if f(mid) > 0.0:
+                hi = mid
+            else:
+                lo = mid
+
+        mp = 0.5 * (lo + hi)
+
+        # Jacobi two-body total mass for planet i
+        mtot_jacobi = m_inner + mp
+
+        # Jacobi semimajor axis
+        ap[i] = (GMSUN * mtot_jacobi * (P / TWOPI)**2.0)**THIRD / AU
+
+        # Output planet mass in Jupiter masses
+        pl_mass[i] = mp * MSUN_TO_MJUP
+
+        # Add this planet to the cumulative inner Jacobi mass
+        m_inner += mp
+
+    return pl_mass, ap
+ 
+ 
 
 
 ####################### mass_semimajor ###########################################

@@ -21,35 +21,6 @@ def thiele(a,omega,Omega,i):
     G=a*(-np.sin(omega)*np.sin(Omega)+np.cos(omega)*np.cos(Omega)*np.cos(i)) 
     return A,B,F,G
 
-#Very first implementation of the Newton Raphson, its a little slower than the new one
-#@jit(nopython=True)
-#def calc_E(e,M,n=30):
-#    """Newton Raphson Algorythm to calculate the eccentric anomaly given the mean anomaly and the eccentricity"""
-#    
-#   
-#    final=np.ones(len(M))
-#    for index, j in enumerate(M):
-#        if e<=0.8:
-#            E=j
-#        if e>0.8:
-#            E=np.pi
-#        values=np.ones(n)
-#        values[0]=E
-#        i=1
-#        while i<n:
-#            values[i]=values[i-1]-(values[i-1]-e*np.sin(values[i-1])-j)/(1-e*np.cos(values[i-1]))
-#            if abs(values[i]-values[i-1])<1e-8:
-#                values[-1]=values[i]
-#                break
-#            i=i+1
-#            if i==n:
-#                return print("error in calculating E")
-#        final[index] = values[-1]
-#    
-#    # final=np.array(final)
-#            
-#    return final
-
 @jit(nopython=True)
 def calc_E(e,M,n=30):
     """Newton Raphson Algorythm to calculate the eccentric anomaly given the mean anomaly and the eccentricity"""
@@ -88,7 +59,7 @@ def calc_E(e,M,n=30):
 
 
 
-def orbit(P,e,om,i,Om,T0,a,t):
+def orbit_old(P,e,om,i,Om,T0,a,t):
     """"Given timestamps and Keplerian Elements, computes the positions of an object in orbit"""
     
     
@@ -114,6 +85,61 @@ def orbit(P,e,om,i,Om,T0,a,t):
     
     
     return x,y
+
+
+def orbit(planet,t):
+
+        P,e,om,i,Om,T0,a=planet
+        #calculating thiele constants
+        const=thiele(a,om,Om,i)
+
+        #calculating E
+        M=2*np.pi*((t-T0)%P)/P
+        E=calc_E(e,M)
+
+        #calculating elliptical rectangular coords from E and e
+        X=np.cos(E)-e
+        Y=(1-e**2)**0.5 *np.sin(E)
+
+        #const=A,B,F,G
+        #with thiele, X,Y, we can calculate the final position x,y for a time t
+        x=const[1]*X+const[3]*Y
+        y=const[0]*X+const[2]*Y
+
+        return x,y
+
+
+
+
+
+def orbit_total(pars,t):
+    """"
+    Given timestamps and Keplerian Elements, computes the sum of positions of a objects in keplarian orbits.
+
+    Parameters:
+    ---------
+    pars: numpy array of either shape (7,) if one planet or (n,7) for n planets.
+    the 7 length arrays are made up of P,e,om,i,Om,T0,a in this exact order
+
+    Returns:
+    ----------
+    x_sum,y_sum: sum of positions of planets
+    """
+
+    x_sum=0
+    y_sum=0
+
+    if pars.shape==(7,):
+        x_sum,y_sum=orbit(pars,t)
+
+    else:    
+        for planet in pars:
+            x,y=orbit(planet,t)
+
+            x_sum+=x
+            y_sum+=y
+
+    return x_sum,y_sum
 
 
 
@@ -207,6 +233,77 @@ def standard_model(asc,dec,parallax,mu_a_star,mu_d,t,earth,Sepoch=2457389.0,tang
     
     return a,d #in mas
 
+
+def sss_model(sss,t,Sepoch=2457389.0,tangential=True):
+
+    """
+    Calculates the position of an object in respect to a standard epoch
+
+    Parameters:
+    ---------
+    sss: single star solution, array length 5,7 or 9
+    t: array
+        timestamps
+
+    earth: array
+        position of earth at given timestamps,(use ExTRA.earth_position(t) to compute these)
+
+    Sepoch: float
+        standard epoch of input standard model
+
+    tangential: bool
+        gives tangential position if True and absolute position if false, both in [mas]
+    
+    Returns:
+    ----------
+    asc_final,dec_final : Tuple,floats
+        new coordinates for Epoch1 in [mas]
+    """
+
+    
+    
+    #give asc and deg in degree
+    
+    #tangential=False means total position
+    #tangential=True leaves out asc and dec and returns the position in the tangential plane
+    
+    t0=Sepoch
+    dif=((t-t0)/365.25)
+    earth=earth_position(t)
+    #t0=time of asc and dec measurement, so a standard epoch, its mostly J2000, or 2451545.0JD, but
+    #for cases like Hipparchos its J1991.25, or 2448349.0625JD
+    #for gaia it is J2016, or 2456389.0
+    
+    
+    n=len(sss)
+
+    asc,dec=sss[:2]
+    
+    p_a,p_d=parallax_factors(asc,dec,earth)
+    if n==5:
+        asc,dec,parallax,mu_a,mu_d=sss
+        a=p_a*parallax+mu_a*dif
+        d=p_d*parallax+mu_d*dif
+    if n==7:
+        asc,dec,parallax,mu_a,mu_d,d_mu_a,d_mu_d=sss
+        a=p_a*parallax+mu_a*dif+d_mu_a*dif*abs(dif)
+        d=p_d*parallax+mu_d*dif+d_mu_d*dif*abs(dif)
+    if n==9:
+        asc,dec,parallax,mu_a,mu_d,d_mu_a,d_mu_d,dd_mu_a,dd_mu_d=sss
+        a=p_a*parallax+mu_a*dif+d_mu_a*dif*abs(dif)+dd_mu_a*dif**3
+        d=p_d*parallax+mu_d*dif+d_mu_d*dif*abs(dif)+dd_mu_d*dif**3
+    
+    if not tangential:
+        asc_mas=asc*(3.6e6) #convert to mas
+        dec_mas=dec*(3.6e6) #convert to mas
+
+
+        d=d+dec_mas
+        a=a/np.cos(np.radians((d/(3.6e6)))) +asc_mas
+        
+    
+    return a,d #in mas
+
 #this function recalculates asc and dec between STANDARD EPOCHS meaning for example from J2000 to J2016.
 #epoch0 is the old and epoch1 the new epoch
 def pos_recalc(standmodel,Epoch0,Epoch1):
@@ -232,10 +329,12 @@ def pos_recalc(standmodel,Epoch0,Epoch1):
     
     
     asc=asc*(3.6e6) #convert to mas
-    dec=dec*(3.6e6) #convert to mas
+    
 
 
     a=asc+mu_a_star*((Epoch1-Epoch0)/365.25)*1/np.cos(np.radians(dec))
+
+    dec=dec*(3.6e6) #convert to mas
     d=dec+mu_d*((Epoch1-Epoch0)/365.25)
         
     
@@ -293,18 +392,10 @@ def stand_correct(stand,correction):
 
     new=np.zeros(5)
 
-
-    
-
     new[0]=stand[0]+correction[0]/(np.cos(np.radians((stand[1])))*3.6e6)
     new[1]=stand[1]+correction[1]/(3.6e6)
     new[2]=stand[2]+correction[2]
     new[3]=stand[3]+correction[3]
     new[4]=stand[4]+correction[4]
-
-    
-
-
-    
 
     return new

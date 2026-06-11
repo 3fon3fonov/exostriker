@@ -48,14 +48,25 @@ def gaia_init(data,standardepoch="2017.5"):
 
     return transformed,t_gaia
 
-def gaia_JD(gaia_ad,Sepoch=None):
+
+from astropy.time import Time
+
+def gaia_JD(gaia_ad,format="jd",Sepoch=None):
     if Sepoch==None:
         Sepoch=J2017()
+
+    Sepoch_jyear=Time(Sepoch,format="jd").jyear
+
     A3,A4,A5,A6,A7,A8,A9=gaia_ad
     frac=A7/A4
-    epoch=frac+2017.5
-    JD=J2017()+(epoch-2017.5)*365.25 #JD for standard epoch J2017.5
-    return JD
+    epoch=frac+Sepoch_jyear
+    if format=="jd":
+        JD=Sepoch+(epoch-Sepoch_jyear)*365.25 #JD for standard epoch J2017.5
+        return JD
+    if format=="jyear":
+        return epoch
+    if format=="relative":
+        return frac
 
 
 def res_to_orbit_gaia(residuals,gaia_ad,orbitfit):
@@ -78,7 +89,7 @@ def res_to_orbit_gaia(residuals,gaia_ad,orbitfit):
     hip_y_err=res_2D[3]
 
     #print(res_2D)
-    orb_x,orb_y=orbit(*orbitfit,t)
+    orb_x,orb_y=orbit_total(orbitfit,t)
 
     res_orb_x=hip_x+orb_x
     res_orb_y=hip_y+orb_y

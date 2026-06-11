@@ -3021,9 +3021,13 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
    
             
            # zzz[i].getAxis('left').setWidth(50)
-            zzz[i].getAxis('right').setWidth(10)
+            zzz[i].getAxis('right').setWidth(12)
             zzz[i].getAxis('top').setHeight(10)
            # zzz[i].getAxis('bottom').setHeight(50)
+           
+            #right_axis = zzz[i].getAxis('right')
+            #right_axis.setWidth(20)
+            #right_axis.setStyle(showValues=False, tickLength=8)
                         
             zzz[i].setLabel('bottom', '%s'%xaxis[i], units='%s'%xunit[i],  **{'font-size':'%dpt'%self.plot_font.pointSize()})
             zzz[i].setLabel('left',   '%s'%yaxis[i], units='%s'%yunit[i],  **{'font-size':'%dpt'%self.plot_font.pointSize()})       
@@ -3088,7 +3092,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         pe0.getAxis("bottom").tickFont = self.plot_font
         #pe0.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         pe0.setLabel('left', '%s'%p1.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        pe0.getAxis('right').setWidth(0)
+        pe0.getAxis('right').setWidth(12)
         pe0.getAxis('top').setHeight(0)
 
         pe0.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
@@ -3110,7 +3114,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         #pe1.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         pe1.setLabel('left', o_c_label, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        pe1.getAxis('right').setWidth(0)
+        pe1.getAxis('right').setWidth(12)
         pe1.getAxis('top').setHeight(0)
 
         pe1.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
@@ -3174,7 +3178,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p00.getAxis("bottom").tickFont = self.plot_font
         #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         p00.setLabel('left', '%s'%p1.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p00.getAxis('right').setWidth(0)
+        p00.getAxis('right').setWidth(12)
         p00.getAxis('top').setHeight(0)
 
         p00.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
@@ -3198,7 +3202,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         #p01.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         p01.setLabel('left', o_c_label, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p01.getAxis('right').setWidth(0)
+        p01.getAxis('right').setWidth(12)
         p01.getAxis('top').setHeight(0)
 
         p01.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
@@ -3259,7 +3263,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p30.getAxis("bottom").tickFont = self.plot_font
         #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         
-        p30.getAxis('right').setWidth(0)
+        p30.getAxis('right').setWidth(12)
         p30.getAxis('top').setHeight(0)
         p30.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
         
@@ -3280,7 +3284,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         
         #p31.setLabel('left', '%s'%p4.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         p31.setLabel('left', 'o-c', units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p31.getAxis('right').setWidth(0)
+        p31.getAxis('right').setWidth(12)
         p31.getAxis('top').setHeight(0)
         p31.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
         
@@ -3338,7 +3342,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p_ttv_00.getAxis("bottom").tickFont = self.plot_font
         #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         p_ttv_00.setLabel('left', '%s'%p_ttv_oc.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p_ttv_00.getAxis('right').setWidth(0)
+        p_ttv_00.getAxis('right').setWidth(12)
         p_ttv_00.getAxis('top').setHeight(0)
 
         p_ttv_00.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
@@ -3359,7 +3363,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         #p_ttv_01.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         p_ttv_01.setLabel('left', o_c_label, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p_ttv_01.getAxis('right').setWidth(0)
+        p_ttv_01.getAxis('right').setWidth(12)
         p_ttv_01.getAxis('top').setHeight(0)
 
         p_ttv_01.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
@@ -3419,7 +3423,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p_ast_00.getAxis("bottom").tickFont = self.plot_font
         #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         p_ast_00.setLabel('left', '%s'%p_ast_oc.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p_ast_00.getAxis('right').setWidth(0)
+        p_ast_00.getAxis('right').setWidth(12)
         p_ast_00.getAxis('top').setHeight(0)
 
         p_ast_00.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
@@ -3440,7 +3444,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         #p_ast_01.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         p_ast_01.setLabel('left', o_c_label, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p_ast_01.getAxis('right').setWidth(0)
+        p_ast_01.getAxis('right').setWidth(12)
         p_ast_01.getAxis('top').setHeight(0)
 
         p_ast_01.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
@@ -3496,7 +3500,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         pe0.getAxis("bottom").tickFont = self.plot_font
         #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         
-        pe0.getAxis('right').setWidth(0)
+        pe0.getAxis('right').setWidth(12)
         pe0.getAxis('top').setHeight(0)
         pe0.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
         
@@ -3517,7 +3521,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         
         #pe1.setLabel('left', '%s'%p4.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
         pe1.setLabel('left', 'o-c', units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        pe1.getAxis('right').setWidth(0)
+        pe1.getAxis('right').setWidth(12)
         pe1.getAxis('top').setHeight(0)
         pe1.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
         
@@ -5219,6 +5223,8 @@ Polyfit coefficients:
             t = np.array(ttv_files[j][0])
             flux = np.array(ttv_files[j][1])
             flux_err = np.array(ttv_files[j][2])
+            
+          
  
             
                 #ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,times,fit_results, return_model = False)
@@ -5322,23 +5328,47 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 model_N_transits = np.linspace(min(model_N_transits),max(model_N_transits), num=int(self.ttv_model_interpolate_points.value()), endpoint=True)
                 ttv_model_ = func_interpol(model_N_transits) 
 
+            
+            
+            if self.show_TDepth_var.isChecked():
 
-            p_ttv.plot(t, ttv_data,
+                data_ = np.array(ttv_files[j][6])
+                data_err = np.array(ttv_files[j][7])             
+                model = dill.copy(ttv_loglik[4][j][4]) 
+                model_t = dill.copy(ttv_loglik[4][j][0])
+                p_ttv.setLabel('left', 'Depth [rel. flux]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            
+            elif self.show_TDur_var.isChecked():
+
+                data_ = np.array(ttv_files[j][8])
+                data_err = np.array(ttv_files[j][9])             
+                model = dill.copy(ttv_loglik[4][j][5]) 
+                model_t = dill.copy(ttv_loglik[4][j][0])     
+                p_ttv.setLabel('left', 'Duration [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                                     
+            else:
+                data_ = ttv_data
+                data_err = flux_err           
+                model = ttv_model_
+                model_t = model_N_transits            
+                p_ttv.setLabel('left', 'BJD [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                
+            p_ttv.plot(t, data_,
             pen=None,
             symbol=dill.copy(fit.pyqt_symbols_ttv[j]),
             symbolPen={'color': dill.copy(fit.ttv_colors[j]), 'width': 1.1},
             symbolSize=dill.copy(fit.pyqt_symbols_size_ttv[j]),enableAutoRange=True,viewRect=True,
             symbolBrush=dill.copy(fit.ttv_colors[j]) ) 
             
-            err_ = pg.ErrorBarItem(x=t, y=ttv_data, symbol=dill.copy(fit.pyqt_symbols_ttv[j]),
+            err_ = pg.ErrorBarItem(x=t, y=data_, symbol=dill.copy(fit.pyqt_symbols_ttv[j]),
                                   # height=flux_err, 
-                                   top=flux_err, 
-                                   bottom=flux_err,
+                                   top=data_err, 
+                                   bottom=data_err,
                                    beam=0.0, pen=dill.copy(fit.ttv_colors[j]))
 
             p_ttv.addItem(err_)
 
-            model_curve = p_ttv.plot(model_N_transits,ttv_model_,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True, viewRect=True )
+            model_curve = p_ttv.plot(model_t,model,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True, viewRect=True )
             model_curve.setZValue(self.ttv_model_z.value())
 
             if self.ttv_plot_cross_hair.isChecked():
@@ -5891,8 +5921,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         
         self.check_ast_symbol_sizes()
  
-        pl_ind     = self.ast_comboBox_pl.currentIndex()
- 
+        pl_ind  = 0 #self.ast_comboBox_pl_hipp_gaia.currentIndex()
+        
+        #print(pl_ind)
+        
         p_ast_hipp.plot(clear=True,) 
 
             
@@ -5930,7 +5962,14 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if fit.npl > 0:
                 
                 if fit.rtg[0] == False:
-                    ast_loglik = rv.ast_loglik_hipp(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True,
+                    ast_loglik = rv.ast_loglik_hipp(fit.parameters,
+                    vel_files, 
+                    ast_files,fit.npl,
+                    fit.params.stellar_mass,
+                    times,
+                    fit.hkl,
+                    fit_results = False, 
+                    return_model = True,
                     model_max=self.ast_model_max_range.value(), model_samp=self.ast_points_to_draw_model.value())  
                 else:
                     ast_loglik = rv.ast_loglik_hipp(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True,
@@ -8663,25 +8702,32 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         #start_time = time.time()   
         
         if resid == False:
-            self.update_tls_plots() 
+            #self.update_tls_plots()
+            self.update_tls_o_c_plots()              
         else:
             self.update_tls_o_c_plots() 
                  
         self.statusBar().showMessage('')   
  
         self.jupiter_push_vars()   
-        self.calc_TLS.setEnabled(True)         
+        #self.calc_TLS.setEnabled(True)         
         self.calc_TLS_o_c.setEnabled(True)  
        # print("--- %s seconds ---" % (time.time() - start_time))     
  
     def worker_tls(self, resid = False):
         global fit  
         
+        if self.calp_TLS_o_c.isChecked():
+            resid = True
+        else:
+            resid = False        
+        
+        
         if tls_not_found==True:
             print("TLS Not found, try to install with 'pip install transitleastsquares'") 
             return
 
-        self.calc_TLS.setEnabled(False)         
+        #self.calc_TLS.setEnabled(False)         
         self.calc_TLS_o_c.setEnabled(False)  
 
         z=0
@@ -8739,10 +8785,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                                       duration_grid_step=self.tls_grid_step.value())
     
         if resid == True:
-            fit.tls_o_c = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
+            fit.tls = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
+            #fit.tls_o_c = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)            
         else:
             fit.tls = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
-
+            #fit.tls_o_c = tls_results  # TB Fixed with an rvmod object (i.e. fit.tls_obj)
 
     def update_tls_plots(self): 
         global fit, p9, colors
@@ -8778,7 +8825,7 @@ Transit duration: %s d
 #0.9999   9.1
             [p9.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(SDE_levels)]
 
-            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls.periods,fit.tls.power,  sig_level = SDE_levels   )
+            text_peaksresid, pos_peaks = self.identify_power_peaks(fit.tls.periods,fit.tls.power,  sig_level = SDE_levels   )
 
             self.label_peaks(p9, pos_peaks, GLS = False)
 
@@ -8795,7 +8842,7 @@ Transit duration: %s d
     def update_tls_o_c_plots(self): 
         global fit, p10, colors
 
-        if len(fit.tls_o_c) == 0:
+        if len(fit.tls) == 0:
             return
 
         N_transit_files = len([x for x in range(20) if len(fit.tra_data_sets[x]) != 0])
@@ -8816,9 +8863,9 @@ Best results from TLS:
 Period: %s d   
 Transit depth: %s 
 Transit duration: %s d
-'''%(fit.tls_o_c.period,fit.tls_o_c.depth,fit.tls_o_c.duration)
+'''%(fit.tls.period,fit.tls.depth,fit.tls.duration)
            
-            p10.plot(fit.tls_o_c.periods, fit.tls_o_c.power,        
+            p10.plot(fit.tls.periods, fit.tls.power,        
             pen='r',  enableAutoRange=True,viewRect=True)
 #0.9      5.7
 #0.95     6.1
@@ -8827,7 +8874,7 @@ Transit duration: %s d
 #0.9999   9.1
             [p10.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(SDE_levels)]
    
-            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls_o_c.periods,fit.tls_o_c.power,  sig_level = SDE_levels )
+            text_peaks, pos_peaks = self.identify_power_peaks(fit.tls.periods,fit.tls.power,  sig_level = SDE_levels )
  
             self.label_peaks(p10, pos_peaks, GLS = False)
             
@@ -12919,17 +12966,17 @@ Please install via 'pip install ttvfast'.
         global fit   
  
         
-        if len(fit.tls_o_c)==0 or np.isnan(fit.tls_o_c.period):
+        if len(fit.tls)==0 or np.isnan(fit.tls.period):
             print("No transit signal that can be adopted as planet")
             return
     
-        mean_anomaly_from_tls = np.degrees((((fit.epoch - fit.tls_o_c.transit_times[0] )% (fit.tls_o_c.period) )/ (fit.tls_o_c.period) ) * 2*np.pi)
+        mean_anomaly_from_tls = np.degrees((((fit.epoch - fit.tls.transit_times[0] )% (fit.tls.period) )/ (fit.tls.period) ) * 2*np.pi)
        
-        fit.t0[fit.npl]     = fit.tls_o_c.transit_times[0]
-        fit.pl_rad[fit.npl] = fit.stellar_radius*np.sqrt(1.0 - fit.tls_o_c.depth_mean[0])  # alternativly fit.tls_o_c.rp_rs ?
+        fit.t0[fit.npl]     = fit.tls.transit_times[0]
+        fit.pl_rad[fit.npl] = fit.stellar_radius*np.sqrt(1.0 - fit.tls.depth_mean[0])  # alternativly fit.tls_o_c.rp_rs ?
         fit.pl_a[fit.npl]   = 11.44
 
-        fit.add_planet(10.0,fit.tls_o_c.period,0.0,0.0,mean_anomaly_from_tls,90.0,0.0)
+        fit.add_planet(10.0,fit.tls.period,0.0,0.0,mean_anomaly_from_tls,90.0,0.0)
         #fit.use.update_use_planet_params_one_planet(fit.npl+1,True,True,True,True,True,False,False)   
 
         fit.P_use[fit.npl] = True
@@ -13817,6 +13864,9 @@ Please install via 'pip install ttvfast'.
 
         self.ttv_model_interpolate_points.valueChanged.connect(self.update_ttv_plots)
         self.ttv_model_interpolate.stateChanged.connect(self.update_ttv_plots)
+        
+        self.show_TDepth_var.stateChanged.connect(self.update_ttv_plots)
+        self.show_TDur_var.stateChanged.connect(self.update_ttv_plots)        
 
         self.comboBox_ttv_model_interpolate.activated.connect(self.update_ttv_plots)
 
@@ -14479,6 +14529,27 @@ Please install via 'pip install ttvfast'.
         self.count_cpus()
         rv.check_swift()
 
+        ##### remove old TLS plot
+        self.tab_ts_tra.removeTab(2)
+        
+        self.ast_comboBox_pl_hipp_gaia.setVisible(False)
+        
+        self.remove_ast_data_hipp_2.setVisible(False)
+        self.Button_ast_data_hipp_2.setVisible(False)
+        self.use_ast_data_hipp_2.setVisible(False)
+        self.ast_data_planet_hipp_2.setVisible(False)
+        self.ast_data_planet_hipp_1.setVisible(False)
+        
+        
+        self.remove_ast_data_gaia_2.setVisible(False)
+        self.Button_ast_data_gaia_2.setVisible(False)
+        self.use_ast_data_gaia_2.setVisible(False)
+        self.ast_data_planet_gaia_2.setVisible(False)
+        self.ast_data_planet_gaia_1.setVisible(False)   
+        
+        self.stop_button.setVisible(False)          
+        ############################
+        
 
         self.stop_button.clicked.connect(self.stop_nest)
 

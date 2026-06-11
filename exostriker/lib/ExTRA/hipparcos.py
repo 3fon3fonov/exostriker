@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from .astrometry import *
+from .useful import *
 
 #This function calculates the new abscissa residual if you change a parameter compared to the hipparchos solution.
 #For example if parallax_hipparchos=40mas , parallax_model=10mas, you will get a parameter_residual=-30mas.
@@ -34,13 +35,17 @@ def abs_res(old_res,parameter_fit,parameter,derivation):
     
 
 
-def hip_JD(hip_ad): #finds JD of measurement
-
+def hip_JD(hip_ad,Sepoch=J1991(),format="jd"): #finds JD of measurement
     A3,A4,A5,A6,A7,A8,A9=hip_ad
     frac=A7/A4
     epoch=frac+1991.25
-    JD=2451545.0+(epoch-2000.0)*365.25 #JD for standard epoch J2000
-    return JD
+    if format=="jd":
+        JD=Sepoch+(epoch-1991.25)*365.25 #JD for standard epoch J1991
+        return JD
+    if format=="jyear":
+        return epoch
+    if format=="relative":
+        return frac
 
 
 def scanangle(hip_ad): #finds the scanangle between EAST and RGC(reference great circle) in radians
@@ -74,6 +79,8 @@ def hip_with_gaia(hip_ad,hip_stand,gaia_stand,gaia_standardepoch="2017.5"):
 
 
     return new_hip_ad
+
+
 
 
 
@@ -254,7 +261,7 @@ def hip_residuals(hip_ad,hip_stand,stand_fit,orbit_fit,Sepoch):
  
         #Now we have the remaining residuals, where the orbit will be fit too.
         #To do that, we need to correct the hip residuals again, this time for an orbit:
-        x_O,y_O=orbit(orbit_fit[0],orbit_fit[1],orbit_fit[2],orbit_fit[3],orbit_fit[4],orbit_fit[5],orbit_fit[6],t_HIP)
+        x_O,y_O=orbit_total(orbit_fit,t_HIP)
         
         residuals_hip=c_res_hip-(A3*x_O+A4*y_O)
 
@@ -284,7 +291,7 @@ def res_to_orbit(residuals,hip_ad,orbitfit):
     hip_y_err=res_2D[3]
 
     #print(res_2D)
-    orb_x,orb_y=orbit(*orbitfit,t)
+    orb_x,orb_y=orbit_total(orbitfit,t)
 
     res_orb_x=hip_x+orb_x
     res_orb_y=hip_y+orb_y

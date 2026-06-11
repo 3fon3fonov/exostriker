@@ -1,7 +1,8 @@
 from ..Qt import QtWidgets, QtCore, QT_LIB
 import matplotlib
 
- 
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42 
 
 if QT_LIB != 'PyQt5':
     if QT_LIB == 'PySide':

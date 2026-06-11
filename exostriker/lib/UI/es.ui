@@ -977,7 +977,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -1225,7 +1225,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -1324,7 +1324,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -1538,7 +1538,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -1588,7 +1588,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -1749,7 +1749,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -1774,7 +1774,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -1827,7 +1827,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -1852,7 +1852,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -2388,7 +2388,7 @@
                        <double>0.000000000000000</double>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>1.000000000000000</double>
@@ -3209,7 +3209,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -4022,7 +4022,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -4360,7 +4360,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -4500,7 +4500,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -4805,7 +4805,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -5003,7 +5003,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>1.000000000000000</double>
@@ -5031,7 +5031,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -5199,7 +5199,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -5289,7 +5289,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -5472,7 +5472,7 @@
                        <number>5</number>
                       </property>
                       <property name="maximum">
-                       <double>1000.000000000000000</double>
+                       <double>10000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -36250,7 +36250,7 @@
               <string>Hipparcos/Gaia</string>
              </attribute>
              <layout class="QGridLayout" name="gridLayout_443">
-              <item row="0" column="0">
+              <item row="0" column="0" rowspan="2">
                <layout class="QGridLayout" name="Data_Layout_28">
                 <property name="bottomMargin">
                  <number>5</number>
@@ -36261,430 +36261,6 @@
                 <property name="verticalSpacing">
                  <number>0</number>
                 </property>
-                <item row="3" column="1">
-                 <widget class="QPushButton" name="remove_ast_data_hipp_2">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>30</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>30</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>X</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_remove_ast_data_2</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="3" column="3">
-                 <widget class="QCheckBox" name="use_ast_data_hipp_2">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_use_ast_data_to_planet_2</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="1" column="2">
-                 <widget class="QLabel" name="label_30">
-                  <property name="text">
-                   <string>Hipparcos</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="3">
-                 <widget class="QCheckBox" name="use_ast_data_gaia_2">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_use_ast_data_to_planet_3</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="6" column="2">
-                 <widget class="QPushButton" name="Button_ast_data_gaia_2">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
-                  <property name="autoFillBackground">
-                   <bool>false</bool>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true"/>
-                  </property>
-                  <property name="text">
-                   <string>data 2</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <property name="autoDefault">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_ast_data_3</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="3" column="4">
-                 <widget class="QSpinBox" name="ast_data_planet_hipp_2">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>9</number>
-                  </property>
-                  <property name="value">
-                   <number>1</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="2">
-                 <widget class="QPushButton" name="Button_ast_data_hipp_1">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>180</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
-                  <property name="autoFillBackground">
-                   <bool>false</bool>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true"/>
-                  </property>
-                  <property name="text">
-                   <string>data 1</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <property name="autoDefault">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_ast_data_2</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="5" column="2">
-                 <widget class="QPushButton" name="Button_ast_data_gaia_1">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
-                  <property name="autoFillBackground">
-                   <bool>false</bool>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true"/>
-                  </property>
-                  <property name="text">
-                   <string>data 1</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <property name="autoDefault">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_ast_data_3</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="2" column="4">
-                 <widget class="QSpinBox" name="ast_data_planet_hipp_1">
-                  <property name="maximumSize">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>9</number>
-                  </property>
-                  <property name="value">
-                   <number>1</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="4">
-                 <widget class="QSpinBox" name="ast_data_planet_gaia_1">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>9</number>
-                  </property>
-                  <property name="value">
-                   <number>1</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="2">
-                 <widget class="QLabel" name="label_3">
-                  <property name="text">
-                   <string>Gaia </string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QPushButton" name="remove_ast_data_hipp_1">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>30</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>30</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>X</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_remove_ast_data_2</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="3" column="2">
-                 <widget class="QPushButton" name="Button_ast_data_hipp_2">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>180</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
-                  <property name="autoFillBackground">
-                   <bool>false</bool>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true"/>
-                  </property>
-                  <property name="text">
-                   <string>data 2</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <property name="autoDefault">
-                   <bool>true</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_ast_data_2</string>
-                  </attribute>
-                 </widget>
-                </item>
                 <item row="5" column="1">
                  <widget class="QPushButton" name="remove_ast_data_gaia_1">
                   <property name="enabled">
@@ -36728,77 +36304,55 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="2" column="3">
-                 <widget class="QCheckBox" name="use_ast_data_hipp_1">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_use_ast_data_to_planet_2</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="5" column="3">
-                 <widget class="QCheckBox" name="use_ast_data_gaia_1">
+                <item row="5" column="6">
+                 <widget class="QSpinBox" name="ast_data_planet_gaia_1">
                   <property name="enabled">
                    <bool>true</bool>
                   </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
                   <property name="maximumSize">
                    <size>
-                    <width>16777215</width>
+                    <width>40</width>
                     <height>20</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
                   </property>
-                  <property name="checked">
-                   <bool>false</bool>
+                  <property name="minimum">
+                   <number>1</number>
                   </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_use_ast_data_to_planet_3</string>
-                  </attribute>
+                  <property name="maximum">
+                   <number>9</number>
+                  </property>
+                  <property name="value">
+                   <number>1</number>
+                  </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
-                 <spacer name="verticalSpacer_91">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
+                <item row="0" column="6">
+                 <widget class="QLabel" name="label_754">
+                  <property name="font">
+                   <font>
+                    <pointsize>8</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
                   </property>
-                  <property name="sizeType">
-                   <enum>QSizePolicy::Fixed</enum>
+                  <property name="text">
+                   <string>Planet</string>
                   </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
+                 </widget>
                 </item>
-                <item row="6" column="4">
-                 <widget class="QSpinBox" name="ast_data_planet_gaia_2">
+                <item row="3" column="6">
+                 <widget class="QSpinBox" name="ast_data_planet_hipp_2">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
@@ -36826,6 +36380,159 @@
                   <property name="value">
                    <number>1</number>
                   </property>
+                 </widget>
+                </item>
+                <item row="0" column="1" colspan="5">
+                 <widget class="QCheckBox" name="use_hipp_gaia_ast">
+                  <property name="text">
+                   <string>Use Hipp/Gaia astromety</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_img_hipp_ast</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <spacer name="verticalSpacer_91">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="4" column="1">
+                 <spacer name="verticalSpacer_57">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>10</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="2" column="6">
+                 <widget class="QSpinBox" name="ast_data_planet_hipp_1">
+                  <property name="maximumSize">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>9</number>
+                  </property>
+                  <property name="value">
+                   <number>1</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QPushButton" name="remove_ast_data_hipp_1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>30</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>X</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_remove_ast_data_2</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QPushButton" name="remove_ast_data_hipp_2">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>30</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>30</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>X</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_remove_ast_data_2</string>
+                  </attribute>
                  </widget>
                 </item>
                 <item row="6" column="1">
@@ -36871,44 +36578,337 @@
                   </attribute>
                  </widget>
                 </item>
-                <item row="0" column="1" colspan="3">
-                 <widget class="QCheckBox" name="use_hipp_gaia_ast">
-                  <property name="text">
-                   <string>Use Hipp/Gaia astromety</string>
+                <item row="6" column="6">
+                 <widget class="QSpinBox" name="ast_data_planet_gaia_2">
+                  <property name="enabled">
+                   <bool>false</bool>
                   </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">buttonGroup_use_img_hipp_ast</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="0" column="4">
-                 <widget class="QLabel" name="label_754">
+                  <property name="maximumSize">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
                   <property name="font">
                    <font>
-                    <pointsize>8</pointsize>
+                    <pointsize>9</pointsize>
                     <italic>false</italic>
                     <bold>false</bold>
                     <stylestrategy>PreferDefault</stylestrategy>
                     <kerning>true</kerning>
                    </font>
                   </property>
-                  <property name="text">
-                   <string>Planet</string>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>9</number>
+                  </property>
+                  <property name="value">
+                   <number>1</number>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="1">
-                 <spacer name="verticalSpacer_57">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
+                <item row="6" column="5">
+                 <widget class="QCheckBox" name="use_ast_data_gaia_2">
+                  <property name="enabled">
+                   <bool>false</bool>
                   </property>
-                  <property name="sizeHint" stdset="0">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize">
                    <size>
-                    <width>20</width>
-                    <height>40</height>
+                    <width>16777215</width>
+                    <height>20</height>
                    </size>
                   </property>
-                 </spacer>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_ast_data_to_planet_3</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="5" column="5">
+                 <widget class="QCheckBox" name="use_ast_data_gaia_1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_ast_data_to_planet_3</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="3" column="5">
+                 <widget class="QCheckBox" name="use_ast_data_hipp_2">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_ast_data_to_planet_2</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="5">
+                 <widget class="QCheckBox" name="use_ast_data_hipp_1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_ast_data_to_planet_2</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="4" column="2" colspan="3">
+                 <widget class="QLabel" name="label_3">
+                  <property name="text">
+                   <string>Gaia </string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2" colspan="3">
+                 <widget class="QPushButton" name="Button_ast_data_hipp_2">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>180</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="autoFillBackground">
+                   <bool>false</bool>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true"/>
+                  </property>
+                  <property name="text">
+                   <string>data 2</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_ast_data_2</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="2" colspan="3">
+                 <widget class="QPushButton" name="Button_ast_data_hipp_1">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>180</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="autoFillBackground">
+                   <bool>false</bool>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true"/>
+                  </property>
+                  <property name="text">
+                   <string>data 1</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_ast_data_2</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="5" column="2" colspan="3">
+                 <widget class="QPushButton" name="Button_ast_data_gaia_1">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="autoFillBackground">
+                   <bool>false</bool>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true"/>
+                  </property>
+                  <property name="text">
+                   <string>data 1</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_ast_data_3</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="6" column="2" colspan="3">
+                 <widget class="QPushButton" name="Button_ast_data_gaia_2">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="autoFillBackground">
+                   <bool>false</bool>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true"/>
+                  </property>
+                  <property name="text">
+                   <string>data 2</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_ast_data_3</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="1" column="2" colspan="3">
+                 <widget class="QLabel" name="label_30">
+                  <property name="text">
+                   <string>Hipparcos</string>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -36926,19 +36926,6 @@
                </spacer>
               </item>
               <item row="0" column="2">
-               <spacer name="verticalSpacer_181">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>59</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="0" column="3">
                <layout class="QVBoxLayout" name="verticalLayout_3">
                 <item>
                  <widget class="QPushButton" name="ast_readme_info_2">
@@ -36968,7 +36955,20 @@
                 </item>
                </layout>
               </item>
-              <item row="1" column="0">
+              <item row="1" column="2" rowspan="2">
+               <spacer name="verticalSpacer_181">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>59</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="2" column="0">
                <spacer name="verticalSpacer_180">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
@@ -41752,7 +41752,7 @@
              </sizepolicy>
             </property>
             <property name="currentIndex">
-             <number>3</number>
+             <number>0</number>
             </property>
             <property name="movable">
              <bool>true</bool>
@@ -41785,7 +41785,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>405</width>
+                       <width>491</width>
                        <height>443</height>
                       </rect>
                      </property>
@@ -157648,7 +157648,7 @@
                    </font>
                   </property>
                   <property name="decimals">
-                   <number>2</number>
+                   <number>3</number>
                   </property>
                   <property name="maximum">
                    <double>1000.000000000000000</double>
@@ -180679,7 +180679,7 @@
             </widget>
             <widget class="QWidget" name="Phot_timeseries_periodogram">
              <attribute name="title">
-              <string>TLS</string>
+              <string>TLS (old)</string>
              </attribute>
              <layout class="QGridLayout" name="gridLayout_100">
               <item row="0" column="0">
@@ -180758,7 +180758,7 @@
             </widget>
             <widget class="QWidget" name="tab_174">
              <attribute name="title">
-              <string>TLS o-c</string>
+              <string>TLS</string>
              </attribute>
              <layout class="QGridLayout" name="gridLayout_101">
               <item row="1" column="0">
@@ -180779,19 +180779,6 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="4">
-                 <spacer name="horizontalSpacer_63">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
                 <item row="0" column="1">
                  <widget class="QPushButton" name="calc_TLS_o_c">
                   <property name="font">
@@ -180804,9 +180791,38 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>Calculate TLS o-c</string>
+                   <string>Calculate TLS</string>
                   </property>
                  </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="QCheckBox" name="tls_o_c_cross_hair">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Cross hair</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="5">
+                 <spacer name="horizontalSpacer_63">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                 <item row="0" column="2">
                  <widget class="QPushButton" name="adopt_tls_o_c_param">
@@ -180827,19 +180843,10 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="3">
-                 <widget class="QCheckBox" name="tls_o_c_cross_hair">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
+                <item row="0" column="4">
+                 <widget class="QCheckBox" name="calp_TLS_o_c">
                   <property name="text">
-                   <string>Cross hair</string>
+                   <string>o-c</string>
                   </property>
                  </widget>
                 </item>
@@ -180942,7 +180949,7 @@
             </widget>
             <widget class="QWidget" name="Phot_o_c_timeseries_plot_2">
              <attribute name="title">
-              <string>TTVs (plain)</string>
+              <string>TDVs</string>
              </attribute>
              <layout class="QGridLayout" name="gridLayout_263">
               <item row="0" column="0">
@@ -180954,38 +180961,6 @@
               </item>
               <item row="1" column="0">
                <layout class="QGridLayout" name="gridLayout_248">
-                <item row="0" column="1">
-                 <widget class="QComboBox" name="ttv_comboBox_pl"/>
-                </item>
-                <item row="0" column="2">
-                 <widget class="QCheckBox" name="ttv_plot_cross_hair">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Cross hair</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="4">
-                 <spacer name="horizontalSpacer_154">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
                 <item row="0" column="0">
                  <widget class="QPushButton" name="ttv_print_info">
                   <property name="enabled">
@@ -181009,6 +180984,52 @@
                  <widget class="QCheckBox" name="ttv_o_c">
                   <property name="text">
                    <string>o-c</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="4">
+                 <widget class="QCheckBox" name="show_TDepth_var">
+                  <property name="text">
+                   <string>DepthVs</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QCheckBox" name="ttv_plot_cross_hair">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Cross hair</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QComboBox" name="ttv_comboBox_pl"/>
+                </item>
+                <item row="0" column="6">
+                 <spacer name="horizontalSpacer_154">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="0" column="5">
+                 <widget class="QCheckBox" name="show_TDur_var">
+                  <property name="text">
+                   <string>DurationVs</string>
                   </property>
                  </widget>
                 </item>
@@ -183161,156 +183182,160 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_use_tra_reg_7"/>
-  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_theta_fold"/>
+  <buttongroup name="buttonGroup_f77_or_scipy"/>
+  <buttongroup name="buttonGroup_AMD_satb_NS"/>
   <buttongroup name="buttonGroup_mixed_fitting">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_16"/>
-  <buttongroup name="buttonGroup_transit_data"/>
-  <buttongroup name="buttonGroup_use_tra_reg_19"/>
-  <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_use_ld_20"/>
-  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
-  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_use_ld_13"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
   <buttongroup name="buttonGroup_use_tra_data_GP">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_18"/>
-  <buttongroup name="buttonGroup_add_RV_data"/>
-  <buttongroup name="buttonGroup_remove_RV_data"/>
-  <buttongroup name="buttonGroup_use_rho_aR"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_use_ld_17"/>
+  <buttongroup name="buttonGroup_use_tra_reg_1"/>
+  <buttongroup name="buttonGroup_symbol_picker_ast"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
   <buttongroup name="buttonGroup_ei_eo_sincos"/>
-  <buttongroup name="buttonGroup_remove_ast_data_3"/>
-  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_use_ast_data_to_planet">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_ast_data_to_planet_2">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_use_rho_aR"/>
+  <buttongroup name="buttonGroup_use_ld_18"/>
+  <buttongroup name="buttonGroup_use_tra_reg_17"/>
   <buttongroup name="buttonGroup_ast_data_3"/>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
+  <buttongroup name="buttonGroup_omega_dot_opt"/>
+  <buttongroup name="buttonGroup_link_tra_GP_to_RV_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_remove_ast_data_3"/>
+  <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_use_tra_reg_18"/>
+  <buttongroup name="buttonGroup_use_tra_reg_13"/>
+  <buttongroup name="buttonGroup_use_tra_reg_8"/>
+  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_color_picker_ast"/>
+  <buttongroup name="buttonGroup_options_rvs"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_apply_tra_data_options"/>
+  <buttongroup name="buttonGroup_detrend_tra"/>
+  <buttongroup name="buttonGroup_use_ast_plot_RA_Dec"/>
   <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_use_tra_reg_12"/>
-  <buttongroup name="buttonGroup_options_act"/>
+  <buttongroup name="buttonGroup_ast_data"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_use">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_use_tra_reg_3"/>
+  <buttongroup name="buttonGroup_use_tra_reg_15"/>
   <buttongroup name="buttonGroup_use_ld_11"/>
   <buttongroup name="buttonGroup_use_GP">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_10"/>
-  <buttongroup name="buttonGroup_use_ld_14"/>
-  <buttongroup name="buttonGroup_use_ast_data_to_planet_2">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_color_picker_ast"/>
-  <buttongroup name="buttonGroup_use_tra_reg_17"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
-  <buttongroup name="buttonGroup_color_picker_ttv"/>
-  <buttongroup name="buttonGroup_activity_data"/>
-  <buttongroup name="buttonGroup_dom_fold"/>
-  <buttongroup name="buttonGroup_detrend_tra"/>
-  <buttongroup name="buttonGroup_use_ld_2"/>
-  <buttongroup name="buttonGroup_use_ld_15"/>
+  <buttongroup name="buttonGroup_use_tra_reg_11"/>
   <buttongroup name="buttonGroup_use_tra_reg_14"/>
-  <buttongroup name="buttonGroup_use_tra_reg_13"/>
-  <buttongroup name="buttonGroup_use_tra_reg_9"/>
-  <buttongroup name="buttonGroup_use_ast_data_to_planet_3"/>
-  <buttongroup name="buttonGroup_use_tra_reg_3"/>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_apply_rvs_data_options"/>
   <buttongroup name="buttonGroup_ast_data_2"/>
-  <buttongroup name="buttonGroup_TTV_plot_Ntra_BJD"/>
-  <buttongroup name="buttonGroup_use_ld_12"/>
-  <buttongroup name="buttonGroup_remove_ast_data"/>
-  <buttongroup name="buttonGroup_use_ast_data_to_planet">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_remove_ast_data_2"/>
-  <buttongroup name="buttonGroup_use_tra_reg_4"/>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
-  <buttongroup name="buttonGroup_use_tra_reg_1"/>
+  <buttongroup name="buttonGroup_use_tra_reg_9"/>
   <buttongroup name="buttonGroup_use_img_hipp_ast">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_ast_plot_RA_Dec"/>
-  <buttongroup name="buttonGroup_use_tra_reg_16"/>
-  <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_symbol_picker"/>
-  <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_omega_dot_opt"/>
-  <buttongroup name="buttonGroup_AMD_stab_opt"/>
-  <buttongroup name="buttonGroup_AMD_satb_NS"/>
-  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
-  <buttongroup name="buttonGroup_use_ld_19"/>
-  <buttongroup name="buttonGroup_use_tra_reg_5"/>
-  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_ast_data"/>
-  <buttongroup name="buttonGroup_use_tra_reg_15"/>
-  <buttongroup name="buttonGroup_apply_tra_data_options"/>
-  <buttongroup name="buttonGroup_link_tra_GP_to_RV_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
+  <buttongroup name="buttonGroup_use_ld_14"/>
   <buttongroup name="buttonGroup_use_tra_reg_2"/>
-  <buttongroup name="buttonGroup_options_rvs"/>
-  <buttongroup name="buttonGroup_use_ld_13"/>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_use_ld_3"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_remove_ttv_data"/>
-  <buttongroup name="buttonGroup_apply_rvs_data_options"/>
-  <buttongroup name="buttonGroup_use_ld_6"/>
-  <buttongroup name="buttonGroup_use_tra_reg_6"/>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
-  <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_use_plmass"/>
-  <buttongroup name="buttonGroup_samp_corr"/>
-  <buttongroup name="buttonGroup_use_tra_reg_8"/>
-  <buttongroup name="buttonGroup_apply_tra_dilution"/>
-  <buttongroup name="buttonGroup_use_ld_5"/>
-  <buttongroup name="buttonGroup_apply_act_data_options"/>
-  <buttongroup name="buttonGroup_use_tra_reg_20"/>
-  <buttongroup name="buttonGroup_symbol_picker_ast"/>
-  <buttongroup name="buttonGroup_color_picker"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
-  <buttongroup name="buttonGroup_use_tra_reg_11"/>
-  <buttongroup name="buttonGroup_use_tra_reg_18"/>
-  <buttongroup name="buttonGroup_use_RV_GP_kernel">
-   <property name="exclusive">
-    <bool>true</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_use_ld_4"/>
   <buttongroup name="buttonGroup_use_planets">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_remove_ast_data_2"/>
+  <buttongroup name="buttonGroup_use_tra_reg_12"/>
+  <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_use_ld_17"/>
+  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
+  <buttongroup name="buttonGroup_use_ld_15"/>
+  <buttongroup name="buttonGroup_TTV_plot_Ntra_BJD"/>
+  <buttongroup name="buttonGroup_use_tra_reg_6"/>
+  <buttongroup name="buttonGroup_remove_ast_data"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
+  <buttongroup name="buttonGroup_samp_corr"/>
+  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_use_tra_reg_19"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
+  <buttongroup name="buttonGroup_use_tra_reg_16"/>
+  <buttongroup name="buttonGroup_use_tra_reg_20"/>
+  <buttongroup name="buttonGroup_use_tra_reg_7"/>
+  <buttongroup name="buttonGroup_use_plmass"/>
+  <buttongroup name="buttonGroup_AMD_stab_opt"/>
+  <buttongroup name="buttonGroup_use_tra_reg_5"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_type_fit"/>
+  <buttongroup name="buttonGroup_use_ld_16"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_use_RV_GP_kernel">
+   <property name="exclusive">
+    <bool>true</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_apply_tra_dilution"/>
+  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_tra_reg_10"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_remove_activity_data"/>
+  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_use_ld_19"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
+  <buttongroup name="buttonGroup_use_tra_reg_4"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
+  <buttongroup name="buttonGroup_use_ast_data_to_planet_3">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_use_ld_20"/>
+  <buttongroup name="buttonGroup_use_ld_12"/>
+  <buttongroup name="buttonGroup_options_act"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
  </buttongroups>
 </ui>
