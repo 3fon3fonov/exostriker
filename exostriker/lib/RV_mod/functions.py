@@ -319,12 +319,36 @@ def ma_from_t0(per, ecc, om, t_transit, epoch):
     return ma
 
 
-def ma_from_epoch(per, t_peri, epoch):
+def ma_from_epoch_old(per, t_peri, epoch):
     '''
     '''
     ma =  np.degrees(2.0*np.pi*( (epoch-t_peri)/per % 1.))
 
     return ma
+    
+    
+def ma_from_epoch(per, t_peri, epoch):
+    """
+    Mean anomaly at epoch, in degrees, wrapped to [0, 360).
+
+    Parameters
+    ----------
+    per : float or array
+        Orbital period, same time units as epoch and t_peri.
+    t_peri : float or array
+        Time of periastron passage.
+    epoch : float or array
+        Epoch at which the mean anomaly is evaluated.
+
+    Returns
+    -------
+    ma : float or array
+        Mean anomaly in degrees, in the range [0, 360).
+    """
+    phase = np.mod((epoch - t_peri)/per, 1.0)
+    ma = 360.0 * phase
+    
+    return ma    
 
 def mass_to_K(P,ecc,incl, pl_mass,Stellar_mass):
 
@@ -1632,6 +1656,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             else:
                 ecc.append([0]*len(K[z]))
                 print("Warning, no eccentricity samples found for planet %s ! Assuming ecc = 0"%str(i+1))
+                #print(K[z])
 
             if mod_labels['use_Me']:
                 M_fact = 317.82838
@@ -1645,7 +1670,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
 
             if 'i$_%s$ [deg]'%let in labels:
-                incl.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$'%let]]))
+                incl.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$ [deg]'%let]]))
                 #samp_labels.append(r'm$_%s$ %s'%(let,mass_lab))
             else:
                 if obj.copl_incl == True:
@@ -1665,6 +1690,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
         P = np.transpose(P)
         ecc = np.transpose(ecc)
         incl = np.transpose(incl)
+
 
         for k in range(len(m_s)):
 
@@ -5116,128 +5142,397 @@ pl.in
 
     return obj
 
+ 
 
+def run_stability_rebound(
+    obj,
+    timemax=3000.0,
+    timestep=10.0 / 365.25,
+    output_step=1.0,
+    integrator="whfast",
+    exact_finish_time=0,
+    collision_distance=None,
+    escape_distance=None,
+    move_to_com=True,
+    sort_by_period=True,
+    safe_mode=0,
+    corrector=11,
+    verbose=True,
+    use_fixed_steps=False,
+    fixed_steps=1000,
+):
+    """
+    Run an N-body stability integration with REBOUND.
 
+    This version follows the Exo-Striker run_stability style:
+        input  : obj
+        output : obj
 
+    It fills:
+        obj.evol_T
+        obj.evol_a
+        obj.evol_e
+        obj.evol_i
+        obj.evol_Om
+        obj.evol_p
+        obj.evol_M
+        obj.evol_Per
+        obj.evol_T_energy
+        obj.evol_energy
+        obj.evol_momentum
 
-def run_stability_old(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = './run', remove_stab_save_dir = True, integrator='symba' ):
+    It also stores the full REBOUND output dictionary in:
+        obj.rebound_evol
 
+    Units:
+        length = au
+        time   = yr
+        mass   = Msun
 
-    os.chdir('./stability/')
-    os.system("mkdir %s"%stab_save_dir)
-    os.chdir("./%s"%stab_save_dir)
+    Input angles are assumed to be in degrees.
+    Output angles are in degrees.
+    Periods in obj.evol_Per are converted to days, matching Exo-Striker usage.
+    """
 
+    try:
+        import rebound
+    except ImportError:
+        raise ImportError(
+            "REBOUND is not installed. Install it with: pip install rebound"
+        )
 
-    print("running stability with: %s"%integrator)
-    ##### crate the param.in file (change only the "t_max" and the "dt" for now) ######
-    param_file = open('param.in', 'wb')
+    if verbose:
+        try:
+            print("REBOUND version:", rebound.__version__)
+        except Exception:
+            print("REBOUND version: unknown")
 
-    max_time = float(timemax)*365.25 # make it is days
+    integrator = str(integrator).lower()
 
-    param_file.write(b"""0.0d0 %s %s
-%s %s
+    mjup_to_msun = 1.0 / 1047.5654817267318
+    deg_to_rad = np.pi / 180.0
+    rad_to_deg = 180.0 / np.pi
 
-F T T T T F
-0.0001 50.0 50.0 -1. T
-bin.dat
-unknown
-"""%(bytes(str(max_time).encode()),
- bytes(str(timestep).encode()),
- bytes(str(max_time/1e4).encode()),
- bytes(str(max_time/1e3).encode())  ))
+    used_indices = [j for j in range(9) if bool(obj.use_planet[j])]
 
-    param_file.close()
+    if sort_by_period:
+        used_indices.sort(key=lambda j: obj.P[j])
 
-    #os.system("cp param.in test_param.in__")
+    npl = len(used_indices)
 
+    if npl == 0:
+        obj.rebound_evol = {
+            "stable": False,
+            "status": "no active planets",
+            "used_indices": used_indices,
+        }
 
-    getin_file = open('geninit_j.in', 'wb')
-    getin_file.write(b"""1
-%s
-%s
-1.d0
-pl.in
-"""%(bytes(str(obj.params.stellar_mass).encode()), bytes(str(obj.npl).encode() ) ))
+        if verbose:
+            print("REBOUND stability aborted: no active planets.")
 
-
-
-    for j in range(9):
-        if not bool(obj.use_planet[j]):
-            continue
-        #getin_file.write(b'%s \n'%bytes(str(obj.fit_results.mass[j]/1047.348644).encode()))
-        getin_file.write(b'%s \n'%bytes(str(obj.masses[j]/1047.5654817267318).encode()))
-#        getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.fit_results.a[j]).encode()),
-        getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.semimajor[j]).encode()),
-                                                 bytes(str(obj.e[j]).encode()),
-                                                 bytes(str(obj.i[j]).encode()),
-                                                 bytes(str(obj.w[j]).encode()),
-                                                 bytes(str(obj.Node[j]).encode()),
-                                                 bytes(str(obj.M0[j]).encode() )) )
-
-    getin_file.close()
-
-    # runnning fortran codes
-    result, flag = run_command_with_timeout('../mvs/geninit_j3_in_days < geninit_j.in', timeout_sec)
-
-    if integrator=='symba':
-        result, flag = run_command_with_timeout('../symba/swift_symba5_j << EOF \nparam.in \npl.in \n1e-40 \nEOF', timeout_sec)
-    elif integrator=='mvs':
-        result, flag = run_command_with_timeout('../mvs/swift_mvs_j << EOF \nparam.in \npl.in \nEOF', timeout_sec)
-    elif integrator=='mvs_gr':
-        result, flag = run_command_with_timeout('../mvs_gr/swift_mvs_j_GR << EOF \nparam.in \npl.in \n%s \nEOF'%int(obj.GR_step), timeout_sec)
-
-    #print('./swift_mvs_j_GR << EOF \nparam.in \npl.in \n%s \nEOF'%obj.GR_step)
-
-    if not os.path.exists("energy.out"):
-        os.chdir('../../')
-        print("something went wrong!!! No output generated.")
         return obj
 
+    timemax = float(timemax)
+    timestep = float(timestep)
 
-    obj.evol_T_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.25
-    obj.evol_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [1])
-   # obj.evol_momentum = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2])
+    if use_fixed_steps:
+        output_step = timemax / float(fixed_steps)
+    else:
+        output_step = float(output_step)
 
-    obj.evol_momentum['lx'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2])
-    obj.evol_momentum['ly'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [3])
-    obj.evol_momentum['lz'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [4])
+    if timemax <= 0.0:
+        raise ValueError("timemax must be positive.")
 
+    if timestep <= 0.0:
+        raise ValueError("timestep must be positive.")
 
+    if output_step <= 0.0:
+        raise ValueError("output_step must be positive.")
 
-    for k in range(obj.npl):
+    sim = rebound.Simulation()
 
-        if integrator=='symba':
-            result, flag = run_command_with_timeout('../symba/follow_symba2 << EOF \nparam.in \npl.in \n%s \nEOF'%(k+2),timeout_sec)
-            result, flag = run_command_with_timeout('mv follow_symba.out pl_%s.out'%(k+1),timeout_sec)
-        elif integrator=='mvs' or integrator=='mvs_gr':
-            result, flag = run_command_with_timeout('../mvs/follow2 << EOF \nparam.in \npl.in \n-%s \nEOF'%(k+2),timeout_sec)
-            result, flag = run_command_with_timeout('mv follow2.out pl_%s.out'%(k+1),timeout_sec)
+    sim.G = 4.0 * np.pi * np.pi
 
-        obj.evol_T[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.25
-        obj.evol_a[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [2])
-        obj.evol_e[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [3])
-        obj.evol_p[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [6])
-        obj.evol_M[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [7])
+    sim.add(m=float(obj.params.stellar_mass))
 
-        obj.evol_i[k]  = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [4])
-        obj.evol_Om[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [5])
+    for j in used_indices:
+        sim.add(
+            m=float(obj.masses[j]) * mjup_to_msun,
+            a=float(obj.semimajor[j]),
+            e=float(obj.e[j]),
+            inc=float(obj.i[j]) * deg_to_rad,
+            Omega=float(obj.Node[j]) * deg_to_rad,
+            omega=float(obj.w[j]) * deg_to_rad,
+            M=float(obj.M0[j]) * deg_to_rad,
+            primary=sim.particles[0],
+        )
 
-        obj.evol_Per[k] = a_to_P(obj.evol_a[k],obj.params.stellar_mass)
+    if move_to_com:
+        sim.move_to_com()
 
+    sim.integrator = integrator
+    sim.dt = timestep
 
+    if integrator == "whfast":
+        if hasattr(sim, "ri_whfast"):
+            try:
+                sim.ri_whfast.safe_mode = int(safe_mode)
+            except Exception:
+                pass
 
-    os.chdir('../')
-    if remove_stab_save_dir == True:
-        os.system("rm -r %s"%stab_save_dir)
-    os.chdir('../')
+            try:
+                sim.ri_whfast.corrector = int(corrector)
+            except Exception:
+                pass
+        else:
+            if verbose:
+                print("Warning: this REBOUND version has no sim.ri_whfast.")
+                print("Running WHFast with default WHFast settings.")
 
-    print("stability with: %s done!"%integrator)
+    if verbose:
+        print("running REBOUND stability with integrator:", integrator)
+        print("number of active planets:", npl)
+        print("timemax [yr]:", timemax)
+        print("timestep [yr]:", timestep)
+        print("output_step [yr]:", output_step)
+
+    times = np.arange(0.0, timemax + 0.5 * output_step, output_step)
+    nt = len(times)
+
+    evol = {}
+    evol["stable"] = True
+    evol["status"] = "finished"
+    evol["used_indices"] = used_indices
+    evol["integrator"] = integrator
+    evol["timestep"] = timestep
+    evol["output_step"] = output_step
+    evol["timemax_requested"] = timemax
+
+    evol["t"] = np.full(nt, np.nan)
+
+    array_keys = [
+        "a",
+        "e",
+        "inc",
+        "Omega",
+        "omega",
+        "pomega",
+        "M",
+        "lambda",
+        "P",
+        "x",
+        "y",
+        "z",
+        "vx",
+        "vy",
+        "vz",
+    ]
+
+    for key in array_keys:
+        evol[key] = np.full((npl, nt), np.nan)
+
+    evol["energy"] = np.full(nt, np.nan)
+    evol["rel_energy_error"] = np.full(nt, np.nan)
+
+    try:
+        E0 = sim.energy()
+    except Exception:
+        E0 = np.nan
+
+    def wrap_360(angle_deg):
+        return angle_deg % 360.0
+
+    def check_stop_conditions(sim):
+        ps = sim.particles
+
+        if escape_distance is not None:
+            r_esc = float(escape_distance)
+
+            for kk in range(1, npl + 1):
+                r = np.sqrt(ps[kk].x**2 + ps[kk].y**2 + ps[kk].z**2)
+
+                if r > r_esc:
+                    return (
+                        False,
+                        "escape: particle %d reached r = %.8g au" % (kk, r),
+                    )
+
+        if collision_distance is not None:
+            r_col = float(collision_distance)
+
+            for kk in range(1, npl + 1):
+                for ll in range(kk + 1, npl + 1):
+                    dx = ps[kk].x - ps[ll].x
+                    dy = ps[kk].y - ps[ll].y
+                    dz = ps[kk].z - ps[ll].z
+
+                    dr = np.sqrt(dx * dx + dy * dy + dz * dz)
+
+                    if dr < r_col:
+                        return (
+                            False,
+                            "close encounter: particles %d and %d reached dr = %.8g au"
+                            % (kk, ll, dr),
+                        )
+
+        return True, "ok"
+
+    last_good_index = -1
+
+    for it, t in enumerate(times):
+
+        try:
+            sim.integrate(float(t), exact_finish_time=exact_finish_time)
+
+        except Exception as err:
+            evol["stable"] = False
+            evol["status"] = (
+                "REBOUND integration error at t = %.8g yr: %s"
+                % (t, str(err))
+            )
+            break
+
+        ok, msg = check_stop_conditions(sim)
+
+        if not ok:
+            evol["stable"] = False
+            evol["status"] = msg + " at t = %.8g yr" % t
+            break
+
+        evol["t"][it] = sim.t
+
+        try:
+            E = sim.energy()
+            evol["energy"][it] = E
+
+            if np.isfinite(E0) and E0 != 0.0:
+                evol["rel_energy_error"][it] = (E - E0) / E0
+            else:
+                evol["rel_energy_error"][it] = np.nan
+
+        except Exception:
+            evol["energy"][it] = np.nan
+            evol["rel_energy_error"][it] = np.nan
+
+        ps = sim.particles
+
+        for k in range(npl):
+            p = ps[k + 1]
+
+            evol["x"][k, it] = p.x
+            evol["y"][k, it] = p.y
+            evol["z"][k, it] = p.z
+
+            evol["vx"][k, it] = p.vx
+            evol["vy"][k, it] = p.vy
+            evol["vz"][k, it] = p.vz
+
+            try:
+                orb = p.orbit(primary=ps[0])
+
+                evol["a"][k, it] = orb.a
+                evol["e"][k, it] = orb.e
+
+                evol["inc"][k, it] = wrap_360(orb.inc * rad_to_deg)
+                evol["Omega"][k, it] = wrap_360(orb.Omega * rad_to_deg)
+                evol["omega"][k, it] = wrap_360(orb.omega * rad_to_deg)
+                evol["pomega"][k, it] = wrap_360(orb.pomega * rad_to_deg)
+                evol["M"][k, it] = wrap_360(orb.M * rad_to_deg)
+                evol["lambda"][k, it] = wrap_360(orb.l * rad_to_deg)
+
+                mcentral = float(obj.params.stellar_mass)
+                mplanet = float(obj.masses[used_indices[k]]) * mjup_to_msun
+
+                if orb.a > 0.0:
+                    evol["P"][k, it] = np.sqrt(
+                        orb.a**3 / (mcentral + mplanet)
+                    )
+                else:
+                    evol["P"][k, it] = np.nan
+
+            except Exception:
+                evol["a"][k, it] = np.nan
+                evol["e"][k, it] = np.nan
+                evol["inc"][k, it] = np.nan
+                evol["Omega"][k, it] = np.nan
+                evol["omega"][k, it] = np.nan
+                evol["pomega"][k, it] = np.nan
+                evol["M"][k, it] = np.nan
+                evol["lambda"][k, it] = np.nan
+                evol["P"][k, it] = np.nan
+
+        last_good_index = it
+
+    if last_good_index >= 0:
+        n_keep = last_good_index + 1
+
+        evol["t"] = evol["t"][:n_keep]
+        evol["energy"] = evol["energy"][:n_keep]
+        evol["rel_energy_error"] = evol["rel_energy_error"][:n_keep]
+
+        for key in array_keys:
+            evol[key] = evol[key][:, :n_keep]
+
+    else:
+        evol["t"] = np.array([])
+        evol["energy"] = np.array([])
+        evol["rel_energy_error"] = np.array([])
+
+        for key in array_keys:
+            evol[key] = np.empty((npl, 0))
+
+    if len(evol["t"]) > 0:
+        evol["timemax_reached"] = float(evol["t"][-1])
+    else:
+        evol["timemax_reached"] = np.nan
+
+    obj.rebound_evol = evol
+    obj.rebound_stable = evol["stable"]
+    obj.rebound_status = evol["status"]
+    obj.rebound_used_indices = used_indices
+
+    if not hasattr(obj, "evol_momentum") or obj.evol_momentum is None:
+        obj.evol_momentum = {}
+
+    obj.evol_T_energy = evol["t"]
+    obj.evol_energy = evol["rel_energy_error"]
+
+    obj.evol_momentum["lx"] = np.full_like(evol["t"], np.nan, dtype=float)
+    obj.evol_momentum["ly"] = np.full_like(evol["t"], np.nan, dtype=float)
+    obj.evol_momentum["lz"] = np.full_like(evol["t"], np.nan, dtype=float)
+
+    obj.evol_T = {}
+    obj.evol_a = {}
+    obj.evol_e = {}
+    obj.evol_i = {}
+    obj.evol_Om = {}
+    obj.evol_p = {}
+    obj.evol_M = {}
+    obj.evol_Per = {}
+
+    for k in range(npl):
+        obj.evol_T[k] = evol["t"]
+        obj.evol_a[k] = evol["a"][k]
+        obj.evol_e[k] = evol["e"][k]
+        obj.evol_i[k] = evol["inc"][k]
+        obj.evol_Om[k] = evol["Omega"][k]
+        obj.evol_p[k] = evol["omega"][k]
+        obj.evol_M[k] = evol["M"][k]
+
+        # REBOUND period is in years because time unit is yr.
+        # Convert to days for consistency with Exo-Striker.
+        obj.evol_Per[k] = evol["P"][k] * 365.25
+
+    if verbose:
+        print("REBOUND stability done.")
+        print("status:", evol["status"])
+        print("stable:", evol["stable"])
+        print("timemax reached [yr]:", evol["timemax_reached"])
 
     return obj
 
 
-
-
+ 
 
 
 
@@ -5363,68 +5658,7 @@ pl.in
 
     return obj
 
-
-
-def run_copl_fit_stab(obj, incl_max=90.0, incl_min=90.0, incl_step = 1.0, save_output=True, output_file="./copl_incl.txt", fit_bf = False,
- timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = './run', remove_stab_save_dir = True, integrator='symba',a_threshold =10, e_max =0.9):
-
-    """So far only RVs can be fitted!!!"""
-
-    incl_fit = dill.copy(obj)
-    incl_fit.mod_dynamical=True
-
-    if save_output == True:
-        f = open(output_file,"w")
-
-
-    incl_range = np.arange(incl_max,incl_min,-incl_step)
-
-    for incl in incl_range:
-
-        for i in range(incl_fit.npl):
-            incl_fit.params.planet_params[7*i+5] = incl
-            incl_fit.use.use_planet_params[7*i+5] = False
-
-            if fit_bf:
-                incl_fit.use.update_use_planet_params_one_planet(i,True,True,True,True,True,False,False)
-            else:
-                incl_fit.use.update_use_planet_params_one_planet(i,False,False,False,False,False,False,False)
-
-
-        incl_fit.fitting(outputfiles=[1,1,1], doGP=False,  minimize_fortran=True, minimize_loglik=False, amoeba_starts=0, print_stat=False)
-        incl_fit.fitting(outputfiles=[1,1,1], doGP=False,  minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, print_stat=False)
-        incl_fit.fitting(outputfiles=[1,1,1], doGP=False,  minimize_fortran=True, minimize_loglik=True, amoeba_starts=10, print_stat=False)
-
-        run_stability(incl_fit, timemax=timemax, timestep=timestep, timeout_sec=timeout_sec, stab_save_dir = stab_save_dir, remove_stab_save_dir = remove_stab_save_dir, integrator=integrator)
-
-        for i in range(incl_fit.npl):
-            export_orbital_evol(incl_fit, file='planet_%s_%s.txt'%(i,incl), planet = i+1, width = 10, precision = 6)
-
-
-        stab_amd = int(get_AMD_stab(incl_fit))
-
-
-        stab = 1
-        for i in range(incl_fit.npl):
-            if max(incl_fit.evol_e[i]) > e_max:
-                stab = 0
-
-
-        print("%s   %s "%(incl,incl_fit.loglik))
-
-        if save_output == True:
-            f.write("%s"%incl_fit.loglik)
-            for i in range(incl_fit.npl):
-                for z in range(7):
-                    f.write("%s  " %(incl_fit.params.planet_params[7*i+z]))
-            f.write("%s %s\n"%(stab,stab_amd))
-
-    if save_output == True:
-        f.close()
-
-    return obj
-
-
+ 
 
 
 

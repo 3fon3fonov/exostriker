@@ -4638,6 +4638,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             transit_model_rich  = fit.transit_results[3]
             t_model             = np.array(transit_model_rich[0], dtype=float)
             flux_model_ex       = np.array(transit_model_rich[1], dtype=float)
+            flux_model_ex_gp    = dill.copy(flux_model_ex) # dummy           
         elif self.use_rich_tra_model.isChecked() and fit.tra_doGP == True:
             print("Not yet possible to plot 'rich transit model' with a GP model")
             t_model        = np.concatenate([np.array(transit_results_sep[0][x], dtype=float) for x in range(len(fit.tra_data_sets)) if len(transit_results_sep[0][x]) != 0])
@@ -9320,28 +9321,75 @@ Transit duration: %s d
         self.threadpool.start(worker_arb)  
 
         self.run_orb_evol_arbitary.setEnabled(True)   
+
+
+    def set_orbital_simulations_options(self, arbitary=False):
+        global fit
+
+
+        # Swift integrators
         
+        if self.radioButton_SyMBA.isChecked():
+            fit.nbody_swift.integrator = 'symba'
+        elif self.radioButton_MVS.isChecked():
+            fit.nbody_swift.integrator = 'mvs'        
+        elif self.radioButton_MVS_GR.isChecked():       
+            fit.nbody_swift.integrator = 'mvs_gr'
+            fit.GR_step = self.mvs_GR_steps.value()
+            
+        # Enable GR step controls only for mvs_gr
+        use_mvs_gr = self.radioButton_MVS_GR.isChecked()
+
+        self.mvs_GR_steps.setEnabled(use_mvs_gr)
+        self.label_GR_steps.setEnabled(use_mvs_gr)         
+             
+        # Rebound integrators
+        
+        if self.radioButton_Rebound_Mercurius.isChecked():
+            fit.nbody_rebound.integrator = 'mercurius'
+        elif self.radioButton_Rebound_WHfast.isChecked():
+            fit.nbody_rebound.integrator= 'whfast'        
+        elif self.radioButton_Rebound_saba.isChecked():
+            fit.nbody_rebound.integrator = 'saba'             
+        elif self.radioButton_Rebound_ias15.isChecked():
+            fit.nbody_rebound.integrator = 'ias15'        
+        elif self.radioButton_Rebound_trace.isChecked():
+            fit.nbody_rebound.integrator = 'trace'                 
+        elif self.radioButton_Rebound_janus.isChecked():
+            fit.nbody_rebound.integrator = 'janus'   
+ 
         
     def run_orbital_simulations(self, arbitary=False):
         global fit
 
-        #self.max_time_of_evol
-
-        if self.radioButton_SyMBA.isChecked():
-            integrator = 'symba'
-        elif self.radioButton_MVS.isChecked():
-            integrator = 'mvs'        
-        elif self.radioButton_MVS_GR.isChecked():       
-             integrator = 'mvs_gr'
-             fit.GR_step = self.mvs_GR_steps.value()
-             
+                         
         start_time = time.time()        
        # fit.run_stability_last_fit_params(timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
        
         if arbitary == True:
-            fit = rv.run_stability_arb(fit, timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
-        else:         
-            fit = rv.run_stability(fit, timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
+            fit = rv.run_stability_arb(fit, timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=fit.nbody_swift.integrator)      
+        else:     
+            if self.use_rebound.isChecked():
+                fit = rv.run_stability_rebound(fit, 
+                timemax=self.max_time_of_evol.value(), 
+                timestep=self.time_step_of_evol.value() / 365.25, 
+                output_step=self.output_time_step_evol.value(),
+                integrator=fit.nbody_rebound.integrator,
+                exact_finish_time=0,
+                collision_distance=None,
+                escape_distance=None,
+                move_to_com=True,
+                sort_by_period=True,
+                safe_mode=0,
+                corrector=11,
+                #return_sim=False,
+                verbose=True,
+                use_fixed_steps = self.use_fixed_time_steps.isChecked(),
+                fixed_steps = self.fixed_time_steps_evol.value()
+                )
+            else:
+                
+                fit = rv.run_stability(fit, timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=fit.nbody_swift.integrator)      
 
         self.jupiter_push_vars()         
         
@@ -14547,9 +14595,16 @@ Please install via 'pip install ttvfast'.
         self.ast_data_planet_gaia_2.setVisible(False)
         self.ast_data_planet_gaia_1.setVisible(False)   
         
-        self.stop_button.setVisible(False)          
-        ############################
+        self.stop_button.setVisible(False)   
         
+               
+        ######################## N-body ##########################
+        self.buttonGroup_use_nbody_pack.buttonClicked.connect(self.set_orbital_simulations_options)
+        self.buttonGroup_Rebound_integrators.buttonClicked.connect(self.set_orbital_simulations_options)        
+        self.buttonGroup_Swift_integrators.buttonClicked.connect(self.set_orbital_simulations_options)
+        
+        ######################## 
+
 
         self.stop_button.clicked.connect(self.stop_nest)
 

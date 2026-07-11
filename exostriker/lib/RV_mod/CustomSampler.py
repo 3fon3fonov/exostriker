@@ -28,8 +28,6 @@ class CustomSampler(emcee.EnsembleSampler):
         # Get unique rows 
         self.samples = sorted_data[row_mask] 
         self.lnL     = sorted_lnL[row_mask]
-       # sorted_lnL =  lnL[sorted_idx]
-        #self.lnL = sorted_lnL[row_mask]
 
         lnL_max_idx = np.argmax(self.lnL)
         #print(abs(lnL_min))
@@ -57,14 +55,8 @@ class CustomSampler(emcee.EnsembleSampler):
                 if (np.mod(nr,7)<2):
                     self.means[i]=np.mean(self.samples[:,i]) 
                 elif (np.mod(nr,7)==2): # correct eccentricities
-                    #for j in range(len(self.samples)):
-                       # if (self.samples[j,i]<0):
-                       #     self.samples[j,i]=abs(self.samples[j,i])
-                            #if(f[k+1]==i+1):
-                            #    self.samples[j,i+1]=self.samples[j,i+1]+180.0
-                            #if(f[k+2]==i+2):
-                            #    self.samples[j,i+2]=self.samples[j,i+2]+-180.0
                     self.means[i]=np.mean(self.samples[:,i])
+
                 elif (np.mod(nr,7)==3): # correct w to be in a 360 interval around mean value 
                     
                     if hkl == False:
@@ -81,13 +73,21 @@ class CustomSampler(emcee.EnsembleSampler):
                         self.means[i]=np.mean(self.samples[:,i]) 
                         
                 elif (np.mod(nr,7)==4):# correct M to be in a 360 interval around mean value
-                    self.samples[:, i] = self.samples[:,i]%360
-                    meanw=self.circ_mean_np(self.samples[:,i])  
-                    for j in range(len(self.samples)):
-                        self.samples[j,i]=np.where(self.samples[j,i]<meanw-180.0,self.samples[j,i]+360.0,self.samples[j,i])
+                
+                    if hkl == False:                               
+                        self.samples[:, i] = self.samples[:,i]%360
+                        meanw=self.circ_mean_np(self.samples[:,i])  
+                        
+                        for j in range(len(self.samples)):
+                            self.samples[j,i]=np.where(self.samples[j,i]<meanw-180.0,self.samples[j,i]+360.0,self.samples[j,i])
                         self.samples[j,i]=np.where(self.samples[j,i]>meanw+180.0,self.samples[j,i]-360.0,self.samples[j,i])
                         
-                    self.means[i]=meanw 
+                        self.means[i]=meanw 
+                    
+                    else:
+                        self.means[i]=np.mean(self.samples[:,i])                     
+                                    
+                    
             elif (idx<2*ndset+6*npl):# correct i to be in a 180 interval around mean value
                 self.means[i]=np.mean(self.samples[:,i])
                 meani=self.means[i]
@@ -126,6 +126,6 @@ class CustomSampler(emcee.EnsembleSampler):
                 
     def save_samples(self,f,ndset,npl,hkl):
         self.unique_rows()
-        self.correct_rows(f,ndset,npl,hkl)
+      #  self.correct_rows(f,ndset,npl,hkl)
         self.get_meadians(f)
         return

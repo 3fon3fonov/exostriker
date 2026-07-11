@@ -5789,7 +5789,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>513</width>
+                   <width>376</width>
                    <height>444</height>
                   </rect>
                  </property>
@@ -7726,7 +7726,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>513</width>
+                   <width>465</width>
                    <height>446</height>
                   </rect>
                  </property>
@@ -38502,7 +38502,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>535</width>
+               <width>369</width>
                <height>440</height>
               </rect>
              </property>
@@ -41785,7 +41785,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>491</width>
+                       <width>405</width>
                        <height>443</height>
                       </rect>
                      </property>
@@ -66583,7 +66583,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>491</width>
+                       <width>459</width>
                        <height>440</height>
                       </rect>
                      </property>
@@ -157533,7 +157533,7 @@
           <string>N-body</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_229">
-          <item row="1" column="0">
+          <item row="0" column="0">
            <widget class="QTabWidget" name="tabWidget_33">
             <property name="enabled">
              <bool>true</bool>
@@ -157557,58 +157557,80 @@
              <layout class="QGridLayout" name="gridLayout_225">
               <item row="0" column="0">
                <layout class="QGridLayout" name="gridLayout_2">
-                <item row="5" column="1">
-                 <widget class="QLabel" name="label_340">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
+                <item row="8" column="4">
+                 <widget class="QRadioButton" name="radioButton_Rebound_ias15">
                   <property name="text">
-                   <string>Steps to apply GR corr.</string>
+                   <string>ias15</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_Rebound_integrators</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QCheckBox" name="use_swift">
+                  <property name="text">
+                   <string>Swift</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                  <property name="autoExclusive">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_nbody_pack</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="5" column="3" rowspan="4">
+                 <widget class="Line" name="line_29">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_max_time_of_evol">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
+                <item row="5" column="4">
+                 <widget class="QCheckBox" name="use_rebound">
                   <property name="text">
-                   <string>Max. time of evol. [yr]</string>
+                   <string>Rebound</string>
                   </property>
-                  <property name="textInteractionFlags">
-                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  <property name="autoExclusive">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_use_nbody_pack</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QCheckBox" name="use_fixed_time_steps">
+                  <property name="text">
+                   <string>Use fixed N steps</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_time_step_of_evol">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
+                <item row="7" column="4">
+                 <widget class="QRadioButton" name="radioButton_Rebound_Mercurius">
                   <property name="text">
-                   <string>Time step [d]</string>
+                   <string>Mercurius</string>
                   </property>
-                  <property name="textInteractionFlags">
-                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_Rebound_integrators</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="9" column="4">
+                 <widget class="QRadioButton" name="radioButton_Rebound_janus">
+                  <property name="text">
+                   <string>janus</string>
                   </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_Rebound_integrators</string>
+                  </attribute>
                  </widget>
                 </item>
                 <item row="0" column="1">
@@ -157633,6 +157655,25 @@
                   </property>
                   <property name="value">
                    <double>10000.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_max_time_of_evol">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Max. time of evol. [yr]</string>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                   </property>
                  </widget>
                 </item>
@@ -157661,7 +157702,103 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="0">
+                <item row="2" column="1">
+                 <widget class="QDoubleSpinBox" name="output_time_step_evol">
+                  <property name="decimals">
+                   <number>3</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.001000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1000000.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>10.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="4">
+                 <widget class="QRadioButton" name="radioButton_Rebound_WHfast">
+                  <property name="text">
+                   <string>WHfast</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_Rebound_integrators</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="7" column="0">
+                 <widget class="QRadioButton" name="radioButton_MVS">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>MVS</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_Swift_integrators</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="8" column="0">
+                 <widget class="QRadioButton" name="radioButton_MVS_GR">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>MVS_GR</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_Swift_integrators</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="3" column="0" colspan="5">
+                 <widget class="Line" name="line_28">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="4">
+                 <widget class="QDoubleSpinBox" name="fixed_time_steps_evol">
+                  <property name="decimals">
+                   <number>0</number>
+                  </property>
+                  <property name="minimum">
+                   <double>100.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1000000.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>100.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1000.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0">
                  <widget class="QRadioButton" name="radioButton_SyMBA">
                   <property name="font">
                    <font>
@@ -157678,10 +157815,13 @@
                   <property name="checked">
                    <bool>true</bool>
                   </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_Swift_integrators</string>
+                  </attribute>
                  </widget>
                 </item>
-                <item row="4" column="0">
-                 <widget class="QRadioButton" name="radioButton_MVS">
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_time_step_of_evol">
                   <property name="font">
                    <font>
                     <pointsize>9</pointsize>
@@ -157692,12 +157832,45 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>MVS</string>
+                   <string>Time step [d]</string>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="0">
-                 <widget class="QRadioButton" name="radioButton_MVS_GR">
+                <item row="10" column="4">
+                 <widget class="QRadioButton" name="radioButton_Rebound_trace">
+                  <property name="text">
+                   <string>trace</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_Rebound_integrators</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_823">
+                  <property name="text">
+                   <string>Output time step [yr]</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="11" column="4">
+                 <widget class="QRadioButton" name="radioButton_Rebound_saba">
+                  <property name="text">
+                   <string>saba</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">buttonGroup_Rebound_integrators</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="10" column="0">
+                 <widget class="QLabel" name="label_GR_steps">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="font">
                    <font>
                     <pointsize>9</pointsize>
@@ -157708,12 +157881,15 @@
                    </font>
                   </property>
                   <property name="text">
-                   <string>MVS_GR</string>
+                   <string>Steps to apply GR corr.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="2">
+                <item row="10" column="1">
                  <widget class="QDoubleSpinBox" name="mvs_GR_steps">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="font">
                    <font>
                     <pointsize>9</pointsize>
@@ -166787,7 +166963,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>745</width>
+                   <width>632</width>
                    <height>485</height>
                   </rect>
                  </property>
@@ -183182,27 +183358,11 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_AMD_satb_NS"/>
-  <buttongroup name="buttonGroup_mixed_fitting">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_13"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_use_tra_data_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_1"/>
-  <buttongroup name="buttonGroup_symbol_picker_ast"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
-  <buttongroup name="buttonGroup_ei_eo_sincos"/>
-  <buttongroup name="buttonGroup_use_ast_data_to_planet">
+  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_remove_ast_data"/>
+  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
+  <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_use_img_hipp_ast">
    <property name="exclusive">
     <bool>false</bool>
    </property>
@@ -183212,130 +183372,149 @@
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_3"/>
-  <buttongroup name="buttonGroup_use_rho_aR"/>
-  <buttongroup name="buttonGroup_use_ld_18"/>
-  <buttongroup name="buttonGroup_use_tra_reg_17"/>
-  <buttongroup name="buttonGroup_ast_data_3"/>
-  <buttongroup name="buttonGroup_omega_dot_opt"/>
-  <buttongroup name="buttonGroup_link_tra_GP_to_RV_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_add_RV_data"/>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_remove_ast_data_3"/>
-  <buttongroup name="buttonGroup_transit_data"/>
-  <buttongroup name="buttonGroup_use_ld_6"/>
-  <buttongroup name="buttonGroup_use_tra_reg_18"/>
-  <buttongroup name="buttonGroup_use_tra_reg_13"/>
-  <buttongroup name="buttonGroup_use_tra_reg_8"/>
-  <buttongroup name="buttonGroup_color_picker_ttv"/>
-  <buttongroup name="buttonGroup_color_picker_ast"/>
-  <buttongroup name="buttonGroup_options_rvs"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_use_tra_reg_1"/>
+  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_use_ld_14"/>
   <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_dom_fold"/>
-  <buttongroup name="buttonGroup_apply_tra_data_options"/>
-  <buttongroup name="buttonGroup_detrend_tra"/>
-  <buttongroup name="buttonGroup_use_ast_plot_RA_Dec"/>
-  <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_ast_data"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
-  <buttongroup name="buttonGroup_use">
+  <buttongroup name="buttonGroup_use_tra_reg_19"/>
+  <buttongroup name="buttonGroup_use_tra_reg_18"/>
+  <buttongroup name="buttonGroup_use_tra_reg_10"/>
+  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_use_ld_19"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_use_ld_13"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
+  <buttongroup name="buttonGroup_use_ast_data_to_planet_3">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_remove_ttv_data"/>
-  <buttongroup name="buttonGroup_use_ld_1"/>
-  <buttongroup name="buttonGroup_use_tra_reg_3"/>
-  <buttongroup name="buttonGroup_use_tra_reg_15"/>
-  <buttongroup name="buttonGroup_use_ld_11"/>
+  <buttongroup name="buttonGroup_use_ld_18"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_options_act"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_use_tra_reg_13"/>
+  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_ast_data_2"/>
   <buttongroup name="buttonGroup_use_GP">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
   <buttongroup name="buttonGroup_use_tra_reg_11"/>
-  <buttongroup name="buttonGroup_use_tra_reg_14"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
-  <buttongroup name="buttonGroup_apply_rvs_data_options"/>
-  <buttongroup name="buttonGroup_ast_data_2"/>
-  <buttongroup name="buttonGroup_use_tra_reg_9"/>
-  <buttongroup name="buttonGroup_use_img_hipp_ast">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_14"/>
-  <buttongroup name="buttonGroup_use_tra_reg_2"/>
-  <buttongroup name="buttonGroup_use_planets">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
-  <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_remove_ast_data_2"/>
-  <buttongroup name="buttonGroup_use_tra_reg_12"/>
-  <buttongroup name="buttonGroup_symbol_picker"/>
-  <buttongroup name="buttonGroup_use_ld_17"/>
-  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
-  <buttongroup name="buttonGroup_use_ld_15"/>
-  <buttongroup name="buttonGroup_TTV_plot_Ntra_BJD"/>
-  <buttongroup name="buttonGroup_use_tra_reg_6"/>
-  <buttongroup name="buttonGroup_remove_ast_data"/>
   <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_samp_corr"/>
-  <buttongroup name="buttonGroup_use_ld_2"/>
-  <buttongroup name="buttonGroup_use_tra_reg_19"/>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_use_tra_reg_16"/>
-  <buttongroup name="buttonGroup_use_tra_reg_20"/>
-  <buttongroup name="buttonGroup_use_tra_reg_7"/>
-  <buttongroup name="buttonGroup_use_plmass"/>
-  <buttongroup name="buttonGroup_AMD_stab_opt"/>
-  <buttongroup name="buttonGroup_use_tra_reg_5"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_use_ld_5"/>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_use_ld_16"/>
-  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_use_tra_reg_8"/>
+  <buttongroup name="buttonGroup_theta_fold"/>
+  <buttongroup name="buttonGroup_apply_rvs_data_options"/>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_color_picker_ast"/>
   <buttongroup name="buttonGroup_use_RV_GP_kernel">
    <property name="exclusive">
     <bool>true</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_symbol_picker_ast"/>
+  <buttongroup name="buttonGroup_link_tra_GP_to_RV_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_AMD_satb_NS"/>
+  <buttongroup name="buttonGroup_remove_ast_data_2"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
+  <buttongroup name="buttonGroup_use_tra_reg_9"/>
+  <buttongroup name="buttonGroup_use_tra_reg_3"/>
+  <buttongroup name="buttonGroup_use_ast_plot_RA_Dec"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_detrend_tra"/>
+  <buttongroup name="buttonGroup_use_ld_11"/>
+  <buttongroup name="buttonGroup_use_tra_reg_16"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_use_tra_reg_4"/>
+  <buttongroup name="buttonGroup_use_plmass"/>
+  <buttongroup name="buttonGroup_ast_data"/>
+  <buttongroup name="buttonGroup_use_tra_data_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_tra_reg_17"/>
+  <buttongroup name="buttonGroup_omega_dot_opt"/>
+  <buttongroup name="buttonGroup_use">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_ei_eo_sincos"/>
+  <buttongroup name="buttonGroup_mixed_fitting">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_TTV_plot_Ntra_BJD"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_remove_ast_data_3"/>
+  <buttongroup name="buttonGroup_use_tra_reg_20"/>
+  <buttongroup name="buttonGroup_use_tra_reg_15"/>
+  <buttongroup name="buttonGroup_samp_corr"/>
+  <buttongroup name="buttonGroup_use_ld_20"/>
+  <buttongroup name="buttonGroup_use_ld_10"/>
+  <buttongroup name="buttonGroup_use_ld_15"/>
+  <buttongroup name="buttonGroup_use_planets">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_options_rvs"/>
+  <buttongroup name="buttonGroup_use_tra_reg_12"/>
+  <buttongroup name="buttonGroup_type_fit"/>
   <buttongroup name="buttonGroup_apply_tra_dilution"/>
-  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_use_tra_reg_2"/>
+  <buttongroup name="buttonGroup_use_ld_16"/>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
   <buttongroup name="buttonGroup_use_ttv_data_to_planet">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_10"/>
+  <buttongroup name="buttonGroup_use_tra_reg_14"/>
+  <buttongroup name="buttonGroup_Rebound_integrators"/>
+  <buttongroup name="buttonGroup_use_ld_17"/>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_add_RV_data"/>
   <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
-  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_use_tra_reg_7"/>
+  <buttongroup name="buttonGroup_use_nbody_pack"/>
+  <buttongroup name="buttonGroup_f77_or_scipy"/>
   <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_remove_RV_data"/>
-  <buttongroup name="buttonGroup_use_ld_19"/>
-  <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_use_tra_reg_4"/>
-  <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_use_ast_data_to_planet_3">
+  <buttongroup name="buttonGroup_use_ld_12"/>
+  <buttongroup name="buttonGroup_use_ast_data_to_planet">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
-  <buttongroup name="buttonGroup_nest_stat_dyn"/>
-  <buttongroup name="buttonGroup_use_ld_20"/>
-  <buttongroup name="buttonGroup_use_ld_12"/>
-  <buttongroup name="buttonGroup_options_act"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_use_rho_aR"/>
+  <buttongroup name="buttonGroup_use_tra_reg_6"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
+  <buttongroup name="buttonGroup_ast_data_3"/>
+  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_Swift_integrators"/>
+  <buttongroup name="buttonGroup_AMD_stab_opt"/>
+  <buttongroup name="buttonGroup_use_tra_reg_5"/>
+  <buttongroup name="buttonGroup_apply_tra_data_options"/>
  </buttongroups>
 </ui>

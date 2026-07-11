@@ -104,6 +104,8 @@ from .rvmod import *
 
 import ExTRA as ex
  
+ 
+
 
 def initiate_RV_gps(obj,  kernel_id=-1):
     """Short summary.
@@ -3370,7 +3372,7 @@ def run_mcmc(obj, **kwargs):
         pos, prob, state  = sampler.run_mcmc(pos,int(obj.mcmc_ph))
         
         
-    #ln = np.hstack(sampler.lnprobability)
+    ln = np.hstack(sampler.lnprobability)
    # sampler.save_samples(obj.f_for_mcmc,obj.ndset,obj.npl)
     sampler.save_samples(obj.f_for_mcmc,obj.ndset,obj.npl,obj.hkl)
 
@@ -3404,8 +3406,17 @@ def run_mcmc(obj, **kwargs):
 
    # start_time = time.time()
 
-    obj.mcmc_stat["mean"] = sampler.means
-    obj.mcmc_stat["median"] = sampler.median
+    obj.mcmc_stat["mean"] = get_mean_of_samples(sampler.samples,len(pp))
+    obj.mcmc_stat["median"] = get_median_of_samples(sampler.samples,len(pp))
+    #samp_maxlnl, maxlnl = get_best_lnl_of_samples(samples.samples,ln, len(pp))
+    #obj.mcmc_stat["best"] = samp_maxlnl
+    #obj.nest_stat["mode"] = get_mode_of_samples(obj.ns_sampler.samples,len(pp))
+    #obj.nest_stat["MAD"]  = get_MAD_of_samples(obj.ns_sampler.samples,len(pp))
+
+
+
+   # obj.mcmc_stat["mean"] = sampler.means
+    #obj.mcmc_stat["median"] = sampler.median
     obj.mcmc_stat["best"] = sampler.maxlnL
     obj.mcmc_stat["mode"] = get_mode_of_samples(sampler.samples,len(pp))
     obj.mcmc_stat["MAD"]  = get_MAD_of_samples(sampler.samples,len(pp))
@@ -3506,7 +3517,32 @@ class FunctionWrapper(object):
             traceback.print_exc()
             raise
 
+class AttrDict(dict):
+    """
+    Dictionary with attribute-style access helper for n-nody options.
 
+    Example:
+        x = AttrDict(integrator="whfast")
+        x.integrator
+        x["integrator"]
+
+    Both forms work.
+    """
+
+    def __getattr__(self, name):
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError(name)
+
+    def __setattr__(self, name, value):
+        self[name] = value
+
+    def __delattr__(self, name):
+        try:
+            del self[name]
+        except KeyError:
+            raise AttributeError(name) 
 
 class signal_fit(object):
 
@@ -3580,6 +3616,34 @@ class signal_fit(object):
         self.init_orb_evol_arb()
 
         self.type_fit = {"RV": True,"Transit": False,"TTV":False , "AST":False}
+
+        self.nbody_swift = AttrDict(
+            integrator="symba",
+            timestep=None,
+            tmax=None,
+            output_step=None,
+            timeout_sec=None,
+        )
+
+        self.nbody_rebound = AttrDict(
+            integrator="whfast",
+            timestep=None,
+            tmax=None,
+            output_step=None,
+            timeout_sec=None,
+
+            # WHFast options
+            corrector=None,
+            safe_mode=None,
+            keep_unsynchronized=None,
+
+            # IAS15 options
+            epsilon=None,
+
+            # MERCURIUS options
+            hillfac=None,
+        )
+
 
         self.gr_flag = False
         self.hkl = False
