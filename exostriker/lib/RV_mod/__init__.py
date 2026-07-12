@@ -1529,7 +1529,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
 
             if tr_files[j][10] == True:
-                flux_model_rich_ = get_airmass_model(tr_files[j][3],flux_model_rich_,0.0,
+                flux_model_rich_ = get_airmass_model(t_rich_,flux_model_rich_,0.0,
                                                         par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
                                                         par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])           
             else:

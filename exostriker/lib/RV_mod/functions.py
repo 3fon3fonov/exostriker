@@ -4988,8 +4988,13 @@ def check_swift(path='./'):
         #print(result6)
         print("Installation DONE!")
 
-def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = 'run', remove_stab_save_dir = True, integrator='symba' ):
+def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = 'run', remove_stab_save_dir = True, integrator='symba',  
+    output_step=1.0,
+    use_fixed_steps=False,
+    fixed_steps=1000 ):
 
+
+    print(fixed_steps,use_fixed_steps)
 
     stab_dir = PureWindowsPath(".\\stability")
     mvs_dir = PureWindowsPath("..\\mvs")
@@ -5008,6 +5013,13 @@ def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_sav
 
     max_time = float(timemax)*365.25 # make it is days
 
+    if use_fixed_steps:
+        output_step = max_time / float(fixed_steps)
+    else:
+        output_step = float(output_step)*365.25
+
+    
+
     param_file.write(b"""0.0d0 %s %s
 %s %s
 
@@ -5017,8 +5029,8 @@ bin.dat
 unknown
 """%(bytes(str(max_time).encode()),
  bytes(str(timestep).encode()),
- bytes(str(max_time/1e4).encode()),
- bytes(str(max_time/1e3).encode())  ))
+ bytes(str(output_step).encode()),
+ bytes(str(output_step).encode())  ))
 
     param_file.close()
 

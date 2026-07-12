@@ -9389,7 +9389,11 @@ Transit duration: %s d
                 )
             else:
                 
-                fit = rv.run_stability(fit, timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=fit.nbody_swift.integrator)      
+                fit = rv.run_stability(fit, timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), 
+                integrator=fit.nbody_swift.integrator,   
+                output_step=self.output_time_step_evol.value(),                             
+                use_fixed_steps = self.use_fixed_time_steps.isChecked(),
+                fixed_steps = self.fixed_time_steps_evol.value())      
 
         self.jupiter_push_vars()         
         
@@ -13776,9 +13780,9 @@ Please install via 'pip install ttvfast'.
         #self.terminal_embeded.addTab(self.tree_view_tab, "tree")
       
         
-        if sys.platform[0:5] == "linux":
-            self.term_emb = terminal.mainWindow()
-            self.terminal_embeded.addTab(self.term_emb, "Bash shell")
+        #if sys.platform[0:5] == "linux":
+        #    self.term_emb = terminal.mainWindow()
+        #    self.terminal_embeded.addTab(self.term_emb, "Bash shell")
 
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")
 
