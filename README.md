@@ -60,11 +60,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
 * Direct import of TESS & K2 *lc.fits, and CHEOPS *SCI_COR*.fits files.
 * Combined modeling with Hipparcos, DR4 (when available) and Imaging Astrometry.
-
-
-**What is to be implemented**:
-
-* Larger arsenal of N-body/dynamical simulation/analysis tools (+ "REBOUND" is planned to be included). 
+* Larger arsenal of N-body/dynamical simulation/analysis tools ("REBOUND" is included). 
 <!-- * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).-->
 
 
