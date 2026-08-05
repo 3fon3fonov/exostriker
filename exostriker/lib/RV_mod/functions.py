@@ -3922,13 +3922,13 @@ def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, fil
 
         if obj.type_fit["Transit"]== True:
 
-            for i in range(10):
+            for i in range(60):
                 if len(obj.tra_data_sets[i]) != 0:
                     text = text + '''{0:{width}s}'''.format("Tran.$_{\\rm off}$ %s"%(i+1), width = 30)
                     text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.tra_off[i]), float(max(np.abs(obj.tra_off_err[i]))), width = width, precision = precision)
                     text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
         '''
-            for i in range(10):
+            for i in range(60):
                 if len(obj.tra_data_sets[i]) != 0:
                     text = text + '''{0:{width}s}'''.format("Tran.$_{\\rm jit}$ %s"%(i+1), width = 30)
                     text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.tra_jitt[i]), float(max(np.abs(obj.tra_jitt_err[i]))), width = width, precision = precision)

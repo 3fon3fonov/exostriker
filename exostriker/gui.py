@@ -542,7 +542,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.read_tra_GP()
         self.read_ld()
 
-        fit.params.stellar_mass = self.St_mass_input.value()
+        fit.params.stellar_mass = self.Stellar_mass_input.value()
         fit.rv_lintr = self.RV_lin_trend.value()
         fit.rv_quadtr = self.RV_quad_trend.value()
 
@@ -12589,14 +12589,23 @@ Please install via 'pip install ttvfast'.
 
 ################################## Stellar params #######################################
 
+    def update_Stellar_params(self, ind = None):
+        global fit
+
+        if ind ==1: fit.stellar_mass     = self.Stellar_mass_input.value()
+        if ind ==2: fit.stellar_radius   = self.Stellar_radius_input.value()
+        if ind ==3: fit.stellar_rho      = self.Stellar_rho_input.value()
+
+
+
     def update_St_params(self, ind = None):
         global fit
 
-        if ind ==1: fit.stellar_mass     = self.St_mass_input.value()
-        if ind ==2: fit.stellar_mass_err = self.err_St_mass_input.value()
+        if ind ==1: fit.st_mass     = self.St_mass_input.value()
+        if ind ==2: fit.st_mass_err = self.err_St_mass_input.value()
         
-        if ind ==3: fit.stellar_radius     = self.St_radius_input.value()
-        if ind ==4: fit.stellar_radius_err = self.err_St_radius_input.value()
+        if ind ==3: fit.st_radius     = self.St_radius_input.value()
+        if ind ==4: fit.st_radius_err = self.err_St_radius_input.value()
         
         if ind ==5: fit.stellar_luminosity     = self.St_lumin_input.value()
         if ind ==6: fit.stellar_luminosity_err = self.err_St_lumin_input.value()
@@ -12619,11 +12628,19 @@ Please install via 'pip install ttvfast'.
     def update_GUI_St_params(self):
         global fit
 
-        self.St_mass_input.setValue(fit.stellar_mass)
-        self.err_St_mass_input.setValue(fit.stellar_mass_err)
+        self.Stellar_mass_input.setValue(fit.stellar_mass)
+        self.Stellar_radius_input.setValue(fit.stellar_radius)       
         
-        self.St_radius_input.setValue(fit.stellar_radius)
-        self.err_St_radius_input.setValue(fit.stellar_radius_err)
+        try:
+            self.St_mass_input.setValue(fit.st_mass[0])       
+            self.err_St_mass_input.setValue(max(fit.st_mass_err[0]))
+        except:
+            self.St_mass_input.setValue(fit.st_mass)       
+            self.err_St_mass_input.setValue(fit.st_mass_err)        
+        
+        self.St_radius_input.setValue(fit.st_radius)            
+        self.err_St_radius_input.setValue(fit.st_radius_err)
+        
         
         self.St_lumin_input.setValue(fit.stellar_luminosity)
         self.err_St_lumin_input.setValue(fit.stellar_luminosity_err)
@@ -12731,8 +12748,8 @@ Please install via 'pip install ttvfast'.
 
         if choice == QtWidgets.QMessageBox.StandardButton.No:
 
-            if sys.platform[0:5] == "linux":
-                self.term_emb.close()
+            #if sys.platform[0:5] == "linux":
+           #     self.term_emb.close()
             self.removeEventFilter(self)
             event.accept()
 
@@ -14559,7 +14576,8 @@ Please install via 'pip install ttvfast'.
         self.update_GUI_St_params()
         #self.update_St_params()
 
-        ############### Stellar params ####################      
+        ############### Stellar params #################### 
+             
         self.St_mass_input.valueChanged.connect(lambda: self.update_St_params(ind=1))
         self.St_radius_input.valueChanged.connect(lambda: self.update_St_params(ind=3))
         self.St_lumin_input.valueChanged.connect(lambda: self.update_St_params(ind=5))
@@ -14572,7 +14590,10 @@ Please install via 'pip install ttvfast'.
         self.err_St_teff_input.valueChanged.connect(lambda: self.update_St_params(ind=8))
         self.err_St_vsini_input.valueChanged.connect(lambda: self.update_St_params(ind=10))
 
-
+        self.Stellar_mass_input.valueChanged.connect(lambda: self.update_Stellar_params(ind=1))        
+        self.Stellar_radius_input.valueChanged.connect(lambda: self.update_Stellar_params(ind=2))
+        self.Stellar_rho_input.valueChanged.connect(lambda: self.update_Stellar_params(ind=3))                
+        
         #self.plot_opt_tab.tabBarClicked.connect(self.check_cornerplot_samples)
         #self.cornerplot_plot_tab.isVisible.connect(self.check_cornerplot_samples)
         self.tabWidget_3.tabBarDoubleClicked.connect(self.change_nbody_plot_opt_tab)        

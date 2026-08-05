@@ -5789,7 +5789,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>376</width>
+                   <width>513</width>
                    <height>444</height>
                   </rect>
                  </property>
@@ -7726,7 +7726,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>465</width>
+                   <width>513</width>
                    <height>446</height>
                   </rect>
                  </property>
@@ -38502,7 +38502,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>369</width>
+               <width>535</width>
                <height>440</height>
               </rect>
              </property>
@@ -41785,7 +41785,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>405</width>
+                       <width>491</width>
                        <height>443</height>
                       </rect>
                      </property>
@@ -117240,575 +117240,908 @@
          <attribute name="title">
           <string>Stellar param.</string>
          </attribute>
-         <layout class="QGridLayout" name="gridLayout_200">
+         <layout class="QGridLayout" name="gridLayout_449">
           <item row="0" column="0">
-           <layout class="QGridLayout" name="gridLayout_71">
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_295">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Effective Temp. [T&lt;span style=&quot; vertical-align:sub;&quot;&gt;eff.&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="2">
-             <widget class="QDoubleSpinBox" name="err_St_lumin_input">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="minimum">
-               <double>0.000100000000000</double>
-              </property>
-              <property name="maximum">
-               <double>9999.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.200000000000000</double>
-              </property>
-              <property name="value">
-               <double>0.000100000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QDoubleSpinBox" name="St_radius_input">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="minimum">
-               <double>0.001000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>99999.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.200000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_input_st_radius">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stellar Radius [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;&amp;#8857;&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_input_st_mass">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stellar Mass [M&lt;span style=&quot; vertical-align:sub;&quot;&gt;&amp;#8857;&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QDoubleSpinBox" name="St_mass_input">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="minimum">
-               <double>0.010000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.100000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QDoubleSpinBox" name="err_St_mass_input">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="minimum">
-               <double>0.000100000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.100000000000000</double>
-              </property>
-              <property name="value">
-               <double>0.000100000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="label_292">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>Value</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="2">
-             <widget class="QDoubleSpinBox" name="err_St_radius_input">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="minimum">
-               <double>0.000100000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.200000000000000</double>
-              </property>
-              <property name="value">
-               <double>0.000100000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="2">
-             <widget class="QDoubleSpinBox" name="err_St_teff_input">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>3</number>
-              </property>
-              <property name="minimum">
-               <double>0.001000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>10000.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>10.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>0.001000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QDoubleSpinBox" name="St_teff_input">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>3</number>
-              </property>
-              <property name="minimum">
-               <double>0.001000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>99990.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>5777.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QDoubleSpinBox" name="St_lumin_input">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="minimum">
-               <double>0.001000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>999999.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.200000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QLabel" name="label_293">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;sigma;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_294">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stellar Luminosity [L&lt;span style=&quot; vertical-align:sub;&quot;&gt;&amp;#8857;&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_341">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;v sin i [km/sec.]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QDoubleSpinBox" name="St_vsini_input">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>3</number>
-              </property>
-              <property name="minimum">
-               <double>0.001000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.200000000000000</double>
-              </property>
-              <property name="value">
-               <double>2.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="2">
-             <widget class="QDoubleSpinBox" name="err_St_vsini_input">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>3</number>
-              </property>
-              <property name="minimum">
-               <double>0.001000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.200000000000000</double>
-              </property>
-              <property name="value">
-               <double>0.001000000000000</double>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="0" column="1">
-           <spacer name="horizontalSpacer_101">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+           <widget class="QTabWidget" name="tabWidget_47">
+            <property name="currentIndex">
+             <number>0</number>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>150</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="2">
-           <layout class="QGridLayout" name="gridLayout_88">
-            <item row="6" column="1" colspan="2">
-             <widget class="QLabel" name="label_kb2011">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>0.0</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_342">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>RV jitt ampl.:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0" colspan="3">
-             <widget class="QLabel" name="label_35">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>Est. stellar p-mode scatter (K&amp;B 1995) </string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0" colspan="3">
-             <widget class="QLabel" name="label_354">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>Est. stellar p-mode scatter (K&amp;B 2011) </string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0" colspan="3">
-             <widget class="QLabel" name="label_358">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1" colspan="2">
-             <widget class="QLabel" name="label_kb1995">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>0.0</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1" colspan="2">
-             <widget class="QLabel" name="label_St_rot_value">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>0.0</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0" colspan="3">
-             <widget class="QLabel" name="label_359">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_St_rot">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>Stellar Rotation:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0">
-             <widget class="QLabel" name="label_355">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>RV jitt ampl.:</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="1" column="0">
-           <spacer name="verticalSpacer_45">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>244</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="2">
-           <spacer name="verticalSpacer_46">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>127</height>
-             </size>
-            </property>
-           </spacer>
+            <widget class="QWidget" name="tab_193">
+             <attribute name="title">
+              <string>St. params</string>
+             </attribute>
+             <layout class="QGridLayout" name="gridLayout_454">
+              <item row="0" column="0">
+               <layout class="QGridLayout" name="gridLayout_453">
+                <item row="0" column="2">
+                 <widget class="QLabel" name="label_824">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QDoubleSpinBox" name="Stellar_radius_input">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.001000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>99999.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.200000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="3">
+                 <widget class="QLabel" name="err_st_mass">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>+/- 0.000</string>
+                  </property>
+                  <property name="textFormat">
+                   <enum>Qt::AutoText</enum>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="3">
+                 <widget class="QLabel" name="err_rho">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>+/- 0.000</string>
+                  </property>
+                  <property name="textFormat">
+                   <enum>Qt::AutoText</enum>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_826">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ρ★ [kg/m^3]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QDoubleSpinBox" name="Stellar_mass_input">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_input_st_mass_2">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stellar Mass [M&lt;span style=&quot; vertical-align:sub;&quot;&gt;&amp;#8857;&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_input_st_radius_2">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stellar Radius [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;&amp;#8857;&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="3">
+                 <widget class="QLabel" name="err_st_radius">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>+/- 0.000</string>
+                  </property>
+                  <property name="textFormat">
+                   <enum>Qt::AutoText</enum>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
+                 <widget class="QDoubleSpinBox" name="Stellar_rho_input">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="minimum">
+                   <double>100.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>999999.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>100.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1000.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QCheckBox" name="use_st_mass">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QCheckBox" name="use_st_radius">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QCheckBox" name="use_rho">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QCheckBox" name="use_GP_sho_kernel_S_5">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_rot_kernel_11">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Use St. params</string>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="0" column="1">
+               <spacer name="horizontalSpacer_204">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>476</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="1" column="0">
+               <spacer name="verticalSpacer_191">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>167</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tab_205">
+             <attribute name="title">
+              <string>RV scatter calculator</string>
+             </attribute>
+             <layout class="QGridLayout" name="gridLayout_200">
+              <item row="0" column="0" rowspan="2">
+               <layout class="QGridLayout" name="gridLayout_71">
+                <item row="4" column="0">
+                 <widget class="QLabel" name="label_295">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Effective Temp. [T&lt;span style=&quot; vertical-align:sub;&quot;&gt;eff.&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
+                 <widget class="QDoubleSpinBox" name="err_St_lumin_input">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.000100000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>9999.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.200000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.000100000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QDoubleSpinBox" name="St_radius_input">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.001000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>99999.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.200000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_input_st_radius">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stellar Radius [R&lt;span style=&quot; vertical-align:sub;&quot;&gt;&amp;#8857;&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_input_st_mass">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stellar Mass [M&lt;span style=&quot; vertical-align:sub;&quot;&gt;&amp;#8857;&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QDoubleSpinBox" name="St_mass_input">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QDoubleSpinBox" name="err_St_mass_input">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.000100000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.000100000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="label_292">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Value</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QDoubleSpinBox" name="err_St_radius_input">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.000100000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.200000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.000100000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="2">
+                 <widget class="QDoubleSpinBox" name="err_St_teff_input">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>3</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.001000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>10000.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>10.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.001000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QDoubleSpinBox" name="St_teff_input">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>3</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.001000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>99990.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>5777.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QDoubleSpinBox" name="St_lumin_input">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.001000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>999999.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.200000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QLabel" name="label_293">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;sigma;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_294">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stellar Luminosity [L&lt;span style=&quot; vertical-align:sub;&quot;&gt;&amp;#8857;&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QLabel" name="label_341">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;v sin i [km/sec.]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1">
+                 <widget class="QDoubleSpinBox" name="St_vsini_input">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>3</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.001000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.200000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>2.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="2">
+                 <widget class="QDoubleSpinBox" name="err_St_vsini_input">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="decimals">
+                   <number>3</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.001000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.200000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.001000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="0" column="1">
+               <spacer name="horizontalSpacer_101">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>224</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="2">
+               <layout class="QGridLayout" name="gridLayout_88">
+                <item row="6" column="1" colspan="2">
+                 <widget class="QLabel" name="label_kb2011">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>0.0</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_342">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>RV jitt ampl.:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0" colspan="3">
+                 <widget class="QLabel" name="label_35">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Est. stellar p-mode scatter (K&amp;B 1995) </string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0" colspan="3">
+                 <widget class="QLabel" name="label_354">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Est. stellar p-mode scatter (K&amp;B 2011) </string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0" colspan="3">
+                 <widget class="QLabel" name="label_358">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1" colspan="2">
+                 <widget class="QLabel" name="label_kb1995">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>0.0</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1" colspan="2">
+                 <widget class="QLabel" name="label_St_rot_value">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>0.0</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0" colspan="3">
+                 <widget class="QLabel" name="label_359">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_St_rot">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Stellar Rotation:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0">
+                 <widget class="QLabel" name="label_355">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>RV jitt ampl.:</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="2" rowspan="2">
+               <spacer name="verticalSpacer_46">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>127</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="2" column="0">
+               <spacer name="verticalSpacer_45">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>311</width>
+                  <height>110</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -118834,7 +119167,7 @@
              </font>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>9</number>
             </property>
             <widget class="QWidget" name="tab_6">
              <attribute name="title">
@@ -145597,7 +145930,7 @@
              </attribute>
              <widget class="QTabWidget" name="tabWidget_40">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="geometry">
                <rect>
@@ -145666,7 +145999,7 @@
                   <item row="5" column="2">
                    <widget class="DoubleSpinBox" name="St_rho_min_1">
                     <property name="enabled">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -146273,7 +146606,7 @@
                   <item row="5" column="2">
                    <widget class="DoubleSpinBox" name="St_rho_mean_1">
                     <property name="enabled">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -146651,7 +146984,7 @@
                   <item row="5" column="2">
                    <widget class="DoubleSpinBox" name="St_rho_jeff_alpha_1">
                     <property name="enabled">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -160173,7 +160506,7 @@
                </font>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <property name="movable">
                <bool>true</bool>
@@ -166963,7 +167296,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>632</width>
+                   <width>745</width>
                    <height>485</height>
                   </rect>
                  </property>
@@ -183358,163 +183691,163 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_use_ld_2"/>
-  <buttongroup name="buttonGroup_remove_ast_data"/>
-  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
-  <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_use_ld_14"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_ast_data_3"/>
+  <buttongroup name="buttonGroup_omega_dot_opt"/>
+  <buttongroup name="buttonGroup_use_tra_reg_9"/>
+  <buttongroup name="buttonGroup_use_ld_15"/>
+  <buttongroup name="buttonGroup_type_fit"/>
+  <buttongroup name="buttonGroup_use_tra_reg_7"/>
   <buttongroup name="buttonGroup_use_img_hipp_ast">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_ast_data_to_planet_2">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_use_tra_reg_1"/>
-  <buttongroup name="buttonGroup_apply_act_data_options"/>
-  <buttongroup name="buttonGroup_use_ld_14"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_use_tra_reg_19"/>
-  <buttongroup name="buttonGroup_use_tra_reg_18"/>
-  <buttongroup name="buttonGroup_use_tra_reg_10"/>
-  <buttongroup name="buttonGroup_remove_ttv_data"/>
-  <buttongroup name="buttonGroup_use_ld_19"/>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_use_ld_13"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_use_ast_data_to_planet_3">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_18"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_options_act"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
-  <buttongroup name="buttonGroup_use_tra_reg_13"/>
-  <buttongroup name="buttonGroup_nest_stat_dyn"/>
-  <buttongroup name="buttonGroup_ast_data_2"/>
-  <buttongroup name="buttonGroup_use_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_11"/>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_activity_data"/>
-  <buttongroup name="buttonGroup_use_tra_reg_8"/>
-  <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_apply_rvs_data_options"/>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
-  <buttongroup name="buttonGroup_color_picker_ast"/>
-  <buttongroup name="buttonGroup_use_RV_GP_kernel">
-   <property name="exclusive">
-    <bool>true</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_5"/>
-  <buttongroup name="buttonGroup_symbol_picker_ast"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
   <buttongroup name="buttonGroup_link_tra_GP_to_RV_GP">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_AMD_satb_NS"/>
-  <buttongroup name="buttonGroup_remove_ast_data_2"/>
+  <buttongroup name="buttonGroup_Swift_integrators"/>
+  <buttongroup name="buttonGroup_use_rho_aR"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_apply_rvs_data_options"/>
+  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
+  <buttongroup name="buttonGroup_use_ld_16"/>
+  <buttongroup name="buttonGroup_theta_fold"/>
   <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_use_tra_reg_9"/>
-  <buttongroup name="buttonGroup_use_tra_reg_3"/>
-  <buttongroup name="buttonGroup_use_ast_plot_RA_Dec"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
-  <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_detrend_tra"/>
+  <buttongroup name="buttonGroup_remove_ast_data"/>
   <buttongroup name="buttonGroup_use_ld_11"/>
-  <buttongroup name="buttonGroup_use_tra_reg_16"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
-  <buttongroup name="buttonGroup_use_tra_reg_4"/>
-  <buttongroup name="buttonGroup_use_plmass"/>
+  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_use_ld_18"/>
   <buttongroup name="buttonGroup_ast_data"/>
-  <buttongroup name="buttonGroup_use_tra_data_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_17"/>
-  <buttongroup name="buttonGroup_omega_dot_opt"/>
-  <buttongroup name="buttonGroup_use">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_ei_eo_sincos"/>
   <buttongroup name="buttonGroup_mixed_fitting">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_TTV_plot_Ntra_BJD"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
-  <buttongroup name="buttonGroup_remove_ast_data_3"/>
-  <buttongroup name="buttonGroup_use_tra_reg_20"/>
-  <buttongroup name="buttonGroup_use_tra_reg_15"/>
-  <buttongroup name="buttonGroup_samp_corr"/>
-  <buttongroup name="buttonGroup_use_ld_20"/>
-  <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_use_ld_15"/>
-  <buttongroup name="buttonGroup_use_planets">
+  <buttongroup name="buttonGroup_use">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_6"/>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_options_rvs"/>
-  <buttongroup name="buttonGroup_use_tra_reg_12"/>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_apply_tra_dilution"/>
-  <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_use_tra_reg_2"/>
-  <buttongroup name="buttonGroup_use_ld_16"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
-  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
-  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_14"/>
-  <buttongroup name="buttonGroup_Rebound_integrators"/>
-  <buttongroup name="buttonGroup_use_ld_17"/>
-  <buttongroup name="buttonGroup_dom_fold"/>
-  <buttongroup name="buttonGroup_symbol_picker"/>
-  <buttongroup name="buttonGroup_use_ld_3"/>
-  <buttongroup name="buttonGroup_color_picker"/>
-  <buttongroup name="buttonGroup_color_picker_ttv"/>
-  <buttongroup name="buttonGroup_add_RV_data"/>
   <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
-  <buttongroup name="buttonGroup_use_tra_reg_7"/>
+  <buttongroup name="buttonGroup_use_ast_data_to_planet_2">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_Rebound_integrators"/>
+  <buttongroup name="buttonGroup_remove_ast_data_2"/>
+  <buttongroup name="buttonGroup_use_tra_reg_3"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_use_ld_10"/>
+  <buttongroup name="buttonGroup_ei_eo_sincos"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_use_tra_reg_12"/>
   <buttongroup name="buttonGroup_use_nbody_pack"/>
+  <buttongroup name="buttonGroup_use_tra_reg_18"/>
+  <buttongroup name="buttonGroup_use_tra_reg_10"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
   <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_remove_activity_data"/>
+  <buttongroup name="buttonGroup_use_tra_reg_20"/>
+  <buttongroup name="buttonGroup_remove_ast_data_3"/>
+  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
+  <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_options_rvs"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
   <buttongroup name="buttonGroup_use_ld_12"/>
+  <buttongroup name="buttonGroup_use_tra_reg_15"/>
+  <buttongroup name="buttonGroup_ast_data_2"/>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
   <buttongroup name="buttonGroup_use_ast_data_to_planet">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_rho_aR"/>
-  <buttongroup name="buttonGroup_use_tra_reg_6"/>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_use_ld_1"/>
-  <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_ast_data_3"/>
+  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_use_planets">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
   <buttongroup name="buttonGroup_remove_RV_data"/>
-  <buttongroup name="buttonGroup_Swift_integrators"/>
+  <buttongroup name="buttonGroup_remove_activity_data"/>
+  <buttongroup name="buttonGroup_use_tra_data_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_ttv_data"/>
+  <buttongroup name="buttonGroup_use_tra_reg_17"/>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_use_tra_reg_13"/>
+  <buttongroup name="buttonGroup_use_RV_GP_kernel">
+   <property name="exclusive">
+    <bool>true</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_use_plmass"/>
+  <buttongroup name="buttonGroup_TTV_plot_Ntra_BJD"/>
+  <buttongroup name="buttonGroup_use_tra_reg_14"/>
+  <buttongroup name="buttonGroup_AMD_satb_NS"/>
+  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_use_tra_reg_19"/>
+  <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_color_picker_ast"/>
+  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_symbol_picker_ast"/>
+  <buttongroup name="buttonGroup_use_tra_reg_2"/>
+  <buttongroup name="buttonGroup_use_tra_reg_16"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
+  <buttongroup name="buttonGroup_apply_tra_dilution"/>
   <buttongroup name="buttonGroup_AMD_stab_opt"/>
+  <buttongroup name="buttonGroup_use_ast_data_to_planet_3">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_use_ast_plot_RA_Dec"/>
+  <buttongroup name="buttonGroup_use_tra_reg_1"/>
+  <buttongroup name="buttonGroup_use_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
+  <buttongroup name="buttonGroup_use_tra_reg_8"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_use_tra_reg_11"/>
+  <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_use_ld_13"/>
+  <buttongroup name="buttonGroup_use_ld_20"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_use_ld_19"/>
+  <buttongroup name="buttonGroup_detrend_tra"/>
+  <buttongroup name="buttonGroup_use_tra_reg_4"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_use_ld_17"/>
   <buttongroup name="buttonGroup_use_tra_reg_5"/>
+  <buttongroup name="buttonGroup_options_act"/>
   <buttongroup name="buttonGroup_apply_tra_data_options"/>
+  <buttongroup name="buttonGroup_samp_corr"/>
+  <buttongroup name="buttonGroup_use_tra_reg_6"/>
  </buttongroups>
 </ui>

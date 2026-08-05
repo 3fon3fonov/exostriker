@@ -3590,7 +3590,11 @@ class signal_fit(object):
         self.b_for_mcmc=[]
 
         self.init_St_params()
-        self.init_st_mass()
+        
+        self.init_stellar_mass()
+        self.init_stellar_radius()        
+        self.init_stellar_rho()
+
         self.init_mass_a()
         
         self.init_GP()
@@ -3824,7 +3828,7 @@ class signal_fit(object):
         self.semimajor = []
         
         for i in range(9):
-            masses,semimajor  = mass_a_from_Kepler_fit([self.K[i], self.P[i], self.e[i], self.w[i], self.M0[i]],1,self.st_mass[0])
+            masses,semimajor  = mass_a_from_Kepler_fit([self.K[i], self.P[i], self.e[i], self.w[i], self.M0[i]],1,self.stellar_mass)
             self.masses.append(masses[0]),self.semimajor.append(semimajor[0])
             
     def init_pl_params(self):
@@ -4020,6 +4024,36 @@ class signal_fit(object):
 
         ######## derived #####################
         self.t_peri = {k: 0.0 for k in range(9)} 
+        
+    def init_stellar_mass(self) :
+
+        self.stellar_mass      = 1.0
+        self.stellar_mass_err  = [0.0,0.0]
+        self.stellar_mass_use  = False 
+        self.stellar_mass_str  = r'Stellar mass'
+        self.stellar_mass_bounds  = [0.01,100.0]
+        self.stellar_mass_norm_pr = [1.0,0.2, False]
+        self.stellar_mass_jeff_pr = [0.01,100.0, False]
+
+    def init_stellar_radius(self) :
+
+        self.stellar_radius      = 1.0
+        self.stellar_radius_err  = [0.0,0.0]
+        self.stellar_radius_use  = False
+        self.stellar_radius_str  = r'Stellar radius'
+        self.stellar_radius_bounds  = [0.01,100.0]
+        self.stellar_radius_norm_pr = [1.0,0.2, False]
+        self.stellar_radius_jeff_pr = [0.01,100.0, False]       
+        
+    def init_stellar_rho(self) :
+
+        self.stellar_rho = 1000.0
+        self.stellar_rho_err  = [0.0,0.0]
+        self.stellar_rho_use  = False
+        self.stellar_rho_str  = r'$\rho_{\rm \star}$ [kg/m^3]'
+        self.stellar_rho_bounds  = [100.0,90000.0]
+        self.stellar_rho_norm_pr = [1000.0,100.0, False]
+        self.stellar_rho_jeff_pr = [100.0,90000.0, False]      
 
     def init_omega_dot(self) :
 
@@ -4179,24 +4213,19 @@ class signal_fit(object):
 
         self.get_TTVs[0] = True
 
-    def init_st_mass(self) :
 
-        self.st_mass      = {k: 1.0 for k in range(1)}
-        self.st_mass_err  = {k: np.array([0.0,0.0]) for k in range(1)}
-        self.st_mass_use  = {k: False for k in range(1)}
-        self.st_mass_str  = {k: r'St mass' for k in range(1)}
-        self.st_mass_bounds  = {k: np.array([0.01,100.0]) for k in range(1)}
-        self.st_mass_norm_pr = {k: np.array([1.0,0.2, False]) for k in range(1)}
-        self.st_mass_jeff_pr = {k: np.array([1.0,0.2, False]) for k in range(1)}
-        
+                
  
     def init_St_params(self):
 
-        self.stellar_mass = 1.0
-        self.stellar_mass_err = 0.0
 
-        self.stellar_radius = 1.0
-        self.stellar_radius_err = 0.0
+        self.st_mass = 1.0        
+        self.st_mass_err = 0.0
+
+        self.st_radius = 1.0
+        self.st_radius_err = 0.0
+
+
 
         self.stellar_luminosity = 1.0
         self.stellar_luminosity_err = 0.0
@@ -6585,10 +6614,10 @@ class signal_fit(object):
                 
         par.append(self.params.stellar_mass)
         flag.append(self.use.use_stellar_mass)
-        par_str.append(self.st_mass_str[0])
-        bounds.append(self.st_mass_bounds[0])
-        prior_nr.append(self.st_mass_norm_pr[0])
-        prior_jeff.append(self.st_mass_jeff_pr[0])
+        par_str.append(self.stellar_mass_str[0])
+        bounds.append(self.stellar_mass_bounds[0])
+        prior_nr.append(self.stellar_mass_norm_pr[0])
+        prior_jeff.append(self.stellar_mass_jeff_pr[0])
         
 #        print(par)
 #        print(flag)
