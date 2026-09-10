@@ -15,7 +15,7 @@ class CustomSampler(emcee.EnsembleSampler):
     def unique_rows(self):
 
         '''
-        Given an array, remove identical rows and also sort it
+        Given an array, sort it
         '''
 
         # Perform lex sort and get sorted data
@@ -23,11 +23,11 @@ class CustomSampler(emcee.EnsembleSampler):
         sorted_data =  self.flatchain[sorted_idx,:]
         sorted_lnL  =  self.flatlnprobability[sorted_idx]
         # Get unique row mask
-        row_mask = np.append([True],np.any(np.diff(sorted_data,axis=0),1))
+        #row_mask = np.append([True],np.any(np.diff(sorted_data,axis=0),1))
 
         # Get unique rows 
-        self.samples = sorted_data[row_mask] 
-        self.lnL     = sorted_lnL[row_mask]
+        self.samples = sorted_data #[row_mask] 
+        self.lnL     = sorted_lnL #[row_mask]
 
         lnL_max_idx = np.argmax(self.lnL)
         #print(abs(lnL_min))

@@ -4994,7 +4994,7 @@ def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_sav
     fixed_steps=1000 ):
 
 
-    print(fixed_steps,use_fixed_steps)
+    #print(fixed_steps,use_fixed_steps)
 
     stab_dir = PureWindowsPath(".\\stability")
     mvs_dir = PureWindowsPath("..\\mvs")
@@ -5170,6 +5170,7 @@ def run_stability_rebound(
     safe_mode=0,
     corrector=11,
     verbose=True,
+    coordinates='JACOBI',
     use_fixed_steps=False,
     fixed_steps=1000,
 ):
@@ -5264,7 +5265,7 @@ def run_stability_rebound(
     sim = rebound.Simulation()
 
     sim.G = 4.0 * np.pi * np.pi
-
+ 
     sim.add(m=float(obj.params.stellar_mass))
 
     for j in used_indices:
@@ -5275,9 +5276,11 @@ def run_stability_rebound(
             inc=float(obj.i[j]) * deg_to_rad,
             Omega=float(obj.Node[j]) * deg_to_rad,
             omega=float(obj.w[j]) * deg_to_rad,
-            M=float(obj.M0[j]) * deg_to_rad,
-            primary=sim.particles[0],
+            M=float(obj.M0[j]) * deg_to_rad
+            #primary=sim.particles[0],
+            #jacobi_masses = True
         )
+ 
 
     if move_to_com:
         sim.move_to_com()
@@ -5286,6 +5289,8 @@ def run_stability_rebound(
     sim.dt = timestep
 
     if integrator == "whfast":
+        print("coordinates:",sim.integrator.coordinates)
+    
         if hasattr(sim, "ri_whfast"):
             try:
                 sim.ri_whfast.safe_mode = int(safe_mode)
@@ -5308,6 +5313,7 @@ def run_stability_rebound(
         print("timestep [yr]:", timestep)
         print("output_step [yr]:", output_step)
 
+        
     times = np.arange(0.0, timemax + 0.5 * output_step, output_step)
     nt = len(times)
 
@@ -5440,8 +5446,9 @@ def run_stability_rebound(
             evol["vz"][k, it] = p.vz
 
             try:
-                orb = p.orbit(primary=ps[0])
-
+                #orb = p.orbit(primary=ps[0])
+                orb = p.orbit()
+                
                 evol["a"][k, it] = orb.a
                 evol["e"][k, it] = orb.e
 

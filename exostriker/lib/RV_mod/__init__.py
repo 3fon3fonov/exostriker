@@ -3047,16 +3047,40 @@ def run_nestsamp(obj, **kwargs):
    # print("--- %s seconds ---" % (time.time() - start_time))
 
 
-
-
-    ln = np.hstack(sampler.results.logl)
+    #  nested-sampling order, aligned with sampler.results.samples
+    ln_ns = np.hstack(sampler.results.logl)
     add_ns_samples(obj,sampler)
 
- 
+    weighted = np.exp(sampler.results.logwt - sampler.results.logz[-1])
+    weighted = weighted/np.sum(weighted)
+
     if opt["nest_weighted"] == True:
-        weighted = np.exp(sampler.results.logwt - sampler.results.logz[-1])
-        obj.ns_sampler.samples  =  dill.copy(dynesty.utils.resample_equal(sampler.results.samples, weighted))   
-  
+
+        stacked   = np.column_stack([np.asarray(sampler.results.samples, dtype=float), ln_ns])
+        resampled = dynesty.utils.resample_equal(stacked, weighted)
+        
+        resampled = np.vstack([resampled,stacked[np.argmax(ln_ns)]])
+        resampled = resampled[np.argsort(resampled[:,-1],kind='stable')]
+        
+        obj.ns_sampler.samples = dill.copy(np.ascontiguousarray(resampled[:, :-1]))
+        ln                     = np.ascontiguousarray(resampled[:, -1])
+ 
+        
+    else:
+        ln = ln_ns
+
+    #  Keep the lnL stored on the object consistent with the samples it holds,
+    #  so every downstream consumer (the ascii output below, cornerplot() and
+    #  the derived-parameter code in functions.py, which read
+    #  obj.ns_sampler.logl against obj.ns_sampler.samples) sees an aligned
+    #  pair.  The raw nested-sampling arrays are kept under *_ns for evidence
+    #  work and re-weighting.
+    
+    obj.ns_sampler.weights    = dill.copy(weighted)    
+    obj.ns_sampler.logl       = dill.copy(ln)
+    obj.ns_sampler.logl_ns    = dill.copy(ln_ns)
+    obj.ns_sampler.samples_ns = dill.copy(np.asarray(sampler.results.samples, dtype=float))
+
 
     if obj.ns_fileoutput == True:
        # start_time = time.time()
@@ -3077,10 +3101,23 @@ def run_nestsamp(obj, **kwargs):
             outfile.write("\n")
         outfile.close()
 
+        samples = np.array(obj.ns_sampler.samples_ns)
+        outfile = open(str(ns_file+'_org'), 'w') # file to save samples
+        for j in range(len(samples)):
+            outfile.write("%s  " %(ln_ns[j]))
+            for z in range(len(pp)):
+                outfile.write("%s  " %(samples[j,z]))
+            outfile.write("\n")
+        outfile.close()
+
 
     obj.nest_stat["mean"] = get_mean_of_samples(obj.ns_sampler.samples,len(pp))
     obj.nest_stat["median"] = get_median_of_samples(obj.ns_sampler.samples,len(pp))
-    samp_maxlnl, maxlnl = get_best_lnl_of_samples(obj.ns_sampler.samples,ln, len(pp))
+    #  The maximum-likelihood solution is taken from the FULL nested run, not
+    #  from the resampled posterior:  the highest-lnL point occupies a tiny
+    #  prior volume, so it carries almost no importance weight and is usually
+    #  dropped by the weighted resampling altogether.
+    samp_maxlnl, maxlnl = get_best_lnl_of_samples(np.asarray(sampler.results.samples, dtype=float), ln_ns, len(pp))
     obj.nest_stat["best"] = samp_maxlnl
     obj.nest_stat["mode"] = get_mode_of_samples(obj.ns_sampler.samples,len(pp))
     obj.nest_stat["MAD"]  = get_MAD_of_samples(obj.ns_sampler.samples,len(pp))
@@ -4450,12 +4487,12 @@ class signal_fit(object):
 
     def init_mcmc_par(self):
         self.gaussian_ball = 0.0001
-        self.nwalkers_fact = 4
+        self.nwalkers_fact = 10
 
         self.percentile_level = 68.3
 
         self.mcmc_burning_ph = 100
-        self.mcmc_ph = 100
+        self.mcmc_ph = 1000
         self.mcmc_threads= 1
         self.mcmc_fileoutput=False
         self.mcmc_save_means=False
@@ -4490,7 +4527,7 @@ class signal_fit(object):
         self.ns_threads=1
         self.Dynamic_nest = False
         self.std_output=False
-        self.stop_crit = 0.001
+        self.stop_crit = 0.1
         self.ns_fileoutput=False
         self.ns_save_means=False
         self.ns_save_median=False
@@ -6614,7 +6651,7 @@ class signal_fit(object):
                 
         par.append(self.params.stellar_mass)
         flag.append(self.use.use_stellar_mass)
-        par_str.append(self.stellar_mass_str[0])
+        par_str.append(self.stellar_mass_str)
         bounds.append(self.stellar_mass_bounds[0])
         prior_nr.append(self.stellar_mass_norm_pr[0])
         prior_jeff.append(self.stellar_mass_jeff_pr[0])
