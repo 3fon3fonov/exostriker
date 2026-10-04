@@ -5,6 +5,36 @@
 !cc   The final version will be available in the Python RVMod lib
 !cc   Trifonov et al. (in prep).
 
+! Fits retain their existing result tuple; callers inspect this status after a call.
+! Like DSBLK, this state is not reentrant.
+subroutine rv_get_status(ierr)
+    implicit none
+    integer, intent(out) :: ierr
+    integer :: rv_status
+    common /RVERROR/ rv_status
+    ierr = rv_status
+end subroutine rv_get_status
+
+subroutine rv_capacity_check(ndset, npl, ndata, nt, writeflag_fit)
+    implicit none
+    integer, intent(in) :: ndset, npl, ndata, nt, writeflag_fit
+    integer :: rv_status
+    integer, parameter :: max_datasets = 20, max_bodies = 10, max_parameters = 200
+    common /RVERROR/ rv_status
+    rv_status = 0
+    if (ndset<1 .or. ndset>max_datasets) then
+        rv_status = 1
+    elseif (npl<0 .or. npl>=max_bodies) then
+        rv_status = 2
+    elseif (ndata<1) then
+        rv_status = 3
+    elseif (nt<0 .or. (writeflag_fit>0 .and. nt<2)) then
+        rv_status = 4
+    elseif (7*npl + 2*ndset + 2>max_parameters) then
+        rv_status = 6
+    endif
+end subroutine rv_capacity_check
+
 subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
         when_to_kill, nt, &
         model_max, model_min, gr_flag_in, &
@@ -17,6 +47,8 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
         bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
         fit_array, dynamical_planets, coplar_inc)
     implicit none
+    integer :: rv_status
+    common /RVERROR/ rv_status
 
 
     integer, intent(in) :: epsil, deltat, amoebastarts,npl_in
@@ -42,7 +74,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     
         
 !    real(8) :: y(20000), sig(20000), y_in(20000)
-    real(8) :: a(MMAX), covar(MMAX, MMAX), alpha(MMAX, MMAX)
+    real(8) :: a(MMAX), covar(MMAX, MMAX)
     real(8) :: rms, mass(NPLMAX), ap(NPLMAX)
     real(8) :: j_mass(NPLMAX), chisq
     real(8) :: x0, incl(NPLMAX), cap0m(NPLMAX)
@@ -75,9 +107,12 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     external rvkep_kepamo, compute_abs_loglik_kep
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     
-    allocate(x(20000),y(20000),sig(20000),y_in(20000),ts(20000),ymod(20000))
+    call rv_capacity_check(ndset_in, npl_in, ndata, nt, writeflag_fit)
+    if (rv_status.ne.0) return
+    allocate(x(max(ndata,nt)), y(ndata), sig(ndata), y_in(ndata), &
+            ts(ndata), ymod(max(ndata,nt)))
 !    allocate( t_stop,t_init)
-    allocate(ymod_pl(npl_in,20000), ymod_pl2(npl_in,20000)) 
+    allocate(ymod_pl(npl_in,ndata), ymod_pl2(npl_in,nt))
  
 !f2py intent(in) ndset_in, npl_in, ndata
 !f2py intent(in) dynamical_planets
@@ -121,6 +156,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
             data_array, files_param, &
             array_npl, &
             final_params, coplar_inc,jit_flag)
+    if (rv_status.ne.0) return
     
     
     i = 0
@@ -348,6 +384,8 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
         bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
         fit_array, dynamical_planets, coplar_inc)
     implicit none
+    integer :: rv_status
+    common /RVERROR/ rv_status
  
 
 
@@ -366,7 +404,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
     integer :: npl, ndset, idset,  ma, mfit, i, j, NDSMAX, NPLMAX, MMAX      
     parameter (NDSMAX = 20, NPLMAX = 10, MMAX = 200)
     
-    integer :: ii, iter, idsmax(NDSMAX), ia(MMAX) 
+    integer :: idsmax(NDSMAX), ia(MMAX) 
     
     integer, allocatable, dimension(:) :: ts
     real(8), allocatable, dimension(:) :: x, y, sig, y_in, ymod
@@ -378,9 +416,9 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
     real(8) :: rms, mass(NPLMAX), ap(NPLMAX)
     real(8) :: j_mass(NPLMAX), chisq
     real(8) :: x0, incl(NPLMAX), cap0m(NPLMAX)
-    real(8) :: dt, t_max, loglik, dy, sig2i
-    real(8) :: epoch, ftol, jitt(NDSMAX)
-    real(8) :: dyda(MMAX), p(MMAX + 1, MMAX), yamoeba(MMAX + 1)
+    real(8) :: dt, t_max, loglik, dy
+    real(8) :: epoch, jitt(NDSMAX)
+    real(8) :: dyda(MMAX)
     real(8) ::  best_w, best_we
 
 !    character(80) version_input, version
@@ -406,8 +444,11 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     
-    allocate(x(20000),y(20000),sig(20000),y_in(20000),ts(20000),ymod(20000))
-    allocate(ymod_pl(npl_in,20000), ymod_pl2(npl_in,20000)) 
+    call rv_capacity_check(ndset_in, npl_in, ndata, nt, writeflag_fit)
+    if (rv_status.ne.0) return
+    allocate(x(max(ndata,nt)), y(ndata), sig(ndata), y_in(ndata), &
+            ts(ndata), ymod(max(ndata,nt)))
+    allocate(ymod_pl(npl_in,ndata), ymod_pl2(npl_in,nt))
  
  
 
@@ -450,6 +491,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
             data_array, files_param, &
             array_npl, &
             final_params, coplar_inc,jit_flag)
+    if (rv_status.ne.0) return
     ! Hack to make it compatible with the loglik code
     if (amoebastarts.eq.0) then
         alamda = -1.d0
@@ -588,9 +630,9 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
                 a(6 * npl + j) = 0.0
             enddo
 
-            call RVKEP_keplm (x(i), a, ymod(i), ymod_pl(:,i), dyda, ma, 1, hkl)
-!            write(*,*)(ymod_pl(j,i),j=1,npl) 
-            fit_array(i, :) = (/ x0 + x(i), ymod(i), (ymod_pl(j,i),j=1,npl) /)
+            call RVKEP_keplm (x(i), a, ymod(i), ymod_pl2(:,i), dyda, ma, 1, hkl)
+!            write(*,*)(ymod_pl2(j,i),j=1,npl)
+            fit_array(i, :) = (/ x0 + x(i), ymod(i), (ymod_pl2(j,i),j=1,npl) /)
         enddo
     endif
 end
@@ -612,6 +654,8 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
         bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
         fit_array, dynamical_planets, coplar_inc)
     implicit none
+    integer :: rv_status
+    common /RVERROR/ rv_status
     
 
     integer, intent(in) :: amoebastarts,npl_in
@@ -629,23 +673,23 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
     integer :: npl, ndset, idset,  ma, mfit, i, j, NDSMAX, NPLMAX, MMAX      
     parameter (NDSMAX = 20, NPLMAX = 10, MMAX = 200)
     
-    integer :: ii, iter, idsmax(NDSMAX), ia(MMAX),nbod,ts(20000)
+    integer :: ii, iter, idsmax(NDSMAX), ia(MMAX),ts(ndata)
     
 !    integer, allocatable, dimension(:) :: ts
 !    real(8), allocatable, dimension(:) :: x, t, ys, sigs, y_in, ymod
 !    real(8), allocatable, dimension(:,:) :: ymod_pl,ymod_pl2
 
-    real(8) :: t(20000),y(20000),ys(20000), sigs(20000)        
-!    real(8) ::  x(20000), y_in(20000), ymod(20000)     
+    real(8) :: t(ndata),ys(ndata), sigs(ndata)
+!    real(8) ::  x(ndata), y_in(20000), ymod(20000)
     real(8) :: a(MMAX), covar(MMAX, MMAX)
-    real(8) :: rms, mass(NPLMAX), ap(NPLMAX)
-    real(8) :: j_mass(NPLMAX), chisq
-    real(8) :: x0, incl(NPLMAX), cap0m(NPLMAX)
-    real(8) :: dt, t_max, loglik, dy, sig2i
+    real(8) :: rms
+    real(8) :: chisq
+    real(8) :: incl(NPLMAX), cap0m(NPLMAX)
+    real(8) :: t_max, loglik
     real(8) :: epoch, ftol, jitt(NDSMAX)
-    real(8) :: dyda(MMAX), p(MMAX + 1, MMAX), yamoeba(MMAX + 1)
+    real(8) :: p(MMAX + 1, MMAX), yamoeba(MMAX + 1)
 
-    real(8) :: loglikk, ologlikk, dloglikk, best_w, best_we, t0
+    real(8) :: loglikk, ologlikk, dloglikk, t0
 !    real(8) :: xj(NPLMAX), yj(NPLMAX),  zj(NPLMAX) 
 !    real(8) :: vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
 !    real(8) :: rpl(NPLMAX), rhill(NPLMAX) 
@@ -687,11 +731,13 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
 !f2py depend(ndata) data_array
 
 
-!    allocate(x(20000),t(20000),ys(20000),sigs(20000))
+!    allocate(x(ndata),t(ndata),ys(ndata),sigs(ndata))
 !    allocate(y_in(20000), ymod(20000))
 !    allocate(ymod_pl(npl_in,20000), ymod_pl2(npl_in,20000)) 
 
 
+    call rv_capacity_check(ndset_in, npl_in, ndata, nt, writeflag_fit)
+    if (rv_status.ne.0) return
     gr_flag = gr_flag_in
     ndset = ndset_in
     npl = npl_in
@@ -716,6 +762,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
             data_array, files_param, &
             array_npl, &
             final_params, coplar_inc,jit_flag)
+    if (rv_status.ne.0) return
 
     i = 0
     dloglikk = 10.d0
@@ -802,6 +849,8 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
         bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
         fit_array, dynamical_planets, coplar_inc)
     implicit none
+    integer :: rv_status
+    common /RVERROR/ rv_status
     
 
 
@@ -817,26 +866,25 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
     integer :: hkl, gr_flag, jit_flag
  
        
-    integer :: npl, ndset, idset,  ma, mfit, i, j, NDSMAX, NPLMAX, MMAX      
+    integer :: npl, ndset, idset,  ma, mfit, i, NDSMAX, NPLMAX, MMAX      
     parameter (NDSMAX = 20, NPLMAX = 10, MMAX = 200)
     
-    integer :: ii, iter, idsmax(NDSMAX), ia(MMAX),nbod,ts(20000)
+    integer :: idsmax(NDSMAX), ia(MMAX),ts(ndata)
     
 !    integer, allocatable, dimension(:) :: ts
 !    real(8), allocatable, dimension(:) :: x, t, ys, sigs, y_in, ymod
 !    real(8), allocatable, dimension(:,:) :: ymod_pl,ymod_pl2
 
-    real(8) :: t(20000),y(20000),ys(20000), sigs(20000)        
-!    real(8) ::  x(20000), y_in(20000), ymod(20000)     
+    real(8) :: t(ndata),ys(ndata), sigs(ndata)
+!    real(8) ::  x(ndata), y_in(20000), ymod(20000)
     real(8) :: a(MMAX), covar(MMAX, MMAX)
-    real(8) :: rms, mass(NPLMAX), ap(NPLMAX)
-    real(8) :: j_mass(NPLMAX), chisq,alamda, ochisq, dchisq
-    real(8) :: x0, incl(NPLMAX), cap0m(NPLMAX)
-    real(8) :: dt, t_max, loglik, dy, sig2i
-    real(8) :: epoch, ftol, jitt(NDSMAX), alpha(MMAX, MMAX)
-    real(8) :: dyda(MMAX), p(MMAX + 1, MMAX), yamoeba(MMAX + 1)
+    real(8) :: rms
+    real(8) :: chisq,alamda, ochisq, dchisq
+    real(8) :: incl(NPLMAX), cap0m(NPLMAX)
+    real(8) :: t_max, loglik
+    real(8) :: epoch, jitt(NDSMAX), alpha(MMAX, MMAX)
 
-    real(8) ::  best_w, best_we, t0
+    real(8) ::  t0
 !    real(8) :: xj(NPLMAX), yj(NPLMAX),  zj(NPLMAX) 
 !    real(8) :: vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
 !    real(8) :: rpl(NPLMAX), rhill(NPLMAX) 
@@ -879,6 +927,8 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
 !f2py depend(ndata) data_array
 !f2py depend(dt) fit_array
  
+    call rv_capacity_check(ndset_in, npl_in, ndata, nt, writeflag_fit)
+    if (rv_status.ne.0) return
     PI = 3.14159265358979d0
     gr_flag = gr_flag_in
     ndset = ndset_in
@@ -904,6 +954,7 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
             data_array, files_param, &
             array_npl, &
             final_params, coplar_inc,jit_flag)
+    if (rv_status.ne.0) return
             
             
 
@@ -957,8 +1008,7 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
              bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
              fit_array, coplar_inc,jit_flag)
 return
-end
-end
+end subroutine dynfit_lm
 
 subroutine compute_abs_loglik_kep(ndata, x, y, a2, dyda, ma, mfit, ts, &
         sig, loglik, a, ia, hkl,jit_flag)
@@ -1029,7 +1079,7 @@ subroutine compute_abs_loglik_dyn(ndata, x, y, a2, ma, mfit, ts, &
     parameter (MMAX = 200, NDSMAX = 20)
     real(8) :: twopi, loglik, fixed_jitt
     parameter (twopi = 6.28318530717958d0)
-    integer  :: i, j, ma, ts(20000), ia(MMAX), idsmax(NDSMAX)
+    integer  :: i, j, ma, ts(ndata), ia(MMAX), idsmax(NDSMAX)
     
     real(8) :: dy, sig(ndata), x(ndata), y(ndata), y_pl(npl,ndata)
     real(8) :: a(MMAX), a2(mfit), a3(MMAX), sig2i, y_in(ndata)
@@ -1084,7 +1134,10 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
         data_array, files_param, &
         array_npl, &
         final_params, coplar_inc,jit_flag)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
     implicit none
+    integer :: rv_status
+    common /RVERROR/ rv_status
     integer :: ndset, idset, ndata, NDSMAX, NPLMAX, MMAX, npl, ma
     real(8) :: t(ndata), ys(ndata), sigs(ndata), PI
     parameter (NDSMAX = 20, NPLMAX = 10, MMAX = 200)
@@ -1106,11 +1159,25 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
+    call rv_capacity_check(ndset, npl, ndata, 0, 0)
+    if (rv_status.ne.0) return
+    if (any(.not.ieee_is_finite(data_array(:,4)))) then
+        rv_status = 5
+        return
+    endif
+    if (any(data_array(:,4)<1.d0) .or. any(data_array(:,4)>dble(ndset))) then
+        rv_status = 5
+        return
+    endif
+    if (any(data_array(:,4)/=anint(data_array(:,4)))) then
+        rv_status = 5
+        return
+    endif
     hkl = int(final_params(6))
     jit_flag = int(final_params(7))
     
     
-    if (ndset>NDSMAX) stop ' KEPFIT: ndset > NDSMAX.'
+
 
     off(1:ndset) = files_param(:, 1)
     u_off(1:ndset) = int(files_param(:, 2))
@@ -1123,7 +1190,7 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
     
 !    write(*,*) ts
 
-    if (npl>NPLMAX) stop ' KEPFIT: npl > NPLMAX.'
+
 
     ndsetmode = 0
     arr_pos = 0
@@ -1199,8 +1266,8 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
             ar(i + 6) = array_npl(j, 8, 1)
             iar(i + 6) = int(array_npl(j, 8, 2))
 
-            wdot(i) = 0
-            u_wdot(i) = 0
+            wdot(j) = 0
+            u_wdot(j) = 0
         elseif (mode.eq."amoeba_dyn".or.mode.eq."lm_dyn") then
             if (coplar_inc.eq.0) then
                 ar(i + 6) = array_npl(j, 6, 1)
@@ -1217,8 +1284,8 @@ subroutine io_read_data(ndata, t, ts, ys, sigs, jitt, epoch, t0, t_max, &
 
             ar(i + 7) = array_npl(j, 7, 1)
             iar(i + 7) = int(array_npl(j, 7, 2))
-            wdot(i) = array_npl(j, 8, 1)
-            u_wdot(i) = int(array_npl(j, 7, 2))
+            wdot(j) = array_npl(j, 8, 1)
+            u_wdot(j) = int(array_npl(j, 8, 2))
 
             incl(j) = 0
             u_incl = 0
@@ -1286,8 +1353,7 @@ subroutine RVKEP_kepamo (x, a, y, y_pl, dyda, ma, ts, hkl)
     real(8) :: x, y, a(ma), a2(ma), dyda(ma), mass(10), ap(10),y_pl(10)
     real(8) :: cosw, sinw, capm, cape, cose, sine, cosf, sinf, fac1, fac2, fac3
     real(8) :: orbel_ehybrid, omega(10), capmm(10), ecc(10)
-    real(8) :: wm, sinwm, coswm, sin2wm, cos2wm
-    real(8) :: sin3wm, cos3wm, omegad(10)
+    real(8) :: omegad(10)
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
@@ -1398,74 +1464,8 @@ subroutine RVKEP_kepamo (x, a, y, y_pl, dyda, ma, ts, hkl)
     else
         do j = 1, npl
             i = 6 * (j - 1)
-            !ecc2 = dsqrt(a2(3+i)**2 + a2(4+i)**2)
-            if (ecc(j)>1.d-2) then
-                cosw = dcos(omega(j) + omegad(j) * x / 365.25d0)
-                sinw = dsin(omega(j) + omegad(j) * x / 365.25d0)
-
-                capm = TWOPI * x / a2(2 + i) + capmm(j)
-                capm = dmod(capm, 2.d0 * PI)
-
-                cape = ORBEL_EHYBRID (ecc(j), capm)
-                cose = dcos(cape)
-                sine = dsin(cape)
-                cosf = (cose - ecc(j)) / (1.d0 - ecc(j) * cose)
-                sinf = (dsqrt(1.d0 - ecc(j)**2) * sine) / (1.d0 - ecc(j) * cose)
-
-                fac1 = cosw * cosf - sinw * sinf + ecc(j) * cosw
-                fac2 = cosw * sinf + sinw * cosf
-                fac3 = -a2(1 + i) * dsqrt(1.d0 - ecc(j)**2) * fac2 / &
-                        (1.d0 - ecc(j) * cose)**2
-
-                y_pl(j) = a2(1 + i) * fac1
-                y = y + a2(1 + i) * fac1
-                dyda(1 + i) = fac1
-                dyda(2 + i) = -TWOPI * fac3 * x / a2(2 + i)**2
-                dyda(3 + i) = -a2(1 + i) * fac2 * ((2.d0 - ecc(j)**2 - ecc(j) * cose) * &
-                        sinw * sine / dsqrt(1.d0 - ecc(j)**2) - &
-                        dsqrt(1.d0 - ecc(j) * 2) * cosw / ecc(j)) / &
-                        (1.d0 - ecc(j) * cose)**2 - &
-                        a2(1 + i) * fac2 * cosw / ecc(j)
-                dyda(4 + i) = -a2(1 + i) * fac2 * ((2.d0 - ecc(j)**2 - ecc(j) * cose) * &
-                        cosw * sine / dsqrt(1.d0 - ecc(j)**2) + &
-                        dsqrt(1.d0 - ecc(j) * 2) * sinw / ecc(j)) / &
-                        (1.d0 - ecc(j) * cose)**2 + &
-                        a2(1 + i) * fac2 * sinw / ecc(j)
-                dyda(5 + i) = fac3
-                dyda(6 + i) = dyda(4 + i) * x / 365.25d0
-            else
-                wm = TWOPI * x / a2(2 + i) + a2(5 + i)
-                wm = dmod(wm, 2.d0 * PI)
-
-                coswm = dcos(wm)
-                sinwm = dsin(wm)
-                cos2wm = dcos(2.d0 * wm)
-                sin2wm = dsin(2.d0 * wm)
-                cos3wm = dcos(3.d0 * wm)
-                sin3wm = dsin(3.d0 * wm)
-
-                fac1 = coswm + a2(3 + i) * sin2wm - a2(4 + i) * (1.d0 - cos2wm) - &
-                        a2(3 + i)**2 * (0.875d0 * coswm + 1.125d0 * cos3wm) - &
-                        a2(3 + i) * a2(4 + i) * (0.25d0 * sinwm - 2.25d0 * sin3wm) - &
-                        a2(4 + i)**2 * 1.125d0 * (coswm - cos3wm)
-                fac3 = -sinwm + 2.d0 * a2(3 * i) * cos2wm - 2.d0 * a2(4 + i) * sin2wm + &
-                        a2(3 + i)**2 * (0.875d0 * sinwm - 3.375d0 * sin3wm) - &
-                        a2(3 + i) * a2(4 + i) * (0.25d0 * coswm - 6.75d0 * cos3wm) + &
-                        a2(4 + i)**2 * (1.125d0 * coswm - 3.375 * sin3wm)
-
-                y_pl(j) = a2(1 + i) * fac1
-                y = y + a2(1 + i) * fac1
-                dyda(1 + i) = fac1
-                dyda(2 + i) = -a2(1 + i) * TWOPI * fac3 * x / a2(2 + i)**2
-                dyda(3 + i) = a2(1 + i) * (sin2wm - &
-                        a2(3 + i) * (1.75d0 * coswm + 2.25d0 * cos3wm) - &
-                        a2(4 + i) * (0.25d0 * sinwm - 2.25d0 * sin3wm))
-                dyda(4 + i) = a2(1 + i) * (-1.d0 + a2(4 + i) * cos2wm - &
-                        a2(3 + i)**(0.25d0 * sinwm - 2.25d0 * sin3wm) - &
-                        a2(4 + i) * 2.25d0 * (coswm - cos3wm))
-                dyda(5 + i) = a2(1 + i) * fac3
-                dyda(6 + i) = dyda(4 + i) * x / 365.25d0
-            endif
+            call rv_hkl_exact(x, a2(i+1:i+6), y_pl(j), dyda(i+1:i+6))
+            y = y + y_pl(j)
         enddo
     endif
 
@@ -1713,10 +1713,10 @@ SUBROUTINE amoeba_dyn(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
         ma, ts, sig, a, ia, epsil, deltat, hkl, npl, &
         dynamical_planets, coplar_inc, jit_flag)
     implicit none
-    integer :: iter, mp, ndim, np, NMAX, ITMAX, MMAX, ma, ts(20000), ndata
-    REAL(8) :: ftol, p(mp, np), y(mp), x(20000), z(20000)
+    integer :: iter, mp, ndim, np, NMAX, ITMAX, MMAX, ma, ts(ndata), ndata
+    REAL(8) :: ftol, p(mp, np), y(mp), x(ndata), z(ndata)
     PARAMETER (NMAX = 20, ITMAX = 50000, MMAX = 200)
-    real(8) :: sig(20000), loglik, a(MMAX), deltat
+    real(8) :: sig(ndata), loglik, a(MMAX), deltat
     EXTERNAL funk
     integer :: i, ihi, ilo, inhi, j, m, n, ia(MMAX), hkl, npl, jit_flag
     integer :: dynamical_planets(npl), coplar_inc
@@ -1805,10 +1805,10 @@ END
 FUNCTION amotry_kep(p, y, psum, mp, np, ndim, funk, ihi, fac, ndata, x, z, &
         dyda, ma, ts, sig, a, ia, hkl, jit_flag)
     implicit none
-    integer :: ihi, mp, ndim, np, NMAX, MMAX, ma, ts(20000), ndata
+    integer :: ihi, mp, ndim, np, NMAX, MMAX, ma, ts(ndata), ndata
     PARAMETER (NMAX = 20, MMAX = 200)
-    REAL(8) :: amotry_kep, fac, p(mp, np), psum(np), y(mp), x(20000), z(20000)
-    real(8) :: dyda(MMAX), sig(20000), loglik
+    REAL(8) :: amotry_kep, fac, p(mp, np), psum(np), y(mp), x(ndata), z(ndata)
+    real(8) :: dyda(MMAX), sig(ndata), loglik
     EXTERNAL funk
     integer :: j, ia(MMAX), hkl, jit_flag
     REAL(8) :: fac1, fac2, ytry, ptry(ndim), a(MMAX)
@@ -1839,11 +1839,11 @@ FUNCTION amotry_dyn(p, y, psum, mp, np, ndim, funk, ihi, fac, ndata, x, z, &
         ma, ts, sig, a, ia, epsil, deltat, hkl, npl, &
         dynamical_planets, coplar_inc, jit_flag)
     implicit none
-    integer ::  ihi, mp, ndim, np, NMAX, MMAX, ma, ts(20000), ndata
+    integer ::  ihi, mp, ndim, np, NMAX, MMAX, ma, ts(ndata), ndata
     PARAMETER (NMAX = 20, MMAX = 200)
-    REAL(8) :: amotry_dyn, fac, p(mp, np), psum(np), y(mp), x(20000), z(20000), &
+    REAL(8) :: amotry_dyn, fac, p(mp, np), psum(np), y(mp), x(ndata), z(ndata), &
             epsil, deltat
-    real(8) :: sig(20000), loglik
+    real(8) :: sig(ndata), loglik
     EXTERNAL funk
     integer ::  j, ia(MMAX), hkl, npl, jit_flag
     REAL(8) :: fac1, fac2, ytry, ptry(ndim), a(MMAX)
@@ -1983,16 +1983,17 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
         bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
         fit_array, coplar_inc,jit_flag)
     implicit none
+    integer :: ndata, nt
     real(8) :: PI
-    integer :: MMAX, NDSMAX, NPLMAX,ndata
+    integer :: MMAX, NDSMAX, NPLMAX
     parameter (PI = 3.14159265358979d0, MMAX = 200, NDSMAX = 20, NPLMAX = 10)
-    real(8) :: a(MMAX), t(20000), ymod(20000), ys(20000)
+    real(8) :: a(MMAX), t(ndata), ymod(max(ndata,nt)), ys(ndata)
     real(8) :: covar(MMAX, MMAX), AU, day
     real(8) :: rms, mstar, sini(NPLMAX), mass(NPLMAX), ap(NPLMAX)
-    integer :: ts(20000), nbod, nt, writeflag_RV, gr_flag
+    integer :: grid_ts(nt), ts(ndata), nbod, writeflag_RV, gr_flag
     integer :: writeflag_best_par, writeflag_fit, hkl
     real(8) :: t0, dt, t_max, chisq, loglik, dy, sig2i, twopi
-    real(8) :: x(20000), sigs(20000)
+    real(8) :: x(nt), sigs(ndata)
     integer :: i, j, npl, ndset,  idset, mfit, ma, idsmax(NDSMAX)
     real(8) :: xj(NPLMAX), yj(NPLMAX),  zj(NPLMAX) 
     real(8) :: vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
@@ -2001,7 +2002,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
     real(4) :: model_max, model_min
     real(8) :: wdot(NPLMAX), u_wdot(NPLMAX), best_w, best_we
     integer :: dynamical_planets(npl), coplar_inc, jit_flag
-    real(8) :: ymod_pl(npl,20000), fixed_jitt     
+    real(8) :: ymod_pl(npl,max(ndata,nt)), fixed_jitt
     
     parameter (AU = 1.49597892d11, day = 86400.d0)
 
@@ -2134,7 +2135,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
             bestpar_1(j, :, 1) = (/ a(i + 1), a(i + 2) / 8.64d4, a(i + 3), &
                     best_w, a(i + 5) * 180.d0 / PI, &
                     dmod(a(i + 6) * 180.d0 / PI, 360.d0), &
-                    dmod(a(i + 7) * 180.d0 / PI, 360.d0), wdot(i), &
+                    dmod(a(i + 7) * 180.d0 / PI, 360.d0), wdot(j), &
                     0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0 /)
             bestpar_1(j, :, 2) = (/ dsqrt(covar(i + 1, i + 1)), &
                     dsqrt(covar(i + 2, i + 2)), &
@@ -2142,7 +2143,7 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
                     dsqrt(covar(i + 5, i + 5)) * 360.d0 / PI, &
                     dmod(dsqrt(covar(i + 6, i + 6)) * 180.d0 / PI, 360.d0), &
                     dmod(dsqrt(covar(i + 7, i + 7)) * 180.d0 / PI, 360.d0), &
-                    u_wdot(i), &
+                    u_wdot(j), &
                     0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0 /)
         enddo
 
@@ -2179,8 +2180,9 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
             x(i) = (i - 1) * dt * 8.64d4
         enddo
 
+        grid_ts = 1
         call RVKEP_dynamo (x, a, ymod, ymod_pl, ma, nt, epsil, deltat, hkl, &
-                dynamical_planets, ts, coplar_inc)
+                dynamical_planets, grid_ts, coplar_inc)
                 
         do i = 1, nt
             fit_array(i, :) = (/ t0 + x(i) / 8.64d4, &
@@ -2201,22 +2203,23 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
              bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
              fit_array, coplar_inc,jit_flag)
     implicit none
+    integer :: ndata, nt
     real(8) :: PI
     integer :: MMAX, NDSMAX, NPLMAX
     parameter (PI = 3.14159265358979d0, MMAX = 200, NDSMAX = 20, NPLMAX = 10)
-    real(8) :: a(MMAX), t(20000), ymod(20000), ys(20000)
-    real(8) :: covar(MMAX, MMAX), dyda(20000, MMAX), AU, day, loglik, dy, twopi
+    real(8) :: a(MMAX), t(ndata), ymod(max(ndata,nt)), ys(ndata)
+    real(8) :: covar(MMAX, MMAX), dyda(ndata, MMAX), dyda_grid(nt, MMAX), AU, day, loglik, dy, twopi
     real(8) :: rms, mstar, sini, mass(NPLMAX), ap(NPLMAX)
-    integer :: ts(20000), nbod, nt, writeflag_RV, gr_flag
+    integer :: ts(ndata), nbod, writeflag_RV, gr_flag
     integer :: writeflag_best_par, writeflag_fit, coplar_inc,jit_flag
     real(8) :: t0, dt, t_max, chisq, deltat, epsil, sig2i
-    real(8) :: x(20000), sigs(20000), jitter(NDSMAX)
-    integer :: i, j, npl, ndset, ndata, idset, mfit, ma, idsmax(NDSMAX), hkl
+    real(8) :: x(nt), sigs(ndata), jitter(NDSMAX)
+    integer :: i, j, npl, ndset, idset, mfit, ma, idsmax(NDSMAX), hkl
     real(8) :: j_mass(NPLMAX)
     real(4) :: model_max, model_min
     parameter (AU = 1.49597892d11, day = 86400.d0)
     real(8) :: wdot(NPLMAX), u_wdot(NPLMAX), best_w, best_we
-    real(8) :: ymod_pl(npl, 20000)     
+    real(8) :: ymod_pl(npl,max(ndata,nt))
     real(8) :: res_array(ndata, 6 + npl)
     real(8) :: fit_return(4), fit_array(nt, 2 + npl)
     real(8) :: bestpar_1(npl, 17, 2), bestpar_2(ndset, 2)
@@ -2224,7 +2227,6 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     common mstar, sini
-    save dyda
 
     nbod = npl + 1
     rms = 0.d0
@@ -2331,7 +2333,7 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
             bestpar_1(j, :, 1) = (/ a(i + 1), a(i + 2) / 8.64d4, a(i + 3), &
                     best_w, a(i + 5) * 180.d0 / PI, &
                     dmod(a(i + 6) * 180.d0 / PI, 360.d0), &
-                    dmod(a(i + 7) * 180.d0 / PI, 360.d0), wdot(i), &
+                    dmod(a(i + 7) * 180.d0 / PI, 360.d0), wdot(j), &
                     0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0 /)
             bestpar_1(j, :, 2) = (/ dsqrt(covar(i + 1, i + 1)), &
                     dsqrt(covar(i + 2, i + 2)) / 8.64d4, &
@@ -2339,7 +2341,7 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
                     dsqrt(covar(i + 5, i + 5)) * 180.d0 / PI, &
                     dmod(dsqrt(covar(i + 6, i + 6)) * 180.d0 / PI, 360.d0), &
                     dmod(dsqrt(covar(i + 7, i + 7)) * 180.d0 / PI, 360.d0), &
-                    u_wdot(i), &
+                    u_wdot(j), &
                     0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0 /)
         enddo
 
@@ -2368,7 +2370,7 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
         do i = 1, nt
             x(i) = (i - 1) * dt * 8.64d4
         enddo
-        call RVKEP_ewcop_fin (x, a, ymod, ymod_pl, dyda, ma, nt, epsil, deltat,&
+        call RVKEP_ewcop_fin (x, a, ymod, ymod_pl, dyda_grid, ma, nt, epsil, deltat,&
          hkl, coplar_inc)
         do i = 1, nt
 !            write(*,*) i,ymod(i), a(7 * npl * ndset + 1), & 
@@ -2397,7 +2399,7 @@ subroutine RVKEP_keplm (x, a, y, y_pl, dyda, ma, ts, hkl)
     real(8) :: cosw, sinw, capm, cape, cose, sine, cosf
     real(8) :: sinf, fac1, fac2, fac3
     real(8) :: orbel_ehybrid, omega(10), capmm(10), ecc(10)
-    real(8) :: wm, sinwm, coswm, sin2wm, cos2wm, sin3wm, cos3wm, omegad(10)
+    real(8) :: omegad(10)
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
@@ -2459,7 +2461,8 @@ subroutine RVKEP_keplm (x, a, y, y_pl, dyda, ma, ts, hkl)
             if (a(j + 5)>2.d0 * PI) a(j + 5) = dmod(a(j + 5), 2.d0 * PI)
 
             capmm(i) = a(j + 5) - omega(i)
-
+            omegad(i) = a(j + 6)
+            
             if(capmm(i)<0.d0)capmm(i) = dmod(capmm(i) + 2.d0 * PI, 2.d0 * PI)
             if(capmm(i)>0.d0)capmm(i) = dmod(capmm(i), 2.d0 * PI)
         enddo
@@ -2491,88 +2494,26 @@ subroutine RVKEP_keplm (x, a, y, y_pl, dyda, ma, ts, hkl)
 
             dyda(1 + i) = fac1
             dyda(2 + i) = -TWOPI * fac3 * x / a(2 + i)**2
-            dyda(3 + i) = -a(1 + i) * sine * (2.d0 - ecc(j)**2 - ecc(j) * cose) * &
+            ! Include the direct derivative of K * e * cos(w).
+            dyda(3 + i) = a(1 + i) * cosw - &
+                    a(1 + i) * sine * (2.d0 - ecc(j)**2 - ecc(j) * cose) * &
                     fac2 / dsqrt(1.d0 - ecc(j)**2)
             dyda(4 + i) = -a(1 + i) * (sinw * cosf + cosw * sinf + ecc(j) * sinw)
             dyda(5 + i) = fac3
             dyda(6 + i) = -a(1 + i) * (sinw * cosf + cosw * sinf&
                     + ecc(j) * sinw) * x / 365.25d0
+                    
         enddo
     else
         do j = 1, npl
             i = 6 * (j - 1)
-
-            if (ecc(j)>1.d-2) then
-                cosw = dcos(omega(j) + omegad(j) * x / 365.25d0)
-                sinw = dsin(omega(j) + omegad(j) * x / 365.25d0)
-
-                capm = TWOPI * x / a(2 + i) + capmm(j)
-                capm = dmod(capm, 2.d0 * PI)
-                !             write(*,*) capm
-                cape = ORBEL_EHYBRID (ecc(j), capm)
-                cose = dcos(cape)
-                sine = dsin(cape)
-                cosf = (cose - ecc(j)) / (1.d0 - ecc(j) * cose)
-                sinf = (dsqrt(1.d0 - ecc(j)**2) * sine) / (1.d0 - ecc(j) * cose)
-
-                fac1 = cosw * cosf - sinw * sinf + ecc(j) * cosw
-                fac2 = cosw * sinf + sinw * cosf
-                fac3 = -a(1 + i) * dsqrt(1.d0 - ecc(j)**2) * fac2 / &
-                        (1.d0 - ecc(j) * cose)**2
-
-                y_pl(j) = a(1 + i) * fac1
-                y = y + a(1 + i) * fac1
-                dyda(1 + i) = fac1
-                dyda(2 + i) = -TWOPI * fac3 * x / a(2 + i)**2
-                dyda(3 + i) = -a(1 + i) * fac2 * ((2.d0 - ecc(j)**2 - ecc(j) * cose) * &
-                        sinw * sine / dsqrt(1.d0 - ecc(j)**2) - &
-                        dsqrt(1.d0 - ecc(j) * 2) * cosw / ecc(j)) / &
-                        (1.d0 - ecc(j) * cose)**2 - &
-                        a(1 + i) * fac2 * cosw / ecc(j)
-                dyda(4 + i) = -a(1 + i) * fac2 * ((2.d0 - ecc(j)**2 - ecc(j) * cose) * &
-                        cosw * sine / dsqrt(1.d0 - ecc(j)**2) + &
-                        dsqrt(1.d0 - ecc(j) * 2) * sinw / ecc(j)) / &
-                        (1.d0 - ecc(j) * cose)**2 + &
-                        a(1 + i) * fac2 * sinw / ecc(j)
-                dyda(5 + i) = fac3
-                dyda(6 + i) = dyda(4 + i) * x / 365.25d0
-            else
-                wm = TWOPI * x / a(2 + i) + a(5 + i)
-                wm = dmod(wm, 2.d0 * PI)
-
-                coswm = dcos(wm)
-                sinwm = dsin(wm)
-                cos2wm = dcos(2.d0 * wm)
-                sin2wm = dsin(2.d0 * wm)
-                cos3wm = dcos(3.d0 * wm)
-                sin3wm = dsin(3.d0 * wm)
-
-                fac1 = coswm + a(3 + i) * sin2wm - a(4 + i) * (1.d0 - cos2wm) - &
-                        a(3 + i)**2 * (0.875d0 * coswm + 1.125d0 * cos3wm) - &
-                        a(3 + i) * a(4 + i) * (0.25d0 * sinwm - 2.25d0 * sin3wm) - &
-                        a(4 + i)**2 * 1.125d0 * (coswm - cos3wm)
-                fac3 = -sinwm + 2.d0 * a(3 * i) * cos2wm - 2.d0 * a(4 + i) * sin2wm + &
-                        a(3 + i)**2 * (0.875d0 * sinwm - 3.375d0 * sin3wm) - &
-                        a(3 + i) * a(4 + i) * (0.25d0 * coswm - 6.75d0 * cos3wm) + &
-                        a(4 + i)**2 * (1.125d0 * coswm - 3.375 * sin3wm)
-
-                y_pl(j) = a(1 + i) * fac1
-                y = y + a(1 + i) * fac1
-                dyda(1 + i) = fac1
-                dyda(2 + i) = -a(1 + i) * TWOPI * fac3 * x / a(2 + i)**2
-                dyda(3 + i) = a(1 + i) * (sin2wm - &
-                        a(3 + i) * (1.75d0 * coswm + 2.25d0 * cos3wm) - &
-                        a(4 + i) * (0.25d0 * sinwm - 2.25d0 * sin3wm))
-                dyda(4 + i) = a(1 + i) * (-1.d0 + a(4 + i) * cos2wm - &
-                        a(3 + i)**(0.25d0 * sinwm - 2.25d0 * sin3wm) - &
-                        a(4 + i) * 2.25d0 * (coswm - cos3wm))
-                dyda(5 + i) = a(1 + i) * fac3
-                dyda(6 + i) = dyda(4 + i) * x / 365.25d0
-            endif
+            call rv_hkl_exact(x, a(i+1:i+6), y_pl(j), dyda(i+1:i+6))
+            y = y + y_pl(j)
         enddo
     endif
 
     y = y + a(6 * npl + ts)
+    dyda(6 * npl + 1 : 6 * npl + ndset) = 0.d0
     dyda(6 * npl + ts) = 1.d0
 
     y = y + a(6 * npl + ndset + 1) * x + a(6 * npl + ndset + 2) * x**2
@@ -2580,9 +2521,9 @@ subroutine RVKEP_keplm (x, a, y, y_pl, dyda, ma, ts, hkl)
     dyda(6 * npl + ndset + 1) = x
     dyda(6 * npl + ndset + 2) = x**2
 
-    do i = ts + 1, ndset
-        dyda(6 * npl + i) = 0.d0
-    enddo
+!    do i = ts + 1, ndset
+!        dyda(6 * npl + i) = 0.d0
+!    enddo
     return
 end
 
@@ -2786,7 +2727,7 @@ subroutine RVKEP_dynamo (t, a, ymod, ymod_pl, ma, ndata, epsil, dt, hkl, &
 
         do i = 1, ndata !initialize ymod
             call RVKEP_dynamoplus(t(i), a_kep, ymod_kep(i), ymod_pl(:,i), &
-                dyda_kep, ma - na, ts(i), k)
+                dyda_kep, ma, ts(i), k)
         enddo
 
 
@@ -2817,7 +2758,7 @@ subroutine RVKEP_ewcop_fin (t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, &
     integer :: npl, ma, i, j, NPLMAX, MMAX, na, ndset, NDSMAX, idset, ndata, nbod
     parameter (NPLMAX = 10, NDSMAX = 20, MMAX = 200)
     real(8) :: t(ndata), ymod(ndata), ymod_pl(npl,ndata)
-    real(8) :: a(ma), dyda(20000, MMAX)
+    real(8) :: a(ma), dyda(ndata, MMAX)
     real(8) :: mstar, ap(NPLMAX), mass(NPLMAX)
     real(8) :: xh(NPLMAX), yh(NPLMAX), zh(NPLMAX)
     real(8) :: vxh(NPLMAX), vyh(NPLMAX), vzh(NPLMAX)
@@ -3138,7 +3079,7 @@ subroutine GENINIT_J3_ewcop (nbod, ap, a, &
     real(8) :: xj(NPLMAX), yj(NPLMAX), zj(NPLMAX)
     real(8) :: vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
     real(8) :: rpl(NPLMAX), rhill(NPLMAX)
-    real(8) :: frho3, ap(NPLMAX), a(NPLMAX)
+    real(8) :: frho3, ap(NPLMAX), a(7 * (nbod - 1))
     real(8) :: gm, inc, capom, omega, capm
     integer ::  ialpha
 
@@ -3190,96 +3131,109 @@ end
 
 subroutine integrate_cop_fin(ymod, ymod_pl, t, nbod, ndata, mass, &
         xh, yh, zh, vxh, vyh, vzh, eps, dt)
- 
     include 'rvmod.inc'
 
-    integer ::  IO_NBITS
-    parameter(IO_NBITS = 6)
-    real(8) :: mass(NPLMAX), j2rp2, j4rp4
-    real(8) :: xh(NPLMAX), yh(NPLMAX), zh(NPLMAX)
+    integer :: nbod, ndata, i, j, k, left, middle, right, width
+    integer :: first, last, stride, pass, row, previous
+    integer :: order(ndata), work(ndata)
+    real(8) :: mass(NPLMAX), xh(NPLMAX), yh(NPLMAX), zh(NPLMAX)
     real(8) :: vxh(NPLMAX), vyh(NPLMAX), vzh(NPLMAX)
+    real(8) :: initial(6,nbod), t(ndata), ymod(ndata), ymod_pl(nbod-1,ndata)
+    real(8) :: eps, dt, time, target, h, remaining, mtotal
 
-    integer ::  i1st
-    integer ::  nbod, ntp, nleft
-    integer ::  iub, iuj, iud, iue
+    ymod = 0.d0
+    ymod_pl = 0.d0
+    if (ndata == 0) return
+    initial(1,:) = xh(1:nbod)
+    initial(2,:) = yh(1:nbod)
+    initial(3,:) = zh(1:nbod)
+    initial(4,:) = vxh(1:nbod)
+    initial(5,:) = vyh(1:nbod)
+    initial(6,:) = vzh(1:nbod)
+    mtotal = sum(mass(1:nbod))
 
-    real(8) :: tstop, dt
-    real(8) :: time
-
-    integer ::  ndata, i, j, nd, flag
-    real(8) :: ymod(ndata), ymod_pl(nbod-1,ndata), t(ndata)
-    real(8) :: h, eps, mtotal
-
-    ntp = 0
-    ! Prompt and read name of planet data file
-    j2rp2 = 0.0d0
-    j4rp4 = 0.0d0
-
-    ! Initialize initial time and times for first output and first dump
-    time = 0.d0
-    tstop = t(ndata)
-
-    iub = 20
-    iuj = 30
-    iud = 40
-    iue = 60
-
-    nleft = ntp
-    i1st = 0
-
-    do i = 1, ndata !initialize ymod
-        ymod(i) = 0.0
-!        write(*,*) nbod
-!        do j = 1, nbod-1
-!           ymod_pl(j,i) = 0.0
-!        enddo
+    ! Stable merge sort of row indices: accept arbitrary input order without
+    ! changing observation rows, and avoid a quadratic scan at every step.
+    order = [(i, i=1,ndata)]
+    width = 1
+    do while (width < ndata)
+        do left = 1, ndata, 2*width
+            middle = min(left + width, ndata + 1)
+            right = min(left + 2*width - 1, ndata)
+            i = left
+            j = middle
+            do k = left, right
+                if (i >= middle) then
+                    work(k) = order(j)
+                    j = j + 1
+                elseif (j > right) then
+                    work(k) = order(i)
+                    i = i + 1
+                elseif (t(order(i)) <= t(order(j))) then
+                    work(k) = order(i)
+                    i = i + 1
+                else
+                    work(k) = order(j)
+                    j = j + 1
+                endif
+            enddo
+        enddo
+        order = work
+        width = 2*width
     enddo
-    !---------here is the big loop--------------------------
-    nd = 1
-    !------output the first ymod if time of dataset begins from 0
-    if (abs(t(1))<1.d-10) then
-        mtotal = 0.d0
-        do i = 1, nbod
-            mtotal = mass(i) + mtotal
-        enddo
-        do i = 2, nbod
-            ymod_pl(i-1,nd) = mass(i) / mtotal * vzh(i)            
-            ymod(nd) = ymod(nd) + mass(i) / mtotal * vzh(i)
-        enddo
-        nd = nd + 1
-    endif
 
-    !-------loop-----
-    do while(time<=tstop)
-        h = dt
-        flag = 0 !flag for controling output
-        do i = 1, ndata
-            if ((time<t(i)).and.((t(i) - time)<=dt)) then
-                flag = 1
-                h = t(i) - time
-                exit
+    ! Negative times run outward from the epoch in reverse sorted order.
+    ! Reset the epoch state before the independent forward pass.
+    do pass = 1, 2
+        xh(1:nbod) = initial(1,:)
+        yh(1:nbod) = initial(2,:)
+        zh(1:nbod) = initial(3,:)
+        vxh(1:nbod) = initial(4,:)
+        vyh(1:nbod) = initial(5,:)
+        vzh(1:nbod) = initial(6,:)
+        time = 0.d0
+        previous = 0
+        if (pass == 1) then
+            first = ndata
+            last = 1
+            stride = -1
+        else
+            first = 1
+            last = ndata
+            stride = 1
+        endif
+        do k = first, last, stride
+            row = order(k)
+            target = t(row)
+            if (pass == 1 .and. target >= 0.d0) cycle
+            if (pass == 2 .and. target < 0.d0) cycle
+            if (previous /= 0) then
+                if (target == t(previous)) then
+                    ymod(row) = ymod(previous)
+                    ymod_pl(:,row) = ymod_pl(:,previous)
+                    cycle
+                endif
             endif
-        enddo
-
-        call bs_step2(nbod, mass, j2rp2, j4rp4, &
-                xh, yh, zh, vxh, vyh, vzh, h, eps)
-
-        if (flag.eq.1) then
-            mtotal = 0.d0
-            do i = 1, nbod
-                mtotal = mtotal + mass(i)
+            do while (time /= target)
+                remaining = target - time
+                h = sign(min(abs(dt), abs(remaining)), remaining)
+                ! A zero step size means advance directly to the target.
+                if (h == 0.d0) h = remaining
+                call bs_step2(nbod, mass, 0.d0, 0.d0, &
+                        xh, yh, zh, vxh, vyh, vzh, h, eps)
+                if (abs(h) >= abs(remaining)) then
+                    time = target
+                else
+                    time = time + h
+                endif
             enddo
             do i = 2, nbod
-                j = 7 * (i - 2)
-                ymod_pl(i-1,nd) = mass(i) / mtotal * vzh(i)                           
-                ymod(nd) = ymod(nd) + mass(i) / mtotal * vzh(i)
+                ymod_pl(i-1,row) = mass(i) / mtotal * vzh(i)
             enddo
-            nd = nd + 1
-        endif
-
-        time = time + h
+            ymod(row) = sum(ymod_pl(:,row))
+            previous = row
+        enddo
     enddo
-    return
 end
 
 subroutine bs_step2(nbod, mass, j2rp2, j4rp4, &
@@ -3328,7 +3282,7 @@ subroutine bs_step2(nbod, mass, j2rp2, j4rp4, &
     tfake = 0.0d0
     dttmp = dt
 
-    do while((abs(tfake - dt) / dt) > 1.0e-7) !just to be real safe
+    do while(abs(tfake - dt) > 1.0e-7 * abs(dt))
         call bs_int_pl(nbod, ntpi, mass, j2rp2, j4rp4, &
                 tfake, dttmp, ybs, eps)
         dttmp = dt - tfake
@@ -3610,10 +3564,9 @@ subroutine MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, nalp, &
     external funcs
     integer ::  mfit, i, j, k, l, m, gr_flag, coplar_inc
     real(8) :: dy, sig2i, wt, ymod(ndata)
-    real(8) :: ymod_pl(npl,ndata), dyda(20000, MMAX), jitt(NDSMAX)
+    real(8) :: ymod_pl(npl,ndata), dyda(ndata, MMAX), jitt(NDSMAX)
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
-    save dyda
 
     mfit = 0
     do j = 1, ma
@@ -3686,11 +3639,10 @@ end
 ! From Numerical Recipes.
 subroutine GAUSSJ_dynamo (a, n, np, b, m, mp)
     implicit none
-    integer ::  m, mp, n, np, NMAX
+    integer ::  m, mp, n, np
     real(8) :: a(np, np), b(np, mp)
-    parameter (NMAX = 50)
     integer ::  i, icol, irow, j, k, l, ll, kkk, &
-            indxc(NMAX), indxr(NMAX), ipiv(NMAX)
+            indxc(n), indxr(n), ipiv(n)
     real(8) :: big, dum, pivinv
 
     icol = 0
@@ -3776,10 +3728,9 @@ end
 ! From Numerical Recipes.
 subroutine GAUSSJ_dynlm (a, n, np, b, m, mp)
     implicit none
-    integer ::  m, mp, n, np, NMAX
+    integer ::  m, mp, n, np
     real(8) :: a(np, np), b(np, mp)
-    parameter (NMAX = 51)
-    integer ::  i, icol, irow, j, k, l, ll, indxc(NMAX), indxr(NMAX), ipiv(NMAX)
+    integer ::  i, icol, irow, j, k, l, ll, indxc(n), indxr(n), ipiv(n)
     real(8) :: big, dum, pivinv
 
     icol = 0
@@ -5258,3 +5209,79 @@ subroutine bs_der_pl(nbod, mass, j2rp2, j4rp4, ybs, dy)
     enddo
     return
 end
+
+! Exact elliptic RV in h=e*sin(omega), k=e*cos(omega), lambda=M+omega.
+! p = (K, P_days, h, k, lambda_radians, omega_dot_radians_per_year).
+! x is elapsed days. Derivatives are with respect to these six parameters.
+subroutine rv_hkl_exact(x, p, y, dy)
+    use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_quiet_nan, ieee_is_finite
+    implicit none
+    real(8), intent(in) :: x, p(6)
+    real(8), intent(out) :: y, dy(6)
+    real(8) :: twopi, delta, cd, sd, h, k, e2, ecc, s, ell
+    real(8) :: f, lo, hi, residual, candidate, cf, sf, q, r, den, b, unit_rv
+    real(8) :: df(3), ds(3), dq(3), db(3), dv(3)
+    integer :: iteration
+
+    y = ieee_value(0.d0, ieee_quiet_nan)
+    dy = y
+    if (.not.all(ieee_is_finite(p)) .or. .not.ieee_is_finite(x)) return
+    e2 = p(3)**2 + p(4)**2
+    if (p(2) <= 0.d0 .or. e2 >= 1.d0) return
+
+    twopi = 2.d0 * acos(-1.d0)
+    delta = p(6) * x / 365.25d0
+    cd = cos(delta)
+    sd = sin(delta)
+    h = p(3) * cd + p(4) * sd
+    k = p(4) * cd - p(3) * sd
+    ecc = sqrt(e2)
+    s = sqrt(1.d0 - e2)
+    ell = modulo(p(5) + twopi*x/p(2) + delta, twopi)
+
+    ! Eccentric longitude F obeys F - k*sin(F) + h*cos(F) = ell.
+    ! Its derivative is positive for every elliptic orbit. Safeguard Newton
+    ! with the guaranteed bracket [ell-e, ell+e], including the e=0 limit.
+    lo = ell - ecc
+    hi = ell + ecc
+    f = ell
+    do iteration = 1, 100
+        cf = cos(f)
+        sf = sin(f)
+        residual = f - k*sf + h*cf - ell
+        if (abs(residual) <= 4.d0*epsilon(f)*max(1.d0, abs(ell))) exit
+        if (residual > 0.d0) then
+            hi = f
+        else
+            lo = f
+        endif
+        den = 1.d0 - k*cf - h*sf
+        candidate = f - residual/den
+        if (candidate <= lo .or. candidate >= hi) candidate = 0.5d0*(lo+hi)
+        f = candidate
+    enddo
+    if (iteration > 100) return
+
+    q = k*cf + h*sf
+    r = -k*sf + h*cf
+    den = 1.d0 - q
+    b = cf - k*q/(1.d0+s)
+    unit_rv = s*b/den
+    y = p(1)*unit_rv
+
+    ! Local derivatives with respect to the rotated h, k and longitude.
+    df = (/ -cf/den, sf/den, 1.d0/den /)
+    ds = (/ -h/s, -k/s, 0.d0 /)
+    dq = (/ sf, cf, 0.d0 /) + r*df
+    db = -sf*df - k*dq/(1.d0+s) + k*q*ds/(1.d0+s)**2
+    db(2) = db(2) - q/(1.d0+s)
+    dv = p(1)*((ds*b+s*db)/den + s*b*dq/den**2)
+
+    ! Rotate gradients back to the orbital elements at the reference epoch.
+    dy(1) = unit_rv
+    dy(2) = dv(3)*(-twopi*x/p(2)**2)
+    dy(3) = dv(1)*cd - dv(2)*sd
+    dy(4) = dv(1)*sd + dv(2)*cd
+    dy(5) = dv(3)
+    dy(6) = (dv(1)*k - dv(2)*h + dv(3))*x/365.25d0
+end subroutine rv_hkl_exact

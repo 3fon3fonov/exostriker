@@ -1,3 +1,9 @@
+# Windows .exe installer build
+
+To build a Windows installer containing Python, dependencies, compiled native
+backends and icon shortcuts using standard Python, `venv`, and pip (no conda
+required), see [packaging/windows/README.md](packaging/windows/README.md).
+
 # Pre-installation - Anaconda
 
 It is recommended to use Anaconda, especially for Windows users. For this:

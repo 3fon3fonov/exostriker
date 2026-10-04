@@ -1,1456 +1,240 @@
-! GENINIT_J3 reads Jacobi orbital elements of nbod planets and generates
-! initial position and velocity in Jacobi coords.
-! This version outputs rpl and rhill.
-
-! Last modified by Man Hoi Lee, Aug 16, 2003.
-subroutine geninit_j3_in_days(iuflg, mstar0, nbod, frho3, planets_params, planets_results, coordinates)
+! In-memory SWIFT interface. Numerical initialization and Jacobi/MVS helpers
+! are derived from the original swift.f95 prototype; file-based drivers and
+! followers are replaced by direct state sampling. Python serializes sessions.
+module swift_memory_state
+    use, intrinsic :: ieee_arithmetic
+    use swift_memory_support
     include 'swift.inc'
+    integer :: nbod=0, nbodm=0, method=0, first_mvs=0, gr_counter=0, gr_stride=1
+    real(8) :: t=0.d0, stop_time=0.d0, dt=0.d0, interval=0.d0, tout=0.d0, eoff=0.d0
+    real(8) :: mass(NTPMAX),xj(NTPMAX),yj(NTPMAX),zj(NTPMAX)
+    real(8) :: vxj(NTPMAX),vyj(NTPMAX),vzj(NTPMAX)
+    real(8) :: xh(NTPMAX),yh(NTPMAX),zh(NTPMAX),vxh(NTPMAX),vyh(NTPMAX),vzh(NTPMAX)
+    real(8) :: rpl(NTPMAX),rhill(NTPMAX)
+    logical :: initial=.false., finished=.true.
+contains
+    subroutine sample(energy,orbit,valid)
+        real(8), intent(out) :: energy(:),orbit(:,:)
+        integer, intent(out) :: valid(:)
+        real(8) ke,pot,total,angular(3),gm,a,e,inc,node,omega,anomaly
+        real(8) elements(NPLMAX,11)
+        integer j,k,ialpha
+        energy=0.d0
+        orbit=0.d0
+        valid=0
+        if(nbod == 1) then
+            energy=[t,eoff,0.d0,0.d0,0.d0]
+            if(.not.ieee_is_finite(eoff)) swift_status=4
+            return
+        endif
+        call coord_j2h(nbod,mass,xj,yj,zj,vxj,vyj,vzj,xh,yh,zh,vxh,vyh,vzh)
+        if(swift_status /= 0) return
+        call anal_energy(nbod,mass,0.d0,0.d0,xh,yh,zh,vxh,vyh,vzh,ke,pot,total,angular)
+        if(swift_status /= 0) return
+        energy = [t,total+eoff,angular]
+        gm=mass(1)
+        do j=2,nbod
+            gm=gm+mass(j)
+            call orbel_xv2el(xj(j),yj(j),zj(j),vxj(j),vyj(j),vzj(j),gm, &
+                            ialpha,a,e,inc,node,omega,anomaly)
+            if(swift_status /= 0) return
+            elements(j,:) = [t,real(j,8),a,e,inc*DEGRAD,node*DEGRAD, &
+                            omega*DEGRAD,anomaly*DEGRAD,a*(1.d0-e),a*(1.d0+e),mass(j)/mass(1)]
+            if(method /= 1) elements(j,2)=-real(j,8)
+        enddo
+        do k=1,ntracked
+            j=tracked_slot(k)
+            if(j >= 2 .and. j <= nbod) then
+                valid(k)=1
+                orbit(k,:)=elements(j,:)
+            endif
+        enddo
+        if(.not.all(ieee_is_finite(energy)) .or. .not.all(ieee_is_finite(orbit))) swift_status=4
+    end subroutine
 
-    real(8) SMASSYR, MSUN, AU
-    parameter (SMASSYR = TWOPI * TWOPI)
-    parameter (MSUN = 1.989d33, AU = 1.49597892d13)
+    subroutine step()
+        integer first,old_nbod,isenc,mergelst(2,NTPMAX),mergecnt,j,ialpha
+        integer(2) iecnt(NTPMAX)
+        real(8) gm,a,e,inc,node,omega,anomaly,corr
+        logical(2) close_encounters
+        close_encounters=.true.
+        if(method == 1) then
+            first=0
+            call coord_j2h(nbod,mass,xj,yj,zj,vxj,vyj,vzj,xh,yh,zh,vxh,vyh,vzh)
+            if(swift_status /= 0) return
+            call symba5_step_pl(first,t,nbod,nbodm,mass,0.d0,0.d0, &
+                xh,yh,zh,vxh,vyh,vzh,dt,close_encounters,rpl,isenc, &
+                mergelst,mergecnt,iecnt,eoff,rhill,1.d-40)
+            if(swift_status /= 0) return
+            call coord_h2j(nbod,mass,xh,yh,zh,vxh,vyh,vzh,xj,yj,zj,vxj,vyj,vzj)
+            if(swift_status /= 0) return
+            t=t+dt
+            old_nbod=nbod
+            ! Preserve the original SyMBA/Jacobi driver's discard convention.
+            call discard_massive5(t,dt,nbod,mass,xj,yj,zj,vxj,vyj,vzj, &
+                0.0001d0,50.d0,50.d0,-1.d0,close_encounters,rpl,rhill, &
+                isenc,mergelst,mergecnt,iecnt,eoff,first)
+            if(swift_status /= 0) return
+            if(nbod /= old_nbod) call symba5_nbodm(nbod,mass,1.d-40,nbodm)
+        else
+            if(method == 3 .and. gr_counter == gr_stride) then
+                gm=mass(1)
+                do j=2,nbod
+                    gm=gm+mass(j)
+                    call orbel_xv2el(xj(j),yj(j),zj(j),vxj(j),vyj(j),vzj(j),gm, &
+                                    ialpha,a,e,inc,node,omega,anomaly)
+                    if(swift_status /= 0) return
+                    if(ialpha /= -1) then
+                        ! The orbit-averaged GR precession requires a bound
+                        ! ellipse. Return completed histories as an early stop.
+                        swift_status=5
+                        return
+                    endif
+                    call gr_corr(a,e,gm,corr,dt)
+                    omega=omega+corr*gr_stride
+                    call orbel_el2xv(gm,ialpha,a,e,inc,node,omega,anomaly, &
+                                    xj(j),yj(j),zj(j),vxj(j),vyj(j),vzj(j))
+                    if(swift_status /= 0) return
+                enddo
+                ! GR changes positions as well as velocities. The next MVS
+                ! half-kick must recompute its saved acceleration cache.
+                first_mvs=0
+                gr_counter=0
+            endif
+            if(method == 3) gr_counter=gr_counter+1
+            call step_kdk_pl_j(first_mvs,nbod,mass,0.d0,0.d0,xj,yj,zj,vxj,vyj,vzj,dt)
+            if(swift_status /= 0) return
+            t=t+dt
+            ! MVS's original discard() handles test particles only (ntp=0).
+        endif
+        if(.not.all(ieee_is_finite(xj(:nbod))) .or. .not.all(ieee_is_finite(yj(:nbod))) .or. &
+           .not.all(ieee_is_finite(zj(:nbod))) .or. .not.all(ieee_is_finite(vxj(:nbod))) .or. &
+           .not.all(ieee_is_finite(vyj(:nbod))) .or. .not.all(ieee_is_finite(vzj(:nbod)))) swift_status=4
+    end subroutine
+end module
 
-    integer nbod
-    real(8) mass(NTPMAX), j2rp2, j4rp4
-    real(8) xj(NTPMAX), yj(NTPMAX), zj(NTPMAX)
-    real(8) vxj(NTPMAX), vyj(NTPMAX), vzj(NTPMAX)
-    real(8) rpl(NTPMAX), rhill(NTPMAX)
-    integer iflgchk
-    logical(8) lclose
+subroutine swift_begin(stellar_mass,planets,nplan,integrator,tmax,timestep,output_step,gr_step,timeout,status)
+    use swift_memory_state
+    implicit none
+    integer, intent(in) :: nplan,integrator,gr_step
+    real(8), intent(in) :: stellar_mass,planets(nplan,7),tmax,timestep,output_step,timeout
+    integer, intent(out) :: status
+    real(8) coordinates(3*nplan+3,3),params(nplan,9)
+    integer j
+    status=1
+    finished=.true.
+    if(nplan < 1 .or. nplan > 50) return
+    if(integrator < 1 .or. integrator > 3 .or. gr_step < 1) return
+    if(.not.all(ieee_is_finite([stellar_mass,tmax,timestep,output_step,timeout]))) return
+    if(min(stellar_mass,tmax,timestep,output_step,timeout) <= 0.d0) return
+    if(.not.all(ieee_is_finite(planets))) return
+    if(any(planets(:,1:2) <= 0.d0) .or. any(planets(:,3)<0.d0) .or. any(planets(:,3)>=1.d0)) return
+    call memory_reset(nplan,timeout)
+    mass=0.d0
+    xj=0.d0; yj=0.d0; zj=0.d0
+    vxj=0.d0; vyj=0.d0; vzj=0.d0
+    rpl=0.d0; rhill=0.d0
+    call geninit_j3_in_days(1,stellar_mass,nplan,1.d0,planets,params,coordinates)
+    status=swift_status
+    if(status /= 0) return
+    nbod=nplan+1
+    do j=1,nbod
+        mass(j)=coordinates(3*j-2,1)
+        rhill(j)=coordinates(3*j-2,2)
+        rpl(j)=coordinates(3*j-2,3)
+        xj(j)=coordinates(3*j-1,1); yj(j)=coordinates(3*j-1,2); zj(j)=coordinates(3*j-1,3)
+        vxj(j)=coordinates(3*j,1); vyj(j)=coordinates(3*j,2); vzj(j)=coordinates(3*j,3)
+    enddo
+    call symba5_nbodm(nbod,mass,1.d-40,nbodm)
+    method=integrator
+    t=0.d0; stop_time=tmax; dt=timestep; interval=output_step; tout=interval; eoff=0.d0
+    first_mvs=0; gr_counter=0; gr_stride=gr_step
+    initial=.true.; finished=.false.
+    call swift_poll()
+    status=swift_status
+end subroutine
 
-    real(8) mstar0, mpl0, frho3
-
-    real(8) gm, a, ecc, inc, capom, omega, capm
-
-    integer ialpha, i, iuflg, j
-
-!    character(80) outfile
-
-    real(8) planets_params(nbod, 7), planets_results(nbod, 9), coordinates(nbod*3+3, 3)
-!f2py intent(in) iuflg, mstar0, nbod, frho3, outfile
-!f2py intent(in) planets_params
-!f2py intent(out) planets_results, coordinates
-!f2py depend(nbod) planets_params, planets_results, coordinates
-
-!100  write (*, *) ' Units Menu:'
-!    write (*, *) '       0 ==> Solar masses, and AU'
-!    write (*, *) '       1 ==> AU, and Years'
-!    read (*, *) iuflg
-!    if ((iuflg.ne.0).and.(iuflg.ne.1)) goto 100
-!    write (*, *) ' Mass of central star (in solar mass):'
-!    read (*, *) mstar0
-!    write (*, *) ' Number of planets:'
-!    read (*, *) nbod
-!    write (*, *) ' f/rho^(1/3) for radius (rho in g/cm^3):'
-!    read (*, *) frho3
-!    write (*, *) ' Enter name of data file for symba5_j:'
-!    read (*, 201) outfile
-!201  format (a)
-
-    if ((iuflg/=0).and.(iuflg/=1)) then
-        write(*,*) "Units Menu 0 ==> Solar masses, and AU'; and 1 ==> AU, and Years'; value received: ", iuflg
+subroutine swift_advance(nplan,max_steps,capacity,energy,orbits,valid,nfilled,done,status)
+    use swift_memory_state
+    implicit none
+    integer, intent(in) :: nplan,max_steps,capacity
+    real(8), intent(out) :: energy(capacity,5),orbits(capacity,nplan,11)
+    integer, intent(out) :: valid(capacity,nplan),nfilled,done,status
+    integer steps
+    energy=0.d0; orbits=0.d0; valid=0
+    nfilled=0; steps=0; done=0
+    if(nplan /= ntracked .or. capacity < 1 .or. max_steps < 1) then
+        status=1
         return
     endif
-
-    lclose = .true.
-    iflgchk = 0
-    nbod = nbod + 1
-    if (iuflg==0) then
-        mass(1) = mstar0
-    else
-        mass(1) = mstar0 * SMASSYR / (365.25 * 365.25)
+    call swift_poll()
+    if(initial .and. swift_status == 0) then
+        nfilled=1
+        call sample(energy(1,:),orbits(1,:,:),valid(1,:))
+        initial=.false.
     endif
-    j2rp2 = 0.d0
-    j4rp4 = 0.d0
-    xj(1) = 0.d0
-    yj(1) = 0.d0
-    zj(1) = 0.d0
-    vxj(1) = 0.d0
-    vyj(1) = 0.d0
-    vzj(1) = 0.d0
-
-!    open (unit = 12, file = 'geninit_j.out')
-!    write (12, *) ' m     a     e     i     omega capom M     rpl   rh'
-
-    gm = mass(1)
-
-    do i = 2, nbod
-!        write (*, *) ' Mass of planet', i - 1, ' (in solar mass):'
-!        read (*, *) mpl0
-        mpl0 = planets_params(i-1, 1)
-        if (iuflg==0) then
-            mass(i) = mpl0
-        else
-            mass(i) = mpl0 * SMASSYR / (365.25 * 365.25)
+    do while(.not.finished .and. nfilled < capacity .and. steps < max_steps .and. swift_status == 0)
+        if(t > stop_time .or. (method == 1 .and. nbod <= 1)) then
+            finished=.true.
+            exit
         endif
-        rpl(i) = frho3 * (1.5d0 * mpl0 * MSUN / TWOPI)**0.3333333333d0 / AU
-
-        ialpha = -1
-        gm = gm + mass(i)
-
-!        write (*, *)&
-!                ' a (AU), e, i (deg), omega (deg), capom (deg), M (deg):'
-!        read (*, *) a, ecc, inc, omega, capom, capm
-        a = planets_params(i-1, 2)
-        ecc = planets_params(i-1, 3)
-        inc = planets_params(i-1, 4)
-        omega = planets_params(i-1, 5)
-        capom = planets_params(i-1, 6)
-        capm = planets_params(i-1, 7)
-
-        inc = inc / DEGRAD
-        capom = capom / DEGRAD
-        omega = omega / DEGRAD
-        capm = capm / DEGRAD
-
-        rhill(i) = a * (mass(i) / (3.d0 * mass(1)))**0.3333333333d0
-
-!        write (12, 251) mass(i), a, ecc, inc, omega, capom, capm, &
-!                rpl(i), rhill(i)
-!251     format (1p9e12.4)
-        planets_results(i-1, :) = (/mass(i), a, ecc, inc, omega, capom, capm, &
-                rpl(i), rhill(i)/)
-
-        call ORBEL_EL2XV (gm, ialpha, a, ecc, inc, capom, omega, capm, &
-                xj(i), yj(i), zj(i), vxj(i), vyj(i), vzj(i))
-    enddo
-
-!    close (unit = 12)
-
-!    call IO_DUMP_PL_SYMBA (outfile, nbod, mass, xj, yj, zj, vxj, vyj, vzj, &
-!            lclose, iflgchk, rpl, rhill, j2rp2, j4rp4)
-
-    if(btest(iflgchk,5))  then ! bit 5 is set
-           coordinates(1, :) = (/ mass(1),j2rp2,j4rp4 /)
-        else
-            coordinates(1, :) = (/ mass(1), 0.d0, 0.d0 /)
+        if(mod(steps,64) == 0) call swift_poll()
+        if(swift_status /= 0) exit
+        if(t+dt <= t) then
+            swift_status=4
+            exit
         endif
-        coordinates(2, :) = (/ xj(1),yj(1),zj(1) /)
-        coordinates(3, :) = (/ vxj(1),vyj(1),vzj(1) /)
-
-    do j=2,nbod
-           if(lclose) then
-              coordinates((j-1)*3+1, :) = (/ mass(j),rhill(j),rpl(j) /)
-           else
-              coordinates((j-1)*3+1, :) = (/ mass(j),rhill(j), 0.d0 /)
-           endif
-           coordinates((j-1)*3+2, :) = (/ xj(j),yj(j),zj(j) /)
-           coordinates((j-1)*3+3, :) = (/ vxj(j),vyj(j),vzj(j) /)
-    enddo
-
-    return
-end
-
-!**********************************************************************
-!              SWIFT_SYMBA5_J.F
-!**********************************************************************
-!
-!                 To run, need 2 input files. The code prompts for
-!                 the file names, but examples are :
-!
-!                   parameter file like       param.in
-!            planet file like          pl.in
-!
-!  NOTE:  No test particles in this code and the massive bodies
-!         are dimensioned at NTPMAX
-!
-!  This version inputs/outputs Jacobi coords and orbital elements.
-!
-! Authors: Man Hoi Lee
-! Date:    1/20/05
-! Last revision:
-subroutine swift_symba5_j(t0, tstop, dt, dtout, dtdump, lflg, &
-        rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat, &
-        nbod, coordinates, mtiny, energy_out_size, energy_out)
-    include 'swift.inc'
-    include 'io.inc'
-
-    real(8) mass(NTPMAX), j2rp2, j4rp4
-    real(8)  xj(NTPMAX), yj(NTPMAX), zj(NTPMAX)
-    real(8)  vxj(NTPMAX), vyj(NTPMAX), vzj(NTPMAX)
-
-    real(8)  xh(NTPMAX), yh(NTPMAX), zh(NTPMAX)
-    real(8)  vxh(NTPMAX), vyh(NTPMAX), vzh(NTPMAX)
-
-    real(8)  xjt(1), yjt(1), zjt(1)       ! Dummy for the io
-    real(8)  vxjt(1), vyjt(1), vzjt(1)
-    integer ntp, istat(1, NSTAT)
-
-    integer nbod, i1st, i, nbodm, nbodo
-    integer iflgchk, iub, iuj, iud, iue, ium
-
-    real(8)  t0, tstop, dt, dtout, dtdump
-    real(8)  t, tout, tdump, tfrac, eoff
-    real(8)  rpl(NTPMAX), rhill(NTPMAX)
-
-    real(8)  rmin, rmax, rmaxu, qmin, mtiny
-    logical(2)  lclose
-    integer isenc, ihills
-    integer mergelst(2, NTPMAX), mergecnt
-    integer(2)  iecnt(NTPMAX)
-
-    character(80)  outfile, fopenstat
-
-    logical(1) lflg(0:IO_NBITS-1)
-    integer energy_out_size, iter_fill, j
-    real(8) coordinates(nbod*3+3, 3), ke, pot, energy, eltot(3), energy_out(energy_out_size, 5)
-!f2py intent(in) t0, tstop, dt, dtout, dtdump, lflg, nbod, mtiny
-!f2py intent(in) rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat
-!f2py intent(in) energy_out_size
-!f2py intent(in) coordinates
-!f2py intent(out) energy_out
-!f2py depend(nbod) coordinates
-!f2py depend(energy_out_size) energy_out
-
-    !-----
-    !...  Executable code
-
-    ntp = 0
-
-    !...  print version number
-!    call util_version
-
-    ! Get data for the run and the test particles
-!    write(*, *) 'Enter name of parameter data file : '
-!    read(*, 999) inparfile
-!    call io_init_param(inparfile, t0, tstop, dt, dtout, dtdump, &
-!            iflgchk, rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat)
-
-    iflgchk=0
-    do i=0,IO_NBITS-1
-       if(lflg(i)) then
-          iflgchk = ibset(iflgchk,i)
-       endif
-    enddo
-
-    if(btest(iflgchk,0) .and. btest(iflgchk,1))  then
-       write(*,*) ' SWIFT ERROR: in io_init_param:'
-       write(*,*) '    Invalid logical flags '
-       write(*,*) '    You cannot request that both a real and ',&
-                  '       an integer binary file be written '
-       call util_exit(1)
-    endif
-
-    if(btest(iflgchk,4))  then ! bit 4 is set
-    else
-       rmin = -1.0
-       rmax = -1.0
-       rmaxu = -1.0
-       qmin = -1.0
-       lclose = .false.
-    endif
-
-    if((fopenstat(1:3)/='new') .and. &
-       (fopenstat(1:3)/='NEW') .and. &
-       (fopenstat(1:7)/='unknown') .and. &
-       (fopenstat(1:7)/='UNKNOWN') .and. &
-       (fopenstat(1:6)/='append') .and. &
-       (fopenstat(1:6)/='APPEND') ) then
-       write(*,*) ' SWIFT ERROR: in io_init_param:'
-       write(*,*) '    Invalid status flag:',fopenstat,':'
-       call util_exit(1)
-    endif
-
-    ! Prompt and read name of planet data file
-!    write(*, *) ' '
-!    write(*, *) 'Enter name of planet data file : '
-!    read(*, 999) inplfile
-!    999  format(a)
-!    call io_init_pl_symba(inplfile, lclose, iflgchk, nbod, mass, &
-!            xj, yj, zj, vxj, vyj, vzj, rpl, rhill, j2rp2, j4rp4)
-
-    if(nbod>NTPMAX) then
-         write(*,*) ' SWIFT ERROR: in io_init_pl_symba: '
-         write(*,*) '   The number of massive bodies,',nbod,','
-         write(*,*) '   is too large, it must be less than',NTPMAX
-         call util_exit(1)
-    endif
-
-    do j=1,nbod
-       mass(j) =  coordinates((j-1)*3+1, 1)
-       if(j==1) then
-           j2rp2 = coordinates(1, 2)
-           j4rp4 = coordinates(1, 3)
-           rpl(1) = 0.0d0
-           rhill(1) = 0.0d0
-       else
-           rhill(j) =  coordinates((j-1)*3+1, 2)
-           rpl(j) =  coordinates((j-1)*3+1, 3)
-       endif
-
-       xj(j) = coordinates((j-1)*3+2, 1)
-       yj(j) = coordinates((j-1)*3+2, 2)
-       zj(j) = coordinates((j-1)*3+2, 3)
-       vxj(j) = coordinates((j-1)*3+3, 1)
-       vyj(j) = coordinates((j-1)*3+3, 2)
-       vzj(j) = coordinates((j-1)*3+3, 3)
-    enddo
-
-    if((xj(1)/=0.0d0) .or. &
-       (yj(1)/=0.0d0) .or. &
-       (zj(1)/=0.0d0) .or. &
-       (vxj(1)/=0.0d0) .or. &
-       (vyj(1)/=0.0d0) .or. &
-       (vzj(1)/=0.0d0) ) then
-         write(*,*) ' SWIFT ERROR: in io_init_pl_symba: '
-         write(*,*) '   Input MUST be in heliocentric coordinates '
-         write(*,*) '   Position and Vel. of Massive body 1 .ne. 0'
-         call util_exit(1)
-    endif
-
-!    write(*, *) 'Enter the smallest mass to self gravitate :'
-!    read(*, *) mtiny
-!    write(*, *) ' mtiny = ', mtiny
-
-    ! Initialize initial time and times for first output and first dump
-    t = t0
-    tout = t0 + dtout
-    tdump = t0 + dtdump
-
-    iub = 20
-    iuj = 30
-    iud = 40
-    iue = 60
-    ium = 21
-
-    !...    Do the initial io write
-    if(btest(iflgchk, 1))  then ! bit 1 is set
-        call io_write_frame_j(t0, nbod, ntp, mass, xj, yj, zj, vxj, vyj, vzj, &
-                xjt, yjt, zjt, vxjt, vyjt, vzjt, istat, outfile, iub, fopenstat)
-        call io_write_mass(t0, nbod, mass, outfile, ium, fopenstat)
-    endif
-    if(btest(iflgchk, 2))  then ! bit 2 is set
-        eoff = 0.0d0
-        call coord_j2h(nbod, mass, xj, yj, zj, vxj, vyj, vzj, xh, yh, zh, &
-                vxh, vyh, vzh)
-!        call anal_energy_write(t0, nbod, mass, j2rp2, j4rp4, xh, yh, zh, vxh, &
-!                vyh, vzh, iue, fopenstat, eoff)
-        call anal_energy(nbod,mass,j2rp2,j4rp4,xh,yh,zh,&
-                                vxh,vyh,vzh,ke,pot,energy,eltot)
-        energy = energy + eoff
-        energy_out(1, :) = (/ t0, energy, eltot /)
-        if(i1st==0) then
-            i1st=1
-        endif
-    endif
-
-    !...  must initize discard io routine
-    if(btest(iflgchk, 4))  then ! bit 4 is set
-        call io_discard_mass(0, t, 0, mass(1), rpl(1), xj(1), yj(1), zj(1), &
-                vxj(1), vyj(1), vzj(1), iud, -1, fopenstat)
-    endif
-
-    !...  Calculate the location of the last massive particle
-    call symba5_nbodm(nbod, mass, mtiny, nbodm)
-
-    ihills = 0
-    i1st = 0
-    iter_fill = 0
-    !***************here's the big loop *************************************
-    write(*, *) ' ************** MAIN LOOP ****************** '
-
-    do while ((t <= tstop) .and. (nbod>1))
-        i1st = 0
-
-        call coord_j2h(nbod, mass, xj, yj, zj, vxj, vyj, vzj, xh, yh, zh, &
-                vxh, vyh, vzh)
-
-        call symba5_step_pl(i1st, t, nbod, nbodm, mass, j2rp2, j4rp4, &
-                xh, yh, zh, vxh, vyh, vzh, dt, lclose, rpl, isenc, &
-                mergelst, mergecnt, iecnt, eoff, rhill, mtiny)
-
-        call coord_h2j(nbod, mass, xh, yh, zh, vxh, vyh, vzh, xj, yj, zj, &
-                vxj, vyj, vzj)
-
-        t = t + dt
-
-        if(btest(iflgchk, 4))  then ! bit 4 is set
-            nbodo = nbod
-            call discard_massive5(t, dt, nbod, mass, xj, yj, zj, &
-                    vxj, vyj, vzj, rmin, rmax, rmaxu, qmin, lclose, &
-                    rpl, rhill, isenc, mergelst, mergecnt, &
-                    iecnt, eoff, i1st)
-            if(nbodo/=nbod) then
-                call symba5_nbodm(nbod, mass, mtiny, nbodm)
-            endif
-        endif
-
-        ! if it is time, output orb. elements,
+        call step()
+        if(swift_status /= 0) exit
+        steps=steps+1
         if(t >= tout) then
-
-            if(btest(iflgchk, 1))  then ! bit 1 is set
-                call  io_write_frame_j(t, nbod, ntp, mass, xj, yj, zj, vxj, &
-                        vyj, vzj, xjt, yjt, zjt, vxjt, vyjt, vzjt, istat, outfile, &
-                        iub, fopenstat)
-                call io_write_mass(t, nbod, mass, outfile, ium, fopenstat)
-            endif
-
-            tout = tout + dtout
-        endif
-
-        ! If it is time, do a dump
-        if(t>=tdump) then
-
-            tfrac = (t - t0) / (tstop - t0)
-            write(*, 998) t, tfrac, nbod
-998         format(' Time = ', 1p1e12.5, ': fraction done = ', 0pf5.3, &
-                    ': Number of bodies =', i4)
-!            call io_dump_pl_symba('dump_pl.dat', nbod, mass, xj, yj, zj, &
-!                    vxj, vyj, vzj, lclose, iflgchk, rpl, rhill, j2rp2, j4rp4)
-!            call io_dump_param('dump_param.dat', t, tstop, dt, dtout, &
-!                    dtdump, iflgchk, rmin, rmax, rmaxu, qmin, lclose, outfile)
-            tdump = tdump + dtdump
-
-            if(btest(iflgchk, 2))  then ! bit 2 is set
-                call coord_j2h(nbod, mass, xj, yj, zj, vxj, vyj, vzj, xh, yh, zh, &
-                        vxh, vyh, vzh)
-!                call anal_energy_write(t, nbod, mass, j2rp2, j4rp4, &
-!                        xh, yh, zh, vxh, vyh, vzh, iue, fopenstat, eoff)
-                call anal_energy(nbod,mass,j2rp2,j4rp4,xh,yh,zh,&
-                                vxh,vyh,vzh,ke,pot,energy,eltot)
-                energy = energy + eoff
-                iter_fill = iter_fill + 1
-                energy_out(iter_fill, :) = (/ t0, energy, eltot /)
-                if(i1st==0) then
-                    i1st=1
-                endif
-            endif
+            nfilled=nfilled+1
+            call sample(energy(nfilled,:),orbits(nfilled,:,:),valid(nfilled,:))
+            tout=tout+interval
         endif
     enddo
-    !********** end of the big loop from time 't0' to time 'tstop'
+    call swift_poll()
+    if(finished) done=1
+    status=swift_status
+end subroutine
 
-    ! Do a final dump for possible resumption later
-
-!    call io_dump_pl_symba('dump_pl.dat', nbod, mass, xj, yj, zj, &
-!            vxj, vyj, vzj, lclose, iflgchk, rpl, rhill, j2rp2, j4rp4)
-!    call io_dump_param('dump_param.dat', t, tstop, dt, dtout, &
-!            dtdump, iflgchk, rmin, rmax, rmaxu, qmin, lclose, outfile)
-
-!    call util_exit(0)
-     return
-end
-
-!**********************************************************************
-!              SWIFT_MVS_J.F
-!**********************************************************************
-!
-!                 NO CLOSE ENCOUNTERS
-!                 To run, need 2 input files. The code prompts for
-!                 the file names, but examples are :
-!
-!                   parameter file like       param.in
-!            planet file like          pl.in
-!
-!  This version inputs/outputs Jacobi coords and orbital elements and
-!  groups terms so that hierarchical systems with comparable masses can
-!  be integrated.
-!  NOTE:  No test particles in this code
-!
-! Author:  Man Hoi Lee
-! Date:    12/6/01
-! Last revision:
-
-subroutine swift_mvs_j(t0, tstop, dt, dtout, dtdump, lflg, &
-        rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat, &
-        nbod, coordinates, energy_out_size, energy_out)
+! Corrected initializer from the original prototype: nbod means planets and
+! is never mutated. Coordinates include the star and stay double precision.
+subroutine geninit_j3_in_days(iuflg,mstar0,nbod,frho3,planets_params,planets_results,coordinates)
+    use swift_memory_support, only: swift_status
     include 'swift.inc'
-    include 'io.inc'
-
-    real(8) mass(NPLMAX), j2rp2, j4rp4
-    real(8) xj(NPLMAX), yj(NPLMAX), zj(NPLMAX)
-    real(8) vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
-
-    real(8) xh(NPLMAX), yh(NPLMAX), zh(NPLMAX)
-    real(8) vxh(NPLMAX), vyh(NPLMAX), vzh(NPLMAX)
-
-    real(8) xjt(1), yjt(1), zjt(1)       ! Dummy for the io
-    real(8) vxjt(1), vyjt(1), vzjt(1)
-
-    integer istat(1, NSTAT), i1st
-    integer nbod, ntp, nleft
-    integer iflgchk, iub, iuj, iud, iue
-    real(8) rstat(1, NSTATR)
-
-    real(8) t0, tstop, dt, dtout, dtdump
-    real(8) t, tout, tdump, tfrac, eoff
-
-    real(8) rmin, rmax, rmaxu, qmin, rplsq(NPLMAX)
-    logical(2) lclose
-
-    character(80) outfile, fopenstat
-
-    logical(1) lflg(0:IO_NBITS-1)
-    integer energy_out_size, iter_fill, j, i
-    real(8) coordinates(nbod*3+3, 3), ke, pot, energy, eltot(3), energy_out(energy_out_size, 5)
-!f2py intent(in) t0, tstop, dt, dtout, dtdump, lflg, nbod
-!f2py intent(in) rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat
-!f2py intent(in) energy_out_size
-!f2py intent(in) coordinates
-!f2py intent(out) energy_out
-!f2py depend(nbod) coordinates
-!f2py depend(energy_out_size) energy_out
-
-    !-----
-    !...    Executable code
-
-    ntp = 0
-
-!    !...    print version number
-!    call util_version
-!
-!    ! Get data for the run and the test particles
-!    write(*, *) 'Enter name of parameter data file : '
-!    read(*, 999) inparfile
-!    call io_init_param(inparfile, t0, tstop, dt, dtout, dtdump, &
-!            iflgchk, rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat)
-
-    iflgchk=0
-    do i=0,IO_NBITS-1
-       if(lflg(i)) then
-          iflgchk = ibset(iflgchk,i)
-       endif
-    enddo
-
-    if(btest(iflgchk,0) .and. btest(iflgchk,1))  then
-       write(*,*) ' SWIFT ERROR: in io_init_param:'
-       write(*,*) '    Invalid logical flags '
-       write(*,*) '    You cannot request that both a real and ',&
-                  '       an integer binary file be written '
-       call util_exit(1)
-    endif
-
-    if(btest(iflgchk,4))  then ! bit 4 is set
-    else
-       rmin = -1.0
-       rmax = -1.0
-       rmaxu = -1.0
-       qmin = -1.0
-       lclose = .false.
-    endif
-
-    if((fopenstat(1:3)/='new') .and. &
-       (fopenstat(1:3)/='NEW') .and. &
-       (fopenstat(1:7)/='unknown') .and. &
-       (fopenstat(1:7)/='UNKNOWN') .and. &
-       (fopenstat(1:6)/='append') .and. &
-       (fopenstat(1:6)/='APPEND') ) then
-       write(*,*) ' SWIFT ERROR: in io_init_param:'
-       write(*,*) '    Invalid status flag:',fopenstat,':'
-       call util_exit(1)
-    endif
-
-!    ! Prompt and read name of planet data file
-!    write(*, *) ' '
-!    write(*, *) 'Enter name of planet data file : '
-!    read(*, 999) inplfile
-!    999    format(a)
-!    call io_init_pl(inplfile, lclose, iflgchk, nbod, mass, xj, yj, zj, &
-!            vxj, vyj, vzj, rplsq, j2rp2, j4rp4)
-
-    if(nbod>NTPMAX) then
-         write(*,*) ' SWIFT ERROR: in io_init_pl_symba: '
-         write(*,*) '   The number of massive bodies,',nbod,','
-         write(*,*) '   is too large, it must be less than',NTPMAX
-         call util_exit(1)
-    endif
-
+    integer, intent(in) :: iuflg,nbod
+    real(8), intent(in) :: mstar0,frho3,planets_params(nbod,7)
+    real(8), intent(out) :: planets_results(nbod,9),coordinates(3*nbod+3,3)
+    real(8) factor,mpl,gm,a,e,inc,omega,node,anomaly,radius,hill
+    integer j
+    coordinates=0.d0
+    planets_results=0.d0
+    factor=1.d0
+    if(iuflg == 1) factor=TWOPI*TWOPI/(365.25d0*365.25d0)
+    coordinates(1,1)=mstar0*factor
+    gm=coordinates(1,1)
     do j=1,nbod
-       mass(j) =  coordinates((j-1)*3+1, 1)
-       if(j==1) then
-           j2rp2 = coordinates(1, 2)
-           j4rp4 = coordinates(1, 3)
-           rplsq(1) = 0.0d0
-       else
-           rplsq(j) =  coordinates((j-1)*3+1, 3)**2
-       endif
-
-       xj(j) = coordinates((j-1)*3+2, 1)
-       yj(j) = coordinates((j-1)*3+2, 2)
-       zj(j) = coordinates((j-1)*3+2, 3)
-       vxj(j) = coordinates((j-1)*3+3, 1)
-       vyj(j) = coordinates((j-1)*3+3, 2)
-       vzj(j) = coordinates((j-1)*3+3, 3)
+        mpl=planets_params(j,1)
+        a=planets_params(j,2); e=planets_params(j,3)
+        inc=planets_params(j,4)/DEGRAD; omega=planets_params(j,5)/DEGRAD
+        node=planets_params(j,6)/DEGRAD; anomaly=planets_params(j,7)/DEGRAD
+        radius=frho3*(1.5d0*mpl*1.989d33/TWOPI)**0.3333333333d0/1.49597892d13
+        hill=a*(mpl/(3.d0*mstar0))**0.3333333333d0
+        gm=gm+mpl*factor
+        coordinates(3*j+1,:)=[mpl*factor,hill,radius]
+        call orbel_el2xv(gm,-1,a,e,inc,node,omega,anomaly, &
+            coordinates(3*j+2,1),coordinates(3*j+2,2),coordinates(3*j+2,3), &
+            coordinates(3*j+3,1),coordinates(3*j+3,2),coordinates(3*j+3,3))
+        if(swift_status /= 0) return
+        planets_results(j,:)=[mpl*factor,a,e,inc,omega,node,anomaly,radius,hill]
     enddo
-
-    if((xj(1)/=0.0d0) .or. &
-       (yj(1)/=0.0d0) .or. &
-       (zj(1)/=0.0d0) .or. &
-       (vxj(1)/=0.0d0) .or. &
-       (vyj(1)/=0.0d0) .or. &
-       (vzj(1)/=0.0d0) ) then
-         write(*,*) ' SWIFT ERROR: in io_init_pl_symba: '
-         write(*,*) '   Input MUST be in heliocentric coordinates '
-         write(*,*) '   Position and Vel. of Massive body 1 .ne. 0'
-         call util_exit(1)
-    endif
-
-    ! Initialize initial time and times for first output and first dump
-    t = t0
-    tout = t0 + dtout
-    tdump = t0 + dtdump
-
-    iub = 20
-    iuj = 30
-    iud = 40
-    iue = 60
-
-    !...    Do the initial io write
-    if(btest(iflgchk, 1))  then ! bit 1 is set
-        call io_write_frame_j(t0, nbod, ntp, mass, xj, yj, zj, vxj, vyj, vzj, &
-                xjt, yjt, zjt, vxjt, vyjt, vzjt, istat, outfile, iub, fopenstat)
-    endif
-    if(btest(iflgchk, 2))  then    ! bit 2 is set
-        eoff = 0.0d0
-        call coord_j2h(nbod, mass, xj, yj, zj, vxj, vyj, vzj, xh, yh, zh, &
-                vxh, vyh, vzh)
-!        call anal_energy_write(t0, nbod, mass, j2rp2, j4rp4, xh, yh, zh, vxh, &
-!                vyh, vzh, iue, fopenstat, eoff)
-        call anal_energy(nbod,mass,j2rp2,j4rp4,xh,yh,zh,&
-                                vxh,vyh,vzh,ke,pot,energy,eltot)
-        energy = energy + eoff
-        energy_out(1, :) = (/ t0, energy, eltot /)
-        if(i1st==0) then
-            i1st=1
-        endif
-    endif
-
-    !...    must initize discard io routine
-    if(btest(iflgchk, 4))  then ! bit 4 is set
-        call io_discard_write(0, t, nbod, ntp, xj, yj, zj, vxj, vyj, &
-                vzj, xjt, yjt, zjt, vxjt, vyjt, vzjt, istat, rstat, iud, &
-                'discard.out', fopenstat, nleft)
-    endif
-
-    nleft = ntp
-    i1st = 0
-    iter_fill = 0
-    !***************here's the big loop *************************************
-    write(*, *) ' ************** MAIN LOOP ****************** '
-
-    do while ((t <= tstop) .and.&
-            ((ntp==0).or.(nleft>0)))
-
-        call step_kdk_pl_j(i1st, nbod, mass, j2rp2, j4rp4, &
-                xj, yj, zj, vxj, vyj, vzj, dt)
-
-        t = t + dt
-
-        if(btest(iflgchk, 4))  then    ! bit 4 is set
-            call discard(t, dt, nbod, ntp, mass, xj, yj, zj, vxj, vyj, vzj, &
-                    xjt, yjt, zjt, vxjt, vyjt, vzjt, rmin, rmax, rmaxu, &
-                    qmin, lclose, rplsq, istat, rstat)
-            call io_discard_write(1, t, nbod, ntp, xj, yj, zj, vxj, vyj, &
-                    vzj, xjt, yjt, zjt, vxjt, vyjt, vzjt, istat, rstat, iud, &
-                    'discard.out', fopenstat, nleft)
-        else
-            nleft = ntp
-        endif
-
-        ! if it is time, output orb. elements,
-        if(t >= tout) then
-
-            if(btest(iflgchk, 1))  then    ! bit 1 is set
-                call  io_write_frame_j(t, nbod, ntp, mass, xj, yj, zj, vxj, &
-                        vyj, vzj, xjt, yjt, zjt, vxjt, vyjt, vzjt, istat, outfile, &
-                        iub, fopenstat)
-            endif
-
-            tout = tout + dtout
-        endif
-
-        ! If it is time, do a dump
-        if(t>=tdump) then
-
-            tfrac = (t - t0) / (tstop - t0)
-            write(*, 9980) t, tfrac, nleft
-9980        format(' Time = ', 1p1e12.5, ': fraction done = ', 0pf5.3, &
-                    ': Number of active tp =', i4)
-!            call io_dump_pl('dump_pl.dat', nbod, mass, xj, yj, zj, &
-!                    vxj, vyj, vzj, lclose, iflgchk, rplsq, j2rp2, j4rp4)
-!            call io_dump_param('dump_param.dat', t, tstop, dt, dtout, &
-!                    dtdump, iflgchk, rmin, rmax, rmaxu, qmin, lclose, outfile)
-            tdump = tdump + dtdump
-
-            if(btest(iflgchk, 2))  then    ! bit 2 is set
-                call coord_j2h(nbod, mass, xj, yj, zj, vxj, vyj, vzj, xh, yh, zh, &
-                        vxh, vyh, vzh)
-!                call anal_energy_write(t, nbod, mass, j2rp2, j4rp4, &
-!                        xh, yh, zh, vxh, vyh, vzh, iue, fopenstat, eoff)
-                call anal_energy(nbod,mass,j2rp2,j4rp4,xh,yh,zh,&
-                                vxh,vyh,vzh,ke,pot,energy,eltot)
-                energy = energy + eoff
-                iter_fill = iter_fill + 1
-                energy_out(iter_fill, :) = (/ t0, energy, eltot /)
-                if(i1st==0) then
-                    i1st=1
-                endif
-            endif
-        endif
-    enddo
-    !********** end of the big loop from time 't0' to time 'tstop'
-
-    ! Do a final dump for possible resumption later
-
-!    call io_dump_pl('dump_pl.dat', nbod, mass, xj, yj, zj, &
-!            vxj, vyj, vzj, lclose, iflgchk, rplsq, j2rp2, j4rp4)
-!    call io_dump_param('dump_param.dat', t, tstop, dt, dtout, &
-!            dtdump, iflgchk, rmin, rmax, rmaxu, qmin, lclose, outfile)
-
-!    call util_exit(0)
-    return
-end
-! swift_mvs.f
-!---------------------------------------------------------------------
-
-!**********************************************************************
-!              SWIFT_MVS_J_GR.F
-!**********************************************************************
-!
-!                 NO CLOSE ENCOUNTERS
-!                 To run, need 2 input files. The code prompts for
-!                 the file names, but examples are :
-!
-!                   parameter file like       param.in
-!            planet file like          pl.in
-!
-!  This version inputs/outputs Jacobi coords and orbital elements and
-!  groups terms so that hierarchical systems with comparable masses can
-!  be integrated. GR precesion included
-!  NOTE:  No test particles in this code
-!
-! Author:  Man Hoi Lee/Trifon Trifonov
-! Date:    12/6/01
-! Last revision: 01/06/2015
-
-subroutine swift_mvs_j_gr(t0, tstop, dt, dtout, dtdump, lflg, &
-        rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat, &
-        nbod, coordinates, ll, energy_out_size, energy_out)
-    include 'swift.inc'
-    include 'io.inc'
-
-    real(8) mass(NPLMAX), j2rp2, j4rp4, corr
-    real(8) xj(NPLMAX), yj(NPLMAX), zj(NPLMAX)
-    real(8) vxj(NPLMAX), vyj(NPLMAX), vzj(NPLMAX)
-
-    real(8) xh(NPLMAX), yh(NPLMAX), zh(NPLMAX)
-    real(8) vxh(NPLMAX), vyh(NPLMAX), vzh(NPLMAX)
-
-    real(8) xjt(1), yjt(1), zjt(1)       ! Dummy for the io
-    real(8) vxjt(1), vyjt(1), vzjt(1)
-
-    integer istat(1, NSTAT), i1st, l, ll
-    integer nbod, ntp, nleft, i, ialphai
-    integer iflgchk, iub, iuj, iud, iue
-    real(8) rstat(1, NSTATR)
-
-    real(8) t0, tstop, dt, dtout, dtdump
-    real(8) t, tout, tdump, tfrac, eoff
-
-    real(8) rmin, rmax, rmaxu, qmin, rplsq(NPLMAX)
-    logical(2) lclose
-
-    character(80) outfile,fopenstat
-    real(8) gmi, ai, ei, inci, capomi, omegai, capmi
-
-    logical(1) lflg(0:IO_NBITS-1)
-    integer energy_out_size, iter_fill, j
-    real(8) coordinates(nbod*3+3, 3), ke, pot, energy, eltot(3), energy_out(energy_out_size, 5)
-!f2py intent(in) t0, tstop, dt, dtout, dtdump, lflg, nbod, ll
-!f2py intent(in) rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat
-!f2py intent(in) energy_out_size
-!f2py intent(in) coordinates
-!f2py intent(out) energy_out
-!f2py depend(nbod) coordinates
-!f2py depend(energy_out_size) energy_out
-
-    !-----
-    !...    Executable code
-
-    ntp = 0
-
-!    !...    print version number
-!    call util_version
-!
-!    ! Get data for the run and the test particles
-!    write(*, *) 'Enter name of parameter data file : '
-!    read(*, 999) inparfile
-!    call io_init_param(inparfile, t0, tstop, dt, dtout, dtdump, &
-!            iflgchk, rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat)
-
-    iflgchk=0
-    do i=0,IO_NBITS-1
-       if(lflg(i)) then
-          iflgchk = ibset(iflgchk,i)
-       endif
-    enddo
-
-    if(btest(iflgchk,0) .and. btest(iflgchk,1))  then
-       write(*,*) ' SWIFT ERROR: in io_init_param:'
-       write(*,*) '    Invalid logical flags '
-       write(*,*) '    You cannot request that both a real and ',&
-                  '       an integer binary file be written '
-       call util_exit(1)
-    endif
-
-    if(btest(iflgchk,4))  then ! bit 4 is set
-    else
-       rmin = -1.0
-       rmax = -1.0
-       rmaxu = -1.0
-       qmin = -1.0
-       lclose = .false.
-    endif
-
-    if((fopenstat(1:3)/='new') .and. &
-       (fopenstat(1:3)/='NEW') .and. &
-       (fopenstat(1:7)/='unknown') .and. &
-       (fopenstat(1:7)/='UNKNOWN') .and. &
-       (fopenstat(1:6)/='append') .and. &
-       (fopenstat(1:6)/='APPEND') ) then
-       write(*,*) ' SWIFT ERROR: in io_init_param:'
-       write(*,*) '    Invalid status flag:',fopenstat,':'
-       call util_exit(1)
-    endif
-
-!    ! Prompt and read name of planet data file
-!    write(*, *) ' '
-!    write(*, *) 'Enter name of planet data file : '
-!    read(*, 999) inplfile
-!    999    format(a)
-!    call io_init_pl(inplfile, lclose, iflgchk, nbod, mass, xj, yj, zj, &
-!            vxj, vyj, vzj, rplsq, j2rp2, j4rp4)
-
-    if(nbod>NTPMAX) then
-         write(*,*) ' SWIFT ERROR: in io_init_pl_symba: '
-         write(*,*) '   The number of massive bodies,',nbod,','
-         write(*,*) '   is too large, it must be less than',NTPMAX
-         call util_exit(1)
-    endif
-
-    do j=1,nbod
-       mass(j) =  coordinates((j-1)*3+1, 1)
-       if(j==1) then
-           j2rp2 = coordinates(1, 2)
-           j4rp4 = coordinates(1, 3)
-           rplsq(1) = 0.0d0
-       else
-           rplsq(j) =  coordinates((j-1)*3+1, 3)**2
-       endif
-
-       xj(j) = coordinates((j-1)*3+2, 1)
-       yj(j) = coordinates((j-1)*3+2, 2)
-       zj(j) = coordinates((j-1)*3+2, 3)
-       vxj(j) = coordinates((j-1)*3+3, 1)
-       vyj(j) = coordinates((j-1)*3+3, 2)
-       vzj(j) = coordinates((j-1)*3+3, 3)
-    enddo
-
-    if((xj(1)/=0.0d0) .or. &
-       (yj(1)/=0.0d0) .or. &
-       (zj(1)/=0.0d0) .or. &
-       (vxj(1)/=0.0d0) .or. &
-       (vyj(1)/=0.0d0) .or. &
-       (vzj(1)/=0.0d0) ) then
-         write(*,*) ' SWIFT ERROR: in io_init_pl_symba: '
-         write(*,*) '   Input MUST be in heliocentric coordinates '
-         write(*,*) '   Position and Vel. of Massive body 1 .ne. 0'
-         call util_exit(1)
-    endif
-
-!    write(*, *) 'On which step to apply GR precession (int) ?'
-!    read(*, *) ll
-
-    ! Initialize initial time and times for first output and first dump
-    t = t0
-    tout = t0 + dtout
-    tdump = t0 + dtdump
-
-    iub = 20
-    iuj = 30
-    iud = 40
-    iue = 60
-
-    !...    Do the initial io write
-    if(btest(iflgchk, 1))  then ! bit 1 is set
-        call io_write_frame_j(t0, nbod, ntp, mass, xj, yj, zj, vxj, vyj, vzj, &
-                xjt, yjt, zjt, vxjt, vyjt, vzjt, istat, outfile, iub, fopenstat)
-    endif
-    if(btest(iflgchk, 2))  then    ! bit 2 is set
-        eoff = 0.0d0
-        call coord_j2h(nbod, mass, xj, yj, zj, vxj, vyj, vzj, xh, yh, zh, &
-                vxh, vyh, vzh)
-!        call anal_energy_write(t0, nbod, mass, j2rp2, j4rp4, xh, yh, zh, vxh, &
-!                vyh, vzh, iue, fopenstat, eoff)
-        call anal_energy(nbod,mass,j2rp2,j4rp4,xh,yh,zh,&
-                                vxh,vyh,vzh,ke,pot,energy,eltot)
-        energy = energy + eoff
-        energy_out(1, :) = (/ t0, energy, eltot /)
-        if(i1st==0) then
-            i1st=1
-        endif
-    endif
-
-    !...    must initize discard io routine
-    if(btest(iflgchk, 4))  then ! bit 4 is set
-        call io_discard_write(0, t, nbod, ntp, xj, yj, zj, vxj, vyj, &
-                vzj, xjt, yjt, zjt, vxjt, vyjt, vzjt, istat, rstat, iud, &
-                'discard.out', fopenstat, nleft)
-    endif
-
-    nleft = ntp
-    i1st = 0
-    l = 0
-    iter_fill = 0
-    !    ll = 1000
-    !***************here's the big loop *************************************
-    write(*, *) ' ************** MAIN LOOP ****************** '
-
-    do while ((t <= tstop) .and.&
-            ((ntp==0).or.(nleft>0)))
-
-        if (l==ll) then
-            gmi = mass(1)
-            do i = 2, nbod
-                gmi = gmi + mass(i)
-                !            if ((dadt(i).ne.0.d0).or.(dedt(i).ne.0.d0)) then
-
-                call orbel_xv2el(xj(i), yj(i), zj(i), vxj(i), vyj(i), &
-                        vzj(i), gmi, ialphai, ai, ei, inci, capomi, omegai, capmi)
-
-                call gr_corr(ai, ei, gmi, corr, dt)
-                omegai = omegai + corr * ll
-                !               write(*,*) ai
-
-                call orbel_el2xv(gmi, ialphai, ai, ei, inci, capomi, omegai, &
-                        capmi, xj(i), yj(i), zj(i), vxj(i), vyj(i), vzj(i))
-
-            enddo
-            l = 0
-        endif
-
-        l = l + 1
-        !             write(*,*) l
-
-        call step_kdk_pl_j(i1st, nbod, mass, j2rp2, j4rp4, &
-                xj, yj, zj, vxj, vyj, vzj, dt)
-
-        t = t + dt
-
-        if(btest(iflgchk, 4))  then    ! bit 4 is set
-            call discard(t, dt, nbod, ntp, mass, xj, yj, zj, vxj, vyj, vzj, &
-                    xjt, yjt, zjt, vxjt, vyjt, vzjt, rmin, rmax, rmaxu, &
-                    qmin, lclose, rplsq, istat, rstat)
-            call io_discard_write(1, t, nbod, ntp, xj, yj, zj, vxj, vyj, &
-                    vzj, xjt, yjt, zjt, vxjt, vyjt, vzjt, istat, rstat, iud, &
-                    'discard.out', fopenstat, nleft)
-        else
-            nleft = ntp
-        endif
-
-        ! if it is time, output orb. elements,
-        if(t >= tout) then
-
-            if(btest(iflgchk, 1))  then    ! bit 1 is set
-                call  io_write_frame_j(t, nbod, ntp, mass, xj, yj, zj, vxj, &
-                        vyj, vzj, xjt, yjt, zjt, vxjt, vyjt, vzjt, istat, outfile, &
-                        iub, fopenstat)
-            endif
-
-            tout = tout + dtout
-        endif
-
-        ! If it is time, do a dump
-        if(t>=tdump) then
-
-            tfrac = (t - t0) / (tstop - t0)
-            write(*, 99800) t, tfrac, nleft
-99800       format(' Time = ', 1p1e12.5, ': fraction done = ', 0pf5.3, &
-                    ': Number of active tp =', i4)
-!            call io_dump_pl('dump_pl.dat', nbod, mass, xj, yj, zj, &
-!                    vxj, vyj, vzj, lclose, iflgchk, rplsq, j2rp2, j4rp4)
-!            call io_dump_param('dump_param.dat', t, tstop, dt, dtout, &
-!                    dtdump, iflgchk, rmin, rmax, rmaxu, qmin, lclose, outfile)
-            tdump = tdump + dtdump
-
-            if(btest(iflgchk, 2))  then    ! bit 2 is set
-                call coord_j2h(nbod, mass, xj, yj, zj, vxj, vyj, vzj, xh, yh, zh, &
-                        vxh, vyh, vzh)
-!                call anal_energy_write(t, nbod, mass, j2rp2, j4rp4, &
-!                        xh, yh, zh, vxh, vyh, vzh, iue, fopenstat, eoff)
-                call anal_energy(nbod,mass,j2rp2,j4rp4,xh,yh,zh,&
-                                vxh,vyh,vzh,ke,pot,energy,eltot)
-                energy = energy + eoff
-                iter_fill = iter_fill + 1
-                energy_out(iter_fill, :) = (/ t0, energy, eltot /)
-                if(i1st==0) then
-                    i1st=1
-                endif
-            endif
-
-        endif
-
-    enddo
-    !********** end of the big loop from time 't0' to time 'tstop'
-
-    ! Do a final dump for possible resumption later
-
-!    call io_dump_pl('dump_pl.dat', nbod, mass, xj, yj, zj, &
-!            vxj, vyj, vzj, lclose, iflgchk, rplsq, j2rp2, j4rp4)
-!    call io_dump_param('dump_param.dat', t, tstop, dt, dtout, &
-!            dtdump, iflgchk, rmin, rmax, rmaxu, qmin, lclose, outfile)
-
-!    call util_exit(0)
-    return
-end
-! swift_mvs.f
-
-subroutine follow_symba2(t0, tstop, dt, dtout, dtdump, lflg, &
-                         rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat, &
-                         nbod, coordinates, ifol, symba_out_size, symba_out)
-    ! converts binary file to ascii file
-    include 'swift.inc'
-    include 'io.inc'
-
-    real(8) mass(NTPMAX), dr
-    real(8) xh(NTPMAX), yh(NTPMAX), zh(NTPMAX)
-    real(8) vxh(NTPMAX), vyh(NTPMAX), vzh(NTPMAX)
-
-    integer nbodm, nbod, nbod0, ierr, ifol, istep
-    integer iflgchk, iu, i, id, nleft, ium
-    integer io_read_hdr, io_read_line, io_read_mass
-    integer io_read_hdr_r, io_read_line_r
-
-    real(8) t0, tstop, dt, dtout, dtdump
-    real(8) t, tmax
-
-    real(8) rmin, rmax, rmaxu, qmin, rpl(NTPMAX), rhill(NTPMAX)
-    logical(2) lclose
-    real(8) a, e, inc, capom, omega, capm, j2rp2, j4rp4
-    real(8) peri, apo, tg
-
-    integer plist(NTPMAX), ifoln, j
-
-    character(80) outfile, fopenstat
-
-    logical(1) lflg(0:IO_NBITS-1)
-    integer symba_out_size, iter_fill
-    real(8) coordinates(nbod*3+3, 3), symba_out(symba_out_size, 11)
-!f2py intent(in) t0, tstop, dt, dtout, dtdump, lflg, nbod, mtiny
-!f2py intent(in) rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat
-!f2py intent(in) symba_out_size
-!f2py intent(in) coordinates
-!f2py intent(out) symba_out
-!f2py depend(nbod) coordinates
-!f2py depend(symba_out_size) symba_out
-
-    dtout = 0
-    dtdump = 0
-    dt = 0
-
-    ! Get data for the run and the test particles
-!    write(*, *) 'Enter name of parameter data file : '
-!    read(*, 999) inparfile
-!    call io_init_param(inparfile, t0, tstop, dt, dtout, dtdump, &
-!            iflgchk, rmin, rmax, rmaxu, qmin, lclose, outfile, fopenstat)
-
-    iflgchk=0
-    do i=0,IO_NBITS-1
-       if(lflg(i)) then
-          iflgchk = ibset(iflgchk,i)
-       endif
-    enddo
-
-    if(btest(iflgchk,0) .and. btest(iflgchk,1))  then
-       write(*,*) ' SWIFT ERROR: in io_init_param:'
-       write(*,*) '    Invalid logical flags '
-       write(*,*) '    You cannot request that both a real and ',&
-                  '       an integer binary file be written '
-       call util_exit(1)
-    endif
-
-    if(btest(iflgchk,4))  then ! bit 4 is set
-    else
-       rmin = -1.0
-       rmax = -1.0
-       rmaxu = -1.0
-       qmin = -1.0
-       lclose = .false.
-    endif
-
-    if((fopenstat(1:3)/='new') .and. &
-       (fopenstat(1:3)/='NEW') .and. &
-       (fopenstat(1:7)/='unknown') .and. &
-       (fopenstat(1:7)/='UNKNOWN') .and. &
-       (fopenstat(1:6)/='append') .and. &
-       (fopenstat(1:6)/='APPEND') ) then
-       write(*,*) ' SWIFT ERROR: in io_init_param:'
-       write(*,*) '    Invalid status flag:',fopenstat,':'
-       call util_exit(1)
-    endif
-
-    ! Prompt and read name of planet data file
-!    write(*, *) ' '
-!    write(*, *) 'Enter name of planet data file : '
-!    read(*, 999) inplfile
-!    999    format(a)
-!    call io_init_pl_symba(inplfile, lclose, iflgchk, nbod, mass, xh, yh, zh, &
-!            vxh, vyh, vzh, rpl, rhill, j2rp2, j4rp4)
-
-    if(nbod>NTPMAX) then
-         write(*,*) ' SWIFT ERROR: in io_init_pl_symba: '
-         write(*,*) '   The number of massive bodies,',nbod,','
-         write(*,*) '   is too large, it must be less than',NTPMAX
-         call util_exit(1)
-    endif
-
-    do j=1,nbod
-       mass(j) =  coordinates((j-1)*3+1, 1)
-       if(j==1) then
-           j2rp2 = coordinates(1, 2)
-           j4rp4 = coordinates(1, 3)
-           rpl(1) = 0.0d0
-           rhill(1) = 0.0d0
-       else
-           rhill(j) =  coordinates((j-1)*3+1, 2)
-           rpl(j) =  coordinates((j-1)*3+1, 3)
-       endif
-
-       xh(j) = coordinates((j-1)*3+2, 1)
-       yh(j) = coordinates((j-1)*3+2, 2)
-       zh(j) = coordinates((j-1)*3+2, 3)
-       vxh(j) = coordinates((j-1)*3+3, 1)
-       vyh(j) = coordinates((j-1)*3+3, 2)
-       vzh(j) = coordinates((j-1)*3+3, 3)
-    enddo
-
-    if((xh(1)/=0.0d0) .or. &
-       (yh(1)/=0.0d0) .or. &
-       (zh(1)/=0.0d0) .or. &
-       (vxh(1)/=0.0d0) .or. &
-       (vyh(1)/=0.0d0) .or. &
-       (vzh(1)/=0.0d0) ) then
-         write(*,*) ' SWIFT ERROR: in io_init_pl_symba: '
-         write(*,*) '   Input MUST be in heliocentric coordinates '
-         write(*,*) '   Position and Vel. of Massive body 1 .ne. 0'
-         call util_exit(1)
-    endif
-
-    iu = 20
-    ium = 30
-
-    dr = 180.0 / PI
-
-    if(btest(iflgchk, 0)) then
-        write(*, *) ' Reading an integer*2 binary file '
-    else if(btest(iflgchk, 1)) then
-        write(*, *) ' Reading an real*4 binary file '
-    else
-        write(*, *) ' ERROR: no binary file format specified '
-        write(*, *) '        in param file '
-        stop
-    endif
-
-!    write(*, *) ' Input the particle number to follow '
-!    read(*, *) ifol
-    ifol = abs(ifol)
-    write(*, *) ' Following particle ', ifol
-
-    open(unit = iu, file = outfile, status = 'old', form = 'unformatted')
-    open(unit = ium, file = 'mass.' // outfile, status = 'old', &
-            form = 'unformatted')
-    open(unit = 7, file = 'follow_symba.out')
-
-    nbod0 = nbod
-    do i = 1, nbod
-        plist(i) = i
-    enddo
-    call follow_plist(0, ifol, ifoln, plist, nbod0, tg, tstop)
-
-    ifoln = ifol
-
-!    write(*, *) '1  2 3 4  5    6     7    8    9   10  11 '
-!    write(*, *) 't,id,a,e,inc,capom,omega,capm,peri,apo, M '
-
-    tmax = t0
-    iter_fill = 0
-1   continue
-    if(btest(iflgchk, 0))  then ! bit 0 is set
-        ierr = io_read_hdr(iu, t, nbod, nleft)
-    else
-        ierr = io_read_hdr_r(iu, t, nbod, nleft)
-    endif
-    if(ierr/=0) goto 2
-
-    ierr = io_read_mass(t, nbodm, mass, ium)
-
-    if(nbodm/=nbod) then
-        write(*, *) ' Error 1:', nbod, nbodm
-        stop
-    endif
-
-    do while(t>=tg)
-        call follow_plist(1, ifol, ifoln, plist, nbod0, &
-                tg, tstop)
-    enddo
-
-    istep = 0
-    do i = 2, nbod
-        if(btest(iflgchk, 0))  then ! bit 0 is set
-            ierr = io_read_line(iu, id, a, e, inc, capom, omega, capm)
-        else
-            ierr = io_read_line_r(iu, id, a, e, inc, capom, omega, capm)
-        endif
-        if(ierr/=0) goto 2
-
-        if(abs(id)==ifoln) then
-            istep = 1
-            inc = inc * dr
-            capom = capom * dr
-            omega = omega * dr
-            capm = capm * dr
-            peri = a * (1.0d0 - e)
-            apo = a * (1.0d0 + e)
-!            write(7, 1000) t, ifoln, a, e, inc, capom, omega, capm, &
-!                    peri, apo, mass(abs(id)) / mass(1)
-!1000        format(1x, e15.7, 1x, i3, 1x, e13.5, 1x, f7.5, 4(1x, f9.4), &
-!                    2(1x, e13.5), 1e13.5)
-            iter_fill = iter_fill +1
-            symba_out(iter_fill, :) = (/ real(t, 8), real(ifoln, 8), a, &
-                                         e, inc, capom, omega, capm, &
-                                         peri, apo, mass(abs(id)) / mass(1) /)
-            tmax = t
-        endif
-    enddo
-
-    if(istep==0) goto 2     ! did not find particle this times step
-    goto 1
-2   continue
-
-    write(*, *) ' Tmax = ', tmax
-
-    return
-end
-end
-
-! swift_symba5_j_migrate6.f
-!---------------------------------------------------------------------
-
-!*************************************************************************
-!                            IO_WRITE_FRAME_J
-!*************************************************************************
-! write out a whole frame to an real*4 binary file.
-! both massive and test particles
-!
-!             Input:
-!                 time          ==>  current time (real scalar)
-!                 nbod          ==>  number of massive bodies (int scalar)
-!                 ntp            ==>  number of massive bodies (int scalar)
-!                 mass          ==>  mass of bodies (real array)
-!                 xj,yj,zj      ==>  current position in Jacobi coord
-!                                    (real arrays)
-!                 vxj,vyj,vzj   ==>  current velocity in Jacobi coord
-!                                    (real arrays)
-!                 xjt,yjt,zjt    ==>  current part position in Jacobi coord
-!                                      (real arrays)
-!                 vxjt,vyjt,vzjt ==>  current velocity in Jacobi coord
-!                                        (real arrays)
-!                 istat           ==>  status of the test paricles
-!                                      (2d integer array)
-!                                      istat(i,1) = 0 ==> active:  = 1 not
-!                                      istat(i,2) = -1 ==> Danby did not work
-!                 oname           ==> output file name (character string)
-!                 iu              ==> unit number to write to
-!                 fopenstat       ==>  The status flag for the open
-!                                      statements of the output files.
-!                                          (character(80) )
-!
-!
-! Remarks: Based on io_write_frame
-! Authors:  Hal Levison
-! Date:    2/22/94
-! Last revision:
-
-subroutine io_write_frame_j(time, nbod, ntp, mass, xj, yj, zj, vxj, &
-        vyj, vzj, xjt, yjt, zjt, vxjt, vyjt, vzjt, istat, oname, &
-        iu, fopenstat)
-
-    include 'swift.inc'
-    include 'io.inc'
-
-    !...  Inputs:
-    integer nbod, ntp, iu
-    real(8)  mass(nbod), time
-    integer istat(1, NSTAT)
-    real(8)  xj(nbod), yj(nbod), zj(nbod)
-    real(8)  vxj(nbod), vyj(nbod), vzj(nbod)
-    real(8)  xjt(ntp), yjt(ntp), zjt(ntp)
-    real(8)  vxjt(ntp), vyjt(ntp), vzjt(ntp)
-    character(80)  oname, fopenstat
-
-    !...  Internals
-    integer i, id
-    integer ialpha, ierr
-    real(8)  a, e, inc, capom, omega, capm
-    real(8)  gm
-    integer i1st    ! =0 first time through; =1 after
-    data i1st/0/
-    save i1st
-
-    !----
-    !...  Executable code
-
-    !...  if first time through open file
-    if(i1st==0) then
-        call io_open(iu, oname, fopenstat, 'UNFORMATTED', ierr)
-        if(ierr/=0) then
-            write(*, *) ' SWIFT ERROR: in io_write_frame: '
-            write(*, *) '     Could not open binary output file:'
-            call util_exit(1)
-        endif
-        i1st = 1
-    else
-        call io_open(iu, oname, 'append', 'UNFORMATTED', ierr)
-    endif
-
-    call io_write_hdr_r(iu, time, nbod, ntp, istat)
-
-    !...  write out planets
-    gm = mass(1)
-    do i = 2, nbod
-        gm = gm + mass(i)
-        id = -1 * i
-        call orbel_xv2el(xj(i), yj(i), zj(i), vxj(i), vyj(i), vzj(i), gm, &
-                ialpha, a, e, inc, capom, omega, capm)
-        call io_write_line_r(iu, id, a, e, inc, capom, omega, capm)
-    enddo
-
-    !...  write out test particles
-    gm = mass(1)
-    do i = 1, ntp
-        if(istat(i, 1)==0) then
-            call orbel_xv2el(xjt(i), yjt(i), zjt(i), vxjt(i), vyjt(i), &
-                    vzjt(i), gm, ialpha, a, e, inc, capom, omega, capm)
-            call io_write_line_r(iu, i, a, e, inc, capom, omega, capm)
-        endif
-    enddo
-
-    close(iu)
-    return
-end
-! io_write_frame_j
-!----------------------------------------------------------------------
-
-subroutine follow_plist(iflg, ifol, ifoln, plist, nbod, tg, tstop)
-
-    include 'swift.inc'
-    real(8) tg, tstop
-    integer nbod
-    integer iflg, ifol, ifoln, plist(nbod), iwhy
-    integer ig, im, idum, i, ierr
-    save iwhy
-
-    if(iflg==0) then
-        open(2, file = 'discard_mass.out', status = 'old', iostat = ierr)
-        if(ierr/=0) then
-            write(*, *) 'Could not open discard_mass.out'
-            tg = 5.0 * tstop
-            return            ! <====== NOTE
-        endif
-        read(2, *, iostat = ierr) tg, iwhy
-        if(ierr/=0) then
-            write(*, *) 'Could not read discard_mass.out'
-            tg = 5.0 * tstop
-            return            ! <====== NOTE
-        endif
-        ifoln = ifol
-        return               ! <====== NOTE
-    endif
-
-    if(iwhy==2) then
-        read(2, *) idum, im
-        read(2, fmt = '(1x)')
-        read(2, fmt = '(1x)')
-        read(2, *) idum, ig
-        call left_reorder(ig, im, nbod, plist)
-        do i = 1, 5
-            read(2, fmt = '(1x)')
-        enddo
-    else
-        read(2, *) idum, ig
-        im = -1
-        call left_reorder(ig, im, nbod, plist)
-        read(2, fmt = '(1x)')
-        read(2, fmt = '(1x)')
-    endif
-
-    read(2, *, iostat = ierr) tg, iwhy
-    if(ierr/=0) then
-        tg = 5.0 * tstop
-    endif
-
-    ifoln = plist(ifol)
-
-    return
-end
-
-!---------------------------------------------------------------------
-subroutine left_reorder(ig, im, nbod, plist)
-
-    include 'swift.inc'
-
-    integer ig, nbod, plist(nbod), im, i
-
-    do i = 1, nbod
-        if(plist(i)==ig) then
-            if(im>0) then
-                plist(i) = im
-            else
-                plist(i) = -1
-            endif
-        endif
-    enddo
-
-    do i = 1, nbod
-        if(plist(i)>ig) then
-            plist(i) = plist(i) - 1
-        endif
-    enddo
-
-    return
-end
-
-!*************************************************************************
-!                            STEP_KDK_PL_J.F
-!*************************************************************************
-! This subroutine takes a step in Jacobi coord.
-! Does a KICK than a DRIFT than a KICK.
-! ONLY DOES MASSIVE PARTICLES
-!
-!             Input:
-!                 i1st          ==>  = 0 if first step; = 1 not (int scalar)
-!                 nbod          ==>  number of massive bodies (int scalar)
-!                 mass          ==>  mass of bodies (real array)
-!                 j2rp2,j4rp4   ==>  J2*radii_pl^2 and  J4*radii_pl^4
-!                                     (real scalars)
-!                 xj,yj,zj      ==>  initial position in Jacobi coord
-!                                    (real arrays)
-!                 vxj,vyj,vzj   ==>  initial velocity in Jacobi coord
-!                                    (real arrays)
-!                 dt            ==>  time step
-!             Output:
-!                 xj,yj,zj      ==>  final position in Jacobi coord
-!                                       (real arrays)
-!                 vxj,vyj,vzj   ==>  final velocity in Jacobi coord
-!                                       (real arrays)
-!
-! Remarks: Adopted from step_kdk_pl
-! Authors:  Man Hoi Lee
-! Date:    12/6/01
-! Last revision:
+end subroutine
 
 subroutine step_kdk_pl_j(i1st, nbod, mass, j2rp2, j4rp4, &
         xj, yj, zj, vxj, vyj, vzj, dt)
 
+    use swift_memory_support, only: swift_status
     include 'swift.inc'
 
     !...  Inputs Only:
@@ -1478,27 +262,34 @@ subroutine step_kdk_pl_j(i1st, nbod, mass, j2rp2, j4rp4, &
         !...      Convert to helio coords
         call coord_j2h(nbod, mass, xj, yj, zj, vxj, vyj, vzj, &
                 xh, yh, zh, vxh, vyh, vzh)
+    if(swift_status /= 0) return
         !...     Get the accelerations in Jacobi frame. if frist time step
         call getaccj(nbod, mass, j2rp2, j4rp4, xh, yh, zh, &
                 xj, yj, zj, axj, ayj, azj)
+    if(swift_status /= 0) return
         i1st = 1    ! turn this off
     endif
 
     !...  Apply a Jacobi kick for a half dt
     call kickvh(nbod, vxj, vyj, vzj, axj, ayj, azj, dth)
+    if(swift_status /= 0) return
 
     !..   Drift in Jacobi coords for the full step
     call drift2(nbod, mass, xj, yj, zj, vxj, vyj, vzj, dt)
+    if(swift_status /= 0) return
 
     !...  After drift, compute helio. xh and vh for acceleration calculations
     call coord_j2h(nbod, mass, xj, yj, zj, vxj, vyj, vzj, &
             xh, yh, zh, vxh, vyh, vzh)
+    if(swift_status /= 0) return
 
     !...  Get the accelerations in Jacobi frame.
     call getaccj(nbod, mass, j2rp2, j4rp4, xh, yh, zh, xj, yj, zj, axj, ayj, azj)
+    if(swift_status /= 0) return
 
     !...  Apply a Jacobi kick for a half dt
     call kickvh(nbod, vxj, vyj, vzj, axj, ayj, azj, dth)
+    if(swift_status /= 0) return
 
     return
 end
@@ -1531,6 +322,7 @@ end
 
 subroutine drift2(nbod, mass, xj, yj, zj, vxj, vyj, vzj, dt)
 
+    use swift_memory_support, only: swift_status
     include 'swift.inc'
 
     !...  Inputs Only:
@@ -1555,13 +347,10 @@ subroutine drift2(nbod, mass, xj, yj, zj, vxj, vyj, vzj, dt)
         etaj = etaj + mass(j)
         call drift_one(etaj, xj(j), yj(j), zj(j), &
                 vxj(j), vyj(j), vzj(j), dt, iflg)
+    if(swift_status /= 0) return
         if(iflg/=0) then
-            write(*, *) ' Planet ', j, ' is lost !!!!!!!!!'
-            write(*, *) etaj, dt
-            write(*, *) xj(j), yj(j), zj(j)
-            write(*, *) vxj(j), vyj(j), vzj(j)
-            write(*, *) ' STOPPING '
-            call util_exit(1)
+            swift_status=3
+            return
         endif
     enddo
 
@@ -1592,6 +381,7 @@ end
 subroutine getaccj(nbod, mass, j2rp2, j4rp4, xh, yh, zh, &
         xj, yj, zj, axj, ayj, azj)
 
+    use swift_memory_support, only: swift_status
     include 'swift.inc'
 
     !...  Inputs:
@@ -1616,17 +406,22 @@ subroutine getaccj(nbod, mass, j2rp2, j4rp4, xh, yh, zh, &
 
     !...  get thr r^-3's
     call getacch_ir3(nbod, 2, xh, yh, zh, ir3h, irh)
+    if(swift_status /= 0) return
     call getacch_ir3(nbod, 2, xj, yj, zj, ir3j, irj)
+    if(swift_status /= 0) return
 
     !...  now the first terms
     call getaccj_aj1(nbod, mass, xh, yh, zh, xj, yj, zj, ir3h, ir3j, &
             axj1, ayj1, azj1)
+    if(swift_status /= 0) return
 
     !...  now the second terms
     call getaccj_aj2(nbod, mass, xh, yh, zh, ir3h, axj2, ayj2, azj2)
+    if(swift_status /= 0) return
 
     !...  now the third terms
     call getaccj_aj3(nbod, mass, xh, yh, zh, axj3, ayj3, azj3)
+    if(swift_status /= 0) return
 
     !...  add them all together
     axj(1) = 0.0
@@ -1642,6 +437,7 @@ subroutine getaccj(nbod, mass, j2rp2, j4rp4, xh, yh, zh, &
     if(j2rp2/=0.0d0) then
         call obl_acc(nbod, mass, j2rp2, j4rp4, xj, yj, zj, irh, &
                 aoblx, aobly, aoblz)
+    if(swift_status /= 0) return
         do i = 2, nbod
             axj(i) = axj(i) + aoblx(i) - aoblx(1)
             ayj(i) = ayj(i) + aobly(i) - aobly(1)
@@ -1678,6 +474,7 @@ end
 subroutine getaccj_aj1(nbod, mass, xh, yh, zh, xj, yj, zj, ir3h, ir3j, &
         axj1, ayj1, azj1)
 
+    use swift_memory_support, only: swift_status
     include 'swift.inc'
 
     !...  Inputs:
@@ -1753,6 +550,7 @@ end
 
 subroutine getaccj_aj2(nbod, mass, xh, yh, zh, ir3h, axj2, ayj2, azj2)
 
+    use swift_memory_support, only: swift_status
     include 'swift.inc'
 
     !...  Inputs:
@@ -1818,6 +616,7 @@ end
 
 subroutine getaccj_aj3(nbod, mass, xh, yh, zh, axj3, ayj3, azj3)
 
+    use swift_memory_support, only: swift_status
     include 'swift.inc'
 
     !...  Inputs:
@@ -1925,11 +724,6 @@ subroutine gr_corr(a, e, gmi, corr, dt)
 
     return
 end
-
-
-
-
-
 
 
 

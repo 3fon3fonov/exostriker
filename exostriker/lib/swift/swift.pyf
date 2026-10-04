@@ -1,0 +1,20 @@
+python module _swift_memory
+  interface
+    subroutine swift_begin(stellar_mass,planets,nplan,integrator,tmax,timestep,output_step,gr_step,timeout,status)
+      threadsafe
+      double precision intent(in) :: stellar_mass,tmax,timestep,output_step,timeout
+      integer intent(in) :: integrator,gr_step
+      integer intent(hide),depend(planets) :: nplan=shape(planets,0)
+      double precision dimension(nplan,7),intent(in) :: planets
+      integer intent(out) :: status
+    end subroutine swift_begin
+    subroutine swift_advance(nplan,max_steps,capacity,energy,orbits,valid,nfilled,done,status)
+      threadsafe
+      integer intent(in) :: nplan,max_steps,capacity
+      double precision dimension(capacity,5),intent(out),depend(capacity) :: energy
+      double precision dimension(capacity,nplan,11),intent(out),depend(capacity,nplan) :: orbits
+      integer dimension(capacity,nplan),intent(out),depend(capacity,nplan) :: valid
+      integer intent(out) :: nfilled,done,status
+    end subroutine swift_advance
+  end interface
+end python module _swift_memory

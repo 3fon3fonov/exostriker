@@ -28,7 +28,7 @@ c...  Inputs:
 
 c...  Outputs
       integer nbod
-      real*8 mass(nbod),time
+      real*8 mass(*),time
 
 c...  Internals
       real*4 mass4(NTPMAX)
@@ -45,13 +45,18 @@ c...  Executable code
          return
       endif
 
+      if(nbod2.lt.1.or.nbod2.gt.NTPMAX) then
+         io_read_mass = -1
+         return
+      endif
+
       read(iu,iostat=ierr) (mass4(i),i=1,nbod2)
       io_read_mass = ierr
       if(ierr.ne.0) then
          return
       endif
 
-      do i=1,nbod
+      do i=1,nbod2
          mass(i) = mass4(i)
       enddo
       nbod = nbod2

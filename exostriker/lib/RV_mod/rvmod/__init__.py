@@ -17,6 +17,25 @@ import subprocess
 from .Warning_log import Warning_log
 
 
+_DLL_HANDLES = []
+
+
+def _register_windows_dll_directories():
+    """Keep native dependencies discoverable for the lifetime of this module."""
+    if sys.platform != 'win32' or _DLL_HANDLES:
+        return
+    # Python 3.8+ does not use PATH when resolving extension dependencies.
+    # Include bundled DLLs beside the extension and compiler/conda DLLs on PATH.
+    directories = [str(Path(__file__).resolve().parent), sys.prefix]
+    directories.extend(os.environ.get('PATH', '').split(os.pathsep))
+    for directory in dict.fromkeys(directories):
+        if directory and Path(directory).is_dir():
+            try:
+                _DLL_HANDLES.append(os.add_dll_directory(directory))
+            except OSError:
+                continue
+
+
 class GP_parameters(object): # class for GP process parameters which allows for different kernels with different number of parameters
 
     def __init__(self,npar,parameters,kernel_id=0):
@@ -342,6 +361,42 @@ class Rvfit:
                   lin_trend_in=None, quad_trend_in=None,
                   dyn_planets=None, coplar_inc=0, jit_flag=0, npl_pos=None):
 
+        data_array = np.asarray(data_array, dtype=float)
+        if data_array.ndim != 2 or data_array.shape[1] != 4 or len(data_array) == 0:
+            raise ValueError("data_array must contain at least one row of (time, RV, error, dataset ID)")
+        labels = data_array[:, 3]
+        if not np.all(np.isfinite(labels)) or np.any(labels != np.floor(labels)) or np.any(labels < 0):
+            raise ValueError("Dataset IDs must be finite nonnegative integers")
+        actual_datasets = len(np.unique(labels))
+        actual_planets = len(planets_param)
+        for name, supplied, actual in (("ndata", ndata, len(data_array)),
+                                       ("ndset", ndset, actual_datasets),
+                                       ("nplanet", nplanet, actual_planets)):
+            if supplied is not None and supplied != actual:
+                raise ValueError(f"{name} must match the supplied arrays ({actual})")
+        if actual_datasets > 20:
+            raise ValueError("The RV backend supports at most 20 datasets")
+        if actual_planets > 9:
+            raise ValueError("The RV backend supports at most 9 planets (10 bodies including the star)")
+        if actual_planets and np.asarray(planets_param).shape != (actual_planets, 17, 2):
+            raise ValueError("planets_param must have shape (nplanet, 17, 2)")
+        # QDoubleSpinBox.value() is a float even when decimals == 0.
+        # Normalize whole-number values before passing the count to f2py.
+        if isinstance(rv_model_npoints, (float, np.floating)):
+            if np.isfinite(rv_model_npoints) and rv_model_npoints == np.floor(rv_model_npoints):
+                rv_model_npoints = int(rv_model_npoints)
+        if not isinstance(rv_model_npoints, (int, np.integer)) or rv_model_npoints < 0:
+            raise ValueError("rv_model_npoints must be a nonnegative integer")
+        rv_model_npoints = int(rv_model_npoints)
+        if get_fit_model > 0 and rv_model_npoints < 2:
+            raise ValueError("A model grid requires at least two points")
+        for name, values in (("rv_ofset", rv_ofset), ("rv_jitt", rv_jitt)):
+            if values is not None and np.asarray(values).shape != (actual_datasets, 2):
+                raise ValueError(f"{name} must have shape (ndset, 2)")
+        if dyn_planets is not None and np.asarray(dyn_planets).shape != (actual_planets,):
+            raise ValueError("dyn_planets must contain one flag per planet")
+        ndset, ndata, nplanet = actual_datasets, len(data_array), actual_planets
+
         self.ind_used = np.unique(np.array(data_array).T[3]).astype(int) if len(data_array) != 0 else [0]
 
         # Set default arguments for optional entries
@@ -357,9 +412,9 @@ class Rvfit:
         elif nplanet is None:
             nplanet = len(planets_param)
         if rv_ofset is None or ndset == 0:
-            rv_ofset = [[0, 0]]
+            rv_ofset = np.zeros((ndset, 2))
         if rv_jitt is None or ndset == 0:
-            rv_jitt = [[0, 0]]
+            rv_jitt = np.zeros((ndset, 2))
         if lin_trend_in is None:
             lin_trend_in = [0., 0]
         if quad_trend_in is None:
@@ -382,6 +437,7 @@ class Rvfit:
 
         if nplanet != 0:
             planets_param, self.to_sort = self.__sort_planets(planets_param)
+            dyn_planets = np.asarray(dyn_planets)[self.to_sort]
         else:
             self.to_sort = []
 
@@ -415,179 +471,148 @@ class Rvfit:
 
     # Internal subroutine. Used to auto update the arguments respectively from the last run
     def __update_args(self, res):
-        data_array = self.arguments[14]
-        planets_param = res[2]
-        epoch = self.res_dict["epoch"]
-        hkl = self.arguments[18][-2]
-        jit_flag = self.arguments[18][-1]        
-        dyn_eps = self.arguments[0]
-        dyn_dt = self.arguments[1]
-        amoeba_iter = self.arguments[2]
-        timeout = self.arguments[3]
-        rv_model_npoints = self.arguments[4]
-        rv_model_max = self.arguments[5]
-        rv_model_min = self.arguments[6]
-        rv_gr_flag = self.arguments[7]
-        stellar_mass = self.arguments[8]
-        get_best_par = self.arguments[9]
-        get_RV = self.arguments[10]
-        get_fit_model = self.arguments[11]
-        rv_ofset = np.concatenate([[self.res_dict["V0"][:, 0]], [self.arguments[15][:, 1]]], axis=0).T
-        rv_jitt = np.concatenate([[self.res_dict["jitt"][:, 0]], [self.arguments[15][:, 3]]], axis=0).T
-        lin_trend_in = self.res_dict["lin_trend_out"]
-        quad_trend_in = self.res_dict["quad_trend_out"]
-        dyn_planets = self.arguments[19]
-
-        self.init_args(data_array, planets_param, epoch, hkl, dyn_eps=dyn_eps, dyn_dt=dyn_dt,
-                       amoeba_iter=amoeba_iter, timeout=timeout, rv_model_npoints=rv_model_npoints,
-                       rv_model_max=rv_model_max, rv_model_min=rv_model_min, rv_gr_flag=rv_gr_flag,
-                       stellar_mass=stellar_mass, get_best_par=get_best_par, get_RV=get_RV,
-                       get_fit_model=get_fit_model, rv_ofset=rv_ofset, rv_jitt=rv_jitt,
-                       lin_trend_in=lin_trend_in, quad_trend_in=quad_trend_in,
-                       dyn_planets=dyn_planets,jit_flag=jit_flag)
+        # Native results retain the input's sorted planet/dataset order. Update
+        # values in place so flags, permutations and sparse-slot mappings survive.
+        planets = np.array(self.arguments[17], copy=True)
+        if self.npl:
+            planets[:, :, 0] = res[2][:, :, 0]
+        files = np.array(self.arguments[15], copy=True)
+        files[:, 0] = self.res_dict["V0"][:, 0]
+        files[:, 2] = self.res_dict["jitt"][:, 0]
+        final = np.array(self.arguments[18], copy=True)
+        final[0] = self.res_dict["lin_trend_out"][0]
+        final[2] = self.res_dict["quad_trend_out"][0]
+        final[4] = self.res_dict["epoch"]
+        self.arguments[17] = planets
+        self.arguments[15] = files
+        self.arguments[18] = final
 
    # Compile the Fortran code
     @staticmethod
     def f_compile(path=None, __version__="0"):
+        import shutil
+        import shlex
+
         if path is None:
-            path = Path(__file__).parts[:-1]
-            path = Path(path[0]).joinpath(*path[1:])
+            path = Path(__file__).resolve().parent
+        path = Path(path).resolve()
+        # Meson support was introduced in NumPy 1.26. Prefer it also on
+        # Python 3.10/3.11, where f2py otherwise defaults to deprecated distutils.
+        supports_meson = np.lib.NumpyVersion(np.__version__) >= "1.26.0"
+        use_meson = bool(supports_meson and shutil.which("meson") and shutil.which("ninja"))
+        if sys.version_info >= (3, 12) and not use_meson:
+            raise RuntimeError("Building the RV extension requires NumPy >= 1.26, meson and ninja")
 
-        # Change directory
-        old_path = os.getcwd()
-        os.chdir(path)
-
-        # Get the actual Python version
-        vers = str(sys.version_info.major) + "." + str(sys.version_info.minor)
-
-        # Verify if python[version] command exists
-        see_python = f'python{vers} --version'
-        result = subprocess.run(see_python, shell=True, capture_output=True, text=True)
-        if "command not found" in result.stderr or "is not recognized" in result.stderr:
-            vers = ""
-
-        # Recursive Flag only on linux
-        # recur = "" if "win" in sys.platform[0:3] else "-frecursive"
-        # recur = "-fmax-stack-var-size=2147483646" if "win" in sys.platform[0:3] else "-fmax-stack-var-size=2147483646"
-        # recur = "-frecursive" if "win" in sys.platform[0:3] else "-frecursive"
-        recur = "-fmax-stack-var-size=2147483646"
-        current_dir = os.getcwd()
-            
-        # if sys.version_info.major == 3 and sys.version_info.minor >= 13:
-        #     if "win" in sys.platform[:3]:
-        #         compile_cmd = f'python{vers} -m numpy.f2py -c --opt="-O3 -std=legacy {recur}" -m rvmod_for rvmod_for.f95 --build-dir bdir -I{current_dir}'
-        #     else:
-        #         compile_cmd = f'python{vers} -m numpy.f2py -c --opt="-O3 -std=legacy {recur}" -m rvmod_for rvmod_for.f95 --build-dir bdir -I{current_dir}'
-        #     result = subprocess.run(compile_cmd, shell=True, capture_output=False, text=True, stdout=sys.stdout, stderr=sys.stderr)
-        # else:
-        #     if "win" in sys.platform[:3]:
-        #         compile_cmd = f'python{vers} -m numpy.f2py -c --opt="-O3 -std=legacy {recur}" -m rvmod_for rvmod_for.f95 --build-dir bdir -I{current_dir}'
-        #     else:
-        #         compile_cmd = f'python{vers} -m numpy.f2py -c --opt="-O3 -std=legacy {recur}" -m rvmod_for rvmod_for.f95 --build-dir bdir -I{current_dir}'
-        #     result = subprocess.run(compile_cmd, shell=True, capture_output=False, text=True, stdout=sys.stdout, stderr=sys.stderr)
-
-       # compile_cmd = f'python{vers} -m numpy.f2py -c --opt="-O3 -std=legacy {recur}" -m rvmod_for{__version__} rvmod_for.f95 -I{current_dir}'
-        
-        use_meson = (sys.version_info.major == 3 and sys.version_info.minor >= 12)
-        backend_flag = "--backend=distutils" if use_meson else ""
-
-        compile_cmd = (
-            f'python{vers} -m numpy.f2py -c {backend_flag} '
-            f'--opt="-O3 -std=legacy {recur}" '
-            f'-m rvmod_for{__version__} rvmod_for.f95 -I{current_dir}'
-        )
-        
-        
-        
-        result = subprocess.run(compile_cmd, shell=True, capture_output=False, text=True, stdout=sys.stdout,
-                                stderr=sys.stderr)
-
-        # If Windows, move the created DLL
-        # if "win" in sys.platform[0:3]:
-        #     lib_path = path.joinpath("rvmod_for", ".libs")
-        #     fls = os.listdir(lib_path)
-        #     for fl in fls:
-        #         os.rename(lib_path.joinpath(fl), path.joinpath(fl))
-        #     os.rmdir(lib_path)
-        #     os.rmdir(path.joinpath("rvmod_for"))
-
-        # Return to the old directory
-        os.chdir(old_path)
+        # All four fit entry points share an API. Keplerian fits do not use
+        # integration controls, and dynamical LM does not use the planet mask.
+        # Keep other warnings enabled; do not add fake uses of these arguments.
+        flags = "-O3 -std=legacy -fmax-stack-var-size=2147483646 -Wall -Wno-unused-dummy-argument"
+        command = [sys.executable, "-m", "numpy.f2py", "-c"]
+        env = os.environ.copy()
+        if use_meson:
+            command += ["--backend", "meson"]
+            # f2py re-splits command-line include paths containing spaces.
+            # Meson parses FFLAGS using platform-specific quoting. Windows
+            # treats POSIX single quotes as literal characters in the path.
+            include_flag = (subprocess.list2cmdline(["-I" + str(path)])
+                            if sys.platform == "win32"
+                            else "-I" + shlex.quote(str(path)))
+            env["FFLAGS"] = (env.get("FFLAGS", "") + " " + flags
+                             + " " + include_flag).strip()
+        else:
+            # Compatibility with older NumPy installations on Python < 3.12.
+            # Select GNU directly instead of probing for unrelated compilers.
+            if supports_meson:
+                command += ["--backend", "distutils"]
+            command += ["--fcompiler=gnu95", "--opt=" + flags]
+        command += ["-m", "rvmod_for" + __version__, "rvmod_for.f95"]
+        if not use_meson:
+            command += ["-I" + str(path)]
+        # Internal solvers use Fortran callbacks and common-block dimensions
+        # that cannot be exposed as Python wrappers. Compile the whole source,
+        # but generate wrappers only for the supported Python API.
+        command += ["only:", "kepfit_amoeba", "kepfit_lm", "dynfit_amoeba",
+                    "dynfit_lm", "rv_capacity_check", "rv_get_status", ":"]
+        # Use the running interpreter, preserve the caller's working directory,
+        # and report build failures rather than continuing with a stale binary.
+        subprocess.run(command, cwd=path, env=env, check=True)
 
     # Check if there is the right compiled Fortran code for the Python version
     # If there is not, compile it
     # This function runs automatically in every initialization of the RVMOD module
     def check_compiled_version(self, path=None):
-        # Rename the old executables, so Python will not try to import the wrong one
-        def rename(fl_names):
-            for exec_fl in fl_names:
-                if "old_" not in exec_fl:
-                    num = 1
-                    while True:
-                        if "old_{}_".format(num) + exec_fl in os.listdir():
-                            num += 1
-                        else:
-                            os.rename(exec_fl, "old_{}_".format(num) + exec_fl)
-                            break
+        import re
+        import sysconfig
 
-        if path is None:
-            path = Path(__file__).parts[:-1]
-            path = Path(path[0]).joinpath(*path[1:])
-
-        # Change directory
-        old_path = os.getcwd()
-        os.chdir(path)
-
-        # Check for others executables in the path
-        execs = []
-        for names in os.listdir():
-            if "rvmod_for" in names:
-                if (".so" in names and "linux" in sys.platform) or (".so" in names and "darwin" in sys.platform) or (".pyd" in names and "win" in sys.platform[0:3]):
-                    execs.append(names)
-
-        # Get the exostriker version if possible
+        path = Path(path if path is not None else __file__).resolve()
+        if path.is_file():
+            path = path.parent
         try:
-            current_dir = os.getcwd()
-            path = Path(__file__).parts[:-5]
-            path = Path(path[0]).joinpath(*path[1:])
-            os.chdir(path)
             from exostriker import __version__
-            __version__ = __version__.replace(".", "")
-            os.chdir(current_dir)
-        except (ModuleNotFoundError, IndexError):
-            __version__ = "0000"
+            version = __version__.replace(".", "")
+        except ModuleNotFoundError:
+            version = "0000"
 
-        # If there is no other executable, call the compile function, otherwise rename them
-        if execs is not []:
-            # Get python version and check for executables for this version
-            vers = str(sys.version_info.major) + str(sys.version_info.minor)
-            compile_flag = any(vers in exec_fl for exec_fl in execs) and any(__version__ in exec_fl for exec_fl in execs)
-            if not compile_flag:
-                rename(execs)
-                self.f_compile(__version__=__version__)
+        # Match the application module name and this interpreter's complete ABI
+        # suffix on the same file, including platform/architecture tags.
+        suffix = sysconfig.get_config_var("EXT_SUFFIX")
+        if not suffix:
+            raise RuntimeError("Cannot determine the Python extension suffix")
+        expected = "rvmod_for" + version + suffix
+        archives = []
+        for candidate in sorted(path.iterdir()):
+            if not candidate.is_file():
+                continue
+            archived = re.fullmatch(r"old_(\d+)_(.+)", candidate.name)
+            if archived:
+                if archived.group(2) == expected:
+                    archives.append((int(archived.group(1)), candidate))
+                continue
+            if (candidate.name.startswith("rvmod_for")
+                    and candidate.name.endswith((".so", ".pyd"))
+                    and candidate.name != expected):
+                number = 1
+                while (path / f"old_{number}_{candidate.name}").exists():
+                    number += 1
+                candidate.rename(path / f"old_{number}_{candidate.name}")
+
+        if not (path / expected).is_file():
+            if archives:
+                _, candidate = max(archives, key=lambda entry: entry[0])
+                candidate.rename(path / expected)
             else:
-                execs_true = np.array([vers in exec_fl for exec_fl in execs])
-                execs_ver = np.array(execs)[np.where(execs_true == True)[0]]
-                if all("old_" in exec_fl for exec_fl in execs_ver):
-                    ind, max_val = -1, 1
-                    for i in range(len(execs_ver)):
-                        if max_val < int(execs_ver[i][4]):
-                            max_val = int(execs_ver[i][4])
-                            ind = i
-                    os.rename(execs_ver[ind], execs_ver[ind][6:])
-                execs_ren = np.array(execs)[np.where(execs_true == False)[0]]
-                rename(execs_ren)
-        else:
-            self.f_compile(__version__=__version__)
+                self.f_compile(path=path, __version__=version)
+                if not (path / expected).is_file():
+                    raise RuntimeError(f"RV build did not produce {expected}")
+        return version
 
-        # Return to the old directory
-        os.chdir(old_path)
+    @staticmethod
+    def _require_capacity_backend():
+        if not hasattr(rvmod_for, "rv_get_status"):
+            raise RuntimeError("Rebuild the RV extension to enable capacity validation")
 
-        return __version__
+    @staticmethod
+    def _check_native_status():
+        status = rvmod_for.rv_get_status()
+        messages = {
+            1: "The RV backend requires 1 to 20 datasets",
+            2: "The RV backend supports 0 to 9 planets (including space for the star)",
+            3: "The RV backend requires at least one observation",
+            4: "Invalid model grid size (at least two points are required when enabled)",
+            5: "Native dataset IDs must be integers in 1..ndset",
+            6: "The RV parameter count exceeds the native workspace",
+        }
+        if status:
+            raise ValueError(messages.get(status, f"Native RV error {status}"))
 
     # Run the amoeba code in Fortran
     # The options for mtype defines the type of run between Keplerian and N-body
     def run_amoeba(self, mtype, auto_update=False):
+        # Invalidate the score before every attempt, including backend errors.
+        self.loglik = -np.inf
+        self.res = None
+        self.res_dict.clear()
+        self._require_capacity_backend()
         if mtype == "kep":
             try:
                 res = rvmod_for.kepfit_amoeba(*self.arguments)
@@ -601,8 +626,9 @@ class Rvfit:
                 print(repr(e))
                 return 0
         else:
-            exit("Model type not recognized!")
+            raise ValueError("Model type not recognized!")
 
+        self._check_native_status()
         self.__create_dict(res)
         self.__update_args(res) if auto_update else None
         return 1
@@ -610,6 +636,11 @@ class Rvfit:
     # Run the Levenberg-Marquardt code in Fortran
     # The options for mtype defines the type of run between Keplerian and N-body
     def run_lm(self, mtype, auto_update=False):
+        # Invalidate the score before every attempt, including backend errors.
+        self.loglik = -np.inf
+        self.res = None
+        self.res_dict.clear()
+        self._require_capacity_backend()
         if mtype == "kep":
             try:
                 res = rvmod_for.kepfit_lm(*self.arguments)
@@ -623,8 +654,9 @@ class Rvfit:
                 print(repr(e))
                 return 0
         else:
-            exit("Model type not recognized!")
+            raise ValueError("Model type not recognized!")
 
+        self._check_native_status()
         self.__create_dict(res)
         self.__update_args(res) if auto_update else None
         return 1
@@ -731,9 +763,9 @@ class Rvfit:
             self.mass = self.__unsort_planets_args(list(self.res_dict["jup_mass"]))
             self.a = self.__unsort_planets_args(list(self.res_dict["jacobi_major_ax"]))
 
-            self.planet_params[0:len(res[2]) * 7] = res[2][:, :7, 0].reshape(len(res[2]) * 7)
+            self.planet_params[0:len(res[2]) * 7] = res[2][np.argsort(self.to_sort), :7, 0].reshape(len(res[2]) * 7)
             self.planet_params_errors[0:len(res[2]) * 7, :] = np.array(
-                [res[2][:, :7, 1].reshape(len(res[2]) * 7)] * 2).T
+                [res[2][np.argsort(self.to_sort), :7, 1].reshape(len(res[2]) * 7)] * 2).T
         else:
             self.npl = 1 if self.npl == 0 else self.npl
 
@@ -790,7 +822,7 @@ class Rvfit:
 
         self.rv_model = RvModelWrap(self.jd, self.rvs, self.rv_err, self.o_c)
         self.stat_array_saved = True
-        self.wrms = np.sqrt(np.average(self.o_c ** 2, weights=1 / self.rv_err)) if self.ndset != 0 else 0
+        self.wrms = np.sqrt(np.average(self.o_c ** 2, weights=1 / self.rv_err ** 2)) if self.ndset != 0 else 0
 
         self.offsets[0:len(self.V0.T[0])] = self.V0.T[0]
         self.jitters[0:len(self.jitt.T[0])] = self.jitt.T[0]
@@ -814,4 +846,5 @@ if __name__ != '__main__':
     del re
 
     import importlib
+    _register_windows_dll_directories()
     rvmod_for = importlib.import_module(".rvmod_for" + exo_ver, package=__package__)

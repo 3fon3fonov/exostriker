@@ -23,7 +23,9 @@ requests
 
 # Setuptools distribution folder.
 /dist/
+.venv-installer/
 
 # Python egg metadata, regenerated from source files by setuptools.
 /*.egg-info
 /*.egg
+/.github/workflows/swift-library.yml

@@ -12,7 +12,7 @@ authors = [
 ]
 description="This is the 'Transit and Radial velocity Interactive Fitting tool for Orbital analysis and N-body simulations: The Exo-Striker'"
 readme = "README.md" 
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers=[
  "Programming Language :: Python :: 3",
  "License :: OSI Approved :: MIT License",
@@ -20,7 +20,7 @@ classifiers=[
 ]
 license = {file = "LICENSE"}
 dependencies = [
-    "numpy >= 1.21",
+    "numpy >= 1.26",
     "scipy >= 1.2.1",
     "matplotlib >= 3.3.1",
     "formlayout == 1.2.0",
@@ -31,12 +31,12 @@ dependencies = [
     "qtconsole",
     "rebound",
     "pathos >= 0.2.5",
+    "tqdm",
 #    "emcee >= 3.0.2",
     "celerite >= 0.3.1",
     "batman-package >= 2.4.8",
     "ttvfast >= 0.3.0",
     "wotan >= 1.7",
-    "openai",
     "desktop_file",
     "astropy",      
     "Pillow",
@@ -45,6 +45,9 @@ dependencies = [
     "colorama",
     "pywin32 ; sys_platform == 'win32'"
 ]
+
+[project.optional-dependencies]
+chat = ["openai >= 2.0.0"]
 
 [project.scripts]
 exostriker = "exostriker.gui:main"
@@ -58,3 +61,6 @@ exostriker-desktop-remove = "exostriker.desktop_entry:remove"
 
 [tool.setuptools.dynamic]
 version = { attr = "exostriker.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["exostriker", "exostriker.*"]

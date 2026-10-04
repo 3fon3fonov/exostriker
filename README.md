@@ -55,7 +55,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Multi-platform: It works on MAC OS (10.6+), Linux (Suse, Mint, Ubuntu, etc.) and Windows 10/11.
 * Integrated Bash shell (Linux only).
 * Integrated Jupyter shell.
-* Integrated AI Boot (via openai GPT-3 -- ChatGPT, but user openAI key must be provided).
+* Integrated AI chat via the OpenAI Responses API, with current model selection, conversation history, and reasoning controls (an OpenAI API key is required).
 * Importable as a standard python library (i.e., "import exostriker").
 * Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
 * Direct import of TESS & K2 *lc.fits, and CHEOPS *SCI_COR*.fits files.
@@ -184,4 +184,3 @@ http://www.stefanom.org/systemic/
 
  
 [Check in ADS](https://ui.adsabs.harvard.edu/abs/2019ascl.soft06004T/citations)
-

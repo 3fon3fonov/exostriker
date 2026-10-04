@@ -5213,12 +5213,15 @@ Polyfit coefficients:
             vel_files.append(fit.rv_data_sets[i][5]) 
         
  
+        ttv_evaluated = False
+        first_transit = None
         for j in range(len(ttv_files)):
             
             if len(ttv_files[j]) == 0 or ttv_files[j][4] == False or ttv_files[j][3] != pl_ind+1:
                 continue
             
-            first_transit = min([min(ttv_files[x][1]) for x in range(10) if len(ttv_files[x]) != 0 and ttv_files[x][3] == pl_ind+1])
+            if first_transit is None:
+                first_transit = min([min(ttv_files[x][1]) for x in range(10) if len(ttv_files[x]) != 0 and ttv_files[x][3] == pl_ind+1])
             
 
             t = np.array(ttv_files[j][0])
@@ -5231,12 +5234,15 @@ Polyfit coefficients:
                 #ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,times,fit_results, return_model = False)
             if fit.npl > 0:
                 
-                if fit.rtg[0] == False:
-                    ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True)
-                else:
-                    ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True)
+                if not ttv_evaluated:
+                    if fit.rtg[0] == False:
+                        ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True)
+                    else:
+                        ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True)
 
-                fit.ttv_results = dill.copy(ttv_loglik)
+                    fit.ttv_results = dill.copy(ttv_loglik)
+
+                    ttv_evaluated = True
 
                 if ttv_loglik == None:
                     print("""
@@ -8914,8 +8920,6 @@ Transit duration: %s d
             self.mute_buttons(trigger=True)
             return
 
-        self.update_transit_plots()
-        
         if fit.type_fit["RV"] == True:
 
             for i in range(9):
@@ -8930,7 +8934,9 @@ Transit duration: %s d
                     rv.phase_RV_planet_signal_old(fit,i)  
            # self.run_gls()
           #  self.run_gls_o_c()
-            self.update_plots()  
+            self.update_plots()
+        else:
+            self.update_transit_plots()
         self.jupiter_push_vars() 
 
         self.save_last_session("autosave/auto_save.ses")
@@ -9039,7 +9045,6 @@ Transit duration: %s d
             self.mute_buttons(trigger=True)
             return
 
-        self.update_transit_plots()
         if fit.type_fit["RV"] == True:
 
 
@@ -9167,7 +9172,6 @@ Transit duration: %s d
             self.mute_buttons(trigger=True)
             return
 
-        self.update_transit_plots()
         if fit.type_fit["RV"] == True:
            # for i in range(fit.npl):
 
@@ -9367,7 +9371,15 @@ Transit duration: %s d
        # fit.run_stability_last_fit_params(timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
        
         if arbitary == True:
-            fit = rv.run_stability_arb(fit, timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=fit.nbody_swift.integrator)      
+            backend = 'rebound' if self.use_rebound.isChecked() else 'swift'
+            settings = fit.nbody_rebound if backend == 'rebound' else fit.nbody_swift
+            fit = rv.run_stability_arb(
+                fit, timemax=self.max_time_of_evol.value(),
+                timestep=self.time_step_of_evol.value(),
+                backend=backend, integrator=settings.integrator,
+                output_step=self.output_time_step_evol.value(),
+                use_fixed_steps=self.use_fixed_time_steps.isChecked(),
+                fixed_steps=self.fixed_time_steps_evol.value())
         else:     
             if self.use_rebound.isChecked():
                 fit = rv.run_stability_rebound(fit, 
@@ -9430,9 +9442,6 @@ Transit duration: %s d
             self.mute_buttons(trigger=True)
             return
         
-        self.run_gls()
-        self.run_gls_o_c()
-
         self.save_last_session("autosave/auto_save.ses")
         self.mute_buttons(trigger=True)
 #        print("--- %s seconds ---" % (time.time() - start_time))     
@@ -9448,12 +9457,10 @@ Transit duration: %s d
             self.mute_buttons(trigger=True)
             return
 
-        self.check_model_params()
 
         self.check_bounds()
         self.check_priors_nr()   
         self.check_priors_jeff()   
-        self.mute_buttons(trigger=False)
      
         fit.model_npoints = self.points_to_draw_model.value()
         fit.model_max = self.model_max_range.value()
@@ -9571,7 +9578,8 @@ Transit duration: %s d
 
         #for i in range(fit.npl):
 
-        self.update_gui_params()
+        # Publish fitted values and errors together in worker_RV_fitting_complete,
+        # after the phased-model calculations below have finished.
 
 
         #sorted_periods = sorted([k for k, v in fit.P.items() if fit.use_planet[k]], key=fit.P.get) 
@@ -9595,7 +9603,7 @@ Transit duration: %s d
             
           
             
-            self.update_params()
+            # Do not read the still-displayed pre-fit values back into the fit.
 
         if auto_fit:
             self.update_labels()
@@ -11692,10 +11700,10 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
     def fit_dispatcher(self, init=False):
         global fit
 
-        self.check_model_params()
         self.check_mcmc_params()
         self.check_nested_params()
-        self.check_settings()
+        if not self.radioButton_RV.isChecked():
+            self.check_settings()
 
         if self.radioButton_RV.isChecked():
             fit.rtg = [True,self.do_RV_GP.isChecked(),False, False]
@@ -13805,9 +13813,9 @@ Please install via 'pip install ttvfast'.
 
         if openai_not_found != True:
             self.chat_widget = ChatWidget()
-            self.terminal_embeded.addTab(self.chat_widget, "Exo-Striker ChatBoot (GPT-3)")
+            self.terminal_embeded.addTab(self.chat_widget, "Exo-Striker AI Chat")
         else:
-            print("You do not have openAI installed, so You cannot use the GPT-3 chatboot Try $ pip install openai")
+            print("OpenAI chat is unavailable. Install it with: python -m pip install --upgrade openai")
 
 
         self.text_editor = text_editor_es.MainWindow()

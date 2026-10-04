@@ -89,6 +89,7 @@ except (ImportError, KeyError) as e:
 
 from .parameters import *
 from .CustomSampler import CustomSampler
+from .posterior import posterior_summary, posterior_errors
 from .Warning_log import Warning_log
 from .functions import *
 
@@ -241,7 +242,7 @@ def get_RV_gps_model(obj,  kernel_id=-1, get_lnl=False):
         obj.fit_results.reduced_chi2 = gp_rv_chi /(len(o_c_kep) - len(obj.par_for_mcmc))
 
         obj.fit_results.rms = np.sqrt(np.average(o_c_kep**2))
-        obj.fit_results.wrms =  np.sqrt(np.average(o_c_kep**2, weights=1/obj.fit_results.rv_err))
+        obj.fit_results.wrms =  np.sqrt(np.average(o_c_kep**2, weights=1/obj.fit_results.rv_err**2))
 
         if obj.gp_kernel == 'RotKernel':
             N_gp_pars_used = len([i for i in range(4) if obj.GP_rot_use[i] == True])
@@ -1047,8 +1048,6 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
     n1   = [item[0] for item in result_rows]
 
     loglik_ttv  = 0
-    loglik_tdv1 = 0
-    loglik_tdv2 = 0
     
     calc_data   = {kx: [] for kx in range(10)}
     calc_model  = {kx: [] for kx in range(10)}
@@ -1058,6 +1057,11 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
             continue
         else:
         
+            # Depth and duration terms belong only to this dataset.
+            # Add them once below, without carrying earlier datasets forward.
+            loglik_tdv1 = 0
+            loglik_tdv2 = 0
+
             calc_n     = []
             calc_tran  = []
             calc_rsky  = []
@@ -1565,7 +1569,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
         tr_chi_red = tr_chi/len(flux_o_c_gp_all)
 
         tr_rms = np.sqrt(np.average(flux_o_c_gp_all**2))
-        tr_wrms =  np.sqrt(np.average(flux_o_c_gp_all**2, weights=1/flux_err_all))
+        tr_wrms =  np.sqrt(np.average(flux_o_c_gp_all**2, weights=1/flux_err_all**2))
         tr_Ndata = len(flux_o_c_gp_all)
 
         tr_stat = [tr_chi,tr_chi_red,tr_rms,tr_wrms, tr_Ndata]
@@ -1592,6 +1596,28 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     jit_flag = opt["jit_flag"]    
     hkl = opt["hkl"]
     cwd = opt["cwd"]
+
+    rv_mode = None
+    dyn_planets = None
+    if rtg[0]:
+        modes = {f"{cwd}/lib/fr/loglik_kep": "kep",
+                 f"{cwd}/lib/fr/loglik_dyn": "dyn",
+                 f"{cwd}/lib/fr/loglik_dyn+": "dyn"}
+        if program not in modes:
+            raise ValueError(f"Unknown RV likelihood program: {program!r}")
+        rv_mode = modes[program]
+        if program == f"{cwd}/lib/fr/loglik_dyn+":
+            # Parameters are packed in active-slot order before the wrapper
+            # sorts planets by period. Preserve that same order for the mask.
+            slots = np.asarray(opt.get("planet_slots", np.arange(npl)), dtype=int)
+            mask = np.asarray(mix_fit[1])
+            if (slots.shape != (npl,) or mask.ndim != 1 or
+                    np.any(slots < 0) or np.any(slots >= len(mask))):
+                raise ValueError("Mixed RV planet mask does not match active planet slots")
+            dyn_planets = mask[slots]
+            if not np.all(np.isin(dyn_planets, [0, 1])):
+                raise ValueError("Mixed RV planet flags must be 0 or 1")
+
     gr_flag = opt["gr_flag"]
 
     rvs_files = opt["RVS_files"]
@@ -1740,12 +1766,14 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                      rv_model_npoints=npoints, rv_model_max=model_max, rv_model_min=model_min,
                      rv_gr_flag=int(gr_flag), stellar_mass=stmass,
                      ndset=None, ndata=None, nplanet=None,
-                     dyn_planets=None,coplar_inc=int(copl_incl),jit_flag = int(jit_flag))
+                     dyn_planets=dyn_planets,coplar_inc=int(copl_incl),jit_flag = int(jit_flag))
 
-        if program == '%s/lib/fr/loglik_kep'%cwd:
-            rvmod.run_amoeba("kep")         
-        elif program == '%s/lib/fr/loglik_dyn'%cwd:
-            rvmod.run_amoeba("dyn")
+        try:
+            status = rvmod.run_amoeba(rv_mode)
+        except Exception:
+            return -np.inf
+        if status != 1 or not np.isfinite(rvmod.loglik):
+            return -np.inf
 
         rv_loglik = float(rvmod.loglik)
          
@@ -1776,7 +1804,14 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
                 gps.set_parameter_vector(np.array(param_vect))
 
-            errors_with_jitt = np.array([np.sqrt(rvmod.rv_err[i]**2 + par[int(ii) + len(vel_files)]**2)  for i,ii in enumerate(rvmod.idset)])
+            dataset_slots = opt.get("dataset_slots", np.arange(len(vel_files)))
+            if len(dataset_slots) != len(vel_files) or len(set(dataset_slots)) != len(vel_files):
+                raise ValueError("RV dataset slots do not match the packed parameters")
+            jitter_by_slot = {slot: par[len(vel_files) + j]
+                              for j, slot in enumerate(dataset_slots)}
+            errors_with_jitt = np.array([
+                np.sqrt(err**2 + jitter_by_slot[int(slot)]**2)
+                for err, slot in zip(rvmod.rv_err, rvmod.idset)])
             gps.compute(rvmod.jd,yerr=errors_with_jitt)
             gp_rv_loglik = gp_rv_loglik + gps.log_likelihood(rvmod.o_c)
 
@@ -1864,20 +1899,16 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 def run_Fort(obj,mod,minimize_loglik=True):
 
 
-    import threading
- 
+    # The backend checks its own timeout cooperatively. A Python thread cannot
+    # interrupt a stuck native call, so run directly and preserve its status.
     start_time = time.time()
-
-    if(minimize_loglik):
-        t1 = threading.Thread(target=lambda:obj.rvmod.run_amoeba(mod))
-    else:
-        t1 = threading.Thread(target=lambda:obj.rvmod.run_lm(mod))
-
-    t1.start()
-    t1.join()
-
+    obj.flag = 0
+    try:
+        runner = obj.rvmod.run_amoeba if minimize_loglik else obj.rvmod.run_lm
+        obj.flag = int(runner(mod) == 1 and np.isfinite(obj.rvmod.loglik))
+    except Exception as exc:
+        print(repr(exc))
     print("--- %s seconds ---" % (time.time() - start_time))
-    obj.flag = 1
     return obj
     
     
@@ -1978,7 +2009,9 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "rho":obj.rho, 
            "tdv":obj.tdv,                      
            "St_radius":stradi,                     
-           "cwd":obj.cwd, 
+           "cwd":obj.cwd,
+           "planet_slots":obj.mcmc_planet_slots,
+           "dataset_slots":obj.mcmc_dataset_slots,
            "gr_flag":obj.gr_flag,
            "TTV":obj.type_fit["TTV"],
            "AST":obj.type_fit["AST"],
@@ -2167,6 +2200,15 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, pr_nr, gps, tra_gps, rtg, mix_fit, errors, mod,opt):
 
 
+    dataset_slots = tuple(opt.get("dataset_slots", getattr(
+        obj, "mcmc_dataset_slots", tuple(i for i in range(len(obj.rv_data_sets))
+                                         if len(obj.rv_data_sets[i])))))
+    planet_slots = tuple(opt.get("planet_slots", getattr(
+        obj, "mcmc_planet_slots", tuple(np.flatnonzero(obj.use_planet)))))
+    if (len(dataset_slots) != len(vel_files) or len(set(dataset_slots)) != len(vel_files)
+            or len(planet_slots) != npl or len(set(planet_slots)) != npl):
+        raise ValueError("Active slots do not match the packed parameters")
+
     N_transit_files = len([x for x in range(60) if len(tr_files[x]) != 0]) 
     
     get_TTVs = opt["get_TTVs"]
@@ -2177,10 +2219,10 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         e_par[flags[j]] = [errors[j][0],errors[j][1]]
 
 
-    for i in range(len(vel_files)):
+    for i, slot in enumerate(dataset_slots):
 
-        obj.rvoff[i] = par[i]
-        obj.jitt[i] = par[i+ len(vel_files)]
+        obj.rvoff[slot] = par[i]
+        obj.jitt[slot] = par[i+ len(vel_files)]
 
 
 #        if obj.copl_incl == True:
@@ -2188,35 +2230,35 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 #            obj.i[i] = incl_c
  
 
-    for i in range(obj.npl):
+    for i, slot in enumerate(planet_slots):
 
-        obj.K[i]  = par[len(vel_files)*2 + 7*i]
-        obj.P[i]  = par[len(vel_files)*2 + 7*i+1]
-        obj.i[i]  = par[len(vel_files)*2 + 7*i+5]
-        obj.Node[i] = par[len(vel_files)*2 + 7*i+6]
+        obj.K[slot]  = par[len(vel_files)*2 + 7*i]
+        obj.P[slot]  = par[len(vel_files)*2 + 7*i+1]
+        obj.i[slot]  = par[len(vel_files)*2 + 7*i+5]
+        obj.Node[slot] = par[len(vel_files)*2 + 7*i+6]
 
         if obj.hkl == True:
 
-            obj.e_sinw[i]  = par[len(vel_files)*2 + 7*i+2]
-            obj.e_cosw[i]  = par[len(vel_files)*2 + 7*i+3]
-            obj.lamb[i]    = par[len(vel_files)*2 + 7*i+4]
+            obj.e_sinw[slot]  = par[len(vel_files)*2 + 7*i+2]
+            obj.e_cosw[slot]  = par[len(vel_files)*2 + 7*i+3]
+            obj.lamb[slot]    = par[len(vel_files)*2 + 7*i+4]
 
-            obj.e[i]   = np.sqrt(obj.e_sinw[i]**2 + obj.e_cosw[i]**2)
-            obj.w[i]   = np.degrees(np.arctan2(np.radians(obj.e_sinw[i]),np.radians(obj.e_cosw[i])))
-            obj.M0[i]  = (obj.lamb[i] - obj.w[i])%360.0
+            obj.e[slot]   = np.sqrt(obj.e_sinw[slot]**2 + obj.e_cosw[slot]**2)
+            obj.w[slot]   = np.degrees(np.arctan2(np.radians(obj.e_sinw[slot]),np.radians(obj.e_cosw[slot])))
+            obj.M0[slot]  = (obj.lamb[slot] - obj.w[slot])%360.0
             
 
         else:
 
-            obj.e[i]  = par[len(vel_files)*2 + 7*i+2]
-            obj.w[i]  = par[len(vel_files)*2 + 7*i+3]
-            obj.M0[i] = par[len(vel_files)*2 + 7*i+4]
-            obj.e_sinw[i] = obj.e[i]*np.sin(np.radians(obj.w[i]))
-            obj.e_cosw[i] = obj.e[i]*np.cos(np.radians(obj.w[i]))
-            obj.lamb[i]   = (obj.w[i] + obj.M0[i])%360.0
+            obj.e[slot]  = par[len(vel_files)*2 + 7*i+2]
+            obj.w[slot]  = par[len(vel_files)*2 + 7*i+3]
+            obj.M0[slot] = par[len(vel_files)*2 + 7*i+4]
+            obj.e_sinw[slot] = obj.e[slot]*np.sin(np.radians(obj.w[slot]))
+            obj.e_cosw[slot] = obj.e[slot]*np.cos(np.radians(obj.w[slot]))
+            obj.lamb[slot]   = (obj.w[slot] + obj.M0[slot])%360.0
  
 
-        obj.t_peri[i] = transit_tperi(obj.P[i],obj.e[i], obj.w[i], obj.M0[i] ,obj.epoch)[0]
+        obj.t_peri[slot] = transit_tperi(obj.P[slot],obj.e[slot], obj.w[slot], obj.M0[slot] ,obj.epoch)[0]
 
     obj.rv_lintr = par[len(vel_files)*2  +7*npl]
     obj.rv_quadtr = par[len(vel_files)*2  +7*npl +1]
@@ -2304,20 +2346,20 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         
         rho = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*0+1]
         
-        for i in range(npl):  
+        for i, slot in enumerate(planet_slots):  
             aR = get_aR_from_rho(rho, par[len(vel_files)*2 +7*i+1])
  
             print("Planet %s, aR =%s"%(i+1,aR))
-            obj.t0[i]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
-            obj.pl_a[i]   = rho
-            obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
+            obj.t0[slot]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+            obj.pl_a[slot]   = rho
+            obj.pl_rad[slot] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
      
     else:
-        for i in range(obj.npl):
+        for i, slot in enumerate(planet_slots):
      
-            obj.t0[i]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
-            obj.pl_a[i]   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
-            obj.pl_rad[i] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
+            obj.t0[slot]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+            obj.pl_a[slot]   = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
+            obj.pl_rad[slot] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
  
     j = 0
     for i in range(60):
@@ -2349,6 +2391,10 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                                   par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 3+ npl]]
  
 
+
+    # Update precession before rebuilding the fitted model for plotting.
+    for i, slot in enumerate(planet_slots):
+        obj.omega_dot[slot] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*4 + tra_gp_npar + 2 + i ]
 
     if obj.type_fit["AST"] and obj.use_ast_hipp_gaia == True: 
 
@@ -2384,7 +2430,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == True:
 
-        for i in range(npl): 
+        for i, slot in enumerate(planet_slots): 
 
 
             if obj.hkl == True:
@@ -2421,7 +2467,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     elif obj.type_fit["RV"] == True and obj.type_fit["Transit"] == True:
 
-        for i in range(npl): 
+        for i, slot in enumerate(planet_slots): 
 
             if obj.hkl == True:
                 ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
@@ -2439,8 +2485,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                     par[len(vel_files)*2 +7*i+4] =  Ma_
 
                 #obj.params.update_M0(i,par[len(vel_files)*2 +7*i+4])
-                obj.M0[i] = Ma_
-                obj.lamb[i] = (Ma_ + om_)%360.0
+                obj.M0[slot] = Ma_
+                obj.lamb[slot] = (Ma_ + om_)%360.0
 
 
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
@@ -2460,7 +2506,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
  
-        ttv_loglik = ttvs_loglik(obj.parameters,vel_files, obj.ttv_data_sets,obj.npl,obj.params.stellar_mass,obj.ttv_times,obj.hkl,
+        # Use the fitted vector; obj.parameters still holds the pre-fit snapshot.
+        ttv_loglik = ttvs_loglik(par,vel_files, obj.ttv_data_sets,obj.npl,obj.params.stellar_mass,obj.ttv_times,obj.hkl,
                                  fit_results=obj.fit_results, return_model = False)
         #print(obj.fit_results.mass, obj.ttv_times, obj.parameters, obj.loglik, ttv_loglik)
 
@@ -2502,10 +2549,10 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
  
 ############# Errors here ##############
 
-    for i in range(len(vel_files)):
+    for i, slot in enumerate(dataset_slots):
 
-        obj.rvoff_err[i] = e_par[i]
-        obj.jitt_err[i] = e_par[i+ len(vel_files)]
+        obj.rvoff_err[slot] = e_par[i]
+        obj.jitt_err[slot] = e_par[i+ len(vel_files)]
 
 
 #        if obj.copl_incl == True:
@@ -2515,37 +2562,37 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
 
  
-    for i in range(obj.npl):
+    for i, slot in enumerate(planet_slots):
 
 
-        obj.K_err[i] = e_par[len(vel_files)*2 + 7*i]
-        obj.P_err[i] = e_par[len(vel_files)*2 + 7*i+1]
-        obj.i_err[i] = e_par[len(vel_files)*2 + 7*i+5]
-        obj.Node_err[i] = e_par[len(vel_files)*2 + 7*i+6]
+        obj.K_err[slot] = e_par[len(vel_files)*2 + 7*i]
+        obj.P_err[slot] = e_par[len(vel_files)*2 + 7*i+1]
+        obj.i_err[slot] = e_par[len(vel_files)*2 + 7*i+5]
+        obj.Node_err[slot] = e_par[len(vel_files)*2 + 7*i+6]
 
-        obj.e_err[i] = e_par[len(vel_files)*2 + 7*i+2]
-        obj.w_err[i] = e_par[len(vel_files)*2 + 7*i+3]
-        obj.M0_err[i] = e_par[len(vel_files)*2 + 7*i+4]
+        obj.e_err[slot] = e_par[len(vel_files)*2 + 7*i+2]
+        obj.w_err[slot] = e_par[len(vel_files)*2 + 7*i+3]
+        obj.M0_err[slot] = e_par[len(vel_files)*2 + 7*i+4]
  
         if obj.hkl == True:
 
-            obj.e_sinw_err[i]  = e_par[len(vel_files)*2 + 7*i+2]
-            obj.e_cosw_err[i]  = e_par[len(vel_files)*2 + 7*i+3]
-            obj.lamb_err[i]    = e_par[len(vel_files)*2 + 7*i+4]
+            obj.e_sinw_err[slot]  = e_par[len(vel_files)*2 + 7*i+2]
+            obj.e_cosw_err[slot]  = e_par[len(vel_files)*2 + 7*i+3]
+            obj.lamb_err[slot]    = e_par[len(vel_files)*2 + 7*i+4]
 
-            obj.e_err[i]   = np.array([0.0,0.0]) #.sqrt(obj.e_sinw[i]**2 + obj.e_cosw[i]**2)
-            obj.w_err[i]   = np.array([0.0,0.0])   # np.degrees(np.arctan2(np.radians(obj.e_sinw[i]),np.radians(obj.e_cosw[i])))
-            obj.M0_err[i]  = np.array([0.0,0.0])   #(obj.lamb[i] - obj.w[i])%360.0
+            obj.e_err[slot]   = np.array([0.0,0.0]) #.sqrt(obj.e_sinw[slot]**2 + obj.e_cosw[slot]**2)
+            obj.w_err[slot]   = np.array([0.0,0.0])   # np.degrees(np.arctan2(np.radians(obj.e_sinw[slot]),np.radians(obj.e_cosw[slot])))
+            obj.M0_err[slot]  = np.array([0.0,0.0])   #(obj.lamb[slot] - obj.w[slot])%360.0
 
         else:
 
-            obj.e_err[i] = e_par[len(vel_files)*2 + 7*i+2]
-            obj.w_err[i] = e_par[len(vel_files)*2 + 7*i+3]
-            obj.M0_err[i] = e_par[len(vel_files)*2 + 7*i+4]
+            obj.e_err[slot] = e_par[len(vel_files)*2 + 7*i+2]
+            obj.w_err[slot] = e_par[len(vel_files)*2 + 7*i+3]
+            obj.M0_err[slot] = e_par[len(vel_files)*2 + 7*i+4]
 
-            obj.e_sinw_err[i] = np.array([0.0,0.0]) #obj.e[i]*np.sin(np.radians(obj.w[i]))
-            obj.e_cosw_err[i] = np.array([0.0,0.0])  #obj.e[i]*np.cos(np.radians(obj.w[i]))
-            obj.lamb_err[i]   = np.array([0.0,0.0])  #(obj.w[i] + obj.M0[i])%360.0
+            obj.e_sinw_err[slot] = np.array([0.0,0.0]) #obj.e[slot]*np.sin(np.radians(obj.w[slot]))
+            obj.e_cosw_err[slot] = np.array([0.0,0.0])  #obj.e[slot]*np.cos(np.radians(obj.w[slot]))
+            obj.lamb_err[slot]   = np.array([0.0,0.0])  #(obj.w[slot] + obj.M0[slot])%360.0
 
 
 
@@ -2555,13 +2602,13 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
  
  
-    for i in range(npl):
+    for i, slot in enumerate(planet_slots):
          
-        obj.t0_err[i]     = e_par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
-        obj.pl_a_err[i]   = e_par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
-        obj.pl_rad_err[i] = e_par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
+        obj.t0_err[slot]     = e_par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
+        obj.pl_a_err[slot]   = e_par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+1]
+        obj.pl_rad_err[slot] = e_par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
 
-        obj.omega_dot[i] = par[len(vel_files)*2  +7*npl  + rv_gp_npar  + 3*npl + N_transit_files*4 + tra_gp_npar + 2 + i ]
+        obj.omega_dot_err[slot] = e_par[len(vel_files)*2 + 7*npl + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + 2 + i]
 
     j = 0
 
@@ -2791,7 +2838,9 @@ def run_nestsamp(obj, **kwargs):
            "rho":obj.rho,    
            "tdv":obj.tdv,
            "St_radius":stradi,                                       
-           "cwd":obj.cwd, 
+           "cwd":obj.cwd,
+           "planet_slots":obj.mcmc_planet_slots,
+           "dataset_slots":obj.mcmc_dataset_slots,
            "gr_flag":obj.gr_flag,
            "ns_samp_method":obj.ns_samp_method,
            "TTV":obj.type_fit["TTV"],
@@ -2882,27 +2931,32 @@ def run_nestsamp(obj, **kwargs):
         with additional constraints from a flat prior [flat_lower, flat_upper].
         
         Parameters:
-            p (float): Input value, can be any number.
+            p (float): Probability in [0, 1].
             a (float): Lower bound of the log-uniform distribution (must be positive).
             b (float): Upper bound of the log-uniform distribution (must be positive).
             flat_lower (float): Lower bound of the flat prior.
             flat_upper (float): Upper bound of the flat prior.
             
         Returns:
-            float: Transformed value within the combined bounds.
+            float: Log-uniform quantile over the intersection of both intervals.
+
+        Raises:
+            ValueError: Invalid bounds, empty intersection, or invalid probability.
         """
-        # Ensure bounds for log-uniform are positive
-        if a <= 0 or b <= 0:
-            return (flat_lower + flat_upper) / 2.0  # Default to midpoint of flat prior if log bounds are invalid
-
-        # Clamp p to [0, 1]
-        p_clamped = max(0.0, min(1.0, p))
-        
-        # Transform to log-uniform within [a, b]
-        log_uni_result = np.exp(np.log(a) + p_clamped * (np.log(b) - np.log(a)))
-
-        # Clamp to flat prior bounds [flat_lower, flat_upper]
-        return max(flat_lower, min(flat_upper, log_uni_result))
+        if not np.all(np.isfinite([a, b, flat_lower, flat_upper])):
+            raise ValueError("Log-uniform prior bounds must be finite")
+        if a <= 0 or b <= a or flat_upper <= flat_lower:
+            raise ValueError("Prior bounds must be increasing and log-uniform bounds positive")
+        lower, upper = max(a, flat_lower), min(b, flat_upper)
+        if lower >= upper:
+            raise ValueError("Log-uniform and flat prior intervals must overlap")
+        if not np.isfinite(p) or p < 0 or p > 1:
+            raise ValueError("Prior probability must be in [0, 1]")
+        if p == 0:
+            return lower
+        if p == 1:
+            return upper
+        return np.exp((1.0 - p) * np.log(lower) + p * np.log(upper))
 
     def trans_norm(p ,mu,sig):
         return stats.norm.ppf(p,loc=mu,scale=sig)
@@ -3111,8 +3165,8 @@ def run_nestsamp(obj, **kwargs):
         outfile.close()
 
 
-    obj.nest_stat["mean"] = get_mean_of_samples(obj.ns_sampler.samples,len(pp))
-    obj.nest_stat["median"] = get_median_of_samples(obj.ns_sampler.samples,len(pp))
+    obj.nest_stat["mean"], obj.nest_stat["median"] = posterior_summary(
+        obj.ns_sampler.samples, obj.f_for_mcmc, obj.ndset, obj.npl, obj.hkl)
     #  The maximum-likelihood solution is taken from the FULL nested run, not
     #  from the resampled posterior:  the highest-lnL point occupies a tiny
     #  prior volume, so it carries almost no importance weight and is usually
@@ -3145,7 +3199,8 @@ def run_nestsamp(obj, **kwargs):
 
 
     if obj.nest_mad == False:
-        new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(obj.ns_sampler.samples[:,i], [level])), float(np.percentile(obj.ns_sampler.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))]
+        new_par_errors = posterior_errors(obj.ns_sampler.samples, obj.par_for_mcmc, level,
+                                          obj.f_for_mcmc, obj.ndset, obj.npl, obj.hkl)
     else:
         new_par_errors = [[float(obj.nest_stat["MAD"][i]),float(obj.nest_stat["MAD"][i])] for i in range(len(obj.par_for_mcmc))]
 
@@ -3329,6 +3384,8 @@ def run_mcmc(obj, **kwargs):
            "tdv":obj.tdv,           
            "St_radius":stradi,                                         
            "cwd":obj.cwd,
+           "planet_slots":obj.mcmc_planet_slots,
+           "dataset_slots":obj.mcmc_dataset_slots,
            "gr_flag":obj.gr_flag,
            "TTV":obj.type_fit["TTV"],
            "AST":obj.type_fit["AST"],
@@ -3443,8 +3500,8 @@ def run_mcmc(obj, **kwargs):
 
    # start_time = time.time()
 
-    obj.mcmc_stat["mean"] = get_mean_of_samples(sampler.samples,len(pp))
-    obj.mcmc_stat["median"] = get_median_of_samples(sampler.samples,len(pp))
+    obj.mcmc_stat["mean"], obj.mcmc_stat["median"] = posterior_summary(
+        sampler.samples, obj.f_for_mcmc, obj.ndset, obj.npl, obj.hkl)
     #samp_maxlnl, maxlnl = get_best_lnl_of_samples(samples.samples,ln, len(pp))
     #obj.mcmc_stat["best"] = samp_maxlnl
     #obj.nest_stat["mode"] = get_mode_of_samples(obj.ns_sampler.samples,len(pp))
@@ -3479,7 +3536,8 @@ def run_mcmc(obj, **kwargs):
    #     pp = obj.par_for_mcmc
 
     if obj.mcmc_mad == False:
-        new_par_errors = [[float(obj.par_for_mcmc[i] - np.percentile(sampler.samples[:,i], [level])),float(np.percentile(sampler.samples[:,i], [100.0-level])-obj.par_for_mcmc[i])] for i in range(len(obj.par_for_mcmc))]
+        new_par_errors = posterior_errors(sampler.samples, obj.par_for_mcmc, level,
+                                          obj.f_for_mcmc, obj.ndset, obj.npl, obj.hkl)
     else:
         new_par_errors = [[float(obj.mcmc_stat["MAD"][i]),float(obj.mcmc_stat["MAD"][i])] for i in range(len(obj.par_for_mcmc))]
 
@@ -4587,10 +4645,8 @@ class signal_fit(object):
     def add_rv_dataset(self, name, path, rv_idset = 0):
  
  
-        rv_JD       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-        rv_data     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-        rv_data_sig = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
- 
+        rv_JD, rv_data, rv_data_sig = np.genfromtxt(
+            str(path), unpack=True, usecols=(0, 1, 2), ndmin=2)
 
         rv_data_set = np.array([rv_JD,rv_data,rv_data_sig,np.array([rv_idset]*len(rv_JD)),name,path],dtype=object)
  
@@ -4622,9 +4678,7 @@ class signal_fit(object):
 
         try:
  
-            act_JD_       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-            act_data_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-            act_data_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+            act_JD_, act_data_, act_data_sig_ = np.genfromtxt('%s' % path, skip_header=0, unpack=True, ndmin=2, skip_footer=0, usecols=(0, 1, 2))
  
             if len(act_JD_) != len(act_data_) != len(act_data_sig_):
                 print("Something is wrong with your activity data file! Please provide a valid activity data file that contains: BJD  y  sigma_y")
@@ -4633,7 +4687,7 @@ class signal_fit(object):
             act_data      = act_data_[    np.isfinite(act_JD_) & np.isfinite(act_data_) & np.isfinite(act_data_sig_)]
             act_data_sig  = act_data_sig_[np.isfinite(act_JD_) & np.isfinite(act_data_) & np.isfinite(act_data_sig_)]
 
-            if len(act_JD) <= 1:
+            if len(act_JD) == 0:
                 print("Something is wrong with your activity data file! Perhaps some not all entries are numeric? Please provide a valid activity data file that contains: BJD  y  sigma_y")
                 return
         except:
@@ -4669,12 +4723,7 @@ class signal_fit(object):
             # col 1: mid-transit time t0 [BJD]
             # col 2: uncertainty on t0 [d]
             #
-            ttv_N_        = np.genfromtxt("%s" % (path), skip_header=0, unpack=True,
-                                          skip_footer=0, usecols=[0])
-            ttv_data_     = np.genfromtxt("%s" % (path), skip_header=0, unpack=True,
-                                          skip_footer=0, usecols=[1])
-            ttv_data_sig_ = np.genfromtxt("%s" % (path), skip_header=0, unpack=True,
-                                          skip_footer=0, usecols=[2])
+            ttv_N_, ttv_data_, ttv_data_sig_ = np.genfromtxt('%s' % path, skip_header=0, unpack=True, ndmin=2, skip_footer=0, usecols=(0, 1, 2))
 
             # Force scalar inputs to arrays. This prevents problems when the file
             # contains only one transit.
@@ -4717,10 +4766,7 @@ class signal_fit(object):
             #
             # If these columns are absent, keep zeros and flags False.
             try:
-                tdv_depth_tmp     = np.genfromtxt("%s" % (path), skip_header=0, unpack=True,
-                                                  skip_footer=0, usecols=[3])
-                tdv_depth_sig_tmp = np.genfromtxt("%s" % (path), skip_header=0, unpack=True,
-                                                  skip_footer=0, usecols=[4])
+                tdv_depth_tmp, tdv_depth_sig_tmp = np.genfromtxt('%s' % path, skip_header=0, unpack=True, ndmin=2, skip_footer=0, usecols=(3, 4))
 
                 tdv_depth_tmp     = np.atleast_1d(tdv_depth_tmp)
                 tdv_depth_sig_tmp = np.atleast_1d(tdv_depth_sig_tmp)
@@ -4737,10 +4783,7 @@ class signal_fit(object):
                 pass
 
             try:
-                tdv_dur_tmp     = np.genfromtxt("%s" % (path), skip_header=0, unpack=True,
-                                                skip_footer=0, usecols=[5])
-                tdv_dur_sig_tmp = np.genfromtxt("%s" % (path), skip_header=0, unpack=True,
-                                                skip_footer=0, usecols=[6])
+                tdv_dur_tmp, tdv_dur_sig_tmp = np.genfromtxt('%s' % path, skip_header=0, unpack=True, ndmin=2, skip_footer=0, usecols=(5, 6))
 
                 tdv_dur_tmp     = np.atleast_1d(tdv_dur_tmp)
                 tdv_dur_sig_tmp = np.atleast_1d(tdv_dur_sig_tmp)
@@ -4834,9 +4877,7 @@ class signal_fit(object):
 
 
         try:
-            ttv_N_        = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-            ttv_data_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-            ttv_data_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
+            ttv_N_, ttv_data_, ttv_data_sig_ = np.genfromtxt('%s' % path, skip_header=0, unpack=True, ndmin=2, skip_footer=0, usecols=(0, 1, 2))
 
             if len(ttv_N_) != len(ttv_data_) != len(ttv_data_sig_):
                 print("Something is wrong with your ttv data file! Please provide a ttv data file that contains: N  t_N  sigma_t_N")
@@ -4868,11 +4909,7 @@ class signal_fit(object):
     def add_ast_dataset(self, name, path, ast_idset = 0, planet = 0, use = False):
  
         try:
-            ast_BJD_        = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-            ast_data_x_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-            ast_data_x_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-            ast_data_y_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [3])
-            ast_data_y_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [4])
+            ast_BJD_, ast_data_x_, ast_data_x_sig_, ast_data_y_, ast_data_y_sig_ = np.genfromtxt('%s' % path, skip_header=0, unpack=True, ndmin=2, skip_footer=0, usecols=(0, 1, 2, 3, 4))
 
 
             if len(ast_BJD_) != len(ast_data_x_) != len(ast_data_x_sig_) != len(ast_data_y_) != len(ast_data_y_sig_):
@@ -4978,13 +5015,7 @@ class signal_fit(object):
 
         try:
         
-            OrbNum_       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-            HipEpoch_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-            A5_           = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-            A3_           = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [3])
-            A4_           = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [4])
-            A8_           = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [5])
-            A9_           = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [6])
+            OrbNum_, HipEpoch_, A5_, A3_, A4_, A8_, A9_ = np.genfromtxt('%s' % path, skip_header=0, unpack=True, ndmin=2, skip_footer=0, usecols=(0, 1, 2, 3, 4, 5, 6))
 
             if len(OrbNum_) != len(HipEpoch_) != len(A5_) != len(A3_) != len(A4_):
                 print("1Something is wrong with your Astromtry data file! Please provide an Astromtry data file that contains the ")
@@ -5108,12 +5139,7 @@ class signal_fit(object):
 
         try:
         
-            ast_BJD_          = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-            ast_CentPosal_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [3])
-            ast_e_CentPosal_   = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [4])
-            ast_plxFactal_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [5])
-            ast_ScanPA_        = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [6])
-            ast_outFlag_       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [7])
+            ast_BJD_, ast_CentPosal_, ast_e_CentPosal_, ast_plxFactal_, ast_ScanPA_, ast_outFlag_ = np.genfromtxt('%s' % path, skip_header=0, unpack=True, ndmin=2, skip_footer=0, usecols=(2, 3, 4, 5, 6, 7))
             
 
             if len(ast_BJD_) != len(ast_CentPosal_) != len(ast_e_CentPosal_) != len(ast_plxFactal_) != len(ast_ScanPA_):
@@ -5221,51 +5247,29 @@ class signal_fit(object):
 
         else:
             try:
-                tra_JD_       = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [0])
-                tra_data_     = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [1])
-                tra_data_sig_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [2])
-                
-                if len(tra_JD_) != len(tra_data_) != len(tra_data_sig_):
-                    print("Something is wrong with your transit data file! Please provide a valid transit data that contains: BJD  flux  sigma_flux")
-                    return
-                    
-                tra_JD        = tra_JD_[      np.isfinite(tra_JD_) & np.isfinite(tra_data_) & np.isfinite(tra_data_sig_)]
-                tra_data      = tra_data_[    np.isfinite(tra_JD_) & np.isfinite(tra_data_) & np.isfinite(tra_data_sig_)]
-                tra_data_sig  = tra_data_sig_[np.isfinite(tra_JD_) & np.isfinite(tra_data_) & np.isfinite(tra_data_sig_)]
-
-                if len(tra_JD) <= 5:
-                    print("Something is wrong with your transit data file! Perhaps some not all entries are numeric? Please provide a valid transit data that contains: BJD  flux  sigma_flux")
-                    return
-            except:
-                print("Something is wrong with your transit data file! Please provide a valid transit data that contains: BJD  flux  sigma_flux")
+                columns = np.genfromtxt(str(path), ndmin=2)
+                if columns.shape[1] < 3:
+                    raise ValueError("Expected time, flux, and flux uncertainty columns")
+                finite = np.all(np.isfinite(columns[:, :3]), axis=1)
+                if columns.shape[1] >= 4:
+                    finite &= np.isfinite(columns[:, 3])
+                valid = columns[finite]
+                if len(valid) == 0:
+                    raise ValueError("No finite transit observations")
+                tra_JD, tra_data, tra_data_sig = valid[:, :3].T
+                tra_airmass_ = valid[:, 3] if columns.shape[1] >= 4 else np.zeros(len(valid))
+            except (ValueError, OSError) as exc:
+                print(f"Cannot load transit data (BJD flux sigma_flux [airmass]): {exc}")
                 return
 
-            try:
-                tra_airmass_ = np.genfromtxt("%s"%(path),skip_header=0, unpack=True,skip_footer=0, usecols = [3])
-                
-                if len(tra_airmass_) != len(tra_JD_) != len(tra_data_) != len(tra_data_sig_):
-                    print("Something is wrong with your transit data file in particular the airmass column! Please provide a valid transit data that contains: BJD  flux  sigma_flux ans airmass")
-                else:
-                    print("Airmass column detected? ")
-            except:
-                tra_airmass_ = np.zeros(len(tra_JD))
-                pass
-
-        tra_airmass = tra_airmass_ 
+        tra_airmass = tra_airmass_
         tra_data_o_c = tra_data
         tra_file_name = file_from_path(path)
-
-
         tra_data_set = np.array([tra_JD,tra_data,tra_data_sig,tra_airmass,tra_data_o_c,tra_data,tra_data_sig,tra_data_o_c, 1.0, True, False, tra_file_name],dtype=object)
-        
-
         self.tra_off_use[tra_idset] = True
-        self.tra_jitt_use[tra_idset] = True     
-
- 
+        self.tra_jitt_use[tra_idset] = True
         self.tra_data_sets[tra_idset] = tra_data_set
-        self.tra_data_sets_init[tra_idset] = dill.copy(self.tra_data_sets[tra_idset])
-
+        self.tra_data_sets_init[tra_idset] = dill.copy(tra_data_set)
         return
 
 
@@ -5286,14 +5290,15 @@ class signal_fit(object):
 
     def add_planet(self,K=50,P=100,e=0,w=0,M0=180,i=90,cap=0,useK=True,useP=True,usee=False,usew=False,useM0=True,usei=False, usecap=False, index = None):
 
-        pl_ind = [0,1,2,3,4,5,6,7,8,9]
-
-       # print(index)
-        if index != None and int(index) in pl_ind:
-            ind = index
+        if index is None:
+            ind = next((slot for slot in range(9) if not self.use_planet[slot]), None)
+            if ind is None:
+                raise ValueError("All nine planet slots are occupied")
         else:
-            ind = self.npl       
-    
+            if isinstance(index, (bool, np.bool_)) or not isinstance(index, (int, np.integer)) or not 0 <= index < 9:
+                raise ValueError("Planet index must be an integer from 0 to 8")
+            ind = int(index)
+
         self.P[ind] = P
         self.K[ind] = K
         self.e[ind] = e
@@ -5312,7 +5317,7 @@ class signal_fit(object):
 
         self.use_planet[ind] = 1
 
-        self.npl=self.npl+1
+        self.npl = sum(bool(active) for active in self.use_planet)
         return
 
 
@@ -5321,14 +5326,19 @@ class signal_fit(object):
 
 
 
-        if index == None:
-            empt_rvs_files = min([x for x in range(60) if len(self.rv_data_sets[x]) == 0], default=0) 
-            index = int(empt_rvs_files)
+        if index is None:
+            index = next((slot for slot in range(60) if len(self.rv_data_sets[slot]) == 0), None)
+            if index is None:
+                raise ValueError("All 60 RV dataset slots are occupied")
+        if isinstance(index, (bool, np.bool_)) or not isinstance(index, (int, np.integer)) or not 0 <= index < 60:
+            raise ValueError("Dataset index must be an integer from 0 to 59")
+        index = int(index)
 
-        self.add_rv_dataset(name, path, rv_idset = int(index))
-
-        self.rvoff_use[index] = True
-        self.jitt_use[index] = True     
+        self.add_rv_dataset(name, path, rv_idset=index)
+        self.rvoff[index] = offset
+        self.jitt[index] = jitter
+        self.rvoff_use[index] = useoffset
+        self.jitt_use[index] = usejitter
 
         if self.epoch == 0:
             self.update_epoch(min(self.rv_data_sets[index][0]))
@@ -5336,28 +5346,14 @@ class signal_fit(object):
         return
 
 
-    def remove_planet_old(self,planet):
-        if not (planet<self.npl):
-            warnings=Warning_log(['Planet index outside of range.'],'Removing planet %d'%planet)
-            warnings.print_warning_log()
-        else:
-
-
-            self.P_use[planet] = False
-            self.K_use[planet] = False
-            self.e_use[planet] = False
-            self.w_use[planet] = False
-            self.M0_use[planet] = False
-            self.i_use[planet] = False
-            self.Node_use[planet] = False
-
-            self.use_planet[planet] = 0
-            self.npl=self.npl-1
-        return
+    def remove_planet_old(self, planet):
+        return self.remove_planet(planet)
 
 
     def remove_planet(self,planet):
- 
+        if isinstance(planet, (bool, np.bool_)) or not isinstance(planet, (int, np.integer)) or not 0 <= planet < 9:
+            raise ValueError("Planet index must be an integer from 0 to 8")
+        planet = int(planet)
 
         self.P_use[planet] = False
         self.K_use[planet] = False
@@ -5368,8 +5364,7 @@ class signal_fit(object):
         self.Node_use[planet] = False
 
         self.use_planet[planet] = 0
-        if not self.npl <= 0:
-            self.npl=self.npl-1
+        self.npl = sum(bool(active) for active in self.use_planet)
         return
 
 
@@ -5416,7 +5411,7 @@ class signal_fit(object):
 #           print("Not a MAROON-X file!") 
 #           return                   
 
-       BJD = np.genfromtxt("%s"%(path), skip_header=0, unpack=True, skip_footer=0, usecols = [0])
+       BJD = np.genfromtxt("%s"%(path), skip_header=0, unpack=True, ndmin=1, skip_footer=0, usecols = [0])
       # indices = np.where(BJD > 2457161.5)
 
        fo = open(path, "r")
@@ -5466,7 +5461,7 @@ class signal_fit(object):
 
        dirname, basename = os.path.split(path)
 
-       HARPS_RVBank_data = np.genfromtxt("%s"%(path),skip_header=1, unpack=True,skip_footer=0 )
+       HARPS_RVBank_data = np.genfromtxt("%s"%(path),skip_header=1, unpack=True, ndmin=2,skip_footer=0 )
        num_cols,num_rows = HARPS_RVBank_data.shape 
      #  print(num_rows, num_cols)
     #   return
@@ -5474,7 +5469,7 @@ class signal_fit(object):
            print("Not a HARPS_RVBank ver02 file!") 
            return                   
 
-       BJD = np.genfromtxt("%s"%(path), skip_header=1, unpack=True, skip_footer=0, usecols = [3])
+       BJD = np.genfromtxt("%s"%(path), skip_header=1, unpack=True, ndmin=1, skip_footer=0, usecols = [3])
       # indices = np.where(BJD > 2457161.5)
 
        fo = open(path, "r")
@@ -5524,10 +5519,10 @@ class signal_fit(object):
        for i in range(5):
 
            act_ind = 3+ 11 + (2*i)
-           act_data     = np.genfromtxt("%s"%(path),skip_header=1, unpack=True,skip_footer=0, usecols = [act_ind])
+           act_data     = np.genfromtxt("%s"%(path),skip_header=1, unpack=True, ndmin=1,skip_footer=0, usecols = [act_ind])
            act_data = act_data - np.mean(act_data)
 
-           act_data_sig = np.genfromtxt("%s"%(path),skip_header=1, unpack=True,skip_footer=0, usecols = [act_ind+1])
+           act_data_sig = np.genfromtxt("%s"%(path),skip_header=1, unpack=True, ndmin=1,skip_footer=0, usecols = [act_ind+1])
            #act_data_set = np.array([BJD,act_data,act_data_sig,data_set_name[i]])
            act_data_o_c = act_data                       
            act_data_set = np.array([BJD,act_data,act_data_sig,act_data_o_c,act_data_o_c,act_data,act_data_sig,act_data_o_c, 1.0, data_set_name[i]],dtype=object)
@@ -5540,7 +5535,7 @@ class signal_fit(object):
        for ii in range(3):
 
            act_ind = 3+ 22 + ii
-           act_data     = np.genfromtxt("%s"%(path),skip_header=1, unpack=True,skip_footer=0, usecols = [act_ind])
+           act_data     = np.genfromtxt("%s"%(path),skip_header=1, unpack=True, ndmin=1,skip_footer=0, usecols = [act_ind])
            act_data = act_data - np.mean(act_data)
            if ii == 1:
                act_data = act_data * 1000.0
@@ -5558,9 +5553,9 @@ class signal_fit(object):
        for ii in range(1):
 
            act_ind = 53 + (2*ii)
-           act_data     = np.genfromtxt("%s"%(path),skip_header=1, unpack=True,skip_footer=0, usecols = [act_ind])
+           act_data     = np.genfromtxt("%s"%(path),skip_header=1, unpack=True, ndmin=1,skip_footer=0, usecols = [act_ind])
            act_data = act_data - np.mean(act_data)
-           act_data_sig = np.genfromtxt("%s"%(path),skip_header=1, unpack=True,skip_footer=0, usecols = [act_ind+1])
+           act_data_sig = np.genfromtxt("%s"%(path),skip_header=1, unpack=True, ndmin=1,skip_footer=0, usecols = [act_ind+1])
 
            i = i +1
            #act_data_set = np.array([BJD,act_data,act_data_sig,data_set_name[i]])
@@ -5582,14 +5577,14 @@ class signal_fit(object):
 
     def AIC(self):
         if len(self.fit_results.jd) != 0:
-            AIC = -2*self.loglik - 2*self.fit_results.mfit
+            AIC = -2*self.loglik + 2*self.fit_results.mfit
         else:
             AIC = 0
         return AIC
 
     def wrms(self):
         if len(self.fit_results.o_c) != 0:
-            wrms = np.sqrt(np.average(self.fit_results.o_c**2, weights=1/self.fit_results.rv_err))
+            wrms = np.sqrt(np.average(self.fit_results.o_c**2, weights=1/self.fit_results.rv_err**2))
         else:
             wrms = 0           
         return wrms
@@ -5986,7 +5981,7 @@ class signal_fit(object):
         else:
             self = run_SciPyOp(self, kernel_id=kernel_id)
             create_args()
-            flag = self.rvmod.run_amoeba(mod)
+            self = run_Fort(self, mod)
 
  
         if self.flag==1: # or self.rtg[0] == True
@@ -6115,6 +6110,11 @@ class signal_fit(object):
 
         rtg=self.rtg
 
+        # Snapshot the packing order; posterior results must return to these slots.
+        self.mcmc_dataset_slots = tuple(
+            i for i in range(len(self.rv_data_sets)) if len(self.rv_data_sets[i]))
+        self.mcmc_planet_slots = tuple(np.flatnonzero(self.use_planet))
+
         par = []
         flag = []
         par_str = []
@@ -6122,9 +6122,7 @@ class signal_fit(object):
         prior_nr = []
         prior_jeff = []
 
-        for i in range(len(self.rv_data_sets)):
-            if len(self.rv_data_sets[i]) == 0:
-                continue
+        for i in self.mcmc_dataset_slots:
             par.append(self.rvoff[i]) #
             par_str.append(self.rvoff_str[i])
             bounds.append(self.rvoff_bounds[i])
@@ -6141,9 +6139,7 @@ class signal_fit(object):
                 flag.append(self.rvoff_use[i]) #
 
 
-        for i in range(len(self.rv_data_sets)):
-            if len(self.rv_data_sets[i]) == 0:
-                continue
+        for i in self.mcmc_dataset_slots:
             par.append(self.jitt[i]) #
             par_str.append(self.jitt_str[i]) #
             bounds.append(self.jitt_bounds[i])
@@ -6161,9 +6157,7 @@ class signal_fit(object):
 
 
        # for i  in range(self.npl):
-        for i in range(9):
-            if not bool(self.use_planet[i]):
-                continue
+        for i in self.mcmc_planet_slots:
 
  
             par.append(self.K[i]) #
@@ -6355,9 +6349,7 @@ class signal_fit(object):
 
         #for i  in range(self.npl):
 
-        for i in range(9):
-            if not bool(self.use_planet[i]):
-                continue
+        for i in self.mcmc_planet_slots:
 
             par.append(self.t0[i])
             par.append(self.pl_a[i])
@@ -6521,9 +6513,7 @@ class signal_fit(object):
                 else:
                     flag.append(False) #
 
-        for i in range(9):
-            if not bool(self.use_planet[i]):
-                continue
+        for i in self.mcmc_planet_slots:
 
             par.append(self.omega_dot[i]) #
             flag.append(self.omega_dot_use[i])

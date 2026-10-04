@@ -1,155 +1,116 @@
-import openai
-import sys, os
-#import numpy as np
-import json
- 
-
-from PyQt6.QtCore import Qt, QTextStream, QIODevice
-from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
-                             QTextEdit, QLineEdit, QPushButton)
-from PyQt6.QtGui import QColor,QIcon
-
+"""OpenAI chat widget with worker-thread requests and local conversation state."""
+import sys
+import os
+from PyQt6.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal, pyqtSlot
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QLineEdit, QPushButton, QLabel
+from PyQt6.QtGui import QTextCursor
 from exochat_opt import show_chat_opt
-
-#try:
-#    with open('./openai_api_key.txt', 'r') as fileai: 
-#         api_key= str(fileai.readline().rstrip())
-#    openai.api_key = api_key
-#    key_found = True
-#except:
-#    openai.api_key = ''
-#    key_found = False         
+from exochat_backend import read_settings, request_reply
 
 
+class ReplySignals(QObject):
+    ready = pyqtSignal(object)
+    failed = pyqtSignal(str)
+
+
+class ReplyWorker(QRunnable):
+    def __init__(self, settings, history, message):
+        super().__init__()
+        self.settings, self.history, self.message = settings, list(history), message
+        self.signals = ReplySignals()
+
+    @pyqtSlot()
+    def run(self):
+        try:
+            result = request_reply(self.settings, self.history, self.message)
+        except Exception as exc:
+            # SDK errors can contain request details; never echo the API key.
+            detail = str(exc)
+            key = self.settings.get('api_key', '').strip() or os.environ.get('OPENAI_API_KEY', '').strip()
+            if key:
+                detail = detail.replace(key, '[redacted]')
+            self.signals.failed.emit(detail)
+        else:
+            self.signals.ready.emit(result)
 
 
 class ChatWidget(QWidget):
     def __init__(self):
         super().__init__()
- 
-        self.setGeometry(1,1, 495, 325) 
-       
+        self.history = []
+        self.worker = None
         self.conversation = QTextEdit()
         self.conversation.setReadOnly(True)
         self.message = QLineEdit()
-        self.send_button = QPushButton("Send")
+        self.message.setPlaceholderText('Ask about Exo-Striker or exoplanet analysis...')
+        self.send_button = QPushButton('Send')
         self.send_button.clicked.connect(self.send_message)
-        
-        self.opt_button = QPushButton("")
-        self.opt_button.setIcon(QIcon('./lib/UI/opt_icon.png'))
+        self.message.returnPressed.connect(self.send_message)
+        self.opt_button = QPushButton('Settings')
         self.opt_button.clicked.connect(self.get_symbol)
-
-        self.dialog_symbols = show_chat_opt(self)
-
-        # Create the layout
-        layout = QVBoxLayout()
-        input_layout = QHBoxLayout()
-        input_layout.addWidget(self.message)
-        input_layout.addWidget(self.opt_button)
-        input_layout.addWidget(self.send_button)
+        self.clear_button = QPushButton('New chat')
+        self.clear_button.clicked.connect(self.clear_chat)
+        self.status = QLabel('')
+        layout = QVBoxLayout(self)
         layout.addWidget(self.conversation)
-        layout.addLayout(input_layout)
-        self.setLayout(layout)
-
-
-        #self.redColor = QColor(255, 0, 0)
-        self.blackColor = QColor(0, 0, 0)
-        self.blueColor = QColor(0, 0, 255)    
-
-        self.read_settings()
-
- 
-
-    def read_settings(self):
- 
-        if os.path.isfile('./lib/ES_settings_dev.json'):
-            AIsettings = './lib/ES_settings_dev.json'
-        else:
-            AIsettings = './lib/ES_settings.json'
-
-
-        f = open(AIsettings)
-        sett = json.load(f)
-        f.close()
-
-        self.model = str(sett["openAI"]["model"])
-        self.temperature = float(sett["openAI"]["temperature"])
-        self.top_p = float(sett["openAI"]["top_p"])
-        self.max_tokens = int(sett["openAI"]["max_tokens"])
-        self.frequency_penalty = float(sett["openAI"]["frequency_penalty"])
-        self.presence_penalty = float(sett["openAI"]["presence_penalty"])
-        self.api_key=str(sett["openAI"]["api_key"])
-
-        openai.api_key = self.api_key
-
-
-
-        return 
-
+        layout.addWidget(self.status)
+        inputs = QHBoxLayout()
+        for widget in (self.message, self.opt_button, self.clear_button, self.send_button):
+            inputs.addWidget(widget)
+        layout.addLayout(inputs)
 
     def get_symbol(self):
+        show_chat_opt.get_window(self)
 
-        but_n = self.dialog_symbols.get_window()
-            
-       # if but_n != None:
-       #     print("Test") 
-       #     model=str(self.dialog_symbols.model)
-      #      print(model)
-       # else:
-      #      return  
+    def clear_chat(self):
+        self.history = []
+        self.conversation.clear()
+        self.status.clear()
+
+    def append_text(self, speaker, text):
+        # Plain-text insertion prevents pasted user/model HTML from rendering.
+        self.conversation.moveCursor(QTextCursor.MoveOperation.End)
+        self.conversation.insertPlainText(f'{speaker}: {text}\n\n')
+        self.conversation.ensureCursorVisible()
+
+    def set_busy(self, busy):
+        for widget in (self.send_button, self.opt_button, self.clear_button):
+            widget.setEnabled(not busy)
+        self.status.setText('Thinking...' if busy else '')
 
     def send_message(self):
-        # Get the message from the QLineEdit
-        message = self.message.text()
-  
-        # Clear the QLineEdit
-        self.message.clear()
-
-        #if key_found == False:
-       #     self.conversation.append(f"You do not have a valid openai api key\n") 
-        
-        # Append the message to the conversation
-        self.conversation.setTextColor(self.blackColor)
-        self.conversation.append(f"You: {message}\n")
-
-        
-        # Use ChatGPT to generate a response
-
+        message = self.message.text().strip()
+        if not message or self.worker is not None:
+            return
         try:
-            self.read_settings()
-            response = openai.Completion.create(
-              model=self.model,
-              prompt=f"You: {message}\n",
-              temperature=self.temperature,
-              max_tokens=self.max_tokens,
-              top_p=self.top_p,
-              frequency_penalty=self.frequency_penalty,
-              presence_penalty=self.presence_penalty,
-              stop=["You:"]
-            )         
-     
-            #print(response)
-            # Append the response to the conversation
-            self.conversation.setTextColor(self.blueColor)
-            self.conversation.append(f"{response['choices'][0]['text']}\n")
-            self.conversation.setTextColor(self.blackColor)
+            settings = read_settings()
+        except (OSError, ValueError) as exc:
+            self.append_text('Error', str(exc))
+            return
+        self.message.clear()
+        self.append_text('You', message)
+        self.set_busy(True)
+        self.worker = ReplyWorker(settings, self.history, message)
+        self.worker.signals.ready.connect(self.receive_reply)
+        self.worker.signals.failed.connect(self.receive_error)
+        QThreadPool.globalInstance().start(self.worker)
 
-#        except openai.error.RateLimitError: 
-#            self.conversation.append(f"openai.error.RateLimitError: You exceeded your current quota, please check your plan and billing details.")
-#        except openai.error.AuthenticationError: 
-#            self.conversation.append(f"openai.error.AuthenticationError: Incorrect API key provided.")
- 
-        except Exception as e:
-            self.conversation.append(f"Your Exo-Striker ChatBoot does not work! Mostlikely you: \n \n  * Have not provided, or you do not have a valid openai API key. You can obtain an API key from https://beta.openai.com. Then add your API key as a single pressing the 'option' button, and try again! \n \n * You do not have an internet! \n The Exo-Striker ChatBoot is a clone of Chat GPT, which requres an internet connection. \n \n * Or... maybe OpenAI is busy... \n" )    
+    def receive_reply(self, result):
+        text, self.history, notice = result
+        self.worker = None
+        self.set_busy(False)
+        self.append_text('Assistant', text)
+        if notice:
+            self.status.setText(notice)
 
-            self.conversation.append(f"The exact error was: \n %s\n"%e)            
-        
-        # Scroll to the bottom of the conversation
-        self.conversation.verticalScrollBar().setValue(self.conversation.verticalScrollBar().maximum())
+    def receive_error(self, error):
+        self.worker = None
+        self.set_busy(False)
+        self.append_text('Error', error)
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     app = QApplication(sys.argv)
     chat = ChatWidget()
     chat.show()
-    sys.exit(app.exec_())
-
+    sys.exit(app.exec())

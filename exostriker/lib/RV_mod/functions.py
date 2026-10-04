@@ -3325,52 +3325,45 @@ def phase_RV_planet_signal(obj,index):
         return
     else:
 
-        copied_obj = dill.copy(obj)
-
-        if(copied_obj.mod_dynamical):
-            copied_obj.mod_dynamical = False
-
-        #index = planet - 1
- 
-        sorted_periods = sorted([k for k, v in copied_obj.P.items() if copied_obj.use_planet[k]], key=copied_obj.P.get) 
+        # Advanced indexing below creates independent output arrays.
+        sorted_periods = sorted([k for k, v in obj.P.items() if obj.use_planet[k]], key=obj.P.get) 
 
         rank = sorted_periods.index(index)
 
         ############ phase fold fix for sparse model ######
-        model_time_phase = np.array( (copied_obj.fit_results.model_jd -copied_obj.fit_results.model_jd[0] + (copied_obj.fit_results.model_jd[0] - copied_obj.epoch) )%copied_obj.P[index] )
+        model_time_phase = np.array( (obj.fit_results.model_jd -obj.fit_results.model_jd[0] + (obj.fit_results.model_jd[0] - obj.epoch) )%obj.P[index] )
 
-        model_shift = copied_obj.P[index] - (copied_obj.fit_results.rv_model.jd[0] - copied_obj.epoch )%copied_obj.P[index]
+        model_shift = obj.P[index] - (obj.fit_results.rv_model.jd[0] - obj.epoch )%obj.P[index]
 
-        model_time_phase = (model_time_phase + model_shift)%copied_obj.P[index]
+        model_time_phase = (model_time_phase + model_shift)%obj.P[index]
 
         sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])
         model_time_phase  = model_time_phase[sort]
 
 
 
-        phased_model      = copied_obj.fit_results.res['fit'].T[2+rank][sort]
+        phased_model      = obj.fit_results.res['fit'].T[2+rank][sort]
 
         ############ phase data ######
-        data_time_phase = np.array( (copied_obj.fit_results.rv_model.jd  - copied_obj.fit_results.rv_model.jd[0])%copied_obj.P[index] )
+        data_time_phase = np.array( (obj.fit_results.rv_model.jd  - obj.fit_results.rv_model.jd[0])%obj.P[index] )
 
         sort = sorted(range(len(data_time_phase)), key=lambda k: data_time_phase[k])
         data_time_phase      = data_time_phase[sort]
-        phased_data          = copied_obj.fit_results.model_data[6+rank][sort] + copied_obj.fit_results.rv_model.o_c[sort]  
+        phased_data          = obj.fit_results.model_data[6+rank][sort] + obj.fit_results.rv_model.o_c[sort]  
         
-        phased_data_o_c      = obj.fit_results.rv_model.o_c[sort]#  - copied_obj.fit_results.rv_model.rvs[sort]
-        phased_data_err      = copied_obj.fit_results.rv_model.rv_err[sort]
-        phased_data_idset    = copied_obj.fit_results.idset[sort]
+        phased_data_o_c      = obj.fit_results.rv_model.o_c[sort]#  - obj.fit_results.rv_model.rvs[sort]
+        phased_data_err      = obj.fit_results.rv_model.rv_err[sort]
+        phased_data_idset    = obj.fit_results.idset[sort]
 
 
-        if copied_obj.doGP == True:
-            phased_data = phased_data - copied_obj.gp_model_data[0][sort]
-            phased_data_o_c = phased_data_o_c - copied_obj.gp_model_data[0][sort]
+        if obj.doGP == True:
+            phased_data = phased_data - obj.gp_model_data[0][sort]
+            phased_data_o_c = phased_data_o_c - obj.gp_model_data[0][sort]
 
         model = [model_time_phase,  phased_model]
         data  = [data_time_phase,  phased_data, phased_data_err, phased_data_idset,phased_data_o_c]
 
 
-        del copied_obj
 
         #####################
         obj.ph_data[index] = data
@@ -4977,184 +4970,68 @@ def mass_a_from_Kepler_fit(a,npl,m0):
 
 
 def check_swift(path='./'):
-
-    lib_dir = PureWindowsPath(".\\lib")
-    root_dir = PureWindowsPath(".\\")
-
-
-    if not os.path.exists('%s'%os.path.join(Path(lib_dir),'libswift.a')):
-        print("Installing the swift N-body lib for a first time!")
-        result6, flag6 = run_command_with_timeout('%s'%os.path.join(Path(root_dir),'install_swift.sh'), 600,output=True)
-        #print(result6)
-        print("Installation DONE!")
-
-def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = 'run', remove_stab_save_dir = True, integrator='symba',  
-    output_step=1.0,
-    use_fixed_steps=False,
-    fixed_steps=1000 ):
-
-
-    #print(fixed_steps,use_fixed_steps)
-
-    stab_dir = PureWindowsPath(".\\stability")
-    mvs_dir = PureWindowsPath("..\\mvs")
-    mvsgr_dir = PureWindowsPath("..\\mvs_gr")
-    symba_dir = PureWindowsPath("..\\symba")
-    root_dir = PureWindowsPath("..\\..")
- 
-    os.chdir('%s'%Path(stab_dir))
-    os.system("mkdir %s"%stab_save_dir)
-    os.chdir("%s"%Path(stab_save_dir))
-
-
-    print("running stability with: %s"%integrator)
-    ##### crate the param.in file (change only the "t_max" and the "dt" for now) ######
-    param_file = open('param.in', 'wb')
-
-    max_time = float(timemax)*365.25 # make it is days
-
-    if use_fixed_steps:
-        output_step = max_time / float(fixed_steps)
+    """Ensure the Python SWIFT extension is built for the current interpreter."""
+    if __package__ == 'RV_mod':
+        from swift import is_available
     else:
-        output_step = float(output_step)*365.25
-
-    
-
-    param_file.write(b"""0.0d0 %s %s
-%s %s
-
-F T T T T F
-0.0001 50.0 50.0 -1. T
-bin.dat
-unknown
-"""%(bytes(str(max_time).encode()),
- bytes(str(timestep).encode()),
- bytes(str(output_step).encode()),
- bytes(str(output_step).encode())  ))
-
-    param_file.close()
-
-    #os.system("cp param.in test_param.in__")
+        from ..swift import is_available
+    if not is_available():
+        builder = Path(__file__).resolve().parents[2] / 'compile_swift.py'
+        subprocess.run([sys.executable, str(builder)], check=True)
+        if not is_available():
+            raise RuntimeError("SWIFT was built but its Python extension cannot be imported")
+    return True
 
 
-    getin_file = open('geninit_j.in', 'wb')
-    getin_file.write(b"""1
-%s
-%s
-1.d0
-pl.in
-"""%(bytes(str(obj.params.stellar_mass).encode()), bytes(str(obj.npl).encode() ) ))
+def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0,
+                  stab_save_dir='run', remove_stab_save_dir=True,
+                  integrator='symba', output_step=1.0,
+                  use_fixed_steps=False, fixed_steps=1000):
+    """Run the SWIFT Python library and populate the stability plot arrays.
 
-    used_indices = [j for j in range(9) if obj.use_planet[j]]
-
-    # sort those indices by their period from fit.P
-    used_indices.sort(key=lambda j: obj.P[j])
-
-    # optional: mapping from old index j to new planet number (1, 2, 3, ...)
-    planet_number = {j: k + 1 for k, j in enumerate(used_indices)}
-
-    for j in used_indices:
-        # here j is a planet index, ordered from shortest to longest period
-
-        getin_file.write(
-            b'%s \n' % bytes(str(obj.masses[j] / 1047.5654817267318).encode())
-        )
-
-        getin_file.write(
-            b'%s %s %s %s %s %s \n' % (
-                bytes(str(obj.semimajor[j]).encode()),
-                bytes(str(obj.e[j]).encode()),
-                bytes(str(obj.i[j]).encode()),
-                bytes(str(obj.w[j]).encode()),
-                bytes(str(obj.Node[j]).encode()),
-                bytes(str(obj.M0[j]).encode()),
-            )
-        )
-
-
-#    for j in range(9):
-#        if not bool(obj.use_planet[j]):
-#            continue
-#        getin_file.write(b'%s \n'%bytes(str(obj.masses[j]/1047.5654817267318).encode()))
-#        getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.semimajor[j]).encode()),
-#                                                 bytes(str(obj.e[j]).encode()),
-#                                                 bytes(str(obj.i[j]).encode()),
-#                                                 bytes(str(obj.w[j]).encode()),
-#                                                 bytes(str(obj.Node[j]).encode()),
-#                                                 bytes(str(obj.M0[j]).encode() )) )
-
-    getin_file.close()
-
-    # runnning fortran codes
-    result, flag = run_command_with_timeout('%s < geninit_j.in'%os.path.join(Path(mvs_dir),'geninit_j3_in_days'), timeout_sec)
-
-    if integrator=='symba':
-        result, flag = run_command_with_timeout('%s << EOF \nparam.in \npl.in \n1e-40 \nEOF'%os.path.join(Path(symba_dir),'swift_symba5_j'), timeout_sec)
-    elif integrator=='mvs':
-        result, flag = run_command_with_timeout('%s << EOF \nparam.in \npl.in \nEOF'%os.path.join(Path(mvs_dir),'swift_mvs_j'), timeout_sec)
-    elif integrator=='mvs_gr':
-        result, flag = run_command_with_timeout('%s << EOF \nparam.in \npl.in \n%s \nEOF'%(os.path.join(Path(mvsgr_dir),'swift_mvs_j_GR'),int(obj.GR_step)), timeout_sec)
-
-    if not os.path.exists("energy.out"):
-        os.chdir('%s'%Path(root_dir))
-        print("something went wrong!!! No output generated.")
-        return obj
-
-
-    obj.evol_T_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.25
-    obj.evol_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [1])
-   # obj.evol_momentum = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2])
-
-    obj.evol_momentum['lx'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2])
-    obj.evol_momentum['ly'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [3])
-    obj.evol_momentum['lz'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [4])
-
-
-
-    for k in range(obj.npl):
-
-        if integrator=='symba':
-            result, flag = run_command_with_timeout('%s << EOF \nparam.in \npl.in \n%s \nEOF'%(os.path.join(Path(symba_dir),'follow_symba2'),int(k+2)),timeout_sec)
-            if "win" in sys.platform[0:3]:
-                result, flag = run_command_with_timeout('ren follow_symba.out pl_%s.out'%(k+1),timeout_sec)
-            else:
-                result, flag = run_command_with_timeout('mv follow_symba.out pl_%s.out'%(k+1),timeout_sec)
-
-        elif integrator=='mvs' or integrator=='mvs_gr':
-
-            result, flag = run_command_with_timeout('%s << EOF \nparam.in \npl.in \n-%s \nEOF'%(os.path.join(Path(mvs_dir),'follow2'),int(k+2)),timeout_sec)
-            if "win" in sys.platform[0:3]: 
-                result, flag = run_command_with_timeout('ren follow2.out pl_%s.out'%(k+1),timeout_sec)
-            else:
-                result, flag = run_command_with_timeout('mv follow2.out pl_%s.out'%(k+1),timeout_sec)
-
-        obj.evol_T[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.25
-        obj.evol_a[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [2])
-        obj.evol_e[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [3])
-        obj.evol_p[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [6])
-        obj.evol_M[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [7])
-
-        obj.evol_i[k]  = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [4])
-        obj.evol_Om[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [5])
-
-        obj.evol_Per[k] = a_to_P(obj.evol_a[k],obj.params.stellar_mass)
-
-
-
-    os.chdir('..')
-    if remove_stab_save_dir == True:
-
-        if "win" in sys.platform[0:3]:
-            os.system("rd -r %s"%stab_save_dir)
-        else:
-            os.system("rm -r %s"%stab_save_dir)
-    os.chdir('..')
-
-    print("stability with: %s done!"%integrator)
-
+    Initial conditions and histories pass directly as arrays to swift.f95.
+    Integration uses no files or worker processes; native sessions are serialized.
+    Planet results retain the existing order of increasing orbital period.
+    """
+    if __package__ == 'RV_mod':
+        from swift import integrate
+    else:
+        from ..swift import integrate
+    used_indices = sorted((j for j in range(9) if obj.use_planet[j]),
+                          key=lambda j: obj.P[j])
+    if len(used_indices) != obj.npl:
+        raise ValueError("obj.npl does not match the enabled planets")
+    planets = [[obj.masses[j] / 1047.5654817267318, obj.semimajor[j],
+                obj.e[j], obj.i[j], obj.w[j], obj.Node[j], obj.M0[j]]
+               for j in used_indices]
+    save_dir = None
+    if not remove_stab_save_dir:
+        save_dir = Path(stab_save_dir)
+        if not save_dir.is_absolute():
+            save_dir = Path.cwd() / 'stability' / save_dir
+    result = integrate(
+        obj.params.stellar_mass, planets, timemax=timemax,
+        timestep=timestep, timeout_sec=timeout_sec, integrator=integrator,
+        output_step=output_step, use_fixed_steps=use_fixed_steps,
+        fixed_steps=fixed_steps, gr_step=getattr(obj, 'GR_step', 1),
+        save_dir=save_dir)
+    obj.swift_evol = result
+    if not result.get('completed', True):
+        print(result['status'])
+    energy = result['energy']
+    obj.evol_T_energy = energy[:, 0] / 365.25
+    obj.evol_energy = energy[:, 1]
+    for column, axis in enumerate(('lx', 'ly', 'lz'), start=2):
+        obj.evol_momentum[axis] = energy[:, column]
+    for k, orbit in enumerate(result['orbits']):
+        obj.evol_T[k] = orbit[:, 0] / 365.25
+        for attribute, column in (('evol_a', 2), ('evol_e', 3),
+                                  ('evol_i', 4), ('evol_Om', 5),
+                                  ('evol_p', 6), ('evol_M', 7)):
+            getattr(obj, attribute)[k] = orbit[:, column]
+        obj.evol_Per[k] = a_to_P(obj.evol_a[k], obj.params.stellar_mass)
     return obj
 
- 
 
 def run_stability_rebound(
     obj,
@@ -5557,127 +5434,73 @@ def run_stability_rebound(
 
 
 
-def run_stability_arb(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0, stab_save_dir = './', integrator='symba'):
+def run_stability_arb(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0,
+                      stab_save_dir='./', integrator=None, *, backend=None,
+                      output_step=1.0, use_fixed_steps=False, fixed_steps=1000,
+                      remove_stab_save_dir=True, **rebound_options):
+    """Integrate arbitrary planets through the current SWIFT or REBOUND API.
 
-#if not os.path.exists(directory):
-#    os.makedirs(directory)
+    timestep is in days for either backend; timemax/output_step are years.
+    Results populate the usual evol_* plot arrays, ordered by orbital period.
+    Fitted planet inputs are untouched. An explicit integrator selects its
+    backend; otherwise the selected backend's nbody_* settings supply it.
+    """
+    from types import SimpleNamespace
 
+    swift_integrators = ('symba', 'mvs', 'mvs_gr')
+    rebound_integrators = ('whfast', 'mercurius', 'saba', 'ias15', 'trace', 'janus')
+    if integrator is not None:
+        integrator = str(integrator).lower()
+    if backend is None:
+        backend = 'rebound' if integrator in rebound_integrators else 'swift'
+    backend = str(backend).lower()
+    if backend not in ('swift', 'rebound'):
+        raise ValueError("backend must be swift or rebound")
+    if integrator is None:
+        settings = getattr(obj, 'nbody_' + backend, None)
+        integrator = getattr(settings, 'integrator',
+                             'symba' if backend == 'swift' else 'whfast')
+        integrator = str(integrator).lower()
+    allowed = swift_integrators if backend == 'swift' else rebound_integrators
+    if integrator not in allowed:
+        raise ValueError(f"Unsupported {backend} integrator: {integrator}")
+    if backend == 'swift' and rebound_options:
+        raise ValueError("REBOUND options require backend='rebound'")
+    enabled = [j for j in range(9) if obj.pl_arb_use[j]]
+    if not enabled or len(enabled) != obj.npl_arb:
+        raise ValueError("obj.npl_arb must match the enabled arbitrary planets and be positive")
 
-
-    if integrator=='symba':
-        os.chdir('./stability/symba/')
-    elif integrator=='mvs':
-        os.chdir('./stability/mvs/')
-    elif integrator=='mvs_gr':
-        os.chdir('./stability/mvs_gr/')
-
-    print("running stability with: %s"%integrator)
-    ##### crate the param.in file (change only the "t_max" and the "dt" for now) ######
-    param_file = open('param.in', 'wb')
-
-    max_time = float(timemax)*365.25 # make it is days
-
-    param_file.write(b"""0.0d0 %s %s
-%s %s
-
-F T T T T F
-0.0001 50.0 50.0 -1. T
-bin.dat
-unknown
-"""%(bytes(str(max_time).encode()),
- bytes(str(timestep).encode()),
- bytes(str(max_time/1e4).encode()),
- bytes(str(max_time/1e3).encode())  ))
-
-    param_file.close()
-
-    #os.system("cp param.in test_param.in__")
-
-
-    getin_file = open('geninit_j.in', 'wb')
-    getin_file.write(b"""1
-%s
-%s
-1.d0
-pl.in
-"""%(bytes(str(obj.arb_st_mass).encode()), bytes(str(obj.npl_arb).encode() ) ))
-
-
-
-    for j in range(9):
-        if obj.pl_arb_use[j] == True:
-            getin_file.write(b'%s \n'%bytes(str(obj.mass_arb[j]/1047.5654817267318).encode()))
-            getin_file.write(b'%s %s %s %s %s %s \n'%(bytes(str(obj.a_arb[j]).encode()),
-                                                 bytes(str(obj.e_arb[j]).encode()),
-                                                 bytes(str(obj.i_arb[j]).encode()),
-                                                 bytes(str(obj.w_arb[j]).encode()),
-                                                 bytes(str(obj.Node_arb[j]).encode()),
-                                                 bytes(str(obj.M0_arb[j]).encode() )) )
-        else:
-            continue
-
-#
-    getin_file.close()
-
-    # runnning fortran codes
-    result, flag = run_command_with_timeout('./geninit_j3_in_days < geninit_j.in', timeout_sec)
-
-    if integrator=='symba':
-        result, flag = run_command_with_timeout('./swift_symba5_j << EOF \nparam.in \npl.in \n1e-40 \nEOF', timeout_sec)
-    elif integrator=='mvs':
-        result, flag = run_command_with_timeout('./swift_mvs_j << EOF \nparam.in \npl.in \nEOF', timeout_sec)
-    elif integrator=='mvs_gr':
-        result, flag = run_command_with_timeout('./swift_mvs_j_GR << EOF \nparam.in \npl.in \n%s \nEOF'%int(obj.GR_step), timeout_sec)
-
-
-    if not os.path.exists("energy.out"):
-        os.chdir('../../')
-        print("something went wrong!!! No output generated.")
-        return obj
-
-    obj.evol_T_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [0])  /  365.25
-    obj.evol_energy   = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [1])
-#    obj.evol_momentum = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2])
-
-    obj.evol_momentum['lx'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [2])
-    obj.evol_momentum['ly'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [3])
-    obj.evol_momentum['lz'] = np.genfromtxt("energy.out",skip_header=0, unpack=True,skip_footer=1, usecols = [4])
-
-
-    for k in range(obj.npl_arb):
-
-        if integrator=='symba':
-            result, flag = run_command_with_timeout('./follow_symba2 << EOF \nparam.in \npl.in \n%s \nEOF'%(k+2),timeout_sec)
-            result, flag = run_command_with_timeout('mv follow_symba.out pl_%s.out'%(k+1),timeout_sec)
-        elif integrator=='mvs' or integrator=='mvs_gr':
-            result, flag = run_command_with_timeout('./follow2 << EOF \nparam.in \npl.in \n-%s \nEOF'%(k+2),timeout_sec)
-            result, flag = run_command_with_timeout('mv follow2.out pl_%s.out'%(k+1),timeout_sec)
-
-        obj.evol_T[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [0]) /  365.25
-        obj.evol_a[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [2])
-        obj.evol_e[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [3])
-        obj.evol_p[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [6])
-        obj.evol_M[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [7])
-
-        obj.evol_i[k]  = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [4])
-        obj.evol_Om[k] = np.genfromtxt("pl_%s.out"%(k+1),skip_header=0, unpack=True,skip_footer=1, usecols = [5])
-
-        obj.evol_Per[k] = a_to_P(obj.evol_a[k],obj.params.stellar_mass)
-
-
-    try:
-        os.system('rm *.out *.dat *.in')
-        #os.system('mv *.out *.dat *.in last_run')
-    except OSError:
-        pass
-
-    os.chdir('../../')
-
-    print("stability with: %s done!"%integrator)
-
+    # Adapt arbitrary inputs to the interface used by fitted-orbit runs.
+    # Separate output dictionaries preserve previous results on failure.
+    model = SimpleNamespace(
+        params=SimpleNamespace(stellar_mass=obj.arb_st_mass),
+        use_planet=dict(obj.pl_arb_use), npl=obj.npl_arb,
+        masses=dict(obj.mass_arb), semimajor=dict(obj.a_arb),
+        e=dict(obj.e_arb), i=dict(obj.i_arb), w=dict(obj.w_arb),
+        Node=dict(obj.Node_arb), M0=dict(obj.M0_arb),
+        P={j: a_to_P(obj.a_arb[j], obj.arb_st_mass) for j in enabled},
+        GR_step=getattr(obj, 'GR_step', 1),
+        evol_momentum={'lx': [], 'ly': [], 'lz': []})
+    outputs = ('evol_T', 'evol_a', 'evol_e', 'evol_i', 'evol_Om',
+               'evol_p', 'evol_M', 'evol_Per')
+    for attribute in outputs:
+        setattr(model, attribute, {})
+    options = dict(timemax=timemax, integrator=integrator,
+                   output_step=output_step, use_fixed_steps=use_fixed_steps,
+                   fixed_steps=fixed_steps)
+    if backend == 'swift':
+        model = run_stability(model, timestep=timestep, timeout_sec=timeout_sec,
+                              stab_save_dir=stab_save_dir,
+                              remove_stab_save_dir=remove_stab_save_dir, **options)
+    else:
+        model = run_stability_rebound(model, timestep=timestep / 365.25,
+                                      **options, **rebound_options)
+    for attribute in (*outputs, 'evol_T_energy', 'evol_energy', 'evol_momentum'):
+        setattr(obj, attribute, getattr(model, attribute))
+    if backend == 'rebound':
+        for attribute in ('rebound_evol', 'rebound_stable', 'rebound_status',
+                          'rebound_used_indices'):
+            setattr(obj, attribute, getattr(model, attribute))
+    else:
+        obj.swift_evol = model.swift_evol
     return obj
-
- 
-
-
-
