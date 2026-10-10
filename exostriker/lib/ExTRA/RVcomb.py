@@ -1,7 +1,13 @@
 from .RVsolo import *
+import numpy as np
+__all__ = ["RV_comb", "K", "TfromM", "alpha_max"]
 
 #the RV model, just with i and a as new parameters instead of K, so its consistent with the orbital model
-def RV_comb(v0,P,e,om,i,T0,a,parallax,t):
+def RV_comb(v0,planet,parallax,t):
+
+    P,e,om,i,Om,T0,a=planet
+
+    #print(e)
     
     M=2*np.pi*((t-T0)%P)/P
     E=calc_E(e,M)

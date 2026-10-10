@@ -1,1 +1,3 @@
 recursive-include exostriker/ *
+global-exclude *.so *.pyd *.dll *.dylib *.a *.o *.obj *.mod *.pyc *.pyo
+prune exostriker/lib/swift/bdir
