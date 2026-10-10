@@ -629,9 +629,7 @@ class Rvfit:
             raise ValueError("Model type not recognized!")
 
         self._check_native_status()
-        self.__create_dict(res)
-        self.__update_args(res) if auto_update else None
-        return 1
+        return self._store_native_result(res, auto_update)
 
     # Run the Levenberg-Marquardt code in Fortran
     # The options for mtype defines the type of run between Keplerian and N-body
@@ -657,8 +655,23 @@ class Rvfit:
             raise ValueError("Model type not recognized!")
 
         self._check_native_status()
-        self.__create_dict(res)
-        self.__update_args(res) if auto_update else None
+        return self._store_native_result(res, auto_update)
+
+    def _store_native_result(self, res, auto_update):
+        try:
+            if not np.isfinite(res[1][0]):
+                raise ValueError("Native RV fit returned a non-finite likelihood")
+            self.__create_dict(res)
+            if auto_update:
+                self.__update_args(res)
+        except Exception as exc:
+            # Result conversion can fail after setting some fit attributes.
+            # Never leave its partially published score available to callers.
+            self.loglik = -np.inf
+            self.res = None
+            self.res_dict.clear()
+            print(repr(exc))
+            return 0
         return 1
 
     @staticmethod

@@ -13,6 +13,7 @@ import sys, os
 #import emcee
 import emcee_ES as emcee
 import numpy as np
+from fit_statistics import joint_information_criteria
 #import matplotlib.pyplot as plt
 #plt.switch_backend('SVG')
 
@@ -696,7 +697,7 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
         calc_data[0] = np.array([hipp_data, res_hipp_final ,t_HIP],dtype=object)         
         calc_model[0] = np.array([ast_x_model,ast_y_model,times3])
             
-    print(loglik_ast_hipp)
+    # print(loglik_ast_hipp)
  
     
     if return_model == True:
@@ -835,7 +836,7 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
         calc_data[0] = np.array([gaia_data, res_gaia_final ,t_gaia],dtype=object)         
         calc_model[0] = np.array([ast_x_model,ast_y_model,times3])
         
-    print(loglik_ast_gaia)
+    # print(loglik_ast_gaia)
  
     
     if return_model == True:
@@ -1901,20 +1902,199 @@ def run_Fort(obj,mod,minimize_loglik=True):
 
     # The backend checks its own timeout cooperatively. A Python thread cannot
     # interrupt a stuck native call, so run directly and preserve its status.
-    start_time = time.time()
+    start_time = time.perf_counter()
     obj.flag = 0
     try:
         runner = obj.rvmod.run_amoeba if minimize_loglik else obj.rvmod.run_lm
         obj.flag = int(runner(mod) == 1 and np.isfinite(obj.rvmod.loglik))
     except Exception as exc:
         print(repr(exc))
-    print("--- %s seconds ---" % (time.time() - start_time))
+    method = "Simplex" if minimize_loglik else "LM"
+    model = {"kep": "Keplerian", "dyn": "N-body"}.get(mod, mod)
+    outcome = "" if obj.flag else " (failed)"
+    print(f"--- {method} ({model}){outcome}: {time.perf_counter() - start_time:.5f} seconds ---")
     return obj
+
     
     
+def scipy_minimizer_bounds(method, bounds):
+    return bounds if method in ('TNC', 'L-BFGS-B', 'SLSQP', 'Powell', 'Nelder-Mead') else None
+
+
+def scipy_minimizer_options(method, options):
+    """Translate option names in older sessions without modifying them."""
+    options = dict(options)
+    aliases = {'TNC': {'maxiter': 'maxfun'},
+               'Nelder-Mead': {'xtol': 'xatol', 'ftol': 'fatol'}}.get(method, {})
+    for old, new in aliases.items():
+        if old in options:
+            options.setdefault(new, options.pop(old))
+    if method == 'Powell':
+        options.pop('func', None)
+    return options
+
+
+def tnc_parameter_scales(obj, parameters):
+    """Physical reference sizes, including meaningful scales at zero."""
+    scale = np.maximum(np.abs(np.asarray(parameters, dtype=float)), 1.)
+    datasets = getattr(obj, 'mcmc_dataset_slots', ())
+    planets = getattr(obj, 'mcmc_planet_slots', ())
+    flags = getattr(obj, 'f_for_mcmc', ())
+    ndset = len(datasets)
+    for j, packed in enumerate(flags):
+        if packed < 2 * ndset:
+            slot = datasets[packed % ndset]
+            # Session datasets also contain filenames and metadata; convert
+            # only the observation columns used for the reference scale.
+            data = obj.rv_data_sets[slot]
+            velocities = np.asarray(data[1], dtype=float).reshape(-1)
+            errors = np.asarray(data[2], dtype=float).reshape(-1)
+            velocities = velocities[np.isfinite(velocities)]
+            errors = errors[np.isfinite(errors) & (errors > 0)]
+            reference = max(float(np.std(velocities)) if velocities.size else 0.,
+                            float(np.median(errors)) if errors.size else 0., 1.)
+            scale[j] = max(scale[j], reference)
+        elif packed < 2 * ndset + 7 * len(planets):
+            component = (packed - 2 * ndset) % 7
+            if component in (2, 3) and getattr(obj, 'hkl', False):
+                scale[j] = 1.  # e sin(w), e cos(w)
+            elif component == 2:
+                scale[j] = 1.  # eccentricity
+            elif component in (3, 4, 5, 6):
+                scale[j] = 360.  # angular parameters in degrees
+    return scale
+
+
+def suggest_tnc_options(parameters, bounds, dynamical=False, percentage=None, reference_scales=None):
+    """Conservative starting settings; these do not guarantee convergence."""
+    x = np.asarray(parameters, dtype=float)
+    b = np.asarray(bounds, dtype=float).reshape((-1, 2))
+    if x.ndim != 1 or b.shape != (len(x), 2) or not np.isfinite(x).all():
+        raise ValueError('Suggestions require finite parameters and matching bounds')
+    if np.isnan(b).any() or np.any(b[:, 0] > b[:, 1]):
+        raise ValueError('Invalid parameter bounds')
+    if np.any(x < b[:, 0]) or np.any(x > b[:, 1]):
+        raise ValueError('Initial parameters must be within their bounds')
+    scale = (np.maximum(np.abs(x), 1.) if reference_scales is None
+             else np.asarray(reference_scales, dtype=float).copy())
+    if scale.shape != x.shape or not np.isfinite(scale).all() or np.any(scale <= 0):
+        raise ValueError('Parameter reference scales must be finite and positive')
+    width = b[:, 1] - b[:, 0]
+    scale = np.where(np.isfinite(width) & (width > 0), np.minimum(scale, width), scale)
+    if percentage is None:
+        percentage = .01 if dynamical else .0001
+    if not np.isfinite(percentage) or not 0 < percentage <= 100:
+        raise ValueError('TNC eps percentage must be greater than 0 and at most 100')
+    relative_step = percentage / 100.
+    return dict(scale=scale, offset=x.copy(), eps=relative_step * scale,
+                maxfun=max(5000, 200 * len(x)), maxCGit=-1, eta=-1,
+                stepmx=0., accuracy=0., minfev=0., rescale=-1,
+                ftol=1e-6, xtol=1e-6, gtol=1e-4)
+
+
+def suggest_simplex_options(obj, parameters, bounds):
+    """Build a bounded, nonzero simplex around the current free parameters."""
+    x = np.asarray(parameters, dtype=float)
+    b = np.asarray(bounds, dtype=float).reshape((-1, 2))
+    scales = suggest_tnc_options(x, b, reference_scales=tnc_parameter_scales(obj, x))['scale']
+    simplex = np.tile(x, (len(x) + 1, 1))
+    percentage = getattr(obj, 'Simplex_step_percent', 5.)
+    if not np.isfinite(percentage) or not 0 < percentage <= 100:
+        raise ValueError('Initial Simplex step must be greater than 0 and at most 100 percent')
+    for j in range(len(x)):
+        step = percentage / 100. * scales[j]
+        forward, backward = b[j, 1] - x[j], x[j] - b[j, 0]
+        if forward >= min(step, backward):
+            step = min(step, forward)
+        else:
+            step = -min(step, backward)
+        if step == 0 or x[j] + step == x[j]:
+            raise ValueError('A free Simplex parameter has no usable range; fix it or widen its bounds')
+        simplex[j + 1, j] += step
+    return dict(initial_simplex=simplex, adaptive=getattr(obj, 'Simplex_adaptive', True),
+                maxiter=max(5000, 1000 * len(x)), maxfev=max(10000, 2000 * len(x)),
+                xatol=1e-4, fatol=1e-4)
+
+
+def scipy_stage_options(obj, method, options, parameters, bounds):
+    options = scipy_minimizer_options(method, options)
+    if method == 'Nelder-Mead':
+        options['adaptive'] = getattr(obj, 'Simplex_adaptive', options.get('adaptive', True))
+        if getattr(obj, 'Simplex_auto', False) or getattr(obj, 'Simplex_custom_steps', False):
+            options['initial_simplex'] = suggest_simplex_options(obj, parameters, bounds)['initial_simplex']
+    return options
+
+
+def repair_simplex_jitter_boundary(obj, result, objective, args, bounds, options):
+    """Escape clipped RV-jitter faces only when an inward probe improves the fit."""
+    if not getattr(obj, 'Simplex_boundary_recovery', True):
+        return result
+    ndset = len(getattr(obj, 'mcmc_dataset_slots', ()))
+    positions = [j for j, packed in enumerate(getattr(obj, 'f_for_mcmc', ()))
+                 if ndset <= packed < 2 * ndset]
+    if not positions:
+        return result
+    b = np.asarray(bounds, dtype=float)
+    evaluations, iterations = result.nfev, result.get('nit', 0)
+    maxfev = options.get('maxfev') or 200 * len(result.x)
+    maxiter = options.get('maxiter') or 200 * len(result.x)
+    tolerance = max(1e-12, .1 * options.get('fatol', 1e-4))
+    for attempt in range(2):
+        scales = tnc_parameter_scales(obj, result.x)
+        best_x, best_fun = None, result.fun
+        for j in positions:
+            if evaluations >= maxfev:
+                break
+            if abs(result.x[j] - b[j, 0]) > 1e-10 * scales[j]:
+                continue
+            candidate = result.x.copy()
+            candidate[j] += min(getattr(obj, 'Simplex_step_percent', 5.) / 100. * scales[j],
+                                .5 * (b[j, 1] - candidate[j]))
+            if candidate[j] == result.x[j]:
+                continue
+            value = objective(candidate, *args)
+            evaluations += 1
+            if np.isfinite(value) and value < best_fun - tolerance:
+                best_x, best_fun = candidate, value
+        if best_x is None or maxfev - evaluations <= len(result.x) + 1 or iterations >= maxiter:
+            break
+        print('SciPy Simplex: restarting after an improving RV-jitter boundary probe')
+        restart = dict(options, initial_simplex=suggest_simplex_options(obj, best_x, b)['initial_simplex'],
+                       maxfev=maxfev - evaluations, maxiter=maxiter - iterations)
+        refined = op.minimize(objective, best_x, args=args, method='Nelder-Mead', bounds=b, options=restart)
+        evaluations += refined.nfev
+        iterations += refined.get('nit', 0)
+        if np.isfinite(refined.fun) and refined.fun < result.fun:
+            result = refined
+        else:
+            break
+    result.nfev, result.nit = evaluations, iterations
+    return result
+
+
+def report_scipy_result(obj, result, method='optimizer'):
+    finite = bool(np.isfinite(result.fun) and np.isfinite(result.x).all())
+    summary = dict(success=bool(result.success) and finite, status=result.status,
+                   message=str(result.message), nfev=result.get('nfev'),
+                   nit=result.get('nit'), fun=float(result.fun))
+    obj.scipy_fit_diagnostics.append(summary)
+    print(f"SciPy {'converged' if summary['success'] else 'did not converge'}: "
+          f"{summary['message']} (evaluations={summary['nfev']}, iterations={summary['nit']})")
+    if not finite:
+        obj.flag = 0
+        obj.bound_error = True
+        obj.bound_error_msg = (f'SciPy {method} returned non-finite parameters or objective. '
+                               f'Status {result.status}: {result.message}. '
+                               'The failed stage was not applied. Check parameter bounds, '
+                               'enabled priors, and whether the initial model evaluates successfully.')
+        print(obj.bound_error_msg)
+    return finite
+
+
 def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=False, save_sampler=False, **kwargs):
 
-    start_time = time.time()
+    start_time = time.perf_counter()
+    obj.scipy_fit_diagnostics = []
     rtg = obj.rtg
 
 #    check_temp_RV_file(obj)
@@ -2051,31 +2231,23 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     if obj.SciPy_min_use_1 == obj.SciPy_min[0]:
          options1=obj.Simplex_opt
-         fit_bounds = None
     elif obj.SciPy_min_use_1 == obj.SciPy_min[1]:
          options1=obj.Powell_opt
-         fit_bounds = bb
     elif obj.SciPy_min_use_1 == obj.SciPy_min[2]:
          options1=obj.CG_opt
-         fit_bounds = bb
     elif obj.SciPy_min_use_1 == obj.SciPy_min[3]:
          options1=obj.BFGS_opt
-         fit_bounds = bb
     elif obj.SciPy_min_use_1 == obj.SciPy_min[4]:
          options1=obj.Newton_cg_opt
-         fit_bounds = bb
     elif obj.SciPy_min_use_1 == obj.SciPy_min[5]:
          options1=obj.L_BFGS_B_opt
-         fit_bounds = bb
     elif obj.SciPy_min_use_1 == obj.SciPy_min[6]:
          options1=obj.TNC_opt
-         fit_bounds = bb
    # elif obj.SciPy_min_use_1 == obj.SciPy_min[7]:
    #      options1=obj.COBYLA_opt
    #      fit_bounds = None
     elif obj.SciPy_min_use_1 == obj.SciPy_min[7]:
          options1=obj.SLSQP_opt
-         fit_bounds = None
    # elif obj.SciPy_min_use_1 == obj.SciPy_min[9]:
    #      options1=obj.TNC_opt
    # elif obj.SciPy_min_use_1 == obj.SciPy_min[10]:
@@ -2086,34 +2258,38 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     if obj.SciPy_min_use_2 == obj.SciPy_min[0]:
          options2=obj.Simplex_opt
-         fit_bounds = None
     elif obj.SciPy_min_use_2 == obj.SciPy_min[1]:
          options2=obj.Powell_opt
-         fit_bounds = bb
     elif obj.SciPy_min_use_2 == obj.SciPy_min[2]:
          options2=obj.CG_opt
-         fit_bounds = bb
     elif obj.SciPy_min_use_2 == obj.SciPy_min[3]:
          options2=obj.BFGS_opt
-         fit_bounds = bb
     elif obj.SciPy_min_use_2 == obj.SciPy_min[4]:
          options2=obj.Newton_cg_opt
-         fit_bounds = bb
     elif obj.SciPy_min_use_2 == obj.SciPy_min[5]:
          options2=obj.L_BFGS_B_opt
-         fit_bounds = bb
     elif obj.SciPy_min_use_2 == obj.SciPy_min[6]:
          options2=obj.TNC_opt
-         fit_bounds = bb
   #  elif obj.SciPy_min_use_2 == obj.SciPy_min[7]:
 #         options2=obj.COBYLA_opt
 #         fit_bounds = None
     elif obj.SciPy_min_use_2 == obj.SciPy_min[7]:
          options2=obj.SLSQP_opt
-         fit_bounds = bb
     else:
-         options2={'disp': True}
+        options2={'disp': True}
 
+    tnc_active = any(getattr(obj, f'SciPy_min_use_{stage}') == 'TNC' and
+                     getattr(obj, f'SciPy_min_N_use_{stage}') > 0 for stage in (1, 2))
+    if tnc_active and len(flags) and (getattr(obj, 'SciPy_auto_scale', False) or getattr(obj, 'TNC_relative_eps', False)) and len(pp):
+        suggested = suggest_tnc_options(pp, bb, obj.mod_dynamical,
+                    percentage=getattr(obj, 'TNC_eps_percent', None),
+                    reference_scales=tnc_parameter_scales(obj, pp))
+        if obj.SciPy_min_use_1 == 'TNC':
+            options1 = dict(options1, scale=suggested['scale'], offset=suggested['offset'],
+                            eps=suggested['eps'])
+        if obj.SciPy_min_use_2 == 'TNC':
+            options2 = dict(options2, scale=suggested['scale'], offset=suggested['offset'],
+                            eps=suggested['eps'])
 
     if len(flags) == 0:
         method1 = 'TNC'
@@ -2137,7 +2313,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
    # import mystic
    # from mystic.solvers import fmin
    # solution = fmin(nll,pp,disp=0,retall=1,args=(mod, par,flags, npl,vel_files, tr_files, tr_model, tr_params,  epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, opt ),
-    #                         method=method1,bounds=fit_bounds, options=options1)
+    #                         method=method1, bounds=bb, options=options1)
     #allvecs = solution[-1]
     
    # print(allvecs[])
@@ -2153,11 +2329,21 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     for k in range(n1): # run at least 3 times the minimizer
         #eps = eps/10.0
         #print('running %s %s %s'%(obj.SciPy_min_use_1, obj.SciPy_min_N_use_1, k))
+        minimizer_start = time.perf_counter()
         result = op.minimize(nll,  pp, args=(mod, par,flags, npl,vel_files, tr_files, tr_model, tr_params,  epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, opt ),
-                             method=method1,bounds=fit_bounds, options=options1)
-                            #  bounds=bb, tol=None, callback=None, options={'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxiter': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1, 'disp': True})
+                             method=method1, bounds=scipy_minimizer_bounds(method1, bb),
+                             options=scipy_stage_options(obj, method1, options1, pp, bb))
+                            #  bounds=bb, tol=None, callback=None, options={'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxfun': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1, 'disp': True})
+        if method1 == 'Nelder-Mead':
+            result = repair_simplex_jitter_boundary(obj, result, nll,
+                     (mod, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch,
+                      stmass, bb, priors, gps, tra_gps, rtg, mix_fit, opt), bb,
+                     scipy_minimizer_options(method1, options1))
+        if not report_scipy_result(obj, result, method1):
+            return obj
         pp = result["x"]
-        print(method1,' Done!')
+        print(f"--- SciPy {method1} (primary, run {k + 1}/{n1}): "
+              f"{time.perf_counter() - minimizer_start:.5f} seconds ---")
        # print("Best fit par.:", result["x"])
 
     ########################### Secondary minimizer #########################
@@ -2165,10 +2351,20 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     for k in range(n2): # run at least 3 times the minimizer
         #print(k,xtol)
       #  print('running %s %s %s'%(obj.SciPy_min_use_2, obj.SciPy_min_N_use_2, k))
+        minimizer_start = time.perf_counter()
         result = op.minimize(nll, pp, args=(mod,par,flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, opt ),
-                             method=method2,bounds=fit_bounds, options=options2)
+                             method=method2, bounds=scipy_minimizer_bounds(method2, bb),
+                             options=scipy_stage_options(obj, method2, options2, pp, bb))
+        if method2 == 'Nelder-Mead':
+            result = repair_simplex_jitter_boundary(obj, result, nll,
+                     (mod, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch,
+                      stmass, bb, priors, gps, tra_gps, rtg, mix_fit, opt), bb,
+                     scipy_minimizer_options(method2, options2))
+        if not report_scipy_result(obj, result, method2):
+            return obj
         pp = result["x"]
-        print(method2,' Done!')
+        print(f"--- SciPy {method2} (secondary, run {k + 1}/{n2}): "
+              f"{time.perf_counter() - minimizer_start:.5f} seconds ---")
 
     #print(pp)
     errors = [[0.0,0.0] for i in range(len(pp))]
@@ -2189,9 +2385,12 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     obj = return_results(obj, pp, ee, par, flags, npl, vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, errors, mod,opt)
 
   #  obj.init_fit = False
-    print("--- %s seconds ---" % (time.time() - start_time))
+    methods = ([str(method1)] if n1 else []) + ([str(method2)] if n2 else [])
+    method_label = " + ".join(methods) if methods else "model evaluation"
+    print(f"--- SciPy {method_label} total: {time.perf_counter() - start_time:.5f} seconds ---")
 
     return obj
+
 
 
 
@@ -2670,7 +2869,7 @@ def lnprior(p,b,priors):
 
     loglik_lnpr = 0
     for j in range(len(p)):
-        if p[j] <= b[j,0] or p[j] >= b[j,1]:
+        if not np.isfinite(p[j]) or p[j] < b[j,0] or p[j] > b[j,1]:
             return -np.inf
         if priors[0][j,2] == True:
             loglik_lnpr = loglik_lnpr + normalprior(p[j],priors[0][j])
@@ -2686,8 +2885,9 @@ def jeffereys_prior(p,b):
     return loglik
 
 def normalprior(p,b):
-
-    loglik = np.log(1.0/(np.sqrt(2.0*np.pi)*b[1])*np.exp(-(p-b[0])**2.0/(2.0*b[1]**2.0)))
+    if not np.isfinite(b[1]) or b[1] <= 0:
+        return -np.inf
+    loglik = -.5 * ((p-b[0]) / b[1])**2 - np.log(b[1]) - .5 * np.log(2.0*np.pi)
     return loglik
 
 
@@ -2705,7 +2905,7 @@ def lnprob_new(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_pa
     ########## Dynesty Work in progress!!! #######
 
 def run_nestsamp_bg(obj):
-    start_time = time.time()
+    start_time = time.perf_counter()
 
     target_name = 'ns_run'
 
@@ -2726,7 +2926,7 @@ def run_nestsamp_bg(obj):
     obj = dill.load(file_ses2)
     file_ses2.close()
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print(f"--- Nested sampling (background): {time.perf_counter() - start_time:.5f} seconds ---")
     os.system("rm %s.ses"%target_name)
     os.system("rm %s_out.ses"%target_name)
 
@@ -2734,11 +2934,12 @@ def run_nestsamp_bg(obj):
 
 
 
+
 def run_nestsamp(obj, **kwargs):
 
     '''Performs nested sampling and saves results. Work in progress.....'''
 
-    start_time = time.time()
+    start_time = time.perf_counter()
     rtg = obj.rtg
     check_temp_RV_file(obj)
 
@@ -2923,7 +3124,9 @@ def run_nestsamp(obj, **kwargs):
         p_truncated = cdf_lower + p_clamped * (cdf_upper - cdf_lower)
 
         # Compute the inverse CDF (PPF) for the truncated range
-        return stats.norm.ppf(p_truncated, loc=loc, scale=scale)
+        # Floating-point inversion at the endpoints must respect the hard
+        # bounds (in particular, eccentricity must remain strictly below 1).
+        return np.clip(stats.norm.ppf(p_truncated, loc=loc, scale=scale), lower, upper)
 
     def truncated_trans_loguni(p, a, b, flat_lower, flat_upper):
         """
@@ -3098,7 +3301,7 @@ def run_nestsamp(obj, **kwargs):
 
  
 
-   # print("--- %s seconds ---" % (time.time() - start_time))
+   # print(f"--- Nested sampling: {time.perf_counter() - start_time:.5f} seconds ---")
 
 
     #  nested-sampling order, aligned with sampler.results.samples
@@ -3137,7 +3340,7 @@ def run_nestsamp(obj, **kwargs):
 
 
     if obj.ns_fileoutput == True:
-       # start_time = time.time()
+       # start_time = time.perf_counter()
        # print("Please wait... writing the ascii file")
         dirname, basename = os.path.split(obj.nest_sample_file)
         if os.path.exists(dirname):
@@ -3249,12 +3452,13 @@ def run_nestsamp(obj, **kwargs):
        obj.tra_gps = []
        tra_gps = []
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print(f"--- Nested sampling: {time.perf_counter() - start_time:.5f} seconds ---")
 
     return obj
 
+
 def run_mcmc_bg(obj):
-    start_time = time.time()
+    start_time = time.perf_counter()
 
     target_name = 'mcmc_run'
 
@@ -3276,17 +3480,18 @@ def run_mcmc_bg(obj):
     obj = dill.load(file_ses2)
     file_ses2.close()
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print(f"--- MCMC (background): {time.perf_counter() - start_time:.5f} seconds ---")
     os.system("rm %s.ses"%target_name)
     os.system("rm %s_out.ses"%target_name)
 
     return obj
 
+
 def run_mcmc(obj, **kwargs):
 
     '''Performs MCMC and saves results'''
 
-    start_time = time.time()
+    start_time = time.perf_counter()
 
     rtg = obj.rtg
     check_temp_RV_file(obj)
@@ -3474,12 +3679,12 @@ def run_mcmc(obj, **kwargs):
     pool.join()
     pool.clear()
 
- #  print("--- %s seconds ---" % (time.time() - start_time))
+ #  print(f"--- MCMC: {time.perf_counter() - start_time:.5f} seconds ---")
 
 
     fileoutput = obj.mcmc_fileoutput
     if (fileoutput):
-     #   start_time = time.time()
+     #   start_time = time.perf_counter()
     #    print("Please wait... writing the ascii file")
         dirname, basename = os.path.split(obj.mcmc_sample_file)
         if os.path.exists(dirname):
@@ -3496,9 +3701,9 @@ def run_mcmc(obj, **kwargs):
             outfile.write("\n")
         outfile.close()
    #     print("--- Done for ---")
-   #     print("--- %s seconds ---" % (time.time() - start_time))
+   #     print(f"--- MCMC: {time.perf_counter() - start_time:.5f} seconds ---")
 
-   # start_time = time.time()
+   # start_time = time.perf_counter()
 
     obj.mcmc_stat["mean"], obj.mcmc_stat["median"] = posterior_summary(
         sampler.samples, obj.f_for_mcmc, obj.ndset, obj.npl, obj.hkl)
@@ -3582,9 +3787,10 @@ def run_mcmc(obj, **kwargs):
        tra_gps = []
 
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print(f"--- MCMC: {time.perf_counter() - start_time:.5f} seconds ---")
 
     return obj
+
 
  
 class FunctionWrapper(object):
@@ -4469,20 +4675,29 @@ class signal_fit(object):
        # self.SciPy_min = ['Nelder-Mead','Powell','CG','BFGS','Newton-CG','L-BFGS-B', 'TNC','COBYLA','SLSQP','dogleg','trust-ncg']
         self.SciPy_min = ['Nelder-Mead','Powell','CG','BFGS','Newton-CG','L-BFGS-B', 'TNC','SLSQP']
 
+        self.Fortran_min_use_1 = 'LM'
+        self.Fortran_min_N_use_1 = 1
+        self.Fortran_min_use_2 = 'Nelder-Mead'
+        self.Fortran_min_N_use_2 = 1
+
         self.SciPy_min_use_1 = self.SciPy_min[6]
+        self.SciPy_auto_scale = False
+        self.Simplex_auto = False
+        self.TNC_relative_eps = True
+        self.TNC_eps_percent = .01
         self.SciPy_min_N_use_1 = 1
 
         self.SciPy_min_use_2 = self.SciPy_min[0]
         self.SciPy_min_N_use_2 = 1
 
 
-        self.Simplex_opt    = {'disp': True, 'maxiter': None, 'return_all': False, 'maxfev': None, 'xtol': 0.0001, 'ftol': 0.0001,'adaptive':True}
+        self.Simplex_opt    = {'disp': True, 'maxiter': None, 'return_all': False, 'maxfev': None, 'xatol': 0.0001, 'fatol': 0.0001,'adaptive':True}
         self.Powell_opt     = {'disp': True, 'return_all': False, 'maxiter': None, 'direc': None,  'maxfev': None, 'xtol': 0.0001, 'ftol': 0.0001}
         self.CG_opt         = {'disp': True, 'gtol': 1e-05, 'eps': 1.4901161193847656e-08, 'return_all': False, 'maxiter': None, 'norm': np.inf}
         self.BFGS_opt       = {'disp': True, 'gtol': 1e-05, 'eps': 1.4901161193847656e-08, 'return_all': False, 'maxiter': None, 'norm': np.inf}
         self.Newton_cg_opt  = {'disp': True, 'xtol': 1e-05, 'eps': 1.4901161193847656e-08, 'return_all': False, 'maxiter': None}
         self.L_BFGS_B_opt   = {'disp': True,  'maxcor': 10, 'ftol': 2.220446049250313e-09, 'gtol': 1e-05, 'eps': 1e-08, 'maxfun': 15000, 'maxiter': 15000, 'iprint': -1, 'maxls': 20}
-        self.TNC_opt        = {'disp': True, 'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxiter': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1 }
+        self.TNC_opt        = {'disp': True, 'eps': 1e-08, 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': -1, 'maxfun': None, 'eta': -1, 'stepmx': 0, 'accuracy': 0, 'minfev': 0, 'ftol': -1, 'xtol': -1, 'gtol': -1, 'rescale': -1 }
         #self.COBYLA_opt     = {'disp': True, 'rhobeg': 1.0, 'maxiter': 1000, 'catol': 0.0002 }
         self.SLSQP_opt      = {'disp': True, 'maxiter': 100,  'eps': 1.4901161193847656e-08, 'ftol': 1e-06, 'iprint': 1}
        # self.dogleg_opt    = {'disp': True, 'max_trust_radius': 100,  'eta': 1.4901161193847656e-08, 'gtol': 1e-06 }
@@ -4662,6 +4877,34 @@ class signal_fit(object):
         return
 
 
+    def _clear_rv_results(self):
+        """Clear cached RV outputs for a session with no RV observations."""
+        self.flag = 0
+        self.model_saved = False
+        self.fit_performed = False
+        self.stat_saved = False
+        self.fitting_method = 'None'
+        self.loglik = -np.inf
+        self.rms = self.chi2 = self.reduced_chi2 = np.nan
+        for result in (self.rvmod, self.fit_results):
+            for name in ('jd', 'rvs', 'rv_err', 'o_c', 'model_rvs', 'model_jd', 'model'):
+                setattr(result, name, np.array([], dtype=float))
+            result.idset = np.array([], dtype=int)
+            result.rv_model = RvModelWrap(result.jd, result.rvs, result.rv_err, result.o_c)
+            result.fit = np.empty((0, 2 + self.npl))
+            result.model_data = np.empty((6 + self.npl, 0))
+            result.res = None
+            result.res_dict.clear()
+            result.arguments = None
+            result.ndset = result.ndata = result.Ndata = result.mfit = result.dof = 0
+            result.stat_array_saved = None
+            result.loglik = -np.inf
+            result.rms = result.wrms = result.chi2 = result.reduced_chi2 = np.nan
+        self.ph_data = {k: [] for k in range(9)}
+        self.ph_model = {k: [] for k in range(9)}
+        self.gp_model_data = [np.array([]) for _ in range(3)]
+        self.gp_model_curve = [np.array([]) for _ in range(3)]
+
     def remove_rv_dataset(self, rv_idset):
 
         self.rv_data_sets[rv_idset]      = []
@@ -4670,6 +4913,9 @@ class signal_fit(object):
         self.ndset = len([x for x in range(60) if len(self.rv_data_sets[x]) != 0])
         self.n_rvdata = sum([len(self.rv_data_sets[x][0]) for x in range(60) if len(self.rv_data_sets[x]) != 0])
 
+        self.model_saved = False
+        if self.n_rvdata == 0:
+            self._clear_rv_results()
         return
 
 ############################ activity datasets ##########################################
@@ -5569,18 +5815,10 @@ class signal_fit(object):
            self.act_data_sets_init[i] = act_data_set    
 
     def BIC(self):
-        if len(self.fit_results.jd) != 0:
-            BIC = self.fit_results.mfit*np.log(len(self.fit_results.jd)) -2*self.loglik
-        else:
-            BIC = 0
-        return BIC
+        return joint_information_criteria(self).get('BIC', np.nan)
 
     def AIC(self):
-        if len(self.fit_results.jd) != 0:
-            AIC = -2*self.loglik + 2*self.fit_results.mfit
-        else:
-            AIC = 0
-        return AIC
+        return joint_information_criteria(self).get('AIC', np.nan)
 
     def wrms(self):
         if len(self.fit_results.o_c) != 0:
@@ -5622,74 +5860,6 @@ class signal_fit(object):
  
  
 
-    def mass_semimajor2(self, mass_type="J"): # calculates planet masses (in Jupiter masses) and orbit semimajor axes (in astronomical units)
-        # declaring some constants which will be useful here
-        THIRD = 1.0/3.0
-        GMSUN = 1.32712440018e20
-        AU=1.49597892e11
-
-        # arrays for storing mass and semimajor information
-        mass  = np.zeros(self.npl+1)
-        ap    = np.zeros(self.npl)
-        mtotal = self.params.stellar_mass
-        mass[0] = self.params.stellar_mass
-
-        pl_mass = np.zeros(self.npl)
-        mpold = pl_mass
-        f = 5e-5 # iteration step
-
-
-
-        for i in range(9):
-            if not bool(self.use_planet[i]):
-                continue
-        #for i in range(self.npl):
-
-            T = self.P[i]*86400.0
-
-            # we need innitial guess for each planet mass
-            dm = 2
-
-            mass[i+1] = abs(self.K[i])*(T*(self.params.stellar_mass)**2.0/(TAU*GMSUN))**THIRD * np.sqrt(1.0-self.e[i]**2.0)/abs(np.sin(np.radians(self.i[i])))
-
-            # mtotal is the sum of the stellar mass and masses of all planets computed so far, plus the current estimate for the mass of the planet we want to compute, we increase it as we go along
-           # mtotal = mtotal + mass[i+1]
-           # mpold = mass[i+1] # we need to keep track of the current estimate for the planet mass, to check if the new one is higher or not
-
-            mass[0] = mtotal
-            mpold[i] = 0
-            while (dm >= f):
- 
-                if i == 0:
-                    mtotal = self.params.stellar_mass
-                    mass[i+1] = abs(self.K[i])*(T*(self.params.stellar_mass + mpold[i])**2.0/(TAU*GMSUN))**THIRD * np.sqrt(1.0-self.e[i]**2.0)/abs(np.sin(np.radians(self.i[i])))
-                else:
-                    mtotal = self.params.stellar_mass
-                    for j in range(i):
-                        mtotal = mtotal + mass[j+1]
-                    mass[i+1] = abs(self.K[i])*(T*(mtotal + mpold[i])**2.0/(TAU*GMSUN))**THIRD * np.sqrt(1.0-self.e[i]**2.0)/abs(np.sin(np.radians(self.i[i])))
-
- 
-                dm = abs((mass[i+1] - mpold[i])/mass[i+1] )
-                mpold[i] =  mass[i+1]
-
-
-            ap[i] = (GMSUN*(mtotal + mass[i+1])*(T/2.0*np.pi)**2)**THIRD
-
-
-
-            ap[i] = ap[i]/AU # to be in AU
-            if mass_type=="J":
-                pl_mass[i] = mass[i+1]*1047.5654817267318 # to be in Jup. masses
-            elif  mass_type=="E":
-                pl_mass[i] = mass[i+1]*1047.5654817267318 * 317.82838 # to be in Earth. masses
-            else:
-                pl_mass[i] = mass[i+1]
-
-        self.masses = pl_mass
-        self.semimajor = ap
-
-        return
 
     def mass_semimajor(self): # calculates planet masses (in Jupiter masses) and orbit semimajor axes (in astronomical units)
         # declaring some constants which will be useful here
@@ -5877,6 +6047,147 @@ class signal_fit(object):
 
     ### this function is a wrapper calling a fortran program to fit parameters in keplerian mode by minimizing chi^2   WORK IN PROGRESS ON THAT ONE!
 
+    def update_priors_from_fit(self, n_sigma=3, round_digits=None, sync_gui=True):
+        """Set RV bounds and Gaussian priors from current fitted values/errors.
+
+        For asymmetric errors use the larger uncertainty. Zero or non-finite
+        errors are skipped. Angles remain unwrapped about their fitted value.
+        Physical bounds truncate the Gaussian: periods and amplitudes stay
+        positive, jitters nonnegative, and eccentricities below one.
+        """
+        if isinstance(n_sigma, (bool, np.bool_)) or not np.isfinite(n_sigma) or n_sigma <= 0:
+            raise ValueError('n_sigma must be a finite positive number')
+        if round_digits is not None and (isinstance(round_digits, (bool, np.bool_)) or
+                not isinstance(round_digits, (int, np.integer)) or not 0 <= round_digits <= 15):
+            raise ValueError('round_digits must be None or an integer from 0 to 15')
+        planets = list(np.flatnonzero(self.use_planet))
+        fields = [(name, name + '_bound', planets, False) for name in
+                  ('K', 'P', 'e', 'w', 'M0', 'i', 'Node', 'e_sinw', 'e_cosw', 'lamb')]
+        fields.append(('omega_dot', 'omega_dot_bounds', planets, False))
+        datasets = [i for i in range(len(self.rv_data_sets)) if len(self.rv_data_sets[i])]
+        fields.extend((name, name + '_bounds', datasets, False) for name in ('rvoff', 'jitt'))
+        fields.extend((name, name + '_bounds', [0], True) for name in ('rv_lintr', 'rv_quadtr'))
+        changes = []
+        for name, bounds_name, slots, scalar in fields:
+            if not all(hasattr(self, attr) for attr in
+                       (name, name + '_err', bounds_name, name + '_norm_pr')):
+                continue
+            for slot in slots:
+                value = float(getattr(self, name) if scalar else getattr(self, name)[slot])
+                error = np.asarray(getattr(self, name + '_err') if scalar else
+                                   getattr(self, name + '_err')[slot], dtype=float)
+                if not np.isfinite(value) or not np.isfinite(error).all() or np.any(error < 0):
+                    continue
+                uncertainty = float(np.max(error)) if error.size else 0.
+                if uncertainty == 0:
+                    continue
+                width = float(n_sigma) * uncertainty
+                bounds = np.array([value - width, value + width])
+                if not np.isfinite(bounds).all() or width <= 0 or bounds[0] == bounds[1]:
+                    continue
+                mean = value
+                if round_digits is not None:
+                    bounds = np.round(bounds, round_digits)
+                    mean = round(value, round_digits)
+                    width = round(width, round_digits)
+                    # Rounding must never create a zero-width Gaussian or box.
+                    if width <= 0 or bounds[0] >= bounds[1]:
+                        continue
+                # Apply physical limits AFTER rounding so rounding cannot put
+                # an eccentricity at one or a period at zero. Use limits that
+                # remain representable at the requested GUI precision.
+                margin = 10. ** (-max(1, round_digits)) if round_digits is not None else 1e-8
+                if name in ('P', 'K'):
+                    bounds[0] = max(bounds[0], margin)
+                elif name == 'jitt':
+                    bounds[0] = max(bounds[0], 0.)
+                elif name == 'e':
+                    bounds[0] = max(bounds[0], 0.)
+                    bounds[1] = min(bounds[1], 1. - margin)
+                elif name == 'i':
+                    bounds[0] = max(bounds[0], 0.)
+                    bounds[1] = min(bounds[1], 180.)
+                if bounds[0] >= bounds[1]:
+                    continue
+                getattr(self, bounds_name)[slot] = bounds
+                getattr(self, name + '_norm_pr')[slot] = np.array([mean, width, True])
+                if hasattr(self, name + '_jeff_pr'):
+                    getattr(self, name + '_jeff_pr')[slot][2] = False
+                changes.append(dict(parameter=name, slot=int(slot), bounds=bounds.copy(),
+                                    mean=mean, sigma=width))
+        if sync_gui:
+            reference = globals().get('_fit_prior_gui_sync')
+            callback = reference() if reference is not None else None
+            if callback is not None:
+                callback(self, changes, round_digits)
+        return changes
+
+    def suggest_simplex_settings(self, apply=False):
+        self.prepare_for_mcmc(rtg=self.rtg)
+        options = suggest_simplex_options(self, self.par_for_mcmc, self.b_for_mcmc)
+        if apply:
+            self.Simplex_opt = dict(self.Simplex_opt, **options)
+            self.Simplex_auto = True
+        return options
+
+    def suggest_scipy_settings(self, apply=False):
+        """Suggest TNC settings for the current free parameters and bounds.
+
+        Applying also enables per-parameter TNC scaling on subsequent fits.
+        GUI scalar controls remain under the user's control.
+        """
+        self.prepare_for_mcmc(rtg=self.rtg)
+        suggested = suggest_tnc_options(self.par_for_mcmc, self.b_for_mcmc,
+                                        self.mod_dynamical,
+                                        reference_scales=tnc_parameter_scales(self, self.par_for_mcmc))
+        if apply:
+            self.TNC_opt = scipy_minimizer_options('TNC', self.TNC_opt)
+            self.TNC_opt.update(suggested)
+            self.SciPy_auto_scale = True
+            self.TNC_relative_eps = True
+            self.TNC_eps_percent = .01 if self.mod_dynamical else .0001
+        return suggested
+
+    def fitting_sequence(self, return_flag=False, **options):
+        """Run the configured RV-only Fortran stages, passing fitted values on."""
+        stages = []
+        for stage, default in ((1, 'LM'), (2, 'Nelder-Mead')):
+            method = getattr(self, f'Fortran_min_use_{stage}', default)
+            count = getattr(self, f'Fortran_min_N_use_{stage}', 1)
+            if method not in ('LM', 'Nelder-Mead'):
+                raise ValueError(f'Unsupported Fortran minimizer: {method}')
+            if isinstance(count, (bool, np.bool_)) or not isinstance(count, (int, np.integer)) or count < 0:
+                raise ValueError('Fortran minimizer run counts must be nonnegative integers')
+            stages.append((method, int(count)))
+        if options.get('doGP', False) or not options.get('minimize_fortran', True):
+            raise ValueError('Fortran minimizer stages require RV fitting without a GP')
+        if not options.get('outputfiles', [1, 1, 1])[1]:
+            raise ValueError('Fortran minimizer stages require fitted parameter output')
+        options = dict(options)
+        options.pop('minimize_loglik', None)
+        options.pop('amoeba_starts', None)
+        start_time = time.perf_counter()
+        if not any(count for _, count in stages):
+            # Both stages disabled means evaluate the current model, never optimize.
+            self.flag = self.fitting(minimize_loglik=True, amoeba_starts=0,
+                                     return_flag=True, **options)
+        else:
+            for stage, (method, count) in enumerate(stages, start=1):
+                for iteration in range(count):
+                    print(f'Fortran stage {stage}: {method}, run {iteration + 1}/{count}')
+                    # Restore the solver budget used before the GUI stages:
+                    # Keplerian fits allow up to 20 internal restarts, stopping
+                    # early at convergence; N-body simplex used one restart.
+                    starts = (200 if method == 'LM' else
+                              1 if getattr(self, 'mod_dynamical', False) else 20)
+                    self.flag = self.fitting(minimize_loglik=(method == 'Nelder-Mead'),
+                                             amoeba_starts=starts, return_flag=True, **options)
+                    if self.flag != 1:
+                        print(f'--- Fortran sequence (failed): {time.perf_counter() - start_time:.5f} seconds ---')
+                        return self.flag if return_flag else None
+        print(f'--- Fortran sequence total: {time.perf_counter() - start_time:.5f} seconds ---')
+        return self.flag if return_flag else None
+
     def fitting(self, minimize_fortran=True, minimize_loglik=False, fileinput=False, doGP=False, kernel_id=-1, filename='Kep_input', outputfiles=[1,1,1], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 5,model_min =0): # run the fit which will either minimize chi^2 or loglik.
         '''
          eps, dt - accuracy and step for the integration in dynamical case, in keplerian case ignored, just given for input consistency
@@ -5892,6 +6203,11 @@ class signal_fit(object):
         self.bound_error = False
         self.bound_error_msg = ""
         #########################
+
+        if minimize_fortran and not any(len(self.rv_data_sets[i])
+                                        for i in range(len(self.rv_data_sets))):
+            self._clear_rv_results()
+            return 0 if return_flag else None
 
         if (minimize_loglik):
             minimized_value = 'loglik'
@@ -5980,6 +6296,8 @@ class signal_fit(object):
 
         else:
             self = run_SciPyOp(self, kernel_id=kernel_id)
+            if self.bound_error:
+                return 0 if return_flag else None
             create_args()
             self = run_Fort(self, mod)
 
@@ -6940,4 +7258,3 @@ def mcmc_stab(obj,samp_i):
 
 #################### Junk here ##################################
   
-

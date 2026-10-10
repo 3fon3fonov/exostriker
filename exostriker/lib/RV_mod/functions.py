@@ -3730,951 +3730,219 @@ def verify_array_with_bounds(ar,bounds):
 
 
 
-def latex_pl_param_table(obj, width = 10, precision = 2, asymmetric = False, file_name='test.tex', path='./', return_text=False):
-
-
-    if asymmetric != True:
-
-        text = '''
-    \\begin{table}[ht]
-    % \\begin{adjustwidth}{-4.0cm}{}
-    % \\resizebox{0.69\\textheight}{!}
-    % {\\begin{minipage}{1.1\\textwidth}
-
-    \centering
-    \caption{{}}
-    \label{table:}
-
-    \\begin{tabular}{lrrrrrrrr}     % 2 columns
-
-    \hline\hline  \\noalign{\\vskip 0.7mm}
-    '''
-
-
-        text = text + '''Parameter \hspace{0.0 mm}'''
-        #for i in range(obj.npl):
-
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            text = text + '''& Planet %s '''%chr(98+i)
-        text = text + '''\\\\
-    \hline \\noalign{\\vskip 0.7mm}
-
-        '''
-        if obj.type_fit["RV"]== True or obj.type_fit["TTV"]== True:
-            text = text + '''{0:{width}s}'''.format("$K$ [m\,s$^{-1}$]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.K[i], max(np.abs(obj.param_errors.planet_params_errors[7*i])), width = width, precision = precision)
-            text = text + '''\\\\
-        '''
-
-        text = text + '''{0:{width}s}'''.format("$P$ [day]", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.P[i], max(np.abs(obj.param_errors.planet_params_errors[7*i +1])), width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-
-        if obj.hkl == False:
-            text = text + '''{0:{width}s}'''.format("$e$  ", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.e[i], max(np.abs(obj.param_errors.planet_params_errors[7*i +2])), width = width, precision = precision)
-            text = text + '''\\\\
-        '''
-            text = text + '''{0:{width}s}'''.format("$\omega$ [deg]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.w[i], max(np.abs(obj.param_errors.planet_params_errors[7*i +3])), width = width, precision = precision)
-            text = text + '''\\\\
-        '''
-        else:
-            text = text + '''{0:{width}s}'''.format("$e sin(\omega)$  ", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.e_sinw[i], max(np.abs(obj.e_sinw_err[i])), width = width, precision = precision)
-            text = text + '''\\\\
-        '''
-            text = text + '''{0:{width}s}'''.format("$e cos(\omega)$", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.e_cosw[i], max(np.abs(obj.e_cosw_err[i])), width = width, precision = precision)
-            text = text + '''\\\\
-        '''
-
-        if obj.type_fit["RV"]== True or obj.type_fit["TTV"]== True:
-
-            if obj.hkl == False:
-                text = text + '''{0:{width}s}'''.format("$M_{\\rm 0}$ [deg]", width = 30)
-                for i in range(9):
-                    if not bool(obj.use_planet[i]):
-                        continue
-                    text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.M0[i], max(np.abs(obj.param_errors.planet_params_errors[7*i +4])), width = width, precision = precision)
-                text = text + '''\\\\
-        '''
-            else:
-                text = text + '''{0:{width}s}'''.format("$\lambda$ [deg]", width = 30)
-                for i in range(9):
-                    if not bool(obj.use_planet[i]):
-                        continue
-                    text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.lamb[i], max(np.abs(obj.lamb_err[i])), width = width, precision = precision)
-                text = text + '''\\\\
-        '''
-        if obj.mod_dynamical == True:
-            text = text + '''{0:{width}s}'''.format("$i$ [deg]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.i[i], max(np.abs(obj.param_errors.planet_params_errors[7*i +5])), width = width, precision = precision)
-            text = text + '''\\\\
-        '''
-            text = text + '''{0:{width}s}'''.format("$\Omega$ [deg]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.Node[i], max(np.abs(obj.param_errors.planet_params_errors[7*i +6])), width = width, precision = precision)
-            text = text + '''\\\\
-        '''
-
-        if obj.type_fit["Transit"] == True:
-            text = text + '''{0:{width}s}'''.format("$t_{\\rm 0}$ [day]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.t0[i], max(np.abs(obj.t0_err[i])), width = width, precision = precision)
-            text = text + '''\\\\
-        '''
-            text = text + '''{0:{width}s}'''.format("Rad. [$R_\odot$]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.pl_rad[i], max(np.abs(obj.pl_rad_err[i])), width = width, precision = precision)
-            text = text + '''\\\\
-        '''
-            text = text + '''{0:{width}s}'''.format("$a$ [$R_\odot$]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.pl_a[i], max(np.abs(obj.pl_a_err[i])), width = width, precision = precision)
-            text = text + '''\\\\
-        '''
-
-        text = text + '''{0:{width}s}'''.format("$a$ [au]", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.fit_results.a[i], 0, width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-        text = text + '''{0:{width}s}'''.format("$m \sin i$ [$M_{\\rm jup}$]", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(obj.fit_results.mass[i], 0, width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-        text = text + '''{0:{width}s}'''.format("$t_{\omega}$ [day]", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format((float(obj.epoch) - (np.radians(obj.M0[i])/(2*np.pi))*obj.P[i] ), 0, width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-
-        if obj.type_fit["RV"]== True:
-
-
-            text = text + '''{0:{width}s}'''.format("RV lin. trend [m\,s$^{-1}$\,day$^{-1}$]", width = 30)
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.rv_lintr),float(max(np.abs(obj.rv_lintr_err))) , width = 30, precision = 6)
-            text = text + '''\\\\
-        '''
-
-            text = text + '''{0:{width}s}'''.format("RV quad. trend [m\,s$^{-1}$\,day$^{-1}$]", width = 30)
-            text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.rv_quadtr),float(max(np.abs(obj.rv_quadtr_err))) , width = 30, precision = 6)
-            text = text + '''\\\\
-        '''
-
-            for i in range(obj.ndset):
-                text = text + '''{0:{width}s}'''.format("RV$_{\\rm off}$ %s [m\,s$^{-1}$]"%(i+1), width = 30)
-                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.rvoff[i]), float(max(np.abs(obj.rvoff_err[i]))), width = width, precision = precision)
-                text = text + '''\\\\
-        '''
-            for i in range(obj.ndset):
-                text = text + '''{0:{width}s}'''.format("RV$_{\\rm jit}$ %s [m\,s$^{-1}$]"%(i+1), width = 30)
-                text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.jitt[i]), float(max(np.abs(obj.jitt_err[i]))), width = width, precision = precision)
-                text = text + '''\\\\
-        '''
-
-        if obj.type_fit["Transit"]== True:
-
-            for i in range(60):
-                if len(obj.tra_data_sets[i]) != 0:
-                    text = text + '''{0:{width}s}'''.format("Tran.$_{\\rm off}$ %s"%(i+1), width = 30)
-                    text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.tra_off[i]), float(max(np.abs(obj.tra_off_err[i]))), width = width, precision = precision)
-                    text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-            for i in range(60):
-                if len(obj.tra_data_sets[i]) != 0:
-                    text = text + '''{0:{width}s}'''.format("Tran.$_{\\rm jit}$ %s"%(i+1), width = 30)
-                    text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.tra_jitt[i]), float(max(np.abs(obj.tra_jitt_err[i]))), width = width, precision = precision)
-                    text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-        if obj.doGP == True:
-
-            if obj.gp_kernel == 'RotKernel':
-                for i in range(4):
-                    text = text + '''{0:{width}s}'''.format("%s"%(obj.GP_rot_str[i]), width = 30)
-                    text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.GP_rot_params[i]), float(max(np.abs(obj.param_errors.GP_params_errors[i]))), width = width, precision = precision)
-                    text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-
-
-            elif obj.gp_kernel == 'SHOKernel':
-                for i in range(3):
-                    text = text + '''{0:{width}s}'''.format("%s"%(obj.GP_sho_str[i]), width = 30)
-                    text = text + '''& {0:{width}.{precision}f} $\pm$ {1:{width}.{precision}f} '''.format(float(obj.GP_sho_params[i]), float(max(np.abs(obj.param_errors.GP_params_errors[i]))), width = width, precision = precision)
-                    text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-
-
-
-        text = text + '''{0:{width}s}'''.format("$\chi^2$", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.chi2), width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-        text = text + '''{0:{width}s}'''.format("$\chi_{\\nu}^2$", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.reduced_chi2), width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-        text = text + '''{0:{width}s}'''.format("$rms$ [m\,s$^{-1}$]", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.rms), width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-        text = text + '''{0:{width}s}'''.format("$wrms$ [m\,s$^{-1}$]", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.wrms), width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-
-        text = text + '''{0:{width}s}'''.format("$-\ln\mathcal{L}$", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.loglik), width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-        text = text + '''{0:{width}s}'''.format("N$_{\\rm RV}$ data", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(len(obj.fit_results.jd), width = width, precision = 0)
-        text = text + '''\\\\
-        '''
-
-        text = text + '''{0:{width}s}'''.format("Epoch", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(obj.epoch, width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-
-        text = text + '''\\\\
-    \hline \\noalign{\\vskip 0.7mm}
-
-        '''
-
-        text = text + '''
-    \end{tabular}
-
-    % \end{minipage}}
-    % \end{adjustwidth}
-
-    %\\tablefoot{\small }
-
-    \end{table}
-    '''
-
-    elif asymmetric == True:
-
-        text = '''
-    \\begin{table}[ht]
-    % \\begin{adjustwidth}{-4.0cm}{}
-    % \\resizebox{0.69\\textheight}{!}
-    % {\\begin{minipage}{1.1\\textwidth}
-
-    \centering
-    \caption{{}}
-    \label{table:}
-
-    \\begin{tabular}{lrrrrrrrr}     % 2 columns
-
-    \hline\hline  \\noalign{\\vskip 0.7mm}
-    '''
-
-
-        text = text + '''Parameter \hspace{0.0 mm}'''
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            text = text + '''& Planet %s '''%chr(98+i)
-        text = text + '''\\\\
-    \hline \\noalign{\\vskip 0.7mm}
-
-        '''
-
-        if obj.type_fit["RV"]== True or obj.type_fit["TTV"]== True:
-
-            text = text + '''{0:{width}s}'''.format("$K$ [m\,s$^{-1}$]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.K[i], obj.param_errors.planet_params_errors[7*i][0], obj.param_errors.planet_params_errors[7*i][1], width = width, width2 = 0, precision = precision)
-            text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-
-        text = text + '''{0:{width}s}'''.format("$P$ [day]", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.P[i], obj.param_errors.planet_params_errors[7*i +1][0], obj.param_errors.planet_params_errors[7*i +1][1], width = width, width2 = 0, precision = precision)
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-
-        if obj.hkl == False:
-            text = text + '''{0:{width}s}'''.format("$e$ ", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.e[i], obj.param_errors.planet_params_errors[7*i +2][0], obj.param_errors.planet_params_errors[7*i +2][1], width = width, width2 = 0, precision = precision)
-            text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-            text = text + '''{0:{width}s}'''.format("$\omega$ [deg]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.w[i], obj.param_errors.planet_params_errors[7*i +3][0], obj.param_errors.planet_params_errors[7*i +3][1], width = width, width2 = 0, precision = precision)
-            text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-        else:
-            text = text + '''{0:{width}s}'''.format("$e sin(\omega)$  ", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$'''.format(obj.e_sinw[i],  obj.e_sinw_err[i][0], obj.e_sinw_err[i][1], width = width, width2 = 0,  precision = precision)
-            text = text + '''\\\\
-        '''
-            text = text + '''{0:{width}s}'''.format("$e cos(\omega)$", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$'''.format(obj.e_cosw[i],  obj.e_cosw_err[i][0], obj.e_cosw_err[i][1], width = width, width2 = 0, precision = precision)
-            text = text + '''\\\\
-        '''
-        if obj.type_fit["RV"]== True or obj.type_fit["TTV"]== True:
-
-            if obj.hkl == False:
-                text = text + '''{0:{width}s}'''.format("$M_{\\rm 0}$ [deg]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                    text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.M0[i], obj.param_errors.planet_params_errors[7*i +4][0], obj.param_errors.planet_params_errors[7*i +4][1], width = width, width2 = 0, precision = precision)
-                text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-            else:
-                text = text + '''{0:{width}s}'''.format("$\lambda$ [deg]", width = 30)
-                for i in range(9):
-                    if not bool(obj.use_planet[i]):
-                        continue
-                    text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.lamb[i],  obj.lamb_err[i][0], obj.lamb_err[i][1], width = width,  width2 = 0, precision = precision)
-                text = text + '''\\\\
-        '''
-        if obj.mod_dynamical == True:
-            text = text + '''{0:{width}s}'''.format("$i$ [deg]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.i[i], obj.param_errors.planet_params_errors[7*i +5][0], obj.param_errors.planet_params_errors[7*i +5][1], width = width, width2 = 0, precision = precision)
-            text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-            text = text + '''{0:{width}s}'''.format("$\Omega$ [deg]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.Node[i], obj.param_errors.planet_params_errors[7*i +6][0], obj.param_errors.planet_params_errors[7*i +6][1], width = width, width2 = 0, precision = precision)
-            text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-
-
-        if obj.type_fit["Transit"] == True:
-            text = text + '''{0:{width}s}'''.format("$t_{\\rm 0}$ [day]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.t0[i], obj.t0_err[i][0], obj.t0_err[i][1], width = width, width2 = 0, precision = precision)
-            text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-            text = text + '''{0:{width}s}'''.format("Rad. [$R_\odot$]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.pl_rad[i], obj.pl_rad_err[i][0], obj.pl_rad_err[i][1], width = width, width2 = 0, precision = precision)
-            text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-            text = text + '''{0:{width}s}'''.format("$a$ [$R_\odot$]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.pl_a[i], obj.pl_a_err[i][0], obj.pl_a_err[i][1], width = width, width2 = 0, precision = precision)
-            text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-
-        text = text + '''{0:{width}s}'''.format("$a$ [au]", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.fit_results.a[i], 0,0, width = width, width2 = 0, precision = precision)
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-        text = text + '''{0:{width}s}'''.format("$m \sin i$ [$M_{\\rm jup}$]", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(obj.fit_results.mass[i], 0,0, width = width, width2 = 0, precision = precision)
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-        text = text + '''{0:{width}s}'''.format("$t_{\omega}$ [day]", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format((float(obj.epoch) - (np.radians(obj.M0[i])/(2*np.pi))*obj.P[i] ), 0,0, width = width, width2 = 0, precision = precision)
-        text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-
-        if obj.type_fit["RV"]== True:
-
-            text = text + '''{0:{width}s}'''.format("RV lin. trend [m\,s$^{-1}$\,day$^{-1}$]", width = 30)
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.rv_lintr),float(obj.rv_lintr_err[0]),float(obj.rv_lintr_err[1]) , width = width, width2 = 0, precision = precision)
-            text = text + '''\\\\
-        '''
-
-            text = text + '''{0:{width}s}'''.format("RV quad. trend [m\,s$^{-1}$\,day$^{-1}$]", width = 30)
-            text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$  '''.format(float(obj.rv_quadtr),float(obj.rv_quadtr_err[0]),float(obj.rv_quadtr_err[1]) , width = width, width2 = 0, precision = precision)
-            text = text + '''\\\\
-        '''
-
-            for i in range(obj.ndset):
-                text = text + '''{0:{width}s}'''.format("RV$_{\\rm off}$ %s [m\,s$^{-1}$]"%(i+1), width = 30)
-                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.rvoff[i]), obj.rvoff_err[i][0], obj.rvoff_err[i][1], width = width, width2 = 0, precision = precision)
-                text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-            for i in range(obj.ndset):
-                text = text + '''{0:{width}s}'''.format("RV$_{\\rm jit}$ %s [m\,s$^{-1}$]"%(i+1), width = 30)
-                text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.jitt[i]), obj.jitt_err[i][0], obj.jitt_err[i][1], width = width, width2 = 0, precision = precision)
-                text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-
-        if obj.type_fit["Transit"]== True:
-
-            for i in range(20):
-                if len(obj.tra_data_sets[i]) != 0:
-                    text = text + '''{0:{width}s}'''.format("Tran.$_{\\rm off}$ %s"%(i+1), width = 30)
-                    text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.tra_off[i]), obj.tra_off_err[i][0], obj.tra_off_err[i][1], width = width, width2 = 0, precision = precision)
-                    text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-            for i in range(20):
-                if len(obj.tra_data_sets[i]) != 0:
-                    text = text + '''{0:{width}s}'''.format("Tran.$_{\\rm jit}$ %s"%(i+1), width = 30)
-                    text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.tra_jitt[i]), obj.tra_jitt_err[i][0], obj.tra_jitt_err[i][1], width = width, width2 = 0, precision = precision)
-                    text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-
-        if obj.doGP == True:
-
-            if obj.gp_kernel == 'RotKernel':
-                for i in range(4):
-                    text = text + '''{0:{width}s}'''.format("%s"%(obj.GP_rot_str[i]), width = 30)
-                    text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.GP_rot_params[i]), obj.param_errors.GP_params_errors[i][0], obj.param_errors.GP_params_errors[i][1], width = width, width2 = 0, precision = precision)
-                    text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-
-
-            elif obj.gp_kernel == 'SHOKernel':
-                for i in range(3):
-                    text = text + '''{0:{width}s}'''.format("%s"%(obj.GP_sho_str[i]), width = 30)
-                    text = text + '''& {0:{width}.{precision}f}$_{{-{1:{width2}.{precision}f}}}^{{+{2:{width2}.{precision}f}}}$ '''.format(float(obj.GP_sho_params[i]), obj.param_errors.GP_params_errors[i][0], obj.param_errors.GP_params_errors[i][1], width = width, width2 = 0, precision = precision)
-                    text = text + '''\\\\ \\noalign{\\vskip 0.9mm}
-        '''
-
-
-        text = text + '''{0:{width}s}'''.format("$\chi^2$", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.chi2), width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-        text = text + '''{0:{width}s}'''.format("$\chi_{\\nu}^2$", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.reduced_chi2), width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-        text = text + '''{0:{width}s}'''.format("$rms$ [m\,s$^{-1}$]", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.rms), width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-        text = text + '''{0:{width}s}'''.format("$wrms$ [m\,s$^{-1}$]", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.fit_results.wrms), width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-
-        text = text + '''{0:{width}s}'''.format("$-\ln\mathcal{L}$", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(float(obj.loglik), width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-        text = text + '''{0:{width}s}'''.format("N$_{\\rm RV}$ data", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(len(obj.fit_results.jd), width = width, precision = 0)
-        text = text + '''\\\\
-        '''
-
-        text = text + '''{0:{width}s}'''.format("Epoch", width = 30)
-        text = text + '''& {0:{width}.{precision}f} '''.format(obj.epoch, width = width, precision = precision)
-        text = text + '''\\\\
-        '''
-
-        text = text + '''\\\\
-    \hline \\noalign{\\vskip 0.7mm}
-
-        '''
-
-        text = text + '''
-    \end{tabular}
-
-    % \end{minipage}}
-    % \end{adjustwidth}
-
-    %\\tablefoot{\small }
-
-    \end{table}
-    '''
-
+def _latex_table_parameters(obj):
+    """Shared fitted-parameter selection and labels for both LaTeX exports."""
+    planets = [i for i, enabled in enumerate(obj.use_planet) if enabled]
+    types = obj.type_fit
+    rv, transit = types.get('RV', False), types.get('Transit', False)
+    orbital = rv or types.get('TTV', False) or types.get('AST', False)
+    rows = []
+
+    def add(name, label, slots=planets, scalar=False, bounds=None):
+        rows.append((name, label, slots, scalar, bounds or name + '_bound'))
+
+    if orbital:
+        add('K', r'$K$ [m\,s$^{-1}$]')
+    add('P', r'$P$ [day]')
+    if getattr(obj, 'hkl', False):
+        add('e_sinw', r'$e\sin\omega$')
+        add('e_cosw', r'$e\cos\omega$')
+        if orbital:
+            add('lamb', r'$\lambda$ [deg]')
     else:
-        print("asymmetric must be True or False")
-        return
-
-
-    if return_text == True:
-        return text
-    else:
-
-        table_file = open("%s/%s"%(path,file_name), 'w')
-        table_file.write(text)
-        table_file.close()
-        print("Done")
-        return
-
-
-
-
-
-def latex_prior_table(obj, width = 10, precision = 2,  file_name='prior_table.tex', path='./', return_text = False):
-
-
-    text = '''
-\\begin{table}[ht]
-% \\begin{adjustwidth}{-4.0cm}{}
-% \\resizebox{0.69\\textheight}{!}
-% {\\begin{minipage}{1.1\\textwidth}
-
-\centering
-\caption{{}}
-\label{table:}
-
-\\begin{tabular}{lrrrrrrrr}     % 2 columns
-
-\hline\hline  \\noalign{\\vskip 0.7mm}
-'''
-
-
-    text = text + '''Parameter \hspace{0.0 mm}'''
-    for i in range(9):
-        if not bool(obj.use_planet[i]):
+        add('e', r'$e$')
+        add('w', r'$\omega$ [deg]')
+        if orbital:
+            add('M0', r'$M_0$ [deg]')
+    if getattr(obj, 'mod_dynamical', False) or transit or types.get('AST', False):
+        add('i', r'$i$ [deg]')
+    if getattr(obj, 'mod_dynamical', False) or types.get('AST', False):
+        add('Node', r'$\Omega$ [deg]')
+    if transit:
+        add('t0', r'$t_0$ [day]')
+        add('pl_rad', r'$R_{\rm p}/R_\star$')
+        add('pl_a', r'$a/R_\star$')
+    if hasattr(obj, 'omega_dot_use') and any(obj.omega_dot_use[i] for i in planets):
+        add('omega_dot', r'$\dot\omega$ [deg\,yr$^{-1}$]', bounds='omega_dot_bounds')
+    for active, prefix, datasets in ((rv, '', 'rv_data_sets'), (transit, 'tra_', 'tra_data_sets')):
+        if not active:
             continue
-        text = text + '''& Planet %s '''%chr(98+i)
-    text = text + '''\\\\
-\hline \\noalign{\\vskip 0.7mm}
-
-    '''
-    if obj.type_fit["RV"] == True or obj.type_fit["TTV"] == True :
-        text = text + '''{0:{width}s}'''.format("$K$ [m\,s$^{-1}$]", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            if obj.K_norm_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg = "$\mathcal{N}$",obj.K_norm_pr[i][0],obj.K_norm_pr[i][1],"$^2$"
-            elif obj.K_jeff_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg = "$\mathcal{J}$",obj.K_jeff_pr[i][0],obj.K_jeff_pr[i][1],""
-            else:
-                sign,f_arg,s_arg,pow_arg = "$\mathcal{U}$",obj.K_bound[i][0],obj.K_bound[i][1],""
-
-            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-        text = text + '''\\\\
-    '''
-
-    text = text + '''{0:{width}s}'''.format("$P$ [day]", width = 30)
-    for i in range(9):
-        if not bool(obj.use_planet[i]):
-            continue
-        if obj.P_norm_pr[i][2]==True:
-            sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.P_norm_pr[i][0],obj.P_norm_pr[i][1],"$^2$"
-        elif obj.P_jeff_pr[i][2]==True:
-            sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.P_jeff_pr[i][0],obj.P_jeff_pr[i][1],""
-        else:
-            sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.P_bound[i][0],obj.P_bound[i][1],""
-
-        text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-    text = text + '''\\\\
-    '''
-
-    if obj.hkl == False:
-        text = text + '''{0:{width}s}'''.format("$e$  ", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            if obj.e_norm_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.e_norm_pr[i][0],obj.e_norm_pr[i][1],"$^2$"
-            elif obj.e_jeff_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.e_jeff_pr[i][0],obj.e_jeff_pr[i][1],""
-            else:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.e_bound[i][0],obj.e_bound[i][1],""
-
-            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-        text = text + '''\\\\
-    '''
-
-        text = text + '''{0:{width}s}'''.format("$\omega$ [deg]", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            if obj.w_norm_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.w_norm_pr[i][0],obj.w_norm_pr[i][1],"$^2$"
-            elif obj.w_jeff_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.w_jeff_pr[i][0],obj.w_jeff_pr[i][1],""
-            else:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.w_bound[i][0],obj.w_bound[i][1],""
-
-            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-        text = text + '''\\\\
-    '''
-
-        if obj.type_fit["RV"] == True or obj.type_fit["TTV"] == True :
-            text = text + '''{0:{width}s}'''.format("$M_{\\rm 0}$ [deg]", width = 30)
-            for i in range(9):
-                if not bool(obj.use_planet[i]):
-                    continue
-                if obj.M0_norm_pr[i][2]==True:
-                    sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.M0_norm_pr[i][0],obj.M0_norm_pr[i][1],"$^2$"
-                elif obj.M0_jeff_pr[i][2]==True:
-                    sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.M0_jeff_pr[i][0],obj.M0_jeff_pr[i][1],""
-                else:
-                    sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.M0_bound[i][0],obj.M0_bound[i][1],""
-
-                text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-            text = text + '''\\\\
-    '''
-
-    elif obj.hkl == True:
-
-        text = text + '''{0:{width}s}'''.format("$e\sin(\omega)$  ", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            if obj.e_sinw_norm_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.e_sinw_norm_pr[i][0],obj.e_sinw_norm_pr[i][1],"$^2$"
-            elif obj.e_sinw_jeff_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.e_sinw_jeff_pr[i][0],obj.e_sinw_jeff_pr[i][1],""
-            else:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.e_sinw_bound[i][0],obj.e_sinw_bound[i][1],""
-
-            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-        text = text + '''\\\\
-    '''
-
-        text = text + '''{0:{width}s}'''.format("$e\cos(\omega)$  ", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            if obj.e_cosw_norm_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.e_cosw_norm_pr[i][0],obj.e_cosw_norm_pr[i][1],"$^2$"
-            elif obj.e_cosw_jeff_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.e_cosw_jeff_pr[i][0],obj.e_cosw_jeff_pr[i][1],""
-            else:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.e_cosw_bound[i][0],obj.e_cosw_bound[i][1],""
-
-            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-        text = text + '''\\\\
-    '''
-
-        text = text + '''{0:{width}s}'''.format("$\lambda$ [deg]", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            if obj.lamb_norm_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.lamb_norm_pr[i][0],obj.lamb_norm_pr[i][1],"$^2$"
-            elif obj.lamb_jeff_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.lamb_jeff_pr[i][0],obj.lamb_jeff_pr[i][1],""
-            else:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.lamb_bound[i][0],obj.lamb_bound[i][1],""
-
-            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-        text = text + '''\\\\
-    '''
-
-    if obj.mod_dynamical == True:
-        text = text + '''{0:{width}s}'''.format("$i$ [deg]", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            if obj.i_norm_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.i_norm_pr[i][0],obj.i_norm_pr[i][1],"$^2$"
-            elif obj.i_jeff_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.i_jeff_pr[i][0],obj.i_jeff_pr[i][1],""
-            else:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.i_bound[i][0],obj.i_bound[i][1],""
-
-            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-        text = text + '''\\\\
-    '''
-
-        text = text + '''{0:{width}s}'''.format("$\Omega$ [deg]", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            if obj.Node_norm_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.Node_norm_pr[i][0],obj.Node_norm_pr[i][1],"$^2$"
-            elif obj.Node_jeff_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.Node_jeff_pr[i][0],obj.Node_jeff_pr[i][1],""
-            else:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.Node_bound[i][0],obj.Node_bound[i][1],""
-
-            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-        text = text + '''\\\\
-    '''
-
-    if obj.type_fit["Transit"] == True:
-
-        text = text + '''{0:{width}s}'''.format("$t_{\\rm 0}$ [day]", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            if obj.i_norm_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.t0_norm_pr[i][0],obj.t0_norm_pr[i][1],"$^2$"
-            elif obj.t0_jeff_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.t0_jeff_pr[i][0],obj.t0_jeff_pr[i][1],""
-            else:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.t0_bound[i][0],obj.t0_bound[i][1],""
-
-            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-        text = text + '''\\\\
-    '''
-
-        text = text + '''{0:{width}s}'''.format("Rp/$R_\star$", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            if obj.pl_rad_norm_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.pl_rad_norm_pr[i][0],obj.pl_rad_norm_pr[i][1],"$^2$"
-            elif obj.pl_rad_jeff_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.pl_rad_jeff_pr[i][0],obj.pl_rad_jeff_pr[i][1],""
-            else:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.pl_rad_bound[i][0],obj.pl_rad_bound[i][1],""
-
-            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-        text = text + '''\\\\
-    '''
+        if rv and not prefix:
+            add('rv_lintr', r'RV linear trend [m\,s$^{-1}$\,day$^{-1}$]', [0], True, 'rv_lintr_bounds')
+            add('rv_quadtr', r'RV quadratic trend [m\,s$^{-1}$\,day$^{-2}$]', [0], True, 'rv_quadtr_bounds')
+        data = getattr(obj, datasets, {})
+        slots = [i for i in range(len(data)) if len(data[i])]
+        for name, label in ((('rvoff', r'RV offset [m\,s$^{-1}$]'), ('jitt', r'RV jitter [m\,s$^{-1}$]'))
+                            if not prefix else (('tra_off', 'Transit offset'), ('tra_jitt', 'Transit jitter'))):
+            for i in slots:
+                add(name, label + ' %s' % (i + 1), [i], bounds=name + '_bounds')
+        if getattr(obj, prefix + 'doGP', False):
+            kernel = getattr(obj, prefix + 'gp_kernel', '')
+            suffix = {'RotKernel': 'rot', 'SHOKernel': 'sho', 'Matern32': 'mat',
+                      'RealTerm': 'drw', 'dSHOKernel': 'double_sho'}.get(kernel)
+            if suffix:
+                base = prefix + 'GP_' + suffix
+                values = getattr(obj, base + '_params', [])
+                labels = getattr(obj, base + '_str', [])
+                for i in range(len(values)):
+                    label = labels[i] if i < len(labels) else base + ' %s' % (i + 1)
+                    add(base + '_params', label, [i], bounds=base + '_bounds')
+    return planets, rows
 
 
-        text = text + '''{0:{width}s}'''.format("a/$R_\star$", width = 30)
-        for i in range(9):
-            if not bool(obj.use_planet[i]):
-                continue
-            if obj.pl_a_norm_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.pl_a_norm_pr[i][0],obj.pl_a_norm_pr[i][1],"$^2$"
-            elif obj.pl_a_jeff_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.pl_a_jeff_pr[i][0],obj.pl_a_jeff_pr[i][1],""
-            else:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.pl_a_bound[i][0],obj.pl_a_bound[i][1],""
-
-            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-        text = text + '''\\\\
-    '''
+def _latex_number(value, precision):
+    """Avoid turning small nonzero uncertainties/priors into printed zeroes."""
+    value = float(value)
+    if not np.isfinite(value):
+        return r'\mathrm{--}'
+    if value != 0 and abs(value) < .5 * 10. ** (-precision):
+        mantissa, exponent = f'{value:.{precision}e}'.split('e')
+        return mantissa + r'\times10^{' + str(int(exponent)) + '}'
+    return f'{value:.{precision}f}'
 
 
-    if obj.type_fit["RV"]== True:
-
-        text = text + '''{0:{width}s}'''.format("RV lin. trend [m\,s$^{-1}$\,day$^{-1}$]", width = 30)
-        i = 0
-        if obj.rv_lintr_norm_pr[i][2]==True:
-            sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.rv_lintr_norm_pr[i][0],obj.rv_lintr_norm_pr[i][1],"$^2$"
-        elif obj.rv_lintr_jeff_pr[i][2]==True:
-            sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.rv_lintr_jeff_pr[i][0],obj.rv_lintr_jeff_pr[i][1],""
-        else:
-            sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.rv_lintr_bounds[i][0],obj.rv_lintr_bounds[i][1],""
-
-        text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-        text = text + '''\\\\
-    '''
-
-        text = text + '''{0:{width}s}'''.format("RV quad. trend [m\,s$^{-1}$\,day$^{-1}$]", width = 30)
-        i = 0
-        if obj.rv_quadtr_norm_pr[i][2]==True:
-            sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.rv_quadtr_norm_pr[i][0],obj.rv_quadtr_norm_pr[i][1],"$^2$"
-        elif obj.rv_quadtr_jeff_pr[i][2]==True:
-            sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.rv_quadtr_jeff_pr[i][0],obj.rv_quadtr_jeff_pr[i][1],""
-        else:
-            sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.rv_quadtr_bounds[i][0],obj.rv_quadtr_bounds[i][1],""
-
-        text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-        text = text + '''\\\\
-    '''
-
-        for i in range(obj.ndset):
-            text = text + '''{0:{width}s}'''.format("RV$_{\\rm off}$ %s [m\,s$^{-1}$]"%(i+1), width = 30)
-            if obj.rvoff_norm_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.rvoff_norm_pr[i][0],obj.rvoff_norm_pr[i][1],"$^2$"
-            elif obj.rvoff_jeff_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.rvoff_jeff_pr[i][0],obj.rvoff_jeff_pr[i][1],""
-            else:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.rvoff_bounds[i][0],obj.rvoff_bounds[i][1],""
-
-            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-            text = text + '''\\\\
-    '''
-
-        for i in range(obj.ndset):
-            text = text + '''{0:{width}s}'''.format("RV$_{\\rm jit}$ %s [m\,s$^{-1}$]"%(i+1), width = 30)
-            if obj.jitt_norm_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.jitt_norm_pr[i][0],obj.jitt_norm_pr[i][1],"$^2$"
-            elif obj.jitt_jeff_pr[i][2]==True:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.jitt_jeff_pr[i][0],obj.jitt_jeff_pr[i][1],""
-            else:
-                sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.jitt_bounds[i][0],obj.jitt_bounds[i][1],""
-
-            text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-            text = text + '''\\\\
-    '''
-
-        if obj.doGP == True:
-
-            if obj.gp_kernel == 'RotKernel':
-                for i in range(4):
-                    text = text + '''{0:{width}s}'''.format("%s"%(obj.GP_rot_str[i]), width = 30)
-                    if obj.GP_rot_norm_pr[i][2]==True:
-                        sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.GP_rot_norm_pr[i][0],obj.GP_rot_norm_pr[i][1],"$^2$"
-                    elif obj.GP_rot_jeff_pr[i][2]==True:
-                        sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.GP_rot_jeff_pr[i][0],obj.GP_rot_jeff_pr[i][1],""
-                    else:
-                        sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.GP_rot_bounds[i][0],obj.GP_rot_bounds[i][1],""
-
-                    text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-                    text = text + '''\\\\
-    '''
-
-            elif obj.gp_kernel == 'SHOKernel':
-                for i in range(3):
-                    text = text + '''{0:{width}s}'''.format("%s"%(obj.GP_sho_str[i]), width = 30)
-                    if obj.GP_sho_norm_pr[i][2]==True:
-                        sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.GP_sho_norm_pr[i][0],obj.GP_sho_norm_pr[i][1],"$^2$"
-                    elif obj.GP_sho_jeff_pr[i][2]==True:
-                        sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.GP_sho_jeff_pr[i][0],obj.GP_sho_jeff_pr[i][1],""
-                    else:
-                        sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.GP_sho_bounds[i][0],obj.GP_sho_bounds[i][1],""
-
-                    text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-                    text = text + '''\\\\
-    '''
-
-    if obj.type_fit["Transit"]== True:
+def _latex_fit_cell(value, error, precision, asymmetric):
+    number = _latex_number(value, precision)
+    if error is None:
+        return '$' + number + '$'
+    errors = np.abs(np.asarray(error, dtype=float).reshape(-1))
+    if not errors.size or not np.isfinite(errors).all():
+        return '$' + number + '$'
+    lower, upper = errors[0], errors[-1]
+    if max(lower, upper) == 0:
+        return '$' + number + '$'
+    use_asymmetric = asymmetric is True or (asymmetric is None and
+                                           not np.isclose(lower, upper, rtol=1e-6, atol=0))
+    if use_asymmetric:
+        return '$' + number + '^{+' + _latex_number(upper, precision) + '}_{-' + _latex_number(lower, precision) + '}$'
+    return '$' + number + r'\pm ' + _latex_number(max(lower, upper), precision) + '$'
 
 
+def _latex_parameter_error(obj, name, slot, scalar):
+    if name.startswith('GP_') and name.endswith('_params'):
+        packed = getattr(getattr(obj, 'param_errors', None), 'GP_params_errors', None)
+        if packed is not None and slot < len(packed):
+            return packed[slot]
+    error_name = name[:-7] + '_err' if name.endswith('_params') else name + '_err'
+    errors = getattr(obj, error_name, None)
+    if errors is not None:
+        return errors if scalar else errors[slot]
+    # Compatibility with older fit objects that only stored packed errors.
+    if name in ('K', 'P', 'e', 'w', 'M0', 'i', 'Node'):
+        packed = getattr(getattr(obj, 'param_errors', None), 'planet_params_errors', None)
+        if packed is not None:
+            return packed[7 * slot + ('K', 'P', 'e', 'w', 'M0', 'i', 'Node').index(name)]
+    return None
 
-        for i in range(20):
-            if len(obj.tra_data_sets[i]) != 0:
-                text = text + '''{0:{width}s}'''.format("Tran.$_{\\rm off}$ %s [m\,s$^{-1}$]"%(i+1), width = 30)
-                if obj.tra_off_norm_pr[i][2]==True:
-                    sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.tra_off_norm_pr[i][0],obj.tra_off_norm_pr[i][1],"$^2$"
-                elif obj.tra_off_jeff_pr[i][2]==True:
-                    sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.tra_off_jeff_pr[i][0],obj.tra_off_jeff_pr[i][1],""
-                else:
-                    sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.tra_off_bounds[i][0],obj.tra_off_bounds[i][1],""
 
-                text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-                text = text + '''\\\\
-    '''
+def _latex_render_table(planets, rows, width, prior=False):
+    columns = max(1, len(planets))
+    headings = ['Planet ' + chr(98 + i) for i in planets] if planets else ['Value']
+    text = [r'\begin{table}[ht]', r'\centering', r'\caption{}',
+            r'\label{table:priors}' if prior else r'\label{table:parameters}',
+            r'\begin{tabular}{l' + 'r' * columns + '}', r'\hline\hline',
+            'Parameter & ' + ' & '.join(headings) + r' \\', r'\hline']
+    for label, cells in rows:
+        # Dataset/global parameters occupy the first value column; pad the
+        # others so every row has exactly the advertised number of columns.
+        cells = cells + [''] * (columns - len(cells))
+        text.append(label.ljust(30) + ' & ' + ' & '.join(cell.rjust(width) for cell in cells) + r' \\')
+    text += [r'\hline', r'\end{tabular}']
+    if prior:
+        text.append(r'\par\small $\mathcal{N}(\mu,\sigma)$ denotes a Gaussian; '
+                    r'$\mathcal{J}(a,b)$ a log-uniform prior; all are truncated to the listed bounds.')
+    text.append(r'\end{table}')
+    return '\n'.join(text) + '\n'
 
-        for i in range(20):
-            if len(obj.tra_data_sets[i]) != 0:
-                text = text + '''{0:{width}s}'''.format("Tran.$_{\\rm jit}$ %s [m\,s$^{-1}$]"%(i+1), width = 30)
-                if obj.tra_jitt_norm_pr[i][2]==True:
-                    sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.tra_jitt_norm_pr[i][0],obj.tra_jitt_norm_pr[i][1],"$^2$"
-                elif obj.tra_jitt_jeff_pr[i][2]==True:
-                    sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.tra_jitt_jeff_pr[i][0],obj.tra_jitt_jeff_pr[i][1],""
-                else:
-                    sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.tra_jitt_bounds[i][0],obj.tra_jitt_bounds[i][1],""
 
-                text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-                text = text + '''\\\\
-    '''
-
-        if obj.tra_doGP == True:
-
-            if obj.tra_gp_kernel == 'RotKernel':
-                for i in range(4):
-                    text = text + '''{0:{width}s}'''.format("%s"%(obj.tra_GP_rot_str[i]), width = 30)
-                    if obj.tra_GP_rot_norm_pr[i][2]==True:
-                        sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.tra_GP_rot_norm_pr[i][0],obj.tra_GP_rot_norm_pr[i][1],"$^2$"
-                    elif obj.tra_GP_rot_jeff_pr[i][2]==True:
-                        sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.tra_GP_rot_jeff_pr[i][0],obj.tra_GP_rot_jeff_pr[i][1],""
-                    else:
-                        sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.tra_GP_rot_bounds[i][0],obj.tra_GP_rot_bounds[i][1],""
-
-                    text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-                    text = text + '''\\\\
-    '''
-
-            elif obj.tra_gp_kernel == 'SHOKernel':
-                for i in range(3):
-                    text = text + '''{0:{width}s}'''.format("%s"%(obj.tra_GP_sho_str[i]), width = 30)
-                    if obj.tra_GP_sho_norm_pr[i][2]==True:
-                        sign,f_arg,s_arg,pow_arg  = "$\mathcal{N}$",obj.tra_GP_sho_norm_pr[i][0],obj.tra_GP_sho_norm_pr[i][1],"$^2$"
-                    elif obj.tra_GP_sho_jeff_pr[i][2]==True:
-                        sign,f_arg,s_arg,pow_arg  = "$\mathcal{J}$",obj.tra_GP_sho_jeff_pr[i][0],obj.tra_GP_sho_jeff_pr[i][1],""
-                    else:
-                        sign,f_arg,s_arg,pow_arg  = "$\mathcal{U}$",obj.tra_GP_sho_bounds[i][0],obj.tra_GP_sho_bounds[i][1],""
-
-                    text = text + '''& {0:s}({1:{width}.{precision}f},{2:{width}.{precision}f}{3:s})'''.format(sign, f_arg,s_arg,pow_arg, width = width, precision = precision)
-                    text = text + '''\\\\
-    '''
-
-    text = text + '''\\\\
-\hline \\noalign{\\vskip 0.7mm}
-    '''
-
-    text = text + '''
-\end{tabular}
-
-% \end{minipage}}
-% \end{adjustwidth}
-
-%\\tablefoot{\small }
-
-\end{table}
-'''
-
-    if return_text == True:
+def _latex_save_table(text, path, file_name, return_text):
+    if return_text:
         return text
-    else:
+    from pathlib import Path
+    (Path(path) / file_name).write_text(text, encoding='utf-8')
+    print('Done')
 
-        table_file = open("%s/%s"%(path,file_name), 'w')
-       # table_file = open(file_name, 'w')
-        table_file.write(text)
-        table_file.close()
-        print("Done")
-        return
+
+def latex_pl_param_table(obj, width=10, precision=2, asymmetric=None,
+                         file_name='test.tex', path='./', return_text=False):
+    """Export fit-specific parameters, automatically preserving unequal errors.
+
+    asymmetric=None selects per-cell formatting; False uses the larger error
+    with +/-; True explicitly requests upper/lower error notation.
+    Zero/missing uncertainties are displayed as values, not invented errors.
+    """
+    if asymmetric not in (None, True, False):
+        raise ValueError('asymmetric must be None, True, or False')
+    planets, parameters = _latex_table_parameters(obj)
+    rows = []
+    for name, label, slots, scalar, bounds in parameters:
+        values = getattr(obj, name, None)
+        if values is None:
+            continue
+        cells = [_latex_fit_cell(values if scalar else values[i],
+                                 _latex_parameter_error(obj, name, i, scalar), precision, asymmetric)
+                 for i in slots]
+        rows.append((label, cells))
+    orbital = any(obj.type_fit.get(k, False) for k in ('RV', 'TTV', 'AST'))
+    if orbital:
+        for name, label in (('semimajor', r'$a$ [au]'),
+                            ('masses', r'$m$ [$M_{\rm Jup}$]' if getattr(obj, 'mod_dynamical', False)
+                             or obj.type_fit.get('AST', False) else r'$m\sin i$ [$M_{\rm Jup}$]')):
+            values = getattr(obj, name, None)
+            if values is not None and len(values):
+                projected = name == 'masses' and not getattr(obj, 'mod_dynamical', False) and not obj.type_fit.get('AST', False)
+                rows.append((label, [_latex_fit_cell(
+                    values[i] * abs(np.sin(np.radians(obj.i[i]))) if projected else values[i],
+                    None, precision, asymmetric) for i in planets]))
+        if hasattr(obj, 'epoch'):
+            rows.append(('Epoch [day]', [_latex_fit_cell(obj.epoch, None, precision, asymmetric)]))
+            if hasattr(obj, 'M0') and hasattr(obj, 'P'):
+                rows.append((r'$t_{\rm peri}$ [day]', [
+                    _latex_fit_cell(float(obj.epoch) - np.radians(obj.M0[i]) / (2 * np.pi) * obj.P[i],
+                                    None, precision, asymmetric) for i in planets]))
+    results = getattr(obj, 'fit_results', None)
+    if obj.type_fit.get('RV', False) and results is not None:
+        for name, label in (('chi2', r'$\chi^2$'), ('reduced_chi2', r'$\chi_\nu^2$'),
+                            ('rms', r'RMS [m\,s$^{-1}$]'), ('wrms', r'WRMS [m\,s$^{-1}$]')):
+            if hasattr(results, name):
+                rows.append((label, [_latex_fit_cell(getattr(results, name), None, precision, asymmetric)]))
+        if hasattr(obj, 'loglik'):
+            rows.append((r'$\ln\mathcal{L}$', [_latex_fit_cell(obj.loglik, None, precision, asymmetric)]))
+        if hasattr(results, 'jd'):
+            rows.append((r'$N_{\rm RV}$', [str(len(results.jd))]))
+    return _latex_save_table(_latex_render_table(planets, rows, width), path, file_name, return_text)
+
+
+def latex_prior_table(obj, width=10, precision=2, file_name='prior_table.tex',
+                      path='./', return_text=False):
+    """Export the same fitted parameters with distributions and hard bounds.
+
+    Gaussian notation uses standard deviation (not variance), including the
+    truncation actually used by the nested sampler.
+    """
+    planets, parameters = _latex_table_parameters(obj)
+    rows = []
+    for name, label, slots, scalar, bounds_name in parameters:
+        bounds = getattr(obj, bounds_name, None)
+        if bounds is None:
+            continue
+        base = name[:-7] if name.endswith('_params') else name
+        normal, jeff = getattr(obj, base + '_norm_pr', None), getattr(obj, base + '_jeff_pr', None)
+        cells = []
+        for i in slots:
+            lo, hi = bounds[i]
+            limits = '[' + _latex_number(lo, precision) + ', ' + _latex_number(hi, precision) + ']'
+            if normal is not None and normal[i][2]:
+                mu, sigma = normal[i][:2]
+                cell = r'\mathcal{N}(' + _latex_number(mu, precision) + ', ' + _latex_number(sigma, precision) + r')\;\in ' + limits
+            elif jeff is not None and jeff[i][2]:
+                a, b = jeff[i][:2]
+                cell = r'\mathcal{J}(' + _latex_number(a, precision) + ', ' + _latex_number(b, precision) + r')\;\in ' + limits
+            else:
+                cell = r'\mathcal{U}(' + _latex_number(lo, precision) + ', ' + _latex_number(hi, precision) + ')'
+            cells.append('$' + cell + '$')
+        rows.append((label, cells))
+    return _latex_save_table(_latex_render_table(planets, rows, width, prior=True), path, file_name, return_text)
 
 
 def f_test(obj, obj2 = None, alpha = 0.01, lnL=False):
@@ -4993,6 +4261,8 @@ def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0,
     Integration uses no files or worker processes; native sessions are serialized.
     Planet results retain the existing order of increasing orbital period.
     """
+    from time import perf_counter
+    start_time = perf_counter()
     if __package__ == 'RV_mod':
         from swift import integrate
     else:
@@ -5030,7 +4300,9 @@ def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0,
                                   ('evol_p', 6), ('evol_M', 7)):
             getattr(obj, attribute)[k] = orbit[:, column]
         obj.evol_Per[k] = a_to_P(obj.evol_a[k], obj.params.stellar_mass)
+    print(f"--- SWIFT {integrator} N-body: {perf_counter() - start_time:.5f} seconds ---")
     return obj
+
 
 
 def run_stability_rebound(
@@ -5083,6 +4355,8 @@ def run_stability_rebound(
     Output angles are in degrees.
     Periods in obj.evol_Per are converted to days, matching Exo-Striker usage.
     """
+    from time import perf_counter
+    start_time = perf_counter()
 
     try:
         import rebound
@@ -5425,7 +4699,9 @@ def run_stability_rebound(
         print("stable:", evol["stable"])
         print("timemax reached [yr]:", evol["timemax_reached"])
 
+    print(f"--- REBOUND {integrator} N-body: {perf_counter() - start_time:.5f} seconds ---")
     return obj
+
 
 
  

@@ -187,11 +187,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
 !        t_stop = time() - t_init
 
 !        write(*,*) t_stop-t_init
-        if ((t_stop-t_init)>=when_to_kill) then
-            write(*, *) 'Max. time=', when_to_kill, 'sec ', &
-                    'exceeded t_stop =', t_stop-t_init, 'sec '
-            exit
-        endif
+
         
 !        CALL SECOND(t_stop)
 !        if (t_stop.ge.when_to_kill) then
@@ -211,7 +207,19 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
                 a(ii) = p(1, j)
             endif
         enddo
+
+        if (when_to_kill.gt.0.0 .and. (t_stop-t_init)>=when_to_kill) then
+            write(*, *) 'Max. time=', when_to_kill, 'sec ', &
+                    'exceeded t_stop =', t_stop-t_init, 'sec '
+            exit
+        endif
     enddo
+
+    if (amoebastarts.gt.0 .and. mfit.gt.0) then
+        call simplex_covariance(0, ndata, x, y, sig, ts, a, ia, ma, mfit, &
+                hkl, jit_flag, dble(epsil), dble(deltat), npl, &
+                dynamical_planets, coplar_inc, covar)
+    endif
 
     idset = 1
     chisq = 0.d0
@@ -337,14 +345,15 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
             i = 6 * npl + j
             bestpar_2(j, :) = (/ a(i), dsqrt(covar(i, i)) /)
 
-            bestpar_3(j, :) = (/ a(6 * npl + ndset + j), 0.d0 /)
+            bestpar_3(j, :) = (/ a(6 * npl + ndset + j), &
+                    dsqrt(covar(6 * npl + ndset + j, 6 * npl + ndset + j)) /)
             
         enddo
 
         bestpar_4 = (/ a(6 * npl + 2 * ndset + 1), &
-                dsqrt(covar(6 * npl + ndset + 1, 6 * npl + ndset + 1)), &
+                dsqrt(covar(6 * npl + 2 * ndset + 1, 6 * npl + 2 * ndset + 1)), &
                 a(6 * npl + 2 * ndset + 2), &
-                dsqrt(covar(6 * npl + ndset + 2, 6 * npl + ndset + 2)), &
+                dsqrt(covar(6 * npl + 2 * ndset + 2, 6 * npl + 2 * ndset + 2)), &
                 dble(ndata), dble(mfit), rms, &
                 chisq / dble(ndata - mfit), x0, (j_mass(i + 1), i = 1, npl), &
                 (ap(i) / 1.49597892d11, i = 1, npl) /)
@@ -532,7 +541,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
 
 !            t_stop = time() - t_init
             call cpu_time(t_stop)     
-            if ((t_stop-t_init)>=when_to_kill) then
+            if (when_to_kill.gt.0.0 .and. (t_stop-t_init)>=when_to_kill) then
                 write(*, *) 'Max. time=', when_to_kill, 'sec ', &
                         'exceeded t_stop =', t_stop, 'sec '
                 exit
@@ -791,11 +800,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
 
 !        t_stop = time() - t_init
         call cpu_time(t_stop)     
-        if ((t_stop-t_init)>=when_to_kill) then
-            write(*, *) 'Max. time=', when_to_kill, 'sec ', &
-                    'exceeded t_stop =', t_stop, 'sec '
-            exit
-        endif
+
 
         loglikk = yamoeba(1)
         dloglikk = ologlikk - loglikk
@@ -807,6 +812,12 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
                 a(ii) = p(1, j)
             endif
         enddo
+
+        if (when_to_kill.gt.0.0 .and. (t_stop-t_init)>=when_to_kill) then
+            write(*, *) 'Max. time=', when_to_kill, 'sec ', &
+                    'exceeded t_stop =', t_stop, 'sec '
+            exit
+        endif
  
      
     enddo
@@ -817,6 +828,12 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
     chisq = 0.0d0
     rms = 0.0d0
     
+
+    if (amoebastarts.gt.0 .and. mfit.gt.0) then
+        call simplex_covariance(1, ndata, t, ys, sigs, ts, a, ia, ma, mfit, &
+                hkl, jit_flag, epsil, deltat, npl, &
+                dynamical_planets, coplar_inc, covar)
+    endif
 
     call io_write_bf_ewcop_fin_dynamo(a, covar, t, ys, ndata, ts, &
             ma, mfit, t0, t_max, sigs, chisq, rms, loglik, writeflag_RV, &
@@ -987,7 +1004,7 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
 
 !        t_stop = time() - t_init
         call cpu_time(t_stop)     
-        if ((t_stop-t_init)>=when_to_kill) then
+        if (when_to_kill.gt.0.0 .and. (t_stop-t_init)>=when_to_kill) then
             write(*, *) 'Max. time=', when_to_kill, 'sec ', &
                     'exceeded t_stop =', t_stop, 'sec '
             exit
@@ -2138,11 +2155,11 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
                     dmod(a(i + 7) * 180.d0 / PI, 360.d0), wdot(j), &
                     0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0 /)
             bestpar_1(j, :, 2) = (/ dsqrt(covar(i + 1, i + 1)), &
-                    dsqrt(covar(i + 2, i + 2)), &
+                    dsqrt(covar(i + 2, i + 2)) / day, &
                     dsqrt(covar(i + 3, i + 3)), best_we, &
-                    dsqrt(covar(i + 5, i + 5)) * 360.d0 / PI, &
-                    dmod(dsqrt(covar(i + 6, i + 6)) * 180.d0 / PI, 360.d0), &
-                    dmod(dsqrt(covar(i + 7, i + 7)) * 180.d0 / PI, 360.d0), &
+                    dsqrt(covar(i + 5, i + 5)) * 180.d0 / PI, &
+                    dsqrt(covar(i + 6, i + 6)) * 180.d0 / PI, &
+                    dsqrt(covar(i + 7, i + 7)) * 180.d0 / PI, &
                     u_wdot(j), &
                     0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0, 0.d0 /)
         enddo
@@ -2151,7 +2168,8 @@ subroutine io_write_bf_ewcop_fin_dynamo (a, covar, t, ys, &
             i = 7 * npl + j
             bestpar_2(j, :) = (/ a(i), dsqrt(covar(i, i)) /)
 
-            bestpar_3(j, :) = (/ a(7 * npl + ndset + j), 0.d0 /)
+            bestpar_3(j, :) = (/ a(7 * npl + ndset + j), &
+                    dsqrt(covar(7 * npl + ndset + j, 7 * npl + ndset + j)) /)
         enddo
 
         call MA_J_cop_fin (a, ma, npl, mstar, mass, ap, hkl)
@@ -5285,3 +5303,195 @@ subroutine rv_hkl_exact(x, p, y, dy)
     dy(5) = dv(3)
     dy(6) = (dv(1)*k - dv(2)*h + dv(3))*x/365.25d0
 end subroutine rv_hkl_exact
+
+! Simplex covariance: observed likelihood curvature for Keplerian fits,
+! numerical Gauss-Newton/Fisher information for integration-based fits.
+! Differentiate in scaled coordinates; no reduced-chi-square multiplier is
+! needed because measurement variance (including jitter) is in the likelihood.
+subroutine simplex_covariance(mode, ndata, x, y, sig, ts, a, ia, ma, mfit, &
+        hkl, jit_flag, epsil, deltat, npl, planets, coplar_inc, covar)
+    use, intrinsic :: ieee_arithmetic
+    implicit none
+    integer :: mode, ndata, ma, mfit, hkl, jit_flag, npl, coplar_inc
+    integer :: ts(ndata), ia(200), planets(npl), slots(mfit)
+    integer :: i, j, k, attempt, count
+    real(8) :: x(ndata), y(ndata), sig(ndata), a(200), covar(200,200)
+    real(8) :: epsil, deltat, q(mfit), base(mfit), step(mfit)
+    real(8) :: hess(mfit,mfit), lower(mfit,mfit), invlower(mfit,mfit)
+    real(8) :: f0, fp, fm, fpp, fpm, fmp, fmm, curvature, value, nan
+    covar = 0.d0
+    if (mfit.eq.0) return
+    nan = ieee_value(0.d0, ieee_quiet_nan)
+    count = 0
+    do i = 1, ma
+        if (ia(i).ne.0) then
+            count = count + 1
+            slots(count) = i
+            base(count) = a(i)
+        endif
+    enddo
+    ! Mark free errors unavailable unless the entire inverse succeeds.
+    do i = 1, mfit
+        covar(slots(i),slots(i)) = nan
+    enddo
+    if (mode.eq.1) then
+        call dynamical_information()
+    else
+    q = base
+    call evaluate(q, f0)
+    if (.not.ieee_is_finite(f0)) return
+    do i = 1, mfit
+        step(i) = epsilon(1.d0)**0.25d0 * max(abs(base(i)), 1.d0)
+        ! Grow small steps to resolve curvature above likelihood roundoff.
+        do attempt = 1, 8
+            q = base
+            q(i) = base(i) + step(i)
+            call evaluate(q, fp)
+            q(i) = base(i) - step(i)
+            call evaluate(q, fm)
+            curvature = fp + fm - 2.d0*f0
+            if (.not.ieee_is_finite(curvature)) return
+            if (abs(curvature).gt.1.d-5) exit
+            if (attempt.lt.8) step(i) = step(i)*2.d0
+        enddo
+        hess(i,i) = curvature
+    enddo
+    do i = 1, mfit
+        do j = 1, i-1
+            q = base
+            q(i) = base(i)+step(i)
+            q(j) = base(j)+step(j)
+            call evaluate(q, fpp)
+            q(j) = base(j)-step(j)
+            call evaluate(q, fpm)
+            q(i) = base(i)-step(i)
+            call evaluate(q, fmm)
+            q(j) = base(j)+step(j)
+            call evaluate(q, fmp)
+            hess(i,j) = (fpp-fpm-fmp+fmm)/4.d0
+            hess(j,i) = hess(i,j)
+        enddo
+    enddo
+    endif
+    ! Cholesky rejects non-positive curvature rather than fabricating errors.
+    lower = 0.d0
+    do i = 1, mfit
+        do j = 1, i
+            value = hess(i,j) - dot_product(lower(i,1:j-1),lower(j,1:j-1))
+            if (.not.ieee_is_finite(value)) return
+            if (i.eq.j) then
+                if (value.le.max(1.d-12*abs(hess(i,i)),tiny(1.d0))) return
+                lower(i,j) = sqrt(value)
+            else
+                lower(i,j) = value/lower(j,j)
+            endif
+        enddo
+    enddo
+    invlower = 0.d0
+    do j = 1, mfit
+        do i = j, mfit
+            value = 0.d0
+            if (i.eq.j) value = 1.d0
+            do k = j, i-1
+                value = value-lower(i,k)*invlower(k,j)
+            enddo
+            invlower(i,j) = value/lower(i,i)
+        enddo
+    enddo
+    do i = 1, mfit
+        do j = 1, mfit
+            covar(slots(i),slots(j)) = &
+                dot_product(invlower(:,i),invlower(:,j))*step(i)*step(j)
+        enddo
+    enddo
+contains
+    ! For integration-based RVs use the LM/Gauss-Newton information matrix.
+    ! First differences of the model avoid cancellation in second differences
+    ! of the total likelihood. Add Gaussian variance information for free jitter.
+    subroutine dynamical_information()
+        real(8) :: plus(ndata), minus(ndata), fine(ndata), coarse(ndata)
+        real(8) :: jac(ndata,mfit), varjac(ndata,mfit), variance(ndata)
+        real(8) :: parameters(200), contributions(npl,ndata), delta, noise
+        integer :: column, row, index, dataset, ndatasets, trial, jitter_index
+        ndatasets = (ma-7*npl-2)/2
+        jac = 0.d0
+        varjac = 0.d0
+        do row = 1, ndata
+            dataset = ts(row)
+            if (jit_flag.ne.0) dataset = 1
+            jitter_index = 7*npl+ndatasets+dataset
+            variance(row) = sig(row)**2 + a(jitter_index)**2
+        enddo
+        do column = 1, mfit
+            index = slots(column)
+            step(column) = epsilon(1.d0)**(1.d0/3.d0)*max(abs(base(column)),1.d0)
+            if (index.gt.7*npl .and. index.le.7*npl+ndatasets) then
+                where (ts.eq.index-7*npl) jac(:,column) = step(column)
+            elseif (index.gt.7*npl+ndatasets .and. index.le.7*npl+2*ndatasets) then
+                do row = 1, ndata
+                    dataset = ts(row)
+                    if (jit_flag.ne.0) dataset = 1
+                    if (index.eq.7*npl+ndatasets+dataset) &
+                        varjac(row,column) = 2.d0*a(index)*step(column)
+                enddo
+            elseif (index.eq.ma-1) then
+                jac(:,column) = (x/86400.d0)*step(column)
+            elseif (index.eq.ma) then
+                jac(:,column) = (x/86400.d0)**2*step(column)
+            else
+                delta = step(column)
+                ! Check derivatives at two scales; enlarge steps when integration
+                ! noise dominates. No changes are made to the fitted parameters.
+                do trial = 1, 6
+                    parameters = a
+                    parameters(index) = a(index)+delta
+                    call RVKEP_dynamo(x, parameters, plus, contributions, ma, &
+                            ndata, epsil, deltat, hkl, planets, ts, coplar_inc)
+                    parameters = a
+                    parameters(index) = a(index)-delta
+                    call RVKEP_dynamo(x, parameters, minus, contributions, ma, &
+                            ndata, epsil, deltat, hkl, planets, ts, coplar_inc)
+                    fine = (plus-minus)/(2.d0*delta)
+                    parameters = a
+                    parameters(index) = a(index)+2.d0*delta
+                    call RVKEP_dynamo(x, parameters, plus, contributions, ma, &
+                            ndata, epsil, deltat, hkl, planets, ts, coplar_inc)
+                    parameters = a
+                    parameters(index) = a(index)-2.d0*delta
+                    call RVKEP_dynamo(x, parameters, minus, contributions, ma, &
+                            ndata, epsil, deltat, hkl, planets, ts, coplar_inc)
+                    coarse = (plus-minus)/(4.d0*delta)
+                    noise = sqrt(sum((fine-coarse)**2/variance))
+                    if (noise.le.0.01d0*max(sqrt(sum(coarse**2/variance)),1.d-10)) exit
+                    if (trial.lt.6) delta = 2.d0*delta
+                enddo
+                ! An unresolved derivative must not produce a spurious error.
+                if (.not.all(ieee_is_finite(coarse)) .or. &
+                        noise.gt.0.01d0*max(sqrt(sum(coarse**2/variance)),1.d-10)) then
+                    hess = nan
+                    return
+                endif
+                step(column) = 2.d0*delta
+                jac(:,column) = coarse*step(column)
+            endif
+        enddo
+        do column = 1, mfit
+            do row = 1, mfit
+                hess(row,column) = sum(jac(:,row)*jac(:,column)/variance) + &
+                        0.5d0*sum(varjac(:,row)*varjac(:,column)/variance**2)
+            enddo
+        enddo
+    end subroutine dynamical_information
+
+    subroutine evaluate(parameters, result)
+        real(8) :: parameters(mfit), result, scratch(200)
+        if (mode.eq.0) then
+            call compute_abs_loglik_kep(ndata, x, y, parameters, scratch, &
+                    ma, mfit, ts, sig, result, a, ia, hkl, jit_flag)
+        else
+            call compute_abs_loglik_dyn(ndata, x, y, parameters, ma, mfit, &
+                    ts, sig, result, a, ia, epsil, deltat, hkl, planets, &
+                    coplar_inc, jit_flag)
+        endif
+    end subroutine evaluate
+end subroutine simplex_covariance

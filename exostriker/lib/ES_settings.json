@@ -1,15 +1,1 @@
-{
-  "openAI": {
-    "model": "gpt-6-luna",
-    "reasoning_effort": "low",
-    "verbosity": "medium",
-    "max_output_tokens": 8192,
-    "api_key": ""
-  },
-  "fonts": {
-    "plot_font": "15"
-  },
-  "GUI_fonts": {
-    "gui_font": "9"
-  }
-}
+{"openAI": {"model": "gpt-6-luna", "reasoning_effort": "low", "verbosity": "medium", "max_output_tokens": 8192, "api_key":}, "fonts": {"plot_font": "15"}, "GUI_fonts": {"gui_font": "9"}}

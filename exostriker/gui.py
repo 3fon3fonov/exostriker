@@ -72,6 +72,7 @@ from Jupyter_emb import ConsoleWidget_embed
 
 from stdout_pipe import MyDialog, DebugDialog
 from print_info_window import print_info
+from fit_statistics import collect_fit_statistics, dataset_statistics_html, joint_information_criteria, statistics_html
 from symbols_window import show_symbols
 from TESS_pdc_window import pdc
 
@@ -330,22 +331,23 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.value_stellar_mass.setText("%.4f"%(fit.params.stellar_mass))
         self.value_epoch.setText(str(fit.epoch))
-        self.value_rms.setText("%.4f"%(fit.fit_results.rms))
-        self.value_wrms.setText("%.4f"%(fit.fit_results.wrms))
+      #  self.value_rms.setText("%.4f"%(fit.fit_results.rms))
+      #  self.value_wrms.setText("%.4f"%(fit.fit_results.wrms))
 
         #self.value_wrms.setText("%.4f"%(fit.wrms()))
         
-        self.value_chi2.setText("%.4f"%(fit.fit_results.chi2)) 
-        self.value_reduced_chi2.setText("%.4f"%(fit.fit_results.reduced_chi2))
+     #   self.value_chi2.setText("%.4f"%(fit.fit_results.chi2)) 
+     #   self.value_reduced_chi2.setText("%.4f"%(fit.fit_results.reduced_chi2))
         #self.value_loglik.setText("%.4f"%(fit.fit_results.loglik)) 
         self.value_loglik.setText("%.4f"%(fit.loglik)) 
-        self.value_BIC.setText("%.2f"%(fit.BIC()))
-        self.value_AIC.setText("%.2f"%(fit.AIC()))
+        criteria = joint_information_criteria(fit)
+        self.value_BIC.setText("%.2f" % criteria['BIC'] if 'BIC' in criteria else 'n.a.')
+        self.value_AIC.setText("%.2f" % criteria['AIC'] if 'AIC' in criteria else 'n.a.')
         
         #self.value_Ndata.setText("%s"%(len(fit.fit_results.jd))) 
-        self.value_Ndata.setText("%s"%(fit.fit_results.Ndata)) 
+      #  self.value_Ndata.setText("%s"%(fit.fit_results.Ndata)) 
         
-        self.value_DOF.setText("%s"%(int(fit.fit_results.stat.dof)))
+      #  self.value_DOF.setText("%s"%(int(fit.fit_results.stat.dof)))
 
         amd = rv.get_AMD_stab(fit)
 
@@ -1226,6 +1228,63 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         fit.ast_mu_delta_use[0]  = self.use_param_gui_ast[4].isChecked()          
         fit.ast_mu_alpha_dot_use[0]  = self.use_param_gui_ast[5].isChecked()        
         fit.ast_mu_delta_dot_use[0]  = self.use_param_gui_ast[6].isChecked()   
+
+    def update_priors_from_fit(self, n_sigma=3, round_digits=None):
+        """Apply fitted RV priors and synchronize only the changed GUI boxes."""
+        global fit
+        changes = fit.update_priors_from_fit(n_sigma, round_digits=round_digits, sync_gui=False)
+        self.sync_fit_priors_to_gui(fit, changes, round_digits)
+        return changes
+
+    def sync_fit_priors_to_gui(self, fit_object, changes, round_digits=None):
+        import math
+        global fit
+        if fit_object is not fit:
+            return
+        planet_columns = dict(K=0, P=1, e=2, w=3, M0=4, i=5, Node=6)
+        extra = dict(omega_dot=('om_dot_bounds_gui', 'om_dot_norm_pr_gui', 'om_dot_jeff_pr_gui'),
+                     e_sinw=('h_bounds_gui', 'h_norm_pr_gui', 'h_jeff_pr_gui'),
+                     e_cosw=('k_bounds_gui', 'k_norm_pr_gui', 'k_jeff_pr_gui'),
+                     lamb=('lambda_bounds_gui', 'lambda_norm_pr_gui', 'lambda_jeff_pr_gui'),
+                     rvoff=('offset_bounds_gui', 'offset_nr_priors_gui', 'offset_jeff_priors_gui'),
+                     jitt=('jitter_bounds_gui', 'jitter_nr_priors_gui', 'jitter_jeff_priors_gui'))
+        for change in changes:
+            name, slot = change['parameter'], change['slot']
+            if name in planet_columns:
+                row = 10 * slot + planet_columns[name]
+                bounds = self.param_bounds_gui[row]
+                normal = self.param_nr_priors_gui[row]
+                jeff = self.param_jeff_priors_gui[row]
+            elif name in extra:
+                bounds, normal, jeff = [getattr(self, group)[slot] for group in extra[name]]
+            else:
+                prefix = 'lin' if name == 'rv_lintr' else 'quad'
+                bounds = [getattr(self, prefix + '_trend_min'), getattr(self, prefix + '_trend_max')]
+                normal = [getattr(self, prefix + '_trend_mean'), getattr(self, prefix + '_trend_sigma'),
+                          getattr(self, 'use_' + prefix + '_tr_nr_pr')]
+                jeff = [None, None, getattr(self, 'use_' + prefix + '_tr_jeff_pr')]
+            for widget, value in zip(list(bounds)[:2] + list(normal)[:2],
+                                     list(change['bounds']) + [change['mean'], change['sigma']]):
+                blocked = widget.blockSignals(True)
+                # Preserve narrow uncertainty intervals (e.g. quadratic trends)
+                # instead of rounding their Gaussian width to zero in the GUI.
+                digits = min(15, max(0, int(math.ceil(-math.log10(change['sigma']))) + 3))
+                precision = round_digits if round_digits is not None else max(widget.decimals(), digits)
+                if name in ('P', 'K', 'e'):
+                    # Keep strict physical endpoints intact when Initialize
+                    # reads the displayed bounds, even with integer rounding.
+                    precision = max(precision, 1 if round_digits is not None else 8)
+                widget.setDecimals(precision)
+                # In particular, allow angular bounds across 0/360 without clipping.
+                widget.setMinimum(min(widget.minimum(), value))
+                widget.setMaximum(max(widget.maximum(), value))
+                widget.setValue(value)
+                widget.blockSignals(blocked)
+            for widget, enabled in ((normal[2], True), (jeff[2], False)):
+                blocked = widget.blockSignals(True)
+                widget.setChecked(enabled)
+                widget.blockSignals(blocked)
+        return changes
 
     def update_bounds(self):
         global fit
@@ -3593,6 +3652,36 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         return text_peaks , peaks_pos 
 
 
+######################## Fort. setup ######################################
+
+    def update_fortran_min(self):
+        global fit
+        # Sessions created before these controls existed receive the defaults.
+        for stage, default, combo, counter in (
+                (1, 'LM', self.comboBox_fortran_minimizer_1, self.f_LM_N_consecutive_iter_kep),
+                (2, 'Nelder-Mead', self.comboBox_fortran_minimizer_2, self.f_simplex_N_consecutive_iter_kep)):
+            method = getattr(fit, f'Fortran_min_use_{stage}', default)
+            count = getattr(fit, f'Fortran_min_N_use_{stage}', 1)
+            if method not in ('LM', 'Nelder-Mead'):
+                method = default
+            setattr(fit, f'Fortran_min_use_{stage}', method)
+            setattr(fit, f'Fortran_min_N_use_{stage}', int(count))
+            blocked = combo.blockSignals(True)
+            combo.setCurrentIndex(combo.findData(method))
+            combo.blockSignals(blocked)
+            blocked = counter.blockSignals(True)
+            counter.setValue(count)
+            counter.blockSignals(blocked)
+        self.update_RV_jitter_flag()
+
+    def check_fortran_min(self):
+        global fit
+        fit.Fortran_min_use_1 = self.comboBox_fortran_minimizer_1.currentData()
+        fit.Fortran_min_use_2 = self.comboBox_fortran_minimizer_2.currentData()
+        fit.Fortran_min_N_use_1 = int(self.f_LM_N_consecutive_iter_kep.value())
+        fit.Fortran_min_N_use_2 = int(self.f_simplex_N_consecutive_iter_kep.value())
+        self.update_RV_jitter_flag()
+
 
 
 ######################## SciPy setup ######################################
@@ -3607,6 +3696,23 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.comboBox_scipy_minimizer_1.setCurrentIndex(6)
         self.comboBox_scipy_minimizer_2.setCurrentIndex(0)
 
+
+
+    def init_fortran_combo(self):
+        for combo in (self.comboBox_fortran_minimizer_1, self.comboBox_fortran_minimizer_2):
+            combo.clear()
+            combo.addItem('Nelder-Mead (Simplex)', 'Nelder-Mead')
+            combo.addItem('Levenberg-Marquardt (LM)', 'LM')
+        self.f_LM_N_consecutive_iter_kep.setToolTip('Number of primary minimizer runs; 0 skips this stage.')
+        self.f_simplex_N_consecutive_iter_kep.setToolTip('Number of secondary minimizer runs; 0 skips this stage.')
+        self.amoeba_radio_button.setEnabled(False)
+        self.lm_radio_button.setEnabled(False)
+        self.label.hide()
+        self.amoeba_radio_button.hide()
+        self.lm_radio_button.hide()
+        self.amoeba_radio_button.setToolTip('Select the minimizers in Fortran opt. (RV only!).')
+        self.lm_radio_button.setToolTip('Select the minimizers in Fortran opt. (RV only!).')
+        self.update_fortran_min()
 
 
     def init_scipy_ttv_interpolation(self):
@@ -3629,6 +3735,97 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             fit.optim_AMD_stab   = False
             fit.optim_Nbody_stab = False
 
+    def suggest_scipy_settings(self, apply=False):
+        """Can be connected to a Designer button without adding widgets here."""
+        global fit
+        self.update_params()
+        self.check_scipy_min()
+        suggested = fit.suggest_scipy_settings(apply=apply)
+        if apply:
+            for name, key in (('TNC_maxiter', 'maxfun'), ('TNC_xtol', 'xtol'),
+                              ('TNC_ftol', 'ftol'), ('TNC_gtol', 'gtol'),
+                              ('TNC_maxcgit', 'maxCGit'), ('TNC_eta', 'eta'),
+                              ('TNC_stepmx', 'stepmx'), ('TNC_accuracy', 'accuracy'),
+                              ('TNC_minfev', 'minfev')):
+                if key in suggested:
+                    getattr(self, name).setValue(suggested[key])
+            self.TNC_eps.setValue(fit.TNC_eps_percent)
+            self.check_scipy_min()
+        return suggested
+
+    def init_scipy_Simplex_controls(self):
+        self._Simplex_defaults = {name: getattr(self, name).value() for name in (
+            'simplex_maxiter', 'simplex_maxfev', 'simplex_xtol', 'simplex_ftol',
+            'SciPy_initial_simplex_Step')}
+        self._Simplex_checkbox_defaults = {name: getattr(self, name).isChecked() for name in (
+            'SciPy_Adapt_Simplex_checkBox', 'SciPy_Boundary_Simplex_checkBox')}
+        self.SciPy_initial_simplex_Step.valueChanged.connect(self.check_scipy_min)
+        self.SciPy_Adapt_Simplex_checkBox.toggled.connect(self.check_scipy_min)
+        self.SciPy_Boundary_Simplex_checkBox.toggled.connect(self.check_scipy_min)
+        # Allow startup before a newly edited Designer file is regenerated.
+        auto = getattr(self, 'auto_set_scipy_Simplex', None)
+        if auto is None:
+            auto = getattr(self, 'auto_scipy_Simplex', None)
+        reset = getattr(self, 'reset_set_scipy_Simplex', None)
+        if reset is None:
+            reset = getattr(self, 'reset_scipy_Simplex', None)
+        if reset is None:
+            reset = getattr(self, 'reset_set_TNC_2', None)
+        if auto is not None:
+            auto.clicked.connect(self.auto_scipy_Simplex_settings)
+        if reset is not None:
+            reset.clicked.connect(self.reset_scipy_Simplex_settings)
+
+    def auto_scipy_Simplex_settings(self):
+        global fit
+        self.update_params()
+        self.SciPy_initial_simplex_Step.setValue(5.)
+        self.SciPy_Adapt_Simplex_checkBox.setChecked(True)
+        self.SciPy_Boundary_Simplex_checkBox.setChecked(True)
+        self.check_scipy_min()
+        suggested = fit.suggest_simplex_settings(apply=True)
+        for name, key in (('simplex_maxiter', 'maxiter'), ('simplex_maxfev', 'maxfev'),
+                          ('simplex_xtol', 'xatol'), ('simplex_ftol', 'fatol')):
+            getattr(self, name).setValue(suggested[key])
+        self.check_scipy_min()
+
+    def reset_scipy_Simplex_settings(self):
+        global fit
+        for name, value in self._Simplex_defaults.items():
+            getattr(self, name).setValue(value)
+        for name, value in self._Simplex_checkbox_defaults.items():
+            getattr(self, name).setChecked(value)
+        fit.Simplex_auto = False
+        self.check_scipy_min()
+
+    def update_scipy_Simplex_controls(self):
+        global fit
+        for name, attribute, setter, current in (
+                ('SciPy_initial_simplex_Step', 'Simplex_step_percent', 'setValue', 'value'),
+                ('SciPy_Adapt_Simplex_checkBox', 'Simplex_adaptive', 'setChecked', 'isChecked'),
+                ('SciPy_Boundary_Simplex_checkBox', 'Simplex_boundary_recovery', 'setChecked', 'isChecked')):
+            widget = getattr(self, name)
+            blocked = widget.blockSignals(True)
+            getattr(widget, setter)(getattr(fit, attribute, getattr(widget, current)()))
+            widget.blockSignals(blocked)
+
+    def init_TNC_controls(self):
+        self._TNC_defaults = {name: getattr(self, name).value() for name in (
+            'TNC_maxiter', 'TNC_maxfev', 'TNC_maxcgit', 'TNC_eta', 'TNC_stepmx', 'TNC_accuracy',
+            'TNC_minfev', 'TNC_ftol', 'TNC_xtol', 'TNC_gtol', 'TNC_eps')}
+        self.TNC_eps.setToolTip('Derivative step in percent of each parameter reference scale; '
+                               'angles use 360 degrees and eccentricity uses 1. Must be positive.')
+        self.auto_set_TNC.clicked.connect(lambda: self.suggest_scipy_settings(apply=True))
+        self.reset_set_TNC.clicked.connect(self.reset_TNC_settings)
+
+    def reset_TNC_settings(self):
+        global fit
+        for name, value in self._TNC_defaults.items():
+            getattr(self, name).setValue(value)
+        fit.SciPy_auto_scale = False
+        # Reset retains percentage semantics; restore the Designer defaults.
+        self.check_scipy_min()
+
     def check_scipy_min(self):
         global fit
 
@@ -3639,16 +3836,22 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         fit.SciPy_min_use_2 = fit.SciPy_min[ind_min_2]
         fit.SciPy_min_N_use_1 = int(self.scipy_N_consecutive_iter_1.value())
         fit.SciPy_min_N_use_2 = int(self.scipy_N_consecutive_iter_2.value())
+        fit.TNC_relative_eps = True
+        fit.TNC_eps_percent = self.TNC_eps.value()
+        fit.Simplex_step_percent = self.SciPy_initial_simplex_Step.value()
+        fit.Simplex_adaptive = self.SciPy_Adapt_Simplex_checkBox.isChecked()
+        fit.Simplex_boundary_recovery = self.SciPy_Boundary_Simplex_checkBox.isChecked()
+        fit.Simplex_custom_steps = True
 
         self.set_AMD_consttraints()
 
-        fit.Simplex_opt    = {'disp': True, 'maxiter': int(self.simplex_maxiter.value()), 'return_all': False, 'maxfev': int(self.simplex_maxfev.value()), 'xtol':self.simplex_xtol.value() , 'ftol': self.simplex_ftol.value() ,'adaptive':True }
-        fit.Powell_opt     = {'disp': True, 'return_all': False, 'maxiter': int(self.powell_maxiter.value()), 'direc': None, 'func': None, 'maxfev': int(self.powell_maxfev.value()), 'xtol': self.powell_xtol.value(), 'ftol': self.powell_ftol.value()}
+        fit.Simplex_opt    = {'disp': True, 'maxiter': int(self.simplex_maxiter.value()), 'return_all': False, 'maxfev': int(self.simplex_maxfev.value()), 'xatol':self.simplex_xtol.value() , 'fatol': self.simplex_ftol.value() ,'adaptive':fit.Simplex_adaptive }
+        fit.Powell_opt     = {'disp': True, 'return_all': False, 'maxiter': int(self.powell_maxiter.value()), 'direc': None, 'maxfev': int(self.powell_maxfev.value()), 'xtol': self.powell_xtol.value(), 'ftol': self.powell_ftol.value()}
         fit.CG_opt         = {'disp': True, 'gtol': self.cg_gtol.value(), 'eps': 1.4901161193847656e-08, 'return_all': False, 'maxiter': int(self.cg_maxiter.value()), 'norm': np.inf}
         fit.BFGS_opt       = {'disp': True, 'gtol': self.bfgs_gtol.value(), 'eps': 1.4901161193847656e-08, 'return_all': False, 'maxiter': int(self.bfgs_maxiter.value()), 'norm': np.inf}
         fit.Newton_cg_opt  = {'disp': True, 'xtol': self.Newton_cg_xtol.value(), 'eps': 1.4901161193847656e-08, 'return_all': False, 'maxiter': int(self.Newton_cg_maxiter.value())} 
         fit.L_BFGS_B_opt   = {'disp': True, 'maxcor': int(self.LBFGSB_maxcor.value()), 'ftol': 2.220446049250313e-09, 'gtol': self.LBFGSB_gtol.value(), 'eps': 1e-08, 'maxfun': int(self.LBFGSB_maxiter.value()), 'maxiter': int(self.LBFGSB_maxiter.value()), 'iprint': -1, 'maxls': 20}    
-        fit.TNC_opt        = {'disp': True, 'eps': self.TNC_eps.value(), 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': int(self.TNC_maxcgit.value()), 'maxiter': int(self.TNC_maxiter.value()), 'eta': self.TNC_eta.value(), 'stepmx':self.TNC_stepmx.value(), 'accuracy': self.TNC_accuracy.value(), 'minfev': self.TNC_minfev.value(), 'ftol': self.TNC_ftol.value(), 'xtol':self.TNC_ftol.value(), 'gtol': self.TNC_gtol.value(), 'rescale': -1 }  
+        fit.TNC_opt        = {'disp': True, 'eps': self.TNC_eps.value(), 'scale': None, 'offset': None, 'mesg_num': None, 'maxCGit': int(self.TNC_maxcgit.value()), 'maxfun': int(self.TNC_maxiter.value()), 'eta': self.TNC_eta.value(), 'stepmx':self.TNC_stepmx.value(), 'accuracy': self.TNC_accuracy.value(), 'minfev': self.TNC_minfev.value(), 'ftol': self.TNC_ftol.value(), 'xtol':self.TNC_xtol.value(), 'gtol': self.TNC_gtol.value(), 'rescale': -1 }  
        # fit.COBYLA_opt     = {'disp': True, 'rhobeg': self.cobyla_rhobeg.value(), 'maxiter':  int(self.cobyla_maxiter.value()), 'catol': self.cobyla_catol.value() }
         fit.SLSQP_opt      = {'disp': True, 'maxiter': int(self.slsqp_maxiter.value()),  'eps': 1.4901161193847656e-08, 'ftol': self.slsqp_ftol.value(), 'iprint': 1}
 
@@ -8478,7 +8681,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         minimize_fortran=True
 
-        if fit.model_saved == False or len(fit.fit_results.rv_model.jd) != fit.n_rvdata:
+        if fit.n_rvdata == 0:
+            fit._clear_rv_results()
+
+        if fit.n_rvdata > 0 and (fit.model_saved == False or
+                                len(fit.fit_results.rv_model.jd) != fit.n_rvdata):
             
             fit.model_npoints = self.points_to_draw_model.value()
             fit.model_max = self.model_max_range.value()
@@ -9367,7 +9574,6 @@ Transit duration: %s d
         global fit
 
                          
-        start_time = time.time()        
        # fit.run_stability_last_fit_params(timemax=self.max_time_of_evol.value(), timestep=self.time_step_of_evol.value(), integrator=integrator)      
        
         if arbitary == True:
@@ -9409,7 +9615,6 @@ Transit duration: %s d
 
         self.jupiter_push_vars()         
         
-        print("--- %s seconds ---" % (time.time() - start_time))          
 
 
 
@@ -9417,6 +9622,13 @@ Transit duration: %s d
         
     def worker_RV_fitting_complete(self):
         global fit  
+
+        if fit.bound_error:
+            fit.init_fit = False
+            self.statusBar().showMessage('')
+            self.get_error_msg(fit.bound_error_msg)
+            self.mute_buttons(trigger=True)
+            return
         
        # start_time =time.time()   
         fit=rv.get_xyz(fit)
@@ -9437,11 +9649,6 @@ Transit duration: %s d
         self.statusBar().showMessage('')
         #self.console_widget.print_text(str(fit.print_info(short_errors=False))) 
         #self.button_fit.setEnabled(True)  
-        if fit.bound_error == True:
-            self.get_error_msg(fit.bound_error_msg)
-            self.mute_buttons(trigger=True)
-            return
-        
         self.save_last_session("autosave/auto_save.ses")
         self.mute_buttons(trigger=True)
 #        print("--- %s seconds ---" % (time.time() - start_time))     
@@ -9479,7 +9686,13 @@ Transit duration: %s d
             doGP=self.do_RV_GP.isChecked()
             fit.init_fit= False  
        
-        if self.radioButton_fortran77.isChecked() and not self.do_RV_GP.isChecked():
+        if init:
+            # Initialization evaluates parameters even when the optimization
+            # backend is SciPy or the RV GP toggle is enabled.
+            worker2 = Worker(lambda: self.optimize_fit(ff=0, minimize_fortran=True,
+                                                       doGP=False, auto_fit=auto_fit))
+        elif self.radioButton_fortran77.isChecked() and not doGP:
+            self.check_fortran_min()
             self.statusBar().showMessage('Minimizing parameters....')    
              # Pass the function to execute
             worker2 = Worker(lambda:  self.optimize_fit(ff=ff,  minimize_fortran=True, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
@@ -9505,19 +9718,16 @@ Transit duration: %s d
      
     def update_RV_jitter_flag(self):
         global fit
+        # LM holds jitter fixed; enable its fit controls if an active stage can
+        # estimate it, or if SciPy/GP optimization is selected.
+        enabled = self.radioButton_scipy.isChecked() or self.do_RV_GP.isChecked()
+        if not enabled:
+            enabled = any(getattr(fit, f'Fortran_min_use_{stage}', default) == 'Nelder-Mead'
+                          and getattr(fit, f'Fortran_min_N_use_{stage}', 1) > 0
+                          for stage, default in ((1, 'LM'), (2, 'Nelder-Mead')))
+        for i in range(20):
+            self.use_data_jitter_gui[i].setEnabled(enabled)
 
-        if self.radioButton_scipy.isChecked():
-            for i in range(20):     
-                self.use_data_jitter_gui[i].setEnabled(True)
-        else:
-            if self.amoeba_radio_button.isChecked():
-                for i in range(20):     
-                    self.use_data_jitter_gui[i].setEnabled(True)
-            else:
-                for i in range(20):     
-                    self.use_data_jitter_gui[i].setEnabled(False)
-                
-  
     def update_dyn_kep_flag(self):
         global fit
 
@@ -9527,7 +9737,7 @@ Transit duration: %s d
             fit.mod_dynamical = False
             
           
-    def optimize_fit(self,ff=20,m_ln=True, doGP=False, gp_kernel_id=-1, auto_fit = False, minimize_fortran=True):  
+    def optimize_fit(self,ff=20,m_ln=True, doGP=False, gp_kernel_id=-1, auto_fit = False, minimize_fortran=True, discovery=False):
         global fit
         
          
@@ -9537,41 +9747,28 @@ Transit duration: %s d
         old_err4 = dill.copy(fit.param_errors.GP_params_errors)
  
     
-        if self.radioButton_Dynamical.isChecked():
-            #fit.mod_dynamical = True
-            f_kill = self.dyn_model_to_kill.value()
-            if ff > 1:
-                ff = 1 #TBF
-           # ff = 1
+        f_kill = (self.dyn_model_to_kill.value() if self.radioButton_Dynamical.isChecked()
+                  else self.kep_model_to_kill.value())
+        options = dict(fileinput=self.fortran_debug.isChecked(), outputfiles=[1, 1, 1],
+                       doGP=doGP, kernel_id=gp_kernel_id, minimize_fortran=minimize_fortran,
+                       fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),
+                       print_stat=False, eps=self.dyn_model_accuracy.value(),
+                       dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(),
+                       model_max=self.model_max_range.value(), model_min=self.model_min_range.value())
+        if discovery:
+            # Auto fit discovers planets with LM and fixed jitter, as before.
+            # Changing jitter here changes the residual GLS used for discovery.
+            fit.fitting(minimize_loglik=False, amoeba_starts=ff, **options)
+        elif minimize_fortran and not doGP and ff > 0 and not fit.init_fit:
+            fit.fitting_sequence(**options)
         else:
-            #fit.mod_dynamical = False
-            f_kill = self.kep_model_to_kill.value()    
-        
-        if minimize_fortran==False:
-            ff = 0 
+            # Initialization and adopted GLS parameters only evaluate the model.
+            # SciPy retains its own primary/secondary minimizer configuration.
+            fit.fitting(minimize_loglik=True if ff == 0 or not minimize_fortran or doGP else m_ln,
+                        amoeba_starts=0 if not minimize_fortran else ff, **options)
 
-        if m_ln == True and doGP == False:
-           # if ff > 0:        
-           #     """
-           #     run one time using the L-M method ignorring the jitter (for speed)
-          #      """
-               # fit.fitting(fileinput=False,outputfiles=[1,0,0], doGP=doGP, kernel_id=gp_kernel_id, minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=False,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
-            """
-            now run the amoeba code modeling the jitters
-            """
-#            fit.fitting(fileinput=False,outputfiles=[1,0,0], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value())
- 
-
-            fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
-
-        elif m_ln == True and doGP == True:       
-            fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran,  fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff,  print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
-
-        elif m_ln == False and  minimize_fortran==False:
-            fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=0, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
-
-        else:      
-            fit.fitting(fileinput=self.fortran_debug.isChecked(),outputfiles=[1,1,1], doGP=doGP,  kernel_id=gp_kernel_id,  minimize_fortran=minimize_fortran, fortran_kill=f_kill, timeout_sec=self.master_timeout.value(),minimize_loglik=m_ln,amoeba_starts=ff, print_stat=False,eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value())
+        if getattr(fit, 'bound_error', False):
+            return False
 
         if fit.doGP == True:
             rv.get_RV_gps_model(fit,get_lnl=fit.get_GP_lnl)
@@ -9595,7 +9792,6 @@ Transit duration: %s d
                 rv.phase_RV_planet_signal_old(fit,i)              
 
         if self.reset_errors_at_init.isChecked() == False and fit.init_fit == True:
-            print("Warning: 'Reset the errors to 0 when Initialize' is set to 'False', thus errors are not overwritten!")
         #    fit.param_errors.planet_params_errors = dill.copy(old_err1)
         #    fit.param_errors.offset_errors = dill.copy(old_err2)
         #    fit.param_errors.jitter_errors = dill.copy(old_err3)
@@ -9683,7 +9879,7 @@ Transit duration: %s d
         
         #self.dialog.statusBar().showMessage('Ready')
         #self.dialog_more_info.setFixedSize(500,450)
-        self.dialog_more_info.setGeometry(1,1, 490, 385)
+        self.dialog_more_info.setFixedSize(1050, 650)
         self.dialog_more_info.setWindowTitle('Fit stat. info')  
         #self.dialog.setGeometry(300, 300, 800, 800)
         #self.dialog_credits.acceptRichText(True)
@@ -9693,69 +9889,20 @@ Transit duration: %s d
         #text_info = """ (Work in progress) """
        # self.dialog_more_info.text.setText(text_info)     
          
-        text_info ="""
-Fit quality
-----------------------------------------------  
-max lnL = %.5f
-chi^2   = %.5f
-red. chi^2   = %.5f
-----------------------------------------------"""%(fit.loglik,fit.fit_results.chi2,fit.fit_results.reduced_chi2)   
+        rows, parameter_count, notes = collect_fit_statistics(fit, rv)
+        text_info = statistics_html(rows, parameter_count, notes)
 
         self.dialog_more_info.text.append(text_info)
 
-        if fit.type_fit["RV"] == True:
+        dataset_tables = dataset_statistics_html(fit)
+        if dataset_tables:
+            self.dialog_more_info.text.append(dataset_tables)
 
-            text_info = """
-            
-%s rms/wrms 
-----------------------------------------------"""%(self.data_str)
-            self.dialog_more_info.text.append(text_info)
-            
-            if fit.ndset != 0:
-                #for i in range(max(fit.fit_results.idset)+1):
-
-                for i in range(len(fit.rv_data_sets)):
-                    if len(fit.rv_data_sets[i]) == 0:
-                        continue         
-
-                    text_info = """ """   
-                    self.dialog_more_info.text.append(text_info)    
-                    rms = np.sqrt(np.average(fit.fit_results.o_c[fit.fit_results.idset==i]**2))
-                    text_wrm = "%s    rms = %.5f m/s"%(fit.rv_data_sets[i][4],rms)       
-                    self.dialog_more_info.text.append(text_wrm)
-                    wrms = np.sqrt(np.average(fit.fit_results.o_c[fit.fit_results.idset==i]**2, weights=1/fit.fit_results.rv_err[fit.fit_results.idset==i]))
-                    text_wrm = "%s wrms = %.5f m/s"%(fit.rv_data_sets[i][4],wrms)       
-                    self.dialog_more_info.text.append(text_wrm)        
-
-        if fit.type_fit["Transit"] == True:
- 
-            
-            text_info = """
-
-Transit data rms/wrms 
-----------------------------------------------"""   
-            self.dialog_more_info.text.append(text_info)
-
-            for i in range(20):
-                if len(fit.tra_data_sets[i]) == 0:
-                    continue
-                else:
-                    
-                    text_info = """ """   
-                    self.dialog_more_info.text.append(text_info)                
-                    rms = np.sqrt(np.average(fit.tra_data_sets[i][4]**2))
-                    text_wrm = "%s    rms = %.5f rel. flux"%(fit.tra_data_sets[i][-1],rms)       
-                    self.dialog_more_info.text.append(text_wrm)
-           
-                    wrms = np.sqrt(np.average(fit.tra_data_sets[i][4]**2,
-                                              weights=1/fit.tra_data_sets[i][2]))
-                    text_wrm = "%s wrms = %.5f rel. flux"%(fit.tra_data_sets[i][-1],wrms)       
-                    self.dialog_more_info.text.append(text_wrm)        
-
- 
         self.dialog_more_info.text.setReadOnly(True)
    
         self.dialog_more_info.show()
+        self.dialog_more_info.text.moveCursor(QtGui.QTextCursor.MoveOperation.Start)
+        self.dialog_more_info.text.verticalScrollBar().setValue(0)
 
 
 
@@ -9863,14 +10010,70 @@ in https://github.com/3fon3fonov/exostriker
         self.dialog_ast_help.text.setText(text) 
         
         text = """
-This module is experimental and under construction. Atrometry and Atrometry+RV modeling was 
-successfully tested on several exoplanet systems, but you must consider the notes below:
- 
-* (TBD, Hipparcos/Gaia astrometry)
+<p>This module is experimental and under construction. Astrometry and
+astrometry + RV modeling have been successfully tested on several exoplanet
+systems. Please consider the input conventions below.</p>
 
-If something is still unclear, or you are experiencing problems you are welcome to open an "issue" 
-in https://github.com/3fon3fonov/exostriker
+<h3>Common file structure and stellar-solution header</h3>
+<p>Load a whitespace-separated numeric text file (.d), not the raw Gaia XML.
+Comment lines start with #. Preserve the catalogue stellar-solution header:
+the reader obtains the reference position, parallax, proper motion and their
+uncertainties from it. A block contains a line of field names followed by a
+line of values; separate comment blocks with a line containing only #.</p>
+<pre># RAdeg DEdeg Plx pm_RA pm_DE e_RA e_DE e_Plx e_pmRA e_pmDE
+# 209.5063268875 31.6954997005 13.6241 -75.5523 17.9440 0.0067 0.0084 0.0111 0.0049 0.0053
+#</pre>
+<p>RAdeg and DEdeg are in degrees; Plx is in mas; pm_RA (the RA-star component,
+including cos(dec)) and pm_DE are in mas/year. Position uncertainties e_RA and
+e_DE are in mas, e_Plx in mas, and e_pmRA/e_pmDE in mas/year. Original Hipparcos
+headers may also contain catalogue identifiers, fit statistics, accelerations
+and other fields. Keep these fields and their values when supplied. Unavailable
+optional entries may be ---; the ten fields above must be numeric. Use ordinary
+decimal notation in this header: the current parser does not support scientific
+notation for header values.</p>
 
+<h3>Hipparcos intermediate astrometric data</h3>
+<pre>IORB  EPOCH  PARF  CPSI  SPSI  RES  SRES
+123   0.10   0.25  0.80  0.60  1.20  0.50</pre>
+<p>The column-name line shown above is explanatory; in the file it must start
+with #, or be omitted. The seven numeric columns are orbit number, epoch offset
+in Julian years from J1991.25, along-scan parallax factor, cosine and sine of the
+Hipparcos scan direction, along-scan residual in mas, and its uncertainty in mas.
+RES is the residual relative to the catalogue single-star solution in the header.
+CPSI and SPSI are direction cosines, not angles in degrees. Import this format
+through the Hipparcos data controls.</p>
+
+<h3>Gaia DR4 pre-release epoch astrometry</h3>
+<pre>transit_id  ccd  t_JD_TCB  centroid_AL  sigma_AL  parallax_factor_AL  scan_angle_deg  flag
+24595081341060059  1  2457039.1331012  129.1136  0.0913  0.6835  154.5962  0</pre>
+<p>Again, a column-name line must be commented with #. The eight columns are
+transit/visit ID, CCD number, observation time in JD on the TCB scale, along-scan
+centroid position in mas, its uncertainty in mas, dimensionless along-scan
+parallax factor, Gaia scan-position angle in degrees, and a flag (0 for retained
+AGIS measurements). The current importer reads columns 3–8, uses J2017.5 as the
+reference epoch, and converts the Gaia angle convention internally. Do not
+convert the angle yourself or supply reduced/MJD times. The current importer
+does not reject rows based on the final flag; export only selected valid rows.</p>
+<p>Use datafiles/Gaia_DR4_pre-release/DR4_AGIS_REDUCTION.py or
+DR4_AGIS_TIME_BINNING.py to extract a source from the pre-release XML. For the
+current Gaia fitting path, choose -m n (the with_sss export): the likelihood
+subtracts the header single-star solution internally. A -m y / no_sss export
+has already removed that solution and must not be used in this same path,
+otherwise the stellar solution would be subtracted twice.</p>
+<p>DR4_AGIS_TIME_BINNING.py accepts --bin-mode none (individual CCDs), visit
+(one weighted row per transit ID), or time --bin-days 1 (daily windows).
+Time windows are in TCB; --bin-days 0.25 gives six hours. In time mode,
+--max-scan-spread 1 keeps scan directions separated by more than one degree
+in different bins, so a day can have several rows. Averaged rows use ccd=0;
+the first contributing transit ID labels a time bin. Formal bin errors assume
+independent CCD measurements and do not include a correlated-noise floor.
+Compare coarse bins with the unbinned fit.</p>
+<p>Hipparcos and Gaia measurements are one-dimensional along-scan constraints,
+not independent RA and Dec measurements. Keep their catalogue reference
+solutions and scan geometry consistent with the data, and supply finite values
+and strictly positive uncertainties.</p>
+<p>If something is unclear or you encounter problems, please open an
+<a href="https://github.com/3fon3fonov/exostriker/issues">issue on GitHub</a>.</p>
 """
         self.dialog_ast_help.text.append(text)
         self.dialog_ast_help.text.setReadOnly(True)
@@ -10078,8 +10281,7 @@ will be highly appreciated!
 
             self.update_use_from_session()   
             self.update_use()                     
-            #self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
-            self.optimize_fit(20,m_ln=False,auto_fit = True) # first time -- LM
+            self.optimize_fit(20, auto_fit=True, discovery=True)
             
             
             #now inspect the residuals
@@ -10105,7 +10307,7 @@ will be highly appreciated!
                     self.update_use()
 
                    # fit.sort_by_period(reverse=False)
-                    self.optimize_fit(20,m_ln=False,auto_fit = True) 
+                    self.optimize_fit(20, auto_fit=True)
                     #self.button_auto_fit.setEnabled(True)     
                     return
                 else:    
@@ -10133,7 +10335,7 @@ will be highly appreciated!
                     self.update_use()
 
                     fit.sort_by_period(reverse=False)
-                    self.optimize_fit(20,m_ln=False,auto_fit = True)  
+                    self.optimize_fit(20, auto_fit=True, discovery=True)
 
                 #else:
                  #   continue
@@ -10167,16 +10369,18 @@ will be highly appreciated!
             self.update_use()
             fit.sort_by_period(reverse=False)
 
-            self.optimize_fit(20,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
+            self.optimize_fit(20, auto_fit=True)
  
         self.button_auto_fit.setEnabled(True)   
 
 
     def run_auto_fit(self):
-        global fit 
+        global fit
+        self.check_fortran_min() 
 
  
         self.radioButton_Keplerian.setChecked(True) # this is to be fixed! Only with keplerian fitting th autofit works fine so far.
+        fit.init_fit = False
         #self.button_auto_fit.setEnabled(False)
         self.mute_buttons(trigger=False)    
         
@@ -10325,8 +10529,12 @@ will be highly appreciated!
 
 
     def jupiter_push_vars(self):
+        import weakref
+        # Keep GUI synchronization outside the serializable fit object. Direct
+        # fit.update_priors_from_fit calls now also refresh the active GUI.
+        rv._fit_prior_gui_sync = weakref.WeakMethod(self.sync_fit_priors_to_gui)
         global fit
-        self.console_widget.push_vars({'fit':fit})
+        self.console_widget.push_vars({'fit':fit, 'set_priors_from_fit': self.update_priors_from_fit})
         
         #self.console_widget.push_vars({'pg':pg})    
 
@@ -11710,7 +11918,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
             if(init):
                 self.worker_RV_fitting(ff=0,m_ln=True, init = init )
             else:
-                self.worker_RV_fitting(m_ln=self.amoeba_radio_button.isChecked())
+                self.worker_RV_fitting()
 
         elif self.radioButton_transit.isChecked():
             fit.rtg = [False,False,True, self.do_tra_GP.isChecked()]
@@ -11793,15 +12001,15 @@ Please install via 'pip install ttvfast'.
 
         ######### TESTS!!!!!!!!!!!###########
 
-        if self.radioButton_RV.isChecked():
-            self.label.setEnabled(True)
-            self.amoeba_radio_button.setEnabled(True)
-            self.lm_radio_button.setEnabled(True)
-        else:
-            self.label.setEnabled(False)
-            self.amoeba_radio_button.setChecked(True)
-            self.amoeba_radio_button.setEnabled(False)
-            self.lm_radio_button.setEnabled(False)
+        self.label.setEnabled(False)
+        self.amoeba_radio_button.setEnabled(False)
+        self.lm_radio_button.setEnabled(False)
+        fortran_controls_enabled = (self.radioButton_RV.isChecked() and
+                                    self.radioButton_fortran77.isChecked() and
+                                    not self.do_RV_GP.isChecked())
+        for widget in (self.comboBox_fortran_minimizer_1, self.comboBox_fortran_minimizer_2,
+                       self.f_LM_N_consecutive_iter_kep, self.f_simplex_N_consecutive_iter_kep):
+            widget.setEnabled(fortran_controls_enabled)
 
         if self.radioButton_transit_RV.isChecked():
          
@@ -12540,7 +12748,7 @@ Please install via 'pip install ttvfast'.
     def get_latex_table(self):
         global fit
 
-        self.console_widget.print_text("rv.latex_pl_param_table(fit, width = 10, precision = 2, asymmetric = False, file_name='best_fit_param_table.tex',path='./')", before_prompt=False)
+        self.console_widget.print_text("rv.latex_pl_param_table(fit, width = 10, precision = 2, asymmetric = None, file_name='best_fit_param_table.tex',path='./')", before_prompt=False)
 #        self.console_widget.execute_command("rv.latex_pl_param_table(fit, width = 10, precision = 2, asymmetric = False, file_name='test.tex',path='./')")  
         self.tabWidget_helper.setCurrentWidget(self.tab_shells) 
         self.terminal_embeded.setCurrentWidget(self.console_widget)
@@ -12984,6 +13192,8 @@ Please install via 'pip install ttvfast'.
         self.force_copl_incl.setChecked(fit.copl_incl)
         self.force_sameRV_jit.setChecked(fit.jit_flag) 
         self.use_tdv.setChecked(fit.tdv)
+        self.update_fortran_min()
+        self.update_scipy_Simplex_controls()
               
         
     def check_settings(self):
@@ -13013,7 +13223,7 @@ Please install via 'pip install ttvfast'.
         self.update_use() 
         #self.update_params()  
        # self.update_gui_params()
-        self.optimize_fit(0,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
+        self.optimize_fit(0,m_ln=True,auto_fit = True)
     
  
     def adopt_RV_mlp_param(self):
@@ -13035,7 +13245,7 @@ Please install via 'pip install ttvfast'.
         self.update_use() 
         #self.update_params()  
        # self.update_gui_params()
-        self.optimize_fit(0,m_ln=self.amoeba_radio_button.isChecked(),auto_fit = True)
+        self.optimize_fit(0,m_ln=True,auto_fit = True)
     
 
 
@@ -14118,7 +14328,9 @@ Please install via 'pip install ttvfast'.
         self.amoeba_radio_button.toggled.connect(self.update_RV_jitter_flag)
         self.lm_radio_button.toggled.connect(self.update_RV_jitter_flag)       
         self.radioButton_scipy.toggled.connect(self.update_RV_jitter_flag)       
-        self.radioButton_fortran77.toggled.connect(self.update_RV_jitter_flag)       
+        self.radioButton_fortran77.toggled.connect(self.update_RV_jitter_flag)
+        self.radioButton_fortran77.toggled.connect(self.mute_boxes)
+        self.radioButton_scipy.toggled.connect(self.mute_boxes)       
 
         self.radioButton_Keplerian.toggled.connect(self.mute_boxes)
         
@@ -14323,10 +14535,17 @@ Please install via 'pip install ttvfast'.
         self.init_correlations_combo()
         self.init_activity_combo()
         self.init_scipy_combo()
+        self.init_TNC_controls()
+        self.init_scipy_Simplex_controls()
+        self.init_fortran_combo()
         self.init_gls_norm_combo()
 
         self.comboBox_scipy_minimizer_1.activated.connect(self.check_scipy_min)
         self.comboBox_scipy_minimizer_2.activated.connect(self.check_scipy_min)
+        self.comboBox_fortran_minimizer_1.activated.connect(self.check_fortran_min)
+        self.comboBox_fortran_minimizer_2.activated.connect(self.check_fortran_min)
+        self.f_LM_N_consecutive_iter_kep.valueChanged.connect(self.check_fortran_min)
+        self.f_simplex_N_consecutive_iter_kep.valueChanged.connect(self.check_fortran_min)
         self.gls_norm_combo.activated.connect(self.update_plots)
 
         self.init_ns_samp_opt_combo()
@@ -14353,6 +14572,8 @@ Please install via 'pip install ttvfast'.
         
 
         self.do_RV_GP.stateChanged.connect(self.set_use_RV_GP)
+        self.do_RV_GP.stateChanged.connect(self.update_RV_jitter_flag)
+        self.do_RV_GP.stateChanged.connect(self.mute_boxes)
         self.do_tra_GP.stateChanged.connect(self.set_use_tra_GP)
         
         
@@ -14743,5 +14964,3 @@ def main():
 #    sys.exit(app.exec())
 if __name__ == '__main__':
     main() 
-
-
