@@ -5330,8 +5330,9 @@ class signal_fit(object):
                     if value_line.startswith("#"):
                         value_line = value_line[1:]
                     values = value_line.split()
-                    if len(values) != len(headers):
-                        raise ValueError("Gaia standard solution header and value row have different lengths")
+                    # DR4 exports may append unused placeholders without column names.
+                    if len(values) < len(headers):
+                        raise ValueError("Gaia standard solution value row has fewer values than its header")
                     return {
                         key: value if value == "---" else float(value)
                         for key, value in zip(headers, values)
