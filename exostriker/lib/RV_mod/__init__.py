@@ -5316,69 +5316,29 @@ class signal_fit(object):
  
 # [np.arange(0,len(A8)),frac,A5,A3,A4,A8,A9])
 
-        def read_header_lines(file_path):
-            """
-            Extract all lines starting with '#' from a file.
-
-            Args:
-                file_path (str): Path to the file.
-
-            Returns:
-                list: A list of strings containing the header lines.
-            """
-            header_lines = []
+        def read_standard_solution(file_path):
+            """Read only the RAdeg header and its immediately following value row."""
             with open(file_path, 'r') as file:
                 for line in file:
-                    if line.strip().startswith("#"):
-                        header_lines.append(line.strip("#").strip())  # Remove '#' and extra whitespace
-            return header_lines
+                    if not line.lstrip().startswith("#"):
+                        continue
+                    headers = line.lstrip()[1:].split()
+                    if headers[:3] != ["RAdeg", "DEdeg", "Plx"]:
+                        continue
 
+                    value_line = next(file, "").strip()
+                    if value_line.startswith("#"):
+                        value_line = value_line[1:]
+                    values = value_line.split()
+                    if len(values) != len(headers):
+                        raise ValueError("Gaia standard solution header and value row have different lengths")
+                    return {
+                        key: value if value == "---" else float(value)
+                        for key, value in zip(headers, values)
+                    }
+            raise ValueError("Gaia standard solution header '# RAdeg DEdeg Plx ...' was not found")
 
-
-        def parse_hipparcos_data(lines):
-            """
-            Parses the Hipparcos data lines and returns a structured dictionary
-            containing all relevant blocks of headers and values.
-
-            Args:
-                lines (list): List of strings containing headers and data rows.
-
-            Returns:
-                dict: Dictionary mapping all headers to their corresponding values.
-            """
-            combined_data = {}  # Final dictionary to store all parsed data
-            headers = []
-            values = []
-
-            for line in lines:
-                if line.strip() == '':
-                    # End of a block, process it
-                    if headers and values:
-                        block_dict = dict(zip(headers, values))
-                        combined_data.update(block_dict)
-                    headers, values = [], []  # Reset for the next block
-                    continue
-
-                # Split the line into parts
-                parts = line.split()
-                
-                # Check if the line is data (numeric or "---") or headers
-                if all(x.replace('.', '', 1).replace('-', '', 1).isdigit() or x == "---" for x in parts):
-                    values = [float(x) if x.replace('.', '', 1).replace('-', '', 1).isdigit() else x for x in parts]
-                else:
-                    headers = parts
-
-            # Process the last block if not empty
-            if headers and values:
-                block_dict = dict(zip(headers, values))
-                combined_data.update(block_dict)
-
-            return combined_data
-
-                    
-        header = read_header_lines(path)
-         
-        gaia_header = parse_hipparcos_data(header)
+        gaia_header = read_standard_solution(path)
 
         #self.header = hipp_header
 
