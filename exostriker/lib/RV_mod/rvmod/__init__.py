@@ -15,6 +15,7 @@ import os
 import subprocess 
 
 from .Warning_log import Warning_log
+from ..jacobi import mass_a_from_jacobi_el
 
 
 _DLL_HANDLES = []
@@ -506,7 +507,10 @@ class Rvfit:
         # All four fit entry points share an API. Keplerian fits do not use
         # integration controls, and dynamical LM does not use the planet mask.
         # Keep other warnings enabled; do not add fake uses of these arguments.
-        flags = "-O3 -std=legacy -fmax-stack-var-size=2147483646 -Wall -Wno-unused-dummy-argument"
+        # Keep large fixed work arrays off small GUI worker-thread stacks.
+        # Simplex alone otherwise needs >630 KiB before nested solver calls.
+        # The native backend already uses shared COMMON state and is nonreentrant.
+        flags = "-O3 -std=legacy -fmax-stack-var-size=32768 -Wall -Wno-unused-dummy-argument"
         command = [sys.executable, "-m", "numpy.f2py", "-c"]
         env = os.environ.copy()
         if use_meson:
@@ -608,6 +612,7 @@ class Rvfit:
     # Run the amoeba code in Fortran
     # The options for mtype defines the type of run between Keplerian and N-body
     def run_amoeba(self, mtype, auto_update=False):
+        self.model_type = mtype
         # Invalidate the score before every attempt, including backend errors.
         self.loglik = -np.inf
         self.res = None
@@ -634,6 +639,7 @@ class Rvfit:
     # Run the Levenberg-Marquardt code in Fortran
     # The options for mtype defines the type of run between Keplerian and N-body
     def run_lm(self, mtype, auto_update=False):
+        self.model_type = mtype
         # Invalidate the score before every attempt, including backend errors.
         self.loglik = -np.inf
         self.res = None
@@ -730,6 +736,24 @@ class Rvfit:
                          "jacobi_major_ax": res[5][9 + (len(res[5]) - 9) // 2:],
                          "fit": res[6],"model_data":res[0]}
 
+        if getattr(self, 'model_type', None) == 'kep' and self.npl:
+            # Keplerian native outputs assume i=90; use the returned fitted
+            # inclinations before restoring the user's planet/slot order.
+            elements = np.array(res[2][:self.npl, :7, 0], copy=True)
+            if self.arguments[9] == 0:
+                elements = np.array(self.arguments[17][:self.npl, :7, 0], copy=True)
+            if self.arguments[18][5]:  # e*sin(omega), e*cos(omega), lambda
+                if self.arguments[9] == 0:
+                    hk = self.arguments[17][:self.npl, 14:16, 0]
+                    elements[:, 2] = np.hypot(hk[:, 0], hk[:, 1])
+                else:
+                    elements[:, 2] = np.hypot(elements[:, 2], elements[:, 3])
+            physical, axes = mass_a_from_jacobi_el(elements, self.npl, self.stellar_mass)
+            self.res_dict['jup_mass'] = np.zeros_like(self.res_dict['jup_mass'])
+            self.res_dict['jacobi_major_ax'] = np.zeros_like(self.res_dict['jacobi_major_ax'])
+            self.res_dict['jup_mass'][:self.npl] = physical
+            self.res_dict['jacobi_major_ax'][:self.npl] = axes
+
         # All variables below saves specific results of Fortran run
         self.res = self.res_dict.copy()
         self.jd = self.res_dict["jd"].copy()
@@ -823,6 +847,10 @@ class Rvfit:
 
             self.planet_params[0:self.npl * 7] = np.array(self.arguments[17])[:, :7, 0].reshape(self.npl * 7)
             self.planet_params_errors[0:self.npl * 7, :] = 0
+
+        if getattr(self, 'model_type', None) == 'kep' and self.npl:
+            self.mass = self.__unsort_planets_args(self.res_dict['jup_mass'])
+            self.a = self.__unsort_planets_args(self.res_dict['jacobi_major_ax'])
 
         self.model_data = self.res_dict["model_data"].copy().T
         self.fit = self.res_dict["fit"].copy()

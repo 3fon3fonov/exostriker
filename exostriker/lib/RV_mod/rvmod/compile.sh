@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")"
-FFLAGS="${FFLAGS:-} -O3 -std=legacy -frecursive -I'$(pwd)'" \
+FFLAGS="${FFLAGS:-} -O3 -std=legacy -fmax-stack-var-size=32768 -I'$(pwd)'" \
     "${PYTHON:-python3}" -m numpy.f2py -c --backend meson \
     -m rvmod_for rvmod_for.f95 --build-dir bdir \
     only: kepfit_amoeba kepfit_lm dynfit_amoeba dynfit_lm rv_capacity_check rv_get_status :

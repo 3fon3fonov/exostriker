@@ -20,6 +20,7 @@ class RVBank_window(QtWidgets.QDialog):
 
     def __init__(self, parent=None):
         super(RVBank_window, self).__init__(parent=parent)
+        self.setWindowTitle('RVBank data browser')
         vLayout = QtWidgets.QVBoxLayout(self)
         hLayout = QtWidgets.QHBoxLayout()
 
@@ -261,61 +262,7 @@ class RVBank_window(QtWidgets.QDialog):
 
 
     def info(self):
-        
-       # self.info_dialog.setGeometry(300, 300, 150, 150)
-        self.info_dialog.setFixedSize(550, 700)
-
-        self.info_dialog.setWindowTitle('RVBank info')
- 
-    
-        text = ''
-        self.info_dialog.text.setText(text) 
-        
-        text = """
-<br>A few things you need to know about the RVBank data:
-<br>
-<br>
-<br>The data are retrieved via an internet connection from the RVBank web pages: 
-<br>* <a href='http://www.mpia.de/homes/trifonov/HARPS_RVBank.html'>HARPS RVBank</a>, and
-<br>* <a href='http://www.mpia.de/homes/trifonov/HIRES_RVBank.html'>HIRES RVBank</a>
-<br>
-<br>Therefore, you need an internet connection for browsing the RVBank data.
-"""
-        self.info_dialog.text.append(text)
-
-
-        text = """
-<br>
-<br>
-If you made the use of the HARPS data for your paper, please cite:
-<br>* <a href='https://ui.adsabs.harvard.edu/abs/2020arXiv200105942T/abstract'> Trifonov et al. (2020)</a>
-<br>(also, please check for relevant references in the paper).
-<br>
-<br>If you made the use of the original HIRES data, please cite:
-<br>* <a href='https://ui.adsabs.harvard.edu/abs/2017AJ....153..208B/abstract'> Butler et al. (2017)</a>
-<br>
-<br>If you made the use of the NZP corrected HIRES data, please cite:
-<br>* <a href='https://ui.adsabs.harvard.edu/abs/2019MNRAS.484L...8T/abstract'> Tal-Or et al. (2019)</a>
-together with  <a href='https://ui.adsabs.harvard.edu/abs/2017AJ....153..208B/abstract'> Butler et al. (2017)</a>  
-<br>
-<br>
-<br>
-<br> Remember! 
-<br> 
-<br> * HARPS-DRS activity data such as FWHM, Contrast, and Bisector-span, originally do not have error bars! Thus, the Exo-Striker adopts "sigma=1 m/s" for CCF and FWHM data, and "sigma=0.01" for the Contrast data. 
-<br> 
-<br> * HIRES s- and h-index data originally do not have error bars! Thus, the Exo-Striker adopts "sigma"=0.001.
-<br> 
-<br> * Some HIRES h-index data appear as -1.0. This means that for the given epoch the h-index data was not possible to be computed.
-"""
-
- 
-        self.info_dialog.text.append(text)
-
-    
-        self.info_dialog.text.setReadOnly(True)
-        #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))
-        self.info_dialog.show()
+        self.info_dialog.show_help('rvbank')
 
 
 

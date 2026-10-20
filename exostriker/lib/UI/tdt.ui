@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>958</width>
-    <height>736</height>
+    <width>1005</width>
+    <height>776</height>
    </rect>
   </property>
   <property name="font">
@@ -34,6 +34,121 @@
      <property name="verticalSpacing">
       <number>2</number>
      </property>
+     <item row="11" column="0" colspan="2">
+      <widget class="QCheckBox" name="use_transit_mask">
+       <property name="toolTip">
+        <string>Exclude transits from the trend fit while retaining all light-curve points.</string>
+       </property>
+       <property name="text">
+        <string>Use transit mask</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="2">
+      <widget class="QLabel" name="mask_period_label">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Period [d]</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="2">
+      <widget class="QDoubleSpinBox" name="mask_period">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Orbital period in days.</string>
+       </property>
+       <property name="decimals">
+        <number>8</number>
+       </property>
+       <property name="minimum">
+        <double>0.000000010000000</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="value">
+        <double>1.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="7">
+      <widget class="QLabel" name="mask_t0_label">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>T0 [BJD]</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="7">
+      <widget class="QDoubleSpinBox" name="mask_t0">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Mid-transit epoch in the same time system as the plotted light curve.</string>
+       </property>
+       <property name="decimals">
+        <number>8</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="value">
+        <double>2457000.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="8">
+      <widget class="QLabel" name="mask_duration_label">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Mask width [d]</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="8">
+      <widget class="QDoubleSpinBox" name="mask_duration">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Full mask width in days, centered on each transit; must be shorter than the period.</string>
+       </property>
+       <property name="decimals">
+        <number>8</number>
+       </property>
+       <property name="minimum">
+        <double>0.000000010000000</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
+     </item>
      <item row="2" column="10">
       <widget class="QPushButton" name="try_button">
        <property name="font">
@@ -261,18 +376,6 @@
        </property>
        <property name="text">
         <string>Break tolerance</string>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="10">
-      <widget class="QPushButton" name="readme_button">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>READ ME</string>
        </property>
       </widget>
      </item>
@@ -826,6 +929,18 @@
        </property>
       </widget>
      </item>
+     <item row="11" column="10">
+      <widget class="QPushButton" name="readme_button">
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>READ ME</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>
@@ -838,9 +953,106 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>use_transit_mask</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mask_period</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>use_transit_mask</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mask_period_label</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>use_transit_mask</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mask_t0</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>use_transit_mask</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mask_t0_label</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>use_transit_mask</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mask_duration</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>use_transit_mask</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mask_duration_label</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_plot2"/>
   <buttongroup name="buttonGroup_trendOptions"/>
+  <buttongroup name="buttonGroup_plot2"/>
  </buttongroups>
 </ui>

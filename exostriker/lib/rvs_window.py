@@ -81,6 +81,7 @@ class RvsWindow(QtWidgets.QWidget, Ui_Rvs_dataWindow):
         # Create the main window
         self.ui = Ui_Rvs_dataWindow()
         self.ui.setupUi(self)
+        self.setWindowTitle('RV data options')
         self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
 
         self.sklearn_found = sklearn_found
@@ -571,7 +572,7 @@ class RvsWindow(QtWidgets.QWidget, Ui_Rvs_dataWindow):
 
     def print_stat_window(self):
 
-        self.stat_dialog.setFixedSize(550, 600)
+        self.stat_dialog.resize(550, 600)
         self.stat_dialog.setWindowTitle('Stat. info')
  
 
@@ -626,31 +627,7 @@ np.median(self.flux_err_o_c))
 
 
     def info(self):
-        
-        #self.info_dialog.setGeometry(300, 200, 150, 150)
-        self.info_dialog.setFixedSize(550, 600)
-        self.info_dialog.setWindowTitle('Options info')
- 
-    
-        text = ''
-        self.info_dialog.text.setText(text) 
-        
-        text = "" 
-        self.info_dialog.text.append(text)
-
-        text = """
-<br>
-<br>
-To be done
-<br> 
-"""
-        self.info_dialog.text.append(text)
-
-
-    
-        self.info_dialog.text.setReadOnly(True)
-        #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))
-        self.info_dialog.show()
+        self.info_dialog.show_help('rv')
 
 
     def update_labels(self):

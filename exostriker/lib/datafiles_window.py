@@ -14,7 +14,7 @@ class datafiles_window(QtWidgets.QDialog):
         super(datafiles_window, self).__init__()
 
         self.layout = QtWidgets.QVBoxLayout(self)
-        self.title = 'Select valid data file'
+        self.setWindowTitle('Data file inspector')
        # self.setFixedSize(550, 800)        
         self.widget=QtWidgets.QWidget(self)  # central widget
         self.setGeometry(1,1, 495, 325) 

@@ -1,5 +1,5 @@
 <!-- **T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations: -->
-**The Exo-Striker** 
+**The Exo-Striker — version 0.96.2**
 
 <p align="center">
   <img width="400" src="./exostriker/source/png/33_striker.png">
@@ -19,6 +19,14 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 **Documentation, Instructions, and Tutorials**
 
 * (Work in progress) documentation is available at [https://exostriker-manual.readthedocs.io](https://exostriker-manual.readthedocs.io/en/latest/).
+
+**Changes in 0.96.2**
+
+* RV-only Fortran fits support configurable primary and secondary LM/Simplex minimizers, with covariance-based Simplex uncertainty estimates for Keplerian and dynamical models.
+* SciPy TNC and Nelder–Mead have automatic settings and reset controls. Nelder–Mead also supports a parameter-scaled initial simplex, adaptive coefficients, and jitter boundary recovery.
+* Priors can be updated from fitted values and uncertainties, with optional rounding, physical bounds, and synchronization with the GUI.
+* LaTeX parameter and prior tables use consistent fit-specific labels and units. Parameter tables automatically distinguish symmetric and asymmetric errors; prior tables include Gaussian truncation bounds.
+* Fit and integration timing reports identify the minimizer or backend and display five decimal places.
 
 **Developer**
 
@@ -73,8 +81,7 @@ Just open an "Issue" on GitHub or send a PM to trifonov@mpia.de.
 
 **Installation**
  
-Python3.10+ is strongly recommended!!! The Exo-Striker works with older Python3 versions, and even Python2, but you will likely have problems with some dependencies, which you may have to solve.
-If your system Python3 is 3.10 and below, it is recommended to not upgrade the python3, but to install python3.1X alongside your system python3. 
+Python 3.10 or newer is recommended. The package declares Python 3.9 as its minimum; Python 2 is not supported. Use a separate environment instead of replacing your system Python.
 
 
 Apart from Python3.10+ make sure you have '**gcc**', '**gfortran**', and '**csh**',
@@ -88,6 +95,23 @@ does not want to compile!
 
 
 **Usage**
+
+In the embedded Python console, update priors using three times the fitted uncertainty and round to two decimal places:
+
+```python
+fit.update_priors_from_fit(n_sigma=3, round_digits=2)
+```
+
+This updates both the fit object and GUI boxes. Parameters with zero uncertainty are left unchanged. Physical bounds constrain eccentricity, periods, semi-amplitudes, jitters, and inclination; angular phase bounds may cross 0° and 360°.
+
+Export matching parameter and prior tables:
+
+```python
+rv.latex_pl_param_table(fit, asymmetric=None, file_name="best_fit_param_table.tex")
+rv.latex_prior_table(fit, file_name="prior_table.tex")
+```
+
+`asymmetric=None` selects uncertainty notation automatically for each value. Use `False` for symmetric notation with the larger error, or `True` for explicit upper/lower errors.
 
 * To load the GUI, on a bash shell type: 
 

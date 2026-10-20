@@ -74,13 +74,16 @@ from stdout_pipe import MyDialog, DebugDialog
 from print_info_window import print_info
 from fit_statistics import collect_fit_statistics, dataset_statistics_html, joint_information_criteria, statistics_html
 from symbols_window import show_symbols
+from color_dialog import choose_color
 from TESS_pdc_window import pdc
 
 from cornerplot_parameter_window import show_param_boxes
+from sample_correlation import SampleCorrelationController
 
 
 
 from datafiles_window import datafiles_window
+from dataset_names_window import DatasetNamesDialog, imported_dataset_names
 from RVBank_window import RVBank_window
 
 from detrend_window import DetrendWindow
@@ -969,12 +972,31 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     
     def update_a_mass(self):
         global fit
+        if not any(fit.type_fit.get(kind, False) for kind in ('RV', 'AST', 'TTV')):
+            return
+        try:
+            if fit.mod_dynamical:
+                masses, axes = fit.fit_results.mass, fit.fit_results.a
+            else:
+                masses, axes = rv.update_jacobi_masses(fit)
+        except ValueError as exc:
+            for i, active in enumerate(fit.use_planet):
+                self.param_a_gui[i].setText('undefined' if active else '0.00000')
+                self.param_mass_gui[i].setText('undefined' if active else '0.00000')
+                self.param_mass_gui[i].setToolTip(str(exc))
+                self.param_a_gui[i].setToolTip(str(exc))
+            return
+        for i in range(9):
+            self.param_a_gui[i].setText("%.5f" % axes[i])
+            self.param_mass_gui[i].setText("%.5f" % masses[i])
+            self.param_t_peri_gui[i].setText("%.4f" % fit.t_peri[i])
+            self.param_mass_gui[i].setToolTip(
+                'Planet mass [Mjup] at the fitted/assumed inclination. '
+                'At i=90 degrees this is the RV minimum mass.')
+            self.param_a_gui[i].setToolTip(
+                'Jacobi semi-major axis [AU], relative to the centre of mass '
+                'of the star and shorter-period planets, using their physical masses.')
 
-        if fit.type_fit["RV"] == True and len(fit.fit_results.a) != 0:
-            for i in range(9):
-                self.param_a_gui[i].setText("%.5f"%(fit.fit_results.a[i])) 
-                self.param_mass_gui[i].setText("%.5f"%(fit.fit_results.mass[i])) 
-                self.param_t_peri_gui[i].setText("%.4f"%(fit.t_peri[i]))
  
 
 
@@ -4117,45 +4139,60 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def get_RV_GLS_plot_color(self):
         global fit
 
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
+        colorz = choose_color(self, fit.gls_colors[0], 'RV periodogram color')
+        if not colorz.isValid():
+            return
         fit.gls_colors[0]=dill.copy(colorz.name())   
 
         self.update_RV_GLS_plots() 
 
 
+
     def get_RV_o_c_GLS_plot_color(self):
         global fit
         
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
+        colorz = choose_color(self, fit.gls_colors[1], 'RV residual periodogram color')
+        if not colorz.isValid():
+            return
         fit.gls_colors[1]=dill.copy(colorz.name())   
          
         self.update_RV_o_c_GLS_plots()  
+
         
     def get_RV_GLS_alias_color(self):
         global fit
 
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
+        colorz = choose_color(self, colors_GLS_alias[0], 'Periodogram alias color')
+        if not colorz.isValid():
+            return
         colors_GLS_alias[0]=dill.copy(colorz.name()) 
 
         self.update_RV_GLS_plots() 
         self.update_RV_o_c_GLS_plots() 
 
+
     def get_RV_MLP_alias_color(self):
         global fit
 
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
+        colorz = choose_color(self, colors_MLP_alias[0], 'Likelihood periodogram alias color')
+        if not colorz.isValid():
+            return
         colors_MLP_alias[0]=dill.copy(colorz.name()) 
 
         self.update_RV_MLP_plots() 
 
+
     def get_RV_jitter_color(self):
         global fit
 
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
+        colorz = choose_color(self, colors_RV_jitter[0], 'RV jitter color')
+        if not colorz.isValid():
+            return
         colors_RV_jitter[0]=dill.copy(colorz.name())   
 
         self.update_RV_plots() 
         self.update_extra_plots()
+
 
 
     def update_RV_GLS_plots(self):
@@ -4267,6 +4304,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def update_RV_plot(self):
         global fit, p1
 
+        if not fit.type_fit.get('RV', False):
+            return
+
         p1.plot(clear=True,)
  
         p1.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
@@ -4340,10 +4380,14 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         if self.RV_plot_cross_hair.isChecked():
             self.cross_hair(p1,log=False)  
+
             
             
     def update_RV_plot_o_c(self):
         global fit, p2
+
+        if not fit.type_fit.get('RV', False):
+            return
 
  
         p2.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
@@ -4424,6 +4468,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p2.autoRange()
 
 
+
 #    def control_RV_plot_add_o_c(self):
 
 #        if self.RV_plot_add_o_c.isChecked():
@@ -4435,6 +4480,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
     def update_RV_plots(self):
         global fit, p1,p2,p00,p01
+
+        if not fit.type_fit.get('RV', False):
+            return
 
         p1.plot(clear=True,)
         p2.plot(clear=True,)
@@ -4468,8 +4516,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
 
 
+
     def update_RV_plot_with_o_c(self):
         global fit, p1,p2,p00,p01,legend_RV
+
+        if not fit.type_fit.get('RV', False):
+            return
  
 
         #p1.scene().removeItem(-1)
@@ -4642,11 +4694,15 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
         if self.RV_plot_autorange.isChecked():
             p01.autoRange()
+
             
 
 
     def update_RV_plots_old(self):
         global fit, p1,p2
+
+        if not fit.type_fit.get('RV', False):
+            return
 
         p1.plot(clear=True,)
         p2.plot(clear=True,)
@@ -4795,6 +4851,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             
         if self.RV_plot_autorange.isChecked():
             p2.autoRange()
+
             
 
 
@@ -5110,50 +5167,59 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
     def init_correlations_combo(self):
         global fit
-        self.comboBox_corr_1.clear()
-        self.comboBox_corr_2.clear()
-        
-        self.initialize_corr_y = {k: [] for k in range(20)}
-        z = 0 
- 
-        if fit.ndset != 0:
+        def numeric_column(column):
+            # Session/editor columns can be object arrays containing vectors.
+            # Convert their numeric leaves, rather than casting vectors to scalars.
+            array = np.asarray(column)
+            if array.dtype == object and array.ndim:
+                parts = [numeric_column(value) for value in array]
+                return np.concatenate(parts) if parts else np.array([], dtype=float)
+            return np.asarray(array, dtype=float).reshape(-1)
 
-           # for i in range(max(fit.fit_results.idset)+1):
-            for i in range(len(fit.rv_data_sets)):
-                if len(fit.rv_data_sets[i]) == 0:
-                    continue         
+        # Imports refresh the buttons before the new model has been evaluated.
+        # Raw RVs are already available; residuals require matching model output.
+        rows = []
+        residuals = []
+        result = getattr(fit, 'fit_results', None)
+        model = getattr(result, 'rv_model', None)
+        ids = np.asarray(getattr(result, 'idset', []))
+        model_arrays = [np.asarray(getattr(model, name, []))
+                        for name in ('jd', 'rvs', 'rv_err', 'o_c')]
+        valid_model = (ids.ndim == 1 and ids.size > 0 and
+                       all(array.ndim == 1 and len(array) == len(ids)
+                           for array in model_arrays))
+        for i in range(len(fit.rv_data_sets)):
+            data = fit.rv_data_sets[i]
+            if not len(data):
+                continue
+            raw = np.stack([numeric_column(column) for column in data[:3]])
+            mask = ids == i
+            matches = (valid_model and np.count_nonzero(mask) == len(raw[0]) and
+                       np.array_equal(np.sort(model_arrays[0][mask]), np.sort(raw[0])))
+            if matches:
+                rows.append(('RV %s' % (i + 1), i + 1,
+                             np.array([array[mask] for array in model_arrays[:3]])))
+                residuals.append(('RV o-c %s' % (i + 1), i + 1,
+                                  np.array([model_arrays[0][mask], model_arrays[3][mask],
+                                            model_arrays[2][mask]])))
+            else:
+                rows.append(('RV %s' % (i + 1), i + 1, raw))
+        rows.extend(residuals)
+        for i in range(len(fit.act_data_sets)):
+            if len(fit.act_data_sets[i]):
+                rows.append(('act. data %s' % (i + 1), i + 1, fit.act_data_sets[i]))
 
-
-                self.comboBox_corr_1.addItem('RV %s'%(i+1),i+1) 
-                self.comboBox_corr_2.addItem('RV %s'%(i+1),i+1) 
-
-                self.initialize_corr_y[z] = np.array([fit.fit_results.rv_model.jd[fit.fit_results.idset==i],
-                                                      fit.fit_results.rv_model.rvs[fit.fit_results.idset==i], 
-                                                      fit.fit_results.rv_model.rv_err[fit.fit_results.idset==i]])  
-                z +=1
-
-
-            for i in range(len(fit.rv_data_sets)):
-                if len(fit.rv_data_sets[i]) == 0:
-                    continue         
-
-                self.comboBox_corr_1.addItem('RV o-c %s'%(i+1),i+1)         
-                self.comboBox_corr_2.addItem('RV o-c %s'%(i+1),i+1)  
-    
-                self.initialize_corr_y[z] = np.array([fit.fit_results.rv_model.jd[fit.fit_results.idset==i],
-                                                      fit.fit_results.rv_model.o_c[fit.fit_results.idset==i], 
-                                                      fit.fit_results.rv_model.rv_err[fit.fit_results.idset==i]]) 
-                z +=1                          
- 
-            
-        for i in range(0,20,1):         
-            if len(fit.act_data_sets[i]) != 0: 
-                self.comboBox_corr_1.addItem('act. data %s'%(i+1),i+1)
-                self.comboBox_corr_2.addItem('act. data %s'%(i+1),i+1)
-                
-                self.initialize_corr_y[z] = fit.act_data_sets[i] 
-                z +=1
-
+        combos = (self.comboBox_corr_1, self.comboBox_corr_2)
+        blocked = [combo.blockSignals(True) for combo in combos]
+        try:
+            self.initialize_corr_y = {i: row[2] for i, row in enumerate(rows)}
+            for combo in combos:
+                combo.clear()
+                for label, slot, _ in rows:
+                    combo.addItem(label, slot)
+        finally:
+            for combo, previous in zip(combos, blocked):
+                combo.blockSignals(previous)
 
 
     def update_correlations_data_plots(self):
@@ -5170,7 +5236,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         #p6.autoRange()     
  
         
-        if ind1 == -1 and ind2 == -1:
+        if ind1 < 0 or ind2 < 0:
         
             text_err = pg.TextItem('No Data!',color=(0,0,0))#, anchor=(0,0), border='w',color) #, fill=(0, 0, 255, 100))
             p6.addItem(text_err, ignoreBounds=True)   
@@ -5249,10 +5315,13 @@ Polyfit coefficients:
     def get_corr_color(self):
         global fit
         
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
+        colorz = choose_color(self, colors[0], 'Correlation plot color')
+        if not colorz.isValid():
+            return
         colors[0]=colorz.name()
 
         self.update_correlations_data_plots()
+
 
     def corr_plot_x_labels(self):
         global fit
@@ -6531,10 +6600,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit, colors_per_rat
         
         #colorz = QtWidgets.QColorDialog.getColor()
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
+        colorz = choose_color(self, colors_per_rat[0], 'Period ratio plot color')
+        if not colorz.isValid():
+            return
         colors_per_rat[0]=colorz.name()   
  
         self.plot_per_rat()
+
 
     def per_rat_plot_x_labels(self):
         global fit, p_per_ev
@@ -6671,10 +6743,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit, colors_delta_om
         
         #colorz = QtWidgets.QColorDialog.getColor()
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
+        colorz = choose_color(self, colors_delta_om[0], 'Apsidal difference plot color')
+        if not colorz.isValid():
+            return
         colors_delta_om[0]=colorz.name()   
  
         self.plot_delta_omega()
+
 
     def delta_omega_plot_x_labels(self):
         global fit, p17
@@ -6843,10 +6918,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def get_theta_color(self):
         global fit, colors_delta_om
         
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
+        colorz = choose_color(self, colors_theta[0], 'Resonant angle plot color')
+        if not colorz.isValid():
+            return
         colors_theta[0]=colorz.name()   
  
         self.plot_theta()
+
 
     def theta_plot_x_labels(self):
         global fit, p18
@@ -7095,7 +7173,15 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def update_extra_plots(self):
         global fit
 
+        # Selecting a non-RV mode does not invalidate the displayed result.
+        # Clear it explicitly when that mode finishes a fit/initialization.
+        if not fit.type_fit.get('RV', False):
+            return
         self.comboBox_extra_plot.clear()
+        if fit.npl == 0:
+            self.clear_RV_phase_plots()
+            return
+        self.comboBox_extra_plot.setEnabled(True)
 
         if fit.npl != 0:
             for i in range(9):
@@ -7105,8 +7191,28 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 #self.comboBox_extra_plot.addItem('pl %.3f'%(fit.P[i]),i+1)
                 
                 #self.comboBox_extra_plot.setCurrentIndex(i) 
-            self.phase_plots(1)
+            self.phase_plots(self.comboBox_extra_plot.itemData(0))
         self.comboBox_extra_plot.activated.connect(self.handleActivated)   
+
+    def clear_RV_fit_plots(self):
+        """Remove displayed RV results after a successful non-RV fit/Init."""
+        global p1, p2, p00, p01, legend_RV
+        # Clear both standalone panels and the embedded RV/O-C view, even
+        # when hold-old-plot is enabled or the embedded view is detached.
+        for panel in (p1, p2, p00, p01):
+            panel.clear()
+        legend_RV.clear()
+        legend_RV.setVisible(False)
+        self.clear_RV_phase_plots()
+
+    def clear_RV_phase_plots(self):
+        global pe0, pe1, legend_RV_phased
+        pe0.clear()
+        pe1.clear()
+        legend_RV_phased.clear()
+        legend_RV_phased.setVisible(False)
+        self.comboBox_extra_plot.clear()
+        self.comboBox_extra_plot.setEnabled(False)
 
  
     def handleActivated(self, index):
@@ -7163,6 +7269,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
     def phase_plots(self, ind, offset = 0):
         global fit, colors,pe0,pe1,legend_RV_phased
+
+        if not fit.type_fit.get('RV', False):
+            return
 
        # pe.plot(clear=True,)
         pe0.plot(clear=True,)
@@ -7687,12 +7796,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.check_type_fit()
             self.mute_boxes()
 
-            self.init_fit()
             self.update_use_from_session()
             self.update_use()
             self.update_params()
             self.update_RV_file_buttons()
             self.update_act_file_buttons()
+            self.initialize_imported_dataset('RV')
+
 
     def showDialog_MAROONX_input_file(self):
         global fit, ses_list
@@ -7717,12 +7827,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.check_type_fit()
             self.mute_boxes()
             self.update_bounds()
-            self.init_fit()
             self.update_use_from_session()
             self.update_use()
             self.update_params()
             self.update_RV_file_buttons()
             self.update_act_file_buttons()
+            self.initialize_imported_dataset('RV')
+
 
 
 
@@ -7927,7 +8038,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             ################################################################################
 
 
+            previous_dataset = fit.rv_data_sets[but_ind-1]
             fit.add_dataset(self.file_from_path(input_files[0]), str(input_files[0]),0.0,1.0, index =but_ind-1)
+            if fit.rv_data_sets[but_ind-1] is previous_dataset:
+                return
+
             #### new stuf ####
             #fit.add_rv_dataset('test', str(input_files[0]),rv_idset =but_ind-1)
             ##################
@@ -7937,13 +8052,14 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.check_type_fit()
             self.mute_boxes()
             
-            self.init_fit()
             self.update_use_from_session()
             self.update_use()
             self.update_params()
             self.update_RV_file_buttons()
+            self.initialize_imported_dataset('RV')
 
         self.plot_tabs.setCurrentWidget(self.tab_timeseries_RV)
+
 
 
     def remove_RV_file(self):
@@ -7977,6 +8093,49 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.update_gui_params()
         self.update_params()
         self.update_RV_file_buttons()
+
+    def initialize_imported_dataset(self, kind):
+        """Evaluate newly imported observations in their model mode, once."""
+        global fit
+        fit.type_fit.update({name: name == kind for name in ('RV', 'Transit', 'TTV', 'AST')})
+        self.check_type_fit()
+        self.mute_boxes()
+        self.update_params()
+        if kind == 'RV':
+            # Same-size replacements also require a fresh model.
+            fit.model_saved = False
+        self.fit_dispatcher(init=True)
+
+    def edit_dataset_names(self):
+        global fit
+        dialog = DatasetNamesDialog(fit, self)
+        if dialog.exec() != QtWidgets.QDialog.DialogCode.Accepted or not dialog.changed_datasets:
+            return
+        self.refresh_dataset_names(dialog.changed_datasets)
+
+    def refresh_dataset_names(self, changed):
+        global fit
+        # Update names and existing plots without the dataset-import Init workflow.
+        for _, attribute, slot, name_index, _, group_name, record in imported_dataset_names(fit):
+            if attribute not in changed:
+                continue
+            button = getattr(self, group_name).button(slot + 1)
+            if button is not None:
+                button.setText(str(record[name_index]))
+        if 'rv_data_sets' in changed:
+            self.init_correlations_combo()
+            if fit.type_fit.get('RV', False):
+                self.update_RV_plots()
+                selected = self.comboBox_extra_plot.currentIndex()
+                if selected >= 0:
+                    self.phase_plots(self.comboBox_extra_plot.itemData(selected))
+        if 'tra_data_sets' in changed and fit.type_fit.get('Transit', False):
+            self.update_transit_plots()
+        if 'ttv_data_sets' in changed and fit.type_fit.get('TTV', False):
+            self.update_ttv_plots()
+        if any(name in changed for name in ('ast_data_sets', 'ast_data_sets_hipp', 'ast_data_sets_gaia')):
+            if fit.type_fit.get('AST', False):
+                self.update_ast_plots()
 
     def update_RV_file_buttons(self):
         global fit, colors
@@ -8016,6 +8175,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         if str(input_files[0]) != '':
             
             
+            previous_dataset = fit.tra_data_sets[but_ind-1]
             if input_files[0].endswith(".fits"):
                 
                 but_n = self.tess_pdc_dialog.get_radio()
@@ -8029,6 +8189,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 fit.add_transit_dataset('test', str(input_files[0]),tra_idset =but_ind-1, PDC = PDC)
             else:
                 fit.add_transit_dataset('test', str(input_files[0]),tra_idset =but_ind-1)
+
+            if fit.tra_data_sets[but_ind-1] is previous_dataset:
+                return
 
             self.update_use_from_session()
             self.update_use()
@@ -8049,8 +8212,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             
             self.update_params()
             self.update_tra_file_buttons()
+            self.initialize_imported_dataset('Transit')
             #self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(input_files[0]))
             self.plot_tabs.setCurrentWidget(self.tab_timeseries_tra)
+
  
 
     def remove_tra_file(self):
@@ -8069,6 +8234,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.check_type_fit()
         self.mute_boxes()
         self.update_tra_file_buttons()
+        if any(len(data) for data in fit.tra_data_sets.values()):
+            self.initialize_imported_dataset('Transit')
+
 
 
     def update_tra_file_buttons(self):
@@ -8094,8 +8262,6 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         if len([x for x in range(20) if len(fit.tra_data_sets[x]) != 0]) == 0:
             if fit.type_fit["Transit"] == True:
                 self.update_transit_plots()
-        else:
-            self.worker_transit_fitting(ff=0)
 #        self.update_transit_plots()
  
 
@@ -8168,13 +8334,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         if str(input_files[0]) != '':
  
+            previous_dataset = fit.ttv_data_sets[but_ind-1]
             fit.add_ttv_dataset('test', str(input_files[0]), ttv_idset =but_ind-1, planet =planet_N, use = use_planet_N )
-            self.init_fit()
             #self.update_use_from_session()
             #self.update_use()
             #self.update_params()
             
             
+            if fit.ttv_data_sets[but_ind-1] is previous_dataset:
+                return
+
             fit.type_fit["RV"] = False
             fit.type_fit["Transit"] = False
             fit.type_fit["TTV"] = True
@@ -8184,8 +8353,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             
             self.update_params()
             self.update_ttv_file_buttons()
+            self.initialize_imported_dataset('TTV')
  
             self.plot_tabs.setCurrentWidget(self.tab_timeseries_ttv)
+
 
 
     def remove_ttv_file(self):
@@ -8274,13 +8445,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         if str(input_files[0]) != '':
  
+            previous_dataset = fit.ast_data_sets[but_ind-1]
             fit.add_ast_dataset('test', str(input_files[0]), ast_idset =but_ind-1, planet =planet_N, use = use_planet_N )
-            self.init_fit()
             #self.update_use_from_session()
             #self.update_use()
             #self.update_params()
             
             
+            if fit.ast_data_sets[but_ind-1] is previous_dataset:
+                return
+
             fit.type_fit["RV"] = False
             fit.type_fit["Transit"] = False
             fit.type_fit["TTV"] = False
@@ -8290,8 +8464,12 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             
             self.update_params()
             self.update_ast_file_buttons()
+            self.use_imaging_ast.setChecked(True)
+            self.initialize_imported_dataset('AST')
  
             self.plot_tabs.setCurrentWidget(self.tab_timeseries_ast)
+
+
 
 
     def remove_ast_file(self):
@@ -8426,17 +8604,20 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         if str(input_files[0]) != '':
  
+            previous_dataset = fit.ast_data_sets_hipp[but_ind-1]
             fit.add_ast_dataset_hipp('test', str(input_files[0]), ast_idset =but_ind-1, planet =planet_N, use = use_planet_N )
  
             
             self.check_std_ast_solution()
             print("Test")
-            self.init_fit()
             #self.update_use_from_session()
             #self.update_use()
             #self.update_params()
             
             
+            if fit.ast_data_sets_hipp[but_ind-1] is previous_dataset:
+                return
+
             fit.type_fit["RV"] = False
             fit.type_fit["Transit"] = False
             fit.type_fit["TTV"] = False
@@ -8446,8 +8627,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             
             self.update_params()
             self.update_ast_file_buttons_2()
+            self.use_hipp_gaia_ast.setChecked(True)
+            # Avoid an intermediate redraw before Init prepares the new model.
+            was_blocked = self.radioButton_show_gaia.blockSignals(True)
+            self.radioButton_show_hipp.setChecked(True)
+            self.radioButton_show_gaia.blockSignals(was_blocked)
+            self.initialize_imported_dataset('AST')
  
             self.plot_tabs.setCurrentWidget(self.tab_timeseries_ast)
+
+
 
 
     def remove_ast_file_2(self):
@@ -8562,17 +8751,20 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         if str(input_files[0]) != '':
  
+            previous_dataset = fit.ast_data_sets_gaia[but_ind-1]
             fit.add_ast_dataset_gaia('test', str(input_files[0]), ast_idset =but_ind-1, planet =planet_N, use = use_planet_N )
  
             
             self.check_std_ast_solution()
             
-            self.init_fit()
             #self.update_use_from_session()
             #self.update_use()
             #self.update_params()
             
             
+            if fit.ast_data_sets_gaia[but_ind-1] is previous_dataset:
+                return
+
             fit.type_fit["RV"] = False
             fit.type_fit["Transit"] = False
             fit.type_fit["TTV"] = False
@@ -8582,8 +8774,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             
             self.update_params()
             self.update_ast_file_buttons_3()
+            self.use_hipp_gaia_ast.setChecked(True)
+            # Avoid an intermediate redraw before Init prepares the new model.
+            was_blocked = self.radioButton_show_gaia.blockSignals(True)
+            self.radioButton_show_gaia.setChecked(True)
+            self.radioButton_show_gaia.blockSignals(was_blocked)
+            self.initialize_imported_dataset('AST')
  
             self.plot_tabs.setCurrentWidget(self.tab_timeseries_ast)
+
+
 
 
     def remove_ast_file_3(self):
@@ -8684,7 +8884,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         if fit.n_rvdata == 0:
             fit._clear_rv_results()
 
-        if fit.n_rvdata > 0 and (fit.model_saved == False or
+        if fit.type_fit.get('RV', False) and fit.n_rvdata > 0 and (fit.model_saved == False or
                                 len(fit.fit_results.rv_model.jd) != fit.n_rvdata):
             
             fit.model_npoints = self.points_to_draw_model.value()
@@ -8725,11 +8925,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
        # self.run_gls()
        # self.run_gls_o_c()
         
+        if not fit.type_fit.get('RV', False):
+            self.clear_RV_fit_plots()
+
         self.update_plots() 
         #self.update_transit_plots() 
         self.plot_evol_all()
 
         self.jupiter_push_vars() 
+
+
 
 
     def add_jitter(self, errors, ind):
@@ -9143,11 +9348,14 @@ Transit duration: %s d
           #  self.run_gls_o_c()
             self.update_plots()
         else:
+            self.clear_RV_fit_plots()
             self.update_transit_plots()
         self.jupiter_push_vars() 
 
         self.save_last_session("autosave/auto_save.ses")
         self.mute_buttons(trigger=True)
+
+
 
 
     def check_model_fact(self):
@@ -9267,11 +9475,16 @@ Transit duration: %s d
                     rv.phase_RV_planet_signal_old(fit,i)  
            # self.run_gls()
            # self.run_gls_o_c()
+        if not fit.type_fit.get('RV', False):
+            self.clear_RV_fit_plots()
+
         self.update_plots()
         self.jupiter_push_vars()
         
         self.save_last_session("autosave/auto_save.ses")
         self.mute_buttons(trigger=True)
+
+
 
 
     def worker_ttv_fitting(self, ff=1, auto_fit = False ):
@@ -9393,11 +9606,16 @@ Transit duration: %s d
                     rv.phase_RV_planet_signal_old(fit,i)  
            # self.run_gls()
            # self.run_gls_o_c()
+        if not fit.type_fit.get('RV', False):
+            self.clear_RV_fit_plots()
+
         self.update_plots()
         self.jupiter_push_vars()
         
         self.save_last_session("autosave/auto_save.ses")
         self.mute_buttons(trigger=True)
+
+
  
     def worker_ast_fitting(self, ff=1, auto_fit = False ):
         global fit  
@@ -9643,6 +9861,10 @@ Transit duration: %s d
             
             
         self.update_a_mass()
+        if not fit.type_fit.get('RV', False):
+            self.clear_RV_fit_plots()
+
+        self.init_correlations_combo()
         self.update_plots()
         self.jupiter_push_vars() 
         #print("--- %s seconds ---" % (time.time() - start_time))     
@@ -9651,6 +9873,8 @@ Transit duration: %s d
         #self.button_fit.setEnabled(True)  
         self.save_last_session("autosave/auto_save.ses")
         self.mute_buttons(trigger=True)
+
+
 #        print("--- %s seconds ---" % (time.time() - start_time))     
 
     def worker_RV_fitting(self, ff=20, m_ln=True, auto_fit = False, init = False):
@@ -9782,7 +10006,7 @@ Transit duration: %s d
         #sorted_periods = sorted([k for k, v in fit.P.items() if fit.use_planet[k]], key=fit.P.get) 
         for i in range(9):
 
-            if not bool(fit.use_planet[i]):
+            if not fit.type_fit.get('RV', False) or not bool(fit.use_planet[i]):
                 continue
             try:
                 #print(fit.P[i], i)
@@ -9831,7 +10055,7 @@ Transit duration: %s d
 
     def print_chi_table(self):
         #self.dialog.statusBar().showMessage('Ready')
-        self.dialog_chi_table.setFixedSize(900,350)
+        self.dialog_chi_table.resize(900,350)
         self.dialog_chi_table.setWindowTitle('Confidence intervals table')  
         #self.dialog.setGeometry(300, 300, 800, 800)
         #self.dialog_credits.acceptRichText(True)
@@ -9878,8 +10102,8 @@ Transit duration: %s d
         global fit 
         
         #self.dialog.statusBar().showMessage('Ready')
-        #self.dialog_more_info.setFixedSize(500,450)
-        self.dialog_more_info.setFixedSize(1050, 650)
+        #self.dialog_more_info.resize(500,450)
+        self.dialog_more_info.resize(1050, 650)
         self.dialog_more_info.setWindowTitle('Fit stat. info')  
         #self.dialog.setGeometry(300, 300, 800, 800)
         #self.dialog_credits.acceptRichText(True)
@@ -9907,102 +10131,26 @@ Transit duration: %s d
 
 
     def print_GP_info(self):
-        self.dialog_GP_help.setFixedSize(600, 600)
-        self.dialog_GP_help.setWindowTitle('GP modeling help')
-
-        text = ''
-        self.dialog_GP_help.text.setText(text) 
-
-
-        text = """
-<br>
-<br>
-The GP parameters are explained in the <a href='https://ui.adsabs.harvard.edu/abs/2017AJ....154..220F/abstract'> 'Celerite' paper</a>
-<br>  
-<br>
-<br> If you made the use of these GP kernels for your paper, please also cite: <a href='https://ui.adsabs.harvard.edu/abs/2017AJ....154..220F/abstract'> Foreman-Mackey et al. (2017)</a>
-"""
-
-        self.dialog_GP_help.text.append(text)
-        self.dialog_GP_help.text.setReadOnly(True)
-        self.dialog_GP_help.show()
+        self.dialog_GP_help.show_help('gp')
 
 
 
     def print_mcmc_info(self):
-        self.dialog_mcmc_help.setFixedSize(600, 600)
-        self.dialog_mcmc_help.setWindowTitle('MCMC help')
-
-        text = ''
-        self.dialog_mcmc_help.text.setText(text) 
-
-
-        text = """
-<br>
-<br>
-The MCMC is done via the 'emcee' packade. The parameters and options are explained in the 'emcee: The MCMC Hammer' <a href='https://emcee.readthedocs.io/en/stable/'> user guide</a>.
-<br>  
-<br>
-<br> If you made the use of the Exo-Striker's MCMC for your paper, please cite: <a href='https://ui.adsabs.harvard.edu/abs/2013PASP..125..306F/abstract'> Foreman-Mackey et al. (2013)</a>, and references therein.
-"""
-
-        self.dialog_mcmc_help.text.append(text)
-        self.dialog_mcmc_help.text.setReadOnly(True)
-        self.dialog_mcmc_help.show()
+        self.dialog_mcmc_help.show_help('mcmc')
 
     def print_ns_info(self):
-        self.dialog_ns_help.setFixedSize(600, 600)
-        self.dialog_ns_help.setWindowTitle('Nested Sampling help')
-
-        text = ''
-        self.dialog_ns_help.text.setText(text) 
-
-
-        text = """
-<br>
-<br>
-The Nested Sampling is done via the 'dynesty' packade. The parameters and options are explained in the 'dynesty' <a href='https://dynesty.readthedocs.io/en/latest/'> user guide</a>.
-<br>  
-<br>
-<br> If you made the use of the Exo-Striker's Nested Sampling for your paper, please also cite: <a href='https://ui.adsabs.harvard.edu/abs/2020MNRAS.493.3132S/abstract'> Speagle (2019)</a>, and references therein.
-"""
-
-        self.dialog_ns_help.text.append(text)
-        self.dialog_ns_help.text.setReadOnly(True)
-        self.dialog_ns_help.show()
+        self.dialog_ns_help.show_help('ns')
 
 
     def print_ast_info(self, image=False):
-        #self.dialog.statusBar().showMessage('Ready')
-        self.dialog_ast_help.setFixedSize(800, 800)
-        self.dialog_ast_help.setWindowTitle('Ast. modeling help')  
-        #self.dialog.setGeometry(300, 300, 800, 800)
-        #self.dialog_credits.acceptRichText(True)
-        
-        text = ''
-        self.dialog_ast_help.text.setText(text) 
-        
-        text = """
-This module is experimental and under construction. Atrometry and Atrometry+RV modeling was 
-successfully tested on several exoplanet systems, but you must consider the notes below:
- 
-* (TBD)
-
-If something is still unclear, or you are experiencing problems you are welcome to open an "issue" 
-in https://github.com/3fon3fonov/exostriker
-
-"""
-        self.dialog_ast_help.text.append(text)
-        self.dialog_ast_help.text.setReadOnly(True)
-        #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
-        self.dialog_ast_help.show()
+        self.dialog_ast_help.show_help('astrometry')
 
 
 
     def print_ast_info_2(self, image=False):
         #self.dialog.statusBar().showMessage('Ready')
-        self.dialog_ast_help.setFixedSize(800, 800)
-        self.dialog_ast_help.setWindowTitle('Ast. modeling help')  
+        self.dialog_ast_help.resize(800, 800)
+        self.dialog_ast_help.setWindowTitle('Hipparcos and Gaia astrometry — help')
         #self.dialog.setGeometry(300, 300, 800, 800)
         #self.dialog_credits.acceptRichText(True)
         
@@ -10010,6 +10158,7 @@ in https://github.com/3fon3fonov/exostriker
         self.dialog_ast_help.text.setText(text) 
         
         text = """
+<h1>Hipparcos and Gaia astrometry</h1>
 <p>This module is experimental and under construction. Astrometry and
 astrometry + RV modeling have been successfully tested on several exoplanet
 systems. Please consider the input conventions below.</p>
@@ -10056,8 +10205,11 @@ convert the angle yourself or supply reduced/MJD times. The current importer
 does not reject rows based on the final flag; export only selected valid rows.</p>
 <p>Use datafiles/Gaia_DR4_pre-release/DR4_AGIS_REDUCTION.py or
 DR4_AGIS_TIME_BINNING.py to extract a source from the pre-release XML. For the
-current Gaia fitting path, choose -m n (the with_sss export): the likelihood
-subtracts the header single-star solution internally. A -m y / no_sss export
+current Gaia fitting path, choose -m n (the with_sss export): the importer
+subtracts the header single-star solution once and retains the original
+measurements in the saved session. The likelihood then applies only the
+fitted corrections and orbital motion. Older sessions are prepared once
+on first evaluation. A -m y / no_sss export
 has already removed that solution and must not be used in this same path,
 otherwise the stellar solution would be subtracted twice.</p>
 <p>DR4_AGIS_TIME_BINNING.py accepts --bin-mode none (individual CCDs), visit
@@ -10083,61 +10235,7 @@ and strictly positive uncertainties.</p>
 
 
     def print_TTV_info(self, image=False):
-        #self.dialog.statusBar().showMessage('Ready')
-        self.dialog_ttv_help.setFixedSize(800, 800)
-        self.dialog_ttv_help.setWindowTitle('TTV modeling help')  
-        #self.dialog.setGeometry(300, 300, 800, 800)
-        #self.dialog_credits.acceptRichText(True)
-        
-        text = ''
-        self.dialog_ttv_help.text.setText(text) 
-        
-        text = """
-This module is experimental and under construction. TTVs and TTVs+RV modeling was 
-successfully tested on several exoplanet systems, but you must consider the notes below:
-
-* The TTV file format should be as follows (e.g.):
-
-
-#   N transit             t0 [BJD]             sigma t0 [d]
-          1                    2458000.5                0.022
-          2                    2458020.5                0.023
-          4                    2458060.5                0.021
-.......................................................................
-          8                    2458140.5                0.026
-
-    Anything else than the format above will likely not work and is even possible to crash the GUI!
-
-
-* The selected epoch MUST be always slightly before the time of the first observed transit,
-Using the example above, the epoch should be earlier than 2458000.5, e.g., 2458000.0. 
-Otherwise, the TTV model is likely to skip the first transit and start from the next!
-
-
-* When RV+TTVs are modeled the epoch is ALWAYS chosen to be the epoch of the RV model.
-
-    To change the RV epoch go to:
-
-    Models param. --> Models --> RV Model
-
-    Then, uncheck "first RV" and add whatever epoch you like, as long as it is slightly before the time 
-    of the first transit in your TTV input file. 
-
-
-* Make sure that the time baseline of "End of Model" - "Epoch" >  last t0 - first t0 in your TTV 
-input file.
-
-
-* Chose wisely the "time step in dynamical model" !
-
-If something is still unclear, or you are experiencing problems you are welcome to open an "issue" 
-in https://github.com/3fon3fonov/exostriker
-
-"""
-        self.dialog_ttv_help.text.append(text)
-        self.dialog_ttv_help.text.setReadOnly(True)
-        #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
-        self.dialog_ttv_help.show()
+        self.dialog_ttv_help.show_help('ttv')
 
 
 
@@ -10145,7 +10243,7 @@ in https://github.com/3fon3fonov/exostriker
  
         
         #self.dialog.statusBar().showMessage('Ready')
-        self.dialog_credits.setFixedSize(900, 900)
+        self.dialog_credits.resize(900, 900)
         self.dialog_credits.setWindowTitle('Credits')  
         #self.dialog.setGeometry(300, 300, 800, 800)
         #self.dialog_credits.acceptRichText(True)
@@ -10864,6 +10962,7 @@ will be highly appreciated!
 
 
 
+
     def check_data_and_fit_type(self, tf = ""):
         global fit
         if fit.type_fit["RV"] == True and fit.ndset <= 0:
@@ -11191,6 +11290,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.check_cornerplot_samples()        
         self.mute_buttons(trigger=True)
 
+
     def worker_mcmc(self):
         global fit  
 
@@ -11443,18 +11543,12 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         global fit  
 
 
-        if type_plot == "mcmc":
-           # if isinstance(fit.mcmc_sampler, rv.CustomSampler)==False:
-            if len(np.atleast_1d(fit.mcmc_sampler))==0:            
-                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "MCMC samples not found.", QtWidgets.QMessageBox.StandardButton.Ok)
-                return   
-       
-        if type_plot == "nest": 
-            if len(np.atleast_1d(fit.ns_sampler))==0:
-            #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler)==False and isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler)==False:
-                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtWidgets.QMessageBox.StandardButton.Ok)
-                return   
-  
+        if not rv.ensure_cornerplot_labels(fit, type_plot):
+            name = "MCMC" if type_plot == "mcmc" else "NS"
+            QtWidgets.QMessageBox.information(
+                self, 'Warning!', name + " samples or parameter labels not found.",
+                QtWidgets.QMessageBox.StandardButton.Ok)
+            return
 
         self.button_make_mcmc_cornerplot.setEnabled(False)
         self.button_make_nest_cornerplot.setEnabled(False)
@@ -11528,11 +11622,11 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
             if file_extension == '.vels' or file_extension == '.dat':
                 fit.add_dataset(self.file_from_path(path), str(path),0.0,1.0)
-                self.init_fit()
                 self.update_use_from_session()
                 self.update_use()
                 self.update_params()
                 self.update_RV_file_buttons()
+                self.initialize_imported_dataset('RV')
 
             elif file_extension == '.act':
 
@@ -11540,8 +11634,11 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                     if len(fit.act_data_sets[i]) == 0:
                         but_ind = i +1
                         fit.add_act_dataset('test', str(path),act_idset =but_ind-1)
+                        if not len(fit.act_data_sets[but_ind-1]):
+                            return
 
                         self.update_act_file_buttons()
+                        self.update_activity_data_plots(but_ind-1)
                         self.update_activity_gls_plots(but_ind-1)
                         return
 
@@ -11551,11 +11648,14 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                         but_ind = i +1
 
                         fit.add_transit_dataset('test', str(path),tra_idset =but_ind-1)
+                        if not len(fit.tra_data_sets[but_ind-1]):
+                            return
                         self.update_use_from_session()
                         self.update_use()
                         self.update_gui_params()
                         self.update_params()
                         self.update_tra_file_buttons()
+                        self.initialize_imported_dataset('Transit')
                         self.buttonGroup_transit_data.button(but_ind).setText(self.file_from_path(path))
                         return
             else: 
@@ -11598,13 +11698,13 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 self.check_type_fit()
                 self.mute_boxes()
     
-                self.init_fit()
                # rv.check_temp_RV_file(fit)
                 #self.update_veiw()
                 self.update_use_from_session()
                 self.update_use()
                 self.update_params()
                 self.update_RV_file_buttons()
+                self.initialize_imported_dataset('RV')
                 
             elif self.RVBank_window.data_index >= 11 and self.RVBank_window.type_data == "HARPS":
                 
@@ -11680,12 +11780,12 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 fit.add_dataset(name1,path1,0.0,1.0,useoffset=True,usejitter=True)
 
 
-                self.init_fit()
 
                 self.update_use_from_session()
                 self.update_use()
                 self.update_params()
                 self.update_RV_file_buttons()
+                self.initialize_imported_dataset('RV')
                 
 
                 
@@ -11708,6 +11808,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                         break
 
                 self.update_act_file_buttons()
+
 
     def save_DataInspector_data(self):
         global fit, pdi 
@@ -12313,7 +12414,9 @@ Please install via 'pip install ttvfast'.
         global fit
 
         but_ind = self.buttonGroup_color_picker.checkedId()
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog) #|QtWidgets.QColorDialog.ShowAlphaChannel,)
+        colorz = choose_color(self, fit.rvs_colors[but_ind-1], 'RV dataset / model color')
+        if not colorz.isValid():
+            return
 
 #        print(dir(colorz))
 #        print(colorz.name())
@@ -12341,6 +12444,7 @@ Please install via 'pip install ttvfast'.
         else:
             return
 
+
     ### transit ####
 
     def update_color_picker_tra(self):
@@ -12364,7 +12468,9 @@ Please install via 'pip install ttvfast'.
         global fit
 
         but_ind = self.buttonGroup_color_picker_tra.checkedId()
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
+        colorz = choose_color(self, fit.tra_colors[but_ind-1], 'Transit dataset / model color')
+        if not colorz.isValid():
+            return
 
         #QtWidgets.QColorDialog.setOption(QtWidgets.QColorDialog.ShowAlphaChannel,True)
         #colorz = QtWidgets.QColorDialog.getColor()
@@ -12385,6 +12491,7 @@ Please install via 'pip install ttvfast'.
             #self.update_activity_gls_plots()
         else:
             return
+
 
     ### TTV ####
 
@@ -12408,7 +12515,9 @@ Please install via 'pip install ttvfast'.
         global fit
 
         but_ind = self.buttonGroup_color_picker_ttv.checkedId()
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
+        colorz = choose_color(self, fit.ttv_colors[but_ind-1], 'TTV dataset / model color')
+        if not colorz.isValid():
+            return
 
         #QtWidgets.QColorDialog.setOption(QtWidgets.QColorDialog.ShowAlphaChannel,True)
         #colorz = QtWidgets.QColorDialog.getColor()
@@ -12430,6 +12539,7 @@ Please install via 'pip install ttvfast'.
             #self.update_activity_gls_plots()
         else:
             return
+
 
     ### AST ####
 
@@ -12453,7 +12563,9 @@ Please install via 'pip install ttvfast'.
         global fit
 
         but_ind = self.buttonGroup_color_picker_ast.checkedId()
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog)
+        colorz = choose_color(self, fit.ast_colors[but_ind-1], 'Astrometry dataset / model color')
+        if not colorz.isValid():
+            return
 
         #QtWidgets.QColorDialog.setOption(QtWidgets.QColorDialog.ShowAlphaChannel,True)
         #colorz = QtWidgets.QColorDialog.getColor()
@@ -12477,6 +12589,7 @@ Please install via 'pip install ttvfast'.
             return
 
 
+
 ############################# Symbol controls ################################  
 
     ### RV ####
@@ -12485,7 +12598,7 @@ Please install via 'pip install ttvfast'.
         global fit
  
         but_ind = self.buttonGroup_symbol_picker.checkedId()   
-        but_n = self.dialog_symbols.get_radio()
+        but_n = self.dialog_symbols.get_radio(self, current=fit.pyqt_symbols_rvs[but_ind-1])
             
         if but_n != None:
             fit.pyqt_symbols_rvs[but_ind-1] = dill.copy(symbols[but_n-1])
@@ -12499,6 +12612,7 @@ Please install via 'pip install ttvfast'.
             self.update_transit_plots()     
         else:
             return  
+
 
 
 
@@ -12556,7 +12670,7 @@ Please install via 'pip install ttvfast'.
         global fit
  
         but_ind = self.buttonGroup_symbol_picker_tra.checkedId()   
-        but_n = self.dialog_symbols.get_radio()
+        but_n = self.dialog_symbols.get_radio(self, current=fit.pyqt_symbols_tra[but_ind-1])
             
         if but_n != None:
             fit.pyqt_symbols_tra[but_ind-1] = symbols[but_n-1]
@@ -12570,6 +12684,7 @@ Please install via 'pip install ttvfast'.
             self.update_transit_plots()     
         else:
             return    
+
         
         
 
@@ -12628,7 +12743,7 @@ Please install via 'pip install ttvfast'.
         global fit
  
         but_ind = self.buttonGroup_symbol_picker_ttv.checkedId()   
-        but_n = self.dialog_symbols.get_radio()
+        but_n = self.dialog_symbols.get_radio(self, current=fit.pyqt_symbols_ttv[but_ind-1])
             
         if but_n != None:
             fit.pyqt_symbols_ttv[but_ind-1] = dill.copy(symbols[but_n-1])
@@ -12645,6 +12760,7 @@ Please install via 'pip install ttvfast'.
 
         else:
             return    
+
         
     def check_ttv_symbol_sizes(self):
         global fit
@@ -12668,7 +12784,7 @@ Please install via 'pip install ttvfast'.
         global fit
  
         but_ind = self.buttonGroup_symbol_picker_ast.checkedId()   
-        but_n = self.dialog_symbols.get_radio()
+        but_n = self.dialog_symbols.get_radio(self, current=fit.pyqt_symbols_ast[but_ind-1])
             
         if but_n != None:
             fit.pyqt_symbols_ast[but_ind-1] = dill.copy(symbols[but_n-1])
@@ -12685,6 +12801,7 @@ Please install via 'pip install ttvfast'.
 
         else:
             return    
+
         
     def check_ast_symbol_sizes(self):
         global fit
@@ -13332,34 +13449,20 @@ Please install via 'pip install ttvfast'.
     def get_cornerplot_param(self, type_plot = "mcmc"):
         global fit
         
-        if type_plot == "mcmc":
-            #if isinstance(fit.mcmc_sampler, rv.CustomSampler)==False:
-            if len(np.atleast_1d(fit.mcmc_sampler))==0:            
-                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "MCMC samples not found.", QtWidgets.QMessageBox.StandardButton.Ok)
-                return   
-       
-        if type_plot == "nest": 
-            #if len(fit.ns_sampler)==0:
-            if len(np.atleast_1d(fit.ns_sampler))==0:
-            #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler)==False and isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler)==False:
-                choice = QtWidgets.QMessageBox.information(self, 'Warning!', "NS samples not found.", QtWidgets.QMessageBox.StandardButton.Ok)
-                return   
- 
-         
-            
-        if type_plot == "mcmc":
-            self.lables_cornerplot = dill.copy(fit.mcmc_sampler.lbf)
-        else:
-            self.lables_cornerplot = dill.copy(fit.ns_sampler.lbf)
-            
+        if not rv.ensure_cornerplot_labels(fit, type_plot):
+            name = "MCMC" if type_plot == "mcmc" else "NS"
+            QtWidgets.QMessageBox.information(
+                self, 'Warning!', name + " samples or parameter labels not found.",
+                QtWidgets.QMessageBox.StandardButton.Ok)
+            return
+
+        sampler = fit.mcmc_sampler if type_plot == "mcmc" else fit.ns_sampler
+        self.lables_cornerplot = dill.copy(sampler.lbf)
+
         label_results = self.dialog_select_param_cornerplot.get_labels(self)
         
-        if type_plot == "mcmc":
-            del fit.mcmc_sampler.lbf
-            fit.mcmc_sampler.lbf  = dill.copy(label_results)
-        else:
-            fit.ns_sampler.lbf  = dill.copy(label_results)
- 
+        sampler.lbf = dill.copy(label_results)
+
         return  
    
 
@@ -13488,13 +13591,13 @@ Please install via 'pip install ttvfast'.
             
        # print(self.samp_corr_mcmc.isChecked(), self.samp_corr_ns.isChecked())
 
-        if len(np.atleast_1d(fit.mcmc_sampler))!=0 and self.samp_corr_mcmc.isChecked():       
+        if self.samp_corr_mcmc.isChecked() and rv.ensure_cornerplot_labels(fit, "mcmc"):
          
             for i in range(len(fit.mcmc_sampler.lbf['OrigLabels'])):
                 self.comboBox_samp_corr_1.addItem(fit.mcmc_sampler.lbf['OrigLabels'][i],i)
                 self.comboBox_samp_corr_2.addItem(fit.mcmc_sampler.lbf['OrigLabels'][i],i)
                 
-        elif len(np.atleast_1d(fit.ns_sampler))!=0 and self.samp_corr_ns.isChecked():       
+        elif self.samp_corr_ns.isChecked() and rv.ensure_cornerplot_labels(fit, "nest"):
          
             for i in range(len(fit.ns_sampler.lbf['OrigLabels'])):
                 self.comboBox_samp_corr_1.addItem(fit.ns_sampler.lbf['OrigLabels'][i],i)
@@ -13508,70 +13611,8 @@ Please install via 'pip install ttvfast'.
         self.update_plot_corr()
         
     def update_plot_corr(self):
-        global fit,pcor
- 
-        corr1_ind = self.comboBox_samp_corr_1.currentIndex()
-        corr2_ind = self.comboBox_samp_corr_2.currentIndex()
-
- 
-        if corr1_ind ==-1 or corr2_ind ==-1: # or len(fit.e_for_mcmc) ==0 or len(np.atleast_1d(fit.mcmc_sampler))==0: #
-            return
-            
-        if len(np.atleast_1d(fit.mcmc_sampler))!=0 and self.samp_corr_mcmc.isChecked():        
-         
-
-            pcor.plot(clear=True,)
-            pcor.plot(fit.mcmc_sampler.samples[:,corr1_ind], fit.mcmc_sampler.samples[:,corr2_ind] ,pen=None, #{'color': colors[i], 'width': 1.1},
-            symbol='o',
-            symbolPen={'color': 'b', 'width': 1},
-            symbolSize=1,enableAutoRange=True,viewRect=True,
-            symbolBrush='b'
-            )  
-
-            pcor.setLabel('bottom', '%s'%fit.mcmc_sampler.lbf['OrigLabels'][corr1_ind], units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-            pcor.setLabel('left', '%s'%fit.mcmc_sampler.lbf['OrigLabels'][corr2_ind], units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
- 
-
-
-        elif len(np.atleast_1d(fit.ns_sampler))!=0 and self.samp_corr_ns.isChecked():            
- 
-            pcor.plot(clear=True,)
-            pcor.plot(fit.ns_sampler.samples[:,corr1_ind], fit.ns_sampler.samples[:,corr2_ind] ,pen=None, #{'color': colors[i], 'width': 1.1},
-            symbol='o',
-            symbolPen={'color': 'b', 'width': 1},
-            symbolSize=1,enableAutoRange=True,viewRect=True,
-            symbolBrush='b'
-            )  
-
-            #pcor.setLabel('bottom', '%s'%fit.e_for_mcmc[corr1_ind], units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-            #pcor.setLabel('left', '%s'%fit.e_for_mcmc[corr2_ind], units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-            pcor.setLabel('bottom', '%s'%fit.ns_sampler.lbf['OrigLabels'][corr1_ind], units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-            pcor.setLabel('left', '%s'%fit.ns_sampler.lbf['OrigLabels'][corr2_ind], units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
- 
- 
-        else:
-            return
-
-
-
-        ## generate empty curves
-        #curves = []
-        #levels = np.linspace(0, 1, 3)
-        #for i in range(len(levels)):
-        #    v = levels[i]
-            ## generate isocurve with automatic color selection
-        #    c = pg.IsocurveItem(level=v, pen=(i, len(levels)*1.5))
-           # c.setParentItem(pcor)  ## make sure isocurve is always correctly displayed over image
-        #    c.setZValue(10)
-        #    curves.append(c)        
-        
-        
-        
-        #c = pg.IsocurveItem(level=0.6, pen=('r'))#i, len(levels)*1.5))
-        #c.setParentItem(pcor)  ## make sure isocurve is always correctly displayed over image
-       # c.setZValue(10)
-        #curves.append(c)  
-        
+        if hasattr(self, 'sample_correlation_controller'):
+            self.sample_correlation_controller.render()
 
     def set_kp_ma(self):
         global fit  
@@ -14112,7 +14153,7 @@ Please install via 'pip install ttvfast'.
         #################### credits  ########################
         
         self.dialog           = print_info(self)
-        self.dialog_credits   = print_info(self)
+        self.dialog_credits   = print_info(self, show_tools=False)
         self.dialog_chi_table = print_info(self)
         self.dialog_ttv_help  = print_info(self)
         self.dialog_ast_help  = print_info(self)
@@ -14300,6 +14341,8 @@ Please install via 'pip install ttvfast'.
         self.mcmc_samples_change_name.clicked.connect(self.change_mcmc_samples_file_name)
         self.nest_samples_change_name.clicked.connect(self.change_nest_samples_file_name)
         
+        self.sample_correlation_controller = SampleCorrelationController(
+            self, lambda: fit, pcor)
         self.comboBox_samp_corr_1.activated.connect(self.update_plot_corr)
         self.comboBox_samp_corr_2.activated.connect(self.update_plot_corr)
         self.buttonGroup_samp_corr.buttonClicked.connect(self.init_plot_corr)
@@ -14341,6 +14384,7 @@ Please install via 'pip install ttvfast'.
 
 
         ############ Set Widget Style #################
+        self.menuSet_Widget_Style.menuAction().setFont(self.actionSet_GUI_Font.font())
 
         self.actionWindows.triggered.connect(self.set_Win_widget_Style)
         self.actionMacintosh.triggered.connect(self.set_Mac_widget_Style)
@@ -14401,6 +14445,7 @@ Please install via 'pip install ttvfast'.
 
         self.actionvisit_TRIFON_on_GitHub.triggered.connect(self.get_credits)
         self.actionCredits.triggered.connect(self.print_info_credits)
+        self.actionEdit_file_names.triggered.connect(self.edit_dataset_names)
         self.actionConfidence_Intervals_Table.triggered.connect(lambda: self.print_chi_table())
 
         ############### Orb. Evol. plotting ####################
@@ -14668,8 +14713,10 @@ Please install via 'pip install ttvfast'.
         self.actionQuit.triggered.connect(self.close) 
 
         self.actionopen_RVmod_init_file.triggered.connect(self.showDialog_fortran_input_file)
+        self.actionopen_RVmod_init_file.setVisible(False)
         self.actionOpen_RVbank_file.triggered.connect(self.showDialog_RVbank_input_file)
         self.actionOpen_MAROONX_file.triggered.connect(self.showDialog_MAROONX_input_file)
+        self.actionOpen_MAROONX_file.setVisible(False)
 
 
         self.jupiter_push_vars()

@@ -54,7 +54,7 @@ except (ImportError, KeyError,ModuleNotFoundError) as e:
     pass
 
 try:
-    from wotan import flatten
+    from wotan import flatten, transit_mask
     wotan_found = True
 except (ImportError, KeyError,ModuleNotFoundError) as e:
     wotan_found = False
@@ -81,6 +81,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         # Create the main window
         self.ui = Ui_DetrendWindow()
         self.ui.setupUi(self)
+        self.setWindowTitle('Transit detrending options')
         self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
 
         self.sklearn_found = sklearn_found
@@ -88,6 +89,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.pygam_found = pygam_found
         self.supersmoother_found = supersmoother_found
         self.wotan_found = wotan_found
+        self.ui.use_transit_mask.setEnabled(wotan_found)
         
         self.ui.radio_GPs.setEnabled(sklearn_found)
         self.ui.comboBox_GP.setEnabled(sklearn_found)
@@ -149,6 +151,46 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.ui.button_bin_data.clicked.connect(self.bin_data)        
         
         self.ui.apply_dilution.clicked.connect(self.add_dilution)
+
+        self._transit_mask_items = []
+        self.ui.use_transit_mask.toggled.connect(self.update_transit_mask_plot)
+        for control in (self.ui.mask_period, self.ui.mask_t0, self.ui.mask_duration):
+            control.valueChanged.connect(self.update_transit_mask_plot)
+        self.ui.plot.getViewBox().sigXRangeChanged.connect(self.update_transit_mask_plot)
+        for button in self.ui.buttonGroup_trendOptions.buttons():
+            button.toggled.connect(self.update_transit_mask_availability)
+        for selector in (self.ui.comboBox_sliders, self.ui.comboBox_splines,
+                         self.ui.comboBox_poly, self.ui.comboBox_regs):
+            selector.currentTextChanged.connect(self.update_transit_mask_availability)
+        self.update_transit_mask_availability()
+
+    def transit_mask_supported(self):
+        # Conservative compatibility with the released Wotan 1.10 backend.
+        if not self.wotan_found:
+            return False
+        for button, selector in (
+                (self.ui.radio_timeW, self.ui.comboBox_sliders),
+                (self.ui.radio_Splines, self.ui.comboBox_splines),
+                (self.ui.radio_Polynomials, self.ui.comboBox_poly),
+                (self.ui.radio_Regressions, self.ui.comboBox_regs)):
+            if button.isChecked():
+                return selector.currentText() not in {
+                    'medfilt', 'cofiam', 'savgol', 'pspline',
+                    'supersmoother', 'ridge', 'lasso', 'elasticnet'}
+        # Mean/median normalization is masked locally; GP passes the mask to Wotan.
+        return True
+
+    def update_transit_mask_availability(self, *args):
+        supported = self.transit_mask_supported()
+        if not supported:
+            self.ui.use_transit_mask.setChecked(False)
+        self.ui.use_transit_mask.setEnabled(supported)
+        self.ui.use_transit_mask.setToolTip(
+            'Exclude the shaded transit points from the trend fit. The fitted '
+            'trend is still evaluated there to detrend those points.' if supported else
+            'Transit masking is unavailable for this method in Wotan 1.10. '
+            'Choose a mask-aware method such as biweight, cosine, or lowess.')
+
 
     def replot(self):
         
@@ -236,23 +278,40 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         return
 
 
+    def transit_fit_mask(self):
+        if not self.transit_mask_supported() or not self.ui.use_transit_mask.isChecked():
+            return None
+        period = self.ui.mask_period.value()
+        duration = self.ui.mask_duration.value()
+        if duration >= period:
+            raise ValueError("The transit mask width must be shorter than the period.")
+        mask = transit_mask(time=np.asarray(self.t), period=period,
+                            duration=duration, T0=self.ui.mask_t0.value())
+        usable = ~mask & np.isfinite(self.t) & np.isfinite(self.flux)
+        if not np.any(usable):
+            raise ValueError("The transit mask leaves no finite data for detrending. Check period, T0, and width.")
+        return mask
+
     def calculate(self):
+        mask = self.transit_fit_mask()
+        normalization_flux = self.flux if mask is None else self.flux[~mask]
 
         
         if self.ui.radio_remove_median.isChecked():
 
-            flatten_lc1 = self.flux/np.median(self.flux)
-            trend_lc1 = np.ones(len(self.flux))*np.median(self.flux)
+            flatten_lc1 = self.flux/np.median(normalization_flux)
+            trend_lc1 = np.ones(len(self.flux))*np.median(normalization_flux)
 
         elif self.ui.radio_remove_mean.isChecked():
 
-            flatten_lc1 = self.flux/np.mean(self.flux)
-            trend_lc1 = np.ones(len(self.flux))*np.mean(self.flux)
+            flatten_lc1 = self.flux/np.mean(normalization_flux)
+            trend_lc1 = np.ones(len(self.flux))*np.mean(normalization_flux)
 
         elif self.ui.radio_timeW.isChecked():
             flatten_lc1, trend_lc1 = flatten(
                 self.t,                 # Array of time values
                 self.flux ,                 # Array of flux values
+                mask=mask,
                 method=str(self.ui.comboBox_sliders.currentText()),
                 window_length=self.ui.sliders_wl.value(),    # The length of the filter window in units of ``time``
 #                break_tolerance=self.ui.spline_bt.value(),  # Split into segments at breaks longer than that
@@ -263,6 +322,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
             flatten_lc1, trend_lc1 = flatten(
                 self.t,                 # Array of time values
                 self.flux ,                 # Array of flux values
+                mask=mask,
                 method=str(self.ui.comboBox_splines.currentText()),
                 window_length=self.ui.spline_wl.value(),    # The length of the filter window in units of ``time``
                 break_tolerance=self.ui.spline_bt.value(),  # Split into segments at breaks longer than that
@@ -274,6 +334,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
             flatten_lc1, trend_lc1 = flatten(
                 self.t,                 # Array of time values
                 self.flux ,                 # Array of flux values
+                mask=mask,
                 method=str(self.ui.comboBox_poly.currentText()),
                 window_length=self.ui.poly_wl.value(),    # The length of the filter window in units of ``time``
                 break_tolerance=self.ui.poly_bt.value(),  # Split into segments at breaks longer than that
@@ -285,6 +346,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
             flatten_lc1, trend_lc1 = flatten(
                 self.t,                 # Array of time values
                 self.flux ,                 # Array of flux values
+                mask=mask,
                 method=str(self.ui.comboBox_regs.currentText()),
                 window_length=self.ui.regres_wl.value(),    # The length of the filter window in units of ``time``
                 break_tolerance=self.ui.regres_bt.value(),  # Split into segments at breaks longer than that
@@ -296,6 +358,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
             flatten_lc1, trend_lc1 = flatten(
                 self.t,                 # Array of time values
                 self.flux ,                 # Array of flux values
+                mask=mask,
                 method='gp',
                 kernel = str(self.ui.comboBox_GP.currentText()),
                 kernel_size=self.ui.kernel_size.value(),
@@ -307,7 +370,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
         else:
             flatten_lc1 = self.flux 
-            trend_lc1 = np.ones(len(self.flux))*np.median(self.flux)
+            trend_lc1 = np.ones(len(self.flux))*np.median(normalization_flux)
 
 
         self.flux_o_c = flatten_lc1
@@ -335,6 +398,12 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         
         if len(self.t) == 0:
             self.init_data()
+
+        try:
+            self.transit_fit_mask()
+        except ValueError as error:
+            QtWidgets.QMessageBox.warning(self, 'Transit mask', str(error))
+            return
 
         self.ui.try_button.setEnabled(False)
         #self.ui.label_working.setText("Working!!!")
@@ -371,6 +440,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         else:
             symbolSize=2
 
+        self._transit_mask_items = []
         self.ui.plot.plot(clear=True,)
 
         ######## Top plot ############
@@ -413,6 +483,52 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
             self.getROIbox(self.roi)
 
         self.ui.plot.plotItem.items[1].sigPointsClicked.connect(self.plotClicked)
+        self.update_transit_mask_plot()
+
+    def update_transit_mask_plot(self, *args):
+        # These decorations are appended after the data/ROI items, whose indices
+        # are used by the existing point-rejection and ROI handlers.
+        for item in self._transit_mask_items:
+            self.ui.plot.removeItem(item)
+        self._transit_mask_items = []
+        if not self.ui.use_transit_mask.isChecked() or len(self.t) == 0:
+            return
+        finite_time = np.asarray(self.t)[np.isfinite(self.t)]
+        if not len(finite_time):
+            return
+        period = self.ui.mask_period.value()
+        width = self.ui.mask_duration.value()
+        if width >= period:
+            return
+        t0 = self.ui.mask_t0.value()
+        xmin, xmax = self.ui.plot.viewRange()[0]
+        xmin, xmax = max(xmin, finite_time.min()), min(xmax, finite_time.max())
+        first = int(np.ceil((xmin - width / 2 - t0) / period))
+        last = int(np.floor((xmax + width / 2 - t0) / period))
+        # At extreme zoom levels, merge unresolved masks into one translucent
+        # band instead of allocating millions of graphics objects.
+        if last - first > 2000:
+            band = pg.LinearRegionItem((xmin, xmax), movable=False,
+                                       brush=pg.mkBrush(230, 145, 30, 35), pen=pg.mkPen(None))
+            band.setAcceptedMouseButtons(QtCore.Qt.MouseButton.NoButton)
+            band.setZValue(-5)
+            self.ui.plot.addItem(band, ignoreBounds=True)
+            self._transit_mask_items.append(band)
+            return
+        for epoch in range(first, last + 1):
+            center = t0 + epoch * period
+            band = pg.LinearRegionItem((center - width / 2, center + width / 2),
+                                       movable=False, brush=pg.mkBrush(230, 145, 30, 45),
+                                       pen=pg.mkPen(None))
+            band.setAcceptedMouseButtons(QtCore.Qt.MouseButton.NoButton)
+            band.setZValue(-5)
+            line = pg.InfiniteLine(center, angle=90, movable=False,
+                                   pen=pg.mkPen('#b36b00', width=1.2))
+            line.setAcceptedMouseButtons(QtCore.Qt.MouseButton.NoButton)
+            line.setZValue(2)
+            for item in (band, line):
+                self.ui.plot.addItem(item, ignoreBounds=True)
+                self._transit_mask_items.append(item)
 
 
     def getROIbox(self,roi):
@@ -614,7 +730,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
     def print_stat_window(self):
 
-        self.stat_dialog.setFixedSize(550, 600)
+        self.stat_dialog.resize(550, 600)
         self.stat_dialog.setWindowTitle('Detrending stat. info')
  
 
@@ -669,49 +785,7 @@ np.median(self.flux_err_o_c))
 
 
     def info(self):
-        
-        #self.info_dialog.setGeometry(300, 200, 150, 150)
-        self.info_dialog.setFixedSize(550, 600)
-        self.info_dialog.setWindowTitle('Detrending options info')
- 
-    
-        text = ''
-        self.info_dialog.text.setText(text) 
-        
-        text = "For more info on the detrending algorithms see <a href='https://github.com/hippke/wotan'>wotan</a>" 
-        self.info_dialog.text.append(text)
-
-        text = """
-<br>
-<br>
-As explained in "wotan", some algorithms request
-additional dependencies, which are not included in "wotan", and thus, not included in the Exo-Striker 
-dependencies list. For example:
-<br> 
-<br> "huber", "ramsay", and "hampel" depend on "statsmodels"
-<br> "Gaussian processes", "hspline", "ridge", and "lasso"  depend on "sklearn"
-<br> "pspline" depends on "pygam"
-<br> "supersmoother" depends on "supersmoother"
-<br> 
-<br> To install all additional dependencies, try to install these python packages:
-<br> 
-<br> * pip install statsmodels 
-<br> * pip install sklearn  
-<br> * pip install supersmoother
-<br> * pip install pygam
-<br>  
-<br>  Also, "wotan" depends on "numba" and "llvmlite" so it might be a good idea to update those two if you already have older versions.
-<br>  
-<br>
-<br> If you made the use of the detrending options for your paper, please also cite: <a href='https://ui.adsabs.harvard.edu/abs/2019AJ....158..143H/abstract'> Hippke et al. (2019)</a>
-"""
-        self.info_dialog.text.append(text)
-
-
-    
-        self.info_dialog.text.setReadOnly(True)
-        #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))
-        self.info_dialog.show()
+        self.info_dialog.show_help('detrend')
 
 
     def update_labels(self):

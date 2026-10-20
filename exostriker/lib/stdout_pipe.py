@@ -111,6 +111,7 @@ class LogMessageViewer(QtWidgets.QTextBrowser):
 class MyDialog(QtWidgets.QDialog):
     def __init__( self, parent = None ):
         super(MyDialog, self).__init__(parent)
+        self.setWindowTitle('Exo-Striker output')
 
         self._console = LogMessageViewer(self)
 
@@ -134,6 +135,7 @@ class MyDialog(QtWidgets.QDialog):
 class DebugDialog(QtWidgets.QDialog):
     def __init__( self, parent = None ):
         super(DebugDialog, self).__init__(parent)
+        self.setWindowTitle('Exo-Striker debug output')
 
         self._console = LogMessageViewer(self)
 

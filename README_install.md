@@ -1,8 +1,20 @@
-# Windows .exe installer build
+# Installation — Exo-Striker 0.96.2
 
-To build a Windows installer containing Python, dependencies, compiled native
-backends and icon shortcuts using standard Python, `venv`, and pip (no conda
-required), see [packaging/windows/README.md](packaging/windows/README.md).
+These instructions cover the source version 0.96.2. PyPI commands install the version available on PyPI; use the source installation below to install this checkout.
+
+Python 3.10 or newer is recommended. The package declares Python 3.9 as its minimum. Native backends require a C compiler and GFortran on your `PATH`. The RV extension uses NumPy/f2py with Meson and Ninja; these build tools are declared package dependencies. Python development headers may also be needed when compiling extensions.
+
+## Virtual environment (without Anaconda)
+
+Create an environment with the Python interpreter you intend to use:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+```
+
+On Windows, use `py -m venv .venv` and activate it with `.venv\Scripts\activate` in CMD, or `.venv\Scripts\Activate.ps1` in PowerShell.
 
 # Pre-installation - Anaconda
 
@@ -14,7 +26,7 @@ It is recommended to use Anaconda, especially for Windows users. For this:
 
     - If desirable, disable auto activation of anaconda with `conda config --set auto_activate_base false`.
 
-- Create Exostriker environment with `conda create python -n exostriker` (you may change the environment name after the `-n` flag);
+- Create Exostriker environment with `conda create -n exostriker python=3.10` (you may change the environment name after the `-n` flag);
 
 - Then, to activate the environment, type `conda activate exostriker`;
 
@@ -30,7 +42,7 @@ conda install conda-forge::gfortran
 
 Obs: this installation needs to be done with the exostriker environment acitvated.
 
-# Instalation
+# Installation methods
 
 There are many options to run Exo-Striker. One may try an Anaconda environment, install it from pip, or run directly the source code from the repository.  
 
@@ -60,14 +72,24 @@ git clone https://github.com/3fon3fonov/exostriker.git
 
 After cloning, you can install it with pip or run it without any installation (see the Execution section).  
 
-To build the package and install it with pip from the source, type:  
+To install the package from source, type:
 
 ```bash
-pip install build
 cd exostriker
-python3 -m build
-pip install .
+python -m pip install .
 ```
+
+For development, use `python -m pip install -e .` instead. To build distributable archives separately, run `python -m pip install build` followed by `python -m build`.
+
+To upgrade an existing pip installation, use `python -m pip install --upgrade exostriker`. After installing or updating the source checkout, restart Exo-Striker. Check the installed version without starting the GUI:
+
+```bash
+python -c "from importlib.metadata import version; print(version('exostriker'))"
+```
+
+The RV Fortran extension is checked at startup against the application version and Python ABI. Updating to 0.96.2 may trigger recompilation, so keep GFortran and the build tools available. The first startup can take longer while compilation completes.
+
+For the optional integrated AI chat, install the extra with `python -m pip install "exostriker[chat]"`, or `python -m pip install ".[chat]"` from the source checkout. An OpenAI API key is required to use the chat.
 
 ## Adding the PATH (for non-Anaconda installations)
 If you do not use Anaconda, you need to add the path of the pip scripts into the system path variable if you have not already done so.  
@@ -116,7 +138,7 @@ Python: Go to [Python Windows Releases](https://www.python.org/downloads/windows
 - Microsoft Visual C++ for the package TTVFast: [Download](https://visualstudio.microsoft.com/visual-cpp-build-tools/) it and install the *Microsft Build Tools*, in the installation process, check the box for the *Desktop development with C++* (6.52 GB) and then click to install.
 - Exostriker: In CMD type `pip install exostriker` or follow the above steps to install it.
 
-**WARNING** if your USERNAME contains a "space", e.g., "Trifon Trifonov", the installation of RVMod will fail!!!! No space allowed as of Version 0.93. TBFixed!
+If native compilation fails, check that the compiler and build tools are visible in the same terminal/environment used to launch Exo-Striker, and inspect the reported compiler error.
 
 # Execution
 
@@ -128,7 +150,7 @@ exostriker-desktop-create
 ```
 
 Then, search in the menu for *Exostriker*, and in Windows, a Desktop link will also be created.  
-However, if you do not want to create menu entries, you can launch it by typing `exostriker` or `python—m exostriker` in the terminal or cmd.
+However, if you do not want to create menu entries, you can launch it by typing `exostriker` or `python -m exostriker` in the terminal or cmd.
 
 ## Without Installation
 It is possible to execute the Exo-Striker without doing any installation! E.g.: 
@@ -140,7 +162,7 @@ python3 -m exostriker
 ```
 
 
-Simply execute the file `gui.py` and it will power the GUI.
+Install the required dependencies in your active environment first. Launch from the repository root with `python -m exostriker`; directly running `gui.py` bypasses the package entry point.
 
 # Uninstall
 If you did not install with pip (both directly or by cloning), you could just erase the *exostriker* folder.  

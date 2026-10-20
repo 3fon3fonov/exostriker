@@ -3,3 +3,4 @@ python3.11 -m PyQt6.uic.pyuic -x tdt.ui -o ../tdt.py
 python3.11 -m PyQt6.uic.pyuic -x act.ui -o ../act.py
 python3.11 -m PyQt6.uic.pyuic -x rvs.ui -o ../rvs.py
 
+python3.11 -m PyQt6.uic.pyuic sample_correlation_options.ui -o ../sample_correlation_options_ui.py

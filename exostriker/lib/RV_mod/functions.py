@@ -19,6 +19,7 @@ import platform
 import tempfile, shutil
 from threading import Thread
 from .Warning_log import Warning_log
+from .jacobi import mass_a_from_jacobi_el
 import scipy.stats as pdf
 import dill
 from scipy.signal import argrelextrema
@@ -51,6 +52,29 @@ TWOPI = 2.0*PI
 
 
 matplotlib.rcParams['axes.formatter.useoffset'] = False
+
+def migrate_ttv_datasets(fit):
+    """Upgrade saved TTV records without reloading their observation files."""
+    datasets = getattr(fit, 'ttv_data_sets', None)
+    if datasets is None:
+        return
+    for slot in range(len(datasets)):
+        record = datasets[slot]
+        if not len(record):
+            continue
+        values = list(record)
+        if len(values) == 6:
+            size = len(np.atleast_1d(values[0]))
+            values.extend([np.ones(size), np.full(size, .1),
+                           np.zeros(size), np.full(size, .1),
+                           np.nan, np.nan, False, False])
+        elif len(values) == 12:
+            # Optional depth/duration columns predate density/radius metadata.
+            values = values[:10] + [np.nan, np.nan] + values[10:12]
+        else:
+            continue
+        datasets[slot] = np.array(values, dtype=object)
+
 
 def check_for_missing_instances(fit,fit_new):
 
@@ -119,6 +143,7 @@ def check_for_missing_instances(fit,fit_new):
         fit_new.init_tra_quadtr()
 
 
+    migrate_ttv_datasets(fit_new)
     fit_new.cwd = dill.copy(fit.cwd)
 
     return fit_new
@@ -1029,142 +1054,35 @@ def get_density(m_p, r_p, d_m_p=None, d_r_p=None):
 
 ####################### mass_semimajor #########################################
 def get_mass_a_samples(K, P, ecc, incl, m_s, mass_type="J"):
-    '''Calculates the actual masses and Jacobi semimajor axes of a
-       system for using the parameters P, K and e from a Kepler fit.
-       The output of the semi-major axis is in AU.
-       if mass_type="J" the mass is in Jupiter masses (deafault)
-       if mass_type="E" the mass is in Erath masses (deafault)
-       else, e.g.,        mass_type="" mass is in Solar units.
-    '''
-    THIRD = 1.0/3.0
-    PI    = 3.14159265358979e0
-    TWOPI = 2.0*PI
-    GMSUN = 1.32712440018e20
-    AU=1.49597892e11
+    """Physical Jacobi masses/axes for a posterior sample, in caller order.
 
-    mass = np.zeros(10)
-    ap    = np.zeros(9)
-    pl_mass = np.zeros(9)
-    mpold = pl_mass
-
-#*******G is set to be unit, and s, m, kg as unit of time, length and mass
-#*****  and there is a reason for that! later I might correct for that.
-    mtotal = m_s
-    f = 5e-6
-
-    #mass[0] = m_s
-
-
-    for i in range(len(K)):
-
-        T = P[i]*86400.0
-
-        # we need innitial guess for each planet mass
-        dm =2
-        mass[i+1] = abs(K[i])*(T*m_s**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-ecc[i]**2.0)/abs(np.sin(np.radians(incl[i])))
-        #mpold[i] = mass[i+1]
-        # This is a simple iteration to solve for mp
-        mass[0] = m_s
-        mpold[i] = 0
-
-        while (dm >= f):
-
-            if i == 0:
-                mtotal = m_s
-                mass[i+1] = abs(K[i])*(T*(m_s + mpold[i])**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-ecc[i]**2.0)/abs(np.sin(np.radians(incl[i])))
-            else:
-                mtotal = m_s
-                for j in range(i):
-                    mtotal = mtotal + mass[j+1]
-                mass[i+1] = abs(K[i])*(T*(mtotal + mpold[i])**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-ecc[i]**2.0)/abs(np.sin(np.radians(incl[i])))
-
-            #dm = (mpold[i] - mass[i+1])
-            dm = abs((mass[i+1] - mpold[i])/mass[i+1] )
-
-            mpold[i] =  mass[i+1]
-
-
-        ap[i] = (GMSUN*(mtotal + mass[i+1])*(T/TWOPI)**2)**THIRD
-
-    for i in range(len(K)):
-
-        ap[i] = ap[i]/AU # to be in AU
-        if mass_type=="J":
-            pl_mass[i] = mass[i+1]*1047.5654817267318 # to be in Jup. masses
-        elif  mass_type=="E":
-            pl_mass[i] = mass[i+1]*1047.5654817267318 * 317.82838 # to be in Earth. masses
-        else:
-            pl_mass[i] = mass[i+1]
-
-
-        # I have seen that 1 Sol Mass = 1047.92612 Jup. masses???
-    return pl_mass,ap
+    Keep the legacy nine-slot output; units are Mjup (J), Mearth (E), or Msun.
+    """
+    npl = len(K)
+    rows = np.column_stack((K, P, ecc, np.zeros(npl), np.zeros(npl), incl, np.zeros(npl)))
+    masses, axes = mass_a_from_jacobi_el(rows, npl, m_s)
+    if mass_type == "E":
+        masses *= 317.82838
+    elif mass_type != "J":
+        masses /= 1047.5654817267318
+    return np.pad(masses, (0, 9 - npl)), np.pad(axes, (0, 9 - npl))
 
 ####################### mass_semimajor #########################################
 def get_mass_a(obj, mass_type="J"):
-    '''Calculates the actual masses and Jacobi semimajor axes of a
-       system for using the parameters P, K and e from a Kepler fit.
-       The output of the semi-major axis is in AU.
-       if mass_type="J" the mass is in Jupiter masses (deafault)
-       if mass_type="E" the mass is in Erath masses (deafault)
-       else, e.g.,        mass_type="" mass is in Solar units.
-    '''
-    THIRD = 1.0/3.0
-    PI    = 3.14159265358979e0
-    TWOPI = 2.0*PI
-    GMSUN = 1.32712440018e20
-    AU=1.49597892e11
+    """Physical Jacobi masses/axes in the active planet slots."""
+    slots = [i for i, active in enumerate(obj.use_planet) if active]
+    masses = np.zeros(9)
+    axes = np.zeros(9)
+    rows = [[obj.K[i], obj.P[i], obj.e[i], obj.w[i], obj.M0[i], obj.i[i], obj.Node[i]]
+            for i in slots]
+    physical, jacobi_axes = mass_a_from_jacobi_el(rows, len(slots), obj.st_mass[0])
+    if mass_type == "E":
+        physical *= 317.82838
+    elif mass_type != "J":
+        physical /= 1047.5654817267318
+    masses[slots], axes[slots] = physical, jacobi_axes
+    return masses, axes
 
-    mass = np.zeros(10)
-    ap    = np.zeros(9)
-    pl_mass = np.zeros(9)
-    mpold = pl_mass
-
-#*******G is set to be unit, and s, m, kg as unit of time, length and mass
-#*****  and there is a reason for that! later I might correct for that.
-    mtotal = obj.st_mass[0]
-    f = 5e-6
-    for i in range(obj.npl):
-
-        T = obj.P[i]*86400.0
-        mass[0] = obj.st_mass[0]
-
-        # we need innitial guess for each planet mass
-        dm = 0
-        mass[i+1] = abs(obj.K[i])*(T*(obj.st_mass[0])**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-obj.e[i]**2.0)/abs(np.sin(np.radians(obj.i[i])))
-        mpold[i] = mass[i+1]
-        # This is a simple iteration to solve for mp
-        while (dm <= 0):
-
-            if i == 0:
-                mtotal = obj.st_mass[0]
-                mass[i+1] = abs(obj.K[i])*(T*(obj.st_mass[0] + mpold[i])**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-obj.e[i]**2.0)/abs(np.sin(np.radians(obj.i[i])))
-                mtotal = obj.st_mass[0]
-                for j in range(i):
-                    mtotal = mtotal + mass[j+1]
-                mass[i+1] = abs(obj.K[i])*(T*(mtotal + mpold[i])**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-obj.e[i]**2.0)/abs(np.sin(np.radians(obj.i[i])))
-
-            dm = (mpold[i] - mass[i+1])
-            mpold[i] =  mpold[i] + f
-           # print mass[i+1], mpold[i]
-
-        ap[i] = (GMSUN*(mtotal + mass[i+1])*(T/TWOPI)**2)**THIRD
-
-#    for i in range(npl+1):
-#        mass[i] = mass[i]*GMSUN
-    for i in range(obj.npl):
-
-        ap[i] = ap[i]/AU # to be in AU
-        if mass_type=="J":
-            pl_mass[i] = mass[i+1]*1047.5654817267318 # to be in Jup. masses
-        elif  mass_type=="E":
-            pl_mass[i] = mass[i+1]*1047.5654817267318 * 317.82838 # to be in Earth. masses
-        else:
-            pl_mass[i] = mass[i+1]
-
-
-        # I have seen that 1 Sol Mass = 1047.92612 Jup. masses???
-    return pl_mass,ap
 
 
 
@@ -1314,19 +1232,20 @@ unknown
     param_file.close()
     return
 
-def add_mcmc_samples(obj,sampler):
+def _default_cornerplot_labels(labels, save_flags):
 
     bestfit_labels      = ["median","mean","mode","best_samp","best_gui","none",
                            "mass","use_Me","use_Mj","use_Ms",
                            "semimajor","radius","use_Re","use_Rj","use_Rs","use_lambda", "use_ppm"]
-    bestfit_labels_bool = [obj.mcmc_save_median,obj.mcmc_save_means,obj.mcmc_save_mode,
-                           obj.mcmc_save_maxlnL,False,False,False,
+    bestfit_labels_bool = [*save_flags,False,False,False,
                            True,False,False,False,False,True,False,False,False,False]
 
 
-    sampler.lbf             = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
+    # Reserve room for edited labels while preserving longer initial labels.
+    settings             = {k: np.array([label, True], dtype=f"U{max(30, len(label))}")
+                               for k, label in enumerate(labels)}
     for k in range(17):
-        sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]
+        settings[bestfit_labels[k]] = bestfit_labels_bool[k]
 
     cornerplot_opt = {"bins":25,
                       "color":"k",
@@ -1351,13 +1270,37 @@ def add_mcmc_samples(obj,sampler):
                       "stab_threshold":100000
                       }
 
-    sampler.lbf["cornerplot"] = cornerplot_opt
-    sampler.lbf["OrigLabels"] = dill.copy(obj.e_for_mcmc)
+    settings["cornerplot"] = cornerplot_opt
+    settings["OrigLabels"] = dill.copy(labels)
 
-    obj.mcmc_sampler=sampler
-    obj.sampler_saved=True
+    return settings
 
 
+def ensure_cornerplot_labels(obj, type_plot="mcmc"):
+    """Restore missing plot metadata only when usable posterior samples exist."""
+    sampler = obj.mcmc_sampler if type_plot == "mcmc" else obj.ns_sampler
+    samples = np.asarray(getattr(sampler, 'samples', []))
+    if samples.ndim != 2 or not samples.size:
+        return False
+    if getattr(sampler, 'lbf', None) is None:
+        labels = list(getattr(obj, 'e_for_mcmc', []))
+        if len(labels) != samples.shape[1]:
+            print("Cannot customize corner plot: sample columns do not match parameter labels.")
+            return False
+        prefix = 'mcmc' if type_plot == 'mcmc' else 'ns'
+        flags = [getattr(obj, prefix + '_save_' + name, default)
+                 for name, default in (('median', True), ('means', False),
+                                       ('mode', False), ('maxlnL', False))]
+        sampler.lbf = _default_cornerplot_labels(labels, flags)
+    return True
+
+
+def add_mcmc_samples(obj,sampler):
+    sampler.lbf = _default_cornerplot_labels(
+        obj.e_for_mcmc, [obj.mcmc_save_median, obj.mcmc_save_means,
+                        obj.mcmc_save_mode, obj.mcmc_save_maxlnL])
+    obj.mcmc_sampler = sampler
+    obj.sampler_saved = True
 
 
 def add_ns_samples(obj,sampler):
@@ -1372,7 +1315,8 @@ def add_ns_samples(obj,sampler):
 
 
     obj.ns_sampler= dill.copy(sampler.results)
-    obj.ns_sampler.lbf     = {k: np.array([obj.e_for_mcmc[k], True]) for k in range(len(obj.e_for_mcmc))}
+    obj.ns_sampler.lbf     = {k: np.array([label, True], dtype=f"U{max(30, len(label))}")
+                             for k, label in enumerate(obj.e_for_mcmc)}
 
     for k in range(17):
         obj.ns_sampler.lbf[bestfit_labels[k]] = bestfit_labels_bool[k]
@@ -3321,6 +3265,11 @@ def run_command_with_timeout_old(args, secs, output=False, pipe=False): # set ou
 
 def phase_RV_planet_signal(obj,index):
 
+    if not obj.type_fit.get('RV', False):
+        obj.ph_data[index] = []
+        obj.ph_model[index] = []
+        return
+
     if obj.npl ==0 or len(obj.fit_results.rv_model.jd) ==0:
         return
     else:
@@ -3945,21 +3894,37 @@ def latex_prior_table(obj, width=10, precision=2, file_name='prior_table.tex',
     return _latex_save_table(_latex_render_table(planets, rows, width, prior=True), path, file_name, return_text)
 
 
+def _f_test_parameter_count(obj):
+    count = getattr(obj.fit_results, 'mfit', None)
+    if count is not None:
+        return count
+    from fit_statistics import component_parameter_counts
+    prepared = dill.copy(obj)
+    prepared.prepare_for_mcmc(rtg=prepared.rtg)
+    return component_parameter_counts(prepared)['RV']
+
+
 def f_test(obj, obj2 = None, alpha = 0.01, lnL=False):
 
 
     chi2 = obj.fit_results.chi2
     ndata = len(obj.fit_results.jd)
-    par2 = obj.fit_results.mfit
+    if chi2 is None or not ndata:
+        print("Nothing to test. Fit RV data first.")
+        return
+    par2 = _f_test_parameter_count(obj)
    #     self.value_reduced_chi2.setText("%.4f"%(fit.fit_results.reduced_chi2))
         #self.value_loglik.setText("%.4f"%(fit.fit_results.loglik))
    #     self.value_loglik.setText("%.4f"%(fit.loglik))
 
 
-    if obj2 == None:
+    if obj2 is None:
         obj2 = dill.copy(obj)
         obj2.npl = 0
-        obj2.fitting()
+        obj2.use_planet = [0] * len(obj2.use_planet)
+        if obj2.fitting(return_flag=True) != 1:
+            print("Cannot perform F-test: null model fitting failed.")
+            return
     else:
         obj2 = dill.copy(obj2)
 
@@ -3969,7 +3934,14 @@ def f_test(obj, obj2 = None, alpha = 0.01, lnL=False):
 
 
     chi1 = obj2.fit_results.chi2
-    par1 = obj2.fit_results.mfit
+    par1 = _f_test_parameter_count(obj2)
+
+    if par2 <= par1:
+        print("Nothing to test. The tested model must have more free parameters than the null model.")
+        return
+    if ndata <= par2 or not np.isfinite(chi2) or chi2 <= 0:
+        print("Cannot perform F-test: invalid chi-squared or no residual degrees of freedom.")
+        return
 
     chi2_red = chi2/(ndata - par2)
 
@@ -3995,7 +3967,7 @@ N parametrs tested model = %s
 F value = %s
 p-value = %s
 alpha value = %s
-"""%(chi1,chi2,obj.loglik,obj2.loglik,par1,par2,F,p_value,alpha))
+"""%(chi1,chi2,obj2.loglik,obj.loglik,par1,par2,F,p_value,alpha))
 
 
     if float(p_value) < alpha:
@@ -4071,169 +4043,21 @@ def plot_transit_gp(obj, curve=False):
 
 
  
-def mass_a_from_jacobi_el(pl_par, npl, m0):
-    """
-    Computes physical planet masses and Jacobi semimajor axes from RV
-    Keplerian parameters interpreted as Jacobi elements.
-
-    Input
-    -----
-    pl_par : list
-        List of planet parameter lists:
-
-            pl_par[i][0] = K       [m/s]
-            pl_par[i][1] = P       [days]
-            pl_par[i][2] = e
-            pl_par[i][3] = omega   [deg]
-            pl_par[i][4] = M       [deg]
-            pl_par[i][5] = incl    [deg]
-            pl_par[i][6] = Omega   [deg]
-
-    npl : int
-        Number of planets.
-
-    m0 : float
-        Stellar mass in solar masses.
-
-    Output
-    ------
-    pl_mass : ndarray
-        Planet masses in Jupiter masses.
-
-    ap : ndarray
-        Jacobi semimajor axes in AU.
-    """
-
-    pl_mass = np.zeros(npl)
-    ap = np.zeros(npl)
-
-    # cumulative Jacobi inner mass, in solar masses
-    m_inner = float(m0)
-
-    MSUN_TO_MJUP = 1047.5654817267318
-
-    for i in range(npl):
-
-        K = abs(float(pl_par[i][0]))          # m/s
-        P_days = float(pl_par[i][1])         # days
-        e = float(pl_par[i][2])
-        inc = float(pl_par[i][5])            # deg
-
-        P = P_days * 86400.0                 # seconds
-
-        if P <= 0.0:
-            raise ValueError("Planet %d: period must be positive." % (i+1))
-
-        if e < 0.0 or e >= 1.0:
-            raise ValueError("Planet %d: eccentricity must satisfy 0 <= e < 1." % (i+1))
-
-        sini = np.sin(np.radians(inc))
-
-        if np.abs(sini) <= 0.0:
-            raise ValueError("Planet %d: sin(incl) is zero. RV mass is undefined." % (i+1))
-
-        kbar = K * np.sqrt(1.0 - e*e) / np.abs(sini)
-
-        # Jacobi RV mass equation:
-        #
-        # kbar = (2 pi GMSUN / P)^(1/3)
-        #        * mp / (m_inner + mp)^(2/3)
-        #
-        # Here mp and m_inner are both in solar masses.
-        coeff = (TWOPI * GMSUN / P)**THIRD
-
-        def f(mp):
-            return coeff * mp / (m_inner + mp)**(2.0/3.0) - kbar
-
-        # Initial low-mass estimate
-        mp_guess = kbar * m_inner**(2.0/3.0) / coeff
-
-        lo = 0.0
-        hi = max(2.0 * mp_guess, 1.0e-12)
-
-        while f(hi) < 0.0:
-            hi *= 2.0
-
-        # Robust bisection
-        for j in range(100):
-            mid = 0.5 * (lo + hi)
-            if f(mid) > 0.0:
-                hi = mid
-            else:
-                lo = mid
-
-        mp = 0.5 * (lo + hi)
-
-        # Jacobi two-body total mass for planet i
-        mtot_jacobi = m_inner + mp
-
-        # Jacobi semimajor axis
-        ap[i] = (GMSUN * mtot_jacobi * (P / TWOPI)**2.0)**THIRD / AU
-
-        # Output planet mass in Jupiter masses
-        pl_mass[i] = mp * MSUN_TO_MJUP
-
-        # Add this planet to the cumulative inner Jacobi mass
-        m_inner += mp
-
-    return pl_mass, ap
  
  
 
 
 ####################### mass_semimajor ###########################################
-def mass_a_from_Kepler_fit(a,npl,m0):
-    '''Calculates the actual masses and Jacobi semimajor axes of a
-       system for assumed sin(i) using the parameters P, K and e from a Kepler fit
-       The output is now in Mjup and AU
-    '''
+def mass_a_from_Kepler_fit(a, npl, m0, incl=None):
+    """Legacy five-element interface; incl defaults to edge-on degrees.
 
-    incl = 90.0
-    sini = np.sin(PI*(incl/180.0))
-    mass  = np.zeros(npl+1)
-    ap    = np.zeros(npl)
-    pl_mass = np.zeros(npl)
-    mpold = pl_mass
-
-#*******G is set to be unit, and s, m, kg as unit of time, length and mass
-#*****  and there is a reason for that! later I might correct for that.
-    mtotal = m0
-    f = 5e-6
-    for i in range(npl):
-
-        T = a[5*i+1]*86400.0
-        mass[0] = m0
-
-        # we need innitial guess for each planet mass
-        dm = 0
-        mass[i+1] = abs(a[5*i])*(T*(m0)**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-a[5*i+2]**2.0)/abs(sini)
-        mpold[i] = mass[i+1]
-        # This is a simple iteration to solve for mp
-        while (dm <= 0):
-
-            if i == 0:
-                mtotal = m0
-                mass[i+1] = abs(a[5*i])*(T*(m0 + mpold[i])**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-a[5*i+2]**2.0)/abs(sini)
-            else:
-                mtotal = m0
-                for j in range(i):
-                    mtotal = mtotal + mass[j+1]
-                mass[i+1] = abs(a[5*i])*(T*(mtotal + mpold[i])**2.0/(TWOPI*GMSUN))**THIRD * np.sqrt(1.0-a[5*i+2]**2.0)/abs(sini)
-
-            dm = (mpold[i] - mass[i+1])
-            mpold[i] =  mpold[i] + f
-           # print mass[i+1], mpold[i]
-
-        ap[i] = (GMSUN*(mtotal + mass[i+1])*(T/TWOPI)**2)**THIRD
-
-#    for i in range(npl+1):
-#        mass[i] = mass[i]*GMSUN
-    for i in range(npl):
-
-        ap[i] = ap[i]/AU # to be in AU
-        pl_mass[i] = mass[i+1]*1047.5654817267318 # to be in Jup. masses
-        # I have seen that 1 Sol Mass = 1047.92612 Jup. masses???
-    return pl_mass,ap
+    Pass incl for physical masses. Prefer mass_a_from_jacobi_el when all
+    seven orbital elements are available. Outputs are Mjup and Jacobi AU.
+    """
+    rows = np.asarray(a, dtype=float).reshape(npl, 5)
+    inclinations = np.broadcast_to(90.0 if incl is None else incl, (npl,))
+    elements = np.column_stack((rows, inclinations, np.zeros(npl)))
+    return mass_a_from_jacobi_el(elements, npl, m0)
 
 
 
@@ -4780,3 +4604,21 @@ def run_stability_arb(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0,
     else:
         obj.swift_evol = model.swift_evol
     return obj
+
+
+def update_jacobi_masses(obj):
+    """Refresh physical derived values for active GUI slots, including old sessions."""
+    slots = [i for i, active in enumerate(obj.use_planet) if active]
+    masses = np.zeros(len(obj.use_planet))
+    axes = np.zeros(len(obj.use_planet))
+    rows = [[obj.K[i], obj.P[i], obj.e[i], obj.w[i], obj.M0[i], obj.i[i], obj.Node[i]]
+            for i in slots]
+    physical, jacobi_axes = mass_a_from_jacobi_el(rows, len(slots), obj.stellar_mass)
+    masses[slots], axes[slots] = physical, jacobi_axes
+    obj.masses, obj.semimajor = masses.tolist(), axes.tolist()
+    # Keep consumers of saved fit results consistent with the GUI and exports.
+    for name in ('fit_results', 'rvmod'):
+        result = getattr(obj, name, None)
+        if result is not None:
+            result.mass, result.a = masses.copy(), axes.copy()
+    return masses, axes

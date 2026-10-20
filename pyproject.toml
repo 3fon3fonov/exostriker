@@ -23,6 +23,7 @@ dependencies = [
     "numpy >= 1.26",
     "scipy >= 1.2.1",
     "matplotlib >= 3.3.1",
+    "contourpy >= 1.0",
     "formlayout == 1.2.0",
     "PyQt6",
     "jupyter",
@@ -64,3 +65,6 @@ version = { attr = "exostriker.__version__" }
 
 [tool.setuptools.packages.find]
 include = ["exostriker", "exostriker.*"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["*.so", "*.pyd", "*.dll", "*.dylib", "*.a", "*.o", "*.obj", "*.mod", "*.pyc", "*.pyo"]

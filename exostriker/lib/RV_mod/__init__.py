@@ -93,6 +93,7 @@ from .CustomSampler import CustomSampler
 from .posterior import posterior_summary, posterior_errors
 from .Warning_log import Warning_log
 from .functions import *
+from .gaia_data import prepare_gaia_dataset
 
 from .errors import Error, InputError, FittingError
 from .rv_files import rvfile, rvfile_list
@@ -517,6 +518,12 @@ def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_result
     loglik_ast = 0
     calc_data   = {kx: [] for kx in range(10)}
     calc_model  = {kx: [] for kx in range(10)}
+    if fit_results == False:
+        elements = np.array(par[len(vel_files)*2:len(vel_files)*2 + 7*npl], dtype=float).reshape(npl, 7)
+        if hkl:
+            elements[:, 2] = np.hypot(elements[:, 2], elements[:, 3])
+        physical_masses, jacobi_axes = mass_a_from_jacobi_el(elements, npl, stellar_mass)
+
     for i in range(npl):
         
         if hkl == True:
@@ -537,11 +544,7 @@ def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_result
         #t0    = times[0]  - ((np.radians(Ma_)/2.0*np.pi)*par[len(vel_files)*2 + 7*i])
         #print(t0,t0_o, times[0])
         if fit_results == False:
-            pl_mass,pl_a = mass_a_from_Kepler_fit([par[len(vel_files)*2 + 7*i],
-                                            par[len(vel_files)*2 +7*i+1],
-                                            ecc_,
-                                            om_,
-                                            Ma_],1,stellar_mass) ##################TB FIXED! these are not dynamical masses!
+            pl_mass, pl_a = physical_masses[i], jacobi_axes[i]
         else:
             pl_mass = float(fit_results.mass[i])
             pl_a    = float(fit_results.a[i])
@@ -584,6 +587,7 @@ def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_result
         return [loglik_ast, calc_data,calc_model]
     else:
         return loglik_ast
+
 
 
 def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, fit_results = False , return_model = False, model_max=0, model_samp=1000):
@@ -777,15 +781,9 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
             continue
         else:
 
-            #### TB moved to the read data function and called once 
-            planet_residual=ex.abs_res(ast_files_gaia[x][0][-2],g_stand,
-            np.array([ast_files_gaia[x][3]["RAdeg"],
-                      ast_files_gaia[x][3]["DEdeg"],0,0,0]),ast_files_gaia[x][0])
-
-            res_astrometric=np.copy(ast_files_gaia[x][0])
-            res_astrometric[-2]=planet_residual
-            
-            ############################################################
+            # New imports are already residuals. Legacy sessions are prepared
+            # once on first use; subsequent evaluations reuse the same array.
+            res_astrometric = prepare_gaia_dataset(ast_files_gaia[x])
             
             results = -1*ex.L_gaia(res_astrometric, 
                      correction,
@@ -804,12 +802,8 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
             
         #g_stand=np.array([0,0,0,0,0]) 
         
-        planet_residual=ex.abs_res(ast_files_gaia[0][0][-2],
-        g_stand,np.array([ast_files_gaia[0][3]["RAdeg"],
-                          ast_files_gaia[0][3]["DEdeg"],0,0,0]),ast_files_gaia[0][0])
-        
-        res_astrometric=np.copy(ast_files_gaia[0][0])
-        res_astrometric[-2]=planet_residual            
+        res_astrometric = prepare_gaia_dataset(ast_files_gaia[0])
+        planet_residual = res_astrometric[-2]
             
             
         fit_residuals=ex.abs_res(
@@ -903,15 +897,7 @@ def ast_loglik_gaia_old(par,vel_files, ast_files_gaia,npl,stellar_mass, times, h
                 #incl,
                 #parallax)    
                 
-                #### TB moved to the read data function and called once 
-                planet_residual=ex.abs_res(ast_files_gaia[x][0][-2],g_stand,
-                np.array([ast_files_gaia[x][3]["RAdeg"],
-                          ast_files_gaia[x][3]["DEdeg"],0,0,0]),ast_files_gaia[x][0])
-
-                res_astrometric=np.copy(ast_files_gaia[x][0])
-                res_astrometric[-2]=planet_residual
-                
-                ############################################################
+                res_astrometric = prepare_gaia_dataset(ast_files_gaia[x])
                 
               
                 results = -1*ex.L_gaia(
@@ -947,12 +933,8 @@ def ast_loglik_gaia_old(par,vel_files, ast_files_gaia,npl,stellar_mass, times, h
 
             #g_stand=np.array([0,0,0,0,0]) 
             
-            planet_residual=ex.abs_res(ast_files_gaia[0][0][-2],
-            g_stand,np.array([ast_files_gaia[0][3]["RAdeg"],
-                              ast_files_gaia[0][3]["DEdeg"],0,0,0]),ast_files_gaia[0][0])
-            
-            res_astrometric=np.copy(ast_files_gaia[0][0])
-            res_astrometric[-2]=planet_residual
+            res_astrometric = prepare_gaia_dataset(ast_files_gaia[0])
+            planet_residual = res_astrometric[-2]
 
  
             fit_residuals=ex.abs_res(
@@ -1038,9 +1020,11 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
 
         planet = ttvfast.models.Planet(*pl_params)
         planets.append(planet)
-
+        # print(stellar_mass)
+        # print(pl_params)
   
- 
+    #print(pl_mass)
+    
     results = ttvfast.ttvfast(planets, stellar_mass, times[0],times[1],times[2], input_flag=0)
     result_rows = list(zip(*results['positions']))
     #result_rows_rv = list(results['rv'])
@@ -2746,6 +2730,9 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         astr_loglik = astr_loglik + ast_loglik_gaia(par,vel_files,obj.ast_data_sets_gaia,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)        
         obj.loglik     =  astr_loglik
  
+    if any(obj.type_fit.get(kind, False) for kind in ('RV', 'AST', 'TTV')) and not obj.mod_dynamical:
+        update_jacobi_masses(obj)
+
 ############# Errors here ##############
 
     for i, slot in enumerate(dataset_slots):
@@ -4125,12 +4112,8 @@ class signal_fit(object):
 
 
     def init_mass_a(self):
-        self.masses    =[]
-        self.semimajor = []
-        
-        for i in range(9):
-            masses,semimajor  = mass_a_from_Kepler_fit([self.K[i], self.P[i], self.e[i], self.w[i], self.M0[i]],1,self.stellar_mass)
-            self.masses.append(masses[0]),self.semimajor.append(semimajor[0])
+        update_jacobi_masses(self)
+
             
     def init_pl_params(self):
 
@@ -5379,6 +5362,13 @@ class signal_fit(object):
         ast_file_name = file_from_path(path)
         ast_data_set = np.array([gaia, planet, use, gaia_header, ast_file_name],dtype=object)
 
+        # Imported centroids contain the catalogue solution. Store residuals
+        # now so the likelihood only fits corrections and planetary motion.
+        try:
+            prepare_gaia_dataset(ast_data_set)
+        except ValueError as exc:
+            print("Invalid Gaia astrometry data: %s" % exc)
+            return
         self.ast_data_sets_gaia[ast_idset] = ast_data_set
         return
 
@@ -5821,6 +5811,20 @@ class signal_fit(object):
  
  
 
+
+    def mass_semimajor2(self, mass_type="J"):
+        """Compatibility API for masses and axes of the enabled planets."""
+        slots = list(np.flatnonzero(self.use_planet))
+        elements = np.array([[getattr(self, name)[i]
+                              for name in ('K', 'P', 'e', 'w', 'M0', 'i', 'Node')]
+                             for i in slots], dtype=float).reshape(-1, 7)
+        masses, axes = mass_a_from_jacobi_el(elements, len(slots), self.params.stellar_mass)
+        if mass_type == "E":
+            masses = masses * 317.82838
+        elif mass_type != "J":
+            masses = masses / 1047.5654817267318
+        self.masses = masses
+        self.semimajor = axes
 
     def mass_semimajor(self): # calculates planet masses (in Jupiter masses) and orbit semimajor axes (in astronomical units)
         # declaring some constants which will be useful here

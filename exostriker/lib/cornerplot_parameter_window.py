@@ -1,6 +1,7 @@
 import sys #,os
 from PyQt6 import QtWidgets,QtGui 
 import numpy as np
+from color_dialog import choose_color
  
 class show_param_boxes(QtWidgets.QDialog):
 
@@ -13,7 +14,7 @@ class show_param_boxes(QtWidgets.QDialog):
         
         #self.layout1 = QtWidgets.QVBoxLayout(self)   
         self.layout = QtWidgets.QGridLayout(self)
-        self.title = 'This is a test window'
+        self.setWindowTitle('Cornerplot options')
         
         self.parent = parent
 
@@ -107,6 +108,12 @@ class show_param_boxes(QtWidgets.QDialog):
 
 
         self.cancel_button = QtWidgets.QPushButton('Close', self)
+        self.select_all_button = QtWidgets.QPushButton('Select all parameters', self)
+        self.deselect_all_button = QtWidgets.QPushButton('Deselect all parameters', self)
+        self.select_all_button.setAutoDefault(False)
+        self.deselect_all_button.setAutoDefault(False)
+        self.select_all_button.clicked.connect(lambda: self.set_all_parameters_checked(True))
+        self.deselect_all_button.clicked.connect(lambda: self.set_all_parameters_checked(False))
         
    
         self.truth_color_button = QtWidgets.QPushButton('Truths color', self)
@@ -263,7 +270,6 @@ class show_param_boxes(QtWidgets.QDialog):
         
 
 
-        self.initialize_color_dialog()
         self.init_buttons()  
         
 
@@ -343,6 +349,8 @@ class show_param_boxes(QtWidgets.QDialog):
 
 
         self.layout.addWidget(self.samp_color_button, 11,l+4)       
+        self.layout.addWidget(self.select_all_button, 17, l+3)
+        self.layout.addWidget(self.deselect_all_button, 17, l+4)
 
         try: 
             if "max. time" in self.OrigLabels:
@@ -375,11 +383,19 @@ class show_param_boxes(QtWidgets.QDialog):
         
 
 
+    def set_all_parameters_checked(self, checked):
+        for checkbox in self.checked_boxes:
+            checkbox.setChecked(checked)
+
     def return_but_N(self):
 
         #for g in range(len(self.parent.lables_cornerplot)):
             
-        results = {k: np.array([self.text_boxes[k].toPlainText(), self.checked_boxes[k].isChecked()]) for k in range(len(self.checked_boxes))}
+        results = {}
+        for k in range(len(self.checked_boxes)):
+            label = self.text_boxes[k].toPlainText()
+            results[k] = np.array([label, self.checked_boxes[k].isChecked()],
+                                  dtype=f"U{max(30, len(label))}")
         
         for k in range(17):
             #print(self.radio_bestfit_labels[k],self.radio_group_list[k].isChecked() )
@@ -412,51 +428,46 @@ class show_param_boxes(QtWidgets.QDialog):
         return results
  
     def get_color_truth(self):
-        global fit
 
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog|QtWidgets.QColorDialog.ShowAlphaChannel,)
- 
-        if colorz.isValid(): 
-            self.cornerplot_opt["truth_color"]=colorz.name() 
+        colorz = choose_color(self, self.cornerplot_opt['truth_color'], 'Cornerplot truth color')
+
+        if colorz.isValid():
+            self.cornerplot_opt["truth_color"]=colorz.name()
             self.truth_color_button.setStyleSheet("color: %s;"%colorz.name())
 
         else:
             return
-        
-    def get_color_samp(self):
-        global fit
 
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog|QtWidgets.QColorDialog.ShowAlphaChannel,)
- 
-        if colorz.isValid(): 
-            self.cornerplot_opt["color"]=colorz.name() 
+
+    def get_color_samp(self):
+
+        colorz = choose_color(self, self.cornerplot_opt['color'], 'Cornerplot sample color')
+
+        if colorz.isValid():
+            self.cornerplot_opt["color"]=colorz.name()
             self.samp_color_button.setStyleSheet("color: %s;"%colorz.name())
 
         else:
-            return        
+            return
+
 
 
     def get_color_stab_samp(self):
-        global fit
 
-        colorz = self.colorDialog.getColor(options=QtWidgets.QColorDialog.DontUseNativeDialog|QtWidgets.QColorDialog.ShowAlphaChannel,)
- 
-        if colorz.isValid(): 
-            self.cornerplot_opt["stab_color"]=colorz.name() 
+        colorz = choose_color(self, self.cornerplot_opt['stab_color'], 'Cornerplot stable sample color')
+
+        if colorz.isValid():
+            self.cornerplot_opt["stab_color"]=colorz.name()
             self.stab_samp_color_button.setStyleSheet("color: %s;"%colorz.name())
 
         else:
-            return        
+            return
 
-        
 
-    def initialize_color_dialog(self):
 
-        self.colorDialog = QtWidgets.QColorDialog()
-        self.colorDialog.setOption(QtWidgets.QColorDialog.ShowAlphaChannel, True)
-        self.colorDialog.setOption(QtWidgets.QColorDialog.DontUseNativeDialog, True)
 
- 
+
+
     # static method to create the dialog and return button pressed
     @staticmethod
     def get_labels(self):

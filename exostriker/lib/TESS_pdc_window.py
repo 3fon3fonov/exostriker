@@ -12,7 +12,7 @@ class pdc(QtWidgets.QDialog):
         self.layout = QtWidgets.QVBoxLayout(self)
         
  
-        self.title = 'This is a test window'
+        self.setWindowTitle('TESS flux options')
        # self.setFixedSize(550, 800)        
        # self.widget = QtWidgets.QWidget(self)
        # self.widget.setLayout(QtWidgets.QGridLayout())
