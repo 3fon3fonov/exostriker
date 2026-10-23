@@ -12,10 +12,13 @@ from color_dialog import choose_color
 from print_info_window import print_info
 from sample_correlation_options_ui import Ui_SampleCorrelationOptions
 from sample_corner_plot import CornerGrid
-from sample_plot_labels import plot_label
+from sample_plot_labels import plot_label, default_rv_units
+from sample_angles import fold_plot_angles
+from posterior_display import number, interval_text
+from hkl_plot import derived_hkl_columns
 
-DEFAULTS = dict(symbol='o', size=2., opacity=.25, max_points=50000,
-                bins=80, font_size=9, summary='None', color='#0066ff', plot_points=True,
+DEFAULTS = dict(derive_e=False, derive_omega=False, derive_M0=False, symbol='o', size=2., opacity=.25, max_points=50000,
+                bins=80, font_size=9, summary='None', color='#0066ff', contour_color='#0066ff', show_mad=False, round_statistics=True, plot_points=True,
                 plot_contours=True, fill_contours=False, smooth=1.,
                 convention='Corner 2D sigma', level1=39.3469, level2=86.4665,
                 level3=98.8891, quantile_lines=False, quantiles='0.16, 0.5, 0.84')
@@ -23,7 +26,7 @@ DEFAULTS = dict(symbol='o', size=2., opacity=.25, max_points=50000,
 COMBO_FIELDS = ('symbol', 'summary', 'convention')
 VALUE_FIELDS = ('size', 'opacity', 'max_points', 'bins', 'smooth',
                 'level1', 'level2', 'level3', 'font_size')
-CHECK_FIELDS = ('plot_points', 'plot_contours', 'fill_contours', 'quantile_lines')
+CHECK_FIELDS = ('derive_e', 'derive_omega', 'derive_M0', 'show_mad', 'round_statistics', 'plot_points', 'plot_contours', 'fill_contours', 'quantile_lines')
 
 
 def parse_quantiles(text):
@@ -44,8 +47,12 @@ def sample_data(fit, nested=False):
     if samples.ndim != 2 or not samples.size:
         return None
     labels = list(getattr(sampler, 'lbf', {}).get('OrigLabels', []))
-    labels = [str(labels[i]) if i < len(labels) else 'Parameter %d' % (i + 1)
+    labels = [default_rv_units(labels[i]) if i < len(labels) else 'Parameter %d' % (i + 1)
               for i in range(samples.shape[1])]
+    for _, _, label, column in derived_hkl_columns(fit, samples, labels, getattr(sampler, 'lbf', {})):
+        samples = np.column_stack((samples, column))
+        labels.append(label)
+    samples, _ = fold_plot_angles(samples, labels)
     return samples, labels
 
 
@@ -60,17 +67,19 @@ class OptionsDialog(QtWidgets.QDialog, Ui_SampleCorrelationOptions):
             item.setCheckState(QtCore.Qt.CheckState.Checked if index in (selected or [])
                                else QtCore.Qt.CheckState.Unchecked)
         self._color = options['color']
+        self._contour_color = options.get('contour_color', options['color'])
         self.quantiles.setText(options['quantiles'])
         for name in COMBO_FIELDS:
             getattr(self, name).setCurrentText(options[name])
         for name in VALUE_FIELDS:
             getattr(self, name).setValue(options.get(name, DEFAULTS[name]))
         for name in CHECK_FIELDS:
-            getattr(self, name).setChecked(options[name])
+            getattr(self, name).setChecked(options.get(name, DEFAULTS[name]))
         self.convention.currentTextChanged.connect(self.apply_preset)
         for name in ('level1', 'level2', 'level3'):
             getattr(self, name).valueChanged.connect(self.custom_levels)
         self.color.clicked.connect(self.choose_color)
+        self.contour_color.clicked.connect(self.choose_contour_color)
         self.update_color()
         self.buttons.accepted.connect(self.accept)
         self.buttons.rejected.connect(self.reject)
@@ -110,7 +119,15 @@ class OptionsDialog(QtWidgets.QDialog, Ui_SampleCorrelationOptions):
             return
         super().accept()
 
+    def choose_contour_color(self):
+        color = choose_color(self, self._contour_color, 'Contour color')
+        if color.isValid():
+            self._contour_color = color.name()
+            self.update_color()
+
     def update_color(self):
+        self.contour_color.setText(self._contour_color)
+        self.contour_color.setStyleSheet('border: 2px solid %s;' % self._contour_color)
         self.color.setText(self._color)
         self.color.setStyleSheet('border: 2px solid %s;' % self._color)
 
@@ -126,7 +143,7 @@ class OptionsDialog(QtWidgets.QDialog, Ui_SampleCorrelationOptions):
         result.update({name: getattr(self, name).value()
                        for name in VALUE_FIELDS})
         result.update({name: getattr(self, name).isChecked() for name in CHECK_FIELDS})
-        return dict(result, color=self._color, quantiles=self.quantiles.text())
+        return dict(result, color=self._color, contour_color=self._contour_color, quantiles=self.quantiles.text())
 
 
 def render(plot, samples, labels, xindex, yindex, options, font_size=9):
@@ -204,7 +221,7 @@ def draw_contours(plot, pair, options):
                         path.lineTo(*point)
                     path.closeSubpath()
                 item = QtWidgets.QGraphicsPathItem(path)
-                color = QtGui.QColor(options['color'])
+                color = QtGui.QColor(options.get('contour_color', options['color']))
                 color.setAlphaF(.13)
                 item.setBrush(pg.mkBrush(color))
                 item.setPen(pg.mkPen(None))
@@ -212,17 +229,17 @@ def draw_contours(plot, pair, options):
                 plot.addItem(item)
         for points in grid.lines(threshold):
             curve = pg.PlotCurveItem(points[:, 0], points[:, 1],
-                                     pen=pg.mkPen(options['color'], width=1.5))
+                                     pen=pg.mkPen(options.get('contour_color', options['color']), width=1.5))
             curve.setZValue(3)
             plot.addItem(curve)
 
 
 def statistics_html(samples, labels, xindex, yindex, source, options=None):
-    options = DEFAULTS if options is None else options
+    options = DEFAULTS if options is None else dict(DEFAULTS, **options)
     rows = ['<h1>%s sample statistics</h1>' % escape(source),
             '<p>%d samples; %d parameters. All finite values are used independently '
             'of display sampling.<br>σ is the sample standard deviation (ddof=1). '
-            'Angles are summarized linearly on their stored branch.</p>' % samples.shape]
+            'Periodic angles use their continuous plotting branch.</p>' % samples.shape]
     table = '<table border="1" cellspacing="0" cellpadding="5">'
     rows.append(table+'<tr><th>Selected pair</th><th>Finite pairs</th><th>Pearson r</th><th>Spearman ρ</th></tr>')
     pair = samples[:, [xindex, yindex]]
@@ -234,21 +251,24 @@ def statistics_html(samples, labels, xindex, yindex, source, options=None):
     rows.append('<tr><td>%s vs %s</td><td>%d</td><td>%s</td><td>%s</td></tr></table>' %
                 (escape(labels[xindex]), escape(labels[yindex]), len(pair), pearson, spearman))
     rows.append('<h2>Parameter summaries</h2>'+table+'<tr>'+''.join(
-        '<th>%s</th>' % text for text in ['Parameter', 'Finite / excluded', 'Mean', 'Median', 'σ', 'MAD', 'IQR', 'Minimum', 'Maximum'])+'</tr>')
+        '<th>%s</th>' % text for text in (['Parameter', 'Finite / excluded', 'Mean', 'Median', 'σ'] + (['MAD'] if options['show_mad'] else []) + ['IQR', 'Minimum', 'Maximum']))+'</tr>')
     columns = []
     for column, label in enumerate(labels):
         values = samples[:, column]
         values = values[np.isfinite(values)]
         columns.append(values)
-        cells = [escape(label), '%d / %d' % (len(values), len(samples)-len(values))]
+        cells = [plot_label(label), '%d / %d' % (len(values), len(samples)-len(values))]
         if len(values):
-            cells += ['%.8g' % np.mean(values), '%.8g' % np.median(values),
-                      '%.8g' % np.std(values, ddof=1) if len(values)>1 else 'undefined',
-                      '%.8g' % np.median(np.abs(values-np.median(values))),
-                      '%.8g' % np.subtract(*np.percentile(values, [75, 25])),
-                      '%.8g' % values.min(), '%.8g' % values.max()]
+            lo, hi = np.percentile(values, [15.85, 84.15])
+            precision = (hi-lo)/2
+            fmt = lambda v: number(v, precision, options['round_statistics'])
+            cells += [fmt(np.mean(values)), fmt(np.median(values)),
+                      fmt(np.std(values, ddof=1)) if len(values)>1 else 'undefined']
+            if options['show_mad']:
+                cells += [fmt(np.median(np.abs(values-np.median(values))))]
+            cells += [fmt(np.subtract(*np.percentile(values, [75, 25]))), fmt(values.min()), fmt(values.max())]
         else:
-            cells += ['undefined']*7
+            cells += ['undefined']*(7 if options['show_mad'] else 6)
         rows.append('<tr>'+''.join('<td>%s</td>' % cell for cell in cells)+'</tr>')
     rows.append('</table><h2>Marginal equal-tail credible intervals</h2>'+table+
                 '<tr><th>Parameter</th><th>1σ (68.2689%)</th><th>2σ (95.4500%)</th><th>3σ (99.7300%)</th></tr>')
@@ -257,7 +277,7 @@ def statistics_html(samples, labels, xindex, yindex, source, options=None):
         for n in (1, 2, 3):
             coverage = erf(n/sqrt(2))
             bounds = np.quantile(values, [(1-coverage)/2, (1+coverage)/2]) if len(values) else None
-            cells.append('[%.8g, %.8g]' % tuple(bounds) if bounds is not None else 'undefined')
+            cells.append(('['+number(bounds[0], (bounds[1]-bounds[0])/2, options['round_statistics'])+', '+number(bounds[1], (bounds[1]-bounds[0])/2, options['round_statistics'])+']') if bounds is not None else 'undefined')
         rows.append('<tr>'+''.join('<td>%s</td>' % cell for cell in cells)+'</tr>')
     rows.append('</table><h2>Adopted 2D contour probabilities</h2>'+table+
                 '<tr><th>Contour</th><th>Enclosed posterior probability</th></tr>')
@@ -280,6 +300,8 @@ class SampleCorrelationController:
         parent.corner_mode.toggled.connect(self.render)
         parent.corr_plot_options.clicked.connect(self.show_options)
         parent.samp_corr_print_info.clicked.connect(self.show_statistics)
+        parent.samp_corr_print_info.setText('Statistics')
+        parent.samp_corr_print_info.setToolTip('Posterior statistics for every parameter')
         parent.corr_plot_options.setEnabled(True)
         parent.samp_corr_print_info.setEnabled(True)
 
@@ -322,15 +344,31 @@ class SampleCorrelationController:
                    self.parent.plot_font.pointSize())
 
     def show_options(self):
+        fit = self.fit_provider()
+        sampler = getattr(fit, 'ns_sampler' if self.parent.samp_corr_ns.isChecked() else 'mcmc_sampler', None)
+        if hasattr(sampler, 'lbf'):
+            self.options.update({key: sampler.lbf.get(key, False) for key in ('derive_e', 'derive_omega', 'derive_M0')})
         data = self.data()
         labels = data[1] if data is not None else None
         selected = self.selected_parameters(labels) if labels is not None else None
         dialog = OptionsDialog(self.parent, self.options, labels, selected)
+        dialog.statistics_button.clicked.connect(
+            lambda: (dialog.setProperty('show_statistics', True), dialog.accept()))
         if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
             self.options = dialog.values()
+            fit = self.fit_provider()
+            sampler = getattr(fit, 'ns_sampler' if self.parent.samp_corr_ns.isChecked() else 'mcmc_sampler', None)
+            if hasattr(sampler, 'lbf'):
+                sampler.lbf.setdefault('cornerplot', {}).update({key: self.options[key] for key in ('show_mad', 'round_statistics')})
+                sampler.lbf.update({key: self.options[key] for key in ('derive_e', 'derive_omega', 'derive_M0')})
             if labels is not None:
-                self.parameter_selections[self.selection_key(labels)] = dialog.selected_parameters()
+                refreshed = self.data()
+                new_labels = refreshed[1] if refreshed is not None else labels
+                chosen = {labels[i] for i in dialog.selected_parameters()} | (set(new_labels)-set(labels))
+                self.parameter_selections[self.selection_key(new_labels)] = [i for i, label in enumerate(new_labels) if label in chosen][:12]
             self.render()
+            if dialog.property('show_statistics'):
+                self.show_statistics()
 
     def show_statistics(self):
         data = self.data()
@@ -341,7 +379,7 @@ class SampleCorrelationController:
         if self.info_window is None:
             self.info_window = print_info(self.parent)
             self.info_window.text.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.NoWrap)
-        self.info_window.setWindowTitle('Sample correlation statistics')
+        self.info_window.setWindowTitle('Posterior statistics — all parameters')
         source = 'Nested posterior (equal-weight resampled)' if self.parent.samp_corr_ns.isChecked() else 'MCMC'
         self.info_window.text.setHtml(statistics_html(*data, *self.indices(data[0]), source, self.options))
         self.info_window.resize(1200, 700)

@@ -66,9 +66,7 @@ except (ImportError, KeyError,ModuleNotFoundError) as e:
 
 class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
     def __init__(self,parent):
-        super(DetrendWindow, self).__init__()
-
-        QtWidgets.QWidget.__init__(self)
+        QtWidgets.QWidget.__init__(self, parent, QtCore.Qt.WindowType.Window)
         Ui_DetrendWindow.__init__(self)
        # self.setWindowTitle('Transit detrending options')
         self.font = QtGui.QFont()
@@ -678,6 +676,9 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
 
 
     def closeEvent(self, event):
+        if self.property('exostriker_shutdown'):
+            event.accept()
+            return
         
         if len(self.old_t)  != len(self.t):
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',

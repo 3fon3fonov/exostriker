@@ -10,13 +10,16 @@ class show_param_boxes(QtWidgets.QDialog):
        # super(show_param_boxes, self).__init__(parent)
     #    super(show_param_boxes, self).__init__()
     def __init__(self,parent):
-        super(show_param_boxes, self).__init__()
+        super(show_param_boxes, self).__init__(parent if isinstance(parent, QtWidgets.QWidget) else None)
         
         #self.layout1 = QtWidgets.QVBoxLayout(self)   
         self.layout = QtWidgets.QGridLayout(self)
         self.setWindowTitle('Cornerplot options')
         
         self.parent = parent
+        # Keep the historical attribute available even before a sampler/session
+        # is loaded. The populated OrigLabels metadata is assigned below.
+        self.OrigLabels = []
 
         
         
@@ -83,6 +86,15 @@ class show_param_boxes(QtWidgets.QDialog):
         self.radi_check  = QtWidgets.QCheckBox('incl. radius (needed: Rp/Rs)', self)
         self.ppm_check   = QtWidgets.QCheckBox('rel. flux --> ppm', self)
         self.lambda_check   = QtWidgets.QCheckBox('incl. lambda (needed: e,omega )', self)
+        self.derived_hkl_checks = {}
+        for key, text in [('derive_e', 'incl. derived e (h/k)'),
+                          ('derive_omega', 'incl. derived omega (h/k)'),
+                          ('derive_M0', 'incl. derived mean anomaly (h/k/lambda)')]:
+            checkbox = QtWidgets.QCheckBox(text, self)
+            settings = self.parent.lables_cornerplot
+            checkbox.setChecked(settings.get(key, False) if isinstance(settings, dict) else False)
+            self.derived_hkl_checks[key] = checkbox
+
 
 
         
@@ -146,6 +158,11 @@ class show_param_boxes(QtWidgets.QDialog):
         self.check_no_fill_contours = QtWidgets.QCheckBox('no fill contours', self)
         self.check_fill_contours    = QtWidgets.QCheckBox('fill contours', self)
         
+        self.check_show_mad = QtWidgets.QCheckBox('Print MAD', self)
+        self.check_round_statistics = QtWidgets.QCheckBox('Round statistics to uncertainty', self)
+        self.check_show_mad.setChecked((self.parent.lables_cornerplot.get('cornerplot', {}) if isinstance(self.parent.lables_cornerplot, dict) else {}).get('show_mad', False))
+        self.check_round_statistics.setChecked((self.parent.lables_cornerplot.get('cornerplot', {}) if isinstance(self.parent.lables_cornerplot, dict) else {}).get('round_statistics', True))
+
         self.check_reverse          = QtWidgets.QCheckBox('reverse', self)
         
         
@@ -280,7 +297,8 @@ class show_param_boxes(QtWidgets.QDialog):
         
         k = 0
         l = 0
-        for g in range(len(self.parent.lables_cornerplot)-19):
+        for g, original_label in enumerate(self.OrigLabels):
+            self.parent.lables_cornerplot.setdefault(g, np.array([original_label, True], dtype=f"U{max(30, len(original_label))}"))
 
             k = g%20
 
@@ -319,7 +337,9 @@ class show_param_boxes(QtWidgets.QDialog):
         self.layout.addWidget(self.radio_Rp_Mj, 7,  l+2)         
         self.layout.addWidget(self.radio_Rp_So, 8, l+2) 
         self.layout.addWidget(self.lambda_check, 9, l+2)         
-        self.layout.addWidget(self.ppm_check, 10, l+2) 
+        self.layout.addWidget(self.ppm_check, 10, l+2)
+        for row, checkbox in enumerate(self.derived_hkl_checks.values(), 12):
+            self.layout.addWidget(checkbox, row, l+2) 
          
         self.layout.addWidget(self.label_bestfit, 0,l+3)              
         self.layout.addWidget(self.radio_median, 1,l+3)
@@ -349,6 +369,8 @@ class show_param_boxes(QtWidgets.QDialog):
 
 
         self.layout.addWidget(self.samp_color_button, 11,l+4)       
+        self.layout.addWidget(self.check_show_mad, 18, l+3)
+        self.layout.addWidget(self.check_round_statistics, 18, l+4)
         self.layout.addWidget(self.select_all_button, 17, l+3)
         self.layout.addWidget(self.deselect_all_button, 17, l+4)
 
@@ -403,6 +425,8 @@ class show_param_boxes(QtWidgets.QDialog):
         
         #print(np.array([[bestfit_labels[k],bestfit_labels_bool[k]] for k in range(6)]) )  
         
+        self.cornerplot_opt['show_mad'] = self.check_show_mad.isChecked()
+        self.cornerplot_opt['round_statistics'] = self.check_round_statistics.isChecked()
         self.cornerplot_opt["plot_datapoints"] = self.check_plot_datapoints.isChecked()
         self.cornerplot_opt["plot_contours"]   = self.check_plot_contours.isChecked()
         self.cornerplot_opt["show_titles"]     = self.check_plot_show_titles.isChecked()
@@ -422,6 +446,8 @@ class show_param_boxes(QtWidgets.QDialog):
             self.cornerplot_opt["quantiles"]        = self.quantiles.value()     
 
         
+        for key, checkbox in self.derived_hkl_checks.items():
+            results[key] = checkbox.isChecked()
         results["cornerplot"] = self.cornerplot_opt
         results["OrigLabels"] = self.OrigLabels
         

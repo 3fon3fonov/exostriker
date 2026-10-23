@@ -1895,6 +1895,9 @@ def run_Fort(obj,mod,minimize_loglik=True):
         print(repr(exc))
     method = "Simplex" if minimize_loglik else "LM"
     model = {"kep": "Keplerian", "dyn": "N-body"}.get(mod, mod)
+    mixed = getattr(obj, 'mixed_fit', {0: [False]})
+    if mod == 'dyn' and bool(np.asarray(mixed[0]).item()):
+        model = 'Keplerian + N-body (mixed)'
     outcome = "" if obj.flag else " (failed)"
     print(f"--- {method} ({model}){outcome}: {time.perf_counter() - start_time:.5f} seconds ---")
     return obj
@@ -2110,7 +2113,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         jd = np.append(jd, obj.rv_data_sets[z][0], axis = 0)
         rvs = np.append(rvs, obj.rv_data_sets[z][1], axis = 0)
         sig = np.append(sig, obj.rv_data_sets[z][2], axis = 0)
-        ids = np.append(ids, obj.rv_data_sets[z][3]+1, axis = 0)
+        ids = np.append(ids, np.asarray(obj.rv_data_sets[z][3], dtype=float)+1, axis = 0)
     final_array = np.array([jd, rvs, sig, ids]).T
 
     rvs_files  = final_array 
@@ -2127,7 +2130,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
     mix_fit = obj.mixed_fit
 
     if (obj.mod_dynamical):
-        if mix_fit[0] == True:
+        if bool(np.asarray(mix_fit[0]).item()):
             mod='%s/lib/fr/loglik_dyn+'%obj.cwd
             when_to_kill =  obj.dyn_model_to_kill
         else:
@@ -2961,7 +2964,7 @@ def run_nestsamp(obj, **kwargs):
         jd = np.append(jd, obj.rv_data_sets[z][0], axis = 0)
         rvs = np.append(rvs, obj.rv_data_sets[z][1], axis = 0)
         sig = np.append(sig, obj.rv_data_sets[z][2], axis = 0)
-        ids = np.append(ids, obj.rv_data_sets[z][3]+1, axis = 0)
+        ids = np.append(ids, np.asarray(obj.rv_data_sets[z][3], dtype=float)+1, axis = 0)
     final_array = np.array([jd, rvs, sig, ids]).T
 
 
@@ -2980,7 +2983,7 @@ def run_nestsamp(obj, **kwargs):
     mix_fit = obj.mixed_fit
 
     if (obj.mod_dynamical):
-        if mix_fit[0] == True:
+        if bool(np.asarray(mix_fit[0]).item()):
             mod='%s/lib/fr/loglik_dyn+'%obj.cwd
             when_to_kill =  obj.dyn_model_to_kill
         else:
@@ -3511,7 +3514,7 @@ def run_mcmc(obj, **kwargs):
         jd = np.append(jd, obj.rv_data_sets[z][0], axis = 0)
         rvs = np.append(rvs, obj.rv_data_sets[z][1], axis = 0)
         sig = np.append(sig, obj.rv_data_sets[z][2], axis = 0)
-        ids = np.append(ids, obj.rv_data_sets[z][3]+1, axis = 0)
+        ids = np.append(ids, np.asarray(obj.rv_data_sets[z][3], dtype=float)+1, axis = 0)
     final_array = np.array([jd, rvs, sig, ids]).T
 
 
@@ -3529,7 +3532,7 @@ def run_mcmc(obj, **kwargs):
     mix_fit = obj.mixed_fit
 
     if (obj.mod_dynamical):
-        if mix_fit[0] == True:
+        if bool(np.asarray(mix_fit[0]).item()):
             mod='%s/lib/fr/loglik_dyn+'%obj.cwd
             when_to_kill =  obj.dyn_model_to_kill
         else:
@@ -3976,6 +3979,7 @@ class signal_fit(object):
 
 
         self.init_orb_evol()
+        self.nbody_plot_options = {}
 
         self.tls = []
         self.tls_o_c = []
@@ -5573,7 +5577,7 @@ class signal_fit(object):
         self.rvoff[number] = 0.0
         self.rvoff_use[number] = False
         self.rvoff_err[number] = np.array([0.0,0.0])
-        self.rvoff_str[number] = r'RV off$_%s$'%str(number+1)
+        self.rvoff_str[number] = r'RV off$_%s$ [m/s]'%str(number+1)
         self.rvoff_bounds[number] = np.array([-1000000.0,1000000.0] )
         self.rvoff_norm_pr[number] = np.array([0.0,100.0, False])
         self.rvoff_jeff_pr[number] = np.array([0.0,100.0, False] ) 
@@ -5863,6 +5867,133 @@ class signal_fit(object):
         return
  
  
+    def sort_planets_by_period(self):
+        """Pack enabled planets by ascending period, carrying their full state.
+
+        Returns the old zero-based slot at each new slot (all nine slots).
+        Equal periods retain their previous order. Inactive slots follow the
+        enabled planets. Dataset assignments follow planet identity. Saved
+        sampling chains retain their own original labels; new sampler inputs
+        are rebuilt after this operation.
+        """
+        active = [i for i in range(9) if self.use_planet[i]]
+        if any(not np.isfinite(self.P[i]) or self.P[i] <= 0 for i in active):
+            raise ValueError('Enabled planets must have finite, positive periods')
+        ordered = sorted(active, key=lambda i: self.P[i])
+        order = ordered + [i for i in range(9) if i not in active]
+        if order == list(range(9)):
+            return tuple(order)
+        inverse = {old: new for new, old in enumerate(order)}
+
+        def permute(value):
+            result = list(value) if isinstance(value, tuple) else dill.copy(value)
+            for new, old in enumerate(order):
+                result[new] = dill.copy(value[old])
+            return tuple(result) if isinstance(value, tuple) else result
+
+        # Explicit planet fields: never permute a dataset/GP array merely
+        # because it happens to have nine entries. Default labels stay positional.
+        roots = ('K', 'P', 'e', 'w', 'M0', 'i', 'Node', 'w_dot', 'omega_dot',
+                 'e_sinw', 'e_cosw', 'lamb', 't0', 'pl_a', 'pl_rad')
+        suffixes = ('', '_err', '_use', '_bound', '_bounds', '_norm_pr', '_jeff_pr')
+        updates = {}
+        for root in roots:
+            for suffix in suffixes:
+                name = root + suffix
+                if hasattr(self, name):
+                    updates[name] = permute(getattr(self, name))
+        for name in ('use_planet', 't_peri', 'masses', 'semimajor',
+                     'ph_data', 'ph_model', 'ph_data_tra', 'ph_model_tra',
+                     'evol_T', 'evol_a', 'evol_e', 'evol_p', 'evol_M',
+                     'evol_i', 'evol_Om', 'evol_Per'):
+            if hasattr(self, name):
+                updates[name] = permute(getattr(self, name))
+        for suffix in ('', '_err', '_use', '_str', '_bounds', '_norm_pr', '_jeff_pr'):
+            name = 'tra_ttv' + suffix
+            if hasattr(self, name):
+                updates[name] = permute(getattr(self, name))
+        if hasattr(self, 'mixed_fit'):
+            updates['mixed_fit'] = dill.copy(self.mixed_fit)
+            updates['mixed_fit'][1] = permute(self.mixed_fit[1])
+        if hasattr(self, 'get_TTVs'):
+            updates['get_TTVs'] = dill.copy(self.get_TTVs)
+            updates['get_TTVs'][1] = permute(self.get_TTVs[1])
+        for name, column in (('ttv_data_sets', 3), ('ast_data_sets', 5),
+                             ('ast_data_sets_hipp', 1), ('ast_data_sets_gaia', 1)):
+            if not hasattr(self, name):
+                continue
+            datasets = dill.copy(getattr(self, name))
+            for key in range(len(datasets)):
+                if len(datasets[key]):
+                    planet = datasets[key][column]
+                    if planet in range(1, 10):
+                        datasets[key][column] = inverse[planet - 1] + 1
+            updates[name] = datasets
+
+        # Native parameter vectors are packed by enabled slot, unlike the
+        # public nine-slot dictionaries. Keep their spare capacity intact.
+        packed_order = [active.index(old) for old in ordered]
+        def packed(value):
+            result = np.array(value, copy=True)
+            original = np.array(value, copy=True)
+            for new, old in enumerate(packed_order):
+                result[7*new:7*new+7] = original[7*old:7*old+7]
+            return result
+
+        for owner_name, field in (('params', 'planet_params'),
+                                  ('param_errors', 'planet_params_errors'),
+                                  ('use', 'use_planet_params')):
+            if hasattr(self, owner_name):
+                owner = dill.copy(getattr(self, owner_name))
+                values = packed(getattr(owner, field))
+                names = ('K', 'P', 'e_sinw', 'e_cosw', 'lamb', 'i', 'Node') if getattr(self, 'hkl', False) else (
+                    'K', 'P', 'e', 'w', 'M0', 'i', 'Node')
+                suffix = '_err' if owner_name == 'param_errors' else '_use' if owner_name == 'use' else ''
+                for new in range(len(active)):
+                    for column, name in enumerate(names):
+                        values[7*new+column] = updates[name+suffix][new]
+                setattr(owner, field, values)
+                updates[owner_name] = owner
+        if hasattr(self, 'bounds'):
+            owner = dill.copy(self.bounds)
+            original = np.asarray(owner.planet_params_bounds)
+            owner.planet_params_bounds = packed(original.reshape(-1, 2)).reshape(original.shape)
+            updates['bounds'] = owner
+        # Fitted vectors use public slots; model-data columns already use
+        # ascending period order, so those columns must not be permuted again.
+        for name in ('fit_results', 'rvmod'):
+            if not hasattr(self, name):
+                continue
+            result = dill.copy(getattr(self, name))
+            for field in ('K', 'P', 'e', 'w', 'M0', 'incl', 'cap0m', 'omega_dot',
+                          'omega_dot_err', 't0', 'RR', 'aR', 'a_new', 'm', 'tw',
+                          'h', 'k', 'lamb', 'mass', 'a'):
+                value = getattr(result, field, None)
+                if isinstance(value, (list, tuple, dict, np.ndarray)) and len(value) >= 9:
+                    setattr(result, field, permute(value))
+            for field in ('planet_params', 'planet_params_errors'):
+                if hasattr(result, field):
+                    setattr(result, field, packed(getattr(result, field)))
+            if getattr(result, 'npl_pos', None) is not None:
+                result.npl_pos = dill.copy(updates['use_planet'])
+            # stat wrappers can share arrays with the native vector fields.
+            if hasattr(result, 'stat'):
+                if hasattr(result.stat, 'params'):
+                    result.stat.params.planet_params = result.planet_params
+                if hasattr(result.stat, 'param_errors'):
+                    result.stat.param_errors.planet_params_errors = result.planet_params_errors
+            updates[name] = result
+
+        # Commit only after constructing every reordered field successfully.
+        self.__dict__.update(updates)
+        self.npl = len(active)
+        for name in ('parameters', 'f_for_mcmc', 'par_for_mcmc', 'e_for_mcmc',
+                     'b_for_mcmc', 'j_for_mcmc'):
+            if hasattr(self, name):
+                setattr(self, name, [])
+        self.mcmc_planet_slots = tuple(range(self.npl))
+        return tuple(order)
+
     # sort planets by one of the parameters (K,P,e,w,M0)
     def sort_by_param(self,param,reverse=True):
           if (self.npl>0): # no point in sorting if there's no planets
@@ -6012,8 +6143,11 @@ class signal_fit(object):
 
     ### this function is a wrapper calling a fortran program to fit parameters in keplerian mode by minimizing chi^2   WORK IN PROGRESS ON THAT ONE!
 
-    def update_priors_from_fit(self, n_sigma=3, round_digits=None, sync_gui=True):
-        """Set RV bounds and Gaussian priors from current fitted values/errors.
+    def update_priors_from_fit(self, n_sigma=3, round_digits=None, sync_gui=True, gaussian=False):
+        """Set RV bounds from fitted values/errors; optionally enable Gaussians.
+
+        By default, existing Gaussian/Jeffreys values and selections are untouched.
+        Pass gaussian=True to update/enable Gaussians and disable Jeffreys priors.
 
         For asymmetric errors use the larger uncertainty. Zero or non-finite
         errors are skipped. Angles remain unwrapped about their fitted value.
@@ -6035,7 +6169,7 @@ class signal_fit(object):
         changes = []
         for name, bounds_name, slots, scalar in fields:
             if not all(hasattr(self, attr) for attr in
-                       (name, name + '_err', bounds_name, name + '_norm_pr')):
+                       (name, name + '_err', bounds_name) + ((name + '_norm_pr',) if gaussian else ())):
                 continue
             for slot in slots:
                 value = float(getattr(self, name) if scalar else getattr(self, name)[slot])
@@ -6075,11 +6209,12 @@ class signal_fit(object):
                 if bounds[0] >= bounds[1]:
                     continue
                 getattr(self, bounds_name)[slot] = bounds
-                getattr(self, name + '_norm_pr')[slot] = np.array([mean, width, True])
-                if hasattr(self, name + '_jeff_pr'):
-                    getattr(self, name + '_jeff_pr')[slot][2] = False
+                if gaussian:
+                    getattr(self, name + '_norm_pr')[slot] = np.array([mean, width, True])
+                    if hasattr(self, name + '_jeff_pr'):
+                        getattr(self, name + '_jeff_pr')[slot][2] = False
                 changes.append(dict(parameter=name, slot=int(slot), bounds=bounds.copy(),
-                                    mean=mean, sigma=width))
+                                    mean=mean, sigma=width, gaussian=bool(gaussian)))
         if sync_gui:
             reference = globals().get('_fit_prior_gui_sync')
             callback = reference() if reference is not None else None
@@ -6186,6 +6321,14 @@ class signal_fit(object):
         else:
             mod='kep'
 
+        mixed = getattr(self, 'mixed_fit', {0: [False]})
+        mixed_enabled = self.mod_dynamical and bool(np.asarray(mixed[0]).item())
+        dyn_planets = None
+        if mixed_enabled:
+            dyn_planets = np.asarray(mixed[1])[[i for i in range(9) if self.use_planet[i]]]
+            if not np.all(np.isin(dyn_planets, [0, 1])):
+                raise ValueError('Mixed RV planet flags must be 0 or 1')
+
         hkl = int(self.hkl)
 #        from .rvmod import Rvfit
         #rvmod = Rvfit()
@@ -6236,7 +6379,7 @@ class signal_fit(object):
                     jd = np.append(jd, self.rv_data_sets[z][0], axis = 0)
                     rvs = np.append(rvs, self.rv_data_sets[z][1], axis = 0)
                     sig = np.append(sig, self.rv_data_sets[z][2], axis = 0)
-                    ids = np.append(ids, self.rv_data_sets[z][3]+1, axis = 0)
+                    ids = np.append(ids, np.asarray(self.rv_data_sets[z][3], dtype=float)+1, axis = 0)
  
             rvs_files = np.array([jd, rvs, sig, ids]).T
  
@@ -6249,9 +6392,9 @@ class signal_fit(object):
                          rv_model_npoints=self.model_npoints, rv_model_max=self.model_max, rv_model_min=self.model_min,
                          rv_gr_flag=int(self.gr_flag), stellar_mass=self.params.stellar_mass,
                          ndset=self.ndset, ndata=None, nplanet=None,
-                         dyn_planets=None,coplar_inc=int(self.copl_incl),jit_flag = int(self.jit_flag))
+                         dyn_planets=dyn_planets,coplar_inc=int(self.copl_incl),jit_flag = int(self.jit_flag))
 
-        program = '%s/lib/fr/%s_%s' % (self.cwd, minimized_value, mod)
+        program = '%s/lib/fr/%s_%s' % (self.cwd, minimized_value, mod + ('+' if mixed_enabled else ''))
         if minimize_fortran == True and doGP ==False:
 
             create_args()

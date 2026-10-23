@@ -5,6 +5,12 @@ import re
 from matplotlib._mathtext_data import tex2uni
 
 
+def default_rv_units(label):
+    """Upgrade only standard legacy RV offset/jitter labels, not user labels."""
+    text = str(label)
+    return text+' [m/s]' if re.fullmatch(r'RV (?:off|jitt)\$_(?:\d+|\{\d+\})\$', text) else text
+
+
 def plot_label(label):
     """Keep ordinary text safe and format common TeX parameter notation."""
     text = escape(str(label).replace('$', ''))

@@ -192,7 +192,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
 !        CALL SECOND(t_stop)
 !        if (t_stop.ge.when_to_kill) then
 !           write(*,*) 'Max. time=',when_to_kill, 'sec ', &
-!             'exceeded t_stop =', t_stop, 'sec ' 
+!             'exceeded elapsed CPU time =', t_stop-t_init, 'sec ' 
 !           exit
 !        endif         
         
@@ -210,7 +210,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
 
         if (when_to_kill.gt.0.0 .and. (t_stop-t_init)>=when_to_kill) then
             write(*, *) 'Max. time=', when_to_kill, 'sec ', &
-                    'exceeded t_stop =', t_stop-t_init, 'sec '
+                    'exceeded elapsed CPU time =', t_stop-t_init, 'sec '
             exit
         endif
     enddo
@@ -543,7 +543,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
             call cpu_time(t_stop)     
             if (when_to_kill.gt.0.0 .and. (t_stop-t_init)>=when_to_kill) then
                 write(*, *) 'Max. time=', when_to_kill, 'sec ', &
-                        'exceeded t_stop =', t_stop, 'sec '
+                        'exceeded elapsed CPU time =', t_stop-t_init, 'sec '
                 exit
             endif
         enddo
@@ -815,7 +815,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
 
         if (when_to_kill.gt.0.0 .and. (t_stop-t_init)>=when_to_kill) then
             write(*, *) 'Max. time=', when_to_kill, 'sec ', &
-                    'exceeded t_stop =', t_stop, 'sec '
+                    'exceeded elapsed CPU time =', t_stop-t_init, 'sec '
             exit
         endif
  
@@ -975,17 +975,37 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
             
             
 
+    ! A Keplerian RV has no dependence on its inclination or node. Exclude
+    ! these null columns from LM even when an older session marks them free.
+    if (any(dynamical_planets.eq.0)) then
+        do i = 1, npl
+            if (dynamical_planets(i).eq.0) then
+                ia(7*(i-1)+7) = 0
+                if (.not.(coplar_inc.ne.0.and.i.eq.1.and.any(dynamical_planets.eq.1))) &
+                    ia(7*(i-1)+6) = 0
+            endif
+            if (coplar_inc.ne.0.and.i.gt.1) ia(7*(i-1)+6) = 0
+        enddo
+        mfit = count(ia(1:ma).ne.0)
+    endif
+
     !*****set alamda to be negtive for initializing******
+    call cpu_time(t_init)
     alamda = -1.d0
     call MRQMIN_dynlm (t, ts, ys, sigs, ndata, a, ia, ma, covar, alpha, MMAX, &
-            chisq, rvkep_ewcop_fin, alamda, loglik, jitt, epsil, deltat, hkl, coplar_inc)
+            chisq, rvkep_ewcop_fin, alamda, loglik, jitt, epsil, deltat, hkl, coplar_inc, &
+        dynamical_planets)
 
     i = 0
     dchisq = 10.d0
     ochisq = chisq
-!    t_init = time()
-    call cpu_time(t_init)         
     do while ((chisq>=ochisq).or.(dchisq<-1d-5))
+        call cpu_time(t_stop)
+        if (when_to_kill.gt.0.0.and.(t_stop-t_init)>=when_to_kill) then
+            write(*,*) 'Max. time=', when_to_kill, &
+                'sec exceeded elapsed CPU time =', t_stop-t_init, 'sec'
+            exit
+        endif
         if (i.eq.amoebastarts) then
             exit
         endif
@@ -993,7 +1013,8 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
         ochisq = chisq
 !        write(*,*) alamda        
         call MRQMIN_dynlm (t, ts, ys, sigs, ndata, a, ia, ma, covar, alpha, &
-                MMAX, chisq, rvkep_ewcop_fin, alamda, loglik, jitt, epsil, deltat, hkl, coplar_inc)
+                MMAX, chisq, rvkep_ewcop_fin, alamda, loglik, jitt, epsil, deltat, hkl, coplar_inc, &
+        dynamical_planets)
 
         dchisq = chisq - ochisq
 
@@ -1006,7 +1027,7 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
         call cpu_time(t_stop)     
         if (when_to_kill.gt.0.0 .and. (t_stop-t_init)>=when_to_kill) then
             write(*, *) 'Max. time=', when_to_kill, 'sec ', &
-                    'exceeded t_stop =', t_stop, 'sec '
+                    'exceeded elapsed CPU time =', t_stop-t_init, 'sec '
             exit
         endif
     enddo
@@ -1015,7 +1036,8 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
     alamda = 0.d0
 
     call MRQMIN_dynlm (t, ts, ys, sigs, ndata, a, ia, ma, covar, alpha, MMAX, &
-            chisq, rvkep_ewcop_fin, alamda, loglik, jitt, epsil, deltat, hkl, coplar_inc)
+            chisq, rvkep_ewcop_fin, alamda, loglik, jitt, epsil, deltat, hkl, coplar_inc, &
+        dynamical_planets)
 
     call io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
              ma, mfit, t0, t_max, sigs, chisq, rms, writeflag_RV, &
@@ -1023,7 +1045,8 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
              nt, model_max, model_min, hkl, wdot, u_wdot, &
              res_array, fit_return, &
              bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
-             fit_array, coplar_inc,jit_flag)
+             fit_array, coplar_inc,jit_flag, &
+        dynamical_planets)
 return
 end subroutine dynfit_lm
 
@@ -2219,16 +2242,17 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
              nt, model_max, model_min, hkl, wdot, u_wdot, &
              res_array, fit_return, &
              bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
-             fit_array, coplar_inc,jit_flag)
+             fit_array, coplar_inc,jit_flag, &
+        dynamical_planets)
     implicit none
     integer :: ndata, nt
     real(8) :: PI
     integer :: MMAX, NDSMAX, NPLMAX
     parameter (PI = 3.14159265358979d0, MMAX = 200, NDSMAX = 20, NPLMAX = 10)
     real(8) :: a(MMAX), t(ndata), ymod(max(ndata,nt)), ys(ndata)
-    real(8) :: covar(MMAX, MMAX), dyda(ndata, MMAX), dyda_grid(nt, MMAX), AU, day, loglik, dy, twopi
+    real(8) :: covar(MMAX, MMAX), AU, day, loglik, dy, twopi
     real(8) :: rms, mstar, sini, mass(NPLMAX), ap(NPLMAX)
-    integer :: ts(ndata), nbod, writeflag_RV, gr_flag
+    integer :: ts(ndata), grid_ts(nt), nbod, writeflag_RV, gr_flag
     integer :: writeflag_best_par, writeflag_fit, coplar_inc,jit_flag
     real(8) :: t0, dt, t_max, chisq, deltat, epsil, sig2i
     real(8) :: x(nt), sigs(ndata), jitter(NDSMAX)
@@ -2243,6 +2267,8 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
     real(8) :: bestpar_1(npl, 17, 2), bestpar_2(ndset, 2)
     real(8) :: bestpar_3(ndset, 2), bestpar_4(9 + 2 * npl)
 
+    integer :: dynamical_planets(npl)
+
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     common mstar, sini
 
@@ -2252,7 +2278,8 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
     chisq = 0
     loglik = 0.d0
 
-    call RVKEP_ewcop_fin (t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, deltat, hkl, coplar_inc)
+    call RVKEP_dynamo(t, a, ymod, ymod_pl, ma, ndata, epsil, deltat, &
+            hkl, dynamical_planets, ts, coplar_inc)
     call MA_J_cop_fin (a, ma, npl, mstar, mass, ap, hkl)
 
     do i = 1, npl
@@ -2388,8 +2415,9 @@ subroutine io_write_bf_ewcop_fin_dynlm (a, covar, t, ys, ndata, ts, &
         do i = 1, nt
             x(i) = (i - 1) * dt * 8.64d4
         enddo
-        call RVKEP_ewcop_fin (x, a, ymod, ymod_pl, dyda_grid, ma, nt, epsil, deltat,&
-         hkl, coplar_inc)
+        grid_ts = 1
+        call RVKEP_dynamo(x, a, ymod, ymod_pl, ma, nt, epsil, deltat, &
+                hkl, dynamical_planets, grid_ts, coplar_inc)
         do i = 1, nt
 !            write(*,*) i,ymod(i), a(7 * npl * ndset + 1), & 
 !                                   a(7 * npl * ndset + 2),(ymod_pl(j,i),j=1,npl)                 
@@ -2579,7 +2607,7 @@ subroutine RVKEP_dynamoplus (x, a, y, y_pl, dyda, ma, ts, k)
         fac2 = (cosw * sinf + sinw * cosf) / (1.d0 - a(3 + i) * cose)**2
         fac3 = -a(1 + i) * dsqrt(1.d0 - a(3 + i)**2) * fac2
 
-        y_pl(k) = a(1 + i) * fac1
+        y_pl(j) = a(1 + i) * fac1
         y = y + a(1 + i) * fac1
         dyda(1 + i) = fac1
         dyda(2 + i) = -TWOPI * fac3 * x / (a(2 + i) * 86400.d0)**2
@@ -2658,7 +2686,9 @@ subroutine RVKEP_dynamo (t, a, ymod, ymod_pl, ma, ndata, epsil, dt, hkl, &
     real(8) :: sini(NPLMAX)
     integer :: hkl, idset, nbod, gr_flag, coplar_inc
     integer :: dynamical_planets(npl), k, d, ts(ndata)
-    real(8) :: a_kep(ma), a_dyn(ma), ymod_kep(ndata), dyda_kep(ma)
+    real(8) :: a_kep(ma), a_dyn(ma), ymod_kep(ndata), dyda_kep(ma), packed_ecc
+
+    real(8), allocatable :: kep_planets(:,:), dyn_planets(:,:)
 
     integer :: idsmax(NDSMAX)
 
@@ -2736,15 +2766,32 @@ subroutine RVKEP_dynamo (t, a, ymod, ymod_pl, ma, ndata, epsil, dt, hkl, &
 
     ymod(:) = 0.d0
     ymod_kep(:) = 0.d0
+    ymod_pl(:,:) = 0.d0
 
     if (npl.ne.0) then
         call split_parameters(a2, a_kep, a_dyn, dynamical_planets, k, d)
+        if (hkl.ne.0) then
+            do i = 0, k-1
+                j = 7*i
+                packed_ecc = sqrt(a_kep(j+3)**2 + a_kep(j+4)**2)
+                a_kep(j+4) = atan2(a_kep(j+3), a_kep(j+4))
+                a_kep(j+3) = packed_ecc
+                a_kep(j+5) = a_kep(j+5) - a_kep(j+4)
+            enddo
+        endif
+
+        ! Separate packed buffers are essential: the integrator uses a
+        ! (d,ndata) array, whereas the returned columns have shape (npl,ndata).
+        ! Passing the latter directly changes the column stride when d<npl.
+        allocate(kep_planets(npl,ndata), dyn_planets(d,ndata))
+        kep_planets = 0.d0
+        dyn_planets = 0.d0
 
         nbod = d + 1
         na = 7 * d
 
         do i = 1, ndata !initialize ymod
-            call RVKEP_dynamoplus(t(i), a_kep, ymod_kep(i), ymod_pl(:,i), &
+            call RVKEP_dynamoplus(t(i), a_kep, ymod_kep(i), kep_planets(:,i), &
                 dyda_kep, ma, ts(i), k)
         enddo
 
@@ -2756,9 +2803,23 @@ subroutine RVKEP_dynamo (t, a, ymod, ymod_pl, ma, ndata, epsil, dt, hkl, &
                     mass, xj, yj, zj, vxj, vyj, vzj, rpl, rhill, hkl)
             call coord_j2h(nbod, mass, xj, yj, zj, vxj, vyj, vzj, &
                     xh, yh, zh, vxh, vyh, vzh)
-            call integrate_cop_fin(ymod, ymod_pl, t, nbod, ndata, mass, &
+            call integrate_cop_fin(ymod, dyn_planets, t, nbod, ndata, mass, &
                     xh, yh, zh, vxh, vyh, vzh, epsil, dt)
         endif
+
+        ! Restore original period-sorted planet order after splitting subsets.
+        k = 0
+        d = 0
+        do j = 1, npl
+            if (dynamical_planets(j).eq.1) then
+                d = d + 1
+                ymod_pl(j,:) = dyn_planets(d,:)
+            else
+                k = k + 1
+                ymod_pl(j,:) = kep_planets(k,:)
+            endif
+        enddo
+        deallocate(kep_planets, dyn_planets)
     endif
 
     do i = 1, ndata
@@ -2767,7 +2828,53 @@ subroutine RVKEP_dynamo (t, a, ymod, ymod_pl, ma, ndata, epsil, dt, hkl, &
     return
 end
 
-subroutine RVKEP_ewcop_fin (t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, &
+! LM evaluates the same mixed model as Simplex, including its Jacobian.
+subroutine RVKEP_ewcop_fin(t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, &
+        deltat, hkl, coplar_inc, dynamical_planets, ia)
+    implicit none
+    integer :: ma, ndata, hkl, coplar_inc, npl, ndset, idset, gr_flag
+    integer :: ia(ma)
+    integer :: idsmax(20), dynamical_planets(npl), ts(ndata), i, kind
+    real(8) :: t(ndata), a(ma), ymod(ndata), ymod_pl(npl,ndata)
+    real(8) :: dyda(ndata,200), epsil, deltat, step, trial(ma)
+    real(8) :: yp(ndata), ym(ndata), scratch(npl,ndata)
+    common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
+
+    if (all(dynamical_planets.eq.1)) then
+        call RVKEP_ewcop_all(t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, &
+                deltat, hkl, coplar_inc)
+        return
+    endif
+
+    ! Dataset offsets and trends are added analytically by MRQCOF_dynlm.
+    ts = 1
+    dyda = 0.d0
+    call RVKEP_dynamo(t, a, ymod, ymod_pl, ma, ndata, epsil, deltat, &
+            hkl, dynamical_planets, ts, coplar_inc)
+    do i = 1, 7*npl
+        if (ia(i).eq.0) cycle
+        kind = mod(i-1,7)+1
+        select case(kind)
+        case(1) ! velocity amplitude, m/s
+            step = 1.d-5 * max(abs(a(i)), 1.d0)
+        case(2) ! period, seconds
+            step = 1.d-5 * max(abs(a(i)), 1.d0)
+        case default ! eccentricity, h/k, or angles in radians
+            step = 1.d-5
+        end select
+        trial = a
+        trial(i) = a(i) + step
+        call RVKEP_dynamo(t, trial, yp, scratch, ma, ndata, epsil, deltat, &
+                hkl, dynamical_planets, ts, coplar_inc)
+        trial = a
+        trial(i) = a(i) - step
+        call RVKEP_dynamo(t, trial, ym, scratch, ma, ndata, epsil, deltat, &
+                hkl, dynamical_planets, ts, coplar_inc)
+        dyda(:,i) = (yp-ym)/(2.d0*step)
+    enddo
+end
+
+subroutine RVKEP_ewcop_all (t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, &
         deltat, hkl, coplar_inc)
     implicit none
     real(8) :: PI, TWOPI, eps, epsil, deltat
@@ -3410,7 +3517,8 @@ end
 ! method. It uses COVSRT, GAUSSJ, and MRQCOF.
 ! From Numerical Recipes.
 subroutine MRQMIN_dynlm (x, ts, y, sig, ndata, a, ia, ma, covar, alpha, &
-        nca, chisq, funcs, alamda, loglik, jitt, epsil, deltat, hkl, coplar_inc)
+        nca, chisq, funcs, alamda, loglik, jitt, epsil, deltat, hkl, coplar_inc, &
+        dynamical_planets)
     implicit none
     integer ::  ma, nca, ndata, ia(ma), MMAX, NDSMAX, ts(ndata)
     parameter (MMAX = 200, NDSMAX = 20)
@@ -3423,6 +3531,8 @@ subroutine MRQMIN_dynlm (x, ts, y, sig, ndata, a, ia, ma, covar, alpha, &
     real(8) :: ochisq, atry(MMAX), beta(MMAX), da(MMAX), epsil, deltat
     save ochisq, atry, beta, da, mfit
 
+    integer :: dynamical_planets(npl)
+
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
     ! Initialization.
@@ -3434,7 +3544,8 @@ subroutine MRQMIN_dynlm (x, ts, y, sig, ndata, a, ia, ma, covar, alpha, &
         alamda = 0.001d0
 
         call MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, &
-                nca, chisq, funcs, loglik, jitt, epsil, deltat, hkl, coplar_inc)
+                nca, chisq, funcs, loglik, jitt, epsil, deltat, hkl, coplar_inc, &
+        dynamical_planets)
 
         ochisq = chisq
 
@@ -3472,7 +3583,8 @@ subroutine MRQMIN_dynlm (x, ts, y, sig, ndata, a, ia, ma, covar, alpha, &
     enddo
 
     call MRQCOF_dynlm (x, ts, y, sig, ndata, atry, ia, ma, covar, da, &
-            nca, chisq, funcs, loglik, jitt, epsil, deltat, hkl, coplar_inc)
+            nca, chisq, funcs, loglik, jitt, epsil, deltat, hkl, coplar_inc, &
+        dynamical_planets)
 
     if (chisq<ochisq) then
         !Accept new solution.
@@ -3571,7 +3683,8 @@ end
 ! and chi^2.
 ! From Numerical Recipes.
 subroutine MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, nalp, &
-        chisq, funcs, loglik, jitt, epsil, deltat, hkl, coplar_inc)
+        chisq, funcs, loglik, jitt, epsil, deltat, hkl, coplar_inc, &
+        dynamical_planets)
     implicit none
     integer ::  npl, ndset, idset, ma, nalp, ndata, ia(ma), NDSMAX, MMAX
     parameter (NDSMAX = 20, MMAX = 200)
@@ -3583,6 +3696,8 @@ subroutine MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, nalp, &
     integer ::  mfit, i, j, k, l, m, gr_flag, coplar_inc
     real(8) :: dy, sig2i, wt, ymod(ndata)
     real(8) :: ymod_pl(npl,ndata), dyda(ndata, MMAX), jitt(NDSMAX)
+
+    integer :: dynamical_planets(npl)
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
@@ -3602,7 +3717,7 @@ subroutine MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, nalp, &
     loglik = 0.d0
 
     ! Loop over all data.
-    call FUNCS (x, a, ymod, ymod_pl, dyda, ma, ndata, epsil, deltat, hkl, coplar_inc)
+    call FUNCS (x, a, ymod, ymod_pl, dyda, ma, ndata, epsil, deltat, hkl, coplar_inc, dynamical_planets, ia)
 
     do i = 1, ndata
         idset = ts(i)

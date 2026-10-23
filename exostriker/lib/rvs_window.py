@@ -66,9 +66,7 @@ except (ImportError, KeyError,ModuleNotFoundError) as e:
 
 class RvsWindow(QtWidgets.QWidget, Ui_Rvs_dataWindow):
     def __init__(self,parent):
-        super(Ui_Rvs_dataWindow, self).__init__()
-
-        QtWidgets.QWidget.__init__(self)
+        QtWidgets.QWidget.__init__(self, parent, QtCore.Qt.WindowType.Window)
         Ui_Rvs_dataWindow.__init__(self)
        # self.setWindowTitle('Transit detrending options')
         self.font = QtGui.QFont()
@@ -522,6 +520,9 @@ class RvsWindow(QtWidgets.QWidget, Ui_Rvs_dataWindow):
 
 
     def closeEvent(self, event):
+        if self.property('exostriker_shutdown'):
+            event.accept()
+            return
         
         if len(self.old_t)  != len(self.t):
             choice = QtWidgets.QMessageBox.information(self, 'Warning!',

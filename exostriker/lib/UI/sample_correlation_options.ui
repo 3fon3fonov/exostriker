@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <ui version="4.0">
   <class>SampleCorrelationOptions</class>
   <widget class="QDialog" name="SampleCorrelationOptions">
@@ -187,7 +187,7 @@
                   </property>
                 </widget>
               </item>
-              <item row="18" column="0" colspan="2">
+              <item row="19" column="0" colspan="2">
                 <widget class="QLabel" name="note">
                   <property name="text">
                     <string>Contours enclose the adopted probability mass, using all finite sample pairs. Corner 2D sigma: 39.35%, 86.47%, 98.89%; marginal 1D sigma: 68.27%, 95.45%, 99.73%. Display sampling affects only points.</string>
@@ -245,14 +245,14 @@
                   </property>
                 </widget>
               </item>
-              <item row="10" column="0">
+              <item row="11" column="0">
                 <widget class="QLabel" name="smooth_label">
                   <property name="text">
                     <string>Gaussian smoothing [bins]</string>
                   </property>
                 </widget>
               </item>
-              <item row="10" column="1">
+              <item row="11" column="1">
                 <widget class="QDoubleSpinBox" name="smooth">
                   <property name="decimals">
                     <number>4</number>
@@ -271,14 +271,14 @@
                   </property>
                 </widget>
               </item>
-              <item row="11" column="0">
+              <item row="12" column="0">
                 <widget class="QLabel" name="convention_label">
                   <property name="text">
                     <string>Probability presets</string>
                   </property>
                 </widget>
               </item>
-              <item row="11" column="1">
+              <item row="12" column="1">
                 <widget class="QComboBox" name="convention">
                   <item>
                     <property name="text">
@@ -297,14 +297,14 @@
                   </item>
                 </widget>
               </item>
-              <item row="12" column="0">
+              <item row="13" column="0">
                 <widget class="QLabel" name="level1_label">
                   <property name="text">
                     <string>Contour 1 enclosed probability [%]</string>
                   </property>
                 </widget>
               </item>
-              <item row="12" column="1">
+              <item row="13" column="1">
                 <widget class="QDoubleSpinBox" name="level1">
                   <property name="decimals">
                     <number>4</number>
@@ -323,14 +323,14 @@
                   </property>
                 </widget>
               </item>
-              <item row="13" column="0">
+              <item row="14" column="0">
                 <widget class="QLabel" name="level2_label">
                   <property name="text">
                     <string>Contour 2 enclosed probability [%]</string>
                   </property>
                 </widget>
               </item>
-              <item row="13" column="1">
+              <item row="14" column="1">
                 <widget class="QDoubleSpinBox" name="level2">
                   <property name="decimals">
                     <number>4</number>
@@ -349,14 +349,14 @@
                   </property>
                 </widget>
               </item>
-              <item row="14" column="0">
+              <item row="15" column="0">
                 <widget class="QLabel" name="level3_label">
                   <property name="text">
                     <string>Contour 3 enclosed probability [%]</string>
                   </property>
                 </widget>
               </item>
-              <item row="14" column="1">
+              <item row="15" column="1">
                 <widget class="QDoubleSpinBox" name="level3">
                   <property name="decimals">
                     <number>4</number>
@@ -375,45 +375,104 @@
                   </property>
                 </widget>
               </item>
-              <item row="15" column="0">
+              <item row="16" column="0">
                 <widget class="QLabel" name="quantile_lines_label">
                   <property name="text">
                     <string>Show marginal quantile lines</string>
                   </property>
                 </widget>
               </item>
-              <item row="15" column="1">
+              <item row="16" column="1">
                 <widget class="QCheckBox" name="quantile_lines">
                   <property name="checked">
                     <bool>false</bool>
                   </property>
                 </widget>
               </item>
-              <item row="16" column="0">
+              <item row="17" column="0">
                 <widget class="QLabel" name="quantiles_label">
                   <property name="text">
                     <string>Marginal quantiles [0–1]</string>
                   </property>
                 </widget>
               </item>
-              <item row="16" column="1">
+              <item row="17" column="1">
                 <widget class="QLineEdit" name="quantiles">
                   <property name="text">
                     <string>0.16, 0.5, 0.84</string>
                   </property>
                 </widget>
               </item>
-              <item row="17" column="0">
+              <item row="18" column="0">
                 <widget class="QLabel" name="font_size_label">
-                  <property name="text"><string>Plot font size</string></property>
+                  <property name="text">
+                    <string>Plot font size</string>
+                  </property>
                 </widget>
               </item>
-              <item row="17" column="1">
+              <item row="18" column="1">
                 <widget class="QSpinBox" name="font_size">
-                  <property name="suffix"><string> pt</string></property>
-                  <property name="minimum"><number>6</number></property>
-                  <property name="maximum"><number>36</number></property>
-                  <property name="value"><number>9</number></property>
+                  <property name="suffix">
+                    <string> pt</string>
+                  </property>
+                  <property name="minimum">
+                    <number>6</number>
+                  </property>
+                  <property name="maximum">
+                    <number>36</number>
+                  </property>
+                  <property name="value">
+                    <number>9</number>
+                  </property>
+                </widget>
+              </item>
+              <item row="10" column="0">
+                <widget class="QLabel" name="contour_color_label">
+                  <property name="text">
+                    <string>Contour color</string>
+                  </property>
+                </widget>
+              </item>
+              <item row="10" column="1">
+                <widget class="QPushButton" name="contour_color">
+                  <property name="text">
+                    <string>Choose contour color</string>
+                  </property>
+                </widget>
+              </item>
+              <item row="20" column="1">
+                <widget class="QCheckBox" name="show_mad">
+                  <property name="text">
+                    <string>Include MAD in statistics</string>
+                  </property>
+                </widget>
+              </item>
+              <item row="21" column="1">
+                <widget class="QCheckBox" name="round_statistics">
+                  <property name="text">
+                    <string>Round statistics to uncertainty</string>
+                  </property>
+                </widget>
+              </item>
+              <item row="22" column="1">
+                <widget class="QCheckBox" name="derive_e">
+                  <property name="text">
+                    <string>Include derived e (h/k)</string>
+                  </property>
+                </widget>
+              </item>
+              <item row="23" column="1">
+                <widget class="QCheckBox" name="derive_omega">
+                  <property name="text">
+                    <string>Include derived omega (h/k)</string>
+                  </property>
+                </widget>
+              </item>
+              <item row="24" column="1">
+                <widget class="QCheckBox" name="derive_M0">
+                  <property name="text">
+                    <string>Include derived mean anomaly (h/k/lambda)</string>
+                  </property>
                 </widget>
               </item>
             </layout>
@@ -438,6 +497,13 @@
               </item>
             </layout>
           </widget>
+        </widget>
+      </item>
+      <item>
+        <widget class="QPushButton" name="statistics_button">
+          <property name="text">
+            <string>Posterior statistics — all parameters…</string>
+          </property>
         </widget>
       </item>
       <item>

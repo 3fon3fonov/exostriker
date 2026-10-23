@@ -11,7 +11,7 @@ class datafiles_window(QtWidgets.QDialog):
 
     def __init__(self, parent = None):
        # super(show_symbols, self).__init__(parent)
-        super(datafiles_window, self).__init__()
+        super(datafiles_window, self).__init__(parent if isinstance(parent, QtWidgets.QWidget) else None)
 
         self.layout = QtWidgets.QVBoxLayout(self)
         self.setWindowTitle('Data file inspector')

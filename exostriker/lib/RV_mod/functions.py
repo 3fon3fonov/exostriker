@@ -7,6 +7,10 @@ import sys, os
 import numpy as np
 import jac2astrocen
 import corner_ES as corner
+from sample_angles import fold_plot_angles
+from posterior_display import print_summary
+from hkl_plot import derived_hkl_columns
+from sample_plot_labels import default_rv_units
 
 import matplotlib
 matplotlib.pyplot.switch_backend('Agg')
@@ -1292,6 +1296,17 @@ def ensure_cornerplot_labels(obj, type_plot="mcmc"):
                  for name, default in (('median', True), ('means', False),
                                        ('mode', False), ('maxlnL', False))]
         sampler.lbf = _default_cornerplot_labels(labels, flags)
+    labels = list(sampler.lbf.get('OrigLabels', getattr(obj, 'e_for_mcmc', [])))
+    if len(labels) != samples.shape[1]:
+        print('Cannot customize corner plot: sample columns do not match original labels.')
+        return False
+    defaults = _default_cornerplot_labels(labels, [True, False, False, False])
+    for key, value in defaults.items():
+        sampler.lbf.setdefault(key, value)
+    for column, label in enumerate(labels):
+        entry = sampler.lbf[column]
+        display = default_rv_units(entry[0])
+        sampler.lbf[column] = np.array([display, entry[1]], dtype=f'U{max(30, len(display))}')
     return True
 
 
@@ -1427,13 +1442,82 @@ def get_best_lnl_of_samples(samples,lnl, nsamp):
 
 
 
+def _corner_stellar_draws(value, uncertainty, count):
+    """Gaussian draws for legacy scalar or current [lower, upper] errors.
+
+    Corner-derived quantities use the larger error magnitude as a conservative
+    symmetric sigma. Zero errors produce a constant stellar parameter.
+    """
+    center = np.asarray(value, dtype=float)
+    errors = np.asarray(uncertainty, dtype=float).reshape(-1)
+    if center.size != 1 or not np.isfinite(center).all():
+        raise ValueError('Stellar parameter must be a finite scalar')
+    if errors.size not in (1, 2) or not np.isfinite(errors).all():
+        raise ValueError('Stellar uncertainty must be a finite scalar or lower/upper pair')
+    sigma = float(np.max(np.abs(errors)))
+    return np.random.normal(loc=float(center.reshape(-1)[0]), scale=sigma, size=count)
+
+
+def _corner_lambda_samples(obj, samples, labels, slot):
+    """Use sampled angles when present, otherwise the fixed orbital element."""
+    letter = 'bcdefghij'[slot]
+    labels = list(labels)
+    def column(candidates, fixed):
+        for label in candidates:
+            if label in labels:
+                return np.asarray(samples[:, labels.index(label)], dtype=float)
+        return np.full(len(samples), float(fixed))
+    if obj.hkl:
+        return column([getattr(obj, 'lamb_str', {}).get(slot, ''),
+                       r'$\lambda_%s$ [deg]' % letter], obj.lamb[slot]) % 360.
+    mean_anomaly = column([getattr(obj, 'M0_str', {}).get(slot, ''),
+                          'MA$_%s$ [deg]' % letter, 'MA$_%s$' % letter,
+                          'MA$_%s [deg]' % letter], obj.M0[slot])
+    omega = column([getattr(obj, 'w_str', {}).get(slot, ''),
+                    r'$\omega_%s$ [deg]' % letter], obj.w[slot])
+    return (mean_anomaly + omega) % 360.
+
+
+def _corner_mass_axes(obj, samples, labels, stellar_masses):
+    slots = [i for i in range(9) if obj.use_planet[i]]
+    elements = np.empty((len(samples), len(slots), 7))
+    labels = list(labels)
+    def values(root, slot):
+        label = getattr(obj, root+'_str')[slot]
+        return samples[:, labels.index(label)] if label in labels else np.full(len(samples), getattr(obj, root)[slot])
+    for packed, slot in enumerate(slots):
+        roots = ('K','P','e_sinw','e_cosw','lamb','i','Node') if obj.hkl else ('K','P','e','w','M0','i','Node')
+        elements[:,packed,:] = np.column_stack([values(root,slot) for root in roots])
+    if obj.hkl:
+        h,k,longitude = (elements[:,:,j].copy() for j in (2,3,4))
+        elements[:,:,2] = np.hypot(h,k)
+        elements[:,:,3] = np.where(elements[:,:,2]>0,np.degrees(np.arctan2(h,k)) % 360.,0.)
+        elements[:,:,4] = (longitude-elements[:,:,3]) % 360.
+    if obj.copl_incl:
+        for row in elements:
+            row[:,5] = row[np.argmin(row[:,1]),5]
+    masses = np.full((len(samples),len(slots)),np.nan)
+    axes = masses.copy()
+    for row, (orbit, stellar_mass) in enumerate(zip(elements, stellar_masses)):
+        try:
+            masses[row], axes[row] = mass_a_from_jacobi_el(orbit,len(slots),stellar_mass)
+        except ValueError:
+            continue
+    return slots,masses,axes
+
+
 def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
+
+    statistics_only = kwargs.pop('return_statistics', False)
 
     #obj = dill.copy(copied_obj)
     '''Generates a corner plot visualizing the mcmc samples. Optionally samples can be read from a file.'''
     #self.mcmc_sample_file = 'mcmc_samples'+'_%s'%mod
     #self.corner_plot_file = 'cornerplot.png'
 
+
+    if not ensure_cornerplot_labels(obj, type_plot):
+        return
 
     if type_plot == 'mcmc':
 
@@ -1500,13 +1584,16 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
     ############### make "Gaussan" samples of the stellar parameters ##############
     #m_s   = np.random.normal(loc=obj.stellar_mass,      scale=obj.stellar_mass_err,      size=len(samples[:,0]))
-    #r_s   = np.random.normal(loc=obj.stellar_radius,    scale=obj.stellar_radius_err,    size=len(samples[:,0]))
+    #r_s = _corner_stellar_draws(obj.stellar_radius, obj.stellar_radius_err, len(samples))
    # L_s   = np.random.normal(loc=obj.stellar_luminosity,scale=obj.stellar_luminosity_err,size=len(samples[:,0]))
    # vsini = np.random.normal(loc=obj.stellar_vsini,     scale=obj.stellar_vsini_err,     size=len(samples[:,0]))
    #
 
     ######### define new samples, labels and best-fit params to be refilled again
     ######### with masses, semi-major axes, etc. (to be re-worked).
+
+    if statistics_only:
+        best_fit_par = np.zeros(len(labels))
 
     m_s     = []
     r_s     = []
@@ -1534,163 +1621,75 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             index_to_keep.append(i)
 
 
+    if statistics_only:
+        index_to_keep = list(range(len(labels)))
+
     samp              = [samp[i] for i in index_to_keep]
     samp_labels       = [samp_labels[i] for i in index_to_keep]
     samp_best_fit_par = [samp_best_fit_par[i] for i in index_to_keep]
 
     letters = ['b','c','d','e','f','g','h','i','j',] #... For the planets
 
+    for option, slot, label, draws in derived_hkl_columns(obj, samples, labels, mod_labels):
+        samp.append(draws)
+        samp_labels.append(label)
+        if mod_labels['best_gui']:
+            h, k = obj.e_sinw[slot], obj.e_cosw[slot]
+            omega = np.degrees(np.arctan2(h, k)) % 360.
+            value = np.hypot(h, k) if option == 'derive_e' else omega if option == 'derive_omega' else (obj.lamb[slot]-omega) % 360.
+        elif mod_labels['mean'] or mod_labels['median']:
+            value = (np.nanmean if mod_labels['mean'] else np.nanmedian)(draws)
+        else:
+            value = draws[np.nanargmax(ln)] if np.isfinite(ln).any() else np.nanmedian(draws)
+        samp_best_fit_par.append(value)
+
     if mod_labels['use_lambda']:
-
-        for i in range(obj.npl):
-            let = letters[i]
-
-            if not 'e$_%s$'%let in labels or not '$\omega_%s$ [deg]'%let in labels:
-                continue
-
-            Ma_    = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'MA$_%s [deg]'%let]])
-            omega_ = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == '$\omega_%s$ [deg]'%let]])
-
-            lambda_ = np.array(Ma_ + omega_)%360.0
-
-            samp.append(lambda_)
-            samp_labels.append(r' $\lambda_%s$ [deg]'%let)
-
-
-            if mod_labels['mean']:
-                samp_best_fit_par.append((np.mean(Ma_) + np.mean(omega_))%360.0 )
-            elif mod_labels['median']:
-                samp_best_fit_par.append((np.median(Ma_) + np.median(omega_))%360.0 )
-            elif mod_labels['best_gui']:
-                samp_best_fit_par.append((Ma_[np.argmax(ln)] + omega_[np.argmax(ln)])%360.0 )
-            else:
-                samp_best_fit_par.append((Ma_[np.argmax(ln)] + omega_[np.argmax(ln)])%360.0 )
-
-
-    if mod_labels['mass'] or mod_labels['semimajor']:
-
-        m_s   = np.random.normal(loc=obj.stellar_mass,      scale=obj.stellar_mass_err,      size=len(ss))
-        K,P, ecc, esinw, ecosw, incl,masses,semimajor = [],[],[],[],[],[],[],[]
-
-        z = 0
         for i in range(9):
             if not bool(obj.use_planet[i]):
                 continue
             let = letters[i]
-
-
-            if not 'K$_%s$ [m/s]'%let in labels or not 'P$_%s$ [d]'%let in labels:
-            
-               # K.append(np.array([0])*len(ss))  
-               # P.append(np.array([0])*len(ss))            
+            lambda_label = r'$\lambda_%s$ [deg]' % let
+            # h/k/lambda posteriors already contain the longitude column.
+            existing = [lambda_label, getattr(obj, 'lamb_str', {}).get(i, '')]
+            if any(label and label in labels for label in existing):
                 continue
-
-            K.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'K$_%s$ [m/s]'%let]]))
-            P.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'P$_%s$ [d]'%let]]))
-
-            if obj.hkl == True and '$e sin(\omega_%s)$'%let in labels and '$e cos(\omega_%s)$'%let in labels:
-
-                esinw.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == '$e sin(\omega_%s)$'%let]]))
-                ecosw.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == '$e cos(\omega_%s)$'%let]]))
-
-                ecc.append(np.sqrt(esinw[i]**2 + ecosw[i]**2))
-            elif obj.hkl == False and 'e$_%s$'%let in labels:
-                ecc.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'e$_%s$'%let]]))
-
+            lambda_ = _corner_lambda_samples(obj, samples, labels, i)
+            samp.append(lambda_)
+            samp_labels.append(lambda_label)
+            if mod_labels['mean']:
+                samp_best_fit_par.append(np.mean(lambda_))
+            elif mod_labels['median']:
+                samp_best_fit_par.append(np.median(lambda_))
+            elif mod_labels['best_gui']:
+                samp_best_fit_par.append(float(obj.lamb[i]) if obj.hkl else (obj.M0[i]+obj.w[i]) % 360.)
             else:
-                ecc.append([0]*len(K[z]))
-                print("Warning, no eccentricity samples found for planet %s ! Assuming ecc = 0"%str(i+1))
-                #print(K[z])
-
-            if mod_labels['use_Me']:
-                M_fact = 317.82838
-                mass_lab = r'[M$_\oplus$]'
-            elif mod_labels['use_Mj']:
-                M_fact = 1
-                mass_lab = r'[M$_{\rm Jup.}$]'
-            elif mod_labels['use_Ms']:
-                M_fact = 1.0/1047.5654817267318
-                mass_lab = r'[M$_\odot$]'
+                samp_best_fit_par.append(lambda_[np.argmax(ln)])
 
 
-            if 'i$_%s$ [deg]'%let in labels:
-                incl.append(np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'i$_%s$ [deg]'%let]]))
-                #samp_labels.append(r'm$_%s$ %s'%(let,mass_lab))
-            else:
-                if obj.copl_incl == True:
-                    incl.append(incl[0])
-                else:
-                    incl.append([obj.i[i]]*len(K[z]))
-                #if obj.i[i] == 90.0:
-                #    samp_labels.append(r'm $\sin i_%s$ %s'%(let,mass_lab))
-               # else:
-               #     samp_labels.append(r'm$_%s$ %s'%(let,mass_lab))
-                    
-                    
-                    
-                    
-            z = z + 1
-        K = np.transpose(K)
-        P = np.transpose(P)
-        ecc = np.transpose(ecc)
-        incl = np.transpose(incl)
-
-
-        for k in range(len(m_s)):
-
-            m_a = get_mass_a_samples(np.array(K[k]),np.array(P[k]), np.array(ecc[k]), np.array(incl[k]), m_s[k], mass_type="J")
-            masses.append(m_a[0])
-            semimajor.append(m_a[1])
-
-        masses = np.transpose(masses)
-        semimajor = np.transpose(semimajor)
-
-        k = 0
-        if mod_labels['mass']:
-            for i in range(9):
-                let = letters[i]
-                if not bool(obj.use_planet[i]) and not 'K$_%s$ [m/s]'%let in labels or not 'P$_%s$ [d]'%let in labels:
-                    continue
-                    
-                samp.append(np.array(masses[k] * M_fact))
-
-                samp_labels.append(r'm$_%s$ %s'%(let,mass_lab))
-                
-                if mod_labels['mean']:
-                    samp_best_fit_par.append( np.mean(masses[k]) * M_fact)
-                elif mod_labels['median']:
-                    samp_best_fit_par.append( np.median(masses[k]) * M_fact)
+    if mod_labels['mass'] or mod_labels['semimajor']:
+        m_s = _corner_stellar_draws(obj.stellar_mass, obj.stellar_mass_err, len(samples))
+        slots, masses, semimajor = _corner_mass_axes(obj, samples, labels, m_s)
+        M_fact, mass_lab = (317.82838, r'[M$_\oplus$]') if mod_labels['use_Me'] else ((1./1047.5654817267318, r'[M$_\odot$]') if mod_labels['use_Ms'] else (1., r'[M$_{\rm Jup.}$]'))
+        for option, values, factor, symbol, unit in [
+                ('mass', masses, M_fact, 'm', mass_lab),
+                ('semimajor', semimajor, 1., 'a', '[au]')]:
+            if not mod_labels[option]:
+                continue
+            for packed, slot in enumerate(slots):
+                column = values[:, packed]*factor
+                samp.append(column)
+                samp_labels.append(f'{symbol}$_{letters[slot]}$ {unit}')
+                if mod_labels['mean'] or mod_labels['median']:
+                    value = (np.nanmean if mod_labels['mean'] else np.nanmedian)(column)
                 elif mod_labels['best_gui']:
-                    samp_best_fit_par.append(obj.masses[i]*M_fact)
+                    value = (obj.masses if option == 'mass' else obj.semimajor)[slot]*factor
                 else:
-                    samp_best_fit_par.append(masses[k][np.argmax(ln)]*M_fact)
-                k = k +1
-        k = 0
-        if mod_labels['semimajor']:
-
-            for i in range(9):
-                let = letters[i]
-                if not bool(obj.use_planet[i]) and not 'K$_%s$ [m/s]'%let in labels or not 'P$_%s$ [d]'%let in labels:
-                    continue
-                samp.append(np.array(semimajor[k]))
- 
-                samp_labels.append(r'a$_%s$ [au]'%let)
-
-                if mod_labels['mean']:
-                    samp_best_fit_par.append(np.mean(semimajor[k]))
-                elif mod_labels['median']:
-                    samp_best_fit_par.append(np.median(semimajor[k]))
-                elif mod_labels['best_gui']:
-                    samp_best_fit_par.append(obj.semimajor[i])
-                else:
-                    samp_best_fit_par.append(semimajor[k][np.argmax(ln)])
-                k = k +1
-
-
+                    value = column[np.nanargmax(ln)] if np.isfinite(ln).any() else np.nanmedian(column)
+                samp_best_fit_par.append(value)
 
 
     if mod_labels['radius']:
-        r_s   = np.random.normal(loc=obj.stellar_radius,    scale=obj.stellar_radius_err,    size=len(samples[:,0]))
+        r_s = _corner_stellar_draws(obj.stellar_radius, obj.stellar_radius_err, len(samples))
 
         for i in range(9):
             if not bool(obj.use_planet[i]):
@@ -1723,21 +1722,41 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 samp_best_fit_par.append(rad[np.argmax(ln)]*obj.stellar_radius)
 
 
-
-
-
-
 #    if mod_labels['gravity']:
 
 #        if len(r_s) == 0:
-#            r_s   = np.random.normal(loc=obj.stellar_radius,    scale=obj.stellar_radius_err,    size=len(samples[:,0]))
+#            r_s = _corner_stellar_draws(obj.stellar_radius, obj.stellar_radius_err, len(samples))
 
 
     ################### Transpose is needed for the cornerplot. ###################
 
     samples_ = np.transpose(samp)
+    if statistics_only:
+        table_samples, _ = fold_plot_angles(samples_, samp_labels)
+        stable = (samples[:, list(labels).index('max. time')] >= cornerplot_opt['stab_threshold']) if 'max. time' in labels else None
+        return dict(samples=table_samples, labels=samp_labels, stable=stable, options=cornerplot_opt)
+    usable = np.isfinite(samples_).any(axis=0)
+    for j in np.flatnonzero(~usable):
+        print('Skipping undefined corner parameter: '+samp_labels[j])
+    samples_ = samples_[:, usable]
+    samp_labels = [label for j,label in enumerate(samp_labels) if usable[j]]
+    samp_best_fit_par = np.asarray(samp_best_fit_par)[usable]
+    finite_rows = np.isfinite(samples_).all(axis=1)
+    if not finite_rows.all():
+        print(f'Corner plot: excluding {np.count_nonzero(~finite_rows)} rows with undefined selected parameters.')
+    samples_ = samples_[finite_rows]
+    samples = samples[finite_rows]
+    ln = np.asarray(ln)[finite_rows]
+    if not samples_.shape[1] or len(samples_) < 2:
+        print('Not enough finite samples/parameters for a corner plot.')
+        return
     #labels = samp_labels
     best_fit_par =samp_best_fit_par
+    angle_summary = 'mean' if mod_labels['mean'] else 'median' if mod_labels['median'] else None
+    samples_, samp_best_fit_par = fold_plot_angles(samples_, samp_labels,
+                                                   samp_best_fit_par, angle_summary)
+    samp = list(samples_.T)
+    best_fit_par = samp_best_fit_par
 
     ################### Verbose output (TBD). ###################
 
@@ -1755,37 +1774,11 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
  
 
 
+    summary_mode = 'mean' if mod_labels['mean'] else 'median' if mod_labels['median'] else 'best'
     if verbose:
-        print("   ")
-        print("   ")
-        if mod_labels['mean']:
-            print("Means and their 1 sigma errors")
-        elif mod_labels['median']:
-            print("Median and their 1 sigma errors")
-        elif mod_labels['best_gui']:
-            print("Best-fit (GUI) and their 1 sigma errors")
-        else:
-            print("Best-fit (max. samp. lnL) and their 1 sigma errors")
-
-
-        for i in range(len(samp_best_fit_par)):
-            ci = np.percentile(samp[i], [level, 100.0-level])
-            if mod_labels['mean']:
-                print(samp_labels[i],'=', np.mean(samp[i]), "- %s"%(np.mean(samp[i])-ci[0]), "+ %s"%(ci[1]  - np.mean(samp[i]) ))
-            elif mod_labels['median']:
-                print(samp_labels[i],'=', np.median(samp[i]), "- %s"%(np.median(samp[i])-ci[0]), "+ %s"%(ci[1]  - np.median(samp[i]) ))
-            elif mod_labels['best_gui']:
-                print(samp_labels[i],'=', samp_best_fit_par[i], "- %s"%(samp_best_fit_par[i]-ci[0]), "+ %s"%(ci[1]  - samp_best_fit_par[i] ))
-            else:
-                print(samp_labels[i],'=', samp[i][np.argmax(ln)], "- %s"%(samp[i][np.argmax(ln)]-ci[0]), "+ %s"%(ci[1]  - samp[i][np.argmax(ln)] ))
-
-        print(" ")
-        print("Median Absolute Deviation values")
-
-        mad = get_MAD_of_samples(samples_,len(samp_labels))
-        for i in range(len(samp_labels)):
-            print(samp_labels[i],' MAD =', mad[i])
-
+        print_summary(samples_, samp_labels, summary_mode, samp_best_fit_par, None if mod_labels['best_gui'] else ln,
+                      rounded=cornerplot_opt.get('round_statistics', True),
+                      show_mad=cornerplot_opt.get('show_mad', False))
 
     range_stab =[]
 #    for i in range(len(samp)):
@@ -1803,7 +1796,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
         samples_ = np.transpose(samples_)
         for i in range(len(samples_)):
-            samples_stab.append(samples_[i][np.where(samples[:,-1]> cornerplot_opt["stab_threshold"])])
+            samples_stab.append(samples_[i][np.where(samples[:,-1]>= cornerplot_opt["stab_threshold"])])
 #        print(max(samples[:,-1])-1000.0,max(samples[:,-1]))
             range_stab.append([min(samples_[i]),max(samples_[i])])
         N_samp = len(np.atleast_1d(samples_stab[0]))
@@ -1811,30 +1804,11 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
 
         if verbose:
-            print("   ")
-            print("   ")
-            if mod_labels['mean']:
-                print("Means and their 1 sigma errors (stable)")
-            elif mod_labels['median']:
-                print("Median and their 1 sigma errors (stable)")
-            elif mod_labels['best_gui']:
-                print("Best-fit (GUI) and their 1 sigma errors (stable)")
-            else:
-                print("Best-fit (max. samp. lnL) and their 1 sigma errors (stable)")
-
-
-            for i in range(len(samp_best_fit_par)):
-                ci = np.percentile(samples_stab[i], [level, 100.0-level])
-                if mod_labels['mean']:
-                    print(samp_labels[i],'=', np.mean(samples_stab[i]), "- %s"%(np.mean(samples_stab[i])-ci[0]), "+ %s"%(ci[1]  - np.mean(samples_stab[i]) ))
-                elif mod_labels['median']:
-                    print(samp_labels[i],'=', np.median(samples_stab[i]), "- %s"%(np.median(samples_stab[i])-ci[0]), "+ %s"%(ci[1]  - np.median(samples_stab[i]) ))
-                elif mod_labels['best_gui']:
-                    print(samp_labels[i],'=', samp_best_fit_par[i], "- %s"%(samp_best_fit_par[i]-ci[0]), "+ %s"%(ci[1]  - samp_best_fit_par[i] ))
-                else:
-                    print(samp_labels[i],'=', samples_stab[i][np.argmax(ln)], "- %s"%(samples_stab[i][np.argmax(ln)]-ci[0]), "+ %s"%(ci[1]  - samples_stab[i][np.argmax(ln)] ))
-
-            print(" ")
+            stable_mask = samples[:, -1] >= cornerplot_opt['stab_threshold']
+            print_summary(np.asarray(samples_stab).T, samp_labels, summary_mode,
+                          samp_best_fit_par, None if mod_labels['best_gui'] else np.asarray(ln)[stable_mask],
+                          rounded=cornerplot_opt.get('round_statistics', True),
+                          show_mad=cornerplot_opt.get('show_mad', False), stable=True)
 
         samples_stab = np.transpose(samples_stab)
         samples_ = np.transpose(samples_)
@@ -1873,7 +1847,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                             kwargs={'zorder':10,'color':cornerplot_opt["stab_color"]}
                             )
         else:
-            print("very few, or no stable samples !!!!!")
+            print(f"Stable overlay omitted: {N_samp} stable rows for {len(samp_best_fit_par)} plotted parameters; plotting the full finite posterior.")
             fig = corner.corner(samples_,
                                 #range = range_stab,
                                 bins=cornerplot_opt["bins"],
@@ -1958,9 +1932,6 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                             fill_contours=cornerplot_opt["fill_contours"],
                             plot_datapoints=cornerplot_opt["plot_datapoints"],
                             kwargs=kwargs)
-
-    #axes = fig.axes()
-  #  axes.ticklabel_format(style='plain')
 
     for ax in fig.get_axes():
           #ax.tick_params(axis='both', which='major', labelsize=14)

@@ -394,8 +394,11 @@ class Rvfit:
         for name, values in (("rv_ofset", rv_ofset), ("rv_jitt", rv_jitt)):
             if values is not None and np.asarray(values).shape != (actual_datasets, 2):
                 raise ValueError(f"{name} must have shape (ndset, 2)")
-        if dyn_planets is not None and np.asarray(dyn_planets).shape != (actual_planets,):
-            raise ValueError("dyn_planets must contain one flag per planet")
+        if dyn_planets is not None:
+            if np.asarray(dyn_planets).shape != (actual_planets,):
+                raise ValueError("dyn_planets must contain one flag per planet")
+            if not np.all(np.isin(dyn_planets, [0, 1])):
+                raise ValueError("dyn_planets flags must be 0 or 1")
         ndset, ndata, nplanet = actual_datasets, len(data_array), actual_planets
 
         self.ind_used = np.unique(np.array(data_array).T[3]).astype(int) if len(data_array) != 0 else [0]
@@ -505,7 +508,7 @@ class Rvfit:
             raise RuntimeError("Building the RV extension requires NumPy >= 1.26, meson and ninja")
 
         # All four fit entry points share an API. Keplerian fits do not use
-        # integration controls, and dynamical LM does not use the planet mask.
+        # integration controls. Both dynamical solvers use the planet mask.
         # Keep other warnings enabled; do not add fake uses of these arguments.
         # Keep large fixed work arrays off small GUI worker-thread stacks.
         # Simplex alone otherwise needs >630 KiB before nested solver calls.

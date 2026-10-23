@@ -7,7 +7,7 @@ class pdc(QtWidgets.QDialog):
 
     def __init__(self, parent = None):
        # super(show_symbols, self).__init__(parent)
-        super(pdc, self).__init__()
+        super(pdc, self).__init__(parent if isinstance(parent, QtWidgets.QWidget) else None)
 
         self.layout = QtWidgets.QVBoxLayout(self)
         

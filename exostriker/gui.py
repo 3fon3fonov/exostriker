@@ -77,6 +77,9 @@ from symbols_window import show_symbols
 from color_dialog import choose_color
 from TESS_pdc_window import pdc
 
+from nbody_plot_options import NbodyPlotOptionsController
+from window_lifecycle import close_auxiliary_windows
+from posterior_statistics import posterior_statistics_html
 from cornerplot_parameter_window import show_param_boxes
 from sample_correlation import SampleCorrelationController
 
@@ -381,13 +384,13 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             
         self.check_std_ast_solution()   
 
-    def update_gui_params(self):
+    def update_gui_params(self, include_inactive=False):
         global fit
 
  
         for i in range(9):
             #if not self.buttonGroup_use_planets.buttons()[i].isChecked():
-            if not bool(fit.use_planet[i]):
+            if not include_inactive and not bool(fit.use_planet[i]):
                 continue
 
             self.param_gui_P[i].setValue(fit.P[i])
@@ -1123,6 +1126,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                             int(self.mix_pl_7.isChecked()),int(self.mix_pl_8.isChecked()),int(self.mix_pl_9.isChecked()),
                             ]
 
+        self.radioButton_Dynamical.setText(
+            'Mixed' if fit.mixed_fit[0][0] else 'N-body')
+        self.radioButton_Dynamical.setToolTip(
+            'Keplerian + N-body (mixed)' if fit.mixed_fit[0][0] else 'N-body')
+
 
     def update_use(self):
         global fit
@@ -1251,10 +1259,44 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         fit.ast_mu_alpha_dot_use[0]  = self.use_param_gui_ast[5].isChecked()        
         fit.ast_mu_delta_dot_use[0]  = self.use_param_gui_ast[6].isChecked()   
 
-    def update_priors_from_fit(self, n_sigma=3, round_digits=None):
-        """Apply fitted RV priors and synchronize only the changed GUI boxes."""
+    def sort_planets_by_period(self):
+        """Capture pending edits, reorder in RV_mod, and refresh every GUI field."""
         global fit
-        changes = fit.update_priors_from_fit(n_sigma, round_digits=round_digits, sync_gui=False)
+        self.update_params()
+        self.update_use()
+        self.check_bounds()
+        self.check_priors_nr()
+        self.check_priors_jeff()
+        self.update_mixed_fitting()
+        try:
+            order = fit.sort_planets_by_period()
+        except ValueError as exc:
+            self.statusBar().showMessage(str(exc), 10000)
+            return
+        # Signals must not write partially refreshed controls back into fit.
+        blockers = [QtCore.QSignalBlocker(widget) for widget in self.findChildren(QtWidgets.QWidget)]
+        try:
+            self.update_gui_params(include_inactive=True)
+            self.update_use_from_session()
+            self.update_bounds()
+            self.update_settings()
+            self.set_ttv_dataset_to_planet()
+            self.set_ast_dataset_to_planet()
+            self.set_ast_dataset_to_planet_2()
+            self.set_ast_dataset_to_planet_3()
+            self.update_errors()
+            self.update_a_mass()
+        finally:
+            del blockers
+        if fit.type_fit.get('RV', False):
+            self.update_extra_plots()
+        self.statusBar().showMessage('Planets sorted by increasing period', 5000)
+        return order
+
+    def update_priors_from_fit(self, n_sigma=3, round_digits=None, gaussian=False):
+        """Update fitted-error bounds; pass gaussian=True to enable Gaussians."""
+        global fit
+        changes = fit.update_priors_from_fit(n_sigma, round_digits=round_digits, sync_gui=False, gaussian=gaussian)
         self.sync_fit_priors_to_gui(fit, changes, round_digits)
         return changes
 
@@ -1285,8 +1327,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 normal = [getattr(self, prefix + '_trend_mean'), getattr(self, prefix + '_trend_sigma'),
                           getattr(self, 'use_' + prefix + '_tr_nr_pr')]
                 jeff = [None, None, getattr(self, 'use_' + prefix + '_tr_jeff_pr')]
-            for widget, value in zip(list(bounds)[:2] + list(normal)[:2],
-                                     list(change['bounds']) + [change['mean'], change['sigma']]):
+            gaussian = change.get('gaussian', False)
+            widgets, values = list(bounds)[:2], list(change['bounds'])
+            if gaussian:
+                widgets += list(normal)[:2]
+                values += [change['mean'], change['sigma']]
+            for widget, value in zip(widgets, values):
                 blocked = widget.blockSignals(True)
                 # Preserve narrow uncertainty intervals (e.g. quadratic trends)
                 # instead of rounding their Gaussian width to zero in the GUI.
@@ -1302,7 +1348,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 widget.setMaximum(max(widget.maximum(), value))
                 widget.setValue(value)
                 widget.blockSignals(blocked)
-            for widget, enabled in ((normal[2], True), (jeff[2], False)):
+            for widget, enabled in (((normal[2], True), (jeff[2], False)) if gaussian else ()):
                 blocked = widget.blockSignals(True)
                 widget.setChecked(enabled)
                 widget.blockSignals(blocked)
@@ -2957,54 +3003,90 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             exporter.export('%s/%s.png'%(plots_dir,zzz_str[i]))    
         return
 
+    def plot_font_style(self):
+        """Axis-label CSS shared by initial drawing and later redraws."""
+        import html
+        font = self.plot_font
+        return {'font-family': '"' + html.escape(font.family(), quote=True) + '"',
+                'font-size': '%gpt' % font.pointSizeF(),
+                'font-weight': str(int(font.weight())),
+                'font-style': 'italic' if font.italic() else 'normal',
+                'text-decoration': ' '.join(name for enabled, name in (
+                    (font.underline(), 'underline'), (font.strikeOut(), 'line-through')) if enabled) or 'none'}
+
+    def initialize_plot_axis_controls(self):
+        from plot_axis_options import DEFAULTS, normalize_options
+        with open('./lib/ES_settings.json', 'r') as stream:
+            saved = json.load(stream).get('plot_axes', {})
+        try:
+            saved = normalize_options(saved)
+        except (ValueError, TypeError):
+            saved = DEFAULTS
+        self.set_plot_axis_controls(saved)
+        self.apply_plot_axis_options(persist=False)
+        self.apply_plot_axes.clicked.connect(self.apply_plot_axis_options)
+        self.reset_plot_axes.clicked.connect(self.reset_plot_axis_options)
+        self.button_axes_plot_fonts.clicked.connect(self.actionSet_plots_font.trigger)
+
+    def set_plot_axis_controls(self, options):
+        from plot_axis_options import DEFAULTS
+        for name in DEFAULTS:
+            widget = getattr(self, 'axes_' + name)
+            if name in ('tick_direction', 'minor_levels'):
+                widget.setCurrentIndex(options[name])
+            else:
+                widget.setValue(options[name])
+
+    def reset_plot_axis_options(self):
+        from plot_axis_options import DEFAULTS
+        self.set_plot_axis_controls(DEFAULTS)
+        self.apply_plot_axis_options()
+
+    def apply_plot_axis_options(self, checked=False, persist=True):
+        from plot_axis_options import DEFAULTS, normalize_options, apply_axis_options
+        values = {}
+        for name in DEFAULTS:
+            widget = getattr(self, 'axes_' + name)
+            values[name] = widget.currentIndex() if name in ('tick_direction', 'minor_levels') else widget.value()
+        values = normalize_options(values)
+        panels = [globals().get(name) for name in ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8', 'p9', 'p10', 'p11', 'p12', 'p13', 'p14', 'p15', 'p16', 'p17', 'p18', 'p19', 'p20', 'pe', 'pdi', 'pcor', 'p_mlp', 'p_ttv', 'p_ttv_oc', 'p_per_ev', 'p00', 'p01', 'p30', 'p31', 'pe2', 'pe0', 'pe1', 'p_ttv_00', 'p_ttv_01', 'p_ast', 'p_ast_oc', 'p_ast_00', 'p_ast_01', 'p_ast_hipp']]
+        for panel in panels:
+            if panel is not None:
+                apply_axis_options(panel, values)
+        if persist:
+            path = './lib/ES_settings.json'
+            with open(path, 'r') as stream:
+                settings = json.load(stream)
+            settings['plot_axes'] = values
+            with open(path, 'w') as stream:
+                json.dump(settings, stream)
+
     def update_font_plots(self):
-
         global p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,p00,p01,p30,p31,pe2,pe0,pe1,p_ttv_00,p_ttv_01, p_ast,p_ast_oc, p_ast_00,p_ast_01,p_ast_hipp
+        normal = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,
+                  pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,p_ast,p_ast_oc,p_ast_hipp]
+        upper = [p00,p30,pe0,p_ttv_00,p_ast_00]
+        lower = [p01,p31,pe1,p_ttv_01,p_ast_01]
+        style = self.plot_font_style()
+        size = self.plot_font.pointSizeF()
+        for panel in normal + upper + lower:
+            panel.getAxis('left').setWidth(round(50.0 * size / 11.0))
+            if panel not in upper:
+                panel.getAxis('bottom').setHeight(round(50.0 * size / 11.0))
+            for side in ('left', 'bottom', 'top', 'right'):
+                axis = panel.getAxis(side)
+                axis.setTickFont(QtGui.QFont(self.plot_font))
+                # Keep label text, units, SI-prefix settings and visibility.
+                axis.labelStyle.update(style)
+                axis._updateLabel()
+            plot = panel.getPlotItem() if hasattr(panel, 'getPlotItem') else panel
+            labels = [plot.titleLabel]
+            if plot.legend is not None:
+                labels.extend(label for _, label in plot.legend.items)
+            for label in labels:
+                label.setText(label.text, family=self.plot_font.family(), size='%gpt' % size,
+                              bold=self.plot_font.bold(), italic=self.plot_font.italic())
 
-        zzz = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,p_ast,p_ast_oc,p_ast_hipp]
-
-
-        for i in range(len(zzz)):
-
-            zzz[i].getAxis('left').setWidth(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-            zzz[i].getAxis("left").tickFont = self.plot_font
-            zzz[i].getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-
-            zzz[i].getAxis("bottom").tickFont = self.plot_font
-            # zzz[i].getAxis("left").setStyle(tickTextOffset=20)        
-            #  zzz[i].getAxis("bottom").setStyle(tickTextOffset=20)        
-
-            zzz[i].setLabel('bottom', '%s'%zzz[i].getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-            zzz[i].setLabel('left', '%s'%zzz[i].getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-
-        zzz2 = [p00,p30,pe0,p_ttv_00,p_ast_00]
-        for i in range(len(zzz2)):
-
-            zzz2[i].getAxis('left').setWidth(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-            zzz2[i].getAxis("left").tickFont = self.plot_font
-          #  zzz2[i].getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-          #  zzz2[i].getAxis("bottom").tickFont = self.plot_font
-          #  zzz[i].getAxis("left").setStyle(tickTextOffset=20)        
-          #  zzz[i].getAxis("bottom").setStyle(tickTextOffset=20)        
-            
-          #  zzz2[i].setLabel('bottom', '%s'%zzz2[i].getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-            zzz2[i].setLabel('left', '%s'%zzz2[i].getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-
-        zzz3 = [p01,p31,pe1,p_ttv_01,p_ast_01]
-        for i in range(len(zzz3)):
-
-            zzz3[i].getAxis('left').setWidth(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-            zzz3[i].getAxis("left").tickFont = self.plot_font
-            zzz3[i].getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-            zzz3[i].getAxis("bottom").tickFont = self.plot_font
-           # zzz3[i].getAxis("left").setStyle(tickTextOffset=20)        
-           # zzz3[i].getAxis("bottom").setStyle(tickTextOffset=20)        
-            
-            zzz3[i].setLabel('bottom', '%s'%zzz3[i].getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-            zzz3[i].setLabel('left', '%s'%zzz3[i].getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
- 
-        return
- 
 
     def initialize_plots(self):
 
@@ -3080,7 +3162,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             zzz[i].setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
  
                 
-            #zzz[i].getAxis("bottom").tickFont = self.plot_font
+            #zzz[i].getAxis("bottom").setTickFont(self.plot_font)
             zzz[i].getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
             zzz[i].getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
             zzz[i].getAxis("left").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
@@ -3110,8 +3192,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             #right_axis.setWidth(20)
             #right_axis.setStyle(showValues=False, tickLength=8)
                         
-            zzz[i].setLabel('bottom', '%s'%xaxis[i], units='%s'%xunit[i],  **{'font-size':'%dpt'%self.plot_font.pointSize()})
-            zzz[i].setLabel('left',   '%s'%yaxis[i], units='%s'%yunit[i],  **{'font-size':'%dpt'%self.plot_font.pointSize()})       
+            zzz[i].setLabel('bottom', '%s'%xaxis[i], units='%s'%xunit[i],  **self.plot_font_style())
+            zzz[i].setLabel('left',   '%s'%yaxis[i], units='%s'%yunit[i],  **self.plot_font_style())       
             zzz[i].showAxis('top') 
             zzz[i].showAxis('right') 
             zzz[i].getAxis('bottom').enableAutoSIPrefix(enable=False)
@@ -3168,11 +3250,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         #pe0.getAxis('left').setStyle(autoExpandTextSpace=True)
         pe0.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
-        pe0.getAxis("left").tickFont = self.plot_font
+        pe0.getAxis("left").setTickFont(self.plot_font)
         #pe0.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-        pe0.getAxis("bottom").tickFont = self.plot_font
-        #pe0.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        pe0.setLabel('left', '%s'%p1.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        pe0.getAxis("bottom").setTickFont(self.plot_font)
+        #pe0.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **self.plot_font_style())
+        pe0.setLabel('left', '%s'%p1.getAxis("left").labelText, units='', **self.plot_font_style())
         pe0.getAxis('right').setWidth(12)
         pe0.getAxis('top').setHeight(0)
 
@@ -3189,17 +3271,17 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         #pe1.getAxis('left').setStyle(autoExpandTextSpace=True)
 
         pe1.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
-        pe1.getAxis("left").tickFont = self.plot_font
+        pe1.getAxis("left").setTickFont(self.plot_font)
         pe1.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-        pe1.getAxis("bottom").tickFont = self.plot_font
+        pe1.getAxis("bottom").setTickFont(self.plot_font)
 
-        #pe1.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        pe1.setLabel('left', o_c_label, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        #pe1.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **self.plot_font_style())
+        pe1.setLabel('left', o_c_label, units='', **self.plot_font_style())
         pe1.getAxis('right').setWidth(12)
         pe1.getAxis('top').setHeight(0)
 
         pe1.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
-        pe1.setLabel('bottom', '%s'%p2.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        pe1.setLabel('bottom', '%s'%p2.getAxis("bottom").labelText, units='', **self.plot_font_style())
 
  
         pe1.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
@@ -3254,11 +3336,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
 
         p00.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
-        p00.getAxis("left").tickFont = self.plot_font
+        p00.getAxis("left").setTickFont(self.plot_font)
         #p00.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-        p00.getAxis("bottom").tickFont = self.plot_font
-        #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p00.setLabel('left', '%s'%p1.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p00.getAxis("bottom").setTickFont(self.plot_font)
+        #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **self.plot_font_style())
+        p00.setLabel('left', '%s'%p1.getAxis("left").labelText, units='', **self.plot_font_style())
         p00.getAxis('right').setWidth(12)
         p00.getAxis('top').setHeight(0)
 
@@ -3277,17 +3359,17 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
          
 
         p01.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
-        p01.getAxis("left").tickFont = self.plot_font
+        p01.getAxis("left").setTickFont(self.plot_font)
         p01.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-        p01.getAxis("bottom").tickFont = self.plot_font
+        p01.getAxis("bottom").setTickFont(self.plot_font)
 
-        #p01.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p01.setLabel('left', o_c_label, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        #p01.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **self.plot_font_style())
+        p01.setLabel('left', o_c_label, units='', **self.plot_font_style())
         p01.getAxis('right').setWidth(12)
         p01.getAxis('top').setHeight(0)
 
         p01.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
-        p01.setLabel('bottom', '%s'%p2.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p01.setLabel('bottom', '%s'%p2.getAxis("bottom").labelText, units='', **self.plot_font_style())
 
 
         p01.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
@@ -3339,16 +3421,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         #p31.autoRange(False)
         
         p30.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
-        p30.getAxis("left").tickFont = self.plot_font
+        p30.getAxis("left").setTickFont(self.plot_font)
         #p00.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-        p30.getAxis("bottom").tickFont = self.plot_font
-        #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p30.getAxis("bottom").setTickFont(self.plot_font)
+        #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **self.plot_font_style())
         
         p30.getAxis('right').setWidth(12)
         p30.getAxis('top').setHeight(0)
         p30.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
         
-        p30.setLabel('left', '%s'%p3.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p30.setLabel('left', '%s'%p3.getAxis("left").labelText, units='', **self.plot_font_style())
         
         p30.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
         p30.getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
@@ -3359,12 +3441,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
          
         
         p31.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
-        p31.getAxis("left").tickFont = self.plot_font
+        p31.getAxis("left").setTickFont(self.plot_font)
         p31.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-        p31.getAxis("bottom").tickFont = self.plot_font
+        p31.getAxis("bottom").setTickFont(self.plot_font)
         
-        #p31.setLabel('left', '%s'%p4.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p31.setLabel('left', 'o-c', units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        #p31.setLabel('left', '%s'%p4.getAxis("left").labelText, units='', **self.plot_font_style())
+        p31.setLabel('left', 'o-c', units='', **self.plot_font_style())
         p31.getAxis('right').setWidth(12)
         p31.getAxis('top').setHeight(0)
         p31.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
@@ -3377,7 +3459,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p31.getAxis('left').enableAutoSIPrefix(enable=False)
 
         
-        p31.setLabel('bottom', '%s'%p4.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p31.setLabel('bottom', '%s'%p4.getAxis("bottom").labelText, units='', **self.plot_font_style())
         
         ax30 = p30.getAxis('bottom')      #get handle to x-axis 0
         ax30.setStyle(showValues=False)
@@ -3418,11 +3500,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
 
         p_ttv_00.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
-        p_ttv_00.getAxis("left").tickFont = self.plot_font
+        p_ttv_00.getAxis("left").setTickFont(self.plot_font)
         #p00.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-        p_ttv_00.getAxis("bottom").tickFont = self.plot_font
-        #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p_ttv_00.setLabel('left', '%s'%p_ttv_oc.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p_ttv_00.getAxis("bottom").setTickFont(self.plot_font)
+        #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **self.plot_font_style())
+        p_ttv_00.setLabel('left', '%s'%p_ttv_oc.getAxis("left").labelText, units='', **self.plot_font_style())
         p_ttv_00.getAxis('right').setWidth(12)
         p_ttv_00.getAxis('top').setHeight(0)
 
@@ -3438,17 +3520,17 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
 
         p_ttv_01.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
-        p_ttv_01.getAxis("left").tickFont = self.plot_font
+        p_ttv_01.getAxis("left").setTickFont(self.plot_font)
         p_ttv_01.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-        p_ttv_01.getAxis("bottom").tickFont = self.plot_font
+        p_ttv_01.getAxis("bottom").setTickFont(self.plot_font)
 
-        #p_ttv_01.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p_ttv_01.setLabel('left', o_c_label, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        #p_ttv_01.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **self.plot_font_style())
+        p_ttv_01.setLabel('left', o_c_label, units='', **self.plot_font_style())
         p_ttv_01.getAxis('right').setWidth(12)
         p_ttv_01.getAxis('top').setHeight(0)
 
         p_ttv_01.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
-        p_ttv_01.setLabel('bottom', '%s'%p_ttv_oc.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p_ttv_01.setLabel('bottom', '%s'%p_ttv_oc.getAxis("bottom").labelText, units='', **self.plot_font_style())
 
 
         p_ttv_01.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
@@ -3499,11 +3581,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
 
         p_ast_00.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
-        p_ast_00.getAxis("left").tickFont = self.plot_font
+        p_ast_00.getAxis("left").setTickFont(self.plot_font)
         #p00.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-        p_ast_00.getAxis("bottom").tickFont = self.plot_font
-        #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p_ast_00.setLabel('left', '%s'%p_ast_oc.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p_ast_00.getAxis("bottom").setTickFont(self.plot_font)
+        #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **self.plot_font_style())
+        p_ast_00.setLabel('left', '%s'%p_ast_oc.getAxis("left").labelText, units='', **self.plot_font_style())
         p_ast_00.getAxis('right').setWidth(12)
         p_ast_00.getAxis('top').setHeight(0)
 
@@ -3519,17 +3601,17 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
 
         p_ast_01.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
-        p_ast_01.getAxis("left").tickFont = self.plot_font
+        p_ast_01.getAxis("left").setTickFont(self.plot_font)
         p_ast_01.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-        p_ast_01.getAxis("bottom").tickFont = self.plot_font
+        p_ast_01.getAxis("bottom").setTickFont(self.plot_font)
 
-        #p_ast_01.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p_ast_01.setLabel('left', o_c_label, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        #p_ast_01.setLabel('left', '%s'%p2.getAxis("left").labelText, units='', **self.plot_font_style())
+        p_ast_01.setLabel('left', o_c_label, units='', **self.plot_font_style())
         p_ast_01.getAxis('right').setWidth(12)
         p_ast_01.getAxis('top').setHeight(0)
 
         p_ast_01.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
-        p_ast_01.setLabel('bottom', '%s'%p_ast_oc.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p_ast_01.setLabel('bottom', '%s'%p_ast_oc.getAxis("bottom").labelText, units='', **self.plot_font_style())
 
 
         p_ast_01.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
@@ -3576,16 +3658,16 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         #pe1.autoRange(False)
         
         pe0.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
-        pe0.getAxis("left").tickFont = self.plot_font
+        pe0.getAxis("left").setTickFont(self.plot_font)
         #p00.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-        pe0.getAxis("bottom").tickFont = self.plot_font
-        #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        pe0.getAxis("bottom").setTickFont(self.plot_font)
+        #p00.setLabel('bottom', '%s'%p1.getAxis("bottom").labelText, units='', **self.plot_font_style())
         
         pe0.getAxis('right').setWidth(12)
         pe0.getAxis('top').setHeight(0)
         pe0.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
         
-        pe0.setLabel('left', '%s'%p3.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        pe0.setLabel('left', '%s'%p3.getAxis("left").labelText, units='', **self.plot_font_style())
        
         pe0.getAxis("bottom").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
         pe0.getAxis("top").setStyle(tickTextOffset = 12, tickFont = self.plot_font)
@@ -3596,12 +3678,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
          
         
         pe1.getAxis('left').setWidth(np.rint(60.0*(float(self.plot_font.pointSize())/11.0)))
-        pe1.getAxis("left").tickFont = self.plot_font
+        pe1.getAxis("left").setTickFont(self.plot_font)
         pe1.getAxis('bottom').setHeight(np.rint(50.0*(float(self.plot_font.pointSize())/11.0)))
-        pe1.getAxis("bottom").tickFont = self.plot_font
+        pe1.getAxis("bottom").setTickFont(self.plot_font)
         
-        #pe1.setLabel('left', '%s'%p4.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        pe1.setLabel('left', 'o-c', units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        #pe1.setLabel('left', '%s'%p4.getAxis("left").labelText, units='', **self.plot_font_style())
+        pe1.setLabel('left', 'o-c', units='', **self.plot_font_style())
         pe1.getAxis('right').setWidth(12)
         pe1.getAxis('top').setHeight(0)
         pe1.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
@@ -3613,7 +3695,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         pe1.getAxis('bottom').enableAutoSIPrefix(enable=False)
         pe1.getAxis('left').enableAutoSIPrefix(enable=False)
         
-        pe1.setLabel('bottom', '%s'%pe.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        pe1.setLabel('bottom', '%s'%pe.getAxis("bottom").labelText, units='', **self.plot_font_style())
         
         ax30 = pe0.getAxis('bottom')      #get handle to x-axis 0
         ax30.setStyle(showValues=False)
@@ -4214,12 +4296,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 p7.setLogMode(True,False)        
                 p7.plot(1/fit.gls.freq, fit.gls.power,pen={'color': dill.copy(fit.gls_colors[0]), 'width': gls_model_width},symbol=None ) 
 
-                p7.setLabel('bottom', 'period [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
+                p7.setLabel('bottom', 'period [d]', units='',  **self.plot_font_style())    
                 
             else:
                 p7.setLogMode(False,False)        
                 p7.plot(fit.gls.freq, fit.gls.power,pen={'color': dill.copy(fit.gls_colors[0]), 'width': self.gls_model_width.value()},symbol=None )                
-                p7.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                p7.setLabel('bottom', 'frequency [1/d]', units='',  **self.plot_font_style()) 
                 
                 
             if fit.gls.norm == 'ZK':
@@ -4256,12 +4338,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             if self.radioButton_RV_o_c_GLS_period.isChecked():
                 p8.setLogMode(True,False)        
                 p8.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen={'color': dill.copy(fit.gls_colors[1]), 'width': gls_o_c_model_width},symbol=None ) 
-                p8.setLabel('bottom', 'period [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+                p8.setLabel('bottom', 'period [d]', units='',  **self.plot_font_style())
  
             else:
                 p8.setLogMode(False,False)        
                 p8.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen={'color': dill.copy(fit.gls_colors[1]), 'width': gls_o_c_model_width},symbol=None )   
-                p8.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})                
+                p8.setLabel('bottom', 'frequency [1/d]', units='',  **self.plot_font_style())                
                 
             if fit.gls_o_c.norm == 'ZK':
                 [p8.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(fit.gls_o_c.powerLevel(np.array(power_levels)))]            
@@ -4287,12 +4369,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
             p12.setLogMode(True,False)        
             #p12.plot(1/fit.RV_WF_omega, fit.RV_WF_power,pen='k',symbol=None , viewRect=True, enableAutoRange=True)   
             p12.plot(1/fit.gls.WF_omega, fit.gls.WF_power,pen='k',symbol=None , viewRect=True, enableAutoRange=True)   
-            p12.setLabel('bottom', 'period [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            p12.setLabel('bottom', 'period [d]', units='',  **self.plot_font_style())
         else:
             p12.setLogMode(False,False)        
            # p12.plot(fit.RV_WF_omega, fit.RV_WF_power,pen='k',symbol=None,  viewRect=True, enableAutoRange=True)  
             p12.plot(fit.gls.WF_omega, fit.gls.WF_power,pen='k',symbol=None,  viewRect=True, enableAutoRange=True)   
-            p12.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            p12.setLabel('bottom', 'frequency [1/d]', units='',  **self.plot_font_style())
 
         text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls.WF_omega, fit.gls.WF_power)
 
@@ -4685,8 +4767,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 err2a.setZValue(-10)
                 p01.addItem(err2a)
 
-        p01.setLabel('bottom', '%s'%p01.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        p01.setLabel('left', '%s'%p01.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+        p01.setLabel('bottom', '%s'%p01.getAxis("bottom").labelText, units='', **self.plot_font_style())
+        p01.setLabel('left', '%s'%p01.getAxis("left").labelText, units='', **self.plot_font_style())
 
 
         if self.RV_o_c_plot_cross_hair.isChecked():
@@ -4976,40 +5058,40 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                     #print("GP model was subtracted!!!")
                 
                 if self.extra_plot_Tra_phase_norm.isChecked():
-                    p31.setLabel('bottom', 'phase', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
-                    p3.setLabel('bottom', 'phase', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})            
-                    p4.setLabel('bottom', 'phase', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})  
+                    p31.setLabel('bottom', 'phase', units='',  **self.plot_font_style())
+                    p3.setLabel('bottom', 'phase', units='',  **self.plot_font_style())            
+                    p4.setLabel('bottom', 'phase', units='',  **self.plot_font_style())  
                 else:
-                    p31.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
-                    p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})                    
-                    p4.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})               
+                    p31.setLabel('bottom', 'phase [days]', units='',  **self.plot_font_style())
+                    p3.setLabel('bottom', 'phase [days]', units='',  **self.plot_font_style())                    
+                    p4.setLabel('bottom', 'phase [days]', units='',  **self.plot_font_style())               
  
                 #if self.tra_plot_add_o_c.isChecked():
-               #     p31.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+               #     p31.setLabel('bottom', 'phase [days]', units='',  **self.plot_font_style())
                     
                     
                # else:
-               #     p3.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+               #     p3.setLabel('bottom', 'phase [days]', units='',  **self.plot_font_style())
                 
                 
             else:
 
                 if self.tra_plot_add_o_c.isChecked():
-                    p31.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+                    p31.setLabel('bottom', 'BJD [days]', units='',  **self.plot_font_style())
                    # p31.getAxis("bottom").setTickFont= self.plot_font
                     p31.getAxis("bottom").setStyle(tickTextOffset = 2)
                     p31.getAxis("left").setStyle(tickTextOffset = 2)
                     p30.getAxis("left").setStyle(tickTextOffset = 2)
-                    p4.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                    p4.setLabel('bottom', 'BJD [days]', units='',  **self.plot_font_style()) 
                   #  p3.getAxis("bottom").setTickFont= self.plot_font
                     p4.getAxis("bottom").setStyle(tickTextOffset = 2)                
                     p4.getAxis("left").setStyle(tickTextOffset = 2) 
                 else:
-                    p3.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                    p3.setLabel('bottom', 'BJD [days]', units='',  **self.plot_font_style()) 
                   #  p3.getAxis("bottom").setTickFont= self.plot_font
                     p3.getAxis("bottom").setStyle(tickTextOffset = 2)                
                     p3.getAxis("left").setStyle(tickTextOffset = 2) 
-                    p4.setLabel('bottom', 'BJD [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                    p4.setLabel('bottom', 'BJD [days]', units='',  **self.plot_font_style()) 
                   #  p3.getAxis("bottom").setTickFont= self.plot_font
                     p4.getAxis("bottom").setStyle(tickTextOffset = 2)                
                     p4.getAxis("left").setStyle(tickTextOffset = 2) 
@@ -5017,8 +5099,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 self.tra_xaxis_offset.setEnabled(False) 
                 self.trans_phase_slider.setEnabled(False)
 
-            p31.setLabel('bottom', '%s'%p31.getAxis("bottom").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
-            p31.setLabel('left', '%s'%p31.getAxis("left").labelText, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            p31.setLabel('bottom', '%s'%p31.getAxis("bottom").labelText, units='', **self.plot_font_style())
+            p31.setLabel('left', '%s'%p31.getAxis("left").labelText, units='', **self.plot_font_style())
 
 
 
@@ -5329,7 +5411,7 @@ Polyfit coefficients:
         text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
  
         if okPressed and text != '':
-            p6.setLabel('bottom', '%s'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            p6.setLabel('bottom', '%s'%text, units='',  **self.plot_font_style())
         else:
             return
     
@@ -5342,7 +5424,7 @@ Polyfit coefficients:
         text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p6.setLabel('left', '%s'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            p6.setLabel('left', '%s'%text, units='',  **self.plot_font_style())
 
         else:
             return
@@ -5379,12 +5461,12 @@ Polyfit coefficients:
             if self.radioButton_act_GLS_period.isChecked():
                 p11.setLogMode(True,False)        
                 p11.plot(1/act_per.freq, act_per.power,pen=dill.copy(fit.act_colors[ind]),symbol=None ) 
-                p11.setLabel('bottom', 'period [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                p11.setLabel('bottom', 'period [d]', units='',  **self.plot_font_style()) 
 
             else:
                 p11.setLogMode(False,False)        
                 p11.plot(act_per.freq, act_per.power,pen=dill.copy(fit.act_colors[ind]),symbol=None )
-                p11.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                p11.setLabel('bottom', 'frequency [1/d]', units='',  **self.plot_font_style()) 
 
             [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
   
@@ -5421,7 +5503,7 @@ Polyfit coefficients:
             symbolBrush=dill.copy(fit.act_colors[ind])
             )
 
-            p5.setLabel('left', 'y', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            p5.setLabel('left', 'y', units='',  **self.plot_font_style())
 
             return
         else:
@@ -5615,7 +5697,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 data_err = np.array(ttv_files[j][7])             
                 model = dill.copy(ttv_loglik[4][j][4]) 
                 model_t = dill.copy(ttv_loglik[4][j][0])
-                p_ttv.setLabel('left', 'Depth [rel. flux]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+                p_ttv.setLabel('left', 'Depth [rel. flux]', units='',  **self.plot_font_style())
             
             elif self.show_TDur_var.isChecked():
 
@@ -5623,14 +5705,14 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 data_err = np.array(ttv_files[j][9])             
                 model = dill.copy(ttv_loglik[4][j][5]) 
                 model_t = dill.copy(ttv_loglik[4][j][0])     
-                p_ttv.setLabel('left', 'Duration [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                p_ttv.setLabel('left', 'Duration [d]', units='',  **self.plot_font_style()) 
                                      
             else:
                 data_ = ttv_data
                 data_err = flux_err           
                 model = ttv_model_
                 model_t = model_N_transits            
-                p_ttv.setLabel('left', 'BJD [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                p_ttv.setLabel('left', 'BJD [d]', units='',  **self.plot_font_style()) 
                 
             p_ttv.plot(t, data_,
             pen=None,
@@ -6011,15 +6093,15 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 p_ast_hipp.getViewBox().setAspectLocked(False)
                 
                 if self.ast_plot_ra.isChecked():
-                    p_ast_hipp.setLabel('left', '<html><head/><body><p>&#916; &#945; cos(&#948;) [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-                    p_ast_hipp.setLabel('bottom', '<html><head/><body><p>  BJD [days] </p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})                 
+                    p_ast_hipp.setLabel('left', '<html><head/><body><p>&#916; &#945; cos(&#948;) [mas]</p></body></html>', units='',  **self.plot_font_style()) 
+                    p_ast_hipp.setLabel('bottom', '<html><head/><body><p>  BJD [days] </p></body></html>', units='',  **self.plot_font_style())                 
                     yaxis = x_axis
                     yaxis_err = x_axis_err
                     yaxis_model = ast_model_x
                     
                 elif self.ast_plot_dec.isChecked():
-                    p_ast_hipp.setLabel('left', '<html><head/><body><p>&#948; [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-                    p_ast_hipp.setLabel('bottom', '<html><head/><body><p>  BJD [days] </p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})                 
+                    p_ast_hipp.setLabel('left', '<html><head/><body><p>&#948; [mas]</p></body></html>', units='',  **self.plot_font_style()) 
+                    p_ast_hipp.setLabel('bottom', '<html><head/><body><p>  BJD [days] </p></body></html>', units='',  **self.plot_font_style())                 
                     yaxis = y_axis
                     yaxis_err = y_axis_err                    
                     yaxis_model = ast_model_y                    
@@ -6047,8 +6129,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
             else:
 
-                p_ast_hipp.setLabel('bottom', '<html><head/><body><p>&#916; &#945; cos(&#948;) [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-                p_ast_hipp.setLabel('left',   '<html><head/><body><p>&#948; [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                p_ast_hipp.setLabel('bottom', '<html><head/><body><p>&#916; &#945; cos(&#948;) [mas]</p></body></html>', units='',  **self.plot_font_style()) 
+                p_ast_hipp.setLabel('left',   '<html><head/><body><p>&#948; [mas]</p></body></html>', units='',  **self.plot_font_style()) 
             
                 p_ast_hipp.invertX(True)
                 p_ast_hipp.getViewBox().setAspectLocked(True)
@@ -6293,15 +6375,15 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 p_ast_hipp.getViewBox().setAspectLocked(False)
                 
                 if self.ast_plot_ra.isChecked():
-                    p_ast_hipp.setLabel('left', '<html><head/><body><p>&#916; &#945; cos(&#948;) [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-                    p_ast_hipp.setLabel('bottom', '<html><head/><body><p>  BJD [days] </p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})                 
+                    p_ast_hipp.setLabel('left', '<html><head/><body><p>&#916; &#945; cos(&#948;) [mas]</p></body></html>', units='',  **self.plot_font_style()) 
+                    p_ast_hipp.setLabel('bottom', '<html><head/><body><p>  BJD [days] </p></body></html>', units='',  **self.plot_font_style())                 
                     yaxis = x_axis
                     yaxis_err = x_axis_err
                     yaxis_model = ast_model_x
                     
                 elif self.ast_plot_dec.isChecked():
-                    p_ast_hipp.setLabel('left', '<html><head/><body><p>&#948; [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-                    p_ast_hipp.setLabel('bottom', '<html><head/><body><p>  BJD [days] </p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})                 
+                    p_ast_hipp.setLabel('left', '<html><head/><body><p>&#948; [mas]</p></body></html>', units='',  **self.plot_font_style()) 
+                    p_ast_hipp.setLabel('bottom', '<html><head/><body><p>  BJD [days] </p></body></html>', units='',  **self.plot_font_style())                 
                     yaxis = y_axis
                     yaxis_err = y_axis_err                    
                     yaxis_model = ast_model_y                    
@@ -6329,8 +6411,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
             else:
 
-                p_ast_hipp.setLabel('bottom', '<html><head/><body><p>&#916; &#945; cos(&#948;) [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-                p_ast_hipp.setLabel('left',   '<html><head/><body><p>&#948; [mas]</p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                p_ast_hipp.setLabel('bottom', '<html><head/><body><p>&#916; &#945; cos(&#948;) [mas]</p></body></html>', units='',  **self.plot_font_style()) 
+                p_ast_hipp.setLabel('left',   '<html><head/><body><p>&#948; [mas]</p></body></html>', units='',  **self.plot_font_style()) 
             
                 p_ast_hipp.invertX(True)
                 p_ast_hipp.getViewBox().setAspectLocked(True)
@@ -6500,6 +6582,233 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 ############################# N-Body plots ########################################     
 
 
+    def initialize_nbody_plot_options(self):
+        global fit, p13, p14, p15, p19, p20, p_per_ev, p17, p18
+        self.nbody_options = {}
+        # All widgets below are defined directly in their sub-tabs in es.ui.
+        controls = dict(
+            xlabel_button=self.per_evol_x_label_2,
+            ylabel_button=self.per_evol_y_label_2,
+            line=self.a_plot_line,
+            line_width=self.a_line_size,
+            line_alpha=self.Prat_line_alpha_7,
+            line_style=self.nbody_a_line_style,
+            dots=self.a_plot_dot,
+            marker_size=self.a_dot_size,
+            marker_alpha=self.Prat_line_alpha_8,
+            symbol=self.nbody_a_symbol,
+            color_button=self.color_per_evol_2,
+            palette_button=self.nbody_a_palette_button,
+            hold=self.hold_old_plot_a,
+            auto_range=self.orb_evol_auto_range_a,
+        )
+        options = NbodyPlotOptionsController(self.nbody_options_a, controls)
+        options.configure('a', p13, lambda: fit, self.plot_evol_a, self.plot_font_style)
+        self.connect_nbody_plot_controls(options)
+        self.nbody_options['a'] = options
+
+        controls = dict(
+            xlabel_button=self.nbody_e_xlabel_button,
+            ylabel_button=self.nbody_e_ylabel_button,
+            line=self.nbody_e_line,
+            line_width=self.nbody_e_line_width,
+            line_alpha=self.nbody_e_line_alpha,
+            line_style=self.nbody_e_line_style,
+            dots=self.nbody_e_dots,
+            marker_size=self.nbody_e_marker_size,
+            marker_alpha=self.nbody_e_marker_alpha,
+            symbol=self.nbody_e_symbol,
+            color_button=self.nbody_e_color_button,
+            palette_button=self.nbody_e_palette_button,
+            hold=self.hold_old_plot_e,
+            auto_range=self.orb_evol_auto_range_e,
+        )
+        options = NbodyPlotOptionsController(self.nbody_options_e, controls)
+        options.configure('e', p14, lambda: fit, self.plot_evol_e, self.plot_font_style)
+        self.connect_nbody_plot_controls(options)
+        self.nbody_options['e'] = options
+
+        controls = dict(
+            xlabel_button=self.nbody_omega_xlabel_button,
+            ylabel_button=self.nbody_omega_ylabel_button,
+            line=self.nbody_omega_line,
+            line_width=self.nbody_omega_line_width,
+            line_alpha=self.nbody_omega_line_alpha,
+            line_style=self.nbody_omega_line_style,
+            dots=self.nbody_omega_dots,
+            marker_size=self.nbody_omega_marker_size,
+            marker_alpha=self.nbody_omega_marker_alpha,
+            symbol=self.nbody_omega_symbol,
+            color_button=self.nbody_omega_color_button,
+            palette_button=self.nbody_omega_palette_button,
+            hold=self.hold_old_plot_om,
+            auto_range=self.orb_evol_auto_range_p,
+        )
+        options = NbodyPlotOptionsController(self.nbody_options_omega, controls)
+        options.configure('omega', p15, lambda: fit, self.plot_evol_p, self.plot_font_style)
+        self.connect_nbody_plot_controls(options)
+        self.nbody_options['omega'] = options
+
+        controls = dict(
+            xlabel_button=self.nbody_inclination_xlabel_button,
+            ylabel_button=self.nbody_inclination_ylabel_button,
+            line=self.nbody_inclination_line,
+            line_width=self.nbody_inclination_line_width,
+            line_alpha=self.nbody_inclination_line_alpha,
+            line_style=self.nbody_inclination_line_style,
+            dots=self.nbody_inclination_dots,
+            marker_size=self.nbody_inclination_marker_size,
+            marker_alpha=self.nbody_inclination_marker_alpha,
+            symbol=self.nbody_inclination_symbol,
+            color_button=self.nbody_inclination_color_button,
+            palette_button=self.nbody_inclination_palette_button,
+            hold=self.nbody_inclination_hold,
+            auto_range=self.nbody_inclination_auto_range,
+        )
+        options = NbodyPlotOptionsController(self.nbody_options_inclination, controls)
+        options.configure('inclination', p19, lambda: fit, self.plot_i_Om, self.plot_font_style)
+        self.connect_nbody_plot_controls(options)
+        self.nbody_options['inclination'] = options
+
+        controls = dict(
+            xlabel_button=self.nbody_energy_xlabel_button,
+            ylabel_button=self.nbody_energy_ylabel_button,
+            line=self.nbody_energy_line,
+            line_width=self.nbody_energy_line_width,
+            line_alpha=self.nbody_energy_line_alpha,
+            line_style=self.nbody_energy_line_style,
+            dots=self.nbody_energy_dots,
+            marker_size=self.nbody_energy_marker_size,
+            marker_alpha=self.nbody_energy_marker_alpha,
+            symbol=self.nbody_energy_symbol,
+            color_button=self.nbody_energy_color_button,
+            palette_button=self.nbody_energy_palette_button,
+            hold=self.nbody_energy_hold,
+            auto_range=self.nbody_energy_auto_range,
+        )
+        options = NbodyPlotOptionsController(self.nbody_options_energy, controls)
+        options.configure('energy', p20, lambda: fit, self.plot_energy, self.plot_font_style)
+        self.connect_nbody_plot_controls(options)
+        self.nbody_options['energy'] = options
+
+        controls = dict(
+            xlabel_button=self.per_evol_x_label,
+            ylabel_button=self.per_evol_y_label,
+            line=self.Prat_plot_line,
+            line_width=self.Prat_line_size_1,
+            line_alpha=self.Prat_line_alpha_1,
+            line_style=self.nbody_period_ratio_line_style,
+            dots=self.Prat_plot_dot,
+            marker_size=self.Prat_line_size_2,
+            marker_alpha=self.Prat_line_alpha_2,
+            symbol=self.nbody_period_ratio_symbol,
+            color_button=self.color_per_evol,
+            palette_button=self.nbody_period_ratio_palette_button,
+            hold=self.hold_old_plot_per_evol,
+            auto_range=self.orb_evol_auto_range_per_evol,
+        )
+        options = NbodyPlotOptionsController(self.nbody_options_period_ratio, controls)
+        options.configure('period_ratio', p_per_ev, lambda: fit, self.plot_per_rat, self.plot_font_style)
+        self.connect_nbody_plot_controls(options)
+        self.nbody_options['period_ratio'] = options
+
+        controls = dict(
+            xlabel_button=self.delta_om_x_label,
+            ylabel_button=self.delta_om_y_label,
+            line=self.Dom_plot_line,
+            line_width=self.Prat_line_size_3,
+            line_alpha=self.Prat_line_alpha_3,
+            line_style=self.nbody_delta_omega_line_style,
+            dots=self.Dom_plot_dot,
+            marker_size=self.Prat_line_size_4,
+            marker_alpha=self.Prat_line_alpha_4,
+            symbol=self.nbody_delta_omega_symbol,
+            color_button=self.color_delta_om,
+            palette_button=self.nbody_delta_omega_palette_button,
+            hold=self.hold_old_plot_domega_evol,
+            auto_range=self.orb_evol_auto_range_domega_evol,
+        )
+        options = NbodyPlotOptionsController(self.nbody_options_delta_omega, controls)
+        options.configure('delta_omega', p17, lambda: fit, self.plot_delta_omega, self.plot_font_style)
+        self.connect_nbody_plot_controls(options)
+        self.nbody_options['delta_omega'] = options
+
+        controls = dict(
+            xlabel_button=self.theta_x_label,
+            ylabel_button=self.theta_y_label,
+            line=self.theta_plot_line,
+            line_width=self.Prat_line_size_5,
+            line_alpha=self.Prat_line_alpha_5,
+            line_style=self.nbody_resonant_angles_line_style,
+            dots=self.theta_plot_dot,
+            marker_size=self.Prat_line_size_6,
+            marker_alpha=self.Prat_line_alpha_6,
+            symbol=self.nbody_resonant_angles_symbol,
+            color_button=self.color_theta,
+            palette_button=self.nbody_resonant_angles_palette_button,
+            hold=self.hold_old_plot_theta_evol,
+            auto_range=self.orb_evol_auto_range_theta_evol,
+        )
+        options = NbodyPlotOptionsController(self.nbody_options_resonant_angles, controls)
+        options.configure('resonant_angles', p18, lambda: fit, self.plot_theta, self.plot_font_style)
+        self.connect_nbody_plot_controls(options)
+        self.nbody_options['resonant_angles'] = options
+
+    def connect_nbody_plot_controls(self, options):
+        # Explicit Qt signal wiring; the controller creates no widgets.
+        for control, signal in (
+                (options.line, 'toggled'), (options.dots, 'toggled'),
+                (options.hold, 'toggled'), (options.auto_range, 'toggled'),
+                (options.line_width, 'valueChanged'), (options.marker_size, 'valueChanged'),
+                (options.line_alpha, 'valueChanged'), (options.marker_alpha, 'valueChanged'),
+                (options.line_style, 'currentIndexChanged'), (options.symbol, 'currentIndexChanged')):
+            bound_signal = getattr(control, signal)
+            try:
+                bound_signal.disconnect()
+            except TypeError:
+                pass
+            bound_signal.connect(options.changed)
+        for button in (options.color_button, options.palette_button, options.xlabel_button, options.ylabel_button):
+            try:
+                button.clicked.disconnect()
+            except TypeError:
+                pass
+        options.color_button.clicked.connect(options.choose_color)
+        options.palette_button.clicked.connect(options.choose_planet_color)
+        options.xlabel_button.clicked.connect(lambda: options.edit_label('xlabel', 'bottom'))
+        options.ylabel_button.clicked.connect(lambda: options.edit_label('ylabel', 'left'))
+
+    def plot_nbody_evolution(self, key):
+        global fit
+        widget = self.nbody_options[key]
+        slots = list(range(fit.npl_arb)) if fit.pl_arb_test else [i for i in range(9) if fit.use_planet[i]]
+        curves = []
+        labels = dict(a='a [au]', e='e', omega='ω [deg]', inclination='i [deg]', energy='Energy')
+        if key in ('a','e','omega'):
+            data = getattr(fit, {'a':'evol_a','e':'evol_e','omega':'evol_p'}[key])
+            curves = [(fit.evol_T[i], data[i], fit.colors[i], i) for i in slots]
+        elif key == 'inclination':
+            if self.plot_i.isChecked():
+                curves = [(fit.evol_T[i], fit.evol_i[i], fit.colors[i], i) for i in slots]
+            elif self.plot_Om.isChecked():
+                labels[key] = 'Ω [deg]'
+                for i in slots:
+                    values = np.array(fit.evol_Om[i], copy=True)
+                    if self.radioButton_Omega_180_fold.isChecked():
+                        values[values >= 180.] -= 360.
+                    curves.append((fit.evol_T[i], values, fit.colors[i], i))
+        elif len(np.atleast_1d(fit.evol_T_energy)) >= 3:
+            if self.radioButton_energy.isChecked():
+                values = fit.evol_energy
+            else:
+                component = 'lx' if self.radioButton_lx.isChecked() else 'ly' if self.radioButton_ly.isChecked() else 'lz'
+                values = fit.evol_momentum[component]
+                labels[key] = 'Momentum ' + component
+            curves = [(fit.evol_T_energy, values, fit.colors[0])]
+        # Skip unavailable cached arrays; editing labels does not require a run.
+        curves = [curve for curve in curves if len(np.atleast_1d(curve[0])) and len(np.atleast_1d(curve[0]))==len(np.atleast_1d(curve[1]))]
+        widget.draw(curves, 't [yr]', labels[key])
+
     def update_orb_plot(self):
         global fit, p16
         
@@ -6553,22 +6862,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit, colors_per_rat, p_per_ev 
         
 
-        if not self.hold_old_plot_per_evol.isChecked():    
-            p_per_ev.plot(clear=True,)
-        else:
-            p_per_ev.plot(clear=False,)
 
 
-        if self.Prat_plot_line.isChecked():
-            Prat_plot_pen={'color':colors_per_rat[0], 'width':1.1}
-        else:
-            Prat_plot_pen=None
 
 
-        if self.Prat_plot_dot.isChecked():
-            Prat_plot_dot='o'
-        else:
-            Prat_plot_dot=None
 
         self.color_per_evol.setStyleSheet("color: %s;"%colors_per_rat[0]) 
 
@@ -6584,15 +6881,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         Prat = fit.evol_Per[pl1_ind][0:last_stable] / fit.evol_Per[pl2_ind][0:last_stable]
 
 
-        p_per_ev.plot(fit.evol_T[0][0:last_stable], Prat ,pen=Prat_plot_pen, #{'color': colors[i], 'width': 1.1},
-        symbol=Prat_plot_dot,
-        symbolPen={'color': colors_per_rat[0], 'width': 1.1},
-        symbolSize=1,enableAutoRange=True,viewRect=True,
-        symbolBrush=dill.copy(fit.colors[0])
-        )  
+        self.nbody_options['period_ratio'].draw([(fit.evol_T[0][0:last_stable], Prat, colors_per_rat[0])], 't [yr]', 'Period ratio')
 
-        if self.orb_evol_auto_range_per_evol.isChecked():
-            p_per_ev.autoRange()   
 
 
 
@@ -6614,7 +6904,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p_per_ev.setLabel('bottom', '%s'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            p_per_ev.setLabel('bottom', '%s'%text, units='',  **self.plot_font_style())
  
         else:
             return
@@ -6628,7 +6918,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","(No special characters!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            p_per_ev.setLabel('left', '%s'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            p_per_ev.setLabel('left', '%s'%text, units='',  **self.plot_font_style())
  
         else:
             return
@@ -6681,19 +6971,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         
         
         
-        p17.plot(clear=True,)
 
 
-        if self.Dom_plot_line.isChecked():
-            Dom_plot_pen={'color':colors_delta_om[0], 'width':1.1}
-        else:
-            Dom_plot_pen=None
 
 
-        if self.Dom_plot_dot.isChecked():
-            Dom_plot_dot='o'
-        else:
-            Dom_plot_dot=None
 
     
         if self.domega_esin_ecos.isChecked():
@@ -6705,36 +6986,32 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                      
             x = fit.evol_e[e_ind][0:last_stable]*np.cos(np.radians(dom))
             y = fit.evol_e[e_ind][0:last_stable]*np.sin(np.radians(dom)) 
-            p17.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub> cos(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-            p17.setLabel('left', '<html><head/><body><p>e<sub>%s</sub> sin(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+            p17.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub> cos(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **self.plot_font_style()) 
+            p17.setLabel('left', '<html><head/><body><p>e<sub>%s</sub> sin(&Delta;&omega;) </p></body></html>'%(e_ind+1), units='',  **self.plot_font_style()) 
 
 
             if self.domega_esin_ecos_exe_out.isChecked():
 
                 x = fit.evol_e[pl1_ind][0:last_stable]*fit.evol_e[pl2_ind][0:last_stable]*np.cos(np.radians(dom))
                 y = fit.evol_e[pl1_ind][0:last_stable]*fit.evol_e[pl2_ind][0:last_stable]*np.sin(np.radians(dom)) 
-                p17.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub>e<sub>%s</sub> cos(&Delta;&omega;) </p></body></html>'%(pl1_ind+1,pl2_ind+1), units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-                p17.setLabel('left',   '<html><head/><body><p>e<sub>%s</sub>e<sub>%s</sub> sin(&Delta;&omega;) </p></body></html>'%(pl1_ind+1,pl2_ind+1), units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                p17.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub>e<sub>%s</sub> cos(&Delta;&omega;) </p></body></html>'%(pl1_ind+1,pl2_ind+1), units='',  **self.plot_font_style()) 
+                p17.setLabel('left',   '<html><head/><body><p>e<sub>%s</sub>e<sub>%s</sub> sin(&Delta;&omega;) </p></body></html>'%(pl1_ind+1,pl2_ind+1), units='',  **self.plot_font_style()) 
 
 
             p17.getViewBox().setAspectLocked(True)
-            p17.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
 
         else:
             x = fit.evol_T[0][0:last_stable]
             y = dom
-            p17.setLabel('bottom', 't [yr]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-            p17.setLabel('left', '<html><head/><body><p>&Delta;&omega; [deg] </p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+            p17.setLabel('bottom', 't [yr]', units='',  **self.plot_font_style()) 
+            p17.setLabel('left', '<html><head/><body><p>&Delta;&omega; [deg] </p></body></html>', units='',  **self.plot_font_style()) 
             p17.getViewBox().setAspectLocked(False)
            
  
  
-        p17.plot(x, y ,pen=Dom_plot_pen, #{'color': colors[i], 'width': 1.1},
-        symbol=Dom_plot_dot,
-        symbolPen={'color': colors_delta_om[0], 'width': 1.1},
-        symbolSize=1,enableAutoRange=True,viewRect=True,
-        symbolBrush=dill.copy(fit.colors[0])
-        )  
+        self.nbody_options['delta_omega'].draw([(x, y, colors_delta_om[0])], p17.getAxis('bottom').labelText, p17.getAxis('left').labelText)
+        if self.domega_esin_ecos.isChecked():
+            p17.plot([0.], [0.], pen=None, symbol='o', symbolSize=8, symbolBrush='r')
 
 
 
@@ -6757,8 +7034,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(HTML special characters accepted!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-           # p17.setLabel('bottom', '%s'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
-            p17.setLabel('bottom', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})  
+           # p17.setLabel('bottom', '%s'%text, units='',  **self.plot_font_style())
+            p17.setLabel('bottom', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **self.plot_font_style())  
         else:
             return
     
@@ -6771,8 +7048,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         text, okPressed = QtWidgets.QInputDialog.getText(self, "y-axis label","(HTML special characters accepted!)", QtWidgets.QLineEdit.Normal, "")
         
         if okPressed and text != '':
-            #p17.setLabel('left', '%s'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
-            p17.setLabel('left', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})   
+            #p17.setLabel('left', '%s'%text, units='',  **self.plot_font_style())
+            p17.setLabel('left', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **self.plot_font_style())   
         else:
             return
     
@@ -6871,18 +7148,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 theta[i][theta[i]>=180.0] -= 360.0
  
  
-        p18.plot(clear=True,)
-
-        if self.theta_plot_line.isChecked():
-            theta_plot_pen={'color':colors_theta[0], 'width':1.1}
-        else:
-            theta_plot_pen=None
 
 
-        if self.theta_plot_dot.isChecked():
-            theta_plot_dot='o'
-        else:
-            theta_plot_dot=None
+
 
         
         if self.theta_esin_ecos.isChecked():
@@ -6894,26 +7162,22 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                      
             x = fit.evol_e[e_ind][0:last_stable]*np.cos(np.radians(theta[tet_n]))
             y = fit.evol_e[e_ind][0:last_stable]*np.sin(np.radians(theta[tet_n])) 
-            p18.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub> cos(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-            p18.setLabel('left',   '<html><head/><body><p>e<sub>%s</sub> sin(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+            p18.setLabel('bottom', '<html><head/><body><p>e<sub>%s</sub> cos(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **self.plot_font_style()) 
+            p18.setLabel('left',   '<html><head/><body><p>e<sub>%s</sub> sin(&theta;%s) </p></body></html>'%(e_ind+1,tet_n+1), units='',  **self.plot_font_style()) 
             p18.getViewBox().setAspectLocked(True)
 
-            p18.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
 
         else:
             x = fit.evol_T[0][0:last_stable]
             y = theta[tet_n]
-            p18.setLabel('bottom', 't [yr]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-            p18.setLabel('left', '<html><head/><body><p>&theta;%s [deg] </p></body></html>'%(tet_n+1), units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+            p18.setLabel('bottom', 't [yr]', units='',  **self.plot_font_style()) 
+            p18.setLabel('left', '<html><head/><body><p>&theta;%s [deg] </p></body></html>'%(tet_n+1), units='',  **self.plot_font_style()) 
             p18.getViewBox().setAspectLocked(False)
            
 
-        p18.plot(x, y ,pen=theta_plot_pen, #{'color': colors[i], 'width': 1.1},
-        symbol=theta_plot_dot,
-        symbolPen={'color': colors_theta[0], 'width': 1.1},
-        symbolSize=1,enableAutoRange=True,viewRect=True,
-        symbolBrush=dill.copy(fit.colors[0])
-        )  
+        self.nbody_options['resonant_angles'].draw([(x, y, colors_theta[0])], p18.getAxis('bottom').labelText, p18.getAxis('left').labelText)
+        if self.theta_esin_ecos.isChecked():
+            p18.plot([0.], [0.], pen=None, symbol='o', symbolSize=8, symbolBrush='r')
                
     def get_theta_color(self):
         global fit, colors_delta_om
@@ -6933,7 +7197,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         
         if okPressed and text != '':
 
-            p18.setLabel('bottom', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})  
+            p18.setLabel('bottom', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **self.plot_font_style())  
         else:
             return
 
@@ -6943,7 +7207,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         text, okPressed = QtWidgets.QInputDialog.getText(self, "x-axis label","(HTML special characters accepted!)", QtWidgets.QLineEdit.Normal, "")
 
         if okPressed and text != '':
-            p18.setLabel('left', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})  
+            p18.setLabel('left', '<html><head/><body><p>%s </p></body></html>'%text, units='',  **self.plot_font_style())  
         else:
             return
 
@@ -6951,154 +7215,23 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
     def plot_i_Om(self):
-        global fit, colors, p19
+        self.plot_nbody_evolution('inclination')
 
-        if fit.pl_arb_test == True:
-            npl = fit.npl_arb
-        else:
-            npl = fit.npl  
-            
-        p19.plot(clear=True,)   
 
-        if self.plot_i.isChecked():
-            for i in range(npl):
-                p19.plot(fit.evol_T[i], fit.evol_i[i] ,pen=dill.copy(fit.colors[i]),symbol=None )    
-            p19.setLabel('left', 'i [deg]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
-    
-        elif self.plot_Om.isChecked():
-            for i in range(npl):
-                
-                Om_evol = np.array(fit.evol_Om[i])
-                
-                if self.radioButton_Omega_180_fold.isChecked():
-                    Om_evol[Om_evol>=180.0] -= 360.0
-
-                p19.plot(fit.evol_T[i], Om_evol ,pen=None, #{'color': colors[i], 'width': 1.1},
-                symbol='o',
-                symbolPen={'color': dill.copy(fit.colors[i]), 'width': 1.1},
-                symbolSize=1,enableAutoRange=True,viewRect=True,
-                symbolBrush=dill.copy(fit.colors[i])
-                )
-                
-            p19.setLabel('left', '<html><head/><body><p>&Omega; [deg] </p></body></html>', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-                
-            Om_evol = 0
- 
     def plot_energy(self):
-        global fit, colors, p20
+        self.plot_nbody_evolution('energy')
 
-        p20.plot(clear=True,)  
-        
-        if len(np.atleast_1d(fit.evol_T_energy)) < 3:
-            return
-        
 
-        if self.radioButton_energy.isChecked():
- 
-            p20.plot(fit.evol_T_energy, fit.evol_energy ,pen=dill.copy(fit.colors[0]),symbol=None )    
-            p20.setLabel('left', 'Energy', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
-    
-        elif self.radioButton_lx.isChecked():
-            p20.plot(fit.evol_T_energy, fit.evol_momentum['lx'] ,pen=dill.copy(fit.colors[0]),symbol=None )    
-            p20.setLabel('left', 'Momentum lx', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
-
-        elif self.radioButton_ly.isChecked():
-            p20.plot(fit.evol_T_energy, fit.evol_momentum['ly'] ,pen=dill.copy(fit.colors[0]),symbol=None )    
-            p20.setLabel('left', 'Momentum ly', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-            
-        elif self.radioButton_lz.isChecked():
-            p20.plot(fit.evol_T_energy, fit.evol_momentum['lz'] ,pen=dill.copy(fit.colors[0]),symbol=None )    
-            p20.setLabel('left', 'Momentum lz', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})                    
- 
-    
     def plot_evol_a(self):
-        global fit, colors, p13
-        
-        if fit.pl_arb_test == True:
-            npl = fit.npl_arb
-        else:
-            npl = fit.npl   
-            
-        if not self.hold_old_plot_a.isChecked():    
-            p13.plot(clear=True,)
-        else:
-            p13.plot(clear=False,)
- 
-
-        for i in range(npl):
-
-            if self.a_plot_line.isChecked():
-                a_plot_pen={'color':dill.copy(fit.colors[i]), 'width':self.a_line_size.value()}
-            else:
-                a_plot_pen=None
-
-            if self.a_plot_dot.isChecked():
-                a_plot_dot='o'
-            else:
-                a_plot_dot=None
-
-            p13.plot(fit.evol_T[i], fit.evol_a[i],pen=a_plot_pen,  
-        symbol=a_plot_dot,
-        symbolPen={'color': dill.copy(fit.colors[i]), 'width': self.a_dot_size.value()},
-        symbolSize=1,enableAutoRange=True,viewRect=True,
-        symbolBrush=dill.copy(fit.colors[i])
-        )    
-
-        if self.orb_evol_auto_range_a.isChecked():
-            p13.autoRange()   
+        self.plot_nbody_evolution('a')
 
 
-
-         
-     
     def plot_evol_e(self):
-        global fit, colors,   p14 
-        
-        if fit.pl_arb_test == True:
-            npl = fit.npl_arb
-        else:
-            npl = fit.npl      
-    
- 
-        if not self.hold_old_plot_e.isChecked():    
-            p14.plot(clear=True,)
-        else:
-            p14.plot(clear=False,)
- 
+        self.plot_nbody_evolution('e')
 
-        for i in range(npl):
-            p14.plot(fit.evol_T[i], fit.evol_e[i] ,pen=dill.copy(fit.colors[i]),symbol=None )  
 
-        if self.orb_evol_auto_range_e.isChecked():
-            p14.autoRange()   
- 
-            
     def plot_evol_p(self):
-        global fit, colors, p15  
-        
-        if fit.pl_arb_test == True:
-            npl = fit.npl_arb
-        else:
-            npl = fit.npl      
-    
- 
-        if not self.hold_old_plot_om.isChecked():    
-            p15.plot(clear=True,)
-        else:
-            p15.plot(clear=False,)
- 
-        for i in range(npl):
- 
-            p15.plot(fit.evol_T[i], fit.evol_p[i] ,pen=None, #{'color': colors[i], 'width': 1.1},
-        symbol='o',
-        symbolPen={'color': dill.copy(fit.colors[i]), 'width': 1.1},
-        symbolSize=1,enableAutoRange=True,viewRect=True,
-        symbolBrush=dill.copy(fit.colors[i])
-        )    
-            
-        if self.orb_evol_auto_range_p.isChecked():
-            p15.autoRange()
-
+        self.plot_nbody_evolution('omega')
 
 
     def plot_evol_all(self):
@@ -7418,15 +7551,15 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             label = "RV [m/s]" 
 
         pe0.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)
-#        pe0.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
-        #pe0.setLabel('left',   '%s'%label, units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})  
+#        pe0.setLabel('bottom', 'phase [days]', units='',  **self.plot_font_style())
+        #pe0.setLabel('left',   '%s'%label, units='',  **self.plot_font_style())  
 
-        pe0.setLabel('left', '%s'%label, units='', **{'font-size':'%dpt'%self.plot_font.pointSize()})  
+        pe0.setLabel('left', '%s'%label, units='', **self.plot_font_style())  
 
         if self.extra_plot_RVphase_norm.isChecked():
-            pe1.setLabel('bottom', 'phase', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            pe1.setLabel('bottom', 'phase', units='',  **self.plot_font_style())
         else:
-            pe1.setLabel('bottom', 'phase [days]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            pe1.setLabel('bottom', 'phase [days]', units='',  **self.plot_font_style())
 
         if self.extra_plot_cross_hair.isChecked():
             self.cross_hair(pe0,log=False)   
@@ -7446,13 +7579,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if self.radioButton_RV_GLS_period.isChecked():
                 pe2.setLogMode(True,False)        
                 pe2.plot(1/fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-                pe2.setLabel('bottom', 'period [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
-                pe2.setLabel('left', 'Power', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
+                pe2.setLabel('bottom', 'period [d]', units='',  **self.plot_font_style())    
+                pe2.setLabel('left', 'Power', units='',  **self.plot_font_style())    
             else:
                 pe2.setLogMode(False,False)
                 pe2.plot(fit.gls.freq, fit.gls.power, pen='r',symbol=None ) 
-                pe2.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-                pe2.setLabel('left', 'Power', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
+                pe2.setLabel('bottom', 'frequency [1/d]', units='',  **self.plot_font_style()) 
+                pe2.setLabel('left', 'Power', units='',  **self.plot_font_style())    
     
             if fit.gls.norm == 'ZK':
                 [pe2.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(fit.gls.powerLevel(np.array(power_levels)))]
@@ -7475,13 +7608,13 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if self.radioButton_RV_o_c_GLS_period.isChecked():
                 pe2.setLogMode(True,False)        
                 pe2.plot(1/fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None ) 
-                pe2.setLabel('bottom', 'period [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
-                pe2.setLabel('left', 'Power', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
+                pe2.setLabel('bottom', 'period [d]', units='',  **self.plot_font_style())    
+                pe2.setLabel('left', 'Power', units='',  **self.plot_font_style())    
             else:
                 pe2.setLogMode(False,False)        
                 pe2.plot(fit.gls_o_c.freq, fit.gls_o_c.power, pen='r',symbol=None )                    
-                pe2.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
-                pe2.setLabel('left', 'Power', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
+                pe2.setLabel('bottom', 'frequency [1/d]', units='',  **self.plot_font_style()) 
+                pe2.setLabel('left', 'Power', units='',  **self.plot_font_style())    
     
     
             if fit.gls.norm == 'ZK':
@@ -7845,42 +7978,38 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
         but_ind = self.buttonGroup_apply_rvs_data_options.checkedId()
 
-        print(but_ind)
-        if self.rvs_opt[but_ind-1].isChecked() == True and len(fit.rv_data_sets[but_ind-1]) != 0:
-            if len(self.RvsWindow.flux_o_c) != 0:
-                fit.rv_data_sets[but_ind-1][0] = dill.copy(self.RvsWindow.t_store[but_ind-1])
-                fit.rv_data_sets[but_ind-1][1] = dill.copy(self.RvsWindow.flux_o_c_store[but_ind-1])
-                fit.rv_data_sets[but_ind-1][2] = dill.copy(self.RvsWindow.flux_err_o_c_store[but_ind-1])
-                fit.rv_data_sets[but_ind-1][3] = dill.copy(self.RvsWindow.flux_idset_store[but_ind-1])
-                #fit.rv_data_sets[but_ind-1][4] = dill.copy(self.RvsWindow.flux_o_c_store[but_ind-1])
-
-                #fit.act_data_sets[but_ind-1][5] = dill.copy(self.RvsWindow.flux_store[but_ind-1])
-                #fit.act_data_sets[but_ind-1][6] = dill.copy(self.RvsWindow.flux_err_store[but_ind-1])
-               # fit.act_data_sets[but_ind-1][7] = dill.copy(self.RvsWindow.trend_store[but_ind-1])
-                
-                #### CHECK FOR NAN ENTRIES AND REMOVE IF ANY, BELOW !!!! ####
-               
-                bjd    = dill.copy(self.RvsWindow.t_store[but_ind-1])
-                flux   = dill.copy(self.RvsWindow.flux_o_c_store[but_ind-1])               
-                flux_e = dill.copy(self.RvsWindow.flux_err_o_c_store[but_ind-1])                   
-                flux_idset = dill.copy(self.RvsWindow.flux_idset_store[but_ind-1])                   
-
-                #print(but_ind-1)
-
-                for j in range(3): 
-                    fit.rv_data_sets[but_ind-1][j] = fit.rv_data_sets[but_ind-1][j][np.isfinite(bjd) & 
-                                                                                      np.isfinite(flux) & 
-                                                                                      np.isfinite(flux_e)]
-                
-                if len(bjd) != len(fit.rv_data_sets[but_ind-1][0]):
-                    print("WARNING! Something is wrong for these epochs:")          
-                    for v in range(len(bjd)):
-                        if np.isnan(flux[v]) or np.isnan(flux_e[v]):
-                            print("%s  %s   %s"%(bjd[v], flux[v], flux_e[v]))
-                    print("These data are not included!")
-
-
-        #fit.n_rvdata = sum([len(self.rv_data_sets[x][0]) for x in range(20) if len(self.rv_data_sets[x]) != 0])
+        if not 1 <= but_ind <= len(self.rvs_opt):
+            return
+        slot = but_ind - 1
+        if self.rvs_opt[slot].isChecked() and len(fit.rv_data_sets[slot]):
+            if len(self.RvsWindow.flux_o_c):
+                # The editor can return Python lists. Validate every column
+                # before changing the session, then apply one shared row mask.
+                try:
+                    columns = [np.asarray(store[slot], dtype=float) for store in (
+                        self.RvsWindow.t_store, self.RvsWindow.flux_o_c_store,
+                        self.RvsWindow.flux_err_o_c_store, self.RvsWindow.flux_idset_store)]
+                    if (any(column.ndim != 1 for column in columns) or
+                            len({len(column) for column in columns}) != 1):
+                        raise ValueError('RV time, velocity, error and dataset-ID columns must have equal lengths')
+                    keep = np.logical_and.reduce([np.isfinite(column) for column in columns])
+                    if not np.any(keep):
+                        raise ValueError('No finite RV observations remain; the original dataset was kept')
+                    ids = columns[3][keep]
+                    if np.any(ids < 0) or np.any(ids != np.floor(ids)):
+                        raise ValueError('RV dataset IDs must be nonnegative integers')
+                    updated = dill.copy(fit.rv_data_sets[slot])
+                    for j, column in enumerate(columns):
+                        updated[j] = column[keep].copy()
+                    updated[3] = ids.astype(int)
+                except (TypeError, ValueError) as exc:
+                    print('Cannot apply RV data options:', exc)
+                    return
+                if not np.all(keep):
+                    print('Excluded %d nonfinite RV rows (time, RV, error or dataset ID).' % np.count_nonzero(~keep))
+                fit.rv_data_sets[slot] = updated
+                fit.n_rvdata = sum(len(dataset[0]) for dataset in
+                                   (fit.rv_data_sets[i] for i in range(len(fit.rv_data_sets))) if len(dataset))
 
         fit.model_saved = False 
  
@@ -9092,11 +9221,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if self.radioButton_RV_MLP_period.isChecked():
                 p_mlp.setLogMode(True,False)        
                 p_mlp.plot(1/fit.mlp.freq, fit.mlp.power,pen={'color': dill.copy(fit.gls_colors[0]), 'width': self.gls_model_width.value()},symbol=None ) 
-                p_mlp.setLabel('bottom', 'period [d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})    
+                p_mlp.setLabel('bottom', 'period [d]', units='',  **self.plot_font_style())    
             else:
                 p_mlp.setLogMode(False,False)        
                 p_mlp.plot(fit.mlp.freq, fit.mlp.power,pen={'color': dill.copy(fit.gls_colors[0]), 'width': self.gls_model_width.value()},symbol=None )                
-                p_mlp.setLabel('bottom', 'frequency [1/d]', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()}) 
+                p_mlp.setLabel('bottom', 'frequency [1/d]', units='',  **self.plot_font_style()) 
 
             if fit.mlp.norm == 'dlnL':
                 [p_mlp.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for fap in np.array(power_levels)]
@@ -10763,6 +10892,8 @@ will be highly appreciated!
             file_pi = open(output_file[0], 'wb')
             dill.dump(fit, file_pi) #,protocol=2
             file_pi.close()
+            return True
+        return False
 
     def save_last_session(self,session_name):
         global fit
@@ -11158,10 +11289,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.check_settings()
 
 
-        if self.run_ns_in_bg.isChecked():
-            fit = rv.run_nestsamp_bg(fit)
-        else:
-            fit = rv.run_nestsamp(fit)
+        fit = rv.run_nestsamp(fit)
 
         self.button_nest_samp.setEnabled(True)
 
@@ -11375,10 +11503,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.check_mcmc_params()
         self.check_settings()
 
-        if self.run_mcmc_in_bg.isChecked():
-            fit = rv.run_mcmc_bg(fit)
-        else:
-            fit = rv.run_mcmc(fit)
+        fit = rv.run_mcmc(fit)
 
         self.button_MCMC.setEnabled(True)   
 
@@ -11589,6 +11714,27 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def make_cornerplot(self,type_plot = 'mcmc'):
         global fit
         rv.cornerplot(fit, type_plot=type_plot )
+
+
+    def show_posterior_statistics(self, type_plot='mcmc'):
+        global fit
+        if not rv.ensure_cornerplot_labels(fit, type_plot):
+            QtWidgets.QMessageBox.information(self, 'Posterior statistics',
+                'Load a session with saved posterior samples first.')
+            return
+        data = rv.cornerplot(fit, type_plot=type_plot, return_statistics=True)
+        if data is None:
+            return
+        if not hasattr(self, 'dialog_posterior_statistics'):
+            self.dialog_posterior_statistics = print_info(self)
+        dialog = self.dialog_posterior_statistics
+        source = 'MCMC' if type_plot == 'mcmc' else 'Nested sampling'
+        dialog.setWindowTitle(source+' posterior statistics')
+        dialog.text.setHtml(posterior_statistics_html(data, source))
+        dialog.resize(1200, 720)
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
 
 
     def change_corner_plot_file_name(self, type_plot = "mcmc"):
@@ -11893,8 +12039,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 except (ValueError,Exception) as ex:
                     #print(ex)
                     #pdi.plot(clear=True,)
-                    pdi.setLabel('bottom', 'x', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
-                    pdi.setLabel('left',   'y', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+                    pdi.setLabel('bottom', 'x', units='',  **self.plot_font_style())
+                    pdi.setLabel('left',   'y', units='',  **self.plot_font_style())
                     return
             else:
                 print("%s is an empty file"%path)
@@ -11911,8 +12057,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                 y     = self.RVBank_window.y_data  
                 y_err = self.RVBank_window.e_y_data 
             except:
-                pdi.setLabel('bottom', 'x', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
-                pdi.setLabel('left',   'y', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+                pdi.setLabel('bottom', 'x', units='',  **self.plot_font_style())
+                pdi.setLabel('left',   'y', units='',  **self.plot_font_style())
                 return
              
         
@@ -11945,20 +12091,20 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         filename, file_extension = os.path.splitext(path)  
             
         if file_extension == '.vels':
-            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
-            pdi.setLabel('left',   'RV', units='m/s',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            pdi.setLabel('bottom', 'BJD', units='d',  **self.plot_font_style())
+            pdi.setLabel('left',   'RV', units='m/s',  **self.plot_font_style())
  
         elif file_extension == '.act':
-            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
-            pdi.setLabel('left',   'y', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            pdi.setLabel('bottom', 'BJD', units='d',  **self.plot_font_style())
+            pdi.setLabel('left',   'y', units='',  **self.plot_font_style())
             
         elif file_extension == '.tran':      
-            pdi.setLabel('bottom', 'BJD', units='d',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
-            pdi.setLabel('left',   'flux', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            pdi.setLabel('bottom', 'BJD', units='d',  **self.plot_font_style())
+            pdi.setLabel('left',   'flux', units='',  **self.plot_font_style())
 
         else:
-            pdi.setLabel('bottom', 'x', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
-            pdi.setLabel('left',   'y', units='',  **{'font-size':'%dpt'%self.plot_font.pointSize()})
+            pdi.setLabel('bottom', 'x', units='',  **self.plot_font_style())
+            pdi.setLabel('left',   'y', units='',  **self.plot_font_style())
 
         self.inspector_file = path
         
@@ -13027,38 +13173,30 @@ Please install via 'pip install ttvfast'.
 
  
     def set_plot_font(self):
-        #QtWidgets.QFontDialog.setOption(QtWidgets.QFontDialog.DontUseNativeDialog, True)
         font, ok = QtWidgets.QFontDialog.getFont(self.plot_font)
-
-        if ok:
-            self.plot_font.setFamily(font.family())
-            self.plot_font.setPointSize(font.pointSize())
-          
-        self.update_font_plots()   
-
-
-     ###### Update settings json ########
+        if not ok:
+            return
+        self.plot_font = QtGui.QFont(font)
+        self.update_font_plots()
         Plot_settings = './lib/ES_settings.json'
-
         with open(Plot_settings, "r") as jsonFile:
             sett = json.load(jsonFile)
-
-        sett["fonts"]["plot_font"] = str(font.pointSize())
-
+        # Retain the legacy size key for existing settings readers.
+        sett["fonts"]["plot_font"] = str(self.plot_font.pointSize())
+        sett["fonts"]["plot_font_description"] = self.plot_font.toString()
         with open(Plot_settings, "w") as jsonFile:
             json.dump(sett, jsonFile)
 
-         
-    def initialize_font_plot(self): #not working as I want!
-
+    def initialize_font_plot(self):
         Plot_settings = './lib/ES_settings.json'
         with open(Plot_settings, "r") as jsonFile:
             sett = json.load(jsonFile)
-
         self.plot_font = QtGui.QFont()
+        description = sett["fonts"].get("plot_font_description")
+        if description and self.plot_font.fromString(description):
+            return
         self.plot_font.setPointSize(int(sett["fonts"]["plot_font"]))
         self.plot_font.setBold(False)
-              
 
     def initialize_font_GUI(self): #not working as I want!
 
@@ -13076,26 +13214,21 @@ Please install via 'pip install ttvfast'.
 
     def closeEvent(self, event):
         choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-                                            "Do you want to save the session before you Quit?",
-                                            QtWidgets.QMessageBox.StandardButton.Cancel | QtWidgets.QMessageBox.StandardButton.No | QtWidgets.QMessageBox.StandardButton.Yes)
-
-        if choice == QtWidgets.QMessageBox.StandardButton.No:
-
-            #if sys.platform[0:5] == "linux":
-           #     self.term_emb.close()
-            self.removeEventFilter(self)
-            event.accept()
-
-        elif choice == QtWidgets.QMessageBox.StandardButton.Yes:
-            self.save_session()
-            if sys.platform[0:5] == "linux":
-                self.term_emb.close()
-            #QtWidgets.QApplication.instance().removeEventFilter(self) 
-            self.removeEventFilter(self)
-            event.accept()
-
-        elif choice == QtWidgets.QMessageBox.StandardButton.Cancel:
+            "Do you want to save the session before you Quit?",
+            QtWidgets.QMessageBox.StandardButton.Cancel |
+            QtWidgets.QMessageBox.StandardButton.No |
+            QtWidgets.QMessageBox.StandardButton.Yes)
+        if choice not in (QtWidgets.QMessageBox.StandardButton.No,
+                          QtWidgets.QMessageBox.StandardButton.Yes):
             event.ignore()
+            return
+        if choice == QtWidgets.QMessageBox.StandardButton.Yes:
+            if self.save_session() is False:
+                event.ignore()
+                return
+        close_auxiliary_windows(self)
+        self.removeEventFilter(self)
+        event.accept()
 
 
     def reset_mid_pannel_buttons(self):
@@ -13106,6 +13239,7 @@ Please install via 'pip install ttvfast'.
 
 
     def mute_buttons(self, trigger=True):
+        self.button_sort_planets_by_period.setEnabled(trigger)
         global fit
         
         
@@ -13289,6 +13423,8 @@ Please install via 'pip install ttvfast'.
        
     def update_settings(self):
         global fit
+        for widget in getattr(self, 'nbody_options', {}).values():
+            widget.load_session()
 
         mixed_fit_use = [self.mix_pl_1,self.mix_pl_2,self.mix_pl_3,
                          self.mix_pl_4,self.mix_pl_5,self.mix_pl_6,
@@ -13296,6 +13432,10 @@ Please install via 'pip install ttvfast'.
 
                     
         self.use_mix_fitting.setChecked(bool(fit.mixed_fit[0][0]))
+        self.radioButton_Dynamical.setText(
+            'Mixed' if fit.mixed_fit[0][0] else 'N-body')
+        self.radioButton_Dynamical.setToolTip(
+            'Keplerian + N-body (mixed)' if fit.mixed_fit[0][0] else 'N-body')
         
          
         for i in range(9):
@@ -13594,14 +13734,14 @@ Please install via 'pip install ttvfast'.
         if self.samp_corr_mcmc.isChecked() and rv.ensure_cornerplot_labels(fit, "mcmc"):
          
             for i in range(len(fit.mcmc_sampler.lbf['OrigLabels'])):
-                self.comboBox_samp_corr_1.addItem(fit.mcmc_sampler.lbf['OrigLabels'][i],i)
-                self.comboBox_samp_corr_2.addItem(fit.mcmc_sampler.lbf['OrigLabels'][i],i)
+                self.comboBox_samp_corr_1.addMathItem(fit.mcmc_sampler.lbf['OrigLabels'][i],i)
+                self.comboBox_samp_corr_2.addMathItem(fit.mcmc_sampler.lbf['OrigLabels'][i],i)
                 
         elif self.samp_corr_ns.isChecked() and rv.ensure_cornerplot_labels(fit, "nest"):
          
             for i in range(len(fit.ns_sampler.lbf['OrigLabels'])):
-                self.comboBox_samp_corr_1.addItem(fit.ns_sampler.lbf['OrigLabels'][i],i)
-                self.comboBox_samp_corr_2.addItem(fit.ns_sampler.lbf['OrigLabels'][i],i)
+                self.comboBox_samp_corr_1.addMathItem(fit.ns_sampler.lbf['OrigLabels'][i],i)
+                self.comboBox_samp_corr_2.addMathItem(fit.ns_sampler.lbf['OrigLabels'][i],i)
 
 
             #self.comboBox_pl_2.setItemText(i, '%s'%(ses_list[i].name))
@@ -14003,7 +14143,9 @@ Please install via 'pip install ttvfast'.
         
         
         self.initialize_buttons()
-        self.initialize_plots()   
+        self.initialize_plots()
+        self.initialize_plot_axis_controls()
+        self.initialize_nbody_plot_options()   
  
         self.initialize_color_dialog()
         #Hill_LED = './lib/UI/grey_led.png'
@@ -14312,6 +14454,7 @@ Please install via 'pip install ttvfast'.
 
         self.buttonGroup_use.buttonClicked.connect(self.update_use)
         self.buttonGroup_mixed_fitting.buttonClicked.connect(self.update_mixed_fitting)
+        self.button_sort_planets_by_period.clicked.connect(self.sort_planets_by_period)
 
 
         self.button_orb_evol.clicked.connect(self.worker_Nbody) 
@@ -14459,26 +14602,16 @@ Please install via 'pip install ttvfast'.
         self.buttonGroup_ei_eo_sincos.buttonClicked.connect(self.plot_delta_omega)
 
 
-        self.Dom_plot_line.toggled.connect(self.plot_delta_omega)
-        self.Dom_plot_dot.toggled.connect(self.plot_delta_omega)
 
         self.radioButton_theta_180_fold.toggled.connect(self.plot_theta)
         self.theta_esin_ecos.stateChanged.connect(self.plot_theta)
         self.theta_esin_ecos_e_in.toggled.connect(self.plot_theta)
 
-        self.theta_plot_line.toggled.connect(self.plot_theta)
-        self.theta_plot_dot.toggled.connect(self.plot_theta)
 
         self.per_evol_comboBox_pl_1.activated.connect(self.plot_per_rat)
         self.per_evol_comboBox_pl_2.activated.connect(self.plot_per_rat)
 
-        self.Prat_plot_line.toggled.connect(self.plot_per_rat)
-        self.Prat_plot_dot.toggled.connect(self.plot_per_rat)
 
-        self.a_plot_dot.toggled.connect(self.plot_evol_a)
-        self.a_plot_line.toggled.connect(self.plot_evol_a)
-        self.a_line_size.valueChanged.connect(self.plot_evol_a)
-        self.a_dot_size.valueChanged.connect(self.plot_evol_a)   
 
 
         self.plot_i.toggled.connect(self.plot_i_Om)
@@ -14662,17 +14795,8 @@ Please install via 'pip install ttvfast'.
         #self.ttv_model_color.clicked.connect(self.get_ttv_model_color)
 
 
-        self.color_delta_om.clicked.connect(self.get_delta_omega_color)
-        self.delta_om_x_label.clicked.connect(self.delta_omega_plot_x_labels)
-        self.delta_om_y_label.clicked.connect(self.delta_omega_plot_y_labels)
 
-        self.color_per_evol.clicked.connect(self.get_per_rat_color)
-        self.per_evol_x_label.clicked.connect(self.per_rat_plot_x_labels)
-        self.per_evol_y_label.clicked.connect(self.per_rat_plot_y_labels)
 
-        self.color_theta.clicked.connect(self.get_theta_color)
-        self.theta_x_label.clicked.connect(self.theta_plot_x_labels)
-        self.theta_y_label.clicked.connect(self.theta_plot_y_labels)
 
 
         #self.tab_timeseries_RV.currentChanged.connect(self.tab_selected)
@@ -14692,6 +14816,8 @@ Please install via 'pip install ttvfast'.
 
         self.customize_mcmc_cornerplot.clicked.connect(lambda: self.get_cornerplot_param(type_plot = "mcmc"))
         self.customize_ns_cornerplot.clicked.connect(lambda: self.get_cornerplot_param(type_plot = "nest"))
+        self.button_mcmc_posterior_statistics.clicked.connect(lambda: self.show_posterior_statistics('mcmc'))
+        self.button_ns_posterior_statistics.clicked.connect(lambda: self.show_posterior_statistics('nest'))
 
 
         self.radioButton_rho.toggled.connect(self.set_aR)
