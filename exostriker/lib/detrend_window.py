@@ -1,3 +1,4 @@
+from application_paths import package_resource
 # -*- coding: utf-8 -*-
 import pyqtgraph as pg
 from PyQt6 import QtCore, QtGui, QtWidgets, uic
@@ -21,7 +22,7 @@ import pg_hack
 try:
     from tdt import Ui_Detrend as Ui_DetrendWindow
 except (ImportError, KeyError,ModuleNotFoundError) as e:
-    qtCreatorFile = "./lib/UI/tdt.ui" #%lib_path 
+    qtCreatorFile = package_resource('UI/tdt.ui') #%lib_path
     Ui_DetrendWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 #print("--- %s seconds ---" % (time.time() - start_time))
 
@@ -80,7 +81,7 @@ class DetrendWindow(QtWidgets.QWidget, Ui_DetrendWindow):
         self.ui = Ui_DetrendWindow()
         self.ui.setupUi(self)
         self.setWindowTitle('Transit detrending options')
-        self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
+        self.setWindowIcon(QtGui.QIcon(package_resource('UI/33_striker.png')))
 
         self.sklearn_found = sklearn_found
         self.statsmodels_found = statsmodels_found

@@ -26,7 +26,8 @@ lib_path = os.path.join(es_path, 'lib')
 
 sys.path.insert(0,lib_path)
  
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+from application_paths import package_resource, user_settings_path
+from pathlib import Path
 
 #sys._excepthook = sys.excepthook
 #def exception_hook(exctype, value, traceback):
@@ -57,7 +58,7 @@ import word_processor_es as text_editor_es
 import calculator as calc
 import gls as gls
 import mlp as mlp
-from worker import Worker #, WorkerSignals
+from process_worker import ProcessWorker, InitializationWarmup
 #start_time = time.time()
 import gui_groups
 import qso
@@ -222,7 +223,7 @@ else:
 
 if '-last' in sys.argv:
     try:
-        file_pi = open("autosave/auto_save.ses", 'rb')
+        file_pi = open(Path.home() / "autosave" / "auto_save.ses", 'rb')
         fit_ses = dill.load(file_pi)
         file_pi.close()   
 
@@ -233,7 +234,7 @@ if '-last' in sys.argv:
         
         start_arg_ses = True
         
-    except (ImportError, KeyError, AttributeError) as e:
+    except (OSError, ImportError, KeyError, AttributeError) as e:
         print("No last session found.")
         ##fit=rv.signal_fit(name='session')
         ses_list = [fit]
@@ -358,11 +359,11 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         amd = rv.get_AMD_stab(fit)
 
         if fit.npl >1 and amd == True:
-            AMD_LED = './lib/UI/green_led.png'
+            AMD_LED = package_resource('UI/green_led.png')
         elif fit.npl >1 and amd == False:
-            AMD_LED = './lib/UI/red_led.png' 
+            AMD_LED = package_resource('UI/red_led.png')
         else:
-            AMD_LED = './lib/UI/grey_led.png'
+            AMD_LED = package_resource('UI/grey_led.png')
 
         self.AMD_led.setPixmap(QtGui.QPixmap(AMD_LED))
 
@@ -888,6 +889,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_errors(self):
         global fit
+        for label in getattr(self, '_scipy_unavailable_error_labels', ()):
+            label.setToolTip('')
+        self._scipy_unavailable_error_labels = []
  
         for i in range(9):
             if not self.buttonGroup_use_planets.buttons()[i].isChecked():
@@ -973,6 +977,14 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.param_errors_gui_ast[6].setText("+/- %.3f"%max(np.abs(fit.ast_mu_delta_dot_err[0])))        
     
     
+        diagnostic = getattr(fit, 'scipy_uncertainty_diagnostics', {})
+        if diagnostic.get('status') == 'unavailable':
+            for label in self.findChildren(QtWidgets.QLabel):
+                if label.text().startswith('+/-') and 'nan' in label.text().lower():
+                    label.setToolTip(diagnostic['message'])
+                    self._scipy_unavailable_error_labels.append(label)
+        self.update_scipy_uncertainty_status()
+
     def update_a_mass(self):
         global fit
         if not any(fit.type_fit.get(kind, False) for kind in ('RV', 'AST', 'TTV')):
@@ -3016,7 +3028,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def initialize_plot_axis_controls(self):
         from plot_axis_options import DEFAULTS, normalize_options
-        with open('./lib/ES_settings.json', 'r') as stream:
+        with open(user_settings_path(), 'r') as stream:
             saved = json.load(stream).get('plot_axes', {})
         try:
             saved = normalize_options(saved)
@@ -3054,7 +3066,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             if panel is not None:
                 apply_axis_options(panel, values)
         if persist:
-            path = './lib/ES_settings.json'
+            path = user_settings_path()
             with open(path, 'r') as stream:
                 settings = json.load(stream)
             settings['plot_axes'] = values
@@ -3067,6 +3079,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                   pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,p_ast,p_ast_oc,p_ast_hipp]
         upper = [p00,p30,pe0,p_ttv_00,p_ast_00]
         lower = [p01,p31,pe1,p_ttv_01,p_ast_01]
+        transit_phase = getattr(self, 'transit_phase_view', None)
+        if transit_phase is not None:
+            upper.append(transit_phase.top)
+            lower.append(transit_phase.bottom)
         style = self.plot_font_style()
         size = self.plot_font.pointSizeF()
         for panel in normal + upper + lower:
@@ -3214,6 +3230,45 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         return
 
+
+    def initialize_extra_plot_mirror(self):
+        from plot_mirror import ExtraPlotMirror
+        definitions = [
+            ('p00', 'RV time series', 'p01'),
+            ('p01', 'RV residuals', None),
+            ('p30', 'Transit time series', 'p31'),
+            ('p31', 'Transit residuals', None),
+            ('p_ttv_00', 'TTV time series', 'p_ttv_01'),
+            ('p_ttv_01', 'TTV residuals', None),
+            ('p_ast_hipp', 'Hipparcos / Gaia astrometry', None),
+            ('p_ast', 'Relative imaging astrometry', None),
+            ('p_ast_oc', 'Relative astrometry residuals', None),
+            ('p7', 'RV GLS periodogram', None),
+            ('p8', 'RV residual GLS periodogram', None),
+            ('p_mlp', 'RV likelihood periodogram (MLP)', None),
+            ('p9', 'Transit periodogram', None),
+            ('p10', 'Transit residual periodogram (TLS)', None),
+            ('p5', 'Activity time series', None),
+            ('p6', 'Activity correlations', None),
+            ('p11', 'Activity periodogram', None),
+            ('p12', 'Window function', None),
+            ('p13', 'Orbital evolution: semi-major axes', None),
+            ('p14', 'Orbital evolution: eccentricities', None),
+            ('p15', 'Orbital evolution: orbital angles', None),
+            ('p19', 'Orbital evolution: inclinations', None),
+            ('p20', 'Orbital evolution: energy', None),
+            ('p16', 'Orbital view', None),
+            ('p17', 'Orbital evolution: apsidal angles', None),
+            ('p18', 'Orbital evolution: resonance angles', None),
+            ('p_per_ev', 'Orbital evolution: period ratios', None),
+            ('pcor', 'Sample correlation', None),
+        ]
+        sources = {}
+        for key, label, fallback in definitions:
+            getter = lambda key=key: globals().get(key)
+            bottom = (lambda key=fallback: globals().get(key)) if fallback else None
+            sources[key] = (label, getter, bottom)
+        self.extra_plot_mirror = ExtraPlotMirror(self, sources)
 
     def initialize_RV_phase_subplots(self):
 
@@ -3905,13 +3960,25 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def update_scipy_Simplex_controls(self):
         global fit
         for name, attribute, setter, current in (
+                ('SciPy_estimate_errors_checkBox', 'SciPy_estimate_errors', 'setChecked', 'isChecked'),
                 ('SciPy_initial_simplex_Step', 'Simplex_step_percent', 'setValue', 'value'),
                 ('SciPy_Adapt_Simplex_checkBox', 'Simplex_adaptive', 'setChecked', 'isChecked'),
                 ('SciPy_Boundary_Simplex_checkBox', 'Simplex_boundary_recovery', 'setChecked', 'isChecked')):
             widget = getattr(self, name)
             blocked = widget.blockSignals(True)
-            getattr(widget, setter)(getattr(fit, attribute, getattr(widget, current)()))
+            default = False if attribute == 'SciPy_estimate_errors' else getattr(widget, current)()
+            getattr(widget, setter)(getattr(fit, attribute, default))
             widget.blockSignals(blocked)
+        self.update_scipy_uncertainty_status()
+
+    def update_scipy_uncertainty_status(self):
+        global fit
+        diagnostic = getattr(fit, 'scipy_uncertainty_diagnostics', {})
+        text = diagnostic.get('message', 'Not calculated.')
+        if diagnostic.get('status') == 'ok' and diagnostic.get('includes_priors'):
+            text += ' Includes enabled priors.'
+        self.scipy_uncertainty_status.setText('Uncertainties: ' + text)
+        self.scipy_uncertainty_status.setToolTip(text)
 
     def init_TNC_controls(self):
         self._TNC_defaults = {name: getattr(self, name).value() for name in (
@@ -3940,6 +4007,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         fit.SciPy_min_use_2 = fit.SciPy_min[ind_min_2]
         fit.SciPy_min_N_use_1 = int(self.scipy_N_consecutive_iter_1.value())
         fit.SciPy_min_N_use_2 = int(self.scipy_N_consecutive_iter_2.value())
+        fit.SciPy_estimate_errors = self.SciPy_estimate_errors_checkBox.isChecked()
         fit.TNC_relative_eps = True
         fit.TNC_eps_percent = self.TNC_eps.value()
         fit.Simplex_step_percent = self.SciPy_initial_simplex_Step.value()
@@ -3990,6 +4058,12 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
             plot_wg.addItem(v3aLine, ignoreBounds=True)
             plot_wg.addItem(v3bLine, ignoreBounds=True)
+
+        for item in (vLine, hLine, label):
+            item._exostriker_cursor_overlay = True
+        if alias[0]:
+            for item in (v2aLine, v2bLine, v3aLine, v3bLine):
+                item._exostriker_cursor_overlay = True
 
         def mouseMoved(evt):
 
@@ -4941,6 +5015,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
     def update_transit_plots(self): 
         global fit, p3, p4, colors,legend_tra
 
+        transit_phase = getattr(self, 'transit_phase_view', None)
+        if transit_phase is not None and not fit.type_fit.get('Transit', False):
+            transit_phase.refresh()
+
         p3.plot(clear=True,)
         p4.plot(clear=True,)
 
@@ -4969,6 +5047,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
 
         self.check_tra_symbol_sizes()
+        if transit_phase is not None:
+            transit_phase.refresh()
 
         if len([x for x in range(len(fit.tra_data_sets)) if len(fit.tra_data_sets[x]) != 0]) == 0:
             return
@@ -6012,7 +6092,6 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         
         self.check_ast_symbol_sizes()
  
-        pl_ind     = self.ast_comboBox_pl_hipp_gaia.currentIndex()
         
  
         p_ast_hipp.plot(clear=True,) 
@@ -6035,58 +6114,24 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             vel_files.append(fit.rv_data_sets[i][5]) 
 
        
+        # Absolute astrometry belongs to the star/system, including npl=0.
+        # Legacy planet-selector fields in the dataset do not select its orbit.
+        ast_loglik = rv.ast_loglik_gaia(
+            fit.parameters, vel_files, ast_files, fit.npl, fit.params.stellar_mass,
+            times, fit.hkl, fit_results=fit.fit_results if fit.rtg[0] else False,
+            return_model=True, model_max=self.ast_model_max_range.value(),
+            model_samp=self.ast_points_to_draw_model.value())
+        if ast_loglik is None or np.isscalar(ast_loglik):
+            return
+        fit.ast_results = dill.copy(ast_loglik)
         for j in range(len(ast_files)):
+            if len(ast_files[j]) == 0:
+                continue
+            data = ast_loglik[1][j][1 if self.ast_o_c_hipp_gaia.isChecked() else 0]
+            x_axis, x_axis_err, y_axis, y_axis_err = map(np.asarray, data)
+            bjd_dates = np.asarray(ast_loglik[1][j][2])
+            ast_model_x, ast_model_y, ast_model_bjd = ast_loglik[2][j]
 
-            if len(ast_files[j]) == 0 or ast_files[j][2] == False or ast_files[j][1] != pl_ind+1:
-                continue 
-
-          #  t = np.array(ast_files[j][0])
-          #  x_axis = np.array(ast_files[j][1])
-          #  x_axis_err = np.array(ast_files[j][2])
-          #  y_axis = np.array(ast_files[j][3])
-          #  y_axis_err = np.array(ast_files[j][4]) 
-            
-            if fit.npl > 0:
-                
-                if fit.rtg[0] == False:
-                    ast_loglik = rv.ast_loglik_gaia(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True, 
-                    model_max=self.ast_model_max_range.value(), model_samp=self.ast_points_to_draw_model.value())                   
-                else:
-                    ast_loglik = rv.ast_loglik_gaia(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True, 
-                    model_max=self.ast_model_max_range.value(), model_samp=self.ast_points_to_draw_model.value())
- 
-                if ast_loglik == None:
-                    print("Something went wrong when calculating astr. lnL....")
-                    continue
-
-                if isinstance(ast_loglik, float):
-                    return
-
-                fit.ast_results = dill.copy(ast_loglik)
-
-
-                if self.ast_o_c_hipp_gaia.isChecked():
-                    x_axis = np.array(ast_loglik[1][pl_ind][1][0] )
-                    x_axis_err = np.array(ast_loglik[1][pl_ind][1][1])
-                    y_axis = np.array(ast_loglik[1][pl_ind][1][2])
-                    y_axis_err = np.array(ast_loglik[1][pl_ind][1][3])
-                else:
-                    x_axis = np.array(ast_loglik[1][pl_ind][0][0] )
-                    x_axis_err = np.array(ast_loglik[1][pl_ind][0][1])
-                    y_axis = np.array(ast_loglik[1][pl_ind][0][2])
-                    y_axis_err = np.array(ast_loglik[1][pl_ind][0][3])                
-               
-                 
-                bjd_dates = np.array(ast_loglik[1][pl_ind][2]) 
-                 
-                ast_model_x   = ast_loglik[2][pl_ind][0] 
-                ast_model_y   = ast_loglik[2][pl_ind][1]
-                ast_model_bjd = ast_loglik[2][pl_ind][2]                
-            else:
-                ast_model_x = np.zeros(5)
-                ast_model_y = np.zeros(5)
-                
-            
             if self.ast_use_plot_ra_dec.isChecked():
                
                 p_ast_hipp.invertX(False)
@@ -6152,14 +6197,18 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 #then plots a line for each measurement in size and angle of the error    
      
 
-                P = float(fit.P[ast_files[j][1] - 1])
-
-                bjd_phased = (bjd_dates % P)
-                ast_model_bjd_phased = (ast_model_bjd % P)
-
-                # Normalize both with the same reference, 0..P
-                b_norm_data  = np.clip(bjd_phased / P, 0.0, 1.0)
-                b_norm_model = np.clip(ast_model_bjd_phased / P, 0.0, 1.0)
+                slots = np.flatnonzero(fit.use_planet)
+                period = float(fit.P[slots[0]]) if len(slots) else 0.0
+                if np.isfinite(period) and period > 0:
+                    b_norm_data = np.mod(bjd_dates, period) / period
+                    b_norm_model = np.mod(ast_model_bjd, period) / period
+                else:
+                    # The single-star model has no orbital phase. Color its
+                    # measurements by elapsed time instead of a fictitious orbit.
+                    origin = float(np.min(bjd_dates))
+                    span = max(float(np.ptp(bjd_dates)), 1.0)
+                    b_norm_data = np.clip((bjd_dates - origin) / span, 0.0, 1.0)
+                    b_norm_model = np.clip((ast_model_bjd - origin) / span, 0.0, 1.0)
 
                 cmap = pg.colormap.get('viridis')
 
@@ -6282,7 +6331,6 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         
         self.check_ast_symbol_sizes()
  
-        pl_ind  = 0 #self.ast_comboBox_pl_hipp_gaia.currentIndex()
         
         #print(pl_ind)
         
@@ -6308,67 +6356,24 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             vel_files.append(fit.rv_data_sets[i][5]) 
 
        
+        # Absolute astrometry belongs to the star/system, including npl=0.
+        # Legacy planet-selector fields in the dataset do not select its orbit.
+        ast_loglik = rv.ast_loglik_hipp(
+            fit.parameters, vel_files, ast_files, fit.npl, fit.params.stellar_mass,
+            times, fit.hkl, fit_results=fit.fit_results if fit.rtg[0] else False,
+            return_model=True, model_max=self.ast_model_max_range.value(),
+            model_samp=self.ast_points_to_draw_model.value())
+        if ast_loglik is None or np.isscalar(ast_loglik):
+            return
+        fit.ast_results = dill.copy(ast_loglik)
         for j in range(len(ast_files)):
-            
-            if len(ast_files[j]) == 0 or ast_files[j][2] == False or ast_files[j][1] != pl_ind+1:
+            if len(ast_files[j]) == 0:
                 continue
- 
+            data = ast_loglik[1][j][1 if self.ast_o_c_hipp_gaia.isChecked() else 0]
+            x_axis, x_axis_err, y_axis, y_axis_err = map(np.asarray, data)
+            bjd_dates = np.asarray(ast_loglik[1][j][2])
+            ast_model_x, ast_model_y, ast_model_bjd = ast_loglik[2][j]
 
-           # t = np.array(ast_files[j][0])
-           # x_axis = np.array(ast_files[j][1])
-           # x_axis_err = np.array(ast_files[j][2])
-          #  y_axis = np.array(ast_files[j][3])
-          #  y_axis_err = np.array(ast_files[j][4]) 
-            
-            if fit.npl > 0:
-                
-                if fit.rtg[0] == False:
-                    ast_loglik = rv.ast_loglik_hipp(fit.parameters,
-                    vel_files, 
-                    ast_files,fit.npl,
-                    fit.params.stellar_mass,
-                    times,
-                    fit.hkl,
-                    fit_results = False, 
-                    return_model = True,
-                    model_max=self.ast_model_max_range.value(), model_samp=self.ast_points_to_draw_model.value())  
-                else:
-                    ast_loglik = rv.ast_loglik_hipp(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True,
-                    model_max=self.ast_model_max_range.value(), model_samp=self.ast_points_to_draw_model.value())  
-
- 
-                if ast_loglik == None:
-                    print("Something went wrong when calculating astr. lnL....")
-                    continue
-
-                if isinstance(ast_loglik, float):
-                    return
-
-                fit.ast_results = dill.copy(ast_loglik)
-
-
-                if self.ast_o_c_hipp_gaia.isChecked():
-                    x_axis = np.array(ast_loglik[1][pl_ind][1][0] )
-                    x_axis_err = np.array(ast_loglik[1][pl_ind][1][1])
-                    y_axis = np.array(ast_loglik[1][pl_ind][1][2])
-                    y_axis_err = np.array(ast_loglik[1][pl_ind][1][3])
-                else:
-                    x_axis = np.array(ast_loglik[1][pl_ind][0][0] )
-                    x_axis_err = np.array(ast_loglik[1][pl_ind][0][1])
-                    y_axis = np.array(ast_loglik[1][pl_ind][0][2])
-                    y_axis_err = np.array(ast_loglik[1][pl_ind][0][3])                
-               
-                 
-                bjd_dates = np.array(ast_loglik[1][pl_ind][2]) 
-                 
-                ast_model_x   = ast_loglik[2][pl_ind][0] 
-                ast_model_y   = ast_loglik[2][pl_ind][1]
-                ast_model_bjd = ast_loglik[2][pl_ind][2]                
-            else:
-                ast_model_x = np.zeros(5)
-                ast_model_y = np.zeros(5)
-                
-            
             if self.ast_use_plot_ra_dec.isChecked():
                
                 p_ast_hipp.invertX(False)
@@ -6434,14 +6439,18 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 #then plots a line for each measurement in size and angle of the error    
      
 
-                P = float(fit.P[ast_files[j][1] - 1])
-
-                bjd_phased = (bjd_dates % P)
-                ast_model_bjd_phased = (ast_model_bjd % P)
-
-                # Normalize both with the same reference, 0..P
-                b_norm_data  = np.clip(bjd_phased / P, 0.0, 1.0)
-                b_norm_model = np.clip(ast_model_bjd_phased / P, 0.0, 1.0)
+                slots = np.flatnonzero(fit.use_planet)
+                period = float(fit.P[slots[0]]) if len(slots) else 0.0
+                if np.isfinite(period) and period > 0:
+                    b_norm_data = np.mod(bjd_dates, period) / period
+                    b_norm_model = np.mod(ast_model_bjd, period) / period
+                else:
+                    # The single-star model has no orbital phase. Color its
+                    # measurements by elapsed time instead of a fictitious orbit.
+                    origin = float(np.min(bjd_dates))
+                    span = max(float(np.ptp(bjd_dates)), 1.0)
+                    b_norm_data = np.clip((bjd_dates - origin) / span, 0.0, 1.0)
+                    b_norm_model = np.clip((ast_model_bjd - origin) / span, 0.0, 1.0)
 
                 cmap = pg.colormap.get('viridis')
 
@@ -6812,28 +6821,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def update_orb_plot(self):
         global fit, p16
         
-        p16.plot(clear=True,)    
-
-
-        if len(fit.fit_results.a) ==0:
-            return
-        
-        if fit.pl_arb_test == True:
-            npl = fit.npl_arb
-        else:
-            npl = fit.npl     
-        
-        
-        for i in range(9):
-            if not bool(fit.use_planet[i]):
-                continue
-            orb_xyz, pl_xyz, peri_xyz, apo_xyz = rv.planet_orbit_xyz(fit,i)        
-            p16.plot(orb_xyz[0],orb_xyz[1], pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True)   
-            p16.plot((0,peri_xyz[0]),(0,peri_xyz[1]), pen={'color': 0.5, 'width': 1.1},enableAutoRange=True,viewRect=True)               
-            
-            p16.plot((pl_xyz[0],pl_xyz[0]), (pl_xyz[1],pl_xyz[1] ), pen=None,symbol='o', symbolSize=6,enableAutoRange=True,viewRect=True, symbolBrush='b') 
-            
-        p16.plot(np.array([0,0]), np.array([0,0]), pen=None,symbol='o', symbolSize=8,enableAutoRange=True,viewRect=True, symbolBrush='r')                
+        if not hasattr(self, 'orbital_view_controller'):
+            from orbital_view import OrbitalViewController
+            self.orbital_view_controller = OrbitalViewController(
+                self, p16, lambda: fit, rv.planet_orbit_xyz)
+        self.orbital_view_controller.draw()
 
 
     #### Period evolution plot ##################
@@ -7368,6 +7360,12 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def update_extra_plots2(self):
         global fit
 
+        mirror = getattr(self, 'extra_plot_mirror', None)
+        if mirror is not None:
+            # Periodograms use the left-hand graphics items, like every source.
+            mirror.mirror.schedule()
+            return
+
         self.comboBox_extra_plot_gls.clear()
         if fit.ndset != 0:
             self.comboBox_extra_plot_gls.addItem('RV GLS',fit.npl+1)
@@ -7400,6 +7398,22 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
  
+    def initialize_rv_phase_options(self):
+        from rv_phase_options import RVPhaseOptions
+        button = QtWidgets.QPushButton('Phase options…', self)
+        self.gridLayout_35.replaceWidget(self.extra_plot_RVphase_norm, button)
+        self.rv_phase_options = RVPhaseOptions(self, lambda: fit)
+        button.clicked.connect(self.show_rv_phase_options)
+        self.rv_phase_options_button = button
+
+    def show_rv_phase_options(self):
+        slot = self.comboBox_extra_plot.currentData()
+        if slot is None:
+            return
+        self.rv_phase_options.configure(slot - 1)
+        self.rv_phase_options.show()
+        self.rv_phase_options.raise_()
+
     def phase_plots(self, ind, offset = 0):
         global fit, colors,pe0,pe1,legend_RV_phased
 
@@ -7427,7 +7441,19 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         ph_data = fit.ph_data[ind-1]
         ph_model = fit.ph_model[ind-1]
  
-        offset = (self.RV_phase_slider.value()/100.0)*fit.P[ind-1] 
+        period = fit.P[ind-1]
+        options = getattr(self, 'rv_phase_options', None)
+        if options is not None:
+            from rv_phase_options import fold_cached
+            options.configure(ind - 1)
+            period = options.period()
+            try:
+                ph_data, ph_model = fold_cached(fit, ind - 1, period)
+            except (AttributeError, KeyError, IndexError, ValueError):
+                # Older saved sessions may lack the absolute-time decomposition.
+                period = fit.P[ind-1]
+                options.status.setText('Original model samples unavailable; using fitted-period cached phases.')
+        offset = (self.RV_phase_slider.value()/100.0)*period
 
         if len(ph_data) == 1:
             return
@@ -7445,7 +7471,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
  
 
-        time_phase = (ph_data[0]-offset)%fit.P[ind-1] 
+        time_phase = (ph_data[0]-offset)%period 
         rv_data = ph_data[1]
         try:          
             rv_data_o_c = ph_data[4]
@@ -7454,7 +7480,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
 
-        model_time_phase = np.array((ph_model[0]-offset)%fit.P[ind-1] )
+        model_time_phase = np.array((ph_model[0]-offset)%period)
 
         sort = sorted(range(len(model_time_phase)), key=lambda k: model_time_phase[k])
         model_time_phase  = model_time_phase[sort] 
@@ -7468,12 +7494,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
         if self.extra_plot_RVphase_norm.isChecked():
-            model_time_phase = (model_time_phase/max(model_time_phase)) - 0.5
-            time_phase = ((time_phase)/max(time_phase)) -0.5 # - fit.params.planet_params[7*(ind-1)+1]/2.0) /fit.params.planet_params[7*(ind-1)+1]
+            model_time_phase = model_time_phase / period - 0.5
+            time_phase = time_phase / period - 0.5
  
 
-        model_curve = pe0.plot(model_time_phase,ph_model, pen={'color':  dill.copy(fit.rvs_colors[-1]), 'width': self.rv_model_width.value()+1},
-        enableAutoRange=True,viewRect=True)   
+        model_points = options is not None and options.points.isChecked()
+        model_curve = pe0.plot(model_time_phase, ph_model,
+            pen=None if model_points else {'color': dill.copy(fit.rvs_colors[-1]), 'width': self.rv_model_width.value()+1},
+            symbol='o' if model_points else None, symbolSize=2,
+            symbolPen=None, symbolBrush=dill.copy(fit.rvs_colors[-1]),
+            enableAutoRange=True, viewRect=True)   
  
         model_curve.setZValue(self.RV_model_z.value())
 
@@ -7550,7 +7580,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         else:
             label = "RV [m/s]" 
 
-        pe0.setXRange(min(model_time_phase), max(model_time_phase), padding=0.002)
+        if self.extra_plot_RVphase_norm.isChecked():
+            pe0.setXRange(-0.5, 0.5, padding=0.002)
+        else:
+            pe0.setXRange(0, period, padding=0.002)
 #        pe0.setLabel('bottom', 'phase [days]', units='',  **self.plot_font_style())
         #pe0.setLabel('left',   '%s'%label, units='',  **self.plot_font_style())  
 
@@ -7594,8 +7627,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls.freq, fit.gls.power, power_level = power_levels, sig_level = fit.gls.powerLevel(np.array(power_levels)) )           
             self.label_peaks(pe2, pos_peaks, GLS = True, o_c = False)
 
-        if self.extra_plot_cross_hair_gls.isChecked():
-            self.cross_hair(pe2,log=self.radioButton_RV_GLS_period.isChecked())   
+
 
     def extra_RV_GLS_o_c_plots(self):
         global fit,  pe2 
@@ -7623,8 +7655,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             text_peaks, pos_peaks = self.identify_power_peaks(1/fit.gls_o_c.freq, fit.gls_o_c.power, power_level = power_levels, sig_level = fit.gls_o_c.powerLevel(np.array(power_levels)) )           
             self.label_peaks(pe2, pos_peaks, GLS = True, o_c = True)
 
-        if self.extra_plot_cross_hair_gls.isChecked():
-            self.cross_hair(pe2,log=self.radioButton_RV_o_c_GLS_period.isChecked())   
+
 
 
 
@@ -9099,6 +9130,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
  
     def worker_mlp(self, resid = False):
+        if getattr(self, '_calculation', None) is not None:
+            return
         global fit  
 
         self.calc_MLP.setEnabled(False)
@@ -9125,17 +9158,12 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         #    return   
 
         self.statusBar().showMessage('Running MLP .... This might take some time!')                 
-        worker_mlp_wk = Worker(lambda:  self.mlp_search(resid = resid, resid_GP=resid_GP) )# Any other args, kwargs are passed to the run  
- 
-        worker_mlp_wk.signals.finished.connect(lambda:  self.worker_mlp_complete(resid = resid))
-
+        options = dict(residual=resid, gp=resid_GP,
+                       ls=self.mlp_cross_hair.isChecked(), ncpus=int(self.mlp_N_threads.value()),
+                       ofac=self.mlp_ofac.value(), fbeg=1/self.mlp_max_period.value(),
+                       fend=1/self.mlp_min_period.value())
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
-
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker_mlp_wk)       
-
+        self.start_calculation('mlp', options, self.worker_mlp_complete)
 
 
     def mlp_search(self, resid = False, resid_GP = False):
@@ -9263,6 +9291,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
        # print("--- %s seconds ---" % (time.time() - start_time))     
  
     def worker_tls(self, resid = False):
+        if getattr(self, '_calculation', None) is not None:
+            return
         global fit  
         
         if self.calp_TLS_o_c.isChecked():
@@ -9290,18 +9320,14 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             return   
 
         self.statusBar().showMessage('Looking for Transit events (TLS).... ')
-        worker_tls_ = Worker(lambda:  self.tls_search(resid = resid) )# Any other args, kwargs are passed to the run  
- 
-        worker_tls_.signals.finished.connect(lambda:  self.worker_tls_complete(resid = resid))
-        
+        options = dict(residual=resid,
+                       period_min=self.tls_min_period.value() if self.tls_period_min_use.isChecked() else 0,
+                       period_max=self.tls_max_period.value() if self.tls_period_max_use.isChecked() else np.inf,
+                       oversampling_factor=int(self.tls_ofac.value()),
+                       duration_grid_step=self.tls_grid_step.value())
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
+        self.start_calculation('tls', options, self.worker_tls_complete)
 
-
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker_tls_)       
-     
 
     def tls_search(self, resid = False):
         global fit
@@ -9494,6 +9520,8 @@ Transit duration: %s d
         
 
     def worker_transit_fitting(self, ff=1, auto_fit = False ):
+        if getattr(self, '_calculation', None) is not None:
+            return
         global fit  
         
         #self.button_fit.setEnabled(False)  
@@ -9525,16 +9553,9 @@ Transit duration: %s d
         fit.model_max = self.model_max_range.value()
         fit.model_min = self.model_min_range.value()
           
-        worker4 = Worker(lambda:  self.transit_fit(ff=ff ) )# Any other args, kwargs are passed to the run  
- 
-        worker4.signals.finished.connect(self.worker_transit_fitting_complete)
-        
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker4)
-        
- 
+        self.start_calculation('scipy', {'ff': ff}, self.worker_transit_fitting_complete)
+
+
     def transit_fit(self, ff=0 ):
         global fit
         
@@ -9617,6 +9638,8 @@ Transit duration: %s d
 
 
     def worker_ttv_fitting(self, ff=1, auto_fit = False ):
+        if getattr(self, '_calculation', None) is not None:
+            return
         global fit  
 
         #self.button_fit.setEnabled(False)
@@ -9644,14 +9667,7 @@ Transit duration: %s d
         fit.model_max = self.model_max_range.value()
         fit.model_min = self.model_min_range.value()
         
-        worker_ttv = Worker(lambda:  self.ttv_fit(ff=ff ) )# Any other args, kwargs are passed to the run  
- 
-        worker_ttv.signals.finished.connect(self.worker_ttv_fitting_complete)
-        
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker_ttv)
+        self.start_calculation('scipy', {'ff': ff}, self.worker_ttv_fitting_complete)
 
 
     def ttv_fit(self, ff=0 ):
@@ -9685,6 +9701,7 @@ Transit duration: %s d
           
 
 
+        self.jupiter_push_vars()
         self.plot_evol_all()
 #        self.update_orb_plot()
 
@@ -9747,6 +9764,8 @@ Transit duration: %s d
 
  
     def worker_ast_fitting(self, ff=1, auto_fit = False ):
+        if getattr(self, '_calculation', None) is not None:
+            return
         global fit  
 
         #self.button_fit.setEnabled(False)
@@ -9770,14 +9789,7 @@ Transit duration: %s d
         self.check_priors_jeff()   
         self.check_scipy_min()
 
-        worker_ast = Worker(lambda:  self.ast_fit(ff=ff ) )# Any other args, kwargs are passed to the run  
- 
-        worker_ast.signals.finished.connect(self.worker_ast_fitting_complete)
-        
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker_ast)
+        self.start_calculation('scipy', {'ff': ff}, self.worker_ast_fitting_complete)
 
 
     def ast_fit(self, ff=0 ):
@@ -9810,6 +9822,8 @@ Transit duration: %s d
 
 
     def worker_Nbody(self):
+        if getattr(self, '_calculation', None) is not None:
+            return
         global fit  
 
         self.button_orb_evol.setEnabled(False)         
@@ -9839,18 +9853,12 @@ Transit duration: %s d
 
 
         # Pass the function to execute
-        worker3 = Worker(lambda: self.run_orbital_simulations()) # Any other args, kwargs are passed to the run  
-        # Execute
-        worker3.signals.finished.connect(self.worker_Nbody_complete)
-        
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker3)  
-
+        self.start_orbital_calculation(arbitary=False)
 
 
     def worker_Nbody_arb(self):
+        if getattr(self, '_calculation', None) is not None:
+            return
         global fit  
 
         self.run_orb_evol_arbitary.setEnabled(False)           
@@ -9869,16 +9877,7 @@ Transit duration: %s d
         self.statusBar().showMessage('Running Orbital Evolution......')   
         
         # Pass the function to execute
-        worker_arb = Worker(lambda: self.run_orbital_simulations(arbitary=True)) # Any other args, kwargs are passed to the run  
-        # Execute
-        worker_arb.signals.finished.connect(self.worker_Nbody_complete)
-        
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker_arb)  
-
-        self.run_orb_evol_arbitary.setEnabled(True)   
+        self.start_orbital_calculation(arbitary=True)
 
 
     def set_orbital_simulations_options(self, arbitary=False):
@@ -10007,6 +10006,8 @@ Transit duration: %s d
 #        print("--- %s seconds ---" % (time.time() - start_time))     
 
     def worker_RV_fitting(self, ff=20, m_ln=True, auto_fit = False, init = False):
+        if getattr(self, '_calculation', None) is not None:
+            return
         global fit  
         
         #self.button_fit.setEnabled(False)
@@ -10040,35 +10041,55 @@ Transit duration: %s d
             fit.init_fit= False  
        
         if init:
-            # Initialization evaluates parameters even when the optimization
-            # backend is SciPy or the RV GP toggle is enabled.
-            worker2 = Worker(lambda: self.optimize_fit(ff=0, minimize_fortran=True,
-                                                       doGP=False, auto_fit=auto_fit))
+            ff, doGP, minimize_fortran = 0, False, True
         elif self.radioButton_fortran77.isChecked() and not doGP:
             self.check_fortran_min()
-            self.statusBar().showMessage('Minimizing parameters....')    
-             # Pass the function to execute
-            worker2 = Worker(lambda:  self.optimize_fit(ff=ff,  minimize_fortran=True, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
- 
-            #worker2 = Worker(lambda:  fit.fitting(outputfiles=[1,1,1], doGP=False,   minimize_fortran=True,  fortran_kill=30, timeout_sec=self.master_timeout.value(),minimize_loglik=True,amoeba_starts=ff, print_stat=False, eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(), npoints=self.points_to_draw_model.value(), model_max= self.model_max_range.value(), model_min= self.model_min_range.value()))
- 
- 
-        else:    
-              
+            minimize_fortran = True
+        else:
             self.check_scipy_min()
-            
-            self.statusBar().showMessage('Minimizing parameters using SciPyOp (might be slow)....')
-            worker2 = Worker(lambda:  self.optimize_fit(ff=0, doGP=self.do_RV_GP.isChecked(),  gp_kernel_id=-1, minimize_fortran=False, m_ln=m_ln, auto_fit = auto_fit)) # Any other args, kwargs are passed to the run  
-            self.tabWidget_helper.setCurrentWidget(self.tab_info)
-                   
-        worker2.signals.finished.connect(self.worker_RV_fitting_complete)
-        
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker2) 
- 
-     
+            ff, minimize_fortran = 0, False
+        if not auto_fit:
+            self.update_params()
+        options = self.optimizer_options()
+        options.update(ff=ff, m_ln=m_ln, doGP=doGP,
+                       minimize_fortran=minimize_fortran)
+        self.start_calculation('optimize', options, self.worker_RV_fitting_complete)
+
+    def optimizer_options(self):
+        return dict(fileinput=self.fortran_debug.isChecked(), outputfiles=[1, 1, 1],
+                    fortran_kill=(self.dyn_model_to_kill.value()
+                                  if self.radioButton_Dynamical.isChecked()
+                                  else self.kep_model_to_kill.value()),
+                    timeout_sec=self.master_timeout.value(), print_stat=False,
+                    eps=self.dyn_model_accuracy.value(), dt=self.time_step_model.value(),
+                    npoints=self.points_to_draw_model.value(),
+                    model_max=self.model_max_range.value(), model_min=self.model_min_range.value(),
+                    reset_errors=self.reset_errors_at_init.isChecked())
+
+    def start_orbital_calculation(self, arbitary=False):
+        global fit
+        options = dict(timemax=self.max_time_of_evol.value(),
+                       timestep=self.time_step_of_evol.value(),
+                       output_step=self.output_time_step_evol.value(),
+                       use_fixed_steps=self.use_fixed_time_steps.isChecked(),
+                       fixed_steps=self.fixed_time_steps_evol.value())
+        backend = 'rebound' if self.use_rebound.isChecked() else 'swift'
+        settings = fit.nbody_rebound if backend == 'rebound' else fit.nbody_swift
+        options['integrator'] = settings.integrator
+        if arbitary:
+            operation = 'stability_arb'
+            options['backend'] = backend
+        elif backend == 'rebound':
+            operation = 'stability_rebound'
+            options['timestep'] /= 365.25
+            options.update(exact_finish_time=0, collision_distance=None,
+                           escape_distance=None, move_to_com=True, sort_by_period=True,
+                           safe_mode=0, corrector=11, verbose=True)
+        else:
+            operation = 'stability'
+        self.start_calculation(operation, options, self.worker_Nbody_complete)
+
+
     def update_RV_jitter_flag(self):
         global fit
         # LM holds jitter fixed; enable its fit controls if an active stage can
@@ -10447,9 +10468,9 @@ will be highly appreciated!
         self.dialog_credits.text.setReadOnly(True)
 
         if qso_mode:
-            self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(./lib/UI/33_striker_qso.png) 0 0 0 0 stretch stretch;} ")
+            self.dialog_credits.setStyleSheet(' QTextEdit{border-image: ' + "url(\"" + package_resource('UI/33_striker_qso.png').replace("\\", "/") + "\")" + ' 0 0 0 0 stretch stretch;} ')
         else:
-            self.dialog_credits.setStyleSheet(" QTextEdit{border-image: url(./lib/UI/33_striker.png) 0 0 0 0 stretch stretch;} ")
+            self.dialog_credits.setStyleSheet(' QTextEdit{border-image: ' + "url(\"" + package_resource('UI/33_striker.png').replace("\\", "/") + "\")" + ' 0 0 0 0 stretch stretch;} ')
 
         #self.dialog.setWindowIcon (QtGui.QIcon('logo.png'))        
         self.dialog_credits.show()
@@ -10602,6 +10623,8 @@ will be highly appreciated!
 
 
     def run_auto_fit(self):
+        if getattr(self, '_calculation', None) is not None:
+            return
         global fit
         self.check_fortran_min() 
 
@@ -10902,6 +10925,7 @@ will be highly appreciated!
         fit.ses_notes = self.text_editor.editor.toPlainText()
 
         if str(session_name) != '':
+            Path(session_name).parent.mkdir(parents=True, exist_ok=True)
             file_pi = open(session_name, 'wb')
             dill.dump(fit, file_pi) #,protocol=2
             file_pi.close()
@@ -11157,27 +11181,14 @@ will be highly appreciated!
                         continue
                     else:
                         z=z+1
-                        if fit.ast_data_sets_hipp[i][1] > fit.npl and fit.ast_data_sets_hipp[i][2] == True:
-                            choice = QtWidgets.QMessageBox.information(self, 'Warning!',"Astrometry dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ast_data_sets_hipp[i][1]), QtWidgets.QMessageBox.StandardButton.Ok)      
-                            #self.button_fit.setEnabled(True)
-                            self.mute_buttons(trigger=True)
-                            return 0
-
                 for i in range(10):
                     if len(fit.ast_data_sets_gaia[i]) == 0:
                         continue
                     else:
                         zz=zz+1
-                        if fit.ast_data_sets_gaia[i][1] > fit.npl and fit.ast_data_sets_gaia[i][2] == True:
-                            choice = QtWidgets.QMessageBox.information(self, 'Warning!',"Astrometry dataset %s is set to planet %s but this planet is not included. Okay?"%(i+1,fit.ast_data_sets_gaia[i][2]), QtWidgets.QMessageBox.StandardButton.Ok)      
-                            #self.button_fit.setEnabled(True)
-                            self.mute_buttons(trigger=True)
-                            return 0
-
-
                 if z <= 0 and zz <= 0 :
                     choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-                    "Not possible to model planets if there are no Hipparcos/Gaia astrometry data loaded. Please add your astrometry data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
+                    "Not possible to fit astrometry if there are no Hipparcos/Gaia astrometry data loaded. Please add your astrometry data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
                     #self.button_fit.setEnabled(True)
                     self.mute_buttons(trigger=True)
                     return 0 
@@ -11196,6 +11207,8 @@ will be highly appreciated!
                        
 
     def worker_nest(self):
+        if getattr(self, '_calculation', None) is not None:
+            return
         global fit  
 
         self.update_params()
@@ -11264,22 +11277,160 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
         self.mute_buttons(trigger=False)
 
-        # Pass the function to execute
-        self.worker_n = Worker(self.run_nest) # Any other args, kwargs are passed to the run  
-        # Execute
-        self.worker_n.signals.finished.connect(self.worker_nest_complete)
-
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(self.worker_n)
+        self.check_model_params()
+        self.check_nested_params()
+        self.check_settings()
+        self.start_calculation('nested', {}, self.worker_nest_complete)
 
     def stop_nest(self):
-        """Stop the worker process."""
+        self.stop_calculation()
 
-        #if hasattr(self, 'worker_n'):
-        self.worker_n.stop()
-        self.statusBar().showMessage("Stopping Nested Sampling...")
+    def stop_calculation(self, checked=False, *, confirm=True):
+        job = self._calculation
+        if job is None or job.get('confirming_stop') or job['cancelled']:
+            return False
+        accepted = True
+        if confirm:
+            names = {'nested': 'nested sampling (NS)', 'mcmc': 'MCMC',
+                     'optimize': 'fitting', 'scipy': 'fitting',
+                     'stability': 'orbital evolution', 'stability_rebound': 'orbital evolution',
+                     'stability_arb': 'orbital evolution', 'mlp': 'MLP',
+                     'tls': 'TLS', 'corner': 'corner plotting'}
+            name = names.get(job['operation'], 'calculation')
+            # A modal dialog runs a nested Qt event loop. Hold any completed
+            # result until the user decides whether to adopt it or roll back.
+            job['confirming_stop'] = True
+            try:
+                choice = QtWidgets.QMessageBox.warning(
+                    self, 'Stop calculation?',
+                    f'Stopping will interrupt the current {name} process and its child processes.\n\n'
+                    'The GUI will return to the starting session. Progress and intermediate '
+                    'results from this run will be discarded.\n\nDo you want to stop?',
+                    QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel,
+                    QtWidgets.QMessageBox.StandardButton.Cancel)
+                accepted = choice == QtWidgets.QMessageBox.StandardButton.Yes
+            finally:
+                job['confirming_stop'] = False
+        if accepted:
+            job['cancelled'] = True
+            job['worker'].stop()
+            self.Stop_button.setEnabled(False)
+            self.Stop_button.setText('Stopping…')
+            self.statusBar().showMessage('Stopping calculation and its child processes…')
+        pending = job.pop('pending_completion', None)
+        if pending is not None:
+            self.calculation_finished(*pending)
+        return accepted
+
+    def _calculation_output(self, text):
+        print(text, end='', flush=True)
+        # tqdm output also remains visible when the console tab is hidden.
+        for line in text.replace('\r', '\n').splitlines():
+            if line.startswith('SciPy Hessian'):
+                self.statusBar().showMessage(line.strip())
+
+    def start_calculation(self, operation, options, complete):
+        global fit
+        if self._calculation is not None:
+            self.statusBar().showMessage('A calculation is already running')
+            return False
+        try:
+            worker = ProcessWorker(fit, operation, options)
+        except Exception:
+            self.mute_buttons(trigger=True)
+            for control in (self.button_orb_evol, self.run_orb_evol_arbitary,
+                            self.calc_MLP, self.calc_TLS_o_c,
+                            self.button_make_mcmc_cornerplot, self.button_make_nest_cornerplot):
+                control.setEnabled(True)
+            self.statusBar().showMessage('Calculation could not start. Starting session retained.')
+            self.get_error_msg('Could not copy the starting session:\n' + traceback.format_exc())
+            return False
+        warmup = getattr(self, '_initialization_warmup', None)
+        if warmup is not None:
+            quick_init = (operation == 'optimize' and getattr(fit, 'init_fit', False)
+                          and options.get('ff') == 0 and not options.get('doGP', False)
+                          and self.radioButton_Keplerian.isChecked()
+                          and fit.type_fit.get('RV', False)
+                          and not any(fit.type_fit.get(key, False)
+                                      for key in ('Transit', 'TTV', 'AST')))
+            if quick_init:
+                worker.prepared = warmup.acquire()
+            else:
+                warmup.pause()
+        self.mute_buttons(trigger=False)
+        self._calculation = dict(worker=worker, original=fit, complete=complete, operation=operation,
+                                 cancelled=False)
+        # All GUI access stays on the GUI thread. Prevent concurrent operations
+        # and changes of session while the child works on its private snapshot.
+        controls = self.findChildren(QtWidgets.QAbstractButton)
+        controls += self.findChildren(QtWidgets.QAbstractSpinBox)
+        controls += self.findChildren(QtWidgets.QComboBox)
+        controls += self.findChildren(QtWidgets.QLineEdit)
+        controls += [self.menuBar()]
+        # Save each widget's own enabled state, rather than the effective
+        # state inherited from its parent. In particular, a disabled spin box
+        # must not leave its internal line edit explicitly disabled on restore.
+        self._calculation_controls = [(control, control.isEnabledTo(control.parentWidget())) for control in controls
+                                      if control is not self.Stop_button
+                                      and control is not getattr(self, 'comboBox_plot_mirror', None)
+                                      and control is not getattr(self, 'extra_plot_cross_hair_gls', None)
+                                      and control is not getattr(self, 'button_original_plot', None)]
+        for control, enabled in self._calculation_controls:
+            control.setEnabled(False)
+        self.Stop_button.setText('Stop')
+        self.Stop_button.setEnabled(True)
+        worker.signals.output.connect(self._calculation_output)
+        worker.signals.finished.connect(self.calculation_finished)
+        self.threadpool.start(worker)
+        return True
+
+    def calculation_finished(self, status, payload):
+        global fit, ses_list
+        job = self._calculation
+        if job is None:
+            return
+        if job.get('confirming_stop'):
+            job['pending_completion'] = (status, payload)
+            return
+        # A Stop click wins even if the result was already queued for delivery.
+        if job['cancelled'] and status != 'error':
+            status, payload = 'cancelled', None
+        self._calculation = None
+        for control, enabled in self._calculation_controls:
+            control.setEnabled(enabled)
+        self._calculation_controls = []
+        self.Stop_button.setText('Stop')
+        self.Stop_button.setEnabled(False)
+        self.mute_buttons(trigger=True)
+        self.button_orb_evol.setEnabled(True)
+        self.run_orb_evol_arbitary.setEnabled(True)
+        self.calc_MLP.setEnabled(True)
+        self.calc_TLS_o_c.setEnabled(True)
+        self.button_make_mcmc_cornerplot.setEnabled(True)
+        self.button_make_nest_cornerplot.setEnabled(True)
+        if status == 'result':
+            fit = payload
+            for index, session in enumerate(ses_list):
+                if session is job['original']:
+                    ses_list[index] = fit
+            job['complete']()
+        else:
+            # The parent session was never handed to the numerical calculation.
+            # Do not run success callbacks, adopt partial arrays, or autosave.
+            fit = job['original']
+            fit.init_fit = False
+            self.jupiter_push_vars()
+            if status == 'cancelled':
+                self.statusBar().showMessage('Stopped. Starting session retained.')
+            else:
+                self.statusBar().showMessage('Calculation failed. Starting session retained.')
+                self.get_error_msg(str(payload))
+        warmup = getattr(self, '_initialization_warmup', None)
+        if warmup is not None and self._calculation is None:
+            warmup.resume()
+        if getattr(self, '_close_after_calculation', False):
+            self._close_after_calculation = False
+            self.close()
 
     def run_nest(self):
         global fit
@@ -11420,6 +11571,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
 
     def worker_mcmc(self):
+        if getattr(self, '_calculation', None) is not None:
+            return
         global fit  
 
         self.update_params()
@@ -11486,16 +11639,11 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.mute_buttons(trigger=False)
 
 
-        # Pass the function to execute
-        worker = Worker(lambda: self.run_mcmc()) # Any other args, kwargs are passed to the run  
-        # Execute
-        worker.signals.finished.connect(self.worker_mcmc_complete)
+        self.check_model_params()
+        self.check_mcmc_params()
+        self.check_settings()
+        self.start_calculation('mcmc', {}, self.worker_mcmc_complete)
 
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker)
-        
     def run_mcmc(self):
         global fit
 
@@ -11633,19 +11781,19 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
        # import dynesty
         #if isinstance(fit.mcmc_sampler, rv.CustomSampler):
         if len(np.atleast_1d(fit.mcmc_sampler))!=0:        
-            MCMC_SAMP_LED = './lib/UI/green_led.png'
+            MCMC_SAMP_LED = package_resource('UI/green_led.png')
             MCMC_SAMP_TXT = "MCMC samples available" 
         else:
-            MCMC_SAMP_LED = './lib/UI/red_led.png' 
+            MCMC_SAMP_LED = package_resource('UI/red_led.png')
             MCMC_SAMP_TXT = "No MCMC samples available" 
 #dynesty.nestedsamplers.UnitCubeSampler
         #if len(fit.ns_sampler)!=0:
         if len(np.atleast_1d(fit.ns_sampler))!=0:
         #if isinstance(fit.ns_sampler, dynesty.nestedsamplers.UnitCubeSampler) or isinstance(fit.ns_sampler,dynesty.dynamicsampler.DynamicSampler):
-            NS_SAMP_LED = './lib/UI/green_led.png'
+            NS_SAMP_LED = package_resource('UI/green_led.png')
             NS_SAMP_TXT = "NS samples available" 
         else:
-            NS_SAMP_LED = './lib/UI/red_led.png' 
+            NS_SAMP_LED = package_resource('UI/red_led.png')
             NS_SAMP_TXT = "No NS samples available" 
             
         self.mcmc_samples_led.setPixmap(QtGui.QPixmap(MCMC_SAMP_LED)) 
@@ -11665,6 +11813,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.tabWidget_helper.setCurrentWidget(self.tab_info)
 
     def worker_cornerplot(self, type_plot = "mcmc"):
+        if getattr(self, '_calculation', None) is not None:
+            return
         global fit  
 
 
@@ -11701,14 +11851,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
 
 
         # Pass the function to execute
-        worker_cor = Worker(lambda: self.make_cornerplot(type_plot = type_plot)) # Any other args, kwargs are passed to the run  
-        # Execute
-        worker_cor.signals.finished.connect(self.worker_cornerplot_complete)
-        
-        # worker.signals.result.connect(self.print_output)
-        #worker.signals.finished.connect(self.thread_complete)
-       # worker.signals.progress.connect(self.progress_fn)
-        self.threadpool.start(worker_cor)
+        self.start_calculation('corner', {'type_plot': type_plot}, self.worker_cornerplot_complete)
 
 
     def make_cornerplot(self,type_plot = 'mcmc'):
@@ -11817,6 +11960,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
  
                 name1 = '%s_pre.dat'%self.RVBank_window.target_name
                 name2 = '%s_post.dat'%self.RVBank_window.target_name
+                os.makedirs('datafiles', exist_ok=True)
                 path1 = 'datafiles/%s'%name1
                 path2 = 'datafiles/%s'%name2
         
@@ -11915,6 +12059,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
  
     
                 name1 = '%s.dat'%self.RVBank_window.target_name
+                os.makedirs('datafiles', exist_ok=True)
                 path1 = 'datafiles/%s'%name1
                 out1 = open('%s'%path1, 'w')
 
@@ -13160,7 +13305,7 @@ Please install via 'pip install ttvfast'.
                 topLevel.setFont(self.gui_font)
 
      ###### Update settings json ########
-        GUI_settings = './lib/ES_settings.json'
+        GUI_settings = user_settings_path()
 
         with open(GUI_settings, "r") as jsonFile:
             sett = json.load(jsonFile)
@@ -13178,7 +13323,7 @@ Please install via 'pip install ttvfast'.
             return
         self.plot_font = QtGui.QFont(font)
         self.update_font_plots()
-        Plot_settings = './lib/ES_settings.json'
+        Plot_settings = user_settings_path()
         with open(Plot_settings, "r") as jsonFile:
             sett = json.load(jsonFile)
         # Retain the legacy size key for existing settings readers.
@@ -13188,7 +13333,7 @@ Please install via 'pip install ttvfast'.
             json.dump(sett, jsonFile)
 
     def initialize_font_plot(self):
-        Plot_settings = './lib/ES_settings.json'
+        Plot_settings = user_settings_path()
         with open(Plot_settings, "r") as jsonFile:
             sett = json.load(jsonFile)
         self.plot_font = QtGui.QFont()
@@ -13200,7 +13345,7 @@ Please install via 'pip install ttvfast'.
 
     def initialize_font_GUI(self): #not working as I want!
 
-        Plot_settings = './lib/ES_settings.json'
+        Plot_settings = user_settings_path()
         with open(Plot_settings, "r") as jsonFile:
             sett = json.load(jsonFile)
 
@@ -13213,6 +13358,11 @@ Please install via 'pip install ttvfast'.
 
 
     def closeEvent(self, event):
+        if self._calculation is not None:
+            event.ignore()
+            self._close_after_calculation = True
+            self.stop_calculation(confirm=False)
+            return
         choice = QtWidgets.QMessageBox.information(self, 'Warning!',
             "Do you want to save the session before you Quit?",
             QtWidgets.QMessageBox.StandardButton.Cancel |
@@ -13226,6 +13376,9 @@ Please install via 'pip install ttvfast'.
             if self.save_session() is False:
                 event.ignore()
                 return
+        warmup = getattr(self, '_initialization_warmup', None)
+        if warmup is not None:
+            warmup.shutdown()
         close_auxiliary_windows(self)
         self.removeEventFilter(self)
         event.accept()
@@ -13239,6 +13392,10 @@ Please install via 'pip install ttvfast'.
 
 
     def mute_buttons(self, trigger=True):
+        if trigger and getattr(self, '_calculation', None) is not None:
+            for control, enabled in self._calculation_controls:
+                control.setEnabled(False)
+            return
         self.button_sort_planets_by_period.setEnabled(trigger)
         global fit
         
@@ -13839,6 +13996,15 @@ Please install via 'pip install ttvfast'.
 
 
         self.setupUi(self)
+        if not hasattr(self, 'Stop_button'):
+            self.Stop_button = QtWidgets.QPushButton('Stop', self)
+            self.Stop_button.setObjectName('Stop_button')
+            self.stat_panel.addWidget(self.Stop_button, 28, 0, 1, 2)
+        self._calculation = None
+        self._calculation_controls = []
+        self.Stop_button.setEnabled(False)
+        self.Stop_button.setToolTip('Stop the calculation and keep the starting session')
+        self.Stop_button.clicked.connect(self.stop_calculation)
 
 
 
@@ -14145,12 +14311,17 @@ Please install via 'pip install ttvfast'.
         self.initialize_buttons()
         self.initialize_plots()
         self.initialize_plot_axis_controls()
-        self.initialize_nbody_plot_options()   
+        self.initialize_nbody_plot_options()
+        self.initialize_rv_phase_options()
+        from transit_phase_view import TransitPhaseView
+        self.transit_phase_view = TransitPhaseView(self, lambda: fit)
+        self.update_orb_plot()
+        self.initialize_extra_plot_mirror()
  
         self.initialize_color_dialog()
         #Hill_LED = './lib/UI/grey_led.png'
         #self.Hill_led.setPixmap(QtGui.QPixmap(Hill_LED))
-        AMD_LED = './lib/UI/grey_led.png'
+        AMD_LED = package_resource('UI/grey_led.png')
         self.AMD_led.setPixmap(QtGui.QPixmap(AMD_LED))
         
         self.check_type_fit()
@@ -14663,7 +14834,9 @@ Please install via 'pip install ttvfast'.
         self.RV_model_z.valueChanged.connect(self.update_RV_plots)
         self.RV_model_z.valueChanged.connect(self.update_extra_plots)    
         self.RV_plot_add_o_c.stateChanged.connect(self.update_RV_plots)
-        self.extra_plot_RVphase_norm.stateChanged.connect(self.update_extra_plots)    
+        self.extra_plot_RVphase_norm.stateChanged.connect(
+            lambda: self.phase_plots(self.comboBox_extra_plot.currentData())
+            if self.comboBox_extra_plot.currentData() is not None else None)    
 
 
         self.plot_RV_GP_model.stateChanged.connect(self.update_RV_plots)
@@ -14715,6 +14888,7 @@ Please install via 'pip install ttvfast'.
         self.init_scipy_combo()
         self.init_TNC_controls()
         self.init_scipy_Simplex_controls()
+        self.SciPy_estimate_errors_checkBox.toggled.connect(self.check_scipy_min)
         self.init_fortran_combo()
         self.init_gls_norm_combo()
 
@@ -14734,7 +14908,7 @@ Please install via 'pip install ttvfast'.
         self.use_ns_maxcall.stateChanged.connect(self.check_ns_samp_opt_combo)
         self.ns_use_stop.stateChanged.connect(self.check_ns_samp_opt_combo)
 
-        self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
+        self.setWindowIcon(QtGui.QIcon(package_resource('UI/33_striker.png')))
 
         self.radioButton_act_GLS_period.toggled.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
        
@@ -14776,7 +14950,7 @@ Please install via 'pip install ttvfast'.
 
 
         self.extra_plot_cross_hair.stateChanged.connect(self.update_extra_plots)
-        self.extra_plot_cross_hair_gls.stateChanged.connect(self.update_extra_plots2)
+        # The extra-plot crosshair is managed by ExtraPlotMirror for all sources.
         self.inpector_plot_cross_hair.stateChanged.connect(self.init_plot_data_inspect)
         #self.inpector_plot_cross_hair.stateChanged.connect(lambda: self.tree_view_tab.listview.connect(self.plot_data_inspect))
 
@@ -14946,6 +15120,8 @@ Please install via 'pip install ttvfast'.
         self.RV_phase_slider.valueChanged.connect(self.rv_plot_phase_change)
 
 
+        self._initialization_warmup = InitializationWarmup(self)
+        QtWidgets.QApplication.instance().aboutToQuit.connect(self._initialization_warmup.shutdown)
         self.threadpool = QtCore.QThreadPool()
         self.threadpool.setMaxThreadCount(int(cpu_count()/2))
 
@@ -15014,13 +15190,15 @@ Please install via 'pip install ttvfast'.
         self.use_ast_data_hipp_2.setVisible(False)
         self.ast_data_planet_hipp_2.setVisible(False)
         self.ast_data_planet_hipp_1.setVisible(False)
+        self.use_ast_data_hipp_1.setVisible(False)
         
         
         self.remove_ast_data_gaia_2.setVisible(False)
         self.Button_ast_data_gaia_2.setVisible(False)
         self.use_ast_data_gaia_2.setVisible(False)
         self.ast_data_planet_gaia_2.setVisible(False)
-        self.ast_data_planet_gaia_1.setVisible(False)   
+        self.ast_data_planet_gaia_1.setVisible(False)
+        self.use_ast_data_gaia_1.setVisible(False)   
         
         self.stop_button.setVisible(False)   
         
@@ -15087,7 +15265,7 @@ class LoadingScreen(QtWidgets.QWidget):
 
         self.label_animation.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Ignored)
         # self.label_animation.setStyleSheet("""{ background-image: url('./Icons/Pulse-1s-100px.gif');}""")
-        self.movie= QtGui.QMovie('./lib/UI/33_striker.png')
+        self.movie= QtGui.QMovie(package_resource('UI/33_striker.png'))
         self.label_animation.setMovie(self.movie)
         # self.label_animation.setPixmap(QtGui.QPixmap("./Icons/Pulse-1s-100px.gif"))
  
@@ -15110,6 +15288,8 @@ class LoadingScreen(QtWidgets.QWidget):
 
 
 def main():
+
+    os.chdir(Path.home())
 
     app = QtWidgets.QApplication(sys.argv)
     

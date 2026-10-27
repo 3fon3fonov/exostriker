@@ -1,3 +1,4 @@
+from application_paths import package_resource
 # -*- coding: utf-8 -*-
 import pyqtgraph as pg
 from PyQt6 import QtCore, QtGui, QtWidgets, uic
@@ -24,7 +25,7 @@ import pg_hack
 try:
     from act import Ui_Activity as Ui_ActivityWindow
 except (ImportError, KeyError,ModuleNotFoundError) as e:
-    qtCreatorFile = "./lib/UI/act.ui" #%lib_path 
+    qtCreatorFile = package_resource('UI/act.ui') #%lib_path
     Ui_ActivityWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 #print("--- %s seconds ---" % (time.time() - start_time))
 
@@ -80,7 +81,7 @@ class ActivityWindow(QtWidgets.QWidget, Ui_ActivityWindow):
         self.ui = Ui_ActivityWindow()
         self.ui.setupUi(self)
         self.setWindowTitle('Activity data options')
-        self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
+        self.setWindowIcon(QtGui.QIcon(package_resource('UI/33_striker.png')))
 
         self.sklearn_found = sklearn_found
         self.statsmodels_found = statsmodels_found

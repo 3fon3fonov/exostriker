@@ -128,9 +128,8 @@ def joint_information_criteria(fit):
         if fit.type_fit.get('AST', False):
             count = 0
             for datasets in (fit.ast_data_sets_hipp, fit.ast_data_sets_gaia):
-                if len(datasets[0]):
-                    count += sum(len(dataset[0][-1])
-                                 for dataset in datasets_values(datasets) if len(dataset))
+                count += sum(len(dataset[0][-1])
+                             for dataset in datasets_values(datasets) if len(dataset))
             if not count and not getattr(fit, 'use_ast_hipp_gaia', True):
                 count = sum(len(dataset[2]) + len(dataset[4])
                             for dataset in datasets_values(fit.ast_data_sets)
@@ -247,8 +246,7 @@ def collect_fit_statistics(fit, backend):
                         ('ast_data_sets_hipp', backend.ast_loglik_hipp),
                         ('ast_data_sets_gaia', backend.ast_loglik_gaia)):
                     datasets = getattr(prepared, attribute)
-                    # Match the likelihood's current first-slot availability check.
-                    if not len(datasets[0]):
+                    if not any(len(dataset) for dataset in datasets_values(datasets)):
                         continue
                     for dataset in datasets.values() if isinstance(datasets, dict) else datasets:
                         if len(dataset):

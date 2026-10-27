@@ -1,3 +1,4 @@
+from application_paths import package_resource
 # -*- coding: utf-8 -*-
 import pyqtgraph as pg
 from PyQt6 import QtCore, QtGui, QtWidgets, uic
@@ -24,7 +25,7 @@ import pg_hack
 try:
     from rvs import Ui_Rvs_data as Ui_Rvs_dataWindow
 except (ImportError, KeyError,ModuleNotFoundError) as e:
-    qtCreatorFile = "./lib/UI/rvs.ui" #%lib_path 
+    qtCreatorFile = package_resource('UI/rvs.ui') #%lib_path
     Ui_Rvs_dataWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 #print("--- %s seconds ---" % (time.time() - start_time))
 
@@ -80,7 +81,7 @@ class RvsWindow(QtWidgets.QWidget, Ui_Rvs_dataWindow):
         self.ui = Ui_Rvs_dataWindow()
         self.ui.setupUi(self)
         self.setWindowTitle('RV data options')
-        self.setWindowIcon(QtGui.QIcon('./lib/UI/33_striker.png'))
+        self.setWindowIcon(QtGui.QIcon(package_resource('UI/33_striker.png')))
 
         self.sklearn_found = sklearn_found
         self.statsmodels_found = statsmodels_found

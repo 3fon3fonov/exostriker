@@ -124,6 +124,7 @@ def orbit_total(pars,t):
     Parameters:
     ---------
     pars: numpy array of either shape (7,) if one planet or (n,7) for n planets.
+    An empty array represents the single-star model with no orbital motion.
     the 7 length arrays are made up of P,e,om,i,Om,T0,a in this exact order
 
     Returns:
@@ -131,8 +132,10 @@ def orbit_total(pars,t):
     x_sum,y_sum: sum of positions of planets
     """
 
-    x_sum=0
-    y_sum=0
+    pars = np.asarray(pars, dtype=float)
+    t = np.asarray(t, dtype=float)
+    x_sum = np.zeros_like(t, dtype=float)
+    y_sum = np.zeros_like(t, dtype=float)
 
     if pars.shape==(7,):
         x_sum,y_sum=orbit(pars,t)

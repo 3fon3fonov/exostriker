@@ -17,7 +17,8 @@ INSTRUCTIONS = ('You are the Exo-Striker astronomy assistant. Help with exoplane
 def settings_path():
     folder = Path(__file__).resolve().parent
     developer = folder / 'ES_settings_dev.json'
-    return developer if developer.is_file() else folder / 'ES_settings.json'
+    from application_paths import user_settings_path
+    return developer if developer.is_file() else Path(user_settings_path())
 
 
 def normalize_settings(raw):

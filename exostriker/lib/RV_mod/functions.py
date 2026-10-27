@@ -4080,6 +4080,8 @@ def run_stability(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0,
         output_step=output_step, use_fixed_steps=use_fixed_steps,
         fixed_steps=fixed_steps, gr_step=getattr(obj, 'GR_step', 1),
         save_dir=save_dir)
+    from integration_period import record_period_source
+    record_period_source(obj, used_indices)
     obj.swift_evol = result
     if not result.get('completed', True):
         print(result['status'])
@@ -4455,6 +4457,8 @@ def run_stability_rebound(
     obj.rebound_stable = evol["stable"]
     obj.rebound_status = evol["status"]
     obj.rebound_used_indices = used_indices
+    from integration_period import record_period_source
+    record_period_source(obj, used_indices)
 
     if not hasattr(obj, "evol_momentum") or obj.evol_momentum is None:
         obj.evol_momentum = {}
@@ -4574,6 +4578,8 @@ def run_stability_arb(obj, timemax=3000.0, timestep=10, timeout_sec=1000.0,
             setattr(obj, attribute, getattr(model, attribute))
     else:
         obj.swift_evol = model.swift_evol
+    # These arrays now describe arbitrary planets, not the fitted RV system.
+    obj.phase_period_source = None
     return obj
 
 

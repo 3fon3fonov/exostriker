@@ -312,8 +312,9 @@ def initiate_tansit_gps(obj,  kernel_id=-1):
         x = np.concatenate([obj.tra_data_sets[j][0] for j in range(60) if len(obj.tra_data_sets[j]) != 0 and obj.tra_data_sets[j][9] ==True])
         
         
-        tra_gps.compute(x, y)
-    
+        from transit_gp import compute_sorted
+        obj.tra_gp_order = compute_sorted(tra_gps, x, y)
+
         obj.tra_gps = tra_gps
         return
 
@@ -321,6 +322,8 @@ def initiate_tansit_gps(obj,  kernel_id=-1):
 
 
 def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
+
+    from transit_gp import predict_original
 
     get_transit_ts(obj)
     initiate_tansit_gps(obj,  kernel_id=-1)
@@ -340,27 +343,27 @@ def get_transit_gps_model(obj, x_model = [], y_model = [],  kernel_id=-1):
 
     GP_var = False
     if GP_var == True:
-        mu, var = obj.tra_gps.predict(y, x, return_var=True)
+        mu, var = predict_original(obj.tra_gps, y, obj.tra_gp_order, x, return_var=True)
         std = np.sqrt(var)
 
         obj.tra_gp_model_data = [mu,var,std]
 
         ############ MODEL ####################
 
-        mu, var = obj.tra_gps.predict(y, x, return_var=True)
+        mu, var = predict_original(obj.tra_gps, y, obj.tra_gp_order, x, return_var=True)
         std = np.sqrt(var)
         obj.tra_gp_model_curve = [mu,var,std]
 
     else:
 
-        mu = obj.tra_gps.predict(y, x, return_cov=False)
+        mu = predict_original(obj.tra_gps, y, obj.tra_gp_order, x)
         #std = np.sqrt(var)
         obj.tra_gp_model_data = [mu,np.zeros(len(mu)),np.zeros(len(mu))]
 
         ############ MODEL ####################
        # obj.tra_gps.compute(x_model, y_model)
 
-        mu = obj.tra_gps.predict(y, x_model, return_cov=False)
+        mu = predict_original(obj.tra_gps, y, obj.tra_gp_order, x_model)
        # std = np.sqrt(var)
        
 
@@ -599,25 +602,15 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
     
     pl_params = []
  
-    #for x in range(10):
-    if len(ast_files_hipp[0]) == 0:
-        # or ast_files_hipp[x][2] == False 
-        #or ast_files_hipp[x][1] != i+1:
+    # Absolute measurements constrain the star, not a selected planet.
+    # Legacy dataset fields [1:3] are retained only for session compatibility.
+    dataset_slots = [slot for slot in range(len(ast_files_hipp)) if len(ast_files_hipp[slot])]
+    if not dataset_slots:
         return loglik_ast_hipp
-    else:  
-        hip_stand = [
-        ast_files_hipp[0][3]["RAdeg"], 
-        ast_files_hipp[0][3]["DEdeg"], 
-        ast_files_hipp[0][3]["Plx"], 
-        ast_files_hipp[0][3]["pm_RA"], 
-        ast_files_hipp[0][3]["pm_DE"], 
-        ]
-        
-        parallax=hip_stand[2]+par[-4] #corrected parallax
-        
-        correction=np.array([par[-6],par[-5],par[-4],par[-3],par[-2]])   
-  
-    
+    reference = ast_files_hipp[dataset_slots[0]]
+    parallax = reference[3]['Plx'] + par[-4]
+    correction = np.array([par[-6], par[-5], par[-4], par[-3], par[-2]])
+
     for i in range(npl):
         
         if hkl == True:
@@ -655,7 +648,7 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
                  np.radians(Om_),                         
                  T0,a])
 
-    pl_params = np.array(pl_params)
+    pl_params = np.asarray(pl_params, dtype=float).reshape(-1, 7)
     
     for x in range(10):
         if len(ast_files_hipp[x]) == 0:
@@ -673,37 +666,22 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
             
             
 
-    if return_model == True:
-        #for i in range(npl):            
-        t_HIP=ex.hip_JD(ast_files_hipp[0][0])
+    if return_model:
+        for slot in dataset_slots:
+            data = ast_files_hipp[slot][0]
+            timestamps = ex.hip_JD(data)
+            model_times = np.linspace(min(timestamps), max(timestamps) + model_max, model_samp)
+            corrected_residuals = ex.abs_res(data[-2], correction, np.zeros(5), data[:5])
+            ast_x_model, ast_y_model = ex.orbit_total(pl_params, model_times)
+            ast_x, ast_y = ex.orbit_total(pl_params, timestamps)
+            residuals = corrected_residuals - (data[0] * ast_x + data[1] * ast_y)
+            observed = ex.hip_2d(data)
+            projected_residuals = ex.res_to_orbit(residuals, data, pl_params)
+            record = np.empty(3, dtype=object)
+            record[:] = [observed, projected_residuals, timestamps]
+            calc_data[slot] = record
+            calc_model[slot] = np.array([ast_x_model, ast_y_model, model_times])
 
-        times3 = np.linspace(min(t_HIP),max(t_HIP)+model_max, model_samp)
-
-        fit_residuals=ex.abs_res(
-            ast_files_hipp[0][0][-2],
-            correction,
-            np.zeros(5), 
-            ast_files_hipp[0][0][:5])
-
-
-        ast_x_model,ast_y_model=ex.orbit_total(pl_params,times3)
-        ast_x ,ast_y = ex.orbit_total(pl_params,t_HIP)
-
-        res_hipp_final_=fit_residuals-(
-        ast_files_hipp[0][0][0]*ast_x + 
-        ast_files_hipp[0][0][1]*ast_y)
-
-        hipp_data = ex.hip_2d(ast_files_hipp[0][0]) #Rotates the HIP measurements into the RA,Dec frame. 
-
-        res_hipp_final = ex.res_to_orbit(res_hipp_final_,ast_files_hipp[0][0],pl_params)             
-        
-
-        calc_data[0] = np.array([hipp_data, res_hipp_final ,t_HIP],dtype=object)         
-        calc_model[0] = np.array([ast_x_model,ast_y_model,times3])
-            
-    # print(loglik_ast_hipp)
- 
-    
     if return_model == True:
         return [loglik_ast_hipp, calc_data, calc_model]
     else:
@@ -718,23 +696,15 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
     
     pl_params = []
 
-    if len(ast_files_gaia[0]) == 0:
-        # or ast_files_hipp[x][2] == False 
-        #or ast_files_hipp[x][1] != i+1:
+    # Absolute measurements constrain the star, not a selected planet.
+    # Legacy dataset fields [1:3] are retained only for session compatibility.
+    dataset_slots = [slot for slot in range(len(ast_files_gaia)) if len(ast_files_gaia[slot])]
+    if not dataset_slots:
         return loglik_ast_gaia
-    else:  
-        g_stand = [
-        ast_files_gaia[0][3]["RAdeg"], 
-        ast_files_gaia[0][3]["DEdeg"], 
-        ast_files_gaia[0][3]["Plx"], 
-        ast_files_gaia[0][3]["pm_RA"], 
-        ast_files_gaia[0][3]["pm_DE"], 
-        ]
-        
-        parallax=g_stand[2]+par[-4] #corrected parallax                
-        correction=np.array([par[-6],par[-5],par[-4],par[-3],par[-2]]) 
- 
-    
+    reference = ast_files_gaia[dataset_slots[0]]
+    parallax = reference[3]['Plx'] + par[-4]
+    correction = np.array([par[-6], par[-5], par[-4], par[-3], par[-2]])
+
     for i in range(npl):
         
         if hkl == True:
@@ -772,7 +742,7 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
                  np.radians(Om_),                         
                  T0,a])
 
-    pl_params = np.array(pl_params)
+    pl_params = np.asarray(pl_params, dtype=float).reshape(-1, 7)
     
     for x in range(10):
         if len(ast_files_gaia[x]) == 0:
@@ -793,46 +763,22 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
             
             
 
-    if return_model == True:
-        #for i in range(npl):            
+    if return_model:
+        for slot in dataset_slots:
+            data = prepare_gaia_dataset(ast_files_gaia[slot])
+            timestamps = ex.gaia_JD(data)
+            model_times = np.linspace(min(timestamps), max(timestamps) + model_max, model_samp)
+            corrected_residuals = ex.abs_res(data[-2], correction, np.zeros(5), data[:5])
+            ast_x_model, ast_y_model = ex.orbit_total(pl_params, model_times)
+            ast_x, ast_y = ex.orbit_total(pl_params, timestamps)
+            residuals = corrected_residuals - (data[0] * ast_x + data[1] * ast_y)
+            observed = ex.hip_2d(data)
+            projected_residuals = ex.res_to_orbit_gaia(residuals, data, pl_params)
+            record = np.empty(3, dtype=object)
+            record[:] = [observed, projected_residuals, timestamps]
+            calc_data[slot] = record
+            calc_model[slot] = np.array([ast_x_model, ast_y_model, model_times])
 
-        t_gaia=ex.gaia_JD(ast_files_gaia[0][0])    
-            
-        times3 = np.linspace(min(t_gaia),max(t_gaia)+model_max,model_samp )
-            
-        #g_stand=np.array([0,0,0,0,0]) 
-        
-        res_astrometric = prepare_gaia_dataset(ast_files_gaia[0])
-        planet_residual = res_astrometric[-2]
-            
-            
-        fit_residuals=ex.abs_res(
-            planet_residual,
-            correction,
-            np.zeros(5), 
-            ast_files_gaia[0][0][:5])
-            
-        #print(ast_files_gaia[0][0])
-        ast_x_model,ast_y_model=ex.orbit_total(pl_params,times3)
-        ast_x ,ast_y = ex.orbit_total(pl_params,t_gaia)
-         
-        #print( planet_residual)
-         
-        res_gaia_final_=fit_residuals-(
-        ast_files_gaia[0][0][0]*ast_x + 
-        ast_files_gaia[0][0][1]*ast_y)
-        
-            
-        gaia_data = ex.hip_2d(res_astrometric) #Rotates the HIP measurements into the RA,Dec frame. 
-        #print(gaia_data)
-        res_gaia_final  =ex.res_to_orbit_gaia(res_gaia_final_,ast_files_gaia[0][0],pl_params) 
-
-        calc_data[0] = np.array([gaia_data, res_gaia_final ,t_gaia],dtype=object)         
-        calc_model[0] = np.array([ast_x_model,ast_y_model,times3])
-        
-    # print(loglik_ast_gaia)
- 
-    
     if return_model == True:
         return [loglik_ast_gaia, calc_data, calc_model]
     else:
@@ -1147,6 +1093,8 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
 
 def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,npl,hkl, rtg, tra_gps, stmass, ttv_times, epoch, get_TTVs, opt, return_model = False, tra_model_fact = 10 ,fit_results=False):
 
+    from transit_gp import compute_sorted, predict_original
+
     tr_loglik     = 0
     flux_model    = []
     flux          = []
@@ -1319,7 +1267,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
         flux_o_c.append(flux_o_c_)
         use_gp_model.append(tr_files[j][9])
 
-        if rtg[3] == True and return_model == True:
+        if rtg[3] == True and return_model == True and tr_files[j][9]:
 
 
             param_vect = []
@@ -1337,8 +1285,8 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                 tra_gps.set_parameter_vector(np.array(param_vect))
   
 
-            tra_gps.compute(t_,yerr=flux_err_)
-            flux_model_gp   = tra_gps.predict(flux_o_c_, t_ , return_cov=False)
+            gp_order = compute_sorted(tra_gps, t_, flux_err_)
+            flux_model_gp = predict_original(tra_gps, flux_o_c_, gp_order, t_)
             flux_o_c_gp_  = flux_o_c_  - flux_model_gp  
  
             flux_o_c_gp.append(flux_o_c_gp_)
@@ -1392,15 +1340,15 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
         t_all_gp        = np.concatenate([t[x] for x in range(len(t)) if use_gp_model[x] == True])
         flux_model_all_ = np.concatenate([flux_model[x] for x in range(len(flux_model)) if use_gp_model[x] == True])     
 
-        tra_gps.compute(t_all_gp,yerr=flux_err_all_gp)
-        tr_loglik_gp = tr_loglik + tra_gps.log_likelihood(flux_o_c_all_gp)
+        gp_order = compute_sorted(tra_gps, t_all_gp, flux_err_all_gp)
+        tr_loglik_gp = tr_loglik + tra_gps.log_likelihood(flux_o_c_all_gp[gp_order])
  
         
         ##### data that will NOT be modeled with a GP ######
 
-        flux_all_no_gp       = np.concatenate([flux[x] for x in range(len(flux)) if use_gp_model[x] != True])
-        flux_model_all_no_gp = np.concatenate([flux_model[x] for x in range(len(flux_model)) if use_gp_model[x] != True])
-        sig2i_all_no_gp      = np.concatenate([sig2i[x] for x in range(len(sig2i)) if use_gp_model[x] != True])
+        flux_all_no_gp       = np.concatenate([flux[x] for x in range(len(flux)) if use_gp_model[x] != True] or [np.array([])])
+        flux_model_all_no_gp = np.concatenate([flux_model[x] for x in range(len(flux_model)) if use_gp_model[x] != True] or [np.array([])])
+        sig2i_all_no_gp      = np.concatenate([sig2i[x] for x in range(len(sig2i)) if use_gp_model[x] != True] or [np.array([])])
        
         flux_o_c_all_no_gp   = flux_all_no_gp - flux_model_all_no_gp
  
@@ -1413,11 +1361,16 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 #        flux_o_c_gp_all = flux_o_c_all  - tra_gp_model_all       
 #        tr_loglik2 = -0.5*(np.sum((flux_o_c_gp_all)**2           * sig2i_all  - np.log(sig2i_all  / 2./ np.pi))) # - np.log(sig2i / 2./ np.pi)
         if return_model == True:        
-            flux_model_all_gp   = tra_gps.predict(flux_o_c_all_gp , t_all_gp , return_cov=False)
+            flux_model_all_gp   = predict_original(tra_gps, flux_o_c_all_gp, gp_order, t_all_gp)
             flux_o_c_gp_all_gp  = flux_o_c_all_gp  - flux_model_all_gp  
 
-            tra_gp_model_all    = np.concatenate([flux_model_all_gp+flux_model_all_, flux_model_all_no_gp])
-            flux_o_c_gp_all     = np.concatenate([flux_o_c_gp_all_gp,  flux_o_c_all_no_gp])        
+            # Preserve the same dataset/sample order as t_all and flux_all.
+            gp_mask = np.concatenate([np.full(len(t[k]), use_gp_model[k] == True, dtype=bool)
+                                      for k in range(len(t))])
+            tra_gp_model_all = np.array(flux_model_all, copy=True)
+            flux_o_c_gp_all = np.array(flux_o_c_all, copy=True)
+            tra_gp_model_all[gp_mask] = flux_model_all_gp + flux_model_all_
+            flux_o_c_gp_all[gp_mask] = flux_o_c_gp_all_gp        
             
       
 
@@ -2082,6 +2035,13 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     start_time = time.perf_counter()
     obj.scipy_fit_diagnostics = []
+    obj.scipy_covariance = None
+    obj.scipy_correlation = None
+    obj.scipy_uncertainty_labels = []
+    obj.scipy_uncertainty_flags = []
+    obj.scipy_uncertainty_diagnostics = dict(status='disabled', message='Uncertainty calculation is disabled.', nfev=0)
+    if obj.init_fit and getattr(obj, 'SciPy_estimate_errors', False):
+        obj.scipy_uncertainty_diagnostics.update(status='skipped', message='Model initialization does not estimate uncertainties.')
     rtg = obj.rtg
 
 #    check_temp_RV_file(obj)
@@ -2355,6 +2315,28 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     #print(pp)
     errors = [[0.0,0.0] for i in range(len(pp))]
+    if getattr(obj, 'SciPy_estimate_errors', False) and not obj.init_fit:
+        from scipy_uncertainties import numerical_uncertainties
+        args = (mod, par, flags, npl, vel_files, tr_files, tr_model, tr_params,
+                epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, opt)
+        print('Estimating SciPy parameter uncertainties from numerical curvature...', flush=True)
+        uncertainty = numerical_uncertainties(
+            lambda point: nll(point, *args), pp, bb,
+            scales=tnc_parameter_scales(obj, pp),
+            converged=bool(obj.scipy_fit_diagnostics and obj.scipy_fit_diagnostics[-1]['success']),
+            progress=True)
+        if uncertainty.get('parameter_indices'):
+            names = ', '.join(str(ee[index]) for index in uncertainty['parameter_indices'])
+            uncertainty['message'] += ' Affected parameters: ' + names + '.'
+        obj.scipy_covariance = uncertainty['covariance']
+        obj.scipy_correlation = uncertainty['correlation']
+        obj.scipy_uncertainty_labels = list(ee)
+        obj.scipy_uncertainty_flags = list(flags)
+        obj.scipy_uncertainty_diagnostics = {key: uncertainty[key] for key in ('status', 'message', 'nfev')}
+        obj.scipy_uncertainty_diagnostics['includes_priors'] = bool(
+            len(pp) and (np.any(pr_nr[:, 2]) or np.any(jeff_nr[:, 2])))
+        errors = np.repeat(uncertainty['errors'][:, None], 2, axis=1).tolist()
+        print(f"SciPy uncertainties: {uncertainty['message']} (evaluations={uncertainty['nfev']})", flush=True)
 
     obj.par_for_mcmc = pp
 #    newparams = obj.generate_newparams_for_mcmc(obj.par_for_mcmc)
@@ -2708,10 +2690,10 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
 
-        astr_loglik2 = ast_loglik(obj.parameters,vel_files, obj.ast_data_sets,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
-        astr_loglik2 = astr_loglik2 + ast_loglik_hipp(obj.parameters,vel_files, obj.ast_data_sets_hipp,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
+        astr_loglik2 = ast_loglik(par,vel_files, obj.ast_data_sets,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
+        astr_loglik2 = astr_loglik2 + ast_loglik_hipp(par,vel_files, obj.ast_data_sets_hipp,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
 
-        astr_loglik2 = astr_loglik2 + ast_loglik_gaia(obj.parameters,vel_files, obj.ast_data_sets_gaia,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
+        astr_loglik2 = astr_loglik2 + ast_loglik_gaia(par,vel_files, obj.ast_data_sets_gaia,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
 
  
         if rtg[1]:
@@ -2737,6 +2719,21 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         update_jacobi_masses(obj)
 
 ############# Errors here ##############
+
+    if rtg[1]:
+        start = len(vel_files)*2 + 7*npl + 2
+        transit_start = start + rv_gp_npar + 3*npl + N_transit_files*2
+        gp_errors = []
+        for j in range(rv_gp_npar):
+            linked = opt['link_RV_GP'][j] and rtg[3] and obj.gp_kernel == obj.tra_gp_kernel
+            gp_errors.append(e_par[transit_start + j if linked else start + j])
+        obj.param_errors.GP_params_errors = np.asarray(gp_errors)
+    if rtg[3] and N_transit_files:
+        field = {'RotKernel': 'tra_GP_rot_err', 'SHOKernel': 'tra_GP_sho_err',
+                 'Matern32': 'tra_GP_mat_err', 'RealTerm': 'tra_GP_drw_err',
+                 'dSHOKernel': 'tra_GP_double_sho_err'}[obj.tra_gp_kernel]
+        start = len(vel_files)*2 + 7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2
+        setattr(obj, field, np.asarray(e_par[start:start + tra_gp_npar]))
 
     for i, slot in enumerate(dataset_slots):
 
@@ -4669,6 +4666,7 @@ class signal_fit(object):
 
         self.SciPy_min_use_1 = self.SciPy_min[6]
         self.SciPy_auto_scale = False
+        self.SciPy_estimate_errors = False
         self.Simplex_auto = False
         self.TNC_relative_eps = True
         self.TNC_eps_percent = .01
@@ -6406,8 +6404,9 @@ class signal_fit(object):
             self = run_SciPyOp(self, kernel_id=kernel_id)
             if self.bound_error:
                 return 0 if return_flag else None
-            create_args()
-            self = run_Fort(self, mod)
+            # return_results already evaluated the final plotting models. A
+            # second native refresh overwrites SciPy errors (and joint lnL).
+            return self.flag if return_flag else None
 
  
         if self.flag==1: # or self.rtg[0] == True
