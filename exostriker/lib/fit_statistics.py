@@ -299,7 +299,16 @@ def collect_fit_statistics(fit, backend):
     return rows, k, notes
 
 
-def statistics_html(rows, k, notes):
+def statistics_html(rows, k, notes, qso_mode=False):
+    if qso_mode:
+        # QSO light curves use the RV likelihood internally. Present that data
+        # alone, without changing the session or the normal component report.
+        data = dict(rows.get('RV', {}))
+        data_k = data.get('K', k)
+        data.update(information_criteria(data.get('lnL'), data.get('N'), data_k))
+        if data_k is not None:
+            data['K'] = data_k
+        rows = {'Data': data}
     def value(row, field):
         number = row.get(field)
         if number is None or not math.isfinite(number):
@@ -309,6 +318,21 @@ def statistics_html(rows, k, notes):
     cells = [(name, *(value(row, field) for field in
               ('lnL', 'N', 'K', 'chi2', 'red_chi2', 'DOF', 'AIC', 'BIC')))
              for name, row in rows.items()]
+    if qso_mode:
+        text = '<h3>Fit quality</h3>' + framed_table(
+            ('Data', *headers[1:]), cells, bold_last=True)
+        text += ('<p>K counts free sine-signal, offset, jitter, trend and GP parameters. '
+                 'DOF = N data − K. Reduced χ² is n.a. when DOF ≤ 0. '
+                 'Unfitted or unavailable statistics are n.a.</p>'
+                 '<p>AIC = −2 lnL + 2K; BIC = −2 lnL + K ln(N data). '
+                 'Compare maximum-likelihood models on the same data, units and binning; '
+                 'lower values are preferred. Values at posterior means/medians are '
+                 'diagnostics, not maximum-likelihood criteria. BIC is an approximation '
+                 'for correlated data or GP models.</p>')
+        for note in notes:
+            if not note.startswith(('Transit ', 'TTV ', 'Astrometry ')):
+                text += '<p>' + html.escape(note.replace('RV ', 'Data ')) + '</p>'
+        return text
     text = '<h3>Fit quality by component</h3>' + framed_table(headers, cells, bold_last=True)
     text += '<p>Joint free parameters K = ' + ('n.a.' if k is None else str(k))
     text += ('. Component DOF = N component − K component (nominal diagnostic); '
@@ -363,11 +387,16 @@ def residual_statistics(residuals, errors):
     return len(residuals), rms, wrms
 
 
-def dataset_statistics_html(fit):
+def dataset_statistics_html(fit, qso_mode=False):
     sections = []
     for component, attribute, units in (
             ('RV', 'rv_data_sets', 'm/s'),
             ('Transit', 'tra_data_sets', 'relative flux')):
+        if qso_mode and component != 'RV':
+            continue
+        title = 'Data' if qso_mode else component
+        if qso_mode:
+            units = 'mag.'
         if not fit.type_fit.get(component, False):
             continue
         datasets = getattr(fit, attribute, {})
@@ -393,7 +422,7 @@ def dataset_statistics_html(fit):
             except (AttributeError, IndexError, KeyError, TypeError, ValueError):
                 rows.append((label, 'n.a.', 'n.a.', 'n.a.', units))
         if rows:
-            sections.append(f'<h3>{component} statistics by dataset</h3>'
+            sections.append(f'<h3>{title} statistics by dataset</h3>'
                             + framed_table(('Dataset', 'N data', 'RMS', 'WRMS', 'Units'), rows))
     if sections:
         sections.append('<p>RMS and WRMS use fitted-model residuals before GP subtraction. '

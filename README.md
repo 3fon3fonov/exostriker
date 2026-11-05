@@ -18,6 +18,8 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 
 **Documentation, Instructions, and Tutorials**
 
+* [Python scripts and Jupyter notebooks](examples/README.md) for HIP 5364, 51 Peg and WASP-6, provided by Trifon Trifonov with the aid of CODEX; use with caution.
+
 * (Work in progress) documentation is available at [https://exostriker-manual.readthedocs.io](https://exostriker-manual.readthedocs.io/en/latest/).
 
 **Changes in 0.96.2**
@@ -81,7 +83,7 @@ Just open an "Issue" on GitHub or send a PM to trifonov@mpia.de.
 
 **Installation**
  
-Python 3.10 or newer is recommended. The package declares Python 3.9 as its minimum; Python 2 is not supported. Use a separate environment instead of replacing your system Python.
+Python 3.10 or newer is required. Use a separate environment instead of replacing your system Python.
 
 
 Apart from Python3.10+ make sure you have '**gcc**', '**gfortran**', and '**csh**',
@@ -95,23 +97,6 @@ does not want to compile!
 
 
 **Usage**
-
-In the embedded Python console, update priors using three times the fitted uncertainty and round to two decimal places:
-
-```python
-fit.update_priors_from_fit(n_sigma=3, round_digits=2)
-```
-
-This updates both the fit object and GUI boxes. Parameters with zero uncertainty are left unchanged. Physical bounds constrain eccentricity, periods, semi-amplitudes, jitters, and inclination; angular phase bounds may cross 0° and 360°.
-
-Export matching parameter and prior tables:
-
-```python
-rv.latex_pl_param_table(fit, asymmetric=None, file_name="best_fit_param_table.tex")
-rv.latex_prior_table(fit, file_name="prior_table.tex")
-```
-
-`asymmetric=None` selects uncertainty notation automatically for each value. Use `False` for symmetric notation with the larger error, or `True` for explicit upper/lower errors.
 
 * To load the GUI, on a bash shell type: 
 

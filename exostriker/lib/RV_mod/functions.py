@@ -82,6 +82,14 @@ def migrate_ttv_datasets(fit):
 
 def check_for_missing_instances(fit,fit_new):
 
+    from .dilution import ensure_dilution_parameters
+    # Migrate before copying new defaults/markers into an older session.
+    ensure_dilution_parameters(fit_new)
+    dilution_state = {name: dill.copy(getattr(fit_new, name)) for name in
+                      ('tra_dil', 'tra_dil_use', 'tra_dil_err', 'tra_dil_bounds',
+                       'tra_dil_norm_pr', 'tra_dil_jeff_pr')}
+
+
     for iii in fit.__dict__:
         if iii not in fit_new.__dict__:
             fit_new.__dict__[iii] = dill.copy(fit.__dict__[iii])
@@ -147,6 +155,8 @@ def check_for_missing_instances(fit,fit_new):
         fit_new.init_tra_quadtr()
 
 
+    for name, values in dilution_state.items():
+        setattr(fit_new, name, values)
     migrate_ttv_datasets(fit_new)
     fit_new.cwd = dill.copy(fit.cwd)
 
@@ -1842,7 +1852,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                             fill_contours=cornerplot_opt["fill_contours"],
                             plot_datapoints=cornerplot_opt["plot_datapoints"],
                        #     data_kwargs={'zorder':10,'color':cornerplot_opt["stab_color"]},
-                            contour_kwargs={'color':cornerplot_opt["stab_color"]},
+                            contour_kwargs={'colors':cornerplot_opt["stab_color"]},
                             hist_kwargs={'color':cornerplot_opt["stab_color"]},
                             kwargs={'zorder':10,'color':cornerplot_opt["stab_color"]}
                             )
@@ -1900,7 +1910,7 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                         fill_contours=cornerplot_opt["fill_contours"],
                         plot_datapoints=cornerplot_opt["plot_datapoints"],
                        # data_kwargs={'zorder':-1,'color':cornerplot_opt["color"]},
-                        contour_kwargs={'color':cornerplot_opt["color"]},
+                        contour_kwargs={'colors':cornerplot_opt["color"]},
                         hist_kwargs={'color':cornerplot_opt["color"]},
                         kwargs={'zorder':-1,'color':cornerplot_opt["color"]},
                         fig =fig)

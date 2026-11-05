@@ -2,7 +2,7 @@
 
 These instructions cover the source version 0.96.2. PyPI commands install the version available on PyPI; use the source installation below to install this checkout.
 
-Python 3.10 or newer is recommended. The package declares Python 3.9 as its minimum. Native backends require a C compiler and GFortran on your `PATH`. The RV extension uses NumPy/f2py with Meson and Ninja; these build tools are declared package dependencies. Python development headers may also be needed when compiling extensions.
+Python 3.10 or newer is required. Native backends require a C compiler and GFortran on your `PATH`. The RV extension uses NumPy/f2py with Meson and Ninja; these build tools are declared package dependencies. Python development headers may also be needed when compiling extensions.
 
 ## Virtual environment (without Anaconda)
 
@@ -173,3 +173,10 @@ Otherwise, first, remove the menu entries (if you have added it) and then uninst
 exostriker-desktop-remove
 pip uninstall exostriker
 ```
+
+### Working directory and settings
+
+The `exostriker` launcher uses your home directory as its working directory on
+Linux, macOS, and Windows (`Path.home()`). Settings are saved in
+`~/.exostriker/ES_settings.json`, initialized from the packaged defaults on first
+use. Package imports preserve the calling process working directory.

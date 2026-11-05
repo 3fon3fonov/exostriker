@@ -97,6 +97,7 @@ class TransitPhaseView(QtCore.QObject):
         self.cross.toggled.connect(self.draw)
         tabs = gui.tabWidget_7
         tabs.insertTab(tabs.indexOf(gui.tab_186), self.page, 'Phased transit plots')
+        self._window_key = None
         self.refresh()
 
     def show_options(self):
@@ -114,6 +115,7 @@ class TransitPhaseView(QtCore.QObject):
         self.show_legend.setChecked(False)
         self.auto.setChecked(False)
         self.window.setValue(0)
+        self._window_key = None
         del blockers
         self.draw()
 
@@ -223,10 +225,15 @@ class TransitPhaseView(QtCore.QObject):
         if self.auto.isChecked() and plotted:
             self.top.autoRange()
             self.bottom.autoRange()
+        # An explicit phase-window change controls X independently of auto range.
+        # Other redraws preserve manual zoom when auto range is off.
+        window_key = (id(fit), slot, period, self.norm.isChecked(), self.window.value())
+        if plotted and (self.auto.isChecked() or window_key != self._window_key):
             width = min(self.window.value() or period/2, period/2)
             if self.norm.isChecked():
                 width /= period
             self.top.setXRange(-width, width, padding=.002)
+            self._window_key = window_key
 
     def plot_model(self, x, model, fit):
         order = np.argsort(x)

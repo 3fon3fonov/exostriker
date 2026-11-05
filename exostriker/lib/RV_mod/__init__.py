@@ -91,6 +91,7 @@ except (ImportError, KeyError) as e:
 from .parameters import *
 from .CustomSampler import CustomSampler
 from .posterior import posterior_summary, posterior_errors
+from .dilution import ensure_dilution_parameters, validate_dilution
 from .Warning_log import Warning_log
 from .functions import *
 from .gaia_data import prepare_gaia_dataset
@@ -1095,6 +1096,9 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
     from transit_gp import compute_sorted, predict_original
 
+    dilution = {slot: par[index] for slot, index in opt.get('dilution_indices', {}).items()}
+
+
     tr_loglik     = 0
     flux_model    = []
     flux          = []
@@ -1243,7 +1247,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
             flux_model_ =   flux_model_ +  flux_model_ln_                                                       
 
 
-        flux_model_ = flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8]) 
+        flux_model_ = flux_model_*dilution.get(j, tr_files[j][8]) + (1.0 - dilution.get(j, tr_files[j][8])) 
         
 
         #flux_model_ = (flux_model_*tr_files[j][8]  + (1.0 - tr_files[j][8])) /  (1+ tr_files[j][8])
@@ -1481,7 +1485,7 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
 
 
-            flux_model_rich_ = flux_model_rich_*tr_files[j][8]  + (1.0 - tr_files[j][8]) 
+            flux_model_rich_ = flux_model_rich_*dilution.get(j, tr_files[j][8]) + (1.0 - dilution.get(j, tr_files[j][8])) 
 
             l +=1
         
@@ -1578,6 +1582,13 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
 
     for j in range(len(flags)):
         par[flags[j]] = p[j]
+
+    if rtg[2]:
+        for slot, index in opt.get('dilution_indices', {}).items():
+            lo, hi = opt['dilution_bounds'][slot]
+            if not np.isfinite(par[index]) or not lo <= par[index] <= hi:
+                return -np.inf
+
         
 
     if (rtg[1]):
@@ -2139,6 +2150,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "cwd":obj.cwd,
            "planet_slots":obj.mcmc_planet_slots,
            "dataset_slots":obj.mcmc_dataset_slots,
+           "dilution_indices":getattr(obj, "tra_dil_parameter_indices", {}),
+           "dilution_bounds":getattr(obj, "tra_dil_bounds", {}),
            "gr_flag":obj.gr_flag,
            "TTV":obj.type_fit["TTV"],
            "AST":obj.type_fit["AST"],
@@ -2385,6 +2398,12 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
     for j in range(len(flags)):
         par[flags[j]]   = pp[j]
         e_par[flags[j]] = [errors[j][0],errors[j][1]]
+
+    for slot, index in opt.get('dilution_indices', {}).items():
+        obj.tra_dil[slot] = float(par[index])
+        obj.tra_dil_err[slot] = np.asarray(e_par[index], dtype=float)
+        obj.tra_data_sets[slot][8] = obj.tra_dil[slot]
+
 
 
     for i, slot in enumerate(dataset_slots):
@@ -3029,6 +3048,8 @@ def run_nestsamp(obj, **kwargs):
            "cwd":obj.cwd,
            "planet_slots":obj.mcmc_planet_slots,
            "dataset_slots":obj.mcmc_dataset_slots,
+           "dilution_indices":getattr(obj, "tra_dil_parameter_indices", {}),
+           "dilution_bounds":getattr(obj, "tra_dil_bounds", {}),
            "gr_flag":obj.gr_flag,
            "ns_samp_method":obj.ns_samp_method,
            "TTV":obj.type_fit["TTV"],
@@ -3578,6 +3599,8 @@ def run_mcmc(obj, **kwargs):
            "cwd":obj.cwd,
            "planet_slots":obj.mcmc_planet_slots,
            "dataset_slots":obj.mcmc_dataset_slots,
+           "dilution_indices":getattr(obj, "tra_dil_parameter_indices", {}),
+           "dilution_bounds":getattr(obj, "tra_dil_bounds", {}),
            "gr_flag":obj.gr_flag,
            "TTV":obj.type_fit["TTV"],
            "AST":obj.type_fit["AST"],
@@ -3632,11 +3655,22 @@ def run_mcmc(obj, **kwargs):
 
     ndim, nwalkers = len(pp), len(pp)*obj.nwalkers_fact
 
-    pos = [pp + obj.gaussian_ball*np.random.rand(ndim) for i in range(nwalkers)]
+    from .mcmc_initialization import initialize_walkers
     
     sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit,opt), pool=pool)
 
     #sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit,opt), threads = threads)
+
+    try:
+        coords, log_prob = initialize_walkers(
+            pp, bb, nwalkers, obj.gaussian_ball,
+            lambda points: sampler.compute_log_prob(points)[0], labels=ee)
+        pos = emcee.State(coords, log_prob=log_prob)
+    except Exception:
+        pool.close()
+        pool.join()
+        pool.clear()
+        raise
 
     emcee_version = emcee.__version__
     
@@ -4398,13 +4432,15 @@ class signal_fit(object):
 
     def init_tra_dilution(self) :
 
+        self._dilution_parameter_version = 1
+
         self.tra_dil     = {k: 1.0 for k in range(60)}
         self.tra_dil_err  = {k: np.array([0.0,0.0])  for k in range(60)}
         self.tra_dil_use  = {k: False for k in range(60)}
         self.tra_dil_str  = {k: r'tr. data dilution$_%s$'%str(k+1) for k in range(60)}
         self.tra_dil_bounds  = {k: np.array([0.0,1.0] )for k in range(60)}
         self.tra_dil_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(60)}
-        self.tra_dil_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(60)}
+        self.tra_dil_jeff_pr = {k: np.array([0.01,1.0, False] )for k in range(60)}
 
     def init_RV_lintr(self) :
 
@@ -6530,6 +6566,7 @@ class signal_fit(object):
     def prepare_for_mcmc(self, rtg=[True,False,False,False], customdatasetlabels=[]):
         '''Prepare bounds and par array needed for the MCMC'''
 
+        ensure_dilution_parameters(self)
         preparingwarnings=Warning_log([],'Preparing for MCMC')
         # put together bounds for K,P,e,w,M0, so they are in an order we are used to
 
@@ -7014,6 +7051,26 @@ class signal_fit(object):
                     prior_nr.append(self.tra_ttv_norm_pr[i][z])
                     prior_jeff.append(self.tra_ttv_jeff_pr[i][z])   
                
+        # Append dilution after all existing transit/TTV blocks; retain the
+        # astrometry and stellar-mass tail offsets used by existing likelihoods.
+        self.tra_dil_parameter_indices = {}
+        for i in range(len(self.tra_data_sets)):
+            if not len(self.tra_data_sets[i]):
+                continue
+            if rtg[2]:
+                validate_dilution(self, i)
+            self.tra_dil_parameter_indices[i] = len(par)
+            par.append(self.tra_dil[i])
+            flag.append(bool(rtg[2] and self.tra_dil_use[i]))
+            par_str.append(self.tra_dil_str[i])
+            limits = np.array(self.tra_dil_bounds[i], dtype=float)
+            if self.tra_dil_jeff_pr[i][2]:
+                limits = [max(limits[0], self.tra_dil_jeff_pr[i][0]),
+                          min(limits[1], self.tra_dil_jeff_pr[i][1])]
+            bounds.append(limits)
+            prior_nr.append(self.tra_dil_norm_pr[i])
+            prior_jeff.append(self.tra_dil_jeff_pr[i])
+
        #### Astr. & Stellar parameters #####
        
 

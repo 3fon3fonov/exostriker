@@ -9,6 +9,10 @@ import json
 import numpy as np
 from .jacobi import mass_a_from_jacobi_el
 
+SWIFT_INTEGRATORS = ('symba', 'mvs', 'mvs_gr')
+REBOUND_INTEGRATORS = ('whfast', 'mercurius', 'saba', 'ias15', 'trace', 'janus')
+INTEGRATORS = SWIFT_INTEGRATORS + REBOUND_INTEGRATORS
+
 
 @dataclass(frozen=True)
 class IntegrationOptions:
@@ -23,10 +27,16 @@ class IntegrationOptions:
     derive_omega: bool = False
     derive_M0: bool = False
     extended_diagnostics: bool = False
+    nv2016: bool = False
+    nv2016_points: int = 256
     pair: tuple = ()  # 1-based GUI planet slots, inner then outer
     mmr: tuple = ()   # outer/inner period ratio p:q, p > q
 
     def __post_init__(self):
+        if self.nv2016 and (len(self.pair) != 2 or len(self.mmr) != 2 or self.mmr[0]-self.mmr[1] != 1):
+            raise ValueError('NV2016 requires --pair INNER OUTER and first-order --mmr k k-1')
+        if isinstance(self.nv2016_points, bool) or int(self.nv2016_points) != self.nv2016_points or self.nv2016_points < 2:
+            raise ValueError('nv2016_points must be an integer >= 2')
         if self.pair and (len(self.pair) != 2 or any(int(v) != v or not 1 <= v <= 9 for v in self.pair) or self.pair[0] == self.pair[1]):
             raise ValueError('pair must contain two distinct 1-based planet slots')
         if self.mmr and (not self.pair or len(self.mmr) != 2 or any(int(v) != v or v < 1 for v in self.mmr) or self.mmr[0] <= self.mmr[1]):
@@ -35,8 +45,8 @@ class IntegrationOptions:
                     'max_fractional_a_change', 'max_eccentricity'):
             if not np.isfinite(getattr(self, key)) or getattr(self, key) <= 0:
                 raise ValueError(f'{key} must be finite and positive')
-        if self.max_eccentricity >= 1 or self.integrator not in ('symba', 'mvs', 'mvs_gr'):
-            raise ValueError('Require eccentricity < 1 and a supported SWIFT integrator')
+        if self.max_eccentricity >= 1 or self.integrator not in INTEGRATORS:
+            raise ValueError('Require eccentricity < 1 and a supported SWIFT or REBOUND integrator')
 
 
 def extract_posterior(fit, source='auto'):
@@ -79,9 +89,12 @@ def orbital_draw(fit, sample, labels, *, validate_mapping_only=False):
     flags = np.asarray(fit.f_for_mcmc, dtype=int)
     if len(flags) != len(sample) or list(fit.e_for_mcmc) != list(labels):
         raise ValueError('Sampling metadata changed since sampling; use the original session')
-    slots = tuple(getattr(fit, 'mcmc_planet_slots', np.flatnonzero(fit.use_planet)))
+    # Older sessions predate explicit sampling slots. Index the stored mask,
+    # which may be a list or a dictionary; iterating a dict yields its keys.
+    active_slots = tuple(i for i in range(len(fit.use_planet)) if fit.use_planet[i])
+    slots = tuple(getattr(fit, 'mcmc_planet_slots', active_slots))
     ndset = len(getattr(fit, 'mcmc_dataset_slots', range(fit.ndset)))
-    if set(slots) != set(np.flatnonzero(fit.use_planet)) or not slots:
+    if set(slots) != set(active_slots) or not slots:
         raise ValueError('Active planets changed since sampling')
     roots = ['K', 'P', 'e_sinw', 'e_cosw', 'lamb', 'i', 'Node'] if fit.hkl else ['K', 'P', 'e', 'w', 'M0', 'i', 'Node']
     elements = np.array([[getattr(fit, r)[s] for r in roots] for s in slots], dtype=float)
@@ -94,7 +107,7 @@ def orbital_draw(fit, sample, labels, *, validate_mapping_only=False):
             if labels[col] != expected:
                 raise ValueError('Orbital labels disagree with saved parameter packing')
             elements[planet, param] = sample[col]
-        elif labels[col] == fit.stellar_mass_str:
+        elif labels[col] == getattr(fit, 'stellar_mass_str', 'Stellar mass'):
             stellar_mass = float(sample[col])
     if validate_mapping_only:
         return
@@ -162,13 +175,11 @@ def angular_diagnostics(degrees):
                 excursion=float(excursion))
 
 
-def describe_dynamics(result, planets, slots, stellar_mass, options, failure_year=None):
-    """Describe the common valid pre-failure history; no hard-coded planet count."""
-    from itertools import combinations
-    from .jacobi import AU, GMSUN
+def _valid_histories(result, planets, failure_year=None):
+    """Common valid samples before failure; shared by all diagnostics."""
     orbits = [np.asarray(o) for o in result['orbits']]
     if len(orbits) != len(planets) or any(not len(o) for o in orbits):
-        return {}
+        return np.array([]), []
     times = orbits[0][:, 0]
     for orbit in orbits[1:]:
         times = np.intersect1d(times, orbit[:, 0])
@@ -176,13 +187,22 @@ def describe_dynamics(result, planets, slots, stellar_mass, options, failure_yea
         times = times[times < failure_year*365.25]
     histories = [o[np.searchsorted(o[:, 0], times)] for o in orbits]
     if not len(times):
-        return {}
+        return np.array([]), []
     good = np.ones(len(times), dtype=bool)
     for o in histories:
         good &= np.isfinite(o).all(axis=1) & (o[:, 2] > 0) & (o[:, 3] >= 0) & (o[:, 3] < 1)
     # Stop at the first invalid state, rather than joining disjoint intervals.
     end = int(np.flatnonzero(~good)[0]) if (~good).any() else len(times)
     histories = [o[:end] for o in histories]
+    return times[:end], histories
+
+
+def describe_dynamics(result, planets, slots, stellar_mass, options, failure_year=None):
+    """Describe the common valid pre-failure history; no hard-coded planet count."""
+    from itertools import combinations
+    from .jacobi import AU, GMSUN
+    times, histories = _valid_histories(result, planets, failure_year)
+    end = len(times)
     if not end:
         return {}
     values = {'diagnostic_points': end, 'diagnostic_years': float((times[end-1]-times[0])/365.25)}
@@ -241,17 +261,128 @@ def describe_dynamics(result, planets, slots, stellar_mass, options, failure_yea
         values = {key: value for key, value in values.items() if key in allowed}
     return values
 
+def nv2016_diagnostics(result, planets, slots, stellar_mass, options, failure_year=None):
+    from .resonance import normal_form, poincare_elements, DELTA_CRITICAL, NV2016_REFERENCE
+    times, histories = _valid_histories(result, planets, failure_year)
+    if not len(times):
+        raise ValueError('No common valid orbital samples for NV2016 mapping')
+    pair = [list(slots).index(v-1) for v in options.pair]
+    elements, mutual = poincare_elements(histories, np.asarray(planets)[:, 0], stellar_mass, pair)
+    mapped = normal_form(np.asarray(planets)[pair, 0]/stellar_mass, *elements, k=options.mmr[0])
+    summary = {name+'_initial': float(mapped[name][0]) for name in
+               ('Psi', 'Psi_cos_psi', 'Psi_sin_psi')}
+    summary['psi_initial_deg'] = float(np.degrees(mapped['psi'][0]) % 360)
+    summary['delta_initial'] = mapped['delta']
+    trapezoid = getattr(np, 'trapezoid', None) or np.trapz
+    for name in ('delta_series', 'Psi', 'Psi_cos_psi', 'Psi_sin_psi'):
+        values = mapped[name]
+        label = 'delta' if name == 'delta_series' else name
+        summary[label+'_mean'] = float(trapezoid(values, times)/(times[-1]-times[0])) if len(times) > 1 else float(values[0])
+        summary[label+'_semiamp'] = float(np.ptp(values)/2)
+    summary['hamiltonian_semiamp'] = float(np.ptp(mapped['hamiltonian'])/2)
+    summary['Phi2_scaled_semiamp'] = float(np.ptp(mapped['Phi2_scaled'])/2)
+    summary['mutual_i_max_deg'] = float(np.max(mutual))
+    summary['eccentricity_max'] = float(np.max(elements[1]))
+    warnings = []
+    if summary['eccentricity_max'] > .1:
+        warnings.append('Low-eccentricity expansion: e > 0.1; higher-order terms can be important.')
+    if summary['mutual_i_max_deg'] > 5:
+        warnings.append('Planar approximation: mutual inclination exceeds 5 degrees.')
+    if abs(elements[0][0, 0]/elements[0][0, 1]/mapped['alpha_res']-1) > .1:
+        warnings.append('Pair is far from nominal commensurability; near-resonance expansion may not apply.')
+    if len(planets) > 2:
+        warnings.append('Isolated-pair normal form: perturbations from other planets are omitted.')
+    selection = np.unique(np.linspace(0, len(times)-1, min(len(times), options.nv2016_points), dtype=int))
+    history = {name: mapped[name][selection].tolist() for name in
+               ('Psi', 'psi', 'Psi_cos_psi', 'Psi_sin_psi', 'delta_series', 'hamiltonian')}
+    history['time_years'] = (times[selection]/365.25).tolist()
+    return dict(summary=summary, history=history, warnings=warnings,
+                reference=NV2016_REFERENCE, pair=list(options.pair), mmr=list(options.mmr),
+                f1=mapped['f1'], f2=mapped['f2'], alpha_res=mapped['alpha_res'],
+                delta_critical=DELTA_CRITICAL,
+                coordinates='heliocentric canonical Poincare; pair initial angular-momentum plane',
+                reference_axes='first common integration sample; coefficients at nominal resonance',
+                full_history_points=len(times))
+
+
+def _integrate_rebound(mass, planets, options):
+    """Return Jacobi histories in the same days/degrees format as SWIFT."""
+    from time import monotonic
+    try:
+        import rebound
+    except ImportError as exc:
+        raise RuntimeError('REBOUND is not installed; install it with: pip install rebound') from exc
+
+    deadline = monotonic() + options.timeout_seconds
+    sim = rebound.Simulation()
+    sim.G = 4 * np.pi**2
+    sim.integrator = options.integrator
+    sim.dt = options.timestep_days / 365.25
+    sim.add(m=mass)
+    for m, a, e, inc, omega, node, anomaly in planets:
+        sim.add(m=m, a=a, e=e, inc=np.radians(inc), omega=np.radians(omega),
+                Omega=np.radians(node), M=np.radians(anomaly))
+    sim.move_to_com()
+    timed_out = False
+
+    def heartbeat(pointer):
+        nonlocal timed_out
+        if monotonic() >= deadline:
+            timed_out = True
+            pointer.contents.stop()
+
+    try:
+        sim.heartbeat = heartbeat
+    except AttributeError as exc:
+        # REBOUND 5.1.x's attribute guard rejects the callback storage name.
+        if "'_hb'" not in str(exc):
+            raise
+        from rebound.simulation import AFF
+        heartbeat_callback = AFF(heartbeat)  # Keep alive until integration ends.
+        sim._heartbeat = heartbeat_callback
+    histories = [[] for _ in planets]
+    times = np.r_[np.arange(0., options.years, options.output_years), options.years]
+    for target in times:
+        if target > sim.t:
+            try:
+                sim.integrate(float(target), exact_finish_time=0)
+            except rebound.GenericError as exc:
+                raise RuntimeError(str(exc)) from exc
+        if timed_out or monotonic() >= deadline:
+            raise TimeoutError('REBOUND integration exceeded timeout_seconds')
+        for index, orbit in enumerate(sim.orbits()):
+            histories[index].append([
+                sim.t * 365.25, index + 1, orbit.a, orbit.e,
+                np.degrees(orbit.inc), np.degrees(orbit.Omega) % 360,
+                np.degrees(orbit.omega) % 360, np.degrees(orbit.M) % 360,
+                orbit.a * (1-orbit.e), orbit.a * (1+orbit.e), planets[index, 0]/mass])
+    return dict(orbits=[np.asarray(h) for h in histories], completed=True)
+
+
 def _integrate_orbits(mass, planets, slots, options, gr_step):
     """Process worker: only small initial-condition arrays cross the boundary."""
-    from ..swift import integrate
     try:
-        result = integrate(mass, planets, timemax=options.years,
+        if options.integrator in REBOUND_INTEGRATORS:
+            result = _integrate_rebound(mass, planets, options)
+        else:
+            from ..swift import integrate
+            result = integrate(mass, planets, timemax=options.years,
                            timestep=options.timestep_days, output_step=options.output_years,
                            timeout_sec=options.timeout_seconds, integrator=options.integrator,
                            gr_step=gr_step)
         record = classify_history(result, planets, options)
         record['planet_slots'] = slots.tolist()
         record['dynamics'] = describe_dynamics(result, planets, slots, mass, options, record['failure_year'])
+        if options.nv2016:
+            try:
+                resonance = nv2016_diagnostics(result, planets, slots, mass, options, record['failure_year'])
+                record['resonance_nv2016'] = resonance
+                prefix = f'pl{options.pair[0]}_pl{options.pair[1]}_NV2016_'
+                record['dynamics'].update({prefix+key: value for key, value in resonance['summary'].items()
+                                          if key.endswith(('_initial', '_initial_deg', '_mean'))})
+            except ValueError as exc:
+                # Normal-form applicability does not change the N-body stability verdict.
+                record['resonance_nv2016'] = {'error': str(exc)}
         return record
     except TimeoutError as exc:
         return dict(status='timeout', error=str(exc))
@@ -340,9 +471,77 @@ def integrate_posterior(fit, options=None, source='auto', count=None, seed=42, p
 
 
 
+def map_nv2016_posterior(fit, options, source='auto', count=None, seed=42):
+    """Epoch coordinates only, without rerunning integrations.
+
+    Integrated sessions retain exact original samples/weights/statuses in
+    dynamical_posterior; use those instead of the GUI's augmented sampler.
+    """
+    if not options.nv2016:
+        raise ValueError('Enable nv2016 when mapping resonance coordinates')
+    saved = getattr(fit, 'dynamical_posterior', None)
+    if saved:
+        if source != 'auto' and saved['source'] not in ('auto', source):
+            raise ValueError('Requested source disagrees with the integrated posterior')
+        samples, weights, labels = saved['samples'], saved['weights'], saved['labels']
+        sample_indices = saved['indices']
+        statuses = [record['status'] for record in saved['records']]
+        source = saved['source']
+    else:
+        samples, weights, labels = extract_posterior(fit, source)
+        sample_indices = np.arange(len(samples))
+        statuses = ['not_integrated']*len(samples)
+    if count is None:
+        selection = np.arange(len(samples))
+        selected_weights = np.array(weights, copy=True)
+    else:
+        if isinstance(count, bool) or int(count) != count or count < 1:
+            raise ValueError('count must be a positive integer or None')
+        selection = np.random.default_rng(seed).choice(len(samples), int(count), p=weights)
+        selected_weights = np.full(len(selection), 1/len(selection))
+    orbital_draw(fit, samples[selection[0]], labels, validate_mapping_only=True)
+    cache = {}
+    for index in np.unique(selection):
+        try:
+            mass, planets, slots = orbital_draw(fit, samples[index], labels)
+            if any(v-1 not in slots for v in options.pair):
+                raise ValueError('Selected pair must contain active planets')
+            if list(slots).index(options.pair[0]-1) >= list(slots).index(options.pair[1]-1):
+                raise ValueError('Specify the inner planet first in --pair')
+            histories = []
+            for planet in planets:
+                history = np.zeros((1, 11))
+                history[0, 2:8] = planet[[1, 2, 3, 5, 4, 6]]
+                histories.append(history)
+            mapped = nv2016_diagnostics({'orbits': histories}, planets, slots, mass, options)
+            mapped['summary'] = {key:value for key,value in mapped['summary'].items()
+                                 if not key.endswith(('_mean', '_semiamp'))}
+            mapped['warnings'].append('Epoch-only mapping: no new integration or time averages.')
+        except ValueError as exc:
+            mapped = {'error': str(exc)}
+        cache[int(index)] = mapped
+    records = [dict(status=statuses[index], sample_index=int(sample_indices[index]),
+                    resonance_nv2016=cache[int(index)]) for index in selection]
+    return dict(records=records, indices=np.asarray(sample_indices)[selection], weights=selected_weights,
+                stable=np.array([record['status'] == 'stable' for record in records]),
+                options=asdict(options), seed=seed, source=source)
+
+
 def diagnostic_label(key):
     """Plot labels follow P$_b$, K$_b$, e$_b$ (slot 1=b, 2=c, ...)."""
     import re
+    nv = re.fullmatch(r'pl(\d+)_pl(\d+)_NV2016_(.+)', key)
+    if nv:
+        first, second, quantity = nv.groups()
+        pair = chr(96+int(first)+1)+chr(96+int(second)+1)
+        names = {'delta_initial': r'$\delta_0$', 'delta_mean': r'$\langle\delta\rangle$',
+                 'Psi_initial': r'$\Psi_0$', 'Psi_mean': r'$\langle\Psi\rangle$',
+                 'psi_initial_deg': r'$\psi_0$ [deg]',
+                 'Psi_cos_psi_initial': r'$(\Psi\cos\psi)_0$',
+                 'Psi_sin_psi_initial': r'$(\Psi\sin\psi)_0$',
+                 'Psi_cos_psi_mean': r'$\langle\Psi\cos\psi\rangle$',
+                 'Psi_sin_psi_mean': r'$\langle\Psi\sin\psi\rangle$'}
+        return 'NV2016 '+pair+' '+names.get(quantity, quantity)
     match = re.fullmatch(r'pl(\d+)(?:_pl(\d+))?_(.+)_(mean|semiamp|resultant|excursion)', key)
     if not match:
         return {'diagnostic_points': 'Recorded points',
@@ -410,6 +609,9 @@ def export_posterior(result, directory):
     metadata = {k: result[k] for k in ('records', 'options', 'source', 'seed', 'workers')}
     metadata['stable_weight_fraction'] = float(weights[stable].sum())
     metadata['credit'] = 'Provided by Trifon Trifonov with the aid of CODEX; use with caution.'
+    # Full mapped trajectories are stored once per source sample in resonance.npz.
+    metadata['records'] = [dict(record, resonance_nv2016={k:v for k,v in record['resonance_nv2016'].items() if k != 'history'})
+                           if 'resonance_nv2016' in record else record for record in result['records']]
     (directory / 'diagnostics.json').write_text(json.dumps(metadata, indent=2))
     with (directory / 'summary.csv').open('w', newline='') as stream:
         writer = csv.writer(stream)
@@ -422,6 +624,9 @@ def export_posterior(result, directory):
                 order = np.argsort(x)
                 q = np.interp([.1585, .5, .8415], (np.cumsum(w[order]) - .5*w[order])/w.sum(), x[order])
                 writer.writerow([name, label] + q.tolist())
+    if result['options'].get('nv2016', False):
+        from .resonance import export_resonance
+        export_resonance(result, directory)
     return directory
 
 

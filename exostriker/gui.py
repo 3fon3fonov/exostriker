@@ -12,6 +12,11 @@ import numpy as np
 
 import sys, os, traceback 
 from PyQt6 import QtCore, QtGui, QtWidgets, uic
+
+# GUI dependencies can resolve fonts while being imported. Create and retain
+# the application first, and reuse it in main() rather than constructing two.
+_application = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
+
 import json
 
 #import collections 
@@ -27,6 +32,7 @@ lib_path = os.path.join(es_path, 'lib')
 sys.path.insert(0,lib_path)
  
 from application_paths import package_resource, user_settings_path
+from update_check import UpdateCheck
 from pathlib import Path
 
 #sys._excepthook = sys.excepthook
@@ -929,6 +935,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.tra_data_errors_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_off_err[i])))
             self.tra_data_errors_jitter_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_jitt_err[i])))
 
+            self.tra_dilution_errors_gui[i].setText("+/- %.6f" % max(np.abs(fit.tra_dil_err[i])))
             self.err_tra_data_lin_trend_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_lintr_err[i])))
             self.err_tra_data_quad_trend_gui[i].setText("+/- %.3f"%max(np.abs(fit.tra_quadtr_err[i])))
  
@@ -1400,6 +1407,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             for z in range(2):
                 self.offset_bounds_gui_tra[i][z].setValue(fit.tra_off_bounds[i][z])
                 self.jitter_bounds_gui_tra[i][z].setValue(fit.tra_jitt_bounds[i][z])
+                self.tra_dilution_bounds_gui[i][z].setValue(fit.tra_dil_bounds[i][z])
 
         self.lin_trend_min.setValue(fit.rv_lintr_bounds[0][0])
         self.lin_trend_max.setValue(fit.rv_lintr_bounds[0][1])    
@@ -1566,11 +1574,13 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                  self.offset_nr_priors_gui_tra[i][z].setValue(fit.tra_off_norm_pr[i][z])
                  self.jitter_nr_priors_gui_tra[i][z].setValue(fit.tra_jitt_norm_pr[i][z])
                  self.tra_lin_trend_nr_priors_gui[i][z].setValue(fit.tra_lintr_norm_pr[i][z])
+                 self.tra_dilution_nr_priors_gui[i][z].setValue(fit.tra_dil_norm_pr[i][z])
                  self.tra_quad_trend_nr_priors_gui[i][z].setValue(fit.tra_quadtr_norm_pr[i][z])  
  
             self.offset_nr_priors_gui_tra[i][2].setChecked(int(fit.tra_off_norm_pr[i][2]))
             self.jitter_nr_priors_gui_tra[i][2].setChecked(int(fit.tra_jitt_norm_pr[i][2]))
             self.tra_lin_trend_nr_priors_gui[i][2].setChecked(int(fit.tra_lintr_norm_pr[i][2]))
+            self.tra_dilution_nr_priors_gui[i][2].setChecked(int(fit.tra_dil_norm_pr[i][2]))
             self.tra_quad_trend_nr_priors_gui[i][2].setChecked(int(fit.tra_quadtr_norm_pr[i][2]))
 
 
@@ -1707,12 +1717,14 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                  self.offset_jeff_priors_gui_tra[i][z].setValue(fit.tra_off_jeff_pr[i][z])
                  self.jitter_jeff_priors_gui_tra[i][z].setValue(fit.tra_jitt_jeff_pr[i][z])
                  self.tra_lin_trend_jeff_priors_gui[i][z].setValue(fit.tra_lintr_jeff_pr[i][z])
+                 self.tra_dilution_jeff_priors_gui[i][z].setValue(fit.tra_dil_jeff_pr[i][z])
                  self.tra_quad_trend_jeff_priors_gui[i][z].setValue(fit.tra_quadtr_jeff_pr[i][z])                 
                  
  
             self.offset_jeff_priors_gui_tra[i][2].setChecked(int(fit.tra_off_jeff_pr[i][2]))
             self.jitter_jeff_priors_gui_tra[i][2].setChecked(int(fit.tra_jitt_jeff_pr[i][2]))
             self.tra_lin_trend_jeff_priors_gui[i][2].setChecked(int(fit.tra_lintr_jeff_pr[i][2]))
+            self.tra_dilution_jeff_priors_gui[i][2].setChecked(int(fit.tra_dil_jeff_pr[i][2]))
             self.tra_quad_trend_jeff_priors_gui[i][2].setChecked(int(fit.tra_quadtr_jeff_pr[i][2]))
 
             
@@ -1780,8 +1792,23 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 self.tra_GP_double_sho_jeff_priors_gui[i][z].setValue(fit.tra_GP_double_sho_jeff_pr[i][z])
             self.tra_GP_double_sho_jeff_priors_gui[i][2].setChecked(int(fit.tra_GP_double_sho_jeff_pr[i][2]))
 
+    def check_dilution(self):
+        """Read dilution controls independently of the old Apply workflow."""
+        global fit
+        for i, (value, use) in enumerate(self.tra_dilution):
+            fit.tra_dil[i] = value.value()
+            fit.tra_dil_use[i] = use.isChecked()
+            fit.tra_dil_bounds[i] = np.array([w.value() for w in self.tra_dilution_bounds_gui[i]])
+            for attribute, groups in (('tra_dil_norm_pr', self.tra_dilution_nr_priors_gui),
+                                      ('tra_dil_jeff_pr', self.tra_dilution_jeff_priors_gui)):
+                a, b, enabled = groups[i]
+                getattr(fit, attribute)[i] = np.array([a.value(), b.value(), enabled.isChecked()])
+            if len(fit.tra_data_sets[i]):
+                fit.tra_data_sets[i][8] = fit.tra_dil[i]
+
     def check_bounds(self):
         global fit
+        self.check_dilution()
 
         for i in range(9):
             for z in range(2):
@@ -1820,6 +1847,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 fit.tra_off_bounds[i][z]    = self.offset_bounds_gui_tra[i][z].value()
                 fit.tra_jitt_bounds[i][z]   = self.jitter_bounds_gui_tra[i][z].value()
 
+                fit.tra_dil_bounds[i][z] = self.tra_dilution_bounds_gui[i][z].value()
                 fit.tra_lintr_bounds[i][z]  = self.tra_lintr_bounds_gui[i][z].value()
                 fit.tra_quadtr_bounds[i][z] = self.tra_quadtr_bounds_gui[i][z].value()
  
@@ -2196,6 +2224,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 fit.tra_off_norm_pr[i][z]    = self.offset_nr_priors_gui_tra[i][z].value()
                 fit.tra_jitt_norm_pr[i][z]   = self.jitter_nr_priors_gui_tra[i][z].value()
                 fit.tra_lintr_norm_pr[i][z]  = self.tra_lin_trend_nr_priors_gui[i][z].value()
+                fit.tra_dil_norm_pr[i][z]  = self.tra_dilution_nr_priors_gui[i][z].value()
                 fit.tra_quadtr_norm_pr[i][z] = self.tra_quad_trend_nr_priors_gui[i][z].value()
                 
 
@@ -2203,6 +2232,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.tra_off_norm_pr[i][2]  = self.offset_nr_priors_gui_tra[i][2].isChecked()
             fit.tra_jitt_norm_pr[i][2] = self.jitter_nr_priors_gui_tra[i][2].isChecked()
             fit.tra_lintr_norm_pr[i][2]  = self.tra_lin_trend_nr_priors_gui[i][2].isChecked()
+            fit.tra_dil_norm_pr[i][2]  = self.tra_dilution_nr_priors_gui[i][2].isChecked()
             fit.tra_quadtr_norm_pr[i][2] = self.tra_quad_trend_nr_priors_gui[i][2].isChecked()
             
             
@@ -2332,11 +2362,13 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 fit.tra_off_jeff_pr[i][z]    = self.offset_jeff_priors_gui_tra[i][z].value()
                 fit.tra_jitt_jeff_pr[i][z]   = self.jitter_jeff_priors_gui_tra[i][z].value() 
                 fit.tra_lintr_jeff_pr[i][z]  = self.tra_lin_trend_jeff_priors_gui[i][z].value()
+                fit.tra_dil_jeff_pr[i][z]  = self.tra_dilution_jeff_priors_gui[i][z].value()
                 fit.tra_quadtr_jeff_pr[i][z] = self.tra_quad_trend_jeff_priors_gui[i][z].value()                
                 
             fit.tra_off_jeff_pr[i][2]    = self.offset_jeff_priors_gui_tra[i][2].isChecked()
             fit.tra_jitt_jeff_pr[i][2]   = self.jitter_jeff_priors_gui_tra[i][2].isChecked()
             fit.tra_lintr_jeff_pr[i][2]  = self.tra_lin_trend_jeff_priors_gui[i][2].isChecked()
+            fit.tra_dil_jeff_pr[i][2]  = self.tra_dilution_jeff_priors_gui[i][2].isChecked()
             fit.tra_quadtr_jeff_pr[i][2] = self.tra_quad_trend_jeff_priors_gui[i][2].isChecked()            
             
         self.check_RV_GP_priors_jeff()
@@ -2561,26 +2593,6 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.buttonGroup_apply_tra_data_options.setId(self.Button_apply_tra_options_20,20)
 
 
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_1,1)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_2,2)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_3,3)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_4,4)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_5,5)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_6,6)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_7,7)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_8,8)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_9,9)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_10,10)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_11,11)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_12,12)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_13,13)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_14,14)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_15,15)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_16,16)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_17,17)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_18,18)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_19,19)
-        self.buttonGroup_apply_tra_dilution.setId(self.Button_apply_dilution_20,20)
 
 
 
@@ -3264,6 +3276,17 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             ('pcor', 'Sample correlation', None),
         ]
         sources = {}
+        if qso_mode:
+            labels = {
+                'p00': 'Data time series', 'p01': 'Data residuals',
+                'p7': 'Data GLS periodogram', 'p8': 'Data residual GLS periodogram',
+                'p_mlp': 'Data likelihood periodogram (MLP)',
+                'p5': 'Test data time series', 'p6': 'Test data correlations',
+                'p11': 'Test data periodogram', 'p12': 'Window function',
+                'pcor': 'Sample correlation',
+            }
+            definitions = [(key, labels[key], fallback) for key, _, fallback in definitions
+                           if key in labels]
         for key, label, fallback in definitions:
             getter = lambda key=key: globals().get(key)
             bottom = (lambda key=fallback: globals().get(key)) if fallback else None
@@ -6611,7 +6634,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             hold=self.hold_old_plot_a,
             auto_range=self.orb_evol_auto_range_a,
         )
-        options = NbodyPlotOptionsController(self.nbody_options_a, controls)
+        options = NbodyPlotOptionsController(self.nbody_a_options_layout.parentWidget(), controls)
         options.configure('a', p13, lambda: fit, self.plot_evol_a, self.plot_font_style)
         self.connect_nbody_plot_controls(options)
         self.nbody_options['a'] = options
@@ -6632,7 +6655,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             hold=self.hold_old_plot_e,
             auto_range=self.orb_evol_auto_range_e,
         )
-        options = NbodyPlotOptionsController(self.nbody_options_e, controls)
+        options = NbodyPlotOptionsController(self.nbody_e_options_layout.parentWidget(), controls)
         options.configure('e', p14, lambda: fit, self.plot_evol_e, self.plot_font_style)
         self.connect_nbody_plot_controls(options)
         self.nbody_options['e'] = options
@@ -6653,7 +6676,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             hold=self.hold_old_plot_om,
             auto_range=self.orb_evol_auto_range_p,
         )
-        options = NbodyPlotOptionsController(self.nbody_options_omega, controls)
+        options = NbodyPlotOptionsController(self.nbody_omega_options_layout.parentWidget(), controls)
         options.configure('omega', p15, lambda: fit, self.plot_evol_p, self.plot_font_style)
         self.connect_nbody_plot_controls(options)
         self.nbody_options['omega'] = options
@@ -6674,7 +6697,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             hold=self.nbody_inclination_hold,
             auto_range=self.nbody_inclination_auto_range,
         )
-        options = NbodyPlotOptionsController(self.nbody_options_inclination, controls)
+        options = NbodyPlotOptionsController(self.nbody_inclination_options_layout.parentWidget(), controls)
         options.configure('inclination', p19, lambda: fit, self.plot_i_Om, self.plot_font_style)
         self.connect_nbody_plot_controls(options)
         self.nbody_options['inclination'] = options
@@ -6695,7 +6718,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             hold=self.nbody_energy_hold,
             auto_range=self.nbody_energy_auto_range,
         )
-        options = NbodyPlotOptionsController(self.nbody_options_energy, controls)
+        options = NbodyPlotOptionsController(self.nbody_energy_options_layout.parentWidget(), controls)
         options.configure('energy', p20, lambda: fit, self.plot_energy, self.plot_font_style)
         self.connect_nbody_plot_controls(options)
         self.nbody_options['energy'] = options
@@ -6716,7 +6739,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             hold=self.hold_old_plot_per_evol,
             auto_range=self.orb_evol_auto_range_per_evol,
         )
-        options = NbodyPlotOptionsController(self.nbody_options_period_ratio, controls)
+        options = NbodyPlotOptionsController(self.nbody_period_ratio_options_layout.parentWidget(), controls)
         options.configure('period_ratio', p_per_ev, lambda: fit, self.plot_per_rat, self.plot_font_style)
         self.connect_nbody_plot_controls(options)
         self.nbody_options['period_ratio'] = options
@@ -6737,7 +6760,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             hold=self.hold_old_plot_domega_evol,
             auto_range=self.orb_evol_auto_range_domega_evol,
         )
-        options = NbodyPlotOptionsController(self.nbody_options_delta_omega, controls)
+        options = NbodyPlotOptionsController(self.nbody_delta_omega_options_layout.parentWidget(), controls)
         options.configure('delta_omega', p17, lambda: fit, self.plot_delta_omega, self.plot_font_style)
         self.connect_nbody_plot_controls(options)
         self.nbody_options['delta_omega'] = options
@@ -6758,7 +6781,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             hold=self.hold_old_plot_theta_evol,
             auto_range=self.orb_evol_auto_range_theta_evol,
         )
-        options = NbodyPlotOptionsController(self.nbody_options_resonant_angles, controls)
+        options = NbodyPlotOptionsController(self.nbody_resonant_angles_options_layout.parentWidget(), controls)
         options.configure('resonant_angles', p18, lambda: fit, self.plot_theta, self.plot_font_style)
         self.connect_nbody_plot_controls(options)
         self.nbody_options['resonant_angles'] = options
@@ -8103,22 +8126,6 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
      
-    def apply_tra_dilution(self):
-        global fit
-        but_ind = self.buttonGroup_apply_tra_dilution.checkedId()
-
-
-        if self.tra_dilution[but_ind-1][1].isChecked() == True  and len(fit.tra_data_sets[but_ind-1]) != 0:
-            fit.tra_dil[but_ind-1] = self.tra_dilution[but_ind-1][0].value()
-            fit.tra_data_sets[but_ind-1][8] = fit.tra_dil[but_ind-1]
-            
-            
-        elif self.tra_dilution[but_ind-1][1].isChecked() == False  and len(fit.tra_data_sets[but_ind-1]) != 0:
-            fit.tra_dil[but_ind-1] = 1.0
-            fit.tra_data_sets[but_ind-1][8] = fit.tra_dil[but_ind-1]
-     
-        self.update_veiw()
-
     def apply_tra_data_options(self):
         global fit
         but_ind = self.buttonGroup_apply_tra_data_options.checkedId()
@@ -8268,7 +8275,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
     def edit_dataset_names(self):
         global fit
-        dialog = DatasetNamesDialog(fit, self)
+        dialog = DatasetNamesDialog(fit, self, qso_mode=qso_mode)
         if dialog.exec() != QtWidgets.QDialog.DialogCode.Accepted or not dialog.changed_datasets:
             return
         self.refresh_dataset_names(dialog.changed_datasets)
@@ -10264,11 +10271,11 @@ Transit duration: %s d
        # self.dialog_more_info.text.setText(text_info)     
          
         rows, parameter_count, notes = collect_fit_statistics(fit, rv)
-        text_info = statistics_html(rows, parameter_count, notes)
+        text_info = statistics_html(rows, parameter_count, notes, qso_mode=qso_mode)
 
         self.dialog_more_info.text.append(text_info)
 
-        dataset_tables = dataset_statistics_html(fit)
+        dataset_tables = dataset_statistics_html(fit, qso_mode=qso_mode)
         if dataset_tables:
             self.dialog_more_info.text.append(dataset_tables)
 
@@ -10912,6 +10919,7 @@ will be highly appreciated!
 
 
         if str(output_file[0]) != '':
+            self.check_dilution()
             file_pi = open(output_file[0], 'wb')
             dill.dump(fit, file_pi) #,protocol=2
             file_pi.close()
@@ -10971,6 +10979,7 @@ will be highly appreciated!
         output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save multi-session', 'my_sessions.mses', 'Data (*.mses)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
 
         if str(output_file[0]) != '':
+            self.check_dilution()
             file_pi = open(output_file[0], 'wb')
             dill.dump(ses_list, file_pi)
             file_pi.close()
@@ -14220,6 +14229,15 @@ Please install via 'pip install ttvfast'.
 #        self.tra_sigma_clip  = gui_groups.tra_sigma_clip(self)
         self.tra_norm        = gui_groups.tra_norm(self)
         self.tra_dilution    = gui_groups.tra_dilution(self)
+        self.tra_dilution_errors_gui = gui_groups.tra_dilution_errors_gui(self)
+        self.tra_dilution_bounds_gui = gui_groups.tra_dilution_bounds_gui(self)
+        self.tra_dilution_nr_priors_gui = gui_groups.tra_dilution_nr_priors_gui(self)
+        self.tra_dilution_jeff_priors_gui = gui_groups.tra_dilution_jeff_priors_gui(self)
+        for i in range(1, 21):
+            checkbox = getattr(self, f'use_tra_dilution_bound_{i}')
+            checkbox.setChecked(True)
+            checkbox.setEnabled(False)
+
 
         self.rvs_opt         = gui_groups.rvs_opt(self)
 
@@ -14312,9 +14330,10 @@ Please install via 'pip install ttvfast'.
         self.initialize_plots()
         self.initialize_plot_axis_controls()
         self.initialize_nbody_plot_options()
-        self.initialize_rv_phase_options()
-        from transit_phase_view import TransitPhaseView
-        self.transit_phase_view = TransitPhaseView(self, lambda: fit)
+        if not qso_mode:
+            self.initialize_rv_phase_options()
+            from transit_phase_view import TransitPhaseView
+            self.transit_phase_view = TransitPhaseView(self, lambda: fit)
         self.update_orb_plot()
         self.initialize_extra_plot_mirror()
  
@@ -14484,7 +14503,6 @@ Please install via 'pip install ttvfast'.
         self.buttonGroup_apply_act_data_options.buttonClicked.connect(self.apply_act_data_options)
         self.buttonGroup_apply_rvs_data_options.buttonClicked.connect(self.apply_rvs_data_options)
         self.buttonGroup_apply_tra_data_options.buttonClicked.connect(self.apply_tra_data_options)
-        self.buttonGroup_apply_tra_dilution.buttonClicked.connect(self.apply_tra_dilution)
 
 
         self.buttonGroup_add_RV_data.buttonClicked.connect(self.showDialog_RV_input_file)
@@ -15291,7 +15309,7 @@ def main():
 
     os.chdir(Path.home())
 
-    app = QtWidgets.QApplication(sys.argv)
+    app = _application
     
 #    print(app)
     app.setStyle('Fusion') #The available styles depend on your platform but are usually 'Fusion', 'Windows', 'WindowsVista' (Windows only) and 'Macintosh' (Mac only). 
@@ -15312,6 +15330,9 @@ def main():
 #    window.installEventFilter(window)
 
     window.show()
+
+    window._update_check = UpdateCheck(window, __version__)
+    QtCore.QTimer.singleShot(0, window._update_check.start)
 
     sys.exit(app.exec_())
 #    sys.exit(app.exec())

@@ -3051,3 +3051,24 @@ def use_ast_data_to_planet_3(self):
     return use_ast_data_to_planet_3
         
     
+
+
+def tra_dilution_errors_gui(self):
+    return [getattr(self, f'err_tra_dilution_{i}') for i in range(1, 21)]
+
+
+def tra_dilution_bounds_gui(self):
+    return [[getattr(self, f'tra_dilution_bound_min_{i}'),
+             getattr(self, f'tra_dilution_bound_max_{i}')] for i in range(1, 21)]
+
+
+def tra_dilution_nr_priors_gui(self):
+    return [[getattr(self, f'tra_dilution_mean_{i}'),
+             getattr(self, f'tra_dilution_sigma_{i}'),
+             getattr(self, f'use_tra_dilution_mean_nr_{i}')] for i in range(1, 21)]
+
+
+def tra_dilution_jeff_priors_gui(self):
+    return [[getattr(self, f'tra_dilution_alpha_{i}'),
+             getattr(self, f'tra_dilution_beta_{i}'),
+             getattr(self, f'use_tra_dilution_jeff_{i}')] for i in range(1, 21)]

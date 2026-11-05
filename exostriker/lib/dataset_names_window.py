@@ -24,13 +24,14 @@ def imported_dataset_names(session):
 
 
 class DatasetNamesDialog(QtWidgets.QDialog):
-    def __init__(self, session, parent=None):
+    def __init__(self, session, parent=None, qso_mode=False):
         super().__init__(parent)
         self.session = session
         self.setWindowTitle('Edit file names')
         self.resize(700, 620)
         layout = QtWidgets.QVBoxLayout(self)
-        description = QtWidgets.QLabel('Change the dataset names shown in Exo-Striker.', self)
+        application = 'QSO-Striker' if qso_mode else 'Exo-Striker'
+        description = QtWidgets.QLabel(f'Change the dataset names shown in {application}.', self)
         description.setWordWrap(True)
         layout.addWidget(description)
         scroll = QtWidgets.QScrollArea(self)
@@ -38,14 +39,16 @@ class DatasetNamesDialog(QtWidgets.QDialog):
         contents = QtWidgets.QWidget(scroll)
         sections_layout = QtWidgets.QVBoxLayout(contents)
         self.sections = {}
-        for title in ('RV', 'Transits', 'TTV', 'Astrometry'):
-            group = QtWidgets.QGroupBox(title, contents)
+        for title in (('RV',) if qso_mode else ('RV', 'Transits', 'TTV', 'Astrometry')):
+            group = QtWidgets.QGroupBox('Data' if qso_mode else title, contents)
             self.sections[title] = QtWidgets.QFormLayout(group)
             sections_layout.addWidget(group)
         self.editors = {}
         self.records = {}
         self.changed_datasets = set()
         for section, attribute, slot, name_index, prefix, _, record in imported_dataset_names(session):
+            if section not in self.sections:
+                continue
             key = (attribute, slot)
             field = QtWidgets.QLineEdit(str(record[name_index]), contents)
             label = f'{prefix} #{slot + 1}' if prefix else f'#{slot + 1}'

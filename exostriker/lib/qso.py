@@ -1,50 +1,75 @@
 #!/usr/bin/python
 import gui_groups
 
- 
-def qso_mode(self):
- 
 
+def _keep_tabs(tabs, pages):
+    """Select QSO pages by identity without shifting shared GUI tab indices."""
+    allowed = {page for page, _ in pages}
+    for index in range(tabs.count()):
+        tabs.setTabVisible(index, tabs.widget(index) in allowed)
+    for page, label in pages:
+        tabs.setTabText(tabs.indexOf(page), label)
+    if tabs.currentWidget() not in allowed:
+        tabs.setCurrentWidget(pages[0][0])
+
+
+def _configure_tabs(self):
+    # Keep the original widgets and their indices: other GUI handlers navigate
+    # these same pages, and new Exo-Striker tabs must not be relabeled as QSO GP.
+    _keep_tabs(self.param_tabs, [
+        (self.tab_RV_pl_param, 'Sine param.'), (self.tab_GP_param, 'GP param.'),
+        (self.Limits_and_priors, 'Limits and Priors'),
+        (self.More_param_tabs, 'Model opt.'), (self.plot_options_tabs, 'Plot opt.')])
+    _keep_tabs(self.plot_tabs, [
+        (self.tab_timeseries_RV, 'Data'), (self.tab_timeseries_act, 'Test data'),
+        (self.Parameter_correlations, 'Sample corr.')])
+    _keep_tabs(self.tab_ts_RV, [
+        (self.RV_time_series_tab, 'Data and model'),
+        (self.RV_timeseries_periodogram, 'GLS'), (self.tab_172, 'GLS o-c'),
+        (self.tab_157, 'MLP'), (self.Window_func_periodograms, 'Window (DFT)')])
+    _keep_tabs(self.tabWidget_data_section, [
+        (self.tab_143, 'Data'), (self.tab_24, 'Test data'),
+        (self.tab_52, 'Limits and Priors')])
+    _keep_tabs(self.tabWidget_14, [(self.tab_60, 'GP')])
+    _keep_tabs(self.tabWidget_34, [
+        (self.tab_123, 'Model'), (self.tab_145, 'SciPyOp opt.')])
+    _keep_tabs(self.model_param_tab, [
+        (self.tab_122, 'Models'), (self.tab_44, 'GLS/MLP opt.'),
+        (self.mcmc_param_tab, 'MCMC opt.'), (self.tab_121, 'Nest. Samp. opt.'),
+        (self.tab_33, 'Auto fit opt.')])
+    _keep_tabs(self.tabWidget, [
+        (self.tab_6, 'Sine signal 1'), (self.tab_15, 'Sine signal 2'),
+        (self.tab, 'Sine signal 3'), (self.tab_20, 'GP')])
+    _keep_tabs(self.tabWidget_8, [(self.tab_2, 'Sine signals 1-3')])
+    _keep_tabs(self.plot_opt_tab, [
+        (self.tab_plot_axes, 'Axes'), (self.tab_11, 'Data / GP'),
+        (self.tab_21, 'Test data'), (self.tab_25, 'GLS/MLP'),
+        (self.tab_3, 'Data Insp.'), (self.cornerplot_plot_tab, 'Cornerplot')])
+    _keep_tabs(self.tabWidget_10, [
+        (self.tab_53, 'Offsets and Jitters'), (self.tab_80, 'Trends')])
+    _keep_tabs(self.tabWidget_4, [
+        (self.tab_144, 'Offsets and jitters'), (self.tab_156, 'Trends'),
+        (self.tab_189, 'Data options')])
+    _keep_tabs(self.tabWidget_7, [
+        (self.tab_185, 'Phase plots'), (self.tab_186, 'Mirrored plots')])
+
+
+def qso_mode(self):
     self.setWindowTitle("The QSO-Striker: Modeling the variability of quasar light-curves.")
 
-    self.param_tabs.removeTab(5)
-    self.param_tabs.removeTab(3)
-    self.param_tabs.removeTab(2)
-    self.param_tabs.setTabText(0,"Sine param.")
-
-    self.plot_tabs.removeTab(6)
-
-
-    self.tab_ts_RV.removeTab(1)
-
-    self.plot_tabs.removeTab(3)
-    self.plot_tabs.removeTab(2)
-    self.plot_tabs.removeTab(1)
-
-    self.tabWidget_data_section.removeTab(3)
-    self.tabWidget_data_section.removeTab(2)
-    self.tabWidget_data_section.removeTab(1)
-    self.tabWidget_data_section.setTabText(1,"Test data")
-
-
-    self.tabWidget_14.removeTab(1)
-    self.tabWidget_14.setTabText(0,"GP")
-
-    self.tabWidget_34.removeTab(1)
-    self.tabWidget_34.setTabText(0,"Model")
-    self.model_param_tab.setTabText(0,"Fortran param.")
-    self.model_param_tab.removeTab(1)
-
-    self.tabWidget_10.setTabText(0,"Offsets and Jitters")
-    self.tabWidget_10.setTabText(1,"Ternds")
+    _configure_tabs(self)
 
     self.Planet3_11.setText("Offset min.")
     self.Planet3_13.setText("Offset max.")
     self.label_36.setText("Jitter min.")
-    self.label_36.setText("Jitter max.")
+    self.label_37.setText("Jitter max.")
 
 
     self.data_insp_load_data.setText("Load to Data")
+    for name, title in (('RvsWindow', 'Data options'), ('ActivityWindow', 'Test data options')):
+        window = getattr(self, name, None)
+        if window is not None:
+            window.setWindowTitle(title)
 
 
     self.use_mix_fitting.setVisible(False)
@@ -79,6 +104,10 @@ def qso_mode(self):
 
     self.actionopen_RVmod_init_file.setVisible(False)
     self.actionOpen_RVbank_file.setVisible(False)
+    self.actionOpen_MAROONX_file.setVisible(False)
+    self.actionGet_Transit_model.setVisible(False)
+    self.actionGet_Transit_data.setVisible(False)
+    self.actionGet_Orb_evol.setVisible(False)
 
     self.actionRV_Auto_fit.setText("Auto fit")
 
@@ -99,20 +128,6 @@ def qso_mode(self):
     self.radioButton_Dynamical.setHidden(True)
 
 
-    self.tabWidget.removeTab(10)
-    self.tabWidget.removeTab(8)
-    self.tabWidget.removeTab(7)
-    self.tabWidget.removeTab(6)
-    self.tabWidget.removeTab(5)
-    self.tabWidget.removeTab(4)
-    self.tabWidget.removeTab(3)
-    #self.tabWidget.removeTab(2)
-    #self.tabWidget.removeTab(1)
-
-    self.tabWidget.setTabText(3,"GP")
-    self.tabWidget.setTabText(2,"Sine signal 3")
-    self.tabWidget.setTabText(1,"Sine signal 2")
-    self.tabWidget.setTabText(0,"Sine signal 1")
 
     ############  Bounds ###################
 
@@ -685,19 +700,6 @@ def qso_mode(self):
 
 
 
-    self.tabWidget_8.removeTab(2)
-    self.tabWidget_8.removeTab(1)
-
-    self.plot_opt_tab.removeTab(9)
-    self.plot_opt_tab.removeTab(5)
-    self.plot_opt_tab.removeTab(4)
-    self.plot_opt_tab.removeTab(3)
-    self.plot_opt_tab.removeTab(2)
-
-
-    self.plot_opt_tab.setTabText(0,"Data")
-    self.plot_opt_tab.setTabText(1,"GP")
-    self.plot_opt_tab.setTabText(2,"Test data")
 
     self.label_109.setText("Test data symbol size global") 
 
@@ -711,9 +713,6 @@ def qso_mode(self):
 
 
 
-    self.tabWidget_10.removeTab(4)
-    self.tabWidget_10.removeTab(3)
-    self.tabWidget_10.removeTab(2)
 
 
     ####### planet tabs ############
@@ -800,16 +799,9 @@ def qso_mode(self):
     self.label_Rp.setVisible(False)
     self.label_ap.setVisible(False)
 
-    self.tabWidget_8.setTabText(0,"Sine signals 1-3")
-    self.plot_tabs.setTabText(0,"Data")
-    self.plot_tabs.setTabText(1,"Test data")
-    self.tab_ts_RV.setTabText(0,"Data and model")
-    self.tab_ts_RV.removeTab(1)
 
 
 
-    self.tabWidget_data_section.setTabText(0,"Data")
-    self.tabWidget_4.setTabText(1,"Trends")
 
     self.label_19.setText("[mag./day]") 
     self.label_353.setText("[mag./day]") 
@@ -889,7 +881,6 @@ def qso_mode(self):
 
     self.dataInspector_HARPS_RVBank.setVisible(False)
 
-    self.tabWidget_7.setTabText(0,"Phase plots")
 
     self.label_370.setVisible(False)
     self.AMD_led.setVisible(False)

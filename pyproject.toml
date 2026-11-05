@@ -1,6 +1,6 @@
-#[build-system]
-#requires = ["setuptools<=66.0"]
-#build-backend = "setuptools.build_meta"
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "exostriker"
@@ -12,14 +12,27 @@ authors = [
 ]
 description="This is the 'Transit and Radial velocity Interactive Fitting tool for Orbital analysis and N-body simulations: The Exo-Striker'"
 readme = "README.md" 
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers=[
  "Programming Language :: Python :: 3",
+ "Programming Language :: Python :: 3 :: Only",
+ "Programming Language :: Python :: 3.10",
+ "Programming Language :: Python :: 3.11",
+ "Programming Language :: Python :: 3.12",
+ "Programming Language :: Python :: 3.13",
+ "Programming Language :: Python :: 3.14",
+ "Programming Language :: Python :: 3.15",
  "License :: OSI Approved :: MIT License",
  "Operating System :: OS Independent",
 ]
 license = {file = "LICENSE"}
 dependencies = [
+    "packaging >= 20",
+    "pandas >= 1.5",
+    "numba >= 0.59",
+    "dill >= 0.3.8",
+    # batman-package imports distutils at runtime (removed from Python 3.12).
+    "setuptools >= 68 ; python_version >= '3.12'",
     "numpy >= 1.26",
     "scipy >= 1.2.1",
     "matplotlib >= 3.3.1",
@@ -32,6 +45,7 @@ dependencies = [
     "qtconsole",
     "rebound",
     "pathos >= 0.2.5",
+    "psutil >= 5.9",
     "tqdm",
 #    "emcee >= 3.0.2",
     "celerite >= 0.3.1",
